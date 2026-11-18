@@ -238,7 +238,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile.Velocity = projectile.Velocity.WithY(-SignedEightEight.FromParts(upwardPixels, 0));
 
             RoomEnemyPlace source = projectile.StateOf<KagoBugState>().Source;
-            int sourceDelta = CoordinateAxis.Difference(source.Position.X.Whole, projectile.Position.X.Whole);
+            int sourceDelta = source.Position.X.Whole - projectile.Position.X.Whole;
             bool jumpLeft;
             if (Math.Abs(sourceDelta) >= KagoDefinitions.BugHomingDistance)
             {
@@ -326,7 +326,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void EnableKagoBugShotCollisionWhenSeparated(EnemyProjectile projectile)
     {
         RoomEnemyPlace source = projectile.StateOf<KagoBugState>().Source;
-        int distance = CoordinateAxis.Distance(source.Position.X.Whole, projectile.Position.X.Whole);
+        int distance = Math.Abs(source.Position.X.Whole - projectile.Position.X.Whole);
         if (distance >= KagoDefinitions.BugBlocksShotsDistance)
             projectile.BlocksSamusProjectiles = true;
     }

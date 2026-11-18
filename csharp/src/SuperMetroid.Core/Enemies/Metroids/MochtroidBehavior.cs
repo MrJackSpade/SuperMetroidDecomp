@@ -81,7 +81,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // Each axis's speed moves toward Samus by a 256th of a pixel an update for every four
         // pixels between them: a proportional attraction toward Samus, not a fixed-speed seek,
         // and the speed's fraction shows before either whole part reaches three pixels.
-        int yDifference = CoordinateAxis.Difference(place.Position.Y.Whole, samus.Position.Y.Whole);
+        int yDifference = place.Position.Y.Whole - samus.Position.Y.Whole;
         SignedSixteenSixteen yVelocity = ClampMochtroidVelocity(state.Velocity.Y - EnemyMath.HomingPull(yDifference));
         StoreMochtroidYVelocity(state, yVelocity);
         if (_terrain.MoveEnemyVertically(level, place, yVelocity))
@@ -89,7 +89,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Y is intentionally resolved first. Horizontal collision therefore sees the
         // vertically adjusted position, matching the game's vertical then horizontal collision.
-        int xDifference = CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole);
+        int xDifference = place.Position.X.Whole - samus.Position.X.Whole;
         SignedSixteenSixteen xVelocity = ClampMochtroidVelocity(state.Velocity.X - EnemyMath.HomingPull(xDifference));
         StoreMochtroidXVelocity(state, xVelocity);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, xVelocity))
@@ -113,7 +113,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // axis toward Samus, with X collision resolved before Y and ignored return values.
         SignedSixteenSixteen xVelocity = place.Position.X.Whole == samus.Position.X.Whole
             ? SignedSixteenSixteen.Zero
-            : CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole) > 0
+            : place.Position.X.Whole > samus.Position.X.Whole
                 ? -MochtroidBehaviorDefinitions.AttachedSpeed
                 : MochtroidBehaviorDefinitions.AttachedSpeed;
         StoreMochtroidXVelocity(state, xVelocity);
@@ -121,7 +121,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         SignedSixteenSixteen yVelocity = place.Position.Y.Whole == samus.Position.Y.Whole
             ? SignedSixteenSixteen.Zero
-            : CoordinateAxis.Difference(place.Position.Y.Whole, samus.Position.Y.Whole) > 0
+            : place.Position.Y.Whole > samus.Position.Y.Whole
                 ? -MochtroidBehaviorDefinitions.AttachedSpeed
                 : MochtroidBehaviorDefinitions.AttachedSpeed;
         StoreMochtroidYVelocity(state, yVelocity);

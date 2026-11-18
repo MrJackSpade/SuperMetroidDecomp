@@ -130,7 +130,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (direction != HorizontalDirection.Right)
         {
-            if (!CoordinateAxis.Precedes(place.Position.X.Whole, state.MinimumX))
+            if (place.Position.X.Whole >= state.MinimumX)
                 return;
 
             // Unlike the right bound, the left bound does not turn Owtch at once: it spends the next update turning.
@@ -138,7 +138,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (!CoordinateAxis.Precedes(place.Position.X.Whole, state.MaximumX))
+        if (place.Position.X.Whole >= state.MaximumX)
             state.Behavior = OwtchBehaviorState.MovingLeft;
     }
 

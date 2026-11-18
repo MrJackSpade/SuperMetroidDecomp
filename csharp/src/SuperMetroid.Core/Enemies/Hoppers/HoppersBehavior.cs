@@ -133,7 +133,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         HopperEnemyState state,
         SamusState samus)
     {
-        state.Heading = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0
+        state.Heading = samus.Position.X.Whole < place.Position.X.Whole
             ? HorizontalDirection.Left
             : HorizontalDirection.Right;
         state.Action = HopperAction.StartHop;

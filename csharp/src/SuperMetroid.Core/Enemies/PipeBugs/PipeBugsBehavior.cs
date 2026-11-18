@@ -204,12 +204,12 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         BrinstarPipeBugState state,
         SamusState samus)
     {
-        int deltaY = CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole);
+        int deltaY = samus.Position.Y.Whole - place.Position.Y.Whole;
         if (deltaY is >= 0 or < -PipeBugDefinitions.BrinstarTriggerTop)
             return;
 
         state.Flight = (samus.Position.Whole - place.Position.Whole).X < 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
-        if (CoordinateAxis.Distance(place.Position.X.Whole, samus.Position.X.Whole) >=
+        if (Math.Abs(place.Position.X.Whole - samus.Position.X.Whole) >=
             PipeBugDefinitions.BrinstarTriggerWidth)
         {
             return;
@@ -228,7 +228,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         place.Position = place.Position.WithY(PipeBugEmergenceRise.Risen(place.Position.Y));
-        if (CoordinateAxis.Precedes(state.EmergenceTopY, place.Position.Y.Whole) ||
+        if (state.EmergenceTopY < place.Position.Y.Whole ||
             place.Position.Y.Whole >= samus.Position.Y.Whole)
         {
             return;
@@ -294,8 +294,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         int triggerWidth = leader.SpawnSettings<NorfairPipeBugSpawnSettings>().TriggerWidth;
-        if (CoordinateAxis.Distance(leader.Position.X.Whole, samus.Position.X.Whole) >= triggerWidth ||
-            CoordinateAxis.Difference(leader.Position.Y.Whole, samus.Position.Y.Whole) < 0)
+        if (Math.Abs(leader.Position.X.Whole - samus.Position.X.Whole) >= triggerWidth ||
+            leader.Position.Y.Whole < samus.Position.Y.Whole)
         {
             return;
         }
@@ -304,7 +304,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         // Only the leader's animation clock restarts. The formation then changes every member's animation but leaves
         // the followers' frame timers as they are, a killed member's included.
         leader.AnimationClock.Restart();
-        bool samusIsRight = CoordinateAxis.Difference(samus.Position.X.Whole, leader.Position.X.Whole) >= 0;
+        bool samusIsRight = samus.Position.X.Whole >= leader.Position.X.Whole;
         NorfairPipeBugFormation formation = _formations.Of(leader);
         // A member killed since the formation armed has nothing to launch: it respawns waiting, as a new bug.
         foreach (NorfairPipeBugMember member in formation.Members)
@@ -327,13 +327,13 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         place.Presence = place.Presence.Without(EnemyPresence.Hidden);
         AddPipeBugLinearVelocity(place, axis: Axis.Vertical, -PipeBugDefinitions.NorfairRiseSpeed);
-        if (CoordinateAxis.Difference(place.Position.Y.Whole, samus.Position.Y.Whole) >= 0)
+        if (place.Position.Y.Whole >= samus.Position.Y.Whole)
             return;
 
         state.Action = state.Role.PostRiseAction;
         state.RiseEndY = place.Position.Y.Whole;
         state.Playback = StartPipeBugAnimation(place,
-            CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) >= 0
+            samus.Position.X.Whole >= place.Position.X.Whole
                 ? PipeBugSegment.GametRisingRight
                 : PipeBugSegment.GametRisingLeft);
     }
@@ -352,7 +352,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             axis: Axis.Vertical,
             signedOffset < 0 ? -PipeBugDefinitions.NorfairRiseSpeed : PipeBugDefinitions.NorfairRiseSpeed);
         int targetY = state.RiseEndY + signedOffset;
-        int distancePastTarget = CoordinateAxis.Difference(place.Position.Y.Whole, targetY);
+        int distancePastTarget = place.Position.Y.Whole - targetY;
         bool reached = signedOffset < 0
             ? distancePastTarget < 0
             : distancePastTarget >= 0;
@@ -375,7 +375,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.FormationCounter = 0;
         place.AnimationClock.Restart();
         state.Action = NorfairPipeBugAction.Fly;
-        if (CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) >= 0)
+        if (samus.Position.X.Whole >= place.Position.X.Whole)
         {
             state.FlightDirection = HorizontalDirection.Right;
             state.Playback = new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(PipeBugSegment.GametFlyingRight), AnimationPlace.StartOfAnimation);
@@ -433,12 +433,12 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         YellowPipeBugState state,
         SamusState samus)
     {
-        int deltaX = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole);
+        int deltaX = samus.Position.X.Whole - place.Position.X.Whole;
         bool inFront = place.SpawnSettings<YellowPipeBugSpawnSettings>().Facing == HorizontalDirection.Left
             ? deltaX is < 0 and >= -PipeBugDefinitions.YellowTriggerDistance
             : deltaX is >= 0 and < PipeBugDefinitions.YellowTriggerDistance;
         if (!inFront ||
-            CoordinateAxis.Distance(place.Position.Y.Whole, samus.Position.Y.Whole) >= PipeBugDefinitions.YellowTriggerHeight)
+            Math.Abs(place.Position.Y.Whole - samus.Position.Y.Whole) >= PipeBugDefinitions.YellowTriggerHeight)
         {
             return;
         }
@@ -476,8 +476,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         bool passedSamus = direction == HorizontalDirection.Left
-            ? CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole) < PipeBugDefinitions.YellowArcTriggerDistance
-            : CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < PipeBugDefinitions.YellowArcTriggerDistance;
+            ? place.Position.X.Whole - samus.Position.X.Whole < PipeBugDefinitions.YellowArcTriggerDistance
+            : samus.Position.X.Whole - place.Position.X.Whole < PipeBugDefinitions.YellowArcTriggerDistance;
         if (!passedSamus)
             return;
 
@@ -521,8 +521,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         AddPipeBugDisplacement(place, axis: Axis.Vertical,
             state.ArcCounter.Speed.Negative);
         bool returnedToSpawnY = direction == HorizontalDirection.Left
-            ? CoordinateAxis.Difference(place.Position.Y.Whole, state.SpawnPosition.Y) < 0
-            : CoordinateAxis.Difference(state.SpawnPosition.Y, place.Position.Y.Whole) >= 0;
+            ? place.Position.Y.Whole < state.SpawnPosition.Y
+            : state.SpawnPosition.Y >= place.Position.Y.Whole;
         if (!returnedToSpawnY)
             return;
 

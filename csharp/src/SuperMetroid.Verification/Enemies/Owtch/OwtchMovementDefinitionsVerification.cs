@@ -10,7 +10,10 @@ namespace SuperMetroid.Verification.Enemies.Owtch;
 /// <summary>Checks the Owtch travel distances and underground waits the import decodes, and the patrol they give.</summary>
 internal static class OwtchMovementDefinitionsVerification
 {
-    /// <summary>Checks the decoded tables against the cartridge and 144 wrapped initial positions they give.</summary>
+    /// <summary>
+    /// Checks the decoded tables against the cartridge and the patrol limits 144 production initializers give at spawn
+    /// columns from the shipped placements' range.
+    /// </summary>
     internal static void VerifyOwtchMovementDefinitions(CartridgeImportAddressSpace rom)
     {
 
@@ -22,7 +25,8 @@ internal static class OwtchMovementDefinitionsVerification
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Owtch, place.Definition);
 
-        foreach (ushort spawnX in new ushort[] { 0, 0x0100, ushort.MaxValue })
+        // Spawn columns from the shipped placements' range: the left edge's nearest, a middle one and the farthest right.
+        foreach (int spawnX in new[] { 64, 0x0100, 888 })
         {
             for (byte timerIndex = 0; timerIndex < 6; timerIndex++)
             {
@@ -48,7 +52,7 @@ internal static class OwtchMovementDefinitionsVerification
         }
 
         Console.WriteLine(
-            "Owtch movement definitions: fourteen native words and 144 wrapped production initializers pass.");
+            "Owtch movement definitions: fourteen native words and 144 production initializers pass.");
     }
 
     /// <summary>Compares the eight decoded travel distances with their cartridge words; the import rejects a selector past them.</summary>

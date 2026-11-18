@@ -205,11 +205,11 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.VerticalVelocity = state.VerticalVelocity.WithWholePixels(-state.VerticalVelocity.WholePixels);
         }
-        else if (CoordinateAxis.Precedes(body.Position.Y.Whole, state.UpperPatrolY))
+        else if (body.Position.Y.Whole < state.UpperPatrolY)
         {
             state.VerticalVelocity = state.VerticalVelocity.WithWholePixels(KiHunterMotionDefinitions.PatrolSpeed);
         }
-        else if (!CoordinateAxis.Precedes(body.Position.Y.Whole, state.LowerPatrolY))
+        else if (body.Position.Y.Whole >= state.LowerPatrolY)
         {
             state.VerticalVelocity = state.VerticalVelocity.WithWholePixels(-KiHunterMotionDefinitions.PatrolSpeed);
         }
@@ -224,9 +224,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, body);
 
-        int signedXDistance = CoordinateAxis.Difference(samus.Position.X.Whole, body.Position.X.Whole);
+        int signedXDistance = samus.Position.X.Whole - body.Position.X.Whole;
         int absoluteXDistance = Math.Abs(signedXDistance);
-        int samusDepth = CoordinateAxis.Difference(samus.Position.Y.Whole, body.Position.Y.Whole);
+        int samusDepth = samus.Position.Y.Whole - body.Position.Y.Whole;
         if (absoluteXDistance >= KiHunterMotionDefinitions.SwoopTriggerDistance || samusDepth < KiHunterMotionDefinitions.SwoopLeastDepth)
             return;
 
@@ -297,7 +297,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
         TrigonometryAngle swoopAngle = state.SwoopAngle.ToTrigonometryAngle();
         int targetX = state.SwoopTargetX + EnemyMath.CircleCosinePixels(swoopAngle, state.SwoopRadius.X);
-        SignedSixteenSixteen horizontalDisplacement = SignedSixteenSixteen.FromWholePixels(CoordinateAxis.Difference(targetX, body.Position.X.Whole));
+        SignedSixteenSixteen horizontalDisplacement = SignedSixteenSixteen.FromWholePixels(targetX - body.Position.X.Whole);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, body, horizontalDisplacement))
         {
             // Striking a wall, the body flies back the other way (#2338).
@@ -309,7 +309,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, body);
         int targetY = state.SwoopOriginY + EnemyMath.CircleNegativeSinePixels(swoopAngle, state.SwoopRadius.Y);
-        SignedSixteenSixteen verticalDisplacement = SignedSixteenSixteen.FromWholePixels(CoordinateAxis.Difference(targetY, body.Position.Y.Whole));
+        SignedSixteenSixteen verticalDisplacement = SignedSixteenSixteen.FromWholePixels(targetY - body.Position.Y.Whole);
         if (_terrain.MoveEnemyVertically(level, body, verticalDisplacement))
             StartKiHunterSwoopRecovery(state);
     }
@@ -341,7 +341,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 level,
                 body,
                 state.VerticalVelocity) ||
-            CoordinateAxis.Difference(body.Position.Y.Whole, state.SpawnPosition.Y) < 0)
+            body.Position.Y.Whole < state.SpawnPosition.Y)
         {
             state.Action = KiHunterAction.FlyingPatrol;
         }
@@ -374,7 +374,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = KiHunterAction.AnimatingOnGround;
         int random = _room.Random.Read();
         // The hop heads toward Samus, leftward when she is not to the body's right (#2338).
-        state.Heading = CoordinateAxis.Difference(body.Position.X.Whole, samus.Position.X.Whole) >= 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
+        state.Heading = body.Position.X.Whole >= samus.Position.X.Whole ? HorizontalDirection.Left : HorizontalDirection.Right;
         state.HorizontalSpeed = KiHunterMotionDefinitions.GroundJumpHorizontalSpeed;
         state.VerticalVelocity = SignedSixteenSixteen.FromWholePixels(
             KiHunterMotionDefinitions.ShallowerGroundJump.Of(random) - KiHunterMotionDefinitions.GroundJumpUpwardSpeed);
@@ -438,7 +438,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         if (--state.WaitTimer != 0)
             return;
 
-        int distance = CoordinateAxis.Distance(body.Position.X.Whole, samus.Position.X.Whole);
+        int distance = Math.Abs(body.Position.X.Whole - samus.Position.X.Whole);
         state.Action = distance < KiHunterMotionDefinitions.SpitRange
             ? KiHunterAction.SelectAcidSpit
             : KiHunterAction.StartGroundJump;
@@ -450,7 +450,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         KiHunterBodyState state,
         SamusState samus)
     {
-        bool samusRight = CoordinateAxis.Difference(body.Position.X.Whole, samus.Position.X.Whole) < 0;
+        bool samusRight = body.Position.X.Whole < samus.Position.X.Whole;
         StartKiHunterAnimation(
             body,
             state,
@@ -520,7 +520,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyVertically(
                 level,
                 wings,
-                SignedSixteenSixteen.FromWholePixels(CoordinateAxis.Difference(desiredY, wings.Position.Y.Whole))))
+                SignedSixteenSixteen.FromWholePixels(desiredY - wings.Position.Y.Whole)))
         {
             wings.Presence = wings.Presence.With(EnemyPresence.Deleted);
             wings.Position = wings.Position.WithWhole(state.SavedWingPosition);

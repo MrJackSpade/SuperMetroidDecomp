@@ -194,9 +194,9 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             ? balloon.State.GrappleTravelDistance
             : PowampMotionDefinitions.UngrappledRise;
 
-        // Comparing the target with the body by whether their difference is negative means "continue while body is still
-        // below the target". A room collision completes the rise regardless of its Y coordinate.
-        bool reachedTarget = !CoordinateAxis.Precedes(balloon.State.Spawn.Y - travelDistance, body.Position.Y.Whole);
+        // The rise continues while the body is still below the target. A room collision completes the rise regardless
+        // of its Y coordinate.
+        bool reachedTarget = balloon.State.Spawn.Y - travelDistance >= body.Position.Y.Whole;
         if (collided || reachedTarget)
         {
             if (state.Wiggle.IsCentered)
@@ -281,7 +281,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         _terrain.MoveEnemyVertically(level, body, state.YVelocity);
-        if (!CoordinateAxis.Precedes(body.Position.Y.Whole, balloon.State.Spawn.Y))
+        if (body.Position.Y.Whole >= balloon.State.Spawn.Y)
         {
             body.Position = body.Position.WithWholeY(balloon.State.Spawn.Y);
             state.Action = PowampAction.DeflatedResting;

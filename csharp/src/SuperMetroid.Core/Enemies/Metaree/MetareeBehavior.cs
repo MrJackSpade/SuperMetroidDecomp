@@ -85,8 +85,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The Metaree dives once Samus is within its reach either side, whether or not she is below it; its dive
         // speed depends on her distance either way.
-        int horizontalDistance = Math.Abs(
-            CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole));
+        int horizontalDistance = Math.Abs(place.Position.X.Whole - samus.Position.X.Whole);
         if (horizontalDistance >= MetareeMotionDefinitions.ActivationDistance)
             return;
 
@@ -128,11 +127,11 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // Unlike common movement, Metaree applies whole-pixel speeds directly and leaves
-        // both subpositions untouched. Horizontal steering re-evaluates Samus every frame.
-        place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + state.YVelocity);
-        bool metareeIsLeftOfSamus =
-            CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole) < 0;
+        // Unlike common movement, Metaree applies whole-pixel speeds directly and leaves both subpositions untouched.
+        // Even the fastest dive, when Samus lies above it, stays in the room: the probe above ends the dive before a step
+        // would take the Metaree past the room's bottom row. Horizontal steering re-evaluates Samus every frame.
+        place.Position = place.Position.WithWholeY(place.Position.Y.Whole + state.YVelocity);
+        bool metareeIsLeftOfSamus = place.Position.X.Whole < samus.Position.X.Whole;
         place.Position = place.Position.WithWholeX(place.Position.X.Whole +
             (metareeIsLeftOfSamus
                 ? MetareeMotionDefinitions.DiveSteer

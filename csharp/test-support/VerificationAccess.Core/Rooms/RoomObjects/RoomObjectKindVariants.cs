@@ -89,13 +89,12 @@ internal static class RoomObjectKindVariants
         [RoomObjectKind.EyeDoorBottomFacingLeft] = new(EyeDoorBodyPart.Bottom, EyeDoorOrientation.Left),
     };
 
-    /// <summary>The station each station kind places.</summary>
-    internal static IReadOnlyDictionary<RoomObjectKind, StationKind> Stations { get; } = new Dictionary<RoomObjectKind, StationKind>
+    /// <summary>The map, energy or missile station each such kind places; the save station's kind places its own station.</summary>
+    internal static IReadOnlyDictionary<RoomObjectKind, StationKind> AccessStations { get; } = new Dictionary<RoomObjectKind, StationKind>
     {
         [RoomObjectKind.MapStation] = StationKind.Map,
         [RoomObjectKind.EnergyStation] = StationKind.Energy,
         [RoomObjectKind.MissileStation] = StationKind.Missile,
-        [RoomObjectKind.SaveStation] = StationKind.Save,
     };
 
     /// <summary>What each scroll-extension kind writes to extend the trigger beside it.</summary>

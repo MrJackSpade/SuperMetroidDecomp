@@ -124,7 +124,7 @@ internal static class ShotBlockObjectProgramsVerification
                 RoomObjectFrameDraw<ShotBlockObjectDraws.RestorationDraw> { Frame: var restoration } => restoration.Blocks,
                 _ => throw new InvalidOperationException($"shot-block calculated draw {list.Draw} has no block shape."),
             };
-            RoomObjectShotBlockDrawDefinitions.Shape layout = list.Draw switch
+            BlockArrangement layout = list.Draw switch
             {
                 RoomObjectFrameDraw<ShotBlockObjectDraws.BreakupDraw> { Frame: var breakup } => breakup.Layout,
                 RoomObjectFrameDraw<ShotBlockObjectDraws.RestorationDraw> { Frame: var restoration } => restoration.Layout,
@@ -135,7 +135,7 @@ internal static class ShotBlockObjectProgramsVerification
             foreach (RoomObjectDrawLists.Run run in list.Runs.Span)
             {
                 AssertEqual(run.Direction == RoomObjectRunDirection.Vertical,
-                    layout == RoomObjectShotBlockDrawDefinitions.Shape.Vertical, "shot-block arrangement's direction");
+                    layout == BlockArrangement.Vertical, "shot-block arrangement's direction");
                 int blockIndex = 0;
                 AssertRunHeader(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor), run,
                     $"shot-block draw list ${RoomObjectDrawAddressCodec.Of(list.Draw):X4} direction/count");
@@ -346,7 +346,7 @@ internal static class ShotBlockObjectProgramsVerification
     {
         InstalledRoomObjectShotBlockVisuals stock = InstalledRoomObjectShotBlockVisuals.Stock();
         AssertEqual(RoomBlockAppearance.Of(0x053),
-            stock.Image(ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, BlockBreakupStage.Rock)).At(Offset16<RoomBlocks>.Zero),
+            stock.Image(ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Rock)).At(Offset16<RoomBlocks>.Zero),
             "stock visual catalog retains the native first break frame");
 
         const int width = 8;
@@ -383,7 +383,7 @@ internal static class ShotBlockObjectProgramsVerification
             installation.RoomObjectShotBlockVisualDirectory);
         AssertEqual(RoomBlockAppearance.Of(0x053),
             installation.LoadRoomObjectShotBlockVisuals().Image(
-                ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, BlockBreakupStage.Rock)).At(Offset16<RoomBlocks>.Zero),
+                ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Rock)).At(Offset16<RoomBlocks>.Zero),
             "installed stock shot-block frame matches native visual block");
 
         string stockPath = Path.Combine(installation.RoomObjectShotBlockVisualDirectory,

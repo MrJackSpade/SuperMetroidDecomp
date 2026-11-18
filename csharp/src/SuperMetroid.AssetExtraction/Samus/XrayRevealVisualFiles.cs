@@ -23,6 +23,16 @@ namespace SuperMetroid.AssetExtraction.Samus;
 [EncodingOwner("retail X-ray reveal table words")]
 public static class XrayRevealVisualFiles
 {
+    /// <summary>
+    /// The tank kinds in the order the cartridge's X-ray reveal lists their draws, after the block pairs' (#2484): the
+    /// import's knowledge of the cartridge's ordering, which the installed reveals do not keep.
+    /// </summary>
+    internal static IReadOnlyList<InWorldCollectibleKind> TankDrawOrder { get; } =
+    [
+        InWorldCollectibleKind.EnergyTank, InWorldCollectibleKind.MissileTank,
+        InWorldCollectibleKind.SuperMissileTank, InWorldCollectibleKind.PowerBombTank,
+    ];
+
     /// <summary>Family-relative version-nine installed JSON filename for reveal-rule blocks, the four tanks' reveal blocks, and special-room overlay records.</summary>
     public const string VisualFileName = "reveals.json";
     /// <summary>
@@ -124,8 +134,8 @@ public static class XrayRevealVisualFiles
                 throw new InvalidDataException($"The X-ray reveals the item in block pair {pair} other than by the pair's first frame.");
         }
         var tanks = new Dictionary<InWorldCollectibleKind, RoomBlockAppearance>();
-        for (int place = 0; place < RoomObjectCollectibleDrawDefinitions.TankKinds.Length; place++)
-            tanks.Add(RoomObjectCollectibleDrawDefinitions.TankKinds[place], ItemDrawAppearance(bus, CollectibleBlockPairs.InTurn.Count + place));
+        for (int place = 0; place < TankDrawOrder.Count; place++)
+            tanks.Add(TankDrawOrder[place], ItemDrawAppearance(bus, CollectibleBlockPairs.InTurn.Count + place));
         XrayRoomOverlayEntry[] rooms = XrayRoomOverlayDefinitions.All
             .Select(overlay => ReadRoomOverlay(bus, overlay)).ToArray();
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(

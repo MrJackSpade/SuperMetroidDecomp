@@ -730,7 +730,8 @@ internal static class LookupStream2Verification
                 _ => throw new InvalidOperationException($"Undefined {nameof(CameraDistanceMode)} {mode}."),
             };
             ushort nativeOffset = ReadVerificationWord(rom, (right ? 0x90963f : 0x909647) + nativeEntry * 2);
-            AssertEqual(nativeOffset, HorizontalCameraTargets.Offset(mode, right), "Native mode/facing target offset");
+            AssertEqual(nativeOffset, HorizontalCameraTargets.Offset(mode, right ? HorizontalDirection.Right : HorizontalDirection.Left),
+                "Native mode/facing target offset");
             var camera = new ScrollBoundaryCamera(grid);
             camera.SetPosition(new Position16<RoomPixels>(100, 0));
             camera.TrackMovedSamusHorizontally(

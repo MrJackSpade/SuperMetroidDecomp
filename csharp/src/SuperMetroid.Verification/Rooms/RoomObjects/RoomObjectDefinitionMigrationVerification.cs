@@ -81,16 +81,16 @@ internal static class RoomObjectDefinitionMigrationVerification
 
         // A restoration's geometry holds its collision; what it shows is its installed picture (#1557).
         InstalledRoomObjectLinkedRestoreVisuals restorations = InstalledRoomObjectLinkedRestoreVisuals.Stock();
-        var bombHorizontal = new LinkedRestoreObjectFamily.Draw(RoomObjectRestoreShape.Horizontal, LinkedRestoreObjectFamily.BombBlock);
+        var bombHorizontal = new BombBlockRestoreDraw(BlockArrangement.Horizontal);
         AssertEqual(RoomCollisionType.BombableBlock, bombHorizontal.Blocks.CollisionAt(new(0, 0)), "bomb block parent");
         AssertEqual(RoomCollisionType.HorizontalExtension, bombHorizontal.Blocks.CollisionAt(new(1, 0)), "bomb block horizontal child");
-        RoomObjectFrameImage bombPicture = restorations.Image(LinkedRestoreObjectFamily.BombBlockDraws.Of(BombBlockRestoreDraw.Horizontal));
+        RoomObjectFrameImage bombPicture = restorations.Image(LinkedRestoreObjectFamily.BombBlockDraws.Of(new BombBlockRestoreDraw(BlockArrangement.Horizontal)));
         AssertEqual(RoomBlockAppearance.Of(0x058), bombPicture.At(new(0, 0)), "bomb block parent picture");
         AssertEqual(RoomBlockAppearance.Of(0x058), bombPicture.At(new(1, 0)), "bomb block horizontal child picture");
-        var crumbleVertical = new LinkedRestoreObjectFamily.Draw(RoomObjectRestoreShape.Vertical, LinkedRestoreObjectFamily.ContactCrumble);
+        var crumbleVertical = new ContactCrumbleRestoreDraw(BlockArrangement.Vertical);
         AssertEqual(RoomCollisionType.SpecialBlock, crumbleVertical.Blocks.CollisionAt(new(0, 0)), "contact crumble parent");
         AssertEqual(RoomCollisionType.VerticalExtension, crumbleVertical.Blocks.CollisionAt(new(0, 1)), "contact crumble vertical child");
-        RoomObjectFrameImage crumblePicture = restorations.Image(LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(ContactCrumbleRestoreDraw.Vertical));
+        RoomObjectFrameImage crumblePicture = restorations.Image(LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(new ContactCrumbleRestoreDraw(BlockArrangement.Vertical)));
         AssertEqual(RoomBlockAppearance.Of(0x0bc), crumblePicture.At(new(0, 0)), "contact crumble parent picture");
         AssertEqual(RoomBlockAppearance.Of(0x0bc), crumblePicture.At(new(0, 1)), "contact crumble vertical child picture");
 

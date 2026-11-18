@@ -21,11 +21,11 @@ internal static class ScriptedTerrainChangeDefinitions
     /// </summary>
     internal static TerrainChange EnemyBreakableBlockBreak { get; } = new(1,
     [
-        new(ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, BlockBreakupStage.Rock), BreakupFrameDuration,
+        new(ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Rock), BreakupFrameDuration,
             SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.Low },
-        new(ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, BlockBreakupStage.Pieces), BreakupFrameDuration),
-        new(ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, BlockBreakupStage.Dust), BreakupFrameDuration),
-        new(ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, BlockBreakupStage.Gone), 1),
+        new(ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Pieces), BreakupFrameDuration),
+        new(ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Dust), BreakupFrameDuration),
+        new(ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Gone), 1),
     ]);
 
     /// <summary>

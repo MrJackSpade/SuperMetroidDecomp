@@ -48,10 +48,10 @@ internal static class XrayRevealVisualInstallationVerification
         InstalledXrayOverlays overlays = stock.Overlays;
         ushort NativeWord(int address) => CartridgeImportSource.Require(nativeBus).ReadCartridgeWord(address);
         // The tanks' draws follow the four that reveal the item in each block pair (#1538).
-        for (int tank = 0; tank < RoomObjectCollectibleDrawDefinitions.TankKinds.Length; tank++)
+        for (int tank = 0; tank < XrayRevealVisualFiles.TankDrawOrder.Count; tank++)
         {
             ushort pointer = NativeWord(SamusSourceDefinitions.ItemDrawPointers.Value + (SuperMetroid.Core.Compatibility.CollectibleBlockPairs.InTurn.Count + tank) * 2);
-            InWorldCollectibleKind kind = RoomObjectCollectibleDrawDefinitions.TankKinds[tank];
+            InWorldCollectibleKind kind = XrayRevealVisualFiles.TankDrawOrder[tank];
             AssertEqual(RoomLevelWordCodec.DecodeAppearance(NativeWord(SamusSourceDefinitions.XrayItemDrawBank.Value | (pointer + 2))),
                 overlays.TankBlock(kind), $"stock X-ray {kind} reveal");
         }

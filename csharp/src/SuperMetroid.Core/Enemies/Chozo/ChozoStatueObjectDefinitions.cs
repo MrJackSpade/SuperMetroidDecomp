@@ -22,9 +22,9 @@ internal static class ChozoStatueObjectDefinitions
     /// <summary>The Lower Norfair plug crumbling: a one-block breakup whose last image, the cleared block, shows for one update.</summary>
     internal static TerrainChange CrumblePlug { get; } = new(1,
     [
-        new(ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, BlockBreakupStage.Rock), ScriptedTerrainChangeDefinitions.BreakupFrameDuration),
-        new(ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, BlockBreakupStage.Pieces), ScriptedTerrainChangeDefinitions.BreakupFrameDuration),
-        new(ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, BlockBreakupStage.Dust), ScriptedTerrainChangeDefinitions.BreakupFrameDuration),
-        new(ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, BlockBreakupStage.Gone), 1),
+        new(ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Rock), ScriptedTerrainChangeDefinitions.BreakupFrameDuration),
+        new(ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Pieces), ScriptedTerrainChangeDefinitions.BreakupFrameDuration),
+        new(ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Dust), ScriptedTerrainChangeDefinitions.BreakupFrameDuration),
+        new(ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Gone), 1),
     ]);
 }

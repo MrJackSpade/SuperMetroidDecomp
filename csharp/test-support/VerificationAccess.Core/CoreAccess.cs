@@ -236,10 +236,14 @@ internal static class CoreAccess
                 return roomObjects.Places.InUpdateOrder
                     .Select((place, position) => new IndexedObjectPlace(place, position))
                     .Where(entry => entry.Place.Active)
-                    .SelectMany(entry => entry.Place.Behaviour is StationObject station
-                        ? [new StationObjectSnapshot(entry.Index, entry.Place.Block, entry.Place.NativeRoomArgument,
-                            station.Kind, station.Triggered, station.SavePhase, lockedOut)]
-                        : Array.Empty<StationObjectSnapshot>())
+                    .SelectMany(entry => entry.Place.Behaviour switch
+                    {
+                        SaveStationObject save => [new StationObjectSnapshot(entry.Index, entry.Place.Block, entry.Place.NativeRoomArgument,
+                            Kind: null, save.Triggered, save.SavePhase, lockedOut)],
+                        AccessStationObject station => [new StationObjectSnapshot(entry.Index, entry.Place.Block, entry.Place.NativeRoomArgument,
+                            station.Kind, station.Triggered, SaveStationPhase.Idle, lockedOut)],
+                        _ => Array.Empty<StationObjectSnapshot>(),
+                    })
                     .ToArray();
             }
         }

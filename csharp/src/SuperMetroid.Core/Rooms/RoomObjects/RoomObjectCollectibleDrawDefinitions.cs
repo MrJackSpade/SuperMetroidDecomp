@@ -35,13 +35,6 @@ internal static class RoomObjectCollectibleDrawDefinitions
     /// <summary>A concealed item's shot block whole, as its reveal begins and its hiding ends (<see cref="CollectibleSequenceAnimations"/>).</summary>
     internal static RoomObjectFrameDraw<D> ShotBlockIntact { get; } = CollectibleObjectDraws.Family.Of(D.ShotBlockIntact);
 
-    /// <summary>The tank kinds in the order of their draws.</summary>
-    internal static readonly InWorldCollectibleKind[] TankKinds =
-    [
-        InWorldCollectibleKind.EnergyTank, InWorldCollectibleKind.MissileTank,
-        InWorldCollectibleKind.SuperMissileTank, InWorldCollectibleKind.PowerBombTank,
-    ];
-
     /// <summary>Each tank kind's draw in each of its two looks (#1994).</summary>
     internal static readonly IReadOnlyDictionary<InWorldCollectibleKind, CollectibleLookDraws> TankLooks = new Dictionary<InWorldCollectibleKind, CollectibleLookDraws>
     {

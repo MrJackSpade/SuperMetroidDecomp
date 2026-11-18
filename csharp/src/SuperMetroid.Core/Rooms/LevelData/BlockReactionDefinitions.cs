@@ -36,30 +36,32 @@ public static class BlockReactionDefinitions
             [SpecialBlockReaction.PermanentCrumble2x2] = ContactCrumbleBlock.Permanent2x2,
         });
 
-    /// <summary>The seven station accesses a special block selects.</summary>
-    public static readonly BlockReactionMeanings<SpecialBlockReaction, StationAccessBehavior> StationAccesses = new(
-        new Dictionary<SpecialBlockReaction, StationAccessBehavior>
+    /// <summary>
+    /// The six station accesses a special block selects, one per station and side. The save station's floor is a reaction
+    /// of its own (<see cref="SpecialBlockReaction.SaveStationFloor"/>).
+    /// </summary>
+    public static readonly BlockReactionMeanings<SpecialBlockReaction, StationAccess> StationAccesses = new(
+        new Dictionary<SpecialBlockReaction, StationAccess>
         {
-            [SpecialBlockReaction.MapStationRight] = StationAccessBehavior.MapRight,
-            [SpecialBlockReaction.MapStationLeft] = StationAccessBehavior.MapLeft,
-            [SpecialBlockReaction.EnergyStationRight] = StationAccessBehavior.EnergyRight,
-            [SpecialBlockReaction.EnergyStationLeft] = StationAccessBehavior.EnergyLeft,
-            [SpecialBlockReaction.MissileStationRight] = StationAccessBehavior.MissileRight,
-            [SpecialBlockReaction.MissileStationLeft] = StationAccessBehavior.MissileLeft,
-            [SpecialBlockReaction.SaveStationFloor] = StationAccessBehavior.SaveFloor,
+            [SpecialBlockReaction.MapStationRight] = new(StationKind.Map, HorizontalDirection.Right),
+            [SpecialBlockReaction.MapStationLeft] = new(StationKind.Map, HorizontalDirection.Left),
+            [SpecialBlockReaction.EnergyStationRight] = new(StationKind.Energy, HorizontalDirection.Right),
+            [SpecialBlockReaction.EnergyStationLeft] = new(StationKind.Energy, HorizontalDirection.Left),
+            [SpecialBlockReaction.MissileStationRight] = new(StationKind.Missile, HorizontalDirection.Right),
+            [SpecialBlockReaction.MissileStationLeft] = new(StationKind.Missile, HorizontalDirection.Left),
         });
 
     /// <summary>The eight downward-gate triggers a shootable block selects: blue, red, green and yellow, each left then right.</summary>
-    public static readonly BlockReactionMeanings<ShootableReaction, DownwardGateTriggerBehavior> DownwardGateTriggers = new(
-        new Dictionary<ShootableReaction, DownwardGateTriggerBehavior>
+    public static readonly BlockReactionMeanings<ShootableReaction, DownwardGateTrigger> DownwardGateTriggers = new(
+        new Dictionary<ShootableReaction, DownwardGateTrigger>
         {
-            [ShootableReaction.GateTriggerBlueLeft] = DownwardGateTriggerBehavior.BlueLeft,
-            [ShootableReaction.GateTriggerBlueRight] = DownwardGateTriggerBehavior.BlueRight,
-            [ShootableReaction.GateTriggerRedLeft] = DownwardGateTriggerBehavior.RedLeft,
-            [ShootableReaction.GateTriggerRedRight] = DownwardGateTriggerBehavior.RedRight,
-            [ShootableReaction.GateTriggerGreenLeft] = DownwardGateTriggerBehavior.GreenLeft,
-            [ShootableReaction.GateTriggerGreenRight] = DownwardGateTriggerBehavior.GreenRight,
-            [ShootableReaction.GateTriggerYellowLeft] = DownwardGateTriggerBehavior.YellowLeft,
-            [ShootableReaction.GateTriggerYellowRight] = DownwardGateTriggerBehavior.YellowRight,
+            [ShootableReaction.GateTriggerBlueLeft] = new(DownwardGateTriggerColor.Blue, HorizontalDirection.Left),
+            [ShootableReaction.GateTriggerBlueRight] = new(DownwardGateTriggerColor.Blue, HorizontalDirection.Right),
+            [ShootableReaction.GateTriggerRedLeft] = new(DownwardGateTriggerColor.Red, HorizontalDirection.Left),
+            [ShootableReaction.GateTriggerRedRight] = new(DownwardGateTriggerColor.Red, HorizontalDirection.Right),
+            [ShootableReaction.GateTriggerGreenLeft] = new(DownwardGateTriggerColor.Green, HorizontalDirection.Left),
+            [ShootableReaction.GateTriggerGreenRight] = new(DownwardGateTriggerColor.Green, HorizontalDirection.Right),
+            [ShootableReaction.GateTriggerYellowLeft] = new(DownwardGateTriggerColor.Yellow, HorizontalDirection.Left),
+            [ShootableReaction.GateTriggerYellowRight] = new(DownwardGateTriggerColor.Yellow, HorizontalDirection.Right),
         });
 }

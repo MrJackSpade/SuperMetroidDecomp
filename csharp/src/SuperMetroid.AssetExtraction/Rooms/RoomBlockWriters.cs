@@ -75,7 +75,7 @@ internal static class RoomBlockWriters
             // The X-ray reveal: each reveal where the terrain holds the block it copies over, each tank where one is placed,
             // and a room's overlay only there.
             .. XrayRevealWriters(xray),
-            .. TankKinds.Select(tank => new RoomBlockWriter(BlocksOf([xray.Overlays.TankBlock(tank)]),
+            .. SuperMetroid.AssetExtraction.Samus.XrayRevealVisualFiles.TankDrawOrder.Select(tank => new RoomBlockWriter(BlocksOf([xray.Overlays.TankBlock(tank)]),
                 state => state.PlacesCollectible((kind, _) => kind == tank))),
             .. xray.Overlays.rooms.Select(overlay => new RoomBlockWriter(                BlocksOf(overlay.Value.Select(tile => tile.Appearance)), state => Equals(state.XrayOverlay, overlay.Key))),
         ];
@@ -207,7 +207,7 @@ internal static class RoomBlockWriters
             case DrawGroup.ShotReveal:
                 return static state => state.PlacesCollectible(static (_, presentation) => presentation == CollectiblePresentation.ShotBlock);
             case DrawGroup.Tank:
-                InWorldCollectibleKind tank = TankKinds.Single(kind => TankLooks[kind] is var looks && (looks.Primary == frame || looks.Alternate == frame));
+                InWorldCollectibleKind tank = TankLooks.Single(looks => looks.Value.Primary == frame || looks.Value.Alternate == frame).Key;
                 return state => state.PlacesCollectible((kind, _) => kind == tank);
             case DrawGroup.OwnPicture:
                 return static state => state.PlacesCollectible(static (kind, _) => CollectibleDefinitions.Items[kind].Picture == CollectiblePictureSource.OwnPicture);

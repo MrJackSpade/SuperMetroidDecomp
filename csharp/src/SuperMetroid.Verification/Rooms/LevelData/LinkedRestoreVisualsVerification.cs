@@ -44,11 +44,11 @@ internal static class LinkedRestoreVisualsVerification
             installation.RoomObjectLinkedRestoreVisualDirectory);
         AssertEqual(RoomBlockAppearance.Of(0x058),
             installation.LoadRoomObjectLinkedRestoreVisuals().Image(
-                LinkedRestoreObjectFamily.BombBlockDraws.Of(BombBlockRestoreDraw.Horizontal)).At(Offset16<RoomBlocks>.Zero),
+                LinkedRestoreObjectFamily.BombBlockDraws.Of(new BombBlockRestoreDraw(BlockArrangement.Horizontal))).At(Offset16<RoomBlocks>.Zero),
             "stock bomb restore selects cartridge block 058");
         AssertEqual(RoomBlockAppearance.Of(0x0bc),
             installation.LoadRoomObjectLinkedRestoreVisuals().Image(
-                LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(ContactCrumbleRestoreDraw.Horizontal)).At(Offset16<RoomBlocks>.Zero),
+                LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(new ContactCrumbleRestoreDraw(BlockArrangement.Horizontal))).At(Offset16<RoomBlocks>.Zero),
             "stock crumble restore selects cartridge block 0BC");
 
         string stockPath = Path.Combine(

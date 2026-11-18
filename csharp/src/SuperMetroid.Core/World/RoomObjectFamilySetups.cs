@@ -46,8 +46,12 @@ internal sealed class RoomObjectFamilySetups(RoomObjectSetupContext context) : I
         context.Families.DraygonCannons.SetupDraygonCannon(context.Room.Level, context.Place, setup);
 
     /// <inheritdoc/>
-    public void SetUpStation(StationKind station, SaveStationArgument? savesAt) =>
-        context.Families.Stations.SetupStation(context.Room.Level, context.Room.Area, context.Place, station, savesAt?.Station);
+    public void SetUpAccessStation(StationKind station) =>
+        context.Families.Stations.SetupAccessStation(context.Room.Level, context.Room.Area, context.Place, station);
+
+    /// <inheritdoc/>
+    public void SetUpSaveStation(SaveStationArgument? savesAt) =>
+        StationObjects.SetupSaveStation(context.Room.Level, context.Place, savesAt?.Station);
 
     /// <inheritdoc/>
     public void SetUpElevatorPlatform() => StationObjects.SetupElevatorPlatform(context.Room.Level, context.Place);

@@ -5,8 +5,9 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
 /// The room's stations' service (#1554): their setup, the touch that triggers one, the save a station asks the frontend for,
-/// the room-entry save lockout, and the activation events an update publishes. Each station is a typed room object
-/// (<see cref="StationObject"/>) that holds and advances its own state.
+/// the room-entry save lockout, and the activation events an update publishes. Each station is a typed room object that
+/// holds and advances its own state: a save station (<see cref="SaveStationObject"/>), or a map, energy or missile
+/// station used through its access arm (<see cref="AccessStationObject"/>, #2484).
 /// </summary>
 [RoomLifetime]
 internal sealed class StationObjects
@@ -32,7 +33,7 @@ internal sealed class StationObjects
     /// <summary>Messages and frontend actions produced in the current room-object update.</summary>
     private readonly List<StationActivationEvent> _stationActivationEvents = [];
     /// <summary>The map stations the room's population placed, which stay in the room for as long as it is loaded.</summary>
-    private readonly List<StationObject> _mapStations = [];
+    private readonly List<AccessStationObject> _mapStations = [];
     /// <summary>Blocks repeated save confirmation during the current room entry.</summary>
     internal bool SaveStationLockedOut { get; private set; }
 
@@ -46,7 +47,7 @@ internal sealed class StationObjects
     /// </summary>
     public void ResumeMapStationsAfterUnpause()
     {
-        foreach (StationObject station in _mapStations)
+        foreach (AccessStationObject station in _mapStations)
             station.ResumeAfterMapUnpause();
     }
 
@@ -70,7 +71,7 @@ internal sealed class StationObjects
     public bool ResolveSaveStationConfirmation(SaveStationActivation activation, bool accepted, RoomLevelData level)
     {
         Ensure.NotNull(level);
-        StationObject station = activation.Station;
+        SaveStationObject station = activation.Station;
         if (station.SavePhase != SaveStationPhase.AwaitingConfirmation)
         {
             throw new InvalidOperationException(
@@ -99,7 +100,7 @@ internal sealed class StationObjects
     /// <summary>Completes the save after the saved-game message has closed.</summary>
     public void CompleteSaveStation(SaveStationActivation activation)
     {
-        StationObject station = activation.Station;
+        SaveStationObject station = activation.Station;
         if (station.SavePhase != SaveStationPhase.AwaitingCompletionMessageClose)
         {
             throw new InvalidOperationException(
@@ -126,92 +127,53 @@ internal sealed class StationObjects
     }
 
     /// <summary>
-    /// Sets up the station the room's population placed: installs its collision blocks and animation state, a save station
-    /// saving at the load station its placement names (<paramref name="savedAt"/>). The stations hold each map station
-    /// they place, which leaving the map screen returns to idle.
+    /// Sets up the save station the room's population placed, saving at the load station its placement names
+    /// (<paramref name="savedAt"/>): its trigger floor and its pod, drawn once.
     /// </summary>
-    internal void SetupStation(
-        RoomLevelData level,
-        AreaId area,
-        RoomObjectPlace place,
-        StationKind kind,
-        LoadStation? savedAt)
+    internal static void SetupSaveStation(RoomLevelData level, RoomObjectPlace place, LoadStation? savedAt)
     {
-        RoomTerrainBlock original = level.GetCollisionBlock(place.Block).Terrain;
-        switch (kind)
-        {
-            case StationKind.Save:
-                SetupSaveStation(level, area, place, original, savedAt);
-                return;
-            case StationKind.Map:
-                _mapStations.Add(SetupAccessStation(level, System, area, place, original, StationAccessRuleDefinitions.Map));
-                return;
-            case StationKind.Energy:
-                SetupAccessStation(level, System, area, place, original, StationAccessRuleDefinitions.Energy);
-                return;
-            case StationKind.Missile:
-                SetupAccessStation(level, System, area, place, original, StationAccessRuleDefinitions.Missile);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(StationKind)} {kind}.");
-        }
-    }
-
-    /// <summary>A save station saving at <paramref name="savedAt"/>: its trigger floor and its one save animation.</summary>
-    private static void SetupSaveStation(RoomLevelData level, AreaId area, RoomObjectPlace place, RoomTerrainBlock original,
-        LoadStation? savedAt)
-    {
+        Ensure.NotNull(level);
+        Ensure.NotNull(place);
         WriteStationBlock(
             level,
             place.Block,
-            original,
+            level.GetCollisionBlock(place.Block).Terrain,
             RoomCollisionType.SpecialBlock,
-            RoomBlockBehavior.Reacting(BlockReactionDefinitions.StationAccesses.ReactionFor(StationAccessBehavior.SaveFloor)));
-        place.Become(new StationObject(
-            StationKind.Save,
-            area,
-            StationAnimation.SaveIdle,
-            completedAnimation: StationAnimation.SaveIdle,
-            savedAt));
+            RoomBlockBehavior.Reacting(SpecialBlockReaction.SaveStationFloor));
+        place.Become(new SaveStationObject(savedAt));
     }
 
     /// <summary>
-    /// A map, energy or missile station: its solid block, the access blocks either side, and its animations. Only the map
-    /// station has a separate acquired animation, shown from the start once its area map is held.
+    /// Sets up the map, energy or missile station the room's population placed (<paramref name="kind"/>): its solid block,
+    /// the access blocks either side, and its animations. Only the map station has a separate acquired animation, shown
+    /// from the start once its area map is held. The stations hold each map station they place, which leaving the map
+    /// screen returns to idle.
     /// </summary>
-    /// <returns>The station placed.</returns>
-    private static StationObject SetupAccessStation(
-        RoomLevelData level,
-        SharedGameState system,
-        AreaId area,
-        RoomObjectPlace place,
-        RoomTerrainBlock original,
-        StationAccessRule rule)
+    internal void SetupAccessStation(RoomLevelData level, AreaId area, RoomObjectPlace place, StationKind kind)
     {
-        WriteStationBlock(level, place.Block, original, RoomCollisionType.SolidBlock, behavior: null);
-        WriteAccessBlock(level, level.ObjectBlockStep(place.Block, new Offset16<RoomBlocks>(rule.RightOffset, 0)), rule.RightBehavior);
-        WriteAccessBlock(level, level.ObjectBlockStep(place.Block, new Offset16<RoomBlocks>(rule.LeftOffset, 0)), rule.LeftBehavior);
+        Ensure.NotNull(level);
+        Ensure.NotNull(place);
+        StationAccessRule rule = StationAccessRuleDefinitions.Rules[kind];
+        WriteStationBlock(level, place.Block, level.GetCollisionBlock(place.Block).Terrain, RoomCollisionType.SolidBlock, behavior: null);
+        WriteAccessBlock(level, level.ObjectBlockStep(place.Block, new Offset16<RoomBlocks>(rule.RightOffset, 0)),
+            new StationAccess(kind, HorizontalDirection.Right));
+        WriteAccessBlock(level, level.ObjectBlockStep(place.Block, new Offset16<RoomBlocks>(rule.LeftOffset, 0)),
+            new StationAccess(kind, HorizontalDirection.Left));
 
-        StationAnimation normalAnimation = rule.Animation;
-        StationAnimation completedAnimation = rule.AcquiredAnimation ?? normalAnimation;
-        StationAnimation initialAnimation = rule.AcquiredAnimation is not null && system.HasAreaMap(area)
-            ? completedAnimation
-            : normalAnimation;
-        var station = new StationObject(
-            rule.Kind,
-            area,
-            initialAnimation,
-            completedAnimation,
-            savedAt: null);
+        StationAnimation initialAnimation = rule.AcquiredAnimation is { } acquired && System.HasAreaMap(area)
+            ? acquired
+            : rule.Animation;
+        var station = new AccessStationObject(rule, area, initialAnimation);
         place.Become(station);
-        return station;
+        if (rule.Refill is null)
+            _mapStations.Add(station);
     }
 
-    /// <summary>Marks an in-room access block with station-trigger collision and its directional behaviour.</summary>
+    /// <summary>Marks an in-room access block with station-trigger collision and the reaction of <paramref name="access"/>.</summary>
     private static void WriteAccessBlock(
         RoomLevelData level,
         Position16<RoomBlocks> block,
-        StationAccessBehavior behavior)
+        StationAccess access)
     {
         if (!level.Size.Contains(block))
         {
@@ -223,7 +185,7 @@ internal sealed class StationObjects
             block,
             level.GetCollisionBlock(block).Terrain,
             RoomCollisionType.SpecialBlock,
-            RoomBlockBehavior.Reacting(BlockReactionDefinitions.StationAccesses.ReactionFor(behavior)));
+            RoomBlockBehavior.Reacting(BlockReactionDefinitions.StationAccesses.ReactionFor(access)));
     }
 
     /// <summary>Changes a station block's collision kind while preserving its appearance, and sets its optional behaviour.</summary>
@@ -240,103 +202,96 @@ internal sealed class StationObjects
     }
 
     /// <summary>
-    /// The station collision notice room collision sends with the block's behaviour: checks the entry pose and direction,
-    /// then arms a matching resident station's room-object sequence.
+    /// The station collision notice room collision sends with the block's behaviour: a touch of a save station's floor or of
+    /// a map, energy or missile station's access block. It checks the entry pose and direction, then arms the resident
+    /// station's room-object sequence.
     /// </summary>
     /// <param name="level">The room's level, through whose blocks the step from the access block to its station runs.</param>
-    /// <param name="accessBlock">The access block Samus collided with.</param>
-    /// <param name="behavior">The access block's behaviour.</param>
+    /// <param name="touched">The floor or access block Samus collided with.</param>
+    /// <param name="behavior">The touched block's behaviour.</param>
     /// <param name="collisionPose">Samus's pose as room collision reads it.</param>
     /// <param name="axis">The axis Samus moved along.</param>
     /// <param name="movingPositive">Whether Samus moved right or down.</param>
+    /// <returns>Whether a station stands where the touched block names it.</returns>
     public bool TryNotifyStationCollision(
         RoomLevelData level,
-        Position16<RoomBlocks> accessBlock,
+        Position16<RoomBlocks> touched,
         RoomBlockBehavior behavior,
         SamusCollisionPose collisionPose,
         Axis axis,
         bool movingPositive)
     {
         Ensure.NotNull(level);
-        if (!behavior.TryGetStationAccess(out StationAccessBehavior access))
-            return false;
+        if (behavior.IsSaveStationFloor)
+            return TryNotifySaveStationFloor(touched, collisionPose, axis, movingPositive);
+        return behavior.TryGetStationAccess(out StationAccess access) &&
+            TryNotifyStationAccess(level, touched, access, collisionPose, axis, movingPositive);
+    }
 
-        // The save station's floor access is the station's own block. A map, energy or missile station's access blocks sit
-        // beside it on its row, where its setup stepped through the room's blocks in reading order to place them; the step
-        // back to the station reverses that.
-        int columnsToStation = access == StationAccessBehavior.SaveFloor ? 0 : ColumnsToStationFrom(access);
-        Position16<RoomBlocks> stationBlock = level.ObjectBlockStep(accessBlock, new Offset16<RoomBlocks>(columnsToStation, 0));
-
+    /// <summary>
+    /// A touch of a save station's floor, which is the station's own block: a landing Samus standing centred on it asks to
+    /// save, unless a save is under way or the room entry's lockout holds.
+    /// </summary>
+    private bool TryNotifySaveStationFloor(Position16<RoomBlocks> floor, SamusCollisionPose collisionPose, Axis axis, bool movingPositive)
+    {
         foreach (RoomObjectPlace place in _places.FromLastPlace)
         {
-            if (!place.Active || place.Block != stationBlock || place.Behaviour is not StationObject station)
+            if (!place.Active || place.Block != floor || place.Behaviour is not SaveStationObject station)
                 continue;
 
-            bool setupAccepted = access switch
-            {
-                // Right-side access is entered while moving left into the wall in the ran-into-wall-left pose;
-                // left-side access is the mirror in the ran-into-wall-right pose. These are the stations' setup tests
-                // before cannon-height alignment.
-                StationAccessBehavior.MapRight or
-                    StationAccessBehavior.EnergyRight or
-                    StationAccessBehavior.MissileRight =>
-                    axis == Axis.Horizontal && !movingPositive &&
-                    collisionPose == SamusCollisionPose.RanIntoWallLeft,
-                StationAccessBehavior.MapLeft or
-                    StationAccessBehavior.EnergyLeft or
-                    StationAccessBehavior.MissileLeft =>
-                    axis == Axis.Horizontal && movingPositive &&
-                    collisionPose == SamusCollisionPose.RanIntoWallRight,
-                // A foot can touch the floor trigger before the body's biased center
-                // reaches its column. Accepts only the latter, narrower range.
-                StationAccessBehavior.SaveFloor => axis == Axis.Vertical && movingPositive &&
-                    collisionPose == SamusCollisionPose.StandingNormal &&
-                    IsSaveStationTriggerCentered(place.Block),
-                _ => throw new InvalidOperationException($"Undefined station access {access}."),
-            };
-            if (setupAccepted && station.OperationPhase == StationOperationPhase.Idle &&
-                (station.Kind != StationKind.Save ||
-                    (station.SavePhase == SaveStationPhase.Idle && !SaveStationLockedOut)))
-            {
-                // Recharge setup rejects an already-full resource before the station lock
-                // takes control. Rejecting it later leaves a locked Samus with no access
-                // animation running to release her. Collision itself remains solid.
-                if (station.Kind is StationKind.Energy or StationKind.Missile)
-                {
-                    IRoomSamus samus = _samus.Current;
-                    if (station.Kind == StationKind.Energy
-                        ? samus.Health == samus.MaxHealth
-                        : samus.Missiles == samus.MaxMissiles)
-                    {
-                        return true;
-                    }
-                }
-                station.Trigger(accessBlock, access);
-
-                // The arm cannon's line-up is checked as the station is triggered, before the station's animation
-                // advances. In G-Mode the station's animation cannot start or finish, but Samus is already held still,
-                // so the station leaves her stuck. A save station only starts its animation here and checks no line-up.
-                if (station.Kind != StationKind.Save)
-                {
-                    IRoomSamus samus = _samus.Current;
-                    samus.Control.LockAtStation();
-                }
-            }
+            // A foot can touch the floor trigger before the body's biased center reaches its column. Accepts only the
+            // latter, narrower range. A save station only starts its animation here and checks no line-up.
+            if (axis == Axis.Vertical && movingPositive &&
+                collisionPose == SamusCollisionPose.StandingNormal &&
+                IsSaveStationTriggerCentered(place.Block) &&
+                station.SavePhase == SaveStationPhase.Idle && !SaveStationLockedOut)
+                station.Trigger();
             return true;
         }
         return false;
     }
 
-    /// <summary>The columns from a map, energy or missile station's access block back to the station, by the rule that placed it.</summary>
-    /// <exception cref="InvalidOperationException">No station's rule places <paramref name="access"/>.</exception>
-    private static int ColumnsToStationFrom(StationAccessBehavior access)
+    /// <summary>
+    /// A touch of a map, energy or missile station's access block, which sits beside the station on its row where the
+    /// station's setup stepped through the room's blocks in reading order to place it; the step back to the station
+    /// reverses that. Samus running into the station from the access's side starts its arm, unless a refill station has
+    /// nothing to give her.
+    /// </summary>
+    private bool TryNotifyStationAccess(RoomLevelData level, Position16<RoomBlocks> accessBlock, StationAccess access,
+        SamusCollisionPose collisionPose, Axis axis, bool movingPositive)
     {
-        foreach (StationAccessRule rule in StationAccessRuleDefinitions.All)
+        StationAccessRule placedBy = StationAccessRuleDefinitions.Rules[access.Station];
+        Position16<RoomBlocks> stationBlock = level.ObjectBlockStep(accessBlock,
+            new Offset16<RoomBlocks>(-placedBy.ColumnsToAccessOn(access.Side), 0));
+
+        foreach (RoomObjectPlace place in _places.FromLastPlace)
         {
-            if (rule.ColumnsToStationFrom(access) is { } columns)
-                return columns;
+            if (!place.Active || place.Block != stationBlock || place.Behaviour is not AccessStationObject station)
+                continue;
+
+            // Right-side access is entered while moving left into the wall in the ran-into-wall-left pose; left-side
+            // access is the mirror in the ran-into-wall-right pose. These are the stations' setup tests before
+            // cannon-height alignment.
+            bool setupAccepted = axis == Axis.Horizontal && (access.Side == HorizontalDirection.Right
+                ? !movingPositive && collisionPose == SamusCollisionPose.RanIntoWallLeft
+                : movingPositive && collisionPose == SamusCollisionPose.RanIntoWallRight);
+            if (setupAccepted && station.OperationPhase == StationOperationPhase.Idle)
+            {
+                // Recharge setup rejects an already-full resource before the station lock takes control. Rejecting it
+                // later leaves a locked Samus with no access animation running to release her. Collision itself remains
+                // solid.
+                if (station.Rule.Refill is { } refill && refill.IsFull(_samus.Current))
+                    return true;
+                station.Trigger(accessBlock, access);
+
+                // The arm cannon's line-up is checked as the station is triggered, before the station's animation
+                // advances. In G-Mode the station's animation cannot start or finish, but Samus is already held still,
+                // so the station leaves her stuck.
+                _samus.Current.Control.LockAtStation();
+            }
+            return true;
         }
-        throw new InvalidOperationException($"No station's access rule places access {access}.");
+        return false;
     }
 
     /// <summary>

@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// cap leaves the room once open. A cap closing behind Samus plays the shared closing (Bomb Torizo's door stays open until
 /// she has Bombs), then looks at its door again.
 /// </summary>
-internal sealed class GreyDoorObject : DoorCapObject, IClosingDoor
+internal sealed class GreyDoorObject : DoorCapObject, IClosingDoor, IShootableRoomObject
 {
     /// <summary>A grey cap of <paramref name="variant"/>, locked by <paramref name="condition"/>, just placed in <paramref name="door"/>.</summary>
     internal GreyDoorObject(GreyDoorVariant variant, GreyDoorCondition condition, PlacedDoor? door)
@@ -37,6 +37,15 @@ internal sealed class GreyDoorObject : DoorCapObject, IClosingDoor
     /// yet to take that look), and nothing once it opens.
     /// </summary>
     internal GreyDoorWait Waits { get; private set; }
+
+    /// <summary>
+    /// The shot at the cap's block it has yet to take, or null for none (#2484). A shot that arrives before the cap waits for anything waits for
+    /// it; a later shot before the cap takes it replaces it.
+    /// </summary>
+    internal ResidentObjectProjectileHit? PendingHit { get; private set; }
+
+    /// <inheritdoc/>
+    public void Strike(ResidentObjectProjectileHit hit) => PendingHit = hit;
 
     /// <inheritdoc/>
     /// <remarks>Bomb Torizo's door is held open until Samus has Bombs; every other cap closes at once.</remarks>
@@ -71,21 +80,21 @@ internal sealed class GreyDoorObject : DoorCapObject, IClosingDoor
             case GreyDoorWait.Condition:
                 if (!doors.IsUnlocked(Condition, context.Frame))
                 {
-                    if (place.ProjectileHit is not null)
+                    if (PendingHit is not null)
                         doors.QueueDudSound();
-                    place.ProjectileHit = null;
+                    PendingHit = null;
                     return false;
                 }
                 doors.RecordUnlocked(Condition);
-                place.ProjectileHit = null;
+                PendingHit = null;
                 Waits = GreyDoorWait.Shot;
                 Phase = GreyDoorPhase.Flashing;
                 Play(GreyDoorDefinitions.Flash, place, context);
                 return true;
             case GreyDoorWait.Shot:
-                if (place.ProjectileHit is null)
+                if (PendingHit is null)
                     return false;
-                place.ProjectileHit = null;
+                PendingHit = null;
                 Open(place, context);
                 return true;
             default:

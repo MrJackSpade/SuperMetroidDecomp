@@ -1,14 +1,14 @@
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>
-/// The reactions of one collision kind that each stand for one meaning (#1722): the four blue-door caps, the seven station
+/// The reactions of one collision kind that each stand for one meaning (#1722): the four blue-door caps, the six station
 /// accesses, the eight downward-gate triggers, the eight crumble blocks.
 /// </summary>
 /// <typeparam name="TReaction">The kind's reaction.</typeparam>
 /// <typeparam name="TMeaning">What each reaction stands for.</typeparam>
 public sealed class BlockReactionMeanings<TReaction, TMeaning>
     where TReaction : struct, Enum
-    where TMeaning : struct, Enum
+    where TMeaning : struct
 {
     /// <summary>What each reaction stands for.</summary>
     private readonly Dictionary<TReaction, TMeaning> meanings;

@@ -5,6 +5,8 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.TestSupport.MovieReplay;
 
@@ -295,9 +297,17 @@ internal sealed class ConvertedTimelineReplay : IConvertedMovieReplay
             return string.Empty;
         string[] objects = [.. scope.RoomObjects.Places.InUpdateOrder.Where(static place => place.Active)
             .Select(place => $"{place.Behaviour?.GetType().Name ?? "no behaviour"} at {place.Block} (terrain now " +
-                $"{scope.LevelData.GetCollisionBlock(place.Block)}; restores {place.RestoreTerrain?.ToString() ?? "nothing"})")];
+                $"{scope.LevelData.GetCollisionBlock(place.Block)}; restores {SavedTerrain(place.Behaviour)?.ToString() ?? "nothing"})")];
         return $" in room state {scope.Room.State.Name}; active room objects: {(objects.Length == 0 ? "none" : string.Join(", ", objects))}";
     }
+
+    /// <summary>The terrain <paramref name="behaviour"/>'s setup saved to restore, or null for an object that saved none.</summary>
+    private static RoomTerrainBlock? SavedTerrain(RoomObjectBehaviour? behaviour) => behaviour switch
+    {
+        BlockReactionObject reaction => reaction.SavedTerrain,
+        CollectibleObject item => item.SavedTerrain,
+        _ => null,
+    };
 
     /// <inheritdoc/>
     public void Dispose() => checkpoints.Dispose();

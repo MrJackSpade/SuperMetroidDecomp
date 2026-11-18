@@ -58,7 +58,9 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     # room's held place, an object that only holds its place (#2426). The places stay here; the definitions name the
     # condition, the trigger, the event and the held place.
     $greyDoorConditions = @('AreaBossDefeated', 'AreaMiniBossDefeated', 'AreaTorizoDefeated', 'EnemyDeathQuota', 'Never', 'TourianStatueFinished', 'CrittersEscaped')
-    $gateTriggers = @('BlueLeft', 'BlueRight', 'RedLeft', 'RedRight', 'GreenLeft', 'GreenRight', 'YellowLeft', 'YellowRight')
+    # The trigger table runs blue, red, green and yellow, each left of its gate and then right of it (#2484).
+    $gateTriggerColors = @('Blue', 'Red', 'Green', 'Yellow')
+    $gateTriggerSides = @('Left', 'Right')
     $metroidRoomEvents = @($null, $null, $null, $null, $null, $null, $null, $null, $null, 'FirstMetroidHallCleared', 'FirstMetroidShaftCleared', 'SecondMetroidHallCleared', 'SecondMetroidShaftCleared')
     function Format-RoomArgument([string] $name, [int] $word) {
         if ($name -eq 'ScrollTrigger' -or $word -eq 0x8000) { return 'null' }
@@ -86,8 +88,8 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
             if (($word -band 1) -ne 0) { throw ('{0} argument {1:X4} is odd.' -f $name, $word) }
             $entry = $word -shr 1
             if ($name -eq 'DownwardGateShotBlock') {
-                if ($entry -ge $gateTriggers.Count) { throw ('{0} argument {1:X4} selects no trigger.' -f $name, $word) }
-                return 'new GateTriggerArgument(DownwardGateTriggerBehavior.{0})' -f $gateTriggers[$entry]
+                if ($entry -ge $gateTriggerColors.Count * $gateTriggerSides.Count) { throw ('{0} argument {1:X4} selects no trigger.' -f $name, $word) }
+                return 'new GateTriggerArgument(new DownwardGateTrigger(DownwardGateTriggerColor.{0}, HorizontalDirection.{1}))' -f $gateTriggerColors[$entry -shr 1], $gateTriggerSides[$entry -band 1]
             }
             if ($entry -ge $metroidRoomEvents.Count) { throw ('{0} argument {1:X4} selects no entry.' -f $name, $word) }
             if ($null -eq $metroidRoomEvents[$entry]) { return '@@HELDPLACE@@' }
@@ -178,7 +180,7 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     Add-FamilyKinds 'Items' 'CollectibleSetup'
     Add-FamilyKinds 'EyeDoorEyes' 'EyeDoorEyeSetup'
     Add-FamilyKinds 'EyeDoorParts' 'EyeDoorPartSetup'
-    Add-FamilyKinds 'Stations' 'StationSetup'
+    Add-FamilyKinds 'AccessStations' 'AccessStationSetup'
     Add-FamilyKinds 'ScrollExtensions' 'ScrollExtensionSetup'
     $draygonCannonSetups = @{
         DraygonCannonFacingRight = 'DraygonCannonOrientation.Right, DraygonCannonStart.Whole'
@@ -196,15 +198,15 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
         if ($argumentText -match '^null, DraygonWallCannon\.') { throw "Room-object kind $name controls a Draygon wall cannon but is no cannon." }
         if ($familySetups.ContainsKey($name)) {
             $setup = $familySetups[$name]
-            if ($setup -eq 'ScrollExtensionSetup') {
-                if ($argumentText -ne 'null') { throw "Scroll extension $name reads no argument, but its placement gives $argumentText." }
+            if ($setup -in @('ScrollExtensionSetup', 'AccessStationSetup')) {
+                if ($argumentText -ne 'null') { throw "Room-object kind $name reads no argument, but its placement gives $argumentText." }
                 return 'new {0}({1})' -f $setup, $familyVariants[$name]
             }
             if ($setup -eq 'EyeDoorEyeSetup' -and $argumentText -eq 'null') { throw "Eye-door eye $name names no door." }
             return 'new {0}({1}, {2})' -f $setup, $familyVariants[$name], $argumentText
         }
         $setup = $name + 'Setup'
-        if ($setup -in @('MetroidRoomClearanceSetup', 'DownwardGateShotBlockSetup')) {
+        if ($setup -in @('MetroidRoomClearanceSetup', 'DownwardGateShotBlockSetup', 'SaveStationSetup')) {
             return 'new {0}({1})' -f $setup, $argumentText
         }
         if ($argumentText -ne 'null') { throw "Room-object kind $name reads no argument, but its placement gives $argumentText." }

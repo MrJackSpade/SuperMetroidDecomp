@@ -101,20 +101,20 @@ internal static class RoomObjectDrawAddressCodec
     /// <summary>A shot-block breakup frame, at its shape's stride from the shape's first frame.</summary>
     private static SnesAddress ShotBlockBreakup(ShotBlockObjectDraws.BreakupDraw shot) => shot.Layout switch
     {
-        RoomObjectShotBlockDrawDefinitions.Shape.Single => Offset(RoomObjectDrawSourceDefinitions.SingleBreakupFirst, BreakupIndex(shot.Stage) * OneBlockStride),
-        RoomObjectShotBlockDrawDefinitions.Shape.Horizontal => Offset(RoomObjectDrawSourceDefinitions.HorizontalBreakupFirst, BreakupIndex(shot.Stage) * PairStride),
-        RoomObjectShotBlockDrawDefinitions.Shape.Vertical => Offset(RoomObjectDrawSourceDefinitions.VerticalBreakupFirst, BreakupIndex(shot.Stage) * PairStride),
-        RoomObjectShotBlockDrawDefinitions.Shape.Square => Offset(RoomObjectDrawSourceDefinitions.SquareBreakupFirst, BreakupIndex(shot.Stage) * SquareStride),
+        BlockArrangement.Single => Offset(RoomObjectDrawSourceDefinitions.SingleBreakupFirst, BreakupIndex(shot.Stage) * OneBlockStride),
+        BlockArrangement.Horizontal => Offset(RoomObjectDrawSourceDefinitions.HorizontalBreakupFirst, BreakupIndex(shot.Stage) * PairStride),
+        BlockArrangement.Vertical => Offset(RoomObjectDrawSourceDefinitions.VerticalBreakupFirst, BreakupIndex(shot.Stage) * PairStride),
+        BlockArrangement.Square => Offset(RoomObjectDrawSourceDefinitions.SquareBreakupFirst, BreakupIndex(shot.Stage) * SquareStride),
         _ => throw new InvalidDataException($"Shot-block draw {shot} has no cartridge address."),
     };
 
     /// <summary>A shot-block shape's restoration draw.</summary>
     private static SnesAddress ShotBlockRestoration(ShotBlockObjectDraws.RestorationDraw shot) => shot.Layout switch
     {
-        RoomObjectShotBlockDrawDefinitions.Shape.Horizontal => RoomObjectDrawSourceDefinitions.ShotBlockRestoreHorizontal,
-        RoomObjectShotBlockDrawDefinitions.Shape.Vertical => RoomObjectDrawSourceDefinitions.ShotBlockRestoreVertical,
-        RoomObjectShotBlockDrawDefinitions.Shape.Square => RoomObjectDrawSourceDefinitions.ShotBlockRestoreSquare,
-        RoomObjectShotBlockDrawDefinitions.Shape.Single => throw new InvalidDataException($"A single shot block has no restoration draw: {shot}."),
+        BlockArrangement.Horizontal => RoomObjectDrawSourceDefinitions.ShotBlockRestoreHorizontal,
+        BlockArrangement.Vertical => RoomObjectDrawSourceDefinitions.ShotBlockRestoreVertical,
+        BlockArrangement.Square => RoomObjectDrawSourceDefinitions.ShotBlockRestoreSquare,
+        BlockArrangement.Single => throw new InvalidDataException($"A single shot block has no restoration draw: {shot}."),
         _ => throw new InvalidDataException($"Shot-block draw {shot} has no cartridge address."),
     };
 

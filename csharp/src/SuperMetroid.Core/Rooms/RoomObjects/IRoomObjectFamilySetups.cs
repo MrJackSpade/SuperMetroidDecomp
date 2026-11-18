@@ -33,8 +33,11 @@ internal interface IRoomObjectFamilySetups
     /// <summary>Sets up a Draygon wall cannon as its placement's <paramref name="setup"/> carries it.</summary>
     void SetUpDraygonCannon(DraygonWallCannonSetup setup);
 
-    /// <summary>Sets up a station, <paramref name="station"/>.</summary>
-    void SetUpStation(StationKind station, SaveStationArgument? savesAt);
+    /// <summary>Sets up a map, energy or missile station, <paramref name="station"/>.</summary>
+    void SetUpAccessStation(StationKind station);
+
+    /// <summary>Sets up a save station saving at <paramref name="savesAt"/>.</summary>
+    void SetUpSaveStation(SaveStationArgument? savesAt);
 
     /// <summary>Sets up an elevator platform.</summary>
     void SetUpElevatorPlatform();

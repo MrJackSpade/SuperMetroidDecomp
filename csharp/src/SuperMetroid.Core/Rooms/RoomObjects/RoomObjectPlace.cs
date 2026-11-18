@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
 /// One place in the room's update order (<see cref="RoomObjectPlaces"/>) and the room object it holds: the object's
-/// block, a shot on its block it has yet to take, and the typed object that holds its own state, what its placement gave
-/// it among it (#2091), and advances it (<see cref="Behaviour"/>, #1554). A place that holds no object holds nothing: the object's record
-/// leaves the room with it (#1622).
+/// block and the typed object that holds its own state, what its placement gave it among it (#2091), and advances it
+/// (<see cref="Behaviour"/>, #1554). A shot an object has yet to take and the terrain it saved are the object's own
+/// (#2484). A place that holds no object holds nothing: the object's record leaves the room with it (#1622).
 /// </summary>
 internal sealed class RoomObjectPlace
 {
@@ -39,14 +39,6 @@ internal sealed class RoomObjectPlace
     /// neighbouring block goes through <see cref="RoomLevelData.ObjectBlockStep"/>.
     /// </summary>
     public Position16<RoomBlocks> Block { get; set; }
-    /// <summary>
-    /// The terrain the place restores at its block, or null when its object saved none. Grapple setup saves the earlier
-    /// block; collision-bomb setup saves the dimension parent instead. Only an object whose setup saved a block restores
-    /// one (<see cref="RoomObjectStepContext.DrawRestoredBlock"/>).
-    /// </summary>
-    public RoomTerrainBlock? RestoreTerrain { get; set; }
-    /// <summary>The projectile hit on the place's block that its object has not yet taken, or null for none.</summary>
-    public ResidentObjectProjectileHit? ProjectileHit { get; set; }
 
     /// <summary>Makes this freshly taken place hold <paramref name="behaviour"/>, which advances it from the next update on.</summary>
     /// <exception cref="InvalidOperationException">The place is free, or already holds a typed object.</exception>
@@ -98,8 +90,6 @@ internal sealed class RoomObjectPlace
     private void ClearContents()
     {
         Block = default;
-        RestoreTerrain = null;
-        ProjectileHit = null;
         Behaviour = null;
     }
 }

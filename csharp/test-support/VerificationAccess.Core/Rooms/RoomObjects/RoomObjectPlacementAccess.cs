@@ -21,7 +21,7 @@ internal static class RoomObjectPlacementAccess
             CollectibleSetup item => item.Collected,
             EyeDoorEyeSetup eye => eye.LockedBy,
             EyeDoorPartSetup part => part.LockedBy,
-            StationSetup station => station.SavesAt,
+            SaveStationSetup station => station.SavesAt,
             MetroidRoomClearanceSetup clearance => clearance.Watches,
             DownwardGateShotBlockSetup shotBlock => shotBlock.Trigger,
             _ => null,
@@ -69,8 +69,13 @@ internal static class RoomObjectPlacementAccess
             return new EyeDoorEyeSetup(eye, Read<LockedDoorArgument>(kind, argument) ?? throw new InvalidDataException($"Eye-door eye {kind} names no door."));
         if (RoomObjectKindVariants.EyeDoorParts.TryGetValue(kind, out EyeDoorPart part))
             return new EyeDoorPartSetup(part, Read<LockedDoorArgument>(kind, argument));
-        if (RoomObjectKindVariants.Stations.TryGetValue(kind, out StationKind station))
-            return new StationSetup(station, Read<SaveStationArgument>(kind, argument));
+        if (kind == RoomObjectKind.SaveStation)
+            return new SaveStationSetup(Read<SaveStationArgument>(kind, argument));
+        if (RoomObjectKindVariants.AccessStations.TryGetValue(kind, out StationKind station))
+        {
+            return argument is null ? new AccessStationSetup(station)
+                : throw new InvalidDataException($"Placement {kind} reads no argument, but its record gives {argument}.");
+        }
         if (RoomObjectKindVariants.ScrollExtensions.TryGetValue(kind, out SuperMetroid.Core.Rooms.Scrolling.ScrollExtension extension))
         {
             return argument is null ? new ScrollExtensionSetup(extension)

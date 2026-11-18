@@ -44,9 +44,9 @@ internal static class RoomObjectBombedRevealProgramDefinitions
     private static ushort DrawOf(Reveal reveal) => reveal switch
     {
         Reveal.Crumble1x1 => RoomObjectDrawAddressCodec.Of(BombedRevealObjectDraws.Family.Of(RoomObjectBombedRevealDraw.CrumbleSingle)),
-        Reveal.Crumble2x1 => RoomObjectDrawAddressCodec.Of(LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(ContactCrumbleRestoreDraw.Horizontal)),
-        Reveal.Crumble1x2 => RoomObjectDrawAddressCodec.Of(LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(ContactCrumbleRestoreDraw.Vertical)),
-        Reveal.Crumble2x2 => RoomObjectDrawAddressCodec.Of(LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(ContactCrumbleRestoreDraw.Square)),
+        Reveal.Crumble2x1 => RoomObjectDrawAddressCodec.Of(LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(new ContactCrumbleRestoreDraw(BlockArrangement.Horizontal))),
+        Reveal.Crumble1x2 => RoomObjectDrawAddressCodec.Of(LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(new ContactCrumbleRestoreDraw(BlockArrangement.Vertical))),
+        Reveal.Crumble2x2 => RoomObjectDrawAddressCodec.Of(LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(new ContactCrumbleRestoreDraw(BlockArrangement.Square))),
         Reveal.PowerBomb => RoomObjectDrawAddressCodec.Of(BombedRevealObjectDraws.Family.Of(RoomObjectBombedRevealDraw.PowerBomb)),
         Reveal.SuperMissile => RoomObjectDrawAddressCodec.Of(BombedRevealObjectDraws.Family.Of(RoomObjectBombedRevealDraw.SuperMissile)),
         _ => throw new InvalidOperationException($"Undefined bombed-reveal list {reveal}."),

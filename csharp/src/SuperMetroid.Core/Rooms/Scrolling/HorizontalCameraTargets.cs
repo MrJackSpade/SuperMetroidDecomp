@@ -4,16 +4,17 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 internal static class HorizontalCameraTargets
 {
     /// <summary>
-    /// Select Samus's screen-relative target (<see cref="HorizontalCameraTargetDefinitions"/>). Normal tracking places
-    /// Samus behind the viewport's centre on the side she faces away from; boss tracking uses its distinct facing policy.
-    /// Edge modes ignore facing. The camera keeps the game's reversal rules.
+    /// Select Samus's screen-relative target (<see cref="HorizontalCameraTargetDefinitions"/>) for the way the camera
+    /// takes her to face (<paramref name="facing"/>). Normal tracking places Samus behind the viewport's centre on the side
+    /// she faces away from; boss tracking uses its distinct facing policy. Edge modes ignore facing. The camera keeps the
+    /// game's reversal rules.
     /// </summary>
-    internal static int Offset(CameraDistanceMode mode, bool facingRight) => mode switch
+    internal static int Offset(CameraDistanceMode mode, HorizontalDirection facing) => mode switch
     {
-        CameraDistanceMode.NormalTracking => ScreenGeometry.ScreenWidthPixels / 2 + (facingRight
+        CameraDistanceMode.NormalTracking => ScreenGeometry.ScreenWidthPixels / 2 + (facing == HorizontalDirection.Right
             ? -HorizontalCameraTargetDefinitions.NormalTrackingLead
             : HorizontalCameraTargetDefinitions.NormalTrackingLead),
-        CameraDistanceMode.BossTracking => facingRight
+        CameraDistanceMode.BossTracking => facing == HorizontalDirection.Right
             ? HorizontalCameraTargetDefinitions.BossTrackingFacingRightX
             : HorizontalCameraTargetDefinitions.BossTrackingFacingLeftX,
         CameraDistanceMode.RightEdge => ScreenGeometry.ScreenWidthPixels - HorizontalCameraTargetDefinitions.RightEdgeInset,

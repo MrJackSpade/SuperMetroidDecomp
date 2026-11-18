@@ -21,20 +21,19 @@ internal static class BombBlockProgramsVerification
     {
         ushort[] pointers = [0xa4c7, 0xa4cf, 0xa4d7];
         InstalledRoomObjectLinkedRestoreVisuals pictures = InstalledRoomObjectLinkedRestoreVisuals.Stock();
-        AssertTrue(pointers.SequenceEqual(RoomObjectLinkedRestoreVisualFiles.AllOf(LinkedRestoreObjectFamily.BombBlock).Select(draw => RoomObjectDrawAddressCodec.Of(draw.Draw))),
+        AssertTrue(pointers.SequenceEqual(RoomObjectLinkedRestoreVisualFiles.BombBlockRestorations.Select(draw => RoomObjectDrawAddressCodec.Of(draw))),
             "bomb restoration export order matches native layouts");
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
         {
             bool expected = pointers.Contains((ushort)pointer);
-            bool found = LinkedRestoreObjectFamily.BombBlock.TryGet(NativeObjectDraws.At<BombBlockRestoreDraw>(pointer), out var list);
-            AssertEqual(expected, found, "bomb restoration export pointer domain");
-            if (!found)
-            {
-                AssertEqual(default(RoomObjectDrawLists.DrawList), list, "missing restoration export cleared");
+            RoomObjectDraw atPointer = NativeObjectDraws.At<BombBlockRestoreDraw>(pointer);
+            RoomObjectFrameDraw<BombBlockRestoreDraw>? restoration = RoomObjectLinkedRestoreVisualFiles.BombBlockRestorations
+                .SingleOrDefault(candidate => candidate == atPointer);
+            AssertEqual(expected, restoration is not null, "bomb restoration export pointer domain");
+            if (restoration is null)
                 continue;
-            }
-            LinkedRestoreObjectFamily.Draw draw = LinkedRestoreObjectFamily.BombBlock.Describe(LinkedRestoreObjectFamily.BombBlock.Draws
-                .Single(shape => shape.Value == NativeObjectDraws.At<BombBlockRestoreDraw>(pointer)).Key);
+            RoomObjectDrawLists.DrawList list = RoomObjectLinkedRestoreVisualFiles.Export(restoration);
+            RoomBlockShape blocks = restoration.Frame.Blocks;
             int cursor = pointer;
             int run = 0;
             while (true)
@@ -42,14 +41,14 @@ internal static class BombBlockProgramsVerification
                 ushort nativeCount = ReadRomWord(rom, 0x840000 | cursor);
                 int count = nativeCount & 0x7fff;
                 AssertEqual(2, count, "bomb restoration two words per native run");
-                AssertEqual((nativeCount & 0x8000) != 0, draw.Shape == RoomObjectRestoreShape.Vertical, "bomb restoration native orientation");
+                AssertEqual((nativeCount & 0x8000) != 0, restoration.Frame.Layout == BlockArrangement.Vertical, "bomb restoration native orientation");
                 var exportedRun = list.Runs.Span[run];
                 AssertRunHeader(nativeCount, exportedRun, "bomb restoration exported direction/count");
                 AssertEqual(count, exportedRun.Count, "bomb restoration exported word count");
                 for (int block = 0; block < count; block++)
                 {
                     RoomTerrainBlock native = RoomLevelWordCodec.Decode(ReadRomWord(rom, 0x840000 | (cursor + 2 + 2 * block)));
-                    AssertEqual(native.Collision, draw.Blocks.CollisionAt(exportedRun.CellAt(block)), "bomb restoration block-shape parent/child collision");
+                    AssertEqual(native.Collision, blocks.CollisionAt(exportedRun.CellAt(block)), "bomb restoration block-shape parent/child collision");
                     AssertEqual(native.Collision, exportedRun.Collisions.Span[block], "bomb restoration exported collision");
                     AssertEqual(native.Appearance, pictures.Image(list.Draw).At(exportedRun.CellAt(block)), "bomb restoration installed picture");
                 }
@@ -66,7 +65,7 @@ internal static class BombBlockProgramsVerification
             }
             AssertEqual(run, list.Runs.Length, "bomb restoration complete exported runs");
             // The block shape covers exactly the cells the cartridge writes, two per run (#1862).
-            AssertEqual(2 * run, draw.Blocks.Cells.Count, "bomb restoration block shape covers every written cell");
+            AssertEqual(2 * run, blocks.Cells.Count, "bomb restoration block shape covers every written cell");
         }
     }
 

@@ -75,17 +75,17 @@ internal static class DownwardGateObjectsVerification
 
         var cases = new DownwardGateObjectsCase[]
         {
-            new DownwardGateObjectsCase(DownwardGateTriggerBehavior.BlueLeft, 0x0004, true),
-            new DownwardGateObjectsCase(DownwardGateTriggerBehavior.BlueRight, 0x0300, false),
-            new DownwardGateObjectsCase(DownwardGateTriggerBehavior.GreenLeft, 0x0200, true),
-            new DownwardGateObjectsCase(DownwardGateTriggerBehavior.GreenRight, 0x0000, false),
-            new DownwardGateObjectsCase(DownwardGateTriggerBehavior.RedLeft, 0x0100, true),
-            new DownwardGateObjectsCase(DownwardGateTriggerBehavior.RedRight, 0x0200, true),
-            new DownwardGateObjectsCase(DownwardGateTriggerBehavior.YellowLeft, 0x0300, true),
+            new DownwardGateObjectsCase(new DownwardGateTrigger(DownwardGateTriggerColor.Blue, HorizontalDirection.Left), 0x0004, true),
+            new DownwardGateObjectsCase(new DownwardGateTrigger(DownwardGateTriggerColor.Blue, HorizontalDirection.Right), 0x0300, false),
+            new DownwardGateObjectsCase(new DownwardGateTrigger(DownwardGateTriggerColor.Green, HorizontalDirection.Left), 0x0200, true),
+            new DownwardGateObjectsCase(new DownwardGateTrigger(DownwardGateTriggerColor.Green, HorizontalDirection.Right), 0x0000, false),
+            new DownwardGateObjectsCase(new DownwardGateTrigger(DownwardGateTriggerColor.Red, HorizontalDirection.Left), 0x0100, true),
+            new DownwardGateObjectsCase(new DownwardGateTrigger(DownwardGateTriggerColor.Red, HorizontalDirection.Right), 0x0200, true),
+            new DownwardGateObjectsCase(new DownwardGateTrigger(DownwardGateTriggerColor.Yellow, HorizontalDirection.Left), 0x0300, true),
             // This counterintuitive inequality is present in the retail right-hand routine.
-            new DownwardGateObjectsCase(DownwardGateTriggerBehavior.YellowRight, 0x0000, true),
+            new DownwardGateObjectsCase(new DownwardGateTrigger(DownwardGateTriggerColor.Yellow, HorizontalDirection.Right), 0x0000, true),
         };
-        foreach ((DownwardGateTriggerBehavior trigger, ushort projectile, bool accepted) in cases)
+        foreach ((DownwardGateTrigger trigger, ushort projectile, bool accepted) in cases)
             VerifyDownwardGateTrigger(trigger, projectile, accepted);
 
         Console.WriteLine(
@@ -129,7 +129,7 @@ internal static class DownwardGateObjectsVerification
     private static void VerifyDownwardGateSetupAndProjectile()
     {
         (TestAddressSpace bus, RoomLevelData level, RoomObjectSystem roomObjects, int gateBlockIndex) = CreateDownwardGateFixture(
-                DownwardGateTriggerBehavior.BlueLeft);
+                new DownwardGateTrigger(DownwardGateTriggerColor.Blue, HorizontalDirection.Left));
 
         AssertEqual(2, roomObjects.Places.ActiveCount, "gate and shot-block records retain separate PLM slots");
         RoomObjectPlaceSnapshot[] places = roomObjects.PopulationPlaces.ToArray();
@@ -138,7 +138,7 @@ internal static class DownwardGateObjectsVerification
             "first resident slot holds the closed downward gate");
         AssertEqual(1, places[1].UpdatePosition, "shot block is processed next");
         AssertTrue(places[1].Behaviour is TerrainChangeObject { Change: var triggerChange }
-                && triggerChange == DownwardGateTriggerDefinitions.Changes[DownwardGateTriggerBehavior.BlueLeft],
+                && triggerChange == DownwardGateTriggerDefinitions.Triggers[new DownwardGateTrigger(DownwardGateTriggerColor.Blue, HorizontalDirection.Left)].Change,
             "argument zero selects the blue-left trigger's draw");
 
         for (int row = 0; row < DownwardGateDefinitions.GateHeightInBlocks; row++)
@@ -150,7 +150,7 @@ internal static class DownwardGateObjectsVerification
         AssertEqual((int)RoomCollisionType.ShootableBlock,
             (int)level.GetCollisionBlockByIndex(gateBlockIndex - 1).CollisionType,
             "left trigger table installs a shootable block");
-        AssertEqual(RoomObjectBlockBehaviorNativeWords.DownwardGateTriggers.Word(DownwardGateTriggerBehavior.BlueLeft),
+        AssertEqual(RoomObjectBlockBehaviorNativeWords.DownwardGateTriggers.Word(new DownwardGateTrigger(DownwardGateTriggerColor.Blue, HorizontalDirection.Left)),
             RoomBlockBehaviorCodec.Encode(level.GetCollisionBlockByIndex(gateBlockIndex - 1).Behavior),
             "argument zero installs retail blue-left BTS $46");
 
@@ -251,7 +251,7 @@ internal static class DownwardGateObjectsVerification
 
     /// <summary>Checks one color/direction BTS row's projectile acceptance and physical shot-block draw.</summary>
     private static void VerifyDownwardGateTrigger(
-        DownwardGateTriggerBehavior trigger,
+        DownwardGateTrigger trigger,
         ushort projectile,
         bool accepted)
     {
@@ -271,7 +271,7 @@ internal static class DownwardGateObjectsVerification
             $"{trigger} projectile ${projectile:X4} acceptance matches cartridge");
         StepDownwardGateObject(roomObjects, level);
         StepDownwardGateObject(roomObjects, level);
-        int color = (nativeTrigger - RoomObjectBlockBehaviorNativeWords.DownwardGateTriggers.Word(DownwardGateTriggerBehavior.BlueLeft)) / 2;
+        int color = (nativeTrigger - RoomObjectBlockBehaviorNativeWords.DownwardGateTriggers.Word(new DownwardGateTrigger(DownwardGateTriggerColor.Blue, HorizontalDirection.Left))) / 2;
         RoomTerrainBlock expectedTriggerWord = RoomTerrainBlock.Of(0x0db - color,
             (nativeTrigger & 1) == 0 ? BlockMirroring.None : BlockMirroring.Horizontal, RoomCollisionType.ShootableBlock);
         AssertEqual(expectedTriggerWord,
@@ -287,7 +287,7 @@ internal static class DownwardGateObjectsVerification
     /// drawing with the repository installation's pictures.
     /// </summary>
     internal static CreateDownwardGateFixtureResult
-        CreateDownwardGateFixture(DownwardGateTriggerBehavior trigger)
+        CreateDownwardGateFixture(DownwardGateTrigger trigger)
     {
         var bus = new TestAddressSpace();
         const ushort populationPointer = 0x9400;

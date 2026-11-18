@@ -72,12 +72,12 @@ internal readonly record struct RoomObjectShapeRun(Offset16<RoomBlocks> Start, R
     /// The runs the cartridge writes a shot block's or a linked restoration's <paramref name="layout"/> in: one row, the
     /// stacked pair as one column, or the square as two rows.
     /// </summary>
-    internal static RoomObjectShapeRun[] Arrangement(RoomObjectShotBlockDrawDefinitions.Shape layout) => layout switch
+    internal static RoomObjectShapeRun[] Arrangement(BlockArrangement layout) => layout switch
     {
-        RoomObjectShotBlockDrawDefinitions.Shape.Single => [Row(new(0, 0), 1)],
-        RoomObjectShotBlockDrawDefinitions.Shape.Horizontal => [Row(new(0, 0), 2)],
-        RoomObjectShotBlockDrawDefinitions.Shape.Vertical => [Column(new(0, 0), 2)],
-        RoomObjectShotBlockDrawDefinitions.Shape.Square => [Row(new(0, 0), 2), Row(new(0, 1), 2)],
+        BlockArrangement.Single => [Row(new(0, 0), 1)],
+        BlockArrangement.Horizontal => [Row(new(0, 0), 2)],
+        BlockArrangement.Vertical => [Column(new(0, 0), 2)],
+        BlockArrangement.Square => [Row(new(0, 0), 2), Row(new(0, 1), 2)],
         _ => throw new InvalidOperationException($"Undefined shot-block arrangement {layout}."),
     };
 

@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.Artwork;
 using C = SuperMetroid.Core.Rooms.RoomObjects.CollectibleSequence;
-using Shape = SuperMetroid.Core.Rooms.RoomObjects.RoomObjectShotBlockDrawDefinitions.Shape;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -55,9 +54,9 @@ internal static class CollectibleSequenceAnimations
             [C.CollectedShotBlockEmpty] = [Show(RoomObjectCollectibleDrawDefinitions.Empty, CollectibleTimingDefinitions.CollectedShotBlockEmptyUpdates)],
             [C.ShotBlockRespawn] =
             [
-                Show(ShotBlockObjectDraws.Breakup(Shape.Single, BlockBreakupStage.Dust), CollectibleTimingDefinitions.RespawnImageUpdates),
-                Show(ShotBlockObjectDraws.Breakup(Shape.Single, BlockBreakupStage.Pieces), CollectibleTimingDefinitions.RespawnImageUpdates),
-                Show(ShotBlockObjectDraws.Breakup(Shape.Single, BlockBreakupStage.Rock), CollectibleTimingDefinitions.RespawnImageUpdates),
+                Show(ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Dust), CollectibleTimingDefinitions.RespawnImageUpdates),
+                Show(ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Pieces), CollectibleTimingDefinitions.RespawnImageUpdates),
+                Show(ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Rock), CollectibleTimingDefinitions.RespawnImageUpdates),
             ],
             [C.PickedUpEmpty] = [Show(RoomObjectCollectibleDrawDefinitions.Empty, CollectibleTimingDefinitions.PickedUpEmptyUpdates)],
         });

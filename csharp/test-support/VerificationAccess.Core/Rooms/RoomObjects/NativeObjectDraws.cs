@@ -24,11 +24,11 @@ internal static class NativeObjectDraws
     /// <summary>Every compiled PLM draw of every family.</summary>
     internal static IEnumerable<RoomObjectDraw> All =>
         Enumerable.Empty<RoomObjectDraw>()
-            .Concat(Enum.GetValues<BombBlockRestoreDraw>().Select(LinkedRestoreObjectFamily.BombBlockDraws.Of))
+            .Concat(RoomObjectLinkedRestoreVisualFiles.BombBlockRestorations)
             .Concat(Enum.GetValues<BombTorizoHandDraw>().Select(BombTorizoHandDraws.Family.Of))
             .Concat([BotwoonWallObjectDrawDefinitions.Clear])
             .Concat(Enum.GetValues<ChozoStatueDraw>().Select(ChozoStatueDraws.Family.Of))
-            .Concat(Enum.GetValues<ContactCrumbleRestoreDraw>().Select(LinkedRestoreObjectFamily.ContactCrumbleDraws.Of))
+            .Concat(RoomObjectLinkedRestoreVisualFiles.ContactCrumbleRestorations)
             .Concat(Enum.GetValues<CrocomireArenaDraw>().Select(CrocomireArenaDraws.Family.Of))
             .Concat(Enum.GetValues<DownwardGateDraw>().Select(DownwardGateObjectDraws.Family.Of))
             .Concat(Enum.GetValues<DraygonCannonDraw>().Select(DraygonCannonDraws.Family.Of))

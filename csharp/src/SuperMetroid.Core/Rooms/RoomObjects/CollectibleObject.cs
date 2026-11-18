@@ -19,13 +19,21 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <param name="blockPair">The terrain block pair an item that shows its own picture draws into; null for a tank.</param>
 /// <param name="phase">The phase the item's setup leaves it in.</param>
 /// <param name="location">Where the item lies in the game's item record, as its placement named it; null for none.</param>
+/// <param name="savedTerrain">The block the item's setup left at its place, which a shot block's return restores.</param>
 internal sealed class CollectibleObject(
     InWorldCollectibleKind kind,
     CollectiblePresentation presentation,
     CollectibleBlockPairs.Pair? blockPair,
     CollectiblePhase phase,
-    ItemLocation? location) : RoomObjectBehaviour
+    ItemLocation? location,
+    RoomTerrainBlock savedTerrain) : RoomObjectBehaviour
 {
+    /// <summary>
+    /// The block the item's setup left at its place, its collision made the item's own (#2484): a concealing shot block
+    /// draws it back as it hides the item again, and a collected item's shot block as it respawns.
+    /// </summary>
+    internal RoomTerrainBlock SavedTerrain { get; } = savedTerrain;
+
     /// <summary>
     /// Where the item lies in the game's item record, which its collection marks collected; null for an item placed
     /// without one, whose collection marks nothing.
@@ -151,7 +159,7 @@ internal sealed class CollectibleObject(
                     return;
                 // The shot block shows whole as its saved block returns over it on the same update.
                 context.Draw(place, RoomObjectCollectibleDrawDefinitions.ShotBlockIntact);
-                context.DrawRestoredBlock(place);
+                context.DrawSavedTerrain(place, SavedTerrain);
                 Phase = CollectiblePhase.ShotBlock;
                 return;
 
@@ -165,7 +173,7 @@ internal sealed class CollectibleObject(
             case CollectiblePhase.CollectedShotBlockRespawn:
                 if (!ShowsOn(place, context))
                     return;
-                context.DrawRestoredBlock(place);
+                context.DrawSavedTerrain(place, SavedTerrain);
                 Phase = CollectiblePhase.CollectedShotBlock;
                 return;
 

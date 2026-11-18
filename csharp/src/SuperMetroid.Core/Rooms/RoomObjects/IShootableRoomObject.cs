@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// A typed room object a projectile can strike at its block (#1554). The strike is kept until the object's next update
-/// reads it; a later strike before then replaces it.
+/// A typed room object a projectile can strike at its block (#1554). The object keeps the strike until it takes it, which
+/// a door does only once it takes shots (#2484); a later strike before then replaces it.
 /// </summary>
 internal interface IShootableRoomObject
 {

@@ -282,15 +282,24 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     public bool TryGetContactCrumble(out ContactCrumbleBlock crumble) =>
         BlockReactionDefinitions.ContactCrumbles.TryGetMeaning(Special, out crumble);
 
-    /// <summary>The map, recharge or save-station access a special block's reaction selects, if it selects one.</summary>
-    public bool TryGetStationAccess(out StationAccessBehavior access) =>
+    /// <summary>The map or recharge station access a special block's reaction selects, if it selects one.</summary>
+    public bool TryGetStationAccess(out StationAccess access) =>
         BlockReactionDefinitions.StationAccesses.TryGetMeaning(Special, out access);
+
+    /// <summary>Whether a special block's reaction makes it a save station's floor.</summary>
+    public bool IsSaveStationFloor => Special == SpecialBlockReaction.SaveStationFloor;
+
+    /// <summary>
+    /// Whether a special block's reaction makes it a station's access block or a save station's floor, whose touch room
+    /// collision reports to the station.
+    /// </summary>
+    public bool IsStationTrigger => IsSaveStationFloor || TryGetStationAccess(out _);
 
     /// <summary>
     /// The downward-gate trigger a shootable block's reaction selects, if it selects one. The same behaviours mean
     /// unrelated things to other collision kinds, so it is read only of a block established as shootable.
     /// </summary>
-    public bool TryGetDownwardGateTrigger(out DownwardGateTriggerBehavior trigger) =>
+    public bool TryGetDownwardGateTrigger(out DownwardGateTrigger trigger) =>
         BlockReactionDefinitions.DownwardGateTriggers.TryGetMeaning(Shootable, out trigger);
 
     /// <summary>Whether both are the same kept behaviour.</summary>

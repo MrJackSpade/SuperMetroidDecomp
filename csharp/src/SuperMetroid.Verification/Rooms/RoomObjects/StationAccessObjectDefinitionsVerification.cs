@@ -4,6 +4,7 @@ using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectPopulationVer
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
 
@@ -34,25 +35,33 @@ internal static class StationAccessObjectDefinitionsVerification
     /// <summary>Checks extended-phase draw pointers for all six access behaviors.</summary>
     internal static void VerifyStationAccessExtendedDraws(CartridgeImportAddressSpace rom) => VerifyStationAccessField(rom, 3);
 
+    /// <summary>The six station accesses in the cartridge's order of their behaviours: each station's right side, then its left.</summary>
+    private static readonly StationAccess[] NativeOrder =
+    [
+        new(StationKind.Map, HorizontalDirection.Right), new(StationKind.Map, HorizontalDirection.Left),
+        new(StationKind.Energy, HorizontalDirection.Right), new(StationKind.Energy, HorizontalDirection.Left),
+        new(StationKind.Missile, HorizontalDirection.Right), new(StationKind.Missile, HorizontalDirection.Left),
+    ];
+
     /// <summary>Checks the full BTS selector domain and compares chosen native operands with compiled definitions.</summary>
     private static void VerifyStationAccessField(CartridgeImportAddressSpace rom, int field)
     {
-        var entries = StationAccessObjectDefinitions.All.ToArray();
-        AssertEqual(6, entries.Length, "Station access original record count");
+        AssertEqual(NativeOrder.Length, StationAccessObjectDefinitions.Arms.Count, "Station access original record count");
         for (int raw = 0; raw <= byte.MaxValue; raw++)
         {
-            bool decodes = RoomBlockBehaviorCodec.Decode(raw).TryGetStationAccess(out StationAccessBehavior behavior);
+            RoomBlockBehavior decoded = RoomBlockBehaviorCodec.Decode(raw);
+            bool decodes = decoded.TryGetStationAccess(out StationAccess access);
             if (raw is < 0x47 or > 0x4c)
             {
-                // Outside the six accesses only the save floor decodes, and it selects no access PLM.
-                AssertEqual(raw == 0x4d, decodes, "Station access full rejected BTS domain");
-                if (decodes)
-                    AssertThrows<InvalidDataException>(() => StationAccessObjects.Resolve(behavior), "Station access save floor selects no access PLM");
+                // Outside the six accesses nothing decodes as one; the save floor, just past them, is a reaction of its
+                // own and selects no access PLM.
+                AssertTrue(!decodes, "Station access full rejected BTS domain");
+                AssertEqual(raw == 0x4d, decoded.IsSaveStationFloor, "Only the save floor's BTS is the save station's floor");
                 continue;
             }
             AssertTrue(decodes, $"Station access BTS ${raw:X2} decodes");
-            var selected = StationAccessObjects.Resolve(behavior);
-            AssertEqual(selected, entries[raw - 0x47], "Station access original enumeration order");
+            AssertEqual(NativeOrder[raw - 0x47], access, "Station access original enumeration order");
+            StationAccessObjectDefinition selected = StationAccessObjectDefinitions.Arms[access];
             ushort header = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x9491c7 + (raw - 0x47) * 2));
             ushort program = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (header + 2)));
             if (field >= 2)

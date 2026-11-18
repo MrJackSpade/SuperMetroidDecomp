@@ -9,4 +9,4 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <param name="Station">The save station the action came from.</param>
 /// <param name="SavesAt">The load station the save station saves at.</param>
 /// <param name="Block">The station's room block, rather than a side-access trigger's.</param>
-internal readonly record struct SaveStationActivation(StationObject Station, LoadStation SavesAt, Position16<RoomBlocks> Block);
+internal readonly record struct SaveStationActivation(SaveStationObject Station, LoadStation SavesAt, Position16<RoomBlocks> Block);

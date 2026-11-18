@@ -43,9 +43,9 @@ internal static class RoomObjectContactCrumbleProgramDefinitions
             {
                 value = program.Dimension switch
                 {
-                    1 => RoomObjectDrawAddressCodec.Of(LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(ContactCrumbleRestoreDraw.Horizontal)),
-                    2 => RoomObjectDrawAddressCodec.Of(LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(ContactCrumbleRestoreDraw.Vertical)),
-                    3 => RoomObjectDrawAddressCodec.Of(LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(ContactCrumbleRestoreDraw.Square)),
+                    1 => RoomObjectDrawAddressCodec.Of(LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(new ContactCrumbleRestoreDraw(BlockArrangement.Horizontal))),
+                    2 => RoomObjectDrawAddressCodec.Of(LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(new ContactCrumbleRestoreDraw(BlockArrangement.Vertical))),
+                    3 => RoomObjectDrawAddressCodec.Of(LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(new ContactCrumbleRestoreDraw(BlockArrangement.Square))),
                     _ => throw new InvalidDataException("Linked crumble program has no restore shape."),
                 };
                 return true;

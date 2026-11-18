@@ -38,12 +38,12 @@ internal static class RoomObjectRoomArgumentWords
     /// The shot-block triggers in the order of the cartridge's trigger tables (blue, red, green, yellow; left then right),
     /// which a gate trigger's word indexes in steps of two.
     /// </summary>
-    internal static IReadOnlyList<DownwardGateTriggerBehavior> GateTriggersInTableOrder { get; } =
+    internal static IReadOnlyList<DownwardGateTrigger> GateTriggersInTableOrder { get; } =
     [
-        DownwardGateTriggerBehavior.BlueLeft, DownwardGateTriggerBehavior.BlueRight,
-        DownwardGateTriggerBehavior.RedLeft, DownwardGateTriggerBehavior.RedRight,
-        DownwardGateTriggerBehavior.GreenLeft, DownwardGateTriggerBehavior.GreenRight,
-        DownwardGateTriggerBehavior.YellowLeft, DownwardGateTriggerBehavior.YellowRight,
+        new DownwardGateTrigger(DownwardGateTriggerColor.Blue, HorizontalDirection.Left), new DownwardGateTrigger(DownwardGateTriggerColor.Blue, HorizontalDirection.Right),
+        new DownwardGateTrigger(DownwardGateTriggerColor.Red, HorizontalDirection.Left), new DownwardGateTrigger(DownwardGateTriggerColor.Red, HorizontalDirection.Right),
+        new DownwardGateTrigger(DownwardGateTriggerColor.Green, HorizontalDirection.Left), new DownwardGateTrigger(DownwardGateTriggerColor.Green, HorizontalDirection.Right),
+        new DownwardGateTrigger(DownwardGateTriggerColor.Yellow, HorizontalDirection.Left), new DownwardGateTrigger(DownwardGateTriggerColor.Yellow, HorizontalDirection.Right),
     ];
 
     /// <summary>The entries of the cartridge's Metroids-cleared table, which a clearance watch's word indexes in steps of two.</summary>
@@ -214,7 +214,7 @@ internal static class RoomObjectRoomArgumentWords
         EyeDoorEyeObject eye => DoorWord(eye.Door),
         EyeDoorPartObject part => DoorWord(part.Door),
         CollectibleObject { Location: { } location } => ArgumentWord(new CollectedItemArgument(location)),
-        StationObject { SavedAt: { } station } => ArgumentWord(new SaveStationArgument(station)),
+        SaveStationObject { SavedAt: { } station } => ArgumentWord(new SaveStationArgument(station)),
         MetroidRoomClearanceObject watch => ArgumentWord(new MetroidRoomArgument(watch.Cleared)),
         TerrainChangeObject { Change: var change } when GateTriggerDrawing(change) is { } trigger =>
             ArgumentWord(new GateTriggerArgument(trigger)),
@@ -222,11 +222,11 @@ internal static class RoomObjectRoomArgumentWords
     };
 
     /// <summary>The gate trigger whose shot block <paramref name="change"/> draws, or null for any other terrain change.</summary>
-    private static DownwardGateTriggerBehavior? GateTriggerDrawing(TerrainChange change)
+    private static DownwardGateTrigger? GateTriggerDrawing(TerrainChange change)
     {
-        foreach (DownwardGateTriggerBehavior trigger in GateTriggersInTableOrder)
+        foreach (DownwardGateTrigger trigger in GateTriggersInTableOrder)
         {
-            if (DownwardGateTriggerDefinitions.Changes[trigger] == change)
+            if (DownwardGateTriggerDefinitions.Triggers[trigger].Change == change)
                 return trigger;
         }
         return null;
@@ -261,7 +261,7 @@ internal static class RoomObjectRoomArgumentWords
         };
 
     /// <summary>The trigger's place in the cartridge's trigger tables.</summary>
-    private static int GateTriggerIndex(DownwardGateTriggerBehavior trigger)
+    private static int GateTriggerIndex(DownwardGateTrigger trigger)
     {
         for (int index = 0; index < GateTriggersInTableOrder.Count; index++)
         {

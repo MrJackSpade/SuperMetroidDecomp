@@ -72,22 +72,13 @@ internal sealed class DeathSequenceRunner
 
         _frameBoundary.BeginAcceptedFrame(controllerInput);
         _sprites.BeginFrame();
-        _player.LastDeathSequenceStep = samus.DeathSequence.Step(
+        SamusDeathSequenceStepResult step = samus.DeathSequence.Step(
             samus,
             _player.Colours,
             samus.Artwork.Body.DeathSteps);
-        if (_player.LastDeathSequenceStep.Value.DrawPose)
-        {
-            samus.Presentation.DrawWithoutFlicker(samus,
-                _sprites,
-                room.Camera.PixelPosition,
-                _display.ActiveTurningFloor);
-        }
-        else if (_player.LastDeathSequenceStep.Value.DrawExplosion)
-        {
-            samus.DeathSequence.DrawExplosion(_sprites, samus.Artwork.Sheets);
-        }
+        _player.LastDeathSequenceStep = step;
+        samus.DeathSequence.Draw(step.Draws, samus, _sprites, room.Camera.PixelPosition, _display.ActiveTurningFloor);
         _sprites.FinalizeFrame();
-        return _player.LastDeathSequenceStep.Value;
+        return step;
     }
 }

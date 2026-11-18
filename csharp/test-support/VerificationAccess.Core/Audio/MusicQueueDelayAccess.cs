@@ -11,10 +11,10 @@ internal static class MusicQueueDelayAccess
         /// </summary>
         internal static MusicQueueDelay FromEffectiveUpdates(int updates)
         {
-            if (updates < AudioQueueDefinitions.MinimumMusicDelayFrames)
+            if (updates < AudioQueueDefinitions.MinimumMusicDelayPasses)
             {
                 throw new InvalidDataException(
-                    $"Music queue delay {updates} is below the shortest delay of {AudioQueueDefinitions.MinimumMusicDelayFrames} updates.");
+                    $"Music queue delay {updates} is below the shortest delay of {AudioQueueDefinitions.MinimumMusicDelayPasses} music-queue passes.");
             }
 
             return new MusicQueueDelay(updates);

@@ -144,7 +144,7 @@ public sealed class ClipAudioBackend
             return;
         }
         MusicDataSet clipSet = State.ClipSet ?? throw new InvalidDataException($"Song {track} was requested with no clip set loaded.");
-        State.PlaySong(track, catalog.GetMusic(clipSet, track), now);
+        State.PlaySong(catalog.GetMusic(clipSet, track), now);
     }
 
     /// <summary>Applies a sound start at its request check: the library's policy decides acceptance; an accepted sound replaces the library's sound.</summary>

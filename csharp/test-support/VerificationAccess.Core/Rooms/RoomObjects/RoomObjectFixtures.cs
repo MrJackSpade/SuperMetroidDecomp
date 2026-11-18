@@ -79,7 +79,7 @@ internal static class RoomObjectFixtures
 
     /// <summary>The shot cap's closing rule the room loader composes each room's objects with (#1906).</summary>
     private static ShotOpenedCapClosing<LockedDoor> ShotCapClosing() =>
-        new(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsGreenDoorFacingLeft);
+        new(LockedDoorDefinitions.LandingSiteGreenDoorFacingLeft);
 
     /// <summary>A new PLM system bound to <paramref name="room"/>, drawing with <paramref name="fixture"/>'s artwork, as a room load builds it.</summary>
     internal static RoomObjectSystem Bound(RoomObjectRoom room, RoomObjectServices services, RoomObjectSystem fixture)

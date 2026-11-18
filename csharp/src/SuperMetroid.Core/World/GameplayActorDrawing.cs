@@ -156,15 +156,8 @@ internal sealed class GameplayActorDrawing
 
         if (deathOwnsSamus)
         {
-            if (_player.LastDeathSequenceStep is { DrawPose: true })
-            {
-                samus.Presentation.DrawWithoutFlicker(samus,
-                    _sprites,
-                    room.Camera.PixelPosition,
-                    _display.ActiveTurningFloor);
-            }
-            else if (_player.LastDeathSequenceStep is { DrawExplosion: true })
-                samus.DeathSequence.DrawExplosion(_sprites, samus.Artwork.Sheets);
+            if (_player.LastDeathSequenceStep is { } step)
+                samus.DeathSequence.Draw(step.Draws, samus, _sprites, room.Camera.PixelPosition, _display.ActiveTurningFloor);
         }
         else
         {

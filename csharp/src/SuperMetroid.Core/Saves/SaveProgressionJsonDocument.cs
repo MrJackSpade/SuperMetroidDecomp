@@ -15,10 +15,10 @@ public sealed record SaveProgressionJsonDocument
     /// <summary>Each area's defeated bosses, one entry per area in area order.</summary>
     public required SaveAreaBossesJsonDocument[] DefeatedBosses { get; init; }
 
-    /// <summary>The item locations collected, by name, in the order room data lists them (schema six, #1553).</summary>
+    /// <summary>The item locations collected, by name, in the order <see cref="ItemLocationDefinitions.All"/> lists them (schema six, #1553).</summary>
     public required string[] CollectedItems { get; init; }
 
-    /// <summary>The doors opened for good, by name, in the order room data lists them (schema six, #1553).</summary>
+    /// <summary>The doors opened for good, by name, in the order <see cref="LockedDoorDefinitions.All"/> lists them (schema six, #1553).</summary>
     public required string[] OpenedDoors { get; init; }
 
     /// <summary>

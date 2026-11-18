@@ -437,7 +437,7 @@ public static class GameSaveJsonCodec
             if (place < 0)
                 throw new InvalidDataException($"{property}[{index}] '{name}' names nothing the game places");
             if (place <= previous)
-                throw new InvalidDataException($"{property} must list each once, in the order room data lists them");
+                throw new InvalidDataException($"{property} must list each once, in the order the game lists them");
             happened.Add(kind[place]);
             previous = place;
         }

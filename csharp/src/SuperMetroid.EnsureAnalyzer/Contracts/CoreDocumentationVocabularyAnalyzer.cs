@@ -173,6 +173,9 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// #2491 adds, outside hardware owners, the original's storage and handler installation as frontend and effect prose
 /// tells them: a storage unit (256ths of a turn or a pixel, 1/512 of a pixel) on a member whose type already measures it,
 /// an animation timer numbered one, and a handler installed and replaced.
+/// #2501 adds, outside hardware owners, the port's loading and its layers yet to come as runtime and gameplay prose tells
+/// them: a load, loader, construction or operation called atomic, a constructor said to do something atomically, the setup
+/// call, and a thing that waits until it gets its own.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -2247,6 +2250,24 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The port's loading and its layers yet to come told in runtime and gameplay prose (#2501), outside hardware owners and
+    /// markup: a load, a loader, a construction or an operation called atomic (the atomic loader, an atomically loaded
+    /// destination, loading above is atomic), anything done atomically (a constructor that sets the room up atomically,
+    /// read line by line, so the adverb alone is enough), the setup call, and a thing
+    /// that waits until it gets its own (until that owner gets its own layer). They tell how the port is built, or what it
+    /// has yet to build; Core says what the game does: the destination's enemies, objects and effects are set up on the
+    /// loading update, and each following update moves the door's scroll. English stays legal: the Atomic, the Wrecked
+    /// Ship's floating atom, and what it hits; a setup or a call alone; a thing of its own.
+    /// </summary>
+    private static readonly Regex RuntimeLoaderAndLayerNarrationProse = new(
+        @"\batomic(?:ally)?\s+(?:(?:room|destination|checkpoint|door)\s+)?(?:load(?:ers?|ed|s|ing)?|construct(?:ors?|ion)|operations?)\b" +
+        @"|\b(?:loading|load|construction|setup)\s+(?:above\s+|here\s+)?is\s+atomic\b" +
+        @"|\batomically\b" +
+        @"|\bthe\s+setup\s+call\b" +
+        @"|\buntil\s+[^.;]{0,80}?\bgets?\s+(?:its|their)\s+own\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A storage unit told on a member whose type already measures it (#2491), outside hardware owners and markup: a
     /// count of 256ths, 512ths, 2048ths or 65536ths of a turn, a step, a pixel or a floor pixel (in 256ths of a turn, the
     /// zoom in 256ths of a floor pixel, 64 256ths of a pixel), or a fraction written 1/N of one (1/512 of a pixel, 1/256
@@ -2807,6 +2828,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : RoomAndWorldTableAndInvocationProse.Match(Markup.Replace(text, " ")) is { Success: true } tableInvocation ? tableInvocation.Value
             : FrontendTimerAndInstallationProse.Match(Markup.Replace(text, " ")) is { Success: true } timerInstallation ? timerInstallation.Value
             : typedMeasure && TypedMeasureUnitProse.Match(Markup.Replace(text, " ")) is { Success: true } typedUnit ? typedUnit.Value
+            : RuntimeLoaderAndLayerNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } loaderNarration ? loaderNarration.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

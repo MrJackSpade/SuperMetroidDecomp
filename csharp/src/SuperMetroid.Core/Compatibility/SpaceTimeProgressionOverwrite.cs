@@ -15,7 +15,10 @@ namespace SuperMetroid.Core.Compatibility;
 /// shot's place, plus one, reads from the place its animation has reached, and is bounded by a signed test of that read
 /// position, so a shot animating from an animation laid out late in its animation data copies on through the rest of
 /// that data, past the palette and on through saved progress, before the read position wraps and the loop ends; before
-/// an animation installs a frame the copy starts low and ends long before progress. The SpaceTime check replays the
+/// an animation installs a frame the copy starts low and ends long before progress. The copy reaches progress in the order
+/// saved progress is stored: story events, area bosses, item locations, doors, used stations, area maps and the loading
+/// state, so an overwrite decides everything before the point where the copy stops and nothing after.
+/// The SpaceTime check replays the
 /// native Pit Room probe's two input phases, whose corrupted loading state it matches, and runs the original copy over
 /// the cartridge for every position and shot place, requiring this service's overwrite to leave every flag of progress
 /// as the copy does.

@@ -49,7 +49,7 @@ internal static class BossResetOnLoadVerification
         saves.SaveSlot(SaveSlot.A, snapshot);
         var slot = saves.ReadSlot(SaveSlot.A) ?? throw new InvalidDataException("Boss reset fixture save failed validation.");
         LockedDoor[] eyeDoors = [LockedDoorDefinitions.KraidEyeDoorEyeDoorFacingLeft, LockedDoorDefinitions.LowerNorfairFarmingEyeDoorFacingRight,
-            LockedDoorDefinitions.BasementDefaultEyeDoorFacingLeft, LockedDoorDefinitions.ThePreciousEyeDoorFacingRight,
+            LockedDoorDefinitions.BasementEyeDoorFacingLeft, LockedDoorDefinitions.ThePreciousEyeDoorFacingRight,
             LockedDoorDefinitions.TourianEyeDoorEyeDoorFacingLeft];
         foreach (bool enabled in new[] { false, true })
         {

@@ -53,8 +53,8 @@ internal static class SamusDeathFrameSelectionVerification
                 AssertEqual(ExpectedPhase(update), step.PhaseAfterStep, context + ": phase");
                 AssertEqual(expectedFrame is int expected ? SamusDeathSheetDefinitions.Explosion[expected] : null,
                     samus.DeathSequence.ExplosionFrame, context + ": selected explosion frame");
-                AssertEqual(update < FirstExplosionUpdate, step.DrawPose, context + ": draws the death pose");
-                AssertEqual(expectedFrame is not null, step.DrawExplosion, context + ": draws the explosion");
+                AssertEqual(update < FirstExplosionUpdate, step.Draws == SamusDeathDraw.Pose, context + ": draws the death pose");
+                AssertEqual(expectedFrame is not null, step.Draws == SamusDeathDraw.Explosion, context + ": draws the explosion");
                 AssertEqual(update == CompletionUpdate, step.Completed, context + ": completes");
 
                 var sprites = new SpriteFrameBuffer();

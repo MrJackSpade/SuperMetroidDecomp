@@ -5,10 +5,10 @@ namespace SuperMetroid.Core.Input;
 /// </summary>
 /// <remarks>
 /// The playback holds only the recording: where it is, how long the current input lasts and the actions it presses in
-/// the player's place. What a demo watches for before each step (the title leaving, Samus reaching her scripted place) is its
-/// owner's own state (#1554): the owner checks it while <see cref="IsPlaying"/>, may switch the playback to another
-/// recording, and then steps it; the recording's cues go to the owner. The playback's own frame hold gates the
-/// recording, so each input lasts exactly as long as its recorded input.
+/// the player's place. Its owner may switch it to another recording before a step while <see cref="IsPlaying"/> (the
+/// diagonal shinespark's demonstration continues into its second recording on its first step that plays), and then
+/// steps it; the cue a recording gives as it ends goes to the owner (an intro scene ends on it). The playback's own frame
+/// hold gates the recording, so each input lasts exactly as long as its recorded input.
 /// </remarks>
 public sealed class DemoInputState
 {
@@ -61,7 +61,7 @@ public sealed class DemoInputState
 
     /// <summary>
     /// Loads <paramref name="recording"/>, with its first input due on the next step: the playback's first recording, or
-    /// the one an owner's watch switches it to before a step.
+    /// the one its owner switches it to before a step.
     /// </summary>
     /// <remarks>
     /// The recording and its countdown change together, so a switch never publishes the new recording with the old
@@ -74,8 +74,8 @@ public sealed class DemoInputState
     }
 
     /// <summary>
-    /// Plays one step of the recording and presses the resulting actions in the player's place. The owner runs the recording's cues
-    /// in <paramref name="cue"/>. The owner checks what it watches for before this step, while <see cref="IsPlaying"/>.
+    /// Plays one step of the recording and presses the resulting actions in the player's place. The owner acts on the cue
+    /// a recording gives as it ends in <paramref name="cue"/>.
     /// </summary>
     public void Step(Action<DemoInputCue> cue)
     {

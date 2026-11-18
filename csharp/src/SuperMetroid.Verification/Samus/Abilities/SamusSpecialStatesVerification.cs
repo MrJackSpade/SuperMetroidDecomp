@@ -769,7 +769,7 @@ internal static void VerifySamusDeathSequence()
     AssertEqual(SamusDeathSequencePhase.Flashing, samus.DeathSequence.Phase,
         "sixteen preflash calls enter flashing");
     AssertEqual(5, samus.AnimationNumber, "unmorphed death frame loops at five");
-    AssertTrue(step.DrawPose, "last preflash call still draws death pose");
+    AssertEqual(SuperMetroid.Core.Samus.Death.SamusDeathDraw.Pose, step.Draws, "last preflash call still draws death pose");
 
     // Calls one through four queue the four high OBJ segments. Call 60 finishes flashing,
     // queues segment four at `$6000`, resets the explosion state, immediately decrements
@@ -797,7 +797,7 @@ internal static void VerifySamusDeathSequence()
         AssertTrue(explosionCalls <= 135, "death explosion terminates on native timer sum");
     }
     AssertEqual(135, explosionCalls, "death explosion remaining call count");
-    AssertTrue(step.Completed && !step.DrawExplosion,
+    AssertTrue(step.Completed && step.Draws == SuperMetroid.Core.Samus.Death.SamusDeathDraw.Nothing,
         "terminal death call completes without drawing");
     AssertEqual(true, samus.DeathSequence.Explosion?.HasStopped,
         "the explosion has played its last picture");

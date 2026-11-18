@@ -14,8 +14,9 @@ namespace SuperMetroid.Core.Runtime;
 /// nudges and the destination fade-in.
 /// </summary>
 /// <remarks>
-/// Room construction remains in <see cref="SuperMetroid.Core.World.RoomLoader.LoadPendingDoorDestination"/>;
-/// this owner restores the observable stages that surround it. How the transition counts frames is
+/// The destination room is set up on its loading update by
+/// <see cref="SuperMetroid.Core.World.RoomLoader.LoadPendingDoorDestination"/>; the transition runs the updates before and
+/// after it. How the transition counts frames is
 /// <see cref="DoorTransitionFrameCounting"/>'s, where its liquid wave and statue descent stop is
 /// <see cref="LiquidWaveAndStatueDescentOrder"/>'s, how many updates it spends before the door's scroll starts is
 /// <see cref="DoorDestinationSetupWait"/>'s, and how far loading has progressed on each scroll update is
@@ -157,8 +158,8 @@ internal sealed class DoorTransitionState
             case DoorTransitionPhase.MoveToDoorScrollStart:
                 runtime.RunBlankGameplayFrame(controllerInput);
                 runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope, samus);
-                // Capture immediately before the setup call; source actors have run
-                // during the fade. The atomic loader must not apply this step twice.
+                // The door's scroll starts from where Samus stands once the fade's updates have moved her, before the
+                // scroll's first movement moves her again; that movement happens once, here.
                 transition.SourceSamus = samus.Position;
                 runtime.RoomLoader.ApplyDoorScrollingSetupMovement(transition.Door);
                 transition.Enter(DoorTransitionPhase.PlaceSamusInDestination);
@@ -174,10 +175,9 @@ internal sealed class DoorTransitionState
             case DoorTransitionPhase.LoadDestinationRoom:
                 runtime.RunBlankGameplayFrame(controllerInput);
                 runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope, samus);
-                // Loading initializes enemy graphics, music, projectiles, block animations,
-                // room objects, FX and backgrounds, and then waits one update at a time until the
-                // door's scroll finishes. The room constructor performs that setup
-                // atomically; the following updates run the scroll's real coordinate path.
+                // This update sets up the destination's enemy graphics, music, projectiles, block animations,
+                // room objects, FX and backgrounds; each following update moves the door's scroll one step, from
+                // where it stood when loading began, until it finishes.
                 runtime.RoomLoader.LoadPendingDoorDestinationForTransition(transition.SourceSamus);
                 runtime.LiquidWaveAndStatueDescentOrder.ResumeAfterRoomLoad();
                 // The load re-asserted the door's gates over the destination's enemies:
@@ -254,9 +254,8 @@ internal sealed class DoorTransitionState
             case DoorTransitionPhase.FinishDoorOpeningScroll:
                 runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
                 runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope, samus);
-                // The narrow-door nudges apply only after the opening scroll and the music
-                // queue are both complete. The atomic loader computed that exact endpoint,
-                // which is restored here rather than during the visible scroll.
+                // Samus's nudges off the screen's edges and an elevator door's control setup apply only once the
+                // opening scroll has finished and the music is queued, not during the visible scroll.
                 runtime.RoomLoader.FinishDoorOpeningScroll();
                 runtime.RoomLoader.EndDoorTransitionDisplay();
                 // This update ends here; the first destination fade starts on the next.

@@ -253,7 +253,7 @@ internal static class RoomObjectPopulationVerification
         // own blue closer is placed instead.
         RoomLevelData openLevel = CreateRoom(new(8, 8), new RoomTerrainBlock[64], new RoomBlockBehavior[64]);
         var landingSiteOpened = new SharedGameState(new SharedRandom());
-        landingSiteOpened.OpenDoor(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsGreenDoorFacingLeft);
+        landingSiteOpened.OpenDoor(LockedDoorDefinitions.LandingSiteGreenDoorFacingLeft);
         var openObjects = RoomObjectFixtures.Bound(new RoomObjectRoom(openLevel, landingSiteOpened, AreaId.Crateria),
             RoomObjectServiceFixtures.Uninstalled, RoomObjectFixtures.Unbound());
         AssertTrue(openObjects.DoorObjects.TrySpawnBlueDoorOpening(openLevel, new(1, 1),

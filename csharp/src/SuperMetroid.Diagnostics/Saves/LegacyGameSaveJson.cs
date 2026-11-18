@@ -21,7 +21,8 @@ namespace SuperMetroid.Diagnostics.Saves;
 /// doors after the disassembly's abbreviated room labels, which become the rooms' spelled-out names; schema eleven
 /// (#2140) kept no history of a power-on that found no valid save, which becomes none; schema twelve (#2364) kept a
 /// reserve-missile count nothing in the game reads, which is not carried; schema thirteen (#2491) named some item
-/// locations after the room state that first places them, which become their rooms' names.
+/// locations after the room state that first places them, which become their rooms' names; schema fourteen (#2501) named
+/// some doors after the room states that place them, which become their rooms' names.
 /// </summary>
 public static class LegacyGameSaveJson
 {
@@ -59,7 +60,7 @@ public static class LegacyGameSaveJson
         return GameSaveJsonCodec.Deserialize(current, sourceName);
     }
 
-    /// <summary>One-way upgrade of schemas one through thirteen to the current schema; the current schema is returned unchanged.</summary>
+    /// <summary>One-way upgrade of schemas one through fourteen to the current schema; the current schema is returned unchanged.</summary>
     private static string Upgrade(string json, out int sourceSchemaVersion)
     {
         JsonObject root = JsonNode.Parse(json) as JsonObject ??
@@ -96,6 +97,8 @@ public static class LegacyGameSaveJson
             UpgradeSchemaTwelve(root);
         if (sourceSchemaVersion <= SchemaThirteen)
             UpgradeSchemaThirteen(root);
+        if (sourceSchemaVersion <= SchemaFourteen)
+            UpgradeSchemaFourteen(root);
         root["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
         return root.ToJsonString();
     }
@@ -108,6 +111,61 @@ public static class LegacyGameSaveJson
 
     /// <summary>The last schema that named some item locations after the room state that first places them.</summary>
     private const int SchemaThirteen = 13;
+
+    /// <summary>The last schema that named some doors after the room states that place them.</summary>
+    private const int SchemaFourteen = 14;
+
+    /// <summary>
+    /// The doors schemas six through fourteen named after the room states that place them, by that name, each mapped to its
+    /// room's name and, where two doors of the room would share that, the grey door's condition, its block or, for the
+    /// Climb's escape, the state that places it.
+    /// </summary>
+    private static readonly Dictionary<string, string> SchemaFourteenDoorNames = new(StringComparer.Ordinal)
+    {
+        ["LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsGreenDoorFacingLeft"] = nameof(LockedDoorDefinitions.LandingSiteGreenDoorFacingLeft),
+        ["LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsYellowDoorFacingLeft"] = nameof(LockedDoorDefinitions.LandingSiteYellowDoorFacingLeft),
+        ["LandingSiteWhenZebesTimebombSetGreyDoorFacingRight"] = nameof(LockedDoorDefinitions.LandingSiteGreyDoorFacingRight),
+        ["LandingSiteWhenZebesTimebombSetGreyDoorFacingLeftAt142x70"] = nameof(LockedDoorDefinitions.LandingSiteGreyDoorFacingLeftAt142x70),
+        ["LandingSiteWhenZebesTimebombSetGreyDoorFacingLeftAt142x22"] = nameof(LockedDoorDefinitions.LandingSiteGreyDoorFacingLeftAt142x22),
+        ["ParlorDefaultOrWhenZebesAwakeRedDoorFacingLeft"] = nameof(LockedDoorDefinitions.ParlorRedDoorFacingLeft),
+        ["ParlorWhenZebesTimebombSetGreyDoorFacingRightAt1x6"] = nameof(LockedDoorDefinitions.ParlorGreyDoorFacingRightAt1x6),
+        ["ParlorWhenZebesTimebombSetGreyDoorFacingRightAt17x38"] = nameof(LockedDoorDefinitions.ParlorGreyDoorFacingRightAt17x38),
+        ["ParlorWhenZebesTimebombSetGreyDoorFacingRightAt17x54"] = nameof(LockedDoorDefinitions.ParlorGreyDoorFacingRightAt17x54),
+        ["ParlorWhenZebesTimebombSetGreyDoorFacingLeft"] = nameof(LockedDoorDefinitions.ParlorGreyDoorFacingLeft),
+        ["ParlorWhenZebesTimebombSetGreyDoorFacingUp"] = nameof(LockedDoorDefinitions.ParlorGreyDoorFacingUp),
+        ["ClimbDefaultOrWhenZebesAwakeGreyDoorFacingLeft"] = nameof(LockedDoorDefinitions.ClimbGreyDoorFacingLeftAt46x6),
+        ["ClimbDefaultOrWhenZebesAwakeGreyDoorFacingRight"] = nameof(LockedDoorDefinitions.ClimbGreyDoorFacingRight),
+        ["ClimbDefaultOrWhenZebesAwakeYellowDoorFacingLeft"] = nameof(LockedDoorDefinitions.ClimbYellowDoorFacingLeft),
+        ["ClimbWhenZebesTimebombSetGreyDoorFacingLeftAt46x6"] = nameof(LockedDoorDefinitions.ClimbGreyDoorFacingLeftAt46x6WhenZebesTimebombSet),
+        ["ClimbWhenZebesTimebombSetGreyDoorFacingLeftAt46x118"] = nameof(LockedDoorDefinitions.ClimbGreyDoorFacingLeftAt46x118),
+        ["ClimbWhenZebesTimebombSetGreyDoorFacingLeftAt30x134"] = nameof(LockedDoorDefinitions.ClimbGreyDoorFacingLeftAt30x134),
+        ["ClimbWhenZebesTimebombSetGreyDoorFacingRight"] = nameof(LockedDoorDefinitions.ClimbGreyDoorFacingRightWhenZebesTimebombSet),
+        ["PitDefaultGreyDoorFacingRight"] = nameof(LockedDoorDefinitions.PitGreyDoorFacingRightNeverOpening),
+        ["PitWithMorphBallAndMissilesGreyDoorFacingLeft"] = nameof(LockedDoorDefinitions.PitGreyDoorFacingLeft),
+        ["PitWithMorphBallAndMissilesGreyDoorFacingRight"] = nameof(LockedDoorDefinitions.PitGreyDoorFacingRightUntilEnemiesKilled),
+        ["BombTorizoDefaultOrWhenAreaTorizoDeadBombTorizoGreyDoor"] = nameof(LockedDoorDefinitions.BombTorizoGreyDoor),
+        ["BombTorizoWhenZebesTimebombSetGreyDoorFacingRight"] = nameof(LockedDoorDefinitions.BombTorizoGreyDoorFacingRight),
+        ["FlywayDefaultOrWhenAreaTorizoDeadRedDoorFacingLeft"] = nameof(LockedDoorDefinitions.FlywayRedDoorFacingLeft),
+        ["MorphBallWhenZebesAwakeGreyDoorFacingRight"] = nameof(LockedDoorDefinitions.MorphBallGreyDoorFacingRight),
+        ["AtticDefaultGreyDoorFacingRight"] = nameof(LockedDoorDefinitions.AtticGreyDoorFacingRightUntilAreaBossDead),
+        ["AtticDefaultGreyDoorFacingLeft"] = nameof(LockedDoorDefinitions.AtticGreyDoorFacingLeftUntilAreaBossDead),
+        ["BasementDefaultEyeDoorFacingLeft"] = nameof(LockedDoorDefinitions.BasementEyeDoorFacingLeft),
+        ["BowlingAlleyWhenAreaBossDeadGreyDoorFacingRight"] = nameof(LockedDoorDefinitions.BowlingAlleyGreyDoorFacingRight),
+        ["AtticWhenAreaBossDeadGreyDoorFacingRight"] = nameof(LockedDoorDefinitions.AtticGreyDoorFacingRightUntilEnemiesKilled),
+        ["AtticWhenAreaBossDeadGreyDoorFacingLeft"] = nameof(LockedDoorDefinitions.AtticGreyDoorFacingLeftUntilEnemiesKilled),
+        ["AtticWhenAreaBossDeadGreyDoorFacingUp"] = nameof(LockedDoorDefinitions.AtticGreyDoorFacingUp),
+        ["ElectricDeathWhenAreaBossDeadRedDoorFacingRight"] = nameof(LockedDoorDefinitions.ElectricDeathRedDoorFacingRight),
+    };
+
+    /// <summary>
+    /// Schema fourteen to fifteen (#2501): schemas six through fourteen named some doors after the room states that place
+    /// them; each becomes its room's name, and every other name is kept as it was.
+    /// </summary>
+    private static void UpgradeSchemaFourteen(JsonObject root)
+    {
+        foreach ((JsonObject progression, int index) in Progressions(root))
+            progression["openedDoors"] = RenamedPlacements(progression, "openedDoors", index, SchemaFourteenDoorNames);
+    }
 
     /// <summary>The item locations schemas six through thirteen named after the room state that first places them, by that name.</summary>
     private static readonly Dictionary<string, string> SchemaThirteenItemLocationNames = new(StringComparer.Ordinal)
@@ -129,7 +187,7 @@ public static class LegacyGameSaveJson
     /// <summary>
     /// Schema thirteen to fourteen (#2491): schemas six through thirteen named some item locations after the room state that
     /// first places them; each becomes its room's name, which every state of the room shares, and every other name is kept as
-    /// it was. Doors keep their names: two states of one room place distinct doors on the same block.
+    /// it was; the schema-fourteen upgrade renames the doors.
     /// </summary>
     private static void UpgradeSchemaThirteen(JsonObject root)
     {

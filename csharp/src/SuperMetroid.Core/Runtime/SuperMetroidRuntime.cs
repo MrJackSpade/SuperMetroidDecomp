@@ -540,16 +540,13 @@ internal sealed class SuperMetroidRuntime
     private void RunLiquidWaveAndStatueDescent(RoomScope room, SamusState samus)
     {
         // The liquid wave and the statues read the random number before the update draws the next one. A
-        // message box's wait does not run them.
-        if (!MessageBox.IsActive)
-        {
-            LiquidWaveAndStatueDescent.Advance(room.RoomObjects, room);
+        // message box's wait does not run them: its updates return before this.
+        LiquidWaveAndStatueDescent.Advance(room.RoomObjects, room);
 
-            // The power bomb blast belongs to the outer frame, not Samus's input phase. A statue carry
-            // takes over her movement while the already-spawned blast continues normally.
-            // Its cleanup resumes Samus's sounds, which can queue them before Samus's frame.
-            room.BombProjectiles.AdvancePowerBombExplosion(samus, PlayerActions.Current, RunningGameState);
-        }
+        // The power bomb blast belongs to the outer frame, not Samus's input phase. A statue carry
+        // takes over her movement while the already-spawned blast continues normally.
+        // Its cleanup resumes Samus's sounds, which can queue them before Samus's frame.
+        room.BombProjectiles.AdvancePowerBombExplosion(samus, PlayerActions.Current, RunningGameState);
     }
 
     /// <summary>Draws the update's random number.</summary>
@@ -687,7 +684,7 @@ internal sealed class SuperMetroidRuntime
         {
             if (MessageBox.IsActive)
             {
-                throw new InvalidDataException(
+                throw new InvalidOperationException(
                     "A room object's message box and the gunship save prompt opened in one gameplay frame.");
             }
             MessageBox.Begin(GameplayMessageId.GunshipSaveConfirmation, PlayerButtons.Current, Options.ControllerBindings);

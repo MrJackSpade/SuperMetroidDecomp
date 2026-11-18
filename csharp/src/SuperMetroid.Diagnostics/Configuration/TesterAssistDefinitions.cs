@@ -42,7 +42,7 @@ public static class TesterAssistDefinitions
         ClearedDoors = new[]
         {
             LockedDoorDefinitions.KraidEyeDoorEyeDoorFacingLeft, LockedDoorDefinitions.LowerNorfairFarmingEyeDoorFacingRight,
-            LockedDoorDefinitions.BasementDefaultEyeDoorFacingLeft, LockedDoorDefinitions.ThePreciousEyeDoorFacingRight,
+            LockedDoorDefinitions.BasementEyeDoorFacingLeft, LockedDoorDefinitions.ThePreciousEyeDoorFacingRight,
             LockedDoorDefinitions.TourianEyeDoorEyeDoorFacingLeft,
         },
     };

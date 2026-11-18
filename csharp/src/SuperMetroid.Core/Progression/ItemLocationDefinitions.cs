@@ -7,310 +7,310 @@ namespace SuperMetroid.Core.Progression;
 /// and its item and, where two would share that name, its block. Regenerate with
 /// tools/generate-room-object-population-definitions.ps1.
 /// </summary>
-[NumberedIdentities("Each item location named with its block is one distinct location of its population, told apart by where it stands; nothing indexes them.")]
+[NumberedIdentities("Each item location named with its block is one distinct location of its room, told apart by where it stands; nothing indexes them.")]
 public static class ItemLocationDefinitions
 {
-    /// <summary>The CrateriaPowerBombsExposedPowerBombTank item location.</summary>
+    /// <summary>The Power Bomb Tank lying in the open at column 29, row 7 of the Crateria Power Bombs room.</summary>
     public static ItemLocation CrateriaPowerBombsExposedPowerBombTank { get; } = new(nameof(CrateriaPowerBombsExposedPowerBombTank));
 
-    /// <summary>The WestOceanExposedMissileTankAt2x91 item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 2, row 91 of the West Ocean room.</summary>
     public static ItemLocation WestOceanExposedMissileTankAt2x91 { get; } = new(nameof(WestOceanExposedMissileTankAt2x91));
 
-    /// <summary>The WestOceanShotBlockMissileTank item location.</summary>
+    /// <summary>The Missile Tank hidden in a shot block at column 28, row 3 of the West Ocean room.</summary>
     public static ItemLocation WestOceanShotBlockMissileTank { get; } = new(nameof(WestOceanShotBlockMissileTank));
 
-    /// <summary>The WestOceanExposedMissileTankAt1x47 item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 1, row 47 of the West Ocean room.</summary>
     public static ItemLocation WestOceanExposedMissileTankAt1x47 { get; } = new(nameof(WestOceanExposedMissileTankAt1x47));
 
-    /// <summary>The MoatExposedMissileTank item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 14, row 9 of the Moat room.</summary>
     public static ItemLocation MoatExposedMissileTank { get; } = new(nameof(MoatExposedMissileTank));
 
-    /// <summary>The GauntletEnergyTankExposedEnergyTank item location.</summary>
+    /// <summary>The Energy Tank lying in the open at column 83, row 8 of the Gauntlet Energy Tank room.</summary>
     public static ItemLocation GauntletEnergyTankExposedEnergyTank { get; } = new(nameof(GauntletEnergyTankExposedEnergyTank));
 
-    /// <summary>The PitExposedMissileTank item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 5, row 26 of the Pit room, in its state once Samus has the Morph Ball and missiles.</summary>
     public static ItemLocation PitExposedMissileTank { get; } = new(nameof(PitExposedMissileTank));
 
-    /// <summary>The BombTorizoChozoBombs item location.</summary>
+    /// <summary>The Bombs held in a Chozo statue's orb at column 12, row 10 of the Bomb Torizo room, in its default state and its state once the area's Torizo is dead.</summary>
     public static ItemLocation BombTorizoChozoBombs { get; } = new(nameof(BombTorizoChozoBombs));
 
-    /// <summary>The TerminatorExposedEnergyTank item location.</summary>
+    /// <summary>The Energy Tank lying in the open at column 7, row 42 of the Terminator room.</summary>
     public static ItemLocation TerminatorExposedEnergyTank { get; } = new(nameof(TerminatorExposedEnergyTank));
 
-    /// <summary>The GreenPiratesShaftExposedMissileTankAt13x27 item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 13, row 27 of the Green Pirates Shaft room.</summary>
     public static ItemLocation GreenPiratesShaftExposedMissileTankAt13x27 { get; } = new(nameof(GreenPiratesShaftExposedMissileTankAt13x27));
 
-    /// <summary>The GreenPiratesShaftExposedMissileTankAt2x27 item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 2, row 27 of the Green Pirates Shaft room.</summary>
     public static ItemLocation GreenPiratesShaftExposedMissileTankAt2x27 { get; } = new(nameof(GreenPiratesShaftExposedMissileTankAt2x27));
 
-    /// <summary>The CrateriaSuperExposedSuperMissileTank item location.</summary>
+    /// <summary>The Super Missile Tank lying in the open at column 59, row 9 of the Crateria Super room.</summary>
     public static ItemLocation CrateriaSuperExposedSuperMissileTank { get; } = new(nameof(CrateriaSuperExposedSuperMissileTank));
 
-    /// <summary>The FinalMissileExposedMissileTank item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 4, row 7 of the Final Missile room, in its state once Zebes is awake.</summary>
     public static ItemLocation FinalMissileExposedMissileTank { get; } = new(nameof(FinalMissileExposedMissileTank));
 
-    /// <summary>The GreenBrinstarMainShaftChozoPowerBombTank item location.</summary>
+    /// <summary>The Power Bomb Tank held in a Chozo statue's orb at column 60, row 122 of the Green Brinstar Main Shaft room.</summary>
     public static ItemLocation GreenBrinstarMainShaftChozoPowerBombTank { get; } = new(nameof(GreenBrinstarMainShaftChozoPowerBombTank));
 
-    /// <summary>The SporeSpawnSuperChozoSuperMissileTank item location.</summary>
+    /// <summary>The Super Missile Tank held in a Chozo statue's orb at column 26, row 135 of the Spore Spawn Super room.</summary>
     public static ItemLocation SporeSpawnSuperChozoSuperMissileTank { get; } = new(nameof(SporeSpawnSuperChozoSuperMissileTank));
 
-    /// <summary>The EarlySupersExposedMissileTank item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 19, row 27 of the Early Supers room.</summary>
     public static ItemLocation EarlySupersExposedMissileTank { get; } = new(nameof(EarlySupersExposedMissileTank));
 
-    /// <summary>The EarlySupersExposedSuperMissileTank item location.</summary>
+    /// <summary>The Super Missile Tank lying in the open at column 4, row 6 of the Early Supers room.</summary>
     public static ItemLocation EarlySupersExposedSuperMissileTank { get; } = new(nameof(EarlySupersExposedSuperMissileTank));
 
-    /// <summary>The BrinstarReserveTankChozoReserveTank item location.</summary>
+    /// <summary>The Reserve Tank held in a Chozo statue's orb at column 11, row 7 of the Brinstar Reserve Tank room.</summary>
     public static ItemLocation BrinstarReserveTankChozoReserveTank { get; } = new(nameof(BrinstarReserveTankChozoReserveTank));
 
-    /// <summary>The BrinstarReserveTankShotBlockMissileTank item location.</summary>
+    /// <summary>The Missile Tank hidden in a shot block at column 30, row 7 of the Brinstar Reserve Tank room.</summary>
     public static ItemLocation BrinstarReserveTankShotBlockMissileTank { get; } = new(nameof(BrinstarReserveTankShotBlockMissileTank));
 
-    /// <summary>The BrinstarReserveTankExposedMissileTank item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 25, row 7 of the Brinstar Reserve Tank room.</summary>
     public static ItemLocation BrinstarReserveTankExposedMissileTank { get; } = new(nameof(BrinstarReserveTankExposedMissileTank));
 
-    /// <summary>The BigPinkExposedMissileTankAt36x50 item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 36, row 50 of the Big Pink room.</summary>
     public static ItemLocation BigPinkExposedMissileTankAt36x50 { get; } = new(nameof(BigPinkExposedMissileTankAt36x50));
 
-    /// <summary>The BigPinkExposedMissileTankAt34x103 item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 34, row 103 of the Big Pink room.</summary>
     public static ItemLocation BigPinkExposedMissileTankAt34x103 { get; } = new(nameof(BigPinkExposedMissileTankAt34x103));
 
-    /// <summary>The BigPinkChozoChargeBeam item location.</summary>
+    /// <summary>The Charge Beam held in a Chozo statue's orb at column 37, row 118 of the Big Pink room.</summary>
     public static ItemLocation BigPinkChozoChargeBeam { get; } = new(nameof(BigPinkChozoChargeBeam));
 
-    /// <summary>The PinkBrinstarPowerBombsExposedPowerBombTank item location.</summary>
+    /// <summary>The Power Bomb Tank lying in the open at column 6, row 23 of the Pink Brinstar Power Bombs room.</summary>
     public static ItemLocation PinkBrinstarPowerBombsExposedPowerBombTank { get; } = new(nameof(PinkBrinstarPowerBombsExposedPowerBombTank));
 
-    /// <summary>The GreenHillZoneExposedMissileTank item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 61, row 24 of the Green Hill Zone room.</summary>
     public static ItemLocation GreenHillZoneExposedMissileTank { get; } = new(nameof(GreenHillZoneExposedMissileTank));
 
-    /// <summary>The MorphBallExposedMorphBall item location.</summary>
+    /// <summary>The Morph Ball lying in the open at column 69, row 41 of the Morph Ball room, in its default state.</summary>
     public static ItemLocation MorphBallExposedMorphBall { get; } = new(nameof(MorphBallExposedMorphBall));
 
-    /// <summary>The MorphBallExposedPowerBombTank item location.</summary>
+    /// <summary>The Power Bomb Tank lying in the open at column 40, row 42 of the Morph Ball room, in its state once Zebes is awake.</summary>
     public static ItemLocation MorphBallExposedPowerBombTank { get; } = new(nameof(MorphBallExposedPowerBombTank));
 
-    /// <summary>The BlueBrinstarEnergyTankExposedMissileTank item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 46, row 41 of the Blue Brinstar Energy Tank room.</summary>
     public static ItemLocation BlueBrinstarEnergyTankExposedMissileTank { get; } = new(nameof(BlueBrinstarEnergyTankExposedMissileTank));
 
-    /// <summary>The BlueBrinstarEnergyTankShotBlockEnergyTank item location.</summary>
+    /// <summary>The Energy Tank hidden in a shot block at column 28, row 34 of the Blue Brinstar Energy Tank room.</summary>
     public static ItemLocation BlueBrinstarEnergyTankShotBlockEnergyTank { get; } = new(nameof(BlueBrinstarEnergyTankShotBlockEnergyTank));
 
-    /// <summary>The EtecoonEnergyTankExposedEnergyTank item location.</summary>
+    /// <summary>The Energy Tank lying in the open at column 5, row 9 of the Etecoon Energy Tank room.</summary>
     public static ItemLocation EtecoonEnergyTankExposedEnergyTank { get; } = new(nameof(EtecoonEnergyTankExposedEnergyTank));
 
-    /// <summary>The EtecoonSuperExposedSuperMissileTank item location.</summary>
+    /// <summary>The Super Missile Tank lying in the open at column 7, row 9 of the Etecoon Super room.</summary>
     public static ItemLocation EtecoonSuperExposedSuperMissileTank { get; } = new(nameof(EtecoonSuperExposedSuperMissileTank));
 
-    /// <summary>The WaterwayEnergyTankExposedEnergyTank item location.</summary>
+    /// <summary>The Energy Tank lying in the open at column 4, row 9 of the Waterway Energy Tank room.</summary>
     public static ItemLocation WaterwayEnergyTankExposedEnergyTank { get; } = new(nameof(WaterwayEnergyTankExposedEnergyTank));
 
-    /// <summary>The FirstMissileChozoMissileTank item location.</summary>
+    /// <summary>The Missile Tank held in a Chozo statue's orb at column 4, row 7 of the First Missile room.</summary>
     public static ItemLocation FirstMissileChozoMissileTank { get; } = new(nameof(FirstMissileChozoMissileTank));
 
-    /// <summary>The HopperEnergyTankExposedEnergyTank item location.</summary>
+    /// <summary>The Energy Tank lying in the open at column 11, row 9 of the Hopper Energy Tank room.</summary>
     public static ItemLocation HopperEnergyTankExposedEnergyTank { get; } = new(nameof(HopperEnergyTankExposedEnergyTank));
 
-    /// <summary>The BillyMaysExposedMissileTank item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 7, row 9 of the Billy Mays room.</summary>
     public static ItemLocation BillyMaysExposedMissileTank { get; } = new(nameof(BillyMaysExposedMissileTank));
 
-    /// <summary>The BillyMaysShotBlockMissileTank item location.</summary>
+    /// <summary>The Missile Tank hidden in a shot block at column 5, row 12 of the Billy Mays room.</summary>
     public static ItemLocation BillyMaysShotBlockMissileTank { get; } = new(nameof(BillyMaysShotBlockMissileTank));
 
-    /// <summary>The XrayScopeChozoXrayScope item location.</summary>
+    /// <summary>The X-Ray Scope held in a Chozo statue's orb at column 5, row 7 of the Xray Scope room.</summary>
     public static ItemLocation XrayScopeChozoXrayScope { get; } = new(nameof(XrayScopeChozoXrayScope));
 
-    /// <summary>The BetaPowerBombExposedPowerBombTank item location.</summary>
+    /// <summary>The Power Bomb Tank lying in the open at column 4, row 19 of the Beta Power Bomb room.</summary>
     public static ItemLocation BetaPowerBombExposedPowerBombTank { get; } = new(nameof(BetaPowerBombExposedPowerBombTank));
 
-    /// <summary>The AlphaPowerBombChozoPowerBombTank item location.</summary>
+    /// <summary>The Power Bomb Tank held in a Chozo statue's orb at column 20, row 9 of the Alpha Power Bomb room.</summary>
     public static ItemLocation AlphaPowerBombChozoPowerBombTank { get; } = new(nameof(AlphaPowerBombChozoPowerBombTank));
 
-    /// <summary>The AlphaPowerBombExposedMissileTank item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 2, row 8 of the Alpha Power Bomb room.</summary>
     public static ItemLocation AlphaPowerBombExposedMissileTank { get; } = new(nameof(AlphaPowerBombExposedMissileTank));
 
-    /// <summary>The SpazerChozoSpazerBeam item location.</summary>
+    /// <summary>The Spazer held in a Chozo statue's orb at column 11, row 9 of the Spazer room.</summary>
     public static ItemLocation SpazerChozoSpazerBeam { get; } = new(nameof(SpazerChozoSpazerBeam));
 
-    /// <summary>The WarehouseEnergyTankShotBlockEnergyTank item location.</summary>
+    /// <summary>The Energy Tank hidden in a shot block at column 5, row 4 of the Warehouse Energy Tank room.</summary>
     public static ItemLocation WarehouseEnergyTankShotBlockEnergyTank { get; } = new(nameof(WarehouseEnergyTankShotBlockEnergyTank));
 
-    /// <summary>The WarehouseKihunterShotBlockMissileTank item location.</summary>
+    /// <summary>The Missile Tank hidden in a shot block at column 46, row 8 of the Warehouse Kihunter room.</summary>
     public static ItemLocation WarehouseKihunterShotBlockMissileTank { get; } = new(nameof(WarehouseKihunterShotBlockMissileTank));
 
-    /// <summary>The VariaSuitChozoVariaSuit item location.</summary>
+    /// <summary>The Varia Suit held in a Chozo statue's orb at column 7, row 9 of the Varia Suit room.</summary>
     public static ItemLocation VariaSuitChozoVariaSuit { get; } = new(nameof(VariaSuitChozoVariaSuit));
 
-    /// <summary>The CathedralShotBlockMissileTank item location.</summary>
+    /// <summary>The Missile Tank hidden in a shot block at column 34, row 28 of the Cathedral room.</summary>
     public static ItemLocation CathedralShotBlockMissileTank { get; } = new(nameof(CathedralShotBlockMissileTank));
 
-    /// <summary>The IceBeamChozoIceBeam item location.</summary>
+    /// <summary>The Ice Beam held in a Chozo statue's orb at column 12, row 7 of the Ice Beam room.</summary>
     public static ItemLocation IceBeamChozoIceBeam { get; } = new(nameof(IceBeamChozoIceBeam));
 
-    /// <summary>The CrumbleShaftShotBlockMissileTank item location.</summary>
+    /// <summary>The Missile Tank hidden in a shot block at column 1, row 8 of the Crumble Shaft room.</summary>
     public static ItemLocation CrumbleShaftShotBlockMissileTank { get; } = new(nameof(CrumbleShaftShotBlockMissileTank));
 
-    /// <summary>The CrocomireExposedEnergyTank item location.</summary>
+    /// <summary>The Energy Tank lying in the open at column 125, row 6 of the Crocomire room.</summary>
     public static ItemLocation CrocomireExposedEnergyTank { get; } = new(nameof(CrocomireExposedEnergyTank));
 
-    /// <summary>The HiJumpBootsChozoHiJumpBoots item location.</summary>
+    /// <summary>The Hi-Jump Boots held in a Chozo statue's orb at column 3, row 10 of the Hi Jump Boots room.</summary>
     public static ItemLocation HiJumpBootsChozoHiJumpBoots { get; } = new(nameof(HiJumpBootsChozoHiJumpBoots));
 
-    /// <summary>The CrocomireEscapeExposedMissileTank item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 13, row 9 of the Crocomire Escape room.</summary>
     public static ItemLocation CrocomireEscapeExposedMissileTank { get; } = new(nameof(CrocomireEscapeExposedMissileTank));
 
-    /// <summary>The HiJumpEnergyTankExposedMissileTank item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 9, row 6 of the Hi Jump Energy Tank room.</summary>
     public static ItemLocation HiJumpEnergyTankExposedMissileTank { get; } = new(nameof(HiJumpEnergyTankExposedMissileTank));
 
-    /// <summary>The HiJumpEnergyTankExposedEnergyTank item location.</summary>
+    /// <summary>The Energy Tank lying in the open at column 23, row 8 of the Hi Jump Energy Tank room.</summary>
     public static ItemLocation HiJumpEnergyTankExposedEnergyTank { get; } = new(nameof(HiJumpEnergyTankExposedEnergyTank));
 
-    /// <summary>The PostCrocomirePowerBombsExposedPowerBombTank item location.</summary>
+    /// <summary>The Power Bomb Tank lying in the open at column 7, row 8 of the Post Crocomire Power Bombs room.</summary>
     public static ItemLocation PostCrocomirePowerBombsExposedPowerBombTank { get; } = new(nameof(PostCrocomirePowerBombsExposedPowerBombTank));
 
-    /// <summary>The PostCrocomireMissileExposedMissileTank item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 60, row 9 of the Post Crocomire Missile room.</summary>
     public static ItemLocation PostCrocomireMissileExposedMissileTank { get; } = new(nameof(PostCrocomireMissileExposedMissileTank));
 
-    /// <summary>The PostCrocomireJumpExposedMissileTank item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 67, row 9 of the Post Crocomire Jump room.</summary>
     public static ItemLocation PostCrocomireJumpExposedMissileTank { get; } = new(nameof(PostCrocomireJumpExposedMissileTank));
 
-    /// <summary>The GrappleBeamChozoGrappleBeam item location.</summary>
+    /// <summary>The Grapple Beam held in a Chozo statue's orb at column 4, row 39 of the Grapple Beam room.</summary>
     public static ItemLocation GrappleBeamChozoGrappleBeam { get; } = new(nameof(GrappleBeamChozoGrappleBeam));
 
-    /// <summary>The NorfairReserveTankChozoReserveTank item location.</summary>
+    /// <summary>The Reserve Tank held in a Chozo statue's orb at column 2, row 7 of the Norfair Reserve Tank room.</summary>
     public static ItemLocation NorfairReserveTankChozoReserveTank { get; } = new(nameof(NorfairReserveTankChozoReserveTank));
 
-    /// <summary>The NorfairReserveTankShotBlockMissileTank item location.</summary>
+    /// <summary>The Missile Tank hidden in a shot block at column 7, row 11 of the Norfair Reserve Tank room.</summary>
     public static ItemLocation NorfairReserveTankShotBlockMissileTank { get; } = new(nameof(NorfairReserveTankShotBlockMissileTank));
 
-    /// <summary>The GreenBubblesMissilesExposedMissileTank item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 20, row 10 of the Green Bubbles Missiles room.</summary>
     public static ItemLocation GreenBubblesMissilesExposedMissileTank { get; } = new(nameof(GreenBubblesMissilesExposedMissileTank));
 
-    /// <summary>The BubbleMountainExposedMissileTank item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 20, row 60 of the Bubble Mountain room.</summary>
     public static ItemLocation BubbleMountainExposedMissileTank { get; } = new(nameof(BubbleMountainExposedMissileTank));
 
-    /// <summary>The SpeedBoosterHallShotBlockMissileTank item location.</summary>
+    /// <summary>The Missile Tank hidden in a shot block at column 188, row 19 of the Speed Booster Hall room.</summary>
     public static ItemLocation SpeedBoosterHallShotBlockMissileTank { get; } = new(nameof(SpeedBoosterHallShotBlockMissileTank));
 
-    /// <summary>The SpeedBoosterChozoSpeedBooster item location.</summary>
+    /// <summary>The Speed Booster held in a Chozo statue's orb at column 11, row 6 of the Speed Booster room.</summary>
     public static ItemLocation SpeedBoosterChozoSpeedBooster { get; } = new(nameof(SpeedBoosterChozoSpeedBooster));
 
-    /// <summary>The DoubleChamberExposedMissileTank item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 31, row 9 of the Double Chamber room.</summary>
     public static ItemLocation DoubleChamberExposedMissileTank { get; } = new(nameof(DoubleChamberExposedMissileTank));
 
-    /// <summary>The WaveBeamChozoWaveBeam item location.</summary>
+    /// <summary>The Wave Beam held in a Chozo statue's orb at column 11, row 6 of the Wave Beam room.</summary>
     public static ItemLocation WaveBeamChozoWaveBeam { get; } = new(nameof(WaveBeamChozoWaveBeam));
 
-    /// <summary>The GoldenTorizoExposedMissileTank item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 13, row 8 of the Golden Torizo room.</summary>
     public static ItemLocation GoldenTorizoExposedMissileTank { get; } = new(nameof(GoldenTorizoExposedMissileTank));
 
-    /// <summary>The GoldenTorizoShotBlockSuperMissileTank item location.</summary>
+    /// <summary>The Super Missile Tank hidden in a shot block at column 21, row 8 of the Golden Torizo room.</summary>
     public static ItemLocation GoldenTorizoShotBlockSuperMissileTank { get; } = new(nameof(GoldenTorizoShotBlockSuperMissileTank));
 
-    /// <summary>The MickeyMouseExposedMissileTank item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 39, row 27 of the Mickey Mouse room.</summary>
     public static ItemLocation MickeyMouseExposedMissileTank { get; } = new(nameof(MickeyMouseExposedMissileTank));
 
-    /// <summary>The LowerNorfairSpringBallMazeExposedMissileTank item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 43, row 7 of the Lower Norfair Spring Ball Maze room.</summary>
     public static ItemLocation LowerNorfairSpringBallMazeExposedMissileTank { get; } = new(nameof(LowerNorfairSpringBallMazeExposedMissileTank));
 
-    /// <summary>The LowerNorfairEscapePowerBombsExposedPowerBombTank item location.</summary>
+    /// <summary>The Power Bomb Tank lying in the open at column 12, row 8 of the Lower Norfair Escape Power Bombs room.</summary>
     public static ItemLocation LowerNorfairEscapePowerBombsExposedPowerBombTank { get; } = new(nameof(LowerNorfairEscapePowerBombsExposedPowerBombTank));
 
-    /// <summary>The WastelandExposedPowerBombTank item location.</summary>
+    /// <summary>The Power Bomb Tank lying in the open at column 7, row 8 of the Wasteland room.</summary>
     public static ItemLocation WastelandExposedPowerBombTank { get; } = new(nameof(WastelandExposedPowerBombTank));
 
-    /// <summary>The ThreeMusketeersExposedMissileTank item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 8, row 41 of the Three Musketeers room.</summary>
     public static ItemLocation ThreeMusketeersExposedMissileTank { get; } = new(nameof(ThreeMusketeersExposedMissileTank));
 
-    /// <summary>The RidleyEnergyTankShotBlockEnergyTank item location.</summary>
+    /// <summary>The Energy Tank hidden in a shot block at column 14, row 11 of the Ridley Energy Tank room.</summary>
     public static ItemLocation RidleyEnergyTankShotBlockEnergyTank { get; } = new(nameof(RidleyEnergyTankShotBlockEnergyTank));
 
-    /// <summary>The ScrewAttackChozoScrewAttack item location.</summary>
+    /// <summary>The Screw Attack held in a Chozo statue's orb at column 11, row 40 of the Screw Attack room.</summary>
     public static ItemLocation ScrewAttackChozoScrewAttack { get; } = new(nameof(ScrewAttackChozoScrewAttack));
 
-    /// <summary>The LowerNorfairFirefleaExposedEnergyTank item location.</summary>
+    /// <summary>The Energy Tank lying in the open at column 42, row 81 of the Lower Norfair Fireflea room.</summary>
     public static ItemLocation LowerNorfairFirefleaExposedEnergyTank { get; } = new(nameof(LowerNorfairFirefleaExposedEnergyTank));
 
-    /// <summary>The WreckedShipMainShaftExposedMissileTank item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 2, row 89 of the Wrecked Ship Main Shaft room.</summary>
     public static ItemLocation WreckedShipMainShaftExposedMissileTank { get; } = new(nameof(WreckedShipMainShaftExposedMissileTank));
 
-    /// <summary>The BowlingAlleyChozoReserveTank item location.</summary>
+    /// <summary>The Reserve Tank held in a Chozo statue's orb at column 83, row 11 of the Bowling Alley room, in its state once the area's boss is dead.</summary>
     public static ItemLocation BowlingAlleyChozoReserveTank { get; } = new(nameof(BowlingAlleyChozoReserveTank));
 
-    /// <summary>The BowlingAlleyExposedMissileTank item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 60, row 38 of the Bowling Alley room, in its state once the area's boss is dead.</summary>
     public static ItemLocation BowlingAlleyExposedMissileTank { get; } = new(nameof(BowlingAlleyExposedMissileTank));
 
-    /// <summary>The AssemblyLineExposedMissileTank item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 45, row 8 of the Assembly Line room, in its state once the area's boss is dead.</summary>
     public static ItemLocation AssemblyLineExposedMissileTank { get; } = new(nameof(AssemblyLineExposedMissileTank));
 
-    /// <summary>The WreckedShipEnergyTankExposedEnergyTank item location.</summary>
+    /// <summary>The Energy Tank lying in the open at column 3, row 6 of the Wrecked Ship Energy Tank room, in its state once the area's boss is dead.</summary>
     public static ItemLocation WreckedShipEnergyTankExposedEnergyTank { get; } = new(nameof(WreckedShipEnergyTankExposedEnergyTank));
 
-    /// <summary>The WreckedShipWestSuperExposedSuperMissileTank item location.</summary>
+    /// <summary>The Super Missile Tank lying in the open at column 2, row 7 of the Wrecked Ship West Super room, in its state once the area's boss is dead.</summary>
     public static ItemLocation WreckedShipWestSuperExposedSuperMissileTank { get; } = new(nameof(WreckedShipWestSuperExposedSuperMissileTank));
 
-    /// <summary>The WreckedShipEastSuperExposedSuperMissileTank item location.</summary>
+    /// <summary>The Super Missile Tank lying in the open at column 56, row 9 of the Wrecked Ship East Super room, in its state once the area's boss is dead.</summary>
     public static ItemLocation WreckedShipEastSuperExposedSuperMissileTank { get; } = new(nameof(WreckedShipEastSuperExposedSuperMissileTank));
 
-    /// <summary>The GravitySuitChozoGravitySuit item location.</summary>
+    /// <summary>The Gravity Suit held in a Chozo statue's orb at column 7, row 9 of the Gravity Suit room, in its state once the area's boss is dead.</summary>
     public static ItemLocation GravitySuitChozoGravitySuit { get; } = new(nameof(GravitySuitChozoGravitySuit));
 
-    /// <summary>The MainStreetExposedMissileTank item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 14, row 53 of the Main Street room.</summary>
     public static ItemLocation MainStreetExposedMissileTank { get; } = new(nameof(MainStreetExposedMissileTank));
 
-    /// <summary>The MainStreetExposedSuperMissileTank item location.</summary>
+    /// <summary>The Super Missile Tank lying in the open at column 22, row 40 of the Main Street room.</summary>
     public static ItemLocation MainStreetExposedSuperMissileTank { get; } = new(nameof(MainStreetExposedSuperMissileTank));
 
-    /// <summary>The MamaTurtleExposedEnergyTank item location.</summary>
+    /// <summary>The Energy Tank lying in the open at column 31, row 10 of the Mama Turtle room.</summary>
     public static ItemLocation MamaTurtleExposedEnergyTank { get; } = new(nameof(MamaTurtleExposedEnergyTank));
 
-    /// <summary>The MamaTurtleShotBlockMissileTank item location.</summary>
+    /// <summary>The Missile Tank hidden in a shot block at column 44, row 29 of the Mama Turtle room.</summary>
     public static ItemLocation MamaTurtleShotBlockMissileTank { get; } = new(nameof(MamaTurtleShotBlockMissileTank));
 
-    /// <summary>The WateringHoleExposedSuperMissileTank item location.</summary>
+    /// <summary>The Super Missile Tank lying in the open at column 4, row 38 of the Watering Hole room.</summary>
     public static ItemLocation WateringHoleExposedSuperMissileTank { get; } = new(nameof(WateringHoleExposedSuperMissileTank));
 
-    /// <summary>The WateringHoleExposedMissileTank item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 11, row 39 of the Watering Hole room.</summary>
     public static ItemLocation WateringHoleExposedMissileTank { get; } = new(nameof(WateringHoleExposedMissileTank));
 
-    /// <summary>The PseudoPlasmaSparkExposedMissileTank item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 44, row 40 of the Pseudo Plasma Spark room.</summary>
     public static ItemLocation PseudoPlasmaSparkExposedMissileTank { get; } = new(nameof(PseudoPlasmaSparkExposedMissileTank));
 
-    /// <summary>The PlasmaChozoPlasmaBeam item location.</summary>
+    /// <summary>The Plasma Beam held in a Chozo statue's orb at column 25, row 38 of the Plasma room.</summary>
     public static ItemLocation PlasmaChozoPlasmaBeam { get; } = new(nameof(PlasmaChozoPlasmaBeam));
 
-    /// <summary>The WestSandHoleExposedMissileTank item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 6, row 4 of the West Sand Hole room.</summary>
     public static ItemLocation WestSandHoleExposedMissileTank { get; } = new(nameof(WestSandHoleExposedMissileTank));
 
-    /// <summary>The WestSandHoleChozoReserveTank item location.</summary>
+    /// <summary>The Reserve Tank held in a Chozo statue's orb at column 15, row 4 of the West Sand Hole room.</summary>
     public static ItemLocation WestSandHoleChozoReserveTank { get; } = new(nameof(WestSandHoleChozoReserveTank));
 
-    /// <summary>The EastSandHoleExposedMissileTank item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 3, row 7 of the East Sand Hole room.</summary>
     public static ItemLocation EastSandHoleExposedMissileTank { get; } = new(nameof(EastSandHoleExposedMissileTank));
 
-    /// <summary>The EastSandHoleExposedPowerBombTank item location.</summary>
+    /// <summary>The Power Bomb Tank lying in the open at column 25, row 16 of the East Sand Hole room.</summary>
     public static ItemLocation EastSandHoleExposedPowerBombTank { get; } = new(nameof(EastSandHoleExposedPowerBombTank));
 
-    /// <summary>The AqueductExposedMissileTank item location.</summary>
+    /// <summary>The Missile Tank lying in the open at column 76, row 9 of the Aqueduct room.</summary>
     public static ItemLocation AqueductExposedMissileTank { get; } = new(nameof(AqueductExposedMissileTank));
 
-    /// <summary>The AqueductExposedSuperMissileTank item location.</summary>
+    /// <summary>The Super Missile Tank lying in the open at column 92, row 8 of the Aqueduct room.</summary>
     public static ItemLocation AqueductExposedSuperMissileTank { get; } = new(nameof(AqueductExposedSuperMissileTank));
 
-    /// <summary>The SpringballChozoSpringBall item location.</summary>
+    /// <summary>The Spring Ball held in a Chozo statue's orb at column 24, row 22 of the Springball room.</summary>
     public static ItemLocation SpringballChozoSpringBall { get; } = new(nameof(SpringballChozoSpringBall));
 
-    /// <summary>The ThePreciousShotBlockMissileTank item location.</summary>
+    /// <summary>The Missile Tank hidden in a shot block at column 28, row 6 of the The Precious room.</summary>
     public static ItemLocation ThePreciousShotBlockMissileTank { get; } = new(nameof(ThePreciousShotBlockMissileTank));
 
-    /// <summary>The BotwoonEnergyTankExposedEnergyTank item location.</summary>
+    /// <summary>The Energy Tank lying in the open at column 50, row 5 of the Botwoon Energy Tank room.</summary>
     public static ItemLocation BotwoonEnergyTankExposedEnergyTank { get; } = new(nameof(BotwoonEnergyTankExposedEnergyTank));
 
-    /// <summary>The SpaceJumpChozoSpaceJump item location.</summary>
+    /// <summary>The Space Jump held in a Chozo statue's orb at column 4, row 8 of the Space Jump room.</summary>
     public static ItemLocation SpaceJumpChozoSpaceJump { get; } = new(nameof(SpaceJumpChozoSpaceJump));
 
-    /// <summary>Every ItemLocation, in the order room data lists them.</summary>
+    /// <summary>Every item location, in the order saves list them.</summary>
     public static IReadOnlyList<ItemLocation> All { get; } =
     [
         CrateriaPowerBombsExposedPowerBombTank,

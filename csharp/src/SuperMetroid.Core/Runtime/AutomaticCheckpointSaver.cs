@@ -48,8 +48,8 @@ internal static class AutomaticCheckpointSaver
             return false;
 
         // The gunship sets the ship-landed marker before moving the checkpoint from the Zebes arrival to
-        // the gunship and saving the game. The marker controls ship/save-point display
-        // after reload and therefore belongs inside the atomic checkpoint operation.
+        // the gunship and saving the game, all on the update the landing completes, so the saved game shows the ship as its
+        // save point when it loads.
         runtime.System.LoadSavedStartupRoute(SaveLoadingGameState.MainGame);
         runtime.System.MarkSaveStationUsed(LoadStationDefinitions.Gunship);
         saves.SaveSlot(selectedSaveSlot, runtime.SaveSnapshotAt(LoadStationDefinitions.Gunship));

@@ -75798,6 +75798,32 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Magdollite.MagdolliteGlowAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdolliteGlowAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Magdollite.MagdolliteGlowSegment",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdolliteGlowSegment.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Magdollite.MagdolliteHeadAction",
       "kind": "enum",
       "scope": "product",
@@ -76382,7 +76408,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/MamaTurtles/MamaTurtleCadenceDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.MamaTurtles.MamaTurtleCue",

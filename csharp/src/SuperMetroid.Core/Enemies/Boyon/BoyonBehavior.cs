@@ -44,7 +44,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Boyon.</summary>
     internal static void InitializeBoyon(RoomEnemyPlace place)
     {
-        BoyonSpawnSettings settings = place.SpawnSettings<BoyonSpawnSettings>();
+        _ = place.SpawnSettings<BoyonSpawnSettings>();
 
         // The Boyon shows nothing until its idle animation shows its first frame on its first update; the room's
         // enemy load leaves it showing nothing too.

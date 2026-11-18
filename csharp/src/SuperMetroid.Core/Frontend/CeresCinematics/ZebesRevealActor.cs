@@ -14,8 +14,6 @@ internal sealed class ZebesRevealActor(
     CeresDestructionActorDefinition definition,
     CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue> sprite)
 {
-    /// <summary>What the actor shows.</summary>
-    internal ZebesRevealActorRole Role { get; } = role;
 
     /// <summary>The actor's animation, colouring and slide.</summary>
     internal CeresDestructionActorDefinition Definition { get; } = definition;

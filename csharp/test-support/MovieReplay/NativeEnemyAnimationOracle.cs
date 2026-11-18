@@ -134,7 +134,9 @@ internal static class NativeEnemyAnimationOracle
         Ensure.NotNull(rules);
         RequireAuthoredOrder(entries);
         // A segment the cartridge repeats under more than one entry (#1842) is its first list; every repeat is read
-        // against the same beats and must run on, branch, count and end as that list does.
+        // against the same beats. A repeat continuing as that list does is read as it; one continuing elsewhere (#2399:
+        // Crocomire's claw swing, heading three lists that each go on differently) is kept as a repeat of its own, which the
+        // continuations naming its entry reach.
         var lists = new Dictionary<TSegment, NativeEnemyList<TSegment>>();
         foreach (NativeProgramEntry<TSegment> entry in entries)
         {
@@ -144,12 +146,12 @@ internal static class NativeEnemyAnimationOracle
                 lists.Add(entry.Program, list);
                 continue;
             }
-            VerificationAssertions.AssertTrue(list.Controls.Select(Shape).SequenceEqual(first.Controls.Select(Shape)),
-                $"{entry.Program}'s repeated native list at ${entry.Entry:X4} continues as its first list does");
+            if (!list.Controls.Select(Shape).SequenceEqual(first.Controls.Select(Shape)))
+                lists[entry.Program] = first with { Repeats = [.. first.Repeats, list] };
         }
         return lists;
 
-        static NativeEnemyControl<TSegment> Shape(NativeEnemyControl<TSegment> control) => control with { Address = 0 };
+        static NativeEnemyControl<TSegment> Shape(NativeEnemyControl<TSegment> control) => control with { Address = 0, TargetEntry = null };
     }
 
     /// <summary>
@@ -191,8 +193,12 @@ internal static class NativeEnemyAnimationOracle
                 $"{counted.Entry.Name}'s phases follow its native lists from its counted entry ${counted.Entry.Address:X4}");
             VerificationAssertions.AssertEqual(countedEnd, counted.Entry.Animation.End, $"{counted.Entry.Name}'s end follows its native lists");
         }
+        // A counted repeat of one of a segment's repeats (#2399: Draygon's final whips count a copy of his whip's list) makes
+        // only that copy a counted body; the segment's own list, where an animation starting at the segment starts, is not.
         HashSet<TSegment> bodies = [.. lists.Values.SelectMany(list => list.Repeats.Prepend(list)).SelectMany(list => list.Controls)
-            .Where(control => control.Kind == NativeEnemyControlKind.Repeat).Select(control => control.Target!.Value)];
+            .Where(control => control.Kind == NativeEnemyControlKind.Repeat
+                && (control.TargetEntry is not { } counted || counted == lists[control.Target!.Value].Entry))
+            .Select(control => control.Target!.Value)];
         HashSet<TSegment> tails = CountDownTails(lists);
         foreach (TSegment start in Enum.GetValues<TSegment>())
         {
@@ -229,6 +235,38 @@ internal static class NativeEnemyAnimationOracle
             VerificationAssertions.AssertTrue(startingAt.TryGetValue(start, out Animation<TSegment>? typed), $"an animation starts at {start}");
             VerificationAssertions.AssertTrue(typed!.Phases.SequenceEqual(phases), $"{start}'s phases follow its native lists");
             VerificationAssertions.AssertEqual(end, typed.End, $"{start}'s end follows its native lists");
+        }
+    }
+
+    /// <summary>
+    /// Checks a family whose owners start animations by names of their own rather than by segment (#2399): each named
+    /// animation plays the phases, and ends as, the native lists play from the cartridge entry it starts at, which starts a
+    /// segment's list or one of its repeats; and every segment is played by some named animation.
+    /// </summary>
+    /// <param name="lists">Each segment's native list, with its repeats.</param>
+    /// <param name="entries">Each segment's native list and repeat, in authored order.</param>
+    /// <param name="starts">Each named animation: its name, for failure messages, the animation, and the native entry it starts at.</param>
+    /// <exception cref="InvalidDataException">A start's entry starts no segment's list.</exception>
+    internal static void CompareNamedStarts<TSegment>(
+        IReadOnlyDictionary<TSegment, NativeEnemyList<TSegment>> lists, NativeProgramEntry<TSegment>[] entries,
+        IReadOnlyList<(string Name, Animation<TSegment> Animation, ushort Entry)> starts)
+        where TSegment : struct, Enum
+    {
+        Ensure.NotNull(lists);
+        Ensure.NotNull(entries);
+        Ensure.NotNull(starts);
+        foreach ((string Name, Animation<TSegment> Animation, ushort Entry) start in starts)
+        {
+            TSegment segment = SegmentOf(entries, start.Entry);
+            (List<AnimationPhase<TSegment>> phases, AnimationEnd end) = Linearize(lists, segment, startEntry: start.Entry);
+            VerificationAssertions.AssertTrue(start.Animation.Phases.SequenceEqual(phases),
+                $"{start.Name}'s phases follow its native lists from ${start.Entry:X4}");
+            VerificationAssertions.AssertEqual(end, start.Animation.End, $"{start.Name}'s end follows its native lists");
+        }
+        foreach (TSegment segment in lists.Keys)
+        {
+            VerificationAssertions.AssertTrue(starts.Any(start => start.Animation.Phases.Any(phase => EqualityComparer<TSegment>.Default.Equals(phase.Segment, segment))),
+                $"some named animation plays {segment}");
         }
     }
 
@@ -659,8 +697,8 @@ internal static class NativeEnemyAnimationOracle
                 && entries.Where(item => item.Entry == cursor).Select(item => (TSegment?)item.Program).SingleOrDefault() is { } following)
             {
                 controls.Add(viaGoto
-                    ? new(NativeEnemyControlKind.Goto, beat, following, null, followedGoto!.Value.Address)
-                    : new(NativeEnemyControlKind.RunOnIntoNext, beat, following, null, cursor));
+                    ? new(NativeEnemyControlKind.Goto, beat, following, null, followedGoto!.Value.Address, TargetEntry: cursor)
+                    : new(NativeEnemyControlKind.RunOnIntoNext, beat, following, null, cursor, TargetEntry: cursor));
                 return Finish();
             }
             if (cursor != entry && ownerLeavesAt?.Invoke(cursor) == true)
@@ -812,7 +850,7 @@ internal static class NativeEnemyAnimationOracle
                         TSegment own = SegmentAt(entry, at);
                         controls.Insert(controls.FindLastIndex(control => control.AfterBeat <= loopBeat) + 1,
                             new(NativeEnemyControlKind.LoopStart, loopBeat, own, null, operand));
-                        controls.Add(new(NativeEnemyControlKind.Goto, beat, own, null, cursor, loopBeat));
+                        controls.Add(new(NativeEnemyControlKind.Goto, beat, own, null, cursor, loopBeat, entry));
                         return Finish();
                     }
                     if (!entries.Any(item => item.Entry == operand))
@@ -824,7 +862,7 @@ internal static class NativeEnemyAnimationOracle
                         cursor = operand;
                         continue;
                     }
-                    controls.Add(new(NativeEnemyControlKind.Goto, beat, SegmentAt(operand, at), null, cursor));
+                    controls.Add(new(NativeEnemyControlKind.Goto, beat, SegmentAt(operand, at), null, cursor, TargetEntry: operand));
                     return Finish();
                 case NativeEnemyListDefinitions.WordKind.SetCounter:
                     controls.Add(new(NativeEnemyControlKind.SetCounter, beat, null, operand, cursor));
@@ -851,7 +889,7 @@ internal static class NativeEnemyAnimationOracle
         NativeEnemyList<TSegment> Finish()
         {
             VerificationAssertions.AssertEqual(beats.Count, addresses.Count, $"{segment}: its native list holds each of its beats");
-            return new NativeEnemyList<TSegment>([.. addresses], [.. controls]);
+            return new NativeEnemyList<TSegment>([.. addresses], [.. controls], entry);
         }
 
         AnimationBeat<TFrame, TEvent> Beat(int beat, string at) => beat < beats.Count

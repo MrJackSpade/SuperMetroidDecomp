@@ -57,7 +57,7 @@ internal static class MotherBrainTurretAnimations
 
     /// <summary>Each segment's animation, played once: a pose holds its frame, and the deleted smoke rests.</summary>
     internal static IReadOnlyDictionary<MotherBrainTurretPose, Animation<MotherBrainTurretPose>> StartingAt { get; } =
-        Poses.ToDictionary(pose => pose, pose => new Animation<MotherBrainTurretPose>([new(pose, 0, Segments.Beats(pose).Count, 1)], AnimationEnd.Holds));
+        Poses.ToDictionary(pose => pose, pose => new Animation<MotherBrainTurretPose>([Segments.Whole(pose)], AnimationEnd.Holds));
 
     /// <summary>Shows a still pose's <paramref name="frame"/> for good (#2318).</summary>
     private static Beat Still(EnemyProjectileFrameId frame) => new Beat.HeldFrame(frame);

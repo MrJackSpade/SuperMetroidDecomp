@@ -40,32 +40,35 @@ internal static class DraygonAnimationsVerification
         var drawn = new HashSet<ushort>();
         Dictionary<DraygonSegment, NativeEnemyList<DraygonSegment>> lists =
             Entries.ToDictionary(item => item.Program, item => ReadList(cartridge, item.Program, item.Entry, drawn));
-        // An animation started through a counter preamble (#1938) starts at its counted segment, which the shared
-        // comparison takes for a body no animation starts in; it is compared below from the preamble's count.
-        HashSet<DraygonSegment> preambled = [.. CounterPreambles.Select(preamble => preamble.Program)];
+        // A copy of a segment's list continuing elsewhere (#2399: the whip the final whips count) is a repeat of its own.
+        foreach (DraygonNativeListAddressesEntry copy in Copies)
+            lists[copy.Program] = lists[copy.Program] with { Repeats = [.. lists[copy.Program].Repeats, ReadList(cartridge, copy.Program, copy.Entry, drawn)] };
+        // An animation started through a counter preamble (#1938) starts at its counted list, which the shared comparison
+        // takes for a body no animation starts in; it is compared below from the preamble's count.
         // The body's dying cry is no animation of its own (#2175): the arms' dying runs on into it, and no owner starts it.
         // Nor are the runs that follow a counted run (#2296): the dying's paralysis and its looping burst, the eye's dying
         // stare and the tail's release of Samus, which the animations play on into.
         NativeEnemyAnimationOracle.CompareAnimations(lists,
-            DraygonAnimations.StartingAt.Where(pair => !preambled.Contains(pair.Key)).ToDictionary(pair => pair.Key, pair => pair.Value),
+            DraygonAnimations.StartingAt.Where(pair => !CounterPreambles.Any(preamble => ReferenceEquals(preamble.Animation, pair.Value)))
+                .ToDictionary(pair => pair.Key, pair => pair.Value),
             onlyRunOnInto: new HashSet<DraygonSegment>
             {
                 DraygonSegment.BodyDying, DraygonSegment.BodyDyingParalysis, DraygonSegment.BodyDyingExplosionLoop,
                 DraygonSegment.EyeFacingLeftDyingStare, DraygonSegment.EyeFacingRightDyingStare,
                 DraygonSegment.TailFacingLeftReleaseSamus, DraygonSegment.TailFacingRightReleaseSamus,
             });
-        foreach (DraygonNativeListAddressesEntry preamble in CounterPreambles)
+        foreach (NativeCountedEntry<DraygonSegment> preamble in CounterPreambles)
         {
-            int address = (BodyBankNumber << 16) | preamble.Entry;
+            int address = (BodyBankNumber << 16) | preamble.Address;
             AssertEqual(NativeEnemyListDefinitions.WordKind.SetCounter, NativeEnemyListDefinitions.Classify(cartridge.ReadCartridgeWord(address)),
-                $"Draygon {preamble.Program}'s preamble loads the counter");
-            AssertEqual(Entry(preamble.Program), (ushort)(preamble.Entry + 4), $"Draygon {preamble.Program}'s preamble runs on into it");
+                $"Draygon {preamble.Name}'s preamble loads the counter");
+            ushort counted = (ushort)(preamble.Address + 4);
+            DraygonSegment into = ProgramAt(counted) ?? throw new InvalidDataException($"Draygon {preamble.Name}'s preamble runs on into no segment's list.");
             int plays = cartridge.ReadCartridgeWord(address + 2);
             (List<AnimationPhase<DraygonSegment>> phases, AnimationEnd end) =
-                NativeEnemyAnimationOracle.Linearize(lists, preamble.Program, plays);
-            Animation<DraygonSegment> typed = DraygonAnimations.StartingWith(preamble.Program);
-            AssertTrue(typed.Phases.SequenceEqual(phases), $"Draygon {preamble.Program}'s phases follow its preamble and native list");
-            AssertEqual(end, typed.End, $"Draygon {preamble.Program}'s end follows its native list");
+                NativeEnemyAnimationOracle.Linearize(lists, into, plays, counted);
+            AssertTrue(preamble.Animation.Phases.SequenceEqual(phases), $"Draygon {preamble.Name}'s phases follow its preamble and native list");
+            AssertEqual(end, preamble.Animation.End, $"Draygon {preamble.Name}'s end follows its native list");
         }
         int beatCount = lists.Values.Sum(list => list.BeatAddresses.Length);
         AssertEqual(DraygonFrameToolingDefinitionsConstants.FrameCount, drawn.Count, "the Draygon segments draw every catalog frame");
@@ -98,7 +101,7 @@ internal static class DraygonAnimationsVerification
             beatAt.TryAdd(cursor, beat);
             if (cursor != entry && ProgramAt(cursor) is { } next)
             {
-                controls.Add(new(NativeEnemyControlKind.RunOnIntoNext, beat, next, null, cursor));
+                controls.Add(new(NativeEnemyControlKind.RunOnIntoNext, beat, next, null, cursor, TargetEntry: cursor));
                 return Finish();
             }
 
@@ -124,11 +127,11 @@ internal static class DraygonAnimationsVerification
                         // explosions' lead-in plays once before their loop.
                         controls.Insert(controls.FindLastIndex(control => control.AfterBeat <= loopBeat) + 1,
                             new(NativeEnemyControlKind.LoopStart, loopBeat, segment, null, operand));
-                        controls.Add(new(NativeEnemyControlKind.Goto, beat, segment, null, cursor, loopBeat));
+                        controls.Add(new(NativeEnemyControlKind.Goto, beat, segment, null, cursor, loopBeat, entry));
                         return Finish();
                     }
                     controls.Add(new(NativeEnemyControlKind.Goto, beat,
-                        ProgramAt(operand) ?? throw new InvalidDataException($"{at}: ${operand:X4} is no segment's native entry."), null, cursor));
+                        ProgramAt(operand) ?? throw new InvalidDataException($"{at}: ${operand:X4} is no segment's native entry."), null, cursor, TargetEntry: operand));
                     return Finish();
                 case NativeEnemyListDefinitions.WordKind.Sleep:
                     controls.Add(new(NativeEnemyControlKind.Sleep, beat, null, null, cursor));
@@ -142,7 +145,7 @@ internal static class DraygonAnimationsVerification
                     continue;
                 case NativeEnemyListDefinitions.WordKind.RepeatWhileCounting:
                     AssertEqual<DraygonSegment?>(segment, ProgramAt(operand), $"{at}: a counted repeat replays its own list");
-                    controls.Add(new(NativeEnemyControlKind.Repeat, beat, segment, null, cursor));
+                    controls.Add(new(NativeEnemyControlKind.Repeat, beat, segment, null, cursor, TargetEntry: operand));
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.Wait:
@@ -171,7 +174,7 @@ internal static class DraygonAnimationsVerification
         NativeEnemyList<DraygonSegment> Finish()
         {
             AssertEqual(beats.Count, addresses.Count, $"Draygon {segment}: its native list holds each of its beats");
-            return new NativeEnemyList<DraygonSegment>([.. addresses], [.. controls]);
+            return new NativeEnemyList<DraygonSegment>([.. addresses], [.. controls], entry);
         }
 
         AnimationBeat<EnemyFrameId, DraygonCue> Beat(int beat, string at) => beat < beats.Count

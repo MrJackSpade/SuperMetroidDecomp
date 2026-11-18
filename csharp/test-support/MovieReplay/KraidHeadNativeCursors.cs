@@ -64,9 +64,7 @@ internal sealed class KraidHeadNativeCursors
                 poses.Add(new((ushort)pointer, Word(pointer + 4), Word(pointer + 6)));
             if (ListAnimations[program] is { } list)
             {
-                AnimationPlayback<KraidHeadSegment> playback = opcode == Terminator
-                    ? new(KraidHeadAnimations.StartingWith(list), AnimationPlace.HoldingIn(0, position))
-                    : KraidHeadAnimations.At(list, position);
+                AnimationPlayback<KraidHeadSegment> playback = opcode == Terminator ? Holding(list) : PlaybackAtStep(list, position);
                 records.Add(new((ushort)pointer, playback, opcode,
                     pose ? Word(pointer + 2) : (ushort)0, pose ? Word(pointer + 4) : (ushort)0, pose ? Word(pointer + 6) : (ushort)0,
                     opcode is RoarCryCall or DyingCryCall ? Word(opcode + 2) : (ushort)0));
@@ -83,6 +81,36 @@ internal sealed class KraidHeadNativeCursors
             throw new InvalidDataException($"The native Kraid head lists hold {program} programs.");
         Records = records;
         AllPoses = poses;
+    }
+
+    /// <summary>
+    /// The head animation that starts at <paramref name="animation"/> standing before step <paramref name="step"/>, counted
+    /// through its segments (#2399), where its play stands after playing the step before: just past that beat, in the phase
+    /// playing it, as the head stands once it has shown it; before the first step, at the first phase's start. At the step
+    /// count, its play is done and the next play holds.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="step"/> lies outside the animation.</exception>
+    internal static AnimationPlayback<KraidHeadSegment> PlaybackAtStep(KraidHeadSegment animation, int step)
+    {
+        Animation<KraidHeadSegment> started = KraidHeadAnimations.StartingWith(animation);
+        if (step == 0)
+            return new(started, AnimationPlace.StartOf(0));
+        int before = 0;
+        for (int phase = 0; phase < started.Phases.Count; phase++)
+        {
+            int beats = started.Phases[phase].BeatCount;
+            if (step > before && step <= before + beats)
+                return new(started, new AnimationPlace(phase, step - before));
+            before += beats;
+        }
+        throw new ArgumentOutOfRangeException(nameof(step), step, $"Kraid's {animation} head animation has {before} steps.");
+    }
+
+    /// <summary>The head animation that starts at <paramref name="animation"/> holding after its last step, its play done for good.</summary>
+    internal static AnimationPlayback<KraidHeadSegment> Holding(KraidHeadSegment animation)
+    {
+        Animation<KraidHeadSegment> started = KraidHeadAnimations.StartingWith(animation);
+        return new(started, AnimationPlace.HoldingIn(started.Phases.Count - 1, started.Phases[^1].BeatCount));
     }
 
     /// <summary>The typed playback native pointer <paramref name="pointer"/> stands for, or null when it is no record's start.</summary>
@@ -102,7 +130,7 @@ internal sealed class KraidHeadNativeCursors
     /// <summary>The native record <paramref name="playback"/> stands for.</summary>
     internal KraidHeadNativeRecord RecordAt(AnimationPlayback<KraidHeadSegment> playback)
     {
-        KraidHeadSegmentPlace place = KraidHeadAnimations.PlaceOf(playback);
+        KraidHeadPlace place = KraidHeadAnimations.PlaceOf(playback);
         return Records.Single(record => KraidHeadAnimations.PlaceOf(record.Playback) == place);
     }
 }

@@ -346,10 +346,10 @@ internal sealed class CrocomireCombat
     /// Selects the fully-open, part-open or closed reaction from the mouth of the frame shown, as the power-bomb reaction does
     /// by reading the frame's mouth. Before any frame is shown the body has no frame and reacts closed.
     /// </summary>
-    private static CrocomireBodySegment SelectCrocomirePowerBombAnimation(CrocomireEnemyState state) =>
+    private static CrocomireBodyAnimation SelectCrocomirePowerBombAnimation(CrocomireEnemyState state) =>
         state.BodyFrame is { } frame
             ? CrocomirePowerBombReactions.ForFrame(frame)
-            : CrocomireBodySegment.PowerBombReactionMouthNotOpen;
+            : CrocomireBodyAnimation.PowerBombReactionMouthNotOpen;
 
     /// <summary>Flies a fight projectile, deleting it on the first horizontal/vertical wall hit.</summary>
     internal static void RunCrocomireProjectileFlight(

@@ -35,10 +35,10 @@ internal sealed class CrocomireEncounterAccess
     internal void RequestCrocomireMusic(MusicRequest request, MusicQueueDelay delay) =>
         _audio.QueueEnemyMusic(new DelayedMusicRequest(request, delay));
 
-    /// <summary>Starts <paramref name="segment"/> on the body from its first step on the next update, as starting an animation does.</summary>
-    internal static void StartCrocomireBodyAnimation(CrocomireEnemyState state, CrocomireBodySegment segment)
+    /// <summary>Starts <paramref name="animation"/> on the body from its first step on the next update, as starting an animation does.</summary>
+    internal static void StartCrocomireBodyAnimation(CrocomireEnemyState state, CrocomireBodyAnimation animation)
     {
-        state.BodyPlayback = EnemyAnimationPlayback.Start(state.Body, CrocomireBodyAnimations.StartingWith(segment));
+        state.BodyPlayback = EnemyAnimationPlayback.Start(state.Body, CrocomireBodyAnimations.StartingWith(animation));
     }
 
     /// <summary>Queues a room-object block change for later room processing.</summary>

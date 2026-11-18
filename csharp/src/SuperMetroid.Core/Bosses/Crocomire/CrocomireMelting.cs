@@ -29,7 +29,7 @@ internal sealed class CrocomireMelting
     internal void ShowFirstCrocomireMeltImage(CrocomireEnemyState state)
     {
         _ = RequireCrocomireMeltingImage(CrocomireMeltingIllustration.Flesh);
-        StartCrocomireMeltingBodyAnimation(state, CrocomireBodySegment.MeltingFleshTopRow);
+        StartCrocomireMeltingBodyAnimation(state, CrocomireBodyAnimation.MeltingFleshTopRow);
 
         if (state.Tongue is { } tongue)
         {
@@ -51,7 +51,7 @@ internal sealed class CrocomireMelting
     {
         _ = RequireCrocomireMeltingImage(CrocomireMeltingIllustration.BareSkull);
         CrocomireBodyLayer.LevelCrocomireMeltDistortion(state);
-        StartCrocomireMeltingBodyAnimation(state, CrocomireBodySegment.MeltingBareSkullTopRow);
+        StartCrocomireMeltingBodyAnimation(state, CrocomireBodyAnimation.MeltingBareSkullTopRow);
         ShowCrocomireMeltingImage(CrocomireMeltingIllustration.BareSkull);
     }
 
@@ -65,10 +65,10 @@ internal sealed class CrocomireMelting
         _bossArtwork.Body(BossBodyOwner.Crocomire).Frame(CrocomireMeltingFrameNames.Of(illustration));
 
     /// <summary>Starts the selected body melting animation, which the melt image just shown on his body layer goes with.</summary>
-    private static void StartCrocomireMeltingBodyAnimation(CrocomireEnemyState state, CrocomireBodySegment bodySegment)
+    private static void StartCrocomireMeltingBodyAnimation(CrocomireEnemyState state, CrocomireBodyAnimation bodyAnimation)
     {
         state.DeathPhase = state.DeathPhase.Next();
-        CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, bodySegment);
+        CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, bodyAnimation);
     }
 
     /// <summary>Shows melt image <paramref name="illustration"/> as his whole body, in place of the body frame it showed (#1515).</summary>

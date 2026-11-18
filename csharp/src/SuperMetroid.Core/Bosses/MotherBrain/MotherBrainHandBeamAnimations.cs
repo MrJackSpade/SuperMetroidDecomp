@@ -53,7 +53,7 @@ internal static class MotherBrainHandBeamAnimations
         new Dictionary<MotherBrainHandBeamSegment, Animation<MotherBrainHandBeamSegment>>
         {
             [MotherBrainHandBeamSegment.Beam] = new(
-                [new(MotherBrainHandBeamSegment.Beam, 0, Segments.Beats(MotherBrainHandBeamSegment.Beam).Count, 1)], AnimationEnd.Holds),
+                [Segments.Whole(MotherBrainHandBeamSegment.Beam)], AnimationEnd.Holds),
         };
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> passes.</summary>

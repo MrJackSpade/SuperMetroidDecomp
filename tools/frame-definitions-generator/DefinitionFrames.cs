@@ -41,7 +41,8 @@ internal sealed class DefinitionFrames(CoreModel model, UnitScanner scanner, Beh
         foreach (Unit unit in code)
         {
             UnitScan scan = scanner.Scan(unit);
-            var targets = scan.Targets.Where(t => !scan.Deferred.Contains(t) || scan.Runs.Contains(t))
+            // Animation data counting its own segments' beats shows none of their frames (#2399); the code playing them does.
+            var targets = scan.Targets.Where(t => (!scan.Deferred.Contains(t) || scan.Runs.Contains(t)) && !model.CountsOwnSegments(unit, t))
                 .Concat(unit.Kind == UnitKind.Member ? model.Implementations(unit.Symbol).Select(Unit.Member) : [])
                 .Where(code.Contains).Distinct().ToList();
             runs[unit] = targets;

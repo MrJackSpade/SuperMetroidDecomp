@@ -29,19 +29,20 @@ internal static class KraidHeadCommandMappingVerification
             .Select(record => record.Tilemap).Distinct().Order()];
         AssertEqual(KraidHeadFrame.FullyOpenMouthStage + 1, stageTilemaps.Count, "one native tilemap per mouth stage");
 
-        foreach (KraidHeadSegment program in Enum.GetValues<KraidHeadSegment>())
+        foreach (KraidHeadSegment program in KraidHeadAnimations.StartingAt.Keys)
         {
-            IReadOnlyList<AnimationBeat<KraidHeadFrame, KraidHeadCue>> beats = KraidHeadAnimations.Segments.Beats(program);
-            KraidHeadNativeRecord[] records = [.. native.Records.Where(record => KraidHeadAnimations.PlaceOf(record.Playback).Segment == program)];
-            AssertEqual(records.Length, beats.Count + 1, $"{program} has one typed beat per native record before its terminator");
             Animation<KraidHeadSegment> animation = KraidHeadAnimations.StartingWith(program);
-            AssertTrue(animation.Phases.SequenceEqual([new AnimationPhase<KraidHeadSegment>(program, 0, beats.Count, 1)]) && animation.End == AnimationEnd.Holds,
+            // The animation's steps are its segments' beats, each segment played once (#2399).
+            AnimationBeat<KraidHeadFrame, KraidHeadCue>[] beats = [.. animation.Phases.SelectMany(phase => KraidHeadAnimations.Segments.Beats(phase.Segment))];
+            KraidHeadNativeRecord[] records = [.. native.Records.Where(record => KraidHeadAnimations.PlaceOf(record.Playback).Animation == program)];
+            AssertEqual(records.Length, beats.Length + 1, $"{program} has one typed beat per native record before its terminator");
+            AssertTrue(animation.Phases.All(phase => phase == KraidHeadAnimations.Segments.Whole(phase.Segment)) && animation.End == AnimationEnd.Holds,
                 $"{program}'s animation plays its list once and holds at its terminator");
             for (int position = 0; position < records.Length; position++)
             {
                 KraidHeadNativeRecord record = records[position];
                 string at = $"{program}[{position}] at $A7:{record.Pointer:X4}";
-                AssertEqual(new KraidHeadSegmentPlace(program, position), KraidHeadAnimations.PlaceOf(record.Playback), $"{at} stands at its segment step");
+                AssertEqual(new KraidHeadPlace(program, position), KraidHeadAnimations.PlaceOf(record.Playback), $"{at} stands at its animation step");
                 if (record.IsPose)
                 {
                     var show = AssertIs<AnimationBeat<KraidHeadFrame, KraidHeadCue>.Frame>(beats[position], $"{at} shows a pose");
@@ -55,8 +56,8 @@ internal static class KraidHeadCommandMappingVerification
                 }
                 else if (record.IsTerminator)
                 {
-                    AssertEqual(beats.Count, position, $"{at} ends the list after its last beat");
-                    AssertEqual(AnimationPlace.HoldingIn(0, beats.Count), record.Playback.Place, $"{at} holds the animation");
+                    AssertEqual(beats.Length, position, $"{at} ends the list after its last beat");
+                    AssertEqual(AnimationPlace.HoldingIn(animation.Phases.Count - 1, animation.Phases[^1].BeatCount), record.Playback.Place, $"{at} holds the animation");
                 }
                 else
                 {
@@ -76,19 +77,20 @@ internal static class KraidHeadCommandMappingVerification
                 AssertEqual(NativeMouthRead(native, record.Pointer - 4), reads.Outer, $"{at} outer mouth read four bytes back");
                 AssertEqual(NativeMouthRead(native, record.Pointer - 2), reads.Inner, $"{at} inner mouth read two bytes back");
                 (ushort resumePointer, ushort resumeTimer) = NativeKraidGrowthResume(rom, Word(record.Pointer + 2));
-                AssertEqual(resumePointer, native.PointerAt(KraidHeadAnimations.GrowthResumePlayback(reads.Growth)),
-                    $"{at} growth resume cursor");
-                AssertEqual(resumeTimer, KraidHeadAnimations.GrowthResumeDelay(reads.Growth), $"{at} growth resume delay");
+                KraidHeadEntry resumed = KraidHeadAnimations.GrowthResume(reads.Growth);
+                AssertEqual(resumePointer, native.PointerAt(resumed.Playback), $"{at} growth resume cursor");
+                AssertEqual(resumeTimer, resumed.Delay, $"{at} growth resume delay");
             }
         }
 
-        // The AI installs each program one pose in, with the entry pose's own duration as the head delay.
-        AssertEqual((ushort)0x96da, native.PointerAt(KraidHeadAnimations.RoarAfterEntryFrame), "roar entry cursor");
-        AssertEqual((ushort)0x9752, native.PointerAt(KraidHeadAnimations.EyeGlowAfterEntryFrame), "eye-glow entry cursor");
-        AssertEqual((ushort)0x976c, native.PointerAt(KraidHeadAnimations.DeathAfterEntryFrame), "death entry cursor");
-        AssertEqual(Word(0x96d2), KraidHeadAnimations.RoarEntryDuration, "roar entry duration");
-        AssertEqual(Word(0x974a), KraidHeadAnimations.EyeGlowEntryDuration, "eye-glow entry duration");
-        AssertEqual(Word(0x9764), KraidHeadAnimations.DeathEntryDuration, "death entry duration");
+        // The AI installs each program one pose in, with the entry pose's own duration as the head delay: starting an
+        // animation enters its opening pose (#2399).
+        AssertEqual((ushort)0x96da, native.PointerAt(KraidHeadAnimations.Starting(KraidHeadSegment.Roar).Playback), "roar entry cursor");
+        AssertEqual((ushort)0x9752, native.PointerAt(KraidHeadAnimations.Starting(KraidHeadSegment.EyeGlow).Playback), "eye-glow entry cursor");
+        AssertEqual((ushort)0x976c, native.PointerAt(KraidHeadAnimations.Starting(KraidHeadSegment.Death).Playback), "death entry cursor");
+        AssertEqual(Word(0x96d2), KraidHeadAnimations.Starting(KraidHeadSegment.Roar).Delay, "roar entry duration");
+        AssertEqual(Word(0x974a), KraidHeadAnimations.Starting(KraidHeadSegment.EyeGlow).Delay, "eye-glow entry duration");
+        AssertEqual(Word(0x9764), KraidHeadAnimations.Starting(KraidHeadSegment.Death).Delay, "death entry duration");
         AssertThrows<InvalidDataException>(() => KraidHeadAnimations.ReadsAt(null), "an unstarted head has no reads");
     }
 

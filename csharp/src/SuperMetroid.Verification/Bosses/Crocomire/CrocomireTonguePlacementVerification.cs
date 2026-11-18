@@ -31,7 +31,7 @@ internal static class CrocomireTonguePlacementVerification
         {
             Phase = CrocomirePhase.SteppingForward,
             BodyPlayback = new AnimationPlayback<CrocomireBodySegment>(
-                CrocomireBodyAnimations.StartingWith(CrocomireBodySegment.StepForward), AnimationPlace.StartOfAnimation),
+                CrocomireBodyAnimations.StartingWith(CrocomireBodyAnimation.StepForward), AnimationPlace.StartOfAnimation),
         };
         body.SetSpeciesState(state);
         enemies.VerificationServices().ReadRandom = () => ushort.MaxValue;

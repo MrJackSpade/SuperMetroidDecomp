@@ -230,8 +230,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (state.ThinkingTimer != 0 && --state.ThinkingTimer == 0)
                 {
                     state.BodyState.FightPhase = KraidFightPhase.MainAttackWithMouthOpen;
-                    state.HeadPlayback = KraidHeadAnimations.RoarAfterEntryFrame;
-                    state.BodyState.HeadTimer = KraidHeadAnimations.RoarEntryDuration;
+                    state.StartHeadAnimation(KraidHeadSegment.Roar);
                 }
                 return;
 

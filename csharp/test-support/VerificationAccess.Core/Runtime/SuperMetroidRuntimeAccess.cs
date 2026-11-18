@@ -221,7 +221,11 @@ internal static class SuperMetroidRuntimeAccess
         /// <summary>Shows the grapple's firing shades through the same Samus phase owner used by gameplay.</summary>
         internal void ShowDebugGrappleShades() => self.SamusPhases.ShowGrappleShades();
 
-        /// <summary>Initializes the ROM-authored standing pose at an explicitly supplied point.</summary>
+        /// <summary>
+        /// Initializes the ROM-authored standing pose at an explicitly supplied point in the loaded room, which she is in, as
+        /// the room loader's Samus setup places her in its room.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">No room is loaded.</exception>
         internal void InitializeDebugSamus(Position16<RoomPixels> position)
         {
             self.Player.Samus = new SamusState(GameplayAudioRequests.Standalone(), self.SamusOverreads.FramesBeyondAnimation, self.UnauthoredBoostCadence, SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), self.BeamCharge, self.Artwork.SamusArtwork)
@@ -229,6 +233,7 @@ internal static class SuperMetroidRuntimeAccess
                 Pose = SamusPoseId.FacingRightNormalPose,
                 AnimationFrame = SamusAnimationFrame.Start,
                 Position = FixedPosition<RoomPixels>.FromWhole(position),
+                Room = self.Room.LoadedRoom.Definition,
             };
 
             SamusSuitShade.ShowPower(self.Player.Colours);

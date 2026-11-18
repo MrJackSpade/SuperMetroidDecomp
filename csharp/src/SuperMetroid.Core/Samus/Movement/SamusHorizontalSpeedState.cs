@@ -639,20 +639,22 @@ public sealed class SamusHorizontalSpeedState
 
         int xPosition = standing.X;
         int yPosition = standing.Y;
+        // The echo stands where Samus stood and closes on where she stands, both in the room. An echo moving away from
+        // her has already crossed her and is gone, and a crossing echo is gone before it is placed.
         if (yPosition != samusPosition.Y)
         {
-            yPosition = CoordinateAxis.Difference(yPosition, samusPosition.Y) < 0
-                ? CoordinateAxis.Wrap(yPosition + SamusMovementDefinitions.SpeedEchoVerticalApproach)
-                : CoordinateAxis.Wrap(yPosition - SamusMovementDefinitions.SpeedEchoVerticalApproach);
+            yPosition = yPosition < samusPosition.Y
+                ? yPosition + SamusMovementDefinitions.SpeedEchoVerticalApproach
+                : yPosition - SamusMovementDefinitions.SpeedEchoVerticalApproach;
         }
 
         int speed = echo == SpeedEcho.First
             ? FirstSpeedEchoHorizontalSpeed
             : SecondSpeedEchoHorizontalSpeed;
-        xPosition = CoordinateAxis.Wrap(xPosition + speed);
+        xPosition += speed;
         bool crossedSamus = speed < 0
-            ? CoordinateAxis.Difference(xPosition, samusPosition.X) < 0
-            : CoordinateAxis.Difference(xPosition, samusPosition.X) >= 0;
+            ? xPosition < samusPosition.X
+            : xPosition >= samusPosition.X;
         Position16<RoomPixels>? advanced = crossedSamus ? null : Position16<RoomPixels>.Of(xPosition, yPosition);
 
         if (echo == SpeedEcho.First)

@@ -628,17 +628,20 @@ public sealed class SamusShinesparkState
     /// After horizontal spark movement, a previous X more than
     /// 15 pixels behind Samus is pulled to 15 behind, in either direction.
     /// </summary>
+    /// <remarks>
+    /// Both positions are Samus's in the room, so the pulled position lies between them.
+    /// </remarks>
     private static void CapPreviousX(SamusState samus, FixedPosition<RoomPixels> checkpoint)
     {
-        int delta = CoordinateAxis.Difference(samus.Position.X.Whole, samus.PeekPreviousPosition(checkpoint).X);
+        int delta = samus.Position.X.Whole - samus.PeekPreviousPosition(checkpoint).X;
         if (delta >= 0)
         {
             if (delta > ShinesparkDefinitions.MostPreviousXLag)
-                samus.WritePreviousXPosition(CoordinateAxis.Wrap(samus.Position.X.Whole - ShinesparkDefinitions.MostPreviousXLag));
+                samus.WritePreviousXPosition(samus.Position.X.Whole - ShinesparkDefinitions.MostPreviousXLag);
         }
         else if (delta < -ShinesparkDefinitions.MostPreviousXLag)
         {
-            samus.WritePreviousXPosition(CoordinateAxis.Wrap(samus.Position.X.Whole + ShinesparkDefinitions.MostPreviousXLag));
+            samus.WritePreviousXPosition(samus.Position.X.Whole + ShinesparkDefinitions.MostPreviousXLag);
         }
     }
 
@@ -646,11 +649,13 @@ public sealed class SamusShinesparkState
     /// After vertical spark movement, a previous Y more than 14
     /// pixels below Samus is pulled to 14 below.
     /// </summary>
+    /// <remarks>
+    /// Both positions are Samus's in the room, so the pulled position lies between them.
+    /// </remarks>
     private static void CapPreviousY(SamusState samus, FixedPosition<RoomPixels> checkpoint)
     {
-        // Both positions lie in one room, far closer than half the coordinate range.
-        if (CoordinateAxis.Difference(samus.Position.Y.Whole, samus.PeekPreviousPosition(checkpoint).Y) < -ShinesparkDefinitions.MostPreviousYLag)
-            samus.WritePreviousYPosition(CoordinateAxis.Wrap(samus.Position.Y.Whole + ShinesparkDefinitions.MostPreviousYLag));
+        if (samus.Position.Y.Whole - samus.PeekPreviousPosition(checkpoint).Y < -ShinesparkDefinitions.MostPreviousYLag)
+            samus.WritePreviousYPosition(samus.Position.Y.Whole + ShinesparkDefinitions.MostPreviousYLag);
     }
 
     /// <summary>Accelerates horizontal spark speed up to fifteen pixels per frame and probes breakable room blocks.</summary>

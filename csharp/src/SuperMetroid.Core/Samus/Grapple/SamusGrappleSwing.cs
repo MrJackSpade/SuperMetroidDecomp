@@ -39,7 +39,7 @@ public static class SamusGrappleSwing
         var offset = GrappleBodyPlacements.Offset(direction, SamusPoseMetadata.IsFacingLeft(samus.Pose));
 
         SamusPresentation.ShowGrappleSwingPicture(samus, picture);
-        samus.Position = samus.Position.WithWhole(new(CoordinateAxis.Wrap(ropeStart.Pixel.X + offset.X), CoordinateAxis.Wrap(ropeStart.Pixel.Y + offset.Y)));
+        samus.Position = samus.Position.WithWhole(new(ropeStart.Pixel.X + offset.X, ropeStart.Pixel.Y + offset.Y));
     }
 
 /// <summary>Converts the rope's angular velocity into launch speeds and facing direction on release.</summary>
@@ -67,7 +67,7 @@ public static class SamusGrappleSwing
         samus.HorizontalSpeed.BaseSpeed = horizontal.SizeTimes(releaseSpeed);
     }
 
-/// <summary>
+    /// <summary>
     /// The negative cosine of <paramref name="angle"/>'s whole step: the sine a quarter turn behind it.
     /// </summary>
     internal static UnitComponent ReadSignedSine(RotationAngle angle) =>

@@ -37,6 +37,10 @@ internal static class YappingMawGrappleReleaseVerification
         SamusPresentation.InitializeAnimation(samus, samus.PoseFrameNumbered(24));
         SamusPresentation.SetAnimationFrameFromMovementOwner(samus, samus.PoseFrameNumbered(24), timer: 3);
         samus.Grapple.Phase = GrapplePhase.ConnectedSwinging;
+        // She swings from a point in the room, hanging straight down from it, as a connected swing does.
+        samus.Grapple.Anchor = new Position16<RoomPixels>(936, 120);
+        samus.Grapple.Angle = RotationAngle.HalfTurn;
+        samus.Grapple.MirroredAngle = RotationAngle.HalfTurn;
         samus.Grapple.CancelFromConnectedPose = false;
         samus.EquippedItems |= SamusEquipmentFlags.GrappleBeam;
         samus.SelectedHudItem = HudItem.Grapple;

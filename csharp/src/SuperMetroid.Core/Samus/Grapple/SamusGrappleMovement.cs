@@ -614,14 +614,17 @@ public static class SamusGrappleMovement
         Position16<RoomPixels> current, Position16<RoomPixels> previous) =>
         new(ClampPreviousAxis(current.X, previous.X), ClampPreviousAxis(current.Y, previous.Y));
 
-    /// <summary>Limits one axis of the previous position to twelve pixels either way of the current one.</summary>
+    /// <summary>
+    /// Limits one axis of the previous position to twelve pixels from the current one. Both are Samus's positions in the
+    /// room, before and after the snap, so a limited previous position lies between them.
+    /// </summary>
     private static int ClampPreviousAxis(int current, int previous)
     {
-        int displacement = CoordinateAxis.Difference(current, previous);
+        int displacement = current - previous;
         if (displacement > GrappleBeamDefinitions.Connection.MostSnapPreviousLag)
-            return CoordinateAxis.Wrap(current - GrappleBeamDefinitions.Connection.MostSnapPreviousLag);
+            return current - GrappleBeamDefinitions.Connection.MostSnapPreviousLag;
         if (displacement < -GrappleBeamDefinitions.Connection.MostSnapPreviousLag)
-            return CoordinateAxis.Wrap(current + GrappleBeamDefinitions.Connection.MostSnapPreviousLag);
+            return current + GrappleBeamDefinitions.Connection.MostSnapPreviousLag;
         return previous;
     }
 

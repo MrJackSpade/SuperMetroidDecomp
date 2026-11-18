@@ -148,32 +148,44 @@ internal static class GrappleConnectionDefinitionsVerification
                 AssertEqual(GrapplePhase.ConnectedSwinging, g.Phase, "Non-match retains phase");
             }
         }
-        // Every anchor word and signed camera-displacement word for each native record.
+        // Anchors across the room for each native record, the body's pre-snap position in the middle of their range, so the
+        // camera's previous position is limited both ways and kept where the snap is short. A stop's anchor lies far enough
+        // inside the room for the body line it last swept clear, so the body it places lies in the room too.
+        var preSnap = new Position16<RoomPixels>(SnapAnchorMiddle, SnapAnchorMiddle);
         foreach (var row in native)
-        for (int coordinate = 0; coordinate <= ushort.MaxValue; coordinate++)
+        for (int coordinate = SnapAnchorFirst; coordinate <= SnapAnchorLast; coordinate++)
         {
-            g.Anchor = g.Anchor.WithX((ushort)coordinate); g.Anchor = g.Anchor.WithY(unchecked((ushort)~coordinate));
+            g.Anchor = g.Anchor.WithX(coordinate); g.Anchor = g.Anchor.WithY(SnapAnchorFirst + SnapAnchorLast - coordinate);
             g.Angle = row.Angle; g.WallJumpTimer = 77;
-            AssertTrue(special(samus, g, new(0, ushort.MaxValue), out var result), "Native special record dispatch");
-            ushort x = unchecked((ushort)(g.Anchor.X + row.SamusOffset.X)), y = unchecked((ushort)(g.Anchor.Y + row.SamusOffset.Y));
-            AssertEqual(x, samus.Position.X.Whole, "Special wrapped body X");
-            AssertEqual(y, samus.Position.Y.Whole, "Special wrapped body Y");
+            AssertTrue(special(samus, g, preSnap, out var result), "Native special record dispatch");
+            int x = g.Anchor.X + row.SamusOffset.X, y = g.Anchor.Y + row.SamusOffset.Y;
+            AssertEqual(x, samus.Position.X.Whole, "Special body X");
+            AssertEqual(y, samus.Position.Y.Whole, "Special body Y");
             AssertEqual(row.Pose, samus.Pose, "Special body pose");
             AssertEqual(row.Kind == GrappleConnectionKind.LockedInPlace ? GrapplePhase.ConnectedLocked : GrapplePhase.WallGrab, g.Phase, "Special next phase");
             AssertEqual(0, g.WallJumpTimer, "Special resets wall-jump timer");
-            AssertEqual(Clamp(x, 0), (result.CameraPrevious ?? throw new InvalidOperationException("Verification requires result.CameraPrevious.")).X, "Special previous-camera X clamp");
-            AssertEqual(Clamp(y, ushort.MaxValue), result.CameraPrevious.Value.Y, "Special previous-camera Y clamp");
+            AssertEqual(Clamp(x, preSnap.X), (result.CameraPrevious ?? throw new InvalidOperationException("Verification requires result.CameraPrevious.")).X, "Special previous-camera X clamp");
+            AssertEqual(Clamp(y, preSnap.Y), result.CameraPrevious.Value.Y, "Special previous-camera Y clamp");
         }
-        // Limit wrapped camera movement to twelve pixels toward the new body coordinate.
-        static ushort Clamp(ushort current, ushort previous)
+        // Limit camera movement to twelve pixels toward the new body coordinate.
+        static int Clamp(int current, int previous)
         {
-            int delta = unchecked((short)(current - previous));
-            return delta > 12 ? unchecked((ushort)(current - 12)) : delta < -12 ? unchecked((ushort)(current + 12)) : previous;
+            int delta = current - previous;
+            return delta > 12 ? current - 12 : delta < -12 ? current + 12 : previous;
         }
     }
 
     /// <summary>Reads retail special-angle bytes only to construct the comparison records.</summary>
     private static byte GrappleSpecialConnectionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
+    /// <summary>The first anchor coordinate the special stops are swept from: a screen inside the room's top and left edges.</summary>
+    private const int SnapAnchorFirst = 256;
+
+    /// <summary>The last anchor coordinate the special stops are swept to, four screens further.</summary>
+    private const int SnapAnchorLast = 1279;
+
+    /// <summary>Where the body stood before the snap, on both axes: the middle of the anchors swept.</summary>
+    private const int SnapAnchorMiddle = 768;
 
     /// <summary>Checks firing cancellation and directional drop pose choices against native policy bytes for reachable poses and radius boundaries.</summary>
     private static void VerifyGrappleCancellationAndDrop(CartridgeImportAddressSpace rom)

@@ -85,11 +85,11 @@ public static class SamusBlockCollision
 
         if ((!acceptedDisplacement.IsZero || move.CollisionMovementDirection.HasValue) && state.InteractiveEnemies.Count != 0)
         {
-            // Enemy collision takes an unsigned magnitude even though the block mover takes a signed displacement in
-            // 1/65536ths of a pixel. Both the whole pixels and the fraction are kept: enemy clipping clears the
-            // fraction only when it actually collides.
+            // Enemy collision measures the move's distance without its direction, which the collision direction carries.
+            // Both the whole pixels and the fraction are kept: enemy clipping clears the fraction only when it actually
+            // collides.
             UnsignedSixteenSixteen magnitude = move.Displacement.Magnitude();
-            // The sign of the requested distance selects the entry: zero is not negative and enters right.
+            // The sign of the requested distance selects the direction: zero is not negative and moves right.
             // The probe itself reads the calculator's stored direction, so a zero move
             // still detects tangency (and clears fractional Y) in the facing direction.
             bool entersLeft = move.Displacement.IsNegative;
@@ -105,9 +105,8 @@ public static class SamusBlockCollision
 
             if (probe.Collided)
             {
-                // On enemy collision the movement skips block detection and
-                // invokes the corresponding no-collision position adder with the clipped whole distance. An accepted
-                // gap is 0 through 32767 pixels: the probe skips any gap that reads as negative.
+                // On enemy collision the movement skips block detection and moves Samus by the clipped whole distance
+                // alone. The accepted gap is never negative: the probe ignores an enemy Samus is already embedded in.
                 SignedSixteenSixteen clippedMagnitude = SignedSixteenSixteen.FromWholePixels(probe.Distance);
                 acceptedDisplacement = entersLeft
                     ? -clippedMagnitude
@@ -178,7 +177,7 @@ public static class SamusBlockCollision
                         break;
 
                     case RoomCollisionType.DoorBlock:
-                        // Finds where the door block leads. A normal destination publishes the door, enters
+                        // A door block leads somewhere. A normal destination publishes the door, enters
                         // the door-transition game state, and reports no collision, so this scan must allow
                         // Samus into the doorway. Elevator pseudo-destinations are not doors
                         // and clip her as an ordinary solid block does.
@@ -199,7 +198,7 @@ public static class SamusBlockCollision
                     case RoomCollisionType.SpikeAir:
                     case RoomCollisionType.ShootableAir:
                     case RoomCollisionType.UnrevealedAir:
-                        // Spike, shootable and unused air let Samus pass with no reaction.
+                        // Spike, shootable and unrevealed air let Samus pass with no reaction.
                         break;
                     case RoomCollisionType.BombableAir:
                         ActivateCollisionBombableAir(terrain, block, owner, move.CanBreakBombBlocks);
@@ -289,9 +288,9 @@ public static class SamusBlockCollision
                         break;
 
                     case RoomCollisionType.BombableBlock:
-                        // Spawns the bomb block's room object for the block's reaction.
+                        // A bomb block spawns its room object for the block's reaction.
                         // Its setup reports the block solid unless Samus
-                        // is speed boosting, screw attacking, or in ShinesparkHorizontalRightPose through ShinesparkDiagonalLeftPose. On an
+                        // is speed boosting, screw attacking, or in a shinespark pose. On an
                         // accepted break it installs the air-type bomb-parent visual and
                         // reports no collision, so this scan continues through the new air.
                         if (terrain.RoomObjects.EveryPlaceHeld)
@@ -352,9 +351,9 @@ public static class SamusBlockCollision
             state.Radius.Y,
             horizontalSlopeCollisionEnabled: move.AlignToSlopeAfterMovement);
         state.Position = state.Position.WithWholeY(alignment.Position.Y);
-        // Only sets this latch; it does not clear a square-floor contact
+        // Slope alignment only sets this latch; it does not clear a square-floor contact
         // published by the previous vertical pass. The vertical move consumes it before
-        // the next nonzero terrain Y move clears it on entry.
+        // the next terrain Y move of some distance clears it.
         state.PositionAdjustedBySlope |= alignment.Adjusted;
 
         return new BlockMoveResult(
@@ -382,18 +381,15 @@ public static class SamusBlockCollision
         bool sandContact = false;
         SolidEnemyCollisionResult? enemyCollision = null;
 
-        // Most of Samus's moves enter through the upward or downward move and therefore probe the
-        // solid-enemy list before reacting to terrain. A few moves use
-        // the explicitly named entry without solid-enemy collision instead. Keep that
-        // distinction as an argument at the shared collision seam; clearing the move's
-        // enemy snapshot would mutate unrelated gameplay state and would make the omission
-        // impossible to verify.
+        // Most of Samus's moves probe the solid enemies before reacting to terrain. A few moves skip
+        // solid-enemy collision instead, which the move states; the move's list of enemies stays as it is, since
+        // other gameplay reads it.
         // A zero-speed bounce apex still enters the downward solid-enemy probe.
         // Exact platform tangency can therefore finish the bounce this frame;
         // only the later terrain check skips a zero displacement.
         if (move.IncludeSolidEnemies && state.InteractiveEnemies.Count != 0)
         {
-            // Uses the same unsigned whole-and-fraction distance magnitude contract as X.
+            // As for a horizontal move, enemy collision measures the distance without its direction.
             UnsignedSixteenSixteen magnitude = move.Displacement.Magnitude();
             SamusCollisionDirection direction = move.Displacement.IsNegative
                 ? SamusCollisionDirection.Up
@@ -410,8 +406,8 @@ public static class SamusBlockCollision
             {
                 // Solid-enemy success bypasses the block check and moves only to the
                 // current enemy boundary. This is also how the game's vertical-collision flags
-                // distinguish an enemy stop from an unobstructed terrain move. An accepted gap is 0 through 32767
-                // pixels: the probe skips any gap that reads as negative.
+                // distinguish an enemy stop from an unobstructed terrain move. The accepted gap is never negative: the
+                // probe ignores an enemy Samus is already embedded in.
                 SignedSixteenSixteen clippedMagnitude = SignedSixteenSixteen.FromWholePixels(probe.Distance);
                 acceptedDisplacement = acceptedDisplacement.IsNegative
                     ? -clippedMagnitude
@@ -423,8 +419,8 @@ public static class SamusBlockCollision
 
         if (!collided && !acceptedDisplacement.IsZero)
         {
-            // Only the nonzero terrain entry clears this latch. A solid-enemy
-            // stop bypasses that entry, and a zero movement does not clear it either.
+            // Only a terrain move of some distance clears this latch. A solid-enemy
+            // stop skips the terrain, and a zero movement does not clear it either.
             state.PositionAdjustedBySlope = false;
             VerticalTerrainScan scan = ScanVerticalTerrain(terrain, state, owner, pose, new VerticalTerrainProbe { Displacement = acceptedDisplacement, ScanLeftToRight = move.ScanLeftToRight, CanBreakBombBlocks = move.CanBreakBombBlocks, PublishDoorSideEffects = move.PublishDoorSideEffects, BlockReactionDirection = move.BlockReactionDirection });
             acceptedDisplacement = scan.AcceptedDisplacement;
@@ -438,7 +434,7 @@ public static class SamusBlockCollision
             mover.ProjectileInheritance.Record(
                 move.Displacement.IsNegative ? VerticalDirection.Up : VerticalDirection.Down,
                 acceptedDisplacement);
-        // Publishes sand contact after either signed movement direction. A changed pose's probe
+        // Sand contact counts as a collision whether Samus moved up or down. A changed pose's probe
         // (ProbeChangedPoseVertical) instead consumes only the block reaction's collision result.
         if (sandContact)
             collided = true;
@@ -491,11 +487,11 @@ public static class SamusBlockCollision
                             block,
                             acceptedDisplacement,
                             leadingBoundary,
-                            // Initializes the blocks-left count to the span and decrements it
-                            // while scanning left-to-right. The mirrored scan initializes it to
-                            // zero and increments while scanning right-to-left. Passing
-                            // the traversal offset directly made the physical left/right
-                            // edge tests alternate every frame beside a square-slope wall.
+                            // The blocks-left count starts at the span and counts down while the
+                            // scan runs left-to-right; the mirrored scan starts it at zero and counts
+                            // up while scanning right-to-left. Either way the count names the same
+                            // physical block, so the left and right edge tests beside a square-slope
+                            // wall do not alternate with the scan order.
                             blocksLeftToCheck: move.ScanLeftToRight
                                 ? horizontalSpan - offset
                                 : offset,
@@ -509,7 +505,7 @@ public static class SamusBlockCollision
                         break;
                     }
 
-                    // Selects its floor or ceiling test from the collision movement direction, not the distance's sign. The
+                    // A non-square slope's floor or ceiling test follows the collision movement direction, not the distance's sign. The
                     // changed-pose probe's both-ways direction therefore tests both ways as a floor.
                     (acceptedDisplacement, collided) = ClipVerticalToNonSquareSlope(
                         state,
@@ -536,8 +532,8 @@ public static class SamusBlockCollision
                     break;
 
                 case RoomCollisionType.DoorBlock:
-                    // Is the vertical twin of the reaction above. Preserve
-                    // its collision result here; the room-level owner publishes the same
+                    // A door block reacts to a vertical move as it does to a horizontal one. Its collision
+                    // result is kept here; the room-level owner publishes the same
                     // door entry for the frontend game-state loop to consume.
                     DoorBlockExit verticalDoor = terrain.Level.ResolveDoorCollision(
                         block,
@@ -711,8 +707,8 @@ public static class SamusBlockCollision
 
     /// <summary>
     /// The single-block collision check after a change of pose:
-    /// the terrain scan alone, in the downward direction, then the probe's position addition.
-    /// Unlike the ordinary vertical entry it has no zero-distance exit, so a zero probe still tests the
+    /// the terrain scan alone, in the downward direction, then the probe's move by the accepted distance.
+    /// Unlike an ordinary vertical move it tests the blocks even for no distance, so a zero probe still tests the
     /// blocks under the current bottom boundary. It checks no solid enemies.
     /// </summary>
     /// <param name="level">The room's collision blocks.</param>
@@ -813,7 +809,7 @@ public static class SamusBlockCollision
         }
 
         // The clipped travel is the displacement's whole pixels moved back by the slope's correction, never below
-        // zero, the fraction dropped. The correction is zero or negative, so the result lies within 0 through 32767.
+        // zero, the fraction dropped. The correction is zero or negative, so the slope never lengthens the travel.
         static SignedSixteenSixteen ClippedToSlope(SignedSixteenSixteen displacement, int correction) =>
             SignedSixteenSixteen.FromWholePixels(Math.Max(0, displacement.WholePixels + correction));
     }
@@ -937,7 +933,7 @@ public static class SamusBlockCollision
             state,
             displacement,
             leadingBoundary);
-        // Publishes support on a downward square-slope hit. Without this
+        // A downward square-slope hit publishes support. Without this
         // latch, fast running probes farther than the eight-pixel floor thickness
         // on the next frame and can embed Samus below its surface.
         if (!displacement.IsNegative) state.PositionAdjustedBySlope = true;
@@ -1106,8 +1102,8 @@ public static class SamusBlockCollision
     /// </summary>
     public static void EjectAfterGrapple(RoomLevelData level, SamusKinematicsState state)
     {
-        // The game's horizontal scans only measure distances: this step never
-        // applies them. These probes do not trigger room objects, doors, damage, or enemies.
+        // The overlap probes above and below Samus only measure distances; the check moves her at most by the
+        // overlap above. These probes do not trigger room objects, doors, damage, or enemies.
         int up = GrappleVerticalOverlap(level, state, direction: VerticalDirection.Down);
         int down = GrappleVerticalOverlap(level, state, direction: VerticalDirection.Up);
         if (up == 0 || down != 0) return;
@@ -1133,8 +1129,8 @@ public static class SamusBlockCollision
         {
             RoomCollisionBlock block = level.GetCollisionBlockOrEdgeSolid(new(CoordinateAxis.Wrap(column), RoomGridConversions.PixelToBlock(boundary)));
             int depth;
-            // The post-grapple table treats even vertical extensions as solid, without
-            // following behaviour. Ordinary movement's step is not interchangeable.
+            // After a grapple even vertical extensions count as solid, without following their
+            // behaviour, unlike ordinary movement.
             if (block.CollisionType.IsSolidKind())
                 depth = RoomGridConversions.OffsetWithinBlock(boundary);
             else if (block.CollisionType != RoomCollisionType.Slope)

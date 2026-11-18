@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Grapple;
 
-/// <summary>Room-pixel point and its wrapped room block produced by the grapple's radial probe.</summary>
+/// <summary>A point the grapple's probe along the rope reaches, in room pixels, and the room block it lies in.</summary>
 internal readonly record struct GrappleCollisionPoint(
     Position16<RoomPixels> Pixel,
     Position16<RoomBlocks> Block);

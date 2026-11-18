@@ -67,8 +67,8 @@ public static class SamusShades
     public static PictureShade GrappleFiringFlare { get; } = new("GrappleFlare", 0);
 
     /// <summary>
-    /// The beams' colours for one beam combination: the shade it selects in the beam shade table. The Chainsaw beam,
-    /// which the table does not list, shows the colours of the listed combination it shares its shade with (#1736).
+    /// The beams' colours for one beam combination: the shade that combination shows. The Chainsaw beam, which has no
+    /// shade of its own, shows the colours of the combination it shares its shade with (#1736).
     /// </summary>
     public static PictureShade Beam(SamusBeamCombination combination) => new($"Beam{ShownBeamShade(combination)}", 0);
 

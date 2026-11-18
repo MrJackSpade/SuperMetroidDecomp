@@ -32,7 +32,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Spawns the wall-phase explosion sprites.</summary>
     private readonly RoomEffectActors _effectActors;
-    /// <summary>Runs common touch behavior before Botwoon's special death tail.</summary>
+    /// <summary>Runs common touch behavior before Botwoon's own death begins.</summary>
     private readonly EnemyCollision _collision;
     /// <summary>Spawns the sixteen special drops from the chance table.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
@@ -784,7 +784,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy),
     };
 
-    /// <summary>Resolves Samus contact while preserving Botwoon's special zero-health tail.</summary>
+    /// <summary>Resolves Samus contact, leaving Botwoon at zero health to die his own way.</summary>
     internal void ReactToBotwoonTouch(EnemyTouchContext context)
     {
         _collision.ResolveNormalEnemyTouch(context, TouchDeathAnimation.Skip);

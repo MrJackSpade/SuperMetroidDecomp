@@ -65,10 +65,10 @@ public sealed class SamusCeresRidleyEjectionState
         {
             InitializationPending = false;
 
-            // Selects the ordinary hurt pose from the PREVIOUS pose direction and
+            // The ejection selects the ordinary hurt pose from the PREVIOUS pose direction and
             // refreshes the animation. The pose setup does not publish the hurt pose's
             // radius, so the alignment from the source pose's live radius to the hurt pose's uses that live radius; the
-            // ordinary pose epilogue publishes the hurt pose's radius on the following frame.
+            // ordinary pose change publishes the hurt pose's radius on the following frame.
             bool facingLeft = SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Left;
             samus.Pose = facingLeft
                 ? SamusPoseId.KnockbackLeftPose

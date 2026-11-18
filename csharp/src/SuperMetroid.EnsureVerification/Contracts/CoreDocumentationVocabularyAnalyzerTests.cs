@@ -1800,6 +1800,43 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // something and a hardware owner are English.
         Expect("class P { /// <summary>Near his entry point; the room's entry point; its sub-pixel position; a fraction of a pixel; Draygon's tail; its tail whips; the shared arena; a type of enemy; inside the type of shot.</summary>\nint F => 0; }");
         Expect(EncodingOwner + "/// <summary>The speed lies outside the type's range; the handshake keeps both subpositions.</summary>\n[EncodingOwner(\"speed\")] struct Speed { }");
+        // The original's program, storage and tables in Samus prose, outside hardware owners and markup (#2446): epilogues,
+        // tails named by what they end, a routine's entries by kind, an enum or flag told as nonzero, a value told by its
+        // storage's range or sign, tables and records named for what the original stored and a shared sprite list.
+        Expect("class P { void Run() { // The common epilogue also runs when Dash is released.\n } }", "('epilogue')");
+        Expect("class P { /// <summary>Runs the ordinary transition epilogues.</summary>\nvoid Run() { } }", "('epilogues')");
+        Expect("class P { void Run() { // mirroring the gameplay tail, so no stale mode leaks\n } }", "('gameplay tail')");
+        Expect("class P { /// <summary>Firing tail: start the extending beam.</summary>\nint F => 0; }", "('Firing tail')");
+        Expect("class P { void Run() { // The swinging and stuck tails publish the pose.\n } }", "('stuck tails')");
+        Expect("class P { /// <summary>Runs common touch behaviour before the special death tail.</summary>\nvoid Run() { } }", "('death tail')");
+        Expect("class P { void Run() { // both teardowns share the tail of the cleanup step\n } }", "('tail of the cleanup step')");
+        Expect("class P { void Run() { // the explicitly named entry without solid-enemy collision\n } }", "('named entry')");
+        Expect("class P { /// <summary>Unlike the ordinary vertical entry it has no zero-distance exit.</summary>\nvoid Run() { } }", "('ordinary vertical entry')");
+        Expect("class P { void Run() { // Only the nonzero terrain entry clears this latch.\n } }", "('terrain entry')");
+        Expect("class P { /// <summary>Any nonzero common reaction keeps the connection.</summary>\nbool F => true; }", "('nonzero common reaction')");
+        Expect("class P { void Run() { // A nonzero direction means a previous request holds her.\n } }", "('nonzero direction')");
+        Expect("class P { /// <summary>Runs the bounce while the bounce state is nonzero.</summary>\nvoid Run() { } }", "('state is nonzero')");
+        Expect("class P { void Run() { // a displacement in 1/65536ths of a pixel\n } }", "('1/65536ths')");
+        Expect("class P { /// <summary>An accepted gap is 0 through 32767 pixels.</summary>\nint F => 0; }", "('0 through 32767')");
+        Expect("class P { /// <summary>Samus's distance moved plus one pixel, held unsigned.</summary>\nint F => 0; }", "('held unsigned')");
+        Expect("class P { /// <summary>Ball landing: signed whole-speed threshold for the first bounce.</summary>\nint F => 0; }", "('signed whole-speed')");
+        Expect("class P { string Name => \"damage overflowed into the signed-negative range\"; }", "('signed-negative')");
+        Expect("class P { void Run() { // Division truncates as an unsigned divide does.\n } }", "('unsigned divide')");
+        Expect("class P { /// <summary>Takes the no-run origin and flare tables.</summary>\nvoid Run() { } }", "('flare tables')");
+        Expect("class P { /// <summary>A solid spike block, with its own damage table.</summary>\nint F => 0; }", "('damage table')");
+        Expect("class P { void Run() { // The post-grapple table treats extensions as solid.\n } }", "('post-grapple table')");
+        Expect("class P { /// <summary>Uses the three authored acceleration records.</summary>\nvoid Run() { } }", "('acceleration records')");
+        Expect("class P { void Run() { // maps right-facing records to leftward knockback\n } }", "('right-facing records')");
+        Expect("class P { /// <summary>The spray's and dust's pictures, which share one sprite list.</summary>\nint F => 0; }", "('share one sprite list')");
+        // Poses named as a range of their declaration order, plain or each in a see reference (#2446).
+        Expect("class P { int RightPose => 0; int LeftPose => 0; void Run() { // RightPose through LeftPose are transitions\n } }",
+            "('RightPose through LeftPose')");
+        Expect("class P { int RightPose => 0; int LeftPose => 0; /// <summary>For <see cref=\"RightPose\"/> through <see cref=\"LeftPose\"/>.</summary>\nvoid Run() { } }",
+            "('RightPose\"/> through <see cref=\"LeftPose')");
+        // A body's tail, an entry that is a place or a moment, a number that is nonzero, a unit of measure, a turn that
+        // records, a sprite list alone, a pose kept through something and a hardware owner are English.
+        Expect("class P { int RightPose => 0; /// <summary>Ridley's tail whips; the tail cap; the room entry; the crash entry; the entry door; a nonzero timer; a nonzero external value; a speed in 1/65536 pixels; the turn records its angle; the frame's sprite list; keeps <see cref=\"RightPose\"/> through the turn.</summary>\nint F => 0; }");
+        Expect(EncodingOwner + "/// <summary>The common epilogue keeps 0 through 32767, held unsigned, in the damage table.</summary>\n[EncodingOwner(\"speed\")] struct Speed { }");
         // The species-owner template on a type that owns no species (#2427), read on the type's own summary; a type that
         // implements or is a species owner's interface owns a species, and an entity's parameter names its owner.
         const string SpeciesOwners = "interface IEnemySpecies { }\ninterface IEnemyEntityFactory { }\n";

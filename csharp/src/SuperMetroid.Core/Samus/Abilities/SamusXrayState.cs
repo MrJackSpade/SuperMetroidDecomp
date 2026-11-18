@@ -169,7 +169,7 @@ public sealed class SamusXrayState
             : facingLeft ? SamusPoseId.XrayingStandingLeftPose : SamusPoseId.XrayingStandingRightPose;
 
         // A second X-Ray setup under direct G-Mode makes the stranded finishing beam
-        // observe a nonzero freeze flag. Its last step immediately
+        // find time frozen. Its last step immediately
         // restores the four suspended subsystems. Represent the two cone effects
         // at their shared observable boundary instead of inventing gate-specific state.
         if (cancellingDirectGMode)
@@ -480,8 +480,8 @@ public sealed class SamusXrayState
 
         if (VisorShadeMode == XrayVisorShadeMode.RestoreSuitShade)
         {
-            // A colour step that reports the colours unhandled asks the outer game-state loop to load the
-            // complete normal suit shade, then clears every X-ray shade value.
+            // The first colouring update after X-ray ends shows Samus's complete normal suit shade again and clears
+            // every X-ray shade value; the visor's glow restarts at its widening for the next X-ray.
             SamusSuitShade.Show(colours, equippedItems);
             _colouring.Release(SamusSpecialColouringKind.Xray);
             SamusGlowPlay.Restart(Visor, SamusGlowSegment.XrayVisorWidening);

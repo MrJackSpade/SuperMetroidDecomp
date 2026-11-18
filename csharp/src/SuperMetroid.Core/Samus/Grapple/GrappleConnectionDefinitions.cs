@@ -78,7 +78,7 @@ internal static class GrappleConnectionDefinitions
         new(RotationAngle.FromSteps(115, 128), GrappleWallContactLeftPose, new(-8, 16), GrappleConnectionKind.WallGrab),
     ];
 
-    /// <summary>One collision-stop record.</summary>
+    /// <summary>One rope angle at which the swing stops, with the pose and place Samus stops in.</summary>
     /// <param name="Angle">The rope angle that triggers the stop.</param>
     /// <param name="Pose">Samus's pose at the stop.</param>
     /// <param name="SamusOffset">Samus's room-pixel position relative to the grapple anchor.</param>

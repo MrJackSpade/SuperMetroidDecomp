@@ -13,7 +13,7 @@ public static class SamusAtmosphereSheetDefinitions
     public static IReadOnlyList<F> FootstepSplash { get; } =
         [F.FootstepSplashing, F.FootstepSpraying, F.FootstepScattering, F.FootstepSettling];
 
-    /// <summary>The lava spray's and dust's pictures, which share one sprite list: a puff billowing, thinning and fading.</summary>
+    /// <summary>The lava spray's and dust's pictures, the same for both: a puff billowing, thinning and fading.</summary>
     public static IReadOnlyList<F> LavaAndDust { get; } =
         [F.LavaAndDustPuff, F.LavaAndDustBillowing, F.LavaAndDustThinning, F.LavaAndDustFading];
 

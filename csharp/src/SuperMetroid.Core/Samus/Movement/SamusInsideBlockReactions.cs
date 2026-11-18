@@ -26,7 +26,7 @@ public static class SamusInsideBlockReactions
             if (block.Position is null || !SamusBlockCollision.TryResolveExtension(level, ref block) ||
                 block.CollisionType != RoomCollisionType.SpecialAir)
                 return;
-            // Admits only the inside-block sample at Samus's centre.
+            // A scroll trigger wakes only from the inside-block sample at Samus's centre.
             // Feet/head contacts belong to the separate movement scans. Keeping
             // this center wake-up lets a lower trigger win after the torso clears
             // an upper trigger, without changing the room-object update order.

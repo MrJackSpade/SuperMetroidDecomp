@@ -41,7 +41,7 @@ public sealed class SamusPeriodicDamage
         // Reachable environmental rates never do this; throwing retains the overflow guard instead of converting it
         // into plausible damage.
         if (WrappingCounter.ReadsBelowZero(applied.Whole))
-            throw new InvalidDataException("Periodic whole damage overflowed into the signed-negative range.");
+            throw new InvalidDataException("Periodic whole damage grew so large that the game reads it as below zero and crashes.");
 
         samus.TakeFractionalEnergyDamage(applied.Fraction, applied.Whole);
 

@@ -6,6 +6,6 @@ public enum SwingSpikeBlock
     /// <summary>An ordinary spike block.</summary>
     Plain,
 
-    /// <summary>A solid spike block, with its own damage table.</summary>
+    /// <summary>A solid spike block, which deals its own damage.</summary>
     Solid,
 }

@@ -24,8 +24,8 @@ public sealed class RinkaEnemyState
         new(RinkaAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
 
     /// <summary>
-    /// The behaviour the Rinka runs each update, changed by initialization, the fire step, aim completion, or the special
-    /// death tail.
+    /// The behaviour the Rinka runs each update, changed by initialization, the fire step, aim completion, or its own
+    /// death.
     /// </summary>
     public RinkaAction Action { get; internal set; }
 

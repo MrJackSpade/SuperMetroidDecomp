@@ -20,7 +20,7 @@ public static class SamusShadeDefinitions
         public const int CycleShades = 3;
     }
 
-    /// <summary>The suit-and-phase lists the special full-body suit colourings select their cycle shades from.</summary>
+    /// <summary>The cycle shades the special full-body suit colourings show, by suit and phase.</summary>
     public static class FullBodyCycles
     {
         /// <summary>Number of full-body Hyper Beam shades.</summary>
@@ -31,7 +31,7 @@ public static class SamusShadeDefinitions
         public const int SpeedBoostFlashShade = 3;
     }
 
-    /// <summary>Shade tables consumed by the fatal-damage sequence.</summary>
+    /// <summary>The shades the fatal-damage sequence shows.</summary>
     public static class Death
     {
         /// <summary>Number of suited and suitless explosion shade variants.</summary>

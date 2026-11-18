@@ -7,8 +7,8 @@ internal static class CrystalFlashDefinitions
     public const int AdmittingEnergyBelow = 51;
 
     /// <summary>
-    /// The Missiles, Super Missiles and Power Bombs the flash spends of each kind, one per update: each count must hold at
-    /// least this many for the flash to start.
+    /// The Missiles, Super Missiles and Power Bombs the flash spends of each kind, one every eighth update: each count must
+    /// hold at least this many for the flash to start.
     /// </summary>
     public const int AmmunitionPerKind = 10;
 

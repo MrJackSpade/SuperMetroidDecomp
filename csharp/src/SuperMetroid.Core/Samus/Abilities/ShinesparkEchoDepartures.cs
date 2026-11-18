@@ -18,6 +18,6 @@ public static class ShinesparkEchoDepartures
         if (DepartureAngleTable.TryGetValue(pose, out ShinesparkDepartureAngles authored))
             return authored;
         return (drained ?? throw new InvalidOperationException(
-            $"A crash finishing in {pose} reads its angles past the departure table, which needs the installed drained-crash departures.")).Departures(pose);
+            $"A crash finishing in {pose}, which is no crash pose, takes its echo angles from the drained-crash departures, and none are installed.")).Departures(pose);
     }
 }

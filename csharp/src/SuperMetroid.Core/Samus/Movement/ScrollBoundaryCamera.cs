@@ -38,7 +38,7 @@ public sealed class ScrollBoundaryCamera
 
     /// <summary>
     /// Gets the most recently calculated camera speed on each axis:
-    /// Samus's unsigned distance moved plus one pixel, held unsigned.
+    /// the distance Samus moved, either way, plus one pixel.
     /// </summary>
     public FixedVector<RoomPixels> Speed { get; internal set; }
 
@@ -181,7 +181,7 @@ public sealed class ScrollBoundaryCamera
 
         Speed = Speed.WithX(CalculateDistanceMovedPlusOne(previous.X, current.X));
 
-        // Compares the whole pixels only. This is intentionally after speed
+        // The camera compares the whole pixels only. This is intentionally after speed
         // calculation: even when they match, differing fractional samples can make
         // the integer X speed used by autoscrolling zero, one, or (on wrap) much larger.
         if (previous.X.Whole == current.X.Whole)
@@ -190,8 +190,7 @@ public sealed class ScrollBoundaryCamera
             return;
         }
 
-        // This XOR is a compact but exact projection of the camera target selection. Knockback,
-        // moonwalking, or a turn that keeps the old momentum reverses which facing target
+        // Knockback, moonwalking, or a turn that keeps the old momentum reverses which facing target
         // applies; every facing but left selects the right-facing target.
         bool backwards = context.KnockedBack
             || context.MovementType == SamusMovementType.Moonwalking
@@ -371,7 +370,7 @@ public sealed class ScrollBoundaryCamera
 
         // Screens open with the camera aligned to the top align the 224-line gameplay viewport to
         // the top of the screen; closed and open ones permit the game's 31-pixel lower alignment. Crucially, the
-        // alignment is selected before Y is clamped and remains fixed for this invocation.
+        // alignment is selected before Y is clamped and remains fixed for this update.
         int verticalAlignment = Scrolls.ReadCameraState(preClamp) == RoomScrollState.OpenAlignedToTop
             ? 0
             : SamusCameraDefinitions.LowerAlignment;

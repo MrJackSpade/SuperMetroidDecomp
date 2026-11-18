@@ -105,8 +105,7 @@ public sealed class SamusLiquidPhysicsState
     internal GameplayAudioRequests AudioRequests { get; }
 
     /// <summary>
-    /// Exclusive liquid effect identity: lava, acid,
-    /// water, or none.
+    /// The room's effect: lava, acid or water, which Samus moves in, or one of the effects that are no liquid, or none.
     /// </summary>
     public RoomFxType FxType { get; private set; }
 
@@ -309,7 +308,7 @@ public sealed class SamusLiquidPhysicsState
 
         if (RoomFxTypes.UsesWater(fxKind) && WaterAffectsBoundary(bottom))
         {
-            // Publishes water's delay before testing the remembered medium. A
+            // Water's animation delay is published before the remembered medium is tested. A
             // transition into water queues the splash sound and creates either a diving splash or
             // two grounded splashes; every submerged update then gets the bubble opportunity.
             bool enteredWater = LiquidPhysicsType != SamusLiquidMedium.Water;
@@ -375,7 +374,7 @@ public sealed class SamusLiquidPhysicsState
             return;
         }
 
-        // Takes the slowdown level as the extra animation delay and clears the remembered medium. Only
+        // Out of liquid the slowdown level becomes the extra animation delay and the remembered medium is cleared. Only
         // water owns an exit splash; lava/acid simply clears the remembered medium.
         samus.ExtraAnimationDelay = samus.SlowdownLevel;
         bool exitedWater = LiquidPhysicsType == SamusLiquidMedium.Water;
@@ -408,7 +407,7 @@ public sealed class SamusLiquidPhysicsState
     {
         Ensure.NotNull(samus);
 
-        // Ends the spin-loop sound separately from the impact. The test is
+        // A landing ends the spin-loop sound separately from the impact. The test is
         // on PREVIOUS movement type and pose because landing selection has not run yet.
         // Cinematics suppress both the ordinary-spin and Screw Attack end-sound requests.
         bool cinematic = samus.Presentation.Mode == SamusPresentationMode.Cinematic;

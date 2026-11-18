@@ -6,7 +6,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// Faithful damage side effects owned by terrain collision.
+/// The damage spike terrain deals Samus.
 /// </summary>
 /// <remarks>
 /// Solid spike blocks are handled synchronously by the directional movement step.
@@ -82,8 +82,8 @@ public static class SamusTerrainHazardCollision
         }
 
         // The spike-air reaction is disabled during shinespark/Screw-Attack/contact-damage bodies and
-        // while the common invincibility timer is nonzero. It also restores the normal-air
-        // horizontal table before returning, independently of whether damage was admitted.
+        // while Samus is invincible. It also restores the ordinary air speeds before returning, whether or not damage
+        // was admitted.
         samus.HorizontalSpeed.SelectAirSpeeds();
         if (samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None || !samus.InvincibilityTimer.IsZero)
             return;
@@ -100,8 +100,7 @@ public static class SamusTerrainHazardCollision
         samus.InvincibilityTimer = WrappingCountdown.Start(SpikeHazardDefinitions.InvincibilityFrames);
         samus.KnockbackTimer = SpikeHazardDefinitions.KnockbackFrames;
 
-        // The game's facing test maps right-facing records to leftward knockback and both
-        // left/front-special records to the other direction. Front-facing records take the left-facing ones' direction.
+        // A right-facing pose is knocked left, and every other pose, front-facing ones included, is knocked right.
         samus.KnockbackXDirection = SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Right
             ? KnockbackHorizontalDirection.Left
             : KnockbackHorizontalDirection.Right;

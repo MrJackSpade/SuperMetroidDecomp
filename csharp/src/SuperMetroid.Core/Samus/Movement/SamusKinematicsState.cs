@@ -79,7 +79,7 @@ public sealed class SamusKinematicsState
     public IEnumerable<ISolidEnemy> SolidEnemyContacts => solidEnemyContacts.Values;
 
     /// <summary>
-    /// Room position in 1/65536 pixels.
+    /// Room position, to a fraction of a pixel.
     /// Collision deliberately overwrites the whole pixels or the subpixels on their own (a right wall puts Samus on the
     /// last subpixel of her pixel), which the operations on each part preserve.
     /// </summary>
@@ -125,7 +125,7 @@ public sealed class SamusKinematicsState
 
     /// <summary>
     /// Exclusive bottom collision boundary. Unlike the occupied bottom pixel returned by
-    /// the bottom-boundary check, this does not subtract one. The addition wraps at 65536.
+    /// the bottom-boundary check, this does not subtract one. It wraps in room space.
     /// </summary>
     public int BottomBoundary => CoordinateAxis.Wrap(Position.Y.Whole + Radius.Y);
 

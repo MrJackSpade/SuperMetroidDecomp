@@ -186,7 +186,7 @@ internal static class SamusPoseMetadata
         SamusPresentation.InitializeAnimation(samus);
 
         // This forced owner shifts history even when already facing forward.
-        // It does not pass through the ordinary input-transition epilogue.
+        // It does not finish as an ordinary input transition does.
         samus.CommitPoseHistory();
 
         // Compares the live radius, still the previous pose's, and

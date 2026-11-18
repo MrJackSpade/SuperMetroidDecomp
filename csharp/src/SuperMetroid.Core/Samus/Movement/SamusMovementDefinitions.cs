@@ -7,13 +7,13 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// </remarks>
 public static class SamusMovementDefinitions
 {
-    /// <summary>Ball landing: signed whole-speed threshold for the first automatic bounce.</summary>
+    /// <summary>Ball landing: the least whole pixels an update of falling speed that make the first automatic bounce.</summary>
     public const int FirstBallBounceMinimumSpeed = 3;
 
     /// <summary>Standing movement's held-shot animation timer before the animation tick.</summary>
     public const int StandingShotAnimationTimer = 16;
 
-    /// <summary>Falling movement's minimum signed whole speed selecting fast-fall art.</summary>
+    /// <summary>Falling movement's least falling speed, in whole pixels an update, that selects fast-fall art.</summary>
     public const int FastFallAnimationSpeed = 5;
     /// <summary>Falling movement: fast-fall timer before the animation tick.</summary>
     public const int FastFallAnimationTimer = 8;

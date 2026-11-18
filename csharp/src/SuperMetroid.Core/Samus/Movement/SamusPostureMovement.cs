@@ -38,7 +38,7 @@ public static class SamusPostureMovement
             frameCounter,
             roomObjects);
 
-        // Performs this cleanup after both collision passes, whether or not she is stationary; each cleared value is
+        // The posture's cleanup runs after both collision passes, whether or not she is stationary; each cleared value is
         // observable.
         // Unlike collision teardown, this does not cancel the boost.
         // The later input fallback decides whether the retained stage ends.
@@ -86,8 +86,8 @@ public static class SamusPostureMovement
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
 
-        // Uses the external-Y replacement when present. Otherwise it couples
-        // the downward floor probe to the total X speed calculated by the horizontal pass;
+        // An external Y displacement, when present, replaces the floor probe. Otherwise the probe couples
+        // its downward reach to the total X speed calculated by the horizontal pass;
         // this matters for a Speed-Booster slide through the crouching transition.
         SignedSixteenSixteen verticalDisplacement = SamusExtraDisplacement
             .CalculateNoSpeedVerticalDisplacement(samus.Kinematics, speed);

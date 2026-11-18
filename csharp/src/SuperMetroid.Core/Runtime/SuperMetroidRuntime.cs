@@ -1006,7 +1006,7 @@ internal sealed class SuperMetroidRuntime
         SamusControlMode Mode,
         FixedPosition<RoomPixels> PreviousCameraPoint);
 
-    /// <summary>Main-gameplay tail parked when a room object opens a message box during a gameplay frame.</summary>
+    /// <summary>The rest of a gameplay frame, held until a message box a room object opened during it closes.</summary>
     private SuspendedGameplayFrameTail? _suspendedFrameTail;
 
     /// <summary>

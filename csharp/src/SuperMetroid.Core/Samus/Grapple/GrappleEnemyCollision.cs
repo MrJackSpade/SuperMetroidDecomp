@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// <summary>One endpoint sample from the live interactive-enemy list.</summary>
 /// <param name="Reaction">The grapple reaction declared by the sampled enemy.</param>
 /// <param name="Anchor">Anchor position (the sampled enemy's centre) in room pixels.</param>
-/// <param name="EnemyDamage">Contact damage, 0 through 65535, supplied when the reaction hurts Samus.</param>
+/// <param name="EnemyDamage">The enemy's contact damage, zero or more, supplied when the reaction hurts Samus.</param>
 public readonly record struct GrappleEnemyCollision(
     GrappleEnemyReaction Reaction,
     Position16<RoomPixels> Anchor,

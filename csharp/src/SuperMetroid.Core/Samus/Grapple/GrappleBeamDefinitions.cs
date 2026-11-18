@@ -21,9 +21,9 @@ public static class GrappleBeamDefinitions
     {
         /// <summary>Stop the old beam before pose-change refiring.</summary>
         public static readonly SoundRequest RestartStop = new(SamusSound.GrappleEnd, SoundRequestPriority.Normal);
-        /// <summary>Firing tail: start the extending beam, only into an idle queue.</summary>
+        /// <summary>Firing the beam: start the extending beam's sound, only when no other sound is waiting.</summary>
         public static readonly SoundRequest Fire = new(SamusSound.GrappleStart, SoundRequestPriority.WhenIdle);
-        /// <summary>Accepted-contact tail: attached beam sound.</summary>
+        /// <summary>A beam that latches on: the attached beam's sound.</summary>
         public static readonly SoundRequest Attach = new(SamusSound.Grappling, SoundRequestPriority.Normal);
         /// <summary>Every grapple teardown: stop the active grapple sound, at essential priority.</summary>
         public static readonly SoundRequest Stop = new(SamusSound.GrappleEnd, SoundRequestPriority.Essential);
@@ -31,7 +31,7 @@ public static class GrappleBeamDefinitions
     /// <summary>Angular-physics coefficients embedded in behavior.</summary>
     public static class Physics
     {
-        /// <summary>Firing's accepted-connection tail: automatically retract eight pixels per frame after the connection check clears its delta.</summary>
+        /// <summary>A fired beam that connects: the rope retracts by itself eight pixels per frame after connecting clears its change of length.</summary>
         public const int InitialConnectionRetraction = -8;
         /// <summary>How far the rope grows each update while the beam is fired.</summary>
         public const int FiringExtension = 12;

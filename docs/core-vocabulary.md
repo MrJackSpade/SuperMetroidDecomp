@@ -671,6 +671,23 @@ places the platform, the reaction freezes the parts listed after it, a jump's sp
 A thing's or a place's entry point (`his entry point`), a sub-pixel position, a fraction of a pixel, a body's tail and a
 hardware owner's own range stay English.
 
+#2446 widens SME6454, outside hardware owners, to the original's program, storage and tables as Samus prose tells them:
+an epilogue in any form (`the common epilogue`, `the transition epilogue`); a tail named by what it ends (`the gameplay
+tail`, `the firing tail`, `the long cleanup tail`, `the swinging and stuck tails`, `the death tail`, `the tail of the
+routine`); a routine's entry named by its kind (`the normal entry`, `the explicitly named entry`, `the ordinary vertical
+entry`, `the nonzero terrain entry`); an enum or flag told as nonzero (`a nonzero direction`, `any nonzero common
+reaction`, `the bounce state is nonzero`); a value told by its storage's range or sign (`1/65536ths`, `0 through 32767`,
+`held unsigned`, `a signed whole speed`, `signed-negative`, `the unsigned divide`, `the signed halving`); a table or record
+named for what the original stored in it (`the origin and flare tables`, `the damage table`, `the post-grapple table`,
+`the acceleration records`, `the right-facing records`); pictures that `share one sprite list`; and, read with markup,
+poses named as a range of their order (`ShinesparkHorizontalRightPose through ShinesparkDiagonalLeftPose`). Core says
+what the game does: the runtime clears the damage mode before every movement step, a fired beam's rope retracts by itself
+once it connects, a ball that is bouncing takes the bouncing step, the accepted gap is never negative, the camera speed is
+the distance Samus moved either way plus one, a solid spike block deals its own damage, the shinespark poses break bomb
+blocks. A body's tail (`Ridley's tail`, `the tail cap`), an entry that is a place or a moment (`the room entry`, `the crash
+entry`, `the entry door`), a number that is nonzero (`a nonzero timer`), a unit of measure (`a speed in 1/65536 pixels`), a
+turn that records, a sprite list alone and a hardware owner stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

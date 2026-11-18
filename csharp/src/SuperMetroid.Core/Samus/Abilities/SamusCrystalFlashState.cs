@@ -242,8 +242,8 @@ public sealed class SamusCrystalFlashState
     }
 
     /// <summary>
-    /// Consumes missiles, supers, then power bombs on each eighth frame and restores 50 energy per decrement. Each
-    /// decrement is unchecked, so a kind the activation check let through with fewer than ten drains below zero.
+    /// Consumes missiles, supers, then power bombs on each eighth frame and restores 50 energy for each one spent. Nothing
+    /// stops a count at zero, so a kind the activation check let through with fewer than ten drains below zero.
     /// </summary>
     private void StepAmmoDrain(SamusState samus, int frameCounter)
     {

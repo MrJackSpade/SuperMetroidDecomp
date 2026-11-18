@@ -29,7 +29,7 @@ internal static class SamusHudObservations
 
     /// <summary>
     /// Whether the posture-transition admission admits weapons for <paramref name="pose"/>: the input transitions admit
-    /// crouch and stand transitions and preserves the charge through morph and unmorph art; outside the table the answer
+    /// crouch and stand transitions and preserves the charge through morph and unmorph art; for any other pose the answer
     /// is the one <paramref name="beyond"/> decoded from what the admission reads there.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The admission reads no flag for the pose.</exception>

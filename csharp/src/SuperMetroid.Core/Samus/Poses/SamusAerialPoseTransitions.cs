@@ -525,8 +525,8 @@ internal static class SamusAerialPoseTransitions
         GameplayAction controllerNewInput = GameplayAction.None)
     {
         // The setup installs a jump transition or the spin jump that the current pose's input transitions select.
-        // Movement-specific launches (damage boost, grapple, bomb jump, wall jump, and Shinespark) own separate entry
-        // points.
+        // Movement-specific launches (damage boost, grapple, bomb jump, wall jump, and Shinespark) each start their own
+        // way.
         if (!IsOrdinaryJumpTarget(targetPose) || !SamusPoseInputTransitions.CanSelect(samus.Pose, targetPose))
         {
             throw new InvalidOperationException(
@@ -552,7 +552,7 @@ internal static class SamusAerialPoseTransitions
     }
 
     /// <summary>
-    /// Runs the unconditional current-state epilogue clear that follows the
+    /// Drops the pending transition shot, as every update does after the
     /// HUD and projectile step. A shot refused by the cooldown or by Samus's shot count must lose the bridge too;
     /// it is deliberately not retained until some later shot succeeds.
     /// </summary>

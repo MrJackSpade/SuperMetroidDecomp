@@ -361,7 +361,7 @@ public sealed class SamusSuitPickupState
         _lightBeamRight = edges.Right;
     }
 
-    /// <summary>Window column <paramref name="column"/>, which lies across the screen's width.</summary>
+    /// <summary>Screen column <paramref name="column"/>, which must lie across the screen's width.</summary>
     private static int ScreenColumn(int column) =>
         Ensure.BetweenInclusive(0, SuitPickupBeamDefinitions.RightmostColumn, column);
 

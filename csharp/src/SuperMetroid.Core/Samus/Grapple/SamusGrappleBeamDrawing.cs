@@ -141,9 +141,8 @@ public static class SamusGrappleBeamDrawing
         if (grapple.RopeLength <= 0)
             return;
 
-        // The rope draw recalculates the draw vector from endpoint-minus-flare geometry. This
-        // is observably different from merely reversing EndAngle while firing, and it also
-        // keeps the rope visually attached after pose-specific art-origin correction.
+        // The rope is drawn along the direction from the flare to the anchor, worked out again on every draw rather
+        // than taken from the grapple's angle, so it stays visually attached after pose-specific art-origin correction.
         RotationAngle drawAngle = SamusGrappleMovement.CalculateAngleFromXY(grapple.Anchor - grapple.FlareOrigin);
         // The fraction carries from segment to segment, so diagonal ropes keep their length and leftward and upward
         // steps match the others.
@@ -163,7 +162,8 @@ public static class SamusGrappleBeamDrawing
         GrappleRopePicture picture = grapple.Rope.Showing;
         for (int segment = 0; segment < segmentCount; segment++)
         {
-            // The rope draw's direction flips are ORed into the segment's own; the sheet holds each combination.
+            // The rope's mirroring at its angle picks the segment's picture, which the sheet holds already mirrored, so
+            // the segment draws unmirrored.
             SpriteSheetFrame image = installed.Frame(GrappleSheets.RopeFrame(orientation, picture, mirror));
             sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleRope), image,
                 centre.Whole, SpriteMirror.None));
@@ -196,7 +196,7 @@ public static class SamusGrappleBeamDrawing
 
 
 
-    /// <summary>Clears the three charge-flare values shared by grapple cancellation and connection cleanup.</summary>
+    /// <summary>Clears the flare's stage and its animation, for grapple cancellation and connection cleanup alike.</summary>
     internal static void ClearFlareAnimation(SamusGrappleState grapple)
     {
         // Every grapple teardown clears these same shared charge/grapple

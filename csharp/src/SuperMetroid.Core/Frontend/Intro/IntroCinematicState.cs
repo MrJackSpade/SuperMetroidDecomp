@@ -990,7 +990,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             transitionAccepted = true;
         }
 
-        // The intro uses the ordinary transition epilogue after movement, animation,
+        // The intro finishes its pose transition as ordinary gameplay does, after movement, animation,
         // and hurt interruption. Publish only the final accepted pose, once per update;
         // an unchanged animation frame must not erase the preceding transition history.
         if (transitionAccepted)

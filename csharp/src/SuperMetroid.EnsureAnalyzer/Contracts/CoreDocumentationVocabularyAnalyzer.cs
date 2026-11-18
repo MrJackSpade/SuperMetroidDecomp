@@ -143,6 +143,10 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// owner measures it, clearing stores, a thing that issues calls and overlapping writes.
 /// #2440 adds, outside hardware owners, the original's storage and program as enemy prose tells them: subpositions,
 /// handshakes, entry points, a shared, common or species tail and a value told by its type's range.
+/// #2446 adds, outside hardware owners, the original's program, storage and tables as Samus prose tells them: epilogues,
+/// tails named by what they end, a routine's entries by kind, an enum or flag told as nonzero, a value told by its
+/// storage's range or sign, tables and records named for what the original stored, a shared sprite list and poses
+/// named as a range of their order.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -1954,6 +1958,59 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The original's program, storage and tables told in Samus prose (#2446), outside hardware owners and markup: an
+    /// epilogue in any form (the common epilogue, the transition epilogue); a tail of the program named by what it ends
+    /// (the gameplay tail, the firing tail, the long cleanup tail, the swinging and stuck tails, the death tail, the tail
+    /// of the routine); a routine's entry named by its kind (the normal entry, the explicitly named entry, the ordinary
+    /// vertical entry, the nonzero terrain entry, the liquid entries); a value of a state, mode, direction, phase, kind,
+    /// flag, latch, reaction, result, status, type or selection told as nonzero (a nonzero direction, any nonzero common
+    /// reaction, the bounce state is nonzero); a value told by its storage's range or sign (1/65536ths, 0 through 32767,
+    /// held unsigned, a signed whole speed, a signed-negative value, an unsigned divide, halving, countdown, magnitude
+    /// or distance); a table or record named for what the original stored in it (the origin and flare tables, the damage
+    /// table, the firing tables, the post-grapple table, the acceleration records, the right-facing records, one
+    /// collision-stop record) and pictures that share one sprite list. The original ended its routines in shared code,
+    /// entered them at several points, kept enums and flags as words tested against zero, kept its values in sixteen bits
+    /// read signed or unsigned and laid its definitions out in tables of records; Core says what the game does, which
+    /// state a thing is in, how far and which way a value goes and what each definition means. English stays legal: a
+    /// body's tail (Ridley's tail, the tail cap), an entry that is a place or a moment (the room entry, the crash entry, the
+    /// entry door), a number that is nonzero (a nonzero timer, a nonzero external value), a unit of measure (a speed in
+    /// 1/65536 pixels), a turn that records, a sprite list alone and a hardware owner.
+    /// </summary>
+    private static readonly Regex SamusProgramStorageAndTableNarrationProse = new(
+        @"\bepilogues?\b" +
+        @"|\b(?:gameplay|firing|contact|connection|cleanup|teardown|swinging|stuck|movement|setup|routine|update|step|loop" +
+        @"|handler|death|zero-health)\s+tails?\b" +
+        @"|\btails?\s+of\s+(?:the|this|that|its|every)\s+(?:[\w-]+\s+)?(?:routines?|steps?|updates?|movements?|setups?" +
+        @"|programs?|handlers?|loops?|calls?)\b" +
+        @"|\b(?:normal|ordinary|named|shared|separate|terrain|nonzero|liquid)\s+(?:(?:vertical|horizontal|downward|upward" +
+        @"|movement|pose)\s+)?entr(?:y|ies)\b(?!\s+(?:doors?|windows?|poses?|fades?|distances?|values?|frames?|phases?" +
+        @"|sequences?|sounds?|points?)\b)" +
+        @"|\bnon-?zero\s+(?:[\w-]+\s+)?(?:states?|modes?|directions?|phases?|kinds?|flags?|latch(?:es)?|reactions?" +
+        @"|results?|status(?:es)?|types?|selections?)\b" +
+        @"|\b(?:state|mode|direction|phase|kind|flag|latch|reaction|result|status|type|selection)\s+(?:is|are|was|were" +
+        @"|stays|remains|reads)\s+non-?zero\b" +
+        @"|(?<![\w/])1/65536ths\b" +
+        @"|\b(?:0|zero)\s+(?:through|to)\s+32,?767\b" +
+        @"|\b(?:held|kept|stored)\s+(?:as\s+)?(?:un)?signed\b" +
+        @"|\b(?:un)?signed[-\s]+(?:whole[-\s]+speeds?|divides?|division|halving|countdowns?|negative|magnitudes?)\b" +
+        @"|\bunsigned\s+distances?\b" +
+        @"|\b(?:origin|flare|firing|damage|departure|horizontal|vertical|post-grapple|shade|acceleration)\s+tables?\b" +
+        @"|\b(?:acceleration|connection|collision-stop|departure|jumping-turn|right-facing|left-facing|front-facing" +
+        @"|front-special)\s+records?\b" +
+        @"|\b(?:share|shares|shared|sharing)\s+(?:one|a|the\s+same)\s+sprite\s+lists?\b|\bsame\s+sprite\s+lists?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// Poses named as a range of their declaration order (#2446), read with their markup, outside hardware owners: one pose
+    /// identifier through another, plain or each in a <c>see</c> reference (<c>ShinesparkHorizontalRightPose through
+    /// ShinesparkDiagonalLeftPose</c>). The original numbered its poses and tested ranges of those numbers; Core names
+    /// the poses' family or lists the poses a rule admits.
+    /// </summary>
+    private static readonly Regex PoseRangeProse = new(
+        @"\b[A-Z]\w*Pose(?:""\s*/>)?\s+through\s+(?:<see\s+cref=""(?:\w+\.)*)?[A-Z]\w*Pose\b",
+        RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A type's summary that calls the type a species owner (#2427): the species-owner template (its per-room state,
     /// behaviour and the interactions it registers). Only a type that creates or keeps a species' enemies
     /// (<see cref="SpeciesOwnerInterfaces"/>) is one; any other type says what it is.
@@ -2513,6 +2570,8 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : AreaSetupColourAndStorageProse.Match(Markup.Replace(text, " ")) is { Success: true } areaStorage ? areaStorage.Value
             : EnemyWrapCallAndWriteNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } enemyWrap ? enemyWrap.Value
             : EnemyStorageAndProgramNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } enemyStorage ? enemyStorage.Value
+            : SamusProgramStorageAndTableNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } samusNarration ? samusNarration.Value
+            : PoseRangeProse.Match(text) is { Success: true } poseRange ? poseRange.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

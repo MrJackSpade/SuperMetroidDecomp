@@ -89,7 +89,7 @@ internal sealed class CrocomireSkeleton
         CrocomireDeathState death = state.Death;
         if (state.RumbleOscillation == CrocomireRumbleDefinitions.Oscillations.Length)
         {
-            state.DeathPhaseDelay = CrocomireSkeletonDefinitions.SpikedWallDuration;
+            state.DeathPhaseWait.LastFor(CrocomireSkeletonDefinitions.SpikedWallUpdates);
             state.Colours.ShowWallSpikes();
             state.Body.Shading = state.Colours.OverSprites(EnemyShades.HurtFlashLook);
             state.Tongue.Shading = state.Body.Shading;
@@ -127,20 +127,22 @@ internal sealed class CrocomireSkeleton
             : death.RumbleYOffset + oscillation.Speed;
     }
 
-    /// <summary>Bares the skeleton behind the wall while its wait runs, then replaces the wall blocks as the bones break through.</summary>
+    /// <summary>
+    /// Bares the skeleton behind the wall on each update of its wait but the last, then replaces the wall blocks as the bones
+    /// break through on the update the wait runs out.
+    /// </summary>
     internal void RunCrocomireSkeletonRevealAndWallBreak(CrocomireEnemyState state)
     {
         CrocomireDeathState death = state.Death;
-        if (state.DeathPhaseDelay != 0)
+        if (state.DeathPhaseWait.StepKeepsRunning())
         {
-            state.DeathPhaseDelay--;
             BareCrocomireSkeleton(death);
             return;
         }
 
         RoomEnemyPlace body = state.Body;
         body.Position = body.Position.WithWhole(CrocomireSkeletonDefinitions.BehindWallPosition);
-        death.SkeletonFallDelay = CrocomireSkeletonDefinitions.FallDelay;
+        death.SkeletonFallWait.LastFor(CrocomireSkeletonDefinitions.FallDelay);
         state.SkeletonVelocity = SignedSixteenSixteen.Zero;
         _access.PublishCrocomireObject(CrocomireArenaDefinitions.FightWallBlock, CrocomireArenaMutation.ClearInvisibleWall);
         _access.PublishCrocomireObject(CrocomireArenaDefinitions.SpikeWallBlock, CrocomireArenaMutation.CreateInvisibleWall);
@@ -169,9 +171,7 @@ internal sealed class CrocomireSkeleton
                 state.SkeletonVelocity.AddTo(state.Body.Position.X.Whole, state.Body.Position.X.Fraction));
         }
 
-        if (death.SkeletonFallDelay == 0)
-            return;
-        if (--death.SkeletonFallDelay != 0)
+        if (death.SkeletonFallWait.StepKeepsRunning())
             return;
         state.SkeletonVelocity = state.SkeletonVelocity.WithoutFraction();
         CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodyAnimation.SkeletonFalling);

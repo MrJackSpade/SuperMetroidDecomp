@@ -860,17 +860,16 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
                 return;
 
             case BotwoonBodyPhase.BeginDying:
-                // The delay follows the segment's projectile place, not its place in the body.
-                segment.DeathDelay = BotwoonSegmentFallDelay.Start(projectile.Place);
+                // The wait follows the segment's projectile place, not its place in the body, and its first update is this
+                // one. The dying segment holds the picture it shows until it lands.
+                segment.FallWait.LastFor(BotwoonSegmentFallDelay.WaitUpdates(projectile.Place));
                 segment.Phase = BotwoonBodyPhase.DyingDelay;
+                projectile.StopFrameHold();
                 goto case BotwoonBodyPhase.DyingDelay;
 
             case BotwoonBodyPhase.DyingDelay:
-                // The delay starts below the fall count and ends on reaching it.
-                segment.DeathDelay++;
-                if (segment.DeathDelay >= BotwoonSegmentState.FallAt)
+                if (!segment.FallWait.StepKeepsRunning())
                     segment.Phase = BotwoonBodyPhase.Falling;
-                projectile.FrameHold = WrappingCountdown.Start(0);
                 ShowBotwoonBodyHurtFlash(projectile, hurtFlashCadence);
                 return;
 
@@ -897,7 +896,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     {
         BotwoonSegmentState state = segment.StateOf<BotwoonSegmentState>();
         if (state.Animation.Install(state.Pose))
-            segment.FrameHold = WrappingCountdown.Start(1);
+            segment.StartAnimation(state.Animation);
         ShowBotwoonBodyHurtFlash(segment, hurtFlashCadence);
     }
 
@@ -923,7 +922,6 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         {
             // A place past the table's last row fails when its row is read, long before the place could grow large.
             segment.FallPlace += BotwoonDeathDefinitions.FallAcceleration;
-            projectile.FrameHold = WrappingCountdown.Start(0);
             ShowBotwoonBodyHurtFlash(projectile, hurtFlashCadence);
             return;
         }

@@ -44,6 +44,32 @@ public abstract class KraidAnimatedPartState : KraidPartState
     {
     }
 
+    /// <summary>
+    /// Shows at once the first pose of the animation beginning at <paramref name="segment"/> and stops the part's clock
+    /// (#2400, #2463): the animation plays to that pose and stands past it, and the shared animation takes no step until
+    /// the part's owner starts the clock again.
+    /// </summary>
+    /// <returns>Whether the animation holds the pose for good.</returns>
+    /// <exception cref="InvalidOperationException">The animation raises a cue before its first pose, or shows none.</exception>
+    internal bool ShowFirstPose(KraidPartSegment segment)
+    {
+        Animation<KraidPartSegment> animation = KraidAnimations.StartingWith(segment);
+        AnimationPlace place = AnimationPlace.StartOfAnimation;
+        AnimationShown<KraidPartSegment, KraidPartPose> shown = KraidAnimations.Segments.PlayToNextFrame(animation, ref place,
+            cue => throw new InvalidOperationException($"Kraid's part animation {segment} raised {cue} before its first pose."));
+        KraidPartPose pose = shown switch
+        {
+            AnimationShown<KraidPartSegment, KraidPartPose>.HeldFrame held => held.Shown,
+            AnimationShown<KraidPartSegment, KraidPartPose>.Frame frame => frame.Shown,
+            _ => throw new InvalidOperationException($"Kraid's part animation {segment} shows no pose first: it reached {shown}."),
+        };
+        Playback = new(animation, place);
+        Started(segment);
+        Place.Frame = Show(pose);
+        Place.AnimationClock.Stop();
+        return shown is AnimationShown<KraidPartSegment, KraidPartPose>.HeldFrame;
+    }
+
     /// <summary>Installs the animation beginning at <paramref name="segment"/> and runs its first step on the next update.</summary>
     internal void StartAnimation(KraidPartSegment segment)
     {

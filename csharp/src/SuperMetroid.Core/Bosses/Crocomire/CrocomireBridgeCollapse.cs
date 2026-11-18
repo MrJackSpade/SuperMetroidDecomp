@@ -55,13 +55,13 @@ internal sealed class CrocomireBridgeCollapse
         _access.RequestCrocomireSound(CrocomireSoundDefinitions.BridgeCollapse);
         CrocomireDeathState death = state.Death;
         death.BridgeFragmentsSpawned = 0;
-        death.AcidSmokeTimer = 1;
-        death.AcidSoundTimer = 1;
+        // The acid smokes and burns on his death's first update, and at their intervals after.
+        death.AcidSmokeWait.LastFor(1);
+        death.AcidSoundWait.LastFor(1);
 
         PublishCrocomireBridgeCollapseObjects();
 
-        CrocomireBodyLayer.StartCrocomireTongueAnimation(state, CrocomireTongueSegment.Hidden, CrocomireBridgeCollapseDefinitions.TongueHoldsUntilHidden);
-        state.Tongue.Presence = state.Tongue.Presence.With(EnemyPresence.Hidden);
+        CrocomireBodyLayer.HideCrocomireTongue(state);
     }
 
     /// <summary>
@@ -192,25 +192,20 @@ internal sealed class CrocomireBridgeCollapse
         RunCrocomireRise(state);
     }
 
-    /// <summary>Queues periodic acid sounds according to the death-scene timer.</summary>
-    internal void RunCrocomireAcidSoundTimer(CrocomireDeathState death)
+    /// <summary>Plays the acid's burning sound each time its wait runs out, every <see cref="CrocomireBridgeCollapseDefinitions.AcidSoundInterval"/> updates.</summary>
+    internal void RunCrocomireAcidSounds(CrocomireDeathState death)
     {
-        if (death.AcidSoundTimer == 0)
+        if (death.AcidSoundWait.StepKeepsRunning())
             return;
-        if (--death.AcidSoundTimer != 0)
-            return;
-        death.AcidSoundTimer = CrocomireBridgeCollapseDefinitions.AcidSoundInterval;
+        death.AcidSoundWait.LastFor(CrocomireBridgeCollapseDefinitions.AcidSoundInterval);
         _access.RequestCrocomireSound(CrocomireSoundDefinitions.AcidBurn);
     }
 
-    /// <summary>Holds the submerged skeleton for its authored delay before rising begins.</summary>
+    /// <summary>Rests his body submerged while the pause's wait runs; he starts to rise on the update it runs out.</summary>
     internal static void RunCrocomireSubmergedPause(CrocomireEnemyState state)
     {
-        if (state.DeathPhaseDelay != 0)
-        {
-            state.DeathPhaseDelay--;
+        if (state.DeathPhaseWait.StepKeepsRunning())
             return;
-        }
         state.DeathPhase = state.DeathPhase.Next();
         state.VerticalSpeed = CrocomireBridgeCollapseDefinitions.MaximumSinkSpeed;
     }
@@ -226,13 +221,11 @@ internal sealed class CrocomireBridgeCollapse
         if (body.Position.Y.Whole >= CrocomireBridgeCollapseDefinitions.SunkenY)
         {
             state.DeathPhase = state.DeathPhase.Next();
-            state.DeathPhaseDelay = CrocomireBridgeCollapseDefinitions.SubmergedPause;
+            state.DeathPhaseWait.LastFor(CrocomireBridgeCollapseDefinitions.SubmergedPauseUpdates);
             // The next rise, after a submerged pause or directly after a melt, starts from no acceleration.
             state.VerticalAcceleration = SignedSixteenSixteen.Zero;
             return;
         }
-
-        body.AnimationClock.ShowsNewFrame = false;
 
         // The acceleration grows up to the sink's most; the speed then gains it (CrocomireSpeedGain).
         SignedSixteenSixteen acceleration = SignedSixteenSixteen.Min(

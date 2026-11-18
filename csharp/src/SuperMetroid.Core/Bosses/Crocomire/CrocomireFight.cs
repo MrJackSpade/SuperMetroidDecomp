@@ -115,7 +115,7 @@ internal sealed class CrocomireFight
             return;
         }
 
-        CrocomireBodyLayer.StartCrocomireTongueAnimation(state, CrocomireTongueSegment.Fight, 1);
+        CrocomireBodyLayer.StartCrocomireTongueAnimation(state, CrocomireTongueSegment.Fight);
         place.CollidesByFrameHitboxes = true;
         var tongueState = new CrocomireTongueState(state) { BodyXOffset = CrocomireFightDefinitions.TongueBodyXOffset };
         place.SetSpeciesState(tongueState);

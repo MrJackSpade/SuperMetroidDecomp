@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Crocomire's body state.</summary>
 /// <remarks>
-/// Every phase starts its own values: the bridge collapse and each melt pass start the sink from rest, the pause loads
-/// its delay, the rumble its first step and the skeleton its speed. Only a hop's sink carries on from the phase before
+/// Every phase starts its own values: the bridge collapse and each melt pass start the sink from rest, the sink starts
+/// the pause's wait, the rumble its first step and the skeleton its speed. Only a hop's sink carries on from the phase before
 /// it, continuing the rise's speed and acceleration. A rise starts from no acceleration (#1476).
 /// </remarks>
 public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
@@ -97,10 +97,12 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
     }
 
     /// <summary>
-    /// In the submerged pause and while the skeleton is bared behind the wall: the frames left in that death phase, counted down only while
-    /// it is above zero.
+    /// The wait of a timed death phase (#2463): each sink starts it to last
+    /// <see cref="CrocomireBridgeCollapseDefinitions.SubmergedPauseUpdates"/>, the submerged pause after it rising as it
+    /// runs out, and the wall's rumble starts it to last <see cref="CrocomireSkeletonDefinitions.SpikedWallUpdates"/>, his
+    /// skeleton breaking through as it runs out.
     /// </summary>
-    public int DeathPhaseDelay { get; internal set; }
+    public BossCountdown DeathPhaseWait { get; } = new();
 
     /// <summary>
     /// While the hidden wall rumbles: the oscillation under way in <see cref="CrocomireRumbleDefinitions.Oscillations"/>,

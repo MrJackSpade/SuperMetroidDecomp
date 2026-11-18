@@ -302,7 +302,7 @@ internal static class CrocomireBodyAnimations
         ],
         [P.MeltingFleshTopRow] =
         [
-            Show(F.CrocomireBodyMeltingFleshTopRow, LoopingMeltFrameDuration),
+            Hold(F.CrocomireBodyMeltingFleshTopRow),
         ],
         [P.MeltingFleshTopTwoRows] =
         [
@@ -318,7 +318,7 @@ internal static class CrocomireBodyAnimations
         ],
         [P.MeltingBareSkullTopRow] =
         [
-            Show(F.CrocomireBodyMeltingBareSkullTopRow, LoopingMeltFrameDuration),
+            Hold(F.CrocomireBodyMeltingBareSkullTopRow),
         ],
         [P.MeltingBareSkullTopTwoRows] =
         [
@@ -459,11 +459,11 @@ internal static class CrocomireBodyAnimations
             [Segments.Whole(P.NearSpikeWallChargeOpenMouth), Segments.Repeated(P.Gaping, NearSpikeWallChargeGapings), Segments.Whole(P.NearSpikeWallChargeCloseMouth)],
             [Segments.Whole(P.NearSpikeWallChargeSteps)]),
         [A.BackOffFromSpikeWall] = Animation<CrocomireBodySegment>.Looping([Segments.Whole(P.BackOffFromSpikeWall)]),
-        [A.MeltingFleshTopRow] = Animation<CrocomireBodySegment>.Looping([Segments.Whole(P.MeltingFleshTopRow)]),
+        [A.MeltingFleshTopRow] = new([Segments.Whole(P.MeltingFleshTopRow)], AnimationEnd.Holds),
         [A.MeltingFleshTopTwoRows] = new([Segments.Whole(P.MeltingFleshTopTwoRows)], AnimationEnd.Holds),
         [A.MeltingFleshTopThreeRows] = new([Segments.Whole(P.MeltingFleshTopThreeRows)], AnimationEnd.Holds),
         [A.MeltingFleshTopFourRows] = new([Segments.Whole(P.MeltingFleshTopFourRows)], AnimationEnd.Holds),
-        [A.MeltingBareSkullTopRow] = Animation<CrocomireBodySegment>.Looping([Segments.Whole(P.MeltingBareSkullTopRow)]),
+        [A.MeltingBareSkullTopRow] = new([Segments.Whole(P.MeltingBareSkullTopRow)], AnimationEnd.Holds),
         [A.MeltingBareSkullTopTwoRows] = new([Segments.Whole(P.MeltingBareSkullTopTwoRows)], AnimationEnd.Holds),
         [A.MeltingBareSkullTopThreeRows] = new([Segments.Whole(P.MeltingBareSkullTopThreeRows)], AnimationEnd.Holds),
         [A.MeltingBareSkullTopFourRows] = new([Segments.Whole(P.MeltingBareSkullTopFourRows)], AnimationEnd.Holds),
@@ -484,13 +484,6 @@ internal static class CrocomireBodyAnimations
     /// </summary>
     private static AnimationBeat<EnemyFrameId, CrocomireBodyCue> Hold(EnemyFrameId frame) =>
         new AnimationBeat<EnemyFrameId, CrocomireBodyCue>.HeldFrame(frame);
-
-    /// <summary>
-    /// The updates each melting pass's first-row frame shows before its animation shows it again, the longest duration a
-    /// frame can have, kept exact (#1627): these two animations loop on their frame, so the frame shows anew each time the
-    /// count runs out, and a shot's added updates move when.
-    /// </summary>
-    private const int LoopingMeltFrameDuration = 32767;
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, CrocomireBodyCue> Show(EnemyFrameId frame, int duration) =>

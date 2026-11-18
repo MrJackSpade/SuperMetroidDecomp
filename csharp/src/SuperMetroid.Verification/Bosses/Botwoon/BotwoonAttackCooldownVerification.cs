@@ -77,6 +77,30 @@ internal static class BotwoonAttackCooldownVerification
         Console.WriteLine("  Botwoon pre-fall wait: sixteen updates from his tail entering the wall, then his head falls.");
     }
 
+    /// <summary>
+    /// #2463: once his body's death starts, each segment waits by the enemy-projectile place it was spawned into, that
+    /// update included, and falls from the next, as the game counted 96 plus eight a place up to 256 from that update; the
+    /// dying segment's frame hold stops, so it keeps the picture it shows.
+    /// </summary>
+    internal static void VerifyBotwoonSegmentFallWait()
+    {
+        (RoomEnemySystem enemies, _, BotwoonEnemyState state) = NewBotwoon();
+        state.BodyDeathStarted = true;
+        static int GameWait(BotwoonSegmentState segment) => 256 - (96 + 8 * segment.Projectile.Place);
+        int longest = state.Body.Max(GameWait);
+        for (int update = 1; update <= longest; update++)
+        {
+            foreach (BotwoonSegmentState segment in state.Body.Where(segment => update <= GameWait(segment)))
+            {
+                enemies.BotwoonBehavior.MoveBotwoonBodySegment(segment.Projectile, 0);
+                string at = $"segment {segment.Index} in projectile place {segment.Projectile.Place} on update {update} of its death";
+                AssertEqual(update == GameWait(segment) ? BotwoonBodyPhase.Falling : BotwoonBodyPhase.DyingDelay, segment.Phase, at);
+                AssertTrue(segment.Projectile.IsFrameHoldStopped, $"{at}: the dying segment holds its picture");
+            }
+        }
+        Console.WriteLine("  Botwoon segment fall wait: each dying segment falls by its projectile place, later places sooner.");
+    }
+
     /// <summary>A frame of Botwoon's main AI, with Samus standing clear of him.</summary>
     private static ClockedEnemyAiFrame Frame() => new(
         RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) },
@@ -107,6 +131,7 @@ internal static class BotwoonAttackCooldownVerification
     {
         Suite(nameof(VerifyBotwoonAttackCooldown), () => VerifyBotwoonAttackCooldown());
         Suite(nameof(VerifyBotwoonPreFallWait), () => VerifyBotwoonPreFallWait());
+        Suite(nameof(VerifyBotwoonSegmentFallWait), () => VerifyBotwoonSegmentFallWait());
         return 0;
     }
 }

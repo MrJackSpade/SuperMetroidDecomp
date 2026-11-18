@@ -31,6 +31,7 @@ internal static class CrocomireStateQuantitiesVerification
         Suite(nameof(VerifyRiseMatchesNativeBytes), VerifyRiseMatchesNativeBytes);
         Suite(nameof(VerifySkeletonMotionMatchesNativeWords), VerifySkeletonMotionMatchesNativeWords);
         Suite(nameof(VerifyMeltShakeCounterWraps), VerifyMeltShakeCounterWraps);
+        Suite(nameof(VerifyDeathWaits), VerifyDeathWaits);
         Console.WriteLine("Crocomire state quantities: step range, power-bomb charge, sink, rise, skeleton motion and melt shake match the native words.");
     }
 
@@ -263,7 +264,7 @@ internal static class CrocomireStateQuantitiesVerification
         body.Position = body.Position.WithWhole(new(100, 54));
         FixedPosition<RoomPixels> position = body.Position;
         int delay = 40;
-        death.SkeletonFallDelay = delay;
+        death.SkeletonFallWait.LastFor(delay);
         state.DeathPhase = CrocomireDeathPhase.DelaySkeletonFall;
 
         // The drift right of the broken wall, while the skeleton is left of X 224.
@@ -349,6 +350,42 @@ internal static class CrocomireStateQuantitiesVerification
             AssertEqual(nativeCounter, fixture.Effect.MeltShakeCounter.RawValue, $"melt frame {frame}: shake counter word");
             AssertEqual(startX + jitter, fixture.Actor.Body.Position.X.Whole, $"melt frame {frame}: shaken X");
         }
+    }
+
+    /// <summary>
+    /// #2463: his death's waits last the updates the game's counts gave them. The bridge's collapse burns the acid on his
+    /// death's next update and every 32nd after, as the game's count loaded with one and reloaded with 32 read zero there;
+    /// a sink's end rests him submerged for 49 updates, his rise starting on the last, as the game's count of 48 counted
+    /// down while above zero and moved on as it read zero.
+    /// </summary>
+    private static void VerifyDeathWaits()
+    {
+        (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
+        RoomEnemyPlace body = state.Body;
+        body.Position = body.Position.WithWholeX(CrocomireBridgeCollapseDefinitions.CollapseStartX);
+        enemies.CrocomireBehavior.BridgeCollapse.HandleCrocomireBridgeThreshold(state);
+        AssertEqual(CrocomireDeathPhase.CrumbleBridgeAndSink, state.DeathPhase, "his weight on the bridge's far block collapses it");
+        AssertTrue(state.Tongue.AnimationClock.IsStopped, "the collapse hides his tongue with its clock stopped");
+        for (int update = 1; update <= 100; update++)
+        {
+            enemies.Audio.BeginFrame();
+            enemies.CrocomireBehavior.BridgeCollapse.RunCrocomireAcidSounds(state.Death);
+            bool burns = update % 32 == 1;
+            AssertEqual(EnemyAudioQueueAccess.SoundList(burns ? [CrocomireSoundDefinitions.AcidBurn] : []), enemies.Audio.QueuedSoundList,
+                $"the acid's sound on update {update} of his death");
+        }
+
+        state.DeathPhase = CrocomireDeathPhase.FirstHopSink;
+        body.Position = body.Position.WithWholeY(CrocomireBridgeCollapseDefinitions.SunkenY);
+        enemies.CrocomireBehavior.BridgeCollapse.RunCrocomireSink(state, default);
+        AssertEqual(CrocomireDeathPhase.SecondSubmergedPause, state.DeathPhase, "the sink ends at the acid's floor");
+        for (int update = 1; update <= 48; update++)
+        {
+            CrocomireBridgeCollapse.RunCrocomireSubmergedPause(state);
+            AssertEqual(CrocomireDeathPhase.SecondSubmergedPause, state.DeathPhase, $"he still rests submerged on update {update} of the pause");
+        }
+        CrocomireBridgeCollapse.RunCrocomireSubmergedPause(state);
+        AssertEqual(CrocomireDeathPhase.SecondHopRise, state.DeathPhase, "he starts to rise on the pause's 49th update");
     }
 
     /// <summary>Creates a Crocomire body with its encounter and death state in a fresh enemy system.</summary>

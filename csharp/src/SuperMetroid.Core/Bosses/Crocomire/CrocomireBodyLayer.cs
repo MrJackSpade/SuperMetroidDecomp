@@ -29,11 +29,22 @@ internal sealed class CrocomireBodyLayer
         _roomFx = roomFx;
     }
 
-    /// <summary>Starts the tongue's <paramref name="segment"/> from its first step after <paramref name="updates"/> updates.</summary>
-    internal static void StartCrocomireTongueAnimation(CrocomireEnemyState state, CrocomireTongueSegment segment, int updates)
+    /// <summary>Starts the tongue's <paramref name="segment"/>, its first step playing on the next update.</summary>
+    internal static void StartCrocomireTongueAnimation(CrocomireEnemyState state, CrocomireTongueSegment segment)
     {
         state.TonguePlayback = new AnimationPlayback<CrocomireTongueSegment>(CrocomireAnimations.TongueStartingWith(segment), AnimationPlace.StartOfAnimation);
-        state.Tongue.AnimationClock.RestartAfter(updates);
+        state.Tongue.AnimationClock.Restart();
+    }
+
+    /// <summary>
+    /// Hides the tongue as the bridge collapses under him (#2463): it plays its hidden animation, which shows nothing, and
+    /// its clock stops, so the frame it last showed stays until his first melt starts its melting animation.
+    /// </summary>
+    internal static void HideCrocomireTongue(CrocomireEnemyState state)
+    {
+        state.TonguePlayback = new AnimationPlayback<CrocomireTongueSegment>(CrocomireAnimations.TongueStartingWith(CrocomireTongueSegment.Hidden), AnimationPlace.StartOfAnimation);
+        state.Tongue.AnimationClock.Stop();
+        state.Tongue.Presence = state.Tongue.Presence.With(EnemyPresence.Hidden);
     }
 
     /// <summary>
@@ -71,13 +82,16 @@ internal sealed class CrocomireBodyLayer
         tongue.DrawOffset = Offset16<RoomPixels>.Zero;
     }
 
-    /// <summary>Emits smoke at the acid surface during Crocomire's death presentation.</summary>
+    /// <summary>
+    /// Emits smoke at the acid surface during Crocomire's death each time its wait runs out, every
+    /// <see cref="CrocomireBridgeCollapseDefinitions.AcidSmokeInterval"/> updates.
+    /// </summary>
     internal void SpawnCrocomireAcidSmoke(CrocomireEnemyState state)
     {
         CrocomireDeathState death = state.Death;
-        if (--death.AcidSmokeTimer != 0)
+        if (death.AcidSmokeWait.StepKeepsRunning())
             return;
-        death.AcidSmokeTimer = CrocomireBridgeCollapseDefinitions.AcidSmokeInterval;
+        death.AcidSmokeWait.LastFor(CrocomireBridgeCollapseDefinitions.AcidSmokeInterval);
 
         int random = _access.ReadCrocomireRandom();
         // Smoke on the left rises one pixel further from the body than its mirror on the right.

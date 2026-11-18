@@ -20,10 +20,13 @@ internal static class CrocomireSkeletonDefinitions
     /// <summary>His skeleton's vertical reach while it waits behind the wall and breaks through.</summary>
     internal const int BehindWallReachY = 56;
 
-    /// <summary>How long the wall shows its spikes after its rumble before his skeleton breaks through, in updates.</summary>
-    internal const int SpikedWallDuration = 128;
+    /// <summary>
+    /// The updates the wall shows its spikes after its rumble: his skeleton bares behind it on each but the last, on which it
+    /// breaks through.
+    /// </summary>
+    internal const int SpikedWallUpdates = 129;
 
-    /// <summary>How long his skeleton holds after it breaks through before it falls, in updates.</summary>
+    /// <summary>The updates his broken-out skeleton slides after it breaks through: it starts falling on the last.</summary>
     internal const int FallDelay = 80;
 
     /// <summary>How far right his breaking-out skeleton slides, exclusive, before it stops.</summary>

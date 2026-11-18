@@ -111,9 +111,10 @@ internal static class CrocomireNativeWords
     /// <summary>
     /// Imports the body's values the cartridge keeps in record words D, E and F (#1476): during the fight the queued
     /// steps and the projectile counter (E's reaction timer is read by nothing); while the wall rumbles the rumble's place; otherwise in the
-    /// death sequence the death-phase delay or the vertical acceleration in D, the vertical speed or the skeleton speed's
+    /// death sequence the death phase's wait or the vertical acceleration in D, the vertical speed or the skeleton speed's
     /// fraction in E, and the carried vertical fraction (the high byte) or the skeleton speed's whole pixels in F. Of the values
-    /// one death-phase word holds, only the phase's own is read, so each is imported from the word.
+    /// one death-phase word holds, only the phase's own is read, so each is imported from the word. The cartridge counts the
+    /// wait down while it is above zero and moves on at zero, so the word is the wait's count (#2463).
     /// </summary>
     internal static void ImportSharedWords(CrocomireEnemyState state, ushort wordD, ushort wordE, ushort wordF)
     {
@@ -131,7 +132,7 @@ internal static class CrocomireNativeWords
         }
         else
         {
-            state.DeathPhaseDelay = wordD;
+            PrivateState.Set(state.DeathPhaseWait, nameof(BossCountdown.Count), (int)wordD);
             state.VerticalAcceleration = SignedSixteenSixteen.FromParts(0, wordD);
         }
         state.VerticalSpeed = new SignedEightEight(wordE);

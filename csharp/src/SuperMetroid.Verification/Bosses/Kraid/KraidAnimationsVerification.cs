@@ -46,6 +46,8 @@ internal static class KraidAnimationsVerification
         VerifyArmSpeedSwitch();
         VerifyLimbMarks();
         VerifyHeldAndLongestPoses();
+        VerifyArmWaitsForMouthReopens();
+        VerifyNailSetUpPose();
         Suite(nameof(VerifyKraidArmCollisionDefinitions), () => VerifyKraidArmCollisionDefinitions(rom));
         Suite(nameof(VerifyKraidFootCollisionDefinitions), () => VerifyKraidFootCollisionDefinitions());
         Console.WriteLine($"  Kraid part animations: {PartEntries.Length} segments and {lists.Values.Sum(list => list.BeatAddresses.Length)} beats match bank $A7, " +
@@ -315,6 +317,67 @@ internal static class KraidAnimationsVerification
         }
         Pass(lint, forceExpiry: true);
         AssertEqual((EnemyFrameId?)EnemyFrameId.KraidLintBudding, lint.Frame, "a stepped lint clock plays its animation again");
+    }
+
+    /// <summary>
+    /// #2463: while mouth reopens are pending the arm's swing waits where it stands, its frame and that frame's remaining hold
+    /// kept through every update of the wait, and once none is pending the frame shows out the rest of its hold before the
+    /// swing goes on, as the game's arm did by adding back each update its animation took off its timer.
+    /// </summary>
+    private static void VerifyArmWaitsForMouthReopens()
+    {
+        (RoomEnemySystem enemies, KraidEnemyState state, _, RoomEnemyPlace arm) = NewKraid();
+        state.ArmState.SetAnimation(KraidPartSegment.ArmNormal);
+        arm.AnimationClock.StepOnNextUpdate();
+        Update();
+        Update();
+        EnemyFrameId? shown = arm.Frame;
+        int held = arm.AnimationClock.Hold.RawValue;
+        AssertTrue(shown is not null && held > 1, "the arm's swing shows a frame with updates of its hold left");
+        state.ArmMouthReopens();
+        for (int update = 0; update < 256; update++)
+        {
+            Update();
+            if (arm.Frame != shown || arm.AnimationClock.Hold.RawValue != held || arm.AnimationClock.ShowsNewFrame)
+                throw new InvalidOperationException($"Verification failed: the waiting arm's swing moved on at update {update} of the reopens.");
+        }
+        state.ClearMouthReactions();
+        for (int update = 1; update < held; update++)
+        {
+            Update();
+            AssertEqual(shown, arm.Frame, $"the arm still shows its frame {update} updates after the reopens");
+        }
+        Update();
+        AssertTrue(arm.AnimationClock.ShowsNewFrame && arm.Frame != shown, "the arm's swing shows its next frame as the rest of its hold runs out");
+
+        // One arm update: its main update, then its animation.
+        void Update()
+        {
+            enemies.KraidBehavior.Limbs.RunKraidArmMain(arm, state, cameraY: 0);
+            Pass(arm);
+        }
+    }
+
+    /// <summary>
+    /// #2463: a fingernail's setup shows its spin's first pose through the spin's animation, and the spin waits there, its
+    /// clock stopped, through every update until its flight starts it.
+    /// </summary>
+    private static void VerifyNailSetUpPose()
+    {
+        (RoomEnemySystem enemies, KraidEnemyState state, _, _) = NewKraid();
+        KraidNailState part = state.Nail(KraidNailPart.First);
+        RoomEnemyPlace nail = part.Place;
+        nail.Bind(EnemyDefinitionId.KraidFirstNail, nail.Definition);
+        enemies.KraidBehavior.Projectiles.InitializeKraidNail(nail, KraidNailPart.First);
+        AssertEqual((EnemyFrameId?)EnemyFrameId.KraidNailTurned0, nail.Frame, "a fingernail set up shows its spin's first pose");
+        AssertEqual(KraidAnimations.StartingWith(KraidPartSegment.NailLoop), part.Playback.Animation, "the pose is its spin's");
+        AssertTrue(nail.AnimationClock.IsStopped, "the set-up fingernail's spin waits");
+        for (int update = 0; update < 256; update++)
+        {
+            Pass(nail);
+            if (nail.Frame != EnemyFrameId.KraidNailTurned0 || nail.AnimationClock.ShowsNewFrame)
+                throw new InvalidOperationException($"Verification failed: the waiting fingernail's spin moved on at update {update}.");
+        }
     }
 
     /// <summary>The part animation starting at <paramref name="segment"/>, before its first play.</summary>

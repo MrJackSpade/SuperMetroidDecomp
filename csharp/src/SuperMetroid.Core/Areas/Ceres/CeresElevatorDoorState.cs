@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Bosses;
+
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>The state of the elevator room's blocked door (#1953).</summary>
@@ -16,8 +18,10 @@ internal sealed class CeresElevatorDoorState
     public int ExplosionIntervalLeft { get; internal set; }
 
     /// <summary>
-    /// The place in <see cref="CeresDoorRumbleGeometryDefinitions.ExplosionOffsets"/> of the last destruction burst; each
-    /// burst takes the place before it, and the last place after the first.
+    /// Where the next destruction burst goes off (#2424): a place of
+    /// <see cref="CeresDoorRumbleGeometryDefinitions.ExplosionOffsets"/>, the first until the rumble starts, each burst
+    /// moving it on to the next and the first again after the last.
     /// </summary>
-    public int LastExplosionPlace { get; internal set; }
+    public ListStep<Offset16<RoomPixels>> NextExplosion { get; internal set; } =
+        ListStep<Offset16<RoomPixels>>.FirstOf(CeresDoorRumbleGeometryDefinitions.ExplosionOffsets);
 }

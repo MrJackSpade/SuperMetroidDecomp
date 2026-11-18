@@ -181,11 +181,6 @@ internal static class CeresElevatorArrivalVerification
                 ushort word = cartridge.ReadCartridgeWord(address);
                 ushort operand = cartridge.ReadCartridgeWord(address + 2);
                 string at = $"Ceres elevator {program} at $86:{cursor:X4}";
-                if (word == CeresElevatorArrivalDefinitions.DeleteOpcode)
-                {
-                    VerificationAssertions.AssertEqual(AnimationEnd.Stops, animation.End, $"{at}: delete");
-                    break;
-                }
                 if (word == CeresElevatorArrivalDefinitions.GotoOpcode)
                 {
                     // Each arrival list jumps back to its own start: the animation loops its one phase, or, where the list's
@@ -217,9 +212,7 @@ internal static class CeresElevatorArrivalVerification
                 cursor = unchecked((ushort)(cursor + 4));
             }
             VerificationAssertions.AssertEqual(beats.Count, index, $"Ceres elevator {program} ends where its native list does");
-            VerificationAssertions.AssertTrue(animation.Phases.SequenceEqual(index == 0
-                    ? Array.Empty<AnimationPhase<CeresElevatorArrivalSegment>>()
-                    : new[] { new AnimationPhase<CeresElevatorArrivalSegment>(program, 0, index, 1) }),
+            VerificationAssertions.AssertTrue(animation.Phases.SequenceEqual([new AnimationPhase<CeresElevatorArrivalSegment>(program, 0, index, 1)]),
                 $"Ceres elevator {program} plays its list once per pass");
         }
     }

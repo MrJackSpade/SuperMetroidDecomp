@@ -5,8 +5,6 @@ internal enum CeresElevatorArrivalSegment
 {
     /// <summary>The moving pad's two-pose loop.</summary>
     Pad,
-    /// <summary>The stationary platform's one-pose loop.</summary>
+    /// <summary>The stationary platform's one pose, shown for good.</summary>
     Platform,
-    /// <summary>The shared deletion that landing redirects both projectiles to.</summary>
-    Delete,
 }

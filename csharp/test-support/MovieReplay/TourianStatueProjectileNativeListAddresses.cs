@@ -16,7 +16,6 @@ internal static class TourianStatueProjectileNativeListAddresses
     /// <summary>Each typed program's native entry point, in authored order.</summary>
     internal static readonly NativeProgramEntry<TourianStatueProjectileSegment>[] Entries =
     [
-        new NativeProgramEntry<TourianStatueProjectileSegment>(TourianStatueProjectileSegment.Delete, TourianStatueProjectileInstructionProgramToolingDefinitions.Delete),
         new NativeProgramEntry<TourianStatueProjectileSegment>(TourianStatueProjectileSegment.Splash, TourianStatueProjectileInstructionProgramDefinitionsConstants.Splash),
         new NativeProgramEntry<TourianStatueProjectileSegment>(TourianStatueProjectileSegment.EyeGlow, TourianStatueProjectileInstructionProgramDefinitionsConstants.EyeGlow),
         new NativeProgramEntry<TourianStatueProjectileSegment>(TourianStatueProjectileSegment.Particle, TourianStatueProjectileInstructionProgramDefinitions.Particle),

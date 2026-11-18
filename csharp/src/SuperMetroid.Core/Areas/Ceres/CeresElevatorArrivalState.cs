@@ -46,40 +46,48 @@ public sealed class CeresElevatorArrivalState
         Ensure.NotNull(samus);
 
         // The pad moves Samus before the platform tests whether she has landed at Y=72, so both leave on the update
-        // she lands.
+        // she lands, without showing another pose (#2424).
         if (pad.Active)
         {
-            if (pad.WaitTimer > 1)
-            {
-                pad.WaitTimer--;
-            }
+            if (LowerSamus(samus))
+                pad.Active = false;
             else
-            {
-                // The descent samples the old Samus position for the pad, then increments
-                // Samus. That one-pixel separation is visible throughout the descent.
-                pad.Position = pad.Position.WithY(MovingPadUnder(samus).Y);
-                samus.Position += new Offset16<RoomPixels>(0, 1);
-                // Samus starts the descent at the room's top and moves down a pixel an update, so she reaches the landing
-                // threshold from above.
-                if (samus.Position.Y.Whole >= CeresElevatorArrivalDefinitions.LandingThresholdY)
-                {
-                    samus.Position = samus.Position.WithWholeY(CeresElevatorArrivalDefinitions.LandingSamusY);
-                    pad.Start(CeresElevatorArrivalSegment.Delete);
-                }
-            }
-            AdvanceAnimation(pad);
+                AdvanceAnimation(pad);
         }
 
         if (platform.Active)
         {
             if (samus.Position.Y.Whole == CeresElevatorArrivalDefinitions.LandingSamusY)
-            {
-                platform.Start(CeresElevatorArrivalSegment.Delete);
-            }
-            AdvanceAnimation(platform);
+                platform.Active = false;
+            else
+                AdvanceAnimation(platform);
         }
 
         return IsComplete;
+    }
+
+    /// <summary>
+    /// Runs one update of the pad's descent: it waits, then lowers Samus a pixel an update, riding under her, until she
+    /// lands.
+    /// </summary>
+    /// <returns>True on the update Samus lands.</returns>
+    private bool LowerSamus(SamusState samus)
+    {
+        if (pad.WaitTimer > 1)
+        {
+            pad.WaitTimer--;
+            return false;
+        }
+        // The descent samples the old Samus position for the pad, then increments
+        // Samus. That one-pixel separation is visible throughout the descent.
+        pad.Position = pad.Position.WithY(MovingPadUnder(samus).Y);
+        samus.Position += new Offset16<RoomPixels>(0, 1);
+        // Samus starts the descent at the room's top and moves down a pixel an update, so she reaches the landing
+        // threshold from above.
+        if (samus.Position.Y.Whole < CeresElevatorArrivalDefinitions.LandingThresholdY)
+            return false;
+        samus.Position = samus.Position.WithWholeY(CeresElevatorArrivalDefinitions.LandingSamusY);
+        return true;
     }
 
     /// <summary>
@@ -112,8 +120,8 @@ public sealed class CeresElevatorArrivalState
     }
 
     /// <summary>
-    /// Plays a projectile's typed animation (#641, #1600) when its frame expires: a new pose, a pose shown for good, or the
-    /// delete. A pose shown for good holds until the projectile starts another animation.
+    /// Plays a projectile's typed animation (#641, #1600) when its frame expires: a new pose, or a pose shown for good, which
+    /// holds until the projectile leaves.
     /// </summary>
     private static void AdvanceAnimation(CeresElevatorProjectile projectile)
     {
@@ -140,9 +148,6 @@ public sealed class CeresElevatorArrivalState
             case AnimationShown<CeresElevatorArrivalSegment, CeresElevatorArrivalPose>.HeldFrame held:
                 projectile.FrameHold = null;
                 projectile.Pose = held.Shown;
-                return;
-            case AnimationShown<CeresElevatorArrivalSegment, CeresElevatorArrivalPose>.Ended:
-                projectile.Active = false;
                 return;
             default:
                 throw new InvalidOperationException($"A Ceres elevator arrival animation ended an update with {shown}.");
@@ -180,7 +185,7 @@ public sealed class CeresElevatorArrivalState
 
         /// <summary>The spawned-object sheet the projectile draws from and the colours it shows.</summary>
         public SpriteGraphics Graphics { get; }
-        /// <summary>Whether the actor is still in the room; it leaves when its animation ends.</summary>
+        /// <summary>Whether the actor is still in the room; it leaves on the update Samus lands.</summary>
         public bool Active { get; set; } = true;
         /// <summary>Whole room position; the per-frame movement only rewrites Y.</summary>
         public Position16<RoomPixels> Position { get; set; }
@@ -189,12 +194,6 @@ public sealed class CeresElevatorArrivalState
         /// <summary>The projectile's animation and where it stands in it, played on when its frame expires.</summary>
         internal AnimationPlayback<CeresElevatorArrivalSegment> Playback { get; set; }
 
-        /// <summary>Starts the animation of <paramref name="segment"/> on the next update.</summary>
-        internal void Start(CeresElevatorArrivalSegment segment)
-        {
-            FrameHold = 1;
-            Playback = new AnimationPlayback<CeresElevatorArrivalSegment>(CeresElevatorArrivalAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
-        }
         /// <summary>Updates until this projectile's next animation pass; none while it shows its pose for good.</summary>
         public int? FrameHold { get; set; } = 1;
         /// <summary>The pose the projectile shows, none before its first frame.</summary>

@@ -701,7 +701,8 @@ internal static class NativeEnemyAnimationOracle
         where TEvent : notnull
     {
         (Func<ushort, int?> operandWords, Action<ushort, ushort[], TEvent, string> compareCue, Func<TEvent, bool>? endsList, Func<ushort, bool>? omitted,
-            Func<ushort, ushort?>? goesTo, Func<ushort, bool>? showsPoseAgain, Func<ushort, ushort>? picturedAt, Func<ushort, bool>? ownerLeavesAt) = rules;
+            Func<ushort, ushort?>? goesTo, Func<ushort, bool>? showsPoseAgain, Func<ushort, ushort>? picturedAt, Func<ushort, bool>? ownerLeavesAt,
+            Func<ushort, bool>? shownUnseen) = rules;
         var addresses = new List<ushort>();
         var controls = new List<NativeEnemyControl<TSegment>>();
         var continuedAt = new HashSet<ushort>();
@@ -765,6 +766,26 @@ internal static class NativeEnemyAnimationOracle
             }
             switch (kind)
             {
+                case NativeEnemyListDefinitions.WordKind.Frame when shownUnseen?.Invoke(cursor) == true:
+                {
+                    // A frame the owner shows while the actor is unseen (#2424) names no picture in the typed segment. Shown
+                    // for good, followed by its sleep or by a goto back to it, it ends the segment holding, the actor
+                    // unseen; otherwise the segment waits as long as the frame shows.
+                    ushort afterUnseenCursor = unchecked((ushort)(cursor + 4));
+                    int afterUnseen = (int)new SnesAddress(bank, afterUnseenCursor);
+                    NativeEnemyListDefinitions.WordKind followedBy = NativeEnemyListDefinitions.Classify(cartridge.ReadCartridgeWord(afterUnseen));
+                    if (followedBy == NativeEnemyListDefinitions.WordKind.Sleep
+                        || followedBy == NativeEnemyListDefinitions.WordKind.GoTo && cartridge.ReadCartridgeWord(afterUnseen + 2) == cursor)
+                    {
+                        controls.Add(new(NativeEnemyControlKind.Sleep, beat, null, null, cursor));
+                        return Finish();
+                    }
+                    var unseen = VerificationAssertions.AssertIs<AnimationBeat<TFrame, TEvent>.Pause>(Beat(beat, at), $"{at}: unseen frame's wait");
+                    VerificationAssertions.AssertEqual((int)word, unseen.Duration, $"{at}: unseen frame's wait length");
+                    addresses.Add(cursor);
+                    cursor = afterUnseenCursor;
+                    continue;
+                }
                 case NativeEnemyListDefinitions.WordKind.Frame when Beat(beat, at) is AnimationBeat<TFrame, TEvent>.HeldFrame held:
                 {
                     // A typed held frame stands for a frame followed at once by its list's sleep (#1607): the frame shows for

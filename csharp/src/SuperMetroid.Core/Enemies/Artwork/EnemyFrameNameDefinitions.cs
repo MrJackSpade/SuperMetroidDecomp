@@ -257,7 +257,6 @@ internal static class EnemyFrameNameDefinitions
         [EnemyFrameId.CeresDoorFacingRightHalfOpen] = "ceres_door_facing_right_half_open",
         [EnemyFrameId.CeresDoorFacingRightThreeQuartersOpen] = "ceres_door_facing_right_three_quarters_open",
         [EnemyFrameId.CeresDoorFacingRightOpen] = "ceres_door_facing_right_open",
-        [EnemyFrameId.CeresDoorOrWallSmallSquare] = "ceres_door_or_wall_small_square",
         [EnemyFrameId.CeresGetawayChamberLeftWall] = "ceres_getaway_chamber_left_wall",
         [EnemyFrameId.CeresGetawayChamberRightWall] = "ceres_getaway_chamber_right_wall",
         [EnemyFrameId.CeresRidleyRoomDoorClosed] = "ceres_ridley_room_door_closed",

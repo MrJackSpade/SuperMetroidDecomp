@@ -178,8 +178,8 @@ internal static class LookupTourianProgramVerification
         int compared = 0;
         AssertEqual(Enum.GetValues<TourianStatueBlockSegment>().Length, expected.Count,
             $"{definition.Statue} statue: every typed segment is a native list entry");
-        AnimationSegments<TourianStatueBlockSegment, TourianStatueBlockPicture, TourianStatueBlockCue> segments =
-            TourianStatueBlockAnimations.SegmentsFor(definition.FirstFrameDuration);
+        var animations = new TourianStatueBlockAnimations(definition.FirstFrameDuration);
+        AnimationSegments<TourianStatueBlockSegment, TourianStatueBlockPicture, TourianStatueBlockCue> segments = animations.Segments;
         foreach (KeyValuePair<TourianStatueBlockSegment, List<Beat>> native in expected)
         {
             IReadOnlyList<Beat> typed = segments.Beats(native.Key);
@@ -190,7 +190,7 @@ internal static class LookupTourianProgramVerification
         }
         foreach (TourianStatueBlockSegment start in Enum.GetValues<TourianStatueBlockSegment>())
         {
-            Animation<TourianStatueBlockSegment> typed = TourianStatueBlockAnimations.StartingWith(start);
+            Animation<TourianStatueBlockSegment> typed = animations.StartingWith(start);
             var phases = new List<AnimationPhase<TourianStatueBlockSegment>>();
             var entered = new Dictionary<TourianStatueBlockSegment, int> { [start] = 0 };
             TourianStatueBlockSegment segment = start;

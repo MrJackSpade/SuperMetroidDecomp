@@ -12,6 +12,7 @@ namespace SuperMetroid.Verification.Areas.Ceres;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>Checks the seven Ceres doors and walls a placement places against the cartridge's selector tables.</summary>
 internal static class CeresDoorInitializationDefinitionsVerification
@@ -30,7 +31,8 @@ internal static class CeresDoorInitializationDefinitionsVerification
         for (ushort selector = 0; selector < 7; selector++)
         {
             (EnemyDefinitionId actor, EnemySpawnSettings settings) = SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorHeaderPlacement(selector);
-            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork,
+                floor: RoomBackgroundsFixtures.CeresFloor());
             enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.StartCeresDoorOrWall(actor, settings);

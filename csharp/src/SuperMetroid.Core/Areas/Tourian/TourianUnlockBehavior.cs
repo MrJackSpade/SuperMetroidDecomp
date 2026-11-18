@@ -133,20 +133,23 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
     private void HoldTourianStatueSplash(EnemyProjectile projectile) =>
         projectile.Position = projectile.Position.WithWholeY(WaterSurface - TourianStatueParticleDefinitions.SplashHeightAboveSurface);
 
-    /// <summary>Raises a soul, accelerating upward, and deletes it once it rises above the room's top.</summary>
+    /// <summary>
+    /// Raises a soul, accelerating upward, and ends it once it rises above the room's top (#2424): it leaves in its own
+    /// update, before its animation's step, and the velocity it leaves behind for the next spawn in its place still gains
+    /// this update's acceleration.
+    /// </summary>
     internal static void RaiseTourianStatueSoul(EnemyProjectile projectile)
     {
         projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
         if (CoordinateAxis.AsSigned(projectile.Position.Y.Whole) < 0)
-        {
-            projectile.StartAnimation(new TourianStatueProjectileAnimation(TourianStatueProjectileSegment.Delete));
-        }
+            projectile.Delete();
         projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y - TourianStatueSoulDefinitions.RiseAcceleration);
     }
 
     /// <summary>
-    /// Drops a particle under gravity, splashing as it crosses the water surface and deleting it once it sinks past the
-    /// bottom of the statues' screen. A particle thrown above the room's top falls back through it.
+    /// Drops a particle under gravity, splashing as it crosses the water surface and ending it, in its own update before its
+    /// animation's step (#2424), once it sinks past the bottom of the statues' screen. A particle thrown above the room's
+    /// top falls back through it.
     /// </summary>
     internal void DropTourianStatueParticle(EnemyProjectile projectile)
     {
@@ -157,9 +160,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
         if (submergedBefore != submergedAfter)
             SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueSplash, TourianStatueProjectileSegment.Splash);
         if (CoordinateAxis.AsSigned(projectile.Position.Y.Whole) >= TourianStatueParticleDefinitions.SunkDepth)
-        {
-            projectile.StartAnimation(new TourianStatueProjectileAnimation(TourianStatueProjectileSegment.Delete));
-        }
+            projectile.Delete();
         else projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + TourianStatueParticleDefinitions.Gravity);
     }
 

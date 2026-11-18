@@ -1,38 +1,39 @@
 using P = SuperMetroid.Core.Areas.Ceres.CeresFallingDebrisSegment;
+using F = SuperMetroid.Core.Areas.Ceres.CeresFallingDebrisLook;
 using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// The Ceres falling tiles' typed animations (#641): one pose, then a rest while the
-/// per-frame movement moves the tile. Each animation's frame is the animation itself.
+/// The Ceres falling debris's typed animations (#641, #2424): each piece shows its one picture for good while the
+/// per-update movement moves it.
 /// </summary>
 internal static class CeresFallingDebrisAnimations
 {
-    /// <summary>Both tile animations.</summary>
-    internal static AnimationSegments<CeresFallingDebrisSegment, CeresFallingDebrisSegment, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<CeresFallingDebrisSegment, AnimationBeat<CeresFallingDebrisSegment, NoAnimationCue>[]>
+    /// <summary>Both pieces' animations.</summary>
+    internal static AnimationSegments<P, F, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<P, AnimationBeat<F, NoAnimationCue>[]>
     {
         [P.Light] =
         [
-            Show(P.Light, 1),
+            Hold(F.Light),
         ],
         [P.Dark] =
         [
-            Show(P.Dark, 1),
+            Hold(F.Dark),
         ],
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<CeresFallingDebrisSegment, Animation<CeresFallingDebrisSegment>> StartingAt { get; } = new Dictionary<CeresFallingDebrisSegment, Animation<CeresFallingDebrisSegment>>
+    internal static IReadOnlyDictionary<P, Animation<P>> StartingAt { get; } = new Dictionary<P, Animation<P>>
     {
-        [P.Light] = new([new(P.Light, 0, 1, 1)], AnimationEnd.Holds),
-        [P.Dark] = new([new(P.Dark, 0, 1, 1)], AnimationEnd.Holds),
+        [P.Light] = new([Segments.Whole(P.Light)], AnimationEnd.Holds),
+        [P.Dark] = new([Segments.Whole(P.Dark)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<CeresFallingDebrisSegment> StartingWith(CeresFallingDebrisSegment segment) => StartingAt[segment];
+    internal static Animation<P> StartingWith(P segment) => StartingAt[segment];
 
-    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<CeresFallingDebrisSegment, NoAnimationCue> Show(CeresFallingDebrisSegment frame, int duration) => new AnimationBeat<CeresFallingDebrisSegment, NoAnimationCue>.Frame(frame, duration);
+    /// <summary>Shows <paramref name="look"/> for good.</summary>
+    private static AnimationBeat<F, NoAnimationCue> Hold(F look) => new AnimationBeat<F, NoAnimationCue>.HeldFrame(look);
 }

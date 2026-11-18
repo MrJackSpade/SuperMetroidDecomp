@@ -1698,7 +1698,6 @@ internal static class EnemyFrameLegacyNameDefinitions
         [EnemyFrameId.WaverLevelFacingRight] = "waver_steady_right",
         [EnemyFrameId.RipperFrozenFacingLeft] = "ripper_shared_frozen_left",
         [EnemyFrameId.RipperFrozenFacingRight] = "ripper_shared_frozen_right",
-        [EnemyFrameId.CeresDoorOrWallSmallSquare] = "ceres_door_or_wall_initial",
         [EnemyFrameId.CeresRidleyRoomDoorClosed] = "ceres_ridley_room_door_drawn_by_ridley",
         [EnemyFrameId.AlcoonLeapingFacingLeft] = "alcoon_left_air_up",
         [EnemyFrameId.AlcoonLeapingFacingRight] = "alcoon_right_air_up",

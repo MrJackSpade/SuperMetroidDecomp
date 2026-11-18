@@ -500,8 +500,6 @@ public enum EnemyFrameId
     CeresDoorFacingRightThreeQuartersOpen,
     /// <summary>A Ceres door facing right: open.</summary>
     CeresDoorFacingRightOpen,
-    /// <summary>Every Ceres door and wall: a small square above and left of its origin.</summary>
-    CeresDoorOrWallSmallSquare,
     /// <summary>The left wall of Ceres Ridley's getaway chamber.</summary>
     CeresGetawayChamberLeftWall,
     /// <summary>The right wall of Ceres Ridley's getaway chamber.</summary>

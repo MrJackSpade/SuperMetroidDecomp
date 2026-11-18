@@ -102,7 +102,6 @@ internal static class CommonSpawnerPresenceDefinitions
     {
         [nameof(EscapeExplosionsBehavior)] = EscapeExplosions,
         [nameof(ZebesEscapeExplosionDefinitions)] = EscapeExplosions,
-        [nameof(TourianUnlockBehavior)] = StatueUnlocking,
         [nameof(TourianStatueActors)] = StatueUnlocking,
         [nameof(EnemyDeathsAndDrops)] = EveryEnemy,
         [nameof(EnemyCollision)] = EveryEnemy,

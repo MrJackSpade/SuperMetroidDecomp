@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Bosses;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 
@@ -47,7 +48,7 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
                     state.RumbleUpdatesLeft = RumbleDuration;
                     // The first explosion bursts on the destruction's first update.
                     state.ExplosionIntervalLeft = 1;
-                    state.LastExplosionPlace = 0;
+                    state.NextExplosion = ListStep<Offset16<RoomPixels>>.FirstOf(CeresDoorRumbleGeometryDefinitions.ExplosionOffsets);
                 }
                 return;
 
@@ -86,10 +87,8 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
             return;
 
         state.ExplosionIntervalLeft = RumbleInterval;
-        IReadOnlyList<Offset16<RoomPixels>> offsets = CeresDoorRumbleGeometryDefinitions.ExplosionOffsets;
-        state.LastExplosionPlace = state.LastExplosionPlace == 0 ? offsets.Count - 1 : state.LastExplosionPlace - 1;
-
-        Position16<RoomPixels> explosion = Place.Position.Whole + offsets[state.LastExplosionPlace];
+        Position16<RoomPixels> explosion = Place.Position.Whole + state.NextExplosion.Entry;
+        state.NextExplosion = state.NextExplosion.NextInCycle;
 
         // The shared random sequence advances exactly once per explosion; its explosion chance selects the animation.
         DustExplosionAnimation animation = CeresDoorQuakeDefinitions.RumbleExplosion.IsTakenBy(doors.Room.Random.Generate())

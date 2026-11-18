@@ -36,8 +36,7 @@ internal static class RidleyTailDefinitions
     /// <summary>The swing of the downward stab, slower than its setup: three steps an update.</summary>
     internal static RidleyTailTurn StabSwing { get; } = RidleyTailTurn.OfSteps(3);
     /// <summary>
-    /// The pogo tail's swing as its action sets it up: none. Its activation timer starts at zero and is never
-    /// given another value, so both pogo tail setups give it no swing.
+    /// The pogo tail's swing as its action sets it up: none. Both pogo tail setups leave the tail unswung.
     /// </summary>
     internal static RidleyTailTurn PogoSwing => RidleyTailTurn.None;
 

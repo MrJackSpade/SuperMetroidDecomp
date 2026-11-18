@@ -35,7 +35,7 @@ internal static class MotherBrainFakeDeathLockVerification
         RoomScrollGrid scrolls = runtime.Room.LoadedCamera.Scrolls;
         AssertEqual(new Extent16<RoomScreens>(4, 1), scrolls.Size, "Mother Brain's room is one row of four screens");
         foreach (Position16<RoomScreens> screen in scrolls.Screens)
-            scrolls.SetLogicalState(screen, RoomScrollState.Open);
+            scrolls.SetRoomScreen(screen, RoomScrollState.Open);
 
         runtime.Enemies.MotherBrainBehavior.RunMotherBrainFakeDeath(state, samus);
         AssertTrue(samus.Control.InputLocked && samus.Control.Mode.Movement == SamusMovementMode.ScriptLocked,

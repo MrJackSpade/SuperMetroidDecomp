@@ -120,9 +120,7 @@ internal sealed class RidleyReveal
         place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
         ridley.RevealPhase = RidleyRevealPhase.WaitBeforeRoar;
         ridley.PhaseTimer.LastFor(RidleyShadeDefinitions.BeforeRoarUpdates);
-        // The fade queues the battle music immediately after the final body shade. It
-        // intentionally continues after Ridley retreats, so omitting this single publication
-        // silences both scenes.
+        // The battle music starts right after the final body shade and plays on after Ridley retreats.
         _audio.RequestRidleyMusic(MusicRequest.SelectTrack(MusicTrack.RidleyAndDraygonBattle));
     }
 

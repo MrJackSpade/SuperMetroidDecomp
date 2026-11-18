@@ -57,7 +57,7 @@ internal sealed class MotherBrainBody
 
     /// <summary>
     /// Runs a falling tube's animation where the shared enemy animation runs: its still picture shows on the update the
-    /// timer expires, raising the new-frame flag, and the animation then holds it.
+    /// timer expires, and the animation then holds it.
     /// </summary>
     internal static void AdvanceMotherBrainTubeAnimation(RoomEnemyPlace tube)
     {
@@ -139,7 +139,7 @@ internal sealed class MotherBrainBody
 
     /// <summary>
     /// Plays the body's animation where the shared enemy animation runs: the frame expires on the update its timer would,
-    /// and a newly shown frame raises the new-frame flag. A held animation rests: the timer wraps from zero and the last
+    /// and the clock notes each newly shown frame. A held animation rests: the timer wraps from zero and the last
     /// frame stays. Before its first animation the body shows her brain's hit area for good (#2220).
     /// </summary>
     internal void AdvanceMotherBrainBodyAnimation(MotherBrainEnemyState state, SamusState samus)
@@ -349,9 +349,8 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>
-    /// Makes the twelve turret spawns
-    /// the body's setup requests. Allocation scans the pool from its highest place down, so the first turret takes
-    /// the highest place and each later one the next place below.
+    /// Makes the twelve turret spawns the body's setup requests. Each turret takes the highest free place, so the first
+    /// takes the highest place and each later one the next place below.
     /// </summary>
     private void SpawnMotherBrainInitialTurrets(MotherBrainEnemyState state)
     {

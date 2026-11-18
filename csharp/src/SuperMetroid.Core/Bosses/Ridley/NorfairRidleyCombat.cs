@@ -80,8 +80,9 @@ internal sealed class NorfairRidleyCombat
     internal static void LiftOff(NorfairRidleyState state) => Ensure.NotNull(state).Phase = NorfairRidleyPhase.EnterArena;
 
     /// <summary>
-    /// Plays one update of the arena reveal Ridley holds his roar through (#2409): a Norfair-only fourteen-colour fade showing
-    /// a step every third update. The update after the last step's raises the battle's liquid and ends the hold.
+    /// Plays one update of the arena reveal Ridley holds his roar through (#2409): a Norfair-only fade of
+    /// <see cref="NorfairRidleyRevealDefinitions.RevealStepCount"/> colour steps, one every third update. The update after
+    /// the last step's raises the battle's liquid and ends the hold.
     /// </summary>
     /// <returns>Whether the reveal ended this update, so he takes off.</returns>
     internal bool TickNorfairRidleyArenaReveal(NorfairRidleyState state)

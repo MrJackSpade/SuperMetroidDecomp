@@ -33,8 +33,8 @@ public sealed class RoomScrollGrid
     /// <summary>Gets the room size in 256-pixel scroll cells.</summary>
     public Extent16<RoomScreens> Size { get; }
 
-    /// <summary>Gets the number of the room's own cells.</summary>
-    public int LogicalCellCount => Size.X * Size.Y;
+    /// <summary>Gets the number of the room's screens.</summary>
+    public int ScreenCount => Size.X * Size.Y;
 
     /// <summary>
     /// The session's scroll cells, cleared as power-on leaves them, with a check past them reading
@@ -64,9 +64,9 @@ public sealed class RoomScrollGrid
             return CreateImplicit(cells, size, bottomRow);
 
         var grid = new RoomScrollGrid(cells, size);
-        if (scroll.Cells.Count != grid.LogicalCellCount)
+        if (scroll.Cells.Count != grid.ScreenCount)
             throw new ArgumentException(
-                $"The scroll layout {scroll.Name} holds {scroll.Cells.Count} screens for a room of {grid.LogicalCellCount}.", nameof(scroll));
+                $"The scroll layout {scroll.Name} holds {scroll.Cells.Count} screens for a room of {grid.ScreenCount}.", nameof(scroll));
         RoomScrollState[] loaded = [.. scroll.Cells, .. pastScreens.After(scroll.Name)];
         foreach (RoomScrollState state in loaded)
             Validate(state, nameof(scroll));
@@ -89,7 +89,7 @@ public sealed class RoomScrollGrid
     {
         Validate(lastRowState, nameof(lastRowState));
         var grid = new RoomScrollGrid(cells, size);
-        for (int index = 0; index < grid.LogicalCellCount; index++)
+        for (int index = 0; index < grid.ScreenCount; index++)
             cells.Write(index, index / size.X == size.Y - 1 ? lastRowState : RoomScrollState.Open);
         return grid;
     }
@@ -146,7 +146,7 @@ public sealed class RoomScrollGrid
 
     /// <summary>Updates one of the room's screens, as enemies, room objects and the title demonstrations do.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The screen lies outside the room, or the state is not a scroll state.</exception>
-    public void SetLogicalState(Position16<RoomScreens> screen, RoomScrollState state)
+    public void SetRoomScreen(Position16<RoomScreens> screen, RoomScrollState state)
     {
         if (screen.X >= Size.X || screen.Y >= Size.Y)
             throw new ArgumentOutOfRangeException(nameof(screen));

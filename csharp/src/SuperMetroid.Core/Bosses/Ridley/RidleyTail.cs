@@ -30,10 +30,8 @@ internal sealed class RidleyTail
 
     /// <summary>
     /// Moves the tail: the neutral tail's swing, the segment update,
-    /// and the position/distance chains. The swing deliberately
-    /// adds the preceding segment's direction when deriving every later offset;
-    /// retaining that documented anomaly is why the tail curls and rotates at the game's
-    /// rate.
+    /// and the position/distance chains. The swing adds the preceding segment's direction to
+    /// every later segment's offset, so the tail curls and rotates at the game's rate.
     /// </summary>
     /// <param name="place">Ridley's body.</param>
     /// <param name="state">Ridley's state.</param>

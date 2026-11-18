@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 /// <param name="RoomObjects">The room's room-object owners.</param>
 /// <param name="Level">The room's level data, which block draws and terrain changes write.</param>
-/// <param name="Frame">What the handler reads from the rest of the frame.</param>
+/// <param name="Frame">What the room objects read from the rest of the update.</param>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal readonly record struct RoomObjectStepContext(
     IRoomObjects RoomObjects, RoomLevelData Level, RoomObjectFrameInputs Frame)

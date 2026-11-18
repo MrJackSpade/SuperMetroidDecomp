@@ -37,13 +37,13 @@ internal static class DachoraShaftCameraVerification
         VerificationAssertions.AssertTrue(room.Main is DachoraShaftCameraMain, "the Dachora room's state composes the shaft camera main");
         ScrollBoundaryCamera camera = room.Camera;
 
-        camera.Scrolls.SetLogicalState(ShaftTop, RoomScrollState.Closed);
+        camera.Scrolls.SetRoomScreen(ShaftTop, RoomScrollState.Closed);
         AssertCameraXs(runtime, camera, startX: 0x0370, y: 0x0400, [0x0370, 0x0370], "a closed shaft leaves the camera");
-        camera.Scrolls.SetLogicalState(ShaftTop, RoomScrollState.OpenAlignedToTop);
+        camera.Scrolls.SetRoomScreen(ShaftTop, RoomScrollState.OpenAlignedToTop);
         AssertCameraXs(runtime, camera, startX: 0x0370, y: 0x0400, [0x0370, 0x0370],
             "a shaft open with the camera aligned to its top leaves the camera");
 
-        camera.Scrolls.SetLogicalState(ShaftTop, RoomScrollState.Open);
+        camera.Scrolls.SetRoomScreen(ShaftTop, RoomScrollState.Open);
         AssertCameraXs(runtime, camera, startX: 0x0370, y: 0x0400,
             [0x0373, 0x0376, 0x0379, 0x037C, 0x037F, 0x0382, 0x0382, 0x0382],
             "an open shaft moves the camera three pixels right each update until it reaches X 896");

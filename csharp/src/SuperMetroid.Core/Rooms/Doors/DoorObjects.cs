@@ -30,8 +30,8 @@ internal sealed class DoorObjects
         _shotCapClosing = Ensure.NotNull(shotCapClosing);
     }
     /// <summary>
-    /// Closes the door Samus entered through behind her, after the destination room's objects and its door and setup
-    /// code have been placed.
+    /// Closes the door Samus entered through behind her, once the destination room's objects are placed and what its door
+    /// and the room do on entry has run.
     /// </summary>
     /// <remarks>
     /// The first object at the door's block, in the room's update order, closes unless it stays open

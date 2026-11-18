@@ -36,7 +36,7 @@ internal sealed class ShaktoolRoomControllerObject(IRoomSamusAccess samus, IGlob
         IRoomSamus current = _samus.Current;
         if (context.Frame.PowerBombExplosionActive)
             foreach (Position16<RoomScreens> screen in scrolls.Screens)
-                scrolls.SetLogicalState(screen, RoomScrollState.OpenAlignedToTop);
+                scrolls.SetRoomScreen(screen, RoomScrollState.OpenAlignedToTop);
         if (current.Position.X.Whole <= ShaktoolRoomDefinitions.ClearedPathXBoundary)
             return;
         _events.Set(StoryEvent.ShaktoolClearedPath);

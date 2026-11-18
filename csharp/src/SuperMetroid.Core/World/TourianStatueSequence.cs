@@ -150,8 +150,8 @@ public sealed class TourianStatueSequence
         }
         else
         {
-            _room.LoadedCamera.Scrolls.SetLogicalState(TourianStatueSequenceDefinitions.UpperScrollCell, RoomScrollState.OpenAlignedToTop);
-            _room.LoadedCamera.Scrolls.SetLogicalState(TourianStatueSequenceDefinitions.LowerScrollCell, RoomScrollState.Closed);
+            _room.LoadedCamera.Scrolls.SetRoomScreen(TourianStatueSequenceDefinitions.UpperScrollCell, RoomScrollState.OpenAlignedToTop);
+            _room.LoadedCamera.Scrolls.SetRoomScreen(TourianStatueSequenceDefinitions.LowerScrollCell, RoomScrollState.Closed);
         }
     }
 
@@ -334,7 +334,7 @@ public sealed class TourianStatueSequence
     private void EnableScrolling()
     {
         _statue.Finished = true;
-        _room.LoadedCamera.Scrolls.SetLogicalState(TourianStatueSequenceDefinitions.UpperScrollCell, RoomScrollState.Open);
-        _room.LoadedCamera.Scrolls.SetLogicalState(TourianStatueSequenceDefinitions.LowerScrollCell, RoomScrollState.Open);
+        _room.LoadedCamera.Scrolls.SetRoomScreen(TourianStatueSequenceDefinitions.UpperScrollCell, RoomScrollState.Open);
+        _room.LoadedCamera.Scrolls.SetRoomScreen(TourianStatueSequenceDefinitions.LowerScrollCell, RoomScrollState.Open);
     }
 }

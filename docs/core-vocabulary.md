@@ -600,6 +600,25 @@ word form. Core says what the game does: which looks have hitboxes, how far a hi
 does. What the game keeps or gives (`the game keeps colours lit`), a value copied, an unused room and a cue that is not
 authored stay English.
 
+#2412 widens SME6454, outside hardware owners, to the original's branches and storage and the port's reasoning about
+them as boss prose tells them: the branch before, after or following a comparison (`the game omits the branch after its
+ninety-hit comparison`); a choice told as `equivalent` (`selecting the colours here is equivalent`, `is not
+equivalent`); the `new-frame flag`, spaced or hyphenated; the coordinate range's far end (`continuing from the far end of
+the coordinate range`); colour sets `occupied` (`the two live colour sets occupied by his body`); and a thing `meant to`
+do one thing `but reads` (or uses or takes) another (`the egg's setup meant to draw the wait at random but reads a fixed
+value`). Core says what the game does: which health bands he shows, what picks his colours, that the clock notes a newly
+shown frame, where a place lies (a negative height above the room), what colours show and that every egg waits the
+same. A comparison, the equivalent of a thing (or one equivalent to it), a new frame, the far end of a room, a
+set of colours and a thing meant to happen stay English.
+
+#2413 widens SME6454, outside hardware owners, to the original's calls, areas, allocation and layers as room prose tells
+them: an `initial call` (`the camera after the setup's initial call`); an area by its number, spaced or hyphenated (`the
+developer area-seven room`, `area 7`), unless a unit follows; an `allocation loop`, routine, scan or search, and a thing
+`newly allocated` (`the newly allocated room object`); and a background layer or plane by ordinal (`the second
+background layer`, `background layer 2`). Core says what the game does: the camera after the setup's first update, the
+developers' debug room, a full room losing the spawn, each turret taking the highest free place, the background's
+position. A call, an area with a unit (`a hit area eight pixels wide`), an allocation and the background stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

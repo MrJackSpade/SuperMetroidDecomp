@@ -1653,5 +1653,44 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // are English.
         Expect("class P { /// <summary>The game keeps colours lit and gives it two choices; the speed is copied to the shot; an unused room. The cue a full queue selects is not authored.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the original keeps the stage.</summary>\n[CompatibilityService(\"stage\")] class Stage { }");
+        // The original's branches and storage and the port's reasoning about them in boss prose, outside hardware owners
+        // and markup (#2412): the branch after a comparison, a choice told as equivalent, the new-frame flag, the coordinate
+        // range's far end, colour sets occupied and a thing meant to do one thing but reading another.
+        Expect("class P { /// <summary>The game omits the branch after its ninety-hit comparison.</summary>\nint F => 0; }",
+            "('branch after its ninety-hit comparison')");
+        Expect("class P { void Run() { // selecting the two draw colours here is equivalent\n } }", "('is equivalent')");
+        Expect("class P { void Run() { // reading it first is not equivalent: contact moves her\n } }", "('is not equivalent')");
+        Expect("class P { /// <summary>A newly shown frame raises the new-frame flag.</summary>\nint F => 0; }", "('new-frame flag')");
+        Expect("class P { void Run() { // nothing reads its new frame flag\n } }", "('new frame flag')");
+        Expect("class P { void Run() { // continuing from the far end of the coordinate range\n } }",
+            "('far end of the coordinate range')");
+        Expect("class P { /// <summary>A place above the chamber at the coordinate range's far end.</summary>\nint F => 0; }",
+            "('coordinate range's far end')");
+        Expect("class P { /// <summary>Exposes the two live colour sets occupied by Torizo's body.</summary>\nint F => 0; }",
+            "('colour sets occupied')");
+        Expect("class P { void Run() { // the colour sets it occupies\n } }", "('colour sets it occupies')");
+        Expect("class P { /// <summary>The egg's setup meant to draw the wait at random but reads a fixed value.</summary>\nint F => 0; }",
+            "('meant to draw the wait at random but reads')");
+        // A comparison alone, the equivalent of a thing, a new frame, a range's end, a set of colours, a thing
+        // meant to happen and a hardware owner are English.
+        Expect("class P { /// <summary>The comparison of two heights; the equivalent of a hit; it is equivalent to a hit; a newly shown frame; the far end of the room; the colours he shows occupy his body; the shot is meant to miss.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the new-frame flag.</summary>\n[CompatibilityService(\"frame\")] class Frame { }");
+        // The original's calls, areas, allocation and layers in room prose, outside hardware owners and markup (#2413): an
+        // initial call, an area by its number, an allocation loop or a thing newly allocated, and a background layer by
+        // ordinal.
+        Expect("class P { /// <summary>Camera origin after the directional setup's initial call.</summary>\nint F => 0; }",
+            "('initial call')");
+        Expect("class P { /// <summary>The developer area-seven room is not compiled.</summary>\nint F => 0; }", "('area-seven')");
+        Expect("class P { void Run() { // the rooms of area 7\n } }", "('area 7')");
+        Expect("class P { void Run() { // gate before the room-object allocation loop\n } }", "('allocation loop')");
+        Expect("class P { /// <summary>Allocation scans the pool from its highest place down.</summary>\nint F => 0; }",
+            "('Allocation scans')");
+        Expect("class P { void Run() { // the setups clear the newly allocated room object\n } }", "('newly allocated')");
+        Expect("class P { /// <summary>The second background layer's position.</summary>\nint F => 0; }",
+            "('second background layer')");
+        Expect("class P { void Run() { // scrolls background layer 2 with the floor\n } }", "('background layer 2')");
+        // A call alone, an area with a unit, an allocation alone, the background and a hardware owner are English.
+        Expect("class P { /// <summary>A call to the setup; a hit area eight pixels wide; the room's area; an allocation; the background's position; its first update.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the setup's initial call.</summary>\n[CompatibilityService(\"call\")] class Call { }");
     }
 }

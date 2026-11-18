@@ -428,13 +428,13 @@ internal static class RoomObjectPopulationVerification
         AssertEqual(GreyDoorPhase.Closing, roomObjects.GreyDoorSnapshots.Single().Phase,
             "redirected actor retains explicit grey-door ownership while closing");
 
-        roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFixtures.UnreadScrolls(), EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = samus.CollectedItems });
+        roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFixtures.UnreadScrolls(), EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = samus.CollectedItems, PowerBombExplosionActive = false });
         AssertEqual(RoomTerrainBlock.Of(0x082, BlockMirroring.Horizontal, RoomCollisionType.Air), level.GetCollisionBlock(new(doorX, doorY)).Terrain,
             "collected Bombs admit the secondary list's closing draw");
 
         for (int frame = 0; frame < 80 &&
              roomObjects.GreyDoorSnapshots.Single().Phase == GreyDoorPhase.Closing; frame++)
-            roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFixtures.UnreadScrolls(), EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = samus.CollectedItems });
+            roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFixtures.UnreadScrolls(), EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = samus.CollectedItems, PowerBombExplosionActive = false });
         AssertEqual(GreyDoorPhase.Locked, roomObjects.GreyDoorSnapshots.Single().Phase,
             "closing Goto hands the resident actor back to its grey-door family");
         AssertEqual(initialList, DoorObjectNativeListAddresses.Grey(new GreyDoorVariant(ColoredDoorOrientation.Right, GreyDoorClosing.AfterBombs)).Waiting,
@@ -532,7 +532,7 @@ internal static class RoomObjectPopulationVerification
 
         for (int frame = 0; frame < 10; frame++)
         {
-            roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFixtures.UnreadScrolls(), EnemyDeaths = 0, EnemyDeathQuota = 1, ControllerNewInput = 0, CollectedItems = 0 });
+            roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFixtures.UnreadScrolls(), EnemyDeaths = 0, EnemyDeathQuota = 1, ControllerNewInput = 0, CollectedItems = SamusEquipmentFlags.None, PowerBombExplosionActive = false });
         }
 
         AssertEqual(GreyDoorPhase.Locked, roomObjects.GreyDoorSnapshots.Single().Phase,
@@ -1105,23 +1105,23 @@ internal static class RoomObjectPopulationVerification
             "Shaktool setup opens the first screen with the camera aligned to its top");
         foreach (Position16<RoomScreens> screen in scrolls.Screens.Skip(1))
             AssertEqual(RoomScrollState.Closed, scrolls.ReadScreen(screen), $"Shaktool setup closes screen {screen}");
-        AssertEqual(RoomScrollState.Open, scrolls.KeptStates[scrolls.LogicalCellCount], "Shaktool setup writes nothing past the room's screens");
+        AssertEqual(RoomScrollState.Open, scrolls.KeptStates[scrolls.ScreenCount], "Shaktool setup writes nothing past the room's screens");
 
-        roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
+        roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = SamusEquipmentFlags.None, PowerBombExplosionActive = false });
         RoomObjectPlaceSnapshot sleeping = roomObjects.PopulationPlaces.Single();
         AssertTrue(sleeping.Behaviour is ShaktoolRoomControllerObject { Watching: true },
             "after its first update the controller watches the room, as the native list's installed wait does");
 
-        roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, PowerBombExplosionActive = true });
+        roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, PowerBombExplosionActive = true, CollectedItems = SamusEquipmentFlags.None });
         foreach (Position16<RoomScreens> screen in scrolls.Screens)
             AssertEqual(RoomScrollState.OpenAlignedToTop, scrolls.ReadScreen(screen),
                 $"Shaktool power bomb opens screen {screen}");
-        AssertEqual(RoomScrollState.Open, scrolls.KeptStates[scrolls.LogicalCellCount], "Shaktool power bomb writes nothing past the room's screens");
+        AssertEqual(RoomScrollState.Open, scrolls.KeptStates[scrolls.ScreenCount], "Shaktool power bomb writes nothing past the room's screens");
         AssertEqual(1, roomObjects.Places.ActiveCount,
             "Shaktool controller remains resident until Samus passes the threshold");
 
         samus.Position = samus.Position.WithWholeX(checked(ShaktoolRoomDefinitions.ClearedPathXBoundary + 1));
-        roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
+        roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = SamusEquipmentFlags.None, PowerBombExplosionActive = false });
         AssertTrue(system.HasEvent(StoryEvent.ShaktoolClearedPath),
             "Shaktool path event follows the native X threshold");
         AssertEqual(0, roomObjects.Places.ActiveCount,

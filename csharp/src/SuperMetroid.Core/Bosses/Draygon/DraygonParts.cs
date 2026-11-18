@@ -125,7 +125,7 @@ internal sealed class DraygonParts
 
     /// <summary>
     /// Runs a Draygon part's animation where the shared enemy animation runs: the frame expires on the update
-    /// its timer would, a new frame raises the new-frame flag, waits keep the frame, and a stop deletes the
+    /// its timer would, the clock notes each new frame, waits keep the frame, and a stop deletes the
     /// part.
     /// </summary>
     internal void AdvanceDraygonPartAnimation(DraygonPart running, SamusState samus)

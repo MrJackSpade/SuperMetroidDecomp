@@ -42,7 +42,7 @@ public static class CartridgeRoomHeaderImporter
                     cursor = unchecked((ushort)(cursor + 1));
                     break;
                 case RoomStateSelectorCode.MainAreaBossIsDead:
-                    match = selection.IsBossDead(RoomStateSelectorConditions.MainAreaBoss);
+                    match = selection.IsBossDead(SuperMetroid.Core.Progression.DefeatedBosses.AreaBoss);
                     break;
                 case RoomStateSelectorCode.MorphBallAndMissiles:
                     match = selection.HasMorphBallAndMissiles;
@@ -62,13 +62,27 @@ public static class CartridgeRoomHeaderImporter
         }
         throw new InvalidDataException("Native room selector exceeds its bounded command count.");
     }
+    /// <summary>
+    /// The conditions of a game with no progress: no story event has happened, no boss is defeated and Samus carries
+    /// neither the Morph Ball and missiles nor Power Bombs.
+    /// </summary>
+    public static RoomStateSelectionContext NoProgress =>
+        new(new SuperMetroid.Core.Progression.PersistentProgress().Events, SuperMetroid.Core.Progression.DefeatedBosses.None, false, false);
+
+    /// <summary>Evaluates the native selector program following the room header at <paramref name="roomPointer"/> for a game with no progress.</summary>
+    /// <param name="bus">Address space providing the import-only cartridge source.</param>
+    /// <param name="roomPointer">Sixteen-bit room-header address within bank $8F.</param>
+    /// <returns>The bank-$8F pointer of the first matching state, or of the inline default state.</returns>
+    public static ushort SelectStatePointer(ISnesAddressSpace bus, ushort roomPointer) =>
+        SelectStatePointer(bus, roomPointer, NoProgress);
+
     /// <summary>Evaluates the native selector program following the room header at <paramref name="roomPointer"/>, independently of compiled gameplay branches.</summary>
     /// <param name="bus">Address space providing the import-only cartridge source.</param>
     /// <param name="roomPointer">Sixteen-bit room-header address within bank $8F.</param>
     /// <param name="selection">Event, boss, and equipment conditions the selector program tests.</param>
     /// <returns>The bank-$8F pointer of the first matching state, or of the inline default state.</returns>
     public static ushort SelectStatePointer(ISnesAddressSpace bus, ushort roomPointer,
-        RoomStateSelectionContext selection = default)
+        RoomStateSelectionContext selection)
     {
         Ensure.NotNull(bus);
         return SelectImportedState(bus, unchecked((ushort)(roomPointer + 11)), selection);
@@ -80,13 +94,20 @@ public static class CartridgeRoomHeaderImporter
     /// </summary>
     internal const int HeaderMapRowOffset = 1;
 
+    /// <summary>Decodes a native bank-$8F room header and selects its state for a game with no progress.</summary>
+    /// <param name="bus">Address space providing the import-only cartridge source.</param>
+    /// <param name="roomPointer">Sixteen-bit room-header address within bank $8F.</param>
+    /// <returns>The decoded room header and selected room-state payload; no gameplay state is initialized.</returns>
+    public static SelectedRoom Load(ISnesAddressSpace bus, ushort roomPointer) =>
+        Load(bus, roomPointer, NoProgress);
+
     /// <summary>Decodes a native bank-$8F room header and evaluates its bounded state-selection command list independently of compiled gameplay definitions.</summary>
     /// <param name="bus">Address space providing the import-only cartridge source.</param>
     /// <param name="roomPointer">Sixteen-bit room-header address within bank $8F.</param>
     /// <param name="selection">Event, boss, and equipment conditions used to select the first matching native state, or the inline default state.</param>
     /// <returns>The decoded room header and selected room-state payload; no gameplay state is initialized.</returns>
     public static SelectedRoom Load(ISnesAddressSpace bus, ushort roomPointer,
-        RoomStateSelectionContext selection = default)
+        RoomStateSelectionContext selection)
     {
         Ensure.NotNull(bus);
         int address = 0x8f0000 | roomPointer;

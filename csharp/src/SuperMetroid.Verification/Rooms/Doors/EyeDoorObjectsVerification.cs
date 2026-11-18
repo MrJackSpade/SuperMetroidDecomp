@@ -310,7 +310,7 @@ internal static class EyeDoorObjectsVerification
     private static void StepEyeDoorObjects(
         RoomObjectSystem roomObjects,
         RoomLevelData level) =>
-        roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFixtures.UnreadScrolls(), EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
+        roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFixtures.UnreadScrolls(), EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = SamusEquipmentFlags.None, PowerBombExplosionActive = false });
 
     /// <summary>Runs both facing fixtures and projectile behavior from the eye-door verification command.</summary>
     [VerificationCommand("--eye-door-plms")]

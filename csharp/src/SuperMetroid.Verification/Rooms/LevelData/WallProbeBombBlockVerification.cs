@@ -72,7 +72,7 @@ internal static class WallProbeBombBlockVerification
             roomObjects);
         AssertTrue(roomObjects.Places.ActiveCount > 0, "the probe's broken bomb block starts its block reaction");
         for (int update = 0; update < 600 && roomObjects.Places.ActiveCount != 0; update++)
-            roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFixtures.UnreadScrolls(), EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
+            roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFixtures.UnreadScrolls(), EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = SuperMetroid.Core.Progression.SamusEquipmentFlags.None, PowerBombExplosionActive = false });
         AssertEqual(0, roomObjects.Places.ActiveCount, "the bomb block's reaction runs to its end");
         AssertEqual(RoomCollisionType.BombableBlock, level.GetCollisionBlock(new(4, 3)).CollisionType,
             "the probe's broken bomb block grows back");

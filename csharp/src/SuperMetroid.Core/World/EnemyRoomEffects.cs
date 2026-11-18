@@ -98,7 +98,7 @@ internal sealed class EnemyRoomEffects
             // object, it does not wait for its
             // clearing step during the first room-object step.
             foreach (Position16<RoomScreens> cell in BotwoonWallMutationDefinitions.OpenedScrollCells)
-                site.Scrolls.SetLogicalState(cell, RoomScrollState.OpenAlignedToTop);
+                site.Scrolls.SetRoomScreen(cell, RoomScrollState.OpenAlignedToTop);
         }
     }
 

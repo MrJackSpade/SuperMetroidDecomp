@@ -286,8 +286,8 @@ internal sealed class CollectibleObjects
                 samus.CollectedBeams |= beamMask;
                 samus.EquippedBeams |= beamMask;
 
-                // Spazer and Plasma are the only mutually exclusive beam pair: the beam pickup shifts the
-                // collected beam onto its partner, so collecting either one unequips the other.
+                // Spazer and Plasma are the only mutually exclusive beam pair: collecting Spazer unequips Plasma, and
+                // collecting Plasma unequips Spazer.
                 if ((beamMask & SamusBeamFlags.Spazer) != SamusBeamFlags.None)
                     samus.EquippedBeams &= ~SamusBeamFlags.Plasma;
                 if ((beamMask & SamusBeamFlags.Plasma) != SamusBeamFlags.None)

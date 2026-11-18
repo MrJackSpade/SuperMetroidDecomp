@@ -106,7 +106,7 @@ internal static class CrocomireCutsceneVerification
         var state = new CrocomireEnemyState(body);
         body.SetSpeciesState(state);
         state.JoinFixtureTongue(enemies.Places.InUpdateOrder[1]);
-        enemies.VerificationServices().SetRoomScrollState = scrolls.SetLogicalState;
+        enemies.VerificationServices().SetRoomScrollState = scrolls.SetRoomScreen;
         enemies.VerificationServices().NextRandom = () => 1;
         Action<RoomEnemyPlace, SamusState, Position16<RoomPixels>> run = (crocomire, samus, camera) =>
             enemies.CrocomireBehavior.RunCrocomireMain(crocomire, samus, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandalonePseudoScrew(), camera);
@@ -135,7 +135,7 @@ internal static class CrocomireCutsceneVerification
         // native wait-for-Samus handoff using the retail room's original scrolls.
         scrolls = RoomScrollGrid.LoadNativeTable(storage, new Extent16<RoomScreens>(8, 1));
         camera = new ScrollBoundaryCamera(scrolls);
-        enemies.VerificationServices().SetRoomScrollState = scrolls.SetLogicalState;
+        enemies.VerificationServices().SetRoomScrollState = scrolls.SetRoomScreen;
         state.DeathPhase = CrocomireDeathPhase.WaitForSamusAtWall;
         body.Position = body.Position.WithWholeX(480);
         samus.Position = samus.Position.WithWholeX(639);
@@ -183,7 +183,7 @@ internal static class CrocomireCutsceneVerification
                 Enumerable.Repeat(RoomScrollState.Open.ToStorageByte(), RoomScrollGrid.KeptCellCount).ToArray(),
                 RoomDefinitions.Crocomire.Size);
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: new BossSourceArtwork { CrocomireColors = CrocomireColorFile.Read(new MemoryStream(CrocomireColorExtractor.Extract(rom))) });
-            enemies.VerificationServices().SetRoomScrollState = scrolls.SetLogicalState;
+            enemies.VerificationServices().SetRoomScrollState = scrolls.SetRoomScreen;
             enemies.VerificationServices().IsAreaMiniBossDefeated = () => defeated;
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
             body.Bind(EnemyDefinitionId.Crocomire, body.Definition);

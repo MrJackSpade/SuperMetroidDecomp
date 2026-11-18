@@ -54,7 +54,7 @@ internal sealed class RoomEnemyRuntimeServices(
     RoomScrollState IRoomScrollZoneAccess.Read(Position16<RoomScreens> screen) => room.LoadedCamera.Scrolls.ReadScreen(screen);
 
     /// <inheritdoc/>
-    public void Write(Position16<RoomScreens> screen, RoomScrollState state) => room.LoadedCamera.Scrolls.SetLogicalState(screen, state);
+    public void Write(Position16<RoomScreens> screen, RoomScrollState state) => room.LoadedCamera.Scrolls.SetRoomScreen(screen, state);
 
     /// <summary>Releases Samus's stationary script lock and reopens the player's grounded-movement gate.</summary>
     public void EnableControls()

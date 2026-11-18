@@ -124,6 +124,11 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// 65536ths, one value kept for several things or read under another meaning, and a marker left in a value.
 /// #2407 adds, outside hardware owners, what the original gave or kept, unreachable or unused frames told as not
 /// authored, a value copied without halving, the game keeping separate phases and fabricating in any word form.
+/// #2412 adds, outside hardware owners, the original's branches and storage and the port's reasoning as boss prose tells
+/// them: the branch after a comparison, a choice told as equivalent, the new-frame flag, the coordinate range's far end,
+/// colour sets occupied and a setup meant to do one thing but reading another.
+/// #2413 adds, outside hardware owners, the original's calls, areas, allocation and layers as room prose tells them: an
+/// initial call, an area by its number, an allocation loop or a thing newly allocated, and a background layer by ordinal.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -1792,6 +1797,43 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The original's branches and storage and the port's reasoning about them told in boss prose (#2412), outside hardware
+    /// owners and markup: the branch before, after or following a comparison (the game omits the branch after its
+    /// ninety-hit comparison); a choice told as equivalent (selecting the colours here is equivalent, is not equivalent);
+    /// the new-frame flag, spaced or hyphenated; the coordinate range's far end (continuing from the far end of the
+    /// coordinate range); colour sets occupied (the two live colour sets occupied by his body, the colour sets it
+    /// occupies); and a thing meant to do one thing but reading, using or taking another (the setup meant to draw the wait
+    /// at random but reads a fixed value). Core says what the game does: which bands he shows, what picks his colours,
+    /// that a frame shows anew, where a place lies, what colours show and that every wait is the same. English stays legal:
+    /// a comparison alone, the equivalent of a thing, a new frame, a range's end, a set of colours, a thing
+    /// meant to happen and a hardware owner.
+    /// </summary>
+    private static readonly Regex BossBranchAndReasoningProse = new(
+        @"\bbranch(?:es)?\s+(?:before|after|following)\s+(?:its|the|a|an|their|his|her)\s+[^.;]{0,60}?\bcomparison\b" +
+        @"|\b(?:is|are|was|were|be|being|stays?|remains?)\s+(?:not\s+|still\s+|thus\s+|therefore\s+|exactly\s+)?equivalent\b(?!\s+(?:to|of)\b)" +
+        @"|\bnew[\s-]frame\s+flags?\b" +
+        @"|\bfar\s+end\s+of\s+(?:the|its|a)\s+coordinate\s+range\b|\bcoordinate\s+range(?:'|’)s\s+far\s+end\b" +
+        @"|\bcolou?r\s+sets?\s+(?:\w+\s+){0,2}occup(?:y|ies|ied|ying)\b|\boccup(?:y|ies|ied|ying)\s+(?:\w+\s+){0,3}colou?r\s+sets?\b" +
+        @"|\bmeant\s+to\b[^.;]{0,160}?\bbut\s+(?:reads|read|uses|used|takes|took)\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The original's calls, areas, allocation and layers told in room prose (#2413), outside hardware owners and markup:
+    /// an initial call (the camera after the setup's initial call); an area by its number, spaced or hyphenated (the
+    /// area-seven room, area 7), unless a unit follows; an allocation loop, routine, scan or search, and a thing newly
+    /// allocated (the newly allocated room object); and a background layer or plane by ordinal (the second background
+    /// layer, background layer 2). Core says what the game does: the camera after the setup's first update, the developers'
+    /// debug room, a full room losing the spawn, the background's position. English stays legal: a call alone, an area
+    /// with a unit (a hit area eight pixels wide), an allocation alone, the background and a hardware owner.
+    /// </summary>
+    private static readonly Regex RoomCallAreaAndLayerProse = new(
+        @"\binitial\s+calls?\b" +
+        @"|\barea[\s-](?:zero|one|two|three|four|five|six|seven|eight|[0-9])\b(?![\s-]+(?:pixels?|blocks?|tiles?|screens?|updates?|wide|high|tall|deep)\b)" +
+        @"|\ballocation\s+(?:loop|routine|scan|search)s?\b|\bnewly[\s-]allocated\b" +
+        @"|\b(?:first|second|third|fourth)\s+background\s+(?:layer|plane)s?\b|\bbackground\s+(?:layer|plane)\s+(?:one|two|three|four|[1-4])\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A camel-case word of a declared name that tells the port as a translation (#2398): Translated or Untranslated at
     /// any word boundary (<c>CaptureTranslatedRenderSnapshot</c>, <c>hasTranslatedBodyChange</c>). Core names what the
     /// member captures, collects or tests.
@@ -2298,6 +2340,8 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : !generated && RepositoryPathProse.Match(text) is { Success: true } repositoryPath ? repositoryPath.Value
             : SharedStorageProse.Match(Markup.Replace(text, " ")) is { Success: true } sharedStorage ? sharedStorage.Value
             : OriginalAndPortReasoningProse.Match(Markup.Replace(text, " ")) is { Success: true } reasoning ? reasoning.Value
+            : BossBranchAndReasoningProse.Match(Markup.Replace(text, " ")) is { Success: true } bossReasoning ? bossReasoning.Value
+            : RoomCallAreaAndLayerProse.Match(Markup.Replace(text, " ")) is { Success: true } roomCallAreaAndLayer ? roomCallAreaAndLayer.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

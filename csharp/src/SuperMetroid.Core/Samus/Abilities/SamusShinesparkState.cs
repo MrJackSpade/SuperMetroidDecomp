@@ -308,8 +308,8 @@ public sealed class SamusShinesparkState
 
         if (Phase == ShinesparkPhase.Windup)
         {
-            // The windup countdown: exact zero and a count past zero both launch up.
-            bool timedOut = --WindupCountdown <= 0;
+            // The windup launches Samus upward on the update its countdown runs out.
+            bool timedOut = --WindupCountdown == 0;
             SamusPoseId? pendingLaunchPose = null;
             if (timedOut)
             {
@@ -512,7 +512,7 @@ public sealed class SamusShinesparkState
     private ShinesparkMovementResult StepCrashHold()
     {
         ShineTimer = ShinesparkDefinitions.SparkShadeFrames;
-        if (--CrashHoldCountdown <= 0)
+        if (--CrashHoldCountdown == 0)
             Phase = ShinesparkPhase.CrashFinish;
         return new ShinesparkMovementResult(
             false);
@@ -707,10 +707,9 @@ public sealed class SamusShinesparkState
         }
         // A spark striking a solid enemy collides without moving up the distance to it, unlike an ordinary upward move,
         // which reaches the enemy's edge; where the spark crashes and recovers depends on it.
-        UnsignedSixteenSixteen enemyProbeDistance = UnsignedSixteenSixteen.FromDisplacement(collisionMagnitude);
         SolidEnemyCollisionResult enemy = SamusSolidEnemyCollision.Probe(
             samus.Kinematics, samus.Kinematics.InteractiveEnemies, SamusCollisionDirection.Up,
-            enemyProbeDistance.Whole, enemyProbeDistance.Fraction);
+            UnsignedSixteenSixteen.FromDisplacement(collisionMagnitude));
         samus.Kinematics.RecordSolidEnemyCollision(SamusCollisionDirection.Up, enemy.Enemy);
         if (enemy.Collided)
             return new BlockMoveResult(SignedSixteenSixteen.Zero, true, EnemyCollision: enemy);

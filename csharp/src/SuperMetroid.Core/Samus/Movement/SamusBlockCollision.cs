@@ -99,8 +99,7 @@ public static class SamusBlockCollision
                 state,
                 state.InteractiveEnemies,
                 direction,
-                magnitude.Whole,
-                magnitude.Fraction);
+                magnitude);
             state.RecordSolidEnemyCollision(direction, probe.Enemy);
 
             if (probe.Collided)
@@ -402,8 +401,7 @@ public static class SamusBlockCollision
                 state,
                 state.InteractiveEnemies,
                 direction,
-                magnitude.Whole,
-                magnitude.Fraction);
+                magnitude);
             state.RecordSolidEnemyCollision(direction, probe.Enemy);
 
             if (probe.Collided)
@@ -853,17 +851,11 @@ public static class SamusBlockCollision
         else
         {
             // Every row after the first tests the selected quadrant. On the first row, Samus's
-            // top lying in a block's lower half is the exception, before the opposite vertical
-            // quadrant is tested.
-            if (remainingRows != totalRows || !RoomGridConversions.InSecondHalfOfBlock(state.Position.Y.Whole - state.Radius.Y))
-            {
-                if (selectedSolid)
-                {
-                    goto Clip;
-                }
-            }
-
-            collide = SquareSlopes.IsSolid(shape, quadrant.OtherRow);
+            // top lying in a block's lower half is the exception; a selected quadrant that is not tested or not solid
+            // leaves the opposite vertical quadrant to decide.
+            bool selectedTested = remainingRows != totalRows ||
+                !RoomGridConversions.InSecondHalfOfBlock(state.Position.Y.Whole - state.Radius.Y);
+            collide = (selectedTested && selectedSolid) || SquareSlopes.IsSolid(shape, quadrant.OtherRow);
         }
 
         if (!collide)
@@ -872,7 +864,6 @@ public static class SamusBlockCollision
             return false;
         }
 
-    Clip:
         clippedDisplacement = ClipHorizontalToSquareSlope(
             state,
             displacement,
@@ -914,16 +905,11 @@ public static class SamusBlockCollision
         }
         else
         {
-            if (blocksLeftToCheck != totalColumns ||
-                !RoomGridConversions.InSecondHalfOfBlock(state.Position.X.Whole - state.Radius.X))
-            {
-                if (selectedSolid)
-                {
-                    goto Clip;
-                }
-            }
-
-            collide = SquareSlopes.IsSolid(shape, quadrant.OtherColumn);
+            // The physical leftmost block skips the selected quadrant when Samus's left edge lies in its right half; a
+            // selected quadrant that is not tested or not solid leaves the opposite horizontal quadrant to decide.
+            bool selectedTested = blocksLeftToCheck != totalColumns ||
+                !RoomGridConversions.InSecondHalfOfBlock(state.Position.X.Whole - state.Radius.X);
+            collide = (selectedTested && selectedSolid) || SquareSlopes.IsSolid(shape, quadrant.OtherColumn);
         }
 
         if (!collide)
@@ -932,7 +918,6 @@ public static class SamusBlockCollision
             return false;
         }
 
-    Clip:
         clippedDisplacement = ClipVerticalToSquareSlope(
             state,
             displacement,

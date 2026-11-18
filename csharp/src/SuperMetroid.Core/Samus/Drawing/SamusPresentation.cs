@@ -321,9 +321,9 @@ internal sealed class SamusPresentation
                 return;
 
             case SamusAnimationItemAirborneTransition itemAirborne:
-                // Moving vertically means either part of the vertical speed is nonzero. Morph entry uses this to finish
+                // Moving vertically means any vertical speed at all. Morph entry uses this to finish
                 // without guessing whether the transition walked off a ledge.
-                bool movingVertically = samus.Kinematics.YSpeed.Whole != 0 || samus.Kinematics.YSpeed.Fraction != 0;
+                bool movingVertically = !samus.Kinematics.YSpeed.IsZero;
                 samus.PendingTransitionalPose = samus.EquippedItems.HasAny(itemAirborne.Item)
                     ? movingVertically ? itemAirborne.EquippedAirborne : itemAirborne.EquippedGrounded
                     : movingVertically ? itemAirborne.UnequippedAirborne : itemAirborne.UnequippedGrounded;
@@ -339,8 +339,8 @@ internal sealed class SamusPresentation
                 break;
 
             case SamusAnimationVerticalSpeedTransition verticalSpeed:
-                // Read only on a cue value's place (#1535): the pose depends on either part of the vertical speed alone.
-                samus.PendingTransitionalPose = samus.Kinematics.YSpeed.Whole != 0 || samus.Kinematics.YSpeed.Fraction != 0
+                // Read only on a cue value's place (#1535): the pose depends on whether Samus has any vertical speed alone.
+                samus.PendingTransitionalPose = !samus.Kinematics.YSpeed.IsZero
                     ? verticalSpeed.Airborne
                     : verticalSpeed.Grounded;
                 return;

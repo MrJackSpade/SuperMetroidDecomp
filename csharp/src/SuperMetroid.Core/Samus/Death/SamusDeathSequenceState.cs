@@ -27,7 +27,10 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     /// </summary>
     public bool IsActive => Phase != SamusDeathSequencePhase.Inactive;
 
-    /// <summary>Sixteen updates precede the alternating yellow flash.</summary>
+    /// <summary>
+    /// The updates left before the alternating yellow flash, the last one included:
+    /// <see cref="SamusDeathSequenceDefinitions.PreFlashFrameCount"/> when the death sequence begins.
+    /// </summary>
     public int PreFlashingTimer { get; private set; }
 
     /// <summary>
@@ -154,8 +157,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
                 // The flashing state freezes that final body frame while its shades alternate.
                 SamusPresentation.AnimateDeathFrame(samus);
                 drawPose = true;
-                PreFlashingTimer--;
-                if (PreFlashingTimer <= 0)
+                if (--PreFlashingTimer == 0)
                     Phase = SamusDeathSequencePhase.Flashing;
                 break;
 

@@ -28,8 +28,11 @@ public sealed class SamusCrystalFlashState
     /// <summary>The phase in which Crystal Flash moves Samus, or none once another owner has taken her movement.</summary>
     public CrystalFlashPhase Phase { get; private set; }
 
-    /// <summary>The rise's countdown: nine when it starts, for its ten two-pixel steps.</summary>
-    public int RaiseTimer { get; private set; }
+    /// <summary>
+    /// The rise's updates left, the one it finishes on included: <see cref="CrystalFlashDefinitions.RaiseUpdates"/> when
+    /// it starts, one for each two-pixel step.
+    /// </summary>
+    public int RaiseUpdatesLeft { get; private set; }
 
     /// <summary>
     /// The ammunition the drain is consuming: missiles at activation, then super missiles and power bombs as each
@@ -119,7 +122,7 @@ public sealed class SamusCrystalFlashState
         // The remaining preconditions are literal comparisons. Reserve energy must
         // be empty even when the reserve mode is manual; possession of a reserve tank alone
         // does not matter. Each current ammo count, not its maximum, must supply the flash's ammunition.
-        if (samus.Kinematics.YSpeed.Whole != 0 || samus.Kinematics.YSpeed.Fraction != 0 ||
+        if (!samus.Kinematics.YSpeed.IsZero ||
             samus.Health >= CrystalFlashDefinitions.AdmittingEnergyBelow || samus.ReserveEnergy != 0 ||
             samus.Missiles < CrystalFlashDefinitions.AmmunitionPerKind ||
             samus.SuperMissiles < CrystalFlashDefinitions.AmmunitionPerKind ||
@@ -155,7 +158,7 @@ public sealed class SamusCrystalFlashState
         // instead of reproducing the documented adjacent timing that frees the stun.
         SamusMovementHandOver.To(samus, SamusMovementOwner.CrystalFlash);
         samus.InputSnapshot.CrystalFlashPoseInputLocked = true;
-        RaiseTimer = CrystalFlashDefinitions.RaiseUpdates - 1;
+        RaiseUpdatesLeft = CrystalFlashDefinitions.RaiseUpdates;
         DrainingAmmo = CrystalFlashAmmoKind.Missiles;
         _ammoCountdown.StartAmmoCountdown(CrystalFlashDefinitions.AmmunitionPerKind);
         RaisedHeight = 0;
@@ -223,9 +226,8 @@ public sealed class SamusCrystalFlashState
         // The raise changes only the whole pixels; where Samus lies within a pixel stays.
         samus.Position -= new Offset16<RoomPixels>(0, CrystalFlashDefinitions.RaiseStep);
 
-        // The count starts one below the raise's updates and falls by one each update; the raise's last update takes
-        // it below zero and starts the main bubble phase after completing its rise.
-        if (--RaiseTimer >= 0)
+        // The rise's last update starts the main bubble phase after completing its rise.
+        if (--RaiseUpdatesLeft != 0)
             return;
 
         // The delay animation is already on its raise loop, but the raise forces

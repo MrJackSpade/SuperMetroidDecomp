@@ -73,10 +73,16 @@ public sealed class SamusHorizontalSpeedState
     private static AnimationPlayback<SamusGlowSegment> FullBodyCycleStart => SamusGlowPlay.Before(SamusGlowSegment.ScrewAttackPower);
 
     /// <summary>
-    /// The updates the Speed Booster glow's shown shade still holds: one on the first boosted running frame, then each
-    /// shade's own four. A Screw Attack spin leaves it where it stood.
+    /// The updates the Speed Booster glow's shown shade still holds, the one the next shade shows on included, counted
+    /// down to none: one on the first boosted running frame, then each shade's own four; none, as momentum cancellation
+    /// and the unpause equipment check leave it, shows the next shade on the next boosted update. A Screw Attack spin
+    /// leaves it where it stood.
     /// </summary>
-    public int CycleShadeTimer { get; private set; }
+    public int CycleShadeTimer
+    {
+        get;
+        private set => field = Ensure.AtLeastZero(value);
+    }
 
     /// <summary>
     /// Whether the Speed Booster's echo sound is playing: set before the echo sound's start request, cleared with the
@@ -397,8 +403,10 @@ public sealed class SamusHorizontalSpeedState
         if (!IsActivelySpeedBoosting)
             return shadeCopied;
 
-        // Zero and a count run past zero both reload four, though ordinary execution arrives with timer one.
-        if (--CycleShadeTimer > 0)
+        // The count stops at none, so a glow left at none shows its next shade at once, as a glow left at one does.
+        if (CycleShadeTimer != 0)
+            CycleShadeTimer--;
+        if (CycleShadeTimer != 0)
             return shadeCopied;
 
         // The Speed Booster goes on from where the shared cycle stands: a Screw Attack spin that stood past the Speed

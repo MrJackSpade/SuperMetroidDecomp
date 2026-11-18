@@ -727,7 +727,7 @@ public sealed class SamusState
             SamusKinematicsState probe = Kinematics.CreateCollisionProbe();
             probe.Radius = probe.Radius.WithY(radius);
             SolidEnemyCollisionResult result = SamusSolidEnemyCollision.Probe(
-                probe, probe.InteractiveEnemies, direction, distance, 0);
+                probe, probe.InteractiveEnemies, direction, UnsignedSixteenSixteen.FromWholePixels(distance));
             Kinematics.Position = Kinematics.Position.WithFractionY(probe.Position.Y.Fraction);
             return result;
         }

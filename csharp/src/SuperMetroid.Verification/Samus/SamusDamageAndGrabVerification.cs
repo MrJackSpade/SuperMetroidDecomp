@@ -349,8 +349,7 @@ level, SamusRoomObjectFixtures.Uninstalled, right, unchecked((ushort)(frame + 1)
 static MotherBrainRinkaDoorSpawnExpected ObserveSolidEnemyProbeTarget(
     SamusKinematicsState samus,
     SamusCollisionDirection direction,
-    ushort distance,
-    ushort distanceSubposition)
+    UnsignedSixteenSixteen reach)
 {
     const int sweepRadius = 48;
     int minX = int.MaxValue, maxX = int.MinValue, minY = int.MaxValue, maxY = int.MinValue;
@@ -369,7 +368,7 @@ static MotherBrainRinkaDoorSpawnExpected ObserveSolidEnemyProbeTarget(
                 Enemy: new SolidEnemyFixture(), Position: new(unchecked((ushort)enemyX), unchecked((ushort)enemyY)),
                 Radius: new(1, 1), Solid: true);
             if (!SamusSolidEnemyCollision.Probe(
-                    probeState, [enemy], direction, distance, distanceSubposition).Collided)
+                    probeState, [enemy], direction, reach).Collided)
                 continue;
 
             minX = Math.Min(minX, enemyX);
@@ -419,41 +418,41 @@ internal static void VerifySamusSolidEnemyCollision()
 
     // The no-enemy path returns A=0 and leaves Samus completely untouched.
     SolidEnemyCollisionResult empty = SamusSolidEnemyCollision.Probe(
-        samus, [], SamusCollisionDirection.Right, distance: 3, distanceSubposition: 0x4000);
+        samus, [], SamusCollisionDirection.Right, new(3, 0x4000));
     AssertTrue(!empty.Collided, "empty interactive-enemy list does not collide");
     AssertEqual(0x7777, samus.Position.Y.Fraction, "no collision preserves Y subposition");
     AssertEqual(104, ObserveSolidEnemyProbeTarget(
-            samus, SamusCollisionDirection.Right, distance: 3, distanceSubposition: 0x4000).X,
+            samus, SamusCollisionDirection.Right, new(3, 0x4000)).X,
         "right fractional target rounds outward");
 
     // `$A0:A90A-$A0:A9B7` has asymmetric-looking but literal carry/borrow rounding. Test all
     // four jump-table entries, including fractional underflow and overflow, so a later
     // refactor cannot replace this with ordinary truncation or Math.Round.
     MotherBrainRinkaDoorSpawnExpected left = ObserveSolidEnemyProbeTarget(
-        samus, SamusCollisionDirection.Left, distance: 0, distanceSubposition: 0x8000);
+        samus, SamusCollisionDirection.Left, new(0, 0x8000));
     AssertEqual(98, left.X, "left fractional borrow plus outward decrement");
     AssertEqual(100, left.Y, "left probe preserves target Y");
 
     samus.Position = samus.Position.WithFractionX(0xf000);
     MotherBrainRinkaDoorSpawnExpected rightCarry = ObserveSolidEnemyProbeTarget(
-        samus, SamusCollisionDirection.Right, distance: 0, distanceSubposition: 0x2000);
+        samus, SamusCollisionDirection.Right, new(0, 0x2000));
     AssertEqual(102, rightCarry.X, "right fractional carry plus outward increment");
 
     samus.Position = samus.Position.WithFractionY(0);
     MotherBrainRinkaDoorSpawnExpected up = ObserveSolidEnemyProbeTarget(
-        samus, SamusCollisionDirection.Up, distance: 1, distanceSubposition: 0x8000);
+        samus, SamusCollisionDirection.Up, new(1, 0x8000));
     AssertEqual(97, up.Y, "up target shares negative-direction rounding");
 
     samus.Position = samus.Position.WithFractionY(0xf000);
     MotherBrainRinkaDoorSpawnExpected down = ObserveSolidEnemyProbeTarget(
-        samus, SamusCollisionDirection.Down, distance: 1, distanceSubposition: 0x2000);
+        samus, SamusCollisionDirection.Down, new(1, 0x2000));
     AssertEqual(103, down.Y, "down target shares positive-direction rounding");
 
     // #1269: after a carry the INC sets Z from the target word, so `$A0:A9A7` rounds a
     // second pixel even when the carried fraction is exactly zero.
     samus.Position = samus.Position.WithFractionY(0x9800);
     MotherBrainRinkaDoorSpawnExpected exactCarry = ObserveSolidEnemyProbeTarget(
-        samus, SamusCollisionDirection.Down, distance: 2, distanceSubposition: 0x6800);
+        samus, SamusCollisionDirection.Down, new(2, 0x6800));
     AssertEqual(104, exactCarry.Y, "an exact fractional carry still rounds two pixels outward");
 
     // #1419: the rounding steps are sixteen-bit DEC/INC of the room coordinate word. At the room's left edge a
@@ -461,11 +460,11 @@ internal static void VerifySamusSolidEnemyCollision()
     // increments to zero, whose Z flag skips the second INC.
     var leftEdge = new SamusKinematicsState { Position = new(new(0, 0), new(100, 0)), Radius = new(5, 10) };
     AssertEqual(0xfffe, ObserveSolidEnemyProbeTarget(
-            leftEdge, SamusCollisionDirection.Left, distance: 0, distanceSubposition: 0x8000).X,
+            leftEdge, SamusCollisionDirection.Left, new(0, 0x8000)).X,
         "a borrow at coordinate zero wraps the target to $FFFF and decrements it again");
     var rightEdge = new SamusKinematicsState { Position = new(new(0xffff, 0xf000), new(100, 0)), Radius = new(5, 10) };
     AssertEqual(0, ObserveSolidEnemyProbeTarget(
-            rightEdge, SamusCollisionDirection.Right, distance: 0, distanceSubposition: 0x2000).X,
+            rightEdge, SamusCollisionDirection.Right, new(0, 0x2000)).X,
         "a carry at coordinate $FFFF wraps the target to zero, which skips the second increment");
 
     // The 100% movie's Mother Brain room: Samus falls onto a frozen Rinka whose top is three
@@ -478,7 +477,7 @@ internal static void VerifySamusSolidEnemyCollision()
         Enemy: new SolidEnemyFixture(), Position: new(0x00c8, 0x00a3), Radius: new(8, 8),
         Solid: true);
     SolidEnemyCollisionResult landing = SamusSolidEnemyCollision.Probe(
-        falling, [frozenRinka], SamusCollisionDirection.Down, distance: 2, distanceSubposition: 0x6800);
+        falling, [frozenRinka], SamusCollisionDirection.Down, new(2, 0x6800));
     AssertTrue(landing.Collided, "a falling Samus lands on the frozen Rinka");
     AssertEqual(3, landing.Distance, "the landing stops at the Rinka's top edge");
 
@@ -487,7 +486,7 @@ internal static void VerifySamusSolidEnemyCollision()
         Enemy: new SolidEnemyFixture(), Position: new(110, 100), Radius: new(5, 5),
         Solid: false);
     SolidEnemyCollisionResult ignored = SamusSolidEnemyCollision.Probe(
-        samus, [decorative], SamusCollisionDirection.Right, distance: 2, distanceSubposition: 0);
+        samus, [decorative], SamusCollisionDirection.Right, UnsignedSixteenSixteen.FromWholePixels(2));
     AssertTrue(!ignored.Collided, "non-solid unfrozen enemy is ignored");
 
     // A frozen enemy is eligible even without property $8000. With a one-pixel current gap,
@@ -499,7 +498,7 @@ internal static void VerifySamusSolidEnemyCollision()
         Solid = true,
     };
     SolidEnemyCollisionResult frozenHit = SamusSolidEnemyCollision.Probe(
-        samus, [frozen], SamusCollisionDirection.Right, distance: 2, distanceSubposition: 0);
+        samus, [frozen], SamusCollisionDirection.Right, UnsignedSixteenSixteen.FromWholePixels(2));
     AssertTrue(frozenHit.Collided, "frozen enemy is solid to Samus");
     AssertEqual(1, frozenHit.Distance, "right collision publishes current edge gap");
     AssertEqual<ISolidEnemy?>(frozen.Enemy, frozenHit.Enemy, "collision publishes the enemy it met");
@@ -514,7 +513,7 @@ internal static void VerifySamusSolidEnemyCollision()
         Solid = true,
     };
     SolidEnemyCollisionResult touching = SamusSolidEnemyCollision.Probe(
-        samus, [solidTouch], SamusCollisionDirection.Right, distance: 1, distanceSubposition: 0);
+        samus, [solidTouch], SamusCollisionDirection.Right, UnsignedSixteenSixteen.FromWholePixels(1));
     AssertTrue(touching.Collided && touching.WasTouching, "zero-gap solid enemy takes touching path");
     AssertEqual(0, touching.Distance, "touching collision publishes zero distance");
     AssertEqual(0, samus.Position.Y.Fraction, "horizontal enemy touch preserves native Y-subposition bug");
@@ -523,20 +522,20 @@ internal static void VerifySamusSolidEnemyCollision()
     // not advance to the directional gap test.
     SolidEnemyCollisionBody tangent = solidTouch with { Position = solidTouch.Position.WithX(110) };
     SolidEnemyCollisionResult tangentMiss = SamusSolidEnemyCollision.Probe(
-        samus, [tangent], SamusCollisionDirection.Right, distance: 0, distanceSubposition: 0);
+        samus, [tangent], SamusCollisionDirection.Right, UnsignedSixteenSixteen.FromWholePixels(0));
     AssertTrue(!tangentMiss.Collided, "future box tangency is not broad-phase overlap");
 
     // A negative directional gap is a signed/BPL rejection: Samus already overlaps this
     // enemy, so the routine must not trap her inside it or manufacture distance zero.
     SolidEnemyCollisionBody embedded = solidTouch with { Position = solidTouch.Position.WithX(109) };
     SolidEnemyCollisionResult embeddedMiss = SamusSolidEnemyCollision.Probe(
-        samus, [embedded], SamusCollisionDirection.Right, distance: 2, distanceSubposition: 0);
+        samus, [embedded], SamusCollisionDirection.Right, UnsignedSixteenSixteen.FromWholePixels(2));
     AssertTrue(!embeddedMiss.Collided, "enemy already intersecting movement axis is skipped");
 
     // Broad overlap must succeed on the perpendicular axis as well.
     SolidEnemyCollisionBody verticalMiss = frozen with { Position = frozen.Position.WithY(116) };
     SolidEnemyCollisionResult perpendicularMiss = SamusSolidEnemyCollision.Probe(
-        samus, [verticalMiss], SamusCollisionDirection.Right, distance: 2, distanceSubposition: 0);
+        samus, [verticalMiss], SamusCollisionDirection.Right, UnsignedSixteenSixteen.FromWholePixels(2));
     AssertTrue(!perpendicularMiss.Collided, "perpendicular separation rejects directional candidate");
 
     // Native list order wins. The first entry is farther away than the second but is still
@@ -545,7 +544,7 @@ internal static void VerifySamusSolidEnemyCollision()
     SolidEnemyCollisionBody nearerSecond = solidTouch with { Enemy = new SolidEnemyFixture(), Position = solidTouch.Position.WithX(112) };
     SolidEnemyCollisionResult ordered = SamusSolidEnemyCollision.Probe(
         samus, [fartherFirst, nearerSecond], SamusCollisionDirection.Right,
-        distance: 20, distanceSubposition: 0);
+        UnsignedSixteenSixteen.FromWholePixels(20));
     AssertEqual<ISolidEnemy?>(fartherFirst.Enemy, ordered.Enemy, "first interactive collision wins over nearest geometry");
     AssertEqual(10, ordered.Distance, "first list entry publishes its own gap");
 
@@ -557,13 +556,13 @@ internal static void VerifySamusSolidEnemyCollision()
         Radius = new(5, 5),
     };
     SolidEnemyCollisionResult ceiling = SamusSolidEnemyCollision.Probe(
-        samus, [above], SamusCollisionDirection.Up, distance: 2, distanceSubposition: 0);
+        samus, [above], SamusCollisionDirection.Up, UnsignedSixteenSixteen.FromWholePixels(2));
     AssertTrue(ceiling.Collided, "upward solid-enemy collision detected");
     AssertEqual(1, ceiling.Distance, "upward collision publishes top-to-bottom gap");
 
     SolidEnemyCollisionBody below = above with { Enemy = new SolidEnemyFixture(), Position = above.Position.WithY(116) };
     SolidEnemyCollisionResult floor = SamusSolidEnemyCollision.Probe(
-        samus, [below], SamusCollisionDirection.Down, distance: 2, distanceSubposition: 0);
+        samus, [below], SamusCollisionDirection.Down, UnsignedSixteenSixteen.FromWholePixels(2));
     AssertTrue(floor.Collided, "downward solid-enemy collision detected");
     AssertEqual(1, floor.Distance, "downward collision publishes bottom-to-top gap");
 
@@ -611,7 +610,7 @@ airRoom, integrated, null, null, signedDistance: SignedSixteenSixteen.FromParts(
 
     AssertThrows<ArgumentOutOfRangeException>(
         () => SamusSolidEnemyCollision.Probe(
-            samus, [], SamusCollisionDirection.NonDirectionalProbe, distance: 0, distanceSubposition: 0),
+            samus, [], SamusCollisionDirection.NonDirectionalProbe, UnsignedSixteenSixteen.FromWholePixels(0)),
         "non-directional solid-enemy probe rejected");
 
     Console.WriteLine("  Solid enemies: eligibility, native rounding, overlap, gaps, order, and touching quirk agree.");

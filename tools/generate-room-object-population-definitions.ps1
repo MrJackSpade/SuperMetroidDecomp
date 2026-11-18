@@ -129,9 +129,8 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
             $statePhrases[$match.Groups[3].Value] = [pscustomobject]@{ Room = 'the ' + $match.Groups[1].Value; State = $match.Groups[2].Value }
         }
     }
-    # Each population's rooms and states, each room's states in its selection's order, the first its default.
+    # Each population's rooms, and each room's states in its selection's order, the first its default.
     $populationRooms = @{}
-    $populationStates = @{}
     $roomStates = @{}
     $selectionText = [IO.File]::ReadAllText((Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/World/RoomStates/RoomStateSelectionDefinitions.cs'))
     $roomChoices = [regex]::Matches($selectionText, '\[RoomDefinitions\.(\w+)\] = new\(')
@@ -148,12 +147,8 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
             if ($roomPhrases.ContainsKey($room) -and $roomPhrases[$room] -cne $phrase.Room) { throw "Room $room's states name it both $($roomPhrases[$room]) and $($phrase.Room)." }
             $roomPhrases[$room] = $phrase.Room
             $statePopulation = $statePopulations[$stateName]
-            if (-not $populationRooms.ContainsKey($statePopulation)) {
-                $populationRooms[$statePopulation] = [Collections.Generic.HashSet[string]]::new()
-                $populationStates[$statePopulation] = [Collections.Generic.List[string]]::new()
-            }
+            if (-not $populationRooms.ContainsKey($statePopulation)) { $populationRooms[$statePopulation] = [Collections.Generic.HashSet[string]]::new() }
             [void] $populationRooms[$statePopulation].Add($room)
-            $populationStates[$statePopulation].Add($stateName)
         }
     }
     # A population is named for its room, or for its room and the state that loads it; one that several, but not all, of a

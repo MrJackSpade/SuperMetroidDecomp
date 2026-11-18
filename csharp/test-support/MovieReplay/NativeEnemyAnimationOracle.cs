@@ -1030,7 +1030,7 @@ internal static class NativeEnemyAnimationOracle
 /// <param name="Animation">The animation.</param>
 /// <param name="Segment">The segment whose repeat it starts at.</param>
 /// <param name="Entry">The repeat's native entry.</param>
-internal sealed record NativeRepeatEntryStart<TSegment>(string Name, Animation<TSegment> Animation, TSegment Segment, ushort Entry)
+internal readonly record struct NativeRepeatEntryStart<TSegment>(string Name, Animation<TSegment> Animation, TSegment Segment, ushort Entry)
     where TSegment : struct, Enum;
 
 /// <summary>

@@ -68,16 +68,17 @@ internal static class PauseReserveRowToggleVerification
         menu.Step(0, ControllerButton.Down);
         AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.Charge, menu.SelectedControl, "Down from the automatic reserve mode moves to the top beam");
         var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
+        bombs.SpawnBombSpread(samus);
         foreach (SamusBomb slot in bombs.Bombs)
-            slot.BombSpreadVerticalVelocity = SignedSixteenSixteen.FromParts(2, 0x4321);
+            slot.SpreadFlight!.VerticalVelocity = SignedSixteenSixteen.FromParts(2, 0x4321);
 
         menu.Step(0, ControllerButton.Up | ControllerButton.A, 0, 0, bombs);
 
         AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.ReserveMode, menu.SelectedControl, "Up from the top beam moves into the reserve column's first row");
-        AssertEqual(SignedSixteenSixteen.FromParts(ReserveRowToggleSpreadBombSpeed.SpeedAfterToggle(2), 0x4321), bombs.Bombs[^1].BombSpreadVerticalVelocity,
+        AssertEqual(SignedSixteenSixteen.FromParts(ReserveRowToggleSpreadBombSpeed.SpeedAfterToggle(2), 0x4321), bombs.Bombs[^1].SpreadFlight!.VerticalVelocity,
             "the toggle repaints the last spread bomb's whole speed and keeps its fraction");
         for (int index = 0; index < bombs.Bombs.Count - 1; index++)
-            AssertEqual(SignedSixteenSixteen.FromParts(2, 0x4321), bombs.Bombs[index].BombSpreadVerticalVelocity, $"bomb slot {index} is untouched");
+            AssertEqual(SignedSixteenSixteen.FromParts(2, 0x4321), bombs.Bombs[index].SpreadFlight!.VerticalVelocity, $"bomb slot {index} is untouched");
         AssertEqual(SamusBeamFlags.Charge, samus.EquippedBeams, "the toggle changes no beam");
         AssertEqual(SamusEquipmentFlags.None, samus.EquippedItems, "the toggle changes no item");
     }

@@ -815,15 +815,17 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     // negative bounce velocity rather than freezing or reusing generic Samus collision.
     SamusBomb bouncingSpread = spreadBombs.Bombs[2];
     bouncingSpread.Position = bouncingSpread.Position.WithWholeX(48).WithFractionX(0).WithWholeY(63).WithFractionY(0);
-    bouncingSpread.BombSpreadHorizontalVelocity = SignedSixteenSixteen.Zero;
-    bouncingSpread.BombSpreadVerticalVelocity = SignedSixteenSixteen.FromParts(1, 0);
-    bouncingSpread.BombSpreadLaunchVelocity = SignedSixteenSixteen.FromParts(-2, 0x8000);
+    var bouncingFlight = new BombSpreadFlight(SignedSixteenSixteen.Zero, SignedSixteenSixteen.FromParts(-2, 0x8000))
+    {
+        VerticalVelocity = SignedSixteenSixteen.FromParts(1, 0),
+    };
+    bouncingSpread.SpreadFlight = bouncingFlight;
     spreadBombs.StepFrame(new SamusTerrain { Level = floor, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, spreadSamus, 0, 0);
     AssertEqual(63, bouncingSpread.Position.Y.Whole,
         "spread-bomb floor collision undoes penetrating Y movement");
-    AssertEqual(0xfffe, bouncingSpread.BombSpreadYVelocity,
+    AssertEqual(0xfffe, bouncingFlight.VerticalVelocity.UnsignedWholePixels,
         "falling spread bomb restores launch velocity on floor bounce");
-    AssertEqual(0x8000, bouncingSpread.BombSpreadYSubvelocity,
+    AssertEqual(0x8000, bouncingFlight.VerticalVelocity.Fraction,
         "falling spread bomb restores ROM fractional launch speed");
 
     // The Down timeout is intentionally quantized by bits six/seven. `$BF -> $C0` waits

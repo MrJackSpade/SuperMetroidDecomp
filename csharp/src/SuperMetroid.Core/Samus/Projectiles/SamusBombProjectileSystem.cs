@@ -489,24 +489,15 @@ public sealed class SamusBombProjectileSystem
     /// <summary>Installs five bombs with each place's own launch and clears Samus's stored charge.</summary>
     internal void SpawnBombSpread(SamusState samus)
     {
-        int verticalModifier =
-            samus.BombSpreadChargeTimeoutCounter / MorphBallBombDefinitions.DownChargeUpdatesPerLaunchPixel;
         for (int place = 0; place < PlaceCount; place++)
         {
             SamusBomb bomb = Occupy(place);
             bomb.Type = NormalBombType;
             bomb.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
-            bomb.IsBombSpread = true;
+            bomb.SpreadFlight = SamusBombSpreadLaunches.Launch(place, samus.BombSpreadChargeTimeoutCounter);
             bomb.Position = bomb.Position.WithWhole(samus.Position.Whole);
             InitializeBomb(bomb);
-
-            BombSpreadLaunchDefinition launch = SamusBombSpreadLaunches.ForPlace(place);
-            bomb.BombTimer = WrappingCountdown.Start(launch.FuseTimer);
-            bomb.BombSpreadHorizontalVelocity = launch.XVelocity;
-            // The held charge adds up to three whole pixels of upward launch speed.
-            bomb.BombSpreadLaunchVelocity = SignedSixteenSixteen.FromParts(
-                -(launch.YSpeed.Whole + verticalModifier), launch.YSpeed.Fraction);
-            bomb.BombSpreadVerticalVelocity = bomb.BombSpreadLaunchVelocity;
+            bomb.BombTimer = WrappingCountdown.Start(SamusBombSpreadLaunches.ForPlace(place).FuseTimer);
         }
 
         BombCounter = PlaceCount;
@@ -640,8 +631,8 @@ public sealed class SamusBombProjectileSystem
             }
         }
 
-        if (bomb.IsBombSpread && !bomb.BombTimer.IsZero)
-            MoveBombSpread(level, bomb, samusKinematics);
+        if (bomb.SpreadFlight is { } flight && !bomb.BombTimer.IsZero)
+            MoveBombSpread(level, bomb, flight, samusKinematics);
 
         if (typeFamily == SamusProjectileFamily.Bomb &&
             bomb.BombTimer.IsZero &&
@@ -671,43 +662,45 @@ public sealed class SamusBombProjectileSystem
         return explosionStarted;
     }
 
-    /// <summary>Applies Samus gravity to a spread bomb, reversing horizontal travel at walls and restoring launch speed on a floor bounce.</summary>
+    /// <summary>
+    /// Flies a spread bomb one update: Samus's gravity accelerates it, a ceiling stops its rise, a floor bounces it back
+    /// up at its launch velocity and a wall reverses its horizontal travel. A bomb that meets a ceiling or floor moves no
+    /// further that update.
+    /// </summary>
     private static void MoveBombSpread(
         RoomLevelData level,
         SamusBomb bomb,
+        BombSpreadFlight flight,
         SamusKinematicsState samus)
     {
-        // Gravity adds with the fraction carrying into the whole pixels.
-        bomb.BombSpreadVerticalVelocity += samus.YAcceleration.AsDisplacement();
+        flight.Accelerate(samus.YAcceleration.AsDisplacement());
 
-        int previousY = bomb.Position.Y.Whole;
-        int previousYSub = bomb.Position.Y.Fraction;
-        bomb.Position = bomb.Position.AdvanceY(bomb.BombSpreadVerticalVelocity);
+        FixedPosition<RoomPixels> beforeVertical = bomb.Position;
+        bomb.Position = bomb.Position.AdvanceY(flight.VerticalVelocity);
         if (BombSpreadCollides(level, bomb))
         {
-            bomb.Position = bomb.Position.WithWholeY(previousY).WithFractionY(previousYSub);
-            if (bomb.BombSpreadVerticalVelocity.WholePixels < 0)
+            bomb.Position = beforeVertical;
+            if (flight.VerticalVelocity.IsNegative)
             {
-                // A ceiling clears only the speed's whole pixels; the fraction keeps accumulating gravity.
-                bomb.BombSpreadVerticalVelocity = bomb.BombSpreadVerticalVelocity.WithWholePixels(0);
+                // A ceiling also takes the bomb's vertical extent away for its later collisions.
+                flight.StopRiseAtCeiling();
                 bomb.Radius = bomb.Radius.WithY(0);
             }
             else
             {
-                bomb.BombSpreadVerticalVelocity = bomb.BombSpreadLaunchVelocity;
+                flight.BounceOffFloor();
             }
             return;
         }
 
-        int previousX = bomb.Position.X.Whole;
-        int previousXSub = bomb.Position.X.Fraction;
+        FixedPosition<RoomPixels> beforeHorizontal = bomb.Position;
         // The velocity moves the bomb, its fraction passing into the whole pixels in either direction.
-        bomb.Position = bomb.Position.AdvanceX(bomb.BombSpreadHorizontalVelocity);
+        bomb.Position = bomb.Position.AdvanceX(flight.HorizontalVelocity);
         if (!BombSpreadCollides(level, bomb))
             return;
 
-        bomb.Position = bomb.Position.WithWholeX(previousX).WithFractionX(previousXSub);
-        bomb.BombSpreadHorizontalVelocity = -bomb.BombSpreadHorizontalVelocity;
+        bomb.Position = beforeHorizontal;
+        flight.ReverseAtWall();
     }
 
     /// <summary>Tests the bomb center against room bounds, extension parents, solid blocks and the game's non-square slope heights.</summary>

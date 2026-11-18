@@ -1119,9 +1119,10 @@ internal static class LookupStream1Verification
         {
             var launch = SamusBombSpreadLaunches.ForPlace(index);
             AssertEqual(Word(0x90d8cf + index * 2), launch.FuseTimer, "spread native fuse");
-            AssertEqual(BombSpreadLaunchWords.Unpack(Word(0x90d8d9 + index * 2)), launch.XVelocity, "spread native direction/magnitude X");
-            AssertEqual(Word(0x90d8e3 + index * 2), launch.YSpeed.Whole, "spread native whole Y");
-            AssertEqual(Word(0x90d8ed + index * 2), launch.YSpeed.Fraction, "spread native fraction Y");
+            AssertEqual(BombSpreadLaunchWords.Unpack(Word(0x90d8d9 + index * 2)), launch.HorizontalVelocity, "spread native direction/magnitude X");
+            // The game negates the speed word alone and keeps the subspeed as the launch velocity's fraction (#2459).
+            AssertEqual(SignedSixteenSixteen.FromParts(-Word(0x90d8e3 + index * 2), Word(0x90d8ed + index * 2)), launch.VerticalVelocity,
+                "spread native negated whole Y with its fraction");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 5, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => SamusBombSpreadLaunches.ForPlace(invalid), "spread native slot rejection");

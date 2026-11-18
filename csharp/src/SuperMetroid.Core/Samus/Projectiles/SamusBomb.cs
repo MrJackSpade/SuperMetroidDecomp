@@ -53,17 +53,14 @@ public sealed class SamusBomb
     /// <summary>Collision half-extents in whole pixels, loaded from the timed frames; not the global Power Bomb blast radius.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }
 
+    /// <summary>
+    /// The flight of a bomb spread's bomb (#2459), created when the spread places it; null for a placed bomb or a Power
+    /// Bomb, which do not fly.
+    /// </summary>
+    public BombSpreadFlight? SpreadFlight { get; internal set; }
+
     /// <summary>Whether the bomb is one of a bomb spread's five.</summary>
-    public bool IsBombSpread { get; internal set; }
-
-    /// <summary>The spread bomb's horizontal velocity, negative leftward; a wall reverses it.</summary>
-    public SignedSixteenSixteen BombSpreadHorizontalVelocity { get; internal set; }
-
-    /// <summary>The spread bomb's vertical velocity, negative upward; Samus's gravity accelerates it every frame.</summary>
-    public SignedSixteenSixteen BombSpreadVerticalVelocity { get; internal set; }
-
-    /// <summary>The upward launch velocity, signed and in 1/65536 pixels, that a floor bounce restores.</summary>
-    public SignedSixteenSixteen BombSpreadLaunchVelocity { get; internal set; }
+    public bool IsBombSpread => SpreadFlight is not null;
 
     /// <summary>The bomb's fuse, and after detonation its explosion phase counter.</summary>
     public WrappingCountdown BombTimer { get; internal set; }
@@ -88,9 +85,6 @@ public sealed class SamusBomb
         Sprite = null;
         Radius = Extent16<RoomPixels>.Zero;
         BombTimer = WrappingCountdown.Start(0);
-        IsBombSpread = false;
-        BombSpreadHorizontalVelocity = SignedSixteenSixteen.Zero;
-        BombSpreadVerticalVelocity = SignedSixteenSixteen.Zero;
-        BombSpreadLaunchVelocity = SignedSixteenSixteen.Zero;
+        SpreadFlight = null;
     }
 }

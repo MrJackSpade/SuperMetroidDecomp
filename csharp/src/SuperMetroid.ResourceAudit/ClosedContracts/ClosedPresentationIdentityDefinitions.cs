@@ -102,7 +102,7 @@ internal static class ClosedPresentationIdentityDefinitions
     /// <summary>Returns audited finite named identities for a presentation call, or null when no closed set applies.</summary>
     internal static string[]? GetNames(string type, string method, string parameter) => new PresentationParameter(type, method, parameter) switch
     {
-        ("RoomLevelArtworks" or "InstalledRoomLevelStreams", "Get", "level.Name") =>
+        ("RoomLevelArtworks", "Get", "level.Name") or ("InstalledRoomLevelStreams", "Get" or "DoorBlocks", "level.Name") =>
             RoomVisualLayoutSourceDefinitions.All.Select(level => level.Name).ToArray(),
         // A spawned object draws a frame some spawner's objects show: on its spawner's own sheet, on a set's shared sheet
         // with every encounter's own frames and every common spawner's objects, or on a sheet of its own (#1536). A picture

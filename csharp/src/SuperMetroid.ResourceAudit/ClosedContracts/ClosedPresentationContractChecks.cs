@@ -11,7 +11,7 @@ namespace SuperMetroid.ResourceAudit.ClosedContracts;
 /// <summary>Confirms only the identified closed-provider adapter contracts, without gameplay or asset files.</summary>
 internal static class ClosedPresentationContractChecks
 {
-    /// <summary>Compiles 44 constructed consumer calls to check reviewed provider classifications, invalid selections, and mutable-source invalidation.</summary>
+    /// <summary>Compiles 28 constructed consumer calls to check reviewed provider classifications, invalid selections, and mutable-source invalidation.</summary>
     internal static void Run()
     {
         string root = Directory.GetCurrentDirectory();
@@ -60,7 +60,9 @@ internal static class ClosedPresentationContractChecks
                     ChozoAndTubeColorCatalog chozo,
                     InstalledSamusDeathPalettes samusDeath,
                     Span<ushort> tiles, Span<byte> bytes, Span<BackgroundTile> cells,
-                    ScreenSprites oam, SpriteSheet sheet, int dynamicIndex) {
+                    ScreenSprites oam, SpriteSheet sheet, int dynamicIndex,
+                    SuperMetroid.Core.Rooms.LevelData.InstalledRoomLevelStreams levels, SuperMetroid.Core.Rooms.RoomDefinition room,
+                    SuperMetroid.Core.Rooms.LevelData.RoomLevelId level) {
                     hud.Ammo((SuperMetroid.Core.Hud.HudAmmoCounter)dynamicIndex, 123);
                     hud.MinimapCell(new SuperMetroid.Core.Spatial.Position16<SuperMetroid.Core.Spatial.MapTiles>(99, 0), SuperMetroid.Core.Hud.MinimapHiddenCell.Instance);
                     FileSelectPresentation.DrawCursor(oam, sheet, (SuperMetroid.Core.Frontend.Menus.MenuMissileFrame)dynamicIndex, new(0,0));
@@ -87,6 +89,8 @@ internal static class ClosedPresentationContractChecks
                     samusDeath.SuitedColor(3, 9, 15);
                     samusDeath.ExplosionPaletteIndex(8);
                     samusDeath.ExplosionPaletteIndex(9);
+                    _ = levels.DoorBlocks(room, level);
+                    _ = levels.DoorBlocks(room, new SuperMetroid.Core.Rooms.LevelData.RoomLevelId("NoSuchLevel"));
                 }
             }
             """;
@@ -104,16 +108,16 @@ internal static class ClosedPresentationContractChecks
         var before = new AuditReport();
         foreach (InvocationExpressionSyntax call in calls.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, before);
-        Require(before.UnresolvedCount == 26, "the fixture must reproduce the identified missing-adapter boundaries first" + " (" + before.Describe() + ")");
+        Require(before.UnresolvedCount == 28, "the fixture must reproduce the identified missing-adapter boundaries first" + " (" + before.Describe() + ")");
         var report = new AuditReport();
         foreach (InvocationExpressionSyntax call in calls.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, report, adapter);
-        Require(report.Classifications.Count == 16 && report.MissingCount == 0 && report.UnresolvedCount == 10,
+        Require(report.Classifications.Count == 17 && report.MissingCount == 0 && report.UnresolvedCount == 11,
             $"only reviewed valid-domain operations qualify; invalid selections must fail " +
-            $"(classified {report.Classifications.Count}/16, missing {report.MissingCount}/0, unresolved {report.UnresolvedCount}/10; " +
+            $"(classified {report.Classifications.Count}/17, missing {report.MissingCount}/0, unresolved {report.UnresolvedCount}/11; " +
             $"revoked: {string.Join(", ", adapter.InvalidContracts)}; unresolved: " +
             string.Join(" | ", report.Findings.Where(finding => finding.Code != AuditReport.Missing).Select(finding => finding.Owner + " " + finding.Message)) + ")" + " (" + report.Describe() + ")");
-        Require(report.Consumers.Count == 26, $"classifications must retain every inventoried call (consumers {report.Consumers.Count}/26; unbound: " +
+        Require(report.Consumers.Count == 28, $"classifications must retain every inventoried call (consumers {report.Consumers.Count}/28; unbound: " +
             string.Join(" | ", report.Findings.Where(finding => finding.Message.Contains("could not be bound", StringComparison.Ordinal)).Select(finding => finding.Message)) + ")" + " (" + report.Describe() + ")");
     }
 

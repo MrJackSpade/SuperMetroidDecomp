@@ -111,7 +111,7 @@ internal static class RoomVisualLayoutsVerification
         int spikeBlocks = 0;
         foreach (RoomDefinition header in RetailRooms.All)
         {
-            SelectedRoom room = SelectedRoom.LoadUsingCompiledSelection(header, default);
+            SelectedRoom room = SelectedRoom.LoadUsingCompiledSelection(header, new RoomStateSelectionContext(new PersistentProgress().Events, DefeatedBosses.None, false, false));
             ushort headerPointer = header.Pointer;
             foreach (ushort statePointer in RoomStateSelection.GetStatePointers(header))
             {
@@ -234,7 +234,8 @@ internal static class RoomVisualLayoutsVerification
     /// <summary>
     /// Confirms the stock-only level-stream loader rejects each corrupted installation with a
     /// path-specific error: a resized stream, a missing file and an unsupported collision-kind
-    /// document version.
+    /// document version; and that the catalog rejects door blocks that leave out a room's use of a level, the completeness
+    /// the resource audit's closed contract for <see cref="InstalledRoomLevelStreams.DoorBlocks"/> relies on (#2435).
     /// </summary>
     private static void VerifyRoomLevelStreamRejections(GameInstallation installed)
     {
@@ -242,7 +243,7 @@ internal static class RoomVisualLayoutsVerification
         string firstName = RoomLevelStreamFiles.LevelFileName(
             RoomVisualLayoutFiles.RetailLevels.Keys.OrderBy(candidate => candidate.Name, StringComparer.Ordinal).First());
 
-        void Expect(string label, string namedFile, Action<string> corrupt)
+        void Expect(string label, Func<string, string> expectedText, Action<string> corrupt)
         {
             string directory = Path.Combine(scratch.Root, label);
             Directory.CreateDirectory(directory);
@@ -257,8 +258,8 @@ internal static class RoomVisualLayoutsVerification
             }
             catch (InvalidDataException error)
             {
-                AssertTrue(error.Message.Contains(Path.Combine(directory, namedFile), StringComparison.Ordinal),
-                    $"room-level stream {label} is rejected naming {namedFile}");
+                AssertTrue(error.Message.Contains(expectedText(directory), StringComparison.Ordinal),
+                    $"room-level stream {label} is rejected naming {expectedText(directory)}");
             }
         }
 
@@ -270,14 +271,23 @@ internal static class RoomVisualLayoutsVerification
             File.WriteAllText(path, kinds.ToJsonString());
         }
 
-        Expect("length-mismatch", firstName, directory =>
+        Expect("length-mismatch", directory => Path.Combine(directory, firstName), directory =>
         {
             using var file = new FileStream(Path.Combine(directory, firstName), FileMode.Append, FileAccess.Write);
             file.WriteByte(0);
         });
-        Expect("missing-file", firstName, directory => File.Delete(Path.Combine(directory, firstName)));
-        Expect("wrong-version", RoomLevelStreamFiles.CollisionKindsFileName,
+        Expect("missing-file", directory => Path.Combine(directory, firstName), directory => File.Delete(Path.Combine(directory, firstName)));
+        Expect("wrong-version", directory => Path.Combine(directory, RoomLevelStreamFiles.CollisionKindsFileName),
             directory => EditKinds(directory, kinds => kinds["version"] = 1));
+        Expect("missing-door-block-use", _ => "Installed door blocks lack", directory =>
+        {
+            string path = Path.Combine(directory, RoomDoorBlockFiles.FileName);
+            JsonNode document = RequiredJson.Parse(File.ReadAllText(path));
+            JsonObject room = document.Required("rooms").AsObject().First().Value?.AsObject()
+                ?? throw new InvalidOperationException("The installed door blocks' first room names no levels.");
+            room.Remove(room.First().Key);
+            File.WriteAllText(path, document.ToJsonString());
+        });
     }
 
 }

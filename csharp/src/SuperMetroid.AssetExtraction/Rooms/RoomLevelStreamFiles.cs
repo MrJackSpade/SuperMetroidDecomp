@@ -158,7 +158,8 @@ public static class RoomLevelStreamFiles
                 throw new InvalidDataException($"Room-level file {path} is {installed.Size.X} blocks wide; its rooms are {width}.");
             levels.Add(level, installed);
         }
-        return new InstalledRoomLevelStreams(levels, RoomVisualLayoutSourceDefinitions.All, RoomDoorBlockFiles.Load(directory));
+        return new InstalledRoomLevelStreams(levels, RoomVisualLayoutSourceDefinitions.All, RoomDoorBlockFiles.Load(directory),
+            RoomDoorBlockFiles.RetailUses);
     }
 
     /// <summary>Writes one level as the installed file format.</summary>

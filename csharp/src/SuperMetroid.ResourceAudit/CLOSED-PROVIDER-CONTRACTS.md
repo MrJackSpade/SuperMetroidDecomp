@@ -592,6 +592,16 @@ source or a stream without its layer-size word is rejected, and the streams are 
 The rule certifies required-key presence only, not stream contents, collision data,
 binding or caller source selection.
 
+`DoorBlocks` (#2090) joined the catalog without joining its contract, so the root
+audit reported its one room-load call unresolved (#2435). The same constructor now
+also requires the door blocks of exactly every retail room's use of a level
+(`RoomDoorBlockFiles.RetailUses`): an unknown use, a missing use or a null block list
+is rejected, where before only the document loader required them. `DoorBlocks` takes
+only a room and a level its state names and fails for any other key; a constant level
+outside the installed level domain stays unresolved. The self-check's two constructed
+calls fail as missing adapters first; one qualifies and the unknown level stays
+unresolved.
+
 ## Mother Brain special sheets - one additional original boundary
 
 The public constructor formerly checked only the four source keys and admitted

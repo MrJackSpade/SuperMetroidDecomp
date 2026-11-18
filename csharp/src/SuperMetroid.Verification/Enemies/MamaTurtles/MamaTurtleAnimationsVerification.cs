@@ -36,7 +36,9 @@ internal static class MamaTurtleAnimationsVerification
                     AssertEqual(instruction.Cue, cue, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
                 },
-                cue => cue.Kind == BabyTurtleCueKind.LoopOrTurnAround));
+                cue => cue.Kind == BabyTurtleCueKind.LoopOrTurnAround),
+            // A crawl strides on with its legs trailing only after its counted strides (#2439).
+            onlyRunOnInto: new HashSet<BabyTurtleSegment> { BabyTurtleSegment.CrawlingLeftLegsTrailing, BabyTurtleSegment.CrawlingRightLegsTrailing });
         Console.WriteLine($"  Mama Turtle animations: {Entries.Length} segments ({mamaBeats} beats) and {MamaTurtleAnimations.StartingAt.Count} animations, " +
             $"baby turtle animations: {BabyEntries.Length} segments ({babyBeats} beats) and {BabyTurtleAnimations.StartingAt.Count} animations match bank $A2.");
     }

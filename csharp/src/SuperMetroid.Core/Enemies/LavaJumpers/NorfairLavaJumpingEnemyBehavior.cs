@@ -49,10 +49,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     /// <summary>Initializes a jumping lava jumper, hidden in the lava at its population position.</summary>
     internal static void InitializeNorfairLavaJumpingEnemy(RoomEnemyPlace place)
     {
-        var state = new NorfairLavaJumpingEnemyState(NorfairLavaJumpingEnemyAction.BeginJump)
-        {
-            AnimationFinished = false,
-        };
+        var state = new NorfairLavaJumpingEnemyState(NorfairLavaJumpingEnemyAction.BeginJump);
         place.SetSpeciesState(state);
 
         // The jumping parent returns to exactly these population coordinates after every
@@ -106,11 +103,13 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
             case NorfairLavaJumpingEnemyAction.MoveUntilAnimationSignal:
                 MoveNorfairLavaJumpingEnemyVertically(place, state);
                 state.ApplyGravity(NorfairLavaJumpDefinitions.Gravity);
-                if (state.AnimationFinished)
-                {
-                    state.AnimationFinished = false;
-                    state.Action = NorfairLavaJumpingEnemyAction.FallBackIntoLava;
-                }
+                return;
+
+            case NorfairLavaJumpingEnemyAction.Flipped:
+                // The update that finds the flip finished still moves as the flip did, then falls from the next.
+                MoveNorfairLavaJumpingEnemyVertically(place, state);
+                state.ApplyGravity(NorfairLavaJumpDefinitions.Gravity);
+                state.Action = NorfairLavaJumpingEnemyAction.FallBackIntoLava;
                 return;
 
             case NorfairLavaJumpingEnemyAction.FallBackIntoLava:
@@ -139,12 +138,15 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         }
     }
 
-    /// <summary>Carries out the jump animation's finishing cue, the private handshake.</summary>
+    /// <summary>Carries out the jump animation's finishing cue (#2439): the flip has finished, and the next update falls.</summary>
+    /// <exception cref="InvalidOperationException">The jumper is not flipping.</exception>
     private static void ApplyNorfairLavaJumperCue(NorfairLavaJumpingEnemyState state, NorfairLavaJumperCue cue)
     {
         if (cue.Kind != NorfairLavaJumperCueKind.FinishAnimation)
             throw new InvalidOperationException($"Undefined {nameof(NorfairLavaJumperCueKind)} {cue.Kind}.");
-        state.AnimationFinished = true;
+        if (state.Action != NorfairLavaJumpingEnemyAction.MoveUntilAnimationSignal)
+            throw new InvalidOperationException($"A Squeept's flip finished while it was {state.Action}.");
+        state.Action = NorfairLavaJumpingEnemyAction.Flipped;
     }
 
     /// <summary>

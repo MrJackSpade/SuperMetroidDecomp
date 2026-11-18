@@ -4,10 +4,10 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 internal static class MamaTurtleCadenceDefinitions
 {
     /// <summary>
-    /// The phase of a Mama Turtle's height, as she climbs out of her shell, on which her step sidesteps left (#1619): set on
-    /// odd heights, so each step a pixel up alternates her sidestep between right and left.
+    /// Whether a Mama Turtle's step out of her shell at room height <paramref name="height"/> sidesteps left (#1619,
+    /// #2439): on odd heights, so each step a pixel up alternates her sidestep between right and left.
     /// </summary>
-    internal static readonly UpdateCounterField LeavingShellSidestepsLeft = new(0, 1);
+    internal static bool LeavingShellSidestepsLeftAt(int height) => int.IsOddInteger(height);
 
     /// <summary>
     /// The updates on which a Mama Turtle leaving her shell steps up and sideways: every second update of the frame

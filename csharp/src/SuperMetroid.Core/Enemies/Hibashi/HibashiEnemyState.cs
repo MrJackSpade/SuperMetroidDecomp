@@ -18,20 +18,11 @@ public sealed class HibashiEnemyState
 
     /// <summary>
     /// The inactive updates left before the next eruption, the one it erupts on included (#2340): a new flame starts with
-    /// none left and erupts on its first update, and each eruption restarts the wait at <see cref="InactiveTimerReset"/>.
+    /// none left and erupts on its first update, and each eruption restarts the wait at its placement's inactive time and
+    /// the update it runs out on (<see cref="EnemyWaitDefinitions.RunOutUpdate"/>, #2340).
     /// </summary>
     public int InactiveTimer { get; internal set; }
 
-    /// <summary>Animation-to-AI handshake: cleared when an eruption starts, set by the finishing cue after the hitbox is disabled, and awaited by active AI.</summary>
-    public bool ActivityFinished { get; internal set; }
-
     /// <summary>The flame's room Y captured at initialization. Activity frames place the collision part relative to it and the finishing cue restores the art owner to it.</summary>
     public int SpawnY { get; internal set; }
-
-    /// <summary>
-    /// The inactive wait's length: its placement's inactive time and the update it runs out on
-    /// (<see cref="EnemyWaitDefinitions.RunOutUpdate"/>, #2340).
-    /// </summary>
-    public int InactiveTimerReset { get; internal set; }
-
 }

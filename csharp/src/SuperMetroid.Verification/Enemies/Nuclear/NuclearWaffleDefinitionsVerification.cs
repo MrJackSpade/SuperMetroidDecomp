@@ -32,11 +32,14 @@ internal static class NuclearWaffleDefinitionsVerification
                 $"Nuclear Waffle start angle {direction}");
             AssertEqual(NuclearWaffleSweepAngle.FromSteps(CartridgeImportSource.Require(rom).ReadCartridgeWord((endpointTable + offset + 2))), definition.EndAngle,
                 $"Nuclear Waffle end angle {direction}");
+            // The cartridge stores the spacing and the stagger signed by the way the sweep runs; the definition's are the
+            // steps the links trail and stagger, applied toward its direction (#2439).
+            int towardSweep = settings.Direction == NuclearWaffleSweepDirection.Forward ? 1 : -1;
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((spacingTable + offset))),
-                definition.SegmentSpacing,
+                towardSweep * definition.SegmentSpacing,
                 $"Nuclear Waffle segment spacing {direction}");
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((spacingTable + offset + 2))),
-                definition.InterleavedSegmentOffset,
+                towardSweep * definition.InterleavedSegmentOffset,
                 $"Nuclear Waffle interleaved offset {direction}");
             AssertEqual(NuclearWaffleSweepAngle.FromSteps(CartridgeImportSource.Require(rom).ReadCartridgeWord((thresholdTable + offset))),
                 definition.RisingTurnThreshold,
@@ -105,7 +108,7 @@ internal static class NuclearWaffleDefinitionsVerification
         enemies.NuclearWaffleBehavior.InitializeNuclearWaffle(place);
         NuclearWaffleEnemyState state = enemies.NuclearWaffleStates[0] ?? throw new InvalidOperationException("Nuclear Waffle has no state.");
         AssertEqual(NuclearWaffleSweepDirection.Forward, state.Direction, "Nuclear Waffle direction one sweeps forward");
-        AssertEqual(SixteenSixteenWords.ToDisplacement(oneUnit + oneUnit / 2), SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(state.AngularSpeed.FractionsOfStep), "Nuclear Waffle speed record 24 is 1.5 units per update");
+        AssertEqual(SixteenSixteenWords.ToDisplacement(oneUnit + oneUnit / 2), SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(place.SpawnSettings<NuclearWaffleSpawnSettings>().AngularSpeed.FractionsOfStep), "Nuclear Waffle speed record 24 is 1.5 units per update");
 
         enemies.NuclearWaffleBehavior.RunNuclearWaffleMainAi(place, Frame());
         AssertEqual(NuclearWaffleAction.Sweeping, state.Action, "Nuclear Waffle zero wait expires on the first update");

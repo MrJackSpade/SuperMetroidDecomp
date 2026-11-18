@@ -54,8 +54,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         int spawnY = place.Position.Y.Whole;
         state.FallingTargetY = spawnY + place.SpawnSettings<KzanSpawnSettings>().FallDistance;
         state.RisingTargetY = spawnY;
-        state.FallWaitTimerResetValue = place.SpawnSettings<KzanSpawnSettings>().FallWait;
-        state.FallWaitTimer = WrappingCountdown.Start(state.FallWaitTimerResetValue);
+        state.FallWaitTimer = WrappingCountdown.Start(place.SpawnSettings<KzanSpawnSettings>().FallWait);
     }
 
     /// <summary>Places the lower actor twelve pixels below the preceding top during setup.</summary>
@@ -124,7 +123,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.FallWaitTimer.IsZero)
             return;
 
-        state.FallWaitTimer = WrappingCountdown.Start(state.FallWaitTimerResetValue);
+        state.FallWaitTimer = WrappingCountdown.Start(place.SpawnSettings<KzanSpawnSettings>().FallWait);
         state.FallingSpeed = place.SpawnSettings<KzanSpawnSettings>().FallSpeed;
         state.Action = KzanAction.Falling;
     }

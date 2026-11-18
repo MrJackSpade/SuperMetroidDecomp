@@ -37,8 +37,6 @@ internal static class PlatformAnimations
         [
             Show(EnemyFrameId.TripperHoveringFacingLeftJetShort, 7),
             Show(EnemyFrameId.TripperHoveringFacingLeftJetLong, 8),
-            Show(EnemyFrameId.TripperHoveringFacingLeftJetShort, 7),
-            Show(EnemyFrameId.TripperHoveringFacingLeftJetLong, 8),
         ],
         [P.TripperMovingRight] =
         [
@@ -46,8 +44,6 @@ internal static class PlatformAnimations
         ],
         [P.TripperHoveringRight] =
         [
-            Show(EnemyFrameId.TripperHoveringFacingRightJetShort, 7),
-            Show(EnemyFrameId.TripperHoveringFacingRightJetLong, 8),
             Show(EnemyFrameId.TripperHoveringFacingRightJetShort, 7),
             Show(EnemyFrameId.TripperHoveringFacingRightJetLong, 8),
         ],
@@ -77,17 +73,21 @@ internal static class PlatformAnimations
 
     /// <summary>
     /// The animation that starts at each segment an owner can start or restart at: its heading cue, then the lights, hover or
-    /// thrust it loops, which only run on from the animations that start them (#2061, #2276).
+    /// thrust it loops, which only run on from the animations that start them (#2061, #2276). A hover flickers its jet
+    /// <see cref="HoverFlickers"/> times a loop (#2439).
     /// </summary>
     internal static IReadOnlyDictionary<PlatformSegment, Animation<PlatformSegment>> StartingAt { get; } = new Dictionary<PlatformSegment, Animation<PlatformSegment>>
     {
         [P.SuspensorPlatformHeadingLeft] = Animation<PlatformSegment>.LeadingInto([Segments.Whole(P.SuspensorPlatformHeadingLeft)], [Segments.Whole(P.SuspensorPlatformLights)]),
         [P.SuspensorPlatformHeadingRight] = Animation<PlatformSegment>.LeadingInto([Segments.Whole(P.SuspensorPlatformHeadingRight)], [Segments.Whole(P.SuspensorPlatformLights)]),
-        [P.TripperMovingLeft] = Animation<PlatformSegment>.LeadingInto([Segments.Whole(P.TripperMovingLeft)], [Segments.Whole(P.TripperHoveringLeft)]),
-        [P.TripperMovingRight] = Animation<PlatformSegment>.LeadingInto([Segments.Whole(P.TripperMovingRight)], [Segments.Whole(P.TripperHoveringRight)]),
+        [P.TripperMovingLeft] = Animation<PlatformSegment>.LeadingInto([Segments.Whole(P.TripperMovingLeft)], [Segments.Repeated(P.TripperHoveringLeft, HoverFlickers)]),
+        [P.TripperMovingRight] = Animation<PlatformSegment>.LeadingInto([Segments.Whole(P.TripperMovingRight)], [Segments.Repeated(P.TripperHoveringRight, HoverFlickers)]),
         [P.TripperStillMovingLeft] = Animation<PlatformSegment>.LeadingInto([Segments.Whole(P.TripperStillMovingLeft)], [Segments.Whole(P.TripperThrustingLeft)]),
         [P.TripperStillMovingRight] = Animation<PlatformSegment>.LeadingInto([Segments.Whole(P.TripperStillMovingRight)], [Segments.Whole(P.TripperThrustingRight)]),
     };
+
+    /// <summary>The flickers of its jet, short then long, a hovering Tripper's loop shows (#2439).</summary>
+    private const int HoverFlickers = 2;
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<PlatformSegment> StartingWith(PlatformSegment segment) => StartingAt[segment];

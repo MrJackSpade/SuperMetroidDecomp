@@ -4,12 +4,12 @@ namespace SuperMetroid.Core.Enemies.Skree;
 internal static class SkreeMetareeCues
 {
     /// <summary>
-    /// Carries out one cue. The wind-up rests immediately after marking the attack ready; main AI consumes the flag on
-    /// the following enemy frame and starts the dive, exactly matching the animation-to-AI hand-off.
+    /// Carries out one cue. The wind-up rests immediately after readying the attack; main AI starts the dive on the
+    /// following enemy frame, exactly matching the animation-to-AI hand-off.
     /// </summary>
     /// <param name="place">The enemy.</param>
     /// <param name="cue">The cue the animation published.</param>
-    /// <param name="markAttackReady">Sets the species state's attack-ready flag.</param>
+    /// <param name="markAttackReady">Readies the species' attack.</param>
     internal static void Apply(RoomEnemyPlace place, SkreeMetareeCue cue, Action markAttackReady)
     {
         switch (cue.Kind)

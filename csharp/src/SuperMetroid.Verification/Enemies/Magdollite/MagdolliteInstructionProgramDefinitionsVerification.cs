@@ -69,7 +69,10 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
         {
             (RoomEnemySystem enemies, RoomEnemyPlace place, MagdollitePartState state) =
                 CreateSystem(MagdollitePart.TrackingOverlay);
-            ((MagdolliteOverlayState)state).ThrowOrigin = place.Position.Whole;
+            var overlay = (MagdolliteOverlayState)state;
+            overlay.ThrowOrigin = place.Position.Whole;
+            // The hand waits for the throw it starts (#2439).
+            overlay.Action = MagdolliteOverlayAction.WaitingForThrowAnimation;
             Install(place, state, program);
             RunFrames(enemies, place, 80);
             AssertEqual(EnemySound.FireSpit, (enemies.Audio.LatestSound ?? throw new InvalidOperationException("Verification requires a pending Magdollite sound.")),
@@ -78,18 +81,20 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
                 enemies.Projectiles.EnemyProjectiles.Count(projectile =>
                     projectile.Kind == RoomEnemyProjectileKind.LavaThrownByMagdollite),
                 $"Magdollite {direction} throw projectile count");
-            AssertTrue(!state.AnimationBusy,
-                $"Magdollite {direction} throw releases animation wait");
+            AssertEqual(MagdolliteOverlayAction.Thrown, overlay.Action,
+                $"Magdollite {direction} throw finishes the hand's wait");
         }
 
         void VerifySubmerge(MagdolliteSegment program, string direction)
         {
             (RoomEnemySystem enemies, RoomEnemyPlace head, MagdollitePartState state) =
                 CreateSystem(MagdollitePart.Head);
+            // The head waits for the submerge it starts (#2439).
+            ((MagdolliteHeadState)state).Action = MagdolliteHeadAction.WaitingForAttackAnimation;
             Install(head, state, program);
             RunFrames(enemies, head, 80);
-            AssertTrue(!state.AnimationBusy,
-                $"Magdollite {direction} submerge releases animation wait");
+            AssertEqual(MagdolliteHeadAction.Submerged, ((MagdolliteHeadState)state).Action,
+                $"Magdollite {direction} submerge finishes the head's wait");
             AssertTrue(!enemies.Places.InUpdateOrder[1].Presence.HasAny(EnemyPresence.Hidden),
                 $"Magdollite {direction} submerge reveals pillar");
             AssertTrue(!enemies.Places.InUpdateOrder[2].Presence.HasAny(EnemyPresence.Hidden),
@@ -102,10 +107,12 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
                 CreateSystem(MagdollitePart.Head);
             enemies.Places.InUpdateOrder[1].Presence = enemies.Places.InUpdateOrder[1].Presence.Without(EnemyPresence.Hidden);
             enemies.Places.InUpdateOrder[2].Presence = enemies.Places.InUpdateOrder[2].Presence.Without(EnemyPresence.Hidden);
+            // The head waits for the emergence it starts (#2439).
+            ((MagdolliteHeadState)state).Action = MagdolliteHeadAction.WaitingForReturnAnimation;
             Install(head, state, program);
             RunFrames(enemies, head, 80);
-            AssertTrue(!state.AnimationBusy,
-                $"Magdollite {direction} emerge releases animation wait");
+            AssertEqual(MagdolliteHeadAction.Surfaced, ((MagdolliteHeadState)state).Action,
+                $"Magdollite {direction} emerge finishes the head's wait");
             AssertTrue(enemies.Places.InUpdateOrder[1].Presence.HasAny(EnemyPresence.Hidden),
                 $"Magdollite {direction} emerge hides pillar");
             AssertTrue(enemies.Places.InUpdateOrder[2].Presence.HasAny(EnemyPresence.Hidden),

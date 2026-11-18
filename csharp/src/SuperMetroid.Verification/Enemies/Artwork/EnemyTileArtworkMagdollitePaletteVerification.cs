@@ -89,9 +89,6 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
             "the Magdollite glow cycle does not change enemy health");
         AssertEqual(xBefore, untouched.Position.X.Whole,
             "the Magdollite glow cycle does not change enemy position");
-        AssertEqual(8,
-            enemies.MagdolliteBehavior.GlowStepCountdown,
-            "the Magdollite glow keeps the eight-tick cadence");
 
         document.Frames[1][0] = original with { Red = 32 };
         AssertThrows<InvalidDataException>(() => MagdollitePaletteCycleFile.Read(new MemoryStream(MagdollitePaletteCycleFile.Write(document))),

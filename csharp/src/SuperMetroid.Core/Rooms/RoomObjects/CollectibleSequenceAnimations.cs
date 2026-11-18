@@ -53,7 +53,7 @@ internal static class CollectibleSequenceAnimations
 
     /// <summary>The whole of <paramref name="segment"/>, once.</summary>
     private static Animation<CollectibleSequence> Once(CollectibleSequence segment) =>
-        new([new(segment, 0, Segments.Beats(segment).Count, 1)], AnimationEnd.Stops);
+        new([Segments.Whole(segment)], AnimationEnd.Stops);
 
     /// <summary>Shows <paramref name="draw"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<CollectibleImage, NoAnimationCue> Show(RoomObjectDraw draw, int duration) =>

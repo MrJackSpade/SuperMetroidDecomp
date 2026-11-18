@@ -324,6 +324,16 @@ internal static class EnemyTileArtworkVerification
         return 0;
     }
 
+    /// <summary>Runs only the installed Magdollite palette-cycle comparison against retail, with the room's lava glow.</summary>
+    [VerificationCommand("--magdollite-colors")]
+    internal static int MagdolliteColorsCommand()
+    {
+        var fixture = new EnemyTileFixture();
+        var (bus, _, colours, stock) = fixture;
+        VerifyInstalledMagdollitePaletteCycle(bus, colours, stock);
+        return 0;
+    }
+
     /// <summary>Runs only the installed Shitroid colour comparison against retail, with the live membrane pulse.</summary>
     [VerificationCommand("--shitroid-colors")]
     internal static int ShitroidColorsCommand()

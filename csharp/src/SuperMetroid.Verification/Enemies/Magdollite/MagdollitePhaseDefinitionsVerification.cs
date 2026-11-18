@@ -58,7 +58,8 @@ internal static class MagdollitePhaseDefinitionsVerification
         for (int phaseIndex = 0; phaseIndex < 9; phaseIndex++)
         {
             MagdollitePhaseDefinition phase = MagdolliteRiseStage.At(phaseIndex).Phase;
-            bodyState.BodyReachedApex = false;
+            // The overlay tracks an arm still rising.
+            bodyState.Action = MagdolliteBodyAction.Rising;
             bodyState.BodyPhase = MagdolliteRiseStage.At(phaseIndex);
             body.Position = body.Position.WithWholeY(0x0300);
             trackRise(overlay, (overlayState), RoomEnemyFrameFixtures.StandaloneSamus());
@@ -66,7 +67,6 @@ internal static class MagdollitePhaseDefinitionsVerification
                 $"Magdollite production overlay Y {phaseIndex}");
 
             bodyState.Action = MagdolliteBodyAction.Rising;
-            bodyState.BodyReachedApex = false;
             bodyState.BodyPhase = MagdolliteRiseStage.At(phaseIndex);
             bodyState.RiseDisplacementY = (phaseIndex < 8
                 ? checked((short)-phase.DistanceThreshold)

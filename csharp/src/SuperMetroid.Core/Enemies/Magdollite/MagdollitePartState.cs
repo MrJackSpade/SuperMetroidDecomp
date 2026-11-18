@@ -18,12 +18,6 @@ public abstract class MagdollitePartState
     internal AnimationPlayback<MagdolliteSegment> Playback { get; set; }
 
     /// <summary>
-    /// Whether an animation is active, set and cleared by the head's and the overlay's animation cues to gate the head's
-    /// transitions and the end of the overlay's throw.
-    /// </summary>
-    public bool AnimationBusy { get; internal set; }
-
-    /// <summary>
     /// The part's whole-pixel spawn room Y, captured before its setup moves it. The head and arm return to it, and
     /// the head's sink and surface cues are measured from it.
     /// </summary>

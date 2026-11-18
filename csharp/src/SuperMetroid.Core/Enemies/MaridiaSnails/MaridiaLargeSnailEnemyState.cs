@@ -33,9 +33,6 @@ public sealed class MaridiaLargeSnailEnemyState
     /// </summary>
     internal bool ShowsSpawnIdle { get; set; }
 
-    /// <summary>Set by the attack animation's cue when it ends.</summary>
-    public bool AttackAnimationFinished { get; internal set; }
-
     /// <summary>
     /// Set only during the rolling frames where Oum may turn into its next
     /// attack; it says nothing of Oum's hitboxes.

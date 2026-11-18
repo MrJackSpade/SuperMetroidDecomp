@@ -97,6 +97,10 @@ internal static class HibashiDefinitionsVerification
         object?[] twinHitboxArguments =
             [twinHitbox, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
 
+        // Both flames erupt, as their AI starts the eruption it plays (#2439).
+        foreach (int flame in (int[])[0, 2])
+            (programSystem.HibashiStates[flame] ?? throw new InvalidOperationException($"Verification requires programSystem.HibashiStates[{flame}].")).Action = HibashiAction.Active;
+
         // The visible stream needs 59 actor frames through its final cue; the margin proves both actors stay asleep.
         for (int frame = 0; frame < 70; frame++)
         {
@@ -114,8 +118,8 @@ internal static class HibashiDefinitionsVerification
         SoundEffectId eruption = HibashiDefinitions.EruptionSoundEffect;
         AssertEqual(2, programSystem.Audio.SoundRequests.Count(request => request.SoundEffect == eruption),
             "each Hibashi graphics program queues its eruption sound");
-        AssertTrue((programSystem.HibashiStates[0] ?? throw new InvalidOperationException("Verification requires programSystem.HibashiStates[0].")).ActivityFinished,
-            "Hibashi graphics program publishes finished activity");
+        AssertEqual(HibashiAction.Finished, (programSystem.HibashiStates[0] ?? throw new InvalidOperationException("Verification requires programSystem.HibashiStates[0].")).Action,
+            "Hibashi graphics program finishes the eruption");
         AssertEqual((ushort)0, programHitbox.Radius.X,
             "Hibashi finished program clears hitbox X radius");
         AssertEqual((ushort)0, programHitbox.Radius.Y,

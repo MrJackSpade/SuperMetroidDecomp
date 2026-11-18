@@ -67,13 +67,15 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemyPlace place, MaridiaLargeSnailEnemyState state) = Create();
             AssertTrue(ReferenceEquals(MaridiaLargeSnailAnimations.StartingWith(MaridiaLargeSnailSegment.FacingLeftIdle), state.Playback.Animation) &&
                 state.Playback.Place == AnimationPlace.StartOfAnimation, "Oum starts left-facing idle");
+            // Oum attacks as its AI starts the attack (#2439).
+            state.Action = MaridiaLargeSnailAction.Attacking;
             Start(place, state, attack);
             int[] holds = [16, 16, 16, 2, 3, 4, 2, 3, 1, 3, 2, 1, 18];
             AssertEqual(EnemyInstructionRunner.ExpectedFrames(MaridiaLargeSnailAnimationsConstants.Spritemaps(attack), holds),
                 EnemyInstructionRunner.ShownFrames(place, holds.Sum()), $"Oum {attack} poses");
-            AssertTrue(!state.AttackAnimationFinished, $"Oum {attack} is unfinished while its last pose holds");
+            AssertEqual(MaridiaLargeSnailAction.Attacking, state.Action, $"Oum {attack} is unfinished while its last pose holds");
             EnemyInstructionRunner.ShownFrames(place, 1);
-            AssertTrue(state.AttackAnimationFinished, $"Oum {attack} marks the attack finished");
+            AssertEqual(MaridiaLargeSnailAction.AttackFinished, state.Action, $"Oum {attack} finishes the attack");
             AssertEqual<SoundEffectId?>(MaridiaLargeSnailNativeValues.SplashSound,
                 enemies.Audio.LatestSound, $"Oum {attack} plays the library-two splash");
         }

@@ -28,7 +28,7 @@ internal static class FirefleaFlashAnimations
 
     /// <summary>The room's flash: its looks, over and over.</summary>
     internal static Animation<FirefleaFlashSegment> Flashing { get; } =
-        Animation<FirefleaFlashSegment>.Looping([new(FirefleaFlashSegment.Flashing, 0, Segments.Beats(FirefleaFlashSegment.Flashing).Count, 1)]);
+        Animation<FirefleaFlashSegment>.Looping([Segments.Whole(FirefleaFlashSegment.Flashing)]);
 
     /// <summary>Shows the look adding <paramref name="level"/> fade levels of grey for a flash's updates.</summary>
     private static AnimationBeat<FirefleaFlashShade, NoAnimationCue> Show(int level) =>

@@ -5,12 +5,12 @@ namespace SuperMetroid.Verification.Enemies.Hibashi;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks the Hibashi state each part owns: its captured population parameters and spawn height.</summary>
+/// <summary>Checks the Hibashi state each part owns: its spawn height, and the wait its population parameter names.</summary>
 internal static class HibashiOwnedStateVerification
 {
     /// <summary>
-    /// Initializes a graphics part and its collision part and confirms each keeps its own population parameters (the
-    /// full reset word and the part selector), and the graphics part keeps its spawn height.
+    /// Initializes a graphics part and its collision part and confirms the part selector, the graphics part's spawn height,
+    /// and that a finished eruption rests for parameter one's full word and the update it runs out on (#2439).
     /// </summary>
     internal static void VerifyHibashiOwnedState()
     {
@@ -29,9 +29,12 @@ internal static class HibashiOwnedStateVerification
         HibashiEnemyState graphicsState = enemies.HibashiStates[0] ?? throw new InvalidOperationException("The graphics part has no state.");
         AssertTrue(enemies.HibashiCollisionPartStates[0] is null && enemies.HibashiCollisionPartStates[1] is not null && enemies.HibashiStates[1] is null,
             "parameter two selects the collision part, which keeps only its animation");
-        AssertEqual(ushort.MaxValue + EnemyWaitDefinitions.RunOutUpdate, graphicsState.InactiveTimerReset, "the wait keeps parameter one's full word and the update it runs out on");
         AssertEqual(0x0120, graphicsState.SpawnY, "the graphics part keeps its spawn height");
         AssertEqual(HibashiAction.Inactive, graphicsState.Action, "the graphics part starts inactive");
+        graphicsState.Action = HibashiAction.Finished;
+        HibashiBehavior.RestHibashi(graphics, graphicsState);
+        AssertEqual((HibashiAction.Inactive, ushort.MaxValue + EnemyWaitDefinitions.RunOutUpdate), (graphicsState.Action, graphicsState.InactiveTimer),
+            "a finished eruption rests for parameter one's full word and the update it runs out on");
         Console.WriteLine("Hibashi owned state: both parts' parameters and the spawn height match.");
     }
 

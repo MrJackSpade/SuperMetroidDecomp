@@ -23,12 +23,9 @@ internal static class BabyTurtleAnimations
             Cue(new BabyTurtleCue(K.Crawl)),
             Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsPlanted, 10),
             Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsPushing, 10),
-            Cue(new BabyTurtleCue(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsTucked, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsReaching, 10),
-            Cue(new BabyTurtleCue(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsPlanted, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsPushing, 10),
+        ],
+        [P.CrawlingLeftLegsTrailing] =
+        [
             Cue(new BabyTurtleCue(K.Crawl)),
             Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsTucked, 10),
             Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsReaching, 10),
@@ -76,12 +73,9 @@ internal static class BabyTurtleAnimations
             Cue(new BabyTurtleCue(K.Crawl)),
             Show(EnemyFrameId.TurtleBabyCrawlingRightLegsPlanted, 10),
             Show(EnemyFrameId.TurtleBabyCrawlingRightLegsPushing, 10),
-            Cue(new BabyTurtleCue(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsTucked, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsReaching, 10),
-            Cue(new BabyTurtleCue(K.Crawl)),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsPlanted, 10),
-            Show(EnemyFrameId.TurtleBabyCrawlingRightLegsPushing, 10),
+        ],
+        [P.CrawlingRightLegsTrailing] =
+        [
             Cue(new BabyTurtleCue(K.Crawl)),
             Show(EnemyFrameId.TurtleBabyCrawlingRightLegsTucked, 10),
             Show(EnemyFrameId.TurtleBabyCrawlingRightLegsReaching, 10),
@@ -106,14 +100,21 @@ internal static class BabyTurtleAnimations
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>The strides a crawl takes with its legs planting and pushing before its strides with them trailing (#2439).</summary>
+    private const int PushingStrides = 2;
+
+    /// <summary>
+    /// The animation that starts at each segment an owner can start or restart at. A crawl strides
+    /// <see cref="PushingStrides"/> times with its legs planting and pushing, then with them trailing, and ends at the check
+    /// that crawls on or turns the baby round.
+    /// </summary>
     internal static IReadOnlyDictionary<BabyTurtleSegment, Animation<BabyTurtleSegment>> StartingAt { get; } = new Dictionary<BabyTurtleSegment, Animation<BabyTurtleSegment>>
     {
-        [P.CrawlingLeft] = new([Segments.Whole(P.CrawlingLeft)], AnimationEnd.Holds),
+        [P.CrawlingLeft] = new([Segments.Repeated(P.CrawlingLeft, PushingStrides), Segments.Whole(P.CrawlingLeftLegsTrailing)], AnimationEnd.Holds),
         [P.Spinning] = Animation<BabyTurtleSegment>.Looping([Segments.Whole(P.Spinning)]),
         [P.HidingLeft] = new([Segments.Whole(P.HidingLeft)], AnimationEnd.Holds),
         [P.LeaveShell] = new([Segments.Whole(P.LeaveShell)], AnimationEnd.Holds),
-        [P.CrawlingRight] = new([Segments.Whole(P.CrawlingRight)], AnimationEnd.Holds),
+        [P.CrawlingRight] = new([Segments.Repeated(P.CrawlingRight, PushingStrides), Segments.Whole(P.CrawlingRightLegsTrailing)], AnimationEnd.Holds),
         [P.HidingRight] = new([Segments.Whole(P.HidingRight)], AnimationEnd.Holds),
     };
 

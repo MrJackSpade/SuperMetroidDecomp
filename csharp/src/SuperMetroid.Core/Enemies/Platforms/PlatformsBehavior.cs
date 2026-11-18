@@ -46,15 +46,11 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(PlatformAnimations.StartingWith(PlatformAnimationChoices.SelectAnimation(
             state.Kind, axis: Axis.Horizontal, state.XMovement)), AnimationPlace.StartOfAnimation);
 
-        // The spawn settings name the speed the platform moves at.
-        state.Speed = settings.Speed;
-
         state.YMovement = PlatformVerticalMovement.Rising;
         state.PreviousYMovement = PlatformVerticalMovement.Rising;
         state.VerticalArt = null;
         state.RestingY = place.Position.Y.Whole + PlatformMotionDefinitions.RestingDepthBelowPlacement;
         state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
-        state.MaximumYSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(settings.VerticalAccelerationUpdates);
     }
 
     /// <summary>Runs the Tripper's and the suspensor platform's main AI.</summary>
@@ -90,7 +86,9 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         PlatformEnemyState state,
         RoomLevelData level)
     {
-        SignedSixteenSixteen displacement = state.XMovement == HorizontalDirection.Left ? -state.Speed : state.Speed;
+        // The spawn settings name the speed the platform moves at.
+        SignedSixteenSixteen speed = place.SpawnSettings<PlatformSpawnSettings>().Speed;
+        SignedSixteenSixteen displacement = state.XMovement == HorizontalDirection.Left ? -speed : speed;
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, displacement))
             return;
 
@@ -146,7 +144,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         SetPlatformVerticallyMovingAnimation(place, state);
-        IncrementAndClampPlatformYSpeed(state);
+        IncrementAndClampPlatformYSpeed(place, state);
         SignedSixteenSixteen displacement = state.YSpeedCurvePlace.Speed.Negative;
         if (!_terrain.MoveEnemyVertically(level, place, displacement))
             return;
@@ -169,7 +167,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         int preHorizontalX)
     {
         // Sinking always accelerates.
-        IncrementAndClampPlatformYSpeed(state);
+        IncrementAndClampPlatformYSpeed(place, state);
 
         // Add the whole-pixel horizontal step to Samus's extra displacement; fractional
         // displacement is deliberately untouched because this enemy carries only whole pixels.
@@ -191,13 +189,15 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Steps the place one mark on along the quadratic speed curve, holding it at its variant's cap.
+    /// Steps the place one mark on along the quadratic speed curve, holding it at the cap its spawn settings name: as many
+    /// marks on as their vertical acceleration updates.
     /// </summary>
-    internal static void IncrementAndClampPlatformYSpeed(PlatformEnemyState state)
+    internal static void IncrementAndClampPlatformYSpeed(RoomEnemyPlace place, PlatformEnemyState state)
     {
+        QuadraticSpeedCurvePlace cap = QuadraticSpeedCurvePlace.FromMarks(place.SpawnSettings<PlatformSpawnSettings>().VerticalAccelerationUpdates);
         state.YSpeedCurvePlace += QuadraticSpeedCurvePlace.OneMark;
-        if (state.YSpeedCurvePlace >= state.MaximumYSpeedCurvePlace)
-            state.YSpeedCurvePlace = state.MaximumYSpeedCurvePlace;
+        if (state.YSpeedCurvePlace >= cap)
+            state.YSpeedCurvePlace = cap;
     }
 
     /// <summary>Starts moving art once per moving phase, whatever art a wall has started since (#2145).</summary>

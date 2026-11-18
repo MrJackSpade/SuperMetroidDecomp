@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
-/// <summary>A Magdollite head's state: what it is doing, whether it waits for its arm to land, and the speed its arm moves at.</summary>
+/// <summary>A Magdollite head's state: what it is doing and the speed its arm moves at.</summary>
 public sealed class MagdolliteHeadState : MagdollitePartState
 {
     /// <summary>Creates the head's state, starting in <paramref name="action"/>.</summary>
@@ -13,8 +13,29 @@ public sealed class MagdolliteHeadState : MagdollitePartState
     /// <summary>What the head is doing.</summary>
     public MagdolliteHeadAction Action { get; internal set; }
 
-    /// <summary>Whether the head is not yet ready to emerge: set by the head after submerging and cleared by the arm on landing so the head may emerge.</summary>
-    public bool HeadWaitsForBodyLanding { get; internal set; }
+    /// <summary>
+    /// Whether the head is submerging: its submerge animation plays or has just finished. Its overlay starts tracking the arm
+    /// once it is.
+    /// </summary>
+    internal bool IsSubmerging => Action is MagdolliteHeadAction.WaitingForAttackAnimation or MagdolliteHeadAction.Submerged;
+
+    /// <summary>The arm has landed back at its origin (#2439): the head emerges on its next update.</summary>
+    /// <exception cref="InvalidOperationException">The head is not waiting for its arm.</exception>
+    internal void ArmLanded() => Action = Action == MagdolliteHeadAction.WaitingForBodyLanding
+        ? MagdolliteHeadAction.ArmLanded
+        : throw new InvalidOperationException($"A Magdollite's arm landed while its head was {Action}.");
+
+    /// <summary>The submerge's finishing cue (#2439): the head has submerged, and its next update releases its arm.</summary>
+    /// <exception cref="InvalidOperationException">The head is not waiting for its submerge.</exception>
+    internal void FinishSubmerge() => Action = Action == MagdolliteHeadAction.WaitingForAttackAnimation
+        ? MagdolliteHeadAction.Submerged
+        : throw new InvalidOperationException($"A Magdollite head finished submerging while it was {Action}.");
+
+    /// <summary>The emergence's finishing cue (#2439): the head has surfaced, and its next update idles it.</summary>
+    /// <exception cref="InvalidOperationException">The head is not waiting for its emergence.</exception>
+    internal void FinishEmerge() => Action = Action == MagdolliteHeadAction.WaitingForReturnAnimation
+        ? MagdolliteHeadAction.Surfaced
+        : throw new InvalidOperationException($"A Magdollite head finished emerging while it was {Action}.");
 
     /// <summary>
     /// The head's speed in pixels per update, from its spawn settings, at which its arm rises and sinks: the arm reads

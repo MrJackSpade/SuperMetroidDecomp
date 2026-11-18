@@ -70,8 +70,6 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         place.SetSpeciesState(state);
         state.SpawnPosition = place.Position.Whole;
         place.Presence = place.Presence.With(EnemyPresence.Hidden);
-        SignedSixteenSixteen flightSpeed = place.SpawnSettings<NorfairPipeBugSpawnSettings>().Speed;
-        state.FlightSpeeds = new EnemyLinearSpeed(flightSpeed);
         state.FormationCounter = 0;
         state.Playback = EnemyAnimationPlayback.Start(place, PipeBugAnimations.StartingWith(PipeBugSegment.GametRisingLeft));
     }
@@ -88,8 +86,6 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? PipeBugSegment.GeegaFlyingLeft
                 : PipeBugSegment.GeegaFlyingRight));
 
-        // The spawn settings name the speed the bug flies at.
-        state.FlightSpeed = place.SpawnSettings<YellowPipeBugSpawnSettings>().Speed;
         state.ArcCompleted = false;
     }
 
@@ -161,8 +157,10 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 ResetNorfairPipeBugIfOffScreen(place, state, camera);
                 return;
             case NorfairPipeBugAction.Fly:
+                // A departed member flies at its spawn settings' speed toward Samus's side.
+                SignedSixteenSixteen flightSpeed = place.SpawnSettings<NorfairPipeBugSpawnSettings>().Speed;
                 AddPipeBugLinearVelocity(place, axis: Axis.Horizontal,
-                    state.FlightDirection == HorizontalDirection.Left ? state.FlightSpeeds.Negative : state.FlightSpeeds.Positive);
+                    state.FlightDirection == HorizontalDirection.Left ? -flightSpeed : flightSpeed);
                 ResetNorfairPipeBugIfOffScreen(place, state, camera);
                 return;
             default:
@@ -469,7 +467,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> camera,
         HorizontalDirection direction)
     {
-        AddYellowPipeBugHorizontalVelocity(place, state, direction);
+        AddYellowPipeBugHorizontalVelocity(place, direction);
         if (ResetYellowPipeBugIfOffScreen(place, state, camera))
             return;
         if (state.ArcCompleted)
@@ -499,7 +497,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (ResetYellowPipeBugIfOffScreen(place, state, camera))
             return;
-        AddYellowPipeBugHorizontalVelocity(place, state, direction);
+        AddYellowPipeBugHorizontalVelocity(place, direction);
         if (state.ArcRising)
         {
             // The game moves the place back and ends the rise when it would pass the curve's start, holding it there; the
@@ -555,13 +553,13 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         return true;
     }
 
-    /// <summary>Moves the bug its flight speed toward <paramref name="direction"/>.</summary>
+    /// <summary>Moves the bug its spawn settings' flight speed toward <paramref name="direction"/>.</summary>
     private static void AddYellowPipeBugHorizontalVelocity(
         RoomEnemyPlace place,
-        YellowPipeBugState state,
         HorizontalDirection direction)
     {
-        place.Position = place.Position.AdvanceX(direction == HorizontalDirection.Left ? -state.FlightSpeed : state.FlightSpeed);
+        SignedSixteenSixteen flightSpeed = place.SpawnSettings<YellowPipeBugSpawnSettings>().Speed;
+        place.Position = place.Position.AdvanceX(direction == HorizontalDirection.Left ? -flightSpeed : flightSpeed);
     }
 
     /// <summary>Adds a linear-speed velocity to one axis, carrying the fraction into the whole.</summary>

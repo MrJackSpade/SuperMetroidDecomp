@@ -233,7 +233,8 @@ internal static class NativeEnemyAnimationOracle
             }
             (List<AnimationPhase<TSegment>> phases, AnimationEnd end) = Linearize(lists, start);
             VerificationAssertions.AssertTrue(startingAt.TryGetValue(start, out Animation<TSegment>? typed), $"an animation starts at {start}");
-            VerificationAssertions.AssertTrue(typed!.Phases.SequenceEqual(phases), $"{start}'s phases follow its native lists");
+            VerificationAssertions.AssertTrue(typed!.Phases.SequenceEqual(phases),
+                $"{start}'s phases follow its native lists: typed [{string.Join(", ", typed.Phases)}], native [{string.Join(", ", phases)}]");
             VerificationAssertions.AssertEqual(end, typed.End, $"{start}'s end follows its native lists");
         }
     }
@@ -742,11 +743,11 @@ internal static class NativeEnemyAnimationOracle
                 && controls.TrueForAll(control => control.Kind == NativeEnemyControlKind.WrittenOutRepeat))
             {
                 // A list that writes its whole run out again straight after itself (#2337) plays the segment once more: the
-                // words from here repeat the run's word for word.
+                // words from here repeat the run's word for word, a frame record's spritemap perhaps naming another
+                // spritemap of the same picture (#2369, #2439: the Tripper's hover shows its long jet from two records).
                 int run = writtenRun ??= unchecked((ushort)(cursor - entry));
-                if (Enumerable.Range(0, run / 2).All(word =>
-                        cartridge.ReadCartridgeWord((int)new SnesAddress(bank, unchecked((ushort)(cursor + 2 * word))))
-                        == cartridge.ReadCartridgeWord((int)new SnesAddress(bank, unchecked((ushort)(entry + 2 * word))))))
+                ushort copyStart = cursor;
+                if (Enumerable.Range(0, run / 2).All(word => RepeatsWord(copyStart, word)))
                 {
                     controls.Add(new(NativeEnemyControlKind.WrittenOutRepeat, beat, null, null, cursor));
                     cursor = unchecked((ushort)(cursor + run));
@@ -793,14 +794,17 @@ internal static class NativeEnemyAnimationOracle
                     // nothing else (#2250). It stands too for a frame followed by a goto back to that frame (#2068, #2096):
                     // the list shows it again and again, for good, whatever duration it names, so the segment rests on it
                     // at the goto, as at a sleep, whether the frame follows beats before it or is its list's one record,
-                    // which the goto returns to (#2353).
+                    // which the goto returns to (#2353). It stands too for a frame after which the owner always leaves the list
+                    // (#2439: the Morph Ball eye's half-open lid, which its tracking replaces on the next update): the list's
+                    // play never reaches what follows, so the frame shows until the owner plays another.
                     VerificationAssertions.AssertEqual(pictured, spritemap(held.Shown), $"{at}: held frame's spritemap");
                     ushort afterHeldCursor = unchecked((ushort)(cursor + 4));
                     int afterHeld = (int)new SnesAddress(bank, afterHeldCursor);
                     NativeEnemyListDefinitions.WordKind followedBy = NativeEnemyListDefinitions.Classify(cartridge.ReadCartridgeWord(afterHeld));
                     bool loopsOnItself = followedBy == NativeEnemyListDefinitions.WordKind.GoTo && cartridge.ReadCartridgeWord(afterHeld + 2) == cursor;
-                    VerificationAssertions.AssertTrue(followedBy == NativeEnemyListDefinitions.WordKind.Sleep || loopsOnItself,
-                        $"{at}: a held frame's native frame is followed by its sleep, or by a goto back to the frame");
+                    VerificationAssertions.AssertTrue(followedBy == NativeEnemyListDefinitions.WordKind.Sleep || loopsOnItself
+                            || ownerLeavesAt?.Invoke(afterHeldCursor) == true,
+                        $"{at}: a held frame's native frame is followed by its sleep, by a goto back to the frame, or by where the owner leaves the list");
                     addresses.Add(cursor);
                     cursor = afterHeldCursor;
                     if (loopsOnItself)
@@ -948,6 +952,20 @@ internal static class NativeEnemyAnimationOracle
         // rule where it has one, otherwise the record of the frame the import's repeated records name (#2272).
         ushort Pictured(ushort spritemapWord) =>
             picturedAt?.Invoke(spritemapWord) ?? EnemyFrameCartridgeLookupToolingConstants.OwnWord(bank, spritemapWord);
+
+        // Whether word <paramref name="word"/> of the copy starting at <paramref name="copyStart"/> repeats the run's: the
+        // same word, or the spritemap of a frame record whose first copy pictures the same.
+        bool RepeatsWord(ushort copyStart, int word)
+        {
+            ushort copied = cartridge.ReadCartridgeWord((int)new SnesAddress(bank, unchecked((ushort)(copyStart + 2 * word))));
+            ushort original = cartridge.ReadCartridgeWord((int)new SnesAddress(bank, unchecked((ushort)(entry + 2 * word))));
+            if (copied == original)
+                return true;
+            ushort record = unchecked((ushort)(entry + 2 * (word - 1)));
+            int recordBeat = addresses.IndexOf(record);
+            return word > 0 && recordBeat >= 0 && beats[recordBeat] is AnimationBeat<TFrame, TEvent>.Frame
+                && Pictured(copied) == Pictured(original);
+        }
     }
 }
 

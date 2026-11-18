@@ -101,7 +101,7 @@ internal static class GunshipDustAnimations
 
     /// <summary>Plays every beat of <paramref name="segment"/> once, then rests: the cloud's last beat deletes it.</summary>
     private static Animation<GunshipDustSegment> Once(GunshipDustSegment segment) =>
-        new([new(segment, 0, Segments.Beats(segment).Count, 1)], AnimationEnd.Holds);
+        new([Segments.Whole(segment)], AnimationEnd.Holds);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, GunshipDustCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, GunshipDustCue>.Frame(frame, duration);

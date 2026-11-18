@@ -40,6 +40,11 @@ public readonly record struct TrigonometryAngle : IComparable<TrigonometryAngle>
     /// </summary>
     public int StepsIntoHalfTurn => RawValue % HalfTurn.RawValue;
 
+    /// <summary>
+    /// Whether this angle lies in the first or the third quarter of the turn: less than a quarter turn into its half (#2439).
+    /// </summary>
+    public bool IsInFirstOrThirdQuarter => StepsIntoHalfTurn < QuarterTurn.RawValue;
+
     /// <summary>Whether this angle lies in the second half of the turn, where the sine wave is negative.</summary>
     public bool IsInSecondHalf => RawValue >= HalfTurn.RawValue;
 

@@ -113,5 +113,5 @@ internal static class ProjectileTrailSparkleAnimations
 
     /// <summary>The animation that plays all of <paramref name="segment"/> once and ends.</summary>
     private static Animation<ProjectileTrailSegment> PlayedOnce(ProjectileTrailSegment segment) =>
-        new([new AnimationPhase<ProjectileTrailSegment>(segment, 0, Segments.Beats(segment).Count, 1)], AnimationEnd.Stops);
+        new([Segments.Whole(segment)], AnimationEnd.Stops);
 }

@@ -5,8 +5,10 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// </summary>
 public enum MagdolliteBodyAction
 {
-    /// <summary>Holds the arm dormant until the head clears its not-emerged flag, then initializes growth at its spawn Y.</summary>
+    /// <summary>Holds the arm dormant below its origin until its head releases it.</summary>
     Dormant,
+    /// <summary>Released by its head (#2439): the next update returns the arm to its origin and starts it rising.</summary>
+    Released,
     /// <summary>Rises at the head's speed and extends pillar segments until reaching Samus's height or the maximum rise.</summary>
     Rising,
     /// <summary>Holds the grown arm still at its apex while the hand throws.</summary>

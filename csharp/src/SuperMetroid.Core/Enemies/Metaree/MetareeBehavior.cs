@@ -37,7 +37,6 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new MetareeEnemyState(MetareeAction.Idling)
         {
             BurrowTimer = 0,
-            AttackReady = false,
             YVelocity = 0,
         };
         place.SetSpeciesState(state);
@@ -60,7 +59,10 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case MetareeAction.PreparingAttack:
-                RunMetareePreparation(place, state);
+                return;
+
+            case MetareeAction.AttackReady:
+                LaunchMetareeAttack(place, state);
                 return;
 
             case MetareeAction.LaunchedAttack:
@@ -95,13 +97,9 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = MetareeAction.PreparingAttack;
     }
 
-    /// <summary>Consumes the preparation animation's ready flag, starts the dive animation, and publishes the dive sound.</summary>
-    internal void RunMetareePreparation(RoomEnemyPlace place, MetareeEnemyState state)
+    /// <summary>Launches the attack its preparation readied: starts the dive animation and publishes the dive sound.</summary>
+    internal void LaunchMetareeAttack(RoomEnemyPlace place, MetareeEnemyState state)
     {
-        if (!state.AttackReady)
-            return;
-
-        state.AttackReady = false;
         StartMetareeAnimation(place, state, SkreeMetareeSegment.MetareeDiving);
         state.Action = MetareeAction.LaunchedAttack;
 
@@ -172,9 +170,20 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             static (MetareeEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {
-                SkreeMetareeCues.Apply(place, cue, () => state.AttackReady = true);
+                SkreeMetareeCues.Apply(place, cue, () => ReadyMetareeAttack(state));
                 return null;
             });
+
+    /// <summary>
+    /// The launch crouch's finishing cue (#2439): the attack is ready, and the Metaree launches it on its next update.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The Metaree is not preparing an attack.</exception>
+    private static void ReadyMetareeAttack(MetareeEnemyState state)
+    {
+        if (state.Action != MetareeAction.PreparingAttack)
+            throw new InvalidOperationException($"A Metaree's attack was readied while it was {state.Action}.");
+        state.Action = MetareeAction.AttackReady;
+    }
 
     /// <summary>Spawns four metal debris actors in the dying Metaree's colours before common shot death clears them.</summary>
     internal EnemyShotReaction MetareeShotReaction => field ??= new()

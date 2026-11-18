@@ -35,13 +35,13 @@ internal static class StationAnimationDefinitions
             [StationAnimation.Missile] = Looping(StationAnimation.Missile),
             [StationAnimation.SaveIdle] = Looping(StationAnimation.SaveIdle),
             [StationAnimation.SaveFlash] = new(
-                [new(StationAnimation.SaveFlash, 0, Segments.Beats(StationAnimation.SaveFlash).Count, SaveStationAnimationDefinitions.SaveAnimationLoops)],
+                [Segments.Repeated(StationAnimation.SaveFlash, SaveStationAnimationDefinitions.SaveAnimationLoops)],
                 AnimationEnd.Stops),
         };
 
     /// <summary>The whole of <paramref name="segment"/>, again and again.</summary>
     private static Animation<StationAnimation> Looping(StationAnimation segment) =>
-        Animation<StationAnimation>.Looping([new(segment, 0, Segments.Beats(segment).Count, 1)]);
+        Animation<StationAnimation>.Looping([Segments.Whole(segment)]);
 
     /// <summary>Shows <paramref name="draw"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<StationDraw, NoAnimationCue> Show(StationDraw draw, int duration) =>

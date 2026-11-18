@@ -39,7 +39,7 @@ internal static class NuclearWaffleDefinitions
     /// its links trailing.
     /// </summary>
     internal static readonly NuclearWaffleSweepDefinition BackwardSweep =
-        new(SweepCenter.TurnedBySteps(SweepReachSteps), SweepCenter.TurnedBySteps(-SweepReachSteps), -SegmentPitchSteps, -SegmentPitchSteps / 2,
+        new(SweepCenter.TurnedBySteps(SweepReachSteps), SweepCenter.TurnedBySteps(-SweepReachSteps), SegmentPitchSteps, SegmentPitchSteps / 2,
             SweepCenter.TurnedBySteps(TurnReachSteps), SweepCenter.TurnedBySteps(-TurnReachSteps));
 
     /// <summary>The forward sweep: the mirror of <see cref="BackwardSweep"/>.</summary>

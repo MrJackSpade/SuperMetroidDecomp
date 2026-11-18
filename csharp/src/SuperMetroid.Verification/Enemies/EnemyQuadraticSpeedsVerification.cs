@@ -101,11 +101,11 @@ internal static class EnemyQuadraticSpeedsVerification
         AssertEqual(QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(wingPlace), KiHunterMotionDefinitions.DetachedWingClimb.StartPlace,
             "the Ki-Hunter's detached wings climb 32 pixels at a mark and a half a pass");
 
-        var wings = new Func<QuadraticSpeedCurvePlace, EnemySpeedSign, int>(KiHunterBehavior.DetachedWingCoarseSpeed);
+        var wings = new Func<QuadraticSpeedCurvePlace, EnemySpeedSign, AngularSpeed>(KiHunterBehavior.DetachedWingTurn);
         for (int index = 0; index < QuadraticSpeedCurveDefinitions.MarkCount; index++)
         for (int low = 0; low < 256; low++)
         foreach (EnemySpeedSign sign in signs)
-            AssertEqual(EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, index, sign), (int)unchecked((ushort)wings(QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(index * 256 + low), sign)),
+            AssertEqual(EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, index, sign), (int)unchecked((ushort)wings(QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(index * 256 + low), sign).FractionsOfStep),
                 "KiHunter high-byte index and coarse wing orbit speed");
 
         var addMaw = new Action<YappingMawEnemyState>(YappingMawBehavior.AddYappingMawQuadraticSpeed);

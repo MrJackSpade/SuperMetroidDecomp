@@ -7,8 +7,13 @@ public enum MagdolliteOverlayAction
 {
     /// <summary>Waits for the head to begin forming the base pillar before tracking arm growth.</summary>
     WaitingForAttack,
-    /// <summary>Waits for the throw animation to finish, restores the captured hand position, and starts arm shrinkage.</summary>
+    /// <summary>Holds the head's reach while the throw animation plays.</summary>
     WaitingForThrowAnimation,
+    /// <summary>
+    /// The throw has finished, as its cue says (#2439): the next update restores the captured hand position and starts arm
+    /// shrinkage.
+    /// </summary>
+    Thrown,
     /// <summary>Follows the growing arm cap and, at the apex, selects a Samus-facing throw animation and captures its origin.</summary>
     TrackingRisingBody,
     /// <summary>Follows the shrinking arm cap until the head returns to idle.</summary>

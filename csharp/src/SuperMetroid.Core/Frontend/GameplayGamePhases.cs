@@ -62,7 +62,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         // The refill's locked Samus holds the escape timer (#2504); only the completion update, whose gameplay runs with
         // her control restored, counts it, so a countdown can run out only there, and the time-up it starts begins after
         // that update, as main gameplay's begins after its own.
-        if (outcome == RuntimeFrameOutcome.TimeUp)
+        if (outcome.StartsTimeUp)
             session.BeginTimeUp();
     }
 
@@ -113,22 +113,25 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         // Every gameplay update runs with Samus, and no update replaces her (#2503).
         SamusState samus = session.GameplayRuntime.Player.IntroducedSamus;
         bool samusInputLockedAtFrameStart = samus.Control.InputLocked;
+        // The time-up's white-out runs this update behind it, owning the update in main gameplay's place (#2509).
+        bool runsBehindTimeUp = session.GameState == SuperMetroidGameState.TimeUp;
         RuntimeFrameOutcome outcome = session.GameplayRuntime.StepFrame(controllerInput,
-            new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { RunsLowHealthCheck = true } });
+            new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { RunsLowHealthCheck = true, RunsBehindTimeUp = runsBehindTimeUp } });
         HandleSaveStationPersistence();
         session.display.PublishGameplay(session.GameplayRuntime);
         session.HandleGunshipLandingSave();
-        if (RouteOutOfHealth(samus))
+        if (RouteOutOfHealth(samus, outcome.OutOfHealth))
         {
             // The death trigger enters the next sequence at the end of this update's completed gameplay.
             // Nothing else may replace it on the trigger
             // frame—not pause, an elevator handoff, or a pending ordinary door.
         }
-        else if (outcome == RuntimeFrameOutcome.TimeUp)
+        else if (outcome.StartsTimeUp)
         {
             // The escape countdown started the time-up during Samus's update, after her movement's
             // door hits and before pause-check, which then sees the game no longer in main gameplay.
-            // A death trigger on the same update takes the frame, and the time-up it started never begins.
+            // The update's out-of-health check, later still, withholds the death of a Samus out of health without
+            // reserves (#2509); only the AUTO reserves' refill takes the update from the time-up it started.
             session.BeginTimeUp();
         }
         else if (session.GameplayRuntime.EnemyFrameResults.LastEnemyFrame.Gunship == GunshipFrameEvent.EscapeTakeoffCompleted)
@@ -172,27 +175,35 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         }
     }
 
-    /// <summary>Freezes gameplay and enters the reserve tanks' refill or death after Samus reaches zero health.</summary>
-    private bool RouteOutOfHealth(SamusState samus)
+    /// <summary>
+    /// Freezes gameplay and enters the reserve tanks' refill or death where the update's out-of-health check sent Samus.
+    /// </summary>
+    /// <returns>Whether the refill or the death takes the update.</returns>
+    private bool RouteOutOfHealth(SamusState samus, SamusOutOfHealthRoute route)
     {
-        if (samus.Health > 0)
-            return false;
-
-        session.GameplayRuntime.Freeze.GameplayTimeFrozen = true;
-        if (samus.ReserveTankMode == ReserveTankMode.Auto && samus.ReserveEnergy != 0)
+        switch (route)
         {
-            session.reserveRecovery.Begin(samus);
-            session.Enter(SuperMetroidGameState.ReserveTankRefill);
+            case SamusOutOfHealthRoute.HasHealth:
+                return false;
+            case SamusOutOfHealthRoute.DeathWithheld:
+                // The time-up owns the update: its white-out goes on with Samus out of health, and nothing freezes.
+                return false;
+            case SamusOutOfHealthRoute.ReserveRefill:
+                session.GameplayRuntime.Freeze.GameplayTimeFrozen = true;
+                session.reserveRecovery.Begin(samus);
+                session.Enter(SuperMetroidGameState.ReserveTankRefill);
+                return true;
+            case SamusOutOfHealthRoute.Death:
+                session.GameplayRuntime.Freeze.GameplayTimeFrozen = true;
+                // Samus's death disables colour effects and locks her input and drawing.
+                // Locking the player out is the shared representation;
+                // the death sequence's steps own colour and animation side effects.
+                samus.Control.LockOutPlayer();
+                session.Enter(DeathSequenceStep.FinalGameplayPass);
+                return true;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(SamusOutOfHealthRoute)} {route}.");
         }
-        else
-        {
-            // Samus's death disables colour effects and locks her input and drawing.
-            // Locking the player out is the shared representation;
-            // the death sequence's steps own colour and animation side effects.
-            samus.Control.LockOutPlayer();
-            session.Enter(DeathSequenceStep.FinalGameplayPass);
-        }
-        return true;
     }
 
     /// <summary>Consumes a confirmed station save and writes the selected save slot.</summary>

@@ -104,7 +104,7 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
         bool doorEntered = session.GameplayRuntime.RoomLoader.HasPendingDoorTransition;
         if (doorEntered)
             session.Enter(DoorTransitionStep.EnteringDoor);
-        bool timeUp = outcome == RuntimeFrameOutcome.TimeUp;
+        bool timeUp = outcome.StartsTimeUp;
         if (timeUp)
             session.BeginTimeUp();
         if (!session.StepScreenFadeOut())

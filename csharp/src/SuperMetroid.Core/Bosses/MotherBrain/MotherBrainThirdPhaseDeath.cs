@@ -391,7 +391,7 @@ internal sealed class MotherBrainThirdPhaseDeath
             return false;
 
         // Once the corpse has rotted away the brain is hidden, stops animating and loses its frames' hitboxes, and
-        // the music stops and the escape music is queued with the ordinary eight-frame delay. The pause's first update is
+        // the music stops and the escape music is queued after the short wait every queued song takes. The pause's first update is
         // this same update.
         RoomEnemyPlace brain = Encounter.Head;
         brain.Presence = brain.Presence.With(EnemyPresence.Hidden);
@@ -452,7 +452,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         // The last readying update starts the escape: the escape music, the quake held indefinitely, four colour
         // effects and the escape text. The door's
         // fragments are pre-coloured in the exploded door's colours, so its colour load is not kept (#1544).
-        requests.EscapeMusicTrackQueued = true;        // Eight-frame-delay escape song.
+        requests.EscapeMusicTrackQueued = true;
         requests.StartIndefiniteEarthquake(MotherBrainDeathDefinitions.EscapeEarthquake);
         requests.EscapeColourEffectRequests.Add(ColourEffectId.TourianShutterRedFlashing);
         requests.EscapeColourEffectRequests.Add(ColourEffectId.TourianBackgroundRedFlashing);

@@ -899,8 +899,9 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // in markup and a hardware owner are English.
         Expect("class P { /// <summary>Runs the controller input check; reads the player's controller; the helper text; calls the elevator; runs <see cref=\"Helper\"/>.</summary>\nint F => 0; int Helper => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: runs the placement helper.</summary>\n[CompatibilityService(\"helper\")] class Helper { }");
-        // The Japanese and North American release named with no difference from the European release stated in its
-        // paragraph, outside hardware owners (#2192), in line comments across their lines, documentation and literals.
+        // A release named, outside hardware owners (#2192, #2472): the Japanese and North American release, the European
+        // release and a Japan/USA region, with or without the other release beside it, in line comments across their lines,
+        // documentation and literals.
         Expect("class P { void Run() { // The Japanese and North American release measures angles in 256ths of a turn.\n } }",
             "('Japanese and North American')");
         Expect("class P { void Run() {\n // The Japanese and North American release reloads the burrow duration every airborne frame.\n // It becomes the whole burrow duration only on the landing frame.\n } }",
@@ -908,15 +909,13 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { /// <summary>The Japanese and North American release rises by half a pixel.</summary>\nint F => 0; }",
             "('Japanese and North American')");
         Expect("class P { string Name => \"The Japanese and North American release moves it.\"; }", "('Japanese and North American')");
-        // A paragraph ends at a blank line.
-        Expect("class P { void Run() {\n // The Japanese and North American release moves it.\n\n // The European release uses the fraction.\n } }",
+        Expect("class P { void Run() { // The Japanese and North American release takes 80; the European release takes 99.\n } }",
             "('Japanese and North American')");
-        // A paragraph that sets the two releases side by side, across a comment's lines too, the European release alone and
-        // a hardware owner are English.
-        Expect("class P { void Run() { // The Japanese and North American release takes 80; the European release takes 99.\n } }");
-        Expect("class P { void Run() {\n // The speed is authored with a fraction, but the Japanese and North American release moves it by whole pixels;\n // only the European release uses the fraction.\n } }");
-        Expect("class P { /// <summary>The first flame waits 120 frames; the European release waits 96.</summary>\nint F => 0; }");
-        Expect(CompatibilityService + "/// <summary>Evidence: the Japanese and North American release measures angles.</summary>\n[CompatibilityService(\"angle\")] class Angle { }");
+        Expect("class P { /// <summary>The first flame waits 120 frames; the European release waits 96.</summary>\nint F => 0; }", "('European')");
+        Expect("class P { /// <summary>Where the eleven spawn points lie (Japan/USA layout).</summary>\nint F => 0; }", "('Japan/USA')");
+        // The Japanese text and a hardware owner are English.
+        Expect("class P { /// <summary>The escape text, then the Japanese subtitle.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the Japanese and North American release measures angles; the European release takes 99.</summary>\n[CompatibilityService(\"angle\")] class Angle { }");
         // A speed row, spaced or hyphenated, outside hardware owners (#2192).
         Expect("class P { /// <summary>Displacement to the right, from the positive half of the population's linear speed row.</summary>\nint F => 0; }",
             "('speed row')");
@@ -1909,6 +1908,24 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // authored path, a direct hit, a branch alone, markup and a hardware owner are English.
         Expect("class P { /// <summary>The frame shown; the shot's behaviour; Samus returns to the door; a count that wraps; the value kept; a bit of the floor; every authored path; a direct hit; a branch of the room's state choice; <see cref=\"Run\"/>.</summary>\nvoid Run() { } }");
         Expect(CompatibilityService + "/// <summary>Evidence: the shot's frame behaviour stores the wrapped count with a direct write before its early return.</summary>\n[CompatibilityService(\"shot\")] class Shot { }");
+        // The original's waits, screen lines and storage as late-fight boss prose tells them, outside hardware owners and
+        // markup (#2472).
+        Expect("class P { void Run() { // The escape music is queued with the ordinary eight-frame delay.\n } }", "('eight-frame delay')");
+        Expect("class P { /// <summary>Collision starts a 16-frame delay.</summary>\nvoid Run() { } }", "('16-frame delay')");
+        Expect("class P { /// <summary>Eighty-frame delay before the skeleton starts falling.</summary>\nint F => 0; }", "('Eighty-frame delay')");
+        Expect("class P { void Run() { // A shard is removed once it leaves the first 256 lines.\n } }", "('first 256 lines')");
+        Expect("class P { /// <summary>Runs the Baby's final cross-enemy write.</summary>\nvoid Run() { } }", "('cross-enemy write')");
+        Expect("class P { /// <summary>Carries out the cross-enemy phase write.</summary>\nvoid Run() { } }", "('cross-enemy phase write')");
+        Expect("class P { void Run() { // The step consumes Mother Brain's one-shot cry flag.\n } }", "('one-shot cry flag')");
+        Expect("class P { void Run() { // The body clears drool once both indices reach zero.\n } }", "('indices reach zero')");
+        Expect("class P { /// <summary>Sets the neck angle and opposed raise/lower indices.</summary>\nvoid Run() { } }", "('raise/lower indices')");
+        Expect("class P { void Run() { // The others belong to the room adapter.\n } }", "('room adapter')");
+        Expect("class P { /// <summary>Its colour and sound changes are requests other systems fulfil.</summary>\nint F => 0; }", "('requests other systems fulfil')");
+        Expect("class P { void Run() { // The blow changes graphics/animation state.\n } }", "('graphics/animation state')");
+        // An animation frame's delay, a first line of text, a one-shot animation, a list's indices, an adapter or a request
+        // alone, a state alone, markup and a hardware owner are English.
+        Expect("class P { /// <summary>The first-frame delay; an animation-frame delay; the first line of the text; a one-shot tail whip; the list's indices; a display adapter; a sound request; the fight's state; <see cref=\"Run\"/>.</summary>\nvoid Run() { } }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the song waits out the eight-frame delay and the cross-enemy write sets the one-shot flag.</summary>\n[CompatibilityService(\"song\")] class Song { }");
         // The species-owner template on a type that owns no species (#2427), read on the type's own summary; a type that
         // implements or is a species owner's interface owns a species, and an entity's parameter names its owner.
         const string SpeciesOwners = "interface IEnemySpecies { }\ninterface IEnemyEntityFactory { }\n";

@@ -128,8 +128,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
             baby.Phase is BabyMetroidCutscenePhase.HealSamusToFullHealth or
                 BabyMetroidCutscenePhase.IdleUntilNoHealth)
         {
-            // The ring hit check clears the complete shared value and queues only one cry, even
-            // when several rings incremented it before this later enemy place ran.
+            // However many rings struck it since its last turn, the Baby cries once, and every one of those cries is spent.
             state.PendingBabyCryCount = 0;
             _motherBrainEncounter.RequestBodySound(ShitroidSoundDefinitions.DrainCry);
         }

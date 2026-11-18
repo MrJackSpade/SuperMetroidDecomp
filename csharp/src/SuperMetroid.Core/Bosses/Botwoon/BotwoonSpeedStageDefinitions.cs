@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>
-/// Botwoon's three speed stages (#2266); the European release moves him at other speeds. Each stage spaces his body
+/// Botwoon's three speed stages (#2266). Each stage spaces his body
 /// segments twelve history entries divided by its movement speed apart, so a faster head pulls its body along in the
 /// same time.
 /// </summary>

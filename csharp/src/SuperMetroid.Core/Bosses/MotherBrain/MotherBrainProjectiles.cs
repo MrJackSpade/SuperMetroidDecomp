@@ -399,8 +399,8 @@ internal sealed class MotherBrainProjectiles
                 return;
             }
 
-            // A shard is removed once it leaves the first 256 lines, so it falls at most that far and its speed stays a few
-            // pixels an update above its launch speed.
+            // A shard is removed once it falls below the room's top screen, so it falls at most that far and its speed stays a
+            // few pixels an update above its launch speed.
             shard.Velocity = shard.Velocity.WithY(shard.Velocity.Y + MotherBrainGlassShardDefinitions.ShardGravity);
 
             // The condition itself consumes one random value every live shard frame; a successful

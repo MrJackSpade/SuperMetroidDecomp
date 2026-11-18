@@ -157,6 +157,11 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// tells them: frame behaviours, early returns, final stores and direct writes, execution and bookkeeping, a routine that
 /// returns zero, the game's mover, the checks that compare, wrapped and stored values, flag bits, authored
 /// arguments and a branch that also does something; and, in every type, a rebuild here that doubles or breaks something.
+/// #2472 adds, outside hardware owners, any release named, the European release and a Japan/USA region too, with or
+/// without the other release beside it, and the original's waits, screen lines and storage as late-fight boss prose
+/// tells them: a delay counted in frames by number, the screen's first lines by number, cross-enemy writes, one-shot
+/// flags, indices that reach zero or pair as raise/lower, the room adapter, requests other systems fulfil and a
+/// graphics/animation state.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -1015,19 +1020,19 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
-    /// The Japanese and North American release named for what the game does (#2192), outside hardware owners, where the
-    /// paragraph states no difference from the European release (The Japanese and North American release measures
-    /// angles in 256ths of a turn; the Japanese and North American release reloads the burrow duration). That release is
-    /// the game Core plays; naming it says nothing a statement of the behaviour does not, unless the paragraph says what
-    /// the European release does instead (see <see cref="ReleaseNarrationFinding"/>). English stays legal: a paragraph
-    /// that sets the two releases side by side (the Japanese and North American release takes 80; the European release
-    /// takes 99), across the lines of one comment too.
+    /// A release of the game named (#2192, #2472), outside hardware owners: the Japanese and North American release (The
+    /// Japanese and North American release measures angles in 256ths of a turn), the European release, and a release's
+    /// region written as Japan/USA (the Japan/USA layout), with or without the other release set beside it (the Japanese
+    /// and North American release takes 80; the European release takes 99). Core plays one game, the Japanese and North
+    /// American one; naming it says nothing a statement of the behaviour does not, and what another release does is no part
+    /// of it. English stays legal: the Japanese text and subtitle, and a hardware owner, which describes the program it
+    /// reproduces.
     /// </summary>
     private static readonly Regex ReleaseNarrationProse = new(
-        @"\bJapanese\s+and\s+North\s+American\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-
-    /// <summary>The European release, whose naming in a paragraph states a difference from the other release.</summary>
-    private static readonly Regex EuropeanRelease = new(@"\bEuropean\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        @"\bJapanese\s+and\s+North\s+American\b" +
+        @"|\bEuropean\b" +
+        @"|\bJapan(?:ese)?\s*/\s*(?:USA|U\.S\.A?\.?|North\s+America(?:n)?)\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
     /// A speed named as a row of the original's speed table (#2192), outside hardware owners, spaced or hyphenated: a
@@ -2115,6 +2120,32 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The original's waits, screen lines and storage as late-fight boss prose tells them (#2472), outside hardware owners
+    /// and markup: a delay counted in frames by number (the ordinary eight-frame delay, a 16-frame delay); the screen's
+    /// first lines by number (the first 256 lines); a cross-enemy or cross-actor write; a one-shot flag (the one-shot cry
+    /// flag); indices that reach zero and a raise/lower pair of indices (once both indices reach zero, the opposed
+    /// raise/lower indices); the room adapter; the requests other systems fulfil; and a graphics/animation state. The
+    /// original counted its waits in frames, drew to numbered lines and kept its fight in flags and indices one enemy wrote
+    /// for another; Core says how long a wait lasts in updates, where in the room a thing goes, what one enemy does to
+    /// another, what a count or a state stands for and how a neck moves. English stays legal: an animation frame's delay, a
+    /// first line of text, a one-shot animation, a list's indices, an adapter or a request alone, a state alone and a
+    /// hardware owner, which describes the program it reproduces.
+    /// </summary>
+    private static readonly Regex LateFightWaitLineAndStorageProse = new(
+        @"\b(?:\d[\d,]*|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|" +
+        @"seventeen|eighteen|nineteen|(?:twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)(?:-(?:one|two|three|four|" +
+        @"five|six|seven|eight|nine))?|hundred)-frame[-\s]+delays?\b" +
+        @"|\bfirst\s+\d[\d,]*\s+(?:scan\s*)?lines\b" +
+        @"|\bcross-(?:enemy|actor|object|species|place)\s+(?:[\w-]+\s+){0,2}writes?\b" +
+        @"|\bone-shot\s+(?:[\w-]+\s+){0,2}flags?\b" +
+        @"|\bindices\s+(?:reach|reaches|reached|hit|become|are)\s+(?:zero|nonzero|non-zero)\b" +
+        @"|\b(?:raise|lower)/(?:raise|lower)\s+indices\b" +
+        @"|\broom\s+adapters?\b" +
+        @"|\brequests\s+other\s+systems\s+fulfil+s?\b" +
+        @"|\b(?:graphics|animation)/(?:graphics|animation)\s+states?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A type's summary that calls the type a species owner (#2427): the species-owner template (its per-room state,
     /// behaviour and the interactions it registers). Only a type that creates or keeps a species' enemies
     /// (<see cref="SpeciesOwnerInterfaces"/>) is one; any other type says what it is.
@@ -2434,14 +2465,14 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
                 !trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia) &&
                 !trivia.IsKind(SyntaxKind.MultiLineDocumentationCommentTrivia))
                 continue;
-            Report(context, trivia.ToFullString(), trivia.GetLocation(), trivia.Token.Parent, codeNames, generated, trivia);
+            Report(context, trivia.ToFullString(), trivia.GetLocation(), trivia.Token.Parent, codeNames, generated);
         }
         foreach (SyntaxToken token in root.DescendantTokens())
         {
             if (token.IsKind(SyntaxKind.StringLiteralToken) || token.IsKind(SyntaxKind.InterpolatedStringTextToken) ||
                 token.IsKind(SyntaxKind.Utf8StringLiteralToken) || token.IsKind(SyntaxKind.MultiLineRawStringLiteralToken) ||
                 token.IsKind(SyntaxKind.SingleLineRawStringLiteralToken))
-                Report(context, token.ValueText, token.GetLocation(), token.Parent, codeNames: null, generated, comment: null);
+                Report(context, token.ValueText, token.GetLocation(), token.Parent, codeNames: null, generated);
         }
         if (generated)
             return;
@@ -2477,71 +2508,6 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     };
 
     /// <summary>
-    /// The paragraph a comment belongs to: a line comment with the line comments directly above and below it, up to a
-    /// blank line or anything that is not a comment; any other comment alone.
-    /// </summary>
-    private static string CommentParagraph(SyntaxTrivia comment)
-    {
-        if (!comment.IsKind(SyntaxKind.SingleLineCommentTrivia))
-            return comment.ToFullString();
-        SyntaxTriviaList list = comment.Token.LeadingTrivia;
-        int index = list.IndexOf(comment);
-        if (index < 0)
-        {
-            list = comment.Token.TrailingTrivia;
-            index = list.IndexOf(comment);
-        }
-        int first = ParagraphEdge(list, index, step: -1);
-        int last = ParagraphEdge(list, index, step: 1);
-        return string.Join(" ", list
-            .Skip(first)
-            .Take(last - first + 1)
-            .Where(trivia => trivia.IsKind(SyntaxKind.SingleLineCommentTrivia))
-            .Select(trivia => trivia.ToFullString()));
-    }
-
-    /// <summary>
-    /// The farthest line comment from <paramref name="index"/> in direction <paramref name="step"/> that joins its
-    /// paragraph: one reached over whitespace and single line ends, never a blank line.
-    /// </summary>
-    private static int ParagraphEdge(SyntaxTriviaList list, int index, int step)
-    {
-        int edge = index;
-        int lineEnds = 0;
-        for (int i = index + step; i >= 0 && i < list.Count; i += step)
-        {
-            SyntaxTrivia neighbour = list[i];
-            if (neighbour.IsKind(SyntaxKind.SingleLineCommentTrivia))
-            {
-                edge = i;
-                lineEnds = 0;
-            }
-            else if (neighbour.IsKind(SyntaxKind.EndOfLineTrivia))
-            {
-                lineEnds++;
-                if (lineEnds > 1)
-                    break;
-            }
-            else if (!neighbour.IsKind(SyntaxKind.WhitespaceTrivia))
-            {
-                break;
-            }
-        }
-        return edge;
-    }
-
-    /// <summary>
-    /// The Japanese and North American release <paramref name="text"/> names (<see cref="ReleaseNarrationProse"/>) when
-    /// its paragraph, the comment's (<see cref="CommentParagraph"/>) or the literal itself, names no European release;
-    /// null otherwise.
-    /// </summary>
-    private static string? ReleaseNarrationFinding(string text, SyntaxTrivia? comment) =>
-        ReleaseNarrationProse.Match(text) is { Success: true } release &&
-        !EuropeanRelease.IsMatch(comment is { } trivia ? CommentParagraph(trivia) : text)
-            ? release.Value
-            : null;
-
-    /// <summary>
     /// Reports <paramref name="text"/> once when it cites the machine's provenance (<see cref="MachineProvenanceProse"/>), the
     /// original's call structure (<see cref="CallStructureProse"/>), its routine slots (<see cref="RoutineSlotProse"/>), its routine
     /// handlers (<see cref="RoutineHandlerProse"/>) or the C reimplementation
@@ -2549,11 +2515,9 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// <paramref name="codeNames"/>, against which its compound names are read as routine labels; a string literal does not,
     /// and is not read for labels or hexadecimal literals. <paramref name="generated"/> text is not read for the review
     /// trail (<see cref="ReviewTrailProse"/>, <see cref="RelocationHistoryProse"/>), fix history or debug narration.
-    /// <paramref name="comment"/> is the comment the text is, whose paragraph says whether a release is set against the
-    /// other (<see cref="ReleaseNarrationFinding"/>); null for a string literal.
     /// </summary>
     private static void Report(SyntaxTreeAnalysisContext context, string text, Location location, SyntaxNode? owner,
-        Lazy<ImmutableHashSet<string>>? codeNames, bool generated, SyntaxTrivia? comment)
+        Lazy<ImmutableHashSet<string>>? codeNames, bool generated)
     {
         text = AllowanceMarker.Replace(text, string.Empty);
         string? word = MachineProvenanceProse.Match(text) is { Success: true } provenance ? provenance.Value
@@ -2620,7 +2584,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : SixteenSixteenArithmeticProse.Match(Markup.Replace(text, " ")) is { Success: true } sixteenSixteen ? sixteenSixteen.Value
             : PairedArithmeticProse.Match(Markup.Replace(text, " ")) is { Success: true } paired ? paired.Value
             : RoutineHelperProse.Match(Markup.Replace(text, " ")) is { Success: true } routineHelper ? routineHelper.Value
-            : ReleaseNarrationFinding(text, comment) is { } release ? release
+            : ReleaseNarrationProse.Match(text) is { Success: true } release ? release.Value
             : SpeedRowProse.Match(text) is { Success: true } speedRow ? speedRow.Value
             : CitedVariableProse.Match(text) is { Success: true } citedVariable ? citedVariable.Value
             : SortOrderProse.Match(text) is { Success: true } sortOrder ? sortOrder.Value
@@ -2683,6 +2647,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : PortBuildScopeAndLayoutProse.Match(Markup.Replace(text, " ")) is { Success: true } portBuild ? portBuild.Value
             : RoutineTailFrameBehaviourAndPrecisionProse.Match(Markup.Replace(text, " ")) is { Success: true } routineTail ? routineTail.Value
             : BossProgramStorageAndRepositoryProse.Match(Markup.Replace(text, " ")) is { Success: true } bossProgram ? bossProgram.Value
+            : LateFightWaitLineAndStorageProse.Match(Markup.Replace(text, " ")) is { Success: true } lateFight ? lateFight.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

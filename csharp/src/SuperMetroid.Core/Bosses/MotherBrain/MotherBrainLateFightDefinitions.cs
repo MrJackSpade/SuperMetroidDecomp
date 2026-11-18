@@ -16,7 +16,7 @@ internal static class MotherBrainLateFightDefinitions
     /// <summary>The updates she waits, head drawn back, for the rainbow beam's charge.</summary>
     internal const int ChargeWaitUpdates = 257;
 
-    /// <summary>The updates her neck lowers before the rainbow beam fires (the Japanese and North American value; the European release lowers it for 13).</summary>
+    /// <summary>The updates her neck lowers before the rainbow beam fires.</summary>
     internal const int NeckLoweringUpdates = 17;
 
     /// <summary>The updates between the rainbow beam's explosions on Samus.</summary>

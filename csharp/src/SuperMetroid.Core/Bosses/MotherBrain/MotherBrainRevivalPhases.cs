@@ -16,8 +16,8 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// How many four-ring attacks Mother Brain has begun against the Baby, zero through twelve, where it stays; it also
-    /// chooses the pitch of her cry.
+    /// How many four-ring attacks Mother Brain has begun against the Baby, zero through twelve, where it stays; her
+    /// eleventh attack is made without her attack cry (<see cref="MotherBrainFightDefinitions.SilentBabyAttackCount"/>).
     /// </summary>
     public int BabyMetroidAttackCounter { get; internal set; }
 

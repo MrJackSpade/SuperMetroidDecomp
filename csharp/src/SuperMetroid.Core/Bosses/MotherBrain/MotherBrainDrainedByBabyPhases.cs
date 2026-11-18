@@ -161,8 +161,8 @@ internal sealed class MotherBrainDrainedByBabyPhases
     /// </summary>
     internal bool SlumpOnceNeckIsRaised()
     {
-        // The brain enemy advances the one-way neck raises on its own. The body
-        // clears drool once both indices reach zero, before waiting for its pose.
+        // Her brain raises her neck on its own; once both halves of the neck have stopped moving her drool stops, before
+        // she waits for her pose.
         if (Encounter.LowerNeckMovement == MotherBrainNeckMovement.None &&
             Encounter.UpperNeckMovement == MotherBrainNeckMovement.None)
         {

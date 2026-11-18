@@ -8,12 +8,18 @@ public enum SporeSpawnMovement
 {
     /// <summary>Performs no main-AI movement while its animations control the idle or open phase.</summary>
     Idle,
-    /// <summary>Lowers the body one room pixel per AI update until Y reaches 624 and starts the fight-start animation.</summary>
+    /// <summary>
+    /// Lowers the body one room pixel per AI update until it reaches the arena's centre height
+    /// (<see cref="SporeSpawnArenaDefinitions.CentreY"/>) and starts the fight-start animation.
+    /// </summary>
     Descending,
     /// <summary>Computes the phase-driven body sway about its spawn center and updates stalk segment positions.</summary>
     Moving,
-    /// <summary>Computes the fixed death-drift angle and velocity toward room position (128,624), without moving the body.</summary>
+    /// <summary>Computes the fixed death-drift angle and velocity toward the arena's centre, without moving the body.</summary>
     SetupDeath,
-    /// <summary>Applies death drift and ceiling dust, returning to idle when both axis distances from (128,624) are below eight pixels.</summary>
+    /// <summary>
+    /// Applies death drift and ceiling dust, returning to idle once the drift has brought him close to the arena's centre on
+    /// both axes (<see cref="SporeSpawnArenaDefinitions.DeathDriftSettleDistance"/>).
+    /// </summary>
     Dying,
 }

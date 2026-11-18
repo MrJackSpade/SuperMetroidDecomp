@@ -260,7 +260,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         requests.SamusProjectileCooldown = MotherBrainBeamDefinitions.NeckLoweredSamusCooldown;
         Encounter.LowerNeckMovement = MotherBrainNeckMovement.Lower;
         Encounter.UpperNeckMovement = MotherBrainNeckMovement.Lower;
-        Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Fast; // The Japanese and North American turn; the European release turns seven steps an update.
+        Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Fast;
         Encounter.RainbowPhase = MotherBrainRainbowPhase.StartFiring;
         Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.NeckLoweringUpdates);
         return true;

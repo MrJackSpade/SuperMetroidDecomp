@@ -64,10 +64,9 @@ internal sealed class MotherBrainLateFightState
     internal void SetBodyAnimation(MotherBrainBodySegment segment) =>
         MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(Encounter, segment);
 
-    /// <summary>Sets the neck angle and opposed raise/lower indices for retreat after the attack.</summary>
+    /// <summary>Draws her head back after the attack: her neck turns at its rising speed, its lower half rising and its upper half lowering.</summary>
     internal void RetractHead()
     {
-        // The Japanese and North American release takes 80; the European release takes 99.
         Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Rising;
         Encounter.NeckMovementEnabled = true;
         Encounter.LowerNeckMovement = MotherBrainNeckMovement.Raise;

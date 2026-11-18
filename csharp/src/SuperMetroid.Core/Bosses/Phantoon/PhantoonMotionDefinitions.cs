@@ -3,10 +3,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <summary>Phantoon's figure-eight and swoop limits; definition data, not mutable enemy speed.</summary>
 public static class PhantoonMotionDefinitions
 {
-    /// <summary>
-    /// The horizontal swoop velocity below which the leftward pull stops (the Japanese and North American
-    /// value, about -8 pixels per update; the European release's differs).
-    /// </summary>
+    /// <summary>The horizontal swoop velocity, about eight pixels an update leftward, below which the leftward pull stops.</summary>
     public static SignedEightEight SwoopNegativeXThreshold { get; } = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-2047);
 
     /// <summary>The horizontal swoop velocity, eight pixels an update, at which the rightward pull stops.</summary>
@@ -29,10 +26,7 @@ public static class PhantoonMotionDefinitions
     public const int SwoopMinimumX = -64;
     /// <summary>The rightmost swoop X position.</summary>
     public const int SwoopMaximumX = 448;
-    /// <summary>
-    /// The vertical swoop velocity below which the upward pull stops (the Japanese and North American value,
-    /// about -6 pixels per update; the European release's differs).
-    /// </summary>
+    /// <summary>The vertical swoop velocity, about six pixels an update upward, below which the upward pull stops.</summary>
     public static SignedEightEight SwoopNegativeYThreshold { get; } = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1535);
     /// <summary>
     /// The figure-eight's speed change each update while it eases in, in path places per update, in either direction

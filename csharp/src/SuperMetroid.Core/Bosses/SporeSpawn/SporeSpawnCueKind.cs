@@ -3,8 +3,8 @@
 /// <summary>What a cue of Spore Spawn's body animations does: widen the sway, let the next hit close him again, harden at the death position, spawn the dying explosions and dust, or request the death drops.</summary>
 internal enum SporeSpawnCueKind
 {
-    /// <summary>Widens the sway by eight pixels up to forty.</summary>
-    IncreaseMaxXRadius,
+    /// <summary>Widens his sway, as each closing of his shell does (<see cref="SporeSpawnSwayRadius.Widened"/>).</summary>
+    WidenSway,
     /// <summary>Lets the next hit while he is open reverse his sway and close him again.</summary>
     ReopenToHits,
     /// <summary>Hardens the body at its death position.</summary>

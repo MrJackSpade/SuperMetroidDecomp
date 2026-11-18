@@ -93,7 +93,7 @@ internal enum TorizoProjectileSegment
     EggHatchedRight,
     /// <summary>A hatched egg's creature charging right: its four poses, looping.</summary>
     HatchlingChargingRight,
-    /// <summary>A shot egg breaking facing left: it stops, plays its five poses, then is deleted.</summary>
+    /// <summary>A shot egg breaking facing left: it stops, plays its five poses, its flattened remains two updates longer than facing right, then is deleted.</summary>
     EggBreakLeft,
     /// <summary>A shot egg breaking facing right: it stops, plays its five poses, then is deleted.</summary>
     EggBreakRight,

@@ -414,9 +414,8 @@ public sealed class BabyMetroidCutsceneState
             }
 
             case BabyMetroidCutscenePhase.IdleUntilNoHealth:
-                // The Baby's damaged step consumes Mother Brain's one-shot cry flag before inspecting
-                // the hit-flash timer. Sound queuing is returned by the ring system; this
-                // actor owns only the resulting shake and health-to-phase transition.
+                // While the onion rings hit it, the Baby shakes on Samus for as long as each hit shakes it, and once the rings
+                // have worn its health away it lets go of her. Its cry at the rings that struck it plays before this step.
                 if (OnionRingHitShakeTimer != 0)
                 {
                     int shakingIndex = MotherBrainCadenceDefinitions.BabyHitShakeStep.Of(OnionRingHitShakeTimer);
@@ -426,10 +425,8 @@ public sealed class BabyMetroidCutsceneState
 
                 if (Health == 0)
                 {
-                    // The zero reached by the ordinary volleys is a state trigger, not the
-                    // health carried into the final charge. The game deliberately gives
-                    // the Baby 320 health, changes to the low-health colour phase,
-                    // disables health-band colours, and lets the next step run next frame.
+                    // Worn down by the volleys, the Baby takes the health its final charge starts with and lets go of Samus
+                    // on its next update.
                     Health = BabyMetroidCutsceneDefinitions.FinalChargeHealth;
                     Phase = BabyMetroidCutscenePhase.ReleaseSamus;
                 }
@@ -473,9 +470,8 @@ public sealed class BabyMetroidCutsceneState
                 break;
 
             case BabyMetroidCutscenePhase.MoveToFinalChargeStart:
-                // The final approach stages the Baby at the charge's start. Reaching that rectangle assigns
-                // the final volley's health so the final four-ring volley kills on its first collision,
-                // clears the brain's speed flag, and replaces Mother Brain's retreat AI.
+                // The final approach brings the Baby to the charge's start. There it takes the health the final four-ring
+                // volley kills it with on its first hit, and Mother Brain turns from her retreat to that volley.
                 GraduallyAccelerateTowardsPoint(
                     BabyMetroidCutsceneFlightDefinitions.FinalChargeStart,
                     accelerationDivisor: BabyMetroidCutsceneFlightDefinitions.GentleAccelerationDivisor,
@@ -511,9 +507,8 @@ public sealed class BabyMetroidCutsceneState
                     cameraPosition);
                 if (Health == 0)
                 {
-                    // The fatal-blow step changes graphics/animation state, freezes the body AI,
-                    // clears velocity, remembers the shake origin, and takes the first of its 17 updates of shaking in
-                    // this same update.
+                    // The fatal blow stops the Baby where it is struck and shakes it about that place, its first update of
+                    // shaking this same update.
                     startedAnimation = MotherBrainBabySegment.TakingFatalBlow;
                     Velocity = default;
                     Phase = BabyMetroidCutscenePhase.TakeFinalBlow;
@@ -569,8 +564,7 @@ public sealed class BabyMetroidCutsceneState
                 AccelerateDownwardsForDeath();
                 if (StepFadeToBlack(ref babyFadeImage))
                 {
-                    // Completion does not write the Baby's eighth colour. It hides the actor,
-                    // and waits out the pause before it readies Mother Brain's attacks again.
+                    // Faded to black, the Baby is hidden, and a pause passes before Mother Brain's attacks are readied again.
                     visibility = BabyMetroidVisibilityRequest.Hide;
                     Phase = BabyMetroidCutscenePhase.ReadyMotherBrainAttacksAgain;
                     PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.BeforeReadyingAttacksUpdates);

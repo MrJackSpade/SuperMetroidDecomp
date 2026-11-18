@@ -7,13 +7,12 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// phase chains.
 /// </summary>
 /// <remarks>
-/// The earlier general attack-selection logic and the spawned Baby Metroid's independent AI
-/// remain separate actor phases. This class owns the neck extension, both charge waits, body
-/// walks and posture changes, active beam, low-energy attack selection, final charge, the four
-/// updates readying the Baby's arrival, spawn request, final-beam hold, painful stagger, live neck
-/// angles/brain coordinates, rear-room retreat, crouch, grey transition, and the corpse the Baby watches for.
-/// Its colour, beam-effect, projectile, earthquake, graphics, spawn and sound changes are requests other systems
-/// fulfil; it makes its coordinate, resource, timer, animation and Samus-control changes itself.
+/// Her earlier attack choices and the Baby Metroid's own flight are not part of it. It runs her neck's extension, both
+/// charge waits, her walks and posture changes, the beam itself, her attack choice while Samus is low on energy, the final
+/// charge, the four updates before the Baby arrives and its arrival, the final beam's hold, her painful stagger, where her
+/// neck and brain stand, her retreat to the back of the room, her crouch, her greying, and the corpse the Baby watches for.
+/// It asks for her colours, the beam's look, her projectiles, the quakes, her pictures, the Baby's arrival and her sounds,
+/// and moves her, spends Samus's energy, times her waits, plays her animations and holds Samus itself.
 /// </remarks>
 public sealed class MotherBrainRainbowBeamAttackSequence
 {
@@ -73,9 +72,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     internal MotherBrainEnemyState Encounter { get; }
 
     /// <summary>
-    /// Current angle, in 256ths of a turn, of the rainbow beam's cone.
-    /// Exposing the movement owner's angle lets the live room adapter publish the
-    /// real beam geometry without maintaining a second aim calculation.
+    /// The way the rainbow beam's cone points, in 256ths of a turn: the angle she aims it at Samus with, which the beam's
+    /// picture is drawn along.
     /// </summary>
     public RotationAngle RainbowBeamAngle => _movement.RainbowBeamAngle;
 
@@ -90,9 +88,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     }
 
     /// <summary>
-    /// Carries out the cross-enemy phase write. The Baby moves Mother Brain on to her taken-aback step after it has
-    /// reached the brain; Mother Brain runs that new
-    /// phase on her next enemy-AI turn rather than inside the Baby's current turn.
+    /// The Baby, having reached her brain, takes Mother Brain aback; she is taken aback on her next turn, not inside the
+    /// Baby's.
     /// </summary>
     public void InterruptFinalBeamForBabyDrain()
     {
@@ -101,48 +98,44 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     }
 
     /// <summary>
-    /// Runs the Baby's cross-enemy write. It does not
-    /// wait for Mother Brain's stand-up animation before repeatedly requesting the backward
-    /// walk; the later Baby route decides when to replace this phase with the final attack.
+    /// The Baby sets Mother Brain readying her final attack on it: she walks back again and again without waiting for her
+    /// stand-up to finish, until the Baby's flight sets the attack off.
     /// </summary>
     public void PrepareForFinalBabyMetroidAttack() =>
         Encounter.RevivalPhase = MotherBrainRevivalPhase.PrepareForFinalBabyAttack;
 
     /// <summary>
-    /// Runs the Baby's cross-enemy write. Mother Brain installs one last
-    /// four-ring head animation and then leaves her body phase at the empty holding step.
+    /// The Baby sets off Mother Brain's final attack on it: her head plays one last four-ring volley, and her body then holds
+    /// still.
     /// </summary>
     public void ExecuteFinalBabyMetroidAttack() =>
         Encounter.RevivalPhase = MotherBrainRevivalPhase.ExecuteFinalBabyAttack;
 
     /// <summary>
-    /// Applies the head's attack-counter step; the counter stops at twelve.
+    /// Counts one more four-ring attack of her head's on the Baby, up to the most it counts
+    /// (<see cref="MotherBrainLateFightDefinitions.BabyAttackCountLimit"/>).
     /// </summary>
     internal void IncrementLiveBabyMetroidAttackCounter() =>
         Revival.BabyMetroidAttackCounter = Math.Min(Revival.BabyMetroidAttackCounter + 1, MotherBrainLateFightDefinitions.BabyAttackCountLimit);
 
-    /// <summary>Applies the head's attack-counter reset step.</summary>
+    /// <summary>Starts her head's count of attacks on the Baby again from none.</summary>
     internal void ResetLiveBabyMetroidAttackCounter() => Revival.BabyMetroidAttackCounter = 0;
 
     /// <summary>
-    /// Runs the Baby's final cross-enemy write. The body does
-    /// not run the recovery on the Baby's turn; the room's enemies run in their listed order, so
-    /// Mother Brain runs this installed phase on her following frame.
+    /// The Baby, dying, starts Mother Brain's recovery for her third phase; she recovers from her next update on, not on the
+    /// Baby's turn, since the room's enemies take their turns in their listed order.
     /// </summary>
     public void BeginPhase3RecoveryFromBabyCutscene()
     {
         Encounter.Phase3FightPhase = MotherBrainPhase3FightPhase.RecoverMakeSomeDistance;
 
-        // Clears only the Baby's spawned flag, which head attack selection reads after the
-        // Baby has deleted itself.
+        // The Baby is gone, so her head's attack choice no longer counts it as come.
         State.BabyMetroidSpawned = false;
     }
 
     /// <summary>
-    /// Applies the movement/recoil half of Mother Brain's shared phase-two/three shot
-    /// reaction. The ordinary enemy-shot reaction owns damage,
-    /// projectile deletion, and flash time; this method intentionally does not duplicate
-    /// any of those separate systems.
+    /// Mother Brain's walk and recoil as a shot strikes her in her second or third phase; the damage, the shot's end and
+    /// her hurt flash are the common shot reaction's.
     /// </summary>
     public void ApplyPhase2Or3ShotReaction(MotherBrainProjectileType projectileType)
     {
@@ -186,7 +179,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 MotherBrainBodyStage.Reviving => Revival.Run(frame, requests),
                 MotherBrainBodyStage.Phase3Fight => ThirdPhaseFight.Run(frame),
                 MotherBrainBodyStage.Dying => ThirdPhaseDeath.Run(frame, requests),
-                // The sequence runs only the rainbow beam and the stages after it; the others belong to the room adapter.
+                // The sequence runs only the rainbow beam and the stages after it; her earlier stages run apart from it.
                 MotherBrainBodyStage.Glass or MotherBrainBodyStage.FakeDeathDescent or MotherBrainBodyStage.FakeDeathAscent or MotherBrainBodyStage.Phase2Fight or _ =>
                     throw new InvalidOperationException($"The late fight does not run Mother Brain's {Encounter.Stage} stage."),
             };

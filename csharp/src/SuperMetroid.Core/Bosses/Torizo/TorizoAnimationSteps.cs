@@ -40,9 +40,9 @@ internal static class TorizoAnimationSteps
     internal static AnimationBeat<EnemyFrameId, TorizoCue> SitDown(TorizoSide side, Offset16<RoomPixels> move) =>
         Cue(new TorizoCue.Posture(TorizoPostureKind.SitDown, Displacement: side.Forward(move)));
 
-    /// <summary>Moves a walking Torizo of <paramref name="kind"/> <paramref name="pace"/> pixels forward the way <paramref name="side"/> faces.</summary>
-    internal static AnimationBeat<EnemyFrameId, TorizoCue> Walk(TorizoWalkKind kind, TorizoSide side, int pace) =>
-        Cue(new TorizoCue.Walk(kind, Velocity: side.Forward(pace)));
+    /// <summary>Moves a Torizo walking as <paramref name="walker"/> <paramref name="pace"/> pixels forward the way <paramref name="side"/> faces.</summary>
+    internal static AnimationBeat<EnemyFrameId, TorizoCue> Walk(TorizoWalker walker, TorizoSide side, int pace) =>
+        Cue(new TorizoCue.Walk(walker, Velocity: side.Forward(pace)));
 
     /// <summary>Ends an attack chosen on landing: the Torizo starts walking and walks on in <paramref name="walk"/>.</summary>
     internal static AnimationBeat<EnemyFrameId, TorizoCue>[] WalkingOn(TorizoAnimation walk) =>

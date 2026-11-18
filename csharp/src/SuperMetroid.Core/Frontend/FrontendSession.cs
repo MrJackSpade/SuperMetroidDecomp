@@ -363,7 +363,7 @@ internal sealed class FrontendSession
     /// Gameplay's own sound and music requests are not collected here: every system queues each one into the session's
     /// queues as it makes it, through the runtime's <see cref="GameplayAudioRequests"/> (#1620).
     /// </remarks>
-    internal void CollectTranslatedAudioRequests()
+    internal void CollectFrontendAudioRequests()
     {
         // Demo loading suppresses room music; the demo's sound switch suppresses
         // scene SFX while the title track continues. Do not replace it with each

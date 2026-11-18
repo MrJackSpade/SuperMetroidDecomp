@@ -545,7 +545,7 @@ public static class SamusGrappleMovement
     /// <summary>Chooses the fall pose from shot direction and body radius, with standing exceptions for both swinging poses.</summary>
     internal static SamusPoseId SelectDroppedPose(SamusState samus)
     {
-        // The swinging poses bypass the direction tables and always fall to ordinary
+        // The swinging poses ignore the shot direction and always fall to ordinary
         // standing, even though their live collision radius is compact.
         if (samus.Pose == SamusPoseId.GrappleSwingRightPose)
             return SamusPoseId.FacingRightNormalPose;

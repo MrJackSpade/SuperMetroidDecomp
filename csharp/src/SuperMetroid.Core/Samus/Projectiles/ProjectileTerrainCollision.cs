@@ -628,11 +628,9 @@ internal sealed class ProjectileTerrainCollision
             RoomGridConversions.PixelToScreen(targetY) >= RoomGridConversions.ScreensCovering(level.Size.Y))
             return;
 
-        // The row lookup takes the target row within the scan cycle. X is deliberately not clipped to the
-        // room width: right-edge spans reach the following row; a span left
-        // of the room's edge starts 4095 blocks forward while the center remains inside the room.
-        // The block reaction step bounds the resulting allocation
-        // offset, not the horizontal extent of this individual block span.
+        // The span's blocks follow the room's reading order from the target row. Its X is not clipped to the room's
+        // width: a span past the right edge carries on into the next row, and a span starting left of the room's edge
+        // starts 4095 blocks further on while its centre stays inside the room; only the blocks inside the room react.
         Position16<RoomBlocks> firstBlock = Position16<RoomPixels>.Of(left, targetY).ToRoomBlock();
         for (int step = 0; step <= span; step++)
         {

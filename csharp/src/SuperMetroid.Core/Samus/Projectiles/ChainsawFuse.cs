@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
 /// The Power Bomb fuse the Chainsaw shot, an uncharged Spazer, Plasma and Wave beam, runs over itself
-/// (<see cref="ChainsawPowerBombShot"/>); its window's edges start where the fuse starts (#1407).
+/// (<see cref="ChainsawPowerBombShot"/>); when the fuse runs out, a Power Bomb blast starts at the shot (#1407).
 /// </summary>
 internal sealed class ChainsawFuse
 {

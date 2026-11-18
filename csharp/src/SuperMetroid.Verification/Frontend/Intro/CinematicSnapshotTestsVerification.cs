@@ -144,8 +144,8 @@ internal static class CinematicSnapshotTestsVerification
             // Independent owners are essential: legacy draw advances projectile trails.
             // Calling both producers on one scene would run those side effects twice.
             // Each owner draws every update for those side effects; the pixels are compared on sampled updates only (#1532).
-            LayeredScene expected = legacy.CaptureTranslatedRenderSnapshot();
-            LayeredScene snapshot = captured.CaptureTranslatedRenderSnapshot();
+            LayeredScene expected = legacy.CaptureRenderSnapshot();
+            LayeredScene snapshot = captured.CaptureRenderSnapshot();
             bool newPhase = phases.Add(legacy.Phase);
             bool sample = newPhase || tick % 62 == 0;
             byte[] held = sample ? GraphDigest(snapshot) : [];

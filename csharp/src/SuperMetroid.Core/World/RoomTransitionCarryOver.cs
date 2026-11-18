@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// What a destination room reads from the room it replaces, captured before the destination's construction begins.
-/// Nothing else may read the outgoing scope (#1329, <c>docs/room-scope.md</c>).
+/// Nothing else may read the outgoing scope (#1329).
 /// </summary>
 /// <param name="PreviousCamera">
 /// The outgoing room's camera, or null for the runtime's first room. A door load inherits its tracking state and both

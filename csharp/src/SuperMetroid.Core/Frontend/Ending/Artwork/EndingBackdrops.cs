@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>
 /// The solid colour each ending scene shows behind every layer once its own colours show (#1544), and the backdrops of the
-/// space behind the exploding planet (#1637), as the import supplies them. The ending loads no colour table: every picture
-/// it draws is pre-coloured, and only these colours are its own.
+/// space behind the exploding planet (#1637), as the import supplies them. Every picture the ending draws is
+/// pre-coloured, and only these colours are its own.
 /// </summary>
 public sealed class EndingBackdrops
 {

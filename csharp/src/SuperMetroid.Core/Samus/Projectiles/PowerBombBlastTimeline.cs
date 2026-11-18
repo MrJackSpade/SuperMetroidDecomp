@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// (<see cref="SamusPowerBombExplosionState"/>), and the blast that destroys Ceres station centres it on the screen.
 /// </summary>
 /// <remarks>
-/// One timeline runs the blast's stages and its glowing window. Every phase transition and every radius update below follows
+/// One timeline runs the blast's stages and its glowing oval. Every phase transition and every radius update below follows
 /// the game's explosion stages exactly: the radii and their speed are plain lengths
 /// (<see cref="PowerBombRadius"/>), and the oval stages' growth holds short of 256 pixels
 /// (<see cref="PowerBombGrowthHold"/>). Crystal Flash's smaller blast burns through the same radii, speed and glow.

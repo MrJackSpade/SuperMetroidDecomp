@@ -203,7 +203,7 @@ public sealed class SamusState
 
     /// <summary>
     /// X-ray admission, dedicated pose input/movement, beam-angle state, visor colours, and
-    /// teardown. Revealed-block pictures and the cone window remain presentation-owned outputs.
+    /// teardown. Revealed-block pictures and the cone remain presentation-owned outputs.
     /// </summary>
     public SamusXrayState Xray { get; }
 
@@ -948,7 +948,8 @@ public sealed class SamusState
     public SamusPoseHistoryState PoseHistory { get; } = new();
 
     /// <summary>
-    /// Commits current pose metadata, shifting her last four poses' history.
+    /// Commits current pose metadata, shifting her pose history: the pose this transition published and the movement
+    /// types of her last two transitions.
     /// Transition owners must call this after their final pose/metadata selection,
     /// not for intermediate assignments, rollbacks, or ordinary frame sampling.
     /// </summary>

@@ -127,8 +127,8 @@ internal static class IntroCinematicArtworkVerification
             var native = CreateRetailIntroFixture();
             var completeInstalled = CreateRetailIntroFixture(
                 characterArtwork: stock);
-            LayeredScene completeNativeScene = native.CaptureTranslatedRenderSnapshot();
-            LayeredScene completeInstalledScene = completeInstalled.CaptureTranslatedRenderSnapshot();
+            LayeredScene completeNativeScene = native.CaptureRenderSnapshot();
+            LayeredScene completeInstalledScene = completeInstalled.CaptureRenderSnapshot();
             AssertTrue(completeInstalled.ShownVram().SequenceEqual(native.ShownVram()) &&
                 completeInstalledScene.Paint.Backdrop == completeNativeScene.Paint.Backdrop &&
                 SceneShownColours.Same(SceneShownColours.Of(completeInstalledScene), SceneShownColours.Of(completeNativeScene)),
@@ -148,9 +148,9 @@ internal static class IntroCinematicArtworkVerification
                     $"installed cinematic preserves native phase at frame {frame}");
                 if (frame % 60 == 0)
                 {
-                    var expectedScene = native.CaptureTranslatedRenderSnapshot();
+                    var expectedScene = native.CaptureRenderSnapshot();
                     byte[] expectedSceneVram = native.ShownVram();
-                    var actualScene = installed.CaptureTranslatedRenderSnapshot();
+                    var actualScene = installed.CaptureRenderSnapshot();
                     byte[] actualSceneVram = installed.ShownVram();
                     AssertTrue(actualScene.Brightness == expectedScene.Brightness &&
                             actualSceneVram.SequenceEqual(expectedSceneVram) &&

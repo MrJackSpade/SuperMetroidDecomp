@@ -101,7 +101,7 @@ internal sealed class FrontendDisplay
     internal void PublishFileMap(FileSelectMapMenuState scene) => Compose(new(frameNumber, scene.CaptureRenderSnapshot()));
 
     /// <summary>Publishes the intro cinematic's composed frame, which every intro update must provide.</summary>
-    internal void PublishIntro(IntroCinematicState scene) => Compose(new(frameNumber, scene.CaptureTranslatedRenderSnapshot()
+    internal void PublishIntro(IntroCinematicState scene) => Compose(new(frameNumber, scene.CaptureRenderSnapshot()
         ?? throw new InvalidOperationException("Intro publication omitted its render snapshot.")));
 
     /// <summary>

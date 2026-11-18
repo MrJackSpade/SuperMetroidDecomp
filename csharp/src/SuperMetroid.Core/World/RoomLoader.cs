@@ -192,7 +192,7 @@ internal sealed class RoomLoader
     }
 
     /// <summary>
-    /// Restores an existing save slot through the game's area/load-station tables and
+    /// Restores an existing save slot at its area's load station and
     /// enters the normal playable state at the station-authored Samus coordinates.
     /// </summary>
     /// <remarks>

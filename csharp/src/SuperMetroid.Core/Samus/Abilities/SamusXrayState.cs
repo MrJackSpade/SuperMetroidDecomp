@@ -94,13 +94,13 @@ public sealed class SamusXrayState
     /// <summary>
     /// The angle from the beam's centre to each of its edges, with its fraction of a step: zero at admission, grown by
     /// <see cref="AngularWideningSpeed"/> on each widening update, and clamped to exactly
-    /// <see cref="XrayScopeDefinitions.Window.WidestHalfWidth"/> once it would reach a step beyond. The widening adds
+    /// <see cref="XrayScopeDefinitions.Cone.WidestHalfWidth"/> once it would reach a step beyond. The widening adds
     /// carry the fraction into whole steps exactly as the game does; the widening step is a whole number of 256ths of a
     /// step, so no finer fraction ever arises.
     /// </summary>
     public RotationAngle AngularHalfWidth { get; private set; }
 
-    /// <summary>The whole steps of <see cref="AngularHalfWidth"/>, none through ten, which aim clamps and the window read.</summary>
+    /// <summary>The whole steps of <see cref="AngularHalfWidth"/>, none through ten, which aim clamps and the cone read.</summary>
     public TrigonometryAngle AngularWidth => AngularHalfWidth.ToTrigonometryAngle();
 
     /// <summary>
@@ -425,11 +425,11 @@ public sealed class SamusXrayState
                 // The adds carry the fractions into whole steps exactly as the game does: the widening
                 // speed gains the fixed fractional step each update, and the width grows by the speed until
                 // its whole steps pass the widest half-width, where it is clamped.
-                AngularWideningSpeed += XrayScopeDefinitions.Window.WideningStep;
+                AngularWideningSpeed += XrayScopeDefinitions.Cone.WideningStep;
                 AngularHalfWidth += AngularWideningSpeed;
-                if (AngularHalfWidth.WholeStep > XrayScopeDefinitions.Window.WidestHalfWidth)
+                if (AngularHalfWidth.WholeStep > XrayScopeDefinitions.Cone.WidestHalfWidth)
                 {
-                    AngularHalfWidth = XrayScopeDefinitions.Window.WidestHalfWidth;
+                    AngularHalfWidth = XrayScopeDefinitions.Cone.WidestHalfWidth;
                     BeamPhase = XrayBeamPhase.Full;
                 }
                 break;

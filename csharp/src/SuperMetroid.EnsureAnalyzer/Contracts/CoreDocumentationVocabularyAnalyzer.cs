@@ -118,6 +118,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// a translated thing and progression, defeat, controller, button or input bits.
 /// #2390 adds, outside hardware owners, updates counted as calls by number (on call two, calls one through six, odd
 /// calls) and the super-special name.
+/// #2398 adds, outside hardware owners, the port's narration of itself (inspectable things, patches told as fixes and
+/// Translated in a declared name), tables told as the original's storage and, outside generated text, repository paths.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -1706,6 +1708,57 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The port's narration of itself in Samus and world prose (#2398), outside hardware owners and markup: anything
+    /// inspectable in any word form (kept as inspectable state, the directly inspectable frame) and patches told as fixes
+    /// to the game's code (without per-input patches, not room-name patches, special-case or code patches, a step
+    /// patched around or over). Core says what the game does: one check handles every transition, every door that names
+    /// a setup receives the same changes. English stays legal: a picture's patch (the text patches a save slot's fields
+    /// draw over a page, a slot-field patch).
+    /// </summary>
+    private static readonly Regex PortSelfNarrationProse = new(
+        @"\binspectab\w*" +
+        @"|\b(?:per-[\w-]+|[\w-]+-name|special-case|code|ad-?hoc|one-off)\s+patch(?:es)?\b" +
+        @"|\bpatch(?:es|ed|ing)?\s+(?:around|over)\b|\bwithout\s+(?:[\w-]+\s+)?patch(?:es)?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A table told as the original's storage in prose (#2398), outside hardware owners and markup: the game's or the
+    /// original's tables, with up to one word between (the game table, the game's area/load-station tables, the game's own
+    /// name table, the original's table), a retail table, a direction, lookup, label, name or colour table, a table's
+    /// height, value, word, byte, result, output, lookup or chord, and a pose a table selects (the six table-selected
+    /// poses). The original kept its data in tables it indexed; Core names what the data is: the slope's surface, the
+    /// shot direction, the input transition matched, the pose, the load station, the shade colours, a name. English stays
+    /// legal: a table alone or named for its data (a drop-chance table, a speed table, the vulnerability table), which
+    /// <see cref="TableNarrationProse"/> leaves legal too.
+    /// </summary>
+    private static readonly Regex TableStorageProse = new(
+        @"\bgame(?:'s|s'|’s)?\s+(?:own\s+)?(?:[\w/-]+\s+)?tables?\b|\boriginal(?:'s|’s)?\s+(?:[\w/-]+\s+)?tables?\b" +
+        @"|\bretail\s+tables?\b|\b(?:direction|lookup|label|name|colou?r)\s+tables?\b" +
+        @"|\btables?\s+(?:heights?|values?|words?|bytes?|results?|outputs?|lookups?|chords?)\b|\btable-selected\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A path in the repository cited in prose (#2398), outside hardware owners and generated text, markup included: a
+    /// path under the repository's top folders (<c>docs/compatibility-layer.md</c>, <c>tools/generate-x.ps1</c>,
+    /// <c>csharp/test-fixtures/</c>) and a documentation, script or project file (<c>room-scope.md</c>, <c>build.ps1</c>).
+    /// Core states what the game does; which document explains it and which script built it are the repository's. A
+    /// compatibility service may cite the evidence that shows the behaviour it reproduces, and a generated file's header
+    /// may name its generator. English stays legal: an installed file's name (<c>manifest.json</c>) and a namespace.
+    /// </summary>
+    private static readonly Regex RepositoryPathProse = new(
+        @"(?<![\w.-])(?:docs|tools|csharp|test-temp|upstream-[\w-]+|\.github)/(?:[\w./-]*[\w/])?" +
+        @"|(?<![\w/.-])[\w-]+(?:/[\w.-]+)*\.(?:md|ps1|py|csproj|slnx|sln)\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A camel-case word of a declared name that tells the port as a translation (#2398): Translated or Untranslated at
+    /// any word boundary (<c>CaptureTranslatedRenderSnapshot</c>, <c>hasTranslatedBodyChange</c>). Core names what the
+    /// member captures, collects or tests.
+    /// </summary>
+    private static readonly Regex TranslatedNameWord = new(
+        @"(?:^|_|(?<=[a-z0-9])(?=[A-Z]))(?:[Uu]ntranslated|[Tt]ranslated)(?![a-z])", RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A camel-case word of a declared name that names the original's execution counter (#2336): ExecutionCounter at
     /// any word boundary (<c>MainEnemyExecutionCounter</c>, <c>enemyMainExecutionCounter</c>). Core names the update
     /// count it means.
@@ -1981,7 +2034,8 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         foreach (SyntaxNode node in root.DescendantNodes())
         {
             if (DeclaredName(node) is { } name &&
-                (CallNameWord.IsMatch(name.ValueText) || ExecutionCounterNameWord.IsMatch(name.ValueText)) && !IsInHardwareOwner(node))
+                (CallNameWord.IsMatch(name.ValueText) || ExecutionCounterNameWord.IsMatch(name.ValueText) ||
+                    TranslatedNameWord.IsMatch(name.ValueText)) && !IsInHardwareOwner(node))
                 context.ReportDiagnostic(Diagnostic.Create(Rule, name.GetLocation(), name.ValueText));
         }
     }
@@ -2198,6 +2252,9 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : ProgramStepNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } programStep ? programStep.Value
             : MachineryNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } machinery ? machinery.Value
             : NumberedCallProse.Match(Markup.Replace(text, " ")) is { Success: true } numberedCall ? numberedCall.Value
+            : PortSelfNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } selfNarration ? selfNarration.Value
+            : TableStorageProse.Match(Markup.Replace(text, " ")) is { Success: true } tableStorage ? tableStorage.Value
+            : !generated && RepositoryPathProse.Match(text) is { Success: true } repositoryPath ? repositoryPath.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

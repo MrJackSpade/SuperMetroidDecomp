@@ -12,7 +12,7 @@ public static class SamusPostDrawAudio
     /// <summary>
     /// Uses the completed previous frame's movement-type snapshot, not the last pose
     /// setup's. A spin can end through aiming, firing, landing or another
-    /// transition; the shared post-draw check handles them without per-input patches.
+    /// transition; the one post-draw check handles them all.
     /// </summary>
     public static void Step(SamusState samus,
         SamusMovementType previousMovement, GameplayAction controllerInput)

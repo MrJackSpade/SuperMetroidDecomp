@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// <remarks>
 /// Super Metroid does not reduce slopes to a line equation. A block's slope shape selects one of 32
 /// sixteen-sample height profiles, while a separate multiplier scales grounded horizontal
-/// displacement. Compiled profiles and multipliers preserve the exact discrete geometry
-/// and integer movement calculations without reading game tables at runtime.
+/// displacement. The profiles and multipliers give the exact discrete geometry and whole-pixel
+/// movement.
 /// </remarks>
 public static class SamusSlopePhysics
 {

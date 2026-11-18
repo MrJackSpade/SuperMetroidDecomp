@@ -9,6 +9,6 @@ internal static class IntroCinematicStatePixelsAccess
     extension(IntroCinematicState scene)
     {
         /// <summary>Captures the scene and draws its snapshot with the game's renderer.</summary>
-        internal RgbaPixel[] Render() => FrontendScenePixelsAccess.Pixels(scene.CaptureTranslatedRenderSnapshot());
+        internal RgbaPixel[] Render() => FrontendScenePixelsAccess.Pixels(scene.CaptureRenderSnapshot());
     }
 }

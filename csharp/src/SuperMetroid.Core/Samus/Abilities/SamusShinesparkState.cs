@@ -272,7 +272,7 @@ public sealed class SamusShinesparkState
         // The launch takes Samus's movement from whoever holds it. A windup whose hold
         // her pose's movement took back (a knockback ending in a windup pose) keeps its
         // pose and the windup's speeds, and a direction still launches from it.
-        // Only the six table-selected shinespark poses launch a spark; any other pose is a broken contract, not another
+        // Only the six directional shinespark poses launch a spark; any other pose is a broken contract, not another
         // launch the game has.
         Phase = ShinesparkDefinitions.LaunchPhases.TryGetValue(targetPose, out ShinesparkPhase launch)
             ? launch

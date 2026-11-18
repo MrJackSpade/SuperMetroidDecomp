@@ -573,6 +573,17 @@ updates (the flash's first, third and fifth updates, its impact update) and name
 pose. A call that counts the noun after it (`calls two methods`), a call to something and updates counted by their
 order stay English.
 
+#2398 widens SME6454, outside hardware owners, to the port's narration of itself and the original's tables as Samus and
+world prose tell them: anything `inspectable`; patches told as fixes to the game's code (`without per-input patches`,
+`not room-name patches`); a table told as the original's storage (`the game table`, `the game's area/load-station
+tables`, `the original's table`, a `retail`, `direction`, `lookup`, `label`, `name` or `colour table`, a `table height`,
+`table result` or `table chord`, the `table-selected` poses); and, outside generated text, a repository path (`docs/...`,
+`tools/...`, `csharp/...`, a `.md`, `.ps1` or project file). A declared name holding `Translated` or `Untranslated`
+(`CaptureTranslatedRenderSnapshot`, `hasTranslatedBodyChange`) is reported too. Core says what the game does: one check
+handles every transition, the slope's surface lies above the shot, the shot direction picks the pose, the input
+transition matched. A picture's patch (a slot-field patch), a table alone or named for its data (a drop-chance table, a
+speed table), an installed file's name and a generated file's header naming its generator stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

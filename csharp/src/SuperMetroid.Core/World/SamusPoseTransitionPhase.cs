@@ -337,8 +337,8 @@ internal sealed class SamusPoseTransitionPhase
             // here also covers the no-input “running speed was killed” branch.
             SamusGroundedPoseTransitions.ApplyRanIntoWallPoseChange(samus, wallCollisionPose);
             animationTransitionApplied = true;
-            // The wall-stop check replaces only ProspectivePose. When the input phase's table lookup
-            // failed, the pose update still runs the momentum response
+            // The wall-stop check replaces only ProspectivePose. When the input phase matched no input
+            // transition, the pose update still runs the momentum response
             // selected for the pre-wall movement type.
             if (_player.ProspectiveSamusPose is null && _player.ProspectiveSamusFallbackPose is not null)
             {
@@ -560,7 +560,7 @@ internal sealed class SamusPoseTransitionPhase
                        target == SamusPoseId.TurningRightToLeftFallingPose) ||
                       (SamusPoseMetadata.IsLeftFacingFallingPose(source) &&
                        target == SamusPoseId.TurningLeftToRightFallingPose)):
-                // The generic jumping and falling turns are table outputs. The turn
+                // The input transitions select the generic jumping and falling turns. The turn
                 // reads the source pose's shot direction, chooses the exact
                 // aimed aerial turn art when needed, folds momentum, and runs compact
                 // pose-expansion collision before committing the turn.

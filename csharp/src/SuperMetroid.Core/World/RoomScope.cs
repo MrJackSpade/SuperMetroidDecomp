@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.World;
 /// <summary>
 /// One loaded room's state, built by <see cref="RoomScopeConstruction"/> in the game's load order and replaced
 /// whole by the next load. Nothing in it survives into another room; values a destination reads from its source room
-/// travel through <see cref="RoomTransitionCarryOver"/> instead (#1329, <c>docs/room-scope.md</c>).
+/// travel through <see cref="RoomTransitionCarryOver"/> instead (#1329).
 /// </summary>
 [RoomLifetime]
 internal sealed record RoomScope

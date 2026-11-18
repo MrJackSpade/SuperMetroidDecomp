@@ -194,7 +194,7 @@ public sealed class EnemyProjectile
     /// it still moves, a flying goop still tests Samus and, on reaching her, sticks to her and slows her again after the
     /// explosion has cleared her slowdown, and its animation still runs this pass; where it moved to is what it leaves in
     /// its place for the next projectile spawned there (<see cref="EnemyProjectileHandOver"/>). From the next pass on it
-    /// takes no part in the game (<c>docs/compatibility-layer.md</c> gives the evidence).
+    /// takes no part in the game.
     /// </summary>
     internal void FreePlace() => Kind = RoomEnemyProjectileKind.None;
 

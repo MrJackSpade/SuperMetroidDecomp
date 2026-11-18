@@ -21,6 +21,6 @@ public enum SamusSuitPickupStage
     /// <summary>Only the centre row remains and narrows from both sides.</summary>
     LightBeamDissipates,
 
-    /// <summary>The beam's window and colour are cleared and Samus's input is released.</summary>
+    /// <summary>The beam's outline and colour are cleared and Samus's input is released.</summary>
     Finish,
 }

@@ -114,7 +114,7 @@ internal static class ScreenTilePicturesVerification
             // A phase is checked once, so its scene is only captured until then, and its memory image only for that check.
             if (!sampled.Contains(introName))
             {
-                LayeredScene introScene = introState.CaptureTranslatedRenderSnapshot();
+                LayeredScene introScene = introState.CaptureRenderSnapshot();
                 if (ShowsFloor(introScene))
                 {
                     byte[] shownIntro = introState.ShownVram();
@@ -122,7 +122,7 @@ internal static class ScreenTilePicturesVerification
                 }
             }
             if (!captionPictured && introState.Phase == IntroCinematicPhase.CeresFlight && introState.CurrentCeresFlight?.Phase == IntroCeresFlightPhase.SpaceColonyTitle)
-                captionPictured = introState.CaptureTranslatedRenderSnapshot().Layers.ToArray().Any(layer => layer is PicturedPlaneLayer);
+                captionPictured = introState.CaptureRenderSnapshot().Layers.ToArray().Any(layer => layer is PicturedPlaneLayer);
             introState.Step(tick % 47 == 0 ? ControllerButton.A : 0);
             audio.AdvanceFrame(default);
         }

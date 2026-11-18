@@ -978,7 +978,7 @@ internal static class SamusPoseInputRules
         return new(null, HasConditions: true);
     }
 
-    /// <summary>The priority order of the unused draygon held ball left input list.</summary>
+    /// <summary>The priority order of the input list of the left-facing ball pose Draygon holds Samus in.</summary>
     private static SamusPoseInputMatch MatchDraygonHeldBallLeft(GameplayAction newlyPressed)
     {
         if (Has(newlyPressed, Up))

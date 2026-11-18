@@ -401,8 +401,8 @@ internal static class SamusAerialPoseTransitions
 
     /// <summary>
     /// Applies the early wall-jump rewind when an early spin frame finds the wall-jump chord.
-    /// This does not launch Samus: it rewinds the ordinary spin sequence to frame ten
-    /// with a one-tick timer so the visible wall-contact pose reaches eligibility naturally.
+    /// This does not launch Samus: it rewinds the spin to its end with a one-update wait, so the spin's next frame is
+    /// its first wall-jump-ready one.
     /// </summary>
     /// <remarks>
     /// Tests only for the Screw Attack poses. It runs for whatever pose holds the
@@ -549,17 +549,12 @@ internal static class SamusAerialPoseTransitions
             (SamusPoseId.MovingLeftNormalPose or SamusPoseId.MovingLeftGunExtendedPose or
                 SamusPoseId.RunningAimDiagonalUpLeftPose or SamusPoseId.RunningAimDiagonalDownLeftPose,
              SamusPoseId.SpinJumpLeftPose) or
-            // Turning-on-ground uses its own pose input, but a Jump
-            // transition still enters the ordinary spin-jump setup. The turn pose has
-            // already folded run momentum in the moonwalk turn; the spin-jump setup now owns the same jump
-            // speed, radius, equipment substitution, and frame-zero setup as a run jump.
-            // Keeps consulting the turning pose's live input transitions. A fresh
-            // Jump with no horizontal direction selects the neutral jump transition;
-            // holding the completed facing selects the spin jump. Both pairs enter the
-            // same jump setup and differ only in their authored body.
-            // Can leave the moonwalk turn art early while the backward
-            // direction remains held, or select the neutral jump transition on a fresh Jump edge. Both
-            // routes call the same dry-air jump setup after changing pose.
+            // A moonwalk turn reads its own input transitions, but a Jump from it enters the ordinary spin-jump
+            // setup: the turn has already folded in the run's momentum, and the setup gives it a run jump's speed,
+            // radius, equipment substitution and first frame. A fresh Jump with no horizontal direction selects the
+            // neutral jump transition, and holding the completed facing selects the spin jump; Jump can leave the
+            // turn's art early while the backward direction stays held. Both targets take the same dry-air jump
+            // setup after the pose changes and differ only in their authored body.
             (SamusPoseId.MoonwalkTurnJumpLeftPose or SamusPoseId.MoonwalkTurnJumpAimUpLeftPose or
                 SamusPoseId.MoonwalkTurnJumpAimDownLeftPose,
              SamusPoseId.SpinJumpLeftPose or SamusPoseId.NeutralJumpTransitionLeftPose) or

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Progression;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
+using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Verification.Fx;
 /// <summary>Checks conveyor inside-block reactions, standing carry,
 /// Wrecked Ship power gating, and solid-wall clipping.</summary>

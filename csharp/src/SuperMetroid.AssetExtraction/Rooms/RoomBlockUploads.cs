@@ -23,6 +23,7 @@ using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.AssetExtraction.Areas.Tourian;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
+using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -71,7 +72,7 @@ internal static class RoomBlockUploads
                 DoorDefinition?[] doors = [.. DoorVariants(library)];
                 names.AddRange(doors.Select(door => RoomBackgroundImage.NameOf(library.Background, door, tileset)));
             }
-            if (state.MainBehavior.Sky is { } sky)
+            if (RoomBehaviorPictureDefinitions.MainSkies.TryGetValue(state.MainBehavior, out ScrollingSky sky))
                 names.Add(RoomBackgroundImage.SkyNameOf(sky, tileset));
         }
         return [.. names.Distinct(StringComparer.Ordinal)];
@@ -151,7 +152,7 @@ internal static class RoomBlockUploads
                     // Words written over the room show over what its load binds.
                     uploads.AddWriters(writers, Loaded(inputs, tileset), []);
                 }
-                if (state.MainBehavior.Sky is { } variant)
+                if (RoomBehaviorPictureDefinitions.MainSkies.TryGetValue(state.MainBehavior, out ScrollingSky variant))
                 {
                     // The sky's rows show over what the room's load binds.
                     uploads.AddBackground(new RoomBackgroundMap(RoomBackgroundImage.SkyNameOf(variant, tileset),
@@ -294,10 +295,11 @@ internal static class RoomBlockUploads
     /// Whether a room in <paramref name="state"/> draws its blocks over what Ceres Ridley's arena loads for its fight rather
     /// than over its tileset's characters (#1357, #1648, #1791): the arena's setup ($8F:C97B) points BG1's and BG2's
     /// characters at the OBJ character table before the room's first frame, because the arena's tileset's characters are
-    /// the turning floor of Ridley's getaway. Both of the arena's states run it, and no other state does.
+    /// the turning floor of Ridley's getaway. Both of the arena's states run it, and no other state does; the simulation
+    /// runs the arena's setup as the other Ceres rooms' haze, so the import names the arena's states (#2485).
     /// </summary>
     internal static bool DrawsBlocksOverArenaCharacters(RoomStateSettings state) =>
-        Ensure.NotNull(state).SetupBehavior == RoomSetupBehavior.SpawnCeresRidleyArenaHaze;
+        RoomBehaviorPictureDefinitions.CeresRidleyArenaStates.Contains(Ensure.NotNull(state));
 
     /// <summary>
     /// What <paramref name="state"/>'s room uploads over the OBJ character table as it loads, which the Ceres Ridley arena's

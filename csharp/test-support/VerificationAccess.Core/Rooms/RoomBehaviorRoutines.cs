@@ -7,7 +7,9 @@ namespace SuperMetroid.Core.Rooms;
 /// behaviour objects; production knows only the behaviours. Every offset whose routine returns at once decodes to the
 /// behaviour's <c>None</c>, as offset zero does, so the many return instructions the cartridge points at are one behaviour
 /// (#1787), and so do Draygon's room's setup, which acts only on the room's display (#1827), and the main the port does
-/// not run (#2287); an offset the map does not know is refused.
+/// not run (#2287). The land and the ocean skies' setups are one behaviour, and so are the three Ceres haze setups, the
+/// arena's display change being what the import pictures for its states (#2485); an offset the map does not know is
+/// refused.
 /// </summary>
 internal static class RoomBehaviorRoutines
 {
@@ -42,8 +44,8 @@ internal static class RoomBehaviorRoutines
         [0x91bb] = RoomSetupBehavior.None,
         [0x91bc] = RoomSetupBehavior.None,
         [0x91bd] = RoomSetupBehavior.LandSkyWithLandingSiteQuake,
-        [0x91c9] = RoomSetupBehavior.ScrollingSkyLand,
-        [0x91ce] = RoomSetupBehavior.ScrollingSkyOcean,
+        [0x91c9] = RoomSetupBehavior.SpawnScrollingSkyBands,
+        [0x91ce] = RoomSetupBehavior.SpawnScrollingSkyBands,
         [0x91d3] = RoomSetupBehavior.None,
         [0x91d4] = RoomSetupBehavior.None,
         [0x91d5] = RoomSetupBehavior.None,
@@ -67,9 +69,9 @@ internal static class RoomBehaviorRoutines
         [0xc933] = RoomSetupBehavior.SetLightHorizontalRoomShaking,
         [0xc946] = RoomSetupBehavior.SetMediumHorizontalRoomShaking,
         [0xc953] = RoomSetupBehavior.MediumHorizontalShakingWithRisingAcid,
-        [0xc96e] = RoomSetupBehavior.SealCeresDoorAndSpawnHaze,
+        [0xc96e] = RoomSetupBehavior.SpawnCeresHaze,
         [0xc976] = RoomSetupBehavior.SpawnCeresHaze,
-        [0xc97b] = RoomSetupBehavior.SpawnCeresRidleyArenaHaze,
+        [0xc97b] = RoomSetupBehavior.SpawnCeresHaze,
     };
 
     /// <summary>The setup offsets whose routine acts only on the room's display, which decode to no behaviour.</summary>

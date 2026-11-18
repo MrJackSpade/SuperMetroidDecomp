@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.Doors;
+
 namespace SuperMetroid.Core.Areas.Maridia;
 
 /// <summary>
@@ -9,23 +11,25 @@ internal static class MaridiaElevatubeDefinitions
     /// <summary>The room X, in whole pixels, the tube holds Samus at on every update.</summary>
     internal const int SamusCenterX = 128;
 
-    /// <summary>The room Y, in whole pixels, a ride entered from Oasis to the south starts at.</summary>
-    internal const int SouthStartingY = 2496;
+    /// <summary>A ride entered from Oasis to the south: from room Y 2496, one pixel per update upward, gaining an eighth of a pixel per update upward each update.</summary>
+    internal static readonly MaridiaElevatubeRideStart FromSouth = new(
+        StartingY: 2496,
+        StartingVelocity: SignedEightEight.FromPixels(-1),
+        Acceleration: SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-32));
 
-    /// <summary>A south entry's starting velocity: one pixel per update, upward.</summary>
-    internal static readonly SignedEightEight SouthStartingVelocity = SignedEightEight.FromPixels(-1);
+    /// <summary>A ride entered from Plasma Spark to the north: from room Y 64, one pixel per update downward, gaining an eighth of a pixel per update downward each update.</summary>
+    internal static readonly MaridiaElevatubeRideStart FromNorth = new(
+        StartingY: 64,
+        StartingVelocity: SignedEightEight.FromPixels(1),
+        Acceleration: SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32));
 
-    /// <summary>A south entry's acceleration: an eighth of a pixel per update per update, upward.</summary>
-    internal static readonly SignedEightEight SouthAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-32);
-
-    /// <summary>The room Y, in whole pixels, a ride entered from Plasma Spark to the north starts at.</summary>
-    internal const int NorthStartingY = 64;
-
-    /// <summary>A north entry's starting velocity: one pixel per update, downward.</summary>
-    internal static readonly SignedEightEight NorthStartingVelocity = SignedEightEight.FromPixels(1);
-
-    /// <summary>A north entry's acceleration: an eighth of a pixel per update per update, downward.</summary>
-    internal static readonly SignedEightEight NorthAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32);
+    /// <summary>How the ride starts from each end of the tube, which the entry door names (#2485).</summary>
+    internal static IReadOnlyDictionary<ElevatubeEntry, MaridiaElevatubeRideStart> RideStarts { get; } =
+        new Dictionary<ElevatubeEntry, MaridiaElevatubeRideStart>
+        {
+            [ElevatubeEntry.FromSouth] = FromSouth,
+            [ElevatubeEntry.FromNorth] = FromNorth,
+        };
 
     /// <summary>
     /// The fastest the tube carries Samus either way, fourteen and an eighth pixels per update: an acceleration that

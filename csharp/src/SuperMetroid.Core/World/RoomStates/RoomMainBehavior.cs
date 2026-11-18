@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Rooms.Scrolling;
 
@@ -18,12 +17,6 @@ public abstract class RoomMainBehavior
 
     /// <summary>The behaviour's name, as the room states author it.</summary>
     public string Name { get; }
-
-    /// <summary>The sky the main scrolls behind the room, or null for a main that scrolls none.</summary>
-    public virtual ScrollingSky? Sky => null;
-
-    /// <summary>Whether the main sets off the escape's random explosions, which the import pictures only for its rooms.</summary>
-    public virtual bool SetsOffEscapeExplosions => false;
 
     /// <summary>Has the room <paramref name="scope"/> builds compose this main, with the state it keeps.</summary>
     /// <param name="scope">The room being loaded: its door, its state and the working value the previous room's main left.</param>
@@ -88,15 +81,6 @@ public abstract class RoomMainBehavior
     /// <summary>Moves the Dachora room's camera toward its shaft while the shaft stands open (#2293).</summary>
     public static RoomMainBehavior DachoraShaftCamera { get; } = new DachoraShaftCameraRoomMain();
 
-    /// <summary>Every room-main behaviour the room states author, <see cref="None"/> first.</summary>
-    public static IReadOnlyList<RoomMainBehavior> All { get; } =
-    [
-        None, ScrollingSkyLand, ScrollingSkyOcean, ScrollingSkyLandWithEscapeExplosions, ShakeScreenWithRandomExplosions,
-        MaridiaElevatube, CeresElevatorShaft, SpawnCeresPreElevatorHallFallingDebris, CeresRidleyGetaway,
-        ShakeScreenLightHorizontalAndMediumDiagonal, RandomExplosionEveryFourthUpdate,
-        ShakeScreenMediumHorizontalAndStrongDiagonal, CrocomireRoomShaking, DachoraShaftCamera,
-    ];
-
     /// <summary>The main that runs nothing: the room composes no main.</summary>
     private sealed class NoRoomMain() : RoomMainBehavior(nameof(None))
     {
@@ -112,12 +96,6 @@ public abstract class RoomMainBehavior
         : RoomMainBehavior(name)
     {
         /// <inheritdoc/>
-        public override ScrollingSky? Sky => sky;
-
-        /// <inheritdoc/>
-        public override bool SetsOffEscapeExplosions => explosions is not null;
-
-        /// <inheritdoc/>
         internal override void Compose(RoomScopeConstruction scope) => Ensure.NotNull(scope).ComposeSkyMain(sky, explosions);
     }
 
@@ -125,9 +103,6 @@ public abstract class RoomMainBehavior
     private sealed class EscapeRoomMain(string name, EscapeExplosionSite site, EscapeDiagonalShaking? diagonal)
         : RoomMainBehavior(name)
     {
-        /// <inheritdoc/>
-        public override bool SetsOffEscapeExplosions => true;
-
         /// <inheritdoc/>
         internal override void Compose(RoomScopeConstruction scope) => Ensure.NotNull(scope).ComposeEscapeMain(site, diagonal);
     }
@@ -141,15 +116,15 @@ public abstract class RoomMainBehavior
 
     /// <summary>
     /// The Ceres elevator shaft's turn and its elevator, composed only when the room is entered through the elevator
-    /// door, whose setup starts the turn; entered otherwise the shaft never turns.
+    /// door, whose room event starts the turn (#2485); entered otherwise the shaft never turns.
     /// </summary>
     private sealed class CeresElevatorShaftRoomMain() : RoomMainBehavior(nameof(CeresElevatorShaft))
     {
         /// <inheritdoc/>
         internal override void Compose(RoomScopeConstruction scope)
         {
-            if (Ensure.NotNull(scope).Door.EntersCeresElevatorShaft)
-                scope.ComposeElevatorShaftMain();
+            if (Ensure.NotNull(scope).CeresElevatorShaft is { } shaft)
+                scope.ComposeElevatorShaftMain(shaft);
         }
     }
 

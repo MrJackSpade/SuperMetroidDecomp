@@ -5,6 +5,7 @@ using SuperMetroid.Core.Fx.Artwork;
 
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Areas.Tourian;
+using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>

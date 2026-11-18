@@ -41,7 +41,7 @@ internal static class ZebesEscapeExplosionDefinitionsVerification
         for (int column = 0; column < 64; column++)
         {
             AssertEqual(rom.ReadCartridgeByte(SpriteTable + ((2 * column) & 7)),
-                RoomEffectActorNativeWords.Kinds.Word(ZebesEscapeExplosions.OutdoorKindLeftOpen(Position16<RoomBlocks>.Of(column, column / 3))),
+                RoomEffectActorNativeWords.Kinds.Word(EscapeExplosionSite.Outdoors.KindLeftOpen(Position16<RoomBlocks>.Of(column, column / 3))),
                 $"outdoor kind left open over column {column}");
         }
 

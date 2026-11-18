@@ -95,7 +95,8 @@ internal static class ClosedPresentationIdentityDefinitions
             .Select(type => (int)type).ToArray(),
         // A sky is installed for each variant some retail room state's scrolling-sky room main reads (#1536).
         ("InstalledRoomArtwork", "Sky", "sky") => RetailRooms.All.SelectMany(RoomStateLists.GetStates)
-            .Select(state => state.MainBehavior.Sky).OfType<SuperMetroid.Core.Rooms.Scrolling.ScrollingSky>()
+            .Select(state => state.MainBehavior).Where(RoomBehaviorPictureDefinitions.MainSkies.ContainsKey)
+            .Select(main => RoomBehaviorPictureDefinitions.MainSkies[main])
             .Select(sky => (int)sky).Distinct().ToArray(),
         // Contains is deliberately absent: querying an unowned ID is valid and
         // returns false rather than looking up missing artwork.

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Verification.Fx;
 

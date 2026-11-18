@@ -3,7 +3,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>
-/// The grapple state connected swinging uses.
+/// Samus's grapple beam: its phase, anchor, rope, swing, flare and the release that ends it.
 /// </summary>
 public sealed class SamusGrappleState
 {

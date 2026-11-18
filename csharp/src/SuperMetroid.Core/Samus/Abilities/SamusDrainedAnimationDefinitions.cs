@@ -8,23 +8,23 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// animations (#1513, #2048). Each is a named frame of the left-facing drained crouch or stand, which the game sets on
 /// whatever drained pose Samus holds, or, while she cannot stand and after the drain has let her go, on any pose: there it
 /// lands on the frame the import decoded for the place in that pose's animation (<see cref="SamusAnimationDelays.Land"/>). Several name a
-/// value a cue carries, which the game reads as a step of its own.
+/// segment's end, whose next frame is the first of the segment after it.
 /// </summary>
 internal static class SamusDrainedAnimationDefinitions
 {
     /// <summary>The held crouch's first frame after its landing, from which the crouch accepts Up once she can stand.</summary>
     internal static SamusAnimationPlace AbleToStandFirstFrame { get; } = SamusAnimationDelayDefinitions.DrainedCrouchingLeftAnimation.Place(SamusAnimationPlaceName.DrainedAbleToStandFirst, Held, 1);
-    /// <summary>The value the held crouch's repeat carries, which the get-up moves the left-facing drained crouch to on Up once she can stand, starting its stand-up.</summary>
+    /// <summary>The held crouch's end, which the get-up moves the left-facing drained crouch to on Up once she can stand: its next frame starts the stand-up.</summary>
     internal static SamusAnimationPlace AbleToStandFrame { get; } = SamusAnimationDelayDefinitions.DrainedCrouchingLeftAnimation.Place(SamusAnimationPlaceName.DrainedAbleToStand, Held, 6);
     /// <summary>The first frame from which the drained crouch accepts Up while she cannot stand, whatever pose Samus holds.</summary>
     internal static SamusAnimationPlace UnableToStandFirstFrame { get; } = SamusAnimationDelayDefinitions.DrainedCrouchingLeftAnimation.Place(SamusAnimationPlaceName.DrainedUnableToStandFirst, Held, 1);
     /// <summary>The last frame from which the drained crouch accepts Up while she cannot stand.</summary>
     internal static SamusAnimationPlace UnableToStandLastFrame { get; } = SamusAnimationDelayDefinitions.DrainedCrouchingLeftAnimation.Place(SamusAnimationPlaceName.DrainedUnableToStandLast, Held, 4);
-    /// <summary>The value the stand-up's transition carries, which the get-up moves the animation to on Up while she cannot stand, its failed attempt to stand.</summary>
+    /// <summary>The stand-up's end, which the get-up moves the animation to on Up while she cannot stand: its next frame starts her failed attempt to stand.</summary>
     internal static SamusAnimationPlace UnableToStandFrame { get; } = SamusAnimationDelayDefinitions.DrainedCrouchingLeftAnimation.Place(SamusAnimationPlaceName.DrainedUnableToStand, StandUp, 4);
-    /// <summary>The value the failed stand's last repeat carries, at which the Hyper Beam acquisition freezes the drained animation.</summary>
+    /// <summary>The failed stand's end, which the Hyper Beam acquisition moves the drained animation to: its next frame is the frozen crouch it holds.</summary>
     internal static SamusAnimationPlace HyperBeamAcquisitionFrame { get; } = SamusAnimationDelayDefinitions.DrainedCrouchingLeftAnimation.Place(SamusAnimationPlaceName.DrainedHyperBeamAcquisition, FailedStandEnd, 2);
-    /// <summary>The value the held crouch's repeat carries, from which the rainbow stop starts the standing part of the drained animation.</summary>
+    /// <summary>The held crouch's end, from which the rainbow stop starts the standing part of the drained animation: its next frame starts the stand-up.</summary>
     internal static SamusAnimationPlace RainbowStopFrame { get; } = SamusAnimationDelayDefinitions.DrainedCrouchingLeftAnimation.Place(SamusAnimationPlaceName.DrainedRainbowStop, Held, 6);
     /// <summary>The held crouch's landing frame, which a falling drained crouch lands on.</summary>
     internal static SamusAnimationPlace LandingFrame { get; } = SamusAnimationDelayDefinitions.DrainedCrouchingLeftAnimation.Place(SamusAnimationPlaceName.DrainedLanding, Held, 0);
@@ -36,7 +36,7 @@ internal static class SamusDrainedAnimationDefinitions
     /// update (#2280).
     /// </summary>
     internal const int SetFrameTimer = 1;
-    /// <summary>The value the held crouch's repeat carries, which the release moves a drained crouch to.</summary>
+    /// <summary>The held crouch's end, which the release moves a drained crouch to: its next frame starts the stand-up.</summary>
     internal static SamusAnimationPlace ReleaseCrouchingFrame { get; } = SamusAnimationDelayDefinitions.DrainedCrouchingLeftAnimation.Place(SamusAnimationPlaceName.DrainedReleaseCrouching, Held, 6);
     /// <summary>The drained breathing's restart, which the release moves a drained standing pose to.</summary>
     internal static SamusAnimationPlace ReleaseStandingFrame { get; } = SamusAnimationDelayDefinitions.DrainedStandingLeftAnimation.Place(SamusAnimationPlaceName.DrainedReleaseStanding, Breathe, 4);

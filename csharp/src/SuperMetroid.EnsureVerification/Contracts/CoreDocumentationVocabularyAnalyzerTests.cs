@@ -1566,5 +1566,18 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // an origin, a save and a hardware owner are English.
         Expect("class P { /// <summary>The host's renderer; her hair streaming out; the jets streamed out; the scene is not translated to this origin; a position translated by an offset; the game's saves.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the allocator's own order and the renderer.</summary>\n[CompatibilityService(\"order\")] class Order { }");
+        // Updates counted as calls by number in Samus prose, outside hardware owners and markup (#2390): a call by its
+        // number, calls by number in a list or a range, odd or even calls, and the super-special name.
+        Expect("class P { void Run() { // The flash plays the impact sound exactly on call two.\n } }", "('on call two')");
+        Expect("class P { /// <summary>Selected on hurt-counter calls one, three, and five.</summary>\nint F => 0; }",
+            "('calls one, three, and five')");
+        Expect("class P { void Run() { // Only calls one through six write colours.\n } }", "('calls one through six')");
+        Expect("class P { void Run() { // Odd calls select the fixed hurt shade.\n } }", "('Odd calls')");
+        Expect("class P { /// <summary>Applied once the frame's super-special transition owners decline it.</summary>\nint F => 0; }",
+            "('super-special')");
+        // A call that counts the noun after it, a call to something, updates counted by their order and a hardware owner
+        // are English.
+        Expect("class P { /// <summary>The producer calls two methods; a call to the queue; the flash's first and third updates; a special transition.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the flash's colours change on calls one through six.</summary>\n[CompatibilityService(\"flash\")] class Flash { }");
     }
 }

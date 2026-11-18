@@ -43,7 +43,7 @@ public static class SamusHurtFlash
         }
 
 
-        // The hurt flash plays the impact sound exactly on call two. Cinematics and the
+        // The hurt flash plays the impact sound on its impact update. Cinematics and the
         // Mother-Brain drained knockback are the two exceptions; the latter is
         // identified by the same explicit phase/pose pair that replaces its movement.
         if (counterBefore == SamusHurtFlashDefinitions.ImpactSoundUpdate &&
@@ -54,9 +54,8 @@ public static class SamusHurtFlash
             samus.AudioRequests.QueueSound(SamusSound.SamusDamaged, priority: SoundRequestPriority.Normal);
         }
 
-        // Only calls one through six write colors. Odd calls select the fixed hurt shade;
-        // even calls restore either the intro shade or the equipment-selected suit. Once
-        // counter seven is reached the existing colours deliberately remain untouched.
+        // Only the flash's coloured updates change colours: the first of each pair shows the hurt shade, the second
+        // restores the intro shade or the equipped suit. Later updates leave the colours as they are.
         if (counterBefore <= SamusHurtFlashDefinitions.ColouredUpdates)
         {
             if (SamusCadenceDefinitions.HurtColoursShown.IsSetIn(counterBefore))

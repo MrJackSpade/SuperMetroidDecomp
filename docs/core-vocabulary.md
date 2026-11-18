@@ -566,6 +566,13 @@ input transition chosen, the movement a pose runs, the progression recorded, the
 Hair or jets streaming out, a thing streamed out, a position translated by an offset or to an origin and a save stay
 English.
 
+#2390 widens SME6454, outside hardware owners, to updates counted as the original's calls by number in Samus prose: a
+call by its number (`on call two`), calls by number in a list or a range (`calls one, three, and five`, `calls one
+through six`) or ending their clause, `odd` or `even calls`, and `super-special`, the name #2113 replaced. Core counts
+updates (the flash's first, third and fifth updates, its impact update) and names the interruptions that outrank a
+pose. A call that counts the noun after it (`calls two methods`), a call to something and updates counted by their
+order stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

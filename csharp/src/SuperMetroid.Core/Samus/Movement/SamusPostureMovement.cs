@@ -63,9 +63,8 @@ public static class SamusPostureMovement
                 $"Crouch/stand transition movement requires a crouching or standing transition pose, not {samus.Pose}.");
         }
 
-        // All four corresponding entries in the posture cleanup table do nothing. Unlike crouching movement,
-        // this movement does not clear stored base momentum after moving. That distinction is
-        // retained even though ordinary stand/crouch input reaches this code at zero speed.
+        // Unlike crouching movement, the four crouch and stand transitions keep Samus's base momentum after moving,
+        // although ordinary standing and crouching input brings her here at zero speed.
         return MoveWithZeroBaseSpeed(level, samus, frameCounter, roomObjects);
     }
 
@@ -78,13 +77,9 @@ public static class SamusPostureMovement
     {
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
-        // Sets exactly two values before going on to the ordinary horizontal
-        // mover: it zeros the *base* displacement pair. It emphatically does
-        // not require extra run speed to be zero. Horizontal movement subsequently
-        // adds the extra run speed to that zero base. This is the game's
-        // behavior that lets a stage-four run continue sliding during crouch transition
-        // into a crouch; Samus's pose handling samples and stores the shine before normal crouching clears
-        // that momentum. The old exception at this seam prevented that route.
+        // Samus moves with no base speed, but keeps any extra run speed, which her horizontal movement adds to it.
+        // A run at its full boost stage therefore keeps sliding through the crouch transition into a crouch, and
+        // her pose handling stores the shine before ordinary crouching stops that momentum.
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         var requestedHorizontal = SamusHorizontalDisplacement.Toward(facingLeft, samus, baseSpeed: default);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });

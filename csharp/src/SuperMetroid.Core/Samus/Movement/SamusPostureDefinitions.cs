@@ -5,17 +5,15 @@ public static class SamusPostureDefinitions
 {
     /// <summary>
     /// The pose-change downward distance for <see cref="Poses.SamusPoseId.MorphingTransitionRightPose"/> and
-    /// <see cref="Poses.SamusPoseId.MorphingTransitionLeftPose"/>. The posture change
-    /// requests nine pixels downward with the new radius, irrespective of the
-    /// source radius, and clips that request through downward block collision.
+    /// <see cref="Poses.SamusPoseId.MorphingTransitionLeftPose"/>. The posture change moves Samus down this far with
+    /// her new radius, whatever her radius before, stopping at any block below her.
     /// </summary>
     public const int MorphEntryDownwardPixels = 9;
 
     /// <summary>
-    /// For <see cref="Poses.SamusPoseId.CrouchingTransitionRightPose"/> and
-    /// <see cref="Poses.SamusPoseId.CrouchingTransitionLeftPose"/>, and the same five pixels for aimed
-    /// crouching transitions. The posture change requests five pixels downward with the
-    /// new radius 16 and clips that request through downward block collision.
+    /// The pose-change downward distance for <see cref="Poses.SamusPoseId.CrouchingTransitionRightPose"/>,
+    /// <see cref="Poses.SamusPoseId.CrouchingTransitionLeftPose"/> and the aimed crouching transitions. The posture change
+    /// moves Samus down this far with her crouching radius, stopping at any block below her.
     /// </summary>
     public const int CrouchEntryDownwardPixels = 5;
 }

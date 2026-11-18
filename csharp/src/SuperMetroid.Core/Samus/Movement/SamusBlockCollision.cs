@@ -10,9 +10,10 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// Samus's room-block movement scans.
 /// </summary>
 /// <remarks>
-/// Supported block categories are deliberately explicit: air, non-square slopes, and the ordinary solid,
-/// shootable and grapple types. Other types have room-object,
-/// damage, door, extension, or square-slope behavior and throw instead of being flattened
+/// Every kind of block reacts in its own way: Samus passes air, spike, shootable and unrevealed air, sets off bombable
+/// air and reacts to special air; slopes scale or stop her; solid, shootable, grapple and spike blocks stop her, a spike
+/// hurting her; a door block leads through its door; and special and bomb blocks start their room objects, which
+/// decide whether she passes. An extension block stands for the block it extends.
 /// </remarks>
 public static class SamusBlockCollision
 {
@@ -252,10 +253,8 @@ public static class SamusBlockCollision
                         // setup would normally reject contact falls through as air.
                         if (terrain.RoomObjects.EveryPlaceHeld)
                             break;
-                        // Runs the speed-block entries through the speed-block
-                        // setup. A stage-four boost or directional shinespark clears
-                        // collision synchronously, so this same horizontal scan continues
-                        // through the newly non-solid cell.
+                        // A Speed Booster block breaks at once under a full-stage boost or a directional
+                        // shinespark, so this same horizontal scan continues through the block it leaves.
                         if (owner is { } speedBoostingSamus &&
                                 terrain.RoomObjects.BlockReactions.TrySpawnSamusSpeedBoosterBlock(
                                 terrain.Level,

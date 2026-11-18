@@ -155,7 +155,7 @@ public static class GrappleBeamDefinitions
         public const int LongestExtensionChain = 16;
     }
 
-    /// <summary>Direction-indexed firing velocity, origin, and flare tables.</summary>
+    /// <summary>Firing the beam: the pose-change auto-fire wait and the art origin of the poses Draygon holds Samus in.</summary>
     public static class Firing
     {
         /// <summary>Firing initializes the grapple's pose-change auto-fire timer to ten; the pose-change check decrements before checking the pose.</summary>

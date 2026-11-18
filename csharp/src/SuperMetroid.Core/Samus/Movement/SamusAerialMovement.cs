@@ -73,8 +73,7 @@ public static class SamusAerialMovement
 
 
     /// <summary>
-    /// Chooses Samus's vertical acceleration. The three adjacent
-    /// accelerations are indexed by the exact bottom-boundary medium.
+    /// Chooses Samus's vertical acceleration for the medium she moves in (<see cref="SamusLiquidMedium"/>).
     /// </summary>
     public static void ConfigureEnvironmentGravity(SamusState samus)
     {

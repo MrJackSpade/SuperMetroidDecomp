@@ -51,7 +51,8 @@ internal static class SamusDeathFrameSelectionVerification
                 string context = $"death facing {facing}, update {update}";
                 int? expectedFrame = ExpectedFrame(update);
                 AssertEqual(ExpectedPhase(update), step.PhaseAfterStep, context + ": phase");
-                AssertEqual(expectedFrame, samus.DeathSequence.ExplosionFrame, context + ": selected explosion frame");
+                AssertEqual(expectedFrame is int expected ? SamusDeathSheetDefinitions.Explosion[expected] : (SamusDeathExplosionFrame?)null,
+                    samus.DeathSequence.ExplosionFrame, context + ": selected explosion frame");
                 AssertEqual(update < FirstExplosionUpdate, step.DrawPose, context + ": draws the death pose");
                 AssertEqual(expectedFrame is not null, step.DrawExplosion, context + ": draws the explosion");
                 AssertEqual(update == CompletionUpdate, step.Completed, context + ": completes");
@@ -62,10 +63,10 @@ internal static class SamusDeathFrameSelectionVerification
                 sprites.FinalizeFrame();
                 if (expectedFrame is int frame)
                 {
-                    SpriteSheetFrame expectedImage = sheet.Frame(SamusDeathSheetDefinitions.ExplosionFrame(facing, frame));
+                    SpriteSheetFrame expectedImage = sheet.Frame(SamusDeathSheetDefinitions.ExplosionFrame(facing, SamusDeathSheetDefinitions.Explosion[frame]));
                     AssertTrue(sprites.Draws.Length == 1 && sprites.Draws[0] is ImageSpriteDraw image &&
                             ReferenceEquals(expectedImage, image.Image),
-                        context + $": draws sheet frame {SamusDeathSheetDefinitions.ExplosionFrame(facing, frame)}");
+                        context + $": draws sheet frame {SamusDeathSheetDefinitions.ExplosionFrame(facing, SamusDeathSheetDefinitions.Explosion[frame])}");
                 }
                 else
                 {

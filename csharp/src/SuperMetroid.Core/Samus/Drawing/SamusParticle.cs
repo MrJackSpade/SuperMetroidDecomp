@@ -1,29 +1,49 @@
+using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Samus.Artwork;
+
 namespace SuperMetroid.Core.Samus.Drawing;
 
-/// <summary>One of Samus's particles: what it shows, where, on which step of its animation, and for how much longer.</summary>
+/// <summary>
+/// One of Samus's particles: what it shows, where, and its animation (#2388), played once through the shared animation
+/// player after any hidden wait.
+/// </summary>
 public sealed class SamusParticle
 {
-    /// <summary>Starts a particle.</summary>
+    /// <summary>Starts a particle at <paramref name="from"/> in its animation.</summary>
     /// <param name="kind">What it shows.</param>
-    /// <param name="step">The animation step it starts on.</param>
+    /// <param name="from">
+    /// Where in its animation it starts: its start, or, for a particle restored partway through and shown at once, before
+    /// the picture it stood on.
+    /// </param>
     /// <param name="start">Whether it shows at once or after a hidden wait.</param>
     /// <param name="position">Where it starts, in whole room pixels.</param>
     /// <param name="drift">How far it moves on each update it is shown.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The start neither shows at once nor waits hidden, or a hidden particle starts anywhere but at its first picture.
+    /// </exception>
     internal SamusParticle(
         SamusParticleKind kind,
-        int step,
+        AnimationPlace from,
         SamusParticleStart start,
         Position16<RoomPixels> position,
         Offset16<RoomPixels> drift)
     {
         if ((start.StepUpdates > 0) == (start.HiddenUpdates > 0))
             throw new ArgumentOutOfRangeException(nameof(start), start, "A particle either shows at once or starts hidden.");
-        if (step < 0 || step >= SamusParticleAnimations.StepCount(kind))
-            throw new ArgumentOutOfRangeException(nameof(step), step, $"Particle kind {kind} has no step {step}.");
         Kind = kind;
-        AnimationStep = step;
-        StepUpdatesLeft = start.StepUpdates;
-        HiddenUpdatesLeft = start.HiddenUpdates;
+        Animation<SamusParticleKind> animation = SamusParticleAnimations.Animations[kind];
+        Animation = AnimationPlayer<SamusParticleKind, SamusAtmosphereFrame, NoAnimationCue>.Starting(SamusParticleAnimations.Segments, animation);
+        if (start.StepUpdates > 0)
+        {
+            Animation.ShowAt(animation, from, start.StepUpdates);
+        }
+        else
+        {
+            // Every producer starts a hidden particle on its first picture, which shows for its own updates once the wait ends.
+            if (from != AnimationPlace.StartOfAnimation)
+                throw new ArgumentOutOfRangeException(nameof(from), from, "A hidden particle starts on its first picture.");
+            HiddenUpdatesLeft = start.HiddenUpdates;
+        }
         Position = position;
         Drift = drift;
     }
@@ -31,11 +51,11 @@ public sealed class SamusParticle
     /// <summary>What the particle shows.</summary>
     public SamusParticleKind Kind { get; }
 
-    /// <summary>The zero-based step of its animation it shows.</summary>
-    public int AnimationStep { get; private set; }
+    /// <summary>The particle's animation: nothing shown while it waits hidden, then its pictures in turn.</summary>
+    internal AnimationPlayer<SamusParticleKind, SamusAtmosphereFrame, NoAnimationCue> Animation { get; }
 
-    /// <summary>The updates its step still shows, counting the next; zero while it is hidden or finished.</summary>
-    public int StepUpdatesLeft { get; private set; }
+    /// <summary>The picture it shows, or null while it waits hidden.</summary>
+    public SamusAtmosphereFrame? Shown => IsHidden ? null : Animation.Shown;
 
     /// <summary>The updates it still waits before it shows, counting the update it first shows on; zero once shown.</summary>
     public int HiddenUpdatesLeft { get; private set; }
@@ -53,12 +73,29 @@ public sealed class SamusParticle
     public bool IsHidden => HiddenUpdatesLeft > 0;
 
     /// <summary>Whether its animation has run out; a finished particle is no longer shown.</summary>
-    public bool IsFinished { get; private set; }
+    public bool IsFinished => Animation.HasStopped;
 
     /// <summary>
-    /// Runs one update: a hidden particle counts down its wait and, on its last update, takes its step's duration and
-    /// shows; a shown particle counts down its step, and a step that ends moves to the next step, which lasts as long as the
-    /// step that ended. A particle shown on this update drifts.
+    /// The updates a particle of <paramref name="kind"/> starting at <paramref name="from"/> as <paramref name="start"/>
+    /// says is shown or waits until it runs out, counting the update it runs out on: its own play, update by update.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The start or the place is not one a particle starts with.</exception>
+    internal static int UpdatesUntilFinished(SamusParticleKind kind, AnimationPlace from, SamusParticleStart start)
+    {
+        var particle = new SamusParticle(kind, from, start, default, Offset16<RoomPixels>.Zero);
+        int updates = 0;
+        do
+        {
+            particle.Advance();
+            updates++;
+        }
+        while (!particle.IsFinished);
+        return updates;
+    }
+
+    /// <summary>
+    /// Runs one update: a hidden particle counts down its wait and, on its last update, shows its first picture for that
+    /// picture's updates; a shown particle plays its animation on. A particle shown on this update drifts.
     /// </summary>
     internal void Advance()
     {
@@ -69,23 +106,10 @@ public sealed class SamusParticle
             HiddenUpdatesLeft--;
             if (HiddenUpdatesLeft > 0)
                 return;
-            StepUpdatesLeft = SamusParticleAnimations.StepUpdates(Kind, AnimationStep);
         }
-        else
-        {
-            StepUpdatesLeft--;
-            if (StepUpdatesLeft == 0)
-            {
-                StepUpdatesLeft = SamusParticleAnimations.StepUpdates(Kind, AnimationStep);
-                AnimationStep++;
-                if (AnimationStep >= SamusParticleAnimations.StepCount(Kind))
-                {
-                    IsFinished = true;
-                    StepUpdatesLeft = 0;
-                    return;
-                }
-            }
-        }
+        Animation.Step();
+        if (IsFinished)
+            return;
         Position += Drift;
     }
 

@@ -40,21 +40,18 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     /// <summary>Flashing updates made, up to <see cref="SamusDeathSequenceDefinitions.FlashFrameCount"/>, when the suit explodes.</summary>
     public int FlashUpdates { get; private set; }
 
-    /// <summary>Updates left on the shown suit-explosion step.</summary>
-    public int ExplosionTimer { get; private set; }
+    /// <summary>
+    /// The suit's explosion (#2388), its nine pictures played once for their dwell times, or null before the suit explodes;
+    /// the sequence completes once its last picture has shown.
+    /// </summary>
+    internal AnimationPlayer<SamusDeathExplosionSegment, SamusDeathExplosionFrame, NoAnimationCue>? Explosion { get; private set; }
 
     /// <summary>
-    /// The suit-explosion step, from zero up to <see cref="SamusDeathExplosionTimingDefinitions.StepCount"/>, where the
-    /// sequence completes.
+    /// The whiteout's shades (#2387): one update each from the update after the explosion's second picture first shows,
+    /// brightening to <see cref="SamusWhiteoutShade.Brightest"/> and resting there; null until the explosion reaches its
+    /// second picture, so its first picture stays over the room as it was.
     /// </summary>
-    public int ExplosionStep { get; private set; }
-
-    /// <summary>
-    /// The whiteout's shades (#2387): one update each from the second explosion frame's next update, brightening to
-    /// <see cref="SamusWhiteoutShade.Brightest"/> and resting there.
-    /// </summary>
-    internal AnimationPlayer<SamusWhiteoutSegment, SamusWhiteoutShade, NoAnimationCue> WhiteoutBrightening { get; private set; } =
-        SamusDeathAnimations.WhiteoutStarting();
+    internal AnimationPlayer<SamusWhiteoutSegment, SamusWhiteoutShade, NoAnimationCue>? WhiteoutBrightening { get; private set; }
 
     /// <summary>
     /// The whiteout shade the explosion shows, or null before its first: the explosion's last update shows
@@ -72,10 +69,9 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     public Offset16<ScreenPixels> ScreenPosition { get; private set; }
 
 
-    /// <summary>The suit-explosion frame shown, or null outside the explosion.</summary>
-    public int? ExplosionFrame =>
-        Phase == SamusDeathSequencePhase.SuitExplosion && ExplosionStep < SamusDeathExplosionTimingDefinitions.StepCount
-            ? ExplosionStep : null;
+    /// <summary>The suit-explosion picture shown, or null outside the explosion.</summary>
+    public SamusDeathExplosionFrame? ExplosionFrame =>
+        Phase == SamusDeathSequencePhase.SuitExplosion && Explosion is { HasStopped: false } explosion ? explosion.Shown : null;
 
     /// <summary>The facing captured before pose metadata is replaced by the death-sequence pose.</summary>
     public bool FacingLeft { get; private set; }
@@ -119,9 +115,8 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         PreFlashingTimer = SamusDeathSequenceDefinitions.PreFlashFrameCount;
         Flash = SamusDeathAnimations.FlashStarting();
         FlashUpdates = 0;
-        ExplosionTimer = 0;
-        ExplosionStep = 0;
-        WhiteoutBrightening = SamusDeathAnimations.WhiteoutStarting();
+        Explosion = null;
+        WhiteoutBrightening = null;
         WhiteoutShade = null;
         Whiteout = null;
         // Dying while spin jumping ends the spin's sound at normal priority.
@@ -168,14 +163,12 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
                 FlashUpdates++;
                 if (FlashUpdates >= SamusDeathSequenceDefinitions.FlashFrameCount)
                 {
-                    // The flash's last update shows death shade zero, starts the explosion at its first step and whiteout
-                    // shade, and immediately draws explosion frame zero in this same update.
+                    // The flash's last update shows the first death shade, starts the explosion on its first picture, and
+                    // immediately plays and draws it in this same update.
                     ShowDeathShades(samus, samusColours, SamusDeathShade.First);
                     coloursChanged = true;
-                    ExplosionTimer =
-                        SamusDeathExplosionTiming.StepDuration(step: 0);
-                    ExplosionStep = 0;
-                    WhiteoutBrightening = SamusDeathAnimations.WhiteoutStarting();
+                    Explosion = SamusDeathAnimations.ExplosionStarting();
+                    WhiteoutBrightening = null;
                     Phase = SamusDeathSequencePhase.SuitExplosion;
                     drawExplosion = StepSuitExplosion(
                         samus,
@@ -227,7 +220,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     {
         Ensure.NotNull(sprites);
         Ensure.NotNull(sheets);
-        if (ExplosionFrame is not int frame)
+        if (ExplosionFrame is not { } frame)
             return;
         SpriteSheet death = sheets.Get(SpriteSheetId.SamusDeath);
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusDeathExplosion),
@@ -235,7 +228,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
             ScreenPosition, SpriteMirror.None));
     }
 
-    /// <summary>Advances the explosion timer, death shade and terminal whiteout, returning whether to draw this frame.</summary>
+    /// <summary>Plays the explosion on, its death shades and terminal whiteout, returning whether to draw this frame.</summary>
     private bool StepSuitExplosion(
         SamusState samus,
         SamusColours samusColours,
@@ -243,12 +236,17 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         ref bool whiteoutChanged,
         SamusDeathSteps artwork)
     {
-        ExplosionTimer--;
-        if (ExplosionTimer > 0)
+        AnimationPlayer<SamusDeathExplosionSegment, SamusDeathExplosionFrame, NoAnimationCue> explosion =
+            Explosion ?? throw new InvalidOperationException("The suit's explosion has not started.");
+        if (explosion.StepToNewFrame() is { } picture)
+        {
+            // The whiteout starts on the update after the explosion's second picture first shows.
+            WhiteoutBrightening ??= SamusDeathAnimations.WhiteoutStarting();
+            ShowDeathShades(samus, samusColours, artwork.ExplosionShade(picture));
+            coloursChanged = true;
             return true;
-
-        ExplosionStep++;
-        if (ExplosionStep >= SamusDeathExplosionTimingDefinitions.StepCount)
+        }
+        if (explosion.HasStopped)
         {
             // The last update shows the full-white whiteout over everything but Samus's body and draws no
             // explosion frame after the last.
@@ -257,23 +255,18 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
             Phase = SamusDeathSequencePhase.Complete;
             return false;
         }
-
-        ExplosionTimer =
-            SamusDeathExplosionTiming.StepDuration(ExplosionStep);
-        ShowDeathShades(samus, samusColours, artwork.ExplosionStep(ExplosionStep));
-        coloursChanged = true;
         return true;
     }
 
     /// <summary>Advances the room whiteout shade while preserving the first explosion frame's original background.</summary>
     private bool ApplyWhiteout(SamusColours samusColours, SamusDeathSteps artwork)
     {
-        // The first explosion step shows no whiteout, so the first explosion frame stays over the room as it was
-        // even though the suit explosion has begun.
-        if (ExplosionStep == 0)
+        // The explosion's first picture shows no whiteout, so it stays over the room as it was even though the suit
+        // explosion has begun.
+        if (WhiteoutBrightening is not { } whiteout)
             return false;
 
-        ShowWhiteout(samusColours, artwork, WhiteoutBrightening.StepToNewFrame()
+        ShowWhiteout(samusColours, artwork, whiteout.StepToNewFrame()
             ?? throw new InvalidOperationException("The whiteout shows a shade on every update of the explosion."));
         return true;
     }

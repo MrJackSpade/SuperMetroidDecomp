@@ -9,7 +9,7 @@ internal static class SamusDeathSequenceNative
     extension(SamusDeathSequenceState death)
     {
         /// <summary>Samus spritemap-table index of the current suit-explosion frame for the captured facing, or null outside the explosion.</summary>
-        internal int? ExplosionSpritemapIndex => death.ExplosionFrame is int frame
+        internal int? ExplosionSpritemapIndex => death.ExplosionFrame is { } frame
             ? SamusDeathSheetComposer.ExplosionSpritemap(death.FacingLeft ? HorizontalDirection.Left : HorizontalDirection.Right, frame)
             : null;
     }

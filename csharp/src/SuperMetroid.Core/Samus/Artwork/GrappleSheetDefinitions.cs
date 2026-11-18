@@ -13,13 +13,15 @@ public static class GrappleSheetDefinitions
     /// The endpoint's animation, its frames named for what they show (#2285): a point swelling to an orb, opening into a
     /// ring and sparkling, then the point again.
     /// </summary>
-    public static IReadOnlyList<string> Endpoint { get; } = ["Endpoint.Point", "Endpoint.Orb", "Endpoint.Ring", "Endpoint.SparklingRing"];
+    public static IReadOnlyList<GrappleEndpointFrame> Endpoint { get; } =
+        [GrappleEndpointFrame.Point, GrappleEndpointFrame.Orb, GrappleEndpointFrame.Ring, GrappleEndpointFrame.SparklingRing];
 
     /// <summary>
     /// The rope's pictures, named for how far along its cycle the rope's travelling pattern stands (#2285): at its start,
     /// a quarter, half and three quarters of the way on.
     /// </summary>
-    public static IReadOnlyList<string> RopePattern { get; } = ["Start", "Quarter", "Half", "ThreeQuarters"];
+    public static IReadOnlyList<GrappleRopePicture> RopePattern { get; } =
+        [GrappleRopePicture.Start, GrappleRopePicture.Quarter, GrappleRopePicture.Half, GrappleRopePicture.ThreeQuarters];
 
     /// <summary>The frame-name word each rope mirroring is installed under; <see cref="GrappleSheets.RopeFrame"/> reads it.</summary>
     internal static readonly IReadOnlyDictionary<SpriteMirror, string> MirrorNames = new Dictionary<SpriteMirror, string>

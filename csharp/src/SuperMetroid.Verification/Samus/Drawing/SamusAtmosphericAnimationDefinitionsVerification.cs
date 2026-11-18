@@ -13,6 +13,8 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Samus.Drawing;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Checks Samus atmospheric animation timers and lava/acid damage rates against bank 90.</summary>
 internal static class SamusAtmosphericAnimationDefinitionsVerification
@@ -33,13 +35,15 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
             SamusParticleKind kind = KindNumbered(type);
             ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x908b93 + type * 2));
             int frameCount = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x908bef + type * 2));
-            AssertEqual(frameCount, SamusParticleAnimations.StepCount(kind), $"atmospheric type {type} frame count");
+            AssertEqual(frameCount, PictureCount(kind), $"atmospheric type {type} frame count");
 
+            // Each picture shows for the native timer of the step before it, the first for its own (#2388); the last step's
+            // own timer is never shown.
             for (int frame = 0; frame < frameCount; frame++)
             {
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x900000 | (pointer + frame * 2))),
-                    SamusParticleAnimations.StepUpdates(kind, frame),
-                    $"atmospheric type {type} frame {frame} timer");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x900000 | (pointer + Math.Max(frame - 1, 0) * 2))),
+                    PictureUpdates(kind, frame),
+                    $"atmospheric type {type} picture {frame} shows for its handed-on timer");
             }
         }
 
@@ -60,19 +64,19 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
         Suite(nameof(VerifyProductionLiquidDamage), () => VerifyProductionLiquidDamage(RoomFxType.Acid,
             SamusLiquidDamageDefinitions.Acid));
 
-        AssertThrows<InvalidDataException>(
-            () => SamusParticleAnimations.StepCount((SamusParticleKind)(-1)),
-            "an undefined particle kind has no animation definition");
-        AssertThrows<InvalidDataException>(
-            () => SamusParticleAnimations.StepUpdates(SamusParticleKind.SurfaceSplash, 4),
-            "a step past the surface splash's authored cadence");
-
         Console.WriteLine(
             "Samus atmospheric animation: 37 timers, seven frame counts, four liquid-damage words, and all real cadence/damage consumers pass with mechanics ranges forbidden.");
     }
 
     /// <summary>The cartridge's effect numbers that a producer starts: all but zero (an empty place) and two.</summary>
     private static readonly int[] StartedEffectNumbers = [1, 3, 4, 5, 6, 7];
+
+    /// <summary>The pictures <paramref name="kind"/>'s animation shows.</summary>
+    internal static int PictureCount(SamusParticleKind kind) => SamusParticleAnimations.Segments.Beats(kind).Count;
+
+    /// <summary>The updates picture <paramref name="picture"/> of <paramref name="kind"/>'s animation shows for.</summary>
+    internal static int PictureUpdates(SamusParticleKind kind, int picture) =>
+        ((AnimationBeat<SamusAtmosphereFrame, NoAnimationCue>.Frame)SamusParticleAnimations.Segments.Beats(kind)[picture]).Duration;
 
     /// <summary>The particle kind of a started effect number.</summary>
     private static SamusParticleKind KindNumbered(int type) =>
@@ -87,15 +91,13 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
         foreach (int type in StartedEffectNumbers)
         {
             SamusParticleKind kind = KindNumbered(type);
-            int frameCount = SamusParticleAnimations.StepCount(kind);
+            int frameCount = PictureCount(kind);
             for (int frame = 0; frame < frameCount; frame++)
             {
-                int expectedTimer = SamusParticleAnimations.StepUpdates(kind, frame);
-
-                // A step with one update left ends on the next update: it takes the ended step's duration and moves on,
-                // or the particle finishes and is removed after its last step.
+                // A picture with one update left ends on the next update: the next picture shows for its own updates, or
+                // the particle finishes and is removed after its last picture.
                 var particles = new SamusParticles();
-                particles.Add(new SamusParticle(kind, frame, SamusParticleStart.Shown(1), new(100, 100), Offset16<RoomPixels>.Zero));
+                particles.Add(SamusParticle.AtStep(kind, frame, SamusParticleStart.Shown(1), new(100, 100), Offset16<RoomPixels>.Zero));
                 var oamFrame = new SpriteFrameBuffer();
                 oamFrame.BeginFrame();
                 particles.UpdateAndDraw(oamFrame, Position16<RoomPixels>.Zero, waterSurfaceLine: 100,
@@ -107,66 +109,45 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
                 }
                 else
                 {
-                    AssertEqual(expectedTimer, particles.All[0].StepUpdatesLeft,
+                    AssertEqual(PictureUpdates(kind, frame + 1), particles.All[0].StepUpdatesLeft,
                         $"production atmospheric type {type} frame {frame} expiry timer");
                     AssertEqual(frame + 1, particles.All[0].AnimationStep,
                         $"production atmospheric type {type} frame {frame} expiry handoff");
                 }
-
-                // A particle hidden for one update shows on it, with its step's full duration.
-                particles.Clear();
-                particles.Add(new SamusParticle(kind, frame, SamusParticleStart.Hidden(1), new(100, 100), Offset16<RoomPixels>.Zero));
-                oamFrame.BeginFrame();
-                particles.UpdateAndDraw(oamFrame, Position16<RoomPixels>.Zero, waterSurfaceLine: 100,
-                    SamusBodySheetFixtures.ForAtmosphere(atmosphere: atmosphericArt));
-                oamFrame.FinalizeAsOam();
-                AssertEqual(expectedTimer, particles.All[0].StepUpdatesLeft,
-                    $"production atmospheric type {type} frame {frame} delayed timer");
-                AssertEqual(frame, particles.All[0].AnimationStep,
-                    $"production atmospheric type {type} frame {frame} delayed handoff");
-                AssertTrue(!particles.All[0].IsHidden, $"production atmospheric type {type} frame {frame} shows");
             }
+
+            // A particle hidden for one update shows its first picture on it, for that picture's updates; every producer
+            // starts a hidden particle on its first picture.
+            var hidden = new SamusParticles();
+            hidden.Add(SamusParticle.AtStep(kind, 0, SamusParticleStart.Hidden(1), new(100, 100), Offset16<RoomPixels>.Zero));
+            var hiddenFrame = new SpriteFrameBuffer();
+            hiddenFrame.BeginFrame();
+            hidden.UpdateAndDraw(hiddenFrame, Position16<RoomPixels>.Zero, waterSurfaceLine: 100,
+                SamusBodySheetFixtures.ForAtmosphere(atmosphere: atmosphericArt));
+            hiddenFrame.FinalizeAsOam();
+            AssertEqual(PictureUpdates(kind, 0), hidden.All[0].StepUpdatesLeft, $"production atmospheric type {type} delayed timer");
+            AssertEqual(0, hidden.All[0].AnimationStep, $"production atmospheric type {type} delayed handoff");
+            AssertTrue(!hidden.All[0].IsHidden, $"production atmospheric type {type} shows");
+            AssertThrows<ArgumentOutOfRangeException>(
+                () => SamusParticle.AtStep(kind, 1, SamusParticleStart.Hidden(1), new(100, 100), Offset16<RoomPixels>.Zero),
+                $"atmospheric type {type} starts hidden only on its first picture");
         }
     }
 
     /// <summary>
-    /// Checks that the updates a particle is shown, which the breath bubble and lava spray waits last (#1556), are the
-    /// updates its animation runs before it is removed, for every kind, step and the starts the producers and native
-    /// timers use.
+    /// Checks the updates a particle is shown, which the breath bubble and lava spray waits last (#1556), for the starts
+    /// the producers use, worked from the native cadence (#2388).
     /// </summary>
     private static void VerifyParticleLifetimes()
     {
-        SamusParticleStart[] starts =
-        [
-            SamusParticleStart.Shown(1), SamusParticleStart.Shown(2), SamusParticleStart.Shown(3), SamusParticleStart.Shown(9),
-            SamusParticleStart.Hidden(1), SamusParticleStart.Hidden(2), SamusParticleStart.Hidden(5),
-        ];
-        foreach (SamusParticleKind kind in Enum.GetValues<SamusParticleKind>())
-        {
-            for (int step = 0; step < SamusParticleAnimations.StepCount(kind); step++)
-            {
-                foreach (SamusParticleStart start in starts)
-                {
-                    var particle = new SamusParticle(kind, step, start, new(100, 100), Offset16<RoomPixels>.Zero);
-                    int updates = 0;
-                    while (!particle.IsFinished)
-                    {
-                        particle.Advance();
-                        updates++;
-                    }
-                    AssertEqual(updates, SamusParticleAnimations.UpdatesUntilFinished(kind, step, start),
-                        $"{kind} step {step} {start} is shown for the updates its wait lasts");
-                }
-            }
-        }
         // The producers' own starts, worked from the cadence: a bubble holds the next for 38 updates, a landing's
         // dust for 15, a lava spray's first particle the next spray for 9 and its third the bubbles for 10, and a
         // boosted footstep's leading dust the spray for 17.
-        AssertEqual(38, SamusParticleAnimations.UpdatesUntilFinished(SamusParticleKind.Bubbles, 0, SamusParticleStart.Shown(3)), "bubble wait");
-        AssertEqual(15, SamusParticleAnimations.UpdatesUntilFinished(SamusParticleKind.Dust, 0, SamusParticleStart.Shown(3)), "landing dust wait");
-        AssertEqual(9, SamusParticleAnimations.UpdatesUntilFinished(SamusParticleKind.LavaSpray, 0, SamusParticleStart.Shown(3)), "spray wait");
-        AssertEqual(10, SamusParticleAnimations.UpdatesUntilFinished(SamusParticleKind.LavaSpray, 0, SamusParticleStart.Hidden(2)), "spray bubble wait");
-        AssertEqual(17, SamusParticleAnimations.UpdatesUntilFinished(SamusParticleKind.Dust, 0, SamusParticleStart.Hidden(2)), "boosted dust wait");
+        AssertEqual(38, SamusParticle.UpdatesUntilFinished(SamusParticleKind.Bubbles, AnimationPlace.StartOfAnimation, SamusParticleStart.Shown(3)), "bubble wait");
+        AssertEqual(15, SamusParticle.UpdatesUntilFinished(SamusParticleKind.Dust, AnimationPlace.StartOfAnimation, SamusParticleStart.Shown(3)), "landing dust wait");
+        AssertEqual(9, SamusParticle.UpdatesUntilFinished(SamusParticleKind.LavaSpray, AnimationPlace.StartOfAnimation, SamusParticleStart.Shown(3)), "spray wait");
+        AssertEqual(10, SamusParticle.UpdatesUntilFinished(SamusParticleKind.LavaSpray, AnimationPlace.StartOfAnimation, SamusParticleStart.Hidden(2)), "spray bubble wait");
+        AssertEqual(17, SamusParticle.UpdatesUntilFinished(SamusParticleKind.Dust, AnimationPlace.StartOfAnimation, SamusParticleStart.Hidden(2)), "boosted dust wait");
     }
 
     /// <summary>Checks the periodic whole and fractional damage installed for submerged Samus in lava or acid.</summary>

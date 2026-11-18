@@ -28,7 +28,7 @@ internal static class SequenceColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/SamusColourSets.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Colours/SamusShadeDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Colours/SamusFullBodyCycleShades.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Death/SamusDeathExplosionTimingDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Death/SamusDeathExplosionTiming.cs")]),
+             new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusDeathSheetDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Samus/Death/SamusDeathAnimations.cs")]),
     ];
 }

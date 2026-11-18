@@ -699,7 +699,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
         InstalledFixtures.GrappleSheet);
     OamBuffer grappleOam = grappleOamFrame.FinalizeAsOam();
 
-    AssertEqual(0x9a8200, GrapplePointAnimationDefinitions.SourceAddress(samus.Grapple.PointAnimationFrame),
+    AssertEqual(0x9a8200, GrapplePointAnimationNative.SourceAddress(samus.Grapple.PointAnimationFrame),
         "grapple selects the native first endpoint tile");
     AssertEqual(segmentSource, GrappleTileSelection.TransferFor(GrappleTileSelection.SegmentAssetFor(samus.Grapple.Angle)).SourceAddress,
         "grapple selects the native angle-selected segment tiles");

@@ -1,47 +1,70 @@
+using F = SuperMetroid.Core.Samus.Artwork.SamusAtmosphereFrame;
+
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>
 /// The pre-coloured sheet of Samus's atmospheric effects (#1392): the footstep splash and the shared lava-spray and dust
-/// sprite, the diving splash and the bubbles. Each effect's animation is a list of its frames, named for what they show
-/// (#2285), in the order it shows them.
+/// sprite, the diving splash and the bubbles. Each effect's pictures are typed frames (#2388), listed in the order its
+/// animation shows them, and each is installed under the name of what it shows (#2285).
 /// </summary>
 public static class SamusAtmosphereSheetDefinitions
 {
-    /// <summary>The footstep splash's animation: a splash at the foot, its spray, the drops scattering and settling.</summary>
-    public static IReadOnlyList<string> FootstepSplash { get; } =
-        ["Footstep.Splashing", "Footstep.Spraying", "Footstep.Scattering", "Footstep.Settling"];
+    /// <summary>The footstep splash's pictures: a splash at the foot, its spray, the drops scattering and settling.</summary>
+    public static IReadOnlyList<F> FootstepSplash { get; } =
+        [F.FootstepSplashing, F.FootstepSpraying, F.FootstepScattering, F.FootstepSettling];
 
-    /// <summary>The lava spray's and dust's animation, which share one sprite list: a puff billowing, thinning and fading.</summary>
-    public static IReadOnlyList<string> LavaAndDust { get; } =
-        ["LavaAndDust.Puff", "LavaAndDust.Billowing", "LavaAndDust.Thinning", "LavaAndDust.Fading"];
+    /// <summary>The lava spray's and dust's pictures, which share one sprite list: a puff billowing, thinning and fading.</summary>
+    public static IReadOnlyList<F> LavaAndDust { get; } =
+        [F.LavaAndDustPuff, F.LavaAndDustBillowing, F.LavaAndDustThinning, F.LavaAndDustFading];
 
     /// <summary>
-    /// The diving splash's animation: the ring of bubbles Samus leaves, two spouts rising from the surface to their
-    /// highest, sinking and landing, then the droplets they throw falling away.
+    /// The diving splash's pictures: the ring of bubbles Samus leaves, two spouts rising from the surface to their highest,
+    /// sinking and landing, then the droplets they throw falling away.
     /// </summary>
-    public static IReadOnlyList<string> DivingSplash { get; } =
+    public static IReadOnlyList<F> DivingSplash { get; } =
     [
-        "DivingSplash.Ring", "DivingSplash.SpoutsRising", "DivingSplash.SpoutsHigh", "DivingSplash.SpoutsHigher",
-        "DivingSplash.SpoutsHighest", "DivingSplash.SpoutsSinking", "DivingSplash.Splashdown", "DivingSplash.Droplets",
-        "DivingSplash.DropletsFading",
+        F.DivingSplashRing, F.DivingSplashSpoutsRising, F.DivingSplashSpoutsHigh, F.DivingSplashSpoutsHigher,
+        F.DivingSplashSpoutsHighest, F.DivingSplashSpoutsSinking, F.DivingSplashSplashdown, F.DivingSplashDroplets,
+        F.DivingSplashDropletsFading,
     ];
 
-    /// <summary>The bubbles' animation: a tight cluster loosening, spreading and scattering until it fades.</summary>
-    public static IReadOnlyList<string> Bubbles { get; } =
+    /// <summary>The bubbles' pictures: a tight cluster loosening, spreading and scattering until it fades.</summary>
+    public static IReadOnlyList<F> Bubbles { get; } =
     [
-        "Bubbles.TightCluster", "Bubbles.Cluster", "Bubbles.Loosening", "Bubbles.Spreading", "Bubbles.Scattering",
-        "Bubbles.Scattered", "Bubbles.Dispersed", "Bubbles.Fading",
+        F.BubblesTightCluster, F.BubblesCluster, F.BubblesLoosening, F.BubblesSpreading, F.BubblesScattering,
+        F.BubblesScattered, F.BubblesDispersed, F.BubblesFading,
     ];
 
-    /// <summary>The footstep splash's frame at step <paramref name="step"/> of its animation.</summary>
-    public static string FootstepFrame(int step) => FootstepSplash[step];
+    /// <summary>The installed name of each picture.</summary>
+    private static readonly Dictionary<F, string> Names = new()
+    {
+        [F.FootstepSplashing] = "Footstep.Splashing",
+        [F.FootstepSpraying] = "Footstep.Spraying",
+        [F.FootstepScattering] = "Footstep.Scattering",
+        [F.FootstepSettling] = "Footstep.Settling",
+        [F.LavaAndDustPuff] = "LavaAndDust.Puff",
+        [F.LavaAndDustBillowing] = "LavaAndDust.Billowing",
+        [F.LavaAndDustThinning] = "LavaAndDust.Thinning",
+        [F.LavaAndDustFading] = "LavaAndDust.Fading",
+        [F.DivingSplashRing] = "DivingSplash.Ring",
+        [F.DivingSplashSpoutsRising] = "DivingSplash.SpoutsRising",
+        [F.DivingSplashSpoutsHigh] = "DivingSplash.SpoutsHigh",
+        [F.DivingSplashSpoutsHigher] = "DivingSplash.SpoutsHigher",
+        [F.DivingSplashSpoutsHighest] = "DivingSplash.SpoutsHighest",
+        [F.DivingSplashSpoutsSinking] = "DivingSplash.SpoutsSinking",
+        [F.DivingSplashSplashdown] = "DivingSplash.Splashdown",
+        [F.DivingSplashDroplets] = "DivingSplash.Droplets",
+        [F.DivingSplashDropletsFading] = "DivingSplash.DropletsFading",
+        [F.BubblesTightCluster] = "Bubbles.TightCluster",
+        [F.BubblesCluster] = "Bubbles.Cluster",
+        [F.BubblesLoosening] = "Bubbles.Loosening",
+        [F.BubblesSpreading] = "Bubbles.Spreading",
+        [F.BubblesScattering] = "Bubbles.Scattering",
+        [F.BubblesScattered] = "Bubbles.Scattered",
+        [F.BubblesDispersed] = "Bubbles.Dispersed",
+        [F.BubblesFading] = "Bubbles.Fading",
+    };
 
-    /// <summary>The lava spray's and dust's frame at step <paramref name="step"/> of their animation.</summary>
-    public static string LavaAndDustFrame(int step) => LavaAndDust[step];
-
-    /// <summary>The diving splash's frame at step <paramref name="step"/> of its animation.</summary>
-    public static string DivingSplashFrame(int step) => DivingSplash[step];
-
-    /// <summary>The bubbles' frame at step <paramref name="step"/> of their animation.</summary>
-    public static string BubblesFrame(int step) => Bubbles[step];
+    /// <summary>The sheet frame <paramref name="frame"/> is installed under.</summary>
+    public static string FrameName(F frame) => Names[frame];
 }

@@ -48,18 +48,24 @@ internal static class GrappleTileArtworkVerification
             // as the cartridge uploads them to $6200/$6210.
             SpriteArtwork stockTiles = stock.Tiles(selected.PointAnimationFrame, GrappleRopeOrientations.For(selected.Angle));
             byte[] nativeTiles = [.. RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-                    GrapplePointAnimationDefinitions.SourceAddress(selected.PointAnimationFrame), SpriteArtwork.CharacterByteCount),
+                    GrapplePointAnimationNative.SourceAddress(selected.PointAnimationFrame), SpriteArtwork.CharacterByteCount),
                 .. RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                     GrappleTileSelection.TransferFor(GrappleTileSelection.SegmentAssetFor(selected.Angle)).SourceAddress,
                     4 * SpriteArtwork.CharacterByteCount)];
             AssertTrue(stockTiles.Characters.SequenceEqual(nativeTiles), "Stock grapple binding holds the native endpoint and rope characters");
             cases++;
-            SamusGrappleState Seed() => new(artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
+            SamusGrappleState Seed()
             {
-                Phase = GrapplePhase.ConnectedSwinging, PointAnimationFrame = frame, PointAnimationTimer = WrappingCountdown.Start(timer),
-                Angle = RotationAngleConstants.FromRaw((ushort)(sector * 1024 + 1023)), RopeLength = (ushort)(sector % 16 * 8),
-                FlareOrigin = new(100, 100), Anchor = new(200, 60), FlareStage = GrappleFlareStage.JustFired,
-            };
+                var seeded = new SamusGrappleState(artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
+                {
+                    Phase = GrapplePhase.ConnectedSwinging,
+                    Angle = RotationAngleConstants.FromRaw((ushort)(sector * 1024 + 1023)), RopeLength = (ushort)(sector % 16 * 8),
+                    FlareOrigin = new(100, 100), Anchor = new(200, 60), FlareStage = GrappleFlareStage.JustFired,
+                };
+                seeded.PointAnimationFrame = frame;
+                seeded.PointAnimationTimer = WrappingCountdown.Start(timer);
+                return seeded;
+            }
         }
         Suite(nameof(VerifyGrappleTileBinding), VerifyGrappleTileBinding);
         using var wrong = new MemoryStream();

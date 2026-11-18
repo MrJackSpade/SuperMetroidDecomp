@@ -176,8 +176,6 @@ public static class GrappleBeamDefinitions
         /// takes up the pattern it fired with.
         /// </summary>
         public const int FirstSegmentAnimationDelay = SegmentAnimationDelay + 1;
-        /// <summary>The rope's cycle of pictures, which repeats along the rope and over time.</summary>
-        public const int SegmentAnimationFrameCount = 4;
     }
 
 }

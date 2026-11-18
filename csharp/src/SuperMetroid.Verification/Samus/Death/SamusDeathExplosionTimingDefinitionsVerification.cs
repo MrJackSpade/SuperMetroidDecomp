@@ -1,5 +1,7 @@
 using static SuperMetroid.Verification.Samus.Abilities.SamusSpecialStatesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -9,30 +11,27 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks the compiled nine-frame Samus death explosion cadence against native timer bytes.</summary>
 internal static class SamusDeathExplosionTimingDefinitionsVerification
 {
-    /// <summary>Compares all nine authored durations and rejects a restored index beyond the final record.</summary>
+    /// <summary>Compares the explosion's nine pictures and their dwell times with the native records (#2388).</summary>
     internal static void VerifySamusDeathExplosionTimingDefinitions(
         CartridgeImportAddressSpace rom)
     {
+        IReadOnlyList<AnimationBeat<SamusDeathExplosionFrame, NoAnimationCue>> beats =
+            SamusDeathAnimations.ExplosionSegments.Beats(SamusDeathExplosionSegment.Explosion);
+        AssertEqual(SuperMetroid.Core.Samus.Death.SamusDeathExplosionTimingDefinitionsConstants.RecordCount, beats.Count,
+            "the explosion shows one picture per native record");
         for (ushort index = 0;
-             index < SamusDeathExplosionTimingDefinitions.StepCount;
+             index < SuperMetroid.Core.Samus.Death.SamusDeathExplosionTimingDefinitionsConstants.RecordCount;
              index++)
         {
-            int address = SamusDeathExplosionTimingDefinitions.NativeFirstTimerAddress +
-                index * SamusDeathExplosionTimingDefinitions.RecordByteCount;
-            AssertEqual(
-                rom.ReadCartridgeByte(address),
-                SamusDeathExplosionTiming.StepDuration(index),
-                $"Samus death-explosion duration {index}");
+            int address = SuperMetroid.Core.Samus.Death.SamusDeathExplosionTimingDefinitionsConstants.NativeFirstTimerAddress +
+                index * SuperMetroid.Core.Samus.Death.SamusDeathExplosionTimingDefinitionsConstants.RecordByteCount;
+            var beat = (AnimationBeat<SamusDeathExplosionFrame, NoAnimationCue>.Frame)beats[index];
+            AssertEqual((int)rom.ReadCartridgeByte(address), beat.Duration, $"Samus death-explosion duration {index}");
+            AssertEqual(SamusDeathSheetDefinitions.Explosion[index], beat.Shown, $"Samus death-explosion picture {index}");
         }
 
-        AssertThrows<InvalidDataException>(
-            () => SamusDeathExplosionTiming.StepDuration(
-                SamusDeathExplosionTimingDefinitions.StepCount),
-            "Samus death-explosion timing rejects a post-sequence index");
-
         Console.WriteLine(
-            "Samus death-explosion timing: all nine native durations match the " +
-            "compiled sequence and invalid restored indexes fail loudly.");
+            "Samus death-explosion timing: all nine native durations match the explosion's pictures in order.");
     }
 
     /// <summary>Forbids runtime reads of the nine migrated timer-byte positions while leaving unrelated sequence data accessible.</summary>
@@ -40,11 +39,11 @@ internal static class SamusDeathExplosionTimingDefinitionsVerification
         new CartridgeReadGuard(source).Forbid(address =>
             {
                 int relative = address -
-                    SamusDeathExplosionTimingDefinitions.NativeFirstTimerAddress;
+                    SuperMetroid.Core.Samus.Death.SamusDeathExplosionTimingDefinitionsConstants.NativeFirstTimerAddress;
                 return relative >= 0 &&
-                    relative < SamusDeathExplosionTimingDefinitions.StepCount *
-                        SamusDeathExplosionTimingDefinitions.RecordByteCount &&
-                    relative % SamusDeathExplosionTimingDefinitions.RecordByteCount == 0;
+                    relative < SuperMetroid.Core.Samus.Death.SamusDeathExplosionTimingDefinitionsConstants.RecordCount *
+                        SuperMetroid.Core.Samus.Death.SamusDeathExplosionTimingDefinitionsConstants.RecordByteCount &&
+                    relative % SuperMetroid.Core.Samus.Death.SamusDeathExplosionTimingDefinitionsConstants.RecordByteCount == 0;
             },
             address => $"Samus death sequence attempted timer read ${address:X6}.");
 

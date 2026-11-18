@@ -1,7 +1,9 @@
-
 namespace SuperMetroid.Core.Samus.Death;
 
-/// <summary>Cartridge values of <see cref="SamusDeathExplosionTimingDefinitions"/> that only verification reads.</summary>
+/// <summary>
+/// Cartridge places of the suit explosion's timing that only verification reads; the port plays the explosion as an
+/// animation of its pictures (#2388, <see cref="SamusDeathAnimations"/>).
+/// </summary>
 internal static class SamusDeathExplosionTimingDefinitionsConstants
 {
     /// <summary>
@@ -9,15 +11,10 @@ internal static class SamusDeathExplosionTimingDefinitionsConstants
     /// <c>$9B:B823-$9B:B834</c>.
     /// </summary>
     public const int NativeFirstTimerAddress = 0x9bb823;
+
     /// <summary>Bytes occupied by each interleaved timer/palette-index record.</summary>
     public const ushort RecordByteCount = 2;
 
-    /// <summary>Provides the death-explosion first timer address and record width for timing extraction.</summary>
-    extension(SamusDeathExplosionTimingDefinitions)
-    {
-        /// <inheritdoc cref="SamusDeathExplosionTimingDefinitionsConstants.NativeFirstTimerAddress"/>
-        internal static int NativeFirstTimerAddress => SamusDeathExplosionTimingDefinitionsConstants.NativeFirstTimerAddress;
-        /// <inheritdoc cref="SamusDeathExplosionTimingDefinitionsConstants.RecordByteCount"/>
-        internal static ushort RecordByteCount => SamusDeathExplosionTimingDefinitionsConstants.RecordByteCount;
-    }
+    /// <summary>The native timer/palette-index records, one per explosion picture.</summary>
+    public const int RecordCount = 9;
 }

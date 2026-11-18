@@ -14,19 +14,16 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 internal static class GrappleSheetComposer
 {
-    /// <summary>Endpoint animation frames.</summary>
-    internal const int EndpointFrameCount = 4;
-
     /// <summary>Every rope-direction mirroring a segment is drawn with.</summary>
     internal static IReadOnlyList<SpriteMirror> RopeMirrors { get; } =
         [SpriteMirror.None, SpriteMirror.Horizontal, SpriteMirror.Vertical, SpriteMirror.Horizontal | SpriteMirror.Vertical];
 
     /// <summary>Every frame the grapple sheet holds.</summary>
     internal static IEnumerable<string> Frames =>
-        Enumerable.Range(0, EndpointFrameCount).Select(GrappleSheets.EndpointFrame)
+        GrappleSheetDefinitions.Endpoint.Select(GrappleSheets.EndpointFrame)
             .Concat(Enum.GetValues<GrappleRopeOrientation>().SelectMany(orientation =>
-                Enumerable.Range(0, SuperMetroid.Core.Samus.Grapple.GrappleBeamDefinitions.Rendering.SegmentAnimationFrameCount).SelectMany(segment =>
-                    RopeMirrors.Select(mirror => GrappleSheets.RopeFrame(orientation, segment, mirror)))));
+                GrappleSheetDefinitions.RopePattern.SelectMany(picture =>
+                    RopeMirrors.Select(mirror => GrappleSheets.RopeFrame(orientation, picture, mirror)))));
 
     /// <summary>The grapple's endpoint character.</summary>
     private const int EndpointCharacter = GrappleTileDefinitions.FirstCharacter;
@@ -46,9 +43,10 @@ internal static class GrappleSheetComposer
         SpritePart endpoint = sprites.Endpoint;
         if (endpoint.Character is >= FirstRopeCharacter and <= LastRopeCharacter)
             throw new InvalidDataException($"The grapple endpoint names rope character ${endpoint.Character:X3}, which its orientation selects.");
-        for (int point = 0; point < EndpointFrameCount; point++)
+        // The endpoint's and the rope's pictures stand in the order of the cartridge's tiles and segment sprites.
+        for (int point = 0; point < GrappleSheetDefinitions.Endpoint.Count; point++)
         {
-            frames.Add(new(GrappleSheets.EndpointFrame(point), SpritePartFrames.CentredSmallObject(endpoint, 0),
+            frames.Add(new(GrappleSheets.EndpointFrame(GrappleSheetDefinitions.Endpoint[point]), SpritePartFrames.CentredSmallObject(endpoint, 0),
                 tiles.OnStandardObjects(inputs.StandardObjects, point, GrappleRopeOrientation.Horizontal)));
         }
         foreach (GrappleRopeOrientation orientation in Enum.GetValues<GrappleRopeOrientation>())
@@ -64,7 +62,7 @@ internal static class GrappleSheetComposer
                     // `$94:AFDE` ORs the rope direction's flips into the segment's own attributes.
                     PictureFlip flips = ((mirror & SpriteMirror.Horizontal) != 0 ? PictureFlip.Horizontal : PictureFlip.None) |
                         ((mirror & SpriteMirror.Vertical) != 0 ? PictureFlip.Vertical : PictureFlip.None);
-                    frames.Add(new(GrappleSheets.RopeFrame(orientation, segment, mirror),
+                    frames.Add(new(GrappleSheets.RopeFrame(orientation, GrappleSheetDefinitions.RopePattern[segment], mirror),
                         SpritePartFrames.CentredSmallObject(appearance with { Flip = appearance.Flip | flips }, 0), page));
                 }
             }

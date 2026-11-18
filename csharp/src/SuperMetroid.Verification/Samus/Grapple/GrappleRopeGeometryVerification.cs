@@ -34,7 +34,6 @@ internal static class GrappleRopeGeometryVerification
                 Phase = GrapplePhase.Firing, RopeLength = length,
                 FlareOrigin = new((ushort)origin, 128),
                 Anchor = new((ushort)(origin + direction * 100), 28),
-                PointAnimationTimer = WrappingCountdown.Start(5),
             };
             // Equal-magnitude up/right and up/left vectors select $20/$E0.
             int angle = direction > 0 ? 32 : 224;
@@ -81,7 +80,6 @@ internal static class GrappleRopeGeometryVerification
         var grapple = new SamusGrappleState(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
             Phase = GrapplePhase.ConnectedLocked, FlareOrigin = new(128, 128), Anchor = new(128, 28),
-            PointAnimationTimer = WrappingCountdown.Start(5),
         };
         for (int draw = 1; draw <= 24; draw++)
         {

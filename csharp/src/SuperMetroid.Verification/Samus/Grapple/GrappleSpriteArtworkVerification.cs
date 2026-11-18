@@ -29,9 +29,12 @@ internal static class GrappleSpriteArtworkVerification
         SpriteSheetSources composed = GrappleSheetComposer.Sources(SamusSheetInputs.Load(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.Directory));
         Dictionary<string, SpriteFrame> frames = composed.Frames.ToDictionary(frame => frame.Name, frame => frame.Frame, StringComparer.Ordinal);
         int cases = 0;
-        for (int point = 0; point < GrappleSheetComposer.EndpointFrameCount; point++, cases++)
+        foreach (GrappleEndpointFrame point in GrappleSheetDefinitions.Endpoint)
+        {
             AssertEqual(SpritePartFrames.CentredSmallObject(catalog.Endpoint, 0).Parts.Single(),
                 frames[GrappleSheets.EndpointFrame(point)].Parts.Single(), $"Grapple endpoint frame {point} is the native endpoint OBJ");
+            cases++;
+        }
         foreach (GrappleRopeOrientation orientation in Enum.GetValues<GrappleRopeOrientation>())
         for (int segment = 0; segment < GrappleSpriteDefinitions.SegmentFrameCount; segment++)
         foreach (SpriteMirror mirror in GrappleSheetComposer.RopeMirrors)
@@ -40,7 +43,7 @@ internal static class GrappleSpriteArtworkVerification
                 ((mirror & SpriteMirror.Vertical) != 0 ? PictureFlip.Vertical : PictureFlip.None);
             SpritePart appearance = catalog.Segment(segment);
             AssertEqual(SpritePartFrames.CentredSmallObject(appearance with { Flip = appearance.Flip | flips }, 0).Parts.Single(),
-                frames[GrappleSheets.RopeFrame(orientation, segment, mirror)].Parts.Single(),
+                frames[GrappleSheets.RopeFrame(orientation, GrappleSheetDefinitions.RopePattern[segment], mirror)].Parts.Single(),
                 $"Grapple rope {orientation} frame {segment} mirrored {mirror} is the native segment OBJ with the rope's flips");
             cases++;
         }

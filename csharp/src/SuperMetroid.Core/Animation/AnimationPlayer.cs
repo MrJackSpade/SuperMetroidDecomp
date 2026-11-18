@@ -100,6 +100,49 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
         ShowFirstFrame(firstFrameUpdates);
     }
 
+    /// <summary>
+    /// Starts <paramref name="animation"/> on its first frame, shown at once for that frame's own updates (#2388), as the
+    /// grapple's endpoint and rope start on a fresh beam and Samus's suit explosion on the flash's last update.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The animation raises an event or pauses before its first frame.</exception>
+    internal static AnimationPlayer<TSegment, TFrame, TEvent> StartShowing(
+        AnimationSegments<TSegment, TFrame, TEvent> segments, Animation<TSegment> animation)
+    {
+        var player = new AnimationPlayer<TSegment, TFrame, TEvent>(segments, animation);
+        player.ShowFirstFrameForItsOwnUpdates();
+        return player;
+    }
+
+    /// <summary>Starts <paramref name="animation"/> again on its first frame, for that frame's own updates (#2388).</summary>
+    /// <exception cref="InvalidOperationException">The animation raises an event or pauses before its first frame.</exception>
+    internal void Show(Animation<TSegment> animation)
+    {
+        Start(animation);
+        ShowFirstFrameForItsOwnUpdates();
+    }
+
+    /// <summary>Plays the animation to its first frame, which shows for its own updates.</summary>
+    private void ShowFirstFrameForItsOwnUpdates()
+    {
+        _ = PlayOn(raised => throw new InvalidOperationException($"The animation raised {raised} before its first frame."));
+        if (Shown is null)
+            throw new InvalidOperationException("The animation shows no frame to start on.");
+    }
+
+    /// <summary>
+    /// Starts <paramref name="animation"/> again at <paramref name="place"/>, showing at once the frame it plays to from
+    /// there for <paramref name="firstFrameUpdates"/> updates (#2388): a particle restored partway through its animation
+    /// shows the frame it stood on for the updates it had left.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="firstFrameUpdates"/> is below one.</exception>
+    /// <exception cref="InvalidOperationException">The animation raises an event or pauses before the frame.</exception>
+    internal void ShowAt(Animation<TSegment> animation, AnimationPlace place, int firstFrameUpdates)
+    {
+        Start(animation);
+        Playback = Playback with { Place = place };
+        ShowFirstFrame(firstFrameUpdates);
+    }
+
     /// <summary>Runs one update of an animation that raises no event.</summary>
     /// <exception cref="InvalidOperationException">The animation raises an event, which this owner has nothing to act on.</exception>
     internal void Step() => Step(raised => throw new InvalidOperationException($"The animation raised {raised} with no owner to act on it."));

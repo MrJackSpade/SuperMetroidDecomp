@@ -1,4 +1,6 @@
 using SuperMetroid.Core;
+using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.AssetExtraction.Samus;
@@ -95,9 +97,9 @@ internal static class SamusAtmosphericEffectWordCodec
         if (DecodeKind(word) is not SamusParticleKind kind)
             return;
         SamusParticleStart start = DecodeStart(timer);
-        int step = DecodeStep(word);
-        particles.Add(new SamusParticle(kind, step, start, position, Drift(kind, place)));
-        int updates = SamusParticleAnimations.UpdatesUntilFinished(kind, step, start);
+        AnimationPlace from = PlaceOfStep(kind, DecodeStep(word));
+        particles.Add(new SamusParticle(kind, from, start, position, Drift(kind, place)));
+        int updates = SamusParticle.UpdatesUntilFinished(kind, from, start);
         if (Place(place) == BubblePlace)
             waits.HoldBubbles(updates);
         if (place == SprayLeadPlace && HoldsSpray(word))
@@ -122,8 +124,17 @@ internal static class SamusAtmosphericEffectWordCodec
 
     /// <summary>The updates a place's particle still shows, or zero for an empty place.</summary>
     private static int UpdatesLeft(int word, int timer) => DecodeKind(word) is SamusParticleKind kind
-        ? SamusParticleAnimations.UpdatesUntilFinished(kind, DecodeStep(word), DecodeStart(timer))
+        ? SamusParticle.UpdatesUntilFinished(kind, PlaceOfStep(kind, DecodeStep(word)), DecodeStart(timer))
         : 0;
+
+    /// <summary>
+    /// Where a particle of <paramref name="kind"/> on the cartridge's animation step <paramref name="step"/> stands in its
+    /// animation: before the picture of that step, the first step standing at the animation's start.
+    /// </summary>
+    /// <exception cref="ArgumentException">The kind's animation has no such step.</exception>
+    internal static AnimationPlace PlaceOfStep(SamusParticleKind kind, int step) => step == 0
+        ? AnimationPlace.StartOfAnimation
+        : AnimationSegments<SamusParticleKind, SamusAtmosphereFrame, NoAnimationCue>.PlaceOf(SamusParticleAnimations.Animations[kind], kind, step);
 
     /// <summary>Whether a place word's effect sets the bit the spray producer tests.</summary>
     private static bool HoldsSpray(int word) => (EffectNumber(word) & SprayHoldingEffectBit) != 0;

@@ -530,7 +530,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private static void PackHidden(Span<uint> upload, HiddenPicturePixels hidden, int offset)
     {
         int width = hidden.Size.X;
-        upload[offset] = D3D11ConstantPacking.Halves(checked((ushort)width), checked((ushort)hidden.Size.Y));
+        upload[offset] = D3D11ConstantPacking.Halves(checked((ushort)width), checked(hidden.Size.Y));
         Span<uint> words = upload.Slice(offset + 1, HiddenWords(hidden) - 1);
         words.Clear();
         for (int y = 0; y < hidden.Size.Y; y++)

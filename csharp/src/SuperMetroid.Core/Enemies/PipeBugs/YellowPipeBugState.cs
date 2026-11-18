@@ -26,14 +26,11 @@ public sealed class YellowPipeBugState
     public int EmergenceDelay { get; internal set; }
 
     /// <summary>
-    /// The whole-mark place along the speed curve the bug's arc reads, from the curve's start through the curve's last
-    /// mark. The rising phase moves it back from mark 40 and ends when it would pass the curve's start; the returning
-    /// phase moves it back on.
+    /// The whole-mark place along the speed curve the bug's arc reads (#2473), from the curve's start through the curve's
+    /// last mark. The dip moves it back from mark 40 and ends when it would pass the curve's start; the climb back moves
+    /// it on.
     /// </summary>
-    public QuadraticSpeedCurvePlace ArcCounter { get; internal set; }
-
-    /// <summary>Whether the arc is in its rising phase rather than its returning one.</summary>
-    public bool ArcRising { get; internal set; }
+    public QuadraticSpeedCurvePlace ArcCurvePlace { get; internal set; }
 
     /// <summary>Whether the bug has completed its one authored arc.</summary>
     public bool ArcCompleted { get; internal set; }

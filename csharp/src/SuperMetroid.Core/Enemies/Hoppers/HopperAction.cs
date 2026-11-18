@@ -21,10 +21,15 @@ public enum HopperAction
     /// <summary>Restores the variant's floor or ceiling idle animation and waits for its cue-driven ready flag.</summary>
     Landed,
     /// <summary>
-    /// Hops, resolving vertical movement before horizontal movement and landing; a ceiling hopper takes the quadratic speed
-    /// curve's world-Y halves the other way round from a floor hopper.
+    /// Hops away from its surface, resolving vertical movement before horizontal movement, until the apex, a wall or the
+    /// room beyond turns it back (<see cref="Returning"/>): up for a floor hopper, down for a ceiling one (#2473).
     /// </summary>
-    Jumping,
+    HoppingAway,
+    /// <summary>
+    /// Returns to its surface, resolving vertical movement before horizontal movement, speeding up to its fastest mark until
+    /// it lands (#2473).
+    /// </summary>
+    Returning,
     /// <summary>Consumes and clears the ready flag published by the idle animation's ready cue, then returns to random hop-size selection.</summary>
     WaitToHop,
 }

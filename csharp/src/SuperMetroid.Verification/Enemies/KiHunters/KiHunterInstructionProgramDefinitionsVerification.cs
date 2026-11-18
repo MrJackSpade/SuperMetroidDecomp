@@ -150,7 +150,6 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             state.Heading = swoopLeft ? HorizontalDirection.Left : HorizontalDirection.Right;
             state.SwoopAngle = RotationAngle.FromSteps(angle);
             state.AnimationChangeAngle = RotationAngle.FromSteps(swoopLeft ? 240 : 144);
-            state.SwoopAnimationChanged = false;
             state.SwoopTargetX = body.Position.X.Whole;
             state.SwoopOriginY = body.Position.Y.Whole;
             state.SwoopRadius = new Extent16<RoomPixels>(16, 16);
@@ -163,8 +162,12 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             ushort velocityFraction = 0;
             bool cappedKeepingFraction = false;
             bool ended = false;
+            bool swiped = false;
             for (int update = 1; update <= 200 && !ended; update++)
             {
+                // The game swipes once the angle it starts an update at has passed its trigger, a flag keeping it from
+                // restarting the swipe (#2473): below 240 for a leftward swoop, at or past 144 for a rightward one.
+                swiped |= swoopLeft ? angle < 240 : angle >= 144;
                 uint fractionSum = (uint)velocityFraction + accelerationFraction;
                 velocityWhole = unchecked((ushort)(velocityWhole + accelerationWhole + fractionSum / 65536));
                 velocityFraction = unchecked((ushort)fractionSum);
@@ -186,8 +189,13 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
                 AssertEqual(SignedSixteenSixteen.FromParts(unchecked((short)velocityWhole), velocityFraction), SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(state.AngularVelocity.FractionsOfStep),
                     $"KiHunter {side} swoop update {update} angular velocity carries and caps only its whole part");
                 AssertEqual(RotationAngle.WrappedSteps(angle), state.SwoopAngle, $"KiHunter {side} swoop update {update} steps the angle by the whole velocity");
-                AssertEqual(ended ? KiHunterAction.FlyingPatrol : KiHunterAction.Swooping, state.Action,
-                    $"KiHunter {side} swoop update {update} ends only when the native angle test ends it");
+                AssertEqual(ended ? KiHunterAction.FlyingPatrol : swiped ? KiHunterAction.Swiping : KiHunterAction.Swooping, state.Action,
+                    $"KiHunter {side} swoop update {update} ends only when the native angle test ends it, and swipes once its trigger is passed");
+                if (!ended)
+                {
+                    AssertEqual(swiped, state.Playback.PlayingSegment == (swoopLeft ? KiHunterSegment.SwoopLeft : KiHunterSegment.SwoopRight),
+                        $"KiHunter {side} swoop update {update} plays the swipe only once its trigger is passed");
+                }
             }
             AssertTrue(ended, $"KiHunter {(swoopLeft ? "left" : "right")} swoop ends");
             AssertTrue(cappedKeepingFraction, $"KiHunter {(swoopLeft ? "left" : "right")} swoop caps a velocity whose fraction is kept");

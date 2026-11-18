@@ -97,7 +97,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Every Ki-Hunter animation is played by the shared enemy animation, which this property admits.
         body.Processing = body.Processing.With(EnemyProcessing.Animates);
-        state.HasLostWings = false;
         StartKiHunterAnimation(body, state, KiHunterSegment.FlyingLeft);
         state.SwoopAngle = RotationAngle.Zero;
         state.Heading = KiHunterMotionDefinitions.PatrolStartHeading;
@@ -111,7 +110,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         // starts deleted and the body skips every later detachment side effect.
         if (body.SpawnSettings<KiHunterSpawnSettings>().Wings == KiHunterWings.Wingless)
         {
-            state.HasLostWings = true;
             state.Action = KiHunterAction.FallingAfterWingLoss;
             state.VerticalVelocity = KiHunterMotionDefinitions.WinglessFallStartVelocity;
         }
@@ -146,6 +144,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunKiHunterFlyingPatrol(actor, state, samus, level);
                 return;
             case KiHunterAction.Swooping:
+                StartKiHunterSwipeOncePastItsAngle(actor, state);
+                RunKiHunterSwoop(actor, state, level);
+                return;
+            case KiHunterAction.Swiping:
                 RunKiHunterSwoop(actor, state, level);
                 return;
             case KiHunterAction.RecoveringFromSwoop:
@@ -231,7 +233,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.AngularVelocity = AngularSpeed.Zero;
-        state.SwoopAnimationChanged = false;
         state.SwoopRadius = new Extent16<RoomPixels>(absoluteXDistance, samusDepth);
         state.SwoopTargetX = samus.Position.X.Whole;
         state.SwoopOriginY = body.Position.Y.Whole;
@@ -260,27 +261,29 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private static AngularSpeed SwoopTurning(AngularSpeed speed, HorizontalDirection heading) =>
         heading == HorizontalDirection.Left ? -speed : speed;
 
-    /// <summary>Runs the elliptic diving arc.</summary>
+    /// <summary>
+    /// Starts the swipe (#2473) once the swoop's angle, as the update finds it, has passed the swipe angle: below it for a
+    /// leftward swoop, at or past it for a rightward one. The rest of the dive swipes.
+    /// </summary>
+    private static void StartKiHunterSwipeOncePastItsAngle(RoomEnemyPlace body, KiHunterBodyState state)
+    {
+        bool leftArc = state.Heading == HorizontalDirection.Left;
+        bool pastSwipeAngle = leftArc
+            ? state.SwoopAngle < state.AnimationChangeAngle
+            : state.SwoopAngle >= state.AnimationChangeAngle;
+        if (!pastSwipeAngle)
+            return;
+
+        state.Action = KiHunterAction.Swiping;
+        StartKiHunterAnimation(body, state, leftArc ? KiHunterSegment.SwoopLeft : KiHunterSegment.SwoopRight);
+    }
+
+    /// <summary>Runs the elliptic diving arc, before its swipe and while it swipes.</summary>
     private void RunKiHunterSwoop(
         RoomEnemyPlace body,
         KiHunterBodyState state,
         RoomLevelData level)
     {
-        bool leftArc = state.Heading == HorizontalDirection.Left;
-        bool beforeAnimationChange = leftArc
-            ? state.SwoopAngle >= state.AnimationChangeAngle
-            : state.SwoopAngle < state.AnimationChangeAngle;
-        if (!beforeAnimationChange && !state.SwoopAnimationChanged)
-        {
-            state.SwoopAnimationChanged = true;
-            StartKiHunterAnimation(
-                body,
-                body.RequireSpeciesState<KiHunterBodyState>(),
-                leftArc
-                    ? KiHunterSegment.SwoopLeft
-                    : KiHunterSegment.SwoopRight);
-        }
-
         // The cap holds only the whole steps; the fraction keeps accumulating beneath it.
         state.AngularVelocity = (state.AngularVelocity + SwoopTurning(KiHunterMotionDefinitions.SwoopAcceleration, state.Heading))
             .WithWholeStepsLimitedTo(SwoopTurning(KiHunterMotionDefinitions.SwoopMaximumAngularVelocity, state.Heading));
@@ -563,11 +566,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         KiHunterBodyState bodyState = body.RequireSpeciesState<KiHunterBodyState>();
         if (body.Health <= _wingSettingsOfBody.Of(body).DetachHealth)
         {
-            if (!bodyState.HasLostWings)
+            if (bodyState.Flies)
             {
-                // A body that has not lost its wings still has them in place.
+                // A body that still flies still has its wings in place.
                 KiHunterWingState wingState = wings.RequireSpeciesState<KiHunterWingState>();
-                bodyState.HasLostWings = true;
                 bodyState.Action = KiHunterAction.FallingAfterWingLoss;
                 bodyState.VerticalVelocity = KiHunterMotionDefinitions.WinglessFallStartVelocity;
                 if (wingState.Action != KiHunterWingAction.Detached)

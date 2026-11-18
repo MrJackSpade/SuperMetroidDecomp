@@ -12,6 +12,15 @@ public enum YellowPipeBugAction
     EmergenceDelay,
     /// <summary>Flies a yellow Pipe Bug straight the way it emerged (<see cref="YellowPipeBugState.FlightDirection"/>).</summary>
     Fly,
-    /// <summary>Performs the yellow Pipe Bug's arc, moving on the way it emerged.</summary>
-    Arc,
+    /// <summary>
+    /// The first half of the yellow Pipe Bug's one arc, moving on the way it emerged (#2473): it dips downward ever more
+    /// slowly as its place on the speed curve moves back from <see cref="PipeBugDefinitions.YellowArcStart"/>, until the
+    /// place would pass the curve's start.
+    /// </summary>
+    ArcDipping,
+    /// <summary>
+    /// The second half of the yellow Pipe Bug's arc, moving on the way it emerged (#2473): it climbs back ever faster as its
+    /// place on the speed curve moves on, until it is back above its spawn height.
+    /// </summary>
+    ArcClimbing,
 }

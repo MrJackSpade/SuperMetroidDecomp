@@ -52,9 +52,6 @@ public sealed class KiHunterBodyState
     /// <summary>The thinking countdown: twelve after landing or twenty-four after acid emission, consumed once the animation selects ground wait.</summary>
     public int WaitTimer { get; internal set; }
 
-    /// <summary>The swipe-animation latch, cleared on swoop setup and set once the angle passes its facing-specific trigger.</summary>
-    public bool SwoopAnimationChanged { get; internal set; }
-
     /// <summary>The whole-pixel swoop ellipse radii: the absolute horizontal separation from Samus and Samus Y minus body Y when a swoop begins.</summary>
     public Extent16<RoomPixels> SwoopRadius { get; internal set; }
 
@@ -77,6 +74,11 @@ public sealed class KiHunterBodyState
     /// <summary>The vertical velocity in pixels per update; positive is downward and gravity accumulates through the fraction.</summary>
     public SignedSixteenSixteen VerticalVelocity { get; internal set; }
 
-    /// <summary>The wingless latch, set by a wingless spawn or by health reaching the wings' detach health.</summary>
-    public bool HasLostWings { get; internal set; }
+    /// <summary>
+    /// Whether the body still flies on its wings (#2473): it patrols, swoops, swipes or recovers from a swoop. A wingless
+    /// spawn starts falling and health at the wings' detach health sets it falling, and no wingless action leads back to
+    /// flight, so every other action is a body that has lost its wings.
+    /// </summary>
+    public bool Flies => Action is KiHunterAction.FlyingPatrol or KiHunterAction.Swooping or KiHunterAction.Swiping
+        or KiHunterAction.RecoveringFromSwoop;
 }

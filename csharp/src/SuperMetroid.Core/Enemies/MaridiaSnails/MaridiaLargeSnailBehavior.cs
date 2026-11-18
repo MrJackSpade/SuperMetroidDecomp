@@ -41,9 +41,6 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             RollsBackwards = false,
             ShowsSpawnIdle = true,
             AttackAllowsRotation = false,
-            SamusInPushingRange = false,
-            SamusSide = HorizontalDirection.Right,
-            PreviousPosition = Position16<RoomPixels>.Zero,
             StopMovementNextFrame = false,
             YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start,
             AttackCooldown = MaridiaLargeSnailMotionDefinitions.InitialAttackCooldown,
@@ -59,7 +56,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
 
     /// <summary>
     /// Runs the Oum's main behaviour and actions. Ordering is exact: proximity and
-    /// previous positions, behavior, Samus carrying, then the input-derived stop flag.
+    /// previous positions, behavior, Samus carrying, then the input-derived stop flag. The side of Samus pushing it and its
+    /// position before the update are this update's own (#2473), read only by its later steps.
     /// </summary>
     private void RunMaridiaLargeSnailMain(
         RoomEnemyPlace place,
@@ -68,8 +66,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         RoomLevelData level,
         GameplayAction controllerInput)
     {
-        UpdateMaridiaLargeSnailSamusProximity(place, state, samus);
-        state.PreviousPosition = place.Position.Whole;
+        HorizontalDirection? pushSide = MaridiaLargeSnailPushSide(place, samus);
+        Position16<RoomPixels> previousPosition = place.Position.Whole;
 
         switch (state.Action)
         {
@@ -77,7 +75,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 RunMaridiaLargeSnailIdle(place, state, samus, level);
                 break;
             case MaridiaLargeSnailAction.Rolling:
-                RunMaridiaLargeSnailRolling(place, state, samus, level);
+                RunMaridiaLargeSnailRolling(place, state, samus, level, pushSide);
                 break;
             case MaridiaLargeSnailAction.Attacking:
                 break;
@@ -89,8 +87,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                     $"Maridia Large Snail has no behaviour for action {state.Action}.");
         }
 
-        CarrySamusWithMaridiaLargeSnail(place, state, samus);
-        UpdateMaridiaLargeSnailInputStop(place, state, controllerInput);
+        CarrySamusWithMaridiaLargeSnail(place, state, samus, previousPosition, pushSide);
+        UpdateMaridiaLargeSnailInputStop(place, state, controllerInput, previousPosition, pushSide);
     }
 
     /// <summary>Completes landing bounces, faces Samus, then starts rolling within the pushing range.</summary>
@@ -127,7 +125,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         RoomEnemyPlace place,
         MaridiaLargeSnailEnemyState state,
         SamusState samus,
-        RoomLevelData level)
+        RoomLevelData level,
+        HorizontalDirection? pushSide)
     {
         if (state.RemainingBounces != 0)
         {
@@ -165,7 +164,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             }
         }
 
-        MoveMaridiaLargeSnailHorizontally(place, state, level);
+        MoveMaridiaLargeSnailHorizontally(place, state, level, pushSide);
     }
 
     /// <summary>Resumes the rolling animation once the attack animation has finished.</summary>
@@ -236,12 +235,12 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     private void MoveMaridiaLargeSnailHorizontally(
         RoomEnemyPlace place,
         MaridiaLargeSnailEnemyState state,
-        RoomLevelData level)
+        RoomLevelData level,
+        HorizontalDirection? pushSide)
     {
         bool movingLeft = state.Heading == HorizontalDirection.Left;
         SignedSixteenSixteen speed = movingLeft ? -MaridiaLargeSnailMotionDefinitions.RollSpeed : MaridiaLargeSnailMotionDefinitions.RollSpeed;
-        bool temporarilyReachTowardSamus = state.SamusInPushingRange &&
-            state.Heading == state.SamusSide;
+        bool temporarilyReachTowardSamus = state.Heading == pushSide;
         if (temporarilyReachTowardSamus)
         {
             // Temporarily extends the whole-pixel move toward Samus by the push's reach,
@@ -274,29 +273,22 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         StartMaridiaLargeSnailAnimation(place, state, MaridiaLargeSnailRoll(state));
     }
 
-    /// <summary>Captures whether Samus is within both push ranges and on which side.</summary>
-    private static void UpdateMaridiaLargeSnailSamusProximity(
-        RoomEnemyPlace place,
-        MaridiaLargeSnailEnemyState state,
-        SamusState samus)
-    {
-        state.SamusInPushingRange = false;
-        state.SamusSide = HorizontalDirection.Right;
-        if (Math.Abs(samus.Position.Y.Whole - place.Position.Y.Whole) >= MaridiaLargeSnailMotionDefinitions.PushingReachY ||
-            Math.Abs(samus.Position.X.Whole - place.Position.X.Whole) >= MaridiaLargeSnailMotionDefinitions.PushingReachX)
-        {
-            return;
-        }
-
-        state.SamusInPushingRange = true;
-        state.SamusSide = SamusSide(samus, place);
-    }
+    /// <summary>
+    /// The side of Oum Samus is on while she is within its strict 24-by-32 pushing range, or none while she is not (#2473).
+    /// </summary>
+    private static HorizontalDirection? MaridiaLargeSnailPushSide(RoomEnemyPlace place, SamusState samus) =>
+        Math.Abs(samus.Position.Y.Whole - place.Position.Y.Whole) >= MaridiaLargeSnailMotionDefinitions.PushingReachY ||
+        Math.Abs(samus.Position.X.Whole - place.Position.X.Whole) >= MaridiaLargeSnailMotionDefinitions.PushingReachX
+            ? null
+            : SamusSide(samus, place);
 
     /// <summary>Publishes Oum's vertical platform motion and sideward push into Samus's extra displacement.</summary>
     private static void CarrySamusWithMaridiaLargeSnail(
         RoomEnemyPlace place,
         MaridiaLargeSnailEnemyState state,
-        SamusState samus)
+        SamusState samus,
+        Position16<RoomPixels> previousPosition,
+        HorizontalDirection? pushSide)
     {
         state.StopMovementNextFrame = false;
         if (EnemyCollision.IsSamusStandingOn(place, samus))
@@ -304,15 +296,15 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             // Unlike most moving-platform producers, Oum assigns—not adds—the vertical
             // displacement. This preserves the last touching Oum's ownership.
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(
-                place.Position.Y.Whole - state.PreviousPosition.Y);
+                place.Position.Y.Whole - previousPosition.Y);
         }
 
-        if (!state.SamusInPushingRange)
+        if (pushSide is not { } side)
             return;
 
-        int deltaX = place.Position.X.Whole - state.PreviousPosition.X;
+        int deltaX = place.Position.X.Whole - previousPosition.X;
         bool movedLeft = deltaX < 0;
-        if (movedLeft != (state.SamusSide == HorizontalDirection.Left))
+        if (movedLeft != (side == HorizontalDirection.Left))
             return;
 
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(deltaX, 0);
@@ -322,17 +314,19 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     private static void UpdateMaridiaLargeSnailInputStop(
         RoomEnemyPlace place,
         MaridiaLargeSnailEnemyState state,
-        GameplayAction controllerInput)
+        GameplayAction controllerInput,
+        Position16<RoomPixels> previousPosition,
+        HorizontalDirection? pushSide)
     {
-        if (!state.SamusInPushingRange)
+        if (pushSide is not { } side)
             return;
 
-        int deltaX = place.Position.X.Whole - state.PreviousPosition.X;
+        int deltaX = place.Position.X.Whole - previousPosition.X;
         bool stop;
         if (deltaX == 0)
         {
             // Pushing against the way Oum rolls toward Samus stops it.
-            stop = state.SamusSide == state.Heading &&
+            stop = side == state.Heading &&
                 controllerInput.HasAny(state.Heading == HorizontalDirection.Left ? GameplayAction.Right : GameplayAction.Left);
         }
         else if (deltaX < 0)
@@ -348,7 +342,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             return;
 
         state.StopMovementNextFrame = true;
-        place.Position = place.Position.WithWholeX(state.PreviousPosition.X);
+        place.Position = place.Position.WithWholeX(previousPosition.X);
     }
 
     /// <summary>Carries out one cue of Oum's animations: the splash sound, attack completion and the attack-rotation window.</summary>

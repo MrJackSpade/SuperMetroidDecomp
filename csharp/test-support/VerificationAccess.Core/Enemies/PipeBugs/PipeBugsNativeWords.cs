@@ -47,15 +47,16 @@ internal static class PipeBugsNativeWords
 
     /// <summary>
     /// The routine word naming each yellow flight or arc and the way it goes (#2165): one action carrying its direction, the
-    /// cartridge giving each direction a routine of its own.
+    /// cartridge giving each direction a routine of its own. An arc's routine names its dip; the game keeps the climb back as
+    /// its dip direction word, which the snapshot import reads (#2473).
     /// </summary>
     internal static readonly NativeWordIdentities<(YellowPipeBugAction Action, HorizontalDirection Direction)> YellowPipeBugFlights =
         new(new Dictionary<(YellowPipeBugAction Action, HorizontalDirection Direction), ushort>
         {
             [(YellowPipeBugAction.Fly, HorizontalDirection.Left)] = 0x9028,
             [(YellowPipeBugAction.Fly, HorizontalDirection.Right)] = 0x90bd,
-            [(YellowPipeBugAction.Arc, HorizontalDirection.Left)] = 0x915a,
-            [(YellowPipeBugAction.Arc, HorizontalDirection.Right)] = 0x91d8,
+            [(YellowPipeBugAction.ArcDipping, HorizontalDirection.Left)] = 0x915a,
+            [(YellowPipeBugAction.ArcDipping, HorizontalDirection.Right)] = 0x91d8,
         });
 
     /// <summary>

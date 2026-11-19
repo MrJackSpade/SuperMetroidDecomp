@@ -337,8 +337,10 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[9] = BlendWord(layer.Blend);
         FadeLevelColour blendColour = ShaderLevels(layer.Blend.Colour);
         data[10] = (uint)blendColour.Red; data[11] = (uint)blendColour.Green; data[12] = (uint)blendColour.Blue;
-        // The foreground is always the room's; the background is what the room publishes for it (#1403).
-        data[14] = D3D11RoomSources.BackgroundSourceOf(layer.Gameplay.Rooms);
+        // The foreground is always the room's; the background stage draws a boss's body, or else what the room publishes for
+        // its background (#1403, #2573).
+        BackgroundStage stage = StageOf(layer.Gameplay);
+        data[14] = stage.Source;
         // What lies behind what blends: nothing (the blend's colour), the overlay, the background or both.
         D3D11BlendBehind? behind = (layer.BackgroundBehind, layer.OverlayBehind is not null) switch
         {
@@ -350,7 +352,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[22] = behind is null ? 0u : 1u;
         data[15] = behind is { } lying ? (uint)lying : 0u;
         data[26] = 224;
-        data[27] = (uint)r.BackgroundPixelation.Size;
+        data[27] = (uint)stage.Pixelation.Size;
         if (layer.OverlayBehind is { } overlay)
         {
             // The overlay's first line; the room buffer places its picture (#1514).
@@ -361,12 +363,12 @@ public sealed class D3D11FrameRenderer : IDisposable
             int offset = D3D11ShaderLayout.ScanlineParametersWordOffset + y * 4;
             // The third byte holds the layers this line shows.
             ScreenLayers shown = layer.Gameplay.ShownLayersAt(y);
-            data[offset + 2] = D3D11ConstantPacking.Bytes(0, 0, (byte)ShownWord(shown), 0);
+            data[offset + 2] = D3D11ConstantPacking.Bytes(0, 0, (byte)ShownWord(shown, layer.Gameplay.BossBody is not null), 0);
         }
         // The window (#1468): inside it the room shows unblended.
         D3D11WindowPacking.Pack(data, layer.Window);
-        // The background's scrolls and the overlay's, described line by line (#1468).
-        PackBackgroundScrolls(data, layer.Gameplay);
+        // The background stage's scrolls and the overlay's, described line by line (#1468).
+        PackStageScrolls(data, stage);
         if (layer.OverlayBehind is { } lyingOverlay)
         {
             D3D11LineScrolls.Pack(data, D3D11LineScrolls.BlendPlaneHorizontal, lyingOverlay.Horizontal, 0);
@@ -378,15 +380,18 @@ public sealed class D3D11FrameRenderer : IDisposable
 
     /// <summary>Xray.hlsli's bit for a line showing the room's foreground.</summary>
     private const uint ShowsForeground = 1;
-    /// <summary>Xray.hlsli's bit for a line showing the room's background.</summary>
+    /// <summary>Xray.hlsli's bit for a line showing the background stage: a boss's body, or else the room's background.</summary>
     private const uint ShowsBackground = 2;
     /// <summary>Xray.hlsli's bit for a line showing the actors.</summary>
     private const uint ShowsActors = 4;
 
-    /// <summary>The bits Xray.hlsli tests for the layers a line shows.</summary>
-    private static uint ShownWord(ScreenLayers shown) =>
+    /// <summary>
+    /// The bits Xray.hlsli tests for the layers a line shows; its background stage shows a boss's body where
+    /// <paramref name="bossBody"/>, and the room's background otherwise.
+    /// </summary>
+    private static uint ShownWord(ScreenLayers shown, bool bossBody) =>
         ((shown & ScreenLayers.Foreground) != 0 ? ShowsForeground : 0)
-        | ((shown & ScreenLayers.Background) != 0 ? ShowsBackground : 0)
+        | ((shown & (bossBody ? ScreenLayers.BossBody : ScreenLayers.Background)) != 0 ? ShowsBackground : 0)
         | ((shown & ScreenLayers.Sprites) != 0 ? ShowsActors : 0);
 
     /// <summary>Xray.hlsli's bit for a blend changing the frontmost foreground; the shader marks the foreground's pixels with it.</summary>
@@ -498,7 +503,9 @@ public sealed class D3D11FrameRenderer : IDisposable
                         DrawnDepth = PicturePart(shown == GameplayLayer.BackgroundFrontPart), FirstScanline = (uint)floorStart,
                     });
                     break;
-                case GameplayLayer.ForegroundBackPart or GameplayLayer.ForegroundFrontPart:
+                // A turning room's band shows no foreground and no boss's body.
+                case GameplayLayer.ForegroundBackPart or GameplayLayer.ForegroundFrontPart or GameplayLayer.BossBodyBehindActors
+                    or GameplayLayer.BossBodyInFrontOfActors:
                     break;
                 default:
                     throw new InvalidOperationException($"Undefined gameplay layer {shown}.");
@@ -514,7 +521,8 @@ public sealed class D3D11FrameRenderer : IDisposable
         GameplayLayer.ActorsBehindFrontParts => ActorDepth.BehindFrontParts,
         GameplayLayer.ActorsInFront => ActorDepth.InFront,
         GameplayLayer.BackgroundBackPart or GameplayLayer.ForegroundBackPart or GameplayLayer.BackgroundFrontPart
-            or GameplayLayer.ForegroundFrontPart => throw new InvalidOperationException($"Gameplay layer {layer} shows no actors."),
+            or GameplayLayer.ForegroundFrontPart or GameplayLayer.BossBodyBehindActors or GameplayLayer.BossBodyInFrontOfActors
+            => throw new InvalidOperationException($"Gameplay layer {layer} shows no actors."),
         _ => throw new InvalidOperationException($"Undefined gameplay layer {layer}."),
     };
 
@@ -539,9 +547,14 @@ public sealed class D3D11FrameRenderer : IDisposable
                         if ((shownLayers & ScreenLayers.Sprites) != 0)
                             DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch { DrawnDepth = Inserting(ActorsAt(shown)), FirstScanline = (uint)first, EndScanline = (uint)end });
                         break;
+                    // The room's background shows nothing behind a boss's body (#2573), which the background stage draws instead.
                     case GameplayLayer.BackgroundBackPart or GameplayLayer.BackgroundFrontPart:
-                        if ((shownLayers & ScreenLayers.Background) != 0)
-                            DispatchRoomBackground(layer, shown == GameplayLayer.BackgroundFrontPart, first, end);
+                        if (layer.BossBody is null && (shownLayers & ScreenLayers.Background) != 0)
+                            DispatchBackgroundStage(layer, shown == GameplayLayer.BackgroundFrontPart, first, end);
+                        break;
+                    case GameplayLayer.BossBodyBehindActors or GameplayLayer.BossBodyInFrontOfActors:
+                        if (layer.BossBody is not null && (shownLayers & ScreenLayers.BossBody) != 0)
+                            DispatchBackgroundStage(layer, shown == GameplayLayer.BossBodyInFrontOfActors, first, end);
                         break;
                     case GameplayLayer.ForegroundBackPart or GameplayLayer.ForegroundFrontPart:
                         if ((shownLayers & ScreenLayers.Foreground) != 0)
@@ -561,33 +574,51 @@ public sealed class D3D11FrameRenderer : IDisposable
     }
 
     /// <summary>
-    /// Draws the room's background's back or front tiles in a band, each line at the scroll its line scrolls give it (#1468),
-    /// with its pixelation.
+    /// What the backend's background stage draws for <paramref name="layer"/> (#2573): a boss's body, its own layer, with its
+    /// scroll, distortion and pixelation, where the room's background, which shows nothing behind it, would show; otherwise
+    /// the room's background with the view's scroll and the background's line scrolls.
     /// </summary>
-    private unsafe void DispatchRoomBackground(GameplaySceneLayer layer, bool frontTiles, int first, int end)
+    private static BackgroundStage StageOf(GameplaySceneLayer layer) => layer.BossBody is { } body
+        ? new((uint)D3D11RoomSource.BossBody | D3D11RoomSources.WrittenOverBackgroundOf(layer.Rooms), body.Scroll, body.Horizontal, body.Vertical, body.Pixelation)
+        : new(D3D11RoomSources.BackgroundSourceOf(layer.Rooms), layer.View.BackgroundScroll, layer.BackgroundLineScrolls.Horizontal,
+            layer.BackgroundLineScrolls.Vertical, layer.View.BackgroundPixelation);
+
+    /// <summary>What the background stage draws: its source word, its scroll, its line scrolls and its pixelation.</summary>
+    /// <param name="Source">The Tiles.hlsl source word.</param>
+    /// <param name="Scroll">The pixel the screen's top-left corner shows, signed (#2305).</param>
+    /// <param name="Horizontal">How each line's horizontal scroll moves, or null.</param>
+    /// <param name="Vertical">How each line's vertical scroll moves, or null.</param>
+    /// <param name="Pixelation">The stage's pixelation.</param>
+    private readonly record struct BackgroundStage(uint Source, Offset16<BackgroundPixels> Scroll, LineScroll? Horizontal,
+        LineScroll? Vertical, BackgroundPixelation Pixelation);
+
+    /// <summary>
+    /// Draws the background stage's back or front part in a band (#2573): a boss's body, or else the room's background's back
+    /// or front tiles, each line at the scroll its line scrolls give it (#1468), with its pixelation.
+    /// </summary>
+    private unsafe void DispatchBackgroundStage(GameplaySceneLayer layer, bool frontPart, int first, int end)
     {
-        var r = layer.View;
+        BackgroundStage stage = StageOf(layer);
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.Layer;
-        data[7] = PicturePart(frontTiles); data[8] = 1; data[15] = 1;
-        data[14] = D3D11RoomSources.BackgroundSourceOf(layer.Rooms);
+        data[7] = PicturePart(frontPart); data[8] = 1; data[15] = 1;
+        data[14] = stage.Source;
         data[25] = (uint)first; data[26] = (uint)end;
         // Header word 27 is the mosaic's block size (zero elsewhere).
-        data[27] = (uint)r.BackgroundPixelation.Size;
-        PackBackgroundScrolls(data, layer);
+        data[27] = (uint)stage.Pixelation.Size;
+        PackStageScrolls(data, stage);
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }
 
     /// <summary>
-    /// Packs the room's background scrolls into the pass's own line-scroll slots (#1468): each axis's described shape, or
-    /// the background pixel the view shows at the screen's top on every line (#1514), a signed scroll (#2305).
+    /// Packs the background stage's scrolls into the pass's own line-scroll slots (#1468): each axis's described shape, or
+    /// the pixel the stage shows at the screen's top on every line (#1514), a signed scroll (#2305).
     /// </summary>
-    private static void PackBackgroundScrolls(uint[] data, GameplaySceneLayer layer)
+    private static void PackStageScrolls(uint[] data, BackgroundStage stage)
     {
-        Offset16<BackgroundPixels> own = layer.View.BackgroundScroll;
-        D3D11LineScrolls.Pack(data, D3D11LineScrolls.Horizontal, layer.BackgroundLineScrolls.Horizontal, own.X);
-        D3D11LineScrolls.Pack(data, D3D11LineScrolls.Vertical, layer.BackgroundLineScrolls.Vertical, own.Y);
+        D3D11LineScrolls.Pack(data, D3D11LineScrolls.Horizontal, stage.Horizontal, stage.Scroll.X);
+        D3D11LineScrolls.Pack(data, D3D11LineScrolls.Vertical, stage.Vertical, stage.Scroll.Y);
     }
 
     /// <summary>
@@ -690,13 +721,15 @@ public sealed class D3D11FrameRenderer : IDisposable
                 hud = hud is null || ReferenceEquals(hud, shownHud.Hud) ? shownHud.Hud
                     : throw new InvalidOperationException("A frame shows two different HUDs.");
         }
-        // The gameplay base layer publishes the room backgrounds; a turning floor's band shows the room's background plane.
-        RoomBackgrounds? rooms = scene.Layers.IsEmpty ? null : scene.Layers[0] switch
+        // The gameplay base layer publishes the room backgrounds and the boss's body; a turning floor's band shows the room's
+        // background plane.
+        GameplaySceneLayer? baseGameplay = scene.Layers.IsEmpty ? null : scene.Layers[0] switch
         {
-            GameplaySceneLayer ordinary => ordinary.Rooms,
-            GameplayBlendLayer gameplay => gameplay.Gameplay.Rooms,
+            GameplaySceneLayer ordinary => ordinary,
+            GameplayBlendLayer gameplay => gameplay.Gameplay,
             _ => null,
         };
+        RoomBackgrounds? rooms = baseGameplay?.Rooms;
         RoomBackgroundLayer? floor = null;
         // The effect overlay the frame's blends show (#1514), if any.
         OverlayBlendLayer? overlay = null;
@@ -740,7 +773,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         // background plane's slot.
         D3D11BackgroundSlots background = rooms?.Background.Map(D3D11BackgroundSlots.Of) ?? default;
         var levels = new RoomLevelLayers(rooms?.Foreground, background.Plane ?? floor, rooms?.DoorSource, rooms?.ForegroundText, background.Sky, ShownFxOverlay.Of(overlay?.Picture),
-            rooms?.BackgroundText, floorMap, background.Body, background.Reveal, background.Image,
+            rooms?.BackgroundText, floorMap, baseGameplay?.BossBody?.Body, background.Reveal, background.Image,
             messagePicture, hud,
             planes.Count == 0 ? null : new PicturedPlaneTables([.. planes]), grids.Count == 0 ? null : new PictureGridTables([.. grids]),
             scene.Paint.Gameplay is null ? D3D11PictureColouring.OwnShading : D3D11PictureColouring.Hud, floorColouring);

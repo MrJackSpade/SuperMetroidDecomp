@@ -4,15 +4,15 @@ using SuperMetroid.Core.Bosses.Phantoon;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
-/// The line scrolls the bosses' published background effects draw as (#1468): Phantoon's wave as a sine wave down the
-/// whole screen, Crocomire's melt as a stretch. The bosses publish their effects in their own terms; the display
-/// describes them here.
+/// The distortions the bosses' bodies show, each on its body's own layer (#1468, #2573): Phantoon's wave ripples his body as
+/// a sine wave down the whole screen, and Crocomire's melt stretches his. The bosses publish their effects in their own
+/// terms; the display describes them here.
 /// </summary>
 public static class BossLineScrolls
 {
     /// <summary>
-    /// Phantoon's wave as a sine wave over every screen line (#1858, #2031): his body ripples about where it is placed, and
-    /// <paramref name="camera"/> shows it from there.
+    /// Phantoon's wave as a ripple of his body over every screen line (#1858, #2031): his body ripples about where it is
+    /// placed, and <paramref name="camera"/> shows it from there.
     /// </summary>
     /// <remarks>
     /// The wave's base scroll is the camera's signed distance from the placement (#2308), as the body's shown scroll is

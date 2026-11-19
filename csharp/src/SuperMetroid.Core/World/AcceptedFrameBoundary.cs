@@ -209,7 +209,7 @@ internal sealed class AcceptedFrameBoundary
     /// <param name="appearance">The values the room's appearance inputs take now.</param>
     /// <param name="foreground">The foreground's level plane with its pictures.</param>
     /// <param name="background">The background's level plane with its pictures, or null when the background shows a loaded picture.</param>
-    /// <param name="body">The body the room's boss shows, or null.</param>
+    /// <param name="body">The body the room's boss shows, or null; the background shows nothing behind it.</param>
     private RoomBackgrounds RoomBackgroundsOf(RoomScope scope, RoomAppearanceView appearance, RoomBackgroundLayer foreground,
         RoomBackgroundLayer? background, BossBodyLayer? body)
     {
@@ -218,13 +218,13 @@ internal sealed class AcceptedFrameBoundary
         SkyPictures? sky = scope.Sky is { State.HasBands: true, Image: var skyImage }
             ? new SkyPictures(skyImage.Resolve(appearance, RoomBackgroundImagePlacement.Whole(skyImage.Image)))
             : null;
-        // The background shows one thing (#2544): a boss body that owns the background shows over whatever the room would show
-        // there, each part's whole picture (#1466, #1513); otherwise the room's background plane where the room shows its level
-        // background, else the sky's rows. Where the background shows the room's library background as its own picture, it
+        // The background shows one thing (#2544): nothing behind a boss's body, which is its own layer where the background
+        // would show (#2573); otherwise the room's background plane where the room shows its level background, else the sky's
+        // rows. Where the background shows the room's library background as its own picture, it
         // draws the background's image (#1392, #1649), one period of what the background shows, as its room shows it, repeated
         // across and down (#1651, #1617). A library background the player sees as something else draws no picture, and the
         // background shows nothing.
-        ShownRoomBackground shown = body is not null ? new BossBodyBackground(body.Show())
+        ShownRoomBackground shown = body is not null ? ShownRoomBackground.Nothing
             : background is not null ? new RoomPlaneBackground(background)
             : sky is not null ? new SkyBackground(sky)
             : scope.BackgroundImage is RoomLibraryBackgroundPicture.Drawn { Image: var backgroundImage }

@@ -17,7 +17,10 @@ internal static class D3D11RoomSources
     /// <see cref="WrittenOverBackgroundFlag"/> when pictures are written over the background (#1348).
     /// </summary>
     internal static uint BackgroundSourceOf(RoomBackgrounds rooms) =>
-        (uint)rooms.Background.Map(SourceOfBackground.Instance) | (rooms.BackgroundText is null ? 0 : WrittenOverBackgroundFlag);
+        (uint)rooms.Background.Map(SourceOfBackground.Instance) | WrittenOverBackgroundOf(rooms);
+
+    /// <summary><see cref="WrittenOverBackgroundFlag"/> when pictures are written over the background stage (#1348), else none.</summary>
+    internal static uint WrittenOverBackgroundOf(RoomBackgrounds rooms) => rooms.BackgroundText is null ? 0 : WrittenOverBackgroundFlag;
 
     /// <summary>The source each kind of background draws from.</summary>
     private sealed class SourceOfBackground : IShownRoomBackgroundMapping<D3D11RoomSource>
@@ -33,9 +36,6 @@ internal static class D3D11RoomSources
 
         /// <inheritdoc/>
         public D3D11RoomSource Sky(SkyPictures sky) => D3D11RoomSource.Sky;
-
-        /// <inheritdoc/>
-        public D3D11RoomSource BossBody(ShownBossBody body) => D3D11RoomSource.BossBody;
 
         /// <inheritdoc/>
         public D3D11RoomSource LibraryImage(RoomBackgroundImagePlane image) => D3D11RoomSource.LibraryBackground;

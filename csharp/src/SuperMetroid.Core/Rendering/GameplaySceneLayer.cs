@@ -12,17 +12,20 @@ namespace SuperMetroid.Core.Rendering;
 public sealed record GameplaySceneLayer : DisplayLayer
 {
     /// <summary>
-    /// The gameplay scene's layers from back to front (#1514): the actors behind the room, the background's and then the
-    /// foreground's back tiles, the actors behind the front tiles, the background's and then the foreground's front tiles,
-    /// and the actors in front.
+    /// The gameplay scene's layers from back to front (#1514, #2573): the actors behind the room, the background's back
+    /// tiles and a boss's body behind the actors, the foreground's back tiles, the actors behind the front tiles, the
+    /// background's front tiles and a boss's body in front of the actors, the foreground's front tiles, and the actors in
+    /// front.
     /// </summary>
     public static ImmutableArray<GameplayLayer> Order { get; } =
     [
         GameplayLayer.ActorsBehindRoom,
         GameplayLayer.BackgroundBackPart,
+        GameplayLayer.BossBodyBehindActors,
         GameplayLayer.ForegroundBackPart,
         GameplayLayer.ActorsBehindFrontParts,
         GameplayLayer.BackgroundFrontPart,
+        GameplayLayer.BossBodyInFrontOfActors,
         GameplayLayer.ForegroundFrontPart,
         GameplayLayer.ActorsInFront,
     ];
@@ -33,6 +36,12 @@ public sealed record GameplaySceneLayer : DisplayLayer
     public RoomBackgrounds Rooms { get; }
     /// <summary>How the background's scroll changes line by line; an axis no effect drives uses <see cref="GameplaySceneView.BackgroundScroll"/> on every line.</summary>
     public BackgroundLineScrolls BackgroundLineScrolls { get; }
+
+    /// <summary>
+    /// The boss's body the frame shows as its own layer (#2573), drawn at the background's depths, in front of the room's
+    /// background, which shows nothing behind it; null in a room no boss shows a body in.
+    /// </summary>
+    public BossBodyView? BossBody { get; init; }
     /// <summary>
     /// The bands of the gameplay screen that show their own choice of layers (#1514), top to bottom; the lines no band
     /// covers show <see cref="GameplaySceneView.ShownLayers"/>.

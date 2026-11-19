@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Gameplay;
 /// The body a boss shows in an accepted frame (#1352-#1356, #1466, #2031): its parts, where it is placed in the room and
 /// whether it shows this frame. Each of its frames lies where the import placed it against its boss (each installed frame's
 /// anchor), so the display draws each part from the body's placement, clipped to the screen. Enemy AI chooses each during
-/// the update; the frame boundary reads where the boss stands as the frame ends. The body's pictures are the room
-/// backgrounds' while it owns the background (<see cref="BossBodyBackground"/>).
+/// the update; the frame boundary reads where the boss stands as the frame ends. The frame shows it as its own layer
+/// (<see cref="Rendering.BossBodyView"/>, #2573).
 /// </summary>
 /// <param name="Body">The body a boss shows, or null without one.</param>
 /// <param name="Placement">

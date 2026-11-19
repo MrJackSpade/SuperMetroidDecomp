@@ -9,7 +9,11 @@ namespace SuperMetroid.Core.Spatial;
 internal readonly record struct FineUnitComponent
 {
     /// <summary>The component the half-wave at <paramref name="axisAngle"/> gives (#2569).</summary>
-    private FineUnitComponent(TrigonometryAngle axisAngle) => _axisAngle = axisAngle;
+    private FineUnitComponent(TrigonometryAngle axisAngle)
+    {
+        _axisAngle = axisAngle;
+        _size = Trigonometry.HalfWaveShare(axisAngle.StepsIntoHalfTurn);
+    }
 
     /// <summary>
     /// The angle whose half-wave gives the share (<see cref="Trigonometry.HalfWaveShare"/>), less than one whole, and whose
@@ -17,8 +21,11 @@ internal readonly record struct FineUnitComponent
     /// </summary>
     private readonly TrigonometryAngle _axisAngle;
 
+    /// <summary>The share's size, the half-wave's at the axis angle, less than one whole, read once as the share is made.</summary>
+    private readonly UnsignedSixteenSixteen _size;
+
     /// <summary>The share's size, the half-wave's, less than one whole.</summary>
-    private UnsignedSixteenSixteen Size => Trigonometry.HalfWaveShare(_axisAngle.StepsIntoHalfTurn);
+    private UnsignedSixteenSixteen Size => _size;
 
     /// <summary>
     /// The share of <paramref name="angle"/> across, its cosine: the half-wave a quarter turn on, pointing left where that

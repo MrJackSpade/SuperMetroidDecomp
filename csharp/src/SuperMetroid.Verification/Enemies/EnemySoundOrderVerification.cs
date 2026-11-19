@@ -44,7 +44,7 @@ internal static class EnemySoundOrderVerification
         foreach (RoomEnemyPlace place in new[] { firstMetroid, boyon, secondMetroid })
             EnemyAnimationPlayer.AdvanceAnimation(place, samus: RoomEnemyFrameFixtures.StandaloneSamus(), level: RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, controllerInput: 0);
 
-        SoundEffectId cry = MetroidReactions.RandomCrySoundEffect(CryRandom);
+        SoundEffectId cry = MetroidBehaviorDefinitions.Cry.Choose(CryRandom);
         AssertEqual(EnemyAudioQueueAccess.SoundList([cry, EnemySoundEffectDefinitions.BoyonBounceSound, cry]), enemies.Audio.QueuedSoundList,
             "each enemy's sound is queued as it runs, in place order, and both Metroid cries are queued");
         AssertTrue(enemies.Audio.SoundRequests.All(request => request.Priority == SoundRequestPriority.Normal),

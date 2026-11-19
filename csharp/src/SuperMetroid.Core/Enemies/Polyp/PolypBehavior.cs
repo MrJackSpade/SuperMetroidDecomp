@@ -76,13 +76,13 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Launches a rock with three independent random choices: its horizontal speed, its rise and the cooldown after it.</summary>
     private void ShootPolypRock(RoomEnemyPlace place, PolypEnemyState state)
     {
-        SignedEightEight xVelocity = PolypLaunches.XVelocity(_room.Random.Generate());
+        SignedEightEight xVelocity = PolypLaunchDefinitions.XVelocity.Choose(_room.Random.Generate());
 
         QuadraticSpeedCurvePlace launchPlace = PolypLaunches.LaunchPlace(_room.Random.Generate());
         SpawnPolypRock(place, launchPlace, xVelocity);
 
         state.Action = PolypAction.Cooldown;
-        state.CooldownTimer = PolypLaunches.Cooldown(_room.Random.Generate());
+        state.CooldownTimer = PolypLaunchDefinitions.Cooldown.Choose(_room.Random.Generate());
     }
 
     /// <summary>

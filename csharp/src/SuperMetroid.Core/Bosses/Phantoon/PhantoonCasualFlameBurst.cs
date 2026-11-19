@@ -8,7 +8,7 @@ public sealed class PhantoonCasualFlameBurst
 {
     /// <summary>
     /// The burst being spat, or the last one spat once it has ended: one of
-    /// <see cref="PhantoonCasualFlameDefinitions.Choices"/> (#2258).
+    /// <see cref="PhantoonCasualFlameDefinitions.Burst"/> (#2258).
     /// </summary>
     public PhantoonCasualFlameSchedule Schedule { get; internal set => field = Ensure.NotNull(value); } = PhantoonCasualFlameDefinitions.SteadyFive;
 

@@ -377,7 +377,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace body = state.Body;
         state.BodyPart.StartAnimation(PhantoonPartSegment.EyeHitboxBody);
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
-        state.PhaseTimer = PhantoonTimerDefinitions.VulnerableWindow[_room.Random.Next(PhantoonRandomDefinitions.VulnerableWindowChoice)];
+        state.PhaseTimer = PhantoonRandomDefinitions.VulnerableWindow.Choose(_room.Random.Generate());
         state.Phase = PhantoonPhase.EyeTracksSamus;
         state.EyePart.StartAnimation(PhantoonPartSegment.EyeballCentered);
     }

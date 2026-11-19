@@ -1,5 +1,3 @@
-using System.Collections.Immutable;
-
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
@@ -8,20 +6,17 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// </summary>
 internal static class CeresFallingDebrisDefinitions
 {
-    /// <summary>The random selection of the column a piece falls in: one of sixteen.</summary>
-    internal static readonly RandomSampleField Column = new(0, 4);
-
     /// <summary>
     /// Whether a falling piece is dark rather than light (#2479): taken by a sample of 32768 or more, one piece in two.
     /// </summary>
     internal static readonly RandomChance PieceIsDark = RandomChance.Highest(1, new RandomSampleField(15, 1));
 
     /// <summary>
-    /// The room X each of the sixteen columns <see cref="Column"/> chooses drops its piece at (#2033): sixteen pixels apart
-    /// from 80 through 240, then thirty-two pixels apart through 400.
+    /// The room X a piece drops at, chosen from sixteen rolls of the sample for its column (#2033, #2510): the columns in
+    /// turn, sixteen pixels apart from 80 through 240, then thirty-two pixels apart through 400.
     /// </summary>
-    internal static readonly ImmutableArray<int> ColumnX =
-        [80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 272, 304, 336, 368, 400];
+    internal static readonly WeightedRandomChoice<int> ColumnX = WeightedRandomChoice<int>.InTurn(new RandomSampleField(0, 4),
+        80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 272, 304, 336, 368, 400);
 
     /// <summary>The room Y, in whole pixels, every piece starts its fall at, whatever its column.</summary>
     internal const int StartingY = 42;

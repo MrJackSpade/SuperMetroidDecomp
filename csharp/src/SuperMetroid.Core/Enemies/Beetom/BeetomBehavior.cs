@@ -159,13 +159,13 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Uses one random sample's <see cref="BeetomDecisions.NextAction"/> to choose to idle or hop, as
-    /// <see cref="BeetomDecisions.DistantChoices"/> lists the outcomes (#2369).
+    /// Uses one random sample to choose to idle or hop (<see cref="BeetomDecisions.DistantChoice"/>, #2369) and which way to
+    /// face.
     /// </summary>
     internal void ChooseDistantBeetomAction(BeetomEnemyState state)
     {
         int random = _room.Random.Generate();
-        BeetomDistantChoice choice = BeetomDecisions.DistantChoices[BeetomDecisions.NextAction.Of(random)];
+        BeetomDistantChoice choice = BeetomDecisions.DistantChoice.Choose(random);
         if (choice.Heading is { } heading)
             state.Begin(choice.Action, heading);
         else

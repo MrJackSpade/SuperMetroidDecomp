@@ -291,7 +291,7 @@ internal static class TorizoProjectileAnimations
 
     /// <summary>
     /// A low-health drool that forms unseen for two updates before it is released and falls, holding its falling pose: one of
-    /// the drools <see cref="TorizoRandomDefinitions.LowHealthDroolAnimations"/> chooses among.
+    /// the drools <see cref="TorizoRandomDefinitions.LowHealthDroolForm"/> chooses among.
     /// </summary>
     internal static Animation<TorizoProjectileSegment> DroolFormingForTwoUpdates { get; } =
         new([Segments.Whole(P.DroolForming), Segments.Whole(P.DroolNoDelay), Segments.Whole(P.DroolFalling)], AnimationEnd.Holds);

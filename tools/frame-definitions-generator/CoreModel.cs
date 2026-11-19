@@ -81,6 +81,7 @@ internal sealed class CoreModel
         ArchitectureReview = SingleType("ArchitectureReviewAttribute");
         EnemySheetDraw = SingleType("EnemySheetDraw");
         SpriteGraphics = SingleType("SpriteGraphics");
+        WeightedRandomChoice = SingleType("WeightedRandomChoice", arity: 1);
         SpawnedObjectOwner = SingleType("SpawnedObjectOwner");
         RoomEnemyPlace = SingleType("RoomEnemyPlace");
         AnimationSegments = SingleType("AnimationSegments", arity: 3);
@@ -152,6 +153,9 @@ internal sealed class CoreModel
 
     /// <summary>The graphics a spawned object draws with: whose sheet, in which shading.</summary>
     public INamedTypeSymbol SpriteGraphics { get; }
+
+    /// <summary>A random choice among weighted outcomes (#2510), whose <c>Choose</c> gives one of the outcomes its construction lists.</summary>
+    public INamedTypeSymbol WeightedRandomChoice { get; }
 
     /// <summary>Whose spawned-object sheet a spawned object draws from.</summary>
     public INamedTypeSymbol SpawnedObjectOwner { get; }

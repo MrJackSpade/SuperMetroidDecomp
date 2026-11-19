@@ -31,7 +31,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
             int offset = raw & 0x1c;
             ushort whole = Word(EnemyRomTablePointersFallingSpark.HorizontalWholeWords + offset);
             ushort fraction = Word(EnemyRomTablePointersFallingSpark.HorizontalFractionWords + offset);
-            var compiled = FallingSparkLaunches.FromRandom(random, () => unauthored);
+            var compiled = FallingSparkLaunchDefinitions.Launch.Choose(random).DriftWith(() => unauthored);
             AssertEqual(whole, compiled.UnsignedWholePixels, "Every RNG word preserves native spark whole velocity");
             AssertEqual(fraction, compiled.Fraction, "Every RNG word preserves native spark fractional velocity");
             projectile.Delete();

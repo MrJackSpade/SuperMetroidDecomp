@@ -173,7 +173,7 @@ internal static class TorizoProjectileAnimationsVerification
         {
             ushort random = (ushort)(index << 2);
             AssertEqual(cartridge.ReadCartridgeWord(word),
-                ProjectileEntryOf(TorizoAttacks.SelectLowHealthDroolAnimation(random)), $"low-health drool delay table entry {index}");
+                ProjectileEntryOf(TorizoRandomDefinitions.LowHealthDroolForm.Choose(random)), $"low-health drool delay table entry {index}");
         }
 
         // The egg's hatch starts the hatching animation of the side the egg was laid facing; the cartridge reaches the same

@@ -6,17 +6,18 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 /// </summary>
 internal static class PolypLaunchDefinitions
 {
-    /// <summary>One of the random number's eight choices selects the cooldown.</summary>
-    internal static readonly RandomSampleField CooldownSelector = new(1, 3);
-
-    /// <summary>One of the random number's sixteen choices selects the launch speed and the horizontal velocity.</summary>
+    /// <summary>
+    /// The random roll, one of sixteen, whose value is how many marks past <see cref="FirstLaunchPlace"/> a rock's rise
+    /// starts; a horizontal velocity's draw reads the same roll of its own number (<see cref="XVelocity"/>).
+    /// </summary>
     internal static readonly RandomSampleField LaunchSelector = new(1, 4);
 
     /// <summary>
-    /// The cooldown each RNG selector chooses, in updates, the last the one the Polyp rearms on: seventeen, eight longer
-    /// per selector (#2281).
+    /// The cooldown a launch's draw chooses, in updates, the last the one the Polyp rearms on (#2281, #2510): the eight rolls
+    /// of its random number take seventeen updates and eight longer for each roll in turn.
     /// </summary>
-    internal static readonly int[] Cooldowns = [17, 25, 33, 41, 49, 57, 65, 73];
+    internal static readonly WeightedRandomChoice<int> Cooldown = WeightedRandomChoice<int>.InTurn(
+        new RandomSampleField(1, 3), 17, 25, 33, 41, 49, 57, 65, 73);
 
     /// <summary>
     /// The place along the quadratic speed curve, mark 28, the first launch selector starts a rock's rise at; each
@@ -25,16 +26,16 @@ internal static class PolypLaunchDefinitions
     internal static QuadraticSpeedCurvePlace FirstLaunchPlace { get; } = QuadraticSpeedCurvePlace.FromMarks(28);
 
     /// <summary>
-    /// The horizontal velocity each launch selector chooses: the first eight push right, the second eight push left by
-    /// the same magnitudes, each a sixteenth of a pixel per update faster than the last from 96 256ths.
+    /// The horizontal velocity a launch's draw chooses (#2510): the sixteen rolls of <see cref="LaunchSelector"/> in turn, the
+    /// first eight pushing right and the second eight left by the same magnitudes, each a sixteenth of a pixel per update
+    /// faster than the last from 96 256ths.
     /// </summary>
-    internal static readonly SignedEightEight[] XVelocities =
-    [
+    internal static readonly WeightedRandomChoice<SignedEightEight> XVelocity = WeightedRandomChoice<SignedEightEight>.InTurn(
+        LaunchSelector,
         SignedEightEight.FromParts(0, 96), SignedEightEight.FromParts(0, 112), SignedEightEight.FromParts(0, 128), SignedEightEight.FromParts(0, 144),
         SignedEightEight.FromParts(0, 160), SignedEightEight.FromParts(0, 176), SignedEightEight.FromParts(0, 192), SignedEightEight.FromParts(0, 208),
         -SignedEightEight.FromParts(0, 96), -SignedEightEight.FromParts(0, 112), -SignedEightEight.FromParts(0, 128), -SignedEightEight.FromParts(0, 144),
-        -SignedEightEight.FromParts(0, 160), -SignedEightEight.FromParts(0, 176), -SignedEightEight.FromParts(0, 192), -SignedEightEight.FromParts(0, 208),
-    ];
+        -SignedEightEight.FromParts(0, 160), -SignedEightEight.FromParts(0, 176), -SignedEightEight.FromParts(0, 192), -SignedEightEight.FromParts(0, 208));
 
     /// <summary>How close on each axis Samus comes, in pixels, for a Polyp to launch a rock.</summary>
     internal const int LaunchReach = 64;

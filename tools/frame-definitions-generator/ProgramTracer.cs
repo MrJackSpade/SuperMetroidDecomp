@@ -7,9 +7,11 @@ namespace SuperMetroid.FrameDefinitionsGenerator;
 /// The programs a projectile program family's construction can start it in when its program argument is not a constant
 /// (#1784), as a spawner starting the program its callers hand it does: a program member named outright; for a parameter of
 /// the method holding it, or a positional record's property, what the calls or constructions passing that parameter pass,
-/// traced on in turn; for a call of a Core method, what each of its returns can be (#1881); and for an element of a
+/// traced on in turn; for a call of a Core method, what each of its returns can be (#1881); for an element of a
 /// read-only table, what each of the table's entries can be (#1881), as Bomb Torizo's statue pieces take their programs
-/// from the <c>Animation</c> of their entries in <c>BombTorizoStatueFragmentDefinitions.Fragments</c> (#2029). Since the
+/// from the <c>Animation</c> of their entries in <c>BombTorizoStatueFragmentDefinitions.Fragments</c> (#2029); and for what a
+/// read-only random choice chooses, what each of the outcomes its construction lists can be (#2510), as Bomb Torizo's
+/// low-health drool takes its program from <c>TorizoRandomDefinitions.LowHealthDroolForm</c>. Since the
 /// projectile behaviours took over from the kind-keyed start tables (#1760), this is how a kind's spawner names the program
 /// it starts.
 /// </summary>
@@ -131,6 +133,9 @@ internal sealed class ProgramTracer(CoreModel model, Func<Unit, bool>? reaches)
             }
             (ISymbol Source, IReadOnlyList<ExpressionSyntax> Values, SemanticModel Semantic)? values = choice switch
             {
+                // What a random choice chooses is one of its outcomes, never what its general choosing code returns.
+                InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax { Expression: var chooser } } when IsChoose(symbol) =>
+                    Outcomes(semantic.GetSymbolInfo(chooser).Symbol),
                 InvocationExpressionSyntax when symbol is IMethodSymbol method && Returned(method) is { } returned => (method.OriginalDefinition, returned.Values, returned.Semantic),
                 ElementAccessExpressionSyntax access => Entries(semantic.GetSymbolInfo(access.Expression).Symbol),
                 IdentifierNameSyntax when symbol is ILocalSymbol local => Entries(LookedUpIn(semantic, local)),
@@ -260,6 +265,56 @@ internal sealed class ProgramTracer(CoreModel model, Func<Unit, bool>? reaches)
             };
             if (values is { Count: > 0 })
                 return (table.OriginalDefinition, values, model.ModelOf(reference.SyntaxTree));
+        }
+        return null;
+    }
+
+    /// <summary>Whether <paramref name="symbol"/> is a random choice's <c>Choose</c>.</summary>
+    private bool IsChoose(ISymbol? symbol) =>
+        symbol is IMethodSymbol { Name: "Choose" } method
+        && SymbolEqualityComparer.Default.Equals(method.ContainingType.OriginalDefinition, model.WeightedRandomChoice);
+
+    /// <summary>
+    /// The outcomes the read-only Core random choice <paramref name="choice"/> lists (#2510): a field it cannot reassign, or a
+    /// property with no setter, whose initializer is a choice taken in turn (<c>InTurn(field, outcomes...)</c>, every argument
+    /// after the field) or by shares (a construction whose arguments after the field are each <c>new(values, outcome)</c>);
+    /// null for anything else.
+    /// </summary>
+    private (ISymbol Choice, IReadOnlyList<ExpressionSyntax> Values, SemanticModel Semantic)? Outcomes(ISymbol? choice)
+    {
+        if (choice is not (IFieldSymbol { IsReadOnly: true } or IPropertySymbol { SetMethod: null }) || !model.IsSource(choice))
+            return null;
+        foreach (SyntaxReference reference in choice.OriginalDefinition.DeclaringSyntaxReferences)
+        {
+            ExpressionSyntax? initializer = reference.GetSyntax() switch
+            {
+                VariableDeclaratorSyntax { Initializer.Value: var value } => value,
+                PropertyDeclarationSyntax { Initializer.Value: var value } => value,
+                _ => null,
+            };
+            if (initializer is null)
+                continue;
+            SemanticModel semantic = model.ModelOf(reference.SyntaxTree);
+            if (semantic.GetSymbolInfo(initializer).Symbol is not IMethodSymbol made
+                || !SymbolEqualityComparer.Default.Equals(made.ContainingType.OriginalDefinition, model.WeightedRandomChoice))
+                return null;
+            ArgumentSyntax[] outcomes = initializer switch
+            {
+                InvocationExpressionSyntax { ArgumentList.Arguments: var listed } when made.Name == "InTurn" => [.. listed.Skip(1)],
+                BaseObjectCreationExpressionSyntax { ArgumentList.Arguments: var shares } when made.MethodKind == MethodKind.Constructor => [.. shares.Skip(1)],
+                _ => [],
+            };
+            List<ExpressionSyntax> values = [];
+            foreach (ArgumentSyntax outcome in outcomes)
+            {
+                if (made.MethodKind != MethodKind.Constructor)
+                    values.Add(outcome.Expression);
+                else if (outcome.Expression is BaseObjectCreationExpressionSyntax { ArgumentList.Arguments: [_, var chosen] })
+                    values.Add(chosen.Expression);
+                else
+                    return null;
+            }
+            return values.Count > 0 ? (choice.OriginalDefinition, values, semantic) : null;
         }
         return null;
     }

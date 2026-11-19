@@ -270,7 +270,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         }
         else if (Type == RoomFxType.Rain)
         {
-            rainWind = new(AtmosphereDrift.RainHorizontalVelocity(AtmosphereDrift.RainWindChosenBy(source.RandomNumber)),
+            rainWind = new(AtmosphereDrift.RainHorizontalVelocity(AtmosphereDriftDefinitions.RainWindDraw.Choose(source.RandomNumber)),
                 SignedEightEight.Zero);
         }
     }

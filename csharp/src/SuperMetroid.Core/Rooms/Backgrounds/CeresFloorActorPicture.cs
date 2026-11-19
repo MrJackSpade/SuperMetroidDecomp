@@ -1,10 +1,11 @@
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
-/// The seven frames the Ceres door, the Baby's capsule and Ridley's wings draw onto the rotating floor.
-/// Its values are arbitrary.
+/// The pictures of the actors Ceres's turning floor shows (#2573): the elevator's landing platform, the Baby's capsule and
+/// Ridley's wings, each drawn with the floor's transform over it, at its actor's place on the floor. Its values are
+/// arbitrary.
 /// </summary>
-public enum CeresFloorAnimationFrame
+public enum CeresFloorActorPicture
 {
     /// <summary>The elevator landing platform's light frame.</summary>
     ElevatorLight,

@@ -513,6 +513,13 @@ public sealed class D3D11FrameRenderer : IDisposable
         }
     }
 
+    /// <summary>
+    /// The room's warning when it shows at <paramref name="depth"/> (#2573), or null: the backend draws a warning in the pass of
+    /// the layer at its depth, covering what that layer shows within its pictures.
+    /// </summary>
+    private static ShownRoomWarning? WarningAt(RoomBackgrounds? rooms, RoomWarningDepth depth) =>
+        rooms?.Warning is { } warning && warning.Depth == depth ? warning : null;
+
     /// <summary>The depth of the actors a gameplay actor layer shows.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="layer"/> shows no actors.</exception>
     private static ActorDepth ActorsAt(GameplayLayer layer) => layer switch
@@ -772,8 +779,8 @@ public sealed class D3D11FrameRenderer : IDisposable
         // The background's pictures are packed in the slot of the kind it shows (#2544); a turning floor's band shows the
         // background plane's slot.
         D3D11BackgroundSlots background = rooms?.Background.Map(D3D11BackgroundSlots.Of) ?? default;
-        var levels = new RoomLevelLayers(rooms?.Foreground, background.Plane ?? floor, rooms?.DoorSource, rooms?.ForegroundText, background.Sky, ShownFxOverlay.Of(overlay?.Picture),
-            rooms?.BackgroundText, floorMap, baseGameplay?.BossBody?.Body, background.Reveal, background.Image,
+        var levels = new RoomLevelLayers(rooms?.Foreground, background.Plane ?? floor, rooms?.DoorSource, WarningAt(rooms, RoomWarningDepth.WithForeground), background.Sky, ShownFxOverlay.Of(overlay?.Picture),
+            WarningAt(rooms, RoomWarningDepth.WithBackground), floorMap, baseGameplay?.BossBody?.Body, background.Reveal, background.Image,
             messagePicture, hud,
             planes.Count == 0 ? null : new PicturedPlaneTables([.. planes]), grids.Count == 0 ? null : new PictureGridTables([.. grids]),
             scene.Paint.Gameplay is null ? D3D11PictureColouring.OwnShading : D3D11PictureColouring.Hud, floorColouring);

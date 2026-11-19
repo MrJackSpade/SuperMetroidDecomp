@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 internal static class CeresFloorDrawings
 {
     /// <summary>The tiles of each cell <paramref name="frame"/>'s runs write, by floor cell.</summary>
-    internal static IReadOnlyDictionary<int, int> Cells(CeresFloorAnimationFrame frame)
+    internal static IReadOnlyDictionary<int, int> Cells(CeresFloorActorPicture frame)
     {
         if (!CeresFloorDrawingDefinitions.Frames.TryGetValue(frame, out IReadOnlyList<CeresFloorRunDefinition>? rows))
             throw new InvalidDataException($"Unknown Ceres floor animation frame {frame}.");
@@ -38,12 +38,12 @@ internal static class CeresFloorDrawings
     internal static IReadOnlyList<FloorSheetComposer.FloorPicture> Pictures(ReadOnlySpan<byte> map, byte[] tilePixels)
     {
         var pictures = new List<FloorSheetComposer.FloorPicture>();
-        foreach (CeresFloorAnimationFrame frame in Enum.GetValues<CeresFloorAnimationFrame>())
+        foreach (CeresFloorActorPicture frame in Enum.GetValues<CeresFloorActorPicture>())
             pictures.Add(Picture(frame, map, tilePixels));
         FloorSheetComposer.RequireSeparateParts(pictures);
-        foreach (CeresFloorAnimationFrame first in Enum.GetValues<CeresFloorAnimationFrame>())
+        foreach (CeresFloorActorPicture first in Enum.GetValues<CeresFloorActorPicture>())
         {
-            foreach (CeresFloorAnimationFrame second in Enum.GetValues<CeresFloorAnimationFrame>())
+            foreach (CeresFloorActorPicture second in Enum.GetValues<CeresFloorActorPicture>())
             {
                 FloorSheetComposer.FloorPicture one = pictures.Single(picture => picture.Name == RoomFloorSheet.PictureNameOf(first));
                 FloorSheetComposer.FloorPicture other = pictures.Single(picture => picture.Name == RoomFloorSheet.PictureNameOf(second));
@@ -54,8 +54,39 @@ internal static class CeresFloorDrawings
         return pictures;
     }
 
+    /// <summary>
+    /// The floor cells the actors shown on the floor stand on (#2573), each actor's whole picture's rectangle, once the floor
+    /// whose cells, row by row, are <paramref name="map"/>, is checked to picture each actor's resting picture there.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The map does not show an actor's resting picture where the actor stands.</exception>
+    internal static IReadOnlySet<int> ActorPlaces(ReadOnlySpan<byte> map)
+    {
+        var places = new HashSet<int>();
+        foreach ((CeresFloorActor actor, CeresFloorActorPicture resting) in CeresFloorActors.RestingPictures)
+        {
+            IReadOnlyDictionary<int, int> written = Cells(resting);
+            foreach ((int cell, int tile) in written)
+            {
+                if (map[cell] != tile)
+                {
+                    string shown = string.Join(", ", Enum.GetValues<CeresFloorActorPicture>()
+                        .Where(picture => CeresFloorActors.Of(picture) == actor && Cells(picture).All(pair => map[pair.Key] == pair.Value)));
+                    throw new InvalidDataException($"The floor's map does not show {actor} as {resting}; it shows {(shown.Length == 0 ? "none of its pictures" : shown)}.");
+                }
+            }
+            int left = written.Keys.Min(cell => cell % FloorSheetComposer.Side), right = written.Keys.Max(cell => cell % FloorSheetComposer.Side);
+            int top = written.Keys.Min(cell => cell / FloorSheetComposer.Side), bottom = written.Keys.Max(cell => cell / FloorSheetComposer.Side);
+            for (int row = top; row <= bottom; row++)
+            {
+                for (int column = left; column <= right; column++)
+                    places.Add(row * FloorSheetComposer.Side + column);
+            }
+        }
+        return places;
+    }
+
     /// <summary>The picture of <paramref name="frame"/>'s runs written over <paramref name="map"/>.</summary>
-    private static FloorSheetComposer.FloorPicture Picture(CeresFloorAnimationFrame frame, ReadOnlySpan<byte> map, byte[] tilePixels)
+    private static FloorSheetComposer.FloorPicture Picture(CeresFloorActorPicture frame, ReadOnlySpan<byte> map, byte[] tilePixels)
     {
         IReadOnlyDictionary<int, int> written = Cells(frame);
         int left = written.Keys.Min(cell => cell % FloorSheetComposer.Side), right = written.Keys.Max(cell => cell % FloorSheetComposer.Side);

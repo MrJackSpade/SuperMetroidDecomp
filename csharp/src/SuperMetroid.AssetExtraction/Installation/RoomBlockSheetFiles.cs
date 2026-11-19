@@ -61,7 +61,7 @@ public static class RoomBlockSheetFiles
     /// placed by its origin (#1649); revision 3 pictures each floor whole, as the game takes the floor's extent from its
     /// picture (#2104).
     /// </summary>
-    private const int FloorManifestVersion = 3;
+    private const int FloorManifestVersion = 4;
 
     /// <summary>
     /// Composes every tileset's block sheet and background image and writes the manifests of what they picture; the sheets

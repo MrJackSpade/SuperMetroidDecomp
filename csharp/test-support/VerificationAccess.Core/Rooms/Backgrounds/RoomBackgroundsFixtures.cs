@@ -210,14 +210,14 @@ internal static class RoomBackgroundsFixtures
     /// A seeded run of words written over a background (#1392, #1403), drawn from seeded pictures as
     /// <see cref="SeededPictures"/> seeds them; a run position it leaves without a picture shows the background.
     /// </summary>
-    internal static RoomOverlayPictures SeededPicturedOverlay(Random random, RgbColor[] scene) =>
-        SeededOverlayRun(random, scene, random.Next(64, 256));
+    internal static ShownRoomWarning SeededPicturedOverlay(Random random, RgbColor[] scene, RoomWarningDepth depth) =>
+        SeededOverlayRun(random, scene, random.Next(64, 256), depth);
 
     /// <summary>
     /// <paramref name="count"/> seeded block pictures written over a background, as <see cref="SeededPicturedOverlay"/> seeds
     /// them, each at a seeded cell of the background's first two screens (#1514).
     /// </summary>
-    private static RoomOverlayPictures SeededOverlayRun(Random random, RgbColor[] scene, int count)
+    private static ShownRoomWarning SeededOverlayRun(Random random, RgbColor[] scene, int count, RoomWarningDepth depth)
     {
         RoomBlockPictureTable blocks = SeededPictures(random, scene);
         var pictures = System.Collections.Immutable.ImmutableArray.CreateBuilder<PlacedWrittenPicture>(count);
@@ -227,7 +227,7 @@ internal static class RoomBackgroundsFixtures
                 ?? throw new InvalidOperationException("A seeded block has no picture."),
                 new Position16<PlanePixels>(random.Next(64) * 8, random.Next(32) * 8)));
         }
-        return new RoomOverlayPictures(pictures.MoveToImmutable());
+        return new ShownRoomWarning(pictures.MoveToImmutable(), depth);
     }
 
     /// <summary>
@@ -414,7 +414,7 @@ internal static class RoomBackgroundsFixtures
                 foregroundScroll + new Offset16<PlanePixels>((short)random.Next(-128, 128), 0), random.Next(2) == 0);
         }
         RgbColor[] scene = pictureColours ?? new RgbColor[SnesCgram.ColorCount];
-        RoomOverlayPictures? written = overlay ? SeededOverlayRun(random, scene, random.Next(8, 24)) : null;
+        ShownRoomWarning? written = overlay ? SeededOverlayRun(random, scene, random.Next(8, 24), RoomWarningDepth.WithForeground) : null;
         return new RoomBackgrounds(bg1, bg2 is not null ? new SuperMetroid.Core.Gameplay.RoomPlaneBackground(bg2)
             : new SuperMetroid.Core.Gameplay.LibraryImageBackground(SeededBackground(random, scene)), source, written);
     }

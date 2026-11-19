@@ -50,7 +50,7 @@ internal static class EnemyTileArtworkCeresDoorVerification
                     visual.AnimationColor(row, color), $"installed Ceres-door animated row {row} colour {color} matches the cartridge");
         }
         // The platform's strips are pictures of the room's floor (#1467); the import pictures each from the native transfer.
-        CeresFloorAnimationFrame[] strips = [CeresFloorAnimationFrame.ElevatorLight, CeresFloorAnimationFrame.ElevatorDark];
+        CeresFloorActorPicture[] strips = [CeresFloorActorPicture.ElevatorLight, CeresFloorActorPicture.ElevatorDark];
         const int stripCells = 4, stripFirstCell = 12 * 128 + 14;
         for (int frame = 0; frame < strips.Length; frame++)
         {

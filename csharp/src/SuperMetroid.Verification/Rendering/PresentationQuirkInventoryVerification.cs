@@ -38,6 +38,14 @@ internal static class PresentationQuirkInventoryVerification
         ("SuperMetroid.Core.Areas.Ceres.CeresDoorCueKind", "HandDrawingToRidley", "the drawing owner of Ridley's room's door"),
         ("SuperMetroid.Core.Samus.Projectiles.ProjectileTrailPlacementDefinitions", "PictureInset", "a sparkle stored at its picture's corner"),
         ("SuperMetroid.Core.Samus.Grapple.SamusGrappleBeamDrawing", "RefreshFiringDrawOrigins", "a draw that rewrote the rope start"),
+        ("SuperMetroid.Core.Gameplay.BossBodyBackground", null, "a boss's body drawn as the room's background"),
+        ("SuperMetroid.Core.Gameplay.IShownRoomBackgroundMapping`1", "BossBody", "a boss's body drawn as the room's background"),
+        ("SuperMetroid.Core.Gameplay.RoomBackgrounds", "ForegroundText", "a warning written over the foreground layer"),
+        ("SuperMetroid.Core.Gameplay.RoomBackgrounds", "BackgroundText", "a warning written over the background layer"),
+        ("SuperMetroid.Core.Rooms.Backgrounds.RoomOverlayPictures", null, "a warning written over a level layer"),
+        ("SuperMetroid.Core.Rooms.Backgrounds.RoomWrittenOverlay", null, "a warning written over a level layer"),
+        ("SuperMetroid.Core.Rooms.Backgrounds.CeresFloorPart", null, "actors drawn as parts of the turning floor"),
+        ("SuperMetroid.Core.Rooms.Backgrounds.CeresFloorAnimationFrame", null, "actors' pictures drawn onto the turning floor"),
     ];
 
     /// <summary>

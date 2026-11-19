@@ -19,8 +19,9 @@ internal static class D3D11RoomSources
     internal static uint BackgroundSourceOf(RoomBackgrounds rooms) =>
         (uint)rooms.Background.Map(SourceOfBackground.Instance) | WrittenOverBackgroundOf(rooms);
 
-    /// <summary><see cref="WrittenOverBackgroundFlag"/> when pictures are written over the background stage (#1348), else none.</summary>
-    internal static uint WrittenOverBackgroundOf(RoomBackgrounds rooms) => rooms.BackgroundText is null ? 0 : WrittenOverBackgroundFlag;
+    /// <summary><see cref="WrittenOverBackgroundFlag"/> when the room's warning shows at the background's depth (#1348, #2573), else none.</summary>
+    internal static uint WrittenOverBackgroundOf(RoomBackgrounds rooms) =>
+        rooms.Warning is { Depth: RoomWarningDepth.WithBackground } ? WrittenOverBackgroundFlag : 0;
 
     /// <summary>The source each kind of background draws from.</summary>
     private sealed class SourceOfBackground : IShownRoomBackgroundMapping<D3D11RoomSource>

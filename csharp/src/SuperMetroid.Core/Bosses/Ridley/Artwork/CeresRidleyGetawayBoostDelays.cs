@@ -25,12 +25,12 @@ public sealed class CeresRidleyGetawayBoostDelays
 
     /// <summary>The ten delays wing frame <paramref name="frame"/> leaves behind, by running frame.</summary>
     /// <exception cref="InvalidDataException"><paramref name="frame"/> is not one of the wing's frames.</exception>
-    public IReadOnlyList<int> LeftBy(CeresFloorAnimationFrame frame) => frame switch
+    public IReadOnlyList<int> LeftBy(CeresFloorActorPicture frame) => frame switch
     {
-        CeresFloorAnimationFrame.WingsRaised => leftByWingsRaised,
-        CeresFloorAnimationFrame.WingsLowered => leftByWingsLowered,
-        CeresFloorAnimationFrame.BabyVertical or CeresFloorAnimationFrame.BabyRound or CeresFloorAnimationFrame.BabyHorizontal or
-            CeresFloorAnimationFrame.ElevatorLight or CeresFloorAnimationFrame.ElevatorDark =>
+        CeresFloorActorPicture.WingsRaised => leftByWingsRaised,
+        CeresFloorActorPicture.WingsLowered => leftByWingsLowered,
+        CeresFloorActorPicture.BabyVertical or CeresFloorActorPicture.BabyRound or CeresFloorActorPicture.BabyHorizontal or
+            CeresFloorActorPicture.ElevatorLight or CeresFloorActorPicture.ElevatorDark =>
             throw new InvalidDataException($"The getaway's {frame} floor frame leaves no Speed Booster delays."),
         _ => throw new InvalidDataException($"Unknown Ceres floor animation frame {frame}."),
     };

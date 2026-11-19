@@ -232,7 +232,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     {
         RoomBackgroundLayer? foreground = frame.Foreground, background = frame.Background;
         RoomDoorBackground? door = frame.Door;
-        RoomOverlayPictures? writtenOverForeground = frame.ForegroundText, writtenOverBackground = frame.BackgroundText;
+        ShownRoomWarning? writtenOverForeground = frame.ForegroundText, writtenOverBackground = frame.BackgroundText;
         SkyPictures? sky = frame.Sky;
         ShownFxOverlay? fxOverlay = frame.FxOverlay;
         AffineFloor? turningFloor = frame.Floor;
@@ -305,7 +305,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         int backgroundWrittenOffset = ReserveWritten(writtenOverBackground);
         int foregroundWrittenOffset = ReserveWritten(writtenOverForeground);
         // Reserves the count and two words for each written picture; zero without any.
-        int ReserveWritten(RoomOverlayPictures? written)
+        int ReserveWritten(ShownRoomWarning? written)
         {
             if (written is null)
                 return 0;
@@ -618,7 +618,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// Packs <paramref name="written"/>'s pictures from <paramref name="offset"/>, as <see cref="OverlayWord"/> describes:
     /// the count, then each picture's parts, the layer pixel its corner lies on and its size; nothing without pictures.
     /// </summary>
-    private static void PackWritten(Span<uint> upload, RoomOverlayPictures? written, int offset, Dictionary<ShownPicture, int> pictureWords)
+    private static void PackWritten(Span<uint> upload, ShownRoomWarning? written, int offset, Dictionary<ShownPicture, int> pictureWords)
     {
         if (written is null)
             return;

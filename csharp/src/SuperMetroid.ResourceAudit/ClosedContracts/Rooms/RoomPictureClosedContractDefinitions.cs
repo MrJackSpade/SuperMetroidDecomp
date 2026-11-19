@@ -44,7 +44,7 @@ internal static class RoomPictureClosedContractDefinitions
              new("csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomBlockSheetComposer.cs")]),
         new("SuperMetroid.Core.Rooms.Artwork.RoomFloorSheet", "room-floor-complete-animation-frames", ["Picture"],
             [new("csharp/src/SuperMetroid.Core/Rooms/Artwork/RoomFloorSheet.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/Backgrounds/CeresFloorAnimationFrame.cs"),
+             new("csharp/src/SuperMetroid.Core/Rooms/Backgrounds/CeresFloorActorPicture.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomFloorSheetComposer.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Areas/Ceres/CeresFloorDrawings.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Areas/Ceres/CeresFloorDrawingDefinitions.cs")]),

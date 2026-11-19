@@ -878,12 +878,12 @@ internal static class LookupStream4Verification
         void tick(int frameCounter) => escape.RunGetawayRoomMain(samus, map, frameCounter);
         byte[] untouched = new byte[SnesVram.ByteCount];
         Array.Fill(untouched, (byte)0x5a);
-        CeresFloorAnimationFrame? Capsule() => map.Shown.TryGetValue(CeresFloorPart.BabyCapsule, out CeresFloorAnimationFrame capsule) ? capsule : null;
+        CeresFloorActorPicture? Capsule() => map.Shown.TryGetValue(CeresFloorActor.BabyCapsule, out CeresFloorActorPicture capsule) ? capsule : null;
         int expectedPhase = 0;
         for (ushort nmi = 0; nmi < 16; nmi++)
         {
             vram.LoadBytes(0, untouched);
-            CeresFloorAnimationFrame? before = Capsule();
+            CeresFloorActorPicture? before = Capsule();
             bool advances = (nmi & 3) == 0;
             if (advances) expectedPhase = (expectedPhase + 1) & 3;
             tick(nmi);

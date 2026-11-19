@@ -973,13 +973,13 @@ internal static void VerifyBg2ScreenLayout()
         new GameplaySceneLayer(
             // The view names the background pixel the screen's top shows: the row below a camera at row zero (#1514).
             new GameplaySceneView(Offset16<RoomPixels>.Zero, RoomView.Shown(Offset16<BackgroundPixels>.Zero),
-                ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites),
+                ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.BossBody | ScreenLayers.Sprites),
+            RoomBackgroundsFixtures.Blank())
+        {
             // Kraid's body is the 64x64 map he loads at $4000, 512 pixels square, drawn from its pictures (#1403).
-            RoomBackgroundsFixtures.Blank() with
-            {
-                Background = new SuperMetroid.Core.Gameplay.BossBodyBackground(RoomBackgroundsFixtures.BodyFromTilemap(gameplayVram.Bytes, gameplayCgram.Colors,
-                    kraidBg2BaseWord, new Extent16<BackgroundPixels>(512, 512))),
-            }));
+            BossBody = new BossBodyView(RoomBackgroundsFixtures.BodyFromTilemap(gameplayVram.Bytes, gameplayCgram.Colors,
+                kraidBg2BaseWord, new Extent16<BackgroundPixels>(512, 512)), RoomView.Shown(Offset16<BackgroundPixels>.Zero)),
+        });
     AssertEqual(new RgbaPixel(255, 0, 0),
         gameplayFrame[ScreenGeometry.GameplayHudHeightPixels * ScreenGeometry.ScreenWidthPixels],
         "ordinary compositor consumes Kraid's 64x64 BG2 map at $4000");

@@ -314,7 +314,7 @@ internal static class LookupStream5Verification
         IndexedPng.Write(png,size,pixels,SnesGraphics.DiagnosticPalette(16));
         byte[] pngBytes = png.ToArray();
         var stock = CeresDoorVisualFiles.Read(new MemoryStream(pngBytes),new MemoryStream(CeresDoorVisualFiles.Write(document)));
-        CeresFloorAnimationFrame[] strips = [CeresFloorAnimationFrame.ElevatorLight, CeresFloorAnimationFrame.ElevatorDark];
+        CeresFloorActorPicture[] strips = [CeresFloorActorPicture.ElevatorLight, CeresFloorActorPicture.ElevatorDark];
         for (int frame = 0; frame < strips.Length; frame++)
         {
             IReadOnlyDictionary<int, int> cells = CeresFloorDrawings.Cells(strips[frame]);
@@ -333,7 +333,7 @@ internal static class LookupStream5Verification
         {
             places[0].FrameCounter = tick;
             places[0].ElevatorDoor().RunMainAi(aiFrame);
-            AssertEqual(strips[(tick & 2) >> 1], floor.Shown[CeresFloorPart.ElevatorPlatform], "Actual platform phase draws its strip over the floor");
+            AssertEqual(strips[(tick & 2) >> 1], floor.Shown[CeresFloorActor.ElevatorPlatform], "Actual platform phase draws its strip over the floor");
         }
         string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1",content =>
         {
@@ -438,7 +438,7 @@ internal static class LookupStream5Verification
             int count = ReadVerificationWord(rom, 0xa6c15d) / sizeof(ushort);
             // The getaway writes the title's picture by name (#1466); the words it stands for are the page's.
             System.Collections.Immutable.ImmutableArray<int> shownWords = system.CeresEscape.Warning.Overlay.WordsIn(result);
-            AssertEqual(count, shownWords.Count(word => word != RoomWrittenOverlay.Unwritten), "Native emergency word extent");
+            AssertEqual(count, shownWords.Count(word => word != RoomWarningText.Unwritten), "Native emergency word extent");
             AssertEqual(source.Pages["emergency"].Length, count, "Emergency page keeps its native extent");
             for (int index = 0; index < count; index++)
                 AssertEqual(source.Pages["emergency"][index].PackedWord, shownWords[first + index], "Actual shown emergency words");

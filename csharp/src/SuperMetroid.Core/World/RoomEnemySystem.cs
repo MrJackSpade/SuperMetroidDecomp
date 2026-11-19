@@ -563,10 +563,10 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     FloorView? IEnemyDisplaySources.CeresGetawayFloor => CeresEscape.ShownFloor;
 
     /// <inheritdoc/>
-    RoomWrittenOverlay IEnemyDisplaySources.CeresWarning => CeresEscape.Warning.Overlay;
+    RoomWarningText IEnemyDisplaySources.CeresWarning => CeresEscape.Warning.Overlay;
 
     /// <inheritdoc/>
-    RoomWrittenOverlay IEnemyDisplaySources.ZebesWarning => MotherBrainEncounter.ZebesWarning;
+    RoomWarningText IEnemyDisplaySources.ZebesWarning => MotherBrainEncounter.ZebesWarning;
     /// <inheritdoc/>
     ImmutableArray<PerspectiveFloorScenery> IEnemyDisplaySources.CeresGetawayChamberWalls => CeresEscape.ChamberWalls();
     /// <inheritdoc/>

@@ -201,7 +201,7 @@ public static class GameplayDisplayCapture
         RoomShakeFrameResult shake, ScrollBands? skyX)
     {
         GameplayLatchedBossBody bosses = latched.Bosses;
-        if (bosses.Body is not { } body)
+        if (bosses.Shown is not { } body)
             return null;
         Position16<RoomPixels> camera = latched.Scrolls.ForegroundPosition;
         // The body shows from its placement against the camera; a body no boss places shows where the room's background
@@ -209,7 +209,7 @@ public static class GameplayDisplayCapture
         Offset16<BackgroundPixels> scroll = (bosses.Placement is { } placement ? BossBodyPlacement.Shown(placement, camera) : latched.Scrolls.BackgroundScroll)
             + shake.Background;
         (LineScroll? liquidHorizontal, LineScroll? liquidVertical) = LiquidLineScrolls(latched.RoomFxOverlay, scroll, skyX);
-        return new BossBodyView(body.Show(), RoomView.Shown(scroll))
+        return new BossBodyView(body, RoomView.Shown(scroll))
         {
             // Phantoon's wave ripples his body about where it lies, and Crocomire's melt sags his.
             Horizontal = latched.Phantoon is { Wave: { } wave } phantoon ? BossLineScrolls.Of(wave, camera, phantoon.BodyPlacement) : liquidHorizontal,

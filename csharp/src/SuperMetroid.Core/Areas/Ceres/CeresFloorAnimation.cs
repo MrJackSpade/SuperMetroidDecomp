@@ -13,9 +13,9 @@ public static class CeresFloorAnimation
 {
     /// <summary>The elevator platform's strip at phase <paramref name="phase"/> of its two-phase cycle.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="phase"/> is outside the cycle.</exception>
-    internal static CeresFloorAnimationFrame ElevatorPlatformFrameForPhase(int phase) => CycleFrame(CeresFloorAnimationDefinitions.ElevatorPlatformCycle, phase);
+    internal static CeresFloorActorPicture ElevatorPlatformFrameForPhase(int phase) => CycleFrame(CeresFloorAnimationDefinitions.ElevatorPlatformCycle, phase);
 
     /// <summary>The frame at <paramref name="phase"/> of <paramref name="cycle"/>.</summary>
-    private static CeresFloorAnimationFrame CycleFrame(CeresFloorAnimationFrame[] cycle, int phase) =>
+    private static CeresFloorActorPicture CycleFrame(CeresFloorActorPicture[] cycle, int phase) =>
         (uint)phase < (uint)cycle.Length ? cycle[phase] : throw new ArgumentOutOfRangeException(nameof(phase));
 }

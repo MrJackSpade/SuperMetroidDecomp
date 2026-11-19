@@ -19,15 +19,15 @@ internal static class CeresFloorDrawingDefinitions
     /// sixteen-column character atlas. Wing rows reuse contiguous atlas runs, and the second wing frame shares part of
     /// the first's middle rows. Every run origin and extent is authored artwork placement.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<CeresFloorAnimationFrame, IReadOnlyList<CeresFloorRunDefinition>> Frames =
-        new Dictionary<CeresFloorAnimationFrame, IReadOnlyList<CeresFloorRunDefinition>>
+    internal static readonly IReadOnlyDictionary<CeresFloorActorPicture, IReadOnlyList<CeresFloorRunDefinition>> Frames =
+        new Dictionary<CeresFloorActorPicture, IReadOnlyList<CeresFloorRunDefinition>>
         {
-            [CeresFloorAnimationFrame.ElevatorLight] = [new(14, 12, [new(104, 1), new(105, 2, 0), new(120, 1)])],
-            [CeresFloorAnimationFrame.ElevatorDark] = [new(14, 12, [new(141, 1), new(142, 2, 0), new(121, 1)])],
-            [CeresFloorAnimationFrame.BabyVertical] = [new(4, 10, [new(89, 2)]), new(4, 11, [new(105, 2)])],
-            [CeresFloorAnimationFrame.BabyRound] = [new(4, 10, [new(138, 2)]), new(4, 11, [new(140, 2)])],
-            [CeresFloorAnimationFrame.BabyHorizontal] = [new(4, 10, [new(142, 2)]), new(4, 11, [new(157, 2)])],
-            [CeresFloorAnimationFrame.WingsRaised] =
+            [CeresFloorActorPicture.ElevatorLight] = [new(14, 12, [new(104, 1), new(105, 2, 0), new(120, 1)])],
+            [CeresFloorActorPicture.ElevatorDark] = [new(14, 12, [new(141, 1), new(142, 2, 0), new(121, 1)])],
+            [CeresFloorActorPicture.BabyVertical] = [new(4, 10, [new(89, 2)]), new(4, 11, [new(105, 2)])],
+            [CeresFloorActorPicture.BabyRound] = [new(4, 10, [new(138, 2)]), new(4, 11, [new(140, 2)])],
+            [CeresFloorActorPicture.BabyHorizontal] = [new(4, 10, [new(142, 2)]), new(4, 11, [new(157, 2)])],
+            [CeresFloorActorPicture.WingsRaised] =
             [
                 new(11, 0, [new(0, 4)]),
                 new(0, 1, [new(4, 6), new(TransparentWingTile, 2, 0), new(10, 6)]),
@@ -36,7 +36,7 @@ internal static class CeresFloorDrawingDefinitions
                 new(1, 4, [new(TransparentWingTile, 2, 0), new(29, 3), new(48, 5), new(TransparentWingTile, 5, 0)]),
                 new(0, 5, [new(TransparentWingTile, 4, 0), new(46, 2), new(64, 5), new(TransparentWingTile, 5, 0)]),
             ],
-            [CeresFloorAnimationFrame.WingsLowered] =
+            [CeresFloorActorPicture.WingsLowered] =
             [
                 new(11, 0, [new(TransparentWingTile, 4, 0)]),
                 new(0, 1, [new(TransparentWingTile, 14, 0)]),

@@ -58,8 +58,10 @@ internal static class RoomFloorSheetComposer
         }
         if (!FloorSheetComposer.ShowsAnything(RoomFloorSheet.FloorFrameName, map, pixels))
             throw new InvalidDataException($"No cell of floor {RoomFloorSheet.FloorFrameName} shows anything.");
-        return FloorSheetComposer.ComposeRoom(
-            [FloorSheetComposer.Whole(RoomFloorSheet.FloorFrameName, map, pixels), .. CeresFloorDrawings.Pictures(map, pixels)],
-            colours);
+        // The floor holds only the floor (#2573): where each actor shown on it stands, it shows nothing, and the actor shows its
+        // own picture there, its resting picture as a room loads, which the room's map pictures.
+        FloorSheetComposer.FloorPicture whole = FloorSheetComposer.Whole(RoomFloorSheet.FloorFrameName, map, pixels)
+            with { Cleared = CeresFloorDrawings.ActorPlaces(map) };
+        return FloorSheetComposer.ComposeRoom([whole, .. CeresFloorDrawings.Pictures(map, pixels)], colours);
     }
 }

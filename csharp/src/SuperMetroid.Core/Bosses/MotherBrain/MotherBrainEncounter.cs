@@ -41,7 +41,7 @@ internal sealed class MotherBrainEncounter
     /// typed, in the order typed, each at its background cell; nothing before her death types any. It lasts the room, as
     /// the encounter does.
     /// </summary>
-    public RoomWrittenOverlay ZebesWarning { get; private set; } = RoomWrittenOverlay.Empty;
+    public RoomWarningText ZebesWarning { get; private set; } = RoomWarningText.Empty;
 
     /// <summary>Shows <paramref name="picture"/> as the next glyph of <see cref="ZebesWarning"/>.</summary>
     internal void ShowZebesWarning(WrittenPicture picture) => ZebesWarning = ZebesWarning.With(picture);

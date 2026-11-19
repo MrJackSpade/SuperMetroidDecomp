@@ -21,8 +21,16 @@ public readonly record struct GameplayLatchedBossBody(
     Position16<RoomPixels>? Placement,
     bool Hidden)
 {
+    /// <summary>The body's parts' pictures as the frame shows them (#2573), resolved once as the frame boundary latches it; null without a body.</summary>
+    public ShownBossBody? Shown { get; init; }
+
     /// <summary>The body <paramref name="display"/> shows as the frame boundary reads it, or no body where the room shows none.</summary>
     /// <param name="display">The boss body the room shows, or null where no boss attached one.</param>
-    internal static GameplayLatchedBossBody Of(IBossBodyDisplay? display) =>
-        display is null ? default : new(display.Layer, display.Placement, display.Hidden);
+    internal static GameplayLatchedBossBody Of(IBossBodyDisplay? display)
+    {
+        if (display is null)
+            return default;
+        BossBodyLayer? layer = display.Layer;
+        return new(layer, display.Placement, display.Hidden) { Shown = layer?.Show() };
+    }
 }

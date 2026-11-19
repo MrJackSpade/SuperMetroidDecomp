@@ -59,7 +59,7 @@ internal static class CeresMode7MapVerification
             "the floor is the room's tileset's");
         AssertTrue(first.DrawnOver.IsEmpty, "nothing is drawn over the floor a room starts with");
 
-        CeresFloorAnimationFrame platform = CeresFloorAnimationFrame.ElevatorLight;
+        CeresFloorActorPicture platform = CeresFloorActorPicture.ElevatorLight;
         (runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException("Ceres shows no floor.")).Show(platform);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AffineFloor second = Published(runtime);

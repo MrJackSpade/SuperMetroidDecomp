@@ -28,7 +28,7 @@ public sealed class CeresSelfDestructWarning
     /// What the warning shows over the arena's foreground (#1555): its EMERGENCY title, the Japanese subtitle and the glyphs
     /// its typewriter has typed, in the order shown, each at its foreground cell; nothing before it shows any.
     /// </summary>
-    public RoomWrittenOverlay Overlay { get; private set; } = RoomWrittenOverlay.Empty;
+    public RoomWarningText Overlay { get; private set; } = RoomWarningText.Empty;
 
     /// <summary>Shows <paramref name="picture"/> as the next part of <see cref="Overlay"/>.</summary>
     internal void Show(WrittenPicture picture) => Overlay = Overlay.With(picture);

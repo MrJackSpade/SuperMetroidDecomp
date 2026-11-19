@@ -367,7 +367,7 @@ public sealed class SamusProjectileSystem
             // Killing a projectile replaces rather than clears a live beam. Consequently the
             // explosion's first frame is selected in this same projectile pass.
             if (shot.Playback is not null)
-                _ = Animation.AdvanceProjectileAnimation(shot);
+                Animation.AdvanceProjectileAnimation(shot);
         }
     }
 

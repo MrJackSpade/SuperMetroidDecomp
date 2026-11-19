@@ -922,8 +922,8 @@ internal static class NativeEnemyFamilyStateImport
         {
             powampBalloon.Spawn = new(words.A, words.B);
             // The balloon reads its grappled rise from its spawn settings (#2439); the recording's copy must be the placement's.
-            if (words.D != enemy.SpawnSettings<PowampSpawnSettings>().GrappleTravelDistance)
-                throw new InvalidDataException($"Recorded Powamp grapple rise {words.D} is not its placement's {enemy.SpawnSettings<PowampSpawnSettings>().GrappleTravelDistance}.");
+            if (words.D != enemy.SpawnSettings<PowampBalloonSpawnSettings>().GrappleTravelDistance)
+                throw new InvalidDataException($"Recorded Powamp grapple rise {words.D} is not its placement's {enemy.SpawnSettings<PowampBalloonSpawnSettings>().GrappleTravelDistance}.");
             if (words.F != PowampNativeWords.BalloonIdleWord)
                 throw new InvalidDataException($"Recorded Powamp balloon runs ${words.F:X4}, not the balloon's empty routine.");
         }

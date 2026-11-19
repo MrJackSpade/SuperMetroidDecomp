@@ -10,7 +10,10 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <param name="Inputs">The input list that chooses her next pose from the held and newly pressed actions.</param>
 /// <param name="VerticalRadius">The pose's vertical collision radius, in pixels.</param>
 /// <param name="Aim">What the pose does with the arm cannon.</param>
-/// <param name="ProjectileHeight">How far above her centre the pose's shots and Grapple start, in pixels.</param>
+/// <param name="ProjectileHeight">
+/// How far above her centre the pose's shots and Grapple start, in pixels; none for a pose from which nothing is fired
+/// (the drained poses, #1928).
+/// </param>
 /// <param name="NoTransitionSetup">
 /// The setup the pose update runs when her input chooses no new pose from this one; none for a pose whose movement names
 /// it (<see cref="SamusNoTransitionSetups"/>) or that sets nothing up.
@@ -23,5 +26,5 @@ internal sealed record SamusPoseDefinition(
     SamusPoseInputList Inputs,
     int VerticalRadius,
     SamusPoseAim Aim,
-    int ProjectileHeight,
+    int? ProjectileHeight,
     SamusNoTransitionSetup NoTransitionSetup = SamusNoTransitionSetup.None);

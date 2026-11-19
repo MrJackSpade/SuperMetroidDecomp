@@ -10,7 +10,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The Hibashi's flame, or the collision part its placement names (#2342).</summary>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        Ensure.NotNull(place).SpawnSettings<HibashiSpawnSettings>().Part == HibashiPart.CollisionPart
+        Ensure.NotNull(place).SpawnSettings<HibashiSpawnSettings>() is HibashiCollisionPartSpawnSettings
             ? new HibashiCollisionPartEntity(place, common)
             : new HibashiEntity(this, place, common);
 
@@ -117,7 +117,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static void RestHibashi(RoomEnemyPlace flame, HibashiEnemyState state)
     {
-        state.InactiveTimer = UpdateCountdown.For(flame.SpawnSettings<HibashiSpawnSettings>().InactiveTime + EnemyWaitDefinitions.RunOutUpdate);
+        state.InactiveTimer = UpdateCountdown.For(flame.SpawnSettings<HibashiFlameSpawnSettings>().InactiveTime + EnemyWaitDefinitions.RunOutUpdate);
         state.Action = HibashiAction.Inactive;
     }
 

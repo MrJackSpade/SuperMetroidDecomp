@@ -254,7 +254,7 @@ public sealed class SamusBombProjectileSystem
             if (!bomb.IsActive)
                 continue;
 
-            _ = AdvanceProjectileAnimation(bomb);
+            AdvanceProjectileAnimation(bomb);
         }
 
         // Main gameplay runs the bomb overlap check after the input phase (which placed/updated the
@@ -976,10 +976,9 @@ public sealed class SamusBombProjectileSystem
     /// Plays the bomb's animation one update on: each frame it shows anew publishes its picture and radius, and an animation
     /// that ends deletes the bomb.
     /// </summary>
-    /// <returns>Whether the animation ended and deleted the bomb.</returns>
     /// <exception cref="InvalidOperationException">The bomb has ended and has no animation to play.</exception>
     /// <exception cref="InvalidDataException">The animation shows a still picture, which no bomb animation does.</exception>
-    internal bool AdvanceProjectileAnimation(
+    internal void AdvanceProjectileAnimation(
         SamusBomb bomb)
     {
         AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation = bomb.Animation
@@ -991,12 +990,10 @@ public sealed class SamusBombProjectileSystem
                 throw new InvalidDataException($"Bomb frame {frame} is a still picture.");
             bomb.Sprite = _artwork.ProjectileFrames.Resolve(frame);
             bomb.Radius = SamusProjectileFrameDefinitions.Radius(frame);
-            return false;
+            return;
         }
-        if (!animation.HasStopped)
-            return false;
-        ClearProjectile(bomb);
-        return true;
+        if (animation.HasStopped)
+            ClearProjectile(bomb);
     }
 
     /// <summary>Scans bombs from the first place up and publishes the last overlapping bomb's Samus launch direction.</summary>

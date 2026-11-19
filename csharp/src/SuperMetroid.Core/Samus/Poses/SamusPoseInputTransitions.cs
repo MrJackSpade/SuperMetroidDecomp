@@ -77,7 +77,7 @@ public static class SamusPoseInputTransitions
         GameplayAction held = heldActions & ~StartAndItemSelect;
         GameplayAction newlyPressed = newlyPressedActions & ~StartAndItemSelect;
 
-        SamusPoseInputMatch match = SamusPoseInputs.Match(SamusPoseTraits.Of(currentPose).Inputs, held, newlyPressed);
+        SamusPoseInputMatch match = SamusPoseInputRules.Match(SamusPoseTraits.Of(currentPose).Inputs, held, newlyPressed);
         if (match.Transition is not { } transition)
             return new SamusPoseTransitionLookup(null, UsesPoseDefinitionFallback: match.HasConditions);
 
@@ -102,7 +102,7 @@ public static class SamusPoseInputTransitions
             foreach (GameplayAction[] pressedActions in Subsets(heldActions))
             {
                 GameplayAction newlyPressed = pressedActions.Aggregate(GameplayAction.None, (chord, action) => chord | action);
-                if (SamusPoseInputs.Match(inputList, held, newlyPressed).Transition is { } transition)
+                if (SamusPoseInputRules.Match(inputList, held, newlyPressed).Transition is { } transition)
                     targets.Add(transition.ProspectivePose);
             }
         }

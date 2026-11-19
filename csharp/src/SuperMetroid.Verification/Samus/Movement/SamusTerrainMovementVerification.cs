@@ -1785,9 +1785,8 @@ internal static void VerifySamusRanIntoWall()
         openFloor,
         SamusPoseId.MovingRightNormalPose,
         currentXSpeedKilledByBlock: false,
-        out BlockMoveResult? clearProbe, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        roomObjects: SamusRoomObjectFixtures.WithQuicksand());
     AssertTrue(clearResult is null, "clear arm-pump probe keeps prospective run");
-    AssertTrue(clearProbe is { Collided: false }, "clear arm-pump probe reports no wall");
     AssertEqual(81, armPump.Position.X.Whole, "clear arm-pump probe retains one-pixel move");
 
     // Put a two-block-high wall immediately at X=96. Center 91/radius five has a current
@@ -1807,10 +1806,9 @@ internal static void VerifySamusRanIntoWall()
         blockedFloor,
         SamusPoseId.MovingRightNormalPose,
         currentXSpeedKilledByBlock: false,
-        out BlockMoveResult? blockedProbe, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        roomObjects: SamusRoomObjectFixtures.WithQuicksand());
     AssertEqual<SamusPoseId?>(SamusPoseId.RanIntoWallRightPose, blockedResult,
         "blocked prospective run selects $89");
-    AssertTrue(blockedProbe is { Collided: true }, "blocked arm-pump probe reports wall");
     AssertEqual(91, blocked.Position.X.Whole, "blocked arm-pump probe retains last-safe X");
 
     // $91:EB05-$EB3C probes solid enemies one pixel ahead before the block move. An enemy
@@ -1832,10 +1830,9 @@ internal static void VerifySamusRanIntoWall()
         openFloor,
         SamusPoseId.MovingRightNormalPose,
         currentXSpeedKilledByBlock: false,
-        out BlockMoveResult? enemyProbe, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        roomObjects: SamusRoomObjectFixtures.WithQuicksand());
     AssertEqual<SamusPoseId?>(SamusPoseId.RanIntoWallRightPose, enemyResult,
         "solid enemy ahead selects $89");
-    AssertTrue(enemyProbe is null, "solid enemy ahead skips the one-pixel block move");
     AssertEqual(80, enemyAhead.Position.X.Whole, "solid enemy ahead leaves Samus in place");
 
     // A killed type-one move uses the CURRENT shot direction and performs no second probe.
@@ -1845,10 +1842,9 @@ internal static void VerifySamusRanIntoWall()
         openFloor,
         prospectivePose: null,
         currentXSpeedKilledByBlock: true,
-        out BlockMoveResult? killedProbe, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        roomObjects: SamusRoomObjectFixtures.WithQuicksand());
     AssertEqual<SamusPoseId?>(SamusPoseId.RanIntoWallRightPose, killedResult,
         "killed running speed selects current wall pose");
-    AssertTrue(killedProbe is null, "killed running speed skips one-pixel probe");
 
     // Every type-$15 pose executes no-base X, the shared grounding probe, and then clears
     // all five horizontal momentum words unconditionally.

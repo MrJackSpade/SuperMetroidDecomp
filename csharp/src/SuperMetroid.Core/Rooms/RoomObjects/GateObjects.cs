@@ -46,7 +46,6 @@ internal sealed class GateObjects
         for (int row = 0; row < DownwardGateDefinitions.GateHeightInBlocks; row++)
         {
             Position16<RoomBlocks> block = place.Block + new Offset16<RoomBlocks>(0, row);
-            _ = level.GetCollisionBlock(block);
             level.SetBehavior(block, DownwardGateDefinitions.ClosedGateBehavior);
         }
 
@@ -63,8 +62,8 @@ internal sealed class GateObjects
     {
         DownwardGateTrigger trigger = Ensure.NotNull(placed).Trigger;
         place.Become(new TerrainChangeObject(DownwardGateTriggerDefinitions.Triggers[trigger].Change));
-        Position16<RoomBlocks> triggerBlock = level.ObjectBlockStep(place.Block, new Offset16<RoomBlocks>(ColumnsFromGate(trigger), 0));
-        _ = level.GetCollisionBlock(triggerBlock);
+        // The trigger's block must lie in the room's grid.
+        Position16<RoomBlocks> triggerBlock = level.GridBlock(level.ObjectBlockStep(place.Block, new Offset16<RoomBlocks>(ColumnsFromGate(trigger), 0)));
         level.SetObjectCollisionAndBehavior(triggerBlock, DownwardGateDefinitions.TriggerCollision,
             RoomBlockBehavior.Reacting(BlockReactionDefinitions.DownwardGateTriggers.ReactionFor(trigger)));
     }

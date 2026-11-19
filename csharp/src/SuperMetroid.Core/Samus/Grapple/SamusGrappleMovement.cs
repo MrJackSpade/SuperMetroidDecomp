@@ -66,7 +66,7 @@ public static class SamusGrappleMovement
         var flare = ReadFlareOrigin(grapple, direction, useRunOffsets);
         int artOrigin = movingHeld ? GrappleBeamDefinitions.Firing.DraygonMovingArtOrigin : SamusPoseMetadata.ReadArtOrigin(samus);
         int physicalYOffset = movingHeld ? GrappleBeamDefinitions.Firing.DraygonMovingArtOrigin :
-            SamusPoseTraits.Of(samus.Pose).ProjectileHeight;
+            SamusPoseTraits.Of(samus.Pose).ProjectileHeight ?? throw new InvalidOperationException($"Nothing is fired from pose {samus.Pose}.");
 
         // The hand and flare offsets and the pose's offsets are a few pixels each, so their differences are ordinary.
         grapple.OriginOffset = new(origin.X, origin.Y - physicalYOffset);
@@ -964,7 +964,8 @@ public static class SamusGrappleMovement
         var origin = GrappleFiring.Origin(grapple.FireDirection, useRunOffsets);
         var flare = ReadFlareOrigin(grapple, grapple.FireDirection, useRunOffsets);
         int artOrigin = SamusPoseMetadata.ReadArtOrigin(samus);
-        int physicalYOffset = SamusPoseTraits.Of(samus.Pose).ProjectileHeight;
+        int physicalYOffset = SamusPoseTraits.Of(samus.Pose).ProjectileHeight ??
+            throw new InvalidOperationException($"Nothing is fired from pose {samus.Pose}.");
 
         // Recompute from the final pose/position, not cached launch offsets. The rope start and the flare remain separate
         // coordinate pairs.

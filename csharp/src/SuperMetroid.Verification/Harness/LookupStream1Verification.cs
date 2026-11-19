@@ -214,7 +214,7 @@ internal static class LookupStream1Verification
             balloon.Bind(balloon.DefinitionId, default(RoomEnemyDefinition));
             PowampBehavior.InitializePowampBalloon(balloon);
             var body = enemies.Places.InUpdateOrder[1];
-            body.SetSpawnSettings(new PowampSpawnSettings(PowampPart.Body, GrappleTravelDistance: 0, PowampContact.Accepts));
+            body.SetSpawnSettings(new PowampBodySpawnSettings(PowampContact.Accepts));
             body.Bind(EnemyDefinitionId.Powamp, body.Definition);
             body.Bind(body.DefinitionId, default(RoomEnemyDefinition));
             enemies.PowampBehavior.InitializePowampBody(body);
@@ -559,11 +559,10 @@ internal static class LookupStream1Verification
             if (!SamusPoseNumbering.NamesPose(pose)) continue;
             AssertEqual(native[pose], stock.Gameplay.ArtOrigin(SamusPoseNumbering.FromNumber(pose)), "Installed origin is the supplied placement");
             AssertEqual(native[pose], installed.Gameplay.ArtOrigin(SamusPoseNumbering.FromNumber(pose)), "The import installs the native real-pose byte as the pose's origin");
-            // The drained poses' origin is their signed correction, four below the centre; the original's unsigned read of
-            // it, which nothing fired from those poses reaches, is gone (#1928).
-            int expectedOrigin = SamusPoseNumbering.FromNumber(pose) is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose
+            // The drained poses fire nothing, so they hold no projectile height (#1928).
+            int? expectedOrigin = SamusPoseNumbering.FromNumber(pose) is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose
                 or SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose
-                ? native[pose]
+                ? null
                 : unchecked((byte)native[pose]);
             AssertEqual(expectedOrigin, SamusPoseTraits.Of(SamusPoseNumbering.FromNumber(pose)).ProjectileHeight, "Physical projectile origin matches the native byte");
         }
@@ -1654,7 +1653,8 @@ internal static class LookupStream1Verification
             // A record storing a composition again, byte for byte, shows that composition (#2295).
             ushort sprite = global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(Word(0x930000 | (pointer + 2)));
             var slot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer) };
-            AssertTrue(!shots.Animation.AdvanceProjectileAnimation(slot), "Actual native timed frame survives");
+            shots.Animation.AdvanceProjectileAnimation(slot);
+            AssertTrue(slot.IsActive, "Actual native timed frame survives");
             // A list repeating one still picture is held: no timer, the place at the list's end (#2347).
             bool still = SamusProjectileProgramAddresses.ShowsStillPicture(pointer);
             AssertEqual<int?>(still ? null : duration, slot.NativeFrameHold, "Actual timer unchanged, a still picture held");
@@ -1666,7 +1666,8 @@ internal static class LookupStream1Verification
             interpreted++;
             if (duration == 0 || still) continue; // Existing bomb contract excludes zero-duration timed records; no bomb holds a still picture.
             var bomb = new SamusBomb(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
-            AssertTrue(!bombs.AdvanceProjectileAnimation(bomb), "Actual bomb timed frame survives");
+            bombs.AdvanceProjectileAnimation(bomb);
+            AssertTrue(bomb.IsActive, "Actual bomb timed frame survives");
             AssertEqual(duration, bomb.NativeFrameHold, "Actual bomb timer unchanged");
             AssertEqual(sprite, bomb.SpritemapPointer, "Installed bomb artwork selection");
             AssertEqual(LookupStream1ProjectileRadiusLayoutRomByte(rom, 0x930000 | (pointer + 4)), bomb.Radius.X, "Actual bomb X radius");
@@ -1786,9 +1787,13 @@ internal static class LookupStream1Verification
                         trail = pointer; pointer += 8;
                     }
                 }
-                AssertEqual(deleted, shots.Animation.AdvanceProjectileAnimation(slot), "Exact native projectile deletion tick");
+                shots.Animation.AdvanceProjectileAnimation(slot);
+                AssertEqual(deleted, !slot.IsActive, "Exact native projectile deletion tick");
                 if (bombPlays)
-                    AssertEqual(deleted, bombs.AdvanceProjectileAnimation(bomb), "Exact native bomb deletion tick");
+                {
+                    bombs.AdvanceProjectileAnimation(bomb);
+                    AssertEqual(deleted, !bomb.IsActive, "Exact native bomb deletion tick");
+                }
                 actualTicks++;
                 if (deleted)
                 {

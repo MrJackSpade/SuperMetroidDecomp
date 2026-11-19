@@ -38,7 +38,11 @@ internal static class PoseProjectileOriginVerification
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {
             if (!SamusPoseNumbering.NamesPose(pose)) continue;
-            int expected = PhysicalOrigin(rom, pose);
+            // The drained poses fire nothing, so they hold no projectile height (#1928).
+            int? expected = SamusPoseNumbering.FromNumber(pose) is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose
+                or SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose
+                ? null
+                : PhysicalOrigin(rom, pose);
             AssertEqual(expected, SamusPoseTraits.Of(SamusPoseNumbering.FromNumber(pose)).ProjectileHeight,
                 "Every pose's byte-valued correction is compiled");
         }

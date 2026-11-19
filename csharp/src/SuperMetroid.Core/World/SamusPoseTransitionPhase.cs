@@ -314,7 +314,6 @@ internal sealed class SamusPoseTransitionPhase
                     terrain.Level,
                     prospectiveRunningPose,
                     currentRunHitWall,
-                    out _,
                     terrain.RoomObjects);
         }
 

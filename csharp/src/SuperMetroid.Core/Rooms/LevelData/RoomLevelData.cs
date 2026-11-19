@@ -164,7 +164,7 @@ public sealed class RoomLevelData
     /// <exception cref="ArgumentOutOfRangeException">The block lies outside the room's width or height.</exception>
     internal Position16<RoomBlocks> GridBlock(Position16<RoomBlocks> block)
     {
-        _ = GridPlace(block);
+        RequireInGrid(block);
         return block;
     }
 
@@ -412,11 +412,18 @@ public sealed class RoomLevelData
     /// <exception cref="ArgumentOutOfRangeException">The block lies outside the room's width or height.</exception>
     private int GridPlace(Position16<RoomBlocks> block)
     {
+        RequireInGrid(block);
+        return Size.RowMajorIndex(block);
+    }
+
+    /// <summary>Requires <paramref name="block"/> to lie in the room's grid; coordinates outside the room fail loudly.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The block lies outside the room's width or height.</exception>
+    private void RequireInGrid(Position16<RoomBlocks> block)
+    {
         if (block.X >= Size.X)
             throw new ArgumentOutOfRangeException(nameof(block), $"Block X {block.X} lies outside the {Size.X}-block room width.");
         if (block.Y >= Size.Y)
             throw new ArgumentOutOfRangeException(nameof(block), $"Block Y {block.Y} lies outside the {Size.Y}-block room height.");
-        return Size.RowMajorIndex(block);
     }
 
     /// <summary>Writes the behaviour of the grid's block at <paramref name="place"/>, which no longer leads where it did.</summary>

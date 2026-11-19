@@ -17,8 +17,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// her input chooses no new pose from it.
 /// </summary>
 /// <remarks>
-/// The drained poses' shots would start four pixels below her centre (#1928); they cannot shoot or fire the Grapple, so
-/// nothing fired from them reads it.
+/// The drained poses cannot shoot or fire the Grapple (#1928), so they hold no projectile height.
 /// </remarks>
 internal static class SamusPoseDefinitions
 {
@@ -64,10 +63,10 @@ internal static class SamusPoseDefinitions
             [SamusPoseId.XrayingCrouchingLeftPose] = new(Facing.Left, Move.Crouching, Fallback.KeepCurrentPose, XrayingAnimation, NoInputTransitions, VerticalRadius: 16, new Aim.Aiming(Shot.Left), ProjectileHeight: 0),
             [SamusPoseId.DraygonHeldStandingUpLeftPose] = new(Facing.Left, Move.PostureTransition, Fallback.KeepCurrentPose, DraygonHeldStandingUpLeftAnimation, NoInputTransitions, VerticalRadius: 21, new Aim.ShootingDisabled(), ProjectileHeight: 6),
             [SamusPoseId.DraygonHeldBallLeftPose] = new(Facing.Left, Move.DraygonHeld, Fallback.KeepCurrentPose, MorphBallAnimation, DraygonHeldBallLeft, VerticalRadius: 7, new Aim.ShootingDisabled(), ProjectileHeight: 0),
-            [SamusPoseId.DrainedCrouchingRightPose] = new(Facing.Right, Move.Special, Fallback.KeepCurrentPose, DrainedCrouchingRightAnimation, NoInputTransitions, VerticalRadius: 21, new Aim.ShootingDisabled(), ProjectileHeight: -4),
-            [SamusPoseId.DrainedCrouchingLeftPose] = new(Facing.Left, Move.Special, Fallback.KeepCurrentPose, DrainedCrouchingLeftAnimation, NoInputTransitions, VerticalRadius: 21, new Aim.ShootingDisabled(), ProjectileHeight: -4),
-            [SamusPoseId.DrainedStandingRightPose] = new(Facing.Right, Move.Special, Fallback.KeepCurrentPose, DrainedStandingRightAnimation, NoInputTransitions, VerticalRadius: 21, new Aim.ShootingDisabled(), ProjectileHeight: -4),
-            [SamusPoseId.DrainedStandingLeftPose] = new(Facing.Left, Move.Special, Fallback.KeepCurrentPose, DrainedStandingLeftAnimation, NoInputTransitions, VerticalRadius: 21, new Aim.ShootingDisabled(), ProjectileHeight: -4),
+            [SamusPoseId.DrainedCrouchingRightPose] = new(Facing.Right, Move.Special, Fallback.KeepCurrentPose, DrainedCrouchingRightAnimation, NoInputTransitions, VerticalRadius: 21, new Aim.ShootingDisabled(), ProjectileHeight: null),
+            [SamusPoseId.DrainedCrouchingLeftPose] = new(Facing.Left, Move.Special, Fallback.KeepCurrentPose, DrainedCrouchingLeftAnimation, NoInputTransitions, VerticalRadius: 21, new Aim.ShootingDisabled(), ProjectileHeight: null),
+            [SamusPoseId.DrainedStandingRightPose] = new(Facing.Right, Move.Special, Fallback.KeepCurrentPose, DrainedStandingRightAnimation, NoInputTransitions, VerticalRadius: 21, new Aim.ShootingDisabled(), ProjectileHeight: null),
+            [SamusPoseId.DrainedStandingLeftPose] = new(Facing.Left, Move.Special, Fallback.KeepCurrentPose, DrainedStandingLeftAnimation, NoInputTransitions, VerticalRadius: 21, new Aim.ShootingDisabled(), ProjectileHeight: null),
             [SamusPoseId.RanIntoWallRightPose] = new(Facing.Right, Move.RanIntoWall, Fallback.KeepCurrentPose, HeldStillAnimation, RanIntoWallRight, VerticalRadius: 21, new Aim.Aiming(Shot.Right), ProjectileHeight: 6),
             [SamusPoseId.RanIntoWallLeftPose] = new(Facing.Left, Move.RanIntoWall, Fallback.KeepCurrentPose, HeldStillAnimation, RanIntoWallLeft, VerticalRadius: 21, new Aim.Aiming(Shot.Left), ProjectileHeight: 6),
             [SamusPoseId.RanIntoWallAimUpRightPose] = new(Facing.Right, Move.RanIntoWall, Fallback.ToPose(SamusPoseId.RanIntoWallRightPose), HeldStillAnimation, RanIntoWallRight, VerticalRadius: 21, new Aim.Aiming(Shot.UpRight), ProjectileHeight: 6, Setup.LowerGroundedAim),

@@ -88,7 +88,7 @@ internal static class IntroSamusDemoMovement
             ? proposed.ProspectivePose
             : fallback;
         SamusPoseId? wallPose = SamusGroundedPoseTransitions.CheckProspectiveRunningPoseForWall(samus, level, candidate,
-            movement.Horizontal.Collided, out _, IntroCollisionRoomObjects.Instance);
+            movement.Horizontal.Collided, IntroCollisionRoomObjects.Instance);
         if (wallPose is { } stoppedPose)
         {
             SamusGroundedPoseTransitions.ApplyRanIntoWallPoseChange(samus, stoppedPose);

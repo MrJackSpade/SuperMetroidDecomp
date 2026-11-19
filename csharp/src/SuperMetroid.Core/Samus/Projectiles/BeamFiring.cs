@@ -468,7 +468,8 @@ internal sealed class BeamFiring
         SamusState samus,
         SamusProjectile projectile)
     {
-        int poseYOffset = SamusPoseTraits.Of(samus.Pose).ProjectileHeight;
+        int poseYOffset = SamusPoseTraits.Of(samus.Pose).ProjectileHeight ??
+            throw new InvalidOperationException($"Nothing is fired from pose {samus.Pose}.");
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
 
         // Running and the two moonwalks aiming diagonally up take the running origins; every other pose takes the

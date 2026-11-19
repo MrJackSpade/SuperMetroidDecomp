@@ -161,7 +161,7 @@ internal sealed class StationObjects
         }
         var station = new AccessStationObject(rule, area, initialAnimation);
         place.Become(station);
-        if (rule.Refill is null)
+        if (rule.Reward == StationReward.AreaMap)
             _mapStations.Add(station);
     }
 
@@ -276,7 +276,7 @@ internal sealed class StationObjects
                 // Recharge setup rejects an already-full resource before the station lock takes control. Rejecting it
                 // later leaves a locked Samus with no access animation running to release her. Collision itself remains
                 // solid.
-                if (station.Rule.Refill is { } refill && refill.IsFull(_samus.Current))
+                if (station.Rule.Reward is StationReward.Refills { Refill: var refill } && refill.IsFull(_samus.Current))
                     return true;
                 station.Trigger(accessBlock, access);
 

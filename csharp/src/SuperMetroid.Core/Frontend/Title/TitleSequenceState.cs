@@ -426,13 +426,10 @@ public sealed class TitleSequenceState : IFrontendScreen
         bool floorShown = ShowsFloor(Phase);
         return new(new FramePaint(Backdrop, screenSprites.Draws),
             floorShown
-                ? FloorView.Turned(TitleSequenceDefinitions.Scenes.Rotation, Zoom, TitleSequenceDefinitions.Scenes.FloorCentre,
-                    panPosition.Whole)
+                ? new PlacedFloor(FloorView.Turned(TitleSequenceDefinitions.Scenes.Rotation, Zoom, TitleSequenceDefinitions.Scenes.FloorCentre,
+                    panPosition.Whole), TitleFloors.Of(spriteSheets, BabyPose).Shaded(FloorShading))
                 : null,
-            Brightness, ShowsGradient(Phase) ? new ScreenGradientLayer(ResolveTitleGradient()) : null,
-            floorShown
-                ? TitleFloors.Of(spriteSheets, BabyPose).Shaded(FloorShading)
-                : null);
+            Brightness, ShowsGradient(Phase) ? new ScreenGradientLayer(ResolveTitleGradient()) : null);
     }
 
     /// <summary>The colour the title shows behind its floor and sprites: the installed title colours' backdrop (#1512).</summary>

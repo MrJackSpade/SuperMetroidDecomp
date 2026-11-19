@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Artwork;
 
@@ -29,6 +30,6 @@ public static class SamusBodyDraws
         string name = frame.Name;
         if (body.ShowsNothing(name))
             return;
-        sprites.Add(new ImageSpriteDraw(source, body.Frame(name), origin, SpriteMirror.None));
+        sprites.Add(new SamusColouredDraw(source, body.Frame(name), origin));
     }
 }

@@ -130,55 +130,71 @@ public static class GameplayEffectCapture
     /// everywhere on the screen. The spores brighten the background, the actors taking part in blends and the backdrop, so
     /// they never brighten the room's terrain; the waterfall darkens the foreground, those actors and the backdrop.
     /// </summary>
-    public static GameplayBlendLayer CaptureEffectBlendingBehind(GameplaySceneLayer gameplay,
-        RoomFxOverlayRenderSnapshot fx)
+    /// <param name="gameplay">The room's scene the effect blends.</param>
+    /// <param name="overlay">The effect's liquid or atmosphere.</param>
+    /// <param name="behind">How <paramref name="overlay"/>, lying behind the room, blends: its blend.</param>
+    public static GameplayBlendLayer CaptureEffectBlendingBehind(GameplaySceneLayer gameplay, ShownRoomEffectOverlay overlay,
+        OverlayBehindRoomBlend behind)
     {
-        RoomEffectBlend blend = fx.Blend
-            ?? throw new ArgumentException($"Room FX type {fx.Type} describes no blend.", nameof(fx));
-        BlendedLayers blended = blend.BlendsBehind
-            ?? throw new ArgumentException($"Room FX type {fx.Type} lays its overlay over the room, not behind it.", nameof(fx));
+        Ensure.NotNull(behind);
         return new(gameplay, ScreenWindow.Closed, false, new GameplayBlend
         {
-            Blended = blended,
-            Operation = blend.Operation,
+            Blended = behind.Blended,
+            Operation = behind.Operation,
             Halved = false,
             Colour = RgbColor.Black,
-        }, CaptureRoomFxOverlay(fx, gameplay.Rooms.FxOverlay), blend.BackgroundBehind);
+        }, CaptureRoomFxOverlay(overlay), behind.BackgroundBehind);
     }
 
     /// <summary>
-    /// Resolves the room effect's blend, its liquid's place and its wave's phase into the effect overlay's blend (#1706): an
-    /// atmosphere's <paramref name="artwork"/> repeating at its scroll, or a liquid's strip and body from its surface line,
-    /// with the overlay's horizontal scroll and how it combines. A liquid shows nothing while it has no surface, its surface
-    /// lies above the room, or the frame has not placed it on the screen.
+    /// The effect overlay's blend of what the room effect shows on it (#1706, #2505): an atmosphere's artwork repeating at its
+    /// scroll, or a liquid's strip and body from its surface line, with the overlay's horizontal scroll and how it combines;
+    /// none for an effect showing nothing. A liquid shows nothing while it has no surface, its surface lies above the room,
+    /// or the frame has not placed it on the screen.
     /// </summary>
-    /// <exception cref="InvalidDataException">The effect shows artwork but describes no blend, or its artwork is another kind of effect's.</exception>
-    public static OverlayBlendLayer? CaptureRoomFxOverlay(RoomFxOverlayRenderSnapshot fx, FxOverlayArtwork artwork)
+    /// <param name="overlay">What the room effect shows on the effect overlay.</param>
+    public static OverlayBlendLayer? CaptureRoomFxOverlay(RoomEffectOverlay overlay) =>
+        Ensure.NotNull(overlay).Map(OverlayLayers.Instance);
+
+    /// <summary>Each kind of effect overlay as the effect overlay's blend: none for an overlay showing nothing.</summary>
+    private sealed class OverlayLayers : IRoomEffectOverlayMapping<OverlayBlendLayer?>
     {
-        if (!RoomFxOverlayState.ShowsOnOverlay(fx.Type))
-            throw new NotSupportedException($"Room FX type {fx.Type} has no captured effect overlay compositor.");
-        RoomEffectBlend blend = fx.Blend
-            ?? throw new InvalidDataException($"Room FX type {fx.Type} shows artwork but describes no blend.");
-        RoomEffectArtwork? shown = Ensure.NotNull(artwork).Shown;
-        if (!RoomFxTypes.ShowsLiquid(fx.Type))
-        {
-            return new(shown is null ? null : new AtmosphereOverlay(shown as AtmosphereArtwork
-                    ?? throw new InvalidDataException($"Room FX type {fx.Type} is an atmosphere but shows a liquid's artwork."), ScrollBands.Uniform(fx.Scroll.Y)),
-                HudHeight, blend.Operation, ScrollBands.Uniform(fx.Scroll.X));
-        }
-        if (fx.Surface is not >= 0 || fx.WaterSurfaceScreenY is not int placedLine) return null;
+        /// <summary>The one mapping.</summary>
+        internal static OverlayLayers Instance { get; } = new();
+
+        /// <inheritdoc/>
+        public OverlayBlendLayer? Nothing() => null;
+
+        /// <inheritdoc/>
+        public OverlayBlendLayer? Atmosphere(AtmosphereEffectOverlay atmosphere) => CaptureAtmosphere(atmosphere);
+
+        /// <inheritdoc/>
+        public OverlayBlendLayer? Liquid(LiquidEffectOverlay liquid) => CaptureLiquid(liquid);
+    }
+
+    /// <summary>The atmosphere's picture repeating at its scroll across and down, blended as the atmosphere blends.</summary>
+    private static OverlayBlendLayer CaptureAtmosphere(AtmosphereEffectOverlay atmosphere) =>
+        new(new AtmosphereOverlay(atmosphere.Artwork, ScrollBands.Uniform(atmosphere.Scroll.Y)),
+            HudHeight, atmosphere.Blend.Operation, ScrollBands.Uniform(atmosphere.Scroll.X));
+
+    /// <summary>
+    /// The liquid's strip and body from its surface line, scrolled across and, below a water surface, rippling with the
+    /// surface's wave; none while the frame places no surface.
+    /// </summary>
+    private static OverlayBlendLayer? CaptureLiquid(LiquidEffectOverlay liquid)
+    {
+        if (liquid.SurfaceScreenLine is not int placedLine) return null;
         // Below a water surface the overlay moves sideways with the surface waveform, one sample a line counted from the line
         // below the surface and drawn back by the wave's phase (#1468).
         int belowSurface = placedLine + 1;
-        LineScroll horizontal = RoomFxTypes.UsesWater(fx.Type)
-            ? new SampledScrollWave(fx.Scroll.X, WaterWaveDefinitions.SurfaceWaveform,
-                SampledScrollWave.PhaseWhere(-fx.WaterOverlayWavePhase, belowSurface, WaterWaveDefinitions.SurfaceWaveform.Length),
+        LineScroll horizontal = liquid.SurfaceWavePhase is int phase
+            ? new SampledScrollWave(liquid.HorizontalScroll, WaterWaveDefinitions.SurfaceWaveform,
+                SampledScrollWave.PhaseWhere(-phase, belowSurface, WaterWaveDefinitions.SurfaceWaveform.Length),
                 Math.Clamp(belowSurface, HudHeight, Height), Height)
-            : ScrollBands.Uniform(fx.Scroll.X);
+            : ScrollBands.Uniform(liquid.HorizontalScroll);
         // A liquid last placed while its surface lay above the room shows nothing until the effect places it again.
-        return new(shown is null || fx.LiquidSurfaceLine is not int surfaceLine ? null : new LiquidOverlay(shown as LiquidArtwork
-                ?? throw new InvalidDataException($"Room FX type {fx.Type} is a liquid but shows an atmosphere's artwork."), surfaceLine),
-            HudHeight, blend.Operation, horizontal);
+        return new(liquid.ShownSurfaceLine is int surfaceLine ? new LiquidOverlay(liquid.Artwork, surfaceLine) : null,
+            HudHeight, liquid.Blend.Operation, horizontal);
     }
 
     /// <summary>

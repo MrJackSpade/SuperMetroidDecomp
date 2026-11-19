@@ -249,7 +249,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     VerificationAssertions.AssertEqual(cannon.SpriteWritten ? 1 : 0, covers.Length, $"update {frame}: cannon draw count");
                     if (cannon.SpriteWritten && cannon.TileUploadQueued)
                         VerificationAssertions.AssertEqual(ArmCannonTileSources.CoverTileDmaSources.IndexOf(cannon.TileSource),
-                            SheetFrameSources.CharacterDraw((ImageSpriteDraw)covers[0]).Artwork.Id.Variant,
+                            SheetFrameSources.CharacterDraw(covers[0]).Artwork.Id.Variant,
                             $"update {frame}: cannon draw binds the reference cover tile");
                 }
                 // The recorded cover flags are a byte each; the drawing mode is compared as the draw order it selects.

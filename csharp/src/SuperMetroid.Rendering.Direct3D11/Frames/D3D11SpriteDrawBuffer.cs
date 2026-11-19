@@ -58,11 +58,10 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
     internal int Count { get; private set; }
 
     /// <summary>Adds the image each draw shows to <paramref name="needed"/>.</summary>
-    /// <exception cref="InvalidDataException">A draw is not an image draw, or names no shading.</exception>
-    internal static void Collect(ReadOnlySpan<SpriteDraw> draws, ISet<SpriteSheetFrame> needed)
+    internal static void Collect(ReadOnlySpan<ImageSpriteDraw> draws, ISet<SpriteSheetFrame> needed)
     {
-        foreach (SpriteDraw draw in draws)
-            needed.Add(Shaded(draw).Draw.Image);
+        foreach (ImageSpriteDraw draw in draws)
+            needed.Add(draw.Image);
     }
 
     /// <summary>
@@ -72,19 +71,17 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
     /// <param name="draws">The frame's draws, each naming its shading.</param>
     /// <param name="depths">The depth each draw is packed at.</param>
     /// <param name="atlas">The texture holding every image the draws show.</param>
-    /// <exception cref="InvalidDataException">A draw is not an image draw, or names no shading.</exception>
     /// <exception cref="ArgumentException">The depths are not one for each draw.</exception>
-    internal void Pack(ReadOnlySpan<SpriteDraw> draws, ReadOnlySpan<ActorDepth> depths, D3D11ImageAtlas atlas)
+    internal void Pack(ReadOnlySpan<ImageSpriteDraw> draws, ReadOnlySpan<ActorDepth> depths, D3D11ImageAtlas atlas)
     {
         if (depths.Length != draws.Length)
             throw new ArgumentException("Each packed sprite draw needs its depth.", nameof(depths));
         int words = HeaderWords + draws.Length * RecordWords;
         shadedColours.Clear();
-        foreach (SpriteDraw draw in draws)
+        foreach (ImageSpriteDraw image in draws)
         {
-            (ImageSpriteDraw image, PictureShading shading) = Shaded(draw);
             // A draw in its picture's own colours shows the image's pixels as they are and packs no colours.
-            RgbColor[]? keyColours = shading.IsStandard ? null : shading.KeyColours(image.Image.Sheet);
+            RgbColor[]? keyColours = image.Shading.IsStandard ? null : image.Shading.KeyColours(image.Image.Sheet);
             shadedColours.Add(keyColours);
             words += (keyColours?.Length ?? 0) + CorpseRotWords(image);
         }
@@ -104,7 +101,7 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
             rowWords += keyColours?.Length ?? 0;
         for (int index = 0; index < draws.Length; index++)
         {
-            var image = (ImageSpriteDraw)draws[index];
+            ImageSpriteDraw image = draws[index];
             int colours = 0;
             if (shadedColours[index] is { } keyColours)
             {
@@ -167,9 +164,7 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
     /// <summary>Whether a shade of <paramref name="draw"/>'s shading blends over the draw's every part.</summary>
     private static bool ShadingBlends(ImageSpriteDraw draw)
     {
-        if (draw.Shading is not { } shading)
-            return false;
-        foreach (PictureShade shade in shading.Shades)
+        foreach (PictureShade shade in draw.Shading.Shades)
         {
             if (draw.Image.Sheet.Shades.TryGetValue(shade, out PictureRecolouring? recolouring) && recolouring.Blends)
                 return true;
@@ -177,14 +172,6 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
         return false;
     }
 
-    /// <summary><paramref name="draw"/> as an image draw and the shading it names.</summary>
-    /// <exception cref="InvalidDataException">The draw is not an image draw, or names no shading.</exception>
-    private static (ImageSpriteDraw Draw, PictureShading Shading) Shaded(SpriteDraw draw) => draw switch
-    {
-        ImageSpriteDraw { Shading: { } shading } image => (image, shading),
-        ImageSpriteDraw image => throw new InvalidDataException($"Sprite draw {image} reaches the Direct3D 11 sprite buffer naming no shading."),
-        _ => throw new InvalidDataException($"The Direct3D 11 sprite buffer cannot pack a {draw.GetType().Name}."),
-    };
 
     /// <summary>Allocates the GPU buffer, its view and the CPU upload words.</summary>
     [System.Diagnostics.CodeAnalysis.MemberNotNull(nameof(Buffer), nameof(View), nameof(Upload))]

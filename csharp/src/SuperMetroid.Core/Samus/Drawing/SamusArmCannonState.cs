@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Assets;
@@ -103,9 +104,9 @@ public sealed class SamusArmCannonState
             (samus.Position.Whole + offset - Offset16<RoomPixels>.Of(0, artOrigin)).RelativeToCamera(cameraPosition);
         // The cover's direction and picture name its sheet frame; a closed cover returned above.
         InstalledSpriteSheets sheets = samus.Presentation.Sheets;
-        sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusArmCannon),
+        sprites.Add(new SamusColouredDraw(new SpriteSource(SpriteSourceKind.SamusArmCannon),
             sheets.Get(SpriteSheetId.SamusOverlays).Frame(SamusOverlaySheetDefinitions.ArmCannonFrame(direction, cover)),
-            place, SpriteMirror.None));
+            place));
     }
 
     /// <summary>

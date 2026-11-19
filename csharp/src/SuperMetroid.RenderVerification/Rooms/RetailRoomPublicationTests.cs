@@ -65,7 +65,7 @@ internal static class RetailRoomPublicationTests
                 var packet = new DisplayPacket((ushort)tick,
                     GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                 if (fx == PublishedFx.Heat &&
-                    ((packet.Layers ?? throw new InvalidOperationException("Verification requires packet.Layers.")).Layers[0] is not GameplaySceneLayer heat ||
+                    (((LayeredScene)packet.Scene).Layers[0] is not GameplaySceneLayer heat ||
                     heat.BackgroundLineScrolls.Vertical is not SampledScrollWave haze
                     || ScrollShapeLines.GameplayScrolls(haze).Distinct().Count() != 3))
                     throw new InvalidOperationException("Heat packet lost the three-valued vertical distortion table.");

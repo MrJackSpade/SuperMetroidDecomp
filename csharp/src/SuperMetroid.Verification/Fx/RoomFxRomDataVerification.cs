@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Fx.AreaBlockAnimationDefinitionsVerification;
@@ -264,14 +265,14 @@ internal static class RoomFxRomDataVerification
                 $"{type} places its liquid on the screen from surface line 100");
 
             // A liquid with no surface, or one above the room's top, shows no BG3 liquid plane at all (#1546).
-            AssertTrue(GameplayEffectCapture.CaptureRoomFxOverlay(snapshot with
+            AssertTrue(GameplayEffectCapture.CaptureRoomFxOverlay(FxOverlayFixtures.Overlay(snapshot with
                 {
                     Surface = null,
                     WaterSurfaceScreenY = null,
-                }, RoomBackgroundsFixtures.BlankFxOverlay()) is null,
+                }, FxOverlayFixtures.SeededLiquid(type))) is null,
                 $"{type} without a surface shows no BG3 liquid plane");
-            AssertTrue(GameplayEffectCapture.CaptureRoomFxOverlay(snapshot with { Surface = -1 },
-                    RoomBackgroundsFixtures.BlankFxOverlay()) is null,
+            AssertTrue(GameplayEffectCapture.CaptureRoomFxOverlay(FxOverlayFixtures.Overlay(snapshot with { Surface = -1 },
+                    FxOverlayFixtures.SeededLiquid(type))) is null,
                 $"{type} surface above the room's top shows no BG3 liquid plane");
 
             // The described BG2 wave (#1468), evaluated on each gameplay line.

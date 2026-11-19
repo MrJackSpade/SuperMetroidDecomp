@@ -77,10 +77,10 @@ internal static class TitleColourFadeTests
         PixelComparison.Verify(packet, title.Render(), shown, context);
 
         ImageSpriteDraw draw = scene.Paint.SpriteDraws.OfType<ImageSpriteDraw>().Single(candidate => candidate.Image == faded);
-        ImmutableArray<SpriteDraw> ended = [.. scene.Paint.SpriteDraws.Select(candidate => ReferenceEquals(candidate, draw)
+        ImmutableArray<ImageSpriteDraw> ended = [.. scene.Paint.SpriteDraws.Select(candidate => ReferenceEquals(candidate, draw)
             ? draw with { Shading = end } : candidate)];
         RgbaPixel[] endShown = renderer.RenderForReadback(new DisplayPacket(update,
-            new FloorScene(new FramePaint(scene.Paint.Backdrop, ended), scene.Background, scene.Brightness, scene.Gradient, scene.Floor)));
+            new FloorScene(new FramePaint(scene.Paint.Backdrop, ended), scene.Floor, scene.Brightness, scene.Gradient)));
         int left = draw.Corner.X, top = draw.Corner.Y, right = left + faded.Size.X, bottom = top + faded.Size.Y;
         int differing = 0;
         for (int pixel = 0; pixel < shown.Length; pixel++)

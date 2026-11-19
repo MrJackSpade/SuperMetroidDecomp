@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -55,14 +55,14 @@ internal static class ObjCharacterImageConstants
     /// <param name="oam">The screen's finalized OAM storage.</param>
     /// <param name="vram">The screen's VRAM, which holds the characters the records name.</param>
     /// <param name="objectSelection">The screen's OBSEL value.</param>
-    public static ImmutableArray<SpriteDraw> Draws(OamBuffer oam, SnesVram vram, int objectSelection)
+    public static ImmutableArray<ImageSpriteDraw> Draws(OamBuffer oam, SnesVram vram, int objectSelection)
     {
         if (Composition(oam, vram, objectSelection) is not { } composition)
             return [];
         ReadOnlySpan<byte> memory = vram.Bytes;
         if (lastPictured is not { } records || records.ObjectSelection != objectSelection || !memory.SequenceEqual(records.Vram))
             lastPictured = records = new PicturedRecords(memory.ToArray(), objectSelection);
-        var draws = ImmutableArray.CreateBuilder<SpriteDraw>();
+        var draws = ImmutableArray.CreateBuilder<ImageSpriteDraw>();
         ScreenObjectSizes sizes = ObjectSelectionCodec.Sizes(checked((byte)objectSelection));
         int part = 0;
         for (int index = 0; index < oam.LastFinalizedSpriteCount; index++)
@@ -86,7 +86,7 @@ internal static class ObjCharacterImageConstants
                 records.Frames.Add(shape, frame);
             }
             draws.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.FrontendScreen), frame,
-                Offset16<ScreenPixels>.Wrapped(left, top), SpriteMirror.None));
+                Offset16<ScreenPixels>.Wrapped(left, top), SpriteMirror.None) { Shading = PictureShading.Standard });
             part += cells;
         }
         return draws.ToImmutable();

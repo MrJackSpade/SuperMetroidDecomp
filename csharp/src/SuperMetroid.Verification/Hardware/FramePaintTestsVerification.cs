@@ -26,7 +26,7 @@ internal static class FramePaintTestsVerification
             SpriteImageColours.Sprite, new RgbColor[ImageColourGroup.HalfColours]);
         sprites.BeginFrame();
         sprites.Add(new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer), new SpriteSheetFrame(image, default, new(16, 8), default),
-            new(10, 20), SpriteMirror.None));
+            new(10, 20), SpriteMirror.None) { Shading = PictureShading.Standard });
         sprites.FinalizeFrame();
         // The frame's own draws, which draw the recorded fixture picture; a capture's draws draw native-coloured copies of it,
         // which no sheet loader recorded, so a repaint starts from these.
@@ -54,18 +54,18 @@ internal static class FramePaintTestsVerification
             "fixture arrays escaped into frame ownership");
 
         AssertThrows<ArgumentException>(() => FramePaint.FromNative(ToColors(new ushort[1]), []), "short CGRAM");
-        AssertThrows<ArgumentException>(() => FramePaint.FromNative(expectedPalette, default), "missing draw list");
+        AssertThrows<ArgumentNullException>(() => FramePaint.FromNative(expectedPalette, null!), "missing draw list");
         Console.WriteLine("Frame paint: CGRAM parity, draw retention, ownership and size checks passed.");
 
         // A native frame shows native colour 0 as its backdrop and draws each picture as a copy coloured from the native
         // image (#1512): the fixture's sprite picture takes the sprite half but its clear first colour, its colour keys in the
         // order its visible pixels show them, which is the order of their palette indices (#1633).
         static RgbColor[] Shown(FramePaint paint) =>
-            [paint.Backdrop, .. paint.SpriteDraws.Cast<ImageSpriteDraw>().SelectMany(draw => draw.Image.Sheet.ColourKeys.Select(key => key.Colour))];
+            [paint.Backdrop, .. paint.SpriteDraws.SelectMany(draw => draw.Image.Sheet.ColourKeys.Select(key => key.Colour))];
         static RgbColor[] NativeShown(RgbColor[] native) => [native[0], .. native.AsSpan(SnesCgram.ColorCount / 2 + 1)];
 
         // A native-coloured frame draws a copy of each picture (#1512), so a draw is known by its source and where, in order.
-        static IEnumerable<(SpriteSource Source, Offset16<ScreenPixels> Origin)> Order(ImmutableArray<SpriteDraw> draws) =>
+        static IEnumerable<(SpriteSource Source, Offset16<ScreenPixels> Origin)> Order(IEnumerable<SpriteDraw> draws) =>
             draws.Select(draw => (draw.Source, draw.Origin));
     }
 }

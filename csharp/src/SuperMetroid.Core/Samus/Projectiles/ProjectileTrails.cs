@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
@@ -175,7 +176,6 @@ internal sealed class ProjectileTrails
         Offset16<ScreenPixels> place = side.DisplayedPosition.RelativeToCamera(cameraPosition);
 
         SpriteSheetFrame image = sheets.SheetOf(pair.PicturedBeams).Frame(ProjectileSheetFrames.TrailFrame(pose));
-        sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectileTrail),
-            image, place, SpriteMirror.None));
+        sprites.Add(new SamusColouredDraw(new SpriteSource(SpriteSourceKind.SamusProjectileTrail), image, place));
     }
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -83,9 +84,31 @@ internal static class SheetFrameSources
     /// <summary>Each shared rectangle's compositions that differ from the first frame's.</summary>
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<FrameKey, FrameSource[]> alternates = new();
 
+    /// <summary>
+    /// What a draw of a sheet frame shows, whichever kind it is: its picture, placed and mirrored, and the shading its owner
+    /// names; none for a draw in Samus's colours, which her colours shade only as the frame publishes (#2505).
+    /// </summary>
+    /// <param name="Source">The actor or display element shown.</param>
+    /// <param name="Image">The sheet frame shown.</param>
+    /// <param name="Origin">Where on the screen the frame's origin lands.</param>
+    /// <param name="Mirror">How the frame is mirrored about its origin.</param>
+    /// <param name="Shading">The shading the owner names, or null for a draw in Samus's colours.</param>
+    private readonly record struct DrawnImage(SpriteSource Source, SpriteSheetFrame Image, Offset16<ScreenPixels> Origin, SpriteMirror Mirror,
+        PictureShading? Shading)
+    {
+        /// <summary>What <paramref name="draw"/> shows.</summary>
+        /// <exception cref="InvalidOperationException">The draw is of another kind.</exception>
+        internal static DrawnImage Of(SpriteDraw draw) => draw switch
+        {
+            ImageSpriteDraw image => new(image.Source, image.Image, image.Origin, image.Mirror, image.Shading),
+            SamusColouredDraw samus => new(samus.Source, samus.Image, samus.Origin, SpriteMirror.None, null),
+            _ => throw new InvalidOperationException($"{draw} is a {draw.GetType().Name}, not a draw of a sheet frame."),
+        };
+    }
+
     /// <summary>The character draw an image draw of a projectile sheet frame shows: its composition over its page, placed and mirrored alike.</summary>
     /// <exception cref="InvalidOperationException">The frame is not a projectile sheet frame.</exception>
-    internal static CharacterSpriteDraw CharacterDraw(ImageSpriteDraw draw) => CharacterDraw(draw, null);
+    internal static CharacterSpriteDraw CharacterDraw(SpriteDraw draw) => CharacterDraw(draw, null);
 
     /// <summary>
     /// The character draw an image draw of a sheet frame shows, its composition placed and mirrored alike, over
@@ -95,10 +118,10 @@ internal static class SheetFrameSources
     /// The frame is not a sheet frame, or its picture is shared by frames whose compositions show different pictures over
     /// <paramref name="characters"/>, so which one the draw stands for decides the result.
     /// </exception>
-    internal static CharacterSpriteDraw CharacterDraw(ImageSpriteDraw draw, SpriteArtwork? characters)
+    internal static CharacterSpriteDraw CharacterDraw(SpriteDraw draw, SpriteArtwork? characters)
     {
         Ensure.NotNull(draw);
-        FrameKey key = Key(draw.Image);
+        FrameKey key = Key(DrawnImage.Of(draw).Image);
         FrameSource source = Find(key) ?? throw new InvalidOperationException($"{draw} shows a frame no sheet was composed with.");
         CharacterSpriteDraw built = Build(draw, source, characters);
         // Whether a shared picture's compositions agree over a page depends only on the frame and the page, so each pair
@@ -113,7 +136,7 @@ internal static class SheetFrameSources
             {
                 if (!SameInks(Inks(Build(draw, other, characters)), inks))
                     throw new InvalidOperationException(
-                        $"{draw} shows a picture sheet {draw.Image.Sheet.Name} lays out once for frames {source.Frame.Name} and {other.Frame.Name}, whose compositions show different pictures over the given characters.");
+                        $"{draw} shows a picture sheet {DrawnImage.Of(draw).Image.Sheet.Name} lays out once for frames {source.Frame.Name} and {other.Frame.Name}, whose compositions show different pictures over the given characters.");
             }
         }
         return built;
@@ -125,10 +148,10 @@ internal static class SheetFrameSources
     /// them, since the sheet keeps one picture for all of them.
     /// </summary>
     /// <exception cref="InvalidOperationException">The frame is not a sheet frame.</exception>
-    internal static IReadOnlyList<CharacterSpriteDraw> CharacterDrawCandidates(ImageSpriteDraw draw)
+    internal static IReadOnlyList<CharacterSpriteDraw> CharacterDrawCandidates(SpriteDraw draw)
     {
         Ensure.NotNull(draw);
-        FrameKey key = Key(draw.Image);
+        FrameKey key = Key(DrawnImage.Of(draw).Image);
         FrameSource source = Find(key) ?? throw new InvalidOperationException($"{draw} shows a frame no sheet was composed with.");
         return [Build(draw, source, null), .. (alternates.TryGetValue(key, out FrameSource[]? others) ? others : []).Select(other => Build(draw, other, null))];
     }
@@ -186,8 +209,9 @@ internal static class SheetFrameSources
     }
 
     /// <summary>The character draw <paramref name="draw"/> shows as <paramref name="source"/>, over <paramref name="characters"/> when given.</summary>
-    private static CharacterSpriteDraw Build(ImageSpriteDraw draw, FrameSource source, SpriteArtwork? characters)
+    private static CharacterSpriteDraw Build(SpriteDraw drawn, FrameSource source, SpriteArtwork? characters)
     {
+        DrawnImage draw = DrawnImage.Of(drawn);
         PictureFlip flip = ((draw.Mirror & SpriteMirror.Horizontal) != 0 ? PictureFlip.Horizontal : PictureFlip.None) |
             ((draw.Mirror & SpriteMirror.Vertical) != 0 ? PictureFlip.Vertical : PictureFlip.None);
         // A frontend draw's drawn shade stands for the row its colours are the cartridge's of, which the cartridge ORs into
@@ -206,10 +230,10 @@ internal static class SheetFrameSources
 
     /// <summary>The object sizes of the screen an image draw's sheet frame was composed for.</summary>
     /// <exception cref="InvalidOperationException">The frame is not a sheet frame.</exception>
-    internal static ScreenObjectSizes ObjectSizes(ImageSpriteDraw draw)
+    internal static ScreenObjectSizes ObjectSizes(SpriteDraw draw)
     {
         Ensure.NotNull(draw);
-        return (Find(Key(draw.Image)) ?? throw new InvalidOperationException($"{draw} shows a frame no sheet was composed with.")).ObjectSizes;
+        return (Find(Key(DrawnImage.Of(draw).Image)) ?? throw new InvalidOperationException($"{draw} shows a frame no sheet was composed with.")).ObjectSizes;
     }
 
     /// <summary>

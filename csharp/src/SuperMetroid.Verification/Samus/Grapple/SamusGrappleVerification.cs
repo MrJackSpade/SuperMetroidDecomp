@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -675,7 +676,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
         "first grapple flare selects shared main frame sixteen");
     AssertEqual(2, samus.Grapple.FlareAnimationTimer.RawValue,
         "first grapple flare performs decrement-before-test");
-    var grappleFlare = (ImageSpriteDraw)grappleFlareOamFrame.Draws.Single();
+    var grappleFlare = (SamusColouredDraw)grappleFlareOamFrame.Draws.Single();
     AssertEqual(InstalledFixtures.SpriteSheets.Get(ProjectileSheetFrames.For(SuperMetroid.Core.Progression.SamusBeamCombinations.Of(samus.EquippedBeams)))
             .Frame(ProjectileSheetFrames.FlareFrame(
             ChargeFlarePictures.Of(SuperMetroid.Core.Samus.Projectiles.ChargeFlareComponent.MainFlare, facingLeft: false, ChargeFlareAnimationDefinitions.PictureNumbered(ChargeFlareComponent.MainFlare, 16)))), grappleFlare.Image,
@@ -703,7 +704,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
         "grapple selects the native first endpoint tile");
     AssertEqual(segmentSource, GrappleTileSelection.TransferFor(GrappleTileSelection.SegmentAssetFor(samus.Grapple.Angle)).SourceAddress,
         "grapple selects the native angle-selected segment tiles");
-    AssertTrue(grappleOamFrame.Draws.All(draw => ReferenceEquals(InstalledFixtures.GrappleSheet.Image, ((ImageSpriteDraw)draw).Image.Sheet)),
+    AssertTrue(grappleOamFrame.Draws.All(draw => ReferenceEquals(InstalledFixtures.GrappleSheet.Image, ((SamusColouredDraw)draw).Image.Sheet)),
         "grapple draws show frames of the grapple sheet");
     AssertEqual(GrappleFlareStage.Shown, samus.Grapple.FlareStage,
         "post-Samus grapple tile pass moves the flare on");

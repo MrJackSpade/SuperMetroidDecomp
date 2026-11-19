@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Artwork;
@@ -67,7 +68,7 @@ public static class SamusGrappleBeamDrawing
                 grapple.Flare.Picture ?? throw new InvalidOperationException("The grapple's flare plays only forward, so it always shows a picture."));
         SpriteSheetFrame image = sheets.SheetOf(SamusBeamCombinations.Of(samus.EquippedBeams)).Frame(ProjectileSheetFrames.FlareFrame(
             picture));
-        sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleFlare), image, place, SpriteMirror.None));
+        sprites.Add(new SamusColouredDraw(new SpriteSource(SpriteSourceKind.SamusGrappleFlare), image, place));
         return true;
     }
 
@@ -162,16 +163,15 @@ public static class SamusGrappleBeamDrawing
             // The rope's mirroring at its angle picks the segment's picture, which the sheet holds already mirrored, so
             // the segment draws unmirrored.
             SpriteSheetFrame image = installed.Frame(GrappleSheets.RopeFrame(orientation, picture, mirror));
-            sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleRope), image,
-                centre.Whole, SpriteMirror.None));
+            sprites.Add(new SamusColouredDraw(new SpriteSource(SpriteSourceKind.SamusGrappleRope), image, centre.Whole));
             centre += step;
             picture = GrappleAnimations.RopePictureBefore[picture];
         }
 
         // The endpoint is placed by its centre at the anchor.
         SpriteSheetFrame endpoint = installed.Frame(GrappleSheets.EndpointFrame(grapple.Endpoint.Showing));
-        sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleEndpoint), endpoint,
-            grapple.Anchor.RelativeToCamera(cameraPosition), SpriteMirror.None));
+        sprites.Add(new SamusColouredDraw(new SpriteSource(SpriteSourceKind.SamusGrappleEndpoint), endpoint,
+            grapple.Anchor.RelativeToCamera(cameraPosition)));
     }
 
 /// <summary>

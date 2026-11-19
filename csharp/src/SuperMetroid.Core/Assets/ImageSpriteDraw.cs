@@ -3,7 +3,8 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>
 /// A sprite draw of a finished, pre-coloured image: one frame of a sheet placed at an origin and mirrored about it. Its
 /// colours come from the image, under the shading its owner names (#1392, #1512), and a gameplay draw sits whole at its
-/// frame's depth among the room's layers (#1514).
+/// frame's depth among the room's layers (#1514). Every draw a frame shows is one; a draw shown in Samus's colours is
+/// made one when the frame publishes, in the shading her colours show then (#2505).
 /// </summary>
 public sealed record ImageSpriteDraw : SpriteDraw
 {
@@ -21,11 +22,13 @@ public sealed record ImageSpriteDraw : SpriteDraw
 
     /// <summary>
     /// The shades and colour effects the draw's owner shows its picture in (#1512); <see cref="PictureShading.Standard"/>
-    /// where the owner shows no effect. Null only until the owner names it: Samus's draws are made before
-    /// Samus's colours name her shading at publication, and a frame refuses a draw
-    /// that still names none.
+    /// where the owner shows no effect.
     /// </summary>
-    public PictureShading? Shading { get; init; }
+    public required PictureShading Shading
+    {
+        get;
+        init => field = Ensure.NotNull(value);
+    }
 
     /// <summary>
     /// How a rotting corpse's frame shows as its own rot has left it (#1539): each pixel row of the image draws, across the
@@ -65,6 +68,9 @@ public sealed record ImageSpriteDraw : SpriteDraw
             return new(x, y);
         }
     }
+
+    /// <inheritdoc/>
+    internal override ImageSpriteDraw Published(PictureShading samusShading) => this;
 
     /// <summary>Names the draw by its source, image and screen origin.</summary>
     public override string ToString() =>

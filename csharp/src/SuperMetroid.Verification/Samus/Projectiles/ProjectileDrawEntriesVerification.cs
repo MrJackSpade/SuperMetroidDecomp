@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -28,8 +29,8 @@ internal static class ProjectileDrawEntriesVerification
         AssertEqual(1, draws.Count, $"{subject} publishes one whole-frame entry");
         SpriteDraw draw = draws[0];
         AssertEqual(source, draw.Source, $"{subject} names its slot as the source");
-        AssertTrue(draw is ImageSpriteDraw, $"{subject} is drawn from a pre-coloured sheet");
-        var image = (ImageSpriteDraw)draw;
+        AssertTrue(draw is SamusColouredDraw, $"{subject} is drawn from a pre-coloured sheet in Samus's colours");
+        var image = (SamusColouredDraw)draw;
         SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(ProjectileSheetFrames.For(beam));
         AssertTrue(ReferenceEquals(sheet.Image, image.Image.Sheet), $"{subject} is drawn from the {beam} beam's sheet");
         AssertEqual(sheet.Frame(frame), image.Image, $"{subject} shows its frame {frame}");

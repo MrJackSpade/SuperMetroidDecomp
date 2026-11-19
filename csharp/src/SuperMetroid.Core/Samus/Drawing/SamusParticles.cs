@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Artwork;
@@ -88,7 +89,7 @@ public sealed class SamusParticles
     /// The draw of a shown particle wherever it lies; the display clips it (#1541). Splashes, spray and dust are eight-pixel
     /// pictures centred on the particle; the diving splash and bubbles are placed from it.
     /// </summary>
-    private static ImageSpriteDraw Draw(SamusParticle particle, Position16<RoomPixels> camera, InstalledSpriteSheets sheets)
+    private static SamusColouredDraw Draw(SamusParticle particle, Position16<RoomPixels> camera, InstalledSpriteSheets sheets)
     {
         string frame = SamusAtmosphereSheetDefinitions.FrameName(
             particle.Shown ?? throw new InvalidOperationException("A particle drawn shows no picture."));
@@ -96,7 +97,6 @@ public sealed class SamusParticles
         if (particle.Kind is SamusParticleKind.SurfaceSplash or SamusParticleKind.LavaSpray or SamusParticleKind.Dust)
             place -= Offset16<ScreenPixels>.Of(SmallParticleHalfWidth, SmallParticleHalfWidth);
         SpriteSheetFrame picture = sheets.Get(SpriteSheetId.SamusAtmosphere).Frame(frame);
-        return new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusAtmosphere), picture,
-            place, SpriteMirror.None);
+        return new SamusColouredDraw(new SpriteSource(SpriteSourceKind.SamusAtmosphere), picture, place);
     }
 }

@@ -232,9 +232,9 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         if (ExplosionFrame is not { } frame)
             return;
         SpriteSheet death = sheets.Get(SpriteSheetId.SamusDeath);
-        sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusDeathExplosion),
+        sprites.Add(new SamusColouredDraw(new SpriteSource(SpriteSourceKind.SamusDeathExplosion),
             death.Frame(SamusDeathSheetDefinitions.ExplosionFrame(FacingLeft ? HorizontalDirection.Left : HorizontalDirection.Right, frame)),
-            ScreenPosition, SpriteMirror.None));
+            ScreenPosition));
     }
 
     /// <summary>Plays the explosion on, its death shades and terminal whiteout, returning whether to draw this frame.</summary>

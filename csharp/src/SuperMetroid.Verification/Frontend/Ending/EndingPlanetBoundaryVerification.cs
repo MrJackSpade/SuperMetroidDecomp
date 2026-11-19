@@ -81,7 +81,7 @@ internal static class EndingPlanetBoundaryVerification
                     .Count(differs => differs);
                 firstDifference = $"frame {checkedFrames} ({ending.Stage.Phase}) pixel ({pixel % ScreenGeometry.ScreenWidthPixels},{pixel / ScreenGeometry.ScreenWidthPixels}): " +
                     $"live {actual[pixel]}, native {expected[pixel]}, {changed} pixels that frame; floor alone differs at {FloorOnly()} pixels, " +
-                    $"sprites alone at {SpritesOnly()}; live floor subtracts sprites {projection.SubtractsSprites}, adds foreground {projection.AddsForeground}; " +
+                    $"sprites alone at {SpritesOnly()}; live floor blend {projection.Blend}; " +
                     $"live layers {string.Join(", ", snapshot.Layers.ToArray().Select(layer => layer.GetType().Name))}; screen shades {screenShades}; sprite shadings {spriteShades}; ink trace {inkTrace}; native colour 10 of each sprite row {string.Join(" ", Enumerable.Range(0, 8).Select(row => snapshotColours[128 + row * 16 + 10]))}";
             }
             differences += changed;

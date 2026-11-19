@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -96,12 +97,12 @@ internal static class ChargeFlareProductionVerification
             "Rebinding the sprite sheets reaches the actor pass");
         Console.WriteLine($"Charge-flare production: {ticks} normal and Hyper ticks, state isolation and actor sheet rebinding pass.");
 
-        static IEnumerable<ImageSpriteDraw> FlareDraws(SuperMetroidRuntime target)
+        static IEnumerable<SamusColouredDraw> FlareDraws(SuperMetroidRuntime target)
         {
             target.Sprites.BeginFrame();
             target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, target.Player.IntroducedSamus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold);
             target.Sprites.FinalizeFrame();
-            ImageSpriteDraw[] flare = [.. target.Sprites.Draws.Where(draw => draw.Source.Kind == SpriteSourceKind.SamusChargeFlare).Cast<ImageSpriteDraw>()];
+            SamusColouredDraw[] flare = [.. target.Sprites.Draws.Where(draw => draw.Source.Kind == SpriteSourceKind.SamusChargeFlare).Cast<SamusColouredDraw>()];
             AssertTrue(flare.Length > 0, "The actor pass draws the charge flare");
             return flare;
         }

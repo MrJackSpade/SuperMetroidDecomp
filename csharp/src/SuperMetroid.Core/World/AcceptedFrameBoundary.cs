@@ -136,8 +136,8 @@ internal sealed class AcceptedFrameBoundary
         // The HUD's images draw from the HUD's own sheet, on the HUD's own layer (#1466, #1731).
         PicturedHud picturedHud = HudPicturesIn(scope.HudPictures.Sheet).Pictured(hud);
         // The room effect's liquid or atmosphere draws from the effect overlay sheet's pictures, as the effects' animations
-        // select them; the overlay holds nothing else (#1466, #1706).
-        FxOverlayArtwork fxOverlay = scope.FxOverlayPictures.Resolve(CaptureFxOverlayPlane(), appearance);
+        // select them; the overlay holds nothing else (#1466, #1706, #2505).
+        RoomEffectOverlay effectOverlay = RoomEffectOverlay.Latch(roomFxOverlay, scope.FxOverlayPictures, appearance);
         GameplayLatchedTints tints = CaptureTints(scope);
         // Only a room with a turning floor shows one in perspective, and the frame shows that floor (#1349, #1467, #2513).
         if (scope.Floor is { } floor)
@@ -147,16 +147,16 @@ internal sealed class AcceptedFrameBoundary
             if (displays.CeresGetawayFloor is { } ridley)
             {
                 RoomLevelPlane band = level.BackgroundPlane;
-                return new PerspectiveFloorFrameLatch(hud, picturedHud, scrolls, roomFxOverlay, eyeBeam, tints,
-                    CeresPerspectiveFloors.RidleyGetaway(ridley, displays.CeresGetawayChamberWalls), floor.Publish(), fxOverlay,
+                return new PerspectiveFloorFrameLatch(hud, picturedHud, scrolls, roomFxOverlay, effectOverlay, eyeBeam, tints,
+                    CeresPerspectiveFloors.RidleyGetaway(ridley, displays.CeresGetawayChamberWalls), floor.Publish(),
                     new RoomBackgroundLayer(band.Cells, BlockPictures(scope, appearance, band, reveal)));
             }
             // The elevator shaft's floor shows while the shaft has its transform, which exists exactly while the room was
             // entered through the shaft's door; it fills the gameplay view.
             if (_display.ActiveTurningFloor is { } shaft)
             {
-                return new PerspectiveFloorFrameLatch(hud, picturedHud, scrolls, roomFxOverlay, eyeBeam, tints,
-                    CeresPerspectiveFloors.ElevatorShaft(shaft, scrolls.ForegroundScroll), floor.Publish(), fxOverlay, BackgroundBand: null);
+                return new PerspectiveFloorFrameLatch(hud, picturedHud, scrolls, roomFxOverlay, effectOverlay, eyeBeam, tints,
+                    CeresPerspectiveFloors.ElevatorShaft(shaft, scrolls.ForegroundScroll), floor.Publish(), BackgroundBand: null);
             }
         }
         // The background shows the background plane when the room state shows its level background; otherwise it shows
@@ -167,10 +167,9 @@ internal sealed class AcceptedFrameBoundary
         RoomBlockPictureTable pictures = BlockPictures(scope, appearance, backgroundPlane, reveal);
         RoomBackgroundLayer? background = backgroundPlane is { } shownPlane ? new RoomBackgroundLayer(shownPlane.Cells, pictures) : null;
         GameplayLatchedBossBody bosses = GameplayLatchedBossBody.Of(displays.BossBody);
-        return new OrdinaryRoomFrameLatch(hud, picturedHud, scrolls, roomFxOverlay, eyeBeam, tints,
+        return new OrdinaryRoomFrameLatch(hud, picturedHud, scrolls, roomFxOverlay, effectOverlay, eyeBeam, tints,
             _screenLayers.Displayed,
-            RoomBackgroundsOf(scope, appearance, new RoomBackgroundLayer(level.ForegroundPlane.Cells, pictures), background, fxOverlay,
-                bosses.Body),
+            RoomBackgroundsOf(scope, appearance, new RoomBackgroundLayer(level.ForegroundPlane.Cells, pictures), background, bosses.Body),
             scene,
             bosses,
             displays.Phantoon is { } phantoon ? PhantoonDisplaySnapshot.Capture(phantoon) : null,
@@ -203,18 +202,16 @@ internal sealed class AcceptedFrameBoundary
 
     /// <summary>
     /// The room backgrounds an ordinary frame of <paramref name="scope"/> displays (#1346, #1555): <paramref name="foreground"/>
-    /// and <paramref name="background"/>, the effect overlay's artwork, the source screen of a door's opening scroll, the
-    /// sky's rows, the room's library background, the text an escape shows over either layer, the room's turning floor and
+    /// and <paramref name="background"/>, the source screen of a door's opening scroll, the sky's rows, the room's library background, the text an escape shows over either layer, the room's turning floor and
     /// the boss's body, each with its pictures.
     /// </summary>
     /// <param name="scope">The loaded room.</param>
     /// <param name="appearance">The values the room's appearance inputs take now.</param>
     /// <param name="foreground">The foreground's level plane with its pictures.</param>
     /// <param name="background">The background's level plane with its pictures, or null when the background shows a loaded picture.</param>
-    /// <param name="fxOverlay">The effect overlay's artwork.</param>
     /// <param name="body">The body the room's boss shows, or null.</param>
     private RoomBackgrounds RoomBackgroundsOf(RoomScope scope, RoomAppearanceView appearance, RoomBackgroundLayer foreground,
-        RoomBackgroundLayer? background, FxOverlayArtwork fxOverlay, BossBodyLayer? body)
+        RoomBackgroundLayer? background, BossBodyLayer? body)
     {
         // A sky room's background shows the sky's rows, drawn from their image (#1392, #1403), once the room has configured the
         // sky's bands; without them, background shows the room's own background.
@@ -236,7 +233,7 @@ internal sealed class AcceptedFrameBoundary
         RoomOverlayPictures? backgroundText = WrittenText(scope, scope.Enemies.DisplaySources.ZebesWarning, appearance);
         RoomOverlayPictures? foregroundText = WrittenText(scope, scope.Enemies.DisplaySources.CeresWarning, appearance);
         // The planes are shared until gameplay changes level data. A boss body shows each part's whole picture (#1466, #1513).
-        return new RoomBackgrounds(foreground, background, fxOverlay, _room.DoorSourceBackground, foregroundText, sky,
+        return new RoomBackgrounds(foreground, background, _room.DoorSourceBackground, foregroundText, sky,
             backgroundText, scope.Floor?.Publish(), body?.Show(), BackgroundImage: image);
     }
 

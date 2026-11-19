@@ -35,10 +35,13 @@ internal static class ParameterContractsTests
             "_ = new RoomObjectServices { Samus = samus, Bosses = bossReader, Events = events, TourianStatue = statue, " +
             "RoomFx = fx, Earthquake = earthquake, Enemies = effects };");
 
-        // Runtime frames: the request composes its policy, which names the low-health check (#2092, #2499).
-        VerifyContract("a runtime frame request composes its policy",
-            "_ = new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false, RunsLowHealthCheck = true } };");
-        VerifyContract("a runtime frame request carries no audio options beside its policy (#2499)",
+        // Runtime frames: the request names the game state that owns the update, and only the owners themselves state what
+        // each permits (#2542).
+        VerifyContract("a runtime frame request names its update's owner",
+            "_ = new RuntimeFrameRequest { Owner = GameplayUpdateOwner.PauseDarkening };");
+        VerifyContract("a caller cannot compose an update owner's permissions (#2542)",
+            "_ = new GameplayUpdateOwner();", "CS1729");
+        VerifyContract("a runtime frame request carries no audio options beside its owner (#2499)",
             "_ = new RuntimeFrameRequest().Audio;", "CS1061");
         VerifyContract("the gameplay runtime is reachable only from Core and its friends (#1327)",
             "SuperMetroidRuntime? hidden = null;", "CS0122");

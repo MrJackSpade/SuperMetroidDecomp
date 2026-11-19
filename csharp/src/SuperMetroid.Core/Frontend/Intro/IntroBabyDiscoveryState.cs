@@ -82,6 +82,11 @@ internal sealed class IntroBabyDiscoveryState
     public RoomLevelData Level { get; }
 
     /// <summary>Signals the outer cinematic owner to start the next page's colour transition.</summary>
+    /// <remarks>
+    /// The scene's end, kept once its cue reaches it (#2562): the cinematic's phase step, which runs before the actors'
+    /// step on each update, starts the next page on the update after the cue, so the end lasts across that boundary; it is
+    /// set once and never cleared, and the next page's setup discards the scene.
+    /// </remarks>
     public bool NextPageRequested { get; private set; }
 
     /// <summary>

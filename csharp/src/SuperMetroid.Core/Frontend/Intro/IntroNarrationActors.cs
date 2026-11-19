@@ -42,11 +42,6 @@ internal sealed class IntroNarrationActors
     /// <summary>The persistent text-caret actor, running its typed animation (#641); <see cref="Caret"/> places it.</summary>
     private readonly CinematicActor<IntroNarrationAnimation, CinematicSpritePose, NoAnimationCue> caretSprite =
         new(default, IntroShades.Drawn(IntroSpriteColouring.CrossFadeActors), IntroNarrationAnimations.Narration, IntroNarrationAnimation.Caret);
-    /// <summary>
-    /// Whether the press that turns the page has been accepted since the arrow's last update: the page-turn setup starts
-    /// the cross-fade, and the arrow deletes itself at its next update, in the same frame.
-    /// </summary>
-    private bool pageTurnAccepted;
     /// <summary>Alternates the typewriter's sound requests while letters appear.</summary>
     private bool typewriterSoundToggle;
     /// <summary>Created by the first glyph to animate per-character glow effects.</summary>
@@ -92,11 +87,15 @@ internal sealed class IntroNarrationActors
     internal CinematicActor<IntroNarrationAnimation, CinematicSpritePose, NoAnimationCue>? NextPageArrow { get; private set; }
 
     /// <summary>
-    /// Records that a page's input wait accepted the press that turns the page (#1655). The page-turn setup starts the
-    /// page's cross-fade, and the next-page arrow, which watches for the cross-fade's start, deletes itself at its next
-    /// update: the same frame, before anything is drawn.
+    /// A page's input wait accepted the press that turns the page (#1655, #2562): the page-turn setup starts the page's
+    /// cross-fade, and the next-page arrow, which watches for the cross-fade's start, goes at once. The game's arrow deletes
+    /// itself at its next update, later in the same frame and before anything is drawn, which nothing between reads.
     /// </summary>
-    public void AcceptPageTurn() => pageTurnAccepted = true;
+    public void AcceptPageTurn()
+    {
+        NextPageArrow?.Delete();
+        NextPageArrow = null;
+    }
 
     /// <summary>The persistent text caret's place, in signed screen pixels from the screen's top-left corner.</summary>
     public Offset16<ScreenPixels> Caret { get; private set; } =
@@ -314,24 +313,16 @@ internal sealed class IntroNarrationActors
     }
 
     /// <summary>
-    /// Runs the next-page arrow's update, its own checks first: the update after a page's second subtitle starts holding
+    /// Runs the next-page arrow's update, its own check first: the update after a page's second subtitle starts holding
     /// the input wait, it restarts on its delayed animation, which shows nothing for the hold before the arrow loops
-    /// again; once the press that turns the page is accepted, it deletes itself.
+    /// again. The press that turns the page deletes it (<see cref="AcceptPageTurn"/>).
     /// </summary>
     private void StepNextPageArrow()
     {
-        bool turned = pageTurnAccepted;
-        pageTurnAccepted = false;
         if (NextPageArrow is not { } arrow)
             return;
         if (subtitles.HoldFirstCounted)
             arrow.Start(IntroNarrationAnimation.NextPageArrowDelayed);
-        if (turned)
-        {
-            arrow.Delete();
-            NextPageArrow = null;
-            return;
-        }
         arrow.Step();
     }
 

@@ -123,11 +123,8 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <summary>Gets the options menu's current phase.</summary>
     public GameOptionsPhase Phase { get; private set; }
 
-    /// <summary>Gets whether the completed start-game fade requested the opening sequence.</summary>
-    public bool IntroRequested { get; private set; }
-
-    /// <summary>Gets whether the completed cancel fade requested the file-select menu.</summary>
-    public bool FileSelectRequested { get; private set; }
+    /// <summary>How the menu hands off to the frontend (#2562): the opening sequence or file select, kept once it reaches one.</summary>
+    public GameOptionsMenuOutcome Outcome { get; private set; }
 
     /// <summary>Advances one options-menu update using the held controller buttons.</summary>
     public void Step(ControllerButton controllerInput)
@@ -206,12 +203,12 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
                 break;
 
             case GameOptionsPhase.StartGame:
-                IntroRequested = true;
+                Outcome = GameOptionsMenuOutcome.Intro;
                 break;
 
             case GameOptionsPhase.FadeOutToFileSelect:
                 if (fade.Darken())
-                    FileSelectRequested = true;
+                    Outcome = GameOptionsMenuOutcome.FileSelect;
                 break;
 
             default:

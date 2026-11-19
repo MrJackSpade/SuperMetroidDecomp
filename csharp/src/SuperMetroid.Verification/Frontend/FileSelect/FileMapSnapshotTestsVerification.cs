@@ -37,7 +37,7 @@ internal static class FileMapSnapshotTestsVerification
             // advanced: the packet still showing those pixels proves the update did not reach into it.
             LayeredScene? previous = null;
             LayeredScene? previousExpected = null;
-            for (int tick = 0; tick < 300 && !legacy.LoadRequested && !legacy.OptionsRequested; tick++)
+            for (int tick = 0; tick < 300 && legacy.Outcome != FileSelectMapOutcome.Load && legacy.Outcome != FileSelectMapOutcome.Options; tick++)
             {
                 ControllerButton input = tick == 48 ? ControllerButton.Start
                     : tick == 130 ? (cancel ? ControllerButton.B : ControllerButton.Start)
@@ -52,12 +52,12 @@ internal static class FileMapSnapshotTestsVerification
                 LayeredScene packet = capture.CaptureRenderSnapshot();
                 Compare(expected, packet, $"map navigation {legacy.Phase}, tick {tick}, cancel {cancel}");
                 AssertEqual(legacy.Phase, capture.Phase, "map capture preserves navigation");
-                AssertEqual(legacy.LoadRequested, capture.LoadRequested, "map capture preserves load signal");
+                AssertEqual((legacy.Outcome == FileSelectMapOutcome.Load), (capture.Outcome == FileSelectMapOutcome.Load), "map capture preserves load signal");
                 previous = packet; previousExpected = expected;
             }
             AssertTrue(phases.Contains(FileSelectMapNavigationPhase.Room) && phases.Contains(FileSelectMapNavigationPhase.ExpandingWindow),
                 "map fixture reaches expansion and room map");
-            AssertTrue(cancel ? legacy.OptionsRequested : legacy.LoadRequested, "map fixture completes requested route");
+            AssertTrue(cancel ? (legacy.Outcome == FileSelectMapOutcome.Options) : (legacy.Outcome == FileSelectMapOutcome.Load), "map fixture completes requested route");
         }
          
         SuperMetroid.Core.Saves.SaveSlotStore Saves()

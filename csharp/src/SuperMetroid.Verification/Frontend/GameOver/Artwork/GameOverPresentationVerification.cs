@@ -29,7 +29,7 @@ internal static class GameOverPresentationVerification
         bool choseNo = false;
         bool released = false;
         int comparedFrames = 0;
-        for (int tick = 0; tick < 700 && !native.TitleRequested; tick++)
+        for (int tick = 0; tick < 700 && native.Outcome != GameOverMenuOutcome.Title; tick++)
         {
             AssertEqual(native.Phase, installed.Phase,
                 "installed game-over phase matches cartridge path");
@@ -69,7 +69,7 @@ internal static class GameOverPresentationVerification
             AssertTrue(nativeCommands.SequenceEqual(installedCommands),
                 $"compiled game-over audio dispatch matches cartridge frame {tick}");
         }
-        AssertTrue(native.TitleRequested && installed.TitleRequested,
+        AssertTrue((native.Outcome == GameOverMenuOutcome.Title) && (installed.Outcome == GameOverMenuOutcome.Title),
             "both game-over paths complete the No fade to title");
         AssertTrue(comparedFrames > 500,
             "game-over parity covers animation, music wait, input and fade");

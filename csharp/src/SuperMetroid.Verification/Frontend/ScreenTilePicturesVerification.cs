@@ -211,7 +211,7 @@ internal static class ScreenTilePicturesVerification
         var audio = AudioQueues.Standalone();
         TitleSequenceState title = InstalledFixtures.CreateTitle(audio);
         var sampled = new HashSet<string>();
-        for (int tick = 0; tick < TitleTicks && !title.FileSelectRequested; tick++)
+        for (int tick = 0; tick < TitleTicks && title.Outcome != TitleSequenceOutcome.FileSelect; tick++)
         {
             // Every other update is sampled, and each picture is compared once: the sequence's animation pages each show for
             // longer than that.

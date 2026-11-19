@@ -189,10 +189,8 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>How far the skip to the title screen has run alongside the running step (#1719).</summary>
     internal TitleSkipStage SkipStage { get; private set; }
 
-    /// <summary>True after the title's slow fade has handed control to file select.</summary>
-    public bool FileSelectRequested { get; private set; }
-    /// <summary>True after the idle timeout's slow fade reaches the demo state.</summary>
-    public bool DemoRequested { get; private set; }
+    /// <summary>How the title hands off to the frontend (#2562): file select or the demo, kept once it reaches one.</summary>
+    public TitleSequenceOutcome Outcome { get; private set; }
 
     /// <summary>The player-cancelled return from the demo skips the introductory title cards.</summary>
     internal static TitleSequenceState ReturnFromDemo(
@@ -362,12 +360,12 @@ public sealed class TitleSequenceState : IFrontendScreen
 
             case TitleSequencePhase.TitleScreenFadeOutToFileSelect:
                 if (fade.Darken())
-                    FileSelectRequested = true;
+                    Outcome = TitleSequenceOutcome.FileSelect;
                 break;
 
             case TitleSequencePhase.TitleScreenFadeOutToDemo:
                 if (fade.Darken())
-                    DemoRequested = true;
+                    Outcome = TitleSequenceOutcome.Demo;
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(TitleSequencePhase)} {Phase}.");

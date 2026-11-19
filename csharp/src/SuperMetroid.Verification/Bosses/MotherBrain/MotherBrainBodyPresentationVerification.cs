@@ -89,8 +89,8 @@ internal static class MotherBrainBodyPresentationVerification
         // the extended frames and body BG2 frames it authors (#1459), as #1446's boss fixture does.
         ImportEnemyArtwork Build(EnemyExtendedFrameDocument oam, EnemyBg2FrameDocument bg2)
         {
-            EnemyTileSourceArtwork tiles = SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.FreshEnemyArtwork().Enemies;
-            tiles.ExtendedFrames = EnemyExtendedFrameDocuments.Load(author.Json(oam));
+            EnemyTileSourceArtwork stock = SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.FreshEnemyArtwork().Enemies;
+            EnemyTileSourceArtwork tiles = stock.WithFrames(stock.Spritemaps, EnemyExtendedFrameDocuments.Load(author.Json(oam)));
             return new(tiles,
                 new BossSourceArtwork { MotherBrainBodyBg2Frames = MotherBrainBodyBg2FrameCatalog.Load(author.Json(bg2)) },
                 new AreaSourceArtwork());

@@ -12,9 +12,9 @@ namespace SuperMetroid.AssetExtraction.Video;
 internal readonly struct VramRegion
 {
     /// <summary>Backend VRAM whose words are exposed through this bounded view.</summary>
-    internal readonly SnesVram vram;
+    private readonly SnesVram vram;
     /// <summary>First physical VMADD word in the region.</summary>
-    internal readonly int first;
+    private readonly int first;
 
     /// <summary>Binds the VRAM words described by <paramref name="cell"/>.</summary>
     public VramRegion(SnesVram vram, PpuLayoutCell cell)
@@ -24,8 +24,8 @@ internal readonly struct VramRegion
     {
     }
 
-    /// <summary>Creates a subview using an already validated physical word range.</summary>
-    internal VramRegion(SnesVram vram, int first, int wordCount)
+    /// <summary>Binds an already validated physical word range.</summary>
+    private VramRegion(SnesVram vram, int first, int wordCount)
     {
         this.vram = vram;
         this.first = first;

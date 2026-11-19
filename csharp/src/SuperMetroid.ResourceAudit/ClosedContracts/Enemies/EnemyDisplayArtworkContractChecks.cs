@@ -25,7 +25,7 @@ internal static class EnemyDisplayArtworkContractChecks
         Stream Json<T>(T document) => new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemySpritemapCatalog simple = EnemySpritemapDocuments.Load(Json(simpleDocument));
-        EnemyFrameName simpleId = EnemySpritemapDefinitions.Frames[0];
+        EnemyFrameName simpleId = EnemySpritemapDefinitions.Frames.First();
         Require(simple.TryGetDisplay(simpleId.Frame, out var parts) && parts.IsEmpty,
             "installed simple binding resolves authored parts");
         simpleBindings[simpleId.Name] = "unowned-target";

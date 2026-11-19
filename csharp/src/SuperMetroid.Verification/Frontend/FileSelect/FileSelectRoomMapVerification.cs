@@ -70,7 +70,7 @@ internal static class FileSelectRoomMapVerification
                 ShownMapCell expected = explored ? ShownMapCell.Explored(stockCell)
                     : downloaded && map.IsRevealedByMapStation(at) ? ShownMapCell.Unexplored(stockCell)
                     : ShownMapCell.Unexplored(MapCell.Empty);
-                AssertEqual(expected, graphics.AreaMap.Cells[y * 64 + x],
+                AssertEqual(expected, graphics.ShownCells.Cells[y * 64 + x],
                     $"room-select area {area} downloaded={downloaded} cell {x},{y}");
                 AssertEqual(expected, pause.Cells[y * 64 + x], "shared builder shows the pause map's hidden cells empty");
                 AssertEqual(explored, system.IsMapTileExplored(area, new(checked((ushort)x), checked((ushort)y))), "map projection does not mark exploration");

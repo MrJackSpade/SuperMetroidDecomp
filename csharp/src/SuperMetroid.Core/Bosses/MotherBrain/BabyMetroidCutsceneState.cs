@@ -779,20 +779,10 @@ public sealed class BabyMetroidCutsceneState
             : targetHeading;
 
         TrigonometryAngle angle = Angle.ToTrigonometryAngle();
+        // Each component is the speed multiplied by the sine's size, signed as the sine is.
         Velocity = new(
-            CalculateVelocityComponent(Speed, angle),
-            CalculateVelocityComponent(Speed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
-    }
-
-    /// <summary>Multiplies speed by the angle's sine, rounding the product down to a 256th of a pixel, as the game does.</summary>
-    /// <param name="speed">The speed, taken without its sign.</param>
-    /// <param name="angle">The angle whose sine scales the speed.</param>
-    internal static SignedEightEight CalculateVelocityComponent(
-        SignedEightEight speed,
-        TrigonometryAngle angle)
-    {
-        // The speed is multiplied by the sine's size and the product's sign is the sine's.
-        return Trigonometry.MultiplySignedSine(speed, angle);
+            Trigonometry.MultiplySignedSine(Speed, angle),
+            Trigonometry.MultiplySignedSine(Speed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
     }
 
     /// <summary>Moves the Baby by its velocity, in 256ths of a pixel, leaving the position's finer-than-256ths part untouched.</summary>

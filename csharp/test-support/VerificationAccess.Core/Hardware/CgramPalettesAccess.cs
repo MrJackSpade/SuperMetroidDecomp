@@ -11,6 +11,8 @@ internal static class CgramPalettesAccess
         public CgramPalette Objects => self.All.Slice(PpuMemoryLayoutConstants.ObjectPalettes.Offset, PpuMemoryLayoutConstants.ObjectPalettes.Count);
 
         /// <summary>OBJ palette row <paramref name="row"/> (0-7).</summary>
-        public CgramPalette ObjectRow(int row) => self.Objects.Slice(CgramPalettes.RowStart(row), PpuMemoryLayout.ColorsPerRow);
+        public CgramPalette ObjectRow(int row) => (uint)row < PpuMemoryLayout.PaletteRowCount
+            ? self.Objects.Slice(row * PpuMemoryLayout.ColorsPerRow, PpuMemoryLayout.ColorsPerRow)
+            : throw new ArgumentOutOfRangeException(nameof(row), row, "A palette bank has eight rows.");
     }
 }

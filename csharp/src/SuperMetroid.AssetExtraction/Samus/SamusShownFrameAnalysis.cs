@@ -79,7 +79,7 @@ internal sealed class SamusShownFrameAnalysis
     private readonly HashSet<SamusPoseId> fallingWithoutDrain = [];
 
     /// <summary>Each pose's picture frames, by their place in its animation's layout: the delays and holds its own playback shows.</summary>
-    internal readonly Dictionary<SamusPoseId, SortedSet<int>> pictured = [];
+    private readonly Dictionary<SamusPoseId, SortedSet<int>> pictured = [];
 
     /// <summary>The picture frame each shown frame draws, by pose and the frames' places in its animation's layout.</summary>
     private readonly Dictionary<SamusPoseId, SortedDictionary<int, int>> pictureFrames = [];

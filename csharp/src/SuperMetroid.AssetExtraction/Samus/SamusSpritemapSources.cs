@@ -22,7 +22,7 @@ public sealed class SamusSpritemapSources
     private const int MaxParts = 128;
 
     /// <summary>Validated selected compositions, each at its identity's ordinal.</summary>
-    internal readonly SamusSpritemapDefinition[] definitions;
+    private readonly SamusSpritemapDefinition[] definitions;
     /// <summary>Each pose's first upper-half table entry.</summary>
     private readonly Dictionary<SamusPoseId, int> topBases;
     /// <summary>Each pose's first lower-half table entry.</summary>

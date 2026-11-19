@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Artwork;
 
@@ -11,7 +11,7 @@ internal static class EndingObjectSourceArtworkAccess
     extension(EndingObjectSourceArtwork self)
     {
         /// <summary>The four explosion maps in <see cref="EndingExplosionPicture"/> order.</summary>
-        public IReadOnlyList<RoomBackgroundTilemapAtlas> Fragments => self.fragments;
+        public IReadOnlyList<RoomBackgroundTilemapAtlas> Fragments => [.. Enum.GetValues<EndingExplosionPicture>().Select(self.Fragment)];
         /// <summary>
         /// Identity of every selected ending/credits map and the compositions its sheets are composed from; the characters are
         /// import data the installation never holds (#1636).

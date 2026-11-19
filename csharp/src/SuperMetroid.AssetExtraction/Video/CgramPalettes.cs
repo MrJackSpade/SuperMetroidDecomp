@@ -28,7 +28,7 @@ public readonly struct CgramPalettes(IPaletteColors cgram)
     public CgramPalette BackgroundRow(int row) => Background.Slice(RowStart(row), PpuMemoryLayout.ColorsPerRow);
 
     /// <summary>Converts a bank-local row from zero through seven into its first color index.</summary>
-    internal static int RowStart(int row) => (uint)row < PpuMemoryLayout.PaletteRowCount
+    private static int RowStart(int row) => (uint)row < PpuMemoryLayout.PaletteRowCount
         ? row * PpuMemoryLayout.ColorsPerRow
         : throw new ArgumentOutOfRangeException(nameof(row), row, "A palette bank has eight rows.");
 }

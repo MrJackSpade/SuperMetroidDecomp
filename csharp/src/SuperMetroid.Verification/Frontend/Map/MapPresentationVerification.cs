@@ -654,7 +654,7 @@ internal static class MapPresentationVerification
             screenContent: original, sheets: MenuSheetFixtures.For(original));
         AssertTrue(SuperMetroid.TestSupport.FrameRendering.ScenePixels.Same(stock.BackgroundsScene(new(0, 0)), installed.BackgroundsScene(new(0, 0))),
             "file-select installed stock renders identical pixels without map ROM reads");
-        AssertTrue(AreaMapProjection.Project(original.Get(AreaId.Crateria), system).Cells.SequenceEqual(installed.AreaMap.Cells),
+        AssertTrue(AreaMapProjection.Project(original.Get(AreaId.Crateria), system).Cells.SequenceEqual(installed.ShownCells.Cells),
             "file-select shows the exact projected map cells");
         // The capture names the installed content by path, as a host's store does, instead of copying it (#1532).
         var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(installed);

@@ -9,6 +9,8 @@ internal static class CgramPaletteAccess
     extension(CgramPalette self)
     {
         /// <summary>The colour at <paramref name="index"/> expanded to 8-bit RGBA.</summary>
-        public RgbaPixel Rgba(int index) => self.cgram.GetRgba(self.first + self.Index(index));
+        public RgbaPixel Rgba(int index) => (uint)index < (uint)self.Count
+            ? self.Colors[index].ToRgbaPixel()
+            : throw new ArgumentOutOfRangeException(nameof(index), index, $"The palette range holds {self.Count} colours.");
     }
 }

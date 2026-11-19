@@ -15,14 +15,14 @@ public sealed class FileSelectRoomMapGraphics
     /// <summary>The room map's menu screen: its artwork, pictures, colours and sprite entries.</summary>
     internal readonly MenuScreen screen;
     /// <summary>Map landmarks, stations, and boss icons drawn around the saved-station marker.</summary>
-    internal readonly FileSelectMapIcons icons;
+    private readonly FileSelectMapIcons icons;
 
     /// <summary>The installed map sprite sheet the icons, marker and arrows draw from.</summary>
     private SpriteSheet mapSheet;
     /// <summary>The installed room-map pictures the map's cells and the frame draw from (#1467).</summary>
     private SpriteSheet roomPictures;
     /// <summary>How the room map shows the area's cells (#1466, #1467).</summary>
-    internal ShownAreaMap AreaMap { get; private set; }
+    private ShownAreaMap AreaMap { get; set; }
     /// <summary>Persistent downloaded-map and explored-cell state held by the icon owner.</summary>
     internal SharedGameState MapSystem => icons.MapSystem;
 

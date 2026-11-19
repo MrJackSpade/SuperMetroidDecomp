@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Samus.Poses;
+﻿using SuperMetroid.Core;
+using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -9,6 +10,8 @@ internal static class SamusShownFrameAnalysisAccess
     extension(SamusShownFrameAnalysis self)
     {
         /// <summary>The picture frames of <paramref name="pose"/>, by their places in its animation's layout, in order.</summary>
-        internal IEnumerable<int> Pictures(SamusPoseId pose) => self.pictured.TryGetValue(pose, out SortedSet<int>? frames) ? frames : [];
+        internal IEnumerable<int> Pictures(SamusPoseId pose) =>
+            PrivateState.Field<SamusShownFrameAnalysis, Dictionary<SamusPoseId, SortedSet<int>>>(self, "pictured")
+                .TryGetValue(pose, out SortedSet<int>? frames) ? frames : [];
     }
 }

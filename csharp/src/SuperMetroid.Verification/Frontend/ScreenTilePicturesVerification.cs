@@ -64,7 +64,7 @@ internal static class ScreenTilePicturesVerification
             // A cell whose picture the room-map sheet holds as showing nothing draws nothing (#1513); every other cell shows
             // its installed picture.
             SpriteSheet roomPictures = sheets.Get(SpriteSheetId.RoomMapPictures);
-            ImmutableArray<ShownMapCell> shownCells = room.AreaMap.Cells;
+            ImmutableArray<ShownMapCell> shownCells = room.ShownCells.Cells;
             AssertTrue(roomScene.Layers.Length == 2 && roomScene.Layers[1] is PictureGridLayer { Grid: { } grid }
                 && grid.Cells.Length == AreaMapSize.WidthInMapTiles * AreaMapSize.HeightInMapTiles && grid.Cells.Length == shownCells.Length
                 && grid.Cells.Select((cell, index) => roomPictures.ShowsNothing(AreaMapPictures.FrameName(shownCells[index]))

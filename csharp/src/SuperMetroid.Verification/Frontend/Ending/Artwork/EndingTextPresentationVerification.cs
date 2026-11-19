@@ -48,7 +48,7 @@ internal static class EndingTextPresentationVerification
         foreach (EndingTextSequence sequence in Enum.GetValues<EndingTextSequence>())
         {
             // The installed sequence runs to completion with its text streams guarded.
-            var installed = new EndingTypewriter(new EndingTypewriterSetup { Inventory = default, JapaneseText = true, Text = presentation.Typewriter() }, sequence);
+            var installed = new EndingTypewriter(new EndingTypewriterSetup { Inventory = default, JapaneseText = true, Text = EndingTextPresentation.TypewriterOf(extracted) }, sequence);
             for (int frame = 0; !installed.Completed; frame++)
             {
                 if (frame == 2048)
@@ -59,7 +59,7 @@ internal static class EndingTextPresentationVerification
             AssertTrue(installed.Shown().Any(), $"installed ending {sequence} draws its text");
         }
 
-        var saved = new EndingTypewriter(new EndingTypewriterSetup { Inventory = default, JapaneseText = false, Text = presentation.Typewriter() }, EndingTextSequence.FinalMessage);
+        var saved = new EndingTypewriter(new EndingTypewriterSetup { Inventory = default, JapaneseText = false, Text = EndingTextPresentation.TypewriterOf(extracted) }, EndingTextSequence.FinalMessage);
         saved.Step();
         var restored = GraphDigestVerification.RoundTrip(saved, presentation);
         saved.Step();
@@ -69,10 +69,9 @@ internal static class EndingTextPresentationVerification
 
         JsonObject malformedDocument = RequiredJson.Parse(extracted).AsObject();
         malformedDocument["finalMessage"] = "lowercase";
-        AssertThrows<InvalidDataException>(() => EndingTextPresentation.Load(
-            new MemoryStream(Encoding.UTF8.GetBytes(
-                malformedDocument.ToJsonString(ArtworkJson.Options)), writable: false)),
-            "ending text rejects glyphs absent from its documented font mapping");
+        AssertThrows<InvalidDataException>(() => EndingTextPresentation.TypewriterOf(
+                Encoding.UTF8.GetBytes(malformedDocument.ToJsonString(ArtworkJson.Options))),
+            "ending typewriter text rejects glyphs absent from its documented font mapping");
         Console.WriteLine($"Ending text: exact producer/copyright panels and {comparedFrames} native typewriter frames match with bank-$8C text reads forbidden; restore and validation pass.");
         Console.WriteLine("Ending font: 160 PNG tiles compile to exact native 4-bpp bytes.");
     }

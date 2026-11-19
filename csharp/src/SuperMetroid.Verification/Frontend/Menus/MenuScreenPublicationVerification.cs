@@ -83,7 +83,7 @@ internal static class MenuScreenPublicationVerification
         AssertEqual(maps.Backdrops.Menus, fileSelectScene.Paint.Backdrop, "file select shows its own backdrop");
         AssertTrue(fileSelectScene.Layers.ToArray().OfType<PicturedPlaneLayer>().All(layer => layer.Plane.Pictures.All(placed => placed.Shading == PictureShading.Standard)),
             "file select's pictures show the colours the import pre-coloured them in");
-        AssertTrue(PaintedSpriteEntries.AreOwn(fileSelectScene.SpriteDraws, fileSelect.screen.Sprites.Draws), "file select draws its own sprite entries");
+        AssertTrue(PaintedSpriteEntries.AreOwn(fileSelectScene.SpriteDraws, fileSelect.Screen.Sprites.Draws), "file select draws its own sprite entries");
 
         InstalledSpriteSheets optionsSheets = MenuSheetFixtures.For(maps);
         var options = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: optionsSheets, controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false);

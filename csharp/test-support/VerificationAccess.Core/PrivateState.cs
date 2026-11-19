@@ -16,6 +16,14 @@ internal static class PrivateState
             ?? throw new MissingMemberException(typeof(TOwner).Name, property))
         .Invoke(Ensure.NotNull(owner), BindingFlags.DoNotWrapExceptions, binder: null, [value], culture: null);
 
+    /// <summary>The value of <paramref name="owner"/>'s instance property <paramref name="property"/>, read through its getter.</summary>
+    /// <exception cref="MissingMemberException">The owner's type has no readable property of that name.</exception>
+    /// <exception cref="InvalidCastException">The property does not hold a <typeparamref name="TValue"/>.</exception>
+    internal static TValue Get<TOwner, TValue>(TOwner owner, string property) where TOwner : class =>
+        (TValue)(typeof(TOwner).GetProperty(property, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.GetMethod
+            ?? throw new MissingMemberException(typeof(TOwner).Name, property))
+        .Invoke(Ensure.NotNull(owner), BindingFlags.DoNotWrapExceptions, binder: null, [], culture: null)!;
+
     /// <summary>Calls <paramref name="owner"/>'s instance method <paramref name="method"/> with <paramref name="arguments"/>.</summary>
     /// <exception cref="MissingMemberException">The owner's type has no instance method of that name.</exception>
     internal static void Call<TOwner>(TOwner owner, string method, params object?[] arguments) where TOwner : class =>

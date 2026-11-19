@@ -117,8 +117,7 @@ internal static class SpawnedObjectFixtures
     internal static SuperMetroid.AssetExtraction.Enemies.EnemyTileSourceArtwork InstalledTilesWith(SuperMetroid.AssetExtraction.Enemies.EnemySpritemapCatalog spritemaps)
     {
         SuperMetroid.AssetExtraction.Enemies.EnemyTileSourceArtwork catalog = CartridgeImportContent.FreshEnemyArtwork().Enemies;
-        catalog.Spritemaps = spritemaps;
-        return catalog;
+        return catalog.WithFrames(spritemaps, catalog.ExtendedFrames);
     }
 
     /// <summary>The presentation <paramref name="state"/>'s spawned objects draw through, under the graphics set its header names.</summary>

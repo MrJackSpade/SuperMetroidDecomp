@@ -792,7 +792,7 @@ internal static class LookupStream4Verification
             AssertTrue(expected.SequenceEqual(BackgroundTileWordBytes.Words(copied.AsSpan(0, expected.Length))), "Subtitle direct copy preserves every cell");
             AssertEqual((ushort)0x5678, copied[^1].PackedWord, "Subtitle copy leaves the destination suffix untouched");
             // The game shows the subtitle as its installed picture at its corner (#1467, #1555); the import pictures these words.
-            var state = new EndingTypewriter(new EndingTypewriterSetup { Inventory = default, JapaneseText = true, Text = presentation.Typewriter() }, EndingTextSequence.ItemPercentage);
+            var state = new EndingTypewriter(new EndingTypewriterSetup { Inventory = default, JapaneseText = true, Text = EndingTextPresentation.TypewriterOf(source) }, EndingTextSequence.ItemPercentage);
             var subtitle = new EndingShownText(EndingPictureNames.JapaneseSubtitle, EndingResultTextLayout.JapaneseSubtitleCorner);
             // The text types in full, then shows the percentage with its subtitle for the percentage's hold (#2488).
             const int TypewriterUpdateLimit = 4000;

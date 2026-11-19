@@ -469,8 +469,6 @@ internal static class LookupStream3Verification
         var all = EnemySpritemapDefinitions.Frames.ToArray();
         AssertEqual(all.Length, EnemySpritemapDefinitions.Frames.Count, "enemy calculated registry count");
         AssertTrue(EnemySpritemapDefinitions.Frames.Take(472).SequenceEqual(named), "enemy legacy named prefix slice");
-        for (int index = 0; index < 472; index++)
-            AssertEqual(named[index], EnemySpritemapDefinitions.Frames[index], "enemy legacy registration ordinal identity");
         var additionalPointers = new SortedSet<ushort>();
         var namedSpritePointers = named.Where(frame => frame.Bank == 0xb4).Select(frame => frame.Pointer).ToHashSet();
         foreach (ushort pointer in SuperMetroid.Verification.Rooms.EffectActors.RoomEffectActorNativeLists.SpritemapPointers(rom))

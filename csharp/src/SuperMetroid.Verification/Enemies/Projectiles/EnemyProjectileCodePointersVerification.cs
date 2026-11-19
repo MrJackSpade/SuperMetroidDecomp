@@ -22,13 +22,11 @@ internal static class EnemyProjectileCodePointersVerification
         ];
         AssertTrue(callbacks.Length != 0, "enemy projectile callback catalog is populated");
         // Every member of each motion type a routine stands for is a motion some routine stands for, and so is holding still.
-        Enum?[] motions = [.. EnemyProjectileMotionAccess.RoutineWords.Select(EnemyProjectileMotionAccess.FromWord)];
-        AssertTrue(motions.Contains(null), "holding still stands for a cartridge routine");
-        foreach (Type motionType in motions.OfType<Enum>().Select(motion => motion.GetType()).Distinct())
-        {
-            foreach (Enum motion in Enum.GetValues(motionType).Cast<Enum>())
-                AssertTrue(motions.Contains(motion), $"motion {motionType.Name}.{motion} stands for a cartridge routine");
-        }
+        EnemyProjectileMotionWord[] motions = [.. EnemyProjectileMotionAccess.RoutineWords.Select(EnemyProjectileMotionAccess.FromWord)];
+        AssertTrue(motions.Contains(EnemyProjectileStillWord.Instance), "holding still stands for a cartridge routine");
+        string[] named = [.. motions.Select(motion => motion.ToString())];
+        foreach (string motion in motions.SelectMany(word => word.FamilyMotionNames).Distinct())
+            AssertTrue(named.Contains(motion), $"motion {motion} stands for a cartridge routine");
 
         AssertEqual(callbacks.Length, callbacks
             .Select(callback => callback.Pointer)

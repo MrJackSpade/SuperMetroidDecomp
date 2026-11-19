@@ -161,6 +161,12 @@ public sealed class EnemyProjectile
     internal void StartMotion<TMotion>(EnemyProjectileMotionBehavior<TMotion> owner, TMotion motion) where TMotion : struct, Enum =>
         Motion = Ensure.NotNull(owner).Moving(motion);
 
+    /// <summary>
+    /// Moves the projectile by <paramref name="motion"/>, one of its behaviour's own motion objects, from its next pass (#2571).
+    /// </summary>
+    /// <param name="motion">The motion the projectile moves by.</param>
+    internal void StartMotion(EnemyProjectileMotion motion) => Motion = Ensure.NotNull(motion);
+
     /// <summary>Whether the projectile moves by <paramref name="motion"/>, one of its behaviour's motions.</summary>
     /// <typeparam name="TMotion">The behaviour's motions.</typeparam>
     internal bool MovesBy<TMotion>(TMotion motion) where TMotion : struct, Enum =>

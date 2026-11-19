@@ -25,7 +25,7 @@ internal sealed class DraygonShots
     /// Draygon's goop: Samus's touch sticks it to her and a shot one drops Draygon's eye's chances, through the typed
     /// animations its definition names.
     /// </summary>
-    internal DraygonShotBehavior Goop => field ??= new DraygonShotBehavior(_deathsAndDrops, DraygonShotMotion.GoopFlying,
+    internal DraygonShotBehavior Goop => field ??= new DraygonShotBehavior(_deathsAndDrops, startsFlying: true,
         shot: goop => new DraygonProjectileAnimation(goop, DraygonProjectileSegment.GoopShot),
         touch: goop => new DraygonProjectileAnimation(goop, DraygonProjectileSegment.GoopTouch));
 
@@ -33,7 +33,7 @@ internal sealed class DraygonShots
     /// A wall turret's shot: it holds still through its muzzle bloom until its animation fires it, and a shot one runs the
     /// shared dust's small explosion, the animation its definition names.
     /// </summary>
-    internal DraygonShotBehavior WallTurretShot => field ??= new DraygonShotBehavior(_deathsAndDrops, initial: null,
+    internal DraygonShotBehavior WallTurretShot => field ??= new DraygonShotBehavior(_deathsAndDrops, startsFlying: false,
         shot: _ => new DustExplosionProjectileAnimation(DustExplosionAnimation.SmallExplosion));
 
     /// <summary>
@@ -41,17 +41,17 @@ internal sealed class DraygonShots
     /// bomb explosion of the projectile pass's bombs frees the shots it catches.
     /// </summary>
     /// <param name="deathsAndDrops">The drops a shot goop leaves.</param>
-    /// <param name="initial">The motion the shot starts with: the goop's flight, or none for the turret shot.</param>
+    /// <param name="startsFlying">Whether the shot starts in the goop's flight; the turret shot holds still until fired.</param>
     /// <param name="shot">Creates the animation a destroying shot starts, from the shot's own behaviour.</param>
     /// <param name="touch">
     /// Creates the animation touching Samus starts, from the shot's own behaviour, or null when the kind has none of its own.
     /// </param>
     internal sealed class DraygonShotBehavior(
         EnemyDeathsAndDrops deathsAndDrops,
-        DraygonShotMotion? initial,
+        bool startsFlying,
         Func<DraygonShotBehavior, EnemyProjectileAnimation> shot,
         Func<DraygonShotBehavior, EnemyProjectileAnimation>? touch = null)
-        : EnemyProjectileMotionBehavior<DraygonShotMotion>(initial), IEnemyProjectileCues<DraygonProjectileCue>
+        : EnemyProjectileBehavior, IEnemyProjectileCues<DraygonProjectileCue>
     {
         /// <summary>The heading and speed each goop and turret shot flies along, given as it is fired.</summary>
         internal EnemyProjectileStates<AngledFlightState> Flights { get; } = new();
@@ -66,27 +66,24 @@ internal sealed class DraygonShots
         internal override EnemyProjectileAnimation? TouchAnimation() => touch?.Invoke(this);
 
         /// <inheritdoc/>
-        internal override void Move(EnemyProjectileMotionContext context, DraygonShotMotion motion)
+        internal override EnemyProjectileMotion? InitialMotion(RoomEnemyProjectileKind kind) => startsFlying ? GoopFlying : null;
+
+        /// <summary>A goop flying from Draygon's tail until it touches Samus or leaves the room.</summary>
+        internal EnemyProjectileOwnedMotion GoopFlying => field ??= new(nameof(GoopFlying),
+            context => RunFlyingDraygonGoop(context.Projectile, context.Samus, context.SamusBombs.PowerBombExplosion));
+
+        /// <summary>A goop stuck to Samus, slowing her until it wears off or her body attack shakes it off.</summary>
+        internal EnemyProjectileOwnedMotion GoopStuckToSamus => field ??= new(nameof(GoopStuckToSamus),
+            context => RunAttachedDraygonGoop(context.Projectile, context.Samus, context.SamusBombs.PowerBombExplosion));
+
+        /// <summary>A wall turret's shot flying along its heading until it leaves the room.</summary>
+        internal EnemyProjectileOwnedMotion TurretShotFlying => field ??= new(nameof(TurretShotFlying), context =>
         {
-            EnemyProjectile projectile = context.Projectile;
-            switch (motion)
-            {
-                case DraygonShotMotion.GoopStuckToSamus:
-                    RunAttachedDraygonGoop(projectile, context.Samus, context.SamusBombs.PowerBombExplosion);
-                    break;
-                case DraygonShotMotion.TurretShotFlying:
-                    // The goop's power-bomb step frees a power-bombed shot's place, then still moves the shot.
-                    FreePlaceIfPowerBombed(projectile, context.Samus, context.SamusBombs.PowerBombExplosion);
-                    MoveDraygonProjectile(projectile);
-                    DeleteDraygonProjectileOutsideRoom(projectile);
-                    break;
-                case DraygonShotMotion.GoopFlying:
-                    RunFlyingDraygonGoop(projectile, context.Samus, context.SamusBombs.PowerBombExplosion);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(DraygonShotMotion)} {motion}.");
-            }
-        }
+            // The goop's power-bomb step frees a power-bombed shot's place, then still moves the shot.
+            FreePlaceIfPowerBombed(context.Projectile, context.Samus, context.SamusBombs.PowerBombExplosion);
+            MoveDraygonProjectile(context.Projectile);
+            DeleteDraygonProjectileOutsideRoom(context.Projectile);
+        });
 
         /// <summary>Carries out a cue of the goop's and turret shot's animations.</summary>
         public void RunCue(EnemyProjectileCueContext context, DraygonProjectileCue cue)
@@ -105,7 +102,7 @@ internal sealed class DraygonShots
                     projectile.Delete();
                     return;
                 case DraygonProjectileCue.Fire:
-                    projectile.StartMotion(this, DraygonShotMotion.TurretShotFlying);
+                    projectile.StartMotion(TurretShotFlying);
                     return;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(DraygonProjectileCue)} {cue}.");
@@ -147,7 +144,7 @@ internal sealed class DraygonShots
 
             samus.SlowdownLevel = nextDivisor;
             Attached.Start(goop, new DraygonGoopAttachedState(nextDivisor));
-            goop.StartMotion(this, DraygonShotMotion.GoopStuckToSamus);
+            goop.StartMotion(GoopStuckToSamus);
             goop.BlocksSamusProjectiles = false;
             goop.CanDamageSamus = false;
             goop.PersistsOnSamusContact = true;

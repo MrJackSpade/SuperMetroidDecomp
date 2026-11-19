@@ -843,8 +843,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     NativeSnapshotMemory.EnemyProjectileGraphics + index);
                 // The showcase's projectiles keep only their program's loop count in the native timer word: the plays a
                 // repeated phase has left, which the instruction pointer's progress through the counted list compares (#2006).
-                Enum? nativeMotion = EnemyProjectileMotionAccess.FromWord(W(NativeSnapshotMemory.EnemyProjectileFrameBehavior + index));
-                if (!Equals(projectile.Motion, nativeMotion))
+                EnemyProjectileMotion? nativeMotion = projectile.MotionOfWord(W(NativeSnapshotMemory.EnemyProjectileFrameBehavior + index));
+                if (!ReferenceEquals(projectile.Motion, nativeMotion))
                     mismatches.Add($"{owner} Motion: native={nativeMotion?.ToString() ?? "holding still"} port={projectile.Motion?.ToString() ?? "holding still"}");
                 Check(owner + " XFraction", projectile.Position.X.Fraction, NativeSnapshotMemory.EnemyProjectileXFraction + index);
                 Check(owner + " YFraction", projectile.Position.Y.Fraction, NativeSnapshotMemory.EnemyProjectileYFraction + index);

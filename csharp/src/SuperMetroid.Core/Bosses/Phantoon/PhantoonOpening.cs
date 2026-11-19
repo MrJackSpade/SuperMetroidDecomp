@@ -124,7 +124,7 @@ internal sealed class PhantoonOpening
         var orbit = new PhantoonOrbitingFlameState(phantoon, start);
         _combat.StartingFlame.Orbits.Start(flame, orbit);
         PhantoonCombat.PositionPhantoonFlameAroundBody(flame, body, orbit.Angle, radius: PhantoonFlameMotionDefinitions.IntroCircleRadius);
-        flame.StartMotion(_combat.StartingFlame, PhantoonFlameMotion.IntroWaiting);
+        flame.StartMotion(_combat.StartingFlame.IntroWaiting);
         return true;
     }
 }

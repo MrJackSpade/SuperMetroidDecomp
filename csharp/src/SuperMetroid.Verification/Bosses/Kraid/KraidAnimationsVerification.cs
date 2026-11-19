@@ -432,7 +432,7 @@ internal static class KraidAnimationsVerification
                 SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.AssertFrameHold(native.Timer, rock, at);
                 AssertEqual(native.Operand, rock.PresentationOperandAddress, $"{at}: frame");
                 if (native.FrameBehavior is { } frameBehavior)
-                    AssertEqual(EnemyProjectileMotionAccess.FromWord(frameBehavior), rock.MotionValue, $"{at}: pre-instruction");
+                    AssertEqual(rock.MotionOfWord(frameBehavior), rock.Motion, $"{at}: pre-instruction");
             }
             AssertEqual(program == KraidRockSegment.SpitRockShot, native.Deleted, $"Kraid rock {program}: only the burst deletes its rock");
         }

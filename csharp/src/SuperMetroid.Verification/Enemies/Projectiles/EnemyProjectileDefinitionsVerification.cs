@@ -47,7 +47,7 @@ internal static class EnemyProjectileDefinitionsVerification
         AssertEqual(100, kinds.Length, "compiled enemy-projectile definition count");
 
         HashSet<int> forbidden = VerifyEnemyProjectileDefinitionRecords(rom, kinds);
-        Dictionary<RoomEnemyProjectileKind, Enum?> startingMotions = kinds.ToDictionary(kind => kind, kind => ProductionStartingMotion(rom, kind));
+        Dictionary<RoomEnemyProjectileKind, ushort[]> startingMotions = kinds.ToDictionary(kind => kind, kind => ProductionStartingMotions(rom, kind));
 
         const ushort populationPointer = 0x9400;
         TestAddressSpace setupBus = CreateEmptyEnemyPopulationCartridge(populationPointer);
@@ -67,8 +67,11 @@ internal static class EnemyProjectileDefinitionsVerification
             projectile.Delete();
             FamilyProjectileStarts.Initialize(enemies, projectile, kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook));
             AssertEqual(kind, projectile.Kind, $"{kind} production kind");
-            AssertEqual(startingMotions[kind], projectile.MotionValue,
-                $"{kind} production pre-instruction");
+            if (startingMotions[kind].Length == 0)
+                AssertTrue(projectile.HoldsStill, $"{kind} production pre-instruction holds still");
+            // Every record of the kind starts the motion the projectile moves by.
+            foreach (ushort startingMotion in startingMotions[kind])
+                AssertEqual(projectile.MotionOfWord(startingMotion), projectile.Motion, $"{kind} production pre-instruction");
             // A kind whose spawner starts a typed initial program (#641, #1760) runs it in place of the definition's native list.
             bool typedStart = FamilyProjectileStarts.StartingAnimation(kind) is not null;
             AssertEqual(typedStart, projectile.Animation is not null, $"{kind} production typed start");
@@ -464,21 +467,16 @@ internal static class EnemyProjectileDefinitionsVerification
     }
 
     /// <summary>
-    /// The motion a production spawn of <paramref name="kind"/> starts with (#1843): the one its native records'
-    /// pre-instruction stands for, which every record of a kind several identical records name agrees on (#2278), except
-    /// the Pirates' and Mother Brain's laser and a wall turret's shot, whose spawners hold them still past their record's
-    /// flight until their animations start it.
+    /// The pre-instruction routines a production spawn of <paramref name="kind"/> starts with (#1843): the ones its native records name,
+    /// whose motion every record of a kind several identical records name agrees on (#2278), each resolved through the
+    /// projectile's behaviour (#2571); none for the Pirates' and Mother Brain's laser and a wall turret's shot, whose
+    /// spawners hold them still past their record's flight until their animations start it.
     /// </summary>
-    private static Enum? ProductionStartingMotion(CartridgeImportAddressSpace rom, RoomEnemyProjectileKind kind)
-    {
-        if (kind is RoomEnemyProjectileKind.PirateMotherBrainLaser or RoomEnemyProjectileKind.DraygonWallTurret)
-            return null;
-        Enum?[] motions = [.. EnemyProjectileNativeWords.Kinds.WordsByIdentity[kind]
-            .Select(word => EnemyProjectileMotionAccess.FromWord(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x860000 | word) + 2)))
-            .Distinct()];
-        AssertEqual(1, motions.Length, $"every {kind} record starts one motion");
-        return motions[0];
-    }
+    private static ushort[] ProductionStartingMotions(CartridgeImportAddressSpace rom, RoomEnemyProjectileKind kind) =>
+        kind is RoomEnemyProjectileKind.PirateMotherBrainLaser or RoomEnemyProjectileKind.DraygonWallTurret
+            ? []
+            : [.. EnemyProjectileNativeWords.Kinds.WordsByIdentity[kind]
+                .Select(word => CartridgeImportSource.Require(rom).ReadCartridgeWord((0x860000 | word) + 2))];
 
     /// <summary>
     /// Checks every compiled enemy-projectile definition against its seven-word bank-$86 record

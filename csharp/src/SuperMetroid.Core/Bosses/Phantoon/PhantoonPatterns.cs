@@ -662,7 +662,7 @@ internal sealed class PhantoonPatterns
         flame.Velocity = flame.Velocity.WithX(SignedEightEight.Zero);
         flame.Position = flame.Position.WithWhole(body.Position.Whole + PhantoonArenaDefinitions.MouthOffset);
         flame.StartAnimation(new PhantoonFlameAnimation(_combat.DestroyableFlame, PhantoonFlameSegment.CasualFallingKindling));
-        flame.StartMotion(_combat.DestroyableFlame, PhantoonFlameMotion.CasualFalling);
+        flame.StartMotion(_combat.DestroyableFlame.CasualFalling);
 
         // The falling flame's step changes the spawn definition's harmful, shootable properties to harmless ones.
         // The falling flame therefore cannot hurt Samus and cannot be shot until
@@ -686,7 +686,7 @@ internal sealed class PhantoonPatterns
             TurnPerUpdate = PhantoonFlameSpawns.RageTurnPerUpdate(start),
         });
         flame.Position = flame.Position.WithWhole(body.Position.Whole + PhantoonArenaDefinitions.MouthOffset);
-        flame.StartMotion(_combat.DestroyableFlame, PhantoonFlameMotion.RageOrbiting);
+        flame.StartMotion(_combat.DestroyableFlame.RageOrbiting);
         return true;
     }
 
@@ -701,7 +701,7 @@ internal sealed class PhantoonPatterns
             return false;
         _combat.DestroyableFlame.Orbits.Start(flame, new PhantoonOrbitingFlameState(phantoon, start));
         flame.Position = flame.Position.WithWhole(body.Position.Whole + PhantoonArenaDefinitions.FlameCircleCentre);
-        flame.StartMotion(_combat.DestroyableFlame, PhantoonFlameMotion.SpiralOrbiting);
+        flame.StartMotion(_combat.DestroyableFlame.SpiralOrbiting);
         return true;
     }
 
@@ -717,7 +717,7 @@ internal sealed class PhantoonPatterns
         _combat.DestroyableFlame.Rains.Start(flame, new PhantoonRainFlameState(hangUpdates));
         flame.Position = flame.Position.WithWholeX(columnX);
         flame.Position = flame.Position.WithWholeY(PhantoonArenaDefinitions.RainStartY);
-        flame.StartMotion(_combat.DestroyableFlame, PhantoonFlameMotion.RainFalling);
+        flame.StartMotion(_combat.DestroyableFlame.RainFalling);
         return true;
     }
 

@@ -18,6 +18,9 @@ internal abstract class EnemyProjectileMotionBehavior<TMotion> : EnemyProjectile
     /// </summary>
     private readonly IReadOnlyDictionary<RoomEnemyProjectileKind, TMotion?>? _startingMotions;
 
+    /// <summary>Each of this behaviour's motions a projectile has moved by, created once.</summary>
+    private readonly Dictionary<TMotion, EnemyProjectileFamilyMotion<TMotion>> _motions = [];
+
     /// <summary>A kind that starts in <paramref name="initial"/> and reacts to shots and touch by the factories' animations.</summary>
     /// <param name="initial">The motion the projectile starts with, or null when it starts holding still.</param>
     /// <param name="shot">The animation a destroying shot starts, or null for the shared delete animation.</param>
@@ -57,7 +60,16 @@ internal abstract class EnemyProjectileMotionBehavior<TMotion> : EnemyProjectile
 
     /// <summary><paramref name="motion"/>, one of this behaviour's motions, held through this behaviour (#2571).</summary>
     /// <param name="motion">The motion.</param>
-    internal EnemyProjectileFamilyMotion<TMotion> Moving(TMotion motion) => new(this, motion);
+    /// <remarks>Each motion is created once, so a projectile that moves by it holds the same object every time.</remarks>
+    internal EnemyProjectileFamilyMotion<TMotion> Moving(TMotion motion)
+    {
+        if (!_motions.TryGetValue(motion, out EnemyProjectileFamilyMotion<TMotion>? moving))
+        {
+            moving = new EnemyProjectileFamilyMotion<TMotion>(this, motion);
+            _motions.Add(motion, moving);
+        }
+        return moving;
+    }
 
     /// <summary>Moves the projectile one pass by <paramref name="motion"/>, which this behaviour owns.</summary>
     /// <param name="context">The projectile and what its pass hands every motion.</param>

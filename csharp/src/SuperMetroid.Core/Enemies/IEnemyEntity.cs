@@ -13,12 +13,10 @@ internal interface IEnemyEntity
     /// <summary>
     /// Sets up the enemy just installed in the place the entity is bound to (#2571), from the population load's
     /// surroundings, or from none for an enemy spawned on another enemy's behalf or rebuilt by a respawn. An enemy's
-    /// initialization (<see cref="IEnemyInitialization"/>, <see cref="IEnemySurroundingsInitialization"/>) answers it; an
-    /// enemy without one fails.
+    /// initialization (<see cref="IEnemyInitialization"/>, <see cref="IEnemySurroundingsInitialization"/>) answers it, so
+    /// every entity declares one.
     /// </summary>
     /// <param name="place">The place the enemy was installed in.</param>
     /// <param name="surroundings">The room, Samus, controller and camera a population load's spawn sees, or none.</param>
-    /// <exception cref="InvalidDataException">The enemy has no initialization.</exception>
-    void InitializeOccupant(RoomEnemyPlace place, EnemyPopulationSurroundings? surroundings) =>
-        throw new InvalidDataException($"Enemy {place.DefinitionId} has no initialization behaviour.");
+    void InitializeOccupant(RoomEnemyPlace place, EnemyPopulationSurroundings? surroundings);
 }

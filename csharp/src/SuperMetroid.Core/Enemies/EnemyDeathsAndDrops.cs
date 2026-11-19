@@ -117,7 +117,7 @@ internal sealed class EnemyDeathsAndDrops
                 graphics: default);
             explosion.Position = explosion.Position.WithWhole(enemy.Position.Whole);
             explosion.State = new EnemyDeathExplosionState(KilledEnemy.Of(enemy, respawns), enemy.DefinitionId);
-            explosion.StartAnimation(new EnemyDeathAndDropAnimation(EnemyDeathExplosions.Animation(deathAnimation)));
+            explosion.StartAnimation(new EnemyDeathAndDropAnimation(this, EnemyDeathExplosions.Animation(deathAnimation)));
         }
 
         enemy.Clear();
@@ -265,7 +265,7 @@ internal sealed class EnemyDeathsAndDrops
         // Unlike a finished death explosion, a direct drop becomes a pickup in any place for
         // an enemy projectile, the first included. The roll reads the drop's definition straight back from
         // the pickup that holds it.
-        pickup.StartAnimation(new EnemyDeathAndDropAnimation(kind == EnemyPickupKind.NoDrop
+        pickup.StartAnimation(new EnemyDeathAndDropAnimation(this, kind == EnemyPickupKind.NoDrop
             ? ConfigureDormantPickup(pickup)
             : ConfigurePickup(pickup, kind, KilledEnemy.None)));
     }
@@ -290,11 +290,11 @@ internal sealed class EnemyDeathsAndDrops
     /// Gives the projectile the selected pickup's identity, 400-frame life and collision reaction, keeping
     /// <paramref name="killedEnemy"/>, the enemy its explosion came from, and returns its animation.
     /// </summary>
-    internal static EnemyDeathAndDropSegment ConfigurePickup(EnemyProjectile projectile, EnemyPickupKind kind, KilledEnemy killedEnemy)
+    internal EnemyDeathAndDropSegment ConfigurePickup(EnemyProjectile projectile, EnemyPickupKind kind, KilledEnemy killedEnemy)
     {
         EnemyPickupAnimationDefinition animation = EnemyPickups.Animation(kind);
         projectile.State = new EnemyPickupState(kind, EnemyPickupDefinitions.Lifetime, killedEnemy);
-        projectile.StartMotion(SingleMotion.Moving);
+        projectile.StartMotion(this, SingleMotion.Moving);
 
         // A pickup is gone when Samus touches it; it keeps the explosion's other behaviours.
         projectile.PersistsOnSamusContact = false;
@@ -302,8 +302,8 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>Leaves a collected or expired drop blank and harmless until it is removed.</summary>
-    private static void MakeEnemyPickupDormant(EnemyProjectile projectile) =>
-        projectile.StartAnimation(new EnemyDeathAndDropAnimation(ConfigureDormantPickup(projectile)));
+    private void MakeEnemyPickupDormant(EnemyProjectile projectile) =>
+        projectile.StartAnimation(new EnemyDeathAndDropAnimation(this, ConfigureDormantPickup(projectile)));
 
     /// <summary>Makes the projectile a blank, harmless drop and returns the respawn pause it shows until it is removed.</summary>
     private static EnemyDeathAndDropSegment ConfigureDormantPickup(EnemyProjectile projectile)
@@ -574,7 +574,7 @@ internal sealed class EnemyDeathsAndDrops
     /// The death explosions and the pickups they and direct drops become (#1760). Each spawner starts the explosion or
     /// pickup animation it chooses.
     /// </summary>
-    internal EnemyProjectileBehavior ExplosionsAndPickups => this;
+    internal EnemyDeathsAndDrops ExplosionsAndPickups => this;
 
     /// <summary>
     /// Moves a pickup, the one kind here that moves: it counts its lifetime, then tests its grapple endpoint, then Samus's

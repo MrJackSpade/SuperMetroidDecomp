@@ -245,7 +245,7 @@ internal sealed class MotherBrainProjectiles
                     projectile.StateOf<MotherBrainProjectileState>().MotherBrain.SmallPurpleBreathActive = false;
                     break;
                 case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.ReleaseDrool }:
-                    projectile.StartMotion(MotherBrainProjectileMotion.DroolFalling);
+                    projectile.StartMotion(this, MotherBrainProjectileMotion.DroolFalling);
                     break;
                 case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.StopMoving }:
                     projectile.HoldStill();

@@ -22,7 +22,7 @@ internal class SingleMotionProjectileBehavior : EnemyProjectileMotionBehavior<Si
 
     /// <summary>Starts <paramref name="projectile"/> moving by its kind's one motion.</summary>
     /// <param name="projectile">A projectile this behaviour is bound to.</param>
-    internal static void StartMoving(EnemyProjectile projectile) => Ensure.NotNull(projectile).StartMotion(SingleMotion.Moving);
+    internal void StartMoving(EnemyProjectile projectile) => Ensure.NotNull(projectile).StartMotion(this, SingleMotion.Moving);
 
     /// <inheritdoc/>
     internal sealed override void Move(EnemyProjectileMotionContext context, SingleMotion motion) => _move(context);

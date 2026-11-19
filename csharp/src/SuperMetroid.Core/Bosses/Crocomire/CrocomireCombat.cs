@@ -126,7 +126,7 @@ internal sealed class CrocomireCombat
         }
 
         /// <summary>Runs the one-frame vector setup.</summary>
-        private static void StartCrocomireProjectileFlight(
+        private void StartCrocomireProjectileFlight(
             EnemyProjectile projectile,
             RoomLevelData level)
         {
@@ -136,7 +136,7 @@ internal sealed class CrocomireCombat
             // The shot keeps the gradient its volley fires it along. The angle starts at up, not right: Y uses negative cosine.
             int gradient = projectile.StateOf<CrocomireProjectileState>().Gradient;
             projectile.Velocity = CalculateCrocomireProjectileVelocity(EnemyMath.CalculateAimAngle(new(-CrocomireProjectileDefinitions.AimReachLeft, gradient)));
-            projectile.StartMotion(CrocomireProjectileMotion.ShotFlying);
+            projectile.StartMotion(this, CrocomireProjectileMotion.ShotFlying);
         }
 
         /// <summary>Runs the shard motion, exact to the 256th of a pixel, whose limits each piece takes from its place in the wall.</summary>

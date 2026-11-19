@@ -99,7 +99,7 @@ internal sealed class DraygonShots
                     projectile.Delete();
                     return;
                 case DraygonProjectileCue.Fire:
-                    projectile.StartMotion(DraygonShotMotion.TurretShotFlying);
+                    projectile.StartMotion(this, DraygonShotMotion.TurretShotFlying);
                     return;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(DraygonProjectileCue)} {cue}.");
@@ -128,7 +128,7 @@ internal sealed class DraygonShots
         }
 
         /// <summary>Attaches goop to Samus, increasing her X-speed divisor until it expires.</summary>
-        private static void AttachDraygonGoopToSamus(
+        private void AttachDraygonGoopToSamus(
             EnemyProjectile goop,
             SamusState samus,
             SamusPowerBombExplosionState powerBomb)
@@ -141,7 +141,7 @@ internal sealed class DraygonShots
 
             samus.SlowdownLevel = nextDivisor;
             goop.State = new DraygonGoopAttachedState(nextDivisor);
-            goop.StartMotion(DraygonShotMotion.GoopStuckToSamus);
+            goop.StartMotion(this, DraygonShotMotion.GoopStuckToSamus);
             goop.BlocksSamusProjectiles = false;
             goop.CanDamageSamus = false;
             goop.PersistsOnSamusContact = true;

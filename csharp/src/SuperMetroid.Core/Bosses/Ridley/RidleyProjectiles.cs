@@ -80,7 +80,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
             RoomEnemyProjectileKind.RidleyFireball,
             Fireballs,
             FireballGraphics);
-        projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.Fireball));
+        projectile.StartAnimation(new RidleyFireballAnimation(this, RidleyFireballSegment.Fireball));
         ApplyRidleyProjectileAreaDamage(projectile);
         projectile.Position = projectile.Position.WithWhole(Muzzle(ridley, state));
         projectile.Velocity = state.FireballVelocity;
@@ -128,7 +128,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(center, RoomEnemyProjectileKind.RidleyAfterburnCenter,
             Fireballs, FireballGraphics);
         // The centre's animation raises the spawn of the pair along its axis.
-        center.StartAnimation(new RidleyFireballAnimation(
+        center.StartAnimation(new RidleyFireballAnimation(this,
             pairAxis == Axis.Horizontal ? RidleyFireballSegment.HorizontalCenter : RidleyFireballSegment.VerticalCenter));
         center.Position = center.Position.WithWhole(position);
         // The afterburn's centre starts at rest; a new projectile otherwise keeps the velocity its place last held.
@@ -164,7 +164,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
         if (afterburn is null)
             return;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(afterburn, kind, Fireballs, FireballGraphics);
-        afterburn.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.DirectionalAfterburn));
+        afterburn.StartAnimation(new RidleyFireballAnimation(this, RidleyFireballSegment.DirectionalAfterburn));
         ApplyRidleyProjectileAreaDamage(afterburn);
         afterburn.Position = afterburn.Position.WithWhole(source.Position.Whole);
         afterburn.Velocity = velocity;
@@ -189,9 +189,9 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
     }
 
     /// <summary>Switches an afterburn branch that struck something to its final five-frame animation; it keeps moving and still hurts Samus.</summary>
-    internal static void BeginAfterburnFinalAnimation(EnemyProjectile projectile)
+    internal void BeginAfterburnFinalAnimation(EnemyProjectile projectile)
     {
-        projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.AfterburnFinal));
+        projectile.StartAnimation(new RidleyFireballAnimation(this, RidleyFireballSegment.AfterburnFinal));
         // The final animation's first cue stops the afterburn, which keeps its velocity and still hurts Samus: it
         // shows five frames, then the afterburn is gone.
     }
@@ -200,7 +200,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
     /// Ridley's fireballs, the afterburn centres they leave and the directional afterburns those spawn (#1760): their
     /// spawners start their animations, and each kind starts its own flight.
     /// </summary>
-    internal EnemyProjectileBehavior Fireballs => this;
+    internal RidleyProjectiles Fireballs => this;
 
     /// <summary>A fireball and the directional afterburns fly from their spawn; the afterburn centres hold still.</summary>
     private static readonly Dictionary<RoomEnemyProjectileKind, RidleyFireballMotion?> StartingMotions = new()
@@ -257,7 +257,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
                 projectile.HoldStill();
                 return;
             case RidleyFireballCue.BeginFlight:
-                projectile.StartMotion(RidleyFireballMotion.FireballFlying);
+                projectile.StartMotion(this, RidleyFireballMotion.FireballFlying);
                 return;
             case RidleyFireballCue.SpawnHorizontalAfterburns:
                 SpawnAfterburnPair(projectile, axis: Axis.Horizontal);

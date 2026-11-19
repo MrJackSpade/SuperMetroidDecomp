@@ -469,7 +469,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             Claw,
             SpriteGraphics.SpawnedBy(source));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(source.Position.Whole + spawnOffset);
-        projectile.StartAnimation(new SpacePirateProjectileAnimation(thrown == HorizontalDirection.Right
+        projectile.StartAnimation(new SpacePirateProjectileAnimation(Claw, thrown == HorizontalDirection.Right
             ? SpacePirateProjectileSegment.ClawRight
             : SpacePirateProjectileSegment.ClawLeft));
         projectile.State = new NinjaPirateClawState(SpacePirateMotionDefinitions.NinjaClawLaunchSpeed, thrown);
@@ -562,10 +562,10 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// A Ninja Pirate's claw (#1760): its spawner starts its animation and chooses its throw's way, and the animation throws
     /// it.
     /// </summary>
-    internal static readonly EnemyProjectileBehavior Claw = new ClawBehavior();
+    internal static readonly ClawBehavior Claw = new();
 
     /// <summary>A thrown claw: it flies out and back along its throw, once its animation throws it (#2278).</summary>
-    private sealed class ClawBehavior()
+    internal sealed class ClawBehavior()
         : SingleMotionProjectileBehavior(context => FlyNinjaPirateClaw(context.Projectile, context.Camera), initial: null),
             IEnemyProjectileCues<SpacePirateProjectileCue>
     {

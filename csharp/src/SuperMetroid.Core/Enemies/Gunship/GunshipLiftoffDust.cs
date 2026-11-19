@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 internal static class GunshipLiftoffDust
 {
     /// <summary>The gunship's liftoff dust clouds (#1760): each holds still and leaves when its animation ends.</summary>
-    internal static EnemyProjectileBehavior Behavior { get; } = new GunshipDustBehavior();
+    internal static GunshipDustBehavior Behavior { get; } = new();
 
     /// <summary>
     /// Spawns one of the liftoff's six dust clouds, <paramref name="placement"/>, below <paramref name="samus"/> into
@@ -31,11 +31,11 @@ internal static class GunshipLiftoffDust
             graphics: default);
         projectile.Position = projectile.Position.WithWhole(new(samus.Position.X.Whole + placement.XOffset, samus.Position.Y.Whole + GunshipDustDefinitions.YOffset));
         projectile.Velocity = new(SignedEightEight.Zero, SignedEightEight.Zero);
-        projectile.StartAnimation(new GunshipDustAnimation(placement.Animation));
+        projectile.StartAnimation(new GunshipDustAnimation(Behavior, placement.Animation));
     }
 
     /// <summary>A gunship liftoff dust cloud, which ends with its animation.</summary>
-    private sealed class GunshipDustBehavior : EnemyProjectileBehavior, IEnemyProjectileCues<GunshipDustCue>
+    internal sealed class GunshipDustBehavior : EnemyProjectileBehavior, IEnemyProjectileCues<GunshipDustCue>
     {
         /// <summary>Deletes the dust cloud when its animation ends.</summary>
         public void RunCue(EnemyProjectileCueContext context, GunshipDustCue cue)

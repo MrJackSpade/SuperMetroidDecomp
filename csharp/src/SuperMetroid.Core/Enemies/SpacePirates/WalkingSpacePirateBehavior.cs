@@ -341,7 +341,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             graphics: default);
 
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(muzzle);
-        projectile.StartAnimation(new SpacePirateProjectileAnimation(direction == HorizontalDirection.Right
+        projectile.StartAnimation(new SpacePirateProjectileAnimation(Laser, direction == HorizontalDirection.Right
             ? SpacePirateProjectileSegment.LaserRight
             : SpacePirateProjectileSegment.LaserLeft));
 
@@ -389,10 +389,10 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// The Pirates' and Mother Brain's laser (#1760): its spawner starts its animation and chooses its way, and the
     /// animation fires it.
     /// </summary>
-    internal static readonly EnemyProjectileBehavior Laser = new LaserBehavior();
+    internal static readonly LaserBehavior Laser = new();
 
     /// <summary>A laser: it flies its way until it leaves the camera, once its animation fires it (#2278).</summary>
-    private sealed class LaserBehavior()
+    internal sealed class LaserBehavior()
         : SingleMotionProjectileBehavior(context => FlyPirateLaser(context.Projectile, context.Camera), initial: null),
             IEnemyProjectileCues<SpacePirateProjectileCue>
     {

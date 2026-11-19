@@ -58,7 +58,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, TubePieces, graphics: TubePieceGraphics);
 
         Position16<RoomPixels> place = request.RoomObjectBlock.ToRoomPixels() + piece.Offset;
-        projectile.StartAnimation(new NoobTubeProjectileAnimation(piece.Start switch
+        projectile.StartAnimation(new NoobTubeProjectileAnimation(TubePieces, piece.Start switch
         {
             NoobTubePieceStart.AtSegment start => NoobTubeProjectileAnimations.StartingWith(start.Segment),
             NoobTubePieceStart.ShardFlight flight => NoobTubeProjectileAnimations.ShardAnimations[flight.Shard],
@@ -157,11 +157,11 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
     }
 
     /// <summary>The tube's crack, shards and released-air bubbles (#1760): their spawner starts their animations.</summary>
-    internal EnemyProjectileBehavior TubePieces => field ??= new NoobTubeProjectileBehavior(_room);
+    internal NoobTubeProjectileBehavior TubePieces => field ??= new NoobTubeProjectileBehavior(_room);
 
     /// <summary>A crack, shard or bubble: the crack's, shards' and bubbles' movers, and their animations' cues.</summary>
     /// <param name="room">The loaded room, whose random numbers set a falling piece's sway.</param>
-    private sealed class NoobTubeProjectileBehavior(EnemyRoomBinding room)
+    internal sealed class NoobTubeProjectileBehavior(EnemyRoomBinding room)
         : EnemyProjectileMotionBehavior<NoobTubePieceMotion>(StartingMotions), IEnemyProjectileCues<NoobTubeProjectileCue>
     {
         /// <summary>A shard flies from its spawn; the crack and the bubbles hold still until their animations start them.</summary>
@@ -241,19 +241,19 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
                     projectile.StateOf<NoobTubeDebrisState>().StartSway(NoobTubeDebrisDefinitions.FallingSwayStart.Of(room.Random.Generate()));
                     break;
                 case NoobTubeProjectileCueKind.StartCrackFlicker:
-                    projectile.StartMotion(NoobTubePieceMotion.CrackFlickering);
+                    projectile.StartMotion(this, NoobTubePieceMotion.CrackFlickering);
                     break;
                 case NoobTubeProjectileCueKind.StartCrackFall:
-                    projectile.StartMotion(NoobTubePieceMotion.CrackFalling);
+                    projectile.StartMotion(this, NoobTubePieceMotion.CrackFalling);
                     break;
                 case NoobTubeProjectileCueKind.StartShardFall:
-                    projectile.StartMotion(NoobTubePieceMotion.ShardFalling);
+                    projectile.StartMotion(this, NoobTubePieceMotion.ShardFalling);
                     break;
                 case NoobTubeProjectileCueKind.StartBubbleRise:
-                    projectile.StartMotion(NoobTubePieceMotion.BubbleFlying);
+                    projectile.StartMotion(this, NoobTubePieceMotion.BubbleFlying);
                     break;
                 case NoobTubeProjectileCueKind.StartBubbleFall:
-                    projectile.StartMotion(NoobTubePieceMotion.BubbleFalling);
+                    projectile.StartMotion(this, NoobTubePieceMotion.BubbleFalling);
                     break;
                 case NoobTubeProjectileCueKind.Delete:
                     projectile.Delete();

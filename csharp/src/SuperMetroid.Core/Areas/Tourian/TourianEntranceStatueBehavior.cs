@@ -217,7 +217,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         /// <summary>The base decoration's animation starts it following the statue's reveal.</summary>
         /// <param name="projectile">The base decoration.</param>
         private protected override void FollowReveal(EnemyProjectile projectile) =>
-            projectile.StartMotion(TourianStatueDecorationMotion.FollowingReveal);
+            projectile.StartMotion(this, TourianStatueDecorationMotion.FollowingReveal);
 
         /// <inheritdoc/>
         internal override void Move(EnemyProjectileMotionContext context, TourianStatueDecorationMotion motion)

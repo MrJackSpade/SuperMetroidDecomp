@@ -114,7 +114,7 @@ internal enum TorizoProjectileSegment
     /// Torizo's eye-beam explosions are enabled, then bursts into <see cref="EyeBeamFloorFlames"/>.
     /// </summary>
     EyeBeamFloorImpact,
-    /// <summary>The eye beam's floor impact waits unseen for eight updates, then marks its wait over, again while Golden Torizo's eye-beam explosions are disabled.</summary>
+    /// <summary>The eye beam's floor impact waits unseen for its beat, then marks its wait over, again while Golden Torizo's eye-beam explosions are disabled.</summary>
     EyeBeamFloorImpactWaiting,
     /// <summary>The eye beam's floor impact bursts into flames: its impact sound and six flame poses, harmful from its third, then deletion.</summary>
     EyeBeamFloorFlames,

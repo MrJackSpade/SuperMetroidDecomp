@@ -220,7 +220,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
                 }
                 // An ordinary message closes on any held button, not a new press.
                 // This is observable when a player begins holding a button during the
-                // mandatory 360-frame item fanfare.
+                // mandatory item fanfare.
                 return controllerInput != ControllerButton.None ? BeginClosing(null) : MessageBoxStep.NothingAsked.Instance;
 
             case GameplayMessageBoxPhase.GunshipSavingSound:

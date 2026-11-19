@@ -185,7 +185,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// </summary>
     public MotherBrainBodyPose Pose { get; internal set; }
 
-    /// <summary>Her greying at her fake death playing: its eight colourings, each held nine updates, and then it is over.</summary>
+    /// <summary>Her greying at her fake death playing: its colourings, each held for <see cref="MotherBrainWaitDefinitions.FakeDeathGreyStepUpdates"/>, and then it is over.</summary>
     public MotherBrainFadeProgress FakeDeathGreying { get; } = new(MotherBrainFadeDefinitions.FakeDeathToGrey);
 
     /// <summary>The wait before the next fake-death explosion (<see cref="MotherBrainWaitDefinitions.FakeDeathExplosionIntervalUpdates"/>).</summary>

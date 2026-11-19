@@ -36,7 +36,7 @@ internal static class IntroRinkaAnimations
             [A.Rinka] = plays.LeadingInto(A.RinkaAppearing, A.Rinka),
         });
 
-    /// <summary>The invisible spawner's animation: it waits 74 updates, launches a pair, waits 128 updates, launches another, and ends.</summary>
+    /// <summary>The invisible spawner's animation: it waits, launches a pair, waits longer, launches another, and ends.</summary>
     internal static CinematicAnimations<IntroRinkaAnimation, CinematicSpritePose, IntroRinkaSpawnerCue> Spawner { get; } = new(
         new Dictionary<IntroRinkaAnimation, AnimationBeat<CinematicSpritePose, IntroRinkaSpawnerCue>[]>
         {

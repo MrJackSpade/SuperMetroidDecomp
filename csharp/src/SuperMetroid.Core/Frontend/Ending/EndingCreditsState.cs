@@ -207,8 +207,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 break;
 
             case EndingCreditsPhase.ZebesExplosionAnimation:
-                // The explosion actor owns the remaining timing. Its music step publishes the
-                // exact 120-frame post-explosion music wait, just as the game does.
+                // The explosion actor's animation runs the finale: its ending cue whitens the screen and starts the wait
+                // for the planet escape's music (EndingSequenceDefinitions.Timing.PlanetEscapeMusicWaitFrames).
                 EscapeScenes.StepSprites();
                 break;
 

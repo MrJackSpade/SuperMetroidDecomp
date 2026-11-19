@@ -192,8 +192,8 @@ internal sealed class ProjectileMotion
             return;
         }
 
-        // The Super Missile trail first waits the four updates its firing sets, then two after every
-        // expiry. Super Missiles therefore emit twice as frequently as ordinary missiles;
+        // The Super Missile trail first waits the updates its firing sets, then its own interval
+        // (ProjectileTimingDefinitions.SuperMissileTrailInterval) after every expiry. Super Missiles therefore emit twice as frequently as ordinary missiles;
         // both families still select the same trail art.
         if (shot.CountsDownToTrail(ProjectileTimingDefinitions.SuperMissileTrailInterval))
             _trails.SpawnTrail(shot);

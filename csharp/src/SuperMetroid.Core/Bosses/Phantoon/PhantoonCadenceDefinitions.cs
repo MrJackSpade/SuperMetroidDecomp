@@ -25,8 +25,8 @@ internal static class PhantoonCadenceDefinitions
     internal static readonly UpdateCounterField FigureEightReverses = new(0, 1);
 
     /// <summary>
-    /// The phase of the frame counter that picks Phantoon's first eye-closed delay: four choices, each held for two
-    /// updates, indexing <see cref="PhantoonTimerDefinitions.EyeClosed"/>. Later rounds draw it at random.
+    /// The phase of the frame counter that picks Phantoon's first eye-closed delay: four choices, each held in
+    /// turn, indexing <see cref="PhantoonTimerDefinitions.EyeClosed"/>. Later rounds draw it at random.
     /// </summary>
     internal static readonly UpdateCounterField FirstEyeClosedChoice = new(1, 2);
 

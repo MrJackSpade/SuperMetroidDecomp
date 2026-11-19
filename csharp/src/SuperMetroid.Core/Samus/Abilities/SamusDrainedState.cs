@@ -289,8 +289,8 @@ public sealed class SamusDrainedState
 
         if (vertical.Collided)
         {
-            // The landing ends the fall, shows the held crouch's landing frame for
-            // eight ticks and stops her vertical speed. It keeps her vertical
+            // The landing ends the fall, shows the held crouch's landing frame for its landing timer
+            // (SamusDrainedAnimationDefinitions.LandingTimer) and stops her vertical speed. It keeps her vertical
             // direction and does not select a new pose.
             SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.LandingFrame,
                 timer: SamusDrainedAnimationDefinitions.LandingTimer);

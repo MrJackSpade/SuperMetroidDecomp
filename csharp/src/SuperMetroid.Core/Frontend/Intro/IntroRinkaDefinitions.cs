@@ -14,8 +14,8 @@ internal static class IntroRinkaDefinitions
 
     /// <summary>The invisible Rinka spawner's actor: the spawner's animation. The spawner does not move.</summary>
     /// <remarks>
-    /// The animation waits 74 updates, launches <see cref="StrikingPair"/>, waits 128 updates, launches
-    /// <see cref="MissingPair"/>, then deletes the spawner.
+    /// The animation waits, launches <see cref="StrikingPair"/>, waits longer, launches <see cref="MissingPair"/>, then
+    /// deletes the spawner.
     /// </remarks>
     public static CinematicActorDefinition<IntroRinkaAnimation> SpawnerActor =>
         new(IntroRinkaAnimation.Spawner);

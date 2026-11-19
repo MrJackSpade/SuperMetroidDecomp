@@ -76,7 +76,7 @@ public enum CrocomireDeathPhase
     RumbleHiddenWall,
     /// <summary>Loads the skeleton's pictures and breaks the spike wall.</summary>
     BreakSpikeWall,
-    /// <summary>Waits eighty updates before the skeleton starts falling.</summary>
+    /// <summary>Waits out the skeleton's fall delay (<see cref="CrocomireSkeletonDefinitions.FallDelay"/>) before it starts falling.</summary>
     DelaySkeletonFall,
     /// <summary>Arcs the skeleton back into the arena.</summary>
     ArcSkeletonIntoArena,

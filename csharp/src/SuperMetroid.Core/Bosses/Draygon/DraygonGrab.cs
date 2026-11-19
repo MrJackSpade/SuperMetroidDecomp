@@ -183,7 +183,7 @@ internal sealed class DraygonGrab
         MoveSamusWithDraygon(state, samus);
     }
 
-    /// <summary>Runs the incidental 64-frame tail-whip pause.</summary>
+    /// <summary>Runs the incidental tail-whip pause (<see cref="DraygonGrabDefinitions.TailWhipUpdates"/>).</summary>
     internal void RunDraygonTailWhip(DraygonEnemyState state, SamusState samus)
     {
         MoveSamusWithDraygon(state, samus);

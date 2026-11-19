@@ -76,8 +76,8 @@ internal sealed class CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision c
         place.CollidesByFrameHitboxes = true;
         place.AnimationClock.Restart();
 
-        // Each vent waits a random 1 to 32 updates before its first plume, hidden by its dormant animation, so the vents
-        // puff out of step.
+        // Each vent waits a random number of updates, at least one (CeresSteamDefinitions.ActivationDelay), before its
+        // first plume, hidden by its dormant animation, so the vents puff out of step.
         var state = new CeresSteamEnemyState(Ensure.NotNull(motions).MotionOf(initialization.Action))
         {
             UpdatesToActivation = _room.Random.Next(CeresSteamDefinitions.ActivationDelay) + 1,

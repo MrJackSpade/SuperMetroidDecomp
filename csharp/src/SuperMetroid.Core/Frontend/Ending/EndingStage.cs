@@ -36,12 +36,12 @@ internal sealed class EndingStage : IEndingActorScene
     /// <summary>Master brightness during cinematic fades, from black through full.</summary>
     internal int Brightness => Fade.Level;
 
-    /// <summary>Turning-floor translation; only X uses a subpixel because the game's Y has no fraction.</summary>
+    /// <summary>The turning floor's position: it moves across the screen by fractions of a pixel and up and down by whole pixels.</summary>
     internal FixedVector<FloorPixels> FloorPosition { get; set; }
 
     /// <summary>
-    /// The turning floor's zoom, initially its own size. Every scene starts it at an authored zoom and moves it by a few
-    /// 256ths an update toward a bound it stops at, so it stays positive and small.
+    /// The turning floor's zoom, initially its own size. Every scene starts it at an authored zoom and moves it a little each
+    /// update toward a bound it stops at, so it stays positive and small.
     /// </summary>
     public FloorZoom FloorZoom { get; internal set; } = FloorZoom.OwnSize;
 

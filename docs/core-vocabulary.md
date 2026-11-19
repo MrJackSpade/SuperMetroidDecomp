@@ -835,7 +835,19 @@ updates, ticks or steps by number (`a 15-update delay`, `a sixteen-update wait`)
 and a `calculator` (`the leftward calculator`, `the deceleration-allowed calculator`). Core cites the named duration a
 wait lasts for (`the Hyper Beam's cooldown (SamusProjectileCooldownDefinitions.HyperBeamShot)`) and says which way a
 speed moves Samus. A timer, cooldown or countdown alone, a one-update wait, timer or delay, which runs out on the next
-update, a wait counted in prose (`sixteen updates`), a calculation and a hardware owner stay English.
+update, a calculation and a hardware owner stay English.
+
+#2543 widens #2530's waits to those the frontend restates, and reads them across a run of line comments, one under
+another, as across a documentation comment's line breaks: a hold, fanfare, pause, wait, blank or delay counted in
+frames, updates, ticks or steps by number (`the 60-frame hold`, `the ninety-frame final-image hold`, `the mandatory
+360-frame item fanfare`, `a 60-update blank`); a thing that waits, holds, delays, pauses or lasts for a number of frames,
+updates, ticks or steps, with up to six words between (`waits nine updates`, `holds a blank screen for sixty updates`,
+`delays the Samus fade by sixteen updates`, `a wait of 80 updates`, `lasts eight more updates`); an animation frame's
+duration by number (`six duration-3 frames`); a duration's value restated after its meaning (`The updates each letter
+shows before the next is typed, eight.`); and a count seeded with a number (`always seeds 60`). A wait counted in prose
+is no longer English. Core names the wait and cites the definition that holds its length (`holds the explosion for its
+hold (EndingExplosionFadeDefinitions.HoldUpdates)`). A wait for one update, a wait whose length is a
+named duration, a thing held to a bound, a held of frames, and line comments a blank line or code apart stay English.
 
 #2533 widens SME6454, outside hardware owners, to the original's storage units, random bits and program bytes as enemy
 prose tells them, read across a documentation comment's line breaks: a value counted as a number of 256ths, in digits or

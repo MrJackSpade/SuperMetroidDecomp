@@ -151,7 +151,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         state.FallingSpeed = SignedSixteenSixteen.Min(state.FallingSpeed + KzanMotionDefinitions.FallAcceleration, KzanMotionDefinitions.FastestFall);
     }
 
-    /// <summary>Counts down the 64-frame landing hold before switching to ascent.</summary>
+    /// <summary>Counts down the landing hold (<see cref="KzanMotionDefinitions.RiseWait"/>) before switching to ascent.</summary>
     private static void RunKzanWaitingToRise(KzanEnemyState state)
     {
         if (--state.RiseWaitTimer == 0)

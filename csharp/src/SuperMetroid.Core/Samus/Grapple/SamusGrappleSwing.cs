@@ -259,8 +259,8 @@ public static class SamusGrappleSwing
 /// <summary>Accepts a fresh Jump during the terrain-reflection window as a temporary angular kick, halved underwater.</summary>
     internal static void ApplyJumpImpulse(SamusGrappleState grapple, GameplayAction newlyPressedInput)
     {
-        // The swing only admits this extra angular impulse during the 16-frame terrain-
-        // reflection timer. It is separate from ordinary Samus jump velocity and decays
+        // The swing only admits this extra angular impulse while its terrain bounce lasts
+        // (GrappleBeamDefinitions.Physics.CollisionBounceFrames). It is separate from ordinary Samus jump velocity and decays
         // inside the angular movement only after a successful angular movement pass.
         // The kick reads Jump, not Dash. That test must agree with the release-window
         // check, or tight anchors become inescapable using Jump even though the

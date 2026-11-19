@@ -7,14 +7,14 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainCadenceDefinitions
 {
     /// <summary>
-    /// The phase of the Baby Metroid's own update count that steps its shake: four steps, each held for two updates,
+    /// The phase of the Baby Metroid's own update count that steps its shake: four steps, each held in turn,
     /// indexing its shaking offsets while it latches onto Mother Brain or Samus or recoils from the fatal blow.
     /// </summary>
     internal static readonly UpdateCounterField BabyShakeStep = new(1, 2);
 
     /// <summary>
-    /// The phase of the Baby Metroid's hit timer that steps its doubled shake while it is struck: four steps, each held for
-    /// two updates, indexing its shaking offsets.
+    /// The phase of the Baby Metroid's hit timer that steps its doubled shake while it is struck: four steps, each held in
+    /// turn, indexing its shaking offsets.
     /// </summary>
     internal static readonly UpdateCounterField BabyHitShakeStep = new(1, 2);
 
@@ -58,14 +58,14 @@ internal static class MotherBrainCadenceDefinitions
     internal static readonly UpdateCadence DeathFadeHidesBodyEverySecondUpdate = new(2, 0);
 
     /// <summary>
-    /// The phase of Mother Brain's hurt flash timer that steps her neck's shake: four steps, each held for two updates,
+    /// The phase of Mother Brain's hurt flash timer that steps her neck's shake: four steps, each held in turn,
     /// indexing her shake offsets.
     /// </summary>
     internal static readonly UpdateCounterField NeckShakeStep = new(1, 2);
 
     /// <summary>
-    /// The phase of Mother Brain's brain shake count that steps her brain's shake (#1619): four steps, each held for two
-    /// updates, indexing her shake offsets. The count is her brain's own shake timer while it runs, or else her hurt flash
+    /// The phase of Mother Brain's brain shake count that steps her brain's shake (#1619): four steps, each held in
+    /// turn, indexing her shake offsets. The count is her brain's own shake timer while it runs, or else her hurt flash
     /// timer, or else her shake timer.
     /// </summary>
     internal static readonly UpdateCounterField BrainShakeStep = new(1, 2);
@@ -84,7 +84,7 @@ internal static class MotherBrainCadenceDefinitions
 
     /// <summary>
     /// The phase of the Shitroid's own update count that steps its shake above the victim it drains or over Samus: four
-    /// steps, each held for two updates, indexing its shake offsets.
+    /// steps, each held in turn, indexing its shake offsets.
     /// </summary>
     internal static readonly UpdateCounterField ShitroidShakeStep = new(1, 2);
 

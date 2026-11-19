@@ -22,7 +22,7 @@ internal static class ProjectileTrailSparkleAnimations
 
     /// <summary>
     /// Every run's beats. An ice sparkle shows its clustered frame, twinkles, falls a pixel, twinkles again, then falls a
-    /// pixel before every scattered frame and once more before its fading frame, which holds for four updates; the left and
+    /// pixel before every scattered frame and once more before its fading frame, which holds for its beat; the left and
     /// right ice sparkles run alike, each falling on its own side.
     /// </summary>
     internal static AnimationSegments<R, F, ProjectileTrailCue> Segments { get; } = new(

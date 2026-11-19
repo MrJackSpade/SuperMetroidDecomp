@@ -68,7 +68,8 @@ internal sealed class CeresRidleyFlight
     internal static void LiftOff(CeresRidleyState state) => Ensure.NotNull(state).Phase = CeresRidleyPhase.LiftoffAccelerating;
 
     /// <summary>
-    /// Ceres Ridley cuts his fireballing short when Samus has under 30 energy: his hover lasts eight more updates, and he
+    /// Ceres Ridley cuts his fireballing short when Samus has under 30 energy: his hover lasts only the cut's updates
+    /// (<see cref="CeresRidleyFlightDefinitions.FireballingCutShortUpdates"/>), and he
     /// continues in the fireballing's end for the way he faces, which nothing in the fireballing turns.
     /// </summary>
     /// <param name="state">Ridley's state.</param>

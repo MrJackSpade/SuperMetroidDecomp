@@ -23,7 +23,7 @@ internal enum EndingCreditsPhase
     FadeInZebesExplosion,
     /// <summary>Completes the explosion's colour crossfade after brightness reaches full.</summary>
     ZebesExplosionCrossfade,
-    /// <summary>Holds the explosion for sixteen updates with the escape backdrop off; the flyaway's floor is ready as it ends.</summary>
+    /// <summary>Holds the explosion (<see cref="EndingExplosionFadeDefinitions.HoldUpdates"/>) with the escape backdrop off; the flyaway's floor is ready as it ends.</summary>
     ZebesExplosionHold,
     /// <summary>Lets the exploding planet's own animation run the finale.</summary>
     ZebesExplosionAnimation,
@@ -43,7 +43,7 @@ internal enum EndingCreditsPhase
     FadeOutToCredits,
     /// <summary>Scrolls the staff credits until the roll has scrolled past its end.</summary>
     Credits,
-    /// <summary>Holds the first post-credits backdrop blank for sixty updates.</summary>
+    /// <summary>Holds the first post-credits backdrop blank (<see cref="EndingSequenceDefinitions.Timing.PostCreditsBlankFrames"/>).</summary>
     PostCreditsBlank,
     /// <summary>Reveals the waiting scene at the slower four-update brightness cadence.</summary>
     PostCreditsFadeIn,

@@ -53,7 +53,7 @@ internal sealed class FrontendSession
     /// level is the brightness gameplay was last shown at, which a pause fades from. Every return to main gameplay leaves its
     /// cadence stepping on every update, which a map-station pause then inherits; power-on waits one update first.
     /// </summary>
-    internal readonly ScreenFade screenFade = new(DisplayBrightness.Full, stepDelay: 0, firstWait: PauseFadeTiming.CounterReload);
+    internal readonly ScreenFade screenFade = new(DisplayBrightness.Full, stepDelay: 0, firstWait: PauseFadeTiming.WaitBeforeEachStep);
     /// <summary>
     /// The camera fractions the game keeps from one game or demo to the next: each runtime's first room's camera starts from
     /// them, and each released runtime leaves its camera's; the soft reset clears them.
@@ -441,10 +441,13 @@ internal sealed class FrontendSession
         screenFade.Show(brightness);
         display.SetBrightness(brightness);
     }
-    /// <summary>Starts a pause fade from <paramref name="initialBrightness"/> with both fade counters reloaded.</summary>
+    /// <summary>
+    /// Starts a pause fade from <paramref name="initialBrightness"/>, waiting the pause fades' wait before each step
+    /// (<see cref="PauseFadeTiming.WaitBeforeEachStep"/>).
+    /// </summary>
     internal void BeginPauseFade(int initialBrightness)
     {
-        screenFade.Restart(initialBrightness, PauseFadeTiming.CounterReload);
+        screenFade.Restart(initialBrightness, PauseFadeTiming.WaitBeforeEachStep);
     }
     /// <summary>Allocates and binds the gameplay owner without selecting a room.</summary>
     /// <param name="purpose">Whether the runtime plays a selected game, which takes the assists and menu options, or an attract demo.</param>

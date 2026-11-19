@@ -73,7 +73,7 @@ internal sealed class IntroNarrationActors
     /// </summary>
     public IntroNarrationPageId? AwaitingInputPage { get; private set; }
 
-    /// <summary>Set after the last page's final 128-frame hold.</summary>
+    /// <summary>Set after the last page's final hold.</summary>
     public bool IntroFinishRequested { get; private set; }
 
     /// <summary>

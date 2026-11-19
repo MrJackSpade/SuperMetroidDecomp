@@ -15,7 +15,7 @@ public enum TitleSequencePhase
     PresentsText,
     /// <summary>Pans the turning-floor scene down by 1.5 pixels per update until Y reaches 163 pixels, then starts the Metroid 3 card.</summary>
     DownwardPan,
-    /// <summary>Runs the progressive Metroid 3 title card, including its 120-update final hold, before triggering the final zoom.</summary>
+    /// <summary>Runs the progressive Metroid 3 title card, including its final hold, before triggering the final zoom.</summary>
     MetroidThreeText,
     /// <summary>
     /// Enables the title gradient and zooms out by increasing the turning floor's zoom from 67/256 to its own size on

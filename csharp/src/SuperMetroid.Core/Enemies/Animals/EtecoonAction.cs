@@ -26,7 +26,7 @@ public enum EtecoonAction
     RunLeftToWall,
     /// <summary>Probes 32 room pixels rightward for a block that stops attachment and starts jumping when the wall is near.</summary>
     RunRightToWall,
-    /// <summary>Resolves horizontal motion before vertical motion, enters the eight-update wall-jump pause on wall contact, and routes the actor after landing.</summary>
+    /// <summary>Resolves horizontal motion before vertical motion, enters the wall-jump pause (<see cref="EtecoonTimingDefinitions.WallPause"/>) on wall contact, and routes the actor after landing.</summary>
     Airborne,
     /// <summary>Waits for the wall-pause timer, starts the opposite-facing wall-jump animation, and launches with signed Y velocity -3 and X velocity -2 or +2.</summary>
     WallPause,

@@ -12,22 +12,22 @@ internal static class CeresExplosionDefinitions
         new(CeresAnimation.ExplosionSpawner);
 
     /// <summary>First delayed small-explosion actor.</summary>
-    /// <remarks>Its animation displays six duration-3 small-explosion frames, then deletes. It runs as a typed cinematic sprite animation.</remarks>
+    /// <remarks>Its animation burns through the small explosion's pictures, then deletes. It runs as a typed cinematic sprite animation.</remarks>
     public static CinematicActorDefinition<CeresAnimation> InitialActor =>
         new(CeresAnimation.SmallExplosion);
 
     /// <summary>Cyclic repeating small-explosion actor.</summary>
-    /// <remarks>Its animation repeats six duration-3 frames and a duration-16 blank six times, then deletes. It runs as a typed cinematic sprite animation.</remarks>
+    /// <remarks>Its animation repeats the small explosion's pictures and a blank six times, then deletes. It runs as a typed cinematic sprite animation.</remarks>
     public static CinematicActorDefinition<CeresAnimation> RepeatingActor =>
         new(CeresAnimation.RepeatingSmallExplosion);
 
     /// <summary>Final delayed large-explosion actor.</summary>
-    /// <remarks>Its animation repeats four duration-5 frames and a duration-8 blank seven times, then deletes. It runs as a typed cinematic sprite animation.</remarks>
+    /// <remarks>Its animation repeats the large explosion's pictures and a blank seven times, then deletes. It runs as a typed cinematic sprite animation.</remarks>
     public static CinematicActorDefinition<CeresAnimation> FinalWaveActor =>
         new(CeresAnimation.LargeExplosion);
 
     /// <summary>Final station blast actor created as the station explodes.</summary>
-    /// <remarks>Its animation displays six duration-5 station-blast frames, then deletes. It runs as a typed cinematic sprite animation.</remarks>
+    /// <remarks>Its animation burns through the station blast's pictures, then deletes. It runs as a typed cinematic sprite animation.</remarks>
     public static CinematicActorDefinition<CeresAnimation> StationBlastActor =>
         new(CeresAnimation.StationBlast);
 

@@ -61,10 +61,11 @@ internal sealed class EndingCreditsRoll
         _stage.Phase = EndingCreditsPhase.Credits;
     }
 
-    /// <summary>Shows the post-credits scenes' own colours (#1544) and holds a blank screen for sixty updates.</summary>
+    /// <summary>Shows the post-credits scenes' own colours (#1544) and holds a blank screen
+    /// (<see cref="EndingSequenceDefinitions.Timing.PostCreditsBlankFrames"/>).</summary>
     internal void SetupPostCreditsBlank()
     {
-        // The credits' end starts the post-credits scenes in their own colours, blanks the screen and holds for sixty updates.
+        // The credits' end starts the post-credits scenes in their own colours, blanks the screen and holds it.
         _stage.LoadColours(EndingColourLoad.PostCredits);
         _stage.Fade.Show(0);
         _stage.PhaseTimer = EndingSequenceDefinitions.Timing.PostCreditsBlankFrames;

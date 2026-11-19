@@ -46,7 +46,7 @@ internal sealed class MotherBrainAttacks
 
             case MotherBrainHandBeamPhase.Firing:
                 // The charge-beam phase is intentionally empty. The body animation owns the
-                // charge effects, projectile emission, 240-frame hold, and phase advance.
+                // charge effects, projectile emission, the beam's hold, and phase advance.
                 return;
 
             case MotherBrainHandBeamPhase.Finish:

@@ -32,7 +32,7 @@ public static class EndingSequenceDefinitions
     /// <summary>Authored reveal, colour-fade and panel-hold durations, in cinematic updates.</summary>
     public static class Timing
     {
-        /// <summary>Each half of the reward reveal: it pauses after its first 64 updates, and the other 64 follow later.</summary>
+        /// <summary>Each half of the reward reveal's updates: it pauses after the first half, and the second follows later.</summary>
         public const int RewardRevealHalfFrames = 64;
 
         /// <summary>The copyright panel's hold.</summary>

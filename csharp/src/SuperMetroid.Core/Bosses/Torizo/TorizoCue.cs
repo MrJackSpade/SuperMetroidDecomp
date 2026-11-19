@@ -68,7 +68,7 @@ internal abstract record TorizoCue
     internal sealed record Swipe(Offset16<RoomPixels> Hand) : TorizoCue;
 
     /// <summary>
-    /// Spawns the low-health explosions and flashes; the animation then waits forty updates.
+    /// Spawns the low-health explosions and flashes; the animation then waits before it goes on.
     /// </summary>
     /// <param name="Site">Where the explosions burst.</param>
     internal sealed record LowHealthExplosions(BombTorizoExplosionSite Site) : TorizoCue;

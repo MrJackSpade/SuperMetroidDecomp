@@ -52,8 +52,8 @@ public sealed class CeresDepartureState
         if (Phase != CeresDeparturePhase.HoldingOnElevator)
             throw new InvalidOperationException("Ceres departure hold is not active.");
 
-        // The game decrements after the main gameplay state returns, then accepts both zero and a count run past zero. Begin()
-        // always seeds 60 and the hold ends on its expiry, so zero is the reachable result.
+        // The hold counts down after the main gameplay update returns, and ends once it reaches zero or runs past it. Begin()
+        // starts it at the elevator hold's length, so it ends on reaching zero.
         if (--HoldFramesRemaining > 0)
             return false;
 

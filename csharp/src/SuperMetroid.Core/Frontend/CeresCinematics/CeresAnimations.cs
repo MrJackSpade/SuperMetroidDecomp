@@ -87,11 +87,10 @@ internal static class CeresAnimations
         });
 
     /// <summary>
-    /// The invisible explosion spawner's animation (#2489), which the destruction's setup starts: it waits 128 updates and
-    /// spawns the first wave; 81 updates later it spawns the first repeating blast and five more, one every 12 updates;
-    /// three updates after the sixth it spawns the final wave and ends. The repeating blasts start on the update after a
-    /// wait of 80 updates, the first of the 64 updates before the final wave, so they spawn on the first update of that stretch
-    /// and every twelfth after it.
+    /// The invisible explosion spawner's animation (#2489), which the destruction's setup starts: after its opening wait it
+    /// spawns the first wave; after a longer wait it spawns the first repeating blast, on the first update of the stretch
+    /// before the final wave, and five more, at the regular beat between them; a short beat after the sixth it spawns the
+    /// final wave and ends.
     /// </summary>
     internal static CinematicAnimations<CeresAnimation, CinematicSpritePose, CeresExplosionSpawnerCue> ExplosionSpawner { get; } = new(
         new Dictionary<CeresAnimation, AnimationBeat<CinematicSpritePose, CeresExplosionSpawnerCue>[]>

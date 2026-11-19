@@ -248,7 +248,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Finishes a powered robot's reaction to a shot: the robot takes no damage, but the shot's impact still turns it to
-    /// recoil ahead or behind and holds off its next laser for 64 updates.
+    /// recoil ahead or behind and holds off its next laser for its recoil delay
+    /// (<see cref="WorkRobotLaserDefinitions.RecoilDelay"/>).
     /// </summary>
     private static void ResolveWorkRobotShotAfterCommon(RoomEnemyPlace robot, SamusState samus)
     {

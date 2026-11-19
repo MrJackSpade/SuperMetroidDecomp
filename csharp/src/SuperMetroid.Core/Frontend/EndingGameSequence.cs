@@ -62,8 +62,8 @@ internal sealed class EndingGameSequence(FrontendSession session) : IGamePhase
         // therefore continue behind every darkening frame, and each counts the play time (#2517).
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { RunsLowHealthCheck = true, MainGameplayOwnsUpdate = false } });
         session.display.PublishGameplay(session.GameplayRuntime);
-        // The fade-out reloads the counter from the screen fade's delay, which
-        // the gunship zeroed, so the brightness falls one step on every update.
+        // The gunship's lift-off left the screen fade no wait between its steps, so the
+        // brightness falls one step on every update.
         bool black = session.EscapeFade.Darken();
         session.SetDisplayBrightness(session.EscapeFade.Level);
         if (black)

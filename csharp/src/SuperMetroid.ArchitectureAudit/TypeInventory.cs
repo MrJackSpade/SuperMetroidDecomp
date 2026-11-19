@@ -276,12 +276,10 @@ internal static class TypeInventory
     /// <summary>Classifies declarations as product, tool, or test from their files and assemblies.</summary>
     private static string Scope(IReadOnlyCollection<string> assemblies, IReadOnlyCollection<string> files)
     {
-        if (files.Any(file => file.StartsWith("csharp/test-support/", StringComparison.Ordinal)) ||
+        if (files.Any(ProjectScope.IsTestSupport) ||
             assemblies.All(assembly => assembly.EndsWith("Verification", StringComparison.Ordinal)))
             return "test";
-        if (assemblies.All(assembly => assembly is "SuperMetroid.DebugRunner" or "SuperMetroid.Tooling" or "SuperMetroid.AssetExtractor"
-                or "SuperMetroid.RoomViewer" or "SuperMetroid.EnsureAnalyzer" or "SuperMetroid.EnsureAnalyzer.CodeFixes"
-            || assembly.EndsWith("Audit", StringComparison.Ordinal)))
+        if (assemblies.All(ProjectScope.IsTool))
             return "tool";
         return "product";
     }

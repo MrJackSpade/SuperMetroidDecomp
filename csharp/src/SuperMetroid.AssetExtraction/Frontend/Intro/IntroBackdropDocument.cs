@@ -1,10 +1,8 @@
-using SuperMetroid.AssetExtraction.Artwork;
-
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>
 /// The installed opening backdrops (#1544): the solid colour the opening narration and the Ceres scenes show where nothing
-/// is drawn, as a player edits them in place.
+/// is drawn, as a player edits them in place, each written as <c>#rrggbb</c> (#2564).
 /// </summary>
 public sealed record IntroBackdropDocument
 {
@@ -12,8 +10,8 @@ public sealed record IntroBackdropDocument
     public required int Version { get; init; }
 
     /// <summary>The opening narration's backdrop.</summary>
-    public required PaletteRgb5 Opening { get; init; }
+    public required string Opening { get; init; }
 
     /// <summary>The backdrop of the Ceres flight and the Ceres destruction, once they load the flight's colours.</summary>
-    public required PaletteRgb5 CeresFlight { get; init; }
+    public required string CeresFlight { get; init; }
 }

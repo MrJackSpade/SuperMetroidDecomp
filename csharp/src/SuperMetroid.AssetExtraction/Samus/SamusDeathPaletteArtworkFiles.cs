@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Samus.Colours;
@@ -25,8 +26,13 @@ public static class SamusDeathPaletteArtworkFiles
     public const string ArtworkFileName = "samus-death-palettes.json";
     /// <summary>Installed JSON filename for the explosion's death steps and the whiteout colours, named by purpose.</summary>
     public const string StepFileName = "samus-death-steps.json";
-    /// <summary>Schema revision shared by the death documents; 2 installs the death steps by purpose (#1637).</summary>
+    /// <summary>Schema revision of the import's death-palette document; 2 installs the death steps by purpose (#1637).</summary>
     private const int FormatVersion = 2;
+    /// <summary>
+    /// Schema revision of the installed death-step document: 2 installs the death steps by purpose (#1637), and 3 writes each
+    /// whiteout colour as <c>#rrggbb</c> (#2564).
+    /// </summary>
+    private const int StepFormatVersion = 3;
     /// <summary>Strict camel-case JSON settings for the colour artwork and the death steps.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -85,9 +91,9 @@ public static class SamusDeathPaletteArtworkFiles
         File.WriteAllBytes(Path.Combine(importData, ArtworkFileName), JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions));
         // The game works with the death steps and the whiteout colours alone: they are installed by purpose.
         SamusDeathSteps steps = Build(document).Steps;
-        File.WriteAllBytes(Path.Combine(directory, StepFileName), JsonSerializer.SerializeToUtf8Bytes(new StepDocument(FormatVersion,
+        File.WriteAllBytes(Path.Combine(directory, StepFileName), JsonSerializer.SerializeToUtf8Bytes(new StepDocument(StepFormatVersion,
             [.. SamusDeathSheetDefinitions.Explosion.Select(frame => steps.ExplosionShade(frame).Step)],
-            [.. SamusWhiteoutShade.All.Select(shade => PaletteRgb5.From(steps.WhiteoutColour(shade)))]),
+            [.. SamusWhiteoutShade.All.Select(shade => InstalledColourText.Format(steps.WhiteoutColour(shade)))]),
             JsonOptions));
     }
 
@@ -97,7 +103,7 @@ public static class SamusDeathPaletteArtworkFiles
     /// </summary>
     /// <param name="directory">The component's directory, holding the death-step document.</param>
     /// <returns>What the game reads of her death sequence; her death colours are pre-coloured on her sheets.</returns>
-    /// <exception cref="InvalidDataException">Strict JSON, version, counts, steps or channels are invalid; errors identify the file.</exception>
+    /// <exception cref="InvalidDataException">Strict JSON, version, counts or steps are invalid, or a whiteout colour is not written as <c>#rrggbb</c> on the game's fade scale; errors identify the file.</exception>
     /// <exception cref="IOException">A required installed file cannot be read.</exception>
     public static SamusDeathSteps LoadSteps(string directory)
     {
@@ -134,12 +140,10 @@ public static class SamusDeathPaletteArtworkFiles
     /// <summary>Validates the death-step document and builds the steps the game reads.</summary>
     private static SamusDeathSteps BuildSteps(StepDocument document)
     {
-        if (document.Version != FormatVersion || document.ExplosionSteps is null || document.Whiteout is null)
+        if (document.Version != StepFormatVersion || document.ExplosionSteps is null || document.Whiteout is null)
             throw new InvalidDataException("Samus death steps have an invalid structure.");
-        return new SamusDeathSteps([.. document.ExplosionSteps.Select(shade => new SamusDeathShade(shade))], [.. document.Whiteout.Select((levels, step) =>
-            levels is not null && (uint)levels.Red <= 31 && (uint)levels.Green <= 31 && (uint)levels.Blue <= 31
-                ? levels.ToRgbColor()
-                : throw new InvalidDataException($"Samus death whiteout step {step} requires channels 0..31."))]);
+        return new SamusDeathSteps([.. document.ExplosionSteps.Select(shade => new SamusDeathShade(shade))],
+            [.. document.Whiteout.Select((colour, step) => InstalledColourText.ParseOnFadeScale(colour, $"Samus death whiteout step {step}"))]);
     }
 
     /// <summary>The artwork file stores the cartridge's colour words; each must be a fifteen-bit color.</summary>
@@ -160,11 +164,12 @@ public static class SamusDeathPaletteArtworkFiles
     }
 
     /// <summary>Complete suited, suitless, whiteout, and explosion death-step payload, which only the import reads.</summary>
+    [SuppressMessage("Design", "SME6463", Justification = "Import data: Extract writes Samus's suited, suitless and whiteout colour rows to the Samus body's import data, the death-palette document only the import reads, to pre-colour her death shades; the installer deletes it before it publishes, and the installed death steps are StepDocument's colours.")]
     private sealed record ArtworkDocument(int Version, ushort[][][] Suited,
         ushort[][] Suitless, ushort[] Whiteout, ushort[] ExplosionPaletteIndices);
     /// <summary>
     /// The installed death steps by purpose: the death step each explosion frame shows her suit and suitless body in, and the
-    /// colour the room and every other sprite whiten to at each whiteout step.
+    /// colour the room and every other sprite whiten to at each whiteout step, written as <c>#rrggbb</c> (#2564).
     /// </summary>
-    private sealed record StepDocument(int Version, int[] ExplosionSteps, PaletteRgb5[] Whiteout);
+    private sealed record StepDocument(int Version, int[] ExplosionSteps, string[] Whiteout);
 }

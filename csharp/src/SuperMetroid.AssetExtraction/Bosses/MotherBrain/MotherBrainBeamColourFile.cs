@@ -15,8 +15,8 @@ public static class MotherBrainBeamColourFile
     /// <summary>The installed document's file name, beside the map presentation.</summary>
     public const string FileName = "mother-brain-beam-colours.json";
 
-    /// <summary>Supported schema revision.</summary>
-    public const int Version = 1;
+    /// <summary>Supported schema revision: 2 writes each colour as <c>#rrggbb</c> (#2564).</summary>
+    public const int Version = 2;
 
     /// <summary>The document holding <paramref name="colours"/>.</summary>
     /// <param name="colours">The beam backdrop's first colour and its cycle.</param>
@@ -27,8 +27,8 @@ public static class MotherBrainBeamColourFile
         return JsonSerializer.SerializeToUtf8Bytes(new MotherBrainBeamColourDocument
         {
             Version = Version,
-            First = PaletteRgb5.From(colours.BeamInitialColor),
-            Cycle = [.. colours.BeamCycle.Select(PaletteRgb5.From)],
+            First = InstalledColourText.Format(colours.BeamInitialColor),
+            Cycle = [.. colours.BeamCycle.Select(InstalledColourText.Format)],
         }, ArtworkJson.Options);
     }
 
@@ -36,7 +36,8 @@ public static class MotherBrainBeamColourFile
     /// <param name="json">UTF-8 JSON consumed from its current position and left open.</param>
     /// <returns>The beam backdrop's first colour and its cycle.</returns>
     /// <exception cref="InvalidDataException">
-    /// The JSON is malformed, names another version, holds no cycle colour, or a channel is outside 0..31.
+    /// The JSON is malformed, names another version, holds no cycle colour, or a colour is not written as <c>#rrggbb</c> or
+    /// is off the game's fade scale.
     /// </exception>
     public static MotherBrainRainbowBeamColours Read(Stream json)
     {
@@ -51,10 +52,8 @@ public static class MotherBrainBeamColourFile
             [.. document.Cycle.Select((colour, index) => Compile(colour, $"cycle {index}"))]);
     }
 
-    /// <summary>One colour of the backdrop, each channel 0..31.</summary>
-    /// <exception cref="InvalidDataException">The colour is absent or a channel is out of range.</exception>
-    private static RgbColor Compile(PaletteRgb5? colour, string name) =>
-        colour is { Red: >= 0 and <= FadeLevelColour.FullLevel, Green: >= 0 and <= FadeLevelColour.FullLevel, Blue: >= 0 and <= FadeLevelColour.FullLevel }
-            ? colour.ToRgbColor()
-            : throw new InvalidDataException($"Mother Brain's {name} beam colour requires red, green and blue in 0..{FadeLevelColour.FullLevel}.");
+    /// <summary>One colour of the backdrop, on the game's fade scale.</summary>
+    /// <exception cref="InvalidDataException">The colour is absent, not written as <c>#rrggbb</c> or off the scale.</exception>
+    private static RgbColor Compile(string? colour, string name) =>
+        InstalledColourText.ParseOnFadeScale(colour, $"Mother Brain's {name} beam colour");
 }

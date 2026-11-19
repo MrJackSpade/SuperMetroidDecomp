@@ -465,8 +465,10 @@ internal static class TitleGradientVerification
         document.Variants[0] = first;
 
         TitleGradientStop top = first.Stops[0], second = first.Stops[1];
-        first.Stops[0] = top with { Red = 32 };
-        Reject("title gradient rejects non-RGB5 color");
+        first.Stops[0] = top with { Colour = "#ff00ff00" };
+        Reject("title gradient rejects a colour not written as #rrggbb");
+        first.Stops[0] = top with { Colour = "#7a7a7a" };
+        Reject("title gradient rejects a colour off the game's fade scale");
         first.Stops[0] = top with { Line = 1 };
         Reject("title gradient rejects a first stop below the top line");
         first.Stops[0] = top;

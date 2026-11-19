@@ -18,8 +18,8 @@ public static class IntroBackdropFiles
     /// <summary>The installed document's file name.</summary>
     public const string FileName = "intro-backdrops.json";
 
-    /// <summary>Revision 1 of the backdrop document, the only revision the reader accepts.</summary>
-    public const int Version = 1;
+    /// <summary>Revision 2 of the backdrop document, the only revision the reader accepts: 2 writes each colour as <c>#rrggbb</c> (#2564).</summary>
+    public const int Version = 2;
 
     /// <summary>The backdrops the scenes' extracted colours show, as the document's bytes.</summary>
     /// <param name="opening">The opening narration's extracted colours, whose first background colour is its backdrop.</param>
@@ -31,15 +31,16 @@ public static class IntroBackdropFiles
         return JsonSerializer.SerializeToUtf8Bytes(new IntroBackdropDocument
         {
             Version = Version,
-            Opening = PaletteRgb5.From(opening.Backdrop),
-            CeresFlight = PaletteRgb5.From(flight.Backdrop),
+            Opening = InstalledColourText.Format(opening.Backdrop),
+            CeresFlight = InstalledColourText.Format(flight.Backdrop),
         }, ArtworkJson.Options);
     }
 
     /// <summary>Reads the installed opening backdrops.</summary>
     /// <param name="json">The installed document, read from its current position.</param>
     /// <exception cref="InvalidDataException">
-    /// The document is invalid or names another version, or a backdrop is missing or has a channel outside 0..31.
+    /// The document is invalid or names another version, or a backdrop is missing, is not written as <c>#rrggbb</c> or lies
+    /// off the game's fade scale.
     /// </exception>
     public static IntroBackdrops Read(Stream json)
     {
@@ -48,9 +49,6 @@ public static class IntroBackdropFiles
             throw new InvalidDataException($"Opening backdrops require version {Version}.");
         return new IntroBackdrops(Colour(document.Opening, "opening backdrop"), Colour(document.CeresFlight, "Ceres flight backdrop"));
 
-        static RgbColor Colour(PaletteRgb5? colour, string name) =>
-            colour is { Red: >= 0 and <= FadeLevelColour.FullLevel, Green: >= 0 and <= FadeLevelColour.FullLevel, Blue: >= 0 and <= FadeLevelColour.FullLevel }
-                ? colour.ToRgbColor()
-                : throw new InvalidDataException($"Opening backdrops: the {name} requires red, green and blue in 0..{FadeLevelColour.FullLevel}.");
+        static RgbColor Colour(string? colour, string name) => InstalledColourText.ParseOnFadeScale(colour, $"Opening backdrops' {name}");
     }
 }

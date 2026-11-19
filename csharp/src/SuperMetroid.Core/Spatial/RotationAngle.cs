@@ -98,6 +98,26 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>
     /// </summary>
     public RotationAngle TurnedByFractionsOfStep(int fractionsOfStep) => NormalizeRaw(RawValue + fractionsOfStep);
 
+    /// <summary>
+    /// The angle turned by <paramref name="speed"/>'s whole steps alone (#2555), keeping its own fraction, as a turn that
+    /// steps an angle by whole steps leaves the speed's fraction to accumulate in the speed.
+    /// </summary>
+    public RotationAngle TurnedByWholeStepsOf(AngularSpeed speed) => TurnedBySteps(speed.WholeSteps);
+
+    /// <summary>
+    /// The angle turned on by <paramref name="turn"/> <paramref name="times"/> times (#2555), continuing around the circle
+    /// past a full turn.
+    /// </summary>
+    /// <param name="turn">The turn each time takes.</param>
+    /// <param name="times">How many times, zero or more.</param>
+    public RotationAngle TurnedBy(RotationAngle turn, int times) => AddRaw(checked(turn.RawValue * Ensure.AtLeastZero(times)));
+
+    /// <summary>
+    /// The angle with its whole steps replaced by <paramref name="other"/>'s and its own fraction of a step kept (#2555),
+    /// as a beam held at its full width keeps the part of a step its widening had reached.
+    /// </summary>
+    public RotationAngle WithWholeStepsOf(RotationAngle other) => new((ushort)(other.Steps * FractionsPerStep + RawValue % FractionsPerStep));
+
     /// <summary>Turns the angle by <paramref name="steps"/> whole steps, keeping its fraction, continuing around the circle.</summary>
     public RotationAngle TurnedBySteps(int steps) => AddRaw(steps * FractionsPerStep);
 

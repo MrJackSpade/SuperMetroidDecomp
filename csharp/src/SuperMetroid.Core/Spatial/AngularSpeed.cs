@@ -81,9 +81,9 @@ public readonly record struct AngularSpeed : IComparable<AngularSpeed>
     /// The speed with its whole steps held to <paramref name="limit"/>'s when they lie beyond them in the limit's
     /// direction, its fraction kept: a speed toward increasing angles is held to at most the limit's whole steps, one
     /// toward decreasing angles to at least them, as a turn that caps only its whole steps lets its fraction accumulate
-    /// beneath the cap.
+    /// beneath the cap, as a Ki-Hunter's swoop caps its turning.
     /// </summary>
-    public AngularSpeed WithWholeStepsLimitedTo(AngularSpeed limit)
+    public AngularSpeed CappedInWholeSteps(AngularSpeed limit)
     {
         int whole = WholeSteps;
         int cap = limit.WholeSteps;

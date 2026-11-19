@@ -60,7 +60,7 @@ public static class NoobTubeDebrisDefinitions
     /// <summary>
     /// The random choice of the angle a glass shard's or air bubble's swaying fall starts at, any of the turn's 256 steps.
     /// </summary>
-    internal static readonly RandomSampleField FallingSwayStart = new(8, 8);
+    internal static readonly RandomAngle FallingSwayStart = new(new(8, 8), RotationAngle.Zero, RotationAngle.FromStepFraction(1, 2));
 
     /// <summary>Shard <paramref name="shard"/>, <paramref name="fromCrack"/> from the crack, flying off at <paramref name="velocity"/>.</summary>
     private static NoobTubePiece Shard(Offset16<RoomPixels> fromCrack, PixelVelocity<RoomPixels> velocity, NoobTubeShard shard) =>

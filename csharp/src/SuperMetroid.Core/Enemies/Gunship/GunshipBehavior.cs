@@ -335,10 +335,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// <summary>Moves Samus and the ship's three pieces down by <paramref name="delta"/> together.</summary>
     private static void MoveGunshipAndSamusVertically(SamusState samus, RoomEnemyPlace top, SignedSixteenSixteen delta)
     {
-        FixedCoordinate samusY = new FixedCoordinate(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction)
-            .MovedBy(delta);
-        samus.Position = samus.Position.WithWholeY(samusY.Whole);
-        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(samusY.FractionOfPixel);
+        samus.Position = samus.Position.WithY(samus.Position.Y.MovedBy(delta));
 
         foreach (RoomEnemyPlace place in Pieces(top).All)
         {

@@ -20,6 +20,9 @@ public static class KiHunterMotionDefinitions
     /// </summary>
     public const int PatrolSpeed = 1;
 
+    /// <summary>The speed a flying Ki-Hunter climbs or descends on its patrol: <see cref="PatrolSpeed"/>'s pixel an update.</summary>
+    public static SignedSixteenSixteen PatrolClimbSpeed { get; } = SignedSixteenSixteen.FromWholePixels(PatrolSpeed);
+
     /// <summary>How far above where it is placed a flying Ki-Hunter's patrol turns back down, in pixels.</summary>
     public const int PatrolRise = 16;
 
@@ -54,10 +57,10 @@ public static class KiHunterMotionDefinitions
     public static SignedSixteenSixteen SwoopRecoveryVerticalVelocity { get; } = SignedSixteenSixteen.FromWholePixels(-1);
 
     /// <summary>
-    /// The whole downward speed a hopping Ki-Hunter turns to when it strikes the room above, in pixels an update; its
-    /// fraction is kept (#2339).
+    /// The downward speed a hopping Ki-Hunter turns to when it strikes the room above, a pixel an update; it sets only
+    /// the speed's whole pixels, so the fraction its hop held is kept (#2339).
     /// </summary>
-    public const int HopReboundSpeed = 1;
+    public static SignedSixteenSixteen HopReboundSpeed { get; } = SignedSixteenSixteen.FromWholePixels(1);
 
     /// <summary>How long a landed Ki-Hunter waits before it decides whether to spit or hop again, in updates (#2339).</summary>
     public const int LandingWait = 12;

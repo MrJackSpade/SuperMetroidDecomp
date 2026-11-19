@@ -694,7 +694,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The lava starts where the throwing overlay stands, with its fractions of a pixel, a drop below it, and flies
         // sideways the way the overlay faces.
-        projectile.Position = new(new(source.Position.X.Whole, source.Position.X.Fraction), new(source.Position.Y.Whole + MagdolliteMotionDefinitions.LavaDrop, source.Position.Y.Fraction));
+        projectile.Position = source.Position.WithWholeY(source.Position.Y.Whole + MagdolliteMotionDefinitions.LavaDrop);
         projectile.Velocity = new(
             thrown == HorizontalDirection.Right ? MagdolliteMotionDefinitions.LavaThrowSpeed : -MagdolliteMotionDefinitions.LavaThrowSpeed,
             SignedEightEight.Zero);

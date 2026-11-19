@@ -78,6 +78,24 @@ public readonly record struct SignedSixteenSixteen : IComparable<SignedSixteenSi
     /// <summary>Replaces only the fraction and keeps the whole pixels, as the game does when it sets a position's fraction alone.</summary>
     public SignedSixteenSixteen WithFraction(int fraction) => FromParts(WholePixels, fraction);
 
+    /// <summary>
+    /// The displacement with its whole pixels replaced by <paramref name="speed"/>'s and its own fraction kept (#2555), as
+    /// the game sets only a speed's whole pixels and lets the fraction it held carry on.
+    /// </summary>
+    public SignedSixteenSixteen WithWholePixelsOf(SignedSixteenSixteen speed) => WithWholePixels(speed.WholePixels);
+
+    /// <summary>
+    /// The displacement with its whole pixels reversed and its fraction kept (#2555), as the game negates only a speed's
+    /// whole pixels when it bounces.
+    /// </summary>
+    public SignedSixteenSixteen WithWholePixelsReversed() => WithWholePixels(-WholePixels);
+
+    /// <summary>
+    /// Whether the displacement's whole pixels reach <paramref name="speed"/>'s whole pixels whichever way it points
+    /// (#2555), as a cap that tests only a speed's whole pixels compares them.
+    /// </summary>
+    public bool WholePixelsReachEitherWay(SignedSixteenSixteen speed) => Math.Abs(WholePixels) >= speed.WholePixels;
+
     /// <summary>The displacement with no fraction: its whole pixels, the fraction dropped.</summary>
     public SignedSixteenSixteen WithoutFraction() => FromParts(WholePixels, 0);
 
@@ -94,6 +112,12 @@ public readonly record struct SignedSixteenSixteen : IComparable<SignedSixteenSi
     /// </summary>
     public SignedSixteenSixteen WithWholePixelsAtLeast(int minimumWhole) =>
         WholePixels < minimumWhole ? WithWholePixels(minimumWhole) : this;
+
+    /// <summary>
+    /// The displacement with its whole pixels raised to <paramref name="least"/>'s when they lie below them, its fraction
+    /// kept (#2555), as the game limits only a displacement's whole pixels.
+    /// </summary>
+    public SignedSixteenSixteen WithWholePixelsAtLeast(SignedSixteenSixteen least) => WithWholePixelsAtLeast(least.WholePixels);
 
     /// <summary>Adds two displacements, carrying the fraction and wrapping at 32 bits.</summary>
     public static SignedSixteenSixteen operator +(SignedSixteenSixteen left, SignedSixteenSixteen right) =>

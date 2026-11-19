@@ -245,7 +245,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         RotationAngle width = MorphBallEyeBeam.AngularHalfWidth;
         if (width >= MorphBallEyeBeamDefinitions.FullHalfWidth)
         {
-            MorphBallEyeBeam.AngularHalfWidth = MorphBallEyeBeamDefinitions.FullHalfWidth + (width - width.WholeStep);
+            MorphBallEyeBeam.AngularHalfWidth = width.WithWholeStepsOf(MorphBallEyeBeamDefinitions.FullHalfWidth);
             MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.Full;
         }
     }

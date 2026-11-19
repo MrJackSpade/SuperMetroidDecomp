@@ -43,10 +43,10 @@ internal static class KiHunterSwoopTurnVerification
                     mismatch ??= $"speed {fractions} accelerated by {acceleration} differs from the 16.16 sum";
             }
             SignedSixteenSixteen oldRightCap = old.WholePixels >= 2 ? old.WithWholePixels(2) : old;
-            if (Widened(speed.WithWholeStepsLimitedTo(KiHunterMotionDefinitions.SwoopMaximumAngularVelocity)) != oldRightCap)
+            if (Widened(speed.CappedInWholeSteps(KiHunterMotionDefinitions.SwoopMaximumAngularVelocity)) != oldRightCap)
                 mismatch ??= $"speed {fractions} capped rightward differs from the 16.16 whole-word cap";
             SignedSixteenSixteen oldLeftCap = old.WholePixels < -2 ? old.WithWholePixels(-2) : old;
-            if (Widened(speed.WithWholeStepsLimitedTo(-KiHunterMotionDefinitions.SwoopMaximumAngularVelocity)) != oldLeftCap)
+            if (Widened(speed.CappedInWholeSteps(-KiHunterMotionDefinitions.SwoopMaximumAngularVelocity)) != oldLeftCap)
                 mismatch ??= $"speed {fractions} capped leftward differs from the 16.16 whole-word cap";
         }
 

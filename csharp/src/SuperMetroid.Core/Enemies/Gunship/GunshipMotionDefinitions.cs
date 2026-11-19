@@ -61,8 +61,8 @@ internal static class GunshipMotionDefinitions
     /// <summary>The escaping ship's acceleration each update: a quarter pixel an update.</summary>
     internal static readonly SignedEightEight EscapeAcceleration = SignedEightEight.FromPixelFraction(1, 4);
 
-    /// <summary>The whole pixels an update the escaping speed's whole part reaches when the cap applies: ten.</summary>
-    internal const int EscapeVelocityCapTriggerPixels = 10;
+    /// <summary>The escaping speed at which the cap applies: ten pixels an update.</summary>
+    internal static readonly SignedEightEight EscapeVelocityCapTrigger = SignedEightEight.FromPixels(10);
 
     /// <summary>The escaping ship's capped upward speed: nine pixels an update.</summary>
     internal static readonly SignedEightEight EscapeVelocityCap = SignedEightEight.FromPixels(9);

@@ -117,11 +117,11 @@ internal static class CompiledProjectileMathVerification
             short velocity = (short)(native[sampleIndex] >> 2);
             uint expected = unchecked(initial + (uint)(velocity * 256));
             var debris = new NoobTubeDebrisState(column: 0) { X = SixteenSixteenWords.ToCoordinate(initial) };
-            debris.StartSway(phase);
+            debris.StartSway(RotationAngle.FromHalfSteps(phase));
             projectile.State = debris;
             arc(projectile, swaySteps);
             var after = new NoobTubeDebrisState(column: 0);
-            after.StartSway((phase + 2 * swaySteps) % 512);
+            after.StartSway(RotationAngle.FromHalfSteps((phase + 2 * swaySteps) % 512));
             if (debris.X.Whole != SixteenSixteenWords.WholeOf(expected) || debris.X.Fraction != SixteenSixteenWords.FractionOf(expected) ||
                 debris.Sway != after.Sway)
                 throw new InvalidDataException($"N00b tube arc differs: phase={phase}, steps={swaySteps}, initial={initial:X8}.");

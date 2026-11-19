@@ -8,11 +8,11 @@ internal static class SamusWallContactAnimationDefinitions
     /// Screw Attack's rewind frame: the end of its longer spin, whose next frame is its first wall-jump-ready frame
     /// (<see cref="SamusAnimationFrames.ScrewAttackWallJumpReady"/>).
     /// </summary>
-    internal static SamusAnimationPlace ScrewAttackRewindFrame { get; } = SamusAnimationDelayDefinitions.ScrewAttackAnimation.Place(SamusAnimationPlaceName.ScrewAttackWallContactRewind, SamusAnimationSegmentName.Spin, 26);
+    internal static SamusAnimationPlace ScrewAttackRewindFrame { get; } = SamusAnimationDelayDefinitions.ScrewAttackAnimation.Place(SamusAnimationPlaceName.ScrewAttackWallContactRewind, SamusAnimationSegmentName.Spin, 25);
 
     /// <summary>
     /// Ordinary spin and Space Jump's rewind frame: the end of the spin, whose next frame is its first wall-jump-ready frame
     /// (<see cref="SamusAnimationFrames.SpinJumpWallJumpReady"/>).
     /// </summary>
-    internal static SamusAnimationPlace SpinJumpRewindFrame { get; } = SamusAnimationDelayDefinitions.SpinJumpAnimation.Place(SamusAnimationPlaceName.SpinJumpWallContactRewind, SamusAnimationSegmentName.Spin, 10);
+    internal static SamusAnimationPlace SpinJumpRewindFrame { get; } = SamusAnimationDelayDefinitions.SpinJumpAnimation.Place(SamusAnimationPlaceName.SpinJumpWallContactRewind, SamusAnimationSegmentName.Spin, 9);
 }

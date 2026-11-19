@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <param name="Target">The frame the animation continues from, a delay of the same animation.</param>
 internal sealed record SamusAnimationRepeat(SamusAnimationFrame Target) : SamusAnimationCue
 {
-    /// <summary>Continues the animation from frame <paramref name="frame"/> of its segment <paramref name="segment"/>.</summary>
-    internal SamusAnimationRepeat(SamusAnimationSegmentName segment, int frame) : this(new SamusAnimationFrame(segment, frame))
+    /// <summary>Plays the segment named <paramref name="segment"/> again from its first frame (#2530).</summary>
+    internal SamusAnimationRepeat(SamusAnimationSegmentName segment) : this(new SamusAnimationFrame(segment, 0))
     {
     }
 }

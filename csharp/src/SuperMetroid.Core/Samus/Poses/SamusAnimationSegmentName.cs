@@ -1,13 +1,19 @@
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>
-/// What a segment of a Samus animation is for (#2048): each segment of an animation has its own name, and a frame of the
-/// animation is a frame of one named segment (<see cref="SamusAnimationFrame"/>).
+/// What a segment of a Samus animation is for (#2048, #2530): each segment of an animation has its own name, and a frame
+/// of the animation is a frame of one named segment (<see cref="SamusAnimationFrame"/>).
 /// </summary>
 public enum SamusAnimationSegmentName
 {
-    /// <summary>The only segment of an animation that has one.</summary>
+    /// <summary>
+    /// An animation's own frames from its start: the whole of an animation that has no other segment, or the lead of one
+    /// whose repeat plays its <see cref="Cycle"/>.
+    /// </summary>
     Main,
+
+    /// <summary>The frames an animation repeats after its <see cref="Main"/> frames, which its repeat plays again.</summary>
+    Cycle,
 
     /// <summary>The run's stride, which the running cadence times while she has momentum.</summary>
     Run,
@@ -43,8 +49,17 @@ public enum SamusAnimationSegmentName
     /// <summary>The drained crouch's fall, held until she lands.</summary>
     Fall,
 
+    /// <summary>The left-facing drained crouch's landing frame, held as she lands before the held crouch.</summary>
+    Landing,
+
     /// <summary>The drained crouch held on the floor, from which Up can stand her up.</summary>
     Held,
+
+    /// <summary>
+    /// The left-facing held crouch's last frames, into which its first frames play on and its failed stand falls back,
+    /// and which go on with the held crouch again.
+    /// </summary>
+    HeldReturn,
 
     /// <summary>The drained stand-up, which ends in the ordinary standing pose.</summary>
     StandUp,
@@ -64,11 +79,17 @@ public enum SamusAnimationSegmentName
     /// <summary>The low-energy breathing.</summary>
     LowEnergyBreathe,
 
-    /// <summary>The fall's frames before it gathers speed.</summary>
+    /// <summary>The fall's first frames, before its slow fall.</summary>
     FallStart,
 
-    /// <summary>The fast fall's frames, which the movement starts once she falls fast enough.</summary>
+    /// <summary>The fall's frame before it gathers speed, held until it does.</summary>
+    SlowFall,
+
+    /// <summary>The fast fall's first frame, which the movement starts once she falls fast enough.</summary>
     FastFall,
+
+    /// <summary>The fast fall's frame after its first, held while she falls fast.</summary>
+    FastFallHeld,
 
     /// <summary>The aimed fall's first frame, held for a tick before the aim.</summary>
     Aim,
@@ -76,11 +97,17 @@ public enum SamusAnimationSegmentName
     /// <summary>The aimed fall's aim, held once reached.</summary>
     AimHeld,
 
-    /// <summary>The knockback's own frames.</summary>
+    /// <summary>The knockback's first frame, before her recoil.</summary>
     Knockback,
+
+    /// <summary>The knockback's recoil, held while she is knocked back.</summary>
+    Recoil,
 
     /// <summary>The ball's roll.</summary>
     Roll,
+
+    /// <summary>The spin's still first frame, which a spin started from a jump skips.</summary>
+    SpinStart,
 
     /// <summary>The spin's somersault.</summary>
     Spin,
@@ -100,8 +127,11 @@ public enum SamusAnimationSegmentName
     /// <summary>The Screw Attack wall-jump spin.</summary>
     ScrewAttackSpin,
 
-    /// <summary>The Crystal Flash's rise.</summary>
+    /// <summary>The Crystal Flash's first frames, as she starts to rise.</summary>
     Rise,
+
+    /// <summary>The Crystal Flash's alternating frames, repeated while she rises until the glow starts.</summary>
+    Rising,
 
     /// <summary>The Crystal Flash's glow while it drains ammunition.</summary>
     Glow,
@@ -114,4 +144,7 @@ public enum SamusAnimationSegmentName
 
     /// <summary>The front-facing pose's appearance at the Zebes start.</summary>
     Appearance,
+
+    /// <summary>The front-facing pose's frame after its appearance, held once she has appeared.</summary>
+    AppearanceHeld,
 }

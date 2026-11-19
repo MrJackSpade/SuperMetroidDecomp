@@ -26,7 +26,7 @@ public static class SamusDeathSequenceDefinitions
     /// <summary>The death pose's ball frame, which the Morph Ball and Spring Ball movements start it on.</summary>
     internal static SamusAnimationFrame BallStart { get; } = new(SamusAnimationSegmentName.Main, 1);
     /// <summary>The death pose's upright frame, which its repeat holds and every other movement starts it on.</summary>
-    internal static SamusAnimationFrame UprightStart { get; } = new(SamusAnimationSegmentName.Main, 5);
+    internal static SamusAnimationFrame UprightStart { get; } = new(SamusAnimationSegmentName.Cycle, 0);
 
     /// <summary>The death pose's frame each movement type starts it on; InitialFrame looks it up.</summary>
     internal static readonly IReadOnlyDictionary<SamusMovementType, SamusAnimationFrame> InitialFrames = new Dictionary<SamusMovementType, SamusAnimationFrame>

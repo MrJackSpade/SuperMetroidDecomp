@@ -57,13 +57,26 @@ internal static class SamusAnimationDelayDefinitionsVerification
                 AssertEqual<SamusPoseAnimationStep?>(run.End, StepNumbered(nextFrame), $"pose {pose} frame {nextFrame} instruction");
                 nextFrame++;
             }
-            AssertEqual(actual.Segments.Count, namedRuns, $"pose {pose}: every named segment is one of the cartridge's runs");
+            // A lead and the segment it plays on into are one run of the cartridge's (#2530).
+            AssertEqual(actual.Segments.Count(segment => segment.End is not null), namedRuns, $"pose {pose}: every named segment ending in a cue closes one of the cartridge's runs");
             AssertSequenceEqual(SamusAnimationUnnamedRunDefinitions.All.Where(run => run.Animation == actual.Name).ToArray(), unnamedRuns.ToArray(),
                 $"pose {pose}: the import's unnamed runs are the cartridge's runs no segment names");
             int past = nextFrame;
             AssertTrue(StepNumbered(past) is null, $"pose {pose} has no step past its program");
         }
         AssertEqual(Enum.GetValues<SamusAnimationName>().Length, checkedAnimations.Count, "every named animation is a cartridge program");
+
+        // Every repeat plays a named segment again from its first frame; the frames an animation shows once before it are a
+        // lead of their own (#2530). The frame after the start is the one the cartridge numbers one, across a lead too.
+        foreach (SamusPoseAnimation animation in SamusAnimationDelayDefinitions.All)
+        {
+            foreach (SamusAnimationSegment segment in animation.Segments)
+            {
+                if (segment.End is SamusAnimationRepeat repeat)
+                    AssertEqual(0, repeat.Target.Frame, $"the {animation.Name} animation's {segment.Name} repeat plays {repeat.Target.Segment} from its first frame");
+            }
+            AssertEqual(1, SamusAnimationNumbers.Number(animation, animation.AfterStart), $"the {animation.Name} animation's frame after its start");
+        }
 
         VerifyFramesBeyondAnimation(cartridge);
 
@@ -137,6 +150,8 @@ internal static class SamusAnimationDelayDefinitionsVerification
             for (int index = 0; index < animation.Segments.Count - 1; index++)
             {
                 SamusAnimationSegment segment = animation.Segments[index];
+                if (segment.End is null)
+                    continue;
                 SamusAnimationFrame frame = new(segment.Name, segment.CueFrame);
                 SamusAnimationFrame nextStart = new(animation.Segments[index + 1].Name, 0);
                 while (frame != nextStart)
@@ -151,7 +166,7 @@ internal static class SamusAnimationDelayDefinitionsVerification
         }
         AssertTrue(stepsPastCues > 0, "Samus's animations go on past their segments' cues");
         AssertEqual(new SamusAnimationFrame(SamusAnimationSegmentName.RecoilHold, 0),
-            SamusAnimationDelayDefinitions.KnockbackAnimation.Next(new SamusAnimationFrame(SamusAnimationSegmentName.Knockback, 11), InstalledFixtures.FramesBeyondAnimation),
+            SamusAnimationDelayDefinitions.KnockbackAnimation.Next(new SamusAnimationFrame(SamusAnimationSegmentName.Recoil, 10), InstalledFixtures.FramesBeyondAnimation),
             "the knockback's recoil hold follows its slow recoil, which no segment names");
     }
 

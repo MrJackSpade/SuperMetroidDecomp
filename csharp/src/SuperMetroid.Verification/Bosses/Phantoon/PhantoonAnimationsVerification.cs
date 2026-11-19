@@ -158,7 +158,7 @@ internal static class PhantoonAnimationsVerification
         {
             RoomEnemySystem enemies = NewFlameSystem();
             EnemyProjectile flame = SpawnDestroyable(enemies, SpawnRageFlame, "rage");
-            flame.StartAnimation(new PhantoonFlameAnimation(program));
+            flame.StartAnimation(new PhantoonFlameAnimation(enemies.PhantoonBehavior.Combat.DestroyableFlame, program));
             var native = new NativeEnemyProjectileListReader(entry, flame.FrameHold.RawValue);
             int drops = 0;
             for (int update = 0; update < 64 && !native.Deleted; update++)

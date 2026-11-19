@@ -417,7 +417,7 @@ internal static class KraidAnimationsVerification
             enemies.VerificationServices().ReadRandom = () => 32;
             enemies.KraidBehavior.Head.SpawnKraidSpitRock(NewRockSource());
             EnemyProjectile rock = enemies.Projectiles.EnemyProjectiles.Single(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.KraidSpitRock);
-            rock.StartAnimation(new KraidRockAnimation(program));
+            rock.StartAnimation(new KraidRockAnimation(KraidProjectiles.SpitRock, program));
             var native = new NativeEnemyProjectileListReader(entry, rock.FrameHold.RawValue);
             for (int update = 0; update < 40 && !native.Deleted; update++)
             {

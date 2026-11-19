@@ -57,25 +57,34 @@ internal static class EnemyProjectileMotionValueAccess
             switch (motion)
             {
                 case null: self.HoldStill(); break;
-                case SingleMotion typed: self.StartMotion(typed); break;
-                case BotwoonProjectileMotion typed: self.StartMotion(typed); break;
-                case CrocomireProjectileMotion typed: self.StartMotion(typed); break;
-                case DraygonShotMotion typed: self.StartMotion(typed); break;
-                case EyeDoorProjectileMotion typed: self.StartMotion(typed); break;
-                case FakeKraidProjectileMotion typed: self.StartMotion(typed); break;
-                case KagoBugMotion typed: self.StartMotion(typed); break;
-                case KiHunterAcidMotion typed: self.StartMotion(typed); break;
-                case KraidRockMotion typed: self.StartMotion(typed); break;
-                case MotherBrainProjectileMotion typed: self.StartMotion(typed); break;
-                case NoobTubePieceMotion typed: self.StartMotion(typed); break;
-                case PhantoonFlameMotion typed: self.StartMotion(typed); break;
-                case RidleyFireballMotion typed: self.StartMotion(typed); break;
-                case SporeSpawnSpawnerMotion typed: self.StartMotion(typed); break;
-                case TorizoProjectileMotion typed: self.StartMotion(typed); break;
-                case TourianStatueDecorationMotion typed: self.StartMotion(typed); break;
-                case TourianStatueEffectMotion typed: self.StartMotion(typed); break;
+                case SingleMotion typed: StartThroughBehavior(self, typed); break;
+                case BotwoonProjectileMotion typed: StartThroughBehavior(self, typed); break;
+                case CrocomireProjectileMotion typed: StartThroughBehavior(self, typed); break;
+                case DraygonShotMotion typed: StartThroughBehavior(self, typed); break;
+                case EyeDoorProjectileMotion typed: StartThroughBehavior(self, typed); break;
+                case FakeKraidProjectileMotion typed: StartThroughBehavior(self, typed); break;
+                case KagoBugMotion typed: StartThroughBehavior(self, typed); break;
+                case KiHunterAcidMotion typed: StartThroughBehavior(self, typed); break;
+                case KraidRockMotion typed: StartThroughBehavior(self, typed); break;
+                case MotherBrainProjectileMotion typed: StartThroughBehavior(self, typed); break;
+                case NoobTubePieceMotion typed: StartThroughBehavior(self, typed); break;
+                case PhantoonFlameMotion typed: StartThroughBehavior(self, typed); break;
+                case RidleyFireballMotion typed: StartThroughBehavior(self, typed); break;
+                case SporeSpawnSpawnerMotion typed: StartThroughBehavior(self, typed); break;
+                case TorizoProjectileMotion typed: StartThroughBehavior(self, typed); break;
+                case TourianStatueDecorationMotion typed: StartThroughBehavior(self, typed); break;
+                case TourianStatueEffectMotion typed: StartThroughBehavior(self, typed); break;
                 default: throw new InvalidOperationException($"Verification knows no motion family of {motion}.");
             }
         }
     }
+
+    /// <summary>
+    /// Starts <paramref name="motion"/> on <paramref name="projectile"/> through the behaviour bound to it, which the
+    /// snapshot's decoded motion names the family of.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The projectile's behaviour does not own <typeparamref name="TMotion"/>.</exception>
+    private static void StartThroughBehavior<TMotion>(EnemyProjectile projectile, TMotion motion) where TMotion : struct, Enum =>
+        projectile.StartMotion(projectile.Behavior as EnemyProjectileMotionBehavior<TMotion> ?? throw new InvalidOperationException(
+            $"Enemy projectile {projectile.Kind} in place {projectile.Place} is bound to {projectile.Behavior?.GetType().Name ?? "no behaviour"}, which owns no {typeof(TMotion).Name}."), motion);
 }

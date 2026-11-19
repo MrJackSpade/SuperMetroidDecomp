@@ -286,7 +286,7 @@ internal static class CrocomireAnimationsVerification
         shotSystem.CrocomireBehavior.Fight.SpawnCrocomireProjectile(shotState.Body, gradient: CrocomireProjectileDefinitions.AuthoredGradients[0]);
         EnemyProjectile exploding = shotSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.CrocomireProjectile);
-        exploding.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileSegment.Shot));
+        exploding.StartAnimation(new CrocomireProjectileAnimation(shotSystem.CrocomireBehavior.Combat.MouthShot, CrocomireProjectileSegment.Shot));
         CompareProjectile(cartridge, shotSystem, exploding, RoomEnemyProjectileKind.CrocomireProjectile, shot: true, "shot");
         AssertTrue(!exploding.IsActive, "the shot program deletes the projectile");
         AssertTrue(shotSystem.Projectiles.EnemyProjectiles.Any(projectile => projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup),

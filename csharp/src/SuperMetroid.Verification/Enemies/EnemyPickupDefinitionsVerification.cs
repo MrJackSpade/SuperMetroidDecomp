@@ -4,6 +4,8 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Enemies.Deaths.EnemyDeathProjectilePrograms;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies;
@@ -27,6 +29,9 @@ internal static class EnemyPickupDefinitionsVerification
                 $"enemy pickup program {kind}");
         }
 
+        // A pickup runs the room's deaths and drops, which carry out its animation's events.
+        RoomEnemySystem enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+            definitions: CompiledRoomEnemyDefinitions.Instance);
         for (int index = 1; index <= 5; index++)
         {
             EnemyPickupKind kind = EnemyPickupNativeWords.Selectors.Decode(index, "enemy pickup selector");
@@ -35,7 +40,7 @@ internal static class EnemyPickupDefinitionsVerification
                 FrameHold = WrappingCountdown.Start(0xffff),
                 PersistsOnSamusContact = true,
             };
-            EnemyDeathsAndDropsConstants.BeginEnemyPickup(projectile, kind);
+            EnemyDeathsAndDropsConstants.BeginEnemyPickup(enemies.DeathsAndDrops, projectile, kind);
             EnemyPickupAnimationDefinition expected = EnemyPickups.Animation(kind);
             AssertEqual(kind, projectile.StateOf<EnemyPickupState>().Kind,
                 $"production pickup kind {kind}");

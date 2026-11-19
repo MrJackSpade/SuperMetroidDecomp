@@ -46,7 +46,7 @@ internal static class DownwardGateProjectileBehaviorVerification
             DownwardGateProjectileSegment stage = gate.StateOf<DownwardGateState>().Stage;
             gate.StateOf<DownwardGateState>().BlockTravel = UpdateCountdownAccess.AtAge(RoomGridConversions.BlockPixels, RoomGridConversions.BlockPixels - 1);
             gate.Velocity = gate.Velocity.WithY(new SignedEightEight(256));
-            DownwardGateBehavior.RunDownwardGateProjectileMovement(gate);
+            DownwardGateBehavior.RunDownwardGateProjectileMovement(DownwardGateBehavior.Gate, gate);
             DownwardGateProjectileSegment resumed = DownwardGateProjectileAnimations.NextStage[stage];
             AssertEqual(resumed, gate.StateOf<DownwardGateState>().Stage, $"a block's travel takes {current} on to the stage it names next");
             AssertTrue(gate.Animation is DownwardGateProjectileAnimation next && next.PlayingSegment == resumed, $"a block's travel takes {current} on to {resumed}");

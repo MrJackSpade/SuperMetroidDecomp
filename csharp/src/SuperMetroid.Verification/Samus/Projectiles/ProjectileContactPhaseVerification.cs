@@ -40,7 +40,7 @@ internal static class ProjectileContactPhaseVerification
         var projectile = runtime.Enemies.Projectiles.ProjectileInPlace(17);
         projectile.Kind = RoomEnemyProjectileKind.RidleyFireball;
         projectile.Behavior = FamilyProjectileStarts.BehaviorOf(runtime.Enemies, projectile.Kind);
-        projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.Fireball));
+        projectile.StartAnimation(new RidleyFireballAnimation(runtime.Enemies.RidleyProjectiles.Fireballs, RidleyFireballSegment.Fireball));
         projectile.HoldStill();
         projectile.FrameHold = WrappingCountdown.Start(2);
         projectile.Position = projectile.Position.WithWhole(new(128, 235));
@@ -88,7 +88,7 @@ internal static class ProjectileContactPhaseVerification
             var projectile = runtime.Enemies.Projectiles.ProjectileInPlace(17);
             projectile.Kind = RoomEnemyProjectileKind.RidleyFireball;
             projectile.Behavior = FamilyProjectileStarts.BehaviorOf(runtime.Enemies, projectile.Kind);
-            projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.Fireball));
+            projectile.StartAnimation(new RidleyFireballAnimation(runtime.Enemies.RidleyProjectiles.Fireballs, RidleyFireballSegment.Fireball));
             projectile.HoldStill();
             projectile.FrameHold = WrappingCountdown.Start(2);
             projectile.Position = projectile.Position.WithWhole(new(120, 120));

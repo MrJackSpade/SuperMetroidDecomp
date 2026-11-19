@@ -58,7 +58,7 @@ internal static class DraygonStateQuantitiesVerification
     {
         EnemyProjectile goop = enemies.Projectiles.ProjectileInPlace(17);
         goop.Kind = RoomEnemyProjectileKind.DraygonGoop;
-        goop.StartMotion(DraygonShotMotion.GoopStuckToSamus);
+        goop.StartMotion(enemies.DraygonBehavior.Shots.Goop, DraygonShotMotion.GoopStuckToSamus);
         goop.State = new DraygonGoopAttachedState(stackPosition: 1);
         return goop;
     }

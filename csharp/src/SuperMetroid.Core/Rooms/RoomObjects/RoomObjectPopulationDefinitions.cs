@@ -32,7 +32,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.UpwardsScrollExtension, new(30, 39), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.UpwardsScrollExtension, new(30, 38), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.UpwardsScrollExtension, new(30, 37), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
-        new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()),
+        new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()), // The cartridge's block: an active place there takes a resident-trigger hit whatever it holds (#2558).
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 38), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorOpening(GreyDoorCondition.Never, new DoorLock(LockedDoorDefinitions.LandingSiteGreyDoorFacingRight, DoorOpeningPersistence.Transient)))),
         new(RoomObjectKind.GreyDoorFacingLeft, new(142, 70), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorOpening(GreyDoorCondition.Never, new DoorLock(LockedDoorDefinitions.LandingSiteGreyDoorFacingLeftAt142x70, DoorOpeningPersistence.Transient)))),
         new(RoomObjectKind.GreyDoorFacingLeft, new(142, 22), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorOpening(GreyDoorCondition.Never, new DoorLock(LockedDoorDefinitions.LandingSiteGreyDoorFacingLeftAt142x22, DoorOpeningPersistence.Transient)))),
@@ -106,7 +106,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.RightwardsScrollExtension, new(61, 17), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.RightwardsScrollExtension, new(62, 17), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(52, 14), new ScrollTriggerSetup(RoomScrollChange.ParlorClosesScreen4x0OpensScreen3x1)),
-        new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()),
+        new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()), // The cartridge's block: an active place there takes a resident-trigger hit whatever it holds (#2558).
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorOpening(GreyDoorCondition.Never, new DoorLock(LockedDoorDefinitions.ParlorGreyDoorFacingRightAt1x6, DoorOpeningPersistence.Transient)))),
         new(RoomObjectKind.GreyDoorFacingRight, new(17, 38), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorOpening(GreyDoorCondition.Never, new DoorLock(LockedDoorDefinitions.ParlorGreyDoorFacingRightAt17x38, DoorOpeningPersistence.Transient)))),
         new(RoomObjectKind.GreyDoorFacingRight, new(17, 54), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorOpening(GreyDoorCondition.Never, new DoorLock(LockedDoorDefinitions.ParlorGreyDoorFacingRightAt17x54, DoorOpeningPersistence.Transient)))),
@@ -268,7 +268,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.UpwardsScrollExtension, new(8, 135), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.UpwardsScrollExtension, new(8, 136), new ScrollExtensionSetup(ScrollExtensionDefinitions.Upwards)),
         new(RoomObjectKind.ScrollTrigger, new(8, 137), new ScrollTriggerSetup(RoomScrollChange.ClimbClosesScreen1x8)),
-        new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()),
+        new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()), // The cartridge's block: an active place there takes a resident-trigger hit whatever it holds (#2558).
         new(RoomObjectKind.GreyDoorFacingLeft, new(46, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorOpening(GreyDoorCondition.Never, new DoorLock(LockedDoorDefinitions.ClimbGreyDoorFacingLeftAt46x6WhenZebesTimebombSet, DoorOpeningPersistence.Transient)))),
         new(RoomObjectKind.GreyDoorFacingLeft, new(46, 118), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorOpening(GreyDoorCondition.Never, new DoorLock(LockedDoorDefinitions.ClimbGreyDoorFacingLeftAt46x118, DoorOpeningPersistence.Transient)))),
         new(RoomObjectKind.GreyDoorFacingLeft, new(30, 134), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorOpening(GreyDoorCondition.Never, new DoorLock(LockedDoorDefinitions.ClimbGreyDoorFacingLeftAt30x134, DoorOpeningPersistence.Transient)))),
@@ -312,7 +312,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The room objects the Bomb Torizo room places in its state once the Zebes time bomb is set.</summary>
     public static RoomObjectPopulation BombTorizoWhenZebesTimebombSet { get; } = RoomObjectPopulation.FromPlacements(nameof(BombTorizoWhenZebesTimebombSet),
     [
-        new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()),
+        new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()), // The cartridge's block: an active place there takes a resident-trigger hit whatever it holds (#2558).
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorOpening(GreyDoorCondition.CrittersEscaped, new DoorLock(LockedDoorDefinitions.BombTorizoGreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
     ]);
 
@@ -325,7 +325,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The room objects the Flyway room places in its state once the Zebes time bomb is set.</summary>
     public static RoomObjectPopulation FlywayWhenZebesTimebombSet { get; } = RoomObjectPopulation.FromPlacements(nameof(FlywayWhenZebesTimebombSet),
     [
-        new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()),
+        new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()), // The cartridge's block: an active place there takes a resident-trigger hit whatever it holds (#2558).
     ]);
 
     /// <summary>The room objects the Pre Map Flyway room places in every state: none.</summary>
@@ -1126,7 +1126,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The room objects the Speed Booster Hall room places in every state.</summary>
     public static RoomObjectPopulation SpeedBoosterHall { get; } = RoomObjectPopulation.FromPlacements(nameof(SpeedBoosterHall),
     [
-        new(RoomObjectKind.SpeedBoosterEscape, new(0, 0), new SpeedBoosterEscapeSetup()),
+        new(RoomObjectKind.SpeedBoosterEscape, new(0, 0), new SpeedBoosterEscapeSetup()), // The cartridge's block: an active place there takes a resident-trigger hit whatever it holds (#2558).
         new(RoomObjectKind.ShotBlockMissileTank, new(188, 19), new CollectibleSetup(new(InWorldCollectibleKind.MissileTank, CollectiblePresentation.ShotBlock), new CollectibleIdentity(ItemLocationDefinitions.SpeedBoosterHallShotBlockMissileTank))),
         new(RoomObjectKind.RedDoorFacingLeft, new(190, 22), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Left), new DoorLock(LockedDoorDefinitions.SpeedBoosterHallRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
@@ -1590,7 +1590,7 @@ internal static class RoomObjectPopulationDefinitions
     [
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorOpening(GreyDoorCondition.AreaBossDefeated, new DoorLock(LockedDoorDefinitions.AtticGreyDoorFacingRightUntilAreaBossDead, DoorOpeningPersistence.Persistent)))),
         new(RoomObjectKind.GreyDoorFacingLeft, new(110, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorOpening(GreyDoorCondition.AreaBossDefeated, new DoorLock(LockedDoorDefinitions.AtticGreyDoorFacingLeftUntilAreaBossDead, DoorOpeningPersistence.Persistent)))),
-        new(RoomObjectKind.WreckedShipAtticHeldPlace, new(8, 8), new WreckedShipAtticHeldPlaceSetup()),
+        new(RoomObjectKind.WreckedShipAtticHeldPlace, new(8, 8), new WreckedShipAtticHeldPlaceSetup()), // The cartridge's block: an active place there takes a resident-trigger hit whatever it holds (#2558).
     ]);
 
     /// <summary>The room objects the Assembly Line room places in its default state: none.</summary>
@@ -1700,7 +1700,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorOpening(GreyDoorCondition.EnemyDeathQuota, new DoorLock(LockedDoorDefinitions.AtticGreyDoorFacingRightUntilEnemiesKilled, DoorOpeningPersistence.Persistent)))),
         new(RoomObjectKind.GreyDoorFacingLeft, new(110, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorOpening(GreyDoorCondition.EnemyDeathQuota, new DoorLock(LockedDoorDefinitions.AtticGreyDoorFacingLeftUntilEnemiesKilled, DoorOpeningPersistence.Persistent)))),
         new(RoomObjectKind.GreyDoorFacingUp, new(70, 14), new GreyDoorSetup(new(ColoredDoorOrientation.Up, GreyDoorClosing.AtOnce), new GreyDoorOpening(GreyDoorCondition.EnemyDeathQuota, new DoorLock(LockedDoorDefinitions.AtticGreyDoorFacingUp, DoorOpeningPersistence.Persistent)))),
-        new(RoomObjectKind.WreckedShipAtticHeldPlace, new(8, 8), new WreckedShipAtticHeldPlaceSetup()),
+        new(RoomObjectKind.WreckedShipAtticHeldPlace, new(8, 8), new WreckedShipAtticHeldPlaceSetup()), // The cartridge's block: an active place there takes a resident-trigger hit whatever it holds (#2558).
     ]);
 
     /// <summary>The room objects the Assembly Line room places in its state once the area's boss is dead.</summary>
@@ -2223,28 +2223,28 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The room objects the Metroids 1 room places in every state.</summary>
     public static RoomObjectPopulation Metroids1 { get; } = RoomObjectPopulation.FromPlacements(nameof(Metroids1),
     [
-        new(RoomObjectKind.MetroidRoomClearance, new(8, 8), new MetroidRoomClearanceSetup(new WatchedMetroidRoom(StoryEvent.FirstMetroidHallCleared))),
+        new(RoomObjectKind.MetroidRoomClearance, new(8, 8), new MetroidRoomClearanceSetup(new WatchedMetroidRoom(StoryEvent.FirstMetroidHallCleared))), // The cartridge's block: an active place there takes a resident-trigger hit whatever it holds (#2558).
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorOpening(GreyDoorCondition.EnemyDeathQuota, new DoorLock(LockedDoorDefinitions.Metroids1GreyDoorFacingRight, DoorOpeningPersistence.Persistent)))),
     ]);
 
     /// <summary>The room objects the Metroids 2 room places in every state.</summary>
     public static RoomObjectPopulation Metroids2 { get; } = RoomObjectPopulation.FromPlacements(nameof(Metroids2),
     [
-        new(RoomObjectKind.MetroidRoomClearance, new(8, 8), new MetroidRoomClearanceSetup(new WatchedMetroidRoom(StoryEvent.FirstMetroidShaftCleared))),
+        new(RoomObjectKind.MetroidRoomClearance, new(8, 8), new MetroidRoomClearanceSetup(new WatchedMetroidRoom(StoryEvent.FirstMetroidShaftCleared))), // The cartridge's block: an active place there takes a resident-trigger hit whatever it holds (#2558).
         new(RoomObjectKind.GreyDoorFacingLeft, new(14, 22), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorOpening(GreyDoorCondition.EnemyDeathQuota, new DoorLock(LockedDoorDefinitions.Metroids2GreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
     ]);
 
     /// <summary>The room objects the Metroids 3 room places in every state.</summary>
     public static RoomObjectPopulation Metroids3 { get; } = RoomObjectPopulation.FromPlacements(nameof(Metroids3),
     [
-        new(RoomObjectKind.MetroidRoomClearance, new(8, 8), new MetroidRoomClearanceSetup(new WatchedMetroidRoom(StoryEvent.SecondMetroidHallCleared))),
+        new(RoomObjectKind.MetroidRoomClearance, new(8, 8), new MetroidRoomClearanceSetup(new WatchedMetroidRoom(StoryEvent.SecondMetroidHallCleared))), // The cartridge's block: an active place there takes a resident-trigger hit whatever it holds (#2558).
         new(RoomObjectKind.GreyDoorFacingLeft, new(94, 6), new GreyDoorSetup(new(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorOpening(GreyDoorCondition.EnemyDeathQuota, new DoorLock(LockedDoorDefinitions.Metroids3GreyDoorFacingLeft, DoorOpeningPersistence.Persistent)))),
     ]);
 
     /// <summary>The room objects the Metroids 4 room places in every state.</summary>
     public static RoomObjectPopulation Metroids4 { get; } = RoomObjectPopulation.FromPlacements(nameof(Metroids4),
     [
-        new(RoomObjectKind.MetroidRoomClearance, new(8, 8), new MetroidRoomClearanceSetup(new WatchedMetroidRoom(StoryEvent.SecondMetroidShaftCleared))),
+        new(RoomObjectKind.MetroidRoomClearance, new(8, 8), new MetroidRoomClearanceSetup(new WatchedMetroidRoom(StoryEvent.SecondMetroidShaftCleared))), // The cartridge's block: an active place there takes a resident-trigger hit whatever it holds (#2558).
         new(RoomObjectKind.GreyDoorFacingUp, new(6, 30), new GreyDoorSetup(new(ColoredDoorOrientation.Up, GreyDoorClosing.AtOnce), new GreyDoorOpening(GreyDoorCondition.EnemyDeathQuota, new DoorLock(LockedDoorDefinitions.Metroids4GreyDoorFacingUp, DoorOpeningPersistence.Persistent)))),
     ]);
 
@@ -2308,28 +2308,28 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The room objects the Tourian Escape 1 room places in every state.</summary>
     public static RoomObjectPopulation TourianEscape1 { get; } = RoomObjectPopulation.FromPlacements(nameof(TourianEscape1),
     [
-        new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()),
+        new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()), // The cartridge's block: an active place there takes a resident-trigger hit whatever it holds (#2558).
         new(RoomObjectKind.MotherBrainEscapeRoomGate, new(31, 6), new MotherBrainEscapeRoomGateSetup()),
     ]);
 
     /// <summary>The room objects the Tourian Escape 2 room places in every state.</summary>
     public static RoomObjectPopulation TourianEscape2 { get; } = RoomObjectPopulation.FromPlacements(nameof(TourianEscape2),
     [
-        new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()),
+        new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()), // The cartridge's block: an active place there takes a resident-trigger hit whatever it holds (#2558).
         new(RoomObjectKind.GreyDoorFacingDown, new(6, 3), new GreyDoorSetup(new(ColoredDoorOrientation.Down, GreyDoorClosing.AtOnce), new GreyDoorOpening(GreyDoorCondition.Never, new DoorLock(LockedDoorDefinitions.TourianEscape2GreyDoorFacingDown, DoorOpeningPersistence.Transient)))),
     ]);
 
     /// <summary>The room objects the Tourian Escape 3 room places in every state.</summary>
     public static RoomObjectPopulation TourianEscape3 { get; } = RoomObjectPopulation.FromPlacements(nameof(TourianEscape3),
     [
-        new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()),
+        new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()), // The cartridge's block: an active place there takes a resident-trigger hit whatever it holds (#2558).
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 22), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorOpening(GreyDoorCondition.Never, new DoorLock(LockedDoorDefinitions.TourianEscape3GreyDoorFacingRight, DoorOpeningPersistence.Transient)))),
     ]);
 
     /// <summary>The room objects the Tourian Escape 4 room places in every state.</summary>
     public static RoomObjectPopulation TourianEscape4 { get; } = RoomObjectPopulation.FromPlacements(nameof(TourianEscape4),
     [
-        new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()),
+        new(RoomObjectKind.EscapeRoomHeldPlace, new(8, 8), new EscapeRoomHeldPlaceSetup()), // The cartridge's block: an active place there takes a resident-trigger hit whatever it holds (#2558).
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 54), new GreyDoorSetup(new(ColoredDoorOrientation.Right, GreyDoorClosing.AtOnce), new GreyDoorOpening(GreyDoorCondition.Never, new DoorLock(LockedDoorDefinitions.TourianEscape4GreyDoorFacingRight, DoorOpeningPersistence.Transient)))),
     ]);
 

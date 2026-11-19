@@ -34,7 +34,7 @@ public static class NorfairDoorDefinitions
     public static DoorDefinition BusinessCenterToCrocomireEscape { get; } = new("BusinessCenterToCrocomireEscape", RoomDefinitions.CrocomireEscape, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Business Center room to the Warehouse Entrance room.</summary>
-    public static DoorDefinition BusinessCenterToWarehouseEntrance { get; } = new("BusinessCenterToWarehouseEntrance", RoomDefinitions.WarehouseEntrance, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.None);
+    public static DoorDefinition BusinessCenterToWarehouseEntrance { get; } = new("BusinessCenterToWarehouseEntrance", RoomDefinitions.WarehouseEntrance, new(DoorDirection.Up, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Business Center room to the Frog Save room.</summary>
     public static DoorDefinition BusinessCenterToFrogSave { get; } = new("BusinessCenterToFrogSave", RoomDefinitions.FrogSave, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -292,7 +292,7 @@ public static class NorfairDoorDefinitions
     public static DoorDefinition LowerNorfairElevatorToLavaDive { get; } = new("LowerNorfairElevatorToLavaDive", RoomDefinitions.LavaDive, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Lower Norfair Elevator room to the Main Hall room.</summary>
-    public static DoorDefinition LowerNorfairElevatorToMainHall { get; } = new("LowerNorfairElevatorToMainHall", RoomDefinitions.MainHall, new(DoorDirection.Down, DoorClosingBehavior.None), new(0, 0), new(4, 0), DoorSamusSpeed.None, DoorSetupDefinitions.None);
+    public static DoorDefinition LowerNorfairElevatorToMainHall { get; } = new("LowerNorfairElevatorToMainHall", RoomDefinitions.MainHall, new(DoorDirection.Down, DoorClosingBehavior.None), null, new(4, 0), DoorSamusSpeed.None, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Lower Norfair Elevator room to the Lower Norfair Elevator Save room.</summary>
     public static DoorDefinition LowerNorfairElevatorToLowerNorfairElevatorSave { get; } = new("LowerNorfairElevatorToLowerNorfairElevatorSave", RoomDefinitions.LowerNorfairElevatorSave, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(14, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -385,7 +385,7 @@ public static class NorfairDoorDefinitions
     public static DoorDefinition MainHallToFastPillarsSetup { get; } = new("MainHallToFastPillarsSetup", RoomDefinitions.FastPillarsSetup, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 22), new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Main Hall room to the Lower Norfair Elevator room.</summary>
-    public static DoorDefinition MainHallToLowerNorfairElevator { get; } = new("MainHallToLowerNorfairElevator", RoomDefinitions.LowerNorfairElevator, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.None);
+    public static DoorDefinition MainHallToLowerNorfairElevator { get; } = new("MainHallToLowerNorfairElevator", RoomDefinitions.LowerNorfairElevator, new(DoorDirection.Up, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Golden Torizo room to the Acid Statue room.</summary>
     public static DoorDefinition GoldenTorizoToAcidStatue { get; } = new("GoldenTorizoToAcidStatue", RoomDefinitions.AcidStatue, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(46, 38), new(2, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.AcidStatueClosesScreens0x1And1x1OpensScreens0x2And1x2And2x2TopAligned);

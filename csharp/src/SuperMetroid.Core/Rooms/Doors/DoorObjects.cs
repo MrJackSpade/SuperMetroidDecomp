@@ -50,7 +50,9 @@ internal sealed class DoorObjects
         Ensure.NotNull(level);
         Ensure.NotNull(door);
 
-        Position16<RoomBlocks> block = level.GridBlock(door.RoomObjectBlock);
+        if (door.RoomObjectBlock is not { } closing)
+            return false;
+        Position16<RoomBlocks> block = level.GridBlock(closing);
         foreach (RoomObjectPlace resident in _places.InUpdateOrder)
         {
             if (resident.Door is not { } standing || resident.Block != block)

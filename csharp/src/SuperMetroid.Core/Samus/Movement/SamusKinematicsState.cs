@@ -150,8 +150,6 @@ public sealed class SamusKinematicsState
     internal static SamusCollisionDirection RequireContactDirection(SamusCollisionDirection direction) => direction switch
     {
         SamusCollisionDirection.Left or SamusCollisionDirection.Right or SamusCollisionDirection.Up or SamusCollisionDirection.Down => direction,
-        SamusCollisionDirection.NonDirectionalProbe => throw new ArgumentOutOfRangeException(nameof(direction), direction,
-            "A non-directional probe meets no solid enemy."),
         _ => throw new ArgumentOutOfRangeException(nameof(direction)),
     };
 

@@ -389,8 +389,7 @@ static MotherBrainRinkaDoorSpawnExpected ObserveSolidEnemyProbeTarget(
         SamusCollisionDirection.Right => maxX - samus.Radius.X,
         SamusCollisionDirection.Left => minX + samus.Radius.X,
         SamusCollisionDirection.Up or
-            SamusCollisionDirection.Down or
-            SamusCollisionDirection.NonDirectionalProbe => (minX + maxX) / 2,
+            SamusCollisionDirection.Down => (minX + maxX) / 2,
         _ => (minX + maxX) / 2,
     };
     int targetY = direction switch
@@ -398,8 +397,7 @@ static MotherBrainRinkaDoorSpawnExpected ObserveSolidEnemyProbeTarget(
         SamusCollisionDirection.Down => maxY - samus.Radius.Y,
         SamusCollisionDirection.Up => minY + samus.Radius.Y,
         SamusCollisionDirection.Left or
-            SamusCollisionDirection.Right or
-            SamusCollisionDirection.NonDirectionalProbe => (minY + maxY) / 2,
+            SamusCollisionDirection.Right => (minY + maxY) / 2,
         _ => (minY + maxY) / 2,
     };
     return new MotherBrainRinkaDoorSpawnExpected(unchecked((ushort)targetX), unchecked((ushort)targetY));
@@ -612,8 +610,8 @@ airRoom, integrated, null, null, signedDistance: SignedSixteenSixteen.FromParts(
 
     AssertThrows<ArgumentOutOfRangeException>(
         () => SamusSolidEnemyCollision.Probe(
-            samus, [], SamusCollisionDirection.NonDirectionalProbe, UnsignedSixteenSixteen.FromWholePixels(0)),
-        "non-directional solid-enemy probe rejected");
+            samus, [], (SamusCollisionDirection)(-1), UnsignedSixteenSixteen.FromWholePixels(0)),
+        "an undefined solid-enemy probe direction rejected");
 
     Console.WriteLine("  Solid enemies: eligibility, native rounding, overlap, gaps, order, and touching quirk agree.");
 }

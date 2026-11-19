@@ -4,7 +4,7 @@
 public static class BrinstarDoorDefinitions
 {
     /// <summary>The door from the Green Brinstar Main Shaft room to the Green Brinstar Elevator room.</summary>
-    public static DoorDefinition GreenBrinstarMainShaftToGreenBrinstarElevator { get; } = new("GreenBrinstarMainShaftToGreenBrinstarElevator", RoomDefinitions.GreenBrinstarElevator, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.GreenBrinstarElevatorOpensScreen0x2BelowTheRoom);
+    public static DoorDefinition GreenBrinstarMainShaftToGreenBrinstarElevator { get; } = new("GreenBrinstarMainShaftToGreenBrinstarElevator", RoomDefinitions.GreenBrinstarElevator, new(DoorDirection.Up, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.GreenBrinstarElevatorOpensScreen0x2BelowTheRoom);
 
     /// <summary>The door from the Green Brinstar Main Shaft room to the Brinstar Pre Map room.</summary>
     public static DoorDefinition GreenBrinstarMainShaftToBrinstarPreMap { get; } = new("GreenBrinstarMainShaftToBrinstarPreMap", RoomDefinitions.BrinstarPreMap, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(46, 6), new(2, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -115,7 +115,7 @@ public static class BrinstarDoorDefinitions
     public static DoorDefinition SporeSpawnToSporeSpawnKihunters { get; } = new("SporeSpawnToSporeSpawnKihunters", RoomDefinitions.SporeSpawnKihunters, new(DoorDirection.Down, DoorClosingBehavior.BlueDoorCloses), new(54, 3), new(3, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Pink Brinstar Power Bombs room to the Big Pink room, arriving at its upper doorway.</summary>
-    public static DoorDefinition PinkBrinstarPowerBombsToBigPinkUpper { get; } = new("PinkBrinstarPowerBombsToBigPinkUpper", RoomDefinitions.BigPink, new(DoorDirection.Right, DoorClosingBehavior.None), new(0, 0), new(2, 3), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition PinkBrinstarPowerBombsToBigPinkUpper { get; } = new("PinkBrinstarPowerBombsToBigPinkUpper", RoomDefinitions.BigPink, new(DoorDirection.Right, DoorClosingBehavior.None), null, new(2, 3), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Pink Brinstar Power Bombs room to the Big Pink room, arriving at its lower doorway.</summary>
     public static DoorDefinition PinkBrinstarPowerBombsToBigPinkLower { get; } = new("PinkBrinstarPowerBombsToBigPinkLower", RoomDefinitions.BigPink, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(33, 70), new(2, 4), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -136,7 +136,7 @@ public static class BrinstarDoorDefinitions
     public static DoorDefinition MorphBallToConstructionZone { get; } = new("MorphBallToConstructionZone", RoomDefinitions.ConstructionZone, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Morph Ball room to the Elevator To Blue Brinstar room.</summary>
-    public static DoorDefinition MorphBallToElevatorToBlueBrinstar { get; } = new("MorphBallToElevatorToBlueBrinstar", RoomDefinitions.ElevatorToBlueBrinstar, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.None);
+    public static DoorDefinition MorphBallToElevatorToBlueBrinstar { get; } = new("MorphBallToElevatorToBlueBrinstar", RoomDefinitions.ElevatorToBlueBrinstar, new(DoorDirection.Up, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Construction Zone room to the Morph Ball room.</summary>
     public static DoorDefinition ConstructionZoneToMorphBall { get; } = new("ConstructionZoneToMorphBall", RoomDefinitions.MorphBall, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(126, 38), new(7, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -265,7 +265,7 @@ public static class BrinstarDoorDefinitions
     public static DoorDefinition CaterpillarToHellway { get; } = new("CaterpillarToHellway", RoomDefinitions.Hellway, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(46, 6), new(2, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Caterpillar room to the Red Brinstar Elevator room.</summary>
-    public static DoorDefinition CaterpillarToRedBrinstarElevator { get; } = new("CaterpillarToRedBrinstarElevator", RoomDefinitions.RedBrinstarElevator, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.None);
+    public static DoorDefinition CaterpillarToRedBrinstarElevator { get; } = new("CaterpillarToRedBrinstarElevator", RoomDefinitions.RedBrinstarElevator, new(DoorDirection.Up, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Caterpillar room to the Red Fish room.</summary>
     public static DoorDefinition CaterpillarToRedFish { get; } = new("CaterpillarToRedFish", RoomDefinitions.RedFish, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.RedFishClosesScreen2x0OpensScreen1x0TopAligned);
@@ -352,7 +352,7 @@ public static class BrinstarDoorDefinitions
     public static DoorDefinition WarehouseEntranceToWarehouseZeela { get; } = new("WarehouseEntranceToWarehouseZeela", RoomDefinitions.WarehouseZeela, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Warehouse Entrance room to the Business Center room.</summary>
-    public static DoorDefinition WarehouseEntranceToBusinessCenter { get; } = new("WarehouseEntranceToBusinessCenter", RoomDefinitions.BusinessCenter, new(DoorDirection.Down, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.None);
+    public static DoorDefinition WarehouseEntranceToBusinessCenter { get; } = new("WarehouseEntranceToBusinessCenter", RoomDefinitions.BusinessCenter, new(DoorDirection.Down, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Varia Suit room to the Kraid room.</summary>
     public static DoorDefinition VariaSuitToKraid { get; } = new("VariaSuitToKraid", RoomDefinitions.Kraid, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(30, 22), new(1, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);

@@ -7,10 +7,10 @@ namespace SuperMetroid.Core.Rooms.Doors;
 public static class DoorDefinitions
 {
     /// <summary>The Landing Site's demo entry: the door no room leads through, by which the completion demo set's Gauntlet entrance, infinite bomb jump and crystal flash demonstrations enter the Landing Site.</summary>
-    public static DoorDefinition LandingSiteDemoEntry { get; } = new("LandingSiteDemoEntry", RoomDefinitions.LandingSite, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(4, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition LandingSiteDemoEntry { get; } = new("LandingSiteDemoEntry", RoomDefinitions.LandingSite, new(DoorDirection.Up, DoorClosingBehavior.None), null, new(4, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>A door to the Halfie Climb room that no room's door list holds; only the tools name it.</summary>
-    internal static DoorDefinition UnlistedDoorToHalfieClimb { get; } = new("UnlistedDoorToHalfieClimb", RoomDefinitions.HalfieClimb, new(DoorDirection.Left, DoorClosingBehavior.None), new(0, 0), new(0, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    internal static DoorDefinition UnlistedDoorToHalfieClimb { get; } = new("UnlistedDoorToHalfieClimb", RoomDefinitions.HalfieClimb, new(DoorDirection.Left, DoorClosingBehavior.None), null, new(0, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>A door to the Maridia Missile Refill room that no room's door list holds; only the tools name it.</summary>
     internal static DoorDefinition UnlistedDoorToMaridiaMissileRefill { get; } = new("UnlistedDoorToMaridiaMissileRefill", RoomDefinitions.MaridiaMissileRefill, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);

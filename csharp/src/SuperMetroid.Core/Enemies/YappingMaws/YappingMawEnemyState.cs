@@ -93,7 +93,11 @@ public sealed class YappingMawEnemyState
     /// </summary>
     public YappingMawGrabCooldown GrabCooldown { get; internal set; }
 
-    /// <summary>Whether the Maw lay outside the view as its update began, which silences its bite.</summary>
+    /// <summary>
+    /// Whether the Maw lay outside the view as its update began, which silences its bite (#2562). Its update records where
+    /// it lay before it moves; the bite's cue, which plays after the Maw has moved, reads that record, since asking the view
+    /// then would answer for where the Maw lies by the cue.
+    /// </summary>
     public bool IsOffScreen { get; internal set; }
 
     /// <summary>The root/base object its attack direction selects, which every Maw spawns with (#2284).</summary>

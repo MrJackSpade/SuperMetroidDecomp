@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Audio;
-
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>

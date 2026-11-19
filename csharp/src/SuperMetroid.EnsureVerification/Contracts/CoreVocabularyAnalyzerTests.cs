@@ -362,6 +362,22 @@ internal static class CoreVocabularyAnalyzerTests
         Expect("class P { void CopyToEnemyRecord() { } }", $"'CopyToEnemyRecord' {tablePosition} ('EnemyRecord')");
         // The words alone or apart are the game's own: a menu, a table, an index, an enemy, a record.
         Expect("class P { int MenuStep; int SpeedTable; int WingIndex; int EnemyIndex; int TableRow; int IndexTable; void RecordEnemy() { } int MenuCursorIndex; }");
+        // The original's failed table lookup (#2525), in each kind of declaration the renamed no-transition setups,
+        // responses and pose used it in: an enum and its file, a static class, a positional record member, a method, a
+        // record struct, a private method, a local and a plural.
+        const string tableLookup = "names the original's failed table lookup";
+        ExpectFile("enum SamusLookupFailureSetup { None }", "SamusLookupFailureSetup.cs",
+            $"'SamusLookupFailureSetup' {tableLookup} ('LookupFailure')", $"'SamusLookupFailureSetup' {tableLookup} ('LookupFailure')");
+        Expect("static class SamusLookupFailureSetups { }", $"'SamusLookupFailureSetups' {tableLookup} ('LookupFailure')");
+        Expect("sealed record Movement(int LookupFailureResponse);", $"'LookupFailureResponse' {tableLookup} ('LookupFailure')");
+        Expect("static class Responses { static int ForLookupFailure(int movement) => movement; }",
+            $"'ForLookupFailure' {tableLookup} ('LookupFailure')");
+        Expect("readonly record struct SamusLookupFailurePose { }", $"'SamusLookupFailurePose' {tableLookup} ('LookupFailure')");
+        Expect("class P { void ApplyLookupFailureResponse() { } }", $"'ApplyLookupFailureResponse' {tableLookup} ('LookupFailure')");
+        Expect("class P { void Run() { int lookupFailure = 0; _ = lookupFailure; } }", $"'lookupFailure' {tableLookup} ('LookupFailure')");
+        Expect("class P { int LookupFailures; }", $"'LookupFailures' {tableLookup} ('LookupFailure')");
+        // The words alone, apart or in the other order, and what happens instead, are the game's own: a lookup, a failure.
+        Expect("enum SamusNoTransitionSetup { None } class P { int Lookup; int Failure; int FailureLookup; int LookupTableFailure; bool LookupFailed; int ForNoTransition() => 0; }");
         // The animation interpreter's sleep (#2021), in each kind of declaration the removed wakes used it in: a lookup
         // method, a table, a helper, a local, an enum member and a file.
         const string sleep = "names the animation interpreter's sleep";

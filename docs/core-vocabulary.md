@@ -147,6 +147,12 @@ reads the same three in prose outside hardware owners, spaced or hyphenated (`me
 `table indices`, the `enemy records`); a table indexed by a value, the menu's index and an enemy's record are English,
 and a compatibility service may describe the enemy record its reproduced behaviour reads.
 
+The original's failed table lookup is reported too (#2525, `CoreVocabularyAnalyzer.TableLookupPhrases`), matched like
+the hardware phrases: `LookupFailure`, the cartridge's search of a pose's input table that found no entry for Samus's
+input, after which it ran a setup and a momentum response (a `SamusLookupFailureSetup` enum, a `LookupFailureResponse`
+member, a `ForLookupFailure` method). Core names what happens: her input chooses no new pose (`SamusNoTransitionSetup`,
+`SamusNoTransitionPose`, `ForNoTransition`). A lookup and a failure alone or apart stay the game's own.
+
 A name that says `Sleep` names the animation interpreter's sleep and is reported too (#2021,
 `CoreVocabularyAnalyzer.SleepWords`), with the plural and verb endings (`AfterSleep`, `ResumesAfterSleep`, a `Sleeps`
 helper, a `sleeping` local, a `Sleeping` phase). The cartridge's lists ended a resting animation in a sleep instruction

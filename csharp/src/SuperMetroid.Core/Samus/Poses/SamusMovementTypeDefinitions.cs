@@ -4,7 +4,7 @@ using Selection = SuperMetroid.Core.Samus.Hud.SamusHudSelectionMode;
 using Knockback = SuperMetroid.Core.Samus.Movement.SamusKnockbackResponse;
 using Move = SuperMetroid.Core.Samus.Movement.SamusMovementType;
 using Response = SuperMetroid.Core.Samus.SamusMomentumResponse;
-using Setup = SuperMetroid.Core.Samus.Poses.SamusLookupFailureSetup;
+using Setup = SuperMetroid.Core.Samus.Poses.SamusNoTransitionSetup;
 using Splash = SuperMetroid.Core.Samus.Movement.WaterSplashKind;
 using Xray = SuperMetroid.Core.Samus.Abilities.XrayPosture;
 

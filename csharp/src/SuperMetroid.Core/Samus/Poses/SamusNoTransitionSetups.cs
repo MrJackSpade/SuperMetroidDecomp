@@ -3,7 +3,7 @@ using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Which setup the pose update runs when Samus's input chooses no new pose (#2506).</summary>
-internal static class SamusLookupFailureSetups
+internal static class SamusNoTransitionSetups
 {
     /// <summary>
     /// The setup of <paramref name="pose"/>, or, for a pose that names none, the setup of
@@ -13,14 +13,14 @@ internal static class SamusLookupFailureSetups
     /// </summary>
     /// <exception cref="InvalidOperationException">The pose is undefined.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The movement type has no definition.</exception>
-    internal static SamusLookupFailureSetup For(SamusPoseId pose, SamusMovementType movementInForce)
+    internal static SamusNoTransitionSetup For(SamusPoseId pose, SamusMovementType movementInForce)
     {
-        SamusLookupFailureSetup own = SamusPoseTraits.Of(pose).LookupFailureSetup;
-        if (own != SamusLookupFailureSetup.None)
+        SamusNoTransitionSetup own = SamusPoseTraits.Of(pose).NoTransitionSetup;
+        if (own != SamusNoTransitionSetup.None)
             return own;
         return SamusMovementTypeDefinitions.Movements.TryGetValue(movementInForce, out SamusMovementTypeDefinition? movement)
-            ? movement.LookupFailureSetup
+            ? movement.NoTransitionSetup
             : throw new ArgumentOutOfRangeException(nameof(movementInForce), movementInForce,
-                "Movement type has no lookup-failure setup.");
+                "Movement type names no setup for input that chooses no new pose.");
     }
 }

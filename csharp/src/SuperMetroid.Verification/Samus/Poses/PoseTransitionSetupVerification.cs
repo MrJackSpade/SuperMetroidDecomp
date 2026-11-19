@@ -21,7 +21,7 @@ internal static class PoseTransitionSetupVerification
     /// <summary>
     /// Every transition any pose's input chooses, under every held chord and every part of it newly pressed, names a setup
     /// that installs a pose: a transition keeping the pose never reaches the pose update, and the Draygon-held stand-up's
-    /// setup is chosen only from the Draygon-held ball's Up. Every pose then resolves a lookup-failure setup, and a pose
+    /// setup is chosen only from the Draygon-held ball's Up. Every pose then resolves a no-transition setup, and a pose
     /// stored over the ground turn or the normal jump keeps theirs.
     /// </summary>
     internal static void VerifyPoseTransitionSetups()
@@ -54,18 +54,18 @@ internal static class PoseTransitionSetupVerification
                 }
             }
 
-            AssertTrue(Enum.IsDefined(SamusLookupFailureSetups.For(pose, SamusPoseMetadata.ReadMovementType(pose))),
-                $"{pose} resolves a defined lookup-failure setup");
+            AssertTrue(Enum.IsDefined(SamusNoTransitionSetups.For(pose, SamusPoseMetadata.ReadMovementType(pose))),
+                $"{pose} resolves a defined no-transition setup");
         }
         AssertTrue(transitions > 0, "The input transitions choose poses");
 
         foreach (SamusPoseId drained in SamusPoseDefinitions.Poses.Keys.Where(SamusPoseMetadata.IsDrainedPose))
         {
-            AssertEqual(SamusLookupFailureSetup.StopTurn, SamusLookupFailureSetups.For(drained, SamusMovementType.TurningOnGround),
+            AssertEqual(SamusNoTransitionSetup.StopTurn, SamusNoTransitionSetups.For(drained, SamusMovementType.TurningOnGround),
                 $"{drained} stored over a ground turn keeps the turn's stop");
-            AssertEqual(SamusLookupFailureSetup.ContinueNormalJump, SamusLookupFailureSetups.For(drained, SamusMovementType.NormalJumping),
+            AssertEqual(SamusNoTransitionSetup.ContinueNormalJump, SamusNoTransitionSetups.For(drained, SamusMovementType.NormalJumping),
                 $"{drained} stored over a normal jump keeps the jump's fallback");
-            AssertEqual(SamusLookupFailureSetup.None, SamusLookupFailureSetups.For(drained, SamusMovementType.TurningWhileFalling),
+            AssertEqual(SamusNoTransitionSetup.None, SamusNoTransitionSetups.For(drained, SamusMovementType.TurningWhileFalling),
                 $"{drained} stored over a turn in a fall sets nothing up, the aerial turns naming theirs on the pose");
         }
         Console.WriteLine($"Pose transition setups: {transitions} chosen transitions each name a setup that installs their pose.");

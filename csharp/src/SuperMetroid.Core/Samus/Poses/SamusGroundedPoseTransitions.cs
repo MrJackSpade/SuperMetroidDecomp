@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 internal static class SamusGroundedPoseTransitions
 {
     /// <summary>
-    /// Installs the lookup-failure pose of an aimed crouching turn when every input is
+    /// Installs the fallback pose of an aimed crouching turn when every input is
     /// released. The definition's fallback is left-facing crouching for all six poses,
     /// so the turn is abandoned for left-facing crouch art regardless of its direction.
     /// Because the pose changes, the prospective pose's step skips the stop; only the pose setup runs.
@@ -25,9 +25,9 @@ internal static class SamusGroundedPoseTransitions
     }
 
     /// <summary>
-    /// Stops Samus's momentum when a turn's input lookup
-    /// fails and the pose definition retains the current pose. The three turning movement types
-    /// all stop her on lookup failure. This stops reverse acceleration without
+    /// Stops Samus's momentum when her input chooses no new pose
+    /// from a turn and the pose definition retains the current pose. The three turning movement types
+    /// all stop her when her input chooses none. This stops reverse acceleration without
     /// restarting the unfinished turn animation or erasing velocity.
     /// </summary>
     public static void ApplyTurnInputFallback(SamusState samus, SamusMovementType movementType)

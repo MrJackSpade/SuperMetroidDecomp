@@ -2,9 +2,9 @@ namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>
 /// The setup the pose update runs when Samus's input chooses no new pose (#2506), from her fallback pose: a pose names its
-/// own, and the ground turn and the normal jump name theirs on their movement (<see cref="SamusLookupFailureSetups"/>).
+/// own, and the ground turn and the normal jump name theirs on their movement (<see cref="SamusNoTransitionSetups"/>).
 /// </summary>
-internal enum SamusLookupFailureSetup
+internal enum SamusNoTransitionSetup
 {
     /// <summary>Nothing is set up: her pose and momentum stay as her movement left them.</summary>
     None,

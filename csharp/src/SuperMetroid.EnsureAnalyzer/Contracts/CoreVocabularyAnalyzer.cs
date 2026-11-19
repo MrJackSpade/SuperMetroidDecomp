@@ -39,7 +39,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// the animation interpreter's sleep instruction (#2021, <see cref="SleepWords"/>), and one that says <c>FrameBehavior</c> the
 /// per-frame routine pointer an animation installed (#2022, <see cref="FrameBehaviourPhrases"/>). A name that says
 /// <c>Controller</c> with a number names the console's controller port (#2079, <see cref="ControllerPort"/>), and one that
-/// says <c>Bts</c> the level data's block type secondary byte (#2079, in <see cref="HardwareWords"/>). See
+/// says <c>Bts</c> the level data's block type secondary byte (#2079, in <see cref="HardwareWords"/>). A name that says
+/// <c>LookupFailure</c> names the original's failed table lookup (#2525, <see cref="TableLookupPhrases"/>). See
 /// <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -186,6 +187,19 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
     internal static readonly ImmutableArray<ImmutableArray<string>> TablePositionPhrases =
     [
         ["Menu", "Index"], ["Table", "Index"], ["Enemy", "Record"],
+    ];
+
+    /// <summary>
+    /// The original's failed table lookup (#2525), two-word names matched like <see cref="HardwarePhrases"/>: the cartridge
+    /// looked Samus's next pose up in her pose's input table and ran a setup and a momentum response when the lookup found
+    /// no entry, and a Core name that says <c>LookupFailure</c> (a <c>SamusLookupFailureSetup</c> enum, a
+    /// <c>LookupFailureResponse</c> member, a <c>ForLookupFailure</c> method) names that lookup instead of what happens: her
+    /// input chooses no new pose (<c>SamusNoTransitionSetup</c>, <c>ForNoTransition</c>). Each word alone or apart stays the
+    /// game's own: a lookup, a failure.
+    /// </summary>
+    internal static readonly ImmutableArray<ImmutableArray<string>> TableLookupPhrases =
+    [
+        ["Lookup", "Failure"],
     ];
 
     /// <summary>
@@ -567,6 +581,8 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
             return $"names the cartridge's record ('{record}')";
         if (ContainedPhrase(identifier, TablePositionPhrases) is { } tablePosition)
             return $"names the original's table position or enemy record ('{tablePosition}')";
+        if (ContainedPhrase(identifier, TableLookupPhrases) is { } tableLookup)
+            return $"names the original's failed table lookup ('{tableLookup}')";
         if (ContainedWord(identifier, SleepWords) is { } sleep)
             return $"names the animation interpreter's sleep ('{sleep}')";
         if (ContainedPhrase(identifier, FrameBehaviourPhrases) is { } frameBehaviour)

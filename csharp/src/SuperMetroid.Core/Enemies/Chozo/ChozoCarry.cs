@@ -11,15 +11,9 @@ public static class ChozoCarry
     /// <exception cref="ArgumentOutOfRangeException">The step names an undefined facing or pose.</exception>
     public static ChozoCarryStepDefinition Read(ChozoCarryStep step)
     {
-        int sign = step.Facing switch
-        {
-            HorizontalDirection.Left => -1,
-            HorizontalDirection.Right => 1,
-            _ => throw new ArgumentOutOfRangeException(nameof(step), step, $"Undefined {nameof(HorizontalDirection)}."),
-        };
         if (!ChozoCarryPoseDefinitions.Poses.TryGetValue(step.Pose, out ChozoCarryPoseDefinition pose))
             throw new ArgumentOutOfRangeException(nameof(step), step, $"Undefined {nameof(ChozoCarryPose)}.");
-        return new(sign < 0 ? -pose.Speed : pose.Speed,
-            new(sign * pose.Hold.X, pose.Hold.Y));
+        return new(pose.Speed.Toward(step.Facing),
+            new(pose.Hold.X.Toward(step.Facing), pose.Hold.Y));
     }
 }

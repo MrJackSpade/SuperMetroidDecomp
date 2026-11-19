@@ -973,8 +973,7 @@ internal static void VerifySamusGroundedReversal()
             var airborneCrouchedTurn = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = testCase.SelectedTurn };
             airborneCrouchedTurn.Kinematics.Position = airborneCrouchedTurn.Kinematics.Position.WithWhole(new(64, 32));
             airborneCrouchedTurn.Kinematics.Radius = new(5, 16);
-            airborneCrouchedTurn.Kinematics.YDirection = SamusVerticalDirection.Up;
-            airborneCrouchedTurn.Kinematics.YSpeed = airborneCrouchedTurn.Kinematics.YSpeed.WithWhole(1);
+            airborneCrouchedTurn.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(airborneCrouchedTurn.Kinematics.VerticalVelocity.Speed.WithWhole(1), SamusVerticalDirection.Up);
             FixedCoordinate airborneYBefore = airborneCrouchedTurn.Kinematics.Position.Y;
             SamusAerialMovement.StepTurningInAir(
 
@@ -1667,7 +1666,7 @@ floor, walker, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksa
         AssertEqual(target, turn.Pose, $"moonwalk ${SamusPoseNumbers.Number(source):X2} selects exact turn ${SamusPoseNumbers.Number(target):X2}");
         AssertEqual(SamusAccelerationMode.Turning, turn.HorizontalSpeed.AccelerationMode,
             $"moonwalk turn ${SamusPoseNumbers.Number(target):X2} preserves reversal mode");
-        AssertEqual(SamusVerticalDirection.None, turn.Kinematics.YDirection,
+        AssertEqual(SamusVerticalDirection.None, turn.Kinematics.VerticalVelocity.Direction,
             $"moonwalk turn ${SamusPoseNumbers.Number(target):X2} remains grounded before completion");
     }
 
@@ -1683,11 +1682,11 @@ floor, walker, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksa
         "moonwalk terminal spin transition applies");
     AssertEqual(SamusPoseId.SpinJumpLeftPose, animated.Pose,
         "moonwalk terminal command enters spin jump");
-    AssertEqual(0, animated.Kinematics.YSpeed.Whole,
+    AssertEqual(0, animated.Kinematics.VerticalVelocity.Speed.Whole,
         "moonwalk animation command bypasses jump-speed initialization");
-    AssertEqual(0, animated.Kinematics.YSpeed.Fraction,
+    AssertEqual(0, animated.Kinematics.VerticalVelocity.Speed.Fraction,
         "moonwalk animation command preserves vertical subspeed");
-    AssertEqual(SamusVerticalDirection.None, animated.Kinematics.YDirection,
+    AssertEqual(SamusVerticalDirection.None, animated.Kinematics.VerticalVelocity.Direction,
         "moonwalk animation command preserves direction-none for Moonfall");
 
     Console.WriteLine("  Moonwalk: option gate, six stable routes, reversed X, fallback, and $BF-$C4 jump art agree.");

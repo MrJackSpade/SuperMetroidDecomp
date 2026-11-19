@@ -228,7 +228,7 @@ internal sealed class NorfairRidleyDeath
         }
         var fragmentState = new RidleyExplosionFragmentState
         {
-            Velocity = new(BossRandomRolls.InLowerHalf(random) ? horizontalSpeed : -horizontalSpeed, default),
+            Velocity = new(horizontalSpeed.Toward(BossRandomRolls.SideOf(random)), default),
             Picture = picture,
         };
         fragmentState.Lifetime.LastFor(RidleyExplosionDefinitions.LifetimeUpdates[part]);

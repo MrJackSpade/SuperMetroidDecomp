@@ -65,10 +65,8 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
 
                 state.Velocity = new PixelVelocity<RoomPixels>(
-                    RioLaunchDefinitions.RioXVelocity,
+                    RioLaunchDefinitions.RioXVelocity.Toward(RioLaunches.SideOfSamus(place, samus)),
                     RioLaunchDefinitions.RioYVelocity);
-                if (samus.Position.X.Whole < place.Position.X.Whole)
-                    state.Velocity = state.Velocity.ReversedX();
                 StartRioAnimation(
                     place,
                     state,

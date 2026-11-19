@@ -240,7 +240,7 @@ public sealed class SamusDrainedState
         // animation step appears.
         SamusPresentation.InitializeAnimation(samus, SamusDrainedAnimationDefinitions.FallInitialFrame);
         ClearBaseAndVerticalSpeed(samus);
-        samus.Kinematics.YDirection = SamusVerticalDirection.Down;
+        samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.TurnedDownward();
         _suitShadeRestoreRequested = true;
         Phase = DrainedSamusPhase.WaitingForFallingCue;
         // Letting her fall, standing her, crouching her and releasing her report themselves handled; their step
@@ -284,8 +284,8 @@ public sealed class SamusDrainedState
         BlockMoveResult vertical = SamusAerialMovement.StepVerticalWithSpeedCalculations(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, frameCounter, out _, out bool downwardDisplacement);
 
         // Generic Y movement has already applied gravity when it reports the collision.
-        // Capture the exact magnitude before the landing erases it for on-floor art.
-        UnsignedSixteenSixteen impactYSpeed = samus.Kinematics.YSpeed;
+        // Capture the exact velocity before the landing erases its speed for on-floor art.
+        SamusVerticalVelocity impact = samus.Kinematics.VerticalVelocity;
 
         if (vertical.Collided)
         {
@@ -294,13 +294,13 @@ public sealed class SamusDrainedState
             // direction and does not select a new pose.
             SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.LandingFrame,
                 timer: SamusDrainedAnimationDefinitions.LandingTimer);
-            samus.Kinematics.YSpeed = default;
+            samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.Stopped();
             Phase = DrainedSamusPhase.OnFloor;
         }
 
         return new DrainedSamusMovementResult(
             downwardDisplacement && vertical.Collided,
-            impactYSpeed);
+            impact);
     }
 
     /// <summary>Stands drained Samus up.</summary>
@@ -347,7 +347,7 @@ public sealed class SamusDrainedState
         // every pose here.
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         ClearBaseAndVerticalSpeed(samus);
-        samus.Kinematics.YDirection = SamusVerticalDirection.Down;
+        samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.TurnedDownward();
         Phase = DrainedSamusPhase.Releasing;
         samus.CommitPoseHistory();
     }
@@ -392,7 +392,7 @@ public sealed class SamusDrainedState
     private static void ClearBaseAndVerticalSpeed(SamusState samus)
     {
         samus.HorizontalSpeed.BaseSpeed = default;
-        samus.Kinematics.YSpeed = default;
+        samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.Stopped();
     }
 
 }

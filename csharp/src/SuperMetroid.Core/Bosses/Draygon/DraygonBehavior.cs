@@ -128,7 +128,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
                 Goop.SetupDraygonGoopPass(state, state.PassDirection, samus, frameCounter);
                 break;
             case DraygonPhase.GoopApproach:
-                Goop.ApproachSamusForDraygonGoop(state, state.PassDirection, samus, frameCounter);
+                Goop.ApproachSamusForDraygonGoop(state, samus, frameCounter);
                 break;
             case DraygonPhase.GoopTail:
                 Goop.FireDraygonGoop(state, state.PassDirection, samus, frameCounter);

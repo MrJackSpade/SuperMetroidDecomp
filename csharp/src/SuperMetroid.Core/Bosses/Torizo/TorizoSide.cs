@@ -83,7 +83,7 @@ internal sealed record TorizoSide(
             TorizoStrideDefinitions.FarLeg));
 
     /// <summary><paramref name="pixels"/> forward, the way this side faces: negative to the left.</summary>
-    internal int Forward(int pixels) => Facing == HorizontalDirection.Right ? pixels : -pixels;
+    internal int Forward(int pixels) => pixels.Toward(Facing);
 
     /// <summary>A Torizo facing right's <paramref name="facingRight"/> move, mirrored for a side facing left.</summary>
     internal Offset16<RoomPixels> Forward(Offset16<RoomPixels> facingRight) =>

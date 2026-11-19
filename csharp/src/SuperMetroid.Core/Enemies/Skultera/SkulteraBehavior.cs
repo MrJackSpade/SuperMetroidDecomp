@@ -137,7 +137,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static SignedSixteenSixteen SwimVelocity(RoomEnemyPlace place, HorizontalDirection direction)
     {
         SignedSixteenSixteen speed = Ensure.NotNull(place).SpawnSettings<SkulteraSpawnSettings>().Speed;
-        return direction == HorizontalDirection.Left ? -speed : speed;
+        return speed.Toward(direction);
     }
 
     /// <summary>

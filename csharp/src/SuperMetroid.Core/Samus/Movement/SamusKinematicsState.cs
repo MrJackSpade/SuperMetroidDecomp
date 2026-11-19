@@ -52,8 +52,7 @@ public sealed class SamusKinematicsState
         var probe = new SamusKinematicsState { ProbeBodyAttack = ProbeBodyAttack };
         probe.Position = Position;
         probe.Radius = Radius;
-        probe.YSpeed = YSpeed;
-        probe.YDirection = YDirection;
+        probe.VerticalVelocity = VerticalVelocity;
         probe.YAcceleration = YAcceleration;
         probe.PositionAdjustedBySlope = PositionAdjustedBySlope;
         // Probes still call the solid-enemy detector before blocks. The
@@ -98,16 +97,11 @@ public sealed class SamusKinematicsState
     /// </summary>
     public Extent16<RoomPixels> Radius { get; set; } = new(SamusPoseCollisionDefinitions.HorizontalRadius, 0);
 
-    /// <summary>Vertical speed magnitude; its direction is <see cref="YDirection"/>.</summary>
-    public UnsignedSixteenSixteen YSpeed { get; set; }
-
     /// <summary>
-    /// Vertical direction: <see cref="SamusVerticalDirection.None"/>, <see cref="SamusVerticalDirection.Up"/> or
-    /// <see cref="SamusVerticalDirection.Down"/>. Vertical speed is a magnitude with this separate direction;
-    /// treating upward velocity as a negative number would lose the quirks of a speed passing zero
-    /// in the vertical move and the jump-release test.
+    /// Her vertical velocity (#2569): one value holding how fast she moves vertically and which way, whose rest and apex
+    /// readings the vertical moves and the jump-release test depend on (<see cref="SamusVerticalVelocity"/>).
     /// </summary>
-    public SamusVerticalDirection YDirection { get; set; }
+    public SamusVerticalVelocity VerticalVelocity { get; set; }
 
     /// <summary>The gravity applied to vertical speed.</summary>
     public UnsignedSixteenSixteen YAcceleration { get; set; }

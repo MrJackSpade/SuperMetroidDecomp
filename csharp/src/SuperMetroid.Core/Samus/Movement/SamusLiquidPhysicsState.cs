@@ -687,9 +687,8 @@ public sealed class SamusLiquidPhysicsState
         int bottom = PoseBottomPixel(samus);
         if (DetermineRawMediumAtBoundary(bottom) != SamusLiquidMedium.Air)
             return;
-        int offset = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Right)
-            ? -SamusWallJumpDustDefinitions.HorizontalOffset
-            : SamusWallJumpDustDefinitions.HorizontalOffset;
+        int offset = SamusWallJumpDustDefinitions.HorizontalOffset.Toward(
+            SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Right) ? HorizontalDirection.Left : HorizontalDirection.Right);
         _particles.Spawn(SamusWallJumpDustDefinitions.Kind,
             Position16<RoomPixels>.Of(samus.Position.X.Whole + offset, bottom),
             SamusParticleStart.Shown(SamusWallJumpDustDefinitions.FirstStepUpdates));

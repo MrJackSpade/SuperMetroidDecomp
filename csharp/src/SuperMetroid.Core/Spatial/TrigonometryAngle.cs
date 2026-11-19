@@ -48,8 +48,28 @@ public readonly record struct TrigonometryAngle : IComparable<TrigonometryAngle>
     /// <summary>Whether this angle lies in the second half of the turn, where the sine wave is negative.</summary>
     public bool IsInSecondHalf => RawValue >= HalfTurn.RawValue;
 
+    /// <summary>
+    /// <paramref name="halfWave"/>, a size the game's sine folded onto the first half of the turn gives this angle, with the
+    /// sign the sine takes here (#2569): as it is in the turn's first half and reversed in its second, as the game's sine
+    /// restores the half of the turn after reading its half-wave.
+    /// </summary>
+    public T WithSineSign<T>(T halfWave) where T : System.Numerics.IUnaryNegationOperators<T, T> => IsInSecondHalf ? -halfWave : halfWave;
+
     /// <summary>Turns the angle by <paramref name="delta"/> signed steps, continuing around the turn.</summary>
     public TrigonometryAngle TurnedBySteps(int delta) => Wrapped(RawValue + delta);
+
+    /// <summary>
+    /// Turns the angle by <paramref name="steps"/> steps the way <paramref name="direction"/> turns as the screen shows it
+    /// (#2569): counterclockwise toward increasing angles, since zero points right and a quarter turn up, and clockwise
+    /// toward decreasing ones.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is neither clockwise nor counterclockwise.</exception>
+    public TrigonometryAngle TurnedBySteps(int steps, RotationDirection direction) => TurnedBySteps(direction switch
+    {
+        RotationDirection.Counterclockwise => steps,
+        RotationDirection.Clockwise => -steps,
+        _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Not a rotation direction."),
+    });
 
     /// <summary>The angle turned on by <paramref name="turn"/>, wrapping around the full turn.</summary>
     public TrigonometryAngle TurnedBy(TrigonometryAngle turn) => Wrapped(RawValue + turn.RawValue);

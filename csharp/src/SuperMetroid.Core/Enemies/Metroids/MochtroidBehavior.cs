@@ -112,17 +112,15 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // axis toward Samus, with X collision resolved before Y and ignored return values.
         SignedSixteenSixteen xVelocity = place.Position.X.Whole == samus.Position.X.Whole
             ? SignedSixteenSixteen.Zero
-            : place.Position.X.Whole > samus.Position.X.Whole
-                ? -MochtroidBehaviorDefinitions.AttachedSpeed
-                : MochtroidBehaviorDefinitions.AttachedSpeed;
+            : MochtroidBehaviorDefinitions.AttachedSpeed.Toward(
+                place.Position.X.Whole > samus.Position.X.Whole ? HorizontalDirection.Left : HorizontalDirection.Right);
         StoreMochtroidXVelocity(state, xVelocity);
         _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, xVelocity);
 
         SignedSixteenSixteen yVelocity = place.Position.Y.Whole == samus.Position.Y.Whole
             ? SignedSixteenSixteen.Zero
-            : place.Position.Y.Whole > samus.Position.Y.Whole
-                ? -MochtroidBehaviorDefinitions.AttachedSpeed
-                : MochtroidBehaviorDefinitions.AttachedSpeed;
+            : MochtroidBehaviorDefinitions.AttachedSpeed.Toward(
+                place.Position.Y.Whole > samus.Position.Y.Whole ? VerticalDirection.Up : VerticalDirection.Down);
         StoreMochtroidYVelocity(state, yVelocity);
         _terrain.MoveEnemyVertically(level, place, yVelocity);
     }

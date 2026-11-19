@@ -267,7 +267,9 @@ internal static class NativeEnemyFamilyStateImport
             }
             // The swoop path's length (word C) is read with the path's heights from the cartridge's table by the snapshot
             // import, which holds the memory the table lies in.
-            draygonRecord.SwoopVelocity = UnsignedSixteenSixteen.FromRaw(SixteenSixteenWords.Compose(words.D, words.E));
+            // The cartridge keeps the pass's speed; the port's velocity takes it toward the pass's side.
+            draygonRecord.SwoopVelocity = UnsignedSixteenSixteen.FromRaw(SixteenSixteenWords.Compose(words.D, words.E)).AsDisplacement()
+                .Toward(draygonRecord.PassDirection);
         }
         // Draygon's encounter keeps his eye's tracking (#2298).
         if (enemy.Entity is DraygonEyeEntity { Encounter.EyeTracking: var draygonEyeRecord })
@@ -1099,14 +1101,14 @@ internal static class NativeEnemyFamilyStateImport
         {
             ripperVariant.Heading = unchecked((short)words.D) < 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
             // The Ripper flies its placement's speed (#2450), which the recording's must be.
-            EnemyLinearSpeed recordedRipperSpeed = SuperMetroid.AssetExtraction.Enemies.EnemySpeedTableCodec.LinearSpeedAtOffset(words.E);
+            SignedSixteenSixteen recordedRipperSpeed = SuperMetroid.AssetExtraction.Enemies.EnemySpeedTableCodec.LinearSpeedAtOffset(words.E);
             // A grapple Ripper's placement keeps its patrol bounds beside its speed (#2512).
             SignedSixteenSixteen placementRipperSpeed = enemy.DefinitionId == EnemyDefinitionId.GrappleRipper
                 ? enemy.SpawnSettings<GrappleRipperSpawnSettings>().Speed
                 : enemy.SpawnSettings<RipperSpawnSettings>().Speed;
             SignedSixteenSixteen ripperRightward = RipperBehavior.FlyingVelocity(placementRipperSpeed, HorizontalDirection.Right);
-            if (recordedRipperSpeed.Speed != ripperRightward)
-                throw new InvalidDataException($"Recorded Ripper speed {recordedRipperSpeed.Speed} is not its placement's {ripperRightward}.");
+            if (recordedRipperSpeed != ripperRightward)
+                throw new InvalidDataException($"Recorded Ripper speed {recordedRipperSpeed} is not its placement's {ripperRightward}.");
         }
         if (enemies.NorfairLavaJumpingEnemyStates[index] is { } lavaJumper)
         {

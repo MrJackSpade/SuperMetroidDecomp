@@ -28,6 +28,6 @@ public static class SpeedAlongAngle
     {
         int steps = speed.InTwoHundredFiftySixthsOfPixel;
         int taken = steps < 0 ? steps + SpeedSteps : steps;
-        return SignedEightEight.Wrapped(Trigonometry.ScaledBySine(taken, angle));
+        return SignedEightEight.Wrapped(UnitComponent.SineOf(angle).ReachOf(taken));
     }
 }

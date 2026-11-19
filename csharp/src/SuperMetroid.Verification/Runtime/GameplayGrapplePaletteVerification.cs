@@ -54,7 +54,7 @@ internal static class GameplayGrapplePaletteVerification
             SamusPresentation.InitializeAnimation(samus);
             samus.CommitPoseHistory();
             samus.Position = samus.Position.WithWhole(new(128, (ushort)(192 - samus.Kinematics.Radius.Y)));
-            samus.Kinematics.YSpeed = default;
+            samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.Stopped();
             runtime.StepFrame(0);
             runtime.Player.Colours.ShowBeams(SamusShades.Beam(SamusBeamCombinationTableOrder.FromTableIndex(beam)));
             runtime.StepFrame(ControllerButton.X);

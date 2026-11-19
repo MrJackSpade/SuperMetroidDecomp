@@ -233,19 +233,17 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         Axis axis)
     {
         // The links lie a quarter, a half and three quarters of the way along the distance from the anchor to the
-        // body, each fraction of the distance rounded down.
+        // body, the quarter and the half each rounded toward the anchor and the three quarters their sum.
         int delta = end - anchor;
-        bool negative = delta < 0;
-        int magnitude = Math.Abs(delta);
-        int quarter = magnitude / 4;
-        int half = magnitude / 2;
+        int quarter = delta / 4;
+        int half = delta / 2;
         int threeQuarters = quarter + half;
         Span<int> positions = stackalloc int[4]
         {
             firstPosition,
-            anchor + (negative ? -quarter : quarter),
-            anchor + (negative ? -half : half),
-            anchor + (negative ? -threeQuarters : threeQuarters),
+            anchor + quarter,
+            anchor + half,
+            anchor + threeQuarters,
         };
 
         for (int segment = 0; segment < positions.Length; segment++)

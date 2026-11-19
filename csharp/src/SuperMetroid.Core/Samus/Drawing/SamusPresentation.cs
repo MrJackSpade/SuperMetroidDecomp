@@ -175,7 +175,7 @@ internal sealed class SamusPresentation
         // still rising. This is intentionally tested before the decrement and applies only when the
         // timer's last update remains; release or the apex turns her downward and lets it expire.
         if (samus.Pose is SamusPoseId.NeutralJumpRightPose or SamusPoseId.NeutralJumpLeftPose &&
-            samus.Kinematics.YDirection != SamusVerticalDirection.Down &&
+            !samus.Kinematics.VerticalVelocity.IsFalling &&
             samus.AnimationIsOn(SamusAnimationFrames.NeutralJumpRise) &&
             samus.AnimationFrameTimer.IsAt(1))
         {
@@ -323,7 +323,7 @@ internal sealed class SamusPresentation
             case SamusAnimationItemAirborneTransition itemAirborne:
                 // Moving vertically means any vertical speed at all. Morph entry uses this to finish
                 // without guessing whether the transition walked off a ledge.
-                bool movingVertically = !samus.Kinematics.YSpeed.IsZero;
+                bool movingVertically = samus.Kinematics.VerticalVelocity.IsMoving;
                 samus.PendingTransitionalPose = samus.EquippedItems.HasAny(itemAirborne.Item)
                     ? movingVertically ? itemAirborne.EquippedAirborne : itemAirborne.EquippedGrounded
                     : movingVertically ? itemAirborne.UnequippedAirborne : itemAirborne.UnequippedGrounded;
@@ -340,7 +340,7 @@ internal sealed class SamusPresentation
 
             case SamusAnimationVerticalSpeedTransition verticalSpeed:
                 // Read only on a cue value's place (#1535): the pose depends on whether Samus has any vertical speed alone.
-                samus.PendingTransitionalPose = !samus.Kinematics.YSpeed.IsZero
+                samus.PendingTransitionalPose = samus.Kinematics.VerticalVelocity.IsMoving
                     ? verticalSpeed.Airborne
                     : verticalSpeed.Grounded;
                 return;

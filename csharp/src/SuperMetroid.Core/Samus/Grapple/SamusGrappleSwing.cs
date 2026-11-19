@@ -48,23 +48,22 @@ public static class SamusGrappleSwing
         SamusGrappleState grapple)
     {
         AngularSpeed swingSpeed = grapple.AngularVelocity.Magnitude;
-        AngularSpeed releaseSpeed = swingSpeed + swingSpeed;
+        AngularSpeed releaseTurn = grapple.AngularVelocity + grapple.AngularVelocity;
         UnitComponent cosine = ReadSignedSine(grapple.Angle + RotationAngle.QuarterTurn);
 
         // Samus leaves at twice the swing's speed, each step of turn a pixel, along each axis's share of the rope's
-        // direction. The swing speed is at most four and a half steps and the component at most one, so each speed
-        // stays below 256 pixels and never wraps.
-        samus.Kinematics.YSpeed = cosine.SizeTimes(releaseSpeed);
-
-        // The release's vertical direction depends on which way the swing turns and which side of its anchor's
-        // level she hangs.
-        bool movingDown = grapple.AngularVelocity.IsNegative ? cosine.IsNegative : !cosine.IsNegative;
-        samus.Kinematics.YDirection = movingDown ? SamusVerticalDirection.Down : SamusVerticalDirection.Up;
+        // direction: downward where the swing's turn and the side of its anchor's level she hangs on point the same way.
+        // The swing speed is at most four and a half steps and the component at most one, so each speed stays below 256
+        // pixels and never wraps. A release with no vertical speed still heads the way the two point: down unless exactly
+        // one of them points back.
+        samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.FromDisplacement(cosine.VelocityOf(releaseTurn),
+            atRest: grapple.AngularVelocity.IsNegative == cosine.IsNegative ? VerticalDirection.Down : VerticalDirection.Up);
 
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
         int phaseOffset = GrappleBeamDefinitions.Physics.ReleaseLeadSteps - GrappleBeamDefinitions.Physics.ReleaseLeadStepsPerSwingStep * swingSpeed.WholeSteps;
         UnitComponent horizontal = UnitComponent.SineOf(grapple.Angle.TurnedBySteps(-phaseOffset).ToTrigonometryAngle());
-        samus.HorizontalSpeed.BaseSpeed = horizontal.SizeTimes(releaseSpeed);
+        // Her running speed is the horizontal velocity's speed; the release's facing gives it its side.
+        samus.HorizontalSpeed.BaseSpeed = horizontal.VelocityOf(releaseTurn).Magnitude();
     }
 
     /// <summary>
@@ -271,9 +270,8 @@ public static class SamusGrappleSwing
             AngularSpeed impulse = grapple.Submerged
                 ? GrappleBeamDefinitions.Physics.JumpImpulseMagnitude.DividedBy(GrappleBeamDefinitions.Physics.SubmergedShare)
                 : GrappleBeamDefinitions.Physics.JumpImpulseMagnitude;
-            grapple.JumpImpulse = grapple.AngularVelocity == AngularSpeed.Zero ? AngularSpeed.Zero
-                : grapple.AngularVelocity.IsNegative ? -impulse
-                : impulse;
+            // The impulse pushes the way the swing turns, and a still swing takes none.
+            grapple.JumpImpulse = AngularSpeed.FromFractionsOfStep(Math.Sign(grapple.AngularVelocity.FractionsOfStep) * impulse.FractionsOfStep);
         }
     }
 
@@ -297,7 +295,8 @@ public static class SamusGrappleSwing
         RotationAngle targetAngle = grapple.Angle.TurnedBy(turn);
         TrigonometryAngle targetStep = targetAngle.ToTrigonometryAngle();
         TrigonometryAngle lastSafeStep = grapple.Angle.ToTrigonometryAngle();
-        int stepDirection = combined.IsNegative ? -1 : 1;
+        // A turning swing is never at rest here: a still one returned above.
+        int stepDirection = Math.Sign(combined.FractionsOfStep);
 
         // At the maximum velocity this loop executes at most five times. Keep an
         // explicit one-turn guard anyway: it documents the cyclic angle domain and turns a

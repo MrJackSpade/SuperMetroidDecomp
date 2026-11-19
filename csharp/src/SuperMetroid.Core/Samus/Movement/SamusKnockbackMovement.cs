@@ -163,9 +163,8 @@ public static class SamusKnockbackMovement
         samus.HurtFlash.Start();
 
         // Hurt launch retains the bottom-edge and Gravity-Suit selection.
-        samus.Kinematics.YSpeed =
-            SamusVerticalMotion.Knockback(samus.LiquidPhysics.DetermineMovementMedium(samus));
-        samus.Kinematics.YDirection = SamusVerticalDirection.Up;
+        samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Rising(
+            SamusVerticalMotion.Knockback(samus.LiquidPhysics.DetermineMovementMedium(samus)));
         SamusAerialMovement.ConfigureEnvironmentGravity(samus);
         if (humanoid)
             SamusPresentation.InitializeAnimation(samus);
@@ -194,7 +193,8 @@ public static class SamusKnockbackMovement
         // The knockback keeps the speeds the pose's movement type selects.
         // Morphed bodies retain their own movement type throughout hurt movement.
         UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(SamusPoseMetadata.ReadMovementType(samus));
-        var requestedX = SamusHorizontalDisplacement.Toward(samus.KnockbackXDirection == KnockbackHorizontalDirection.Left, samus, baseSpeed);
+        var requestedX = SamusHorizontalDisplacement.Toward(
+            samus.KnockbackXDirection == KnockbackHorizontalDirection.Left ? HorizontalDirection.Left : HorizontalDirection.Right, samus, baseSpeed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
         // Knockback moves Samus as her ordinary sideways movement does: hitting a wall ends her horizontal momentum
         // before the vertical pass, so the next frame does not carry her on from the wall.
@@ -216,8 +216,7 @@ public static class SamusKnockbackMovement
             // represented by the block collision's accepted displacement against the current radius.
             speed.AccelerationMode = SamusAccelerationMode.Accelerating;
             speed.BaseSpeed = default;
-            samus.Kinematics.YSpeed = default;
-            samus.Kinematics.YDirection = SamusVerticalDirection.None;
+            samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Still;
         }
 
         return new KnockbackMovementResult(
@@ -350,8 +349,7 @@ public static class SamusKnockbackMovement
         samus.KnockbackDirection = SamusKnockbackDirection.None;
         samus.KnockbackActive = false;
         samus.MorphBallBounceState = SamusBallBounceState.None;
-        samus.Kinematics.YSpeed = default;
-        samus.Kinematics.YDirection = SamusVerticalDirection.Down;
+        samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.FallFromRest;
     }
 
     /// <summary>Uses ordinary aerial vertical speed calculations during rising knockback, including the direction reversal.</summary>

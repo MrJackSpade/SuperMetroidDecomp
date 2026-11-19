@@ -134,7 +134,7 @@ internal static class GrappleEnemyDeathVerification
             AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "cleanup releases grapple ownership");
             AssertEqual(pose == SamusPoseId.StandingAimDiagonalDownRightPose ? pose : SamusPoseId.FacingRightNormalPose,
                 samus.Pose, "native dropped table selects aim or standing body");
-            AssertEqual(0, samus.Kinematics.YSpeed.Whole, "drop clears vertical speed");
+            AssertEqual(0, samus.Kinematics.VerticalVelocity.Speed.Whole, "drop clears vertical speed");
             AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Whole, "drop clears base horizontal speed");
         }
         Console.WriteLine("  Grapple enemy-death cleanup: reported 07->07, 51->01, and 01->01 routes pass.");

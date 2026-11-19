@@ -158,7 +158,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 // A departed member flies at its spawn settings' speed toward Samus's side.
                 SignedSixteenSixteen flightSpeed = place.SpawnSettings<NorfairPipeBugSpawnSettings>().Speed;
                 AddPipeBugLinearVelocity(place, axis: Axis.Horizontal,
-                    state.FlightDirection == HorizontalDirection.Left ? -flightSpeed : flightSpeed);
+                    flightSpeed.Toward(state.FlightDirection));
                 ResetNorfairPipeBugIfOffScreen(place, state, camera);
                 return;
             default:
@@ -249,7 +249,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         // crosses the edge and continues from the far end of the room's coordinates, which the despawn test reads as
         // left of the room, so this room wrap is the flight's end (#2373).
         place.Position = OffRoomPlaces.WithWholeX(place.Position, place.Position.X.Whole +
-            (state.Flight == HorizontalDirection.Left ? -PipeBugDefinitions.BrinstarFlightStep : PipeBugDefinitions.BrinstarFlightStep));
+            (PipeBugDefinitions.BrinstarFlightStep.Toward(state.Flight)));
         // The despawn tests only the horizontal screen extent.
         if (!EnemyProcessingWindow.EnemyIsHorizontallyOffScreen(place, cameraX))
             return;
@@ -351,7 +351,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         AddPipeBugLinearVelocity(
             place,
             axis: Axis.Vertical,
-            up ? -PipeBugDefinitions.NorfairRiseSpeed : PipeBugDefinitions.NorfairRiseSpeed);
+            PipeBugDefinitions.NorfairRiseSpeed.Toward(stagger.Direction));
         int targetY = up ? state.RiseEndY - stagger.Distance : state.RiseEndY + stagger.Distance;
         int distancePastTarget = place.Position.Y.Whole - targetY;
         bool reached = up
@@ -572,7 +572,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         HorizontalDirection direction)
     {
         SignedSixteenSixteen flightSpeed = place.SpawnSettings<YellowPipeBugSpawnSettings>().Speed;
-        place.Position = place.Position.AdvanceX(direction == HorizontalDirection.Left ? -flightSpeed : flightSpeed);
+        place.Position = place.Position.AdvanceX(flightSpeed.Toward(direction));
     }
 
     /// <summary>Adds a linear-speed velocity to one axis, carrying the fraction into the whole.</summary>

@@ -45,22 +45,22 @@ internal static class RidleyPogoDefinitionsVerification
         enemies.VerificationServices().NextRandom = () => { advances++; return (ushort)(seed ^ 1); };
         Action<NorfairRidleyState> initialize = enemies.NorfairRidleyBehavior.Combat.InitializeNorfairRidleyPogoVelocity;
         var state = new NorfairRidleyState();
-        ushort[] velocities = [0, 0x7fff, 0x8000, 0xffff];
+        HorizontalDirection[] sides = [HorizontalDirection.Left, HorizontalDirection.Right];
         int cases = 0;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         for (int band = 0; band < bands.Length; band++)
-        foreach (ushort previous in velocities)
+        foreach (HorizontalDirection side in sides)
         {
             seed = (ushort)raw;
             reads = advances = 0;
             state.HealthBand = bands[band];
-            state.Flight.Velocity = state.Flight.Velocity.WithX(new SignedEightEight(previous));
+            state.PogoBounce = side;
             state.PhaseTimer.LastFor(0x1235);
             initialize(state);
             var expected = reference[raw & 3, band];
             AssertEqual(0, advances, "Native Ridley pogo initializer must not advance RNG");
             AssertEqual(1, reads, "Native Ridley pogo initializer reads current RNG once");
-            AssertEqual(unchecked((ushort)((short)previous < 0 ? -expected.X : expected.X)), state.Flight.Velocity.X.RawValue, "Pogo selected horizontal magnitude/sign");
+            AssertEqual(unchecked((ushort)(side == HorizontalDirection.Left ? -expected.X : expected.X)), state.Flight.Velocity.X.RawValue, "Pogo selected sideways speed toward the bounce's side");
             AssertEqual(expected.Y, state.Flight.Velocity.Y.RawValue, "Pogo selected vertical speed");
             AssertEqual(expected.Up, state.PogoUpwardAcceleration.RawValue, "Pogo upward acceleration");
             AssertEqual(expected.Down, state.PogoDownwardAcceleration.RawValue, "Pogo downward acceleration");
@@ -68,7 +68,7 @@ internal static class RidleyPogoDefinitionsVerification
             AssertEqual(0x1234, state.PhaseTimer.CartridgeCount, "Pogo preserves caller timer");
             cases++;
         }
-        AssertEqual(1048576, cases, "All random words, health bands and horizontal signs");
+        AssertEqual(524288, cases, "All random words, health bands and bounce sides");
         Console.WriteLine("Ridley pogo: all indirect native records and 1572864 actual initializations preserve RNG, signed speed and asymmetric acceleration without ROM reads.");
     }
 

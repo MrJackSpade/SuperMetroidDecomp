@@ -148,7 +148,7 @@ internal static class EnemySpawnSettingsCodec
         [EnemyDefinitionId.Elevator] = words => new ElevatorSpawnSettings(Direction: Bits(words.Parameter1, 0, 16) switch { 0 => ElevatorTravelDirection.Down, 1 => ElevatorTravelDirection.Up, var other => throw Unmapped("Direction", other) }, ArrivalY: Bits(words.Parameter2, 0, 16)),
         [EnemyDefinitionId.Evir] = words => new EvirSpawnSettings(Part: (words.Parameter1 & 65535) != 0 ? EvirBodyPart.Arms : EvirBodyPart.Body, Speed: EnemySpawnSelectors.LinearSpeed("Speed", Bits(words.Parameter2, 0, 8)), DirectionChangePeriod: Bits(words.Parameter2, 8, 8)),
         [EnemyDefinitionId.FaceBlock] = words => new FaceBlockSpawnSettings(TriggerDistance: Bits(words.Parameter1, 0, 16), Facing: Bits(words.Parameter2, 0, 1) switch { 0 => HorizontalDirection.Left, 1 => HorizontalDirection.Right, var other => throw Unmapped("Facing", other) }),
-        [EnemyDefinitionId.Fireflea] = words => Unset("Fireflea starting angle", Bits(words.Parameter1, 8, 8), new FirefleaSpawnSettings(Flight: FirefleaFlightOf((words.Parameter1 & 2) != 0, (words.Parameter1 & 1) != 0 ? EnemySpeedSign.Positive : EnemySpeedSign.Negative, EnemySpawnSelectors.LinearSpeed("Speed", Bits(words.Parameter2, 0, 8))), Radius: EnemySpawnSelectors.Select("Radius", EnemySpawnSelectorDefinitions.FirefleaRadii, Bits(words.Parameter2, 8, 8)))),
+        [EnemyDefinitionId.Fireflea] = words => Unset("Fireflea starting angle", Bits(words.Parameter1, 8, 8), new FirefleaSpawnSettings(Flight: FirefleaFlightOf((words.Parameter1 & 2) != 0, (words.Parameter1 & 1) != 0 ? VerticalDirection.Down : VerticalDirection.Up, EnemySpawnSelectors.LinearSpeed("Speed", Bits(words.Parameter2, 0, 8))), Radius: EnemySpawnSelectors.Select("Radius", EnemySpawnSelectorDefinitions.FirefleaRadii, Bits(words.Parameter2, 8, 8)))),
         [EnemyDefinitionId.Fune] = words => Unset("Fune's Namihe behaviour", Bits(words.Parameter1, 0, 4), FuneSettings(words)),
         [EnemyDefinitionId.Namihe] = words => Bits(words.Parameter1, 0, 4) != 0 ? NamiheSettings(words) : throw Unmapped("Namihe's Fune behaviour", 0),
         [EnemyDefinitionId.ShipBottomEntrance] = words => new GunshipSpawnSettings(Part: (words.Parameter2 & 65535) != 0 ? GunshipBottomPiece.EntrancePad : GunshipBottomPiece.Hull),
@@ -569,13 +569,14 @@ internal static class EnemySpawnSettingsCodec
         new(Facing: (words.Parameter1 & 240) != 0 ? HorizontalDirection.Right : HorizontalDirection.Left, LaunchSpeed: EnemySpawnSelectors.FuneNamiheLaunchSpeed(Bits(words.Parameter2, 0, 8)), YProximity: Bits(words.Parameter2, 8, 8));
 
     /// <summary>
-    /// A Fireflea's flight from its words: a bobbing Fireflea moves at the row's speed, starting toward the sign; a
-    /// circling one turns by the speed read as a turn (<see cref="EnemySpawnSelectors.FirefleaTurnPerUpdate"/>).
+    /// A Fireflea's flight from its words: a bobbing Fireflea moves at the row's speed, starting toward
+    /// <paramref name="direction"/>; a circling one turns by the speed toward it read as a turn
+    /// (<see cref="EnemySpawnSelectors.FirefleaTurnPerUpdate"/>).
     /// </summary>
-    private static FirefleaFlight FirefleaFlightOf(bool circling, EnemySpeedSign sign, SignedSixteenSixteen speed) =>
+    private static FirefleaFlight FirefleaFlightOf(bool circling, VerticalDirection direction, SignedSixteenSixteen speed) =>
         circling
-            ? new FirefleaFlight.Circling(EnemySpawnSelectors.FirefleaTurnPerUpdate(sign == EnemySpeedSign.Positive ? speed : -speed))
-            : new FirefleaFlight.Bobbing(speed, sign == EnemySpeedSign.Positive ? VerticalDirection.Down : VerticalDirection.Up);
+            ? new FirefleaFlight.Circling(EnemySpawnSelectors.FirefleaTurnPerUpdate(speed.Toward(direction)))
+            : new FirefleaFlight.Bobbing(speed, direction);
 
     /// <summary>The words that give a Fireflea <paramref name="settings"/>: the first speed row and sign that give its flight.</summary>
     /// <exception cref="ArgumentException">No speed row gives the flight.</exception>
@@ -585,12 +586,12 @@ internal static class EnemySpawnSettingsCodec
         bool circling = settings.Flight is FirefleaFlight.Circling;
         for (int row = 0; row < EnemyLinearSpeedTable.RowCount; row++)
         {
-            foreach (EnemySpeedSign sign in new[] { EnemySpeedSign.Negative, EnemySpeedSign.Positive })
+            foreach (VerticalDirection direction in new[] { VerticalDirection.Up, VerticalDirection.Down })
             {
-                if (FirefleaFlightOf(circling, sign, EnemyLinearSpeedTable.Speed(row)) != settings.Flight)
+                if (FirefleaFlightOf(circling, direction, EnemyLinearSpeedTable.Speed(row)) != settings.Flight)
                     continue;
                 return new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0,
-                    Parameter1: (circling ? 2 : 0) | (sign == EnemySpeedSign.Positive ? 1 : 0),
+                    Parameter1: (circling ? 2 : 0) | (direction == VerticalDirection.Down ? 1 : 0),
                     Parameter2: Place(row, 0, 8) | Place(radius, 8, 8));
             }
         }

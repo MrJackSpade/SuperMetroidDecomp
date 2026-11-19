@@ -939,6 +939,15 @@ computed value by a literal count. An amount is zero, whole units (`FromPixels`,
 fraction in its lowest terms (three eighths of a pixel is `FromPixelFraction(3, 8)`); a position's part of a pixel is a
 `PixelFraction`; an installed speed or step is one amount of pixels through its fixed-point type's codec.
 
+SME6471 (#2569) keeps velocities signed. Outside an `[EncodingOwner]` type and a `[CompatibilityService]`, Core chooses
+neither between a value and its reversal by a condition (`left ? -speed : speed`, `v.IsNegative ? -offset : offset`,
+`facing == Right ? speed : speed.Negated()`) nor between adding and subtracting the same change
+(`v.IsNegative ? v - a : v + a`), and declares no enum of signs (`Positive` and `Negative`). A speed, distance or turn is
+taken toward its direction by `Toward(direction)`, a velocity's sign is its direction, the speed types own speeding a
+velocity up away from rest (`SpedUpBy`) or dragging it toward rest (`DraggedBy`), and Samus's vertical velocity is one
+`SamusVerticalVelocity`. Where the original's unsigned-magnitude arithmetic is observable, a compatibility service
+reproduces it (`SpeedAlongAngle`, `MultiviolaLeftOrUpSpeed`, `BullBackwardStep`).
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

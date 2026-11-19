@@ -556,7 +556,12 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace torizo,
         Offset16<RoomPixels> displacement,
         TorizoPostureKind kind) =>
-        torizo.Position += kind == TorizoPostureKind.SitDown ? -displacement : displacement;
+        torizo.Position += kind switch
+        {
+            TorizoPostureKind.StandUp => displacement,
+            TorizoPostureKind.SitDown => -displacement,
+            _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, $"Undefined {nameof(TorizoPostureKind)}."),
+        };
 
     /// <summary>Queues the Torizo's music change as the Torizo makes it, after the update's earlier music requests.</summary>
     private void RequestTorizoMusic(MusicRequest request) =>

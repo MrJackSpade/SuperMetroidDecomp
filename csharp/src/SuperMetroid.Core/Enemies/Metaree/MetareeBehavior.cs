@@ -127,9 +127,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Position = place.Position.WithWholeY(place.Position.Y.Whole + state.YVelocity);
         bool metareeIsLeftOfSamus = place.Position.X.Whole < samus.Position.X.Whole;
         place.Position = place.Position.WithWholeX(place.Position.X.Whole +
-            (metareeIsLeftOfSamus
-                ? MetareeMotionDefinitions.DiveSteer
-                : -MetareeMotionDefinitions.DiveSteer));
+            MetareeMotionDefinitions.DiveSteer.Toward(metareeIsLeftOfSamus ? HorizontalDirection.Right : HorizontalDirection.Left));
     }
 
     /// <summary>Moves down one pixel per burrow frame, emits debris at timer eight, then deletes the actor.</summary>

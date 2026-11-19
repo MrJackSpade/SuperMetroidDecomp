@@ -236,8 +236,7 @@ public sealed class SamusShinesparkState
 
         // The windup sets these whatever they held. The speed boost stays at its full stage through the windup
         // even though her base speed is zero and her extra speed becomes exactly eight pixels per frame.
-        samus.Kinematics.YDirection = SamusVerticalDirection.Up;
-        samus.Kinematics.YSpeed = default;
+        samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Rising(UnsignedSixteenSixteen.Zero);
         samus.KnockbackDirection = Movement.SamusKnockbackDirection.None;
         samus.KnockbackActive = false;
         samus.HorizontalSpeed.SpeedBoostCounter = SamusSpeedBoostCounter.AtFullStage;
@@ -424,8 +423,7 @@ public sealed class SamusShinesparkState
     private void BeginCrash(SamusState samus)
     {
         // The crash entry kills translational velocity before the crash starts.
-        samus.Kinematics.YSpeed = default;
-        samus.Kinematics.YDirection = SamusVerticalDirection.None;
+        samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Still;
         samus.HorizontalSpeed.ExtraRunSpeed = default;
         samus.HorizontalSpeed.SpeedBoostCounter = default;
         // Ending the shinespark keeps this frame's contact damage. The start of the next
@@ -608,15 +606,14 @@ public sealed class SamusShinesparkState
         return new(x, y);
     }
 
-    /// <summary>The radius scaled by the angle's sine, truncated toward zero.</summary>
+    /// <summary>
+    /// The radius scaled by the angle's sine, rounded toward zero (<see cref="UnitComponent.ReachOf"/>): rounding down a
+    /// negative product would round differently.
+    /// </summary>
     private static int LookupSignedComponent(
         RotationAngle angle,
-        int radius)
-    {
-        // The game multiplies the positive half-wave, discards the fraction, then
-        // restores sign. Shifting a negative product would round differently.
-        return Trigonometry.ScaledBySine(radius, angle.ToTrigonometryAngle());
-    }
+        int radius) =>
+        UnitComponent.SineOf(angle.ToTrigonometryAngle()).ReachOf(radius);
 
     /// <summary>
     /// After horizontal spark movement, a previous X more than
@@ -665,7 +662,7 @@ public sealed class SamusShinesparkState
             samus.HorizontalSpeed.ExtraRunSpeed = ShinesparkDefinitions.MostRunSpeed;
         }
 
-        var displacement = SamusHorizontalDisplacement.Toward(SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left), samus, baseSpeed: default);
+        var displacement = SamusHorizontalDisplacement.TowardFacing(samus, baseSpeed: default);
         return SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = displacement.Displacement, CanBreakBombBlocks = true, CollisionMovementDirection = displacement.CollisionDirection });
     }
 
@@ -678,14 +675,16 @@ public sealed class SamusShinesparkState
     {
         ShineTimer = UpdateCountdown.For(ShinesparkDefinitions.SparkShadeFrames);
         _acceleration.Accelerate(samus.Kinematics.YAcceleration.AsDisplacement());
-        samus.Kinematics.YSpeed += _acceleration.SparkAcceleration;
+        samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(
+            samus.Kinematics.VerticalVelocity.Speed + _acceleration.SparkAcceleration);
 
-        // The clamp operates on a temporary displacement, not stored velocity.
-        // Keep accumulating the speed even after movement reaches its cap.
-        UnsignedSixteenSixteen displacementSpeed = samus.Kinematics.YSpeed.WithWholePixelsAtMost(ShinesparkDefinitions.MostRiseStep);
+        // The clamp operates on a temporary rise, not the stored velocity, which keeps gathering speed after the rise
+        // reaches its cap: the spark rises by its speed, its whole pixels capped, whichever way the velocity heads.
+        SamusVerticalVelocity cappedRise = SamusVerticalVelocity.Rising(
+            samus.Kinematics.VerticalVelocity.Speed.WithWholePixelsAtMost(ShinesparkDefinitions.MostRiseStep));
         SignedSixteenSixteen upwardDisplacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
             samus.Kinematics,
-            -displacementSpeed.AsDisplacement());
+            cappedRise.Displacement);
 
         // A rise meets the room's blocks over at most 15 whole pixels, keeping its fraction. A move that outside
         // forces reverse downward is not capped. The spark's speed never passes fourteen pixels, so every rise is

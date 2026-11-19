@@ -23,5 +23,5 @@ public sealed class EvirBodyState : EvirPartState
     public VerticalDirection BobbingDirection { get; internal set; }
 
     /// <summary>The body's vertical velocity: <paramref name="speed"/>, its spawn settings' bobbing speed, toward its <see cref="BobbingDirection"/>.</summary>
-    internal SignedSixteenSixteen BobbingVelocity(SignedSixteenSixteen speed) => BobbingDirection == VerticalDirection.Down ? speed : -speed;
+    internal SignedSixteenSixteen BobbingVelocity(SignedSixteenSixteen speed) => speed.Toward(BobbingDirection);
 }

@@ -630,9 +630,7 @@ internal sealed class TorizoAttacks
             return;
         }
 
-        projectile.Velocity = projectile.Velocity.WithX(projectile.Velocity.X.IsNegative
-            ? projectile.Velocity.X - TorizoMotionDefinitions.SonicBoomAcceleration
-            : projectile.Velocity.X + TorizoMotionDefinitions.SonicBoomAcceleration);
+        projectile.Velocity = projectile.Velocity.WithX(projectile.Velocity.X.SpedUpBy(TorizoMotionDefinitions.SonicBoomAcceleration));
         if (IsRunaway(projectile.Velocity.X))
             projectile.Delete();
     }
@@ -654,9 +652,7 @@ internal sealed class TorizoAttacks
 
         // The drag slows the drool toward rest; a step that would carry it past rest leaves it drifting right instead.
         SignedEightEight xVelocity = projectile.Velocity.X;
-        SignedEightEight dragged = xVelocity.IsNegative
-            ? xVelocity + TorizoMotionDefinitions.DroolDrag
-            : xVelocity - TorizoMotionDefinitions.DroolDrag;
+        SignedEightEight dragged = xVelocity.DraggedBy(TorizoMotionDefinitions.DroolDrag);
         projectile.Velocity = projectile.Velocity.WithX(dragged.IsNegative == xVelocity.IsNegative
             ? dragged
             : TorizoMotionDefinitions.DroolPastRestDrift);
@@ -685,10 +681,7 @@ internal sealed class TorizoAttacks
         bool verticalCollision = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical);
         if (verticalCollision && !projectile.Velocity.Y.IsNegative)
         {
-            SignedEightEight xVelocity = projectile.Velocity.X;
-            projectile.Velocity = projectile.Velocity.WithX(xVelocity.IsNegative
-                ? xVelocity + TorizoMotionDefinitions.GoldenOrbBounceDrag
-                : xVelocity - TorizoMotionDefinitions.GoldenOrbBounceDrag);
+            projectile.Velocity = projectile.Velocity.WithX(projectile.Velocity.X.DraggedBy(TorizoMotionDefinitions.GoldenOrbBounceDrag));
             // The orb is falling here, so halving its speed in 256ths rounds toward zero before it reverses.
             projectile.Velocity = projectile.Velocity.WithY(-projectile.Velocity.Y.DividedRoundingDown(2));
             if (HasSettled(projectile.Velocity.Y))
@@ -715,7 +708,7 @@ internal sealed class TorizoAttacks
             projectile.StartAnimation(new TorizoProjectileAnimation(egg.LaidFacing == HorizontalDirection.Right
                 ? TorizoProjectileSegment.EggHatchingRight
                 : TorizoProjectileSegment.EggHatchingLeft));
-            projectile.Velocity = projectile.Velocity.WithX(egg.Facing == HorizontalDirection.Right ? TorizoMotionDefinitions.EggHatchingSpeed : -TorizoMotionDefinitions.EggHatchingSpeed);
+            projectile.Velocity = projectile.Velocity.WithX(TorizoMotionDefinitions.EggHatchingSpeed.Toward(egg.Facing));
             return;
         }
 
@@ -728,10 +721,7 @@ internal sealed class TorizoAttacks
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical) &&
             !projectile.Velocity.Y.IsNegative)
         {
-            SignedEightEight xVelocity = projectile.Velocity.X;
-            projectile.Velocity = projectile.Velocity.WithX(xVelocity.IsNegative
-                ? xVelocity + TorizoMotionDefinitions.EggBounceDrag
-                : xVelocity - TorizoMotionDefinitions.EggBounceDrag);
+            projectile.Velocity = projectile.Velocity.WithX(projectile.Velocity.X.DraggedBy(TorizoMotionDefinitions.EggBounceDrag));
             projectile.Velocity = projectile.Velocity.WithY(-projectile.Velocity.Y);
         }
 

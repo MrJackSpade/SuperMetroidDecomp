@@ -26,6 +26,14 @@ public static class BossRandomRolls
     public static bool InLowerHalf(int sample) => InHalfFrom(sample, threshold: 0);
 
     /// <summary>
+    /// The side a boss's roll sends a thing toward (#2569): rightward, toward increasing coordinates, for a sample in the
+    /// lower half of the random range (<see cref="InLowerHalf"/>), leftward for one in the upper half.
+    /// </summary>
+    /// <param name="sample">The random sample, 0 through 65535.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="sample"/> is outside the random range.</exception>
+    public static HorizontalDirection SideOf(int sample) => InLowerHalf(sample) ? HorizontalDirection.Right : HorizontalDirection.Left;
+
+    /// <summary>
     /// Whether a sample lies in the half of the random range that starts at <paramref name="threshold"/>: the sample less
     /// the threshold reads as not negative, so samples from the threshold through 32767 past it pass.
     /// </summary>

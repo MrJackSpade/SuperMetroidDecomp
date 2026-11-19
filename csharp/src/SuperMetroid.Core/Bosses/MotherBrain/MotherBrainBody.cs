@@ -280,7 +280,7 @@ internal sealed class MotherBrainBody
             samus.RequestKnockback(EnemyCollisionDefinitions.SamusTouchInvincibilityUpdates,
                 EnemyCollisionDefinitions.SamusTouchKnockbackUpdates, KnockbackHorizontalDirection.Right);
             if (samus.Position.Y.Whole < MotherBrainFightDefinitions.BodyPushDownAboveY)
-                samus.Kinematics.YDirection = SamusVerticalDirection.Down;
+                samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.TurnedDownward();
 
             // Only contact to the right of the hurting touch's edge hurts Samus. Contact
             // elsewhere still installs the displacement and timers above without damage.

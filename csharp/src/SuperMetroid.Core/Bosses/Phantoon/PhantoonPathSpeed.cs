@@ -31,8 +31,23 @@ public readonly record struct PhantoonPathSpeed
     [IntegerQuantity("whole places of Phantoon's figure-eight path taken each update")]
     public int WholePlaces => _places.WholePixels;
 
+    /// <summary>
+    /// The whole places the speed takes each update the way he runs the path (#2569): its whole places forward running
+    /// forward, and backward running backward, where a backward speed is below none.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is undefined.</exception>
+    public int WholePlacesAlong(PhantoonPathDirection direction) => direction switch
+    {
+        PhantoonPathDirection.Forwards => WholePlaces,
+        PhantoonPathDirection.Backwards => -WholePlaces,
+        _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, $"Undefined {nameof(PhantoonPathDirection)}."),
+    };
+
     /// <summary>The speed raised by <paramref name="change"/>, its fraction carrying into the whole places.</summary>
     public static PhantoonPathSpeed operator +(PhantoonPathSpeed speed, PhantoonPathSpeed change) => new(speed._places + change._places);
+
+    /// <summary>The same speed the other way along the path (#2569): a change that slows the speed by as much as this one raises it.</summary>
+    public static PhantoonPathSpeed operator -(PhantoonPathSpeed speed) => new(-speed._places);
 
     /// <summary>The speed lowered by <paramref name="change"/>, a fraction below none taken from the whole places.</summary>
     public static PhantoonPathSpeed operator -(PhantoonPathSpeed speed, PhantoonPathSpeed change) => new(speed._places - change._places);

@@ -667,7 +667,7 @@ public sealed class SamusState
                 centerAdjustment = 0;
                 return LargerPoseCollisionOutcome.RetainSource;
             }
-            enemyAdjustment = above ? opposite.Distance : -opposite.Distance;
+            enemyAdjustment = opposite.Distance.Toward(above ? VerticalDirection.Down : VerticalDirection.Up);
         }
 
         // Both probes test the room from where her body stands now, on copies of it; neither moves her.
@@ -803,7 +803,7 @@ public sealed class SamusState
                 level, probe, this, targetPose, amount, scanLeftToRight, roomObjects);
             // Submerging sand clears speed/gravity even during an observation.
             // Those reactions take hold without the probe's position becoming hers.
-            Kinematics.YSpeed = probe.YSpeed;
+            Kinematics.VerticalVelocity = Kinematics.VerticalVelocity.WithSpeed(probe.VerticalVelocity.Speed);
             Kinematics.YAcceleration = probe.YAcceleration;
             // The block reaction clamps the live fractional Y even for a
             // changed-pose observation; the probe's whole-pixel movement never

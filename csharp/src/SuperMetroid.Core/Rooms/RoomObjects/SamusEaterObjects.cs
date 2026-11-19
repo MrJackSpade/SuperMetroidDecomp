@@ -34,7 +34,7 @@ internal sealed class SamusEaterObjects
 
         place.Block = block.At;
         place.Become(new SamusEaterObject(this, definition,
-            samus.Position.Whole + new Offset16<RoomPixels>(0, definition.Ceiling ? 1 : -1)));
+            samus.Position.Whole + new Offset16<RoomPixels>(0, 1.Toward(definition.Ceiling ? VerticalDirection.Down : VerticalDirection.Up))));
         // The deactivating setup rewrites only the block's type, so it keeps its picture and what it shows (#2502).
         level.SetCollision(block.At, block.Terrain.Deactivated().Collision);
     }

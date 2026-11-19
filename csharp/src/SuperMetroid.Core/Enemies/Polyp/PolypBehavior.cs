@@ -173,8 +173,8 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         // The rock integrates two adjacent quadratic samples per frame, first
         // the mark after its speed's and then its speed's own. This is why the place moves by two marks
         // while the visual arc still advances at gameplay-frame rate.
-        AddPolypRockQuadraticStep(projectile, rock.SpeedCurvePlace + QuadraticSpeedCurvePlace.OneMark, sign: EnemySpeedSign.Negative);
-        AddPolypRockQuadraticStep(projectile, rock.SpeedCurvePlace, sign: EnemySpeedSign.Negative);
+        AddPolypRockQuadraticStep(projectile, rock.SpeedCurvePlace + QuadraticSpeedCurvePlace.OneMark, VerticalDirection.Up);
+        AddPolypRockQuadraticStep(projectile, rock.SpeedCurvePlace, VerticalDirection.Up);
         MovePolypRockHorizontally(projectile);
     }
 
@@ -186,22 +186,21 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         if (rock.SpeedCurvePlace >= PolypLaunchDefinitions.RockFastestFallPlace)
             rock.SpeedCurvePlace = PolypLaunchDefinitions.RockFastestFallPlace;
 
-        AddPolypRockQuadraticStep(projectile, rock.SpeedCurvePlace - QuadraticSpeedCurvePlace.OneMark, sign: EnemySpeedSign.Positive);
-        AddPolypRockQuadraticStep(projectile, rock.SpeedCurvePlace, sign: EnemySpeedSign.Positive);
+        AddPolypRockQuadraticStep(projectile, rock.SpeedCurvePlace - QuadraticSpeedCurvePlace.OneMark, VerticalDirection.Down);
+        AddPolypRockQuadraticStep(projectile, rock.SpeedCurvePlace, VerticalDirection.Down);
         MovePolypRockHorizontally(projectile);
     }
 
     /// <summary>
-    /// Adds one curve mark's speed in the direction <paramref name="sign"/> names, the fraction first and then the
-    /// whole pixels.
+    /// Adds one curve mark's speed toward <paramref name="direction"/>, the fraction first and then the whole pixels.
     /// </summary>
     internal static void AddPolypRockQuadraticStep(
         EnemyProjectile projectile,
         QuadraticSpeedCurvePlace place,
-        EnemySpeedSign sign)
+        VerticalDirection direction)
     {
         // A fraction past a whole pixel carries into the whole pixels.
-        SignedSixteenSixteen speed = place.Speed.Toward(sign);
+        SignedSixteenSixteen speed = place.Speed.Toward(direction);
         projectile.Position = projectile.Position.WithY(projectile.Position.Y.MovedBy(speed));
     }
 

@@ -43,7 +43,14 @@ public sealed class FlyEnemyState
     /// <summary>The way the fly circles (#2277): it starts clockwise and reverses after each full turn.</summary>
     public RotationDirection Rotation { get; internal set; }
 
-    /// <summary>One circling update's phase advance the way the fly circles, wrapping after a full turn.</summary>
-    internal void AdvanceCircle() =>
-        Angle = Angle.TurnedBySteps(Rotation == RotationDirection.Clockwise ? FlyMotionDefinitions.CircleTurnSteps : -FlyMotionDefinitions.CircleTurnSteps);
+    /// <summary>
+    /// One circling update's phase advance the way the fly circles, wrapping after a full turn: its phase grows as it circles
+    /// clockwise and falls as it circles counterclockwise.
+    /// </summary>
+    internal void AdvanceCircle() => Angle = Angle.TurnedBySteps(Rotation switch
+    {
+        RotationDirection.Clockwise => FlyMotionDefinitions.CircleTurnSteps,
+        RotationDirection.Counterclockwise => -FlyMotionDefinitions.CircleTurnSteps,
+        _ => throw new InvalidOperationException($"Undefined {nameof(RotationDirection)} {Rotation}."),
+    });
 }

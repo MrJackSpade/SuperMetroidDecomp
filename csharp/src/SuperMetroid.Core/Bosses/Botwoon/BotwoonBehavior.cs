@@ -337,7 +337,6 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     private static void FollowBotwoonPath(RoomEnemyPlace head, BotwoonEnemyState state)
     {
         BotwoonPathDefinition path = state.Path ?? throw new InvalidOperationException("Botwoon follows a path before choosing one.");
-        bool backward = state.PathTraversal == BotwoonPathTraversal.Backward;
         Offset16<RoomPixels> total = Offset16<RoomPixels>.Zero;
         for (int taken = 0; taken < state.SpeedStage.MovementSpeed; taken++)
         {
@@ -347,11 +346,24 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
                 return;
             }
             total += BotwoonNavigation.Step(path, state.PathStep);
-            state.PathStep += backward ? -1 : 1;
+            state.PathStep += AlongTraversal(state.PathTraversal, 1);
         }
 
-        head.Position += backward ? -total : total;
+        head.Position += AlongTraversal(state.PathTraversal, total);
     }
+
+    /// <summary>
+    /// <paramref name="amount"/> taken the way <paramref name="traversal"/> walks the path (#2569): as it is forward, reversed
+    /// backward.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="traversal"/> is undefined.</exception>
+    private static T AlongTraversal<T>(BotwoonPathTraversal traversal, T amount) where T : System.Numerics.IUnaryNegationOperators<T, T> =>
+        traversal switch
+        {
+            BotwoonPathTraversal.Forward => amount,
+            BotwoonPathTraversal.Backward => -amount,
+            _ => throw new ArgumentOutOfRangeException(nameof(traversal), traversal, $"Undefined {nameof(BotwoonPathTraversal)}."),
+        };
 
     /// <summary>Writes the head's whole-pixel position into the head-position history ring.</summary>
     private static void RecordBotwoonHeadPosition(RoomEnemyPlace head, BotwoonEnemyState state)

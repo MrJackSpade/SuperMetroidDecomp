@@ -41,7 +41,7 @@ internal static class TreadmillPhysicsVerification
             samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(24, 40)) };
             var body = samus.Kinematics;
             body.Radius = body.Radius.WithY(8);
-            body.YSpeed = new UnsignedSixteenSixteen(verticalSpeed, 0xffff); // Native admission does not inspect the fractional word.
+            body.VerticalVelocity = body.VerticalVelocity.WithSpeed(new UnsignedSixteenSixteen(verticalSpeed, 0xffff)); // Native admission does not inspect the fractional word.
             body.ExtraDisplacement = body.ExtraDisplacement.WithX(SuperMetroid.Core.Spatial.SignedSixteenSixteen.FromParts(7, 0x1234));
             samus.HorizontalSpeed.SelectSpeedsFor(SamusLiquidMedium.Water);
             bool gated = conveyor.Behavior == WreckedShipTreadmillBlockDefinitions.RightwardsBehavior ||

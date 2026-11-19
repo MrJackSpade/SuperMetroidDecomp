@@ -6,9 +6,6 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </summary>
 internal static class NorfairRidleyMotionDefinitions
 {
-    /// <summary>The sideways speed a pogo bounce starts from when Ridley has none: three quarters of a pixel an update.</summary>
-    internal static readonly SignedEightEight PogoRestartSpeed = SignedEightEight.FromPixelFraction(3, 4);
-
     /// <summary>The fastest Ridley falls on a pogo bounce: six pixels an update.</summary>
     internal static readonly SignedEightEight PogoMaximumFallSpeed = SignedEightEight.FromPixels(6);
 

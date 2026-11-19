@@ -18,11 +18,10 @@ internal static class SamusAerialMovementAccess
             Ensure.NotNull(bus);
             Ensure.NotNull(samus);
 
-            samus.Kinematics.YSpeed =
-                SamusVerticalMotion.Launch(SamusLiquidMedium.Air, highJump: false, kind: SamusLaunchKind.Jump);
+            samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Rising(
+                SamusVerticalMotion.Launch(SamusLiquidMedium.Air, highJump: false, kind: SamusLaunchKind.Jump));
             SamusAerialMovement.ApplyEquippedSpeedBoosterJumpBonus(samus);
             SamusAerialMovement.ConfigureDryAirGravity(bus, samus);
-            samus.Kinematics.YDirection = SamusVerticalDirection.Up;
         }
 
         /// <summary>

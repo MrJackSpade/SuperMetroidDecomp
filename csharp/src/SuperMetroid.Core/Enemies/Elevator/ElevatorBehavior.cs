@@ -214,9 +214,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         RoomEnemyPlace place,
         SamusState samus)
     {
-        AddElevatorYVelocity(place, ElevatorTravel is ElevatorTravelDirection.Up
-            ? -ElevatorActorDefinitions.TravelSpeed
-            : ElevatorActorDefinitions.TravelSpeed);
+        AddElevatorYVelocity(place, ElevatorActorDefinitions.TravelSpeed.Toward(ElevatorTravel.Vertically()));
         PinSamusToElevator(place, samus);
     }
 
@@ -268,7 +266,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         samus.Position = OffRoomPlaces.WithWholeY(samus.Position, place.Position.Y.Whole - ElevatorActorDefinitions.SamusYOffset);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(PixelFraction.None);
         samus.Position = samus.Position.WithWholeX(place.Position.X.Whole);
-        samus.Kinematics.YSpeed = default;
+        samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.Stopped();
     }
 
     /// <summary>Advances Elevator's typed animation.</summary>

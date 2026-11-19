@@ -156,7 +156,7 @@ internal sealed class TorizoChoices
         TorizoEnemyState state)
     {
         SignedEightEight side = TorizoMotionDefinitions.ForwardLeapSideSpeed;
-        state.Velocity = new(TorizoFacing.FacesRight(torizo) ? side : -side, TorizoMotionDefinitions.ForwardLeapRise);
+        state.Velocity = new(side.Toward(TorizoFacing.Posture(torizo).Facing), TorizoMotionDefinitions.ForwardLeapRise);
         state.JumpAcceleration = TorizoMotionDefinitions.LeapGravity;
     }
 
@@ -169,7 +169,7 @@ internal sealed class TorizoChoices
         TorizoEnemyState state)
     {
         SignedEightEight side = TorizoMotionDefinitions.BackwardJumpSideSpeed;
-        state.Velocity = new(TorizoFacing.FacesRight(torizo) ? -side : side, TorizoMotionDefinitions.BackwardJumpRise);
+        state.Velocity = new(side.Toward(TorizoFacing.Posture(torizo).Facing.Reversed()), TorizoMotionDefinitions.BackwardJumpRise);
         state.JumpAcceleration = TorizoMotionDefinitions.LeapGravity;
     }
 

@@ -766,7 +766,7 @@ internal sealed class SamusFramePhases
         // reads: the plain crouched turns, which turn on the ground, can retain a downward direction and still turn on the
         // ground.
         if (SamusPoseMetadata.IsAimedCrouchingTurnPose(move.Samus.Pose) &&
-            move.Samus.Kinematics.YDirection == SamusVerticalDirection.None)
+            move.Samus.Kinematics.VerticalVelocity.HasNoDirection)
             StepTurningOnGround(move);
         else
             StepTurningInAir(move);
@@ -996,14 +996,14 @@ internal sealed class SamusFramePhases
         bool drainedLanded = drainedLanding is not null;
         if (!frame.DeathOwnsSamus && (ordinaryOrBallLanded || knockbackLanded || drainedLanded))
         {
-            UnsignedSixteenSixteen impactYSpeed = drainedLanding is { } drainedSpeed
-                ? drainedSpeed.ImpactYSpeed
-                : samus.Kinematics.YSpeed;
+            SamusVerticalVelocity impact = drainedLanding is { } drained
+                ? drained.ImpactVelocity
+                : samus.Kinematics.VerticalVelocity;
             samus.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
                 samus,
                 frame.MovementTypeAtFrameStart,
                 frame.PoseAtFrameStart,
-                impactYSpeed);
+                impact.Speed);
         }
 
         // The drained get-up runs after movement and before animation.

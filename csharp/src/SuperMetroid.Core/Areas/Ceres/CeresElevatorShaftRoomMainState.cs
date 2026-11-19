@@ -141,7 +141,7 @@ public sealed class CeresElevatorShaftRoomMainState
         samus.Position.X.Whole <= CeresElevatorDepartureDefinitions.TriggerRightX &&
         samus.Position.Y.Whole >= CeresElevatorDepartureDefinitions.TriggerTopY &&
         samus.Position.Y.Whole < CeresElevatorDepartureDefinitions.BelowTriggerY &&
-        samus.Kinematics.YSpeed.IsZero;
+        !samus.Kinematics.VerticalVelocity.IsMoving;
 
 
     /// <summary>

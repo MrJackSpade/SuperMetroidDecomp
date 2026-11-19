@@ -56,7 +56,7 @@ internal sealed class DraygonGrab
         RoomEnemyPlace body = state.Body;
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
 
-        int clawOffset = state.Facing == HorizontalDirection.Right ? DraygonArenaDefinitions.ClawReach : -DraygonArenaDefinitions.ClawReach;
+        int clawOffset = DraygonArenaDefinitions.ClawReach.Toward(state.Facing);
         bool insideGrabWindow =
             DistanceAcrossRoomEdge.Between(body.Position.X.Whole + clawOffset, samus.Position.X.Whole) < DraygonArenaDefinitions.GrabWindow &&
             DistanceAcrossRoomEdge.Between(body.Position.Y.Whole, samus.Position.Y.Whole) < DraygonArenaDefinitions.GrabWindow;

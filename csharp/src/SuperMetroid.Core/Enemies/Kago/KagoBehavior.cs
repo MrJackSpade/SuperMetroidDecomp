@@ -247,9 +247,8 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
                 jumpLeft = KagoDefinitions.BugJumpsLeft.IsTakenBy(random);
             }
 
-            projectile.Velocity = projectile.Velocity.WithX(jumpLeft
-                ? -KagoDefinitions.BugHorizontalSpeed
-                : KagoDefinitions.BugHorizontalSpeed);
+            projectile.Velocity = projectile.Velocity.WithX(
+                KagoDefinitions.BugHorizontalSpeed.Toward(jumpLeft ? HorizontalDirection.Left : HorizontalDirection.Right));
             projectile.StartMotion(KagoBugMotion.Jumping);
         }
 

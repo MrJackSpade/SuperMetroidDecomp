@@ -100,7 +100,8 @@ internal sealed class EnemyDrawList
             // visibly move with the station instead of remaining pinned to host screen space.
             if (reached && place.Shake.IsRunning)
             {
-                origin += new Offset16<ScreenPixels>(EnemyDrawPhaseDefinitions.ShakeShiftsLeft.IsSetIn(place.FrameCounter) ? -1 : 1, 0);
+                origin += new Offset16<ScreenPixels>(1.Toward(EnemyDrawPhaseDefinitions.ShakeShiftsLeft.IsSetIn(place.FrameCounter)
+                    ? HorizontalDirection.Left : HorizontalDirection.Right), 0);
                 place.Shake.Count();
             }
             PictureShading drawShading = SelectCommonEnemyDrawShading(place);

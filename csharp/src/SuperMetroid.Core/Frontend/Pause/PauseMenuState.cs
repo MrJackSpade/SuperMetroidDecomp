@@ -547,7 +547,12 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     {
         if (column == PauseEquipmentControls.Beams && samus.HyperBeamEnabled)
             return false;
-        int step = direction == ColumnSearch.Down ? 1 : -1;
+        int step = direction switch
+        {
+            ColumnSearch.Down => 1,
+            ColumnSearch.Up => -1,
+            _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, $"Undefined {nameof(ColumnSearch)}."),
+        };
         for (int place = start; place >= 0 && place < column.Length; place += step)
         {
             if (!column[place].Upgrade.IsIn(samus.CollectedBeams, samus.CollectedItems))

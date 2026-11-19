@@ -11,7 +11,7 @@ internal static class NorfairRidleyMovement
         RidleyFlightState flight,
         Position16<RoomPixels> target,
         int divisor,
-        int reversalBoost = 0)
+        SignedEightEight reversalBoost = default)
     {
         divisor = RidleyInertia.Divisor(divisor);
 
@@ -45,11 +45,11 @@ internal static class NorfairRidleyMovement
         SeekingVelocityRun run,
         int distance,
         int divisor,
-        int reversalBoost)
+        SignedEightEight reversalBoost)
     {
         SignedEightEight axisVelocity = run.Velocity;
         if (distance == 0) return axisVelocity;
-        int step = Math.Max(1, Math.Abs(distance) / divisor);
+        SignedEightEight step = SeekingVelocityRun.StepFor(Math.Max(1, Math.Abs(distance) / divisor));
 
         if (distance > 0)
         {

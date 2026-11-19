@@ -363,7 +363,7 @@ internal sealed class CeresRidleyFlight
         if (difference == 0)
             return velocity;
         // The distance divided by the inertia, at most 32768; a step that divides to zero is raised to one.
-        int step = Math.Max(1, Math.Abs(difference) / divisor);
+        SignedEightEight step = SeekingVelocityRun.StepFor(Math.Max(1, Math.Abs(difference) / divisor));
 
         if (difference < 0)
         {

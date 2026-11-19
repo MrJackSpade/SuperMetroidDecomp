@@ -28,17 +28,17 @@ internal static class SeekingVelocityRunVerification
             {
                 var raising = new SeekingVelocityRun(new SignedEightEight(word), 0, target);
                 int sum = word + amount + carryIn;
-                raising.Raise(amount);
+                raising.Raise(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(amount));
                 int sumCarry = sum > ushort.MaxValue ? 1 : 0;
-                raising.Raise(0);
+                raising.Raise(SignedEightEight.Zero);
                 if (raising.Velocity.RawValue != unchecked((ushort)(sum + sumCarry)))
                     throw new InvalidOperationException($"Raising {word:X4} by {amount} owing {carryIn} reached {raising.Velocity.RawValue:X4}.");
 
                 var lowering = new SeekingVelocityRun(new SignedEightEight(word), 0, target);
                 int difference = word - amount - carryIn;
-                lowering.Lower(amount);
+                lowering.Lower(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(amount));
                 int borrow = difference < 0 ? 1 : 0;
-                lowering.Lower(0);
+                lowering.Lower(SignedEightEight.Zero);
                 if (lowering.Velocity.RawValue != unchecked((ushort)(difference - borrow)))
                     throw new InvalidOperationException($"Lowering {word:X4} by {amount} owing {carryIn} reached {lowering.Velocity.RawValue:X4}.");
             }
@@ -46,10 +46,10 @@ internal static class SeekingVelocityRunVerification
 
         var fresh = new SeekingVelocityRun(SignedEightEight.Zero, 0, 36864);
         fresh.StartFresh();
-        fresh.Raise(1);
+        fresh.Raise(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1));
         AssertEqual((ushort)1, fresh.Velocity.RawValue, "a fresh run owes no unit for the wrapped target");
         var retreat = new SeekingVelocityRun(SignedEightEight.Zero, 100, CoordinateAxis.Wrap(-128));
-        retreat.Lower(16);
+        retreat.Lower(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(16));
         AssertEqual(unchecked((ushort)-17), retreat.Velocity.RawValue, "a seek toward a point above the room's top lowers by one unit more");
         Console.WriteLine("  Seeking velocity run: every velocity word's raises and lowers match the chained arithmetic.");
     }

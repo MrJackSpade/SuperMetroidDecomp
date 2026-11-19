@@ -201,8 +201,4 @@ public readonly record struct SignedSixteenSixteen : IComparable<SignedSixteenSi
 
     /// <summary>Whether <paramref name="left"/> is no less than <paramref name="right"/>, read signed.</summary>
     public static bool operator >=(SignedSixteenSixteen left, SignedSixteenSixteen right) => left.CompareTo(right) >= 0;
-
-    /// <summary>Adds this delta to an unsigned wrapped 16.16 world-position pair, each word 0 through 65535.</summary>
-    public FixedCoordinate AddTo(int wholePosition, int subposition) =>
-        FixedCoordinate.Of(wholePosition, subposition).MovedBy(this);
 }

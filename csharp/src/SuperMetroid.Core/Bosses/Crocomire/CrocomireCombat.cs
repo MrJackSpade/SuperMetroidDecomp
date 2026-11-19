@@ -157,9 +157,7 @@ internal sealed class CrocomireCombat
 
             // The piece moves across by its velocity, a 256th of a pixel at its finest: its place within a 256th of a
             // pixel stays exactly as it was.
-            FixedCoordinate x = new FixedCoordinate(projectile.Position.X.Whole, projectile.Position.X.Fraction)
-                .MovedBy(xVelocity);
-            projectile.Position = projectile.Position.WithFractionX(x.FractionOfPixel).WithWholeX(x.Whole);
+            projectile.Position = projectile.Position.WithX(projectile.Position.X.MovedBy(xVelocity));
 
             // The piece falls by its speed, which gains three sixteenths of a pixel of gravity per update.
             piece.FallSpeed += CrocomireSpikeMotionDefinitions.PieceGravity;

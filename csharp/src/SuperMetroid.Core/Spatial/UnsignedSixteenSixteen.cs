@@ -159,6 +159,12 @@ public readonly record struct UnsignedSixteenSixteen
     public UnsignedSixteenSixteen WithWhole(int whole) => new(whole, Fraction);
 
     /// <summary>
+    /// This speed with its whole pixels replaced by <paramref name="speed"/>'s and its own fraction kept (#2555), as the
+    /// game sets only a speed's whole pixels.
+    /// </summary>
+    public UnsignedSixteenSixteen WithWholePixelsOf(UnsignedSixteenSixteen speed) => new(speed.Whole, Fraction);
+
+    /// <summary>
     /// How many whole steps of this size fit within <paramref name="wholePixels"/> pixels, the part of a step left over
     /// dropped (#2181): the lines a band climbing this far each line takes to climb that far.
     /// </summary>

@@ -122,6 +122,13 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>
         Wrapped(velocity.InTwoHundredFiftySixthsOfPixel * factor);
 
     /// <summary>
+    /// The velocity scaled by a whole <paramref name="factor"/> (#2555), for a velocity whose owner keeps the product far
+    /// inside the type's range: a product outside the range fails instead of continuing from the other end.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The product lies outside the type's range.</exception>
+    public SignedEightEight Times(int factor) => FromTwoHundredFiftySixthsOfPixel(checked(InTwoHundredFiftySixthsOfPixel * factor));
+
+    /// <summary>
     /// The velocity after one update's <paramref name="acceleration"/>, for a velocity whose owner keeps it far inside the
     /// type's range: a sum outside the range fails instead of continuing from the other end.
     /// </summary>

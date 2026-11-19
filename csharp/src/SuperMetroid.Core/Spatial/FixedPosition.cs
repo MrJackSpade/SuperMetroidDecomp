@@ -80,10 +80,10 @@ public readonly record struct FixedPosition<TSpace>(FixedCoordinate X, FixedCoor
         position.WithWhole(position.Whole - offset);
 
     /// <summary>Moves only the X axis by <paramref name="delta"/>, the fraction's overflow passing on to the whole pixels, which wrap.</summary>
-    public FixedPosition<TSpace> AdvanceX(SignedSixteenSixteen delta) => WithX(delta.AddTo(X.Whole, X.Fraction));
+    public FixedPosition<TSpace> AdvanceX(SignedSixteenSixteen delta) => WithX(X.MovedBy(delta));
 
     /// <summary>Moves only the Y axis by <paramref name="delta"/>, the fraction's overflow passing on to the whole pixels, which wrap.</summary>
-    public FixedPosition<TSpace> AdvanceY(SignedSixteenSixteen delta) => WithY(delta.AddTo(Y.Whole, Y.Fraction));
+    public FixedPosition<TSpace> AdvanceY(SignedSixteenSixteen delta) => WithY(Y.MovedBy(delta));
 
     /// <summary>Moves each axis by its velocity, the fraction's overflow passing on to the whole pixels, which wrap.</summary>
     public FixedPosition<TSpace> MovedBy(PixelVelocity<TSpace> velocity) =>
@@ -91,5 +91,5 @@ public readonly record struct FixedPosition<TSpace>(FixedCoordinate X, FixedCoor
 
     /// <summary>Applies a displacement on each axis, the fraction's overflow passing on to the whole pixels, which wrap.</summary>
     public FixedPosition<TSpace> Advance(FixedVector<TSpace> displacement) =>
-        new(displacement.X.AddTo(X.Whole, X.Fraction), displacement.Y.AddTo(Y.Whole, Y.Fraction));
+        new(X.MovedBy(displacement.X), Y.MovedBy(displacement.Y));
 }

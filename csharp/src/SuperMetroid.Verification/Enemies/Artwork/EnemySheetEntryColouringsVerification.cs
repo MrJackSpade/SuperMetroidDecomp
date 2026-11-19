@@ -12,17 +12,17 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// Holds the sheets of every enemy whose initialization leaves it drawn in its encounter's entry colouring to that
 /// colouring (#1513): such an enemy is never drawn in its sheet's standard colours, so its sheet's pictures, the ones a
 /// reviewer sees and an editor changes, show it in the entry colouring, and drawing it in that colouring changes no pixel.
-/// The Shitroid and the Sidehopper it drains are those enemies: their initializers draw both in the Shitroid encounter's
+/// The Baby Metroid and the Sidehopper it drains are those enemies: their initializers draw both in the Baby Metroid encounter's
 /// target colours from the room's start, while the room's graphics set loads all three of its records into one row, so
-/// the Shitroid's own draw row and its victim's hold colours neither is ever drawn in.
+/// the Baby Metroid's own draw row and its victim's hold colours neither is ever drawn in.
 /// </summary>
 internal static class EnemySheetEntryColouringsVerification
 {
     /// <summary>Each enemy whose initialization leaves it drawn in an entry colouring, with that colouring.</summary>
     private static readonly Dictionary<EnemyDefinitionId, PictureShading> EntryColourings = new()
     {
-        [EnemyDefinitionId.BabyMetroid] = ShitroidShades.InTargetColours,
-        [EnemyDefinitionId.CorpseSidehopper] = ShitroidShades.InTargetColours,
+        [EnemyDefinitionId.BabyMetroid] = BabyMetroidShades.InTargetColours,
+        [EnemyDefinitionId.CorpseSidehopper] = BabyMetroidShades.InTargetColours,
     };
 
     /// <summary>Fails, naming each sheet colour that differs, when such an enemy's sheet shows a colour its entry colouring replaces.</summary>

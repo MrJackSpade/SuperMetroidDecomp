@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses;
 
 /// <summary>
 /// A countdown of a boss fight (#2212, #2233, #2253, #2267, #2311, #2463, #2538): Mother Brain's fight, the Baby Metroid's
-/// cutscene, the Rinkas' and the Shitroid's waits, both Ridleys' phases and breakup fragments, the Golden Torizo's eggs,
+/// cutscene, the Rinkas' and the Baby Metroid's waits, both Ridleys' phases and breakup fragments, the Golden Torizo's eggs,
 /// Botwoon's opening wait, spit cooldown, pre-fall wait, wall explosions and dying segments' falls, Crocomire's submerged
 /// pauses, spiked wall, acid smoke and sounds and his skeleton's fall, Draygon's tail-whip pause, burial wait and his
 /// goop's hold on Samus, Kraid's parts' timed phases, his rise's rocks, his sinking rumbles and his grown foot's thinking,

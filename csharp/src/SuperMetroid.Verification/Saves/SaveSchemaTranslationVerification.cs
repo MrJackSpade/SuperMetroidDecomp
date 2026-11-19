@@ -38,9 +38,9 @@ internal static class SaveSchemaTranslationVerification
         system.SetAreaMapAcquired(AreaId.WreckedShip);
         system.SetCollectedItemBit(23);
         system.SetOpenedDoorBit(31);
-        // A Zebetite count and the Shitroid-approach event, which schema four listed as counter events and by number (#1527).
+        // A Zebetite count and the Baby Metroid-approach event, which schema four listed as counter events and by number (#1527).
         system.Progress.ZebetitesDestroyed = 3;
-        system.SetEvent(StoryEvent.ShitroidEncounterMusicSkipped);
+        system.SetEvent(StoryEvent.BabyMetroidEncounterMusicSkipped);
         ram.SaveSlot(SaveSlot.A, SuperMetroidSaveSnapshot.Capture(samus, system, SaveSnapshotFixtures.At(SuperMetroid.Core.Progression.LoadStationDefinitions.Gunship) with { JapaneseText = true }));
         ram.CompleteGame();
         ram.SelectSlot(SaveSlot.A);
@@ -261,7 +261,7 @@ internal static class SaveSchemaTranslationVerification
             SaveRamCodec.Encode(ram, RetailPresentationFixture()),
             "a schema-five save upgrades to the same saves, keeping every named event, item location and door");
 
-        // A schema-four save lists the Zebetite count as the three counter events and names the Shitroid-approach event
+        // A schema-four save lists the Zebetite count as the three counter events and names the Baby Metroid-approach event
         // after its number (#1527); it upgrades to the count, the event's name and the same saves.
         JsonObject schemaFour = RequiredJson.Parse(json).AsObject();
         schemaFour["schemaVersion"] = 4;
@@ -272,7 +272,7 @@ internal static class SaveSchemaTranslationVerification
         SuperMetroidSaveSlot upgradedFourSlot = upgradedFourSaves.ReadSlot(SaveSlot.A) ??
             throw new InvalidOperationException("The upgraded schema-four save lost slot 0.");
         AssertEqual(3, upgradedFourSlot.Progression.ZebetitesDestroyed, "schema four's counter events become the Zebetite count");
-        AssertTrue(upgradedFourSlot.Progression.Events.Members.SequenceEqual([StoryEvent.ShitroidEncounterMusicSkipped]),
+        AssertTrue(upgradedFourSlot.Progression.Events.Members.SequenceEqual([StoryEvent.BabyMetroidEncounterMusicSkipped]),
             "schema four's Unused14 becomes ShitroidEncounterMusicSkipped and its counter events leave the story events");
         AssertSameBytes(SaveRamCodec.Encode(upgradedFourSaves, RetailPresentationFixture()), SaveRamCodec.Encode(ram, RetailPresentationFixture()),
             "a schema-four save upgrades to the same saves");
@@ -355,7 +355,7 @@ internal static class SaveSchemaTranslationVerification
     /// <summary>
     /// Rewrites each slot's current progression as schema four wrote it: the Zebetite count as the bits of the counter
     /// events <c>ZebetiteDestroyedBit0</c> through <c>ZebetiteDestroyedBit2</c> (the game's events three through five),
-    /// listed in event order, and <see cref="StoryEvent.ShitroidEncounterMusicSkipped"/> under its schema-four name <c>Unused14</c>.
+    /// listed in event order, and <see cref="StoryEvent.BabyMetroidEncounterMusicSkipped"/> under its schema-four name <c>Unused14</c>.
     /// </summary>
     private static void ToSchemaFourProgression(JsonObject root)
     {
@@ -370,7 +370,7 @@ internal static class SaveSchemaTranslationVerification
             foreach (JsonNode? entry in progression.Required("events").AsArray())
             {
                 StoryEvent named = Enum.Parse<StoryEvent>(entry?.GetValue<string>() ?? "", ignoreCase: true);
-                byNumber.Add(named.Number(), named == StoryEvent.ShitroidEncounterMusicSkipped ? "Unused14" : named.ToString());
+                byNumber.Add(named.Number(), named == StoryEvent.BabyMetroidEncounterMusicSkipped ? "Unused14" : named.ToString());
             }
             for (int bit = 0; bit < 3; bit++)
             {

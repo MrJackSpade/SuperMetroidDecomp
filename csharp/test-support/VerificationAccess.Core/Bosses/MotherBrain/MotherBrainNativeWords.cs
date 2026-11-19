@@ -30,13 +30,13 @@ internal static class MotherBrainNativeWords
     });
 
     /// <summary>
-    /// The Shitroid's membrane colour delay naming each <see cref="ShitroidMembranePace"/> (#2404): the updates each phase of
+    /// The Baby Metroid's membrane colour delay naming each <see cref="BabyMetroidMembranePace"/> (#2404): the updates each phase of
     /// the pulse holds at that pace, less one.
     /// </summary>
-    internal static readonly NativeWordIdentities<ShitroidMembranePace> ShitroidMembranePaces = new(new Dictionary<ShitroidMembranePace, ushort>
+    internal static readonly NativeWordIdentities<BabyMetroidMembranePace> BabyMetroidMembranePaces = new(new Dictionary<BabyMetroidMembranePace, ushort>
     {
-        [ShitroidMembranePace.Calm] = 10,
-        [ShitroidMembranePace.Feeding] = 1,
+        [BabyMetroidMembranePace.Calm] = 10,
+        [BabyMetroidMembranePace.Feeding] = 1,
     });
 
     /// <summary>The hand-beam dispatcher's index naming each <see cref="MotherBrainHandBeamPhase"/>.</summary>
@@ -283,35 +283,35 @@ internal static class MotherBrainNativeWords
     };
 
     /// <summary>
-    /// The bank-$A9 routine word naming each <see cref="ShitroidAction"/> and, for its departing flight, the side of Samus it
+    /// The bank-$A9 routine word naming each <see cref="BabyMetroidAction"/> and, for its departing flight, the side of Samus it
     /// flies to (#2165), the cartridge giving each side a routine of its own.
     /// </summary>
-    internal static readonly NativeWordIdentities<(ShitroidAction Action, HorizontalDirection? Side)> ShitroidActions =
-        new(new Dictionary<(ShitroidAction Action, HorizontalDirection? Side), ushort>
+    internal static readonly NativeWordIdentities<(BabyMetroidAction Action, HorizontalDirection? Side)> BabyMetroidActions =
+        new(new Dictionary<(BabyMetroidAction Action, HorizontalDirection? Side), ushort>
     {
-        [(ShitroidAction.Dormant, null)] = 0xefdf,
-        [(ShitroidAction.WaitForCamera, null)] = 0xefe6,
-        [(ShitroidAction.BeginEntranceDelay, null)] = 0xf02b,
-        [(ShitroidAction.EntranceDelay, null)] = 0xf037,
-        [(ShitroidAction.FlyToSidehopper, null)] = 0xf049,
-        [(ShitroidAction.ChaseSidehopper, null)] = 0xf06d,
-        [(ShitroidAction.AttachToSidehopper, null)] = 0xf094,
-        [(ShitroidAction.DrainSidehopper, null)] = 0xf0e6,
-        [(ShitroidAction.ActivateSidehopperCorpse, null)] = 0xf125,
-        [(ShitroidAction.RiseAfterFeeding, null)] = 0xf138,
-        [(ShitroidAction.HoverNearSamus, null)] = 0xf180,
-        [(ShitroidAction.ChaseSamus, null)] = 0xf1fa,
-        [(ShitroidAction.BeginDrainingSamus, null)] = 0xf20e,
-        [(ShitroidAction.DrainSamus, null)] = 0xf21b,
-        [(ShitroidAction.BeginPostDrainPause, null)] = 0xf2a2,
-        [(ShitroidAction.PostDrainPause, null)] = 0xf2ae,
-        [(ShitroidAction.RiseAfterDrainingSamus, null)] = 0xf2c0,
-        [(ShitroidAction.FlyBesideSamus, HorizontalDirection.Left)] = 0xf2fb,
-        [(ShitroidAction.FlyBesideSamus, HorizontalDirection.Right)] = 0xf324,
-        [(ShitroidAction.BeginExit, null)] = 0xf360,
-        [(ShitroidAction.Exit, null)] = 0xf36d,
-        [(ShitroidAction.HoldSamusBeforeRelease, null)] = 0xf3a3,
-        [(ShitroidAction.ReleasedFollow, null)] = 0xf3be,
+        [(BabyMetroidAction.Dormant, null)] = 0xefdf,
+        [(BabyMetroidAction.WaitForCamera, null)] = 0xefe6,
+        [(BabyMetroidAction.BeginEntranceDelay, null)] = 0xf02b,
+        [(BabyMetroidAction.EntranceDelay, null)] = 0xf037,
+        [(BabyMetroidAction.FlyToSidehopper, null)] = 0xf049,
+        [(BabyMetroidAction.ChaseSidehopper, null)] = 0xf06d,
+        [(BabyMetroidAction.AttachToSidehopper, null)] = 0xf094,
+        [(BabyMetroidAction.DrainSidehopper, null)] = 0xf0e6,
+        [(BabyMetroidAction.ActivateSidehopperCorpse, null)] = 0xf125,
+        [(BabyMetroidAction.RiseAfterFeeding, null)] = 0xf138,
+        [(BabyMetroidAction.HoverNearSamus, null)] = 0xf180,
+        [(BabyMetroidAction.ChaseSamus, null)] = 0xf1fa,
+        [(BabyMetroidAction.BeginDrainingSamus, null)] = 0xf20e,
+        [(BabyMetroidAction.DrainSamus, null)] = 0xf21b,
+        [(BabyMetroidAction.BeginPostDrainPause, null)] = 0xf2a2,
+        [(BabyMetroidAction.PostDrainPause, null)] = 0xf2ae,
+        [(BabyMetroidAction.RiseAfterDrainingSamus, null)] = 0xf2c0,
+        [(BabyMetroidAction.FlyBesideSamus, HorizontalDirection.Left)] = 0xf2fb,
+        [(BabyMetroidAction.FlyBesideSamus, HorizontalDirection.Right)] = 0xf324,
+        [(BabyMetroidAction.BeginExit, null)] = 0xf360,
+        [(BabyMetroidAction.Exit, null)] = 0xf36d,
+        [(BabyMetroidAction.HoldSamusBeforeRelease, null)] = 0xf3a3,
+        [(BabyMetroidAction.ReleasedFollow, null)] = 0xf3be,
     });
 
     /// <summary>The glass-shard spawn parameter (the emitter's byte offset into the placement tables) naming each <see cref="MotherBrainGlassShard"/>.</summary>

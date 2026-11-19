@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// unit larger when the target lies the other way round from the coordinates' plain order: the distance across the
 /// wrapping coordinate space puts it ahead while the coordinates' order puts it behind, or the reverse, as for a target
 /// above the room's top seen from inside the room. A step that starts a fresh run adds no unit for a crossing before
-/// it. Ceres Ridley, Norfair Ridley and the Shitroid seek this way, so every reversal of their flight, and every seek
+/// it. Ceres Ridley, Norfair Ridley and the Baby Metroid seek this way, so every reversal of their flight, and every seek
 /// toward a point past the room's top, moves them by those extra units; combining a run's steps into one sum would
 /// change their trajectories.
 /// </summary>
@@ -16,11 +16,11 @@ namespace SuperMetroid.Core.Compatibility;
 /// to the boss's speed limit and before it moves. Evidence: Ceres Ridley's acceleration (<c>$A6:D62F</c>,
 /// <c>$A6:D6A6</c>) adds or subtracts its distance step with the carry its position-less-target comparison left, and
 /// chains each further step's carry without clearing it; Ridley's (<c>$A6:D526</c>, <c>$A6:D5A9</c>) clears it only
-/// before the extra deceleration and the reversal constant, and the Shitroid's gradual acceleration (<c>$A9:F46B</c>,
+/// before the extra deceleration and the reversal constant, and the Baby Metroid's gradual acceleration (<c>$A9:F46B</c>,
 /// <c>$A9:F4E6</c>) only before its reversal constant, its off-screen push adding with the set carry its on-screen test
 /// leaves. Ceres Ridley's retreat seeks a point 128 pixels above the room's top. The Ridley inertia check and the seeking
-/// velocity check compare the run with that chained arithmetic, and the Shitroid gradual acceleration check reproduces the
-/// recorded first rise after the Shitroid drains the Sidehopper.
+/// velocity check compare the run with that chained arithmetic, and the Baby Metroid gradual acceleration check reproduces the
+/// recorded first rise after the Baby Metroid drains the Sidehopper.
 /// </remarks>
 [CompatibilityService("a seeking boss's acceleration step that takes its velocity across zero makes the next step one 256th of a pixel larger, and a target past the coordinate space's end lengthens the first")]
 internal struct SeekingVelocityRun

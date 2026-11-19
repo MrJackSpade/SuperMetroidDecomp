@@ -280,9 +280,9 @@ public static class EnemyTileArtworkFiles
         byte[] dachoraColors = DachoraColorExtractor.Extract(bus);
         File.WriteAllBytes(Path.Combine(importData, DachoraColorFormat.FileName),
             dachoraColors);
-        byte[] shitroidColors = ShitroidColorExtractor.Extract(bus);
-        File.WriteAllBytes(Path.Combine(importData, ShitroidColorFormat.FileName),
-            shitroidColors);
+        byte[] babyMetroidColors = BabyMetroidColorExtractor.Extract(bus);
+        File.WriteAllBytes(Path.Combine(importData, BabyMetroidColorFormat.FileName),
+            babyMetroidColors);
         byte[] babyMetroidCutsceneColors =
             BabyMetroidCutsceneColorExtractor.Extract(bus);
         File.WriteAllBytes(Path.Combine(importData,
@@ -338,7 +338,7 @@ public static class EnemyTileArtworkFiles
             Convert.ToHexString(SHA256.HashData(chozoAndTubeColors)),
             Convert.ToHexString(SHA256.HashData(sporeSpawnColors)),
             Convert.ToHexString(SHA256.HashData(dachoraColors)),
-            Convert.ToHexString(SHA256.HashData(shitroidColors)),
+            Convert.ToHexString(SHA256.HashData(babyMetroidColors)),
             Convert.ToHexString(SHA256.HashData(babyMetroidCutsceneColors)),
             Convert.ToHexString(SHA256.HashData(botwoonColors)),
             Convert.ToHexString(SHA256.HashData(motherBrainDeathColors)),
@@ -663,7 +663,7 @@ public static class EnemyTileArtworkFiles
         string ChozoAndTubeColorsSha256,
         string SporeSpawnColorsSha256,
         string DachoraColorsSha256,
-        string ShitroidColorsSha256,
+        string BabyMetroidColorsSha256,
         string BabyMetroidCutsceneColorsSha256,
         string BotwoonColorsSha256,
         string MotherBrainDeathColorsSha256,

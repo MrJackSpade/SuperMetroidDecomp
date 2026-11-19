@@ -411,8 +411,8 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.RinkaDarkRed,
     ];
 
-    /// <summary>The frames <c>Bosses/MotherBrain/ShitroidBehavior.cs</c> shows.</summary>
-    private static readonly EnemyFrameId[] Shitroid =
+    /// <summary>The frames <c>Bosses/MotherBrain/BabyMetroidBehavior.cs</c> shows.</summary>
+    private static readonly EnemyFrameId[] BabyMetroid =
     [
         EnemyFrameId.BabyMetroidNucleiBright,
         EnemyFrameId.BabyMetroidNucleiGlowing,
@@ -2404,7 +2404,7 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.MotherBrainHead] = MotherBrainHeadFrames,
             [EnemyDefinitionId.MotherBrainTubes] = MotherBrainTubesFrames,
             [EnemyDefinitionId.Rinka] = Rinka,
-            [EnemyDefinitionId.BabyMetroid] = Shitroid,
+            [EnemyDefinitionId.BabyMetroid] = BabyMetroid,
             [EnemyDefinitionId.Zebetite] = Zebetite,
             [EnemyDefinitionId.PhantoonBody] = Phantoon,
             [EnemyDefinitionId.PhantoonEye] = Phantoon,

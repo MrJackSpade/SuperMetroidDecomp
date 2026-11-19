@@ -313,7 +313,7 @@ saves or gameplay were executed. Dynamic caller correctness is not asserted.
 
 Ten separately reviewed private-constructor loaders require their full supported
 arrays: Botwoon health; cutscene Baby initial/fades; Norfair Ridley initial/reveal;
-four auxiliary enemy palettes; Kraid's five sources; Zebetite pulse; Shitroid
+four auxiliary enemy palettes; Kraid's five sources; Zebetite pulse; Baby Metroid
 normal/targets; Ceres Ridley Mode-7 shades; Dachora phases; and Mother Brain health
 pairs. Every proof lists the provider and dimension-definition sources.
 
@@ -321,7 +321,7 @@ Selected dimensions remain distinct. Auxiliary palette constants narrow frame
 and color ranges; Kraid's sixteen-word backdrop cannot borrow its 144-word health
 capacity. Dachora Default owns only frame zero. The Baby's displayed fade index
 is one through six, with fourteen colors rather than its fifteen initial colors.
-Normal versus target Shitroid colors likewise retain separate widths. CGRAM
+Normal versus target Baby Metroid colors likewise retain separate widths. CGRAM
 destinations are placement; direct indexed Norfair rows have CLR bounds checks.
 
 Twenty-eight constructed calls reproduce absent adapters first. Fourteen then

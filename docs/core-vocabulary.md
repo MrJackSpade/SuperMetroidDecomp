@@ -729,13 +729,13 @@ query or routine that returns zero or nonzero; `execution` (`does not leave exec
 `bookkeeping`; the real pool; the game's mover, routine, handler or subroutine (`as the game's projectile mover does`);
 the checks that compare, read or assert something; a wrapped count, counter, value, word, timer or sum; a stored value,
 word, byte or count; a respawn, flag, status, enable or done bit;
-authored arguments or operands; a direct write of anything (`the Shitroid's direct camera X write`, `a direct terrain
+authored arguments or operands; a direct write of anything (`the Baby Metroid's direct camera X write`, `a direct terrain
 write`); and a branch that also, then, first or only does something (`the riding branch also carries Samus`). In every
 type, hardware owners included, fix history told inside a clause now also covers rebuilding, recomputing, resetting,
 rewriting or replacing something here that doubles, halves, breaks, loses or desyncs something (`rebuilding a clean
 rectangle here doubles close-range damage`). Core says what the game does: a shot flies each update, the eye breathes its
 bubble whether or not its gaze turns, a deleted part's animation stays where it stood, one roll in 256 whips, the
-Shitroid moves the camera, a hit leaves the mouth's bounds as it left them. A frame alone and a behaviour alone, a
+Baby Metroid moves the camera, a hit leaves the mouth's bounds as it left them. A frame alone and a behaviour alone, a
 return to a place, a count that wraps, a value kept, a bit of a thing, an authored path, a direct hit, a branch alone
 and a hardware owner, which describes the program it reproduces, stay English.
 

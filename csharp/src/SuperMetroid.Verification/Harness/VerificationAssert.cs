@@ -393,7 +393,7 @@ internal static class VerificationAssert
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Auxiliary palette oracle revision");
         Suite(nameof(VerifyStream3AuxiliaryPalettes), () => VerifyStream3AuxiliaryPalettes(rom));
-        Suite(nameof(VerifyStream3ShitroidPulse), () => VerifyStream3ShitroidPulse(rom));
+        Suite(nameof(VerifyStream3BabyMetroidPulse), () => VerifyStream3BabyMetroidPulse(rom));
         Console.WriteLine("Auxiliary palettes:393 native colors,zero stock endpoint/corpse arrays,identities and bounds pass.");
         return 0;
     }
@@ -509,7 +509,7 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Baby normal/target oracle revision");
-        Suite(nameof(VerifyStream3ShitroidPulse), () => VerifyStream3ShitroidPulse(rom));
+        Suite(nameof(VerifyStream3BabyMetroidPulse), () => VerifyStream3BabyMetroidPulse(rom));
         Suite(nameof(VerifyStream3BabyInitialPaints), () => VerifyStream3BabyInitialPaints(rom));
         Console.WriteLine("Baby normal/target: native outputs, identities and bounds pass.");
         return 0;

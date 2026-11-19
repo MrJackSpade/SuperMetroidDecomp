@@ -13,8 +13,8 @@ internal sealed record DeadSidehopperBehaviorDependencies
     /// <summary>The room's terrain, which the hop collides with once it is past the scripted opening.</summary>
     public required EnemyTerrain Terrain { get; init; }
 
-    /// <summary>The room's Shitroid's feeding, which tells the victim whether it is already gone.</summary>
-    public required IShitroidFeeding Shitroid { get; init; }
+    /// <summary>The room's Baby Metroid's feeding, which tells the victim whether it is already gone.</summary>
+    public required IBabyMetroidFeeding BabyMetroidFeeding { get; init; }
 
     /// <summary>The enemy pass's counters, which pace the dust sounds.</summary>
     public required EnemyFrameContext FrameContext { get; init; }

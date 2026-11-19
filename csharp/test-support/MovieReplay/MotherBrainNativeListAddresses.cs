@@ -111,15 +111,15 @@ internal static class MotherBrainNativeListAddresses
         new NativeProgramEntry<MotherBrainBabySegment>(MotherBrainBabySegment.TakingFatalBlow, 0xcfce),
     ];
 
-    /// <summary>Each Shitroid program's native entry point in bank $A9.</summary>
-    internal static readonly NativeProgramEntry<ShitroidSegment>[] ShitroidEntries =
+    /// <summary>Each Baby Metroid program's native entry point in bank $A9.</summary>
+    internal static readonly NativeProgramEntry<BabyMetroidSegment>[] BabyMetroidEntries =
     [
-        new NativeProgramEntry<ShitroidSegment>(ShitroidSegment.FinishDraining, 0xf906),
-        new NativeProgramEntry<ShitroidSegment>(ShitroidSegment.Normal, 0xf90e),
-        new NativeProgramEntry<ShitroidSegment>(ShitroidSegment.LatchedOn, 0xf924),
-        new NativeProgramEntry<ShitroidSegment>(ShitroidSegment.Remorse, 0xf93a),
+        new NativeProgramEntry<BabyMetroidSegment>(BabyMetroidSegment.FinishDraining, 0xf906),
+        new NativeProgramEntry<BabyMetroidSegment>(BabyMetroidSegment.Normal, 0xf90e),
+        new NativeProgramEntry<BabyMetroidSegment>(BabyMetroidSegment.LatchedOn, 0xf924),
+        new NativeProgramEntry<BabyMetroidSegment>(BabyMetroidSegment.Remorse, 0xf93a),
         // The remorse's list writes its calm pulse out twice (#2405) and runs on into the quickening, at the random cry.
-        new NativeProgramEntry<ShitroidSegment>(ShitroidSegment.RemorseQuickening, 0xf95a),
+        new NativeProgramEntry<BabyMetroidSegment>(BabyMetroidSegment.RemorseQuickening, 0xf95a),
     ];
 
     /// <summary>The bank-$A9 opcodes of body programs and the body steps each becomes, with its operand words.</summary>
@@ -431,14 +431,14 @@ internal static class MotherBrainNativeListAddresses
         [0xcfca] = new(0, (_, _) => new([], MotherBrainBabySegment.DrainingMotherBrain)),
     };
 
-    /// <summary>The Shitroid's opcodes: three gotos and the random remorse cry, whose goto operand is the remorse start; without the cry it goes to that operand.</summary>
-    private static Dictionary<ushort, NativeListOp<ShitroidSegment, ShitroidCue>> ShitroidNativeOps { get; } = new()
+    /// <summary>The Baby Metroid's opcodes: three gotos and the random remorse cry, whose goto operand is the remorse start; without the cry it goes to that operand.</summary>
+    private static Dictionary<ushort, NativeListOp<BabyMetroidSegment, BabyMetroidCue>> BabyMetroidNativeOps { get; } = new()
     {
-        [0xf920] = new(0, (_, _) => new([], ShitroidSegment.Normal)),
-        [0xf936] = new(0, (_, _) => new([], ShitroidSegment.LatchedOn)),
-        [0xf990] = new(0, (_, _) => new([], ShitroidSegment.Remorse)),
-        [0xf994] = new(1, (operands, segmentAt) => segmentAt(operands[0]) == ShitroidSegment.Remorse
-            ? new([ShitroidCue.MaybeRemorseCry], null)
+        [0xf920] = new(0, (_, _) => new([], BabyMetroidSegment.Normal)),
+        [0xf936] = new(0, (_, _) => new([], BabyMetroidSegment.LatchedOn)),
+        [0xf990] = new(0, (_, _) => new([], BabyMetroidSegment.Remorse)),
+        [0xf994] = new(1, (operands, segmentAt) => segmentAt(operands[0]) == BabyMetroidSegment.Remorse
+            ? new([BabyMetroidCue.MaybeRemorseCry], null)
             : throw new InvalidDataException("The remorse cry's goto operand is not the remorse start.")),
     };
 
@@ -491,10 +491,10 @@ internal static class MotherBrainNativeListAddresses
         Lists(cartridge, MotherBrainBank, MotherBrainBabyAnimations.Segments, MotherBrainBabyAnimations.StartingAt, BabyEntries,
             frame => BabyMetroidVisualToolingDefinitions.Spritemap(frame), BabyNativeOps);
 
-    /// <summary>Compares the Shitroid's typed segments and animations with their native lists.</summary>
-    internal static void CompareShitroid(IImportCartridgeSource cartridge) =>
-        Lists(cartridge, MotherBrainBank, ShitroidAnimations.Segments, ShitroidAnimations.StartingAt, ShitroidEntries,
-            frame => BabyMetroidVisualToolingDefinitions.Spritemap(frame), ShitroidNativeOps, new HashSet<ShitroidSegment> { ShitroidSegment.RemorseQuickening });
+    /// <summary>Compares the Baby Metroid's typed segments and animations with their native lists.</summary>
+    internal static void CompareBabyMetroid(IImportCartridgeSource cartridge) =>
+        Lists(cartridge, MotherBrainBank, BabyMetroidAnimations.Segments, BabyMetroidAnimations.StartingAt, BabyMetroidEntries,
+            frame => BabyMetroidVisualToolingDefinitions.Spritemap(frame), BabyMetroidNativeOps, new HashSet<BabyMetroidSegment> { BabyMetroidSegment.RemorseQuickening });
 
     /// <summary>
     /// Compares the Zebetites' health pictures with their native lists (#2250): each list shows its picture and sleeps, so

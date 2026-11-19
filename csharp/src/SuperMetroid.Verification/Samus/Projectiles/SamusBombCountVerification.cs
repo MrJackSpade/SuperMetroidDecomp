@@ -12,7 +12,7 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 
 /// <summary>
 /// Checks the count of bombs Samus has out (#1627): it holds 0 through the bomb places' count, a Shoot edge at a full count
-/// places nothing and leaves the count full, a bomb that ends after the Shitroid's drain cleared the count leaves it at
+/// places nothing and leaves the count full, a bomb that ends after the Baby Metroid's drain cleared the count leaves it at
 /// zero, and a count out of step with the bombs out fails loudly instead of reusing a place (#1919).
 /// </summary>
 internal static class SamusBombCountVerification
@@ -42,7 +42,7 @@ internal static class SamusBombCountVerification
         AssertEqual(SamusBombProjectileSystem.PlaceCount, full.BombCounter, "a full count stays full");
         AssertTrue(full.Bombs.All(bomb => !bomb.IsActive), "a full count places no bomb");
 
-        // The Shitroid's drain clears the count while a bomb is out; the bomb's end then leaves it at zero.
+        // The Baby Metroid's drain clears the count while a bomb is out; the bomb's end then leaves it at zero.
         SamusBombProjectileSystem cleared = CreateBombFixture();
         SamusState samus = MorphedSamus();
         cleared.StepFrame(terrain, samus, GameplayAction.Shoot, GameplayAction.Shoot);

@@ -23,13 +23,13 @@ public static class StoryEventNumbers
     /// </summary>
     private static readonly StoryEvent?[] Numbered =
     [
-        StoryEvent.ZebesAwake, StoryEvent.ShitroidAteSidehopper, StoryEvent.MotherBrainGlassDestroyed,
+        StoryEvent.ZebesAwake, StoryEvent.BabyMetroidAteSidehopper, StoryEvent.MotherBrainGlassDestroyed,
         null, null, null,
         StoryEvent.PhantoonStatueGrey, StoryEvent.RidleyStatueGrey, StoryEvent.DraygonStatueGrey,
         StoryEvent.KraidStatueGrey, StoryEvent.TourianUnlocked, StoryEvent.MaridiaNoobTubeBroken,
         StoryEvent.LowerNorfairChozoLoweredAcid, StoryEvent.ShaktoolClearedPath, StoryEvent.ZebesTimebombSet,
         StoryEvent.CrittersEscaped, StoryEvent.FirstMetroidHallCleared, StoryEvent.FirstMetroidShaftCleared,
-        StoryEvent.SecondMetroidHallCleared, StoryEvent.SecondMetroidShaftCleared, StoryEvent.ShitroidEncounterMusicSkipped,
+        StoryEvent.SecondMetroidHallCleared, StoryEvent.SecondMetroidShaftCleared, StoryEvent.BabyMetroidEncounterMusicSkipped,
         StoryEvent.OutranSpeedBoosterLavaquake,
     ];
 

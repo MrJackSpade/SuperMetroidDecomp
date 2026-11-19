@@ -40,7 +40,7 @@ internal static class MotherBrainRandomChancesVerification
             AssertSameAt(roll4096 < 3776, MotherBrainRandomDefinitions.NeutralPhase3Holds.IsTakenBy(sample), "phase-three neutral hold", sample);
             AssertSameAt(roll4096 >= 4064, MotherBrainRandomDefinitions.DroolBursts.IsTakenBy(sample), "drool burst", sample);
             AssertSameAt(roll4096 >= 4000, MotherBrainRandomDefinitions.BabyMetroidCries.IsTakenBy(sample), "baby metroid cry", sample);
-            AssertSameAt(roll4096 >= 4064, MotherBrainRandomDefinitions.ShitroidHoverRestarts.IsTakenBy(sample), "Shitroid hover restart", sample);
+            AssertSameAt(roll4096 >= 4064, MotherBrainRandomDefinitions.BabyMetroidHoverRestarts.IsTakenBy(sample), "Shitroid hover restart", sample);
             AssertSameAt(roll4096 < 4000, MotherBrainRandomDefinitions.FinishOffHoldsBack.IsTakenBy(sample), "finish-off holds back", sample);
             AssertSameAt(!(roll4096 < 4080), MotherBrainRandomDefinitions.FinishOffBombs.IsTakenBy(sample), "finish-off bomb", sample);
             AssertSameAt(!(roll256 < 192), MotherBrainRandomDefinitions.PostureChanges.IsTakenBy(sample), "posture change", sample);

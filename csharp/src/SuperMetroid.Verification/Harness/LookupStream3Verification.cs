@@ -887,7 +887,7 @@ internal static class LookupStream3Verification
         Suite(nameof(VerifyStream3MotherBrainFades), () => VerifyStream3MotherBrainFades(rom));
         Suite(nameof(VerifyStream3BabyFade), () => VerifyStream3BabyFade(rom));
         Suite(nameof(VerifyStream3DrainFades), () => VerifyStream3DrainFades(rom));
-        Suite(nameof(VerifyStream3ShitroidPulse), () => VerifyStream3ShitroidPulse(rom));
+        Suite(nameof(VerifyStream3BabyMetroidPulse), () => VerifyStream3BabyMetroidPulse(rom));
         Suite(nameof(VerifyStream3HealthTint), () => VerifyStream3HealthTint(rom));
         Suite(nameof(VerifyStream3RecoveryLights), () => VerifyStream3RecoveryLights(rom));
         Suite(nameof(VerifyStream3RoomFlash), () => VerifyStream3RoomFlash(rom));
@@ -1173,37 +1173,37 @@ internal static class LookupStream3Verification
         Suite(nameof(VerifyMotherBrainCorpseStockArtwork), () => VerifyMotherBrainCorpseStockArtwork());
     }
 
-    /// <summary>Checks Shitroid pulse and Baby cutscene colors against ROM.</summary>
-    internal static void VerifyStream3ShitroidPulse(ISnesAddressSpace rom)
+    /// <summary>Checks Baby Metroid pulse and Baby cutscene colors against ROM.</summary>
+    internal static void VerifyStream3BabyMetroidPulse(ISnesAddressSpace rom)
     {
         PaletteRgb5 Rgb(ushort word) => new() { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
         ushort[] Words(int address, int count) => Enumerable.Range(0, count).Select(i => CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2 * i))).ToArray();
         var normal = Enumerable.Range(0, 8).Select(frame => Words(0xa9f6d1 + 8 * frame, 4)).ToArray();
         var sidehopper = Words(0xa9f8c6, 16);
-        var shitroid = Words(0xa9f8e6, 16);
+        var babyMetroid = Words(0xa9f8e6, 16);
         var dead = Words(0xa9f8a6, 16);
         var rows = normal.Select(row => row.Select(Rgb).ToArray()).ToArray();
-        var document = new ShitroidColorDocument
+        var document = new BabyMetroidColorDocument
         {
             Version = 1, Normal = rows, Sidehopper = sidehopper.Select(Rgb).ToArray(),
-            Shitroid = shitroid.Select(Rgb).ToArray(), DeadSidehopper = dead.Select(Rgb).ToArray(),
+            BabyMetroid = babyMetroid.Select(Rgb).ToArray(), DeadSidehopper = dead.Select(Rgb).ToArray(),
         };
-        ShitroidColorCatalog Load() => ShitroidColorFile.Read(new MemoryStream(ShitroidColorFile.Write(document)));
-        void Check(ShitroidColorCatalog colors)
+        BabyMetroidColorCatalog Load() => BabyMetroidColorFile.Read(new MemoryStream(BabyMetroidColorFile.Write(document)));
+        void Check(BabyMetroidColorCatalog colors)
         {
             for (int frame = 0; frame < 8; frame++)
             for (int color = 0; color < 4; color++)
                 AssertEqual(normal[frame][color], colors.NormalColor(frame, color), "stream 3 Shitroid pulse RGB5");
             for (int color = 0; color < 16; color++)
             {
-                AssertEqual(shitroid[color], colors.TargetColor(ShitroidColorTarget.Shitroid, color), "stream 3 complete Shitroid target palette");
-                AssertEqual(sidehopper[color], colors.TargetColor(ShitroidColorTarget.Sidehopper, color), "stream 3 Sidehopper target");
-                AssertEqual(dead[color], colors.TargetColor(ShitroidColorTarget.DeadSidehopper, color), "stream 3 corpse target");
+                AssertEqual(babyMetroid[color], colors.TargetColor(BabyMetroidColorTarget.BabyMetroid, color), "stream 3 complete Shitroid target palette");
+                AssertEqual(sidehopper[color], colors.TargetColor(BabyMetroidColorTarget.Sidehopper, color), "stream 3 Sidehopper target");
+                AssertEqual(dead[color], colors.TargetColor(BabyMetroidColorTarget.DeadSidehopper, color), "stream 3 corpse target");
             }
             string identity = SelectedPresentationHash.Create("ShitroidColorCatalog-v1", content =>
             {
                 content.AppendWords("sidehopper", sidehopper);
-                content.AppendWords("shitroid", shitroid);
+                content.AppendWords("shitroid", babyMetroid);
                 content.AppendWords("deadSidehopper", dead);
                 content.AppendWordFrames("normal", normal);
             });
@@ -1212,10 +1212,10 @@ internal static class LookupStream3Verification
         var stock = Load();
         Check(stock);
         for (int color = 0; color < 15; color++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa994d4 + color * 2)), stock.TargetColor(ShitroidColorTarget.Shitroid, color + 1),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa994d4 + color * 2)), stock.TargetColor(BabyMetroidColorTarget.BabyMetroid, color + 1),
                 "stream 3 native Baby/Shitroid palette duplication");
         foreach (int invalid in new[] { -1, 16, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.TargetColor(ShitroidColorTarget.Shitroid, invalid), "stream 3 Shitroid target bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.TargetColor(BabyMetroidColorTarget.BabyMetroid, invalid), "stream 3 Shitroid target bounds");
         foreach (int invalid in new[] { -1, 8, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.NormalColor(invalid, 0), "stream 3 Shitroid pulse frame bounds");
         foreach (int invalid in new[] { -1, 4, int.MaxValue })
@@ -1994,11 +1994,11 @@ internal static class LookupStream3Verification
         }
     }
 
-    /// <summary>Checks Baby Metroid's initial cutscene paints and their separation from live Shitroid colors.</summary>
+    /// <summary>Checks Baby Metroid's initial cutscene paints and their separation from live Baby Metroid colors.</summary>
     internal static void VerifyStream3BabyInitialPaints(ISnesAddressSpace rom)
     {
         var babyDocument = RequiredJson.Parse(SuperMetroid.AssetExtraction.Bosses.MotherBrain.BabyMetroidCutsceneColorExtractor.Extract(rom));
-        var liveDocument = RequiredJson.Parse(SuperMetroid.AssetExtraction.Bosses.MotherBrain.ShitroidColorExtractor.Extract(rom));
+        var liveDocument = RequiredJson.Parse(SuperMetroid.AssetExtraction.Bosses.MotherBrain.BabyMetroidColorExtractor.Extract(rom));
         var stock = LoadBaby(babyDocument);
         var liveStock = LoadLive(liveDocument);
         for (int color = 0; color < BabyMetroidCutsceneColorFormat.InitialColorCount; color++)
@@ -2006,15 +2006,15 @@ internal static class LookupStream3Verification
             int address = MotherBrainSourceDefinitions.BabyMetroid.InitialColors + color * sizeof(ushort);
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(native, stock.InitialColor(color), "Baby initial exact native color");
-            AssertEqual(native, liveStock.TargetColor(ShitroidColorTarget.Shitroid, color + 1), "Baby live initial alias");
+            AssertEqual(native, liveStock.TargetColor(BabyMetroidColorTarget.BabyMetroid, color + 1), "Baby live initial alias");
         }
         Check(stock, babyDocument);
         foreach (int invalid in new[] { -1, BabyMetroidCutsceneColorFormat.InitialColorCount, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.InitialColor(invalid), "Baby initial index domain preserved");
         static BabyMetroidCutsceneColorCatalog LoadBaby(System.Text.Json.Nodes.JsonNode document) =>
             BabyMetroidCutsceneColorFile.Read(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
-        static ShitroidColorCatalog LoadLive(System.Text.Json.Nodes.JsonNode document) =>
-            ShitroidColorFile.Read(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
+        static BabyMetroidColorCatalog LoadLive(System.Text.Json.Nodes.JsonNode document) =>
+            BabyMetroidColorFile.Read(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
         static ushort Word(System.Text.Json.Nodes.JsonNode rgb) => (ushort)(rgb.Required("red").GetValue<int>() |
             rgb.Required("green").GetValue<int>() << 5 | rgb.Required("blue").GetValue<int>() << 10);
         static void Check(BabyMetroidCutsceneColorCatalog catalog, System.Text.Json.Nodes.JsonNode document)

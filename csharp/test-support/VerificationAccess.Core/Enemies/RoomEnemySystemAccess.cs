@@ -277,10 +277,10 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<MetroidEnemyState?> MetroidStates =>
             [.. self.Places.InUpdateOrder.Select(place => place.EntityState<MetroidEntity, MetroidEnemyState>())];
 
-        /// <summary>The state of the one Shitroid the room has placed, each Shitroid owning its own (#2030).</summary>
-        /// <exception cref="InvalidOperationException">The room has placed no Shitroid, or more than one.</exception>
-        internal ShitroidEnemyState Shitroid =>
-            self.Places.InUpdateOrder.Select(place => place.EntityState<ShitroidEntity, ShitroidEnemyState>()).OfType<ShitroidEnemyState>().Single();
+        /// <summary>The state of the one Baby Metroid the room has placed, each Baby Metroid owning its own (#2030).</summary>
+        /// <exception cref="InvalidOperationException">The room has placed no Baby Metroid, or more than one.</exception>
+        internal BabyMetroidEnemyState BabyMetroid =>
+            self.Places.InUpdateOrder.Select(place => place.EntityState<BabyMetroidEntity, BabyMetroidEnemyState>()).OfType<BabyMetroidEnemyState>().Single();
 
         /// <summary>Native $40-byte slot offsets selected by the most recent activity scan.</summary>
         internal IReadOnlyList<RoomEnemyPlace> ActiveEnemies => self.ProcessingWindow.ActiveEnemies;

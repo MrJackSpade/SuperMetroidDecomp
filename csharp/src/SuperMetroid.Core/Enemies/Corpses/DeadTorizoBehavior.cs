@@ -229,7 +229,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Marks projectile collision and starts rotting without impact animation or health loss.</summary>
     internal EnemyShotReaction DeadTorizoShotReaction => field ??= new()
     {
-        // The dead corpses and Shitroid receive the projectile prelude but never an impact or vulnerability.
+        // The dead corpses and Baby Metroid receive the projectile prelude but never an impact or vulnerability.
         // Its private reaction runs after the ordinary collision prelude but before common impact/vulnerability
         // code. The shot is marked, not converted into an explosion, and the corpse never loses health.
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>

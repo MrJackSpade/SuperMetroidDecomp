@@ -2134,11 +2134,11 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// real pool; the game's mover, routine, handler or subroutine (as the game's projectile mover does); the checks that
     /// compare, read or assert something; a wrapped count, counter, value, word, timer or sum; a stored value, word, byte or
     /// count; a respawn, flag, status, enable or done bit; authored arguments
-    /// or operands; a direct write of anything (the Shitroid's direct camera X write, a direct terrain write); and a branch
+    /// or operands; a direct write of anything (the Baby Metroid's direct camera X write, a direct terrain write); and a branch
     /// that also, then, first or only does something (the riding branch also carries Samus). The original ran a frame
     /// behaviour each frame, returned early, stored its results in the end and kept its counts in words and bits; Core says
     /// what the game does: how a shot moves each update, that a bubble rises whatever the eye does, where an animation
-    /// goes on, what the count is, which roll whips, that the Shitroid moves the camera. English stays legal: a frame alone
+    /// goes on, what the count is, which roll whips, that the Baby Metroid moves the camera. English stays legal: a frame alone
     /// and a behaviour alone, a return to a place, a count that wraps, a value kept, a bit of a thing, an authored path, a
     /// direct hit or line, a branch alone and a hardware owner, which describes the program it reproduces.
     /// </summary>

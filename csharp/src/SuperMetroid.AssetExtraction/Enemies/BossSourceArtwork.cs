@@ -39,8 +39,8 @@ public sealed record BossSourceArtwork
     /// <summary>Editable initial and fade-to-black colours of the Mother Brain cutscene Baby, which the import pre-colours its sheet in (#1512).</summary>
     public BabyMetroidCutsceneColorCatalog? BabyMetroidCutsceneColors { get; init; }
 
-    /// <summary>Editable live-Shitroid normal-cycle and target colours, which the import pre-colours its sheet in (#1512).</summary>
-    public ShitroidColorCatalog? ShitroidColors { get; init; }
+    /// <summary>Editable live-Baby Metroid normal-cycle and target colours, which the import pre-colours its sheet in (#1512).</summary>
+    public BabyMetroidColorCatalog? BabyMetroidColors { get; init; }
 
     /// <summary>Editable Phantoon health, fade-out and Wrecked Ship power-on colours, which the import pre-colours Phantoon's sheets and room in (#1512).</summary>
     public PhantoonColorCatalog? PhantoonColors { get; init; }

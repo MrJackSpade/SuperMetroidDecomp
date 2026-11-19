@@ -112,15 +112,15 @@ internal sealed class EnemyFramePhase
             // Ceres from the fight to the escape; the actor records the boss's defeat itself.
             _enemyRoomEffects.StartCeresEscape();
         }
-        foreach (ShitroidCameraMove cameraMove in result.All<ShitroidCameraMove>())
+        foreach (BabyMetroidCameraMove cameraMove in result.All<BabyMetroidCameraMove>())
         {
-            int shitroidCameraX = cameraMove.CameraX;
+            int babyMetroidCameraX = cameraMove.CameraX;
             // The camera's and the foreground's positions hold the written X to the room's coordinates (#1627).
-            // The Shitroid writes the camera X position during the enemy pass, before the ordinary
+            // The Baby Metroid writes the camera X position during the enemy pass, before the ordinary
             // scrolling later in this frame. Do not route it through entry
             // placement, which would clear the camera's fraction of a pixel and its ideal position.
-            room.Camera.SetCameraXFromEnemyAi(shitroidCameraX);
-            _backgroundScroll.ForegroundPosition = _backgroundScroll.ForegroundPosition.WithX(shitroidCameraX);
+            room.Camera.SetCameraXFromEnemyAi(babyMetroidCameraX);
+            _backgroundScroll.ForegroundPosition = _backgroundScroll.ForegroundPosition.WithX(babyMetroidCameraX);
         }
         // The landing tube stops the liquid surface's motion; the next frame shows it still.
         if (result.Has<MotherBrainTubeLanded>())

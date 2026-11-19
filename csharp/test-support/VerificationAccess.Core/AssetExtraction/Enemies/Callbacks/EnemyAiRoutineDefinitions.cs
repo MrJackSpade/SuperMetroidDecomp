@@ -274,12 +274,12 @@ internal static class EnemyAiRoutineDefinitions
         public static readonly SnesAddress DeadSidehopperShot = new(Bank, 0xdd1d);
         /// <summary>Dead Sidehopper Power Bomb callback at $A9:D8CC.</summary>
         public static readonly SnesAddress DeadSidehopperPowerBomb = new(Bank, 0xd8cc);
-        /// <summary>Shitroid touch callback at $A9:F789.</summary>
-        public static readonly SnesAddress ShitroidTouch = new(Bank, 0xf789);
-        /// <summary>Shitroid shot callback at $A9:F842.</summary>
-        public static readonly SnesAddress ShitroidShot = new(Bank, 0xf842);
-        /// <summary>Shitroid Power Bomb callback at $A9:EFBA.</summary>
-        public static readonly SnesAddress ShitroidPowerBomb = new(Bank, 0xefba);
+        /// <summary>Baby Metroid touch callback at $A9:F789.</summary>
+        public static readonly SnesAddress BabyMetroidTouch = new(Bank, 0xf789);
+        /// <summary>Baby Metroid shot callback at $A9:F842.</summary>
+        public static readonly SnesAddress BabyMetroidShot = new(Bank, 0xf842);
+        /// <summary>Baby Metroid Power Bomb callback at $A9:EFBA.</summary>
+        public static readonly SnesAddress BabyMetroidPowerBomb = new(Bank, 0xefba);
     }
 
     /// <summary>Bank-$AA Torizo/Shaktool interaction callbacks.</summary>

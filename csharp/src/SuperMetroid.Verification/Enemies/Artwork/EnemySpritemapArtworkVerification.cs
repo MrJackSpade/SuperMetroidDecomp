@@ -284,7 +284,7 @@ internal static class EnemySpritemapArtworkVerification
                 FriendlyAnimalVisualDefinitions.EscapeDachoraFrameCount +
                 HibashiVisualDefinitions.FrameCount + ZebetiteVisualToolingDefinitions.FrameCount +
                 WreckedShipGhostVisualDefinitions.FrameCount + PowampVisualDefinitions.FrameCount +
-                SparkVisualDefinitions.FrameCount + ShitroidVisualDefinitions.FrameCount +
+                SparkVisualDefinitions.FrameCount + BabyMetroidSpritemapDefinitions.FrameCount +
                 KraidLintVisualDefinitions.FrameCount + NuclearWaffleVisualDefinitions.FrameCount +
                 2 + // Single-frame Kzan and Polyp.
                 RidleyBreakupVisualDefinitions.Legs.Length + RidleyBreakupVisualDefinitions.OpenHeadAndNeck.Length +

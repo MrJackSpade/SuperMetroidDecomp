@@ -188,8 +188,8 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(MotherBrainBabyAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainAnimations.cs");
         RequireSegmentFrames(MotherBrainTubeAnimations.Segments, EnemyFrameCartridgeLookupTooling.Word, MotherBrainVisualToolingDefinitions.Bank,
             nameof(MotherBrainTubeAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainTubeAnimations.cs");
-        RequireSegmentFrames(ShitroidAnimations.Segments, frame => BabyMetroidVisualToolingDefinitions.Spritemap(frame), ShitroidVisualDefinitions.Bank,
-            nameof(ShitroidAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/ShitroidAnimations.cs");
+        RequireSegmentFrames(BabyMetroidAnimations.Segments, frame => BabyMetroidVisualToolingDefinitions.Spritemap(frame), BabyMetroidSpritemapDefinitions.Bank,
+            nameof(BabyMetroidAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/BabyMetroidAnimations.cs");
         // The Zebetites show a picture their health chooses, not an animation (#2250).
         ushort[] zebetitePictures = ZebetiteVisualToolingDefinitions.Spritemaps();
         foreach (ushort frame in zebetitePictures)

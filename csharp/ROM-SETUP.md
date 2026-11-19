@@ -435,9 +435,9 @@ only the RGB5 colors selected at those native moments.
 Dachora's default, four speed-boost, and four shine palette frames are in
 the import data's `dachora-colors.json`. The timer and frame selection still
 follow the cartridge code; the JSON controls the selected RGB5 colors.
-The live Shitroid encounter's eight four-color normal-cycle frames and three
-sixteen-color initialization targets (sidehopper, Shitroid, and dead sidehopper)
-are in the import data's `shitroid-colors.json`; native palette timing and target destinations remain
+The live Baby Metroid encounter's eight four-color normal-cycle frames and three
+sixteen-color initialization targets (sidehopper, Baby Metroid, and dead sidehopper)
+are in the import data's `Baby Metroid-colors.json`; native palette timing and target destinations remain
 compiled. The Mother Brain cutscene Baby Metroid's initial fifteen colors and
 six fade-to-black frames are separate in
 the import data's `baby-metroid-cutscene-colors.json`. The cutscene state machine still selects each fade frame and controls

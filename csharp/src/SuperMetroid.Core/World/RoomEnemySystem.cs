@@ -238,7 +238,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     internal ShuttersBehavior ShuttersBehavior { get; }
 
     /// <summary>The Baby Metroid in Mother Brain's fight, which drains her and gives Samus its life.</summary>
-    internal ShitroidBehavior ShitroidBehavior { get; }
+    internal BabyMetroidBehavior BabyMetroidBehavior { get; }
 
     /// <summary>Shaktool, the Maridia digger that clears the sand from its tunnel.</summary>
     internal ShaktoolBehavior ShaktoolBehavior { get; }
@@ -668,8 +668,8 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         SkulteraBehavior = new SkulteraBehavior(Terrain);
         SkreeBehavior = new SkreeBehavior(Audio, Projectiles, DeathsAndDrops);
         ShuttersBehavior = new ShuttersBehavior(Audio, Places);
-        ShitroidBehavior = new ShitroidBehavior(Room, Places, compatibility.FadeStepCount, PassEvents, Audio);
-        DeadSidehopperBehavior = new DeadSidehopperBehavior(new DeadSidehopperBehaviorDependencies { Room = Room, Terrain = Terrain, Shitroid = new ShitroidFeeding(Places), FrameContext = FrameContext, Projectiles = Projectiles, Collision = Collision, RowDust = CorpseRowDust });
+        BabyMetroidBehavior = new BabyMetroidBehavior(Room, Places, compatibility.FadeStepCount, PassEvents, Audio);
+        DeadSidehopperBehavior = new DeadSidehopperBehavior(new DeadSidehopperBehaviorDependencies { Room = Room, Terrain = Terrain, BabyMetroidFeeding = new BabyMetroidFeeding(Places), FrameContext = FrameContext, Projectiles = Projectiles, Collision = Collision, RowDust = CorpseRowDust });
         ShaktoolBehavior = new ShaktoolBehavior(Terrain, Places, Collision);
         SbugBehavior = new SbugBehavior();
         RipperBehavior = new RipperBehavior(Terrain);
@@ -753,7 +753,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         // Every species with room or frame lifecycle state, in the game's reset order.
         _species =
         [
-            ShitroidBehavior,
+            BabyMetroidBehavior,
             BoyonBehavior,
             MamaTurtleBehavior,
             MetroidBehavior,
@@ -832,7 +832,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
             WallSpacePirateBehavior,
             NinjaSpacePirateBehavior,
         ];
-        Species = EnemySpeciesRegistry.ForRoom(new EnemyCommonParticipation(GetCollision), [BoyonBehavior, BullBehavior, ZoaBehavior, WaverBehavior, ChootBehavior, AtomicBehavior, SkulteraBehavior, PuyoBehavior, RioBehavior, FliesBehavior, SparkBehavior, SbugBehavior, MultiviolaBehavior, CacatacBehavior, AlcoonBehavior, BoulderBehavior, NuclearWaffleBehavior, HibashiBehavior, WreckedShipGhostBehavior, KzanBehavior, RipperBehavior, MochtroidBehavior, SkreeBehavior, OwtchBehavior, BeetomBehavior, KagoBehavior, FirefleaBehavior, MetareeBehavior, PolypBehavior, HoppersBehavior, CrawlersBehavior, PlatformsBehavior, YardBehavior, YappingMawBehavior, EtecoonBehavior, DachoraBehavior, MaridiaLargeSnailBehavior, WorkRobotBehavior, BlueBrinstarFaceBlockBehavior, DragonBehavior, FuneNamiheBehavior, PowampBehavior, NorfairRioBehavior, LowerNorfairRioBehavior, NorfairLavaJumpingEnemyBehavior, ShaktoolBehavior, MetroidBehavior, WalkingSpacePirateBehavior, WallSpacePirateBehavior, NinjaSpacePirateBehavior, ChozoStatueBehavior, DeadSidehopperBehavior, DeadTorizoBehavior, DeadTourianBehavior, ShitroidBehavior, FakeKraidBehavior, ElevatorBehavior, MagdolliteBehavior, EscapeAnimalsBehavior, RinkaBehavior, ZebetiteBehavior, ShuttersBehavior, EvirBehavior, KiHunterBehavior, PipeBugsBehavior, MamaTurtleBehavior, MorphBallEyeBehavior, new CeresDoorFactory(CeresDoorBehavior), steamVents, GunshipBehavior, BotwoonBehavior, SporeSpawnBehavior, TorizoBehavior, KraidBehavior, CrocomireBehavior, DraygonBehavior, PhantoonBehavior, MotherBrainBehavior, BabyMetroidCutsceneBehavior, NoobTubeBehavior,
+        Species = EnemySpeciesRegistry.ForRoom(new EnemyCommonParticipation(GetCollision), [BoyonBehavior, BullBehavior, ZoaBehavior, WaverBehavior, ChootBehavior, AtomicBehavior, SkulteraBehavior, PuyoBehavior, RioBehavior, FliesBehavior, SparkBehavior, SbugBehavior, MultiviolaBehavior, CacatacBehavior, AlcoonBehavior, BoulderBehavior, NuclearWaffleBehavior, HibashiBehavior, WreckedShipGhostBehavior, KzanBehavior, RipperBehavior, MochtroidBehavior, SkreeBehavior, OwtchBehavior, BeetomBehavior, KagoBehavior, FirefleaBehavior, MetareeBehavior, PolypBehavior, HoppersBehavior, CrawlersBehavior, PlatformsBehavior, YardBehavior, YappingMawBehavior, EtecoonBehavior, DachoraBehavior, MaridiaLargeSnailBehavior, WorkRobotBehavior, BlueBrinstarFaceBlockBehavior, DragonBehavior, FuneNamiheBehavior, PowampBehavior, NorfairRioBehavior, LowerNorfairRioBehavior, NorfairLavaJumpingEnemyBehavior, ShaktoolBehavior, MetroidBehavior, WalkingSpacePirateBehavior, WallSpacePirateBehavior, NinjaSpacePirateBehavior, ChozoStatueBehavior, DeadSidehopperBehavior, DeadTorizoBehavior, DeadTourianBehavior, BabyMetroidBehavior, FakeKraidBehavior, ElevatorBehavior, MagdolliteBehavior, EscapeAnimalsBehavior, RinkaBehavior, ZebetiteBehavior, ShuttersBehavior, EvirBehavior, KiHunterBehavior, PipeBugsBehavior, MamaTurtleBehavior, MorphBallEyeBehavior, new CeresDoorFactory(CeresDoorBehavior), steamVents, GunshipBehavior, BotwoonBehavior, SporeSpawnBehavior, TorizoBehavior, KraidBehavior, CrocomireBehavior, DraygonBehavior, PhantoonBehavior, MotherBrainBehavior, BabyMetroidCutsceneBehavior, NoobTubeBehavior,
             new RidleyEntityFactory(NorfairRidleyBehavior, CeresRidleyBehavior, RidleyEncounter),
             .. Present<IEnemyEntityFactory>(TourianEntranceStatueBehavior), .. Present<IEnemyEntityFactory>(elevatorDoors)],
             // What the owners the room's scenery did not let it build would have placed; the registry refuses a room that

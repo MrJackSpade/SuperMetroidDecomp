@@ -1784,8 +1784,8 @@ internal static class SpawnedObjectFrameDefinitions
         RoomEffectActorKind.Smoke,
     ];
 
-    /// <summary>The projectile frames <c>Bosses/MotherBrain/ShitroidBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly EnemyProjectileFrameId[] ShitroidSharedProjectiles =
+    /// <summary>The projectile frames <c>Bosses/MotherBrain/BabyMetroidBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly EnemyProjectileFrameId[] BabyMetroidSharedProjectiles =
     [
         EnemyProjectileFrameId.EnemyDeathFireballSmall,
         EnemyProjectileFrameId.EnemyDeathFireballLarge,
@@ -1828,8 +1828,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathFourAshDispersing,
     ];
 
-    /// <summary>The room effect actors <c>Bosses/MotherBrain/ShitroidBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomEffectActorKind[] ShitroidSharedEffectActors =
+    /// <summary>The room effect actors <c>Bosses/MotherBrain/BabyMetroidBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] BabyMetroidSharedEffectActors =
     [
         RoomEffectActorKind.BigDustCloud,
         RoomEffectActorKind.SmallExplosion,
@@ -4583,7 +4583,7 @@ internal static class SpawnedObjectFrameDefinitions
             [EnemyDefinitionId.MotherBrainHead] = new(MotherBrainSharedProjectiles, MotherBrainSharedEffectActors),
             [EnemyDefinitionId.MotherBrainTubes] = new(MotherBrainSharedProjectiles, MotherBrainSharedEffectActors),
             [EnemyDefinitionId.Rinka] = new(RinkaSharedProjectiles, RinkaSharedEffectActors),
-            [EnemyDefinitionId.BabyMetroid] = new(ShitroidSharedProjectiles, ShitroidSharedEffectActors),
+            [EnemyDefinitionId.BabyMetroid] = new(BabyMetroidSharedProjectiles, BabyMetroidSharedEffectActors),
             [EnemyDefinitionId.Zebetite] = new(ZebetiteSharedProjectiles, ZebetiteSharedEffectActors),
             [EnemyDefinitionId.PhantoonBody] = new(PhantoonSharedProjectiles, PhantoonSharedEffectActors),
             [EnemyDefinitionId.PhantoonEye] = new(PhantoonSharedProjectiles, PhantoonSharedEffectActors),

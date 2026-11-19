@@ -319,27 +319,27 @@ internal static class NativeEnemyFamilyStateImport
             if (words.F != 0)
                 botwoonRecord.HeadAction = BotwoonNativeWords.HeadActions.Decode(words.F, "recorded BotwoonHeadAction");
         }
-        if (enemy.SpeciesState<ShitroidEnemyState>() is { } shitroidRecord)
+        if (enemy.SpeciesState<BabyMetroidEnemyState>() is { } babyMetroidRecord)
         {
             // A zero word is a setup that never ran this far (a defeated room's deleted boss); the state keeps its start.
             if (words.A != 0)
             {
-                (ShitroidAction shitroidAction, HorizontalDirection? side) = MotherBrainNativeWords.ShitroidActions.Decode(words.A, "recorded ShitroidAction");
-                shitroidRecord.Action = shitroidAction;
+                (BabyMetroidAction babyMetroidAction, HorizontalDirection? side) = MotherBrainNativeWords.BabyMetroidActions.Decode(words.A, "recorded ShitroidAction");
+                babyMetroidRecord.Action = babyMetroidAction;
                 // Only the departing flight names the side of Samus it flies to (#2165).
                 if (side is { } departureSide)
-                    shitroidRecord.DepartureSide = departureSide;
+                    babyMetroidRecord.DepartureSide = departureSide;
             }
-            shitroidRecord.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
+            babyMetroidRecord.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
             // Word D holds the membrane's phase and the updates before it moves on, less one; word E its pace, as the
             // updates each phase holds less one (#2404).
-            shitroidRecord.ResumeMembrane(MotherBrainNativeWords.ShitroidMembranePaces.Decode(words.E, "recorded Shitroid membrane pace"),
-                ShitroidMembranePulse.All[LittleEndianBytes.LowByte(words.D)], LittleEndianBytes.HighByte(words.D) + 1);
+            babyMetroidRecord.ResumeMembrane(MotherBrainNativeWords.BabyMetroidMembranePaces.Decode(words.E, "recorded Shitroid membrane pace"),
+                BabyMetroidMembranePulse.All[LittleEndianBytes.LowByte(words.D)], LittleEndianBytes.HighByte(words.D) + 1);
             // The cartridge keeps the Sidehopper drain's updates in the same word as every other wait's count.
-            if (shitroidRecord.Action == ShitroidAction.DrainSidehopper)
-                shitroidRecord.SidehopperDrain.SetCartridgeCount(words.F - 1);
+            if (babyMetroidRecord.Action == BabyMetroidAction.DrainSidehopper)
+                babyMetroidRecord.SidehopperDrain.SetCartridgeCount(words.F - 1);
             else
-                shitroidRecord.StateTimer.SetCartridgeCount(CoordinateAxis.AsSigned(words.F));
+                babyMetroidRecord.StateTimer.SetCartridgeCount(CoordinateAxis.AsSigned(words.F));
         }
         if (enemy.SpeciesState<DachoraEchoState>() is { } dachoraEcho)
         {

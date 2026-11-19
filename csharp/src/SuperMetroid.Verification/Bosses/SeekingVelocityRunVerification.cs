@@ -3,7 +3,7 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 namespace SuperMetroid.Verification.Bosses;
 
 /// <summary>
-/// Checks the seeking bosses' velocity run (#1620) and the Shitroid's production seek against the original's chained
+/// Checks the seeking bosses' velocity run (#1620) and the Baby Metroid's production seek against the original's chained
 /// sixteen-bit carries and borrows.
 /// </summary>
 internal static class SeekingVelocityRunVerification
@@ -55,11 +55,11 @@ internal static class SeekingVelocityRunVerification
     }
 
     /// <summary>
-    /// The Shitroid's production gradual acceleration (horizontal and vertical) for every signed distance within a room,
+    /// The Baby Metroid's production gradual acceleration (horizontal and vertical) for every signed distance within a room,
     /// across the coordinate wrap, from velocities within its clamps, for each divisor class, on and off screen: each
     /// result equals the original routines' chained carries and borrows (<c>$A9:F4E6</c>, <c>$A9:F46B</c>).
     /// </summary>
-    internal static void VerifyShitroidSeekingAcceleration()
+    internal static void VerifyBabyMetroidSeekingAcceleration()
     {
         const int Reach = 1024;
         ushort[] velocities = [0x0000, 0x0001, 0x00ff, 0x0100, 0x04ff, 0x07ff, 0x0800, 0xffff, 0xff01, 0xff00, 0xfb00, 0xf801, 0xf800];
@@ -72,14 +72,14 @@ internal static class SeekingVelocityRunVerification
             foreach (bool offScreen in new[] { false, true })
             {
                 const int wrongWaySpeed = 0x0010;
-                ushort expected = ExpectedShitroidHorizontal(velocity, position, target, divisor, wrongWaySpeed, offScreen);
+                ushort expected = ExpectedBabyMetroidHorizontal(velocity, position, target, divisor, wrongWaySpeed, offScreen);
                 SignedEightEight actual = BabyMetroidGradualAcceleration.AccelerateHorizontally(
                     position, target, new SignedEightEight(velocity), divisor, new SignedEightEight(wrongWaySpeed), () => offScreen);
                 if (actual.RawValue != expected)
                     throw new InvalidOperationException(
                         $"Horizontal seek from {position:X4} to {target:X4} at {velocity:X4} by {divisor}, off screen {offScreen}: {actual.RawValue:X4}, not {expected:X4}.");
             }
-            ushort expectedVertical = ExpectedShitroidVertical(velocity, position, target, divisor);
+            ushort expectedVertical = ExpectedBabyMetroidVertical(velocity, position, target, divisor);
             SignedEightEight vertical = BabyMetroidGradualAcceleration.AccelerateVertically(position, target, new SignedEightEight(velocity), divisor);
             if (vertical.RawValue != expectedVertical)
                 throw new InvalidOperationException(
@@ -89,7 +89,7 @@ internal static class SeekingVelocityRunVerification
     }
 
     /// <summary>The original horizontal gradual acceleration, its carries chained as the routine leaves them.</summary>
-    private static ushort ExpectedShitroidHorizontal(ushort velocity, int position, int target, int divisor, int wrongWaySpeed, bool offScreen)
+    private static ushort ExpectedBabyMetroidHorizontal(ushort velocity, int position, int target, int divisor, int wrongWaySpeed, bool offScreen)
     {
         int distance = unchecked((short)(position - target));
         if (distance == 0)
@@ -130,7 +130,7 @@ internal static class SeekingVelocityRunVerification
     }
 
     /// <summary>The original vertical gradual acceleration, its carries chained as the routine leaves them.</summary>
-    private static ushort ExpectedShitroidVertical(ushort velocity, int position, int target, int divisor)
+    private static ushort ExpectedBabyMetroidVertical(ushort velocity, int position, int target, int divisor)
     {
         int distance = unchecked((short)(position - target));
         if (distance == 0)

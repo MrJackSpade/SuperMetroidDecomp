@@ -26,7 +26,7 @@ using static SuperMetroid.Verification.Enemies.EnemyRuleRangesVerification;
 using static SuperMetroid.Verification.Bosses.SeekingVelocityRunVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.CeresRidleyFireballTargetVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoInitialDroolVerification;
-using static SuperMetroid.Verification.Bosses.MotherBrain.DrainingShitroidFallShiftVerification;
+using static SuperMetroid.Verification.Bosses.MotherBrain.DrainingBabyMetroidFallShiftVerification;
 using static SuperMetroid.Verification.Enemies.YappingMaws.YappingMawBendChainVerification;
 using static SuperMetroid.Verification.Enemies.YappingMaws.YappingMawRetractionHoldVerification;
 using static SuperMetroid.Verification.Enemies.YappingMaws.YappingMawGrabCooldownVerification;
@@ -395,9 +395,9 @@ using static SuperMetroid.Verification.Rooms.Scrolling.ScrollChangeNamesVerifica
 using static SuperMetroid.Verification.Rooms.Doors.DoorSetupNamesVerification;
 using static SuperMetroid.Verification.Samus.Movement.ShallowWaterJumpVerification;
 using static SuperMetroid.Verification.Samus.Abilities.ShinesparkEnemyStopVerification;
-using static SuperMetroid.Verification.Bosses.MotherBrain.ShitroidGradualAccelerationVerification;
-using static SuperMetroid.Verification.Bosses.MotherBrain.ShitroidScrollPairVerification;
-using static SuperMetroid.Verification.Bosses.MotherBrain.ShitroidPowerBombVerification;
+using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidGradualAccelerationVerification;
+using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidScrollPairVerification;
+using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidPowerBombVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.ShotBlockObjectProgramsVerification;
 using static SuperMetroid.Verification.Enemies.Shutters.ShutterRidingVerification;
 using static SuperMetroid.Verification.Enemies.Shutters.ShutterScrewContactVerification;
@@ -1222,7 +1222,7 @@ internal static class FullRunSuitesVerification
         new(nameof(SuperMetroid.Verification.Compatibility.RoomReadingOrderVerification.VerifyBlockScanCycleBlocks),
             SuperMetroid.Verification.Compatibility.RoomReadingOrderVerification.VerifyBlockScanCycleBlocks),
         new(nameof(VerifyBabyMetroidVictim), () => VerifyBabyMetroidVictim()),
-        new(nameof(VerifyShitroidFeeding), () => VerifyShitroidFeeding()),
+        new(nameof(VerifyBabyMetroidFeeding), () => VerifyBabyMetroidFeeding()),
         new(nameof(VerifyZebetiteShotShare), () => VerifyZebetiteShotShare()),
         new(nameof(VerifyEnemyOccupantStates), () => VerifyEnemyOccupantStates()),
         new(nameof(VerifyKilledEnemyCompatibility), () => VerifyKilledEnemyCompatibility()),
@@ -1232,10 +1232,10 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyUnauthoredBeamVulnerability), () => VerifyUnauthoredBeamVulnerability()),
         new(nameof(VerifyDeathExplosionRules), () => VerifyDeathExplosionRules()),
         new(nameof(VerifySeekingVelocityRun), () => VerifySeekingVelocityRun()),
-        new(nameof(VerifyShitroidSeekingAcceleration), () => VerifyShitroidSeekingAcceleration()),
+        new(nameof(VerifyBabyMetroidSeekingAcceleration), () => VerifyBabyMetroidSeekingAcceleration()),
         new(nameof(VerifyCeresRidleyFireballTarget), () => VerifyCeresRidleyFireballTarget()),
         new(nameof(VerifyBombTorizoInitialDrool), () => VerifyBombTorizoInitialDrool()),
-        new(nameof(VerifyDrainingShitroidFallShift), () => VerifyDrainingShitroidFallShift()),
+        new(nameof(VerifyDrainingBabyMetroidFallShift), () => VerifyDrainingBabyMetroidFallShift()),
         new(nameof(VerifyYappingMawBendChain), () => VerifyYappingMawBendChain()),
         new(nameof(VerifyYappingMawRetractionHold), () => VerifyYappingMawRetractionHold()),
         new(nameof(VerifyYappingMawGrabCooldown), () => VerifyYappingMawGrabCooldown()),
@@ -1257,11 +1257,11 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyDoorAnimatedTiles), () => VerifyDoorAnimatedTiles()),
         new(nameof(VerifyTourianStatueDescentRounding), () => VerifyTourianStatueDescentRounding()),
         new(nameof(VerifyMetroidDeathDrops), () => VerifyMetroidDeathDrops()),
-        new(nameof(VerifyShitroidGradualAcceleration), () => VerifyShitroidGradualAcceleration()),
-        new(nameof(VerifyShitroidFlightPulls), () => VerifyShitroidFlightPulls()),
-        new(nameof(VerifyShitroidDrainCarry), () => VerifyShitroidDrainCarry()),
-        new(nameof(VerifyShitroidScrollPair), () => VerifyShitroidScrollPair()),
-        new(nameof(VerifyPowerBombPassesTheShitroid), () => VerifyPowerBombPassesTheShitroid()),
+        new(nameof(VerifyBabyMetroidGradualAcceleration), () => VerifyBabyMetroidGradualAcceleration()),
+        new(nameof(VerifyBabyMetroidFlightPulls), () => VerifyBabyMetroidFlightPulls()),
+        new(nameof(VerifyBabyMetroidDrainCarry), () => VerifyBabyMetroidDrainCarry()),
+        new(nameof(VerifyBabyMetroidScrollPair), () => VerifyBabyMetroidScrollPair()),
+        new(nameof(VerifyPowerBombPassesTheBabyMetroid), () => VerifyPowerBombPassesTheBabyMetroid()),
         new(nameof(VerifyMotherBrainRinkaDoorSpawn), () => VerifyMotherBrainRinkaDoorSpawn()),
         new(nameof(RinkaSpawnReservationsVerification.VerifyRinkaSpawnReservations), () => RinkaSpawnReservationsVerification.VerifyRinkaSpawnReservations(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom())),
         new(nameof(VerifyMotherBrainGlassSuperMissile), () => VerifyMotherBrainGlassSuperMissile()),

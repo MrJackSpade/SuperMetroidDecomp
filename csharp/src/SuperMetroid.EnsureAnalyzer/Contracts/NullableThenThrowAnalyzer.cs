@@ -235,15 +235,30 @@ public sealed class NullableThenThrowAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>
-    /// Whether the source's types say the tested value may be absent: a nullable value type, or a reference whose nullable
-    /// flow state is not known to be present. A value the source declares present and tests for null anyway is not held
-    /// nullable: its type already rules the absence out, and the test checks outside data the type is written for, such as
-    /// a document element its deserializer does not hold to the element's annotation.
+    /// Whether the source's types say the tested value may be absent: a nullable value type, or a reference whose declared
+    /// type is annotated nullable or carries no annotation. A value the source declares present and tests for null anyway is
+    /// not held nullable: its type already rules the absence out, and the test checks outside data the type is written for,
+    /// such as a document element its deserializer does not hold to the element's annotation.
     /// </summary>
-    private static bool MayBeAbsent(IOperation value) =>
-        value.Type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T } ||
-        value.SemanticModel is not { } model ||
-        model.GetTypeInfo(value.Syntax).Nullability.FlowState != NullableFlowState.NotNull;
+    private static bool MayBeAbsent(IOperation value)
+    {
+        if (value.Type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T })
+            return true;
+        if (value.Type is { IsValueType: true })
+            return false;
+        NullableAnnotation declared = value switch
+        {
+            IPropertyReferenceOperation { Property: var property } => property.Type.NullableAnnotation,
+            IFieldReferenceOperation { Field: var field } => field.Type.NullableAnnotation,
+            IParameterReferenceOperation { Parameter: var parameter } => parameter.Type.NullableAnnotation,
+            ILocalReferenceOperation { Local: var local } => local.Type.NullableAnnotation,
+            IInvocationOperation { TargetMethod: var method } => method.ReturnNullableAnnotation,
+            IArrayElementReferenceOperation { ArrayReference: var array } when
+                value.SemanticModel?.GetTypeInfo(array.Syntax).Type is IArrayTypeSymbol arrayType => arrayType.ElementNullableAnnotation,
+            _ => NullableAnnotation.Annotated,
+        };
+        return declared != NullableAnnotation.NotAnnotated;
+    }
 
     /// <summary>Whether a member is declared in the analyzed assembly.</summary>
     private static bool IsSource(ISymbol member, IAssemblySymbol source) =>

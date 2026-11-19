@@ -5,8 +5,8 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Hud;
 
 /// <summary>
-/// The gameplay message box's definitions (#1416, #1466): where its window shows, its waits, the window's opening steps and
-/// display durations, and which button its item panels name.
+/// The gameplay message box's definitions (#1416, #1466, #2542): where its window shows, its waits, the window's opening
+/// steps and display durations, what each message asks the player to confirm, and which button its item panels name.
 /// </summary>
 public static class GameplayMessageBoxDefinitions
 {
@@ -66,6 +66,42 @@ public static class GameplayMessageBoxDefinitions
             [GameplayMessageId.SaveCompleted] = StationMinimumDisplayFrames,
         };
     }
+
+    /// <summary>
+    /// What each message asks the player to confirm (#2542): the save station's question asks whether to save, the gunship's
+    /// asks the same and follows an accepted save with its own completion notice, and every other message asks nothing.
+    /// </summary>
+    public static IReadOnlyDictionary<GameplayMessageId, GameplayMessageConfirmation> Confirmations { get; } =
+        new Dictionary<GameplayMessageId, GameplayMessageConfirmation>
+    {
+        [GameplayMessageId.EnergyTank] = GameplayMessageConfirmation.None,
+        [GameplayMessageId.MissileTank] = GameplayMessageConfirmation.None,
+        [GameplayMessageId.SuperMissileTank] = GameplayMessageConfirmation.None,
+        [GameplayMessageId.PowerBombTank] = GameplayMessageConfirmation.None,
+        [GameplayMessageId.GrappleBeam] = GameplayMessageConfirmation.None,
+        [GameplayMessageId.XrayScope] = GameplayMessageConfirmation.None,
+        [GameplayMessageId.VariaSuit] = GameplayMessageConfirmation.None,
+        [GameplayMessageId.SpringBall] = GameplayMessageConfirmation.None,
+        [GameplayMessageId.MorphBall] = GameplayMessageConfirmation.None,
+        [GameplayMessageId.ScrewAttack] = GameplayMessageConfirmation.None,
+        [GameplayMessageId.HiJumpBoots] = GameplayMessageConfirmation.None,
+        [GameplayMessageId.SpaceJump] = GameplayMessageConfirmation.None,
+        [GameplayMessageId.SpeedBooster] = GameplayMessageConfirmation.None,
+        [GameplayMessageId.ChargeBeam] = GameplayMessageConfirmation.None,
+        [GameplayMessageId.IceBeam] = GameplayMessageConfirmation.None,
+        [GameplayMessageId.WaveBeam] = GameplayMessageConfirmation.None,
+        [GameplayMessageId.SpazerBeam] = GameplayMessageConfirmation.None,
+        [GameplayMessageId.PlasmaBeam] = GameplayMessageConfirmation.None,
+        [GameplayMessageId.Bombs] = GameplayMessageConfirmation.None,
+        [GameplayMessageId.MapDataAccessCompleted] = GameplayMessageConfirmation.None,
+        [GameplayMessageId.EnergyRechargeCompleted] = GameplayMessageConfirmation.None,
+        [GameplayMessageId.MissileRechargeCompleted] = GameplayMessageConfirmation.None,
+        [GameplayMessageId.SaveConfirmation] = GameplayMessageConfirmation.Save,
+        [GameplayMessageId.SaveCompleted] = GameplayMessageConfirmation.None,
+        [GameplayMessageId.ReserveTank] = GameplayMessageConfirmation.None,
+        [GameplayMessageId.GravitySuit] = GameplayMessageConfirmation.None,
+        [GameplayMessageId.GunshipSaveConfirmation] = GameplayMessageConfirmation.SaveThenCompletionNotice,
+    };
 
     /// <summary>Which button an item panel names for its action.</summary>
     public static class Buttons

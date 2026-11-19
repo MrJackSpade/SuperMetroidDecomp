@@ -33,12 +33,12 @@ namespace SuperMetroid.Core.Compatibility;
 public sealed class LeftBeamStartFromLastShot
 {
     /// <summary>What each place keeps for its next projectile, in place order.</summary>
-    private readonly PixelFraction[] _kept;
+    internal readonly PixelFraction[] kept;
 
     /// <summary>Starts a pool of places that keep nothing.</summary>
     /// <param name="placeCount">The number of shot places, at least one.</param>
     public LeftBeamStartFromLastShot(int placeCount) =>
-        _kept = new PixelFraction[Ensure.BetweenInclusive(1, int.MaxValue, placeCount)];
+        kept = new PixelFraction[Ensure.BetweenInclusive(1, int.MaxValue, placeCount)];
 
     /// <summary>Each place keeps what the room this one replaces left in it (<see cref="RoomHandOver"/>).</summary>
     /// <param name="handOver">What the room before left for this one.</param>
@@ -67,8 +67,6 @@ public sealed class LeftBeamStartFromLastShot
         handOver.LeaveShots(Enumerable.Range(0, kept.Length).Select(place => heldFractions[place] ?? kept[place]));
     }
 
-    /// <summary>The horizontal fraction of a pixel <paramref name="place"/> keeps for its next projectile.</summary>
-    public PixelFraction Kept(int place) => _kept[place];
 
     /// <summary>
     /// <paramref name="place"/> keeps <paramref name="fraction"/> for its next projectile: Samus's shots are being cleared
@@ -76,7 +74,7 @@ public sealed class LeftBeamStartFromLastShot
     /// </summary>
     /// <param name="place">The zero-based shot place.</param>
     /// <param name="fraction">The horizontal fraction of a pixel the place keeps.</param>
-    public void Keep(int place, PixelFraction fraction) => _kept[place] = fraction;
+    public void Keep(int place, PixelFraction fraction) => kept[place] = fraction;
 
     /// <summary>
     /// A projectile takes <paramref name="place"/>: returns what the place kept for it, and the place keeps nothing more.
@@ -84,8 +82,8 @@ public sealed class LeftBeamStartFromLastShot
     /// <param name="place">The zero-based shot place.</param>
     public PixelFraction Start(int place)
     {
-        PixelFraction fraction = _kept[place];
-        _kept[place] = PixelFraction.None;
+        PixelFraction fraction = kept[place];
+        kept[place] = PixelFraction.None;
         return fraction;
     }
 }

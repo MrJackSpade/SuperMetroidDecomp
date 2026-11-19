@@ -8,16 +8,16 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public static class HitBurstSpriteDefinitions
 {
     /// <summary>The burst's pieces gathered tight about its centre, as it first shows.</summary>
-    public static ProjectileSpriteId Tight { get; } = new(ProjectileSpriteGroup.HitBurst, nameof(Tight));
+    public static ProjectileSpriteId Tight { get; } = new(ProjectileSpriteGroup.HitBurst, "Tight");
 
     /// <summary>The burst's pieces opening out from its centre.</summary>
-    public static ProjectileSpriteId Opening { get; } = new(ProjectileSpriteGroup.HitBurst, nameof(Opening));
+    public static ProjectileSpriteId Opening { get; } = new(ProjectileSpriteGroup.HitBurst, "Opening");
 
     /// <summary>The burst's pieces spread wide.</summary>
-    public static ProjectileSpriteId Wide { get; } = new(ProjectileSpriteGroup.HitBurst, nameof(Wide));
+    public static ProjectileSpriteId Wide { get; } = new(ProjectileSpriteGroup.HitBurst, "Wide");
 
     /// <summary>The burst's pieces scattered furthest, as it last shows.</summary>
-    public static ProjectileSpriteId Scattered { get; } = new(ProjectileSpriteGroup.HitBurst, nameof(Scattered));
+    public static ProjectileSpriteId Scattered { get; } = new(ProjectileSpriteGroup.HitBurst, "Scattered");
 
     /// <summary>The burst's four compositions, nearest its centre first.</summary>
     public static IReadOnlyList<ProjectileSpriteId> All { get; } = [Tight, Opening, Wide, Scattered];

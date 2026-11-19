@@ -59,8 +59,8 @@ try {
     $doorFile = [IO.File]::ReadAllText([IO.Path]::Combine($workspace, 'csharp', 'src',
         'SuperMetroid.Tooling', 'AssetExtraction', 'Rooms', 'DoorHeaderSourceDefinitions.cs'))
     $doorNames = @{}
-    # Core defines doors per area (CrateriaDoorDefinitions, ...) and in DoorDefinitions; DoorToolingDefinitions is tooling's.
-    foreach ($match in [regex]::Matches($doorFile, '\[0x([0-9a-f]{4})\] = (\w*DoorDefinitions|DoorToolingDefinitions)\.(\w+),')) {
+    # Core defines doors per area (CrateriaDoorDefinitions, ...) and in DoorDefinitions, the unlisted doors among them.
+    foreach ($match in [regex]::Matches($doorFile, '\[0x([0-9a-f]{4})\] = (\w*DoorDefinitions)\.(\w+),')) {
         $doorNames[[Convert]::ToInt32($match.Groups[1].Value, 16)] = $match.Groups[2].Value + '.' + $match.Groups[3].Value
     }
     if ($doorNames.Count -ne 596) { throw "Expected 596 door names, found $($doorNames.Count)." }
@@ -68,8 +68,8 @@ try {
         if ($door -eq 0) { return 'null' }
         if (-not $doorNames.ContainsKey($door)) { throw ('Library transfer names unknown door ${0:X4}.' -f $door) }
         $qualified = $doorNames[$door]
-        if ($qualified.StartsWith('DoorToolingDefinitions.')) {
-            throw ('Library transfer names door ${0:X4}, which only tooling defines ({1}).' -f $door, $qualified)
+        if ($qualified.StartsWith('DoorDefinitions.UnlistedDoorTo')) {
+            throw ('Library transfer names door ${0:X4}, which no room data reaches ({1}).' -f $door, $qualified)
         }
         return $qualified
     }
@@ -149,7 +149,7 @@ try {
     $backgroundRooms = @{}
     foreach ($stateFile in [IO.Directory]::GetFiles($roomStates, '*RoomStateDefinitions.cs')) {
         foreach ($line in [IO.File]::ReadAllLines($stateFile)) {
-            $stateMatch = [regex]::Match($line, 'new\(nameof\((\w+)\),')
+            $stateMatch = [regex]::Match($line, 'new\("(\w+)",')
             $backgroundMatch = [regex]::Match($line, 'LibraryBackgroundDefinitions\.(\w+)')
             if (-not $stateMatch.Success -or -not $backgroundMatch.Success) { continue }
             $state = $stateMatch.Groups[1].Value
@@ -260,7 +260,7 @@ try {
             default { throw "Library list $programName leaves the undefined view $view." }
         }
         $coreLines.Add(('    /// <summary>{0}{1}.</summary>' -f $summary, $doorPhrase))
-        $coreLines.Add(('    public static LibraryBackground {0} {{ get; }} = new(nameof({0}), LibraryBackgroundView.{1}, [{2}]);' -f
+        $coreLines.Add(('    public static LibraryBackground {0} {{ get; }} = new("{0}", LibraryBackgroundView.{1}, [{2}]);' -f
             $backgroundName, $view, ($pictureDoors -join ', ')))
         $coreLines.Add('')
     }

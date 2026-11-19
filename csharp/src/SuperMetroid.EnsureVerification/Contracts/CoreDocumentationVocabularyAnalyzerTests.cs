@@ -2020,6 +2020,29 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // The Atomic and what it hits, a setup alone, a thing of its own and a hardware owner are English.
         Expect("class P { /// <summary>An Atomic, the Wrecked Ship's floating atom; the Atomic's hit; the scroll's setup; a heading of its own; a load until the room has its own; the elevator's own load.</summary>\nvoid Run() { } }");
         Expect(CompatibilityService + "/// <summary>Evidence: the setup call runs atomically in the constructor until the copy gets its own end.</summary>\n[CompatibilityService(\"load\")] class Load { }");
+        // The original's routines, flags and bits and the port's reasoning told in enemy and world prose, outside hardware
+        // owners and markup, read across a documentation comment's line breaks (#2515): an AI entry, an enemy's shot AI on
+        // two lines, a flip, curling or mirror flag, a bit by its ordinal, what the port avoided teaching or inventing, a
+        // value told against a representation it no longer has and the camera's scroller distances.
+        Expect("class P { /// <summary>\n/// AI entry, initialized for the starting wall.\n/// </summary>\nint Action { get; set; } }", "('AI entry')");
+        Expect("class P { /// <summary>Owns its burst because it calls the normal enemy shot\n    /// AI that skips the death animation.</summary>\nvoid Run() { } }", "('shot AI')");
+        Expect("class P { /// <summary>Picks a head pose from the adjacent angles and the flip flag.</summary>\nvoid Run() { } }", "('flip flag')");
+        Expect("class P { /// <summary>Advances its neighbour angle by the curling flags.</summary>\nvoid Run() { } }", "('curling flags')");
+        Expect("class P { /// <summary>Taken when the sample's fifteenth bit is set, half the random numbers.</summary>\nint F => 0; }", "('fifteenth bit')");
+        Expect("class P { /// <summary>The short big cloud: a sample whose ninth\n/// bit is set, one in two.</summary>\nint F => 0; }", "('ninth bit')");
+        Expect("class P { /// <summary>Taken when its 15th bit is set.</summary>\nint F => 0; }", "('15th bit')");
+        Expect("/// <summary>Room actors draw here without teaching the reusable runtime how to own enemies.</summary>\nclass P { }", "('without teaching')");
+        Expect("class P { /// <summary>It draws the scene, which teaches the landing runtime how to own enemies.</summary>\nvoid Run() { } }",
+            "('teaches the landing runtime how to')");
+        Expect("class P { /// <summary>Keeps the Baby's position instead of inventing an enemy for the Baby.</summary>\nvoid Run() { } }", "('instead of inventing')");
+        Expect("class P { /// <summary>Begins at the first flare rather than invent a static flare.</summary>\nvoid Run() { } }", "('rather than invent')");
+        Expect("class P { /// <summary>The follower reads the parent's visibility switch rather than a signed offset.</summary>\nvoid Run() { } }",
+            "('rather than a signed offset')");
+        Expect("class P { /// <summary>The camera's upward scroller distance in pixels.</summary>\nint F => 0; }", "('scroller distance')");
+        // Main AI, an entry alone, a flag alone, a thing that flips or curls, a bit alone, an Etecoon's teaching hops, a
+        // signed offset alone, the camera's scroll, a line break between ordinary words and a hardware owner are English.
+        Expect("class P { /// <summary>Runs its main AI; the room's entry; a flag; the Pirate flips and the chain curls; a bit\n/// further; the Etecoon's teaching hops; a signed offset; the camera's scroll; a shot\n/// that hits; <see cref=\"Run\"/>.</summary>\nvoid Run() { } }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the AI entry reads the sample's fifteenth bit and the flip flag rather than a signed offset.</summary>\n[CompatibilityService(\"bits\")] class Bits { }");
         // The species-owner template on a type that owns no species (#2427), read on the type's own summary; a type that
         // implements or is a species owner's interface owns a species, and an entity's parameter names its owner.
         const string SpeciesOwners = "interface IEnemySpecies { }\ninterface IEnemyEntityFactory { }\n";

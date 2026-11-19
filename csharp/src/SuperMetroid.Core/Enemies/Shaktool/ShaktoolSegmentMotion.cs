@@ -11,9 +11,15 @@ public enum ShaktoolSegmentMotion
     /// until the response's reset restores each segment's own motion.
     /// </summary>
     Idle,
-    /// <summary>Positions an arm relative to the preceding segment, then advances its neighbour angle by the curling flags.</summary>
+    /// <summary>
+    /// Places an arm on its orbit around the preceding segment, then turns the orbit the chain's way round by the segment's
+    /// own turn speed, or by the straightening turn while the chain straightens.
+    /// </summary>
     OrbitPreviousSegment,
-    /// <summary>Moves the middle segment as an arm and picks one of eight head poses from the adjacent segment angles and the flip flag.</summary>
+    /// <summary>
+    /// Orbits the middle segment as an arm and aims its head halfway between the segments either side of it, a half turn
+    /// round while the chain runs reversed, showing one of eight head pictures for that facing.
+    /// </summary>
     OrbitAndOrientCenter,
     /// <summary>Collision-tests the final saw's orbit, updates the chain's curl, and reverses the chain's ends when it is obstructed.</summary>
     DriveTailAndReverseAtWalls,

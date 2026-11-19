@@ -64,9 +64,8 @@ internal sealed class GameplayActorDrawing
             room.Projectiles.DrawExplosions(_sprites, room.Camera.PixelPosition, ProjectileArtwork);
         }
 
-        // Enemy projectiles in front of Samus follow bomb/projectile explosions and precede Samus's
-        // draw. Room-specific actors may draw in front of Samus
-        // here without teaching the reusable Landing Site runtime how to own enemies.
+        // Enemy projectiles in front of Samus, and the room's own actors that stand in front of her, follow the bomb and
+        // projectile explosions and precede Samus's draw.
         if (!deathOwnsSamus && !samus.Xray.AreEnemyProjectilesSuspended)
         {
             // The Ceres elevator is drawn in front of Samus, as both its definitions are. Projectiles in front of
@@ -350,9 +349,8 @@ internal sealed class GameplayActorDrawing
 
         if (!deathOwnsSamus)
         {
-            // Once his animation starts, Ceres Ridley's scene draws the Baby Metroid sprite (plus the arena-door
-            // overlay) after every ordinary enemy layer; it is their only producer. Keeping this after the frontmost
-            // enemies preserves the Baby's actual position instead of inventing an enemy for the Baby.
+            // Once his animation starts, Ceres Ridley's scene draws the Baby Metroid (and the arena door's overlay) after
+            // every ordinary enemy layer, so the Baby shows at its own position in front of the frontmost enemies.
             room.Enemies.Ceres.DrawCeresRidleyBabyAndDoorOverEnemies(
                 _sprites,
                 room.Camera.PixelPosition);

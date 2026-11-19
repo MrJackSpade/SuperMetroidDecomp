@@ -500,8 +500,7 @@ internal sealed class ProjectileMotion
             RoomCollisionType.BombableAir => false,
             RoomCollisionType.BombableBlock => true,
 
-            // Following the extensions leaves no extension block: one reaching here fails rather than inventing a
-            // collision result.
+            // Following the extensions leaves no extension block, so one reaching here is invalid room data.
             RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension or _ =>
                 throw new InvalidDataException($"Invalid missile collision type {block.CollisionType} at block {block.Position}."),
         };

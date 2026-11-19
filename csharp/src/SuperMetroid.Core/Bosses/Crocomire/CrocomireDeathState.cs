@@ -81,10 +81,11 @@ public sealed class CrocomireDeathState
     public int BodyXBeforeMelting { get; internal set; }
 
     /// <summary>
-    /// Melt shake counter: zero before the first melt, decremented once per dissolve frame and wrapping below zero, and
-    /// its second bit selects the four-pixel X jitter.
-    /// The wrap is load-bearing: the first dissolve frame steps the counter down from zero to its largest count, whose
-    /// jitter bit is set, so the shake starts on the jittered side.
+    /// Melt shake counter: zero before the first melt, decremented once per dissolve frame and wrapping below zero; the
+    /// shake alternates between its two looks every <see cref="CrocomireMeltingDefinitions.ShakeHalfPeriod"/> counts, the
+    /// second of them jittered four pixels on X.
+    /// The wrap is load-bearing: the first dissolve frame steps the counter down from zero to its largest count, which
+    /// lies in a jittered half, so the shake starts on the jittered side.
     /// </summary>
     public WrappingCountdown MeltShakeCounter { get; internal set; }
 

@@ -26,10 +26,10 @@ public sealed record SelectedRoom(RoomDefinition Definition, RoomStateSettings S
     /// <summary>The room's dimensions in screens.</summary>
     public Extent16<RoomScreens> Size => Definition.Size;
 
-    /// <summary>The camera's upward scroller distance in pixels.</summary>
+    /// <summary>How many pixels above Samus the camera aims its top while she moves any way but up, leading the view below her as she falls.</summary>
     public int FallingCameraOffset => Definition.FallingCameraOffset;
 
-    /// <summary>The camera's downward scroller distance in pixels.</summary>
+    /// <summary>How many pixels above Samus the camera aims its top while she moves up, leading the view above her as she rises.</summary>
     public int RisingCameraOffset => Definition.RisingCameraOffset;
 
     /// <summary>Whether door transitions into or out of this room hide the foreground and drop the colours of the door, item and block pictures every room shares.</summary>

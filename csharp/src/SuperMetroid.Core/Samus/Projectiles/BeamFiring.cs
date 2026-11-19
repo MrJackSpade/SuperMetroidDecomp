@@ -16,7 +16,7 @@ internal sealed class BeamFiring
     private readonly ProjectileAnimation _animation;
     /// <summary>Tracks held Shoot duration, charge effects, and Hyper Beam glow.</summary>
     private readonly BeamChargeState _charge;
-    /// <summary>Handles the special beam attack after the charge counter reaches 120.</summary>
+    /// <summary>Handles the special beam attack after the charge counter reaches <see cref="BeamChargeDefinitions.SpecialAttackCounter"/>.</summary>
     private readonly BeamCombos _combos;
     /// <summary>Owns the five shot places, which a fired projectile takes, and the shot count.</summary>
     private readonly SamusShotPool _pool;
@@ -73,7 +73,7 @@ internal sealed class BeamFiring
         _charge.PreviousCharge = _charge.Level;
 
         // Firing gives the Hyper Beam priority over Charge equipment. It fires on held Shoot rather than a new press,
-        // and its own 21-frame cooldown paces a held button.
+        // and its own cooldown (SamusProjectileCooldownDefinitions.HyperBeamShot) paces a held button.
         if (samus.HyperBeamEnabled)
         {
             SoundEffectId? sound = (controllerInput & shoot) != GameplayAction.None
@@ -104,8 +104,8 @@ internal sealed class BeamFiring
         {
             // Charging forces release before testing held Shoot. This is why a
             // charged beam can leave the OLD gun direction while a normal-jump or moonwalk
-            // transition changes her pose. Values below 60 release an ordinary beam;
-            // values 60+ release the charged family through the same allocation gate.
+            // transition changes her pose. A charge short of full releases an ordinary beam;
+            // a full charge releases the charged family through the same allocation gate.
             bool forcedChargedRelease =
                 _charge.HasCharged(BeamChargeDefinitions.FullyChargedCounter);
             _charge.ClearCount();
@@ -121,7 +121,7 @@ internal sealed class BeamFiring
 
         if (held)
         {
-            // Charging increments through 120 and fires one ordinary shot on the first
+            // Charging counts up to the special-attack clamp and fires one ordinary shot on the first
             // held frame. Charge Beam therefore changes sustained-fire semantics rather
             // than suppressing the familiar initial power shot.
             if (!_charge.HasCharged(BeamChargeDefinitions.SpecialAttackCounter))
@@ -149,7 +149,7 @@ internal sealed class BeamFiring
             }
             else if (_combos.TryActivateCombo(samus, sharedProjectiles, out SoundEffectId? comboSound))
             {
-                // The game tries the special beam attack only on the update after charge reaches 120.
+                // The game tries the special beam attack only on the update after the charge reaches its clamp.
                 // Successful activation clears flare animation and restores the suit;
                 // failed family selection leaves charge intact, including its ammo debit.
                 _charge.ClearCount();
@@ -179,7 +179,8 @@ internal sealed class BeamFiring
     /// <summary>
     /// Finishes firing a beam, uncharged or charged. A
     /// successful shot's own essential-priority sound replaces the charging sound. If admission or
-    /// muzzle initialization rejects a release after counter sixteen, the game queues
+    /// muzzle initialization rejects a release once the charging sound has started
+    /// (<see cref="BeamChargeDefinitions.ChargeSoundStartCounter"/>), the game queues
     /// the charge-silencing sound instead so the sustained charge cannot remain audible; that rejection first cancels a
     /// pending resume of the charging sound, as a shot does (#1689).
     /// </summary>
@@ -308,7 +309,7 @@ internal sealed class BeamFiring
         return new BeamShot(sound);
     }
 
-    /// <summary>Allocates charged-Plasma art with Hyper damage, Wave collision, and a 21-frame cooldown.</summary>
+    /// <summary>Allocates charged-Plasma art with Hyper damage, Wave collision, and the Hyper Beam's cooldown (<see cref="SamusProjectileCooldownDefinitions.HyperBeamShot"/>).</summary>
     internal BeamShot? TryFireHyperBeam(
         RoomLevelData level,
         SamusState samus,

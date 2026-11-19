@@ -67,10 +67,10 @@ public sealed class WreckedShipGhostEnemyState
     /// <summary>The exclusive upper corner of the nearly-still box (previous position +1).</summary>
     public Position16<RoomPixels> SamusUpperBound { get; internal set; }
 
-    /// <summary>64-frame timer while Samus remains nearly still.</summary>
+    /// <summary>Counts down from <see cref="WreckedShipGhostAppearanceDefinitions.StillPositionDuration"/> while Samus remains nearly still.</summary>
     public int StablePositionTimer { get; internal set; }
 
-    /// <summary>16-frame timer while Samus keeps one direction.</summary>
+    /// <summary>Counts down from <see cref="WreckedShipGhostAppearanceDefinitions.SteadyFacingDuration"/> while Samus keeps one direction.</summary>
     public int StableDirectionTimer { get; internal set; }
 
     /// <summary>

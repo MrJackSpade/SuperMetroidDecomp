@@ -189,7 +189,7 @@ internal static class SamusPosturePoseTransitions
         {
             // The crouching transition samples the boost stage before later
             // posture movement can cancel running momentum. A crouch at boost stage four therefore
-            // stores a 180-update shinespark charge even though the following stable crouch has
+            // stores a shinespark charge (ShinesparkDefinitions.StoredShineFrames) even though the following stable crouch has
             // no horizontal Speed Booster state of its own.
             if (samus.Shinespark.TryStoreFromSpeedBooster(samus.HorizontalSpeed.SpeedBoostCounter))
             {
@@ -687,7 +687,7 @@ internal static class SamusPosturePoseTransitions
 
     /// <summary>
     /// Applies the walk-off transition's morph-ball endpoint, retaining the rolling animation
-    /// while changing to ordinary airborne <see cref="SamusPoseId.MorphBallFallingRightPose"/> and <see cref="SamusPoseId.MorphBallFallingLeftPose"/> and starting dry-air gravity.
+    /// while changing to ordinary airborne <see cref="SamusPoseId.MorphBallFallingRightPose"/> and <see cref="SamusPoseId.MorphBallFallingLeftPose"/> and starting the gravity of the medium she moves in.
     /// </summary>
     public static void ApplyMorphBallWalkOff(SamusState samus)
     {

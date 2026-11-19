@@ -452,7 +452,8 @@ public static class SamusGrappleSwing
                 case RoomCollisionType.SpikeAir:
                     // Spike air is harmless to the swing except damaging spike air, which queues
                     // 16 damage. It never collides, but it still starts the common
-                    // 60-frame invulnerability and 10-frame knockback timers. The timer
+                    // spike invulnerability and knockback (SpikeHazardDefinitions.InvincibilityFrames,
+                    // SpikeHazardDefinitions.KnockbackFrames). The timer
                     // check must precede the behaviour lookup so a second radial probe in this
                     // same six-point sweep cannot queue damage again.
                     ApplySwingSpikeDamage(samus, block.Behavior.Spike, block: SwingSpikeBlock.Plain);

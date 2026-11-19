@@ -704,7 +704,7 @@ public sealed class SamusHorizontalSpeedState
 
             // The maximum replaces a speed that reads as past it (SamusSpeedMagnitude.ReadsPastLimit); a speed exactly
             // at its maximum is left untouched.
-            UnsignedSixteenSixteen maximum = UnsignedSixteenSixteen.FromDisplacement(entry.MaximumSpeed);
+            UnsignedSixteenSixteen maximum = entry.MaximumSpeed;
             if (SamusSpeedMagnitude.ReadsPastLimit(BaseSpeed, maximum))
             {
                 BaseSpeed = maximum;
@@ -745,7 +745,7 @@ public sealed class SamusHorizontalSpeedState
 
         // The same maximum test as the deceleration-allowed calculation: a speed exactly at its maximum is
         // deliberately *not* capped, and the calculation reports no cap in that case.
-        UnsignedSixteenSixteen maximum = UnsignedSixteenSixteen.FromDisplacement(entry.MaximumSpeed);
+        UnsignedSixteenSixteen maximum = entry.MaximumSpeed;
         if (SamusSpeedMagnitude.ReadsPastLimit(BaseSpeed, maximum))
         {
             BaseSpeed = maximum;

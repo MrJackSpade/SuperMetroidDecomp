@@ -13,8 +13,8 @@ internal static class SamusIndexedSpeedsVerification
     {
         SamusHorizontalSpeeds Read(int a)
         {
-            SignedSixteenSixteen Pair(int offset) => SignedSixteenSixteen.FromParts(
-                unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(a + offset)),
+            UnsignedSixteenSixteen Pair(int offset) => new(
+                CartridgeImportSource.Require(rom).ReadCartridgeWord(a + offset),
                 CartridgeImportSource.Require(rom).ReadCartridgeWord(a + offset + 2));
             return new(Pair(0), Pair(4), Pair(8));
         }

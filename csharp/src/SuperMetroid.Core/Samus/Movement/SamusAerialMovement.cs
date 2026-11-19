@@ -273,8 +273,8 @@ public static class SamusAerialMovement
             throw new InvalidOperationException($"Wall-jump movement requires a wall-jumping pose, not {samus.Pose}.");
 
         // From the Screw Attack spin's start the somersault always attacks as the Screw Attack.
-        // From the ordinary spin's start it attacks as the pseudo Screw Attack only after the projectile flare counter
-        // reaches 60. The jump's frames before the spin remain harmless even when fully charged.
+        // From the ordinary spin's start it attacks as the pseudo Screw Attack only once the beam is fully charged
+        // (BeamChargeDefinitions.FullyChargedCounter). The jump's frames before the spin remain harmless even when fully charged.
         if (samus.AnimationHasReached(SamusAnimationFrames.WallJumpScrewAttackSpinStart))
             samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.ScrewAttack;
         else if (samus.AnimationHasReached(SamusAnimationFrames.WallJumpOrdinarySpinStart) && samus.BeamCharge.HasCharged(BeamChargeDefinitions.FullyChargedCounter))

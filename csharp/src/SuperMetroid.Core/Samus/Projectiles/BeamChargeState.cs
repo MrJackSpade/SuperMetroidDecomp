@@ -22,7 +22,8 @@ internal sealed class BeamChargeState
     }
 
     /// <summary>
-    /// The updates Samus has held the charge: 60 arms a charged shot and 120 is the special-attack clamp, past which the
+    /// The updates Samus has held the charge: <see cref="BeamChargeDefinitions.FullyChargedCounter"/> arms a charged shot and
+    /// <see cref="BeamChargeDefinitions.SpecialAttackCounter"/> is the special-attack clamp, past which the
     /// charge advances no further. Zero while the Hyper Beam's flare shows (<see cref="HyperBeamFlare"/>).
     /// </summary>
     [IntegerQuantity("updates the charge flare has shown")]

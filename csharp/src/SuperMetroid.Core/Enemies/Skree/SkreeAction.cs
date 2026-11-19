@@ -21,6 +21,6 @@ public enum SkreeAction
     /// <summary>Descends six pixels and steers one pixel toward Samus until floor collision.</summary>
     Diving,
 
-    /// <summary>Sinks for the retained 21-update lifetime, emits debris, then deletes the enemy.</summary>
+    /// <summary>Sinks for its burrow (<see cref="SkreeMotionDefinitions.BurrowDuration"/>), emits debris, then deletes the enemy.</summary>
     Burrowing,
 }

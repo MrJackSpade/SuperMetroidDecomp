@@ -1090,7 +1090,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>Runs the room shaking: the earthquake's frame step, then the actor shake it selects.</summary>
     public RoomShakeFrameResult HandleRoomShaking(bool timeIsFrozen)
     {
-        // This runs after drawing in the game, so the two-frame actor timer becomes visible
+        // This runs after drawing in the game, so the actors' shake (RoomEarthquakeDefinitions.EnemyShakeDuration) becomes visible
         // on the following frame rather than retroactively changing already-emitted sprites.
         if (Earthquake.Advance(timeIsFrozen))
         {

@@ -13,27 +13,27 @@ internal static class SpecialAttackParticleDefinitions
     [
         new()
         {
-            OrbitStart = new TrigonometryAngle(0),
+            OrbitStart = TrigonometryAngle.Zero,
             WaveStart = new Offset16<RoomPixels>(128, 128),
             SpazerTurn = RotationDirection.Clockwise,
             VoicesSpazerConvergence = true,
         },
         new()
         {
-            OrbitStart = new TrigonometryAngle(64),
+            OrbitStart = TrigonometryAngle.QuarterTurn,
             WaveStart = new Offset16<RoomPixels>(128, -128),
             SpazerTurn = RotationDirection.Counterclockwise,
         },
         new()
         {
-            OrbitStart = new TrigonometryAngle(128),
+            OrbitStart = TrigonometryAngle.HalfTurn,
             WaveStart = new Offset16<RoomPixels>(-128, -128),
             SpazerTurn = RotationDirection.Clockwise,
             SpazerTrail = true,
         },
         new()
         {
-            OrbitStart = new TrigonometryAngle(192),
+            OrbitStart = TrigonometryAngle.HalfTurn + TrigonometryAngle.QuarterTurn,
             WaveStart = new Offset16<RoomPixels>(-128, 128),
             SpazerTurn = RotationDirection.Counterclockwise,
             SpazerTrail = true,

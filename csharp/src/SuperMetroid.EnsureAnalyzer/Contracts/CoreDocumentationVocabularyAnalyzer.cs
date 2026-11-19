@@ -184,6 +184,10 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// documentation comment's line breaks: a value's two halves, fraction bits, a negative test, a wrap to 65535, a position
 /// told by its range, a wrapping comparison, a value negated back, an expired timer that wraps, a flag named for a
 /// condition or read as this flag, a list scanned last to first, a value stored as a whole and a one-shot index.
+/// #2530 adds, outside hardware owners, a wait's length restated by number and the original's routines told as
+/// calculators, read across a documentation comment's line breaks: a cooldown, timer, countdown, lifetime, charge or
+/// afterglow counted in frames, updates, ticks or steps by number, a delay or wait counted in updates, ticks or steps by
+/// number and a calculator.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -2341,9 +2345,32 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// A wait's length restated by number and the original's routines told as calculators (#2530), outside hardware owners
+    /// and markup, read across a documentation comment's line breaks: a cooldown, timer, countdown, lifetime, charge or
+    /// afterglow counted in frames, updates, ticks or steps by number, with up to two words between (a 21-frame cooldown,
+    /// the five-frame knockback timer, a 180-update shinespark charge, the 32-step afterglow); a delay or wait counted in
+    /// updates, ticks or steps by number (a 15-update delay, a sixteen-update wait), as #2472 reads one counted in frames;
+    /// and a calculator (the leftward calculator, the deceleration-allowed calculator). The original counted its waits in
+    /// frames and split its speed arithmetic into calculator routines; Core cites the named duration a wait lasts for and
+    /// says which way a speed moves Samus. English stays legal: a timer, cooldown or countdown alone, a one-update wait,
+    /// timer or delay, which runs out on the next update, a wait counted in prose (sixteen updates), a calculation and a
+    /// hardware owner, which describes the program it reproduces.
+    /// </summary>
+    private static readonly Regex CountedWaitAndCalculatorProse = new(
+        @"\b(?:[2-9][\d,]*|1[\d,]+|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|" +
+        @"sixteen|seventeen|eighteen|nineteen|(?:twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)(?:-(?:one|two|three|" +
+        @"four|five|six|seven|eight|nine))?|hundred)-(?:frame|update|tick|step)[-\s]+(?:[\w/'’-]+\s+){0,2}?(?:cooldowns?" +
+        @"|timers?|countdowns?|lifetimes?|charges?|afterglows?)\b" +
+        @"|\b(?:[2-9][\d,]*|1[\d,]+|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|" +
+        @"sixteen|seventeen|eighteen|nineteen|(?:twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)(?:-(?:one|two|three|" +
+        @"four|five|six|seven|eight|nine))?|hundred)-(?:update|tick|step)[-\s]+(?:[\w/'’-]+\s+){0,2}?(?:delays?|waits?)\b" +
+        @"|\bcalculators?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A documentation comment's line break with the next line's comment prefix (#2515), which
-    /// <see cref="EnemyAndWorldRoutineBitAndReasoningProse"/> and <see cref="SamusStorageHalfWrapAndFlagProse"/> read as a
-    /// space so a phrase runs on across it.
+    /// <see cref="EnemyAndWorldRoutineBitAndReasoningProse"/>, <see cref="SamusStorageHalfWrapAndFlagProse"/> and
+    /// <see cref="CountedWaitAndCalculatorProse"/> read as a space so a phrase runs on across it.
     /// </summary>
     private static readonly Regex CommentLineBreak = new(@"\s*\r?\n\s*(?:///?|\*+)?\s*", RegexOptions.CultureInvariant);
 
@@ -2911,6 +2938,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : RuntimeLoaderAndLayerNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } loaderNarration ? loaderNarration.Value
             : EnemyAndWorldRoutineBitAndReasoningProse.Match(CommentLineBreak.Replace(Markup.Replace(text, " "), " ")) is { Success: true } enemyAndWorld ? enemyAndWorld.Value
             : SamusStorageHalfWrapAndFlagProse.Match(CommentLineBreak.Replace(Markup.Replace(text, " "), " ")) is { Success: true } samusStorage ? samusStorage.Value
+            : CountedWaitAndCalculatorProse.Match(CommentLineBreak.Replace(Markup.Replace(text, " "), " ")) is { Success: true } countedWait ? countedWait.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

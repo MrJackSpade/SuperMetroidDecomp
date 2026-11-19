@@ -59,7 +59,10 @@ public static class WreckedShipGhostAppearanceDefinitions
         new(5, WreckedShipGhostFlickerVisibility.Unchanged),
     ];
 
-    /// <summary>How long a new ghost waits before it watches Samus, in updates: its 120-update appearance delay and a further 160.</summary>
+    /// <summary>
+    /// How long a new ghost waits before it watches Samus, in updates: as long as it waits to reappear
+    /// (<see cref="ReappearanceDelay"/>) and a further 160.
+    /// </summary>
     internal const int InitialDelay = 280;
 
     /// <summary>

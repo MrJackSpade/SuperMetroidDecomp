@@ -86,7 +86,8 @@ public sealed class PowerBombBlastTimeline
     public bool IsRunning { get; private set; }
 
     /// <summary>
-    /// Afterglow steps left, 32 when the final white-explosion frame primes them; each step consumes one, and the
+    /// Afterglow steps left, <see cref="PowerBombExplosionDefinitions.AfterglowSteps"/> when the final white-explosion frame
+    /// primes them; each step consumes one, and the
     /// step that reaches zero ends the blast instead of fading the colors. It is only stepped while positive.
     /// </summary>
     private int _afterglowStepsRemaining;
@@ -320,13 +321,16 @@ public sealed class PowerBombBlastTimeline
             return;
         }
 
-        // The white explosion starts its seventeen expanding ovals on the next update.
+        // The white explosion starts its expanding ovals (PowerBombExplosionDefinitions.ExplosionWhiteUpdates) on the next update.
         _ovalStageUpdates = 0;
         RenderedOvalRadius = null;
         Phase = PowerBombExplosionPhase.ExplosionWhite;
     }
 
-    /// <summary>Shows the seventeen white ovals and primes the 32-step afterglow that fades the glow.</summary>
+    /// <summary>
+    /// Shows the white ovals, one an update for <see cref="PowerBombExplosionDefinitions.ExplosionWhiteUpdates"/>, and primes
+    /// the afterglow's <see cref="PowerBombExplosionDefinitions.AfterglowSteps"/> steps that fade the glow.
+    /// </summary>
     private void StepExplosionWhite(InstalledPowerBombGlowColors colors)
     {
         RenderedExplosionRadius = ExplosionRadius;
@@ -381,7 +385,7 @@ public sealed class PowerBombBlastTimeline
     private void StepCrystalFlashExplosion(InstalledPowerBombGlowColors colors)
     {
         // Crystal Flash's explosion is a deliberately shorter clone of the yellow Power Bomb expansion.
-        // It uses the same curve and glow colours, but stops at radius 32.
+        // It uses the same curve and glow colours, but stops at PowerBombExplosionDefinitions.CrystalFlashRadiusLimit.
         RenderedExplosionRadius = ExplosionRadius;
         SelectGlowColor(
             colors,
@@ -430,7 +434,8 @@ public sealed class PowerBombBlastTimeline
     }
 
     /// <summary>
-    /// Consumes one afterglow step. The afterglow phase is entered with 32 steps and ends on the step that reaches
+    /// Consumes one afterglow step. The afterglow phase is entered with <see cref="PowerBombExplosionDefinitions.AfterglowSteps"/>
+    /// steps and ends on the step that reaches
     /// zero, so a step is never taken from zero; one would mean the phase and its count disagree.
     /// </summary>
     private void ConsumeAfterglowStep()

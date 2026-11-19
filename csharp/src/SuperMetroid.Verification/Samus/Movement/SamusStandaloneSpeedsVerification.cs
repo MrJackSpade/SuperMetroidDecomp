@@ -11,7 +11,7 @@ internal static class SamusStandaloneSpeedsVerification
         static SamusHorizontalSpeeds Read(Func<int, byte> readByte, int a)
         {
             ushort Word(int offset) => LittleEndianBytes.Word(readByte(a + offset), readByte(a + offset + 1));
-            SignedSixteenSixteen Pair(int offset) => SignedSixteenSixteen.FromParts(unchecked((short)Word(offset)), Word(offset + 2));
+            UnsignedSixteenSixteen Pair(int offset) => new(Word(offset), Word(offset + 2));
             return new(Pair(0), Pair(4), Pair(8));
         }
         var actual = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());

@@ -90,7 +90,7 @@ public static class SamusBlockCollision
             // collides.
             UnsignedSixteenSixteen magnitude = move.Displacement.Magnitude();
             // The sign of the requested distance selects the direction: zero is not negative and moves right.
-            // The probe itself reads the calculator's stored direction, so a zero move
+            // The probe itself reads the side the displacement was calculated toward, so a zero move
             // still detects tangency (and clears fractional Y) in the facing direction.
             bool entersLeft = move.Displacement.IsNegative;
             SamusCollisionDirection direction = move.CollisionMovementDirection ??

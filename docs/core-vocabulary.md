@@ -827,6 +827,16 @@ scrolls slowly while the swing is fast. Halves of a picture or a body, a fractio
 counter of 0 through 65535, a count that wraps, a flag alone, an animation played last to first, a whole step of the turn
 and a hardware owner stay English.
 
+#2530 widens SME6454, outside hardware owners, to a wait's length restated by number and the original's routines told
+as calculators, read across a documentation comment's line breaks: a cooldown, timer, countdown, lifetime, charge or
+afterglow counted in frames, updates, ticks or steps by number, with up to two words between (`a 21-frame cooldown`,
+`the five-frame knockback timer`, `a 180-update shinespark charge`, `the 32-step afterglow`); a delay or wait counted in
+updates, ticks or steps by number (`a 15-update delay`, `a sixteen-update wait`), as #2472 reads one counted in frames;
+and a `calculator` (`the leftward calculator`, `the deceleration-allowed calculator`). Core cites the named duration a
+wait lasts for (`the Hyper Beam's cooldown (SamusProjectileCooldownDefinitions.HyperBeamShot)`) and says which way a
+speed moves Samus. A timer, cooldown or countdown alone, a one-update wait, timer or delay, which runs out on the next
+update, a wait counted in prose (`sixteen updates`), a calculation and a hardware owner stay English.
+
 SME6459 (#2309) reads the summary of every member of a Core `*Segment` enum, one run of an actor's animation, and rejects
 one that only restates the member's name: `The facing left shooting animation.`, `The idle.`, `The loop.`, and (#2465)
 any summary whose words are all the name's, the actor's the enum is named for, articles, possessives or `animation`,

@@ -29,6 +29,9 @@ internal interface ICeresEncounter
     /// <summary>Shows Ceres Ridley's Baby where it is, once, at its picture's own depth among the actors (#2573).</summary>
     void PublishCeresBaby(SpriteFrameBuffer sprites, Position16<RoomPixels> camera);
 
+    /// <summary>Shows the door of Ceres Ridley's room as its own overlay picture while it shows it (#2573).</summary>
+    void PublishRidleyRoomDoorOverlay(SpriteFrameBuffer sprites, Position16<RoomPixels> camera);
+
     /// <summary>Runs the getaway room's main step over the arena's turning <paramref name="floor"/>.</summary>
     void RunCeresRidleyGetawayRoomMain(SamusState samus, RoomFloor floor, int frameCounter);
 }

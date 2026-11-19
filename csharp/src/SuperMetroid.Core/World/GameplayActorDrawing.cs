@@ -357,7 +357,7 @@ internal sealed class GameplayActorDrawing
             room.Enemies.Ceres.StepCeresBabyAfterActors();
             // The Baby and the door of Ridley's room, while it shows its overlay, each show once, at their own place.
             room.Enemies.Ceres.PublishCeresBaby(_sprites, room.Camera.PixelPosition);
-            room.Enemies.CeresDoorBehavior.PublishRidleyRoomDoorOverlay(_sprites, room.Camera.PixelPosition);
+            room.Enemies.Ceres.PublishRidleyRoomDoorOverlay(_sprites, room.Camera.PixelPosition);
         }
     }
 }

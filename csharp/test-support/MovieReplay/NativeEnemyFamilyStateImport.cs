@@ -209,7 +209,7 @@ internal static class NativeEnemyFamilyStateImport
                 $"Recorded Ceres door or wall {enemy.Ordinal} runs routine {words.A:X4}, not its actor's {CeresNativeWords.MainBehaviourWord(enemy):X4}.");
         }
         if (enemy.SpeciesState<CeresRidleyRoomDoorState>() is { } ridleyRoomDoorRecord)
-            ridleyRoomDoorRecord.Drawing = words.B != 0 ? CeresRidleyRoomDoorDrawing.ByRidleysScene : CeresRidleyRoomDoorDrawing.ItsOwn;
+            ridleyRoomDoorRecord.Look = words.B != 0 ? CeresRidleyRoomDoorLook.Overlay : CeresRidleyRoomDoorLook.Actor;
         if (enemy.SpeciesState<DeadTorizoEnemyState>() is { } deadTorizoRecord)
         {
             deadTorizoRecord.Phase = CorpsesNativeWords.DeadTorizoPhases.Decode(words.A, "recorded DeadTorizoPhase");

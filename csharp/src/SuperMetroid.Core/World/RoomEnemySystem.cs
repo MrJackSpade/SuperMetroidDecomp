@@ -524,7 +524,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     internal IGunshipSession Gunship => field ??= new GunshipSession(GunshipBehavior);
 
     /// <summary>The Ceres encounter's status and runtime operations.</summary>
-    internal ICeresEncounter Ceres => field ??= new CeresEncounter(RidleyEncounter, CeresRidleyBehavior, CeresEscape);
+    internal ICeresEncounter Ceres => field ??= new CeresEncounter(RidleyEncounter, CeresRidleyBehavior, CeresEscape, CeresDoorBehavior);
 
     /// <summary>The state and hooks the room main behaviours and scrolling use.</summary>
     internal IEnemyRoomMainHooks RoomMainHooks => field ??= new EnemyRoomMainHooks(BossEncounters, CameraDistance, CameraFloor);

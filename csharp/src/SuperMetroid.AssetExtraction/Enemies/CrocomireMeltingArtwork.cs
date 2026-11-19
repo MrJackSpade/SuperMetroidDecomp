@@ -134,11 +134,12 @@ public sealed class CrocomireMeltingArtwork
     private const int RowByteCount = CrocomireMeltDissolve.BandRowCharacters * RoomCharacterAtlasFormat.BytesPerTile;
 
     /// <summary>
-    /// The bytes of <paramref name="illustration"/>'s image the cartridge assembles: a row per band, and the row and word
-    /// after the last, which the last band's copy carries past the image.
+    /// The bytes of <paramref name="illustration"/>'s image the import assembles: a row per band of the image, and the row
+    /// and word after the last, which the last band's copy carries past the image (#2573).
     /// </summary>
     internal static int UsedByteCount(CrocomireMeltingIllustration illustration) =>
-        (CrocomireMelting.BandCount(illustration) + 1) * RowByteCount + sizeof(ushort);
+        Enum.IsDefined(illustration) ? (CrocomireMeltingDefinitions.MeltImageBandCount + 1) * RowByteCount + sizeof(ushort)
+            : throw new ArgumentOutOfRangeException(nameof(illustration), illustration, "Crocomire has two melt images.");
 
     /// <summary>Rejects a sheet that is not <paramref name="illustration"/>'s installed length.</summary>
     private static void RequireLength(RoomCharacterAtlas atlas, int byteCount, CrocomireMeltingIllustration illustration)

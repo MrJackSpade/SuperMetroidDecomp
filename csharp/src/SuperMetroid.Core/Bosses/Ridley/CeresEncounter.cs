@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -10,7 +11,8 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <param name="encounter">The room's view of Ridley's encounters.</param>
 /// <param name="ceresRidley">Ceres Ridley.</param>
 /// <param name="escape">The station's escape, whose getaway the room main runs.</param>
-internal sealed class CeresEncounter(RidleyEncounter encounter, CeresRidleyBehavior ceresRidley, CeresEscape escape) : ICeresEncounter
+/// <param name="doors">The room's Ceres doors, the door of Ridley's room among them.</param>
+internal sealed class CeresEncounter(RidleyEncounter encounter, CeresRidleyBehavior ceresRidley, CeresEscape escape, CeresDoorBehavior doors) : ICeresEncounter
 {
     /// <inheritdoc/>
     public CeresEscapeStatus CeresStatus { get => encounter.CeresStatus; set => encounter.CeresStatus = value; }
@@ -34,6 +36,10 @@ internal sealed class CeresEncounter(RidleyEncounter encounter, CeresRidleyBehav
     /// <inheritdoc/>
     public void PublishCeresBaby(SpriteFrameBuffer sprites, Position16<RoomPixels> camera) =>
         ceresRidley.BabyScene.PublishCeresBaby(sprites, camera);
+
+    /// <inheritdoc/>
+    public void PublishRidleyRoomDoorOverlay(SpriteFrameBuffer sprites, Position16<RoomPixels> camera) =>
+        doors.PublishRidleyRoomDoorOverlay(sprites, camera);
 
     /// <inheritdoc/>
     public void RunCeresRidleyGetawayRoomMain(SamusState samus, RoomFloor floor, int frameCounter) =>

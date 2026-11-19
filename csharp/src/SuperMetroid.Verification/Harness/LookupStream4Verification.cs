@@ -2269,7 +2269,12 @@ internal static class LookupStream4Verification
         {
             IReadOnlyList<SheetShade> babySprites = RidleySheetShades.CeresSprites(stock);
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-            Func<CeresRidleyState, ushort> advance = ridley => EnemyFrameCartridgeLookupTooling.Word(enemies.CeresRidleyBehavior.BabyScene.AdvanceCeresBabyDrawAnimation(ridley));
+            Func<CeresRidleyState, ushort> advance = ridley =>
+            {
+                enemies.CeresRidleyBehavior.BabyScene.AdvanceCeresBabyAnimation(ridley);
+                return EnemyFrameCartridgeLookupTooling.Word(SuperMetroid.Core.Areas.Ceres.Artwork.CeresBabyFrameDefinitions.ShownFrames.Of(
+                    ridley.Baby.ShownPose ?? throw new InvalidOperationException("The Baby's animation showed no pose.")));
+            };
             for (int phase = 0; phase < 12; phase++)
             {
                 int cursor = 0xbf5d + phase * 8;

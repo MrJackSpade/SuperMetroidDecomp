@@ -145,18 +145,18 @@ internal static class BossBodySheetComposer
             selected.Add(CrocomireMeltBands.Animation(band), CrocomireMeltBands.Undissolved(image, band));
         BossBodyFrameSource source = BossBodyFrameSource.Written(CrocomireMeltingFrameNames.Of(image),
             BossBodySourceDefinitions.CrocomireMeltFirstCell, melting.Tilemap(image));
-        return [source with { Selected = selected, Dissolve = DissolveOf(source, image) }];
+        return [source with { Selected = selected, Dissolve = DissolveOf(source) }];
     }
 
     /// <summary>
-    /// How the dissolve erases melt image <paramref name="image"/>'s picture, written as <paramref name="source"/> writes it
+    /// How the dissolve erases a melt image's picture, written as <paramref name="source"/> writes it
     /// (#1652, #2478). A cell showing a character of one of the bands the dissolve erases shows that band, and each of its
     /// pixels is erased after the first step whose column lies in the character's group of eight pixel columns and whose
     /// place among each eight steps is the pixel's column in the character
     /// (<see cref="CrocomireMeltDissolveDefinitions.ColumnOrder"/>), down every row of the character. Every other pixel is
     /// kept: a cell showing another character, or a character of the band the dissolve never erases.
     /// </summary>
-    private static PictureDissolve DissolveOf(BossBodyFrameSource source, CrocomireMeltingIllustration image)
+    private static PictureDissolve DissolveOf(BossBodyFrameSource source)
     {
         const int cell = RoomTileCanvas.CharacterPixels;
         Position16<BackgroundPixels> corner = BossBodyPainter.CornerOf(source.Cells);

@@ -55,10 +55,17 @@ public static class BlockAnimationLoops
         return BlockAnimationLoopDefinitions.IdleLoops.ContainsKey(animation);
     }
 
+    /// <summary>
+    /// The loop of every animation with one, built once with the segments, so every start of a loop plays the one loop
+    /// this definition holds (#1716).
+    /// </summary>
+    private static Dictionary<BlockAnimation, Animation<BlockAnimation>> IdleAnimations { get; } =
+        BlockAnimationLoopDefinitions.IdleLoops.Keys.ToDictionary(
+            animation => animation, animation => Animation<BlockAnimation>.Looping([Segments.Whole(animation)]));
+
     /// <summary>The loop of <paramref name="animation"/>: its idle segment, over and over.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="animation"/> is undefined or has no loop.</exception>
-    internal static Animation<BlockAnimation> Idle(BlockAnimation animation) =>
-        Animation<BlockAnimation>.Looping([Segments.Whole(Require(animation))]);
+    internal static Animation<BlockAnimation> Idle(BlockAnimation animation) => IdleAnimations[Require(animation)];
 
     /// <summary>Starts playing the loop of <paramref name="animation"/>, showing nothing until its first pass shows its first frame.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="animation"/> is undefined or has no loop.</exception>

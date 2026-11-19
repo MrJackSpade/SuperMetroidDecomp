@@ -17,6 +17,9 @@ internal static class EnemyOccupantStatesVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        // A Dachora placement names the runner or one of its echoes (#2283), which every bind below reads; the entry
+        // stays the place's through kills, deletions and new occupants.
+        LeadingPartPlacement.Prepare(place, EnemyDefinitionId.Dachora);
 
         place.Bind(EnemyDefinitionId.Dachora, place.Definition);
         var killed = new DachoraEnemyState(DachoraAction.WaitingForSamus);

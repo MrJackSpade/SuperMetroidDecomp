@@ -19,6 +19,8 @@ internal static class BoulderBounceDefinitionsVerification
         RoomLevelData level = VerificationHelpersVerification.CreateSolidRowsRoom(new(8, 8), firstSolidRow: 4, solidRowCount: 4);
         RoomEnemyPlace actor = enemies.Places.InUpdateOrder[0];
         var state = new BoulderEnemyState(BoulderAction.WaitingForSamus);
+        // The fall reads the placement's roll where it uses it (#2476): an ordinary boulder, which bounces at each impact.
+        actor.SetSpawnSettings(new BoulderSpawnSettings(TriggerHeight: 8, TriggerReach: 8, Start: new BoulderStart.FallsFrom(1), Roll: BoulderRoll.Right));
         actor.Position = actor.Position.WithWholeX(40);
         actor.Radius = new(8, 8);
         for (int impactsSoFar = 0; impactsSoFar < BoulderBounces.ImpactCount; impactsSoFar++)

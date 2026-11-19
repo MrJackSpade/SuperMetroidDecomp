@@ -231,7 +231,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             int random = room.Random.Read();
             int upwardPixels = KagoDefinitions.BaseJumpSpeedPixels +
                 KagoDefinitions.JumpHeightSteps.Of(random) * KagoDefinitions.JumpHeightStepPixels;
-            projectile.Velocity = projectile.Velocity.WithY(-SignedEightEight.FromParts(upwardPixels, 0));
+            projectile.Velocity = projectile.Velocity.WithY(-SignedEightEight.FromPixels(upwardPixels));
 
             RoomEnemyPlace source = projectile.StateOf<KagoBugState>().Source;
             int sourceDelta = source.Position.X.Whole - projectile.Position.X.Whole;

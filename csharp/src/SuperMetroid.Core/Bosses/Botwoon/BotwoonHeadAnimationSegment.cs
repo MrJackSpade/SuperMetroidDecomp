@@ -29,11 +29,11 @@ internal readonly record struct BotwoonHeadAnimationSegment
     internal static BotwoonHeadAnimationSegment Spitting(CompassDirection facing) => new(BotwoonHeadAnimationSegmentKind.Spitting, facing);
 
     /// <summary>
-    /// The visible moving head for a bearing: the direction opening the eighth of the turn the bearing lies in selects
-    /// one of the eight closed-mouth animations.
+    /// The visible moving head for a direction: the compass direction opening the eighth of the turn the direction lies in
+    /// selects one of the eight closed-mouth animations.
     /// </summary>
-    internal static BotwoonHeadAnimationSegment MovingToward(Bearing bearing) => Moving(bearing.DirectionOfEighth());
+    internal static BotwoonHeadAnimationSegment MovingToward(TrigonometryAngle direction) => Moving(direction.DirectionOfEighth());
 
-    /// <summary>The spitting head for a bearing: it faces the compass direction nearest the bearing, so Samus is aimed at.</summary>
-    internal static BotwoonHeadAnimationSegment SpittingToward(Bearing bearing) => Spitting(bearing.NearestDirection());
+    /// <summary>The spitting head for a direction: it faces the compass direction nearest it, so Samus is aimed at.</summary>
+    internal static BotwoonHeadAnimationSegment SpittingToward(TrigonometryAngle direction) => Spitting(direction.NearestDirection());
 }

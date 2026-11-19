@@ -152,7 +152,7 @@ internal sealed class MotherBrainFakeDeath
             graphics: SpriteGraphics.SharedIn(MotherBrainColours.GlassAndTubes));
         projectile.StartAnimation(new MotherBrainTopTubeAnimation(tube));
         projectile.Position = projectile.Position.WithWhole(position);
-        projectile.Velocity = EightEightVector<RoomPixels>.Zero;
+        projectile.Velocity = PixelVelocity<RoomPixels>.Zero;
         projectile.State = new MotherBrainTopTubeState();
     }
 

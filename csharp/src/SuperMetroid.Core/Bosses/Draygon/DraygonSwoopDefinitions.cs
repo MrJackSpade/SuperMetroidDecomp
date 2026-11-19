@@ -4,13 +4,13 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal static class DraygonSwoopDefinitions
 {
     /// <summary>The swoop acceleration a fight starts with and a tail-whip hit restores: three thirty-seconds of a pixel per frame per frame downward.</summary>
-    internal static readonly SignedEightEight InitialAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(24);
+    internal static readonly SignedEightEight InitialAcceleration = SignedEightEight.FromPixelFraction(3, 32);
 
     /// <summary>The swoop acceleration each eye hit adds, a thirty-second of a pixel per frame per frame, while below the limit.</summary>
-    internal static readonly SignedEightEight ShotAccelerationStep = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(8);
+    internal static readonly SignedEightEight ShotAccelerationStep = SignedEightEight.FromPixelFraction(1, 32);
 
     /// <summary>The swoop acceleration, five eighths of a pixel per frame per frame, an eye hit may not reach.</summary>
-    internal static readonly SignedEightEight AccelerationLimit = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(160);
+    internal static readonly SignedEightEight AccelerationLimit = SignedEightEight.FromPixelFraction(5, 8);
 
     /// <summary>
     /// The updates before the bottom of a swoop at which Draygon's arms reach out on the way down, and the updates after it

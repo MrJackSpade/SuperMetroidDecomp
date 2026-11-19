@@ -82,8 +82,8 @@ internal sealed class SamusShotPool
     internal SamusProjectile Occupy(int place)
     {
         SamusProjectile replaced = _places[place];
-        int kept = LeftBeamStart.Start(place);
-        int fraction = replaced.IsOccupied ? replaced.Position.X.Fraction : kept;
+        PixelFraction kept = LeftBeamStart.Start(place);
+        PixelFraction fraction = replaced.IsOccupied ? replaced.Position.X.FractionOfPixel : kept;
         SamusProjectile projectile = OccupyAtRest(place);
         projectile.Position = projectile.Position.WithFractionX(fraction);
         return projectile;
@@ -113,7 +113,7 @@ internal sealed class SamusShotPool
         foreach (SamusProjectile projectile in _places)
         {
             if (projectile.IsOccupied)
-                LeftBeamStart.Keep(projectile.Place, projectile.Position.X.Fraction);
+                LeftBeamStart.Keep(projectile.Place, projectile.Position.X.FractionOfPixel);
             projectile.End();
         }
     }

@@ -12,7 +12,7 @@ public static class WaterWaveDefinitions
     public const int BackgroundWavePhaseDuration = 6;
 
     /// <summary>The surface's sideways drift a frame when its water drifts: a quarter pixel.</summary>
-    public static SignedEightEight SurfaceDriftSpeed { get; } = SignedEightEight.FromSixteenthsOfPixel(4);
+    public static SignedEightEight SurfaceDriftSpeed { get; } = SignedEightEight.FromPixelFraction(1, 4);
 
     /// <summary>
     /// One period of the wave on the water's surface as its first phase shows it, one sideways displacement in pixels per

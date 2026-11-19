@@ -20,24 +20,24 @@ namespace SuperMetroid.Core.Compatibility;
 public sealed class UnauthoredBeamFiring<TBeams>
     where TBeams : notnull
 {
-    /// <summary>Each combination's horizontal and vertical launch speed, in 256ths of a pixel per update.</summary>
-    private readonly IReadOnlyDictionary<TBeams, int> _cardinal;
+    /// <summary>Each combination's horizontal and vertical launch speed.</summary>
+    private readonly IReadOnlyDictionary<TBeams, SignedEightEight> _cardinal;
 
-    /// <summary>Each combination's diagonal launch speed, in 256ths of a pixel per update.</summary>
-    private readonly IReadOnlyDictionary<TBeams, int> _diagonal;
+    /// <summary>Each combination's diagonal launch speed.</summary>
+    private readonly IReadOnlyDictionary<TBeams, SignedEightEight> _diagonal;
 
     /// <summary>Each combination's cooldowns.</summary>
     private readonly IReadOnlyDictionary<TBeams, BeamShotCooldowns> _cooldowns;
 
     /// <summary>Keeps the decoded speeds and cooldowns.</summary>
-    /// <param name="cardinal">Each combination's horizontal and vertical launch speed, -32768 through 32767.</param>
-    /// <param name="diagonal">Each combination's diagonal launch speed, -32768 through 32767.</param>
+    /// <param name="cardinal">Each combination's horizontal and vertical launch speed.</param>
+    /// <param name="diagonal">Each combination's diagonal launch speed.</param>
     /// <param name="cooldowns">Each combination's cooldowns, each zero or more updates.</param>
-    /// <exception cref="ArgumentOutOfRangeException">A speed or cooldown is outside its range.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">A cooldown is outside its range.</exception>
     /// <exception cref="ArgumentException">The three sets name different combinations.</exception>
     public UnauthoredBeamFiring(
-        IReadOnlyDictionary<TBeams, int> cardinal,
-        IReadOnlyDictionary<TBeams, int> diagonal,
+        IReadOnlyDictionary<TBeams, SignedEightEight> cardinal,
+        IReadOnlyDictionary<TBeams, SignedEightEight> diagonal,
         IReadOnlyDictionary<TBeams, BeamShotCooldowns> cooldowns)
     {
         Ensure.NotNull(cardinal);
@@ -46,8 +46,6 @@ public sealed class UnauthoredBeamFiring<TBeams>
         if (cardinal.Count != diagonal.Count || cardinal.Count != cooldowns.Count ||
             cardinal.Keys.Any(beams => !diagonal.ContainsKey(beams) || !cooldowns.ContainsKey(beams)))
             throw new ArgumentException("Every combination needs launch speeds and cooldowns.", nameof(cooldowns));
-        foreach (int speed in cardinal.Values.Concat(diagonal.Values))
-            Ensure.BetweenInclusive(short.MinValue, short.MaxValue, speed);
         foreach (BeamShotCooldowns combination in cooldowns.Values)
         {
             Ensure.AtLeastZero(combination.Uncharged);
@@ -60,12 +58,12 @@ public sealed class UnauthoredBeamFiring<TBeams>
     }
 
     /// <summary>
-    /// The speed <paramref name="beams"/> launches at, in 256ths of a pixel per update: its diagonal speed when
-    /// <paramref name="diagonal"/>, otherwise its horizontal and vertical one.
+    /// The speed <paramref name="beams"/> launches at: its diagonal speed when <paramref name="diagonal"/>, otherwise its
+    /// horizontal and vertical one.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The speed table authors the combination's speeds.</exception>
-    public int Speed(TBeams beams, bool diagonal) =>
-        (diagonal ? _diagonal : _cardinal).TryGetValue(beams, out int speed)
+    public SignedEightEight Speed(TBeams beams, bool diagonal) =>
+        (diagonal ? _diagonal : _cardinal).TryGetValue(beams, out SignedEightEight speed)
             ? speed
             : throw new ArgumentOutOfRangeException(nameof(beams), beams, "The beam speed table authors this combination's launch speeds.");
 

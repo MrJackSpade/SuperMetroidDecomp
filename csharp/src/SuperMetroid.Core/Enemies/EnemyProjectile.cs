@@ -43,7 +43,7 @@ public sealed class EnemyProjectile
     /// </summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
     /// <summary>How far the projectile moves each update, for the shared movements and the families that move by it.</summary>
-    public EightEightVector<RoomPixels> Velocity { get; internal set; }
+    public PixelVelocity<RoomPixels> Velocity { get; internal set; }
     /// <summary>
     /// What the projectile leaves in its place for the next projectile spawned there: its whole position and velocity
     /// as they stand when that spawn takes the place (<see cref="EnemyProjectileHandOver"/>).
@@ -190,7 +190,7 @@ public sealed class EnemyProjectile
     /// </summary>
     internal void Delete()
     {
-        Position = Position.WithFractionX(0).WithFractionY(0);
+        Position = Position.WithoutFractions();
         Vacate();
     }
 

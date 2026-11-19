@@ -8,7 +8,7 @@ public sealed class NoobTubePiece
     /// <param name="offset">Where it appears from the tube's block.</param>
     /// <param name="velocity">The speed it starts with.</param>
     /// <param name="start">How it starts moving.</param>
-    internal NoobTubePiece(NoobTubeProjectileDefinition definition, Offset16<RoomPixels> offset, EightEightVector<RoomPixels> velocity,
+    internal NoobTubePiece(NoobTubeProjectileDefinition definition, Offset16<RoomPixels> offset, PixelVelocity<RoomPixels> velocity,
         NoobTubePieceStart start)
     {
         Definition = definition;
@@ -32,7 +32,7 @@ public sealed class NoobTubePiece
     /// each keeps the speed its enemy-projectile place's previous projectile left on the axes it does not set
     /// (<see cref="EnemyProjectileHandOver"/>) and hands it on to the next projectile spawned in that place.
     /// </remarks>
-    public EightEightVector<RoomPixels> Velocity { get; }
+    public PixelVelocity<RoomPixels> Velocity { get; }
 
     /// <summary>How the piece starts moving, which the tube's behaviour turns into the animation it plays.</summary>
     internal NoobTubePieceStart Start { get; }

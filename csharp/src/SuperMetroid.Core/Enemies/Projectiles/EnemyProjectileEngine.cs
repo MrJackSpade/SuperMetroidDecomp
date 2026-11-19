@@ -457,13 +457,13 @@ internal sealed class EnemyProjectileEngine
 
             if (axis == Axis.Horizontal)
             {
-                projectile.Position = projectile.Position.WithFractionX(0);
+                projectile.Position = projectile.Position.WithFractionX(PixelFraction.None);
                 if (snapDoesNotMoveBackwards)
                     projectile.Position = projectile.Position.WithWholeX(snappedPosition);
             }
             else
             {
-                projectile.Position = projectile.Position.WithFractionY(0);
+                projectile.Position = projectile.Position.WithFractionY(PixelFraction.None);
                 if (snapDoesNotMoveBackwards)
                     projectile.Position = projectile.Position.WithWholeY(snappedPosition);
             }

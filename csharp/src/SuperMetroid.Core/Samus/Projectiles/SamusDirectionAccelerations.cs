@@ -5,6 +5,6 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <param name="Missile">An ignited missile's acceleration, after the beam's.</param>
 /// <param name="SuperMissile">An ignited Super Missile's acceleration.</param>
 internal sealed record SamusDirectionAccelerations(
-    EightEightVector<RoomPixels> Beam,
-    EightEightVector<RoomPixels> Missile,
-    EightEightVector<RoomPixels> SuperMissile);
+    PixelVelocity<RoomPixels> Beam,
+    PixelVelocity<RoomPixels> Missile,
+    PixelVelocity<RoomPixels> SuperMissile);

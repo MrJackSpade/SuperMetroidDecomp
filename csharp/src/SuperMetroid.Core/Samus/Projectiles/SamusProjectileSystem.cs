@@ -119,7 +119,7 @@ public sealed class SamusProjectileSystem
     /// load clears Samus's shots (<see cref="RoomHandOver"/>, <see cref="LeftBeamStartFromLastShot"/>).
     /// </summary>
     internal void HandOverTo(RoomHandOver handOver) =>
-        Pool.LeftBeamStart.HandOverTo(handOver, [.. Pool.Shots.Select(shot => shot.IsOccupied ? shot.Position.X.Fraction : (int?)null)]);
+        Pool.LeftBeamStart.HandOverTo(handOver, [.. Pool.Shots.Select(shot => shot.IsOccupied ? shot.Position.X.FractionOfPixel : (PixelFraction?)null)]);
 
     /// <summary>How many places Samus's shot pool has: how many ordinary shots she can have out at once; bombs have their own places.</summary>
     public const int PlaceCount = 5;

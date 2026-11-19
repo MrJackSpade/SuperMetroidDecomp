@@ -106,14 +106,14 @@ internal sealed class EnemyTerrain
             int aligned = TerrainScanEdges.Edge(RoomGridConversions.BlockEnd(targetEdge) + place.Radius.X + 1);
             if (aligned <= place.Position.X.Whole)
                 place.Position = place.Position.WithWholeX(aligned);
-            place.Position = place.Position.WithFractionX(0);
+            place.Position = place.Position.WithFractionX(PixelFraction.None);
         }
         else
         {
             int aligned = TerrainScanEdges.Edge(RoomGridConversions.BlockStart(targetEdge) - place.Radius.X);
             if (aligned >= place.Position.X.Whole)
                 place.Position = place.Position.WithWholeX(aligned);
-            place.Position = place.Position.WithFractionX(FixedCoordinate.LastFraction);
+            place.Position = place.Position.WithFractionX(PixelFraction.Last);
         }
         return true;
     }
@@ -163,14 +163,14 @@ internal sealed class EnemyTerrain
             int aligned = TerrainScanEdges.Edge(RoomGridConversions.BlockEnd(targetEdge) + place.Radius.Y + 1);
             if (aligned <= place.Position.Y.Whole)
                 place.Position = place.Position.WithWholeY(aligned);
-            place.Position = place.Position.WithFractionY(0);
+            place.Position = place.Position.WithFractionY(PixelFraction.None);
         }
         else
         {
             int aligned = TerrainScanEdges.Edge(RoomGridConversions.BlockStart(targetEdge) - place.Radius.Y);
             if (aligned >= place.Position.Y.Whole)
                 place.Position = place.Position.WithWholeY(aligned);
-            place.Position = place.Position.WithFractionY(FixedCoordinate.LastFraction);
+            place.Position = place.Position.WithFractionY(PixelFraction.Last);
         }
         return true;
     }
@@ -518,7 +518,7 @@ internal sealed class EnemyTerrain
             if (adjustment > 0)
                 return false;
             // The vertical mover's centres keep the wrap for the reason the horizontal mover gives (#2532).
-            place.Position = place.Position.WithY(new(TerrainScanEdges.Edge(targetCenter - adjustment), 0));
+            place.Position = place.Position.WithY(FixedCoordinate.FromWhole(TerrainScanEdges.Edge(targetCenter - adjustment)));
             return true;
         }
 
@@ -528,7 +528,7 @@ internal sealed class EnemyTerrain
         int downwardAdjustment = height - bottomWithinBlock - 1;
         if (height - bottomWithinBlock != 1 && downwardAdjustment >= 0)
             return false;
-        place.Position = place.Position.WithY(new(TerrainScanEdges.Edge(targetCenter + downwardAdjustment), FixedCoordinate.LastFraction));
+        place.Position = place.Position.WithY(FixedCoordinate.FromWhole(TerrainScanEdges.Edge(targetCenter + downwardAdjustment)).WithFraction(PixelFraction.Last));
         return true;
     }
 

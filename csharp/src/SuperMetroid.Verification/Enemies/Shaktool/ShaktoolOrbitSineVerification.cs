@@ -20,7 +20,7 @@ internal static class ShaktoolOrbitSineVerification
         // The native table's index runs a quarter turn behind the angle it holds: its first 64 words are the negative
         // cosine, so word i holds the angle i + 192 within a turn.
         for (int index = 0; index < 320; index++)
-            AssertEqual(Original(index), ShaktoolOrbitDefinitions.OrbitSine.At(TrigonometryAngle.Wrapped(index + 192)), $"Original Shaktool word {index}");
+            AssertEqual(SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(Original(index)), ShaktoolOrbitDefinitions.OrbitSine.At(TrigonometryAngle.Wrapped(index + 192)), $"Original Shaktool word {index}");
         for (int angle = 0; angle < 256; angle++)
             AssertEqual(new FixedVector<RoomPixels>(
                     SixteenSixteenWords.ToDisplacement(EightEightOracle.FromWhole(Original(angle + 64))),

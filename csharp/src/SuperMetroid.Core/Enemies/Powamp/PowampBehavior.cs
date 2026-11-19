@@ -602,7 +602,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         CompassDirection direction = spike.StateOf<PowampSpikeState>().Direction;
 
-        EightEightVector<RoomPixels> acceleration = PowampMotion.SpikeAcceleration(direction);
+        PixelVelocity<RoomPixels> acceleration = PowampMotion.SpikeAcceleration(direction);
         spike.Velocity = spike.Velocity.WithX(spike.Velocity.X + acceleration.X);
         if (EnemyProjectileEngine.MoveProjectileAxis(spike, level, axis: Axis.Horizontal))
         {

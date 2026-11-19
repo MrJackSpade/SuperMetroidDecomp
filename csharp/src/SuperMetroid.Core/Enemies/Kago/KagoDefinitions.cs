@@ -37,13 +37,13 @@ internal static class KagoDefinitions
     internal static readonly RandomSampleField LandedIdleFrames = new(0, 5);
 
     /// <summary>How much faster a bug falls each unobstructed airborne update (#2339).</summary>
-    internal static SignedEightEight BugGravity { get; } = SignedEightEight.FromParts(0, 224);
+    internal static SignedEightEight BugGravity { get; } = SignedEightEight.FromPixelFraction(7, 8);
 
     /// <summary>How fast a bug jumps sideways, two pixels an update, toward the way it jumps (#2339).</summary>
-    internal static SignedEightEight BugHorizontalSpeed { get; } = SignedEightEight.FromParts(2, 0);
+    internal static SignedEightEight BugHorizontalSpeed { get; } = SignedEightEight.FromPixels(2);
 
     /// <summary>The downward speed a rising bug starts falling at when it strikes a wall or the room above: a pixel an update (#2339).</summary>
-    internal static SignedEightEight BugFallStartSpeed { get; } = SignedEightEight.FromParts(1, 0);
+    internal static SignedEightEight BugFallStartSpeed { get; } = SignedEightEight.FromPixels(1);
 
     /// <summary>How far, in pixels, a bug must be from its shell sideways before it blocks Samus's shots (#2339).</summary>
     internal const int BugBlocksShotsDistance = 23;

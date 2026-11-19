@@ -96,7 +96,7 @@ public static class SamusTerrainHazardCollision
         SamusState samus,
         int wholeDamage)
     {
-        samus.PeriodicDamage.Accumulate(new UnsignedSixteenSixteen(whole: wholeDamage, fraction: 0));
+        samus.PeriodicDamage.Accumulate(EnergyAmount.FromEnergy(wholeDamage));
         samus.InvincibilityTimer = WrappingCountdown.Start(SpikeHazardDefinitions.InvincibilityFrames);
         samus.KnockbackHold = UpdateCountdown.For(SpikeHazardDefinitions.KnockbackFrames);
 

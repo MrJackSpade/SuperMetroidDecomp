@@ -7,13 +7,13 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal static class CeresRidleyFlightDefinitions
 {
     /// <summary>The least vertical speed Ridley keeps, either way, while he moves into his fireball position: half a pixel an update.</summary>
-    internal static readonly SignedEightEight FireballMoveMinimumSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(128);
+    internal static readonly SignedEightEight FireballMoveMinimumSpeed = SignedEightEight.FromPixelFraction(1, 2);
 
     /// <summary>The upward speed his lift-off's climb gains each update: a sixteenth of a pixel an update.</summary>
-    internal static readonly SignedEightEight LiftoffClimbStep = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(16);
+    internal static readonly SignedEightEight LiftoffClimbStep = SignedEightEight.FromPixelFraction(1, 16);
 
     /// <summary>The upward speed his lift-off loses each update once it is slowing.</summary>
-    internal static readonly SignedEightEight LiftoffSlowingStep = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(20);
+    internal static readonly SignedEightEight LiftoffSlowingStep = SignedEightEight.FromPixelFraction(5, 64);
 
     /// <summary>The seek divisor of his hover and his flights into and through his fireball position: his slowest seek.</summary>
     internal const int HoverDivisor = 16;
@@ -58,7 +58,7 @@ internal static class CeresRidleyFlightDefinitions
     internal static readonly SignedEightEight SwoopSpeed = SignedEightEight.FromPixels(3);
 
     /// <summary>How his swoop's first dive turns him each update: an eighth of a step clockwise.</summary>
-    internal static readonly TurnStep SwoopDiveTurn = new(RotationAngle.FromSteps(0, 32), RotationDirection.Clockwise);
+    internal static readonly TurnStep SwoopDiveTurn = new(RotationAngle.FromStepFraction(1, 8), RotationDirection.Clockwise);
 
     /// <summary>Where his swoop's first dive aims: four steps short of straight down.</summary>
     internal static readonly RotationAngle SwoopDiveAim = RotationAngle.Zero - RotationAngle.FromSteps(4);

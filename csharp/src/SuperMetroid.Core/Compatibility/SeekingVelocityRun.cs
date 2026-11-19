@@ -31,6 +31,16 @@ internal struct SeekingVelocityRun
     /// <summary>Whether the run's next step adds one unit: after a step that crossed zero, or first toward a target the wrap reverses.</summary>
     private bool nextStepLengthened;
 
+    /// <summary>The finest step a speed takes, a 256th of a pixel an update: the unit a seek's step takes for each pixel of distance.</summary>
+    private static readonly SignedEightEight FinestStep = SignedEightEight.FromPixelFraction(1, 256);
+
+    /// <summary>
+    /// The step a seek takes for <paramref name="pixels"/> pixels of distance already divided by its inertia (#2555): the
+    /// finest step a speed takes for each pixel, as the game adds the divided distance to the velocity as it stands.
+    /// </summary>
+    /// <param name="pixels">The divided distance, zero or more pixels.</param>
+    internal static SignedEightEight StepFor(int pixels) => FinestStep * Ensure.AtLeastZero(pixels);
+
     /// <summary>Starts a run from <paramref name="start"/> toward <paramref name="target"/> from <paramref name="position"/>.</summary>
     /// <param name="start">The axis velocity before the run.</param>
     /// <param name="position">The boss's whole coordinate on the axis, as its position holds it.</param>
@@ -50,23 +60,23 @@ internal struct SeekingVelocityRun
     internal void StartFresh() => nextStepLengthened = false;
 
     /// <summary>
-    /// Raises the velocity by <paramref name="amount"/> 256ths of a pixel an update, never negative, plus the unit a
-    /// crossing left; the raise lengthens the next step when it takes the velocity from below zero to zero or above.
+    /// Raises the velocity by <paramref name="amount"/>, read without its sign as the game adds it, plus the unit a crossing
+    /// left; the raise lengthens the next step when it takes the velocity from below zero to zero or above.
     /// </summary>
-    internal void Raise(int amount)
+    internal void Raise(SignedEightEight amount)
     {
-        int raised = Velocity.UnsignedTwoHundredFiftySixthsOfPixel + Ensure.AtLeastZero(amount) + (nextStepLengthened ? 1 : 0);
+        int raised = Velocity.UnsignedTwoHundredFiftySixthsOfPixel + amount.UnsignedTwoHundredFiftySixthsOfPixel + (nextStepLengthened ? 1 : 0);
         nextStepLengthened = raised >= VelocityUnits;
         Velocity = SignedEightEight.Wrapped(raised);
     }
 
     /// <summary>
-    /// Lowers the velocity by <paramref name="amount"/> 256ths of a pixel an update, never negative, plus the unit a
+    /// Lowers the velocity by <paramref name="amount"/>, read without its sign as the game subtracts it, plus the unit a
     /// crossing left; the lowering lengthens the next step when it takes the velocity from zero or above to below zero.
     /// </summary>
-    internal void Lower(int amount)
+    internal void Lower(SignedEightEight amount)
     {
-        int lowered = Velocity.UnsignedTwoHundredFiftySixthsOfPixel - Ensure.AtLeastZero(amount) - (nextStepLengthened ? 1 : 0);
+        int lowered = Velocity.UnsignedTwoHundredFiftySixthsOfPixel - amount.UnsignedTwoHundredFiftySixthsOfPixel - (nextStepLengthened ? 1 : 0);
         nextStepLengthened = lowered < 0;
         Velocity = SignedEightEight.Wrapped(lowered);
     }

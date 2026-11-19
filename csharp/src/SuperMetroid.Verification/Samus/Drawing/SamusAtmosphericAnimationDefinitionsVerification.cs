@@ -153,7 +153,7 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
     /// <summary>Checks the periodic whole and fractional damage installed for submerged Samus in lava or acid.</summary>
     private static void VerifyProductionLiquidDamage(
         RoomFxType fxType,
-        UnsignedSixteenSixteen expected)
+        EnergyAmount expected)
     {
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {

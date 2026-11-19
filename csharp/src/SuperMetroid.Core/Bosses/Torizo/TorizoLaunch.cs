@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <param name="Offset">A launch to the right's offset from the Torizo.</param>
 /// <param name="BaseVelocity">A launch to the right's velocity, before its random displacements.</param>
 internal sealed record TorizoLaunch(
-    TorizoProjectileSegment MovingLeft, TorizoProjectileSegment MovingRight, Offset16<RoomPixels> Offset, EightEightVector<RoomPixels> BaseVelocity)
+    TorizoProjectileSegment MovingLeft, TorizoProjectileSegment MovingRight, Offset16<RoomPixels> Offset, PixelVelocity<RoomPixels> BaseVelocity)
 {
     /// <summary>The launch toward <paramref name="direction"/>.</summary>
     internal TorizoRandomizedProjectileDefinition Toward(HorizontalDirection direction) => direction == HorizontalDirection.Right

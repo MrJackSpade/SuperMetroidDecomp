@@ -25,7 +25,7 @@ internal static class CeresDestructionActorDefinitions
     /// It holds still, then slides away, its speed growing by a quarter pixel each update.</summary>
     internal static CeresDestructionActorDefinition ZebesPlanet =>
         new(CeresAnimation.ZebesPlanet,
-            CeresSpriteColouring.Zebes, SignedSixteenSixteen.Zero, false, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(64), false, false);
+            CeresSpriteColouring.Zebes, SignedSixteenSixteen.Zero, false, SignedEightEight.FromPixelFraction(1, 4), false, false);
 
     /// <summary>The PLANET ZEBES title actor, in the title's colours and playing the title's animation; it never moves.
     /// Its animation deletes it before the scene slides away, so it has no slide.</summary>

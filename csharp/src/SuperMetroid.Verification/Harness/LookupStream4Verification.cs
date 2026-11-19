@@ -1629,8 +1629,8 @@ internal static class LookupStream4Verification
         // The attack initializer adds eight pixels to the table's X before placing the shot.
         AssertEqual(new Offset16<RoomPixels>(checked((short)(8 + NativeWord(0x86b65b))), NativeWord(0x86b65d)), EyeDoorEffectDefinitions.LeftShotOrigin, "left eye-door shot origin");
         AssertEqual(new Offset16<RoomPixels>(checked((short)(8 + NativeWord(0x86b65b + 20))), NativeWord(0x86b65b + 22)), EyeDoorEffectDefinitions.RightShotOrigin, "right eye-door shot origin");
-        AssertEqual(EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(NativeWord(0x86b6b1), NativeWord(0x86b6b3)), EyeDoorEffectDefinitions.LeftSweatLaunch, "left eye-door sweat launch");
-        AssertEqual(EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(NativeWord(0x86b6b1 + 4), NativeWord(0x86b6b1 + 6)), EyeDoorEffectDefinitions.RightSweatLaunch, "right eye-door sweat launch");
+        AssertEqual(new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(NativeWord(0x86b6b1)), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(NativeWord(0x86b6b3))), EyeDoorEffectDefinitions.LeftSweatLaunch, "left eye-door sweat launch");
+        AssertEqual(new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(NativeWord(0x86b6b1 + 4)), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(NativeWord(0x86b6b1 + 6))), EyeDoorEffectDefinitions.RightSweatLaunch, "right eye-door sweat launch");
         // The fourth choice names the bottom cannon's word, $880A, which no room places and Draygon's setup disables: it fires
         // from none (#1686).
         AssertEqual(4, DraygonCannonData.FiringCannon.Field.Outcomes, "Draygon firing choices");

@@ -58,9 +58,7 @@ public static class BossAndIntroOverreadFiles
         foreach (BossAndIntroOverreadDocument.FallStep? step in steps)
         {
             BossAndIntroOverreadDocument.FallStep present = Require(step, "shell fragment step");
-            if (!IsSignedWord(present.WholePixels) || present.Fraction is < 0 or > ushort.MaxValue)
-                throw new InvalidDataException("Boss and intro overread file holds a shell fragment step outside its range.");
-            fall.Add(SignedSixteenSixteen.FromParts(present.WholePixels, present.Fraction));
+            fall.Add(SignedSixteenSixteen.FromPixels(present.Pixels));
         }
         if (fall.Count == 0)
             throw new InvalidDataException("Boss and intro overread file holds no shell fragment steps.");

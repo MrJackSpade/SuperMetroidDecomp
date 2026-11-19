@@ -153,7 +153,7 @@ internal sealed class DoorOpeningScrollState
     public void PlaceSamusOnElevator(Position16<RoomPixels> position) =>
         SamusPosition = new FixedPosition<RoomPixels>(
             SamusPosition.X.WithWhole(position.X),
-            new FixedCoordinate(position.Y, 0));
+            FixedCoordinate.FromWhole(position.Y));
 
     /// <summary>
     /// Snaps the camera to the door's destination after the final directional step has

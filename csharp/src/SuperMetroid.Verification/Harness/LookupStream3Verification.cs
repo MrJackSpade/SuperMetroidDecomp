@@ -869,7 +869,7 @@ internal static class LookupStream3Verification
         // head's orientation chooses (#2284).
         for (int bucket = 0; bucket <= 224; bucket += 32)
         {
-            CompassDirection aim = new Bearing(bucket).DirectionOfEighth();
+            CompassDirection aim = AimAngleConstants.FromClockwiseSteps(bucket).DirectionOfEighth();
             AssertEqual(ShaktoolNativeListAddresses.AimedSpritemap(CartridgeImportSource.Require(rom), bucket),
                 SuperMetroid.Core.Enemies.Shaktool.Artwork.ShaktoolFrameToolingDefinitions.Spritemap(ShaktoolHeadPictures.Aiming(aim)),
                 "stream 3 native Shaktool orientation picture");

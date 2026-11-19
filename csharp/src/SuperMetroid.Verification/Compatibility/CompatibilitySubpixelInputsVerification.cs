@@ -18,28 +18,23 @@ internal static class CompatibilitySubpixelInputsVerification
         var checkpoint = FixedPosition<RoomPixels>.FromStoredParts(10, 0x1234, 20, 0x5678);
 
         var complete = new RainbowBeamCameraCheckpoint();
-        complete.HideHorizontalMovement(last);
-        complete.HideVerticalMovement(last);
+        complete.HideHorizontalMovement(PixelFraction.Last);
+        complete.HideVerticalMovement(PixelFraction.Last);
         AssertEqual(FixedPosition<RoomPixels>.FromStoredParts(10, last, 20, last), complete.Consume(checkpoint),
             "a complete hide takes the last fraction whole");
         var coarse = new RainbowBeamCameraCheckpoint();
-        coarse.HideCoarseHorizontalMovement(last);
-        coarse.HideCoarseVerticalMovement(last);
+        coarse.HideCoarseHorizontalMovement(PixelFraction.Last);
+        coarse.HideCoarseVerticalMovement(PixelFraction.Last);
         AssertEqual(FixedPosition<RoomPixels>.FromStoredParts(10, 0xff34, 20, 0xff78), coarse.Consume(checkpoint),
             "a coarse hide of the last fraction replaces only its coarse part");
-        var refused = new RainbowBeamCameraCheckpoint();
-        AssertThrows<ArgumentOutOfRangeException>(() => refused.HideHorizontalMovement(last + 1), "a complete hide past the last fraction");
-        AssertThrows<ArgumentOutOfRangeException>(() => refused.HideCoarseVerticalMovement(last + 1), "a coarse hide past the last fraction");
-        AssertThrows<ArgumentOutOfRangeException>(() => refused.HideVerticalMovement(-1), "a complete hide below zero");
-        AssertEqual(checkpoint, refused.Consume(checkpoint), "refused hides leave the record as it was");
+        // The hide takes a typed fraction of a pixel (#2555), which holds no value past the last; with no hide the record stays.
+        AssertEqual(checkpoint, new RainbowBeamCameraCheckpoint().Consume(checkpoint), "no hide leaves the record as it was");
 
         var handOver = new RoomHandOver();
-        handOver.LeaveShots([0, last]);
-        AssertEqual(0, handOver.ShotHorizontalFraction(0), "a shot place hands over a zero fraction");
-        AssertEqual(last, handOver.ShotHorizontalFraction(1), "a shot place hands over the last fraction");
-        AssertThrows<ArgumentOutOfRangeException>(() => handOver.LeaveShots([last + 1]), "a shot fraction past the last");
-        AssertThrows<ArgumentOutOfRangeException>(() => handOver.LeaveShots([-1]), "a negative shot fraction");
-        AssertEqual(last, handOver.ShotHorizontalFraction(1), "a refused hand-over keeps what the room before left");
+        // The hand-over takes typed fractions of a pixel (#2555), which hold no value past the last or below none.
+        handOver.LeaveShots([PixelFraction.None, PixelFraction.Last]);
+        AssertEqual(PixelFraction.None, handOver.ShotHorizontalFraction(0), "a shot place hands over a zero fraction");
+        AssertEqual(PixelFraction.Last, handOver.ShotHorizontalFraction(1), "a shot place hands over the last fraction");
 
         var carryover = new RoomMainHandOvers().ElevatubeFraction;
         carryover.Leave(last);

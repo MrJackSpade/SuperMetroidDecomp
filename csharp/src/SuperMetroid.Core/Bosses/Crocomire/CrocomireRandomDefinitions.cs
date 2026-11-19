@@ -24,8 +24,12 @@ internal static class CrocomireRandomDefinitions
     /// </summary>
     internal static readonly RandomSampleField AcidSmokeRise = new(8, 5);
 
-    /// <summary>The spread of a crumbling bridge fragment's starting fall speed added to its slowest: 0 through 63, in 256ths of a pixel an update.</summary>
-    internal static readonly RandomSampleField BridgeFragmentFallSpeedSpread = new(0, 6);
+    /// <summary>
+    /// A crumbling bridge fragment's starting fall speed: its slowest, raised by up to sixty-three of the finest steps a
+    /// speed takes, a 256th of a pixel an update each.
+    /// </summary>
+    internal static readonly RandomSpeed BridgeFragmentFallSpeed =
+        new(new(0, 6), CrocomireBridgeFragmentDefinitions.SlowestFall, SignedEightEight.FromPixelFraction(1, 256));
 
     /// <summary>A foot dust puff's jitter to the right of its offset, 0 through 7 pixels.</summary>
     internal static readonly RandomSampleField DustJitter = new(0, 3);

@@ -4,5 +4,5 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal static class RidleyFlightDefinitions
 {
     /// <summary>How far the swoop speed moves toward its target each update: an eighth of a pixel an update.</summary>
-    internal static readonly SignedEightEight SwoopSpeedStep = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32);
+    internal static readonly SignedEightEight SwoopSpeedStep = SignedEightEight.FromPixelFraction(1, 8);
 }

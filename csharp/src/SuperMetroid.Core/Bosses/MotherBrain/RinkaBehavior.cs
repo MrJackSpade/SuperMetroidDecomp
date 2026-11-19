@@ -188,8 +188,8 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                 place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
                 place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
 
-                TrigonometryAngle velocityAngle = EnemyMath.CalculateBearing(
-                    new(DistanceAcrossRoomEdge.Apart(samus.Position.X.Whole, place.Position.X.Whole), DistanceAcrossRoomEdge.Apart(samus.Position.Y.Whole, place.Position.Y.Whole))).ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
+                TrigonometryAngle velocityAngle = EnemyMath.CalculateAimAngle(
+                    new(DistanceAcrossRoomEdge.Apart(samus.Position.X.Whole, place.Position.X.Whole), DistanceAcrossRoomEdge.Apart(samus.Position.Y.Whole, place.Position.Y.Whole))).TurnedBy(TrigonometryAngle.QuarterTurn);
                 state.Velocity = new(
                     EnemyMath.SineSpeed(RinkaLifeDefinitions.Speed, velocityAngle),
                     EnemyMath.SineSpeed(
@@ -198,7 +198,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case RinkaAction.Flying:
-                place.Position = place.Position.Advance(state.Velocity.ToSixteenSixteen());
+                place.Position = place.Position.Advance(state.Velocity.ToDisplacement());
                 if (RinkaIsOutsideFlightWindow(place))
                     RecycleRinkaAfterLeavingViewport(place, state);
                 return;

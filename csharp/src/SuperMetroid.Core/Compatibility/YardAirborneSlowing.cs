@@ -24,7 +24,7 @@ namespace SuperMetroid.Core.Compatibility;
 internal static class YardAirborneSlowing
 {
     /// <summary>The slowing each update takes from the Yard's sideways speed: a sixteenth of a pixel an update.</summary>
-    private static readonly SignedSixteenSixteen Slowing = SignedSixteenSixteen.FromSixteenthsOfPixel(1);
+    private static readonly SignedSixteenSixteen Slowing = SignedSixteenSixteen.FromPixelFraction(1, 16);
 
     /// <summary>The sideways speed a Yard in the air flies at after one update's slowing of <paramref name="speed"/>.</summary>
     /// <param name="speed">The sideways speed the Yard flies at before the update's slowing.</param>

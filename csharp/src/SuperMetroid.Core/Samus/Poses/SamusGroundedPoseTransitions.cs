@@ -177,7 +177,7 @@ internal static class SamusGroundedPoseTransitions
                 return SelectRanIntoWallPose(target);
         }
 
-        SignedSixteenSixteen onePixelForward = SignedSixteenSixteen.FromParts(facingLeft ? -1 : 1, 0);
+        SignedSixteenSixteen onePixelForward = SignedSixteenSixteen.FromWholePixels(facingLeft ? -1 : 1);
         onePixelProbe = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = onePixelForward, AlignToSlopeAfterMovement = false });
         return onePixelProbe.Value.Collided
             ? SelectRanIntoWallPose(target)

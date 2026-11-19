@@ -12,14 +12,14 @@ public sealed class SamusPeriodicDamage
     /// The periodic damage accumulated and not yet applied, in whole energy and its fraction: <see cref="Apply"/> applies and
     /// clears it once an update, so it holds no more than one update's contributions.
     /// </summary>
-    public UnsignedSixteenSixteen Pending { get; private set; }
+    public EnergyAmount Pending { get; private set; }
 
     /// <summary>Adds one periodic-damage contribution, in whole energy and its fraction.</summary>
     /// <remarks>
     /// Liquid, block and enemy damage all add to one amount, so fractions that together pass a whole energy add one to
     /// the whole damage.
     /// </remarks>
-    public void Accumulate(UnsignedSixteenSixteen damage) => Pending += damage;
+    public void Accumulate(EnergyAmount damage) => Pending += damage;
 
     /// <summary>
     /// Applies the accumulated damage to Samus: the suit's periodic division (<see cref="SamusSuitDamage.ReducePeriodic"/>),
@@ -35,12 +35,12 @@ public sealed class SamusPeriodicDamage
             return;
         }
 
-        UnsignedSixteenSixteen applied = SamusSuitDamage.ReducePeriodic(Pending, samus.EquippedItems);
+        EnergyAmount applied = SamusSuitDamage.ReducePeriodic(Pending, samus.EquippedItems);
 
         // The game stops with a crash when the whole damage is so large it reads as below zero.
         // Reachable environmental rates never do this; throwing retains the overflow guard instead of converting it
         // into plausible damage.
-        if (WrappingCounter.ReadsBelowZero(applied.Whole))
+        if (WrappingCounter.ReadsBelowZero(applied.WholeEnergy))
             throw new InvalidDataException("Periodic whole damage grew so large that the game reads it as below zero and crashes.");
 
         samus.TakeFractionalEnergyDamage(applied);

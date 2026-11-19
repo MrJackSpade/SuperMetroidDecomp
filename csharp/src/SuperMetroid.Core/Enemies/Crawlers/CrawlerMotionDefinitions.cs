@@ -10,7 +10,7 @@ internal static class CrawlerMotionDefinitions
     internal const int ProbeMargin = 1;
 
     /// <summary>The speed a falling crawler gains each update: half a pixel per update.</summary>
-    internal static readonly SignedSixteenSixteen FallingGravity = SignedSixteenSixteen.FromSixteenthsOfPixel(8);
+    internal static readonly SignedSixteenSixteen FallingGravity = SignedSixteenSixteen.FromPixelFraction(1, 2);
 
     /// <summary>The falling speed, four pixels per update downward, from which a falling crawler stops falling faster.</summary>
     internal static readonly SignedSixteenSixteen FallingSpeedCap = SignedSixteenSixteen.FromWholePixels(4);
@@ -18,6 +18,6 @@ internal static class CrawlerMotionDefinitions
     /// <summary>
     /// The crawl speed, half a pixel per update on each axis, a crawler placed without one takes after its first landing.
     /// </summary>
-    internal static readonly EightEightVector<RoomPixels> DefaultCrawlSpeed =
-        new(SignedEightEight.FromParts(0, 128), SignedEightEight.FromParts(0, 128));
+    internal static readonly PixelVelocity<RoomPixels> DefaultCrawlSpeed =
+        new(SignedEightEight.FromPixelFraction(1, 2), SignedEightEight.FromPixelFraction(1, 2));
 }

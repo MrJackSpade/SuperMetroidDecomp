@@ -57,58 +57,58 @@ public static class FileSelectMapDefinitions
     /// </summary>
     internal static FileSelectMapWindowMotion CrateriaReveal { get; } = new(
         MovingUpdates: 52,
-        Left: SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(-452),
-        Right: SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(820),
-        Top: SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(-248),
-        Bottom: SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(1024));
+        Left: SignedSixteenSixteen.FromPixelFraction(-113, 64),
+        Right: SignedSixteenSixteen.FromPixelFraction(205, 64),
+        Top: SignedSixteenSixteen.FromPixelFraction(-31, 32),
+        Bottom: SignedSixteenSixteen.FromWholePixels(4));
 
     /// <summary>
     /// Brinstar's reveal: its four edges move outward on 54 updates, each at its own speed per update.
     /// </summary>
     internal static FileSelectMapWindowMotion BrinstarReveal { get; } = new(
         MovingUpdates: 54,
-        Left: SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(-200),
-        Right: SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(1024),
-        Top: SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(-604),
-        Bottom: SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(616));
+        Left: SignedSixteenSixteen.FromPixelFraction(-25, 32),
+        Right: SignedSixteenSixteen.FromWholePixels(4),
+        Top: SignedSixteenSixteen.FromPixelFraction(-151, 64),
+        Bottom: SignedSixteenSixteen.FromPixelFraction(77, 32));
 
     /// <summary>
     /// Norfair's reveal: its four edges move outward on 46 updates, each at its own speed per update.
     /// </summary>
     internal static FileSelectMapWindowMotion NorfairReveal { get; } = new(
         MovingUpdates: 46,
-        Left: SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(-528),
-        Right: SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(916),
-        Top: SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(-1024),
-        Bottom: SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(424));
+        Left: SignedSixteenSixteen.FromPixelFraction(-33, 16),
+        Right: SignedSixteenSixteen.FromPixelFraction(229, 64),
+        Top: SignedSixteenSixteen.FromWholePixels(-4),
+        Bottom: SignedSixteenSixteen.FromPixelFraction(53, 32));
 
     /// <summary>
     /// Wrecked Ship's reveal: its four edges move outward on 52 updates, each at its own speed per update.
     /// </summary>
     internal static FileSelectMapWindowMotion WreckedShipReveal { get; } = new(
         MovingUpdates: 52,
-        Left: SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(-1024),
-        Right: SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(248),
-        Top: SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(-396),
-        Bottom: SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(872));
+        Left: SignedSixteenSixteen.FromWholePixels(-4),
+        Right: SignedSixteenSixteen.FromPixelFraction(31, 32),
+        Top: SignedSixteenSixteen.FromPixelFraction(-99, 64),
+        Bottom: SignedSixteenSixteen.FromPixelFraction(109, 32));
 
     /// <summary>
     /// Maridia's reveal: its four edges move outward on 52 updates, each at its own speed per update.
     /// </summary>
     internal static FileSelectMapWindowMotion MaridiaReveal { get; } = new(
         MovingUpdates: 52,
-        Left: SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(-1024),
-        Right: SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(248),
-        Top: SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(-788),
-        Bottom: SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(480));
+        Left: SignedSixteenSixteen.FromWholePixels(-4),
+        Right: SignedSixteenSixteen.FromPixelFraction(31, 32),
+        Top: SignedSixteenSixteen.FromPixelFraction(-197, 64),
+        Bottom: SignedSixteenSixteen.FromPixelFraction(15, 8));
 
     /// <summary>
     /// Tourian's reveal: its four edges move outward on 35 updates, each at its own speed per update.
     /// </summary>
     internal static FileSelectMapWindowMotion TourianReveal { get; } = new(
         MovingUpdates: 35,
-        Left: SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(-992),
-        Right: SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(888),
-        Top: SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(-1024),
-        Bottom: SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(860));
+        Left: SignedSixteenSixteen.FromPixelFraction(-31, 8),
+        Right: SignedSixteenSixteen.FromPixelFraction(111, 32),
+        Top: SignedSixteenSixteen.FromWholePixels(-4),
+        Bottom: SignedSixteenSixteen.FromPixelFraction(215, 64));
 }

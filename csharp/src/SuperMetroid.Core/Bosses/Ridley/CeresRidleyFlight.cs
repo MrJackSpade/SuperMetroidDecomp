@@ -310,7 +310,7 @@ internal sealed class CeresRidleyFlight
         // The retreat places the two wall actors before the getaway begins. The getaway scene shows the chamber's walls
         // itself (#1545); the actors draw nothing, but they take two enemy places.
         SpawnCeresRidleyGetawayWalls();
-        state.Flight.Velocity = EightEightVector<RoomPixels>.Zero;
+        state.Flight.Velocity = PixelVelocity<RoomPixels>.Zero;
         state.Tail.Action = RidleyTailAction.None;
         state.Phase = CeresRidleyPhase.PublishEscapeHandoff;
 
@@ -343,7 +343,7 @@ internal sealed class CeresRidleyFlight
 
         Position16<RoomPixels> at = place.Position.Whole;
         Offset16<RoomPixels> fromTarget = at - target;
-        flight.Velocity = new EightEightVector<RoomPixels>(
+        flight.Velocity = new PixelVelocity<RoomPixels>(
             AccelerateAxis(new SeekingVelocityRun(flight.Velocity.X, at.X, target.X), fromTarget.X, divisor),
             AccelerateAxis(new SeekingVelocityRun(flight.Velocity.Y, at.Y, target.Y), fromTarget.Y, divisor));
     }
@@ -363,7 +363,7 @@ internal sealed class CeresRidleyFlight
         if (difference == 0)
             return velocity;
         // The distance divided by the inertia, at most 32768; a step that divides to zero is raised to one.
-        int step = Math.Max(1, Math.Abs(difference) / divisor);
+        SignedEightEight step = SeekingVelocityRun.StepFor(Math.Max(1, Math.Abs(difference) / divisor));
 
         if (difference < 0)
         {

@@ -420,7 +420,7 @@ internal sealed class ProjectileTerrainCollision
     /// The horizontal velocity a shot fired straight left starts its first block scan with: the smallest leftward
     /// velocity there is, so the scan samples the left radius.
     /// </summary>
-    private static readonly SignedEightEight LeftScanVelocity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1);
+    private static readonly SignedEightEight LeftScanVelocity = SignedEightEight.FromPixelFraction(-1, 256);
 
     /// <summary>
     /// Kills a beam as block collision does: the

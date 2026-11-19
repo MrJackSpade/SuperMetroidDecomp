@@ -72,7 +72,7 @@ public sealed class SamusProjectile
     /// <summary>Room position, to a fraction of a pixel.</summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
     /// <summary>Velocity in pixels per update.</summary>
-    public EightEightVector<RoomPixels> Velocity { get; internal set; }
+    public PixelVelocity<RoomPixels> Velocity { get; internal set; }
     /// <summary>Collision half-extents in pixels.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }
     /// <summary>
@@ -197,7 +197,7 @@ public sealed class SamusProjectile
         Direction = default;
         IsSpent = false;
         Position = FixedPosition<RoomPixels>.Zero;
-        Velocity = default(EightEightVector<RoomPixels>);
+        Velocity = default(PixelVelocity<RoomPixels>);
         Radius = Extent16<RoomPixels>.Zero;
         Animation = null;
         Sprite = null;

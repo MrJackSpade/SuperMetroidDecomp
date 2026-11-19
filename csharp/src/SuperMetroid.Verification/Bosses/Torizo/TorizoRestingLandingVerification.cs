@@ -31,7 +31,7 @@ internal static class TorizoRestingLandingVerification
 
         // A falling Torizo lands once: the quake starts on the update it meets the floor, and it then rests.
         (RoomEnemySystem falling, RoomEnemyPlace place, TorizoEnemyState state) = NewTorizo(AboveFloor);
-        state.Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 1024);
+        state.Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1024));
         int updates = 0;
         while (falling.Earthquake.RemainingFrames == 0)
         {
@@ -70,7 +70,7 @@ internal static class TorizoRestingLandingVerification
         (RoomEnemySystem leaping, RoomEnemyPlace leapingPlace, TorizoEnemyState leapingState) = NewTorizo(AboveFloor);
         leapingState.Motion = TorizoBodyMotion.Leaping;
         leapingState.Landing = TorizoAnimation.FacingLeftLanding;
-        leapingState.Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 1024);
+        leapingState.Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1024));
         leapingState.JumpAcceleration = TorizoMotionDefinitions.LeapGravity;
         updates = 0;
         while (leaping.Earthquake.RemainingFrames == 0)
@@ -84,10 +84,10 @@ internal static class TorizoRestingLandingVerification
         // A walk off a ledge starts the fall at the resting speed with no sideways speed.
         (RoomEnemySystem walking, RoomEnemyPlace walkingPlace, TorizoEnemyState walkingState) = NewTorizo(AboveFloor);
         walkingState.Motion = TorizoBodyMotion.Walking;
-        walkingState.Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-256, 1024);
+        walkingState.Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-256), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1024));
         walking.TorizoBehavior.Movement.MoveBody(walkingPlace, walkingState, CreateEmptyRoom(new(16, 16)));
         AssertTrue(walkingState.FallsAtRestingSpeed, "a walk off a ledge starts the fall resting");
-        AssertEqual(EightEightVector<RoomPixels>.Zero.WithY(TorizoMotionDefinitions.RestingFallSpeed), walkingState.Velocity,
+        AssertEqual(PixelVelocity<RoomPixels>.Zero.WithY(TorizoMotionDefinitions.RestingFallSpeed), walkingState.Velocity,
             "a walk off a ledge starts the fall at the resting speed");
 
         Console.WriteLine($"Torizo resting landing: a fall lands once with a {TorizoMotionDefinitions.LandingQuakeUpdates}-update quake and rests on the floor without another; leaps and walks rest it until its vertical speed changes.");

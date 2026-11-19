@@ -21,12 +21,12 @@ internal static class IntroEggMotionDefinitions
     internal static readonly IReadOnlyDictionary<IntroEggShellFragment, SignedSixteenSixteen> FragmentXVelocities =
         new Dictionary<IntroEggShellFragment, SignedSixteenSixteen>
         {
-            [IntroEggShellFragment.UpperLeft] = SignedSixteenSixteen.FromSixteenthsOfPixel(-12),
-            [IntroEggShellFragment.UpperRight] = SignedSixteenSixteen.FromSixteenthsOfPixel(4),
-            [IntroEggShellFragment.Left] = SignedSixteenSixteen.FromSixteenthsOfPixel(-8),
-            [IntroEggShellFragment.Centre] = SignedSixteenSixteen.FromSixteenthsOfPixel(-14),
-            [IntroEggShellFragment.Right] = SignedSixteenSixteen.FromSixteenthsOfPixel(8),
-            [IntroEggShellFragment.Lower] = SignedSixteenSixteen.FromSixteenthsOfPixel(2),
+            [IntroEggShellFragment.UpperLeft] = SignedSixteenSixteen.FromPixelFraction(-3, 4),
+            [IntroEggShellFragment.UpperRight] = SignedSixteenSixteen.FromPixelFraction(1, 4),
+            [IntroEggShellFragment.Left] = SignedSixteenSixteen.FromPixelFraction(-1, 2),
+            [IntroEggShellFragment.Centre] = SignedSixteenSixteen.FromPixelFraction(-7, 8),
+            [IntroEggShellFragment.Right] = SignedSixteenSixteen.FromPixelFraction(1, 2),
+            [IntroEggShellFragment.Lower] = SignedSixteenSixteen.FromPixelFraction(1, 8),
         };
 
     /// <summary>
@@ -45,19 +45,31 @@ internal static class IntroEggMotionDefinitions
     internal const int FragmentFloorY = 168;
 
     /// <summary>
-    /// The rise of the shell pieces and the shallower slime drops, in sixteenths of a pixel an update: two spells of seven
-    /// updates, two pixels an update upward then one, each spell's later updates slowing from three quarters of a pixel
-    /// less than its first.
+    /// The rise of the shell pieces and the shallower slime drops, each update's speed: two spells of seven updates, two
+    /// pixels an update upward then one, each spell's later updates three quarters of a pixel slower than its first and
+    /// then an eighth of a pixel faster each update.
     /// </summary>
     private static ImmutableArray<SignedSixteenSixteen> TwoSpellRise { get; } =
-        [.. new[] { -32, -20, -22, -24, -26, -28, -30, -16, -4, -6, -8, -10, -12, -14 }.Select(SignedSixteenSixteen.FromSixteenthsOfPixel)];
+    [
+        SignedSixteenSixteen.FromWholePixels(-2), SignedSixteenSixteen.FromPixelFraction(-5, 4), SignedSixteenSixteen.FromPixelFraction(-11, 8),
+        SignedSixteenSixteen.FromPixelFraction(-3, 2), SignedSixteenSixteen.FromPixelFraction(-13, 8), SignedSixteenSixteen.FromPixelFraction(-7, 4),
+        SignedSixteenSixteen.FromPixelFraction(-15, 8),
+        SignedSixteenSixteen.FromWholePixels(-1), SignedSixteenSixteen.FromPixelFraction(-1, 4), SignedSixteenSixteen.FromPixelFraction(-3, 8),
+        SignedSixteenSixteen.FromPixelFraction(-1, 2), SignedSixteenSixteen.FromPixelFraction(-5, 8), SignedSixteenSixteen.FromPixelFraction(-3, 4),
+        SignedSixteenSixteen.FromPixelFraction(-7, 8),
+    ];
 
     /// <summary>
-    /// The rise of the steeper slime drops, in sixteenths of a pixel an update: a spell three pixels an update upward
-    /// before <see cref="TwoSpellRise"/>'s two.
+    /// The rise of the steeper slime drops, each update's speed: a spell three pixels an update upward, shaped as
+    /// <see cref="TwoSpellRise"/>'s are, before its two.
     /// </summary>
     private static ImmutableArray<SignedSixteenSixteen> ThreeSpellRise { get; } =
-        [.. new[] { -48, -36, -38, -40, -42, -44, -46 }.Select(SignedSixteenSixteen.FromSixteenthsOfPixel), .. TwoSpellRise];
+    [
+        SignedSixteenSixteen.FromWholePixels(-3), SignedSixteenSixteen.FromPixelFraction(-9, 4), SignedSixteenSixteen.FromPixelFraction(-19, 8),
+        SignedSixteenSixteen.FromPixelFraction(-5, 2), SignedSixteenSixteen.FromPixelFraction(-21, 8), SignedSixteenSixteen.FromPixelFraction(-11, 4),
+        SignedSixteenSixteen.FromPixelFraction(-23, 8),
+        .. TwoSpellRise,
+    ];
 
     /// <summary>How every piece of the shell flies: two spells rising, then falling.</summary>
     internal static IntroEggFallCurve ShellFall { get; } = new(TwoSpellRise, Updates: FragmentCurveFrames);
@@ -74,9 +86,9 @@ internal static class IntroEggMotionDefinitions
     /// </summary>
     internal static IReadOnlyList<IntroEggSlimeLaunch> SlimeLaunches { get; } =
     [
-        new(SignedSixteenSixteen.FromSixteenthsOfPixel(-16), SteepSlimeFall),
-        new(SignedSixteenSixteen.FromSixteenthsOfPixel(-8), ShallowSlimeFall),
-        new(SignedSixteenSixteen.FromSixteenthsOfPixel(16), SteepSlimeFall),
-        new(SignedSixteenSixteen.FromSixteenthsOfPixel(8), ShallowSlimeFall),
+        new(SignedSixteenSixteen.FromWholePixels(-1), SteepSlimeFall),
+        new(SignedSixteenSixteen.FromPixelFraction(-1, 2), ShallowSlimeFall),
+        new(SignedSixteenSixteen.FromWholePixels(1), SteepSlimeFall),
+        new(SignedSixteenSixteen.FromPixelFraction(1, 2), ShallowSlimeFall),
     ];
 }

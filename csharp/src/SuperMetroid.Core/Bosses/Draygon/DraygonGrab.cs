@@ -271,7 +271,7 @@ internal sealed class DraygonGrab
         Position16<RoomPixels> target,
         int speed)
     {
-        DraygonMovement.MoveDraygonAtAngle(body, EnemyMath.CalculateBearing(target - body.Position.Whole).ToTrigonometryAngle(), speed);
+        DraygonMovement.MoveDraygonAtAngle(body, EnemyMath.CalculateAimAngle(target - body.Position.Whole), speed);
     }
 
     /// <summary>Recognizes grapple phases that let Samus electrocute a connected Draygon.</summary>

@@ -43,7 +43,7 @@ internal sealed class RidleyBodyAnimation
     }
 
     /// <summary>The speed Ridley starts rising at as he lifts off: a pixel and three eighths an update.</summary>
-    private static readonly SignedEightEight LiftoffRise = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-352);
+    private static readonly SignedEightEight LiftoffRise = SignedEightEight.FromPixelFraction(-11, 8);
 
     /// <summary>Carries out one cue of Ridley's body animation, returning the segment whose animation a continue-at cue continues in.</summary>
     /// <param name="place">Ridley's body.</param>

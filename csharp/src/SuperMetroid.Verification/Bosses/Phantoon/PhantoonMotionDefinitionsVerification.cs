@@ -12,7 +12,7 @@ internal static class PhantoonMotionDefinitionsVerification
     {
         // Each definition is the signed value the cartridge's word holds; every unsigned one is below $8000.
         // The cartridge keeps each speed change as its fraction's word and its whole word, once for each direction (#1936).
-        SignedSixteenSixteen slow = PhantoonMotionDefinitions.SlowSpeedChange, fast = PhantoonMotionDefinitions.FastSpeedChange;
+        PhantoonPathSpeed slow = PhantoonMotionDefinitions.SlowSpeedChange, fast = PhantoonMotionDefinitions.FastSpeedChange;
         int[] definitions = [slow.Fraction, slow.WholePixels,
             fast.Fraction, fast.WholePixels,
             PhantoonMotionDefinitions.ForwardSlowCap, PhantoonMotionDefinitions.ForwardFastCap,
@@ -43,7 +43,7 @@ internal static class PhantoonMotionDefinitionsVerification
             // Every whole speed the figure-eight reaches, with a margin: its caps keep it within seven entries of rest.
             for (int whole = -16; whole <= 16; whole++)
             {
-                words.Speed = SignedSixteenSixteen.FromParts(whole, fraction);
+                words.Speed = new PhantoonPathSpeed(SignedSixteenSixteen.FromParts(whole, fraction));
                 words.Stage = SuperMetroid.TestSupport.MovieReplay.PhantoonFigureEightStageWords.Decode(phase);
                 (ushort low, ushort high, ushort next) = Expected(fraction, unchecked((ushort)whole), phase, backwards);
                 (backwards ? reverse : forward)(words);
@@ -56,7 +56,7 @@ internal static class PhantoonMotionDefinitionsVerification
         foreach (bool backwards in new[] { false, true })
         {
             // A pass from rest runs the stages in their order and returns to its start, as the cartridge's phase word does.
-            var body = new PhantoonFigureEightState { Speed = SignedSixteenSixteen.FromParts(backwards ? 0 : 1, 0) };
+            var body = new PhantoonFigureEightState { Speed = PhantoonPathSpeed.FromPlaces(backwards ? 0 : 1) };
             var stages = new List<PhantoonFigureEightStage> { body.Stage };
             while (stages.Count < 4)
             {

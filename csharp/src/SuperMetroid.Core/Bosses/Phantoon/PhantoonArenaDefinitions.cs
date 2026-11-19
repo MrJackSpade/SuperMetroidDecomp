@@ -26,7 +26,7 @@ internal static class PhantoonArenaDefinitions
     internal static readonly SignedEightEight CasualRiseSpeed = SignedEightEight.FromPixels(-3);
 
     /// <summary>The sideways speed a rising casual flame drifts at, left or right: half a pixel an update.</summary>
-    internal static readonly SignedEightEight CasualDriftSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(128);
+    internal static readonly SignedEightEight CasualDriftSpeed = SignedEightEight.FromPixelFraction(1, 2);
 
     /// <summary>The floor strikes after which a bouncing casual flame comes to rest.</summary>
     internal const int CasualBounces = 3;

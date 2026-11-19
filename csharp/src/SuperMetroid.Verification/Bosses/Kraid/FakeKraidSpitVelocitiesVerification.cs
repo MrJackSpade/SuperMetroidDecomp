@@ -17,7 +17,7 @@ internal static class FakeKraidSpitVelocitiesVerification
 
     /// <summary>Checks one velocity field against bank-$A6 words and rejects a shot that is neither of the two.</summary>
     private static void VerifyFakeKraidSpitVelocityField(
-        CartridgeImportAddressSpace rom, int fieldOffset, Func<EightEightVector<RoomPixels>, ushort> select)
+        CartridgeImportAddressSpace rom, int fieldOffset, Func<PixelVelocity<RoomPixels>, ushort> select)
     {
         foreach (bool right in new[] { false, true })
         {

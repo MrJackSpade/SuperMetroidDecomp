@@ -104,11 +104,11 @@ internal static class ShitroidFightDefinitions
     /// <summary>The divisor its drain holds Samus's horizontal speed to.</summary>
     internal const int DrainXSpeedDivisor = 2;
 
-    /// <summary>The fall speed, in whole pixels an update, from which its drain slows Samus's fall.</summary>
-    internal const int DrainFallSpeedLimit = 4;
+    /// <summary>The fall speed from which its drain slows Samus's fall: four pixels an update.</summary>
+    internal static readonly UnsignedSixteenSixteen DrainFallSpeedLimit = UnsignedSixteenSixteen.FromWholePixels(4);
 
-    /// <summary>The fall speed, in whole pixels an update, its drain slows Samus's fall to.</summary>
-    internal const int DrainFallSpeed = 2;
+    /// <summary>The fall speed its drain slows Samus's fall to: two pixels an update.</summary>
+    internal static readonly UnsignedSixteenSixteen DrainFallSpeed = UnsignedSixteenSixteen.FromWholePixels(2);
 
     /// <summary>How far above Samus it shakes as it drains her.</summary>
     internal const int DrainAboveSamus = -20;
@@ -119,11 +119,11 @@ internal static class ShitroidFightDefinitions
     /// <summary>The energy its drain takes each update from Samus without the Varia Suit.</summary>
     internal const int DrainWithoutVaria = 4;
 
-    /// <summary>A shot's recoil on it in 256ths of a pixel an update, per point of the shot's damage.</summary>
-    internal const int RecoilPerDamage = 8;
+    /// <summary>A shot's recoil on it per point of the shot's damage: a thirty-second of a pixel an update.</summary>
+    internal static readonly SignedEightEight RecoilPerDamage = SignedEightEight.FromPixelFraction(1, 32);
 
-    /// <summary>The strongest recoil a shot gives it, in 256ths of a pixel an update.</summary>
-    internal const int RecoilLimit = 240;
+    /// <summary>The strongest recoil a shot gives it: fifteen sixteenths of a pixel an update.</summary>
+    internal static readonly SignedEightEight RecoilLimit = SignedEightEight.FromPixelFraction(15, 16);
 
     /// <summary>The updates each phase of its membrane's pulse shows for while it is calm.</summary>
     internal const int CalmPulsePhaseUpdates = 11;

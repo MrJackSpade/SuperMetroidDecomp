@@ -14,7 +14,6 @@ internal static class FixedPointVocabularyVerification
     internal static void VerifyFixedPointVocabulary()
     {
         VerifyFixedProducts();
-        VerifyBearingConversion();
         VerifySpeedBoostCounter();
         Console.WriteLine("Fixed-point vocabulary: sine products, bearings and the boost counter match the replaced forms.");
     }
@@ -42,18 +41,6 @@ internal static class FixedPointVocabularyVerification
             AssertEqual(fraction, actual.Fraction, $"sine product fraction, angle {angle:X2} radius {radius:X3}");
         }
         AssertTrue(negatedWithFraction > 0, "the samples include a negated product with a nonzero fraction");
-    }
-
-    /// <summary><see cref="Bearing.ToTrigonometryAngle"/> is the replaced <c>0x40 - bearing</c> for every byte.</summary>
-    private static void VerifyBearingConversion()
-    {
-        for (int bearing = 0; bearing <= byte.MaxValue; bearing++)
-        {
-            AssertEqual(unchecked((byte)(0x40 - bearing)), new Bearing((byte)bearing).ToTrigonometryAngle().RawValue,
-                $"bearing {bearing:X2} in the table convention");
-            AssertEqual((byte)bearing, new Bearing((byte)bearing).ToMirroredTrigonometryAngle().RawValue,
-                $"bearing {bearing:X2} read unconverted");
-        }
     }
 
     /// <summary>

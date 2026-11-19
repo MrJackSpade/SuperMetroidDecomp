@@ -32,16 +32,13 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("a beam fired to the left starts its muzzle check from the horizontal sub-pixel position its shot place kept from the projectile that held it when Samus's shots were last cleared")]
 public sealed class LeftBeamStartFromLastShot
 {
-    /// <summary>The steps of a fraction of a pixel in a sub-pixel position.</summary>
-    private const int FractionSteps = 65536;
-
-    /// <summary>What each place keeps for its next projectile, in place order, 0 through 65535.</summary>
-    private readonly int[] _kept;
+    /// <summary>What each place keeps for its next projectile, in place order.</summary>
+    private readonly PixelFraction[] _kept;
 
     /// <summary>Starts a pool of places that keep nothing.</summary>
     /// <param name="placeCount">The number of shot places, at least one.</param>
     public LeftBeamStartFromLastShot(int placeCount) =>
-        _kept = new int[Ensure.BetweenInclusive(1, int.MaxValue, placeCount)];
+        _kept = new PixelFraction[Ensure.BetweenInclusive(1, int.MaxValue, placeCount)];
 
     /// <summary>Each place keeps what the room this one replaces left in it (<see cref="RoomHandOver"/>).</summary>
     /// <param name="handOver">What the room before left for this one.</param>
@@ -58,10 +55,10 @@ public sealed class LeftBeamStartFromLastShot
     /// </summary>
     /// <param name="handOver">What this room leaves for the next.</param>
     /// <param name="heldFractions">
-    /// The fraction of the projectile holding each place, in place order, 0 through 65535; null for a place no projectile
-    /// holds.
+    /// The horizontal fraction of a pixel of the projectile holding each place, in place order; null for a place no
+    /// projectile holds.
     /// </param>
-    public void HandOverTo(RoomHandOver handOver, IReadOnlyList<int?> heldFractions)
+    public void HandOverTo(RoomHandOver handOver, IReadOnlyList<PixelFraction?> heldFractions)
     {
         Ensure.NotNull(handOver);
         Ensure.NotNull(heldFractions);
@@ -70,26 +67,25 @@ public sealed class LeftBeamStartFromLastShot
         handOver.LeaveShots(Enumerable.Range(0, _kept.Length).Select(place => heldFractions[place] ?? _kept[place]));
     }
 
-    /// <summary>What <paramref name="place"/> keeps for its next projectile, 0 through 65535.</summary>
-    public int Kept(int place) => _kept[place];
+    /// <summary>The horizontal fraction of a pixel <paramref name="place"/> keeps for its next projectile.</summary>
+    public PixelFraction Kept(int place) => _kept[place];
 
     /// <summary>
     /// <paramref name="place"/> keeps <paramref name="fraction"/> for its next projectile: Samus's shots are being cleared
     /// while a projectile with that sub-pixel position holds it, or a room load hands the place's fraction on.
     /// </summary>
     /// <param name="place">The zero-based shot place.</param>
-    /// <param name="fraction">The horizontal sub-pixel position, 0 through 65535.</param>
-    public void Keep(int place, int fraction) =>
-        _kept[place] = Ensure.BetweenInclusive(0, FractionSteps - 1, fraction);
+    /// <param name="fraction">The horizontal fraction of a pixel the place keeps.</param>
+    public void Keep(int place, PixelFraction fraction) => _kept[place] = fraction;
 
     /// <summary>
     /// A projectile takes <paramref name="place"/>: returns what the place kept for it, and the place keeps nothing more.
     /// </summary>
     /// <param name="place">The zero-based shot place.</param>
-    public int Start(int place)
+    public PixelFraction Start(int place)
     {
-        int fraction = _kept[place];
-        _kept[place] = 0;
+        PixelFraction fraction = _kept[place];
+        _kept[place] = PixelFraction.None;
         return fraction;
     }
 }

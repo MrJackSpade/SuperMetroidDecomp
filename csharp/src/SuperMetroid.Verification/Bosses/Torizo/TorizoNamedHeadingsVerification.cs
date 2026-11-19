@@ -37,7 +37,7 @@ internal static class TorizoNamedHeadingsVerification
     }
 
     /// <summary>The replaced expression: the signed sine and the sine a quarter turn back, each times the pixels.</summary>
-    private static EightEightVector<RoomPixels> Replaced(int pixels, TrigonometryAngle heading) =>
+    private static PixelVelocity<RoomPixels> Replaced(int pixels, TrigonometryAngle heading) =>
         new(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(pixels * Trigonometry.SignedSine(heading)),
             SignedEightEight.FromTwoHundredFiftySixthsOfPixel(pixels * Trigonometry.SignedSine(heading - TrigonometryAngle.QuarterTurn)));
 }

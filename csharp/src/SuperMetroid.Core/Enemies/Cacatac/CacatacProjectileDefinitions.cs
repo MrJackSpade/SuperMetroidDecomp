@@ -7,5 +7,5 @@ internal static class CacatacProjectileDefinitions
     internal static readonly SignedEightEight CardinalSpeed = SignedEightEight.FromPixels(2);
 
     /// <summary>The speed a diagonal spike flies at along each of its two axes: one and a half pixels per update.</summary>
-    internal static readonly SignedEightEight DiagonalSpeed = SignedEightEight.FromParts(1, 128);
+    internal static readonly SignedEightEight DiagonalSpeed = SignedEightEight.FromPixelFraction(3, 2);
 }

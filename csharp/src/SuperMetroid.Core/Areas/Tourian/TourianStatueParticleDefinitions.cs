@@ -25,7 +25,7 @@ internal static class TourianStatueParticleDefinitions
     internal const int LaunchVerticalPixels = 4;
 
     /// <summary>The downward speed a falling particle gains each update: a sixteenth of a pixel per update.</summary>
-    internal static readonly SignedEightEight Gravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(16);
+    internal static readonly SignedEightEight Gravity = SignedEightEight.FromPixelFraction(1, 16);
 
     /// <summary>How many pixels above the water surface a particle's splash sits.</summary>
     internal const int SplashHeightAboveSurface = 4;

@@ -18,13 +18,13 @@ namespace SuperMetroid.Core.Compatibility;
 public static class EvirBorrowedFirstHalfCycle
 {
     /// <summary>The slower bobbing speed the game's Evirs bob at: half a pixel an update.</summary>
-    private static readonly SignedSixteenSixteen SlowerSpeed = SignedSixteenSixteen.FromSixteenthsOfPixel(8);
+    private static readonly SignedSixteenSixteen SlowerSpeed = SignedSixteenSixteen.FromPixelFraction(1, 2);
 
     /// <summary>The zero-based place, in the room's list, of the enemy whose direction-change period a slower body halves.</summary>
     private const int SlowerLenderPlace = 1;
 
     /// <summary>The faster bobbing speed the game's Evirs bob at: three quarters of a pixel an update.</summary>
-    private static readonly SignedSixteenSixteen FasterSpeed = SignedSixteenSixteen.FromSixteenthsOfPixel(12);
+    private static readonly SignedSixteenSixteen FasterSpeed = SignedSixteenSixteen.FromPixelFraction(3, 4);
 
     /// <summary>The zero-based place, in the room's list, of the enemy whose colours a faster body reads.</summary>
     private const int FasterLenderPlace = 2;

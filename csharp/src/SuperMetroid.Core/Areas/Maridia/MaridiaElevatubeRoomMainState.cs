@@ -72,7 +72,7 @@ public sealed class MaridiaElevatubeRoomMainState
         Ensure.NotNull(samus);
 
         // Samus is held at the tube's centre every update, with no fraction of a pixel.
-        samus.Kinematics.Position = samus.Kinematics.Position.WithX(new FixedCoordinate(MaridiaElevatubeDefinitions.SamusCenterX, 0));
+        samus.Kinematics.Position = samus.Kinematics.Position.WithX(FixedCoordinate.FromWhole(MaridiaElevatubeDefinitions.SamusCenterX));
 
         SignedSixteenSixteen displacement = Velocity.ToSixteenSixteenDelta();
         TrackedY = TrackedY.MovedBy(displacement);

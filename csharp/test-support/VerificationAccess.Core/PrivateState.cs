@@ -75,6 +75,17 @@ internal static class PrivateState
         owner = (TOwner)boxed;
     }
 
+    /// <summary>
+    /// <paramref name="owner"/> with its instance property <paramref name="property"/> set: a value created in an object
+    /// initializer or <c>with</c> expression, which a private setter cannot appear in.
+    /// </summary>
+    /// <exception cref="MissingMemberException">The owner's type has no settable property of that name.</exception>
+    internal static TOwner With<TOwner>(TOwner owner, string property, object? value)
+    {
+        object boxed = owner ?? throw new ArgumentNullException(nameof(owner));
+        Setter(typeof(TOwner), property).Invoke(boxed, BindingFlags.DoNotWrapExceptions, binder: null, [value], culture: null);
+        return (TOwner)boxed;
+    }
     /// <summary>The value of <paramref name="owner"/>'s static field <paramref name="field"/>.</summary>
     /// <exception cref="MissingMemberException">The owner's type has no static field of that name.</exception>
     internal static TValue StaticField<TValue>(Type owner, string field) =>

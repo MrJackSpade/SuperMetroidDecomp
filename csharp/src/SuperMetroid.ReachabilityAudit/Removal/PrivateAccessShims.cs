@@ -85,7 +85,7 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
 
     /// <summary>
     /// Why no extension member can stand in for <paramref name="member"/>, or null: a constructor, an indexer, an event, a
-    /// generic member or owner, an owner test-support cannot see, a <c>ref struct</c> or pointer in its signature.
+    /// generic member, a generic type containing the owner, an owner test-support cannot see, a <c>ref struct</c> or pointer in its signature.
     /// </summary>
     public static string? Refusal(ISymbol member)
     {
@@ -94,8 +94,9 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
             return "extension-block member other than a method or property of a by-value receiver";
         for (INamedTypeSymbol? type = OwnerOf(member); type is not null; type = type.ContainingType)
         {
-            if (type.IsGenericType)
-                return "generic owner";
+            // A generic owner's blocks declare its type parameters; a generic type containing the owner has no block form.
+            if (type.IsGenericType && !SymbolEqualityComparer.Default.Equals(type, OwnerOf(member)))
+                return "generic type containing the owner";
             if (type.DeclaredAccessibility is Accessibility.Private or Accessibility.Protected or Accessibility.ProtectedAndInternal)
                 return "owner not visible to test-support";
         }
@@ -432,12 +433,40 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
             if (fresh.Count > 0)
                 blocks.Add($"{header}\n{{\n{string.Join("\n\n", fresh.Select(member => Indent(member.Text, "    ")))}\n}}");
         }
-        Add($"/// <summary>The private instance members checks read or call.</summary>\nextension({Owner} self)", _reading);
-        Add($"/// <summary>The private instance members checks write, on the value itself.</summary>\nextension(ref {Owner} self)", _writing);
-        Add($"/// <summary>The private static members checks name.</summary>\nextension({Owner})", _static);
+        string generic = owner.IsGenericType ? "<" + string.Join(", ", owner.TypeParameters.Select(parameter => parameter.Name)) + ">" : "";
+        string constraints = Constraints(owner.TypeParameters);
+        Add($"/// <summary>The private instance members checks read or call.</summary>\nextension{generic}({Owner} self){constraints}", _reading);
+        Add($"/// <summary>The private instance members checks write, on the value itself.</summary>\nextension{generic}(ref {Owner} self){constraints}", _writing);
+        Add($"/// <summary>The private static members checks name.</summary>\nextension{generic}({Owner}){constraints}", _static);
         foreach (var (receiver, members) in _receivers)
             Add($"/// <summary>The private extension methods checks call on their receiver.</summary>\nextension({receiver} self)", members);
         return blocks;
+    }
+
+    /// <summary>The <c>where</c> clauses of a generic owner's type parameters, as its blocks repeat them.</summary>
+    private static string Constraints(IEnumerable<ITypeParameterSymbol> parameters)
+    {
+        var clauses = new StringBuilder();
+        foreach (ITypeParameterSymbol parameter in parameters)
+        {
+            var constraints = new List<string>();
+            if (parameter.HasReferenceTypeConstraint)
+                constraints.Add(parameter.ReferenceTypeConstraintNullableAnnotation == NullableAnnotation.Annotated ? "class?" : "class");
+            if (parameter.HasUnmanagedTypeConstraint)
+                constraints.Add("unmanaged");
+            else if (parameter.HasValueTypeConstraint)
+                constraints.Add("struct");
+            if (parameter.HasNotNullConstraint)
+                constraints.Add("notnull");
+            constraints.AddRange(parameter.ConstraintTypes.Select(TypeText));
+            if (parameter.HasConstructorConstraint)
+                constraints.Add("new()");
+            if (parameter.AllowsRefLikeType)
+                constraints.Add("allows ref struct");
+            if (constraints.Count > 0)
+                clauses.Append(CultureInfo.InvariantCulture, $"\n    where {parameter.Name} : {string.Join(", ", constraints)}");
+        }
+        return clauses.ToString();
     }
 
     /// <summary>Every line of <paramref name="text"/> indented.</summary>

@@ -259,6 +259,13 @@ internal static class TestOnlyMemberFixer
         string type = PrivateAccessShims.TypeText(narrowedProperty.Type);
         foreach (var (way, site) in sites)
         {
+            if (way == "write" && InitializerWrite(site, symbol, owner, type) is { } initialized)
+            {
+                if (initialized.Refusal is not null)
+                    return initialized;
+                result.AddRange(initialized.Edits);
+                continue;
+            }
             if (site is not SimpleNameSyntax { Parent: MemberAccessExpressionSyntax access } name || access.Name != name)
                 return new SiteRewrite([], $"property site without a receiver at {site.GetLocation().GetLineSpan()}");
             string receiver = narrowedProperty.IsStatic ? "" : access.Expression.ToString();
@@ -280,6 +287,44 @@ internal static class TestOnlyMemberFixer
             result.Add((site.SyntaxTree, new TextChange(assignment.Span, write)));
         }
         return new SiteRewrite(result, null);
+    }
+
+    /// <summary>
+    /// The rewrite of a property write in an object initializer or <c>with</c> expression, which no private setter can
+    /// appear in: the element leaves the initializer and the created value passes through <c>PrivateState.With</c>, which
+    /// sets the property on it. Null for any other site; a refusal for a nested initializer or a created type other than
+    /// the owner.
+    /// </summary>
+    private static SiteRewrite? InitializerWrite(SyntaxNode site, ISymbol symbol, string owner, string type)
+    {
+        if (site is not IdentifierNameSyntax { Parent: AssignmentExpressionSyntax { Parent: InitializerExpressionSyntax initializer } element } ||
+            element.Left != site)
+            return null;
+        if (initializer.Parent is not (BaseObjectCreationExpressionSyntax or WithExpressionSyntax))
+            return new SiteRewrite([], $"property write in a nested initializer at {site.GetLocation().GetLineSpan()}");
+        var created = (ExpressionSyntax)initializer.Parent;
+        string createdType = owner;
+        if (created is ObjectCreationExpressionSyntax { Type: var named })
+        {
+            string last = named is QualifiedNameSyntax qualified ? qualified.Right.Identifier.ValueText
+                : named is AliasQualifiedNameSyntax aliased ? aliased.Name.Identifier.ValueText
+                : named is SimpleNameSyntax simple ? simple.Identifier.ValueText : "";
+            if (last != symbol.ContainingType.Name)
+                return new SiteRewrite([], $"property write initializing a type other than its owner at {site.GetLocation().GetLineSpan()}");
+            createdType = named.ToString();
+        }
+        var elements = initializer.Expressions;
+        int index = elements.IndexOf(element);
+        TextSpan removed = index < elements.SeparatorCount
+            ? TextSpan.FromBounds(element.SpanStart, elements.GetSeparator(index).GetNextToken().SpanStart)
+            : index > 0 ? TextSpan.FromBounds(elements.GetSeparator(index - 1).SpanStart, element.Span.End) : element.Span;
+        SyntaxTree tree = site.SyntaxTree;
+        return new SiteRewrite(
+        [
+            (tree, new TextChange(new TextSpan(created.SpanStart, 0), $"global::SuperMetroid.Core.PrivateState.With<{createdType}>(")),
+            (tree, new TextChange(removed, "")),
+            (tree, new TextChange(new TextSpan(created.Span.End, 0), $", \"{symbol.Name}\", ({type})({element.Right}))")),
+        ], null);
     }
 
     /// <summary>Whether a member's edits, applied alone, leave every tree they touch parsing as it did.</summary>

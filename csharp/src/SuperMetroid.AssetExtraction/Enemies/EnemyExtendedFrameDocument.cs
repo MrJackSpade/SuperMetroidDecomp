@@ -1,6 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
-/// <summary>Versioned editable extended-enemy-frame compositions.</summary>
+/// <summary>
+/// The extended enemy frames' compositions as the cartridge packs them, import data only the import composes the enemy
+/// sheets' pictures from (#1638).
+/// </summary>
+[SuppressMessage("Design", "SME6463", Justification = "Import data: the extended enemy frames' packed sprite parts, which only the import reads to compose the enemy sheets' pictures; EnemyTileArtworkFiles.Extract writes it to the enemy tiles' import data, which the installer deletes before it publishes.")]
 public sealed record EnemyExtendedFrameDocument
 {
     /// <summary>Gets the extended-frame schema revision.</summary>

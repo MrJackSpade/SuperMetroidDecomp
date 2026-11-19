@@ -1,9 +1,14 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
-/// <summary>Editable JSON schema for four auxiliary enemy palette families; runtime AI retains palette destination, update cadence, drain-stage progression, and health-band selection.</summary>
+/// <summary>
+/// The import's four auxiliary enemy colour families (#1637), import data only the import pre-colours their sheets' shades
+/// from; runtime AI retains update cadence, drain-stage progression, and health-band selection.
+/// </summary>
+[SuppressMessage("Design", "SME6463", Justification = "Import data: the face blocks', dead Sidehopper's and Golden Torizo's colour rows, which only the import reads to pre-colour their sheets' shades; EnemyTileArtworkFiles.Extract writes it to the enemy tiles' import data, which the installer deletes before it publishes.")]
 public sealed record EnemyAuxiliaryColorDocument
 {
     /// <summary>Schema revision, which must equal <see cref="EnemyAuxiliaryColorFormat.Version"/>.</summary>

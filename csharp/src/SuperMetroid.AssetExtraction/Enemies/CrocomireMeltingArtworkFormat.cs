@@ -15,12 +15,15 @@ public static class CrocomireMeltingArtworkFormat
     public const int FirstByteCount = 3616;
     /// <summary>$1020 compiled 4bpp bytes, or 129 characters, for the second scratch image; bytes beyond the native overlapping-copy extent must remain zero.</summary>
     public const int SecondByteCount = 4128;
-    /// <summary>Supported visual tile-layout schema revision, checked before compiling packed SNES BG words.</summary>
-    public const int TilemapVersion = 1;
-    /// <summary>Required JSON width declaration of 16; cells retain native linear order rather than being rearranged into 16-column runtime BG rows.</summary>
-    public const int TilemapWidth = 16;
-    /// <summary>Required JSON height declaration of 16, combining with the width to bound the native 256-word illustration payload.</summary>
-    public const int TilemapHeight = 16;
-    /// <summary>256 ordered BG2 references, representing eight 32-cell native rows despite the editable document's 16-by-16 dimension declaration.</summary>
+    /// <summary>
+    /// Supported visual tile-layout schema revision, checked before compiling packed SNES BG words: 2 declares the layout's
+    /// grid as the 32-by-8 one it is read in (#2564).
+    /// </summary>
+    public const int TilemapVersion = 2;
+    /// <summary>A melt layout's width in cells: one row of the image.</summary>
+    public const int TilemapWidth = 32;
+    /// <summary>A melt layout's height in cells.</summary>
+    public const int TilemapHeight = 8;
+    /// <summary>The cells of a melt layout, row by row.</summary>
     public const int TilemapCellCount = TilemapWidth * TilemapHeight;
 }

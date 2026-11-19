@@ -86,7 +86,10 @@ public static class EnemyProjectileSpritemapDocuments
     internal static byte[] Write(EnemyProjectileSpritemapDocument document) =>
         JsonSerializer.SerializeToUtf8Bytes(document, Options);
 
-    /// <summary>Validates ordered editable sprite parts against the sheet's bounds.</summary>
+    /// <summary>
+    /// Validates the import data's ordered sprite parts against the sheet's bounds and decodes them into the parts the import
+    /// composes the pictures from; the installation holds the pictures (#1638).
+    /// </summary>
     private static SpritePart[] CompileParts(string name, SpriteVisualPart[] visual)
     {
         if (visual.Length > MaximumParts)

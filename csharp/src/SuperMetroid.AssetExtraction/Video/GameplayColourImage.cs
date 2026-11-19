@@ -5,7 +5,8 @@ namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>
 /// Decodes a cartridge-ordered 256-colour image into the owners of gameplay's colours (#1464, #1512): the one place the
-/// installed starting image's colour order is read.
+/// colour order of the import data's starting image (<see cref="GameplayBasePaletteFiles"/>) is read. Only the import reads
+/// it, to pre-colour the sheets that show those colours; the installation holds none of it (#1637).
 /// </summary>
 public static class GameplayColourImage
 {

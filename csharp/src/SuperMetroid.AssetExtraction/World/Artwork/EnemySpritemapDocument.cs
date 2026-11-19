@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.World.Artwork;
 
 /// <summary>Versioned, semantic enemy frame names mapped to editable OAM parts.</summary>
+[SuppressMessage("Design", "SME6463", Justification = "Import data: the enemy frames' packed sprite parts, which only the import reads to compose the enemy sheets' pictures, whose display bindings are installed; EnemyTileArtworkFiles.Extract writes it to the enemy tiles' import data, which the installer deletes before it publishes.")]
 public sealed record EnemySpritemapDocument
 {
     /// <summary>Composition schema revision; loading requires <see cref="EnemySpritemapSchema.Revision"/>.</summary>

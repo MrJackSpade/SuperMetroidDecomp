@@ -143,6 +143,13 @@ public sealed class SpriteImage
     /// </summary>
     public ColourKey? Backdrop { get; }
 
+    /// <summary>Finds the backdrop a room tileset's picture names, which every other image lacks.</summary>
+    public bool TryGetBackdrop(out ColourKey backdrop)
+    {
+        backdrop = Backdrop.GetValueOrDefault();
+        return Backdrop.HasValue;
+    }
+
     /// <summary>The shades the import pre-coloured the image in besides its own colours (#1512).</summary>
     public ImmutableDictionary<PictureShade, PictureRecolouring> Shades { get; }
 

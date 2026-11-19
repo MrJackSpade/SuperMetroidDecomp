@@ -116,8 +116,11 @@ internal sealed class CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision c
     {
         reaction = null;
 
-        // Only the frame's plume rectangle damages Samus, whatever its installed picture shows; a hidden plume has none.
-        if (enemy.Frame is not { } frame || !CeresSteamCollisionDefinitions.Plumes.TryGetValue(frame, out EnemyHitboxRectangle? plume))
+        // Only the frame's plume rectangle damages Samus, whatever its installed picture shows; a hidden plume has none,
+        // and a vent showing no frame shows no plume, so it touches nothing.
+        if (enemy.Frame is not { } frame)
+            return false;
+        if (!CeresSteamCollisionDefinitions.Plumes.TryGetValue(frame, out EnemyHitboxRectangle? plume))
             throw new InvalidDataException($"Ceres steam frame {enemy.Frame} has no plume collision.");
         if (plume is not { } rectangle)
             return false;

@@ -1167,7 +1167,7 @@ internal sealed class SuperMetroidRuntime
         var shading = new GameplayShadingBuilder();
         foreach (IGameplayShadingSource source in ShadingSources(samus))
             source.ShadeGameplay(shading);
-        return shading.Build(Room.LoadedScope.Assets.BlockSheet.Sheet.Image);
+        return shading.Build(Room.LoadedScope.Assets.BlockSheet.Sheet.Image, Room.LoadedScope.Assets.BlockSheet.Backdrop);
     }
 
     /// <summary>The owners of the colour effects the frame shows, in the order they are laid over each other.</summary>

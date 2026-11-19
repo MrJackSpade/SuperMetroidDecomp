@@ -62,7 +62,7 @@ internal sealed class EndingZebesExplosion
     internal bool StepExplosionCrossfade()
     {
         _stage.Floor.Widen(EndingExplosionFadeDefinitions.ZoomStep);
-        if (crossfade.Advance())
+        if (crossfade.AdvanceTakingStep())
         {
             screen.Colours.Fade(EndingFade.ExplosionBackground, crossfade.Left);
             screen.Colours.Fade(EndingFade.ExplosionLava, crossfade.Taken);

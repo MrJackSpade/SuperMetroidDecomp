@@ -29,7 +29,7 @@ public sealed class FileSelectMapAnimations
         Ensure.NotNull(content);
         foreach (MapScrollDirection direction in MapScrollControls.Directions)
         {
-            Arrow replacement = new(content.Get(direction).Position, MapArrowSprites.SpriteBase(direction));
+            Arrow replacement = new(content.Get(direction).Position, Ensure.Listed(MapArrowDefinitions.SpriteBases, direction));
             if (arrows.GetValueOrDefault(direction) is { } previous)
                 replacement.Admit(previous.Visible);
             arrows[direction] = replacement;

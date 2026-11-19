@@ -38,15 +38,15 @@ internal static class RoomFxDefinitionsAccess
                 DoorRoomEffect entry = fx.DoorEffects[index];
                 ushort pointer = At(header, index);
                 Add(pointer, new IndexedFx(fx, entry.Effect, DoorHeaderSourcesConstants.PointerOf(entry.Door)),
-                    new RoomFxSelection($"$83:{pointer:X4}", [.. fx.DoorEffects.Skip(index)], fx.Default));
+                    new RoomFxSelection([.. fx.DoorEffects.Skip(index)], fx.Default));
             }
             ushort last = At(header, fx.DoorEffects.Count);
             if (fx.Default is { } defaultRecord)
-                Add(last, new IndexedFx(fx, defaultRecord, 0), new RoomFxSelection($"$83:{last:X4}", [], defaultRecord));
+                Add(last, new IndexedFx(fx, defaultRecord, 0), new RoomFxSelection([], defaultRecord));
             else
             {
                 EndsByPointer.Add(last, fx);
-                SuffixesByPointer.Add(last, new RoomFxSelection($"$83:{last:X4}", [], null));
+                SuffixesByPointer.Add(last, new RoomFxSelection([], null));
             }
         }
         RoomFxSelection motherBrain = RoomFxDefinitions.MotherBrain;
@@ -56,7 +56,7 @@ internal static class RoomFxDefinitionsAccess
         static ushort At(ushort header, int index) => checked((ushort)(header + index * RoomFxToolingRomData.Record.ByteCount));
 
         static void AddMotherBrainRecord(RoomFxSelection header, ushort pointer, RoomEffectDefinition record) =>
-            Add(pointer, new IndexedFx(header, record, 0), new RoomFxSelection($"$83:{pointer:X4}", [], record));
+            Add(pointer, new IndexedFx(header, record, 0), new RoomFxSelection([], record));
 
         static void Add(ushort pointer, IndexedFx entry, RoomFxSelection suffix)
         {

@@ -9,12 +9,10 @@ namespace SuperMetroid.Core.Fx;
 public sealed class RoomFxSelection
 {
     /// <summary>Holds a selection's door effects in the game's order and its default effect.</summary>
-    /// <param name="name">The selection's name.</param>
     /// <param name="doorEffects">The effects entry doors select, in the game's order.</param>
     /// <param name="defaultEffect">The effect any other entry shows, or null when that entry shows no effect.</param>
-    public RoomFxSelection(string name, DoorRoomEffect[] doorEffects, RoomEffectDefinition? defaultEffect)
+    public RoomFxSelection(DoorRoomEffect[] doorEffects, RoomEffectDefinition? defaultEffect)
     {
-        Name = Ensure.NotNull(name);
         DoorEffects = Array.AsReadOnly(Ensure.NotNull(doorEffects).ToArray());
         Default = defaultEffect;
         var effects = new List<RoomEffectDefinition>(DoorEffects.Count + 1);
@@ -23,9 +21,6 @@ public sealed class RoomFxSelection
             effects.Add(defaultEffect);
         Effects = effects.AsReadOnly();
     }
-
-    /// <summary>The selection's name.</summary>
-    public string Name { get; }
 
     /// <summary>The effects entry doors select, in the game's order: the first naming the entry door is shown.</summary>
     public IReadOnlyList<DoorRoomEffect> DoorEffects { get; }

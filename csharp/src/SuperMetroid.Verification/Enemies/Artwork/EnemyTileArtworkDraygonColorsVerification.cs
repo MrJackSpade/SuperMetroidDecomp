@@ -94,8 +94,10 @@ internal static class EnemyTileArtworkDraygonColorsVerification
             "installed Draygon colors leave intro mechanics unchanged");
         AssertBand(DraygonColorDestinations.IntroDestination,
             DraygonColorDefinitions.IntroCount, colors.ResolveIntro, "intro CGRAM");
-        AssertEqual(DraygonHealthBand.Of(body.Health), state.HealthBand, "Draygon's setup shows the band his health starts in (#2304)");
-        AssertStartingBandShown("his setup");
+        AssertEqual(DraygonHealthBand.Of(body.Health), state.HealthBand, "Draygon's setup starts in the band his health starts in (#2304)");
+        // His setup writes only his opening's colours (#2547): his body layer shows no band until a hurt update or reaction.
+        AssertBand(DraygonColorDestinations.HealthDestination, DraygonColorDefinitions.HealthBandColorCount,
+            _ => RgbColor.FromWord(0), "health band after his setup, which shows none");
 
         // A grapple's shock marks him hurt without a reaction (#2304): before any hit, his hurt updates show the band his
         // health starts in on every update the white flash does not cover.

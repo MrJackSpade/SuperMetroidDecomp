@@ -70,9 +70,9 @@ internal sealed class DraygonParts
         _presentation.AttachBossBody(new BossBodyParts(BossBodyOwner.Draygon, draygon));
         _presentation.BossShadings.Show(BossShadingLayer.Draygon, draygon.Colours);
         body.SetSpeciesState(draygon);
-        // His colours show the band his health starts in from his setup (#2304), so a hurt the grapple's shock starts before
-        // any hit shows it, and a reaction changes it only when his health leaves it.
-        DraygonCombat.ShowDraygonHealthBand(draygon);
+        // His setup shows only his opening's colours (#2547). His health band is the one his health starts in (#2304), so a
+        // hurt the grapple's shock starts before any hit shows it, but his body layer shows it only from his first hurt
+        // update or from the reaction that moves his health into another band.
         body.Shading = draygon.Colours.Sprites;
     }
 

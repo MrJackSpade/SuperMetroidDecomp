@@ -28,6 +28,23 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// </summary>
 internal static class BossBodySheetComposer
 {
+    /// <summary>The boss bodies in the order their sheets are composed and listed (#2567).</summary>
+    private static readonly BossBodyOwner[] OwnerOrder = [.. Ensure.EveryMemberOnce<BossBodyOwner>(
+    [
+        BossBodyOwner.Kraid,
+        BossBodyOwner.Phantoon,
+        BossBodyOwner.Draygon,
+        BossBodyOwner.Crocomire,
+        BossBodyOwner.MotherBrain,
+    ])];
+
+    /// <summary>Crocomire's melting illustrations in the order his body sheet holds their melt states (#2567).</summary>
+    private static readonly IReadOnlyList<CrocomireMeltingIllustration> MeltingOrder = Ensure.EveryMemberOnce<CrocomireMeltingIllustration>(
+    [
+        CrocomireMeltingIllustration.Flesh,
+        CrocomireMeltingIllustration.BareSkull,
+    ]);
+
     /// <summary>The first row of the bottom-left screen of Kraid's layer, where his lower body is written.</summary>
     internal const int LowerPageTopRow = 64;
 
@@ -52,7 +69,7 @@ internal static class BossBodySheetComposer
     {
         Ensure.NotNull(inputs);
         // Each boss's sheet composes on its own (#1530), into its owner's place, so the order stays the owners'.
-        BossBodyOwner[] owners = Enum.GetValues<BossBodyOwner>();
+        BossBodyOwner[] owners = OwnerOrder;
         var sheets = new ComposedBossBodySheet[owners.Length];
         try
         {
@@ -125,7 +142,7 @@ internal static class BossBodySheetComposer
             case BossBodyOwner.Crocomire:
                 CrocomireMeltingArtwork melting = bosses.CrocomireMelting ?? throw Missing(owner);
                 return [.. EnemyFrames((bosses.CrocomireBg2Frames ?? throw Missing(owner)).Writes),
-                    .. Enum.GetValues<CrocomireMeltingIllustration>().SelectMany(image => CrocomireMeltStates(melting, image))];
+                    .. MeltingOrder.SelectMany(image => CrocomireMeltStates(melting, image))];
             case BossBodyOwner.MotherBrain:
                 return EnemyFrames((bosses.MotherBrainBodyBg2Frames ?? throw Missing(owner)).Writes);
             default:

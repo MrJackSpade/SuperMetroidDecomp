@@ -23,6 +23,16 @@ namespace SuperMetroid.Core.Hud;
 /// </remarks>
 public sealed class HudState
 {
+    /// <summary>The HUD's icons in the order the HUD lists them (#2567).</summary>
+    private static readonly IReadOnlyList<HudIcon> IconOrder = Ensure.EveryMemberOnce<HudIcon>(
+    [
+        HudIcon.Missile,
+        HudIcon.SuperMissile,
+        HudIcon.PowerBomb,
+        HudIcon.Grapple,
+        HudIcon.XRay,
+    ]);
+
     /// <summary>The values the HUD shows, as its last update read them.</summary>
     private HudSnapshot values;
 
@@ -178,7 +188,7 @@ public sealed class HudState
         if (!IsInitialized)
             return new ShownHud(images.ToImmutable());
         images.Add(GameplayHudPresentation.Template);
-        foreach (HudIcon item in Enum.GetValues<HudIcon>())
+        foreach (HudIcon item in IconOrder)
         {
             bool held = Holds(item);
             // The selected item's icon shows the selected shade, every other held item's the shade the selection leaves.

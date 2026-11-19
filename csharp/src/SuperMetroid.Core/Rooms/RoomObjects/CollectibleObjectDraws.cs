@@ -31,8 +31,9 @@ internal static class CollectibleObjectDraws
     /// </summary>
     internal static RoomTerrainBlock? BlockPairTerrain(CollectibleDraw draw)
     {
-        foreach ((CollectibleBlockPairs.Pair pair, CollectibleLookDraws looks) in BlockPairLooks)
+        foreach (CollectibleBlockPairs.Pair pair in CollectibleBlockPairs.InTurn)
         {
+            CollectibleLookDraws looks = BlockPairLooks[pair];
             foreach (CollectibleLook look in Looks)
             {
                 if (looks.Of(look) == draw)

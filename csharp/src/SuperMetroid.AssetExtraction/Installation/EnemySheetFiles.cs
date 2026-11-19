@@ -39,7 +39,7 @@ public static class EnemySheetFiles
     public const int ManifestVersion = 41;
 
     /// <summary>The encounters in the written-out order the manifest's look changes follow (#2567).</summary>
-    private static readonly WrittenOrder<EncounterArtwork> EncounterOrder = new(Ensure.EveryMemberOnce(EncounterArtworkKeys.ListedOrder));
+    internal static WrittenOrder<EncounterArtwork> EncounterOrder { get; } = new(Ensure.EveryMemberOnce(EncounterArtworkKeys.ListedOrder));
 
     /// <summary>The manifest naming each variant's sheets and the variants each population draws.</summary>
     public const string ManifestFileName = "enemy-sheets.json";

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -26,6 +27,13 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 internal static class EquippedBeamProjectilePrograms
 {
+    /// <summary>The beam echoes in the order their programs are listed (#2567).</summary>
+    private static readonly IReadOnlyList<SamusBeamEcho> EchoOrder = Ensure.EveryMemberOnce<SamusBeamEcho>(
+    [
+        SamusBeamEcho.SpazerComboTrail,
+        SamusBeamEcho.ShinesparkEcho,
+    ]);
+
     /// <summary>The combination the Hyper Beam equips, whose pictures its shots show: Wave with Plasma.</summary>
     private const SamusBeamCombination HyperBeamEquipped = SamusBeamCombination.PlasmaWave;
 
@@ -60,7 +68,7 @@ internal static class EquippedBeamProjectilePrograms
             AddEveryDirection(starts, SamusProjectileSelection.NonBeam(family));
         foreach (SamusProjectileFamily family in BombFamilies)
             AddSole(starts, SamusProjectileSelection.NonBeam(family));
-        foreach (SamusBeamEcho echo in Enum.GetValues<SamusBeamEcho>())
+        foreach (SamusBeamEcho echo in EchoOrder)
         {
             AddEveryDirection(starts, SamusProjectileSelection.Echo(echo));
             // An enemy reflecting an echo restarts it as the beam shot its type names, whatever was equipped: a Metal
@@ -86,10 +94,10 @@ internal static class EquippedBeamProjectilePrograms
     /// its kind's programs, except the Murder Beam's, which reads past the Power Bomb kind it takes its damage from
     /// (<see cref="MurderBeamDirectionAnimations{TDirection, TAnimation}"/>).
     /// </summary>
-    internal static IEnumerable<SamusProjectileSegment> BeamShotPrograms(SamusBeamCombination beams, bool charged) =>
+    internal static IReadOnlySet<SamusProjectileSegment> BeamShotPrograms(SamusBeamCombination beams, bool charged) =>
         SamusProjectileSelection.IsMurderBeam(beams, charged)
-            ? SamusProjectileSelectionDefinitions.MurderBeamDirectionAnimations.Values.OfType<SamusProjectileSegment>()
-            : SamusProjectileKinds.Animations(SamusProjectileSelection.BeamShot(beams, charged));
+            ? SamusProjectileSelectionDefinitions.MurderBeamDirectionAnimations.Values.OfType<SamusProjectileSegment>().ToHashSet()
+            : SamusProjectileKinds.Animations(SamusProjectileSelection.BeamShot(beams, charged)).ToHashSet();
 
     /// <summary>Adds every program a shot of <paramref name="kind"/> can start.</summary>
     private static void AddEveryDirection(List<SamusProjectileSegment> starts, SamusProjectileKind kind) =>

@@ -15,6 +15,14 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// </summary>
 internal sealed class PauseScreen
 {
+    /// <summary>The menu buttons' labels in the order the screen lays them out (#2567).</summary>
+    private static readonly IReadOnlyList<PauseButtonLabel> ButtonLabelOrder = Ensure.EveryMemberOnce<PauseButtonLabel>(
+    [
+        PauseButtonLabel.Map,
+        PauseButtonLabel.Exit,
+        PauseButtonLabel.Samus,
+    ]);
+
     /// <summary>Installs the map, pause interface, HUD and menu sprite artwork, and the sheets its backgrounds draw from.</summary>
     public PauseScreen(InstalledScreenContent artwork, InstalledSpriteSheets sheets)
     {
@@ -48,7 +56,7 @@ internal sealed class PauseScreen
     {
         SpriteSheet pictures = Pictures;
         var frames = new List<string> { PauseFramePictures.BackdropFrame(area), PauseFramePictures.ButtonRowsFrame };
-        foreach (PauseButtonLabel label in Enum.GetValues<PauseButtonLabel>())
+        foreach (PauseButtonLabel label in ButtonLabelOrder)
             frames.Add(PauseFramePictures.ButtonFrame(label, PauseFramePictures.ShadeOf(highlight, label)));
         var placed = ImmutableArray.CreateBuilder<PlacedPlanePicture>();
         foreach (string frame in frames)

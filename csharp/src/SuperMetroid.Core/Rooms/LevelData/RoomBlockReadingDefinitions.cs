@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// Every behaviour a block can keep, each holding every collision kind's reading of it, in the order the game numbers them
 /// (#1722): a write of a reading keeps the first holding it (<see cref="SuperMetroid.Core.Compatibility.BlockParameterCarryOver{TBehavior, TReading}"/>).
 /// That order is written-out data the generator takes from the import codec, the precedence the carry-over reads (#2567),
-/// not a declaration's or a dictionary's order; the game's numbering itself is the cartridge's and stays in the import.
+/// never a declaration's or a dictionary's order.
 /// A behaviour whose meaning to special blocks and special air the room's area gives holds neither reading, and each area's
 /// meaning is its own reaction (<see cref="InAreas"/>, #1805).
 /// Regenerate with <c>SuperMetroid.DebugRunner --generate-room-block-readings</c> from the import codec.

@@ -12,18 +12,21 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// feeds an order. Three sources are followed: <c>Enum.GetValues</c> (either overload, and
 /// <c>GetValuesAsUnderlyingType</c>), which lists an enum's members by their backing values; <c>Order</c>,
 /// <c>OrderBy</c>, <c>ThenBy</c> and their descending forms, or a <c>Sort</c>, that order by an enum without a comparer;
-/// and a dictionary, or its <c>Keys</c> or <c>Values</c>, enumerated as a sequence. The sequence is followed through the
+/// and a dictionary keyed by identities (an enum, or a generic catalog's type parameter), or its <c>Keys</c> or
+/// <c>Values</c>, enumerated as a sequence: it enumerates in the order its entries were inserted, the order a definition
+/// wrote its identities in. A dictionary keyed by names or numbers is a lookup and is not followed. The sequence is followed through the
 /// LINQ operators that keep its order (<c>Select</c>, <c>Where</c>, <c>SelectMany</c> and its selector's result,
 /// <c>Concat</c>, <c>Zip</c>, <c>Except</c> and the like), collection expressions and the locals it is stored in.
 /// <para>
 /// It is order-free where it lands in a set or a dictionary (<c>ToDictionary</c>, <c>ToHashSet</c>, their frozen and
 /// immutable forms, a set or dictionary constructed or typed from it), where only a count or a membership is asked
 /// (<c>Length</c>, <c>Count</c>, <c>Any</c>, <c>All</c>, <c>Contains</c>, <c>Sum</c>, <c>Min</c>, <c>Max</c>), where it
-/// is sorted again by another key, where an <c>Aggregate</c> combines it with a bitwise operator, and where a
+/// is sorted again by another key, where a <c>Single</c> picks its one match, where it only spells a thrown exception's
+/// message, where an <c>Aggregate</c> combines it with a bitwise operator, and where a
 /// <c>foreach</c> over it has no ordered effect. A loop's ordered effects are a <c>yield return</c>, a <c>break</c> or a
 /// <c>return</c> out of the loop (the first match wins), an <c>Add</c>, <c>Insert</c>, <c>Push</c>, <c>Enqueue</c>,
 /// <c>Append</c> or <c>Write</c> on a collection or writer that is not a set or a dictionary and outlives the iteration,
-/// such a collection or writer handed to a call, and, of a variable that outlives the iteration, an assignment of a
+/// such a collection or writer handed to a call that takes it as one, and, of a variable that outlives the iteration, an assignment of a
 /// computed value or a compound assignment or increment the loop's body also reads (a running offset; a count only
 /// accumulated is order-free). A dictionary handed whole to a callee as a dictionary, a serializer among them, is the
 /// callee's to enumerate and is not followed.
@@ -57,7 +60,7 @@ public sealed class EnumerationOrderAnalyzer : DiagnosticAnalyzer
     private static readonly ImmutableHashSet<string> OrderFree =
     [
         "ToDictionary", "ToFrozenDictionary", "ToImmutableDictionary", "ToHashSet", "ToFrozenSet", "ToImmutableHashSet",
-        "ToLookup", "All", "Any", "Count", "LongCount", "Contains", "Sum", "Min", "Max", "Average", "SetEquals",
+        "ToLookup", "All", "Any", "Count", "LongCount", "Contains", "Single", "SingleOrDefault", "Sum", "Min", "Max", "Average", "SetEquals",
         "IsSubsetOf", "IsSupersetOf", "IsProperSubsetOf", "IsProperSupersetOf", "Overlaps", "UnionWith", "ExceptWith",
         "IntersectWith", "SymmetricExceptWith",
     ];
@@ -116,8 +119,18 @@ public sealed class EnumerationOrderAnalyzer : DiagnosticAnalyzer
             if (SourceOf(operation, enumType) is not { } source)
                 continue;
             if (FeedsOrder(operation, operations, isSource: true, depth: 0))
-                context.ReportDiagnostic(Diagnostic.Create(Rule, operation.Syntax.GetLocation(), operation.Syntax.ToString(), source));
+                context.ReportDiagnostic(Diagnostic.Create(Rule, operation.Syntax.GetLocation(), Shown(operation.Syntax), source));
         }
+    }
+
+    /// <summary>The source an operation spans as the message shows it: its first line, at most eighty characters.</summary>
+    private static string Shown(SyntaxNode syntax)
+    {
+        string text = syntax.ToString();
+        int end = text.IndexOfAny(['\r', '\n']);
+        if (end >= 0)
+            text = text.Substring(0, end).TrimEnd() + " ...";
+        return text.Length <= 80 ? text : text.Substring(0, 77) + "...";
     }
 
     /// <summary>What an operation takes its order from, or null when it is not a source.</summary>
@@ -161,8 +174,8 @@ public sealed class EnumerationOrderAnalyzer : DiagnosticAnalyzer
     /// </summary>
     private static bool IsDictionaryEnumeration(IOperation operation)
     {
-        bool dictionary = IsDictionary(operation.Type) ||
-            operation is IPropertyReferenceOperation { Property.Name: "Keys" or "Values", Instance.Type: var owner } && IsDictionary(owner);
+        bool dictionary = IsIdentityDictionary(operation.Type) ||
+            operation is IPropertyReferenceOperation { Property.Name: "Keys" or "Values", Instance.Type: var owner } && IsIdentityDictionary(owner);
         if (!dictionary || operation.Parent is IPropertyReferenceOperation { Property.Name: "Keys" or "Values" })
             return false;
         IOperation current = operation;
@@ -185,6 +198,8 @@ public sealed class EnumerationOrderAnalyzer : DiagnosticAnalyzer
     {
         if (depth > 16)
             return true;
+        if (InsideThrow(operation))
+            return false;
         IOperation current = operation;
         while (true)
         {
@@ -236,6 +251,20 @@ public sealed class EnumerationOrderAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>
+    /// Whether an operation lies in a thrown exception: an order that only spells a failure's message feeds no installed
+    /// or behavioural order.
+    /// </summary>
+    private static bool InsideThrow(IOperation operation)
+    {
+        for (IOperation? up = operation.Parent; up is not null; up = up.Parent)
+        {
+            if (up is IThrowOperation)
+                return true;
+        }
+        return false;
+    }
+
+    /// <summary>
     /// What a call does with the sequence one of its arguments carries: null when its result keeps the order and is
     /// followed further, false when the call is order-free, true when it feeds an order.
     /// </summary>
@@ -258,7 +287,7 @@ public sealed class EnumerationOrderAnalyzer : DiagnosticAnalyzer
     private static bool IsBitwiseCombination(IInvocationOperation invocation) =>
         invocation.Arguments.LastOrDefault()?.Value is { } last &&
         Unwrapped(last) is IDelegateCreationOperation { Target: IAnonymousFunctionOperation lambda } &&
-        lambda.Body.Operations is [IReturnOperation { ReturnedValue: { } value }] &&
+        lambda.Body.Operations.Length == 1 && lambda.Body.Operations[0] is IReturnOperation { ReturnedValue: { } value } &&
         Unwrapped(value) is IBinaryOperation
         {
             OperatorKind: BinaryOperatorKind.Or or BinaryOperatorKind.And or BinaryOperatorKind.ExclusiveOr,
@@ -335,7 +364,7 @@ public sealed class EnumerationOrderAnalyzer : DiagnosticAnalyzer
         {
             switch (operation)
             {
-                case IReturnOperation { Kind: ReturnKind.YieldReturn }:
+                case IReturnOperation { Kind: OperationKind.YieldReturn }:
                     return true;
                 case IReturnOperation returned when !InsideFunction(returned, loop):
                     return true;
@@ -345,7 +374,8 @@ public sealed class EnumerationOrderAnalyzer : DiagnosticAnalyzer
                     if (call.Instance is { } receiver && !IsSetOrDictionary(receiver.Type) && Outlives(Referenced(receiver)))
                         return true;
                     break;
-                case IArgumentOperation { Value: var value } when IsAccumulator(Unwrapped(value).Type) && Outlives(Referenced(Unwrapped(value))):
+                case IArgumentOperation { Value: var value, Parameter.Type: var parameter } when IsAccumulator(parameter) &&
+                    IsAccumulator(Unwrapped(value).Type) && Outlives(Referenced(Unwrapped(value))):
                     return true;
                 case ICompoundAssignmentOperation compound when Outlives(Referenced(compound.Target)) &&
                     (compound.Type?.SpecialType == SpecialType.System_String || ReadElsewhere(loop, compound)):
@@ -456,9 +486,22 @@ public sealed class EnumerationOrderAnalyzer : DiagnosticAnalyzer
         (named.OriginalDefinition.SpecialType == SpecialType.System_Collections_Generic_IEnumerable_T ||
             named.SpecialType == SpecialType.System_Collections_IEnumerable);
 
-    /// <summary>Whether a type is a dictionary: it implements a generic dictionary interface.</summary>
-    private static bool IsDictionary(ITypeSymbol? type) => type is not null && Implements(type,
-        "System.Collections.Generic.IDictionary<TKey, TValue>", "System.Collections.Generic.IReadOnlyDictionary<TKey, TValue>");
+    /// <summary>
+    /// Whether a type is a dictionary keyed by identities: its key an enum, or a type parameter a generic catalog keys by
+    /// identities. Such a dictionary enumerates in the order its entries were inserted, the order a definition wrote its
+    /// identities in or a declaration listed them; a dictionary keyed by names or numbers is a lookup read by key.
+    /// </summary>
+    private static bool IsIdentityDictionary(ITypeSymbol? type)
+    {
+        if (type is null)
+            return false;
+        IEnumerable<INamedTypeSymbol> faces = type is INamedTypeSymbol { TypeKind: TypeKind.Interface } self
+            ? type.AllInterfaces.Prepend(self)
+            : type.AllInterfaces;
+        return faces.Any(face => face.OriginalDefinition.ToDisplayString() is "System.Collections.Generic.IDictionary<TKey, TValue>"
+                or "System.Collections.Generic.IReadOnlyDictionary<TKey, TValue>" &&
+            face.TypeArguments[0].TypeKind is TypeKind.Enum or TypeKind.TypeParameter);
+    }
 
     /// <summary>Whether a type is a set or a dictionary, whose order nothing reads.</summary>
     private static bool IsSetOrDictionary(ITypeSymbol? type) => type is not null && Implements(type,

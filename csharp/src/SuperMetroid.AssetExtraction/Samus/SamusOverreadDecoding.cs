@@ -77,7 +77,7 @@ internal static class SamusOverreadDecoding
         var pending = new Queue<SamusProjectileSegment>();
         foreach (bool charged in (bool[])[false, true])
         {
-            foreach (SamusBeamCombination beams in Enum.GetValues<SamusBeamCombination>())
+            foreach (SamusBeamCombination beams in SamusBeamCombinationKeys.ListedOrder)
             {
                 if (SamusBeamShotBehaviors.Resolve(charged, beams) != SamusShotBehaviors.Spacetime)
                     continue;

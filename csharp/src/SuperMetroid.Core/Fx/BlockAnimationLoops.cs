@@ -22,7 +22,7 @@ public static class BlockAnimationLoops
 {
     /// <summary>The idle segments of every animation with a loop.</summary>
     internal static AnimationSegments<BlockAnimation, ArtworkFrame, NoAnimationCue> Segments { get; } =
-        new(OwnTimedFrames(BlockAnimationLoopDefinitions.IdleLoops), BlockAnimationLoopDefinitions.IdleLoops.Keys);
+        new(OwnTimedFrames(BlockAnimationLoopDefinitions.IdleLoops), BlockAnimationLoopDefinitions.IdleLoops.Keys.ToHashSet());
 
     /// <summary>
     /// <paramref name="loops"/>, each of which shows at least one frame, every one of its own animation's and shown for at

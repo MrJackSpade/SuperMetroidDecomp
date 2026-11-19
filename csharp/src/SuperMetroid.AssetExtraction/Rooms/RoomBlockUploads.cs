@@ -36,6 +36,13 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </summary>
 internal static class RoomBlockUploads
 {
+    /// <summary>Crocomire's melting illustrations in the order their bands are bound (#2567).</summary>
+    private static readonly IReadOnlyList<CrocomireMeltingIllustration> MeltingOrder = Ensure.EveryMemberOnce<CrocomireMeltingIllustration>(
+    [
+        CrocomireMeltingIllustration.Flesh,
+        CrocomireMeltingIllustration.BareSkull,
+    ]);
+
     /// <summary>The tilesets some retail room state loads, each once in room order: those a block sheet is composed for.</summary>
     internal static IReadOnlyList<TilesetDefinition> Tilesets() =>
         [.. RetailRooms.All.SelectMany(RoomStateLists.GetStates)
@@ -230,7 +237,7 @@ internal static class RoomBlockUploads
     {
         CrocomireMeltingArtwork artwork = inputs.Bosses.CrocomireMelting
             ?? throw new InvalidDataException("Installed boss artwork has no Crocomire melting graphics.");
-        foreach (CrocomireMeltingIllustration illustration in Enum.GetValues<CrocomireMeltingIllustration>())
+        foreach (CrocomireMeltingIllustration illustration in MeltingOrder)
         {
             byte[] image = artwork.Characters(illustration).ToArray();
             for (int band = 0; band < CrocomireMelting.BandCount(illustration); band++)

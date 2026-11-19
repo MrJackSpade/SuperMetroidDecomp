@@ -55,7 +55,7 @@ public static class XrayRevealVisualFiles
     /// The collision types in the written-out order the installed entries follow (#2567), so reordering the type's members
     /// never reorders the file.
     /// </summary>
-    private static readonly WrittenOrder<RoomCollisionType> CollisionOrder = new(Ensure.EveryMemberOnce(RoomCollisionTypeKeys.ListedOrder));
+    internal static WrittenOrder<RoomCollisionType> CollisionOrder { get; } = new(Ensure.EveryMemberOnce(RoomCollisionTypeKeys.ListedOrder));
 
     /// <summary>Uses camel-case enum names and strict constructor/property admission for the installed reveal JSON.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

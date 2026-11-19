@@ -11,6 +11,8 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6469:An order is taken from a declaration or a dictionary's enumeration",
+        Justification = "The species registry files each definition under its factory (EnemySpeciesRegistry); the order the definitions are listed in is never read.")]
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. DeadTourianCorpseSpeciesDefinitions.Species.Keys];
 
     /// <inheritdoc/>

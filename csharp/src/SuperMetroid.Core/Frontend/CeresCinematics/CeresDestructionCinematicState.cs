@@ -753,11 +753,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private PictureShading ActorShading(PictureShade drawn)
     {
         PictureShading shading = PictureShading.Shaded(drawn);
-        foreach ((CeresSpriteColouring colouring, ColourEffectColours colours) in CeresDestructionSceneDefinitions.FadedColours)
-        {
-            if (CeresShades.Drawn(colouring) == drawn && ColourEffects.FrameOf(colours) is { } frame)
-                shading = shading.With(ColourEffectShades.Of(colours, frame));
-        }
+        if (CeresDestructionSceneDefinitions.FadedColours.Where(pair => CeresShades.Drawn(pair.Key) == drawn)
+                .Select(pair => (ColourEffectColours?)pair.Value).SingleOrDefault() is { } colours &&
+            ColourEffects.FrameOf(colours) is { } frame)
+            shading = shading.With(ColourEffectShades.Of(colours, frame));
         return shading;
     }
 

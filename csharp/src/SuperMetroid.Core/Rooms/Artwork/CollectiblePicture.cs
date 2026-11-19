@@ -11,11 +11,37 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// <param name="Look">Which of its two alternating looks the picture shows.</param>
 public readonly record struct CollectiblePicture(InWorldCollectibleKind Kind, CollectibleLook Look)
 {
+    /// <summary>The collectible kinds in the order their own pictures are listed (#2567).</summary>
+    private static readonly IReadOnlyList<InWorldCollectibleKind> KindOrder = Ensure.EveryMemberOnce<InWorldCollectibleKind>(
+    [
+        InWorldCollectibleKind.EnergyTank,
+        InWorldCollectibleKind.MissileTank,
+        InWorldCollectibleKind.SuperMissileTank,
+        InWorldCollectibleKind.PowerBombTank,
+        InWorldCollectibleKind.Bombs,
+        InWorldCollectibleKind.ChargeBeam,
+        InWorldCollectibleKind.IceBeam,
+        InWorldCollectibleKind.HiJumpBoots,
+        InWorldCollectibleKind.SpeedBooster,
+        InWorldCollectibleKind.WaveBeam,
+        InWorldCollectibleKind.SpazerBeam,
+        InWorldCollectibleKind.SpringBall,
+        InWorldCollectibleKind.VariaSuit,
+        InWorldCollectibleKind.GravitySuit,
+        InWorldCollectibleKind.XrayScope,
+        InWorldCollectibleKind.PlasmaBeam,
+        InWorldCollectibleKind.GrappleBeam,
+        InWorldCollectibleKind.SpaceJump,
+        InWorldCollectibleKind.ScrewAttack,
+        InWorldCollectibleKind.MorphBall,
+        InWorldCollectibleKind.ReserveTank,
+    ]);
+
     /// <summary>Every look of every kind that shows its own picture, kind by kind in kind order, each kind's looks in order.</summary>
     public static ImmutableArray<CollectiblePicture> All { get; } =
     [
-        .. Enum.GetValues<InWorldCollectibleKind>().Where(kind => CollectibleDefinitions.Items[kind].Picture == CollectiblePictureSource.OwnPicture)
-            .SelectMany(kind => Enum.GetValues<CollectibleLook>().Select(look => new CollectiblePicture(kind, look))),
+        .. KindOrder.Where(kind => CollectibleDefinitions.Items[kind].Picture == CollectiblePictureSource.OwnPicture)
+            .SelectMany(kind => Ensure.EveryMemberOnce(CollectibleLookKeys.ListedOrder).Select(look => new CollectiblePicture(kind, look))),
     ];
 
     /// <summary>The collectible kind.</summary>

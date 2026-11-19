@@ -31,5 +31,5 @@ public static class SaveLoadingGameStateCodec
 
     /// <summary>The startup route a saved word selects; any word the dispatcher does not name resumes the main game.</summary>
     public static SaveLoadingGameState Route(int word) =>
-        Enum.GetValues<SaveLoadingGameState>().FirstOrDefault(route => Word(route) == word, SaveLoadingGameState.MainGame);
+        Enum.GetValues<SaveLoadingGameState>().SingleOrDefault(route => Word(route) == word, SaveLoadingGameState.MainGame);
 }

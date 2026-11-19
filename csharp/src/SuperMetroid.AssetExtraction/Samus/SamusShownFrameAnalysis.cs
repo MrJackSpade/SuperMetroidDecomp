@@ -63,8 +63,39 @@ internal sealed class SamusShownFrameAnalysis
     /// last initialized in, and nothing in those operations checks which (the Mother Brain glitch recording carries a spin
     /// jump's movement into the drained standing pose).
     /// </summary>
+    /// <summary>The movement types in the order the analysis lists those a pose was initialized in (#2567).</summary>
+    private static readonly IReadOnlyList<SamusMovementType> MovementTypeOrder = Ensure.EveryMemberOnce<SamusMovementType>(
+    [
+        SamusMovementType.Standing,
+        SamusMovementType.Running,
+        SamusMovementType.NormalJumping,
+        SamusMovementType.SpinJumping,
+        SamusMovementType.MorphBallGround,
+        SamusMovementType.Crouching,
+        SamusMovementType.Falling,
+        SamusMovementType.GlitchBall,
+        SamusMovementType.MorphBallFalling,
+        SamusMovementType.GlitchBallKnockback,
+        SamusMovementType.Knockback,
+        SamusMovementType.CompactAirborne,
+        SamusMovementType.TurningOnGround,
+        SamusMovementType.PostureTransition,
+        SamusMovementType.Moonwalking,
+        SamusMovementType.SpringBallGround,
+        SamusMovementType.SpringBallInAir,
+        SamusMovementType.SpringBallFalling,
+        SamusMovementType.WallJumping,
+        SamusMovementType.RanIntoWall,
+        SamusMovementType.Grappling,
+        SamusMovementType.TurningWhileJumping,
+        SamusMovementType.TurningWhileFalling,
+        SamusMovementType.DamageBoost,
+        SamusMovementType.DraygonHeld,
+        SamusMovementType.Special,
+    ]);
+
     private static readonly SamusMovementType[] InitializedMovementTypes =
-        [.. Enum.GetValues<SamusPoseId>().Select(SamusPoseMetadata.ReadMovementType).Distinct().Order()];
+        [.. MovementTypeOrder.Where(Enum.GetValues<SamusPoseId>().Select(SamusPoseMetadata.ReadMovementType).ToHashSet().Contains)];
 
     /// <summary>The game's layout of Samus's animations, which the analysis reads frames by.</summary>
     private readonly SamusAnimationLayout layout;
@@ -110,7 +141,7 @@ internal sealed class SamusShownFrameAnalysis
     }
 
     /// <summary>Every pose some path of the game gives Samus: the poses the body can show.</summary>
-    internal static IReadOnlyList<SamusPoseId> Poses { get; } = Enum.GetValues<SamusPoseId>();
+    internal static IReadOnlyList<SamusPoseId> Poses { get; } = Ensure.EveryMemberOnce(SamusPoseIdKeys.ListedOrder);
 
     /// <summary>
     /// What the installation holds of the analysis, for every pose with a record: every frame the pose shows, with the

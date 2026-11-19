@@ -23,13 +23,13 @@ internal static class SnesDspRegisterLayout
     internal static class Voice
     {
         /// <summary>Attack, decay, and ADSR enable bits within each voice block.</summary>
-        internal static int Adsr1 { get; } = OffsetOf(DspVoiceRegister.Adsr1);
+        internal const int Adsr1 = 0x05;
         /// <summary>Sustain level and rate bits within each voice block.</summary>
-        internal static int Adsr2 { get; } = OffsetOf(DspVoiceRegister.Adsr2);
+        internal const int Adsr2 = 0x06;
         /// <summary>DSP-published current envelope byte.</summary>
-        internal static int EnvelopeOutput { get; } = OffsetOf(DspVoiceRegister.EnvelopeOutput);
+        internal const int EnvelopeOutput = 0x08;
         /// <summary>DSP-published current sample byte.</summary>
-        internal static int SampleOutput { get; } = OffsetOf(DspVoiceRegister.SampleOutput);
+        internal const int SampleOutput = 0x09;
     }
 
     /// <summary>
@@ -43,11 +43,11 @@ internal static class SnesDspRegisterLayout
         [DspVoiceRegister.PitchLow] = 0x02,
         [DspVoiceRegister.PitchHigh] = 0x03,
         [DspVoiceRegister.SourceNumber] = 0x04,
-        [DspVoiceRegister.Adsr1] = 0x05,
-        [DspVoiceRegister.Adsr2] = 0x06,
+        [DspVoiceRegister.Adsr1] = Voice.Adsr1,
+        [DspVoiceRegister.Adsr2] = Voice.Adsr2,
         [DspVoiceRegister.Gain] = 0x07,
-        [DspVoiceRegister.EnvelopeOutput] = 0x08,
-        [DspVoiceRegister.SampleOutput] = 0x09,
+        [DspVoiceRegister.EnvelopeOutput] = Voice.EnvelopeOutput,
+        [DspVoiceRegister.SampleOutput] = Voice.SampleOutput,
     };
 
     /// <summary>Each offset within a voice block that selects a voice register, by offset.</summary>

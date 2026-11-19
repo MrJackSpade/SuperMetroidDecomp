@@ -21,8 +21,17 @@ public readonly record struct ControllerBindings(
     ControllerButton AimUp,
     ControllerButton AimDown)
 {
-    /// <summary>Every configurable action, in declaration order.</summary>
-    private static readonly ControllerAction[] Actions = Enum.GetValues<ControllerAction>();
+    /// <summary>Every configurable action, in the order the bindings are checked and listed (#2567).</summary>
+    private static readonly ControllerAction[] Actions = [.. Ensure.EveryMemberOnce<ControllerAction>(
+    [
+        ControllerAction.Shoot,
+        ControllerAction.Jump,
+        ControllerAction.Dash,
+        ControllerAction.ItemSelect,
+        ControllerAction.ItemCancel,
+        ControllerAction.AimUp,
+        ControllerAction.AimDown,
+    ])];
 
     /// <summary>The literal bindings a new save file installs.</summary>
     /// <remarks>

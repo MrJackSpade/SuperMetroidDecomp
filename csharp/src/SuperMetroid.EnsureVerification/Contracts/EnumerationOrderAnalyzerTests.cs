@@ -55,6 +55,15 @@ internal static class EnumerationOrderAnalyzerTests
             count: 0);
         Expect(Body("return [Names.Values.Any(name => name.Length == 0).ToString(), Names.Keys.ToHashSet().Count.ToString()];"), count: 0);
         Expect(Body("return [.. Names.ToDictionary(pair => pair.Value, pair => pair.Key).Keys.Order(StringComparer.Ordinal)];"), count: 0);
+        // One match, a thrown message, a dictionary keyed by names, and a list only read by a call are order-free too.
+        Expect(Body("return [Name(Enum.GetValues<Frame>().Single(frame => Name(frame) == \"Open\"))];"), count: 0);
+        Expect(Body("Frame[] missing = [.. Enum.GetValues<Frame>().Where(frame => !Names.ContainsKey(frame))];\n        if (missing.Length != 0)\n            throw new InvalidOperationException(string.Join(\", \", missing));\n        return [];"),
+            count: 0);
+        Expect(Body("var byName = new Dictionary<string, Frame> { [\"open\"] = Frame.Open };\n        return [.. byName.Keys];"), count: 0);
+        Expect(Body("var names = new List<string> { \"open\" };\n        int longest = 0;\n        foreach (Frame frame in Enum.GetValues<Frame>())\n            longest = Math.Max(longest, names.Count(name => name == Name(frame)));\n        return [longest.ToString()];"),
+            "the declaration of 'Frame'");
+        Expect(Body("var names = new List<string> { \"open\" };\n        foreach (Frame frame in Enum.GetValues<Frame>())\n            if (names.Contains(Name(frame)))\n                throw new InvalidOperationException(Name(frame));\n        return names;"),
+            count: 0);
         // A written-out list is data, and outside Core and the import the rule does not apply.
         Expect(Body("return [.. Written.Select(Name)];"), count: 0);
         Expect(Member("internal static IReadOnlyList<Frame> Frames { get; } = Enum.GetValues<Frame>();"), count: 0, assemblyName: "SuperMetroid.Desktop");

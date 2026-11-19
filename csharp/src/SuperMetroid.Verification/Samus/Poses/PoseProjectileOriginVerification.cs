@@ -52,7 +52,9 @@ internal static class PoseProjectileOriginVerification
         {
             int art = SignedByteClasses[artIndex];
             samus.Artwork.Body = artwork[artIndex].Gameplay;
-            foreach (int pose in Enumerable.Range(0, SamusPoseNumbering.RecordCount).Where(SamusPoseNumbering.NamesPose))
+            foreach (int pose in Enumerable.Range(0, SamusPoseNumbering.RecordCount).Where(SamusPoseNumbering.NamesPose)
+                // A pose from which nothing is fired, a drained one, holds no projectile height to start a shot from.
+                .Where(pose => SamusPoseTraits.Of(SamusPoseNumbering.FromNumber(pose)).ProjectileHeight is not null))
             for (byte direction = 0; direction < 10; direction++)
             {
                 guardedPose = samus.Pose = SamusPoseNumbering.FromNumber(pose);

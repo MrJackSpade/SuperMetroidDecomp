@@ -17,7 +17,6 @@ internal static class BlockAnimationFrames
     private static readonly FrozenDictionary<BlockAnimation, string> Keys =
         new Dictionary<BlockAnimation, string>
         {
-            [BlockAnimation.None] = "None block animation",
             [BlockAnimation.TourianStatuePhantoon] = "TourianStatuePhantoon block animation",
             [BlockAnimation.TourianStatueRidley] = "TourianStatueRidley block animation",
             [BlockAnimation.TourianStatueKraid] = "TourianStatueKraid block animation",

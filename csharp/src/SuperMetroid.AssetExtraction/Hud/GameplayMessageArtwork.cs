@@ -100,7 +100,7 @@ public sealed class GameplayMessageArtwork(
     {
         foreach (GameplayMessageId message in OrdinaryMessages)
         {
-            if (GameplayMessageButtons.PanelBinding(message) != GameplayMessagePanelButtonBinding.None)
+            if (GameplayMessageButtons.PanelBinding(message) is not null)
             {
                 foreach (ControllerButton button in GameplayMessageBoxDefinitions.Buttons.GlyphOrder)
                     yield return new ShownMessage(message, button, null);

@@ -1,9 +1,7 @@
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.AssetExtraction.World.RoomStates;
-using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.RoomObjects;
-using SuperMetroid.Core.World;
 
 namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 

@@ -239,7 +239,7 @@ internal static class NativeSnapshotMotherBrainImport
     {
         AnimationPlayback<MotherBrainHeadSegment> playback = NativeEnemyAnimationOracle.PlaybackAt(head,
             MotherBrainNativeListAddresses.HeadEntries, MotherBrainAnimations.HeadStartingAt, pointer);
-        return playback.Place.Beat == AnimationPlace.NotEntered ? playback with { Place = AnimationPlace.StartOf(playback.Place.Phase) } : playback;
+        return playback.Place.HasNotEntered ? playback with { Place = AnimationPlace.StartOf(playback.Place.Phase) } : playback;
     }
 
     /// <summary>The stages the late fight's sequence runs, which a recorded body function in one of them resumes (#2208).</summary>

@@ -15,6 +15,9 @@ namespace SuperMetroid.AssetExtraction.Audio;
 [EncodingOwner("track numbers of the sound driver's music data sets")]
 internal static class MusicTrackNumbers
 {
+    /// <summary>The track number the sound driver stops the music for: zero, which names no song.</summary>
+    internal const byte Silence = 0;
+
     /// <summary>The number of each data set's first own song, which a room that keeps the loaded set plays as its area theme.</summary>
     internal const int AreaThemeTrack = 5;
 

@@ -6,14 +6,27 @@ namespace SuperMetroid.Core.Animation;
 /// </summary>
 /// <param name="Phase">The phase playing.</param>
 /// <param name="Beat">
-/// The phase's next beat, counted from the phase's first; past its last, the phase's play is done. Before its first,
-/// <see cref="NotEntered"/>: the play has not reached the phase yet, and starts counting its plays when it does. One past
-/// its last, the animation holds there: its play is done for good and it rests on its last frame.
+/// The phase's next beat, counted from the phase's first; past its last, the phase's play is done. Before its first
+/// (<see cref="HasNotEntered"/>), the play has not reached the phase yet, and starts counting its plays when it does. One
+/// past its last (<see cref="HoldsIn"/>), the animation holds there: its play is done for good and it rests on its last
+/// frame.
 /// </param>
 internal readonly record struct AnimationPlace(int Phase, int Beat)
 {
-    /// <summary>The beat of a phase the play has not entered yet.</summary>
-    internal const int NotEntered = -1;
+    /// <summary>
+    /// The beat counter of a phase the play has not entered yet, one before its first beat: the playback counts beats from
+    /// it, so entering the phase is the count's step to the first (#2558). Callers ask <see cref="HasNotEntered"/>.
+    /// </summary>
+    private const int BeforeFirstBeat = -1;
+
+    /// <summary>Whether the play has not entered the phase yet: it stands before the phase's first beat.</summary>
+    internal bool HasNotEntered => Beat == BeforeFirstBeat;
+
+    /// <summary>
+    /// Whether the animation holds in the phase, of <paramref name="beatCount"/> beats: its play done for good, resting on
+    /// its last frame, where <see cref="HoldingIn"/> leaves it.
+    /// </summary>
+    internal bool HoldsIn(int beatCount) => Beat > beatCount;
 
     /// <summary>
     /// The plays a repeated phase has left, the one playing included: entering the phase sets them to its plays, and the end
@@ -35,7 +48,7 @@ internal readonly record struct AnimationPlace(int Phase, int Beat)
     internal static AnimationPlace HoldingIn(int phase, int beatCount) => new(phase, beatCount + 1);
 
     /// <summary>Before phase <paramref name="phase"/>, which the next play enters.</summary>
-    internal static AnimationPlace Before(int phase) => new(phase, NotEntered);
+    internal static AnimationPlace Before(int phase) => new(phase, BeforeFirstBeat);
 
     /// <summary>This place, with <paramref name="playsLeft"/> plays of its repeated phase left, the one playing included.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="playsLeft"/> is negative.</exception>

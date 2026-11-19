@@ -25,14 +25,20 @@ public abstract record AudioEvent
     }
 
     /// <summary>
-    /// Selects <see cref="Track"/> before the update's clock steps run; the song changes on the music's next beat. A
-    /// null track stops the music.
+    /// Selects <see cref="Track"/> before the update's clock steps run; the song changes on the music's next beat.
     /// </summary>
-    /// <param name="Track">The track selected, or null to stop the music.</param>
-    public sealed record SelectMusicTrack(MusicTrack? Track) : AudioEvent
+    /// <param name="Track">The track selected.</param>
+    public sealed record SelectMusicTrack(MusicTrack Track) : AudioEvent
     {
         /// <inheritdoc />
-        public override string ToString() => Track is MusicTrack track ? $"music:{track}" : "music:stop";
+        public override string ToString() => $"music:{Track}";
+    }
+
+    /// <summary>Stops the music before the update's clock steps run, on the music's next beat.</summary>
+    public sealed record StopMusic : AudioEvent
+    {
+        /// <inheritdoc />
+        public override string ToString() => "music:stop";
     }
 
     /// <summary>One step of the sound acceptance clock at its sample offset within the update.</summary>

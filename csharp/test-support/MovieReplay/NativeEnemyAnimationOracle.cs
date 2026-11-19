@@ -330,7 +330,7 @@ internal static class NativeEnemyAnimationOracle
         Ensure.NotNull(startingAt);
         Animation<TSegment> animation = playback.Animation;
         AnimationPlace place = playback.Place;
-        if (place.Beat == AnimationPlace.NotEntered)
+        if (place.HasNotEntered)
         {
             if (place.Phase != 0)
                 throw new InvalidOperationException($"A {typeof(TSegment).Name} playback before phase {place.Phase} stands at no native place.");
@@ -511,7 +511,7 @@ internal static class NativeEnemyAnimationOracle
         where TSegment : struct
     {
         AnimationPlace place = playback.Place;
-        if (place.Beat == AnimationPlace.NotEntered || playback.Animation.Phases.Count == 0)
+        if (place.HasNotEntered || playback.Animation.Phases.Count == 0)
             return playback;
         AnimationPhase<TSegment> phase = playback.Animation.Phases[place.Phase];
         if (!phase.IsRepeated || place.Beat > phase.BeatCount)
@@ -537,7 +537,7 @@ internal static class NativeEnemyAnimationOracle
         where TSegment : struct
     {
         AnimationPlace place = playback.Place;
-        if (place.Beat == AnimationPlace.NotEntered || playback.Animation.Phases.Count == 0)
+        if (place.HasNotEntered || playback.Animation.Phases.Count == 0)
             return null;
         AnimationPhase<TSegment> phase = playback.Animation.Phases[place.Phase];
         return phase.IsRepeated && place.Beat <= phase.BeatCount ? place.PlaysLeft : null;

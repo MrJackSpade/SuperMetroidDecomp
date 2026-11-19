@@ -152,11 +152,11 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
             // An animation of no phase is over at once, or rests where it is when it holds.
             if (animation.Phases.Count == 0)
                 return animation.End is AnimationEnd.Hold ? AnimationShown<TSegment, TFrame>.Held.Instance : AnimationShown<TSegment, TFrame>.Ended.Instance;
-            if (place.Beat == AnimationPlace.NotEntered)
+            if (place.HasNotEntered)
                 place = Enter(animation, place.Phase);
             AnimationPhase<TSegment> phase = animation.Phases[place.Phase];
             // A held animation stays held: its last play is done and counts nothing again.
-            if (place.Beat > phase.BeatCount)
+            if (place.HoldsIn(phase.BeatCount))
                 return AnimationShown<TSegment, TFrame>.Held.Instance;
             if (place.Beat < phase.BeatCount)
             {

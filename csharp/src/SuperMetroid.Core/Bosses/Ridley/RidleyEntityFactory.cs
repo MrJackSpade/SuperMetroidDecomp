@@ -12,6 +12,12 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <param name="escape">The station's escape progress, which ends Ceres Ridley's touch and drawing.</param>
 internal sealed class RidleyEntityFactory(NorfairRidleyBehavior norfair, CeresRidleyBehavior ceres, ICeresEscapeStatus escape) : IEnemyEntityFactory
 {
+    /// <summary>Lower Norfair Ridley's encounter behaviour.</summary>
+    internal NorfairRidleyBehavior Norfair { get; } = norfair;
+
+    /// <summary>Ceres Ridley's encounter behaviour.</summary>
+    internal CeresRidleyBehavior Ceres { get; } = ceres;
+
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
         [EnemyDefinitionId.Ridley, EnemyDefinitionId.RidleyCeres, EnemyDefinitionId.RidleyBreakupPiece];
@@ -22,11 +28,11 @@ internal sealed class RidleyEntityFactory(NorfairRidleyBehavior norfair, CeresRi
     {
         EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
         if (definition == EnemyDefinitionId.Ridley)
-            return new NorfairRidleyEntity(norfair, place, common);
+            return new NorfairRidleyEntity(Norfair, place, common);
         if (definition == EnemyDefinitionId.RidleyCeres)
-            return new CeresRidleyEntity(ceres, escape, place, common);
+            return new CeresRidleyEntity(Ceres, escape, place, common);
         if (definition == EnemyDefinitionId.RidleyBreakupPiece)
-            return new RidleyBreakupPieceEntity(norfair, place, common);
+            return new RidleyBreakupPieceEntity(Norfair, place, common);
         throw new InvalidOperationException($"The Ridley factory creates no {place.DefinitionId}.");
     }
 }

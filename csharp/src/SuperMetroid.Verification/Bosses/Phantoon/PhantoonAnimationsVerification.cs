@@ -237,9 +237,9 @@ internal static class PhantoonAnimationsVerification
         enemies.PrePhantoonRoomBehavior.SpawnPrePhantoonRoomProjectile();
         EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace);
         AssertTrue(projectile.Animation is PrePhantoonRoomAnimation, "the room setup starts the typed room animation");
-        // The native list's first entry holds its blank frame's timer.
-        var native = new NativeEnemyProjectileListReader(PrePhantoonRoomEntry,
-            cartridge.ReadCartridgeWord(NativeEnemyProjectileListDefinitions.ProjectileBank | PrePhantoonRoomEntry));
+        // A spawned projectile reads its list's first instruction, the blank frame, on its first update.
+        const ushort SpawnedListUpdatesToFirstInstruction = 1;
+        var native = new NativeEnemyProjectileListReader(PrePhantoonRoomEntry, SpawnedListUpdatesToFirstInstruction);
         for (int update = 0; update < 40 && !native.Deleted; update++)
         {
             enemies.PrePhantoonRoomBehavior.HoldingProjectile.RunMotion(new EnemyProjectileMotionContext(projectile,

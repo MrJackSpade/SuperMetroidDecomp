@@ -23,7 +23,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public sealed class SamusCrystalFlashState
 {
     /// <summary>The exact held actions that start Crystal Flash: Down, both aims and Shoot, and nothing else.</summary>
-    public const GameplayAction RequiredInput =
+    private const GameplayAction RequiredInput =
         GameplayAction.Down | GameplayAction.AimDown | GameplayAction.AimUp | GameplayAction.Shoot;
 
     /// <summary>The phase in which Crystal Flash moves Samus, or none once another owner has taken her movement.</summary>

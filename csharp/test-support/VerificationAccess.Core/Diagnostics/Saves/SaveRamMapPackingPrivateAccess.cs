@@ -17,4 +17,11 @@ internal static class SaveRamMapPackingPrivateAccess
         internal static global::SuperMetroid.Diagnostics.Saves.SaveRamPackedArea Area(int area, global::SuperMetroid.Core.Map.IAreaMapSource maps) =>
             PrivateState.InvokeStatic<global::SuperMetroid.Diagnostics.Saves.SaveRamPackedArea>(typeof(global::SuperMetroid.Diagnostics.Saves.SaveRamMapPacking), "Area", [typeof(int), typeof(global::SuperMetroid.Core.Map.IAreaMapSource)], new object?[] { area, maps });
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.Diagnostics.Saves.SaveRamMapPacking)
+    {
+        /// <summary>The private field <c>PackedAreaCount</c>, reached by name.</summary>
+        internal static int PackedAreaCount => PrivateState.StaticField<int>(typeof(global::SuperMetroid.Diagnostics.Saves.SaveRamMapPacking), "PackedAreaCount");
+    }
 }

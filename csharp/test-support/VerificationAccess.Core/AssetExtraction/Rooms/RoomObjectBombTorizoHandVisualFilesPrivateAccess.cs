@@ -17,4 +17,11 @@ internal static class RoomObjectBombTorizoHandVisualFilesPrivateAccess
         internal static string VisualId(global::SuperMetroid.Core.Bosses.Torizo.BombTorizoHandDraw frame) =>
             PrivateState.InvokeStatic<string>(typeof(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectBombTorizoHandVisualFiles), "VisualId", [typeof(global::SuperMetroid.Core.Bosses.Torizo.BombTorizoHandDraw)], new object?[] { frame });
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectBombTorizoHandVisualFiles)
+    {
+        /// <summary>The private field <c>VisualFileName</c>, reached by name.</summary>
+        internal static string VisualFileName => PrivateState.StaticField<string>(typeof(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectBombTorizoHandVisualFiles), "VisualFileName");
+    }
 }

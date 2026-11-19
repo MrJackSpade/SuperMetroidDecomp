@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectTourianAccessVisualFiles
 {
     /// <summary>Editable Tourian entrance access-floor visual JSON filename.</summary>
-    public const string VisualFileName = "tourian-access.json";
+    private const string VisualFileName = "tourian-access.json";
 
     /// <summary>The stages of a row's crumble the floor draws, in their published order (#2567): rock, pieces, dust.</summary>
     private static readonly BlockBreakupStage[] CrumbleStages = [BlockBreakupStage.Rock, BlockBreakupStage.Pieces, BlockBreakupStage.Dust];

@@ -25,4 +25,12 @@ internal static class CrocomireMeltingPrivateAccess
         internal static int BandRound(global::SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireMeltingIllustration pass) =>
             PrivateState.InvokeStatic<int>(typeof(global::SuperMetroid.Core.Bosses.Crocomire.CrocomireMelting), "BandRound", [typeof(global::SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireMeltingIllustration)], new object?[] { pass });
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Bosses.Crocomire.CrocomireMelting self)
+    {
+        /// <summary>The private method <c>RequireCrocomireMeltingImage</c>, invoked by name.</summary>
+        internal global::SuperMetroid.Core.Enemies.BossBodies.BossBodyFrame RequireCrocomireMeltingImage(global::SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireMeltingIllustration illustration) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Crocomire.CrocomireMelting, global::SuperMetroid.Core.Enemies.BossBodies.BossBodyFrame>(self, "RequireCrocomireMeltingImage", [typeof(global::SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireMeltingIllustration)], new object?[] { illustration });
+    }
 }

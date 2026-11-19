@@ -25,4 +25,17 @@ internal static class TourianStatueSequencePrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.World.TourianStatueSequence, int>(self, "VerticalOffset");
         }
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.Core.World.TourianStatueSequence)
+    {
+        /// <summary>The private field <c>AlreadyGreyAnimation</c>, reached by name.</summary>
+        internal static global::SuperMetroid.Core.Areas.Tourian.TourianStatueBlockSegment AlreadyGreyAnimation => PrivateState.StaticField<global::SuperMetroid.Core.Areas.Tourian.TourianStatueBlockSegment>(typeof(global::SuperMetroid.Core.World.TourianStatueSequence), "AlreadyGreyAnimation");
+
+        /// <summary>The private field <c>ReleaseAnimation</c>, reached by name.</summary>
+        internal static global::SuperMetroid.Core.Areas.Tourian.TourianStatueBlockSegment ReleaseAnimation => PrivateState.StaticField<global::SuperMetroid.Core.Areas.Tourian.TourianStatueBlockSegment>(typeof(global::SuperMetroid.Core.World.TourianStatueSequence), "ReleaseAnimation");
+
+        /// <summary>The private field <c>WaitingAnimation</c>, reached by name.</summary>
+        internal static global::SuperMetroid.Core.Areas.Tourian.TourianStatueBlockSegment WaitingAnimation => PrivateState.StaticField<global::SuperMetroid.Core.Areas.Tourian.TourianStatueBlockSegment>(typeof(global::SuperMetroid.Core.World.TourianStatueSequence), "WaitingAnimation");
+    }
 }

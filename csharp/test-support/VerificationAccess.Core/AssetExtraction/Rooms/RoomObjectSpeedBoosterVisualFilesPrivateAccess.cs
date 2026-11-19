@@ -23,4 +23,11 @@ internal static class RoomObjectSpeedBoosterVisualFilesPrivateAccess
         internal static string VisualId(global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectDraw request) =>
             PrivateState.InvokeStatic<string>(typeof(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectSpeedBoosterVisualFiles), "VisualId", [typeof(global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectDraw)], new object?[] { request });
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectSpeedBoosterVisualFiles)
+    {
+        /// <summary>The private field <c>VisualFileName</c>, reached by name.</summary>
+        internal static string VisualFileName => PrivateState.StaticField<string>(typeof(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectSpeedBoosterVisualFiles), "VisualFileName");
+    }
 }

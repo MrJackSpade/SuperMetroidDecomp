@@ -16,4 +16,11 @@ internal static class SamusBodyCharacterArtworkPrivateAccess
         /// <summary>The private field <c>bottom</c>, reached by name.</summary>
         internal global::SuperMetroid.AssetExtraction.Samus.SamusBodyTileTransfer[][] bottom => PrivateState.Field<global::SuperMetroid.AssetExtraction.Samus.SamusBodyCharacterArtwork, global::SuperMetroid.AssetExtraction.Samus.SamusBodyTileTransfer[][]>(self, "bottom");
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Samus.SamusBodyCharacterArtwork)
+    {
+        /// <summary>The private field <c>BodyCharacterCount</c>, reached by name.</summary>
+        internal static int BodyCharacterCount => PrivateState.StaticField<int>(typeof(global::SuperMetroid.AssetExtraction.Samus.SamusBodyCharacterArtwork), "BodyCharacterCount");
+    }
 }

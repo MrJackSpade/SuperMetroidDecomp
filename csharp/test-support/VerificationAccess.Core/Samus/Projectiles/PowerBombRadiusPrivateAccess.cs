@@ -17,4 +17,11 @@ internal static class PowerBombRadiusPrivateAccess
         internal static global::SuperMetroid.Core.Samus.Projectiles.PowerBombRadius FromPixels(int wholePixels, int fraction) =>
             PrivateState.InvokeStatic<global::SuperMetroid.Core.Samus.Projectiles.PowerBombRadius>(typeof(global::SuperMetroid.Core.Samus.Projectiles.PowerBombRadius), "FromPixels", [typeof(int), typeof(int)], new object?[] { wholePixels, fraction });
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.Core.Samus.Projectiles.PowerBombRadius)
+    {
+        /// <summary>The private field <c>FractionsPerPixel</c>, reached by name.</summary>
+        internal static int FractionsPerPixel => PrivateState.StaticField<int>(typeof(global::SuperMetroid.Core.Samus.Projectiles.PowerBombRadius), "FractionsPerPixel");
+    }
 }

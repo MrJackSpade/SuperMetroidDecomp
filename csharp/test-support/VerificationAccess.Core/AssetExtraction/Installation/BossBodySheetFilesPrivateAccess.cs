@@ -21,4 +21,11 @@ internal static class BossBodySheetFilesPrivateAccess
         internal static global::SuperMetroid.AssetExtraction.Installation.InstalledSheetFamily Write(global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.AssetExtraction.Bosses.ComposedBossBodySheet> sheets, string directory) =>
             PrivateState.InvokeStatic<global::SuperMetroid.AssetExtraction.Installation.InstalledSheetFamily>(typeof(global::SuperMetroid.AssetExtraction.Installation.BossBodySheetFiles), "Write", [typeof(global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.AssetExtraction.Bosses.ComposedBossBodySheet>), typeof(string)], new object?[] { sheets, directory });
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Installation.BossBodySheetFiles)
+    {
+        /// <summary>The private field <c>ManifestFileName</c>, reached by name.</summary>
+        internal static string ManifestFileName => PrivateState.StaticField<string>(typeof(global::SuperMetroid.AssetExtraction.Installation.BossBodySheetFiles), "ManifestFileName");
+    }
 }

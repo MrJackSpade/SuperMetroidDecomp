@@ -157,10 +157,10 @@ internal sealed class CeresRidleyBabyScene
         pose is { } shown ? CeresBabyFrameDefinitions.ShownFrames.Of(shown) : null;
 
     /// <summary>The animation the Baby starts while it moves, where it reacts to its motion (#2167).</summary>
-    internal const CeresBabySegment MovingAnimation = CeresBabySegment.ExpressiveLoop;
+    private const CeresBabySegment MovingAnimation = CeresBabySegment.ExpressiveLoop;
 
     /// <summary>The animation the Baby starts when it rests silently instead of crying (#2167).</summary>
-    internal const CeresBabySegment SilentAnimation = CeresBabySegment.IdleSquish;
+    private const CeresBabySegment SilentAnimation = CeresBabySegment.IdleSquish;
 
     /// <summary>Carries out one cue of the Baby's animation, returning the segment whose animation its owner starts, or null to play on.</summary>
     private CeresBabySegment? ApplyCeresBabyCue(CeresRidleyState ridley, CeresBabyCue cue)

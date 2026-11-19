@@ -17,4 +17,11 @@ internal static class CeresCinematicPictureSheetComposerPrivateAccess
         internal static char CaptionCharacter(int index) =>
             PrivateState.InvokeStatic<char>(typeof(global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresCinematicPictureSheetComposer), "CaptionCharacter", [typeof(int)], new object?[] { index });
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresCinematicPictureSheetComposer)
+    {
+        /// <summary>The private field <c>JapaneseWidth</c>, reached by name.</summary>
+        internal static int JapaneseWidth => PrivateState.StaticField<int>(typeof(global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresCinematicPictureSheetComposer), "JapaneseWidth");
+    }
 }

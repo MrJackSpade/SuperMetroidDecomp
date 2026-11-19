@@ -34,4 +34,11 @@ internal static class D3D11RenderWorkerPrivateAccess
         /// <summary>The private field <c>surfaceSuspended</c>, reached by name.</summary>
         internal bool surfaceSuspended => PrivateState.Field<global::SuperMetroid.Rendering.Direct3D11.Frames.D3D11RenderWorker, bool>(self, "surfaceSuspended");
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Rendering.Direct3D11.Frames.D3D11RenderWorker self)
+    {
+        /// <summary>The private field <c>gate</c>, reached by name.</summary>
+        internal global::SuperMetroid.Rendering.Direct3D11.Presentation.RenderPresentationGate gate => PrivateState.Field<global::SuperMetroid.Rendering.Direct3D11.Frames.D3D11RenderWorker, global::SuperMetroid.Rendering.Direct3D11.Presentation.RenderPresentationGate>(self, "gate");
+    }
 }

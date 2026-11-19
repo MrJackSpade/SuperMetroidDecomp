@@ -17,4 +17,11 @@ internal static class ObjCharacterImagePrivateAccess
         internal static int ResolveTileByteAddress(int tileNumber, int obsel) =>
             PrivateState.InvokeStatic<int>(typeof(global::SuperMetroid.AssetExtraction.Artwork.ObjCharacterImage), "ResolveTileByteAddress", [typeof(int), typeof(int)], new object?[] { tileNumber, obsel });
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Artwork.ObjCharacterImage)
+    {
+        /// <summary>The private field <c>NameSelectBit</c>, reached by name.</summary>
+        internal static int NameSelectBit => PrivateState.StaticField<int>(typeof(global::SuperMetroid.AssetExtraction.Artwork.ObjCharacterImage), "NameSelectBit");
+    }
 }

@@ -21,4 +21,11 @@ internal static class RoomEnemyDefinitionImporterPrivateAccess
         internal static ushort ReadWord(global::SuperMetroid.AssetExtraction.Cartridge.IImportCartridgeSource cartridge, int header, int offset) =>
             PrivateState.InvokeStatic<ushort>(typeof(global::SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter), "ReadWord", [typeof(global::SuperMetroid.AssetExtraction.Cartridge.IImportCartridgeSource), typeof(int), typeof(int)], new object?[] { cartridge, header, offset });
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter)
+    {
+        /// <summary>The private field <c>BankOffset</c>, reached by name.</summary>
+        internal static int BankOffset => PrivateState.StaticField<int>(typeof(global::SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter), "BankOffset");
+    }
 }

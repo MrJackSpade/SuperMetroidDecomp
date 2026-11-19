@@ -17,4 +17,11 @@ internal static class RoomObjectNoobTubeVisualFilesPrivateAccess
         internal static string VisualId(global::SuperMetroid.Core.Rooms.RoomObjects.NoobTubeDraw frame) =>
             PrivateState.InvokeStatic<string>(typeof(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectNoobTubeVisualFiles), "VisualId", [typeof(global::SuperMetroid.Core.Rooms.RoomObjects.NoobTubeDraw)], new object?[] { frame });
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectNoobTubeVisualFiles)
+    {
+        /// <summary>The private field <c>VisualFileName</c>, reached by name.</summary>
+        internal static string VisualFileName => PrivateState.StaticField<string>(typeof(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectNoobTubeVisualFiles), "VisualFileName");
+    }
 }

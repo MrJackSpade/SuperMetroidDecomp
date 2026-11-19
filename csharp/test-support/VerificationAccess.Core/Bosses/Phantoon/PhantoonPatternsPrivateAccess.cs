@@ -41,4 +41,12 @@ internal static class PhantoonPatternsPrivateAccess
         internal static void StepPhantoonFigureEight(global::SuperMetroid.Core.Enemies.RoomEnemyPlace body, global::SuperMetroid.Core.Bosses.Phantoon.PhantoonFigureEightState figureEight) =>
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Bosses.Phantoon.PhantoonPatterns), "StepPhantoonFigureEight", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Bosses.Phantoon.PhantoonFigureEightState)], new object?[] { body, figureEight });
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Bosses.Phantoon.PhantoonPatterns self)
+    {
+        /// <summary>The private method <c>StepPhantoonCasualFlameSchedule</c>, invoked by name.</summary>
+        internal void StepPhantoonCasualFlameSchedule(global::SuperMetroid.Core.Bosses.Phantoon.PhantoonEnemyState state) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Phantoon.PhantoonPatterns>(self, "StepPhantoonCasualFlameSchedule", [typeof(global::SuperMetroid.Core.Bosses.Phantoon.PhantoonEnemyState)], new object?[] { state });
+    }
 }

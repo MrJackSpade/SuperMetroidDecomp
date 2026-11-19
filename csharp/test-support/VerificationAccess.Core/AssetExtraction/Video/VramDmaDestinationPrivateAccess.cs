@@ -19,4 +19,14 @@ internal static class VramDmaDestinationPrivateAccess
             get => PrivateState.ValueGet<global::SuperMetroid.AssetExtraction.Video.VramDmaDestination, ushort>(self, "Encoded");
         }
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Video.VramDmaDestination)
+    {
+        /// <summary>The private field <c>ColumnFlag</c>, reached by name.</summary>
+        internal static ushort ColumnFlag => PrivateState.StaticField<ushort>(typeof(global::SuperMetroid.AssetExtraction.Video.VramDmaDestination), "ColumnFlag");
+
+        /// <summary>The private field <c>WordMask</c>, reached by name.</summary>
+        internal static ushort WordMask => PrivateState.StaticField<ushort>(typeof(global::SuperMetroid.AssetExtraction.Video.VramDmaDestination), "WordMask");
+    }
 }

@@ -86,7 +86,8 @@ internal static class SolutionLoader
             Console.WriteLine($"Compiled {result.Compilation.Project.Name}");
         // Every project's errors are reported together, so one load shows everything that must be fixed.
         foreach (var result in compiled.Where(result => result.Errors.Count != 0 && mayFail?.Invoke(result.Compilation.Project) == true))
-            Console.Error.WriteLine($"{result.Compilation.Project.Name}: {result.Errors.Count} compile errors accepted");
+            Console.Error.WriteLine($"{result.Compilation.Project.Name}: {result.Errors.Count} compile errors accepted:\n" +
+                string.Join('\n', result.Errors));
         var compileErrors = compiled.Where(result => mayFail?.Invoke(result.Compilation.Project) != true)
             .SelectMany(result => result.Errors.Select(error => $"{result.Compilation.Project.Name}: {error}")).ToList();
         if (compileErrors.Count > 0)

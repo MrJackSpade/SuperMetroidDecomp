@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectShotBlockVisualFiles
 {
     /// <summary>Family-relative installed JSON filename for all nineteen ordinary shot-block breakup and restoration draws.</summary>
-    public const string VisualFileName = "shot-blocks.json";
+    private const string VisualFileName = "shot-blocks.json";
 
     /// <summary>The breakup's stages in the installed file's order (#2567): rock, pieces, dust, gone, each in every arrangement.</summary>
     private static readonly IReadOnlyList<BlockBreakupStage> BreakupStages = Ensure.EveryMemberOnce<BlockBreakupStage>(

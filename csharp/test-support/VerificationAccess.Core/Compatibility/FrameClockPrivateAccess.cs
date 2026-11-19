@@ -17,4 +17,11 @@ internal static class FrameClockPrivateAccess
         internal void Import(int shortCounter, int counter) =>
             PrivateState.Invoke<global::SuperMetroid.Core.Compatibility.FrameClock>(self, "Import", [typeof(int), typeof(int)], new object?[] { shortCounter, counter });
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.Core.Compatibility.FrameClock)
+    {
+        /// <summary>The private field <c>ShortCounterPeriod</c>, reached by name.</summary>
+        internal static int ShortCounterPeriod => PrivateState.StaticField<int>(typeof(global::SuperMetroid.Core.Compatibility.FrameClock), "ShortCounterPeriod");
+    }
 }

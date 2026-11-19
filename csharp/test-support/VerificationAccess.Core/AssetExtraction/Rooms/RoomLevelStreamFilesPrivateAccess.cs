@@ -17,4 +17,11 @@ internal static class RoomLevelStreamFilesPrivateAccess
         internal static string LevelFileName(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelId level) =>
             PrivateState.InvokeStatic<string>(typeof(global::SuperMetroid.AssetExtraction.Rooms.RoomLevelStreamFiles), "LevelFileName", [typeof(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelId)], new object?[] { level });
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Rooms.RoomLevelStreamFiles)
+    {
+        /// <summary>The private field <c>CollisionKindsFileName</c>, reached by name.</summary>
+        internal static string CollisionKindsFileName => PrivateState.StaticField<string>(typeof(global::SuperMetroid.AssetExtraction.Rooms.RoomLevelStreamFiles), "CollisionKindsFileName");
+    }
 }

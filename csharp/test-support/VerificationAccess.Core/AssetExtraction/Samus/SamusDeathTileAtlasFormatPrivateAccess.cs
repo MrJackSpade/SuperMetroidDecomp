@@ -17,4 +17,14 @@ internal static class SamusDeathTileAtlasFormatPrivateAccess
         internal static int ExplosionPageOfAtlasPage(int atlasPage) =>
             PrivateState.InvokeStatic<int>(typeof(global::SuperMetroid.AssetExtraction.Samus.SamusDeathTileAtlasFormat), "ExplosionPageOfAtlasPage", [typeof(int)], new object?[] { atlasPage });
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Samus.SamusDeathTileAtlasFormat)
+    {
+        /// <summary>The private field <c>PageByteCount</c>, reached by name.</summary>
+        internal static int PageByteCount => PrivateState.StaticField<int>(typeof(global::SuperMetroid.AssetExtraction.Samus.SamusDeathTileAtlasFormat), "PageByteCount");
+
+        /// <summary>The private field <c>SegmentCount</c>, reached by name.</summary>
+        internal static int SegmentCount => PrivateState.StaticField<int>(typeof(global::SuperMetroid.AssetExtraction.Samus.SamusDeathTileAtlasFormat), "SegmentCount");
+    }
 }

@@ -19,4 +19,11 @@ internal static class SamusSpeedBoostCounterPrivateAccess
             get => PrivateState.ValueGet<global::SuperMetroid.Core.Samus.Movement.SamusSpeedBoostCounter, int>(self, "Countdown");
         }
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.Core.Samus.Movement.SamusSpeedBoostCounter)
+    {
+        /// <summary>The private field <c>FullStage</c>, reached by name.</summary>
+        internal static int FullStage => PrivateState.StaticField<int>(typeof(global::SuperMetroid.Core.Samus.Movement.SamusSpeedBoostCounter), "FullStage");
+    }
 }

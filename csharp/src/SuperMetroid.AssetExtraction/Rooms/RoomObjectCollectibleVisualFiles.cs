@@ -18,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectCollectibleVisualFiles
 {
     /// <summary>Editable JSON filename containing the sixteen editable collectible frames.</summary>
-    public const string VisualFileName = "collectibles.json";
+    private const string VisualFileName = "collectibles.json";
 
     /// <summary>Every collectible frame in its published order (#2567): the empty block, the Chozo orb's stages, the tanks, the block pairs' looks and the shot block's stages.</summary>
     private static readonly IReadOnlyList<CollectibleDraw> PublishedOrder = Ensure.EveryMemberOnce<CollectibleDraw>(

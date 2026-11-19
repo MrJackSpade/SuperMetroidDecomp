@@ -17,4 +17,11 @@ internal static class SamusBodyArtworkFilesPrivateAccess
         internal static global::SuperMetroid.AssetExtraction.Samus.SamusBodySources LoadForImport(string directory, string importData) =>
             PrivateState.InvokeStatic<global::SuperMetroid.AssetExtraction.Samus.SamusBodySources>(typeof(global::SuperMetroid.AssetExtraction.Samus.SamusBodyArtworkFiles), "LoadForImport", [typeof(string), typeof(string)], new object?[] { directory, importData });
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Samus.SamusBodyArtworkFiles)
+    {
+        /// <summary>The private field <c>ArtworkFileName</c>, reached by name.</summary>
+        internal static string ArtworkFileName => PrivateState.StaticField<string>(typeof(global::SuperMetroid.AssetExtraction.Samus.SamusBodyArtworkFiles), "ArtworkFileName");
+    }
 }

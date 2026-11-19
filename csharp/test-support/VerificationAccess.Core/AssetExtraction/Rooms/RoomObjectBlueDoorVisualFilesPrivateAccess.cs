@@ -32,4 +32,11 @@ internal static class RoomObjectBlueDoorVisualFilesPrivateAccess
         internal static string VisualId(global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectDraw request) =>
             PrivateState.InvokeStatic<string>(typeof(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectBlueDoorVisualFiles), "VisualId", [typeof(global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectDraw)], new object?[] { request });
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectBlueDoorVisualFiles)
+    {
+        /// <summary>The private field <c>VisualFileName</c>, reached by name.</summary>
+        internal static string VisualFileName => PrivateState.StaticField<string>(typeof(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectBlueDoorVisualFiles), "VisualFileName");
+    }
 }

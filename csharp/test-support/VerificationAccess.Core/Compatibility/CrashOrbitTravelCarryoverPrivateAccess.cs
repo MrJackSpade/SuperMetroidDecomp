@@ -19,4 +19,11 @@ internal static class CrashOrbitTravelCarryoverPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Compatibility.CrashOrbitTravelCarryover, int>(self, "Travel");
         }
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.Core.Compatibility.CrashOrbitTravelCarryover)
+    {
+        /// <summary>The private field <c>LargestTravel</c>, reached by name.</summary>
+        internal static int LargestTravel => PrivateState.StaticField<int>(typeof(global::SuperMetroid.Core.Compatibility.CrashOrbitTravelCarryover), "LargestTravel");
+    }
 }

@@ -19,4 +19,11 @@ internal static class SnesBgTilemapWordPrivateAccess
             get => PrivateState.ValueGet<global::SuperMetroid.AssetExtraction.Artwork.SnesBgTilemapWord, global::SuperMetroid.Core.Spatial.PictureFlip>(self, "FlipFlags");
         }
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Artwork.SnesBgTilemapWord)
+    {
+        /// <summary>The private field <c>PriorityMask</c>, reached by name.</summary>
+        internal static ushort PriorityMask => PrivateState.StaticField<ushort>(typeof(global::SuperMetroid.AssetExtraction.Artwork.SnesBgTilemapWord), "PriorityMask");
+    }
 }

@@ -283,7 +283,7 @@ internal sealed class DraygonParts
         _effectActors.SpawnRoomEffectActor(
             state.Body.Position.Whole + scatter,
             kind,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
     }
 
     /// <summary>Applies the tail whip's hit to grabbed Samus, including suit damage.</summary>
@@ -299,7 +299,7 @@ internal sealed class DraygonParts
         _effectActors.SpawnRoomEffectActor(
             new(samus.Position.X.Whole, samus.Position.Y.Whole + DraygonArenaDefinitions.TailHitDustBelowSamus),
             RoomEffectActorKind.BigDustCloud,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
     }
 
     /// <summary>

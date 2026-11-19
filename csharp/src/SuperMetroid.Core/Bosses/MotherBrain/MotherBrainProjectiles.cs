@@ -420,7 +420,7 @@ internal sealed class MotherBrainProjectiles
                 sparkle,
                 RoomEnemyProjectileKind.MotherBrainGlassSparkle,
                 Spawned,
-                graphics: default);
+                graphics: SpriteGraphics.SharedStandard);
             sparkle.StartAnimation(new MotherBrainGlassAnimation(MotherBrainGlassSegment.Sparkle));
             // A shard near the top of the room may sparkle above it, so the sparkle's place is its shard's moved by its
             // offset, which continues past the room's edge as positions do.
@@ -446,7 +446,7 @@ internal sealed class MotherBrainProjectiles
                 beam,
                 RoomEnemyProjectileKind.MotherBrainHandBeamFired,
                 Spawned,
-                graphics: default);
+                graphics: SpriteGraphics.SharedStandard);
             beam.Position = state.HandBeamNextPosition;
             beam.Velocity = state.HandBeamNextVelocity;
 
@@ -721,7 +721,7 @@ internal sealed class MotherBrainProjectiles
             shard,
             RoomEnemyProjectileKind.MotherBrainGlassShard,
             Projectile,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
 
         // The shard launches at a random angle, any step of the turn. It selects signed sine/cosine velocities and the
         // shard's spin animation.

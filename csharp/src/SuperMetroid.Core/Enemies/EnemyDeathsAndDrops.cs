@@ -114,7 +114,7 @@ internal sealed class EnemyDeathsAndDrops
                 explosion,
                 RoomEnemyProjectileKind.EnemyDeathExplosion,
                 ExplosionsAndPickups,
-                graphics: default);
+                graphics: SpriteGraphics.SharedStandard);
             explosion.Position = explosion.Position.WithWhole(enemy.Position.Whole);
             explosion.State = new EnemyDeathExplosionState(KilledEnemy.Of(enemy, respawns), enemy.DefinitionId);
             explosion.StartAnimation(new EnemyDeathAndDropAnimation(EnemyDeathExplosions.Animation(deathAnimation)));
@@ -225,7 +225,7 @@ internal sealed class EnemyDeathsAndDrops
             pickup,
             RoomEnemyProjectileKind.EnemyDeathPickup,
             ExplosionsAndPickups,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
         pickup.Position = pickup.Position.WithWhole(position);
         InitializeDirectEnemyPickup(pickup, DropChancesOf(definitionId), samus);
         return pickup;
@@ -248,7 +248,7 @@ internal sealed class EnemyDeathsAndDrops
             pickup,
             RoomEnemyProjectileKind.EnemyDeathPickup,
             ExplosionsAndPickups,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
         pickup.Position = pickup.Position.WithWhole(position);
         InitializeDirectEnemyPickup(pickup, dropChances, samus);
         return pickup;

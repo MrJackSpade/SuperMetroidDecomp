@@ -108,7 +108,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
             dust,
             RoomEnemyProjectileKind.DustOrExplosion,
             DustExplosionProjectileBehavior.Instance,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
         dust.Position = dust.Position.WithWhole(position);
         dust.StartAnimation(new DustExplosionProjectileAnimation(animation));
     }

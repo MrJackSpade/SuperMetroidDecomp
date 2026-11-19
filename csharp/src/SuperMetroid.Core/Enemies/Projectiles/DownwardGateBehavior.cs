@@ -55,7 +55,7 @@ internal sealed class DownwardGateBehavior
         if (projectile is null)
             return; // The projectile spawn's deliberate finite-pool failure.
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Gate, graphics: default);
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Gate, graphics: SpriteGraphics.SharedStandard);
         bool closed = request.Kind == DownwardGateProjectileKind.Closed;
         projectile.StartAnimation(new DownwardGateProjectileAnimation(closed
             ? DownwardGateProjectileSegment.Closed

@@ -35,7 +35,7 @@ internal sealed class OldTourianEscapeShaftWallBehavior
             projectile,
             RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion,
             WallExplosion,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
         projectile.StartAnimation(new OldTourianWallExplosionAnimation(OldTourianWallExplosionSegment.Start));
         projectile.Position = projectile.Position.WithWholeX(OldTourianEscapeShaftWallExplosionAnimationDefinitions.XPosition);
         projectile.Position = projectile.Position.WithWholeY(OldTourianEscapeShaftWallExplosionAnimationDefinitions.YPosition);

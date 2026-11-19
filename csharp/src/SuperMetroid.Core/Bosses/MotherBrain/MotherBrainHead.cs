@@ -469,7 +469,7 @@ internal sealed class MotherBrainHead
         RoomEnemyProjectileKind kind = state.NeckTurnPerUpdate < MotherBrainNeckTurnDefinitions.DyingDrool
             ? RoomEnemyProjectileKind.MotherBrainDrool
             : RoomEnemyProjectileKind.MotherBrainDyingDrool;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(drool, kind, _projectileAttacks.Projectile, graphics: default);
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(drool, kind, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard);
         drool.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.Drool));
         drool.State = new MotherBrainDroolState(state, mouth);
 
@@ -489,7 +489,7 @@ internal sealed class MotherBrainHead
             breath,
             RoomEnemyProjectileKind.MotherBrainPurpleBreathBig,
             _projectileAttacks.Projectile,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
         breath.State = new MotherBrainProjectileState(state);
         breath.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.PurpleBreathBig));
         RoomEnemyPlace head = state.Head;
@@ -507,7 +507,7 @@ internal sealed class MotherBrainHead
             breath,
             RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall,
             _projectileAttacks.Projectile,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
         breath.State = new MotherBrainProjectileState(state);
         breath.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.PurpleBreathSmall));
         RoomEnemyPlace head = state.Head;
@@ -526,7 +526,7 @@ internal sealed class MotherBrainHead
             projectile,
             RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging,
             _projectileAttacks.Projectile,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
         projectile.State = new MotherBrainProjectileState(state);
         projectile.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.RainbowBeamCharging));
         projectile.Velocity = PixelVelocity<RoomPixels>.Zero;

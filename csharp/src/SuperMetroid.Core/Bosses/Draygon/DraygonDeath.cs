@@ -43,7 +43,7 @@ internal sealed class DraygonDeath
             _effectActors.SpawnRoomEffectActor(
                 body.Position.Whole + DraygonParts.TowardFacing(DraygonArenaDefinitions.MouthFacingRight, state.Facing),
                 RoomEffectActorKind.DraygonFoam,
-                graphics: default);
+                graphics: SpriteGraphics.SharedStandard);
         }
 
         DraygonMovement.MoveDraygonAtAngle(body, BurialDriftAngle(body.Position.Whole), DraygonArenaDefinitions.BurialDriftSpeed);
@@ -136,7 +136,7 @@ internal sealed class DraygonDeath
 
         int random = _room.Random.Generate();
         Position16<RoomPixels> smoke = DraygonArenaDefinitions.DeathSmokeOrigin + new Offset16<RoomPixels>(DraygonRandomDefinitions.DeathSmokeX.Of(random), DraygonRandomDefinitions.DeathSmokeY.Of(random));
-        _effectActors.SpawnRoomEffectActor(smoke, RoomEffectActorKind.BigDustCloud, graphics: default);
+        _effectActors.SpawnRoomEffectActor(smoke, RoomEffectActorKind.BigDustCloud, graphics: SpriteGraphics.SharedStandard);
     }
 
     /// <summary>Ends every room effect actor and spawns six burial Evirs, each carrying the definition that moves it.</summary>

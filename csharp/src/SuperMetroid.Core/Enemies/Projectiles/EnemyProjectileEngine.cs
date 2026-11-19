@@ -353,9 +353,9 @@ internal sealed class EnemyProjectileEngine
         // the animation it chooses.
         projectile.FrameHold = WrappingCountdown.OneFrame;
 
-        // The spawn shows the blank frame before the first animation tick. It is intentionally not the animation's first
-        // frame; advances to that on its own pass.
-        projectile.Frame = EnemyProjectileFrameId.Blank;
+        // The spawn shows no frame before the first animation tick: it is hidden until its animation shows the first frame
+        // on its own pass.
+        projectile.Frame = null;
         projectile.Radius = definition.Radius;
         projectile.Damage = definition.Damage;
         projectile.Depth = definition.Depth;
@@ -496,10 +496,8 @@ internal sealed class EnemyProjectileEngine
         // The Samus-collision pass already made the pass-level invincibility/contact-damage decision.
         // Do not re-read the timer here: the first hit writes it, but the game's loop
         // deliberately continues testing the other projectiles in this same pass.
-        // The pass skips either zero radius before overlap testing. A zero
-        // radius is not a point-shaped hazard: decorative wall shards use it to
-        // remain harmless even while passing straight through Samus's body.
-        if (!projectile.CanDamageSamus || projectile.Radius.X == 0 || projectile.Radius.Y == 0)
+        // The pass skips a projectile with no hitbox before overlap testing.
+        if (!projectile.CanDamageSamus || !projectile.HasHitbox)
             return null;
 
         // Samus keeps a block of wall or door between her body and the room's left and top edges, and no projectile that
@@ -579,7 +577,7 @@ internal sealed class EnemyProjectileEngine
         _ = _effectActors.SpawnRoomEffectActor(new(
             OffRoomPlaces.Place(projectile.Position.X.Whole + spread.HorizontalScatter.Of(random) - spread.Radius),
             OffRoomPlaces.Place(projectile.Position.Y.Whole + spread.VerticalScatter.Of(random) - spread.Radius)),
-            kind, graphics: default);
+            kind, graphics: SpriteGraphics.SharedStandard);
     }
 
     /// <summary>
@@ -653,7 +651,7 @@ internal sealed class EnemyProjectileEngine
             projectile,
             RoomEnemyProjectileKind.DustOrExplosion,
             DustExplosionProjectileBehavior.Instance,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
         projectile.Position = projectile.Position.WithWhole(position);
 
         // The spawner chooses the animation: the Rinka's is the small explosion, and the Boulder's its impact cloud.
@@ -666,7 +664,7 @@ internal sealed class EnemyProjectileEngine
         _ = _effectActors.SpawnRoomEffectActor(
             projectile.Position.Whole,
             RoomEffectActorKind.DudShot,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
         QueueDudSound(SoundRequestPriority.Low);
         projectile.Spend();
     }
@@ -680,7 +678,7 @@ internal sealed class EnemyProjectileEngine
         _ = _effectActors.SpawnRoomEffectActor(
             Ensure.NotNull(bomb).Position.Whole,
             RoomEffectActorKind.DudShot,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
         QueueDudSound(SoundRequestPriority.Low);
     }
 

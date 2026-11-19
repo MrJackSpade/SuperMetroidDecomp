@@ -47,19 +47,19 @@ internal sealed class EyeDoorBehavior
         switch (request.Definition)
         {
             case EyeDoorProjectileDefinition.Sweat:
-                EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Sweat, graphics: default);
+                EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Sweat, graphics: SpriteGraphics.SharedStandard);
                 projectile.StartAnimation(new EyeDoorSweatAnimation(EyeDoorSweatSegment.Falling));
                 InitializeEyeDoorSweat(projectile, request.Facing, block);
                 return;
 
             case EyeDoorProjectileDefinition.ScatteredSmoke:
-                EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, EnemyProjectileBehavior.Still, graphics: default);
+                EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, EnemyProjectileBehavior.Still, graphics: SpriteGraphics.SharedStandard);
                 InitializeEyeDoorSmoke(projectile, EyeDoorEffectDefinitions.ScatteredSmokeAnimation,
                     EyeDoorEffectDefinitions.ScatteredSmokePlacement, block);
                 return;
 
             case EyeDoorProjectileDefinition.CenteredSmoke:
-                EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, EnemyProjectileBehavior.Still, graphics: default);
+                EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, EnemyProjectileBehavior.Still, graphics: SpriteGraphics.SharedStandard);
                 InitializeEyeDoorSmoke(projectile, EyeDoorEffectDefinitions.CenteredSmokeAnimation,
                     EyeDoorEffectDefinitions.CenteredSmokePlacement, block);
                 return;
@@ -81,7 +81,7 @@ internal sealed class EyeDoorBehavior
         if (projectile is null)
             return; // Spawning fails when the room has no place left for an enemy projectile.
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.EyeDoorProjectile, Shot, graphics: default);
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.EyeDoorProjectile, Shot, graphics: SpriteGraphics.SharedStandard);
         projectile.StartAnimation(new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Fired));
         InitializeEyeDoorProjectile(projectile, request, system);
     }

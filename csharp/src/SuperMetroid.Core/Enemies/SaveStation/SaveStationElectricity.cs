@@ -35,7 +35,7 @@ internal sealed class SaveStationElectricity
             projectile,
             RoomEnemyProjectileKind.SaveStationElectricity,
             EnemyProjectileBehavior.Still,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
         projectile.StartAnimation(new SaveStationElectricityAnimation());
         projectile.Position = projectile.Position.WithWhole((roomObjectBlock + SaveStationElectricityDefinitions.BlocksFromTrigger).ToRoomPixels());
     }

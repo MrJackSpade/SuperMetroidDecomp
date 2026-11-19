@@ -338,7 +338,7 @@ internal sealed class CrocomireBridgeCollapse
             projectile,
             RoomEnemyProjectileKind.CrocomireBridgeCrumbling,
             _combat.Debris,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
         projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileSegment.BridgeFragment));
         projectile.Position = projectile.Position.WithWholeX(CrocomireBridgeFragmentDefinitions.XPosition(fragment));
         projectile.Position = projectile.Position.WithWholeY(CrocomireBridgeFragmentDefinitions.Y).WithoutFractions();

@@ -365,7 +365,7 @@ internal sealed class TorizoAttacks
             projectile,
             RoomEnemyProjectileKind.BombTorizoExplosiveSwipe,
             TorizoProjectiles,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
         projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileSegment.ExplosiveSwipe));
 
         // A right-facing Torizo mirrors the left-facing hand placement horizontally.
@@ -388,7 +388,7 @@ internal sealed class TorizoAttacks
             projectile,
             RoomEnemyProjectileKind.BombTorizoLowHealthExplosion,
             TorizoProjectiles,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
         projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileSegment.LowHealthExplosion));
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + placement);
         projectile.State = new AnchoredProjectileState(projectile.Position.Whole);
@@ -404,7 +404,7 @@ internal sealed class TorizoAttacks
             projectile,
             RoomEnemyProjectileKind.TorizoDeathExplosion,
             TorizoProjectiles,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
         projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileSegment.DeathExplosion));
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole);
         projectile.State = new AnchoredProjectileState(torizo.Position.Whole);
@@ -585,7 +585,7 @@ internal sealed class TorizoAttacks
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.TorizoLandingDust, TorizoProjectiles, graphics: default);
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.TorizoLandingDust, TorizoProjectiles, graphics: SpriteGraphics.SharedStandard);
         projectile.StartAnimation(new TorizoProjectileAnimation(foot == HorizontalDirection.Right ? TorizoProjectileSegment.LandingDustRightFoot : TorizoProjectileSegment.LandingDustLeftFoot));
         Offset16<RoomPixels> dust = TorizoProjectilePlacementDefinitions.RightFootDust;
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + (foot == HorizontalDirection.Right ? dust : dust.MirroredX()));
@@ -834,7 +834,7 @@ internal sealed class TorizoAttacks
             projectile,
             RoomEnemyProjectileKind.BombTorizoStatueBreaking,
             TorizoProjectiles,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
 
         projectile.StartAnimation(new TorizoProjectileAnimation(definition.Animation));
         projectile.Position = projectile.Position.WithWhole(request.RoomObjectBlock.ToRoomPixels() + definition.Offset);

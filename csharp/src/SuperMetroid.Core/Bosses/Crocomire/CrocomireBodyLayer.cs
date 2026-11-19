@@ -106,6 +106,6 @@ internal sealed class CrocomireBodyLayer
         _effectActors.SpawnRoomEffectActor(
             new(state.Body.Position.X.Whole + xOffset, acidY + CrocomireBridgeCollapseDefinitions.AcidSmokeDepth - CrocomireRandomDefinitions.AcidSmokeRise.Of(random)),
             RoomEffectActorKind.BigDustCloud,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
     }
 }

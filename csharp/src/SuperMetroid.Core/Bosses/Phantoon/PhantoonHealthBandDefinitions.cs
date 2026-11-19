@@ -28,7 +28,7 @@ public static class PhantoonHealthBandDefinitions
     public static PhantoonHealthBand BelowQuarter { get; } = new(313, "below-quarter");
 
     /// <summary>Phantoon at 312 health or less: below an eighth of his health, his reddest.</summary>
-    public static PhantoonHealthBand BelowEighth { get; } = new(null, "below-eighth");
+    public static PhantoonHealthBand BelowEighth { get; } = new(0, "below-eighth");
 
     /// <summary>The bands, highest first, the order his health is tested against them.</summary>
     public static IReadOnlyList<PhantoonHealthBand> HighestFirst { get; } =

@@ -338,7 +338,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             projectile,
             RoomEnemyProjectileKind.PirateMotherBrainLaser,
             Laser,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
 
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(muzzle);
         projectile.StartAnimation(new SpacePirateProjectileAnimation(direction == HorizontalDirection.Right

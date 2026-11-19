@@ -107,6 +107,12 @@ public sealed class EnemyProjectile
         ? SpriteGraphics.SharedStandard : Graphics;
     /// <summary>Gets the collision half-extents in pixels, from the projectile's definition.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }
+
+    /// <summary>
+    /// Whether the projectile has a hitbox Samus can touch: a radius with extent on both axes. One with no extent on an axis,
+    /// as decorative wall shards keep, passes harmlessly through her even while it crosses her body.
+    /// </summary>
+    internal bool HasHitbox => Radius.X != 0 && Radius.Y != 0;
     /// <summary>Gets the contact damage from the projectile's definition, before Samus's suit reduction.</summary>
     public int Damage
     {

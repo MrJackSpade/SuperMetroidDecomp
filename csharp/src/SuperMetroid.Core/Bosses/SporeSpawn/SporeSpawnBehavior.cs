@@ -200,7 +200,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             _ = _effectActors.SpawnRoomEffectActor(
                 new(SporeSpawnRandomDefinitions.IdleDustX.Of(random) + SporeSpawnArenaDefinitions.IdleDustLeft, SporeSpawnRandomDefinitions.IdleDustY.Of(random) + SporeSpawnArenaDefinitions.IdleDustTop),
                 RoomEffectActorKind.BigDustCloud,
-                graphics: default);
+                graphics: SpriteGraphics.SharedStandard);
         }
     }
 
@@ -514,7 +514,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         _ = _effectActors.SpawnRoomEffectActor(
             new(body.Position.X.Whole + SporeSpawnRandomDefinitions.DyingExplosionX.Of(random) - SporeSpawnArenaDefinitions.DyingExplosionCentring.X, body.Position.Y.Whole + SporeSpawnRandomDefinitions.DyingExplosionY.Of(random) - SporeSpawnArenaDefinitions.DyingExplosionCentring.Y),
             RoomEffectActorKind.SmallExplosion,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
         RequestSporeSpawnSound(SporeSpawnSoundDefinitions.DyingExplosion);
     }
 

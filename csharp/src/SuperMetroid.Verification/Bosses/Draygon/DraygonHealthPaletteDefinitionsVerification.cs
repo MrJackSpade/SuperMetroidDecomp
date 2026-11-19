@@ -23,7 +23,7 @@ internal static class DraygonHealthPaletteDefinitionsVerification
         for (int index = 0; index < thresholds.Length; index++)
         {
             thresholds[index] = CartridgeImportSource.Require(rom).ReadCartridgeWord((DraygonHealthBandDefinitions.NativeThresholdAddress + index * 2));
-            AssertEqual(thresholds[index], DraygonHealthBandDefinitions.HighestFirst[index].MinimumHealth ?? 0, $"Draygon band {DraygonHealthBandDefinitions.HighestFirst[index]} minimum health");
+            AssertEqual(thresholds[index], DraygonHealthBandDefinitions.HighestFirst[index].MinimumHealth, $"Draygon band {DraygonHealthBandDefinitions.HighestFirst[index]} minimum health");
         }
         AssertEqual((ushort)0xffff,
             CartridgeImportSource.Require(rom).ReadCartridgeWord((DraygonHealthBandDefinitions.NativeThresholdAddress + 16)),

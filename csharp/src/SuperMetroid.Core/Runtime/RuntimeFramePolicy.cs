@@ -37,4 +37,12 @@ public sealed record RuntimeFramePolicy
     /// that update does not count the play time. The AUTO reserves' refill still begins.
     /// </summary>
     public bool RunsBehindTimeUp { get; init; }
+
+    /// <summary>
+    /// Whether the update's game state enters the AUTO reserves' refill or Samus's death that its out-of-health check sends
+    /// her to (#2519): main gameplay's update, which the pause's brightening and the time-up's white-out also run. The
+    /// check then freezes gameplay time itself, before the room shakes, so the update that begins either neither shakes
+    /// the room nor counts its earthquake down; the game-state loop enters the refill or the death after the update.
+    /// </summary>
+    public bool EntersOutOfHealthRoute { get; init; }
 }

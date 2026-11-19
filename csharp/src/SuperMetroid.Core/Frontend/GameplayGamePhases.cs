@@ -115,8 +115,10 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         bool samusInputLockedAtFrameStart = samus.Control.InputLocked;
         // The time-up's white-out runs this update behind it, owning the update in main gameplay's place (#2509).
         bool runsBehindTimeUp = session.GameState == SuperMetroidGameState.TimeUp;
+        // This update enters the refill or the death its out-of-health check sends Samus to, which freezes gameplay time
+        // inside the update, before the room shakes (#2519).
         RuntimeFrameOutcome outcome = session.GameplayRuntime.StepFrame(controllerInput,
-            new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { RunsLowHealthCheck = true, RunsBehindTimeUp = runsBehindTimeUp } });
+            new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { RunsLowHealthCheck = true, RunsBehindTimeUp = runsBehindTimeUp, EntersOutOfHealthRoute = true } });
         HandleSaveStationPersistence();
         session.display.PublishGameplay(session.GameplayRuntime);
         session.HandleGunshipLandingSave();
@@ -176,7 +178,8 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     }
 
     /// <summary>
-    /// Freezes gameplay and enters the reserve tanks' refill or death where the update's out-of-health check sent Samus.
+    /// Enters the reserve tanks' refill or death where the update's out-of-health check sent Samus; the check already froze
+    /// gameplay for either (#2519).
     /// </summary>
     /// <returns>Whether the refill or the death takes the update.</returns>
     private bool RouteOutOfHealth(SamusState samus, SamusOutOfHealthRoute route)
@@ -186,15 +189,13 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             case SamusOutOfHealthRoute.HasHealth:
                 return false;
             case SamusOutOfHealthRoute.DeathWithheld:
-                // The time-up owns the update: its white-out goes on with Samus out of health, and nothing freezes.
+                // The time-up owns the update: its white-out goes on with Samus out of health, and the check froze nothing.
                 return false;
             case SamusOutOfHealthRoute.ReserveRefill:
-                session.GameplayRuntime.Freeze.GameplayTimeFrozen = true;
                 session.reserveRecovery.Begin(samus);
                 session.Enter(SuperMetroidGameState.ReserveTankRefill);
                 return true;
             case SamusOutOfHealthRoute.Death:
-                session.GameplayRuntime.Freeze.GameplayTimeFrozen = true;
                 // Samus's death disables colour effects and locks her input and drawing.
                 // Locking the player out is the shared representation;
                 // the death sequence's steps own colour and animation side effects.

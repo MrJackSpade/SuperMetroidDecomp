@@ -10,6 +10,7 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Poses;
+using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 
 namespace SuperMetroid.Verification.Areas.Escape;
@@ -122,20 +123,7 @@ internal static class EscapeTimerSamusHeldVerification
     /// </summary>
     internal static (SuperMetroidGame Game, SuperMetroidRuntime Runtime, SamusState Samus) GameplayWithEscapeTimer(int centiseconds)
     {
-        var random = new SuperMetroid.Core.Compatibility.SharedRandom();
-        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),
-            null, SuperMetroidGameHostServices.Default, random);
-        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
-        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.AlphaPowerBomb);
-        SamusState samus = runtime.Player.IntroducedSamus;
-        samus.PoseId = SamusPoseId.FacingRightNormalPose;
-        SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
-        game.AdoptRuntime(runtime);
-        game.Session.Enter(SuperMetroidGameState.MainGameplay);
+        (SuperMetroidGame game, SuperMetroidRuntime runtime, SamusState samus) = CreateMainGameplayFixture();
         runtime.EscapeTimer.RunIntoPlace();
         runtime.EscapeTimer.SetRemaining(centiseconds);
         AssertEqual(SamusMovementMode.Normal, samus.Control.Mode.Movement, "the fixture's Samus runs under her normal movement mode");

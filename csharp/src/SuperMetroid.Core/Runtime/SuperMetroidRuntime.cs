@@ -718,7 +718,8 @@ internal sealed class SuperMetroidRuntime
 
         // Room shaking runs after room main and game-time handling, but before the active-enemy lists are cleared.
         // An enemy attack above may have started an earthquake this frame; it shakes the screen and counts down once
-        // here at once, and shakes the enemies still listed this frame.
+        // here at once, and shakes the enemies still listed this frame. The refill or death the out-of-health check
+        // began has already frozen time, so neither shakes on the update it begins on (#2519).
         room.Enemies.HandleRoomShaking(Freeze.TimeIsFrozen);
 
         DecrementHurtTimers(room, samus);
@@ -741,12 +742,28 @@ internal sealed class SuperMetroidRuntime
     /// The update's out-of-health check (#2509): the AUTO reserves' refill begins whatever else the update started, and
     /// Samus's death only while main gameplay owns the update. The escape countdown's time-up, written earlier in the
     /// update or run behind by it, owns it instead: the death is withheld, and the check returns before the update counts
-    /// the play time.
+    /// the play time. A game state that enters the refill or the death (<see cref="RuntimeFramePolicy.EntersOutOfHealthRoute"/>)
+    /// has the check freeze gameplay time as it begins either, before the rest of the update (#2519).
     /// </summary>
+    /// <param name="samus">The update's Samus.</param>
+    /// <param name="policy">
+    /// The update's game-state policy, which says whether it runs behind the time-up's white-out and whether it enters the
+    /// refill or the death.
+    /// </param>
+    /// <param name="startsTimeUp">Whether the escape countdown ran out earlier in this update.</param>
+    private SamusOutOfHealthRoute CheckSamusOutOfHealth(SamusState samus, RuntimeFramePolicy policy, bool startsTimeUp)
+    {
+        SamusOutOfHealthRoute route = DecideSamusOutOfHealthRoute(samus, policy, startsTimeUp);
+        if (policy.EntersOutOfHealthRoute && route is SamusOutOfHealthRoute.ReserveRefill or SamusOutOfHealthRoute.Death)
+            Freeze.GameplayTimeFrozen = true;
+        return route;
+    }
+
+    /// <summary>Where the update's out-of-health check sends Samus (#2509).</summary>
     /// <param name="samus">The update's Samus.</param>
     /// <param name="policy">The update's game-state policy, which says whether it runs behind the time-up's white-out.</param>
     /// <param name="startsTimeUp">Whether the escape countdown ran out earlier in this update.</param>
-    private SamusOutOfHealthRoute CheckSamusOutOfHealth(SamusState samus, RuntimeFramePolicy policy, bool startsTimeUp)
+    private SamusOutOfHealthRoute DecideSamusOutOfHealthRoute(SamusState samus, RuntimeFramePolicy policy, bool startsTimeUp)
     {
         // Every damage source applies its normal amount first. The cannot-die assist acts here, where zero energy would
         // otherwise send Samus to the refill or her death.

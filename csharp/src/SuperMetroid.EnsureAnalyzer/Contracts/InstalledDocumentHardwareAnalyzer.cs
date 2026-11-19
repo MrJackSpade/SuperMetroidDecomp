@@ -139,24 +139,23 @@ public sealed class InstalledDocumentHardwareAnalyzer : DiagnosticAnalyzer
     /// <summary>The named types <paramref name="type"/> is or holds through arrays, nullable values and type arguments.</summary>
     private static IEnumerable<INamedTypeSymbol> Held(ITypeSymbol type)
     {
-        switch (type)
+        if (type is IArrayTypeSymbol array)
         {
-            case IArrayTypeSymbol array:
-                foreach (INamedTypeSymbol element in Held(array.ElementType))
-                    yield return element;
-                break;
-            case INamedTypeSymbol named:
-                if (named.IsGenericType)
+            foreach (INamedTypeSymbol element in Held(array.ElementType))
+                yield return element;
+        }
+        else if (type is INamedTypeSymbol named)
+        {
+            if (named.IsGenericType)
+            {
+                foreach (ITypeSymbol argument in named.TypeArguments)
                 {
-                    foreach (ITypeSymbol argument in named.TypeArguments)
-                    {
-                        foreach (INamedTypeSymbol held in Held(argument))
-                            yield return held;
-                    }
+                    foreach (INamedTypeSymbol held in Held(argument))
+                        yield return held;
                 }
-                if (named.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T)
-                    yield return named;
-                break;
+            }
+            if (named.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T)
+                yield return named;
         }
     }
 

@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>Editable JSON schema for pause-menu wireframe artwork; equipped-item rules still select which variant is shown, independently of authored cell content.</summary>
+[SuppressMessage("Design", "SME6463", Justification = "Import data: the Samus wireframe's packed tile placements, which only the import reads to picture it; MapPresentationExtractor.Extract writes it to the map presentation's import data (MapPresentationFiles.ImportDocumentFiles), which the installer deletes before it publishes.")]
 public sealed record PauseWireframeDocument
 {
     /// <summary>Schema revision, which must equal <see cref="PauseWireframeDefinitions.Version"/>.</summary>

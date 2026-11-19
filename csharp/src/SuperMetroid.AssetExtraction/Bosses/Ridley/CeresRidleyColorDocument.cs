@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 
 /// <summary>Editable JSON payload of native Ridley/Baby palette rows; colors use independent integer RGB5 channels, and row indices describe paint phases rather than animation durations.</summary>
+[SuppressMessage("Design", "SME6463", Justification = "Import data: Ceres Ridley's start, fade, health and alarm colour rows, which only the import reads to pre-colour his and the Ceres scenes' shades; MapPresentationExtractor.Extract writes it to the map presentation's import data (MapPresentationFiles.ImportColourFiles), which the installer deletes before it publishes.")]
 public sealed record CeresRidleyColorDocument
 {
     /// <summary>Schema revision; the reader accepts only <see cref="SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork.CeresRidleyColorFormat.Version"/>.</summary>

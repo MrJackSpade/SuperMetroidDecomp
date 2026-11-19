@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Editable JSON artwork for the Mother Brain cutscene Baby's initial image and six displayed death-fade images; array references and RGB5 entries remain caller-owned and mutable.</summary>
+[SuppressMessage("Design", "SME6463", Justification = "Import data: the Baby Metroid cutscene's colour rows, which only the import reads to pre-colour its shades; EnemyTileArtworkFiles.Extract writes it to the enemy tiles' import data, which the installer deletes before it publishes.")]
 public sealed record BabyMetroidCutsceneColorDocument
 {
     /// <summary>Schema version required to match <see cref="BabyMetroidCutsceneColorFormat.Version"/> when loading or writing.</summary>

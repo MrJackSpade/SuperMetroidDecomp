@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Mutable JSON authoring data for the opening flashback's Rinka sprites, not the room-enemy Rinka AI or its physical definitions.</summary>
+[SuppressMessage("Design", "SME6463", Justification = "Import data: the opening Rinkas' packed sprite parts, which only the import reads to compose their pictures; IntroCinematicArtworkFiles.Extract writes it to the opening cinematic's import data (its CompositionFiles), which the installer deletes before it publishes.")]
 public sealed record IntroRinkaSpriteDocument
 {
     /// <summary>Schema revision, required to equal <see cref="IntroRinkaSpriteFormat.Version"/> when loaded or written.</summary>

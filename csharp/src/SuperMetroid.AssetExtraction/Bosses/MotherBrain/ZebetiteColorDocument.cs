@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Editable JSON schema for Zebetite's two barrier-core inks across eight pulse steps; shared animation-counter ownership, update conditions, health, and collision remain engine behavior.</summary>
+[SuppressMessage("Design", "SME6463", Justification = "Import data: the Zebetites' colour rows, which only the import reads to pre-colour their shades; EnemyTileArtworkFiles.Extract writes it to the enemy tiles' import data, which the installer deletes before it publishes.")]
 public sealed record ZebetiteColorDocument
 {
     /// <summary>Schema revision, which must equal <see cref="ZebetiteColorFile.Version"/>.</summary>

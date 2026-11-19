@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Editable JSON schema for the ten Hyper Beam projectile palette rows; the separate native palette program retains frame durations, destination selection, and loop control.</summary>
+[SuppressMessage("Design", "SME6463", Justification = "Import data: the Hyper Beam's own colour cycle rows, which only the import reads to pre-colour its shades; ProjectilePresentationFiles.Extract writes it to the projectiles' import data, which the installer deletes before it publishes.")]
 public sealed record HyperBeamFxColorDocument
 {
     /// <summary>Schema revision, which must equal <see cref="HyperBeamFxColorFormat.Version"/>.</summary>

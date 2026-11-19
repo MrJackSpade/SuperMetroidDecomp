@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
 
@@ -7,6 +8,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// Editable RGB5 inks for the eight native room-FX blend selections, which only the import reads (#1544): the Ceres haze's
 /// tints, which the game reads, are scene colours (<see cref="Frontend.Map.SceneColourFiles"/>).
 /// </summary>
+[SuppressMessage("Design", "SME6463", Justification = "Import data: the room-effect blend colour rows, which only the import reads to pre-colour the effect overlay pictures; MapPresentationExtractor.Extract writes it to the map presentation's import data (MapPresentationFiles.ImportColourFiles), which the installer deletes before it publishes.")]
 public sealed record RoomFxPaletteBlendDocument
 {
     /// <summary>Schema revision, required to equal <see cref="RoomFxPaletteBlendDefinitions.Version"/>.</summary>

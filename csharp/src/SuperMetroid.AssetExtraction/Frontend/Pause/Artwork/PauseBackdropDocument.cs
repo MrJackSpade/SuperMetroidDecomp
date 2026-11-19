@@ -1,6 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>One complete 32x32 backdrop per area; live buttons are a separate foreground overlay.</summary>
+[SuppressMessage("Design", "SME6463", Justification = "Import data: the pause backdrop's packed tile placements, which only the import reads to picture it; MapPresentationExtractor.Extract writes it to the map presentation's import data (MapPresentationFiles.ImportDocumentFiles), which the installer deletes before it publishes.")]
 public sealed record PauseBackdropDocument
 {
     /// <summary>Schema revision; loading requires <see cref="PauseBackdropDefinitions.Version"/>.</summary>

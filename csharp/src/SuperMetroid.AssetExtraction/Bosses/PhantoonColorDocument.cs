@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>JSON schema for Phantoon and Wrecked Ship power-transition colors.</summary>
+[SuppressMessage("Design", "SME6463", Justification = "Import data: Phantoon's health-band, fade-out and power-on colour rows, which only the import reads to pre-colour his shades; EnemyTileArtworkFiles.Extract writes it to the enemy tiles' import data, which the installer deletes before it publishes.")]
 public sealed record PhantoonColorDocument
 {
     /// <summary>Gets the schema version required by <see cref="PhantoonColorFormat.Version"/>.</summary>

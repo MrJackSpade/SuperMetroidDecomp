@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>Defines editable pause equipment-selector placement and animation.</summary>
+[SuppressMessage("Design", "SME6463", Justification = "Import data: the pause selectors' packed sprite parts, which only the import reads to compose their pictures; MapPresentationExtractor.Extract writes it to the map presentation's import data (MapPresentationFiles.ImportDocumentFiles), which the installer deletes before it publishes.")]
 public sealed record PauseSelectorDocument
 {
     /// <summary>Gets the document schema revision.</summary>

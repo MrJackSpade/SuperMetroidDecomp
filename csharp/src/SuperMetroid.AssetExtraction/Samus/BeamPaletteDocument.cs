@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Editable JSON schema for ordinary beam-combination colors; palette selection and charge/Hyper Beam animation are engine-owned rather than document data.</summary>
+[SuppressMessage("Design", "SME6463", Justification = "Import data: the beam combinations' colour rows, which only the import reads to pre-colour Samus's and her projectiles' shades; ProjectilePresentationFiles.Extract writes it to the projectiles' import data, which the installer deletes before it publishes.")]
 public sealed record BeamPaletteDocument
 {
     /// <summary>Schema revision, which must equal <see cref="BeamPaletteFile.Version"/>.</summary>

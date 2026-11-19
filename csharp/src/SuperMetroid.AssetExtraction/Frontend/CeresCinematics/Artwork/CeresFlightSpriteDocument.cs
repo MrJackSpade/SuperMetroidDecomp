@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Editable JSON schema for Ceres approach/destruction OAM compositions; scene scripts retain actor placement, motion, and frame-selection timing.</summary>
+[SuppressMessage("Design", "SME6463", Justification = "Import data: the Ceres flight's packed sprite parts, which only the import reads to compose its sprite sheet's pictures; IntroCinematicArtworkFiles.Extract writes it to the opening cinematic's import data (its CompositionFiles), which the installer deletes before it publishes.")]
 public sealed record CeresFlightSpriteDocument
 {
     /// <summary>Schema revision, which must equal <see cref="CeresFlightSpriteFormat.Version"/>.</summary>

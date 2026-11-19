@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Editable RGB5 image schema for Mother Brain's body disappearance and detached-head gray transition.</summary>
+[SuppressMessage("Design", "SME6463", Justification = "Import data: Mother Brain's body, leg and corpse fade colour rows, which only the import reads to pre-colour her death shades; EnemyTileArtworkFiles.Extract writes it to the enemy tiles' import data, which the installer deletes before it publishes.")]
 public sealed record MotherBrainDeathColorDocument
 {
     /// <summary>Schema revision; loading requires <see cref="MotherBrainDeathColorFormat.Version"/>.</summary>

@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
 /// <summary>Editable door palette schema, separate from the indexed 4bpp character PNG and engine-owned door/escape timing; the elevator platform's strips are pictures of the room's floor (#1467).</summary>
+[SuppressMessage("Design", "SME6463", Justification = "Import data: the Ceres doors' normal, escape and animation colour rows, which only the import reads to pre-colour the doors' pictures; CeresDoorVisualFiles.Extract writes it to the enemy tiles' import data, which the installer deletes before it publishes.")]
 public sealed record CeresDoorVisualDocument
 {
     /// <summary>Visual schema revision; loading and serialization currently require version 1.</summary>

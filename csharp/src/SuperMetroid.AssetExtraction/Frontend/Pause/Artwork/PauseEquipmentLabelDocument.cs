@@ -1,6 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>Editable pause equipment-page label schema, separating inventory-owned text from the backdrop, wireframe, and reserve controls.</summary>
+[SuppressMessage("Design", "SME6463", Justification = "Import data: the equipment labels' packed tile placements, which only the import reads to picture the labels; MapPresentationExtractor.Extract writes it to the map presentation's import data (MapPresentationFiles.ImportDocumentFiles), which the installer deletes before it publishes.")]
 public sealed record PauseEquipmentLabelDocument
 {
     /// <summary>Schema revision; loading requires version one from <see cref="PauseEquipmentLabelArtworkDefinitions.Version"/>.</summary>

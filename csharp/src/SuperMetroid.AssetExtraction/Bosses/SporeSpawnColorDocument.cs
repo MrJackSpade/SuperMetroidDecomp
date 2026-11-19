@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Editable Spore Spawn RGB5 images for spores, health stages, and three death-scene layers; every row retains all sixteen native palette slots.</summary>
+[SuppressMessage("Design", "SME6463", Justification = "Import data: Spore Spawn's spore, health and death colour rows, which only the import reads to pre-colour its shades; EnemyTileArtworkFiles.Extract writes it to the enemy tiles' import data, which the installer deletes before it publishes.")]
 public sealed record SporeSpawnColorDocument
 {
     /// <summary>Color schema revision; loading currently requires version 1.</summary>

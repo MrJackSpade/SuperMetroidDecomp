@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using System.Security.Cryptography;
@@ -433,6 +434,7 @@ public static class SamusBodyArtworkFiles
     /// The extracted body, import data (#1638): split-DMA identities, pose selectors, each pose's and frame's body placement,
     /// spritemaps, and stock PNG hashes.
     /// </summary>
+    [SuppressMessage("Design", "SME6463", Justification = "Import data: Samus's body spritemaps with their packed sprite parts, which only the import reads to compose her body sheet; SamusBodyArtworkFiles.Extract writes it to the Samus body's import data, which the installer deletes before it publishes.")]
     internal sealed record Manifest(int Version, string SourceCartridgeSha256,
         int[] TopSetStarts, int[] BottomSetStarts, Dictionary<SamusPoseId, int> PoseFirstFrames,
         Dictionary<SamusPoseId, SamusBodyPosePlacement> Placements,

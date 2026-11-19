@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Editable RGB5 schema for Kraid's room, initial target, body health, sprite health, and death-arm palette sources.</summary>
+[SuppressMessage("Design", "SME6463", Justification = "Import data: Kraid's room, health-band and death colour rows, which only the import reads to pre-colour his pictures; the installed KraidEyeColourDocument holds the eye colours the game works with; EnemyTileArtworkFiles.Extract writes it to the enemy tiles' import data, which the installer deletes before it publishes.")]
 public sealed record KraidColorDocument
 {
     /// <summary>Schema revision; loading requires version one from <see cref="KraidColorFormat.Version"/>.</summary>

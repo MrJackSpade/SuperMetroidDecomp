@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Serializable versioned document describing the editable gameplay HUD.</summary>
+[SuppressMessage("Design", "SME6463", Justification = "Import data: the HUD's packed tile placements and selection palette rows, which only the import reads to picture the HUD; the installed GameplayHudLayoutDocument holds what the game binds; MapPresentationExtractor.Extract writes it to the map presentation's import data (MapPresentationFiles.ImportDocumentFiles), which the installer deletes before it publishes.")]
 public sealed record GameplayHudPresentationDocument
 {
     /// <summary>Gets the gameplay-HUD document schema version.</summary>

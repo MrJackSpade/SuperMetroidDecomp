@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Editable RGB5 payloads for Crocomire's five palette transfers; each channel must be 0–31, and the native seventeen-word initialization overlaps remain explicit inputs.</summary>
+[SuppressMessage("Design", "SME6463", Justification = "Import data: Crocomire's fight, wall, projectile and skeleton colour rows, which only the import reads to pre-colour his sheets and shades; EnemyTileArtworkFiles.Extract writes it to the enemy tiles' import data, which the installer deletes before it publishes.")]
 public sealed record CrocomireColorDocument
 {
     /// <summary>Color schema revision; loading currently requires version 1.</summary>

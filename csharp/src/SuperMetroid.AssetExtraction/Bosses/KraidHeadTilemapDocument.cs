@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Rooms;
 
@@ -5,6 +6,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Editable JSON representation of a single ordered Kraid BG2 head frame; cells reference artwork rather than encoding animation or collision behavior.</summary>
 [SpatialComponents("External format: the Kraid head tilemap JSON stores its declared grid dimensions as width/height integers.")]
+[SuppressMessage("Design", "SME6463", Justification = "Import data: a Kraid head frame's packed tile placements, which only the import reads to compose his head's pictures; EnemyTileArtworkFiles.Extract writes it to the enemy tiles' import data, which the installer deletes before it publishes.")]
 public sealed record KraidHeadTilemapDocument
 {
     /// <summary>Schema revision required to equal <see cref="KraidHeadTilemapFormat.Version"/> during loading.</summary>

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
@@ -7,6 +8,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 /// the import reads them, to pre-colour her pictures, and the installation holds none of them. Her beam backdrop's colours,
 /// which the game works with, are installed by purpose (<see cref="MotherBrainBeamColourDocument"/>).
 /// </summary>
+[SuppressMessage("Design", "SME6463", Justification = "Import data: Mother Brain's rainbow, drain, revival and fake-death colour rows, which only the import reads to pre-colour her shades; the installed MotherBrainBeamColourDocument holds the beam colours the game works with; MapPresentationExtractor.Extract writes it to the map presentation's import data (MapPresentationFiles.ImportColourFiles), which the installer deletes before it publishes.")]
 public sealed record MotherBrainRainbowPaletteDocument
 {
     /// <summary>Schema revision; the reader accepts only <see cref="MotherBrainRainbowPaletteFile.Version"/>.</summary>

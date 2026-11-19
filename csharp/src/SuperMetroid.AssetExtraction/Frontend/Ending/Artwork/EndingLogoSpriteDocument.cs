@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>JSON schema for the editable final-logo sprite compositions.</summary>
+[SuppressMessage("Design", "SME6463", Justification = "Import data: the ending logo's packed sprite parts, which only the import reads to compose its pictures; EndingObjectArtworkFiles.Extract writes it to the ending objects' import data, which the installer deletes before it publishes.")]
 public sealed record EndingLogoSpriteDocument
 {
     /// <summary>Gets the schema version, which must equal <see cref="EndingLogoSpriteFormat.Version"/>.</summary>

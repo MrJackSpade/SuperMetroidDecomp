@@ -30,7 +30,7 @@ internal static class SamusLiquidLinesVerification
             Pose = SamusPoseId.SpinJumpRightPose,
         };
         samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(SpinRadius);
-        int poseRadius = SamusPoseCollisionRadii.ReadVerticalRadius(samus.Pose);
+        int poseRadius = SamusPoseMetadata.ReadPoseYRadius(samus.Pose);
         int cases = 0;
         for (int centre = 0; centre <= 300; centre++)
         {

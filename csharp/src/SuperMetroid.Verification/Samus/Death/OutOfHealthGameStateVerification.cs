@@ -284,7 +284,7 @@ internal static class OutOfHealthGameStateVerification
     {
         (SuperMetroidGame game, SuperMetroidRuntime runtime, _) = MainGameplayAtTheLandingSite(default);
         game.Session.BeginZebesEscapeFade();
-        int before = TotalFrames(runtime.GameTime.Reading);
+        int before = runtime.GameTime.Reading.Updates;
 
         int updates = 0;
         while (game.IsAt(EndingStep.LeavingZebes))
@@ -293,7 +293,7 @@ internal static class OutOfHealthGameStateVerification
             updates++;
             AssertTrue(updates <= 40, "the escape fade completes");
         }
-        AssertEqual(updates, TotalFrames(runtime.GameTime.Reading) - before, "every update leaving Zebes counts one frame of play time");
+        AssertEqual(updates, runtime.GameTime.Reading.Updates - before, "every update leaving Zebes counts one frame of play time");
 
         Console.WriteLine("Leaving Zebes: each of the fade's gameplay updates counts the play time.");
     }
@@ -330,10 +330,6 @@ internal static class OutOfHealthGameStateVerification
         samus.ReserveEnergy = 0;
         samus.ReserveTankMode = ReserveTankMode.Auto;
     }
-
-    /// <summary>The play time a clock reading shows, in frames.</summary>
-    private static int TotalFrames(GameClockReading reading) =>
-        (((reading.Hours * 60) + reading.Minutes) * 60 + reading.Seconds) * 60 + reading.Frames;
 
     /// <summary>
     /// A game in main gameplay in a room whose block column 10 is a door into the Tourian save room, with a wall two columns

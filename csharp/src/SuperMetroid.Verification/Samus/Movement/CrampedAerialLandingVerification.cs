@@ -59,7 +59,7 @@ internal static class CrampedAerialLandingVerification
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
         samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(3);
-        samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(samus.Kinematics.VerticalVelocity.Speed.WithWhole(4), SamusVerticalDirection.Down);
+        samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(samus.Kinematics.VerticalVelocity.Speed.WithWhole(4), SamusVerticalDirection.Down);
 
         bool installedLanding = SamusPoseTransitions.TryApplyAerialLanding(samus, 
 

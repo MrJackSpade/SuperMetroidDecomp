@@ -40,7 +40,7 @@ internal static class SamusBallBounceDefinitionsVerification
                     1 => spring ? SamusBallBounceState.SpringBallFirstRebound : SamusBallBounceState.FirstRebound,
                     _ => spring ? SamusBallBounceState.SpringBallSecondRebound : SamusBallBounceState.SecondRebound,
                 };
-                samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(new UnsignedSixteenSixteen((ushort)raw, ushort.MaxValue), SamusVerticalDirection.Down);
+                samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen((ushort)raw, ushort.MaxValue), SamusVerticalDirection.Down);
                 samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0x8000);
                 samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
                 bool grounded = spring

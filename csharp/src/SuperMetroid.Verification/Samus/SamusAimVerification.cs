@@ -334,7 +334,7 @@ level, samus, GameplayAction.Jump, unchecked((ushort)index), roomObjects: SamusR
     };
     SamusPoseMetadata.RefreshCollisionRadii(compactFall);
     SamusPresentation.InitializeAnimation(compactFall);
-    compactFall.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(new UnsignedSixteenSixteen(1, 0x4000), SamusVerticalDirection.Down);
+    compactFall.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(1, 0x4000), SamusVerticalDirection.Down);
     SamusAerialMovement.ConfigureDryAirGravity(bus, compactFall);
     compactFall.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(1, 0x8000);
     AerialMovementResult compactFallFrame = default;
@@ -417,7 +417,7 @@ level, SamusPoseId.NormalJumpAimDiagonalDownLeftPose, frameCounter: 1, roomObjec
     };
     SamusPoseMetadata.RefreshCollisionRadii(compactLeftLanding);
     SamusPresentation.InitializeAnimation(compactLeftLanding);
-    compactLeftLanding.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(new UnsignedSixteenSixteen(1, 0x4000), SamusVerticalDirection.Down);
+    compactLeftLanding.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(1, 0x4000), SamusVerticalDirection.Down);
     SamusAerialMovement.ConfigureDryAirGravity(bus, compactLeftLanding);
     AerialMovementResult compactLeftFallFrame = default;
     for (ushort index = 0; index < 40 && !compactLeftFallFrame.Landed; index++)
@@ -641,7 +641,7 @@ internal static void VerifySamusGunExtendedMovement()
         var releasedForwardJump = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = source };
         SamusPoseMetadata.RefreshCollisionRadii(releasedForwardJump);
         SamusPresentation.InitializeAnimation(releasedForwardJump, releasedForwardJump.PoseFrameNumbered(1));
-        releasedForwardJump.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(new UnsignedSixteenSixteen(3, 0x4567), SamusVerticalDirection.Up);
+        releasedForwardJump.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(3, 0x4567), SamusVerticalDirection.Up);
         releasedForwardJump.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0x89ab);
 
         SamusAerialPoseTransitions.ApplySameFacingAerialTransition(releasedForwardJump, target);
@@ -679,7 +679,7 @@ internal static void VerifySamusGunExtendedMovement()
     var jumping = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.NeutralJumpRightPose };
     SamusPoseMetadata.RefreshCollisionRadii(jumping);
     SamusPresentation.InitializeAnimation(jumping);
-    jumping.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(new UnsignedSixteenSixteen(3, 0x4567), SamusVerticalDirection.Up);
+    jumping.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(3, 0x4567), SamusVerticalDirection.Up);
     SamusAerialPoseTransitions.ApplySameFacingAerialTransition(jumping, SamusPoseId.NormalJumpGunExtendedRightPose);
     AssertEqual(SamusPoseId.NormalJumpGunExtendedRightPose, jumping.Pose, "neutral jump installs gun extension $13");
     AssertEqual(0x00034567u, jumping.Kinematics.VerticalVelocity.Speed.RawValue, "jump gun extension preserves velocity");
@@ -688,7 +688,7 @@ internal static void VerifySamusGunExtendedMovement()
     var falling = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FallingRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0, 100)) };
     SamusPoseMetadata.RefreshCollisionRadii(falling);
     SamusPresentation.InitializeAnimation(falling);
-    falling.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(new UnsignedSixteenSixteen(2, 0xabcd), SamusVerticalDirection.Down);
+    falling.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(2, 0xabcd), SamusVerticalDirection.Down);
     falling.HorizontalSpeed.BaseSpeed = falling.HorizontalSpeed.BaseSpeed.WithWhole(1);
     SamusAerialPoseTransitions.ApplySameFacingAerialTransition(falling, SamusPoseId.FallingGunExtendedRightPose);
     AssertEqual(SamusPoseId.FallingGunExtendedRightPose, falling.Pose, "fall installs gun extension $67");

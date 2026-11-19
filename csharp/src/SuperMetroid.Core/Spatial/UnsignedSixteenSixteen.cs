@@ -43,19 +43,6 @@ public readonly record struct UnsignedSixteenSixteen
         new(unchecked((ushort)(rawValue >> 16)), unchecked((ushort)rawValue));
 
     /// <summary>
-    /// The speed that is the product of two non-negative quantities each counted in 256ths, as the grapple release
-    /// scales the swing's speed by a trigonometric component: 256ths times 256ths are 65536ths of a pixel. The product
-    /// must fit the type.
-    /// </summary>
-    /// <param name="twoFiftySixths">The first factor in 256ths, zero or more.</param>
-    /// <param name="otherTwoFiftySixths">The second factor in 256ths, zero or more.</param>
-    /// <exception cref="ArgumentOutOfRangeException">A factor is negative.</exception>
-    /// <exception cref="OverflowException">The product lies outside the type's range.</exception>
-    public static UnsignedSixteenSixteen ProductOfTwoFiftySixths(int twoFiftySixths, int otherTwoFiftySixths) =>
-        FromRaw(checked((uint)Ensure.BetweenInclusive(0, int.MaxValue, twoFiftySixths) *
-            (uint)Ensure.BetweenInclusive(0, int.MaxValue, otherTwoFiftySixths)));
-
-    /// <summary>
     /// The speed that is a share of <paramref name="wholePixels"/> whole pixels, the share counted in 65536ths, as a mover
     /// scales a whole-pixel speed by a sine sample: whole pixels times 65536ths are 65536ths of a pixel. The product must
     /// fit the type.
@@ -142,17 +129,6 @@ public readonly record struct UnsignedSixteenSixteen
     /// </summary>
     public static UnsignedSixteenSixteen FromDisplacement(SignedSixteenSixteen displacement) =>
         FromRaw(unchecked((uint)displacement.RawValue));
-
-    /// <summary>
-    /// The speed that covers <paramref name="wholePixels"/> pixels in <paramref name="updates"/> updates: the distance in
-    /// 65536ths of a pixel divided by the updates, the remainder dropped.
-    /// </summary>
-    /// <param name="wholePixels">The distance, 0 through 65535 pixels.</param>
-    /// <param name="updates">The updates, one or more.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The distance or the update count is out of range.</exception>
-    public static UnsignedSixteenSixteen Covering(int wholePixels, int updates) =>
-        FromRaw(checked((uint)(((long)Ensure.BetweenInclusive(0, ushort.MaxValue, wholePixels) << 16) /
-            Ensure.BetweenInclusive(1, int.MaxValue, updates))));
 
     /// <summary>
     /// The value divided by <paramref name="divisor"/> as one amount in 256ths (<see cref="InTwoFiftySixths"/>): the

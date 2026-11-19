@@ -22,7 +22,7 @@ internal static class ReportedShaftMomentumVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         };
         samus.Kinematics.Radius = new(5, 12);
-        samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(samus.Kinematics.VerticalVelocity.Speed.WithWhole(2), SamusVerticalDirection.Down);
+        samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(samus.Kinematics.VerticalVelocity.Speed.WithWhole(2), SamusVerticalDirection.Down);
         samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(1, 0x6000);
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
         for (ushort frame = 0; frame < 8; frame++)

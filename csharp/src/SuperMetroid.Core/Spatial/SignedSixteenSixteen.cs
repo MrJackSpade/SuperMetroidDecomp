@@ -40,6 +40,14 @@ public readonly record struct SignedSixteenSixteen : IComparable<SignedSixteenSi
     public static SignedSixteenSixteen FromPixelFraction(int numerator, int denominator) =>
         new(PowerOfTwoFraction.InFinestUnits(numerator, denominator, FractionsPerPixel));
 
+    /// <summary>
+    /// The velocity that is the product of two signed quantities each counted in 256ths (#2569), as a sine share scales a
+    /// speed or a turn: 256ths times 256ths are 65536ths of a pixel, the product's sign its direction.
+    /// </summary>
+    /// <exception cref="OverflowException">The product lies outside the type's range.</exception>
+    public static SignedSixteenSixteen ProductOfTwoFiftySixths(int twoFiftySixths, int otherTwoFiftySixths) =>
+        new(checked(twoFiftySixths * otherTwoFiftySixths));
+
     /// <summary>The fractions of a pixel the displacement counts: 65536 to the pixel.</summary>
     private const int FractionsPerPixel = 65536;
 

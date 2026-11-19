@@ -533,7 +533,7 @@ public static class SamusGrappleMovement
         // The drop clears these speeds now, but publishes its pose as the pending pose
         // change. Normal movement still runs before that pose is committed.
         samus.HorizontalSpeed.BaseSpeed = default;
-        samus.Kinematics.YSpeed = default;
+        samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.Stopped();
         bool emptyMovement = SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Grappling;
         ClearConnectedGrapple(grapple);
         SamusHudSelection.ReturnAutoCancelledItem(samus);
@@ -832,7 +832,7 @@ public static class SamusGrappleMovement
             return new GrappleMovementResult(grapple.Phase, OwnsMovement: false);
         }
 
-        bool movingVertically = !samus.Kinematics.YSpeed.IsZero;
+        bool movingVertically = samus.Kinematics.VerticalVelocity.IsMoving;
         GrappleConnectionPolicy policy = movingVertically
             ? GrappleConnectionPolicy.MovingVertically
             : sourceMovementType == SamusMovementType.Crouching
@@ -932,7 +932,7 @@ public static class SamusGrappleMovement
         samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.HorizontalSpeed.ExtraRunSpeed = default;
-        samus.Kinematics.YSpeed = default;
+        samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.Stopped();
 
         return ClampPreviousPosition(samus.Position.Whole, pending.Previous);
     }

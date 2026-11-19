@@ -122,7 +122,7 @@ public sealed class SamusCrystalFlashState
         // The remaining preconditions are literal comparisons. Reserve energy must
         // be empty even when the reserve mode is manual; possession of a reserve tank alone
         // does not matter. Each current ammo count, not its maximum, must supply the flash's ammunition.
-        if (!samus.Kinematics.YSpeed.IsZero ||
+        if (samus.Kinematics.VerticalVelocity.IsMoving ||
             samus.Health >= CrystalFlashDefinitions.AdmittingEnergyBelow || samus.ReserveEnergy != 0 ||
             samus.Missiles < CrystalFlashDefinitions.AmmunitionPerKind ||
             samus.SuperMissiles < CrystalFlashDefinitions.AmmunitionPerKind ||

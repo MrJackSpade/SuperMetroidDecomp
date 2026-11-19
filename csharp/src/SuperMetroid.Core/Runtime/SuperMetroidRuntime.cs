@@ -974,7 +974,7 @@ internal sealed class SuperMetroidRuntime
                     previousCameraPoint,
                     currentCameraPoint,
                     new VerticalCameraContext(
-                        YDirection: samus.Kinematics.YDirection,
+                        YDirection: samus.Kinematics.VerticalVelocity.Direction,
                         FallingCameraOffset: roomGeometry.FallingCameraOffset,
                         RisingCameraOffset: roomGeometry.RisingCameraOffset),
                     Freeze.TimeIsFrozen);

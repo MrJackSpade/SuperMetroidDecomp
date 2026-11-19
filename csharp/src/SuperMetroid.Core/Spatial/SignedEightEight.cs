@@ -111,6 +111,12 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>, 
     [IntegerQuantity("whole-pixel part of a signed 8.8 speed")]
     public int MagnitudeWholePixels => Math.Abs(InTwoHundredFiftySixthsOfPixel) >> 8;
 
+    /// <summary>
+    /// A distance of <paramref name="pixels"/> whole pixels the way the velocity points (#2569): as it is for a velocity
+    /// toward increasing coordinates, or at rest, and reversed for one toward decreasing coordinates.
+    /// </summary>
+    public int WholePixelsAlong(int pixels) => IsNegative ? -pixels : pixels;
+
     /// <summary>The velocity halved, its lowest fraction bit dropped toward negative infinity.</summary>
     public SignedEightEight Halved() => FromTwoHundredFiftySixthsOfPixel(InTwoHundredFiftySixthsOfPixel >> 1);
 

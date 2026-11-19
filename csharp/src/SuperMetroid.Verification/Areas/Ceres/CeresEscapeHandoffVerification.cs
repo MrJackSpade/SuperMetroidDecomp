@@ -68,7 +68,7 @@ internal static class CeresEscapeHandoffVerification
         AssertEqual(xBeforeInitialization, samus.Kinematics.Position.X, "first gamma performs no horizontal movement");
         AssertEqual(yBeforeInitialization, samus.Kinematics.Position.Y, "first gamma performs no vertical movement");
         AssertEqual(SamusPoseId.KnockbackRightPose, samus.Pose, "ejection selects pose from old facing");
-        AssertEqual(CeresRidleyShoveDirection.Left, samus.CeresRidleyEjection.PushDirection, "left-half Samus is pushed left");
+        AssertEqual(HorizontalDirection.Left, samus.CeresRidleyEjection.PushDirection, "left-half Samus is pushed left");
         AssertEqual(5, samus.Kinematics.YSpeed.Whole, "ejection installs terminal downward speed");
         AssertSamusPosition(new(100, 100), samus, "first ejection gamma leaves world position unchanged");
 
@@ -85,7 +85,7 @@ internal static class CeresEscapeHandoffVerification
             samus,
             cameraX: 0,
             frameCounter: 1);
-        AssertEqual(CeresRidleyShoveDirection.None, samus.CeresRidleyEjection.PushDirection, "room-wall contact terminates Ceres ejection");
+        AssertEqual(null, samus.CeresRidleyEjection.PushDirection, "room-wall contact terminates Ceres ejection");
         AssertTrue(!samus.CeresRidleyEjection.IsActive, "wall contact restores normal movement");
         AssertTrue(!samus.Control.InputLocked, "wall contact leaves ordinary pose input available");
         // The push never sets knockback direction `$0A52`, so `$90:DDE9` has no knockback

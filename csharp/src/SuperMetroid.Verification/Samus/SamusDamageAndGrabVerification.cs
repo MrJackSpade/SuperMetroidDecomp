@@ -163,7 +163,7 @@ level, SamusRoomObjectFixtures.Uninstalled, right, unchecked((ushort)(frame + 1)
         "collision restores normal movement pointer");
     AssertEqual(7, right.AnimationNumber, "collision jumps to crouched floor art");
     AssertEqual(8, right.AnimationFrameTimer.RawValue, "collision loads literal floor-art timer");
-    AssertTrue(landing.ImpactYSpeed != default,
+    AssertTrue(landing.ImpactVelocity.IsMoving,
         "drained landing preserves pre-clear impact magnitude");
 
     right.Drained.PutStanding(right);

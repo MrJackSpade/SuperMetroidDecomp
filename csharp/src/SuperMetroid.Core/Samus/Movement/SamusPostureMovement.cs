@@ -80,8 +80,7 @@ public static class SamusPostureMovement
         // Samus moves with no base speed, but keeps any extra run speed, which her horizontal movement adds to it.
         // A run at its full boost stage therefore keeps sliding through the crouch transition into a crouch, and
         // her pose handling stores the shine before ordinary crouching stops that momentum.
-        bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-        var requestedHorizontal = SamusHorizontalDisplacement.Toward(facingLeft, samus, baseSpeed: default);
+        var requestedHorizontal = SamusHorizontalDisplacement.TowardFacing(samus, baseSpeed: default);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));

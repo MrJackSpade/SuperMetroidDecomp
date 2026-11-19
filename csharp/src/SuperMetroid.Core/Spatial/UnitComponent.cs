@@ -56,11 +56,7 @@ public readonly record struct UnitComponent
     /// rounds toward zero and a whole component reaches the full length.
     /// </summary>
     /// <param name="length">The length in whole pixels, zero or more.</param>
-    public int ReachOf(int length)
-    {
-        int reach = Math.Abs(TwoFiftySixths) * Ensure.BetweenInclusive(0, int.MaxValue, length) / Whole;
-        return IsNegative ? -reach : reach;
-    }
+    public int ReachOf(int length) => TwoFiftySixths * Ensure.BetweenInclusive(0, int.MaxValue, length) / Whole;
 
     /// <summary>
     /// How far along the axis a length of <paramref name="length"/> whole pixels laid along the direction reaches, in
@@ -92,21 +88,20 @@ public readonly record struct UnitComponent
         SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(TwoFiftySixths * length);
 
     /// <summary>
-    /// The speed, in pixels an update, at which a turn at <paramref name="speed"/> carries a point along the axis when
-    /// each step of turn counts as a pixel: the component's size times the speed's, with every fraction kept.
+    /// The velocity, in pixels an update, at which a turn at <paramref name="turn"/> carries a point along the axis when
+    /// each step of turn counts as a pixel (#2569): the component times the turn, every fraction kept, toward the axis's
+    /// decreasing side when exactly one of them points back.
     /// </summary>
-    /// <exception cref="OverflowException">The product is faster than an unsigned speed holds.</exception>
-    public UnsignedSixteenSixteen SizeTimes(AngularSpeed speed) =>
-        UnsignedSixteenSixteen.ProductOfTwoFiftySixths(Math.Abs(TwoFiftySixths), speed.Magnitude.FractionsOfStep);
+    public SignedSixteenSixteen VelocityOf(AngularSpeed turn) =>
+        SignedSixteenSixteen.ProductOfTwoFiftySixths(TwoFiftySixths, turn.FractionsOfStep);
 
     /// <summary>
-    /// The speed at which a point moving at <paramref name="speed"/> along the direction moves along the axis (#2532): the
-    /// component's size times the speed, every fraction kept.
+    /// The velocity along the axis of a point moving at <paramref name="speed"/> along the direction (#2532, #2569): the
+    /// component times the speed, every fraction kept, toward the axis's decreasing side when exactly one of them points
+    /// back.
     /// </summary>
-    /// <param name="speed">The speed along the direction, in pixels an update, zero or more.</param>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="speed"/> is negative.</exception>
-    public UnsignedSixteenSixteen SizeTimes(SignedEightEight speed) =>
-        UnsignedSixteenSixteen.ProductOfTwoFiftySixths(Math.Abs(TwoFiftySixths), speed.InTwoHundredFiftySixthsOfPixel);
+    public SignedSixteenSixteen VelocityOf(SignedEightEight speed) =>
+        SignedSixteenSixteen.ProductOfTwoFiftySixths(TwoFiftySixths, speed.InTwoHundredFiftySixthsOfPixel);
 
     /// <inheritdoc />
     public override string ToString() => $"{TwoFiftySixths}/256";

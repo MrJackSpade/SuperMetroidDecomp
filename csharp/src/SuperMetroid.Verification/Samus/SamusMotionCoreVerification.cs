@@ -445,10 +445,10 @@ internal static void VerifySamusHorizontalSpeed()
     // fraction. These deliberately oversized values catch a tempting floating-point clamp.
     speed.ExtraRunSpeed = speed.ExtraRunSpeed.WithWhole(0);
     speed.SlowdownLevel = 0;
-    AssertEqual(0x000f1234, speed.CalculateRightDisplacement(UnsignedSixteenSixteen.FromRaw(0x00101234), extraDisplacement: default).RawValue, "right displacement +15 clamp");
+    AssertEqual(0x000f1234, speed.CalculateDisplacement(HorizontalDirection.Right, UnsignedSixteenSixteen.FromRaw(0x00101234), extraDisplacement: default).RawValue, "right displacement +15 clamp");
     // Negation happens before clamping, so 0 - $0010:1234 is $FFEF:EDCC. The clamp
     // replaces only its high word, producing $FFF1:EDCC rather than mirroring $1234.
-    AssertEqual(unchecked((int)0xfff1edcc), speed.CalculateLeftDisplacement(UnsignedSixteenSixteen.FromRaw(0x00101234), extraDisplacement: default).RawValue, "left displacement -15 clamp");
+    AssertEqual(unchecked((int)0xfff1edcc), speed.CalculateDisplacement(HorizontalDirection.Left, UnsignedSixteenSixteen.FromRaw(0x00101234), extraDisplacement: default).RawValue, "left displacement -15 clamp");
 
     Console.WriteLine("  Samus speed: acceleration, deceleration, submerged palette gate, boost departure echoes, divisor, and clamp agree.");
 }

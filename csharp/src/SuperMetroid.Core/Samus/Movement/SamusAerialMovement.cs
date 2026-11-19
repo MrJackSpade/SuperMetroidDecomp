@@ -34,11 +34,10 @@ public static class SamusAerialMovement
         SamusLiquidMedium medium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         bool hiJumpEquipped = samus.EquippedItems.HasAny(SamusEquipmentFlags.HiJumpBoots);
         // Speed Booster's bonus then raises the launch speed part by part (SpeedBoosterJumpBonus).
-        samus.Kinematics.YSpeed =
-            SamusVerticalMotion.Launch(medium, hiJumpEquipped, kind: SamusLaunchKind.Jump);
+        samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Rising(
+            SamusVerticalMotion.Launch(medium, hiJumpEquipped, kind: SamusLaunchKind.Jump));
         ApplyEquippedSpeedBoosterJumpBonus(samus);
         ConfigureEnvironmentGravity(samus);
-        samus.Kinematics.YDirection = SamusVerticalDirection.Up;
     }
 
     /// <summary>
@@ -51,11 +50,10 @@ public static class SamusAerialMovement
 
         SamusLiquidMedium medium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         bool hiJumpEquipped = samus.EquippedItems.HasAny(SamusEquipmentFlags.HiJumpBoots);
-        samus.Kinematics.YSpeed =
-            SamusVerticalMotion.Launch(medium, hiJumpEquipped, kind: SamusLaunchKind.WallJump);
+        samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Rising(
+            SamusVerticalMotion.Launch(medium, hiJumpEquipped, kind: SamusLaunchKind.WallJump));
         ApplyEquippedSpeedBoosterJumpBonus(samus);
         ConfigureEnvironmentGravity(samus);
-        samus.Kinematics.YDirection = SamusVerticalDirection.Up;
     }
 
     /// <summary>
@@ -68,7 +66,7 @@ public static class SamusAerialMovement
         if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster))
             return;
 
-        samus.Kinematics.YSpeed = SpeedBoosterJumpBonus.Boosted(samus.Kinematics.YSpeed, samus.HorizontalSpeed.ExtraRunSpeed);
+        samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(SpeedBoosterJumpBonus.Boosted(samus.Kinematics.VerticalVelocity.Speed, samus.HorizontalSpeed.ExtraRunSpeed));
     }
 
 /// <summary>
@@ -365,17 +363,16 @@ public static class SamusAerialMovement
 
         // Before the shared gravity step, an upward speed passing zero at the apex becomes a stationary downward state
         // on this same frame.
-        if (samus.Kinematics.YDirection == SamusVerticalDirection.Up && SamusSpeedMagnitude.HasPassedZero(samus.Kinematics.YSpeed.Whole))
+        if (samus.Kinematics.VerticalVelocity.HasPassedApex)
         {
-            samus.Kinematics.YSpeed = default;
-            samus.Kinematics.YDirection = SamusVerticalDirection.Down;
+            samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.FallFromRest;
         }
 
         // The vertical check-and-move selects the no-speed probe for no vertical direction even in
         // airborne turn art. Moonfall therefore pauses gravity during its turn;
         // this is the same branch used by grounded aimed crouching turns.
         AerialMovementResult result;
-        if (samus.Kinematics.YDirection == SamusVerticalDirection.None)
+        if (samus.Kinematics.VerticalVelocity.HasNoDirection)
         {
             SamusGroundedMovement.RunNoSpeedCalculationGroundingProbe(level, samus, frameCounter, roomObjects);
             result = new AerialMovementResult(false, false);
@@ -425,11 +422,9 @@ public static class SamusAerialMovement
         // An upward speed that passed zero becomes a stationary downward state
         // before the vertical movement can turn the speed past zero into moonfall-like
         // motion. An ordinary walk-off already enters moving down.
-        if (samus.Kinematics.YDirection == SamusVerticalDirection.Up &&
-            SamusSpeedMagnitude.HasPassedZero(samus.Kinematics.YSpeed.Whole))
+        if (samus.Kinematics.VerticalVelocity.HasPassedApex)
         {
-            samus.Kinematics.YSpeed = default;
-            samus.Kinematics.YDirection = SamusVerticalDirection.Down;
+            samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.FallFromRest;
         }
 
         AerialMovementResult result = FinishVerticalMovement(level, samus, frameCounter, roomObjects: roomObjects);
@@ -437,7 +432,7 @@ public static class SamusAerialMovement
         // Aimed falling poses have their own animations and keep them.
         if (samus.Pose is SamusPoseId.FallingRightPose or SamusPoseId.FallingLeftPose or
             SamusPoseId.FallingGunExtendedRightPose or SamusPoseId.FallingGunExtendedLeftPose &&
-            SamusSpeedMagnitude.IsAtLeast(samus.Kinematics.YSpeed.Whole, SamusMovementDefinitions.FastFallAnimationSpeed) &&
+            SamusSpeedMagnitude.IsAtLeast(samus.Kinematics.VerticalVelocity.Speed.Whole, SamusMovementDefinitions.FastFallAnimationSpeed) &&
             !samus.AnimationHasReached(SamusAnimationFrames.FastFallStart))
             SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusAnimationFrames.FastFall,
                 SamusMovementDefinitions.FastFallAnimationTimer);
@@ -472,10 +467,9 @@ public static class SamusAerialMovement
 
         // An upward speed that has passed zero ends the released flight at its apex: the flight clears the speed, turns
         // downward and hands movement back to the pose, but deliberately finishes this final frame of the flight.
-        if (state.YDirection == SamusVerticalDirection.Up && SamusSpeedMagnitude.HasPassedZero(state.YSpeed.Whole))
+        if (state.VerticalVelocity.HasPassedApex)
         {
-            state.YSpeed = default;
-            state.YDirection = SamusVerticalDirection.Down;
+            state.VerticalVelocity = SamusVerticalVelocity.FallFromRest;
             releasedFlightEnds = true;
         }
 
@@ -584,25 +578,12 @@ public static class SamusAerialMovement
         ValidateCommon(terrain.Level, samus);
         SamusKinematicsState state = samus.Kinematics;
 
-        // The displacement takes the OLD speed before gravity changes the
-        // velocity. A newly initialized zero-speed fall therefore moves zero pixels on its
-        // first update even though gravity has already accumulated for next frame.
-        UnsignedSixteenSixteen oldSpeed = state.YSpeed;
-        if (state.YDirection == SamusVerticalDirection.Down)
-        {
-            // Gravity stops only at exactly the terminal whole speed. Values above it are not
-            // clamped; preserving that oddity matters for externally scripted velocities.
-            if (state.YSpeed.Whole != SamusVerticalMotionDefinitions.TerminalFallWholeSpeed)
-                state.YSpeed += state.YAcceleration;
-        }
-        else
-        {
-            state.YSpeed -= state.YAcceleration;
-        }
-
-        SignedSixteenSixteen displacement = state.YDirection == SamusVerticalDirection.Down
-            ? oldSpeed.AsDisplacement()
-            : -oldSpeed.AsDisplacement();
+        // The displacement takes the OLD velocity before gravity changes it. A newly initialized fall from rest therefore
+        // moves zero pixels on its first update even though gravity has already accumulated for next frame. Gravity stops
+        // only at exactly the terminal whole speed: a fall above it is not clamped, which matters for externally scripted
+        // velocities.
+        SignedSixteenSixteen displacement = state.VerticalVelocity.Displacement;
+        state.VerticalVelocity = state.VerticalVelocity.AfterGravity(state.YAcceleration, SamusVerticalMotionDefinitions.TerminalFallWholeSpeed);
         displacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
             state,
             displacement);
@@ -630,8 +611,7 @@ public static class SamusAerialMovement
         {
             // Ordinary movements consume the ceiling collision as a jump stop. A turn
             // instead clears that pending result, so the turn defers these writes.
-            state.YSpeed = default;
-            state.YDirection = SamusVerticalDirection.Down;
+            state.VerticalVelocity = SamusVerticalVelocity.FallFromRest;
         }
 
         return vertical;
@@ -642,15 +622,13 @@ public static class SamusAerialMovement
         SamusKinematicsState state,
         GameplayAction controllerInput)
     {
-        if (state.YDirection != SamusVerticalDirection.Up)
+        if (!state.VerticalVelocity.IsRising)
             return;
 
         bool jumpHeld = (controllerInput & GameplayAction.Jump) != GameplayAction.None;
-        bool speedPassedZero = SamusSpeedMagnitude.HasPassedZero(state.YSpeed.Whole);
-        if (!jumpHeld || speedPassedZero)
+        if (!jumpHeld || state.VerticalVelocity.HasPassedApex)
         {
-            state.YSpeed = default;
-            state.YDirection = SamusVerticalDirection.Down;
+            state.VerticalVelocity = SamusVerticalVelocity.FallFromRest;
         }
     }
 
@@ -736,7 +714,7 @@ public static class SamusAerialMovement
         GameplayAction controllerNewInput)
     {
         if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.SpaceJump) ||
-            samus.Kinematics.YDirection != SamusVerticalDirection.Down)
+            !samus.Kinematics.VerticalVelocity.IsFalling)
         {
             return false;
         }
@@ -744,7 +722,7 @@ public static class SamusAerialMovement
         // The window's bounds are whole 256ths of a pixel, and the full falling speed is compared with them. That is the
         // game's comparison for every speed under 256 pixels an update, and a falling speed never reaches that: gravity
         // adds under a pixel per update, so it would take over two thousand updates of falling, past any room's height.
-        UnsignedSixteenSixteen fallingSpeed = samus.Kinematics.YSpeed;
+        UnsignedSixteenSixteen fallingSpeed = samus.Kinematics.VerticalVelocity.Speed;
         // The remembered medium is written by the preceding animation pass, not recomputed here. This
         // matters while crossing a surface: the top-boundary gate above and remembered
         // velocity window can intentionally describe different samples for one frame.

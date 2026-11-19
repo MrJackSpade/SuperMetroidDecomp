@@ -150,7 +150,7 @@ public sealed class SamusXrayState
             return false;
 
         if (conditions.GameState != SuperMetroidGameState.MainGameplay || conditions.PowerBombExplosionActive ||
-            !samus.Kinematics.YSpeed.IsZero)
+            samus.Kinematics.VerticalVelocity.IsMoving)
         {
             return false;
         }

@@ -440,9 +440,10 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         samus.SlowdownLevel = ShitroidFightDefinitions.DrainXSpeedDivisor;
         // A speed slowed past zero at the apex reads as below four in the clamp's comparison, so it keeps its value
         // (#1562); the Shitroid sits a pixel right while the speed reads four or more (DrainingShitroidFallShift).
-        int rightOfShake = DrainingShitroidFallShift.PixelsRightOfShake(samus.Kinematics.YSpeed.Whole);
-        if (SamusSpeedMagnitude.WholePixelsReach(samus.Kinematics.YSpeed, ShitroidFightDefinitions.DrainFallSpeedLimit))
-            samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWholePixelsOf(ShitroidFightDefinitions.DrainFallSpeed);
+        UnsignedSixteenSixteen fallSpeed = samus.Kinematics.VerticalVelocity.Speed;
+        int rightOfShake = DrainingShitroidFallShift.PixelsRightOfShake(fallSpeed.Whole);
+        if (SamusSpeedMagnitude.WholePixelsReach(fallSpeed, ShitroidFightDefinitions.DrainFallSpeedLimit))
+            samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(fallSpeed.WithWholePixelsOf(ShitroidFightDefinitions.DrainFallSpeed));
 
         int shakeIndex = MotherBrainCadenceDefinitions.ShitroidShakeStep.Of(place.FrameCounter);
         place.Position = place.Position.WithWhole(

@@ -366,7 +366,7 @@ internal sealed class ProjectileMotion
         // edge stands at a place OffRoomPlaces keeps, and its link trails it across that edge.
         int offset = wholeMagnitude - SuperMissileDefinitions.FastLinkShortfall;
         int ownerPosition = axis == Axis.Vertical ? owner.Position.Y.Whole : owner.Position.X.Whole;
-        int linkPosition = OffRoomPlaces.Place(ownerPosition + (velocity.IsNegative ? offset : -offset));
+        int linkPosition = OffRoomPlaces.Place(ownerPosition - velocity.WholePixelsAlong(offset));
         if (axis == Axis.Vertical)
             link.Position = link.Position.WithWholeY(linkPosition);
         else

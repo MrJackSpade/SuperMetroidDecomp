@@ -761,19 +761,12 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Calculates the non-collision portion of a rightward displacement,
-    /// including the ±15-pixel whole-pixel clamp.
+    /// Calculates the non-collision portion of a displacement toward <paramref name="side"/> (#2569): the total speed's
+    /// velocity toward the side plus the extra displacement, within the ±15-pixel whole-pixel clamp, so a leftward move is
+    /// the extra displacement less the total speed rather than the rightward result reversed.
     /// </summary>
-    public SignedSixteenSixteen CalculateRightDisplacement(UnsignedSixteenSixteen baseSpeed, SignedSixteenSixteen extraDisplacement) =>
-        ClampDisplacement(CalculateTotalSpeed(baseSpeed).AsDisplacement() + extraDisplacement);
-
-    /// <summary>
-    /// Calculates the non-collision portion of a leftward displacement.
-    /// Left is <c>extra displacement - total speed</c>, not merely
-    /// the rightward result reversed.
-    /// </summary>
-    public SignedSixteenSixteen CalculateLeftDisplacement(UnsignedSixteenSixteen baseSpeed, SignedSixteenSixteen extraDisplacement) =>
-        ClampDisplacement(extraDisplacement - CalculateTotalSpeed(baseSpeed).AsDisplacement());
+    public SignedSixteenSixteen CalculateDisplacement(HorizontalDirection side, UnsignedSixteenSixteen baseSpeed, SignedSixteenSixteen extraDisplacement) =>
+        ClampDisplacement(CalculateTotalSpeed(baseSpeed).AsDisplacement().Toward(side) + extraDisplacement);
 
     /// <summary>Whether Samus has any base speed: either its whole pixels or its fraction is nonzero.</summary>
     public bool HasBaseSpeed => BaseSpeed != default;

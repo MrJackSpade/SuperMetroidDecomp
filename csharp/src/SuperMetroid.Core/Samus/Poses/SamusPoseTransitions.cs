@@ -53,11 +53,10 @@ internal static class SamusPoseTransitions
         // Starting the fall with no floor below preserves an ascending
         // velocity, even if an ability that moved her left it on a standing pose. Crystal
         // Flash can do exactly that; unconditional reset shortens its return arc.
-        if (samus.Kinematics.YDirection != SamusVerticalDirection.Up)
+        if (!samus.Kinematics.VerticalVelocity.IsRising)
         {
             samus.MorphBallBounceState = SamusBallBounceState.None;
-            samus.Kinematics.YSpeed = default;
-            samus.Kinematics.YDirection = SamusVerticalDirection.Down;
+            samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.FallFromRest;
         }
         SamusAerialMovement.ConfigureEnvironmentGravity(samus);
         samus.Pose = targetPose;
@@ -226,14 +225,13 @@ internal static class SamusPoseTransitions
         if (!samus.Control.InputLocked) samus.InputSnapshot.AutoJumpInputPending = true;
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         samus.HorizontalSpeed.BaseSpeed = default;
-        samus.Kinematics.YSpeed = default;
+        samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Still;
 
         // The normal suit shade is reloaded whenever a pose change leaves spin or
         // wall-jump movement while Screw Attack is equipped. The suit shade shows
         // at the later shade phase, so the landing requests it here.
         if (leavingScrewAttack)
             samus.HorizontalSpeed.RequestSuitShadeRestore();
-        samus.Kinematics.YDirection = SamusVerticalDirection.None;
     }
 
     /// <summary>

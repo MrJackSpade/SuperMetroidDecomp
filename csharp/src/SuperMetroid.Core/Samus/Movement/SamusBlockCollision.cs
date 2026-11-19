@@ -38,7 +38,7 @@ public static class SamusBlockCollision
         // trigger it reaches, through an extension block too, wakes its owner during the wall-jump check.
         BlockMoveResult result = MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, probe, owner, pose, new HorizontalBlockMove { Displacement = signedDistance, BlockReactionDirection = SamusCollisionDirection.NonDirectionalProbe });
         // Submerging sand writes these real motion values even through wall observation.
-        state.YSpeed = probe.YSpeed;
+        state.VerticalVelocity = state.VerticalVelocity.WithSpeed(probe.VerticalVelocity.Speed);
         state.YAcceleration = probe.YAcceleration;
 
         // A block hit (and square-slope clipping) writes Samus's real X fraction of a pixel even through the wall-jump probe. The
@@ -162,7 +162,7 @@ public static class SamusBlockCollision
                         acceptedDisplacement = SamusSlopePhysics.ScaleGroundedHorizontalDisplacement(
                             block.Behavior,
                             acceptedDisplacement,
-                            state.YSpeed);
+                            state.VerticalVelocity.Speed);
                         break;
 
                     case RoomCollisionType.SolidBlock:

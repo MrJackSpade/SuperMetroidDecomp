@@ -30,6 +30,6 @@ internal static class CrocomireMeltDissolveDefinitions
     /// <summary>Pixel columns in one group the dissolve erases within: one character's width.</summary>
     internal const int GroupColumns = 8;
 
-    /// <summary>The bands the dissolve erases: the six rows of eight pixels the erase runs down; a second pass's seventh band never dissolves.</summary>
+    /// <summary>The bands the dissolve erases: the six rows of eight pixels the erase runs down, every band of each melt image.</summary>
     internal const int ErasedBands = 6;
 }

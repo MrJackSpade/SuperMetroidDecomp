@@ -233,7 +233,7 @@ internal static class RoomBlockUploads
         foreach (CrocomireMeltingIllustration illustration in Enum.GetValues<CrocomireMeltingIllustration>())
         {
             byte[] image = artwork.Characters(illustration).ToArray();
-            for (int band = 0; band < CrocomireMelting.BandCount(illustration); band++)
+            for (int band = 0; band < CrocomireMeltingDefinitions.MeltImageBandCount; band++)
             {
                 yield return AnimatedCharacterPlacement.Of(CrocomireMeltBands.Undissolved(illustration, band),
                     BgCharacterSet.Tiles, CrocomireMeltDissolve.BandFirstCharacter(band), CrocomireMeltDissolve.BandCharacters(image, band));

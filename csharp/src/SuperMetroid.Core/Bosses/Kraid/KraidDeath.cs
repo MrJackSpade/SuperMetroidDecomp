@@ -51,15 +51,13 @@ internal sealed class KraidDeath
     }
 
     /// <summary>
-    /// Once the body has sunk, his whole body is hidden (#1515). His body layer stays shown in place of the room's
-    /// background layer: in the game his body overwrote the room's, so showing it again draws a stale strip of it
-    /// across the top of the screen (#1427). A defeated room's reload hides his body here too.
+    /// Once the body has sunk, his whole body is hidden (#1515) and his body layer with it, so the room's own background
+    /// shows from then on (#2573). A defeated room's reload hides his body here too.
     /// </summary>
     private static void HideKraidBody(KraidEnemyState state)
     {
         state.BodyAppearance = KraidBodyAppearance.Hidden;
-        state.ShowBody();
-        state.ShowsBodyLayer = true;
+        state.ShowsBodyLayer = false;
     }
 
     /// <summary>Runs the current step of Kraid's death: his staged sinking, his colour change and the room's repair.</summary>

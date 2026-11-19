@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// the update the room fades in, showing its first strength on that same update; fading in, it shows strengths 0 through
 /// 15, one an update, and on the update after 15 it holds at full strength without changing what it shows. Holding, it
 /// starts fading out on the update the room fades out and shows its first fade-out strength on the next update; fading
-/// out, it shows strengths 16 down to 1, one an update, and then stays at 1. A haze shown as the room appears at once
-/// starts holding, at the strength a finished fade-in shows.
+/// out, it shows full strength once more and then strengths 15 down to 1, one an update, and then stays at 1 (#2573). A
+/// haze shown as the room appears at once starts holding, at the strength a finished fade-in shows.
 /// </summary>
 [RoomLifetime]
 public sealed class CeresHazeState
@@ -23,7 +23,7 @@ public sealed class CeresHazeState
         FadingIn,
         /// <summary>Retains full haze until the room fade-out gate selects the next phase.</summary>
         Holding,
-        /// <summary>Shows strengths sixteen down to one, one an update, falling after each, then stays at one.</summary>
+        /// <summary>Shows full strength and then fifteen down to one, one an update, falling after each, then stays at one.</summary>
         FadingOut,
     }
     /// <summary>Current haze phase, independent of its selected color channel.</summary>
@@ -32,8 +32,11 @@ public sealed class CeresHazeState
     private int _counter;
     /// <summary>The tint the haze adds, chosen once as it starts by whether Ridley is dead; later defeats do not change it.</summary>
     public CeresHazeTint Tint { get; }
-    /// <summary>The strength the haze shows, in steps of its fade: 0 through 15 as it fades in, 16 down to 1 as it fades out, and 1 once it has faded out.</summary>
+    /// <summary>The strength the haze shows, in steps of its fade: 0 through 15 as it fades in, 15 down to 1 as it fades out, and 1 once it has faded out.</summary>
     private int _strength;
+
+    /// <summary>The haze's full strength, the last step of its fade.</summary>
+    private const int FullStrength = CeresHazeDefinitions.FadeSteps - 1;
 
     /// <summary>How strongly the haze shows (#2482).</summary>
     public CeresHazeStrength Strength => new(_strength);
@@ -96,7 +99,8 @@ public sealed class CeresHazeState
                 if (roomFade == RoomFade.FadingOut) _phase = Phase.FadingOut;
                 break;
             case Phase.FadingOut:
-                if (_counter != 0) _strength = _counter--;
+                // The fade-out counts down from one past full, which the haze shows as full (#2573).
+                if (_counter != 0) _strength = Math.Min(_counter--, FullStrength);
                 break;
             case Phase.Waiting:
                 throw new InvalidOperationException("Waiting either returns or starts the fade-in above.");

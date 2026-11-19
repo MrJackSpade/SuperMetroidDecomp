@@ -207,8 +207,7 @@ public static class GameplayEffectCapture
     public static ColourAddWindowLayer CaptureCeresHaze(CeresHazeTints tints, CeresHazeTint hazeTint, CeresHazeStrength strength)
     {
         RgbColor tint = Ensure.NotNull(tints).For(hazeTint);
-        // The fade's strength is relative to the whole haze: below it the bands dim, and the fade-out's first frame
-        // shows one step more than whole.
+        // The fade's strength is relative to the whole haze: below it the bands dim.
         var steps = new LineColourSteps(CeresHazeRenderDefinitions.RampFirstLine, CeresHazeRenderDefinitions.BandHeight,
             CeresHazeRenderDefinitions.MaximumComponent, strength.FadeSteps - CeresHazeRenderDefinitions.MaximumComponent);
         return new(ScreenWindow.Of(WindowRectangle.Spanning(0, HudHeight, Width - 1, Height - 1), HudHeight), tint, steps);

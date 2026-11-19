@@ -141,7 +141,7 @@ internal static class BossBodySheetComposer
     private static List<BossBodyFrameSource> CrocomireMeltStates(CrocomireMeltingArtwork melting, CrocomireMeltingIllustration image)
     {
         var selected = new Dictionary<ArtworkAnimation, ArtworkFrame>();
-        for (int band = 0; band < CrocomireMelting.BandCount(image); band++)
+        for (int band = 0; band < CrocomireMeltingDefinitions.MeltImageBandCount; band++)
             selected.Add(CrocomireMeltBands.Animation(band), CrocomireMeltBands.Undissolved(image, band));
         BossBodyFrameSource source = BossBodyFrameSource.Written(CrocomireMeltingFrameNames.Of(image),
             BossBodySourceDefinitions.CrocomireMeltFirstCell, melting.Tilemap(image));
@@ -162,7 +162,7 @@ internal static class BossBodySheetComposer
         Position16<BackgroundPixels> corner = BossBodyPainter.CornerOf(source.Cells);
         Extent16<ImagePixels> size = BossBodyPainter.PictureSizeOf(source.Cells);
         var pixels = new DissolvingPixel?[size.X * size.Y];
-        int bands = Math.Min(CrocomireMelting.BandCount(image), CrocomireMeltDissolveDefinitions.ErasedBands);
+        int bands = Math.Min(CrocomireMeltingDefinitions.MeltImageBandCount, CrocomireMeltDissolveDefinitions.ErasedBands);
         foreach ((int layerCell, BackgroundTile tile) in source.Cells)
         {
             int band = tile.Tile / CrocomireMeltDissolve.BandRowCharacters, group = tile.Tile % CrocomireMeltDissolve.BandRowCharacters;

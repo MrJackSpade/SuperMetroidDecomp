@@ -590,7 +590,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         CurrentFlashbackDemoInput.Enable();
         CurrentFlashbackDemoInput.Load(DemoInputRecordingId.IntroMotherBrainFlashback);
         // Samus is processed, and drawn ahead of the cinematic actors.
-        flashbackSamusDisplay = IntroSamusDisplay.SamusFirst;
+        flashbackSamusDisplay = IntroSamusDisplay.InFrontOfActors;
 
         // The scene setup starts the crossfade from the narration into the flashback, which starts black.
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Flashback);
@@ -619,7 +619,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// </summary>
     private void StartFightLightsIfSamusDrawsFirst(IntroSamusDisplay display)
     {
-        if (display == IntroSamusDisplay.SamusFirst)
+        if (display == IntroSamusDisplay.InFrontOfActors)
             ColourEffects.StartScreen(IntroCinematicDefinitions.FightLights);
     }
 
@@ -1009,7 +1009,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         sprites.BeginFrame();
         // The cinematic draw layers Samus and the cinematic actors by how the intro shows her.
         IntroSamusDisplay display = BabyDiscovery.SamusDisplay;
-        if (display == IntroSamusDisplay.SamusFirst)
+        if (display == IntroSamusDisplay.InFrontOfActors)
             DrawBabyDiscoverySamus(sprites);
         screenSprites.BeginFrame();
         BabyDiscovery.DrawActors(screenSprites, IntroSprites(CinematicSpriteFamily.IntroEggEffect),
@@ -1017,7 +1017,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         screenSprites.FinishFrame();
         foreach (SpriteDraw draw in screenSprites.Draws)
             sprites.Add(draw);
-        if (display == IntroSamusDisplay.ActorsFirst)
+        if (display == IntroSamusDisplay.BehindActors)
             DrawBabyDiscoverySamus(sprites);
         sprites.FinalizeFrame();
 

@@ -525,10 +525,9 @@ internal sealed class RoomLoader
         ScrollBoundaryCamera camera = _room.LoadedCamera;
         bool completed = state.Advance();
         PublishDoorOpeningLayers(state);
-        // Each four-pixel step recomputes the layer scrolls, except during an upward
-        // door's first frames.
-        if (state.RecalculatesScrollAfterAdvance)
-            _backgroundScroll.CalculateLayerScrolls();
+        // Each four-pixel step recomputes the layer scrolls, so the layers show where the camera stands on every update
+        // (#2573).
+        _backgroundScroll.CalculateLayerScrolls();
 
         if (completed)
         {

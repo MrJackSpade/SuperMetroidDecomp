@@ -48,5 +48,5 @@ internal readonly struct SnesDspVoiceControls
     /// managed-driver defect, never a silent truncation.
     /// </summary>
     private void Write(DspVoiceRegister register, int value) =>
-        dsp.WriteRegister((byte)(block + (int)register), checked((byte)value));
+        dsp.WriteRegister((byte)(block + SnesDspRegisterLayout.OffsetOf(register)), checked((byte)value));
 }

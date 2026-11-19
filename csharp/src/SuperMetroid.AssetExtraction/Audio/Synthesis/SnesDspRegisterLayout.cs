@@ -23,21 +23,43 @@ internal static class SnesDspRegisterLayout
     internal static class Voice
     {
         /// <summary>Attack, decay, and ADSR enable bits within each voice block.</summary>
-        internal const int Adsr1 = (int)DspVoiceRegister.Adsr1;
+        internal static int Adsr1 { get; } = OffsetOf(DspVoiceRegister.Adsr1);
         /// <summary>Sustain level and rate bits within each voice block.</summary>
-        internal const int Adsr2 = (int)DspVoiceRegister.Adsr2;
+        internal static int Adsr2 { get; } = OffsetOf(DspVoiceRegister.Adsr2);
         /// <summary>DSP-published current envelope byte.</summary>
-        internal const int EnvelopeOutput = (int)DspVoiceRegister.EnvelopeOutput;
+        internal static int EnvelopeOutput { get; } = OffsetOf(DspVoiceRegister.EnvelopeOutput);
         /// <summary>DSP-published current sample byte.</summary>
-        internal const int SampleOutput = (int)DspVoiceRegister.SampleOutput;
+        internal static int SampleOutput { get; } = OffsetOf(DspVoiceRegister.SampleOutput);
     }
 
-    /// <summary>The voice register an address names, or null for offsets $A-$F (global registers).</summary>
-    internal static DspVoiceRegister? VoiceRegisterAt(int address)
+    /// <summary>
+    /// Each voice register's offset within a voice's sixteen-register block (#2567), written out as the global registers'
+    /// addresses are, so the register's identity carries no offset.
+    /// </summary>
+    private static readonly Dictionary<DspVoiceRegister, int> voiceRegisterOffsets = new()
     {
-        int offset = address & VoiceRegisterMask;
-        return offset <= Voice.SampleOutput ? (DspVoiceRegister)offset : null;
-    }
+        [DspVoiceRegister.VolumeLeft] = 0x00,
+        [DspVoiceRegister.VolumeRight] = 0x01,
+        [DspVoiceRegister.PitchLow] = 0x02,
+        [DspVoiceRegister.PitchHigh] = 0x03,
+        [DspVoiceRegister.SourceNumber] = 0x04,
+        [DspVoiceRegister.Adsr1] = 0x05,
+        [DspVoiceRegister.Adsr2] = 0x06,
+        [DspVoiceRegister.Gain] = 0x07,
+        [DspVoiceRegister.EnvelopeOutput] = 0x08,
+        [DspVoiceRegister.SampleOutput] = 0x09,
+    };
+
+    /// <summary>Each offset within a voice block that selects a voice register, by offset.</summary>
+    private static readonly Dictionary<int, DspVoiceRegister> voiceRegistersByOffset =
+        voiceRegisterOffsets.ToDictionary(pair => pair.Value, pair => pair.Key);
+
+    /// <summary>The offset of <paramref name="register"/> within a voice's block.</summary>
+    internal static int OffsetOf(DspVoiceRegister register) => voiceRegisterOffsets[register];
+
+    /// <summary>The voice register an address names, or null for offsets $A-$F (global registers).</summary>
+    internal static DspVoiceRegister? VoiceRegisterAt(int address) =>
+        voiceRegistersByOffset.TryGetValue(address & VoiceRegisterMask, out DspVoiceRegister register) ? register : null;
 
     /// <summary>FIR coefficient C0; coefficient i is at this offset in voice block i.</summary>
     internal const byte FirstFirCoefficient = 0x0f;

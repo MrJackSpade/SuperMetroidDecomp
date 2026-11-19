@@ -42,9 +42,6 @@ internal sealed class RidleyBodyAnimation
         ridley.Flight.BodyPlayback = playback;
     }
 
-    /// <summary>The speed Ridley starts rising at as he lifts off: a pixel and three eighths an update.</summary>
-    private static readonly SignedEightEight LiftoffRise = SignedEightEight.FromPixelFraction(-11, 8);
-
     /// <summary>Carries out one cue of Ridley's body animation, returning the segment whose animation a continue-at cue continues in.</summary>
     /// <param name="place">Ridley's body.</param>
     /// <param name="ridley">Ridley's encounter.</param>
@@ -90,7 +87,7 @@ internal sealed class RidleyBodyAnimation
             case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.LiftOff }:
                 // The take-off hands control to the encounter's flight and starts his rise in the same update.
                 owner.LiftOff();
-                flight.Velocity = flight.Velocity.WithY(LiftoffRise);
+                flight.Velocity = flight.Velocity.WithY(RidleyFlightDefinitions.LiftoffRise);
                 return null;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(RidleyBodyCueKind)} {cue}.");

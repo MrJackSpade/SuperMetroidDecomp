@@ -128,7 +128,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         {
             RunMaridiaLargeSnailBounce(place, state, level);
         }
-        else if (!_terrain.MoveEnemyVertically(level, place, SignedSixteenSixteen.FromWholePixels(1)))
+        else if (!_terrain.MoveEnemyVertically(level, place, MaridiaLargeSnailMotionDefinitions.FloorProbe))
         {
             // No floor one pixel below means Oum walked off a ledge. Oum restarts the
             // complete three-impact settling sequence without skipping horizontal work.

@@ -39,4 +39,8 @@ internal static class CeresElevatorArrivalDefinitions
     /// <see cref="LandingSamusY"/>.
     /// </summary>
     internal const int LandingThresholdY = 73;
+
+
+    /// <summary>How far Samus descends with the moving pad each update of the arrival: one pixel down.</summary>
+    internal static Offset16<RoomPixels> SamusDescentStep { get; } = new(0, 1);
 }

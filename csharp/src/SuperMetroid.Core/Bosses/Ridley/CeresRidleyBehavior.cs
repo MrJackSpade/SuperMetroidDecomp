@@ -184,14 +184,14 @@ internal sealed class CeresRidleyBehavior : IRidleyRevealEncounter<CeresRidleySt
                 CeresRidleyFlight.TickCeresRidleySwoopPhase(
                     state,
                     turn: CeresRidleyFlightDefinitions.SwoopClimbTurn,
-                    targetAngle: RotationAngle.Zero - RidleyFlight.SwoopClimbTarget,
+                    targetAngle: RotationAngle.Zero - RidleyFlightDefinitions.SwoopClimbTarget,
                     targetSpeed: CeresRidleyFlightDefinitions.SwoopSpeed,
                     nextPhase: CeresRidleyPhase.SwoopAscendingAimingUpFaster,
                     nextUpdates: CeresRidleyFlightDefinitions.SwoopFinalClimbUpdates);
                 return true;
 
             case CeresRidleyPhase.SwoopAscendingAimingUpFaster:
-                RidleyFlight.UpdateSwoopVelocity(state.Flight, turn: CeresRidleyFlightDefinitions.SwoopFinalClimbTurn, targetAngle: RotationAngle.Zero - RidleyFlight.SwoopClimbTarget,
+                RidleyFlight.UpdateSwoopVelocity(state.Flight, turn: CeresRidleyFlightDefinitions.SwoopFinalClimbTurn, targetAngle: RotationAngle.Zero - RidleyFlightDefinitions.SwoopClimbTarget,
                     targetSpeed: CeresRidleyFlightDefinitions.SwoopSpeed);
                 if (state.PhaseTimer.StepRunsOut())
                 {

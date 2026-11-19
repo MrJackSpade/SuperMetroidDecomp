@@ -58,17 +58,7 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
     internal static void RunInitializationAi(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
     {
         Ensure.NotNull(surroundings);
-        switch (Ensure.NotNull(place).Entity)
-        {
-            case IEnemySurroundingsInitialization entity:
-                entity.Initialize(surroundings);
-                break;
-            case IEnemyInitialization entity:
-                entity.Initialize();
-                break;
-            default:
-                throw NoInitialization(place);
-        }
+        EntityOf(place).InitializeOccupant(place, surroundings);
     }
 
     /// <summary>
@@ -80,22 +70,13 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
     /// </exception>
     internal static void RunSpawnedInitializationAi(RoomEnemyPlace place)
     {
-        switch (Ensure.NotNull(place).Entity)
-        {
-            case IEnemyInitialization entity:
-                entity.Initialize();
-                break;
-            case IEnemySurroundingsInitialization:
-                throw new InvalidDataException(
-                    $"Enemy {place.DefinitionId} initializes from a population load's surroundings, but was spawned on another enemy's behalf.");
-            default:
-                throw NoInitialization(place);
-        }
+        EntityOf(place).InitializeOccupant(place, surroundings: null);
     }
 
-    /// <summary>The failure for a place whose species has no initialization behaviour.</summary>
-    private static InvalidDataException NoInitialization(RoomEnemyPlace place) =>
-        new($"Enemy {place.DefinitionId} has no initialization behaviour.");
+    /// <summary>The entity <paramref name="place"/> holds.</summary>
+    /// <exception cref="InvalidDataException">The place holds no entity, so its enemy has no initialization behaviour.</exception>
+    private static IEnemyEntity EntityOf(RoomEnemyPlace place) =>
+        Ensure.NotNull(place).Entity ?? throw new InvalidDataException($"Enemy {place.DefinitionId} has no initialization behaviour.");
 
     /// <summary>Exposes setting up a listed enemy from its population entry to the enemy loader.</summary>
     void IEnemyLifecycle.InitializePlaceFromDefinition(

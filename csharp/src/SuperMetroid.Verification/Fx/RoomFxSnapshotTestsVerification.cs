@@ -46,7 +46,7 @@ internal static class RoomFxSnapshotTestsVerification
         {
             var fx = new RoomFxOverlayRenderSnapshot(type, blend, new Position16<OverlayPixels>(65530, 511), currentY,
                 WaterOverlayWavePhase: phase, WaterSurfaceScreenY: surface) { LiquidSurfaceLine = surface };
-            OverlayBlendLayer? layer = GameplayEffectCapture.CaptureRoomFxOverlay(fx, artworks[type]);
+            OverlayBlendLayer? layer = GameplayEffectCapture.CaptureRoomFxOverlay(FxOverlayFixtures.Overlay(fx, artworks[type]));
             samples++;
             var packet = new DisplayPacket(0,
                 new LayeredScene(memory, layer is null ? [] : new DisplayLayer[] { layer }, 15));
@@ -60,8 +60,8 @@ internal static class RoomFxSnapshotTestsVerification
         AssertThrows<ArgumentOutOfRangeException>(() => new OverlayBlendLayer(null, 32,
             (BlendOperation)255, ScrollBands.Uniform(0)), "BG math rejects unknown equation");
         var encoded = new DisplayPacket(0, new LayeredScene(memory, [owned], 15));
-        AssertThrows<InvalidDataException>(() => GameplayEffectCapture.CaptureRoomFxOverlay(
-            new(RoomFxType.Water, null, Position16<OverlayPixels>.Zero, null), artworks[RoomFxType.Water]), "capture rejects water that describes no blend");
+        AssertThrows<InvalidDataException>(() => FxOverlayFixtures.Overlay(
+            new(RoomFxType.Water, null, Position16<OverlayPixels>.Zero, null), artworks[RoomFxType.Water]), "the latch rejects water that describes no blend");
         Console.WriteLine($"  Room FX snapshots: {samples} water/lava/acid/rain/fog cases, HUD exclusion and ownership agree.");
     }
 }

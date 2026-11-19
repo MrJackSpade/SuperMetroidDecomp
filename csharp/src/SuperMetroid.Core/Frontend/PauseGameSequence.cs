@@ -96,7 +96,8 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
         // The pause keeps running ordinary gameplay while the screen darkens, so enemies and projectiles keep
         // moving until the pause begins. The darkening, not main gameplay, owns that update (#2517).
         RuntimeFrameOutcome outcome = session.GameplayRuntime.StepFrame(controllerInput,
-            new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { RunsLowHealthCheck = true, MainGameplayOwnsUpdate = false } });
+            new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { RunsLowHealthCheck = true, MainGameplayOwnsUpdate = false, EntersOutOfHealthRoute = true } });
+        session.WriteCompletedSave(outcome);
         session.display.PublishGameplay(session.GameplayRuntime);
         if (gameplay.RouteOutOfHealth(session.GameplayRuntime.Player.IntroducedSamus, outcome.OutOfHealth))
         {

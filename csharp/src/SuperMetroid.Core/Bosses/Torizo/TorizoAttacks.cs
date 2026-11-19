@@ -284,7 +284,7 @@ internal sealed class TorizoAttacks
             RoomEnemyProjectileKind.BombTorizoLowHealthDrool,
             TorizoProjectiles,
             SpriteGraphics.SpawnedBy(torizo));
-        projectile.StartAnimation(new TorizoProjectileAnimation(SelectLowHealthDroolAnimation(_room.Random.Generate())));
+        projectile.StartAnimation(new TorizoProjectileAnimation(TorizoRandomDefinitions.LowHealthDroolForm.Choose(_room.Random.Generate())));
         int random = _room.Random.Generate();
         Offset16<RoomPixels> drool = TorizoProjectilePlacementDefinitions.LowHealthDrool;
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + (TorizoFacing.FacesRight(torizo) ? drool : drool.MirroredX()));
@@ -355,13 +355,6 @@ internal sealed class TorizoAttacks
     internal static EightEightVector<RoomPixels> VelocityAlong(SignedEightEight speed, TrigonometryAngle heading) =>
         new(Trigonometry.MultiplySignedSine(speed, heading),
             Trigonometry.MultiplySignedSine(speed, heading - TrigonometryAngle.QuarterTurn));
-
-    /// <summary>
-    /// The drool a low-health drool starts: the entry of <see cref="TorizoRandomDefinitions.LowHealthDroolAnimations"/>
-    /// the sample's <see cref="TorizoRandomDefinitions.LowHealthDroolDelay"/> draws.
-    /// </summary>
-    internal static Animation<TorizoProjectileSegment> SelectLowHealthDroolAnimation(int random) =>
-        TorizoRandomDefinitions.LowHealthDroolAnimations[TorizoRandomDefinitions.LowHealthDroolDelay.Of(random)];
 
     /// <summary>Places a swipe explosion at the left-facing hand placement <paramref name="placement"/>, mirroring it for right-facing Torizo.</summary>
     internal void SpawnBombTorizoExplosiveSwipe(RoomEnemyPlace torizo, Offset16<RoomPixels> placement)

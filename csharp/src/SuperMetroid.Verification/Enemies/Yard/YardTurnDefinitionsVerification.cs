@@ -32,21 +32,21 @@ internal static class YardTurnDefinitionsVerification
             new YardTurnDefinitionsRecord(YardDirection.UpsideDownMovingLeft, true, 0xa3cd3a),
         ];
 
-        foreach ((YardDirection movement, bool disabled, int address) in records)
+        foreach ((YardDirection movement, bool suppressed, int address) in records)
         {
             YardTurnDefinition definition =
-                YardTurns.ForCrawl(movement, disabled);
+                YardTurns.ForCrawl(movement, suppressed);
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address)), definition.Lookahead.X,
-                $"Yard turn {movement}/{disabled} lookahead X");
+                $"Yard turn {movement}/{suppressed} lookahead X");
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2))), definition.Lookahead.Y,
-                $"Yard turn {movement}/{disabled} lookahead Y");
+                $"Yard turn {movement}/{suppressed} lookahead Y");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4)), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.OutsideTurnAnimation),
-                $"Yard turn {movement}/{disabled} outside list");
+                $"Yard turn {movement}/{suppressed} outside list");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6)), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.InsideTurnAnimation),
-                $"Yard turn {movement}/{disabled} inside list");
+                $"Yard turn {movement}/{suppressed} inside list");
         }
 
-        // The four crawls along a wall do not consult the suppression flag.
+        // The four crawls along a wall have no suppressed turn.
         foreach (YardDirection movement in new[]
         {
             YardDirection.UpsideLeftMovingDown,
@@ -58,7 +58,7 @@ internal static class YardTurnDefinitionsVerification
             AssertEqual(
                 YardTurns.ForCrawl(movement, false),
                 YardTurns.ForCrawl(movement, true),
-                $"Yard vertical turn {movement} ignores suppression flag");
+                $"Yard vertical turn {movement} has no suppressed turn");
         }
 
         Suite(nameof(VerifyYardTurnProductionBranches), () => VerifyYardTurnProductionBranches(records));
@@ -74,21 +74,21 @@ internal static class YardTurnDefinitionsVerification
         RoomLevelData empty = VerificationHelpersVerification.CreateEmptyRoom(new(64, 64));
         RoomLevelData solid = VerificationHelpersVerification.CreateSolidRowsRoom(new(64, 64), firstSolidRow: 0, solidRowCount: 64);
 
-        foreach ((YardDirection movement, bool disabled, _) in records)
+        foreach ((YardDirection movement, bool suppressed, _) in records)
         {
             YardTurnDefinition definition =
-                YardTurns.ForCrawl(movement, disabled);
+                YardTurns.ForCrawl(movement, suppressed);
             VerifyYardTurnProductionBranch(
-                movement, disabled, empty, definition.OutsideTurnAnimation,
-                $"Yard outside turn {movement}/{disabled}");
+                movement, suppressed, empty, definition.OutsideTurnAnimation,
+                $"Yard outside turn {movement}/{suppressed}");
             VerifyYardTurnProductionBranch(
-                movement, disabled, solid, definition.InsideTurnAnimation,
-                $"Yard inside turn {movement}/{disabled}");
+                movement, suppressed, solid, definition.InsideTurnAnimation,
+                $"Yard inside turn {movement}/{suppressed}");
         }
 
         static void VerifyYardTurnProductionBranch(
             YardDirection movement,
-            bool disabled,
+            bool suppressed,
             RoomLevelData level,
             YardSegment expectedProgram,
             string context)
@@ -104,7 +104,7 @@ internal static class YardTurnDefinitionsVerification
                 Playback = new(YardAnimations.StartingWith(YardSegment.HidingUpsideUpMovingLeft), AnimationPlace.StartOfAnimation),
                 Movement = YardMovement.Crawling,
                 Crawl = movement,
-                TurnSuppressionPassesLeft = disabled ? YardMotionDefinitions.TurnSuppressionPasses : 0,
+                TurnSuppressionPassesLeft = suppressed ? YardMotionDefinitions.TurnSuppressionPasses : 0,
                 CrawlingVelocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(256, 256),
             };
 

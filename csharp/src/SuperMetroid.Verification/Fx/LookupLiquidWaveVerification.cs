@@ -1,8 +1,8 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Verification.Fx;
 
@@ -27,6 +27,8 @@ internal static class LookupLiquidWaveVerification
 
         // Confirm actual projection consumers over every circular phase and camera
         // low nibble, with signed-displacement overflow at both ushort boundaries.
+        // The overlay's pictures do not move its lines; any water's artwork shows where they lie.
+        FxOverlayArtwork seededWater = FxOverlayFixtures.SeededLiquid(RoomFxType.Water);
         for (int phase = 0; phase < 16; phase++)
         foreach (ushort baseScroll in new ushort[] { 0, ushort.MaxValue })
         {
@@ -34,7 +36,7 @@ internal static class LookupLiquidWaveVerification
                 RoomEffectBlendDefinitions.OverlayDarkens, new Position16<OverlayPixels>(baseScroll, 0),
                 Surface: 100, Liquid: new RoomWater(LiquidTide.None, SurfaceDrift: false, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false), WaterOverlayWavePhase: phase,
                 WaterBackgroundWavePhase: phase, WaterSurfaceScreenY: 100);
-            var captured = GameplayEffectCapture.CaptureRoomFxOverlay(water, RoomBackgroundsFixtures.BlankFxOverlay());
+            var captured = GameplayEffectCapture.CaptureRoomFxOverlay(FxOverlayFixtures.Overlay(water, seededWater));
             for (int y = ScreenGeometry.GameplayHudHeightPixels; y < ScreenGeometry.ScreenHeightPixels; y++)
             {
                 // The surface wave's phase counts from its first, which shows the cartridge's second.

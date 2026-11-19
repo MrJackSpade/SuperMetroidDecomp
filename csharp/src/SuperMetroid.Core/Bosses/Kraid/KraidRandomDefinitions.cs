@@ -48,9 +48,11 @@ internal static class KraidRandomDefinitions
     internal static readonly SignedEightEight CeilingRockSlowestFall = SignedEightEight.FromParts(0, 64);
 
     /// <summary>
-    /// Kraid's thinking delay in steps of 64 updates, 0 through 7 with a zero taken as two.
+    /// Kraid's thinking delay in steps of 64 updates, chosen from eight rolls (#2510): a roll of one through seven takes that
+    /// many steps and a roll of none <see cref="KraidArenaDefinitions.ThinkingDelayStepsOnNoRoll"/>.
     /// </summary>
-    internal static readonly RandomSampleField ThinkingDelaySteps = new(0, 3);
+    internal static readonly WeightedRandomChoice<int> ThinkingDelaySteps = WeightedRandomChoice<int>.InTurn(
+        new RandomSampleField(0, 3), KraidArenaDefinitions.ThinkingDelayStepsOnNoRoll, 1, 2, 3, 4, 5, 6, 7);
 
     /// <summary>
     /// The part of the sample Kraid's second-phase walk is chosen by, eight values his destination's walks share
@@ -65,8 +67,8 @@ internal static class KraidRandomDefinitions
     internal static readonly RandomChance NailWaitsForLint = RandomChance.Highest(1, new RandomSampleField(0, 1));
 
     /// <summary>
-    /// Whether a rising rock takes its pose flying to the right (#2479): taken when the sample's fifth bit is set, half the
-    /// random numbers.
+    /// Whether a rising rock takes its pose flying to the right (#2479): an even choice, taken by half the random
+    /// numbers.
     /// </summary>
     internal static readonly RandomChance RisingRockFliesRight = RandomChance.Highest(1, new RandomSampleField(4, 1));
 

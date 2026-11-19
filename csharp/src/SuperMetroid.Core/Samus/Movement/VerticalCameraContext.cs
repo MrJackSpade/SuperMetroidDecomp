@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
-/// <summary>Scroller distances used by vertical target selection.</summary>
+/// <summary>Which way Samus moves vertically and how far above her the camera aims its top for each, as the camera's vertical target reads them.</summary>
 /// <param name="YDirection">Samus's vertical direction this frame.</param>
 /// <param name="FallingCameraOffset">How many pixels above Samus the camera aims its top while she moves any way but up; zero or more.</param>
 /// <param name="RisingCameraOffset">How many pixels above Samus the camera aims its top while she moves up; zero or more.</param>

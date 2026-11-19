@@ -81,7 +81,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         switch (state.Action)
         {
             case NorfairLavaJumpingEnemyAction.BeginJump:
-                state.YVelocity = NorfairLavaJumps.InitialVerticalVelocity(random);
+                state.YVelocity = NorfairLavaJumpDefinitions.Launch.Choose(random);
                 state.Action = NorfairLavaJumpingEnemyAction.RiseBeforeAnimationSwitch;
                 place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
                 _audio.QueueEnemySound(EnemySoundEffectDefinitions.NorfairLavaJumpingEnemyJumpSound, priority: SoundRequestPriority.Normal);

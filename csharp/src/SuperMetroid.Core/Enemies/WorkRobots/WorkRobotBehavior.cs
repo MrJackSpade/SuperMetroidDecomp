@@ -215,7 +215,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     private WorkRobotSegment? TryFireWorkRobotLaser(
         RoomEnemyPlace robot,
         WorkRobotEnemyState state,
-        WorkRobotLaser projectileDefinition,
+        WorkRobotLaser laser,
         WorkRobotSegment firingSegment,
         Position16<RoomPixels> camera)
     {
@@ -226,7 +226,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.LaserCooldown = WrappingCountdown.Start(WorkRobotLaserDefinitions.CooldownJitter.Of(_room.Random.Read()) + WorkRobotLaserDefinitions.CooldownBase);
-        SpawnWorkRobotLaser(robot, state, projectileDefinition, camera);
+        SpawnWorkRobotLaser(robot, state, laser, camera);
         return firingSegment;
     }
 
@@ -346,12 +346,12 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Allocates a Work Robot laser: it flies ahead of the robot, the way it faces, and up, straight or down as
-    /// <paramref name="definition"/> names, its velocity holding its way (#2278).
+    /// <paramref name="laser"/> names, its velocity holding its way (#2278).
     /// </summary>
     internal void SpawnWorkRobotLaser(
         RoomEnemyPlace robot,
         WorkRobotEnemyState state,
-        WorkRobotLaser definition,
+        WorkRobotLaser laser,
         Position16<RoomPixels> camera)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
@@ -359,24 +359,24 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         // The enemy-projectile spawn copies the complete definition before the family's own setup: the diagonal and
-        // horizontal lasers do not share radii or damage, and the definition also supplies the blank first frame and all three contact
+        // horizontal lasers do not share radii or damage, and the projectile kind's definition also supplies the blank first frame and all three contact
         // properties. The laser's pictures carry their own
         // colours, so it draws from the room's shared sheet in its standard colours: no picture of it shows before its
         // first pass, so the robot's graphics its spawn briefly held never draw.
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
-            definition.ProjectileKind(),
+            laser.ProjectileKind(),
             Laser,
             SpriteGraphics.SharedStandard);
         projectile.StartAnimation(new WorkRobotLaserAnimation(WorkRobotLaserSegment.Flare));
         projectile.Velocity = projectile.Velocity.WithX(state.Facing == HorizontalDirection.Left ? -WorkRobotLaserDefinitions.Speed : WorkRobotLaserDefinitions.Speed);
-        projectile.Velocity = projectile.Velocity.WithY(definition switch
+        projectile.Velocity = projectile.Velocity.WithY(laser switch
         {
             WorkRobotLaser.Upward => -WorkRobotLaserDefinitions.DiagonalVerticalSpeed,
             WorkRobotLaser.Downward => WorkRobotLaserDefinitions.DiagonalVerticalSpeed,
             WorkRobotLaser.Horizontal => SignedEightEight.Zero,
             _ => throw new InvalidOperationException(
-                $"Undefined Work Robot laser definition {definition}."),
+                $"Undefined Work Robot laser {laser}."),
         });
 
         // Every laser starts at the muzzle ahead of the robot, the way it faces, and above it.

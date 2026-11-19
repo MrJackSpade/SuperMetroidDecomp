@@ -68,21 +68,17 @@ internal sealed class RoomObjectFramePhase
         if (samus.Xray.AreObjectsSuspended)
             return;
 
-        StepRoomObjects(controllerNewInput: GameplayAction.None, room, samus);
-        RoomObjectSystem roomObjects = room.RoomObjects;
+        RoomObjectStepOutcome step = StepRoomObjects(controllerNewInput: GameplayAction.None, room, samus);
 
         // Setup-time room objects do not have Samus contact/input available. If a future
         // change publishes a player-facing event here, fail at the exact ownership
         // boundary instead of silently discarding it.
-        if (roomObjects.CollectibleObjects.CollectiblePickupEvents.Count != 0 || roomObjects.Stations.StationActivationEvents.Count != 0)
+        if (step.Pickups.Count != 0 || step.StationActivations.Count != 0)
         {
             throw new InvalidDataException(
                 "A door-transition room-object step unexpectedly published a player interaction.");
         }
-        foreach (MotherBrainGlassProjectileRequest request in roomObjects.MotherBrainGlass.MotherBrainGlassProjectileRequests)
-            room.Enemies.RoomObjectSpawns.SpawnMotherBrainGlassProjectile(request);
-        foreach (BombTorizoStatueProjectileRequest request in roomObjects.BombTorizoHand.BombTorizoStatueProjectileRequests)
-            room.Enemies.RoomObjectSpawns.SpawnBombTorizoStatueBreakingProjectile(request);
+        SpawnThrownProjectiles(step, room);
     }
 
     /// <summary>
@@ -90,16 +86,40 @@ internal sealed class RoomObjectFramePhase
     /// transition-time call. Player-facing events remain with each phase that runs them because the
     /// transition path cannot legitimately collect an item or activate a station.
     /// </summary>
-    private static void StepRoomObjects(GameplayAction controllerNewInput, RoomScope room, SamusState samus)
+    /// <returns>The step's outcome, which the phase that ran it acts on.</returns>
+    private static RoomObjectStepOutcome StepRoomObjects(GameplayAction controllerNewInput, RoomScope room, SamusState samus)
     {
-        room.RoomObjects.Step(room.LevelData, new RoomObjectFrameInputs { Scrolls = room.Camera.Scrolls, EnemyDeaths = room.Enemies.RoomStatus.EnemiesKilled, EnemyDeathQuota = room.Enemies.PopulationLoader.DeathQuota, ControllerNewInput = controllerNewInput, CollectedItems = samus.CollectedItems, PowerBombExplosionActive = room.BombProjectiles.PowerBombExplosion.IsActive });
+        RoomObjectStepOutcome step = room.RoomObjects.Step(room.LevelData, new RoomObjectFrameInputs { Scrolls = room.Camera.Scrolls, EnemyDeaths = room.Enemies.RoomStatus.EnemiesKilled, EnemyDeathQuota = room.Enemies.PopulationLoader.DeathQuota, ControllerNewInput = controllerNewInput, CollectedItems = samus.CollectedItems, PowerBombExplosionActive = room.BombProjectiles.PowerBombExplosion.IsActive });
         EnemyRoomEffects.ApplyPendingDownwardGateProjectileRequests(EnemyRoomEffectSite.Of(room, samus));
+        return step;
+    }
+
+    /// <summary>
+    /// Spawns the enemy projectiles the step's room objects threw, in the order they threw them: Mother Brain's glass's
+    /// shards and the Bomb Torizo statue hand's fragments. The glass and the hand never share a room, so one step throws
+    /// only one of the two kinds.
+    /// </summary>
+    private static void SpawnThrownProjectiles(RoomObjectStepOutcome step, RoomScope room)
+    {
+        foreach (RoomObjectProjectileRequest thrown in step.ThrownProjectiles)
+        {
+            switch (thrown)
+            {
+                case MotherBrainGlassProjectileRequest shard:
+                    room.Enemies.RoomObjectSpawns.SpawnMotherBrainGlassProjectile(shard);
+                    break;
+                case BombTorizoStatueProjectileRequest fragment:
+                    _ = room.Enemies.RoomObjectSpawns.SpawnBombTorizoStatueBreakingProjectile(fragment);
+                    break;
+                default:
+                    throw new InvalidDataException($"A room object threw the undefined projectile {thrown}.");
+            }
+        }
     }
 
     /// <summary>Runs the ordinary room-object phase when gameplay permits it, then applies pickups, station messages, and spawned projectiles.</summary>
     internal void RunObjectPhase(bool deathOwnsSamus, SamusState samus, RoomScope room)
     {
-        RoomObjectSystem roomObjects = room.RoomObjects;
         // Main gameplay reaches the room-object update after Samus's new-state and
         // enemy-projectile passes but before the main scrolling. A grapple block
         // acquired above therefore consumes its initial timer and draws its first frame in this
@@ -107,14 +127,14 @@ internal sealed class RoomObjectFramePhase
         // sees that mutation on the following Samus frame.
         if (!deathOwnsSamus && !_freeze.TimeIsFrozen && !samus.Xray.AreObjectsSuspended)
         {
-            StepRoomObjects(_playerActions.NewlyPressed, room, samus);
+            RoomObjectStepOutcome step = StepRoomObjects(_playerActions.NewlyPressed, room, samus);
 
             // An item's pickup is known only after its room object has stepped, and its colours change here:
             // a beam pickup shows the newly equipped beams' colours, and a suit pickup shows the suit's colours
             // only when the suit is revealed, after the message. Tanks and other equipment take effect through
             // the HUD and Samus's movement.
             var opening = new RoomObjectMessages(this, samus);
-            foreach (CollectiblePickupEvent pickup in roomObjects.CollectibleObjects.CollectiblePickupEvents)
+            foreach (CollectiblePickupEvent pickup in step.Pickups)
             {
                 pickup.Consequence.Apply(opening);
 
@@ -126,18 +146,9 @@ internal sealed class RoomObjectFramePhase
                 }
                 BeginMessage(pickup.Message);
             }
-            foreach (StationActivationEvent station in roomObjects.Stations.StationActivationEvents)
+            foreach (StationActivationEvent station in step.StationActivations)
                 station.Open(opening);
-            foreach (MotherBrainGlassProjectileRequest request in
-                     roomObjects.MotherBrainGlass.MotherBrainGlassProjectileRequests)
-            {
-                room.Enemies.RoomObjectSpawns.SpawnMotherBrainGlassProjectile(request);
-            }
-            foreach (BombTorizoStatueProjectileRequest request in
-                     roomObjects.BombTorizoHand.BombTorizoStatueProjectileRequests)
-            {
-                room.Enemies.RoomObjectSpawns.SpawnBombTorizoStatueBreakingProjectile(request);
-            }
+            SpawnThrownProjectiles(step, room);
         }
     }
 

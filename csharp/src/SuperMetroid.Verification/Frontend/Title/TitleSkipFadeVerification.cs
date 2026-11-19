@@ -100,7 +100,7 @@ internal static class TitleSkipFadeVerification
             AssertEqual(brightness == 0 ? TitleSkipStage.Rebuilding : TitleSkipStage.FadingOut, shown.Skip,
                 $"{place} fades out until black and rebuilds only on the next update");
             AssertSameShow(natural[update], shown, $"{place} runs and draws its running step as the unskipped title does");
-            AssertTrue(!shown.Draws.Any(draw => ((ImageSpriteDraw)draw).Image == pictures.Copyright), $"{place} does not draw the copyright");
+            AssertTrue(!shown.Draws.Any(draw => draw.Image == pictures.Copyright), $"{place} does not draw the copyright");
             if (update > press && brightness > 0)
                 coverage.Record(natural[update - 1], shown, pictures);
             if (brightness == 0)
@@ -165,7 +165,7 @@ internal static class TitleSkipFadeVerification
     }
 
     /// <summary>The draws' pictures and places, for a failure message.</summary>
-    private static string Describe(ImmutableArray<SpriteDraw> draws) =>
+    private static string Describe(ImmutableArray<ImageSpriteDraw> draws) =>
         draws.Length == 0 ? "nothing" : string.Join(", ", draws.Select(draw => draw.ToString()));
 
     /// <summary>The natural title, without input, from its first update to the first update of its idle title screen.</summary>
@@ -186,7 +186,7 @@ internal static class TitleSkipFadeVerification
     private static TitleFrame Capture(TitleSequenceState title)
     {
         FloorScene scene = title.CaptureRenderSnapshot();
-        return new TitleFrame(title.Phase, title.SkipStage, scene.Brightness, scene.Paint.SpriteDraws, scene.Background, scene.Gradient,
+        return new TitleFrame(title.Phase, title.SkipStage, scene.Brightness, scene.Paint.SpriteDraws, scene.Floor?.View, scene.Gradient,
             title.BabyPose, title.FloorShading);
     }
 
@@ -203,7 +203,7 @@ internal static class TitleSkipFadeVerification
         TitleSequencePhase Phase,
         TitleSkipStage Skip,
         int Brightness,
-        ImmutableArray<SpriteDraw> Draws,
+        ImmutableArray<ImageSpriteDraw> Draws,
         FloorView? Floor,
         ScreenGradientLayer? Gradient,
         TitleBabyPose BabyPose,
@@ -230,7 +230,7 @@ internal static class TitleSkipFadeVerification
         internal void Record(TitleFrame previous, TitleFrame shown, TitlePictures pictures)
         {
             LogoFadesDuringFadeOut |= shown.Phase == TitleSequencePhase.TitleLogoFade &&
-                shown.Draws.Any(draw => ((ImageSpriteDraw)draw).Image == pictures.Logo);
+                shown.Draws.Any(draw => draw.Image == pictures.Logo);
             FloorMovesDuringFadeOut |= previous.Phase == shown.Phase && previous.Floor is not null && previous.Floor != shown.Floor;
             CardAdvancesDuringFadeOut |= previous.Phase == shown.Phase && previous.Floor is null && !previous.Draws.SequenceEqual(shown.Draws);
             StepChangesDuringFadeOut |= previous.Phase != shown.Phase;

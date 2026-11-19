@@ -168,10 +168,8 @@ public sealed class SamusXrayState
             ? facingLeft ? SamusPoseId.XrayingCrouchingLeftPose : SamusPoseId.XrayingCrouchingRightPose
             : facingLeft ? SamusPoseId.XrayingStandingLeftPose : SamusPoseId.XrayingStandingRightPose;
 
-        // A second X-Ray setup under direct G-Mode makes the stranded finishing beam
-        // find time frozen. Its last step immediately
-        // restores the four suspended subsystems. Represent the two cone effects
-        // at their shared observable boundary instead of inventing gate-specific state.
+        // A second X-Ray setup under direct G-Mode makes the stranded finishing beam find time frozen, and its last step
+        // at once restores the four suspended subsystems: on this update time freezes and the beam finishes together.
         if (cancellingDirectGMode)
         {
             TimeIsFrozen = true;

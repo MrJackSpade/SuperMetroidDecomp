@@ -69,7 +69,7 @@ internal static class RoomPerformanceStateFixture
         Console.WriteLine(data.SaveSlot(9));
         Console.WriteLine($"{scene}: room {data.Game.GameplayActiveRoom?.Name}; " +
             $"600 measured Windows frames: step (including audio synthesis)={stepMs / 600:F3}ms render={renderMs / 600:F3}ms audio copy={audioMs / 600:F3}ms.");
-        if (lastSnapshot?.Layers is { } layers)
+        if (lastSnapshot?.Scene is LayeredScene layers)
         {
             foreach (DisplayLayer layer in layers.Layers)
             {

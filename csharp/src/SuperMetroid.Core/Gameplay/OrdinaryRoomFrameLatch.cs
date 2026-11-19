@@ -15,7 +15,8 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="Hud">The HUD's images this frame boundary latched.</param>
 /// <param name="PicturedHud"><paramref name="Hud"/>'s images as their pictures in the HUD's own sheet.</param>
 /// <param name="Scrolls">The foreground's and the background's scrolls and the room shake.</param>
-/// <param name="RoomFxOverlay">The room effect's overlay state, or null while the room's effect shows nothing on the overlay.</param>
+/// <param name="RoomFxOverlay">The room effect's overlay state, whose liquid moves the background's waves, or null while the room's effect shows nothing on the overlay.</param>
+/// <param name="EffectOverlay">What the room effect shows on the effect overlay, its artwork resolved (#2505).</param>
 /// <param name="MorphBallEyeBeam">The Morph Ball eye beam's cone as the frame ends, or null while no beam exists.</param>
 /// <param name="Tints">The tints the frame's effects blend with, each published by its own effect.</param>
 /// <param name="ShownLayers">The room's layers and the actors gameplay shows.</param>
@@ -35,6 +36,7 @@ public sealed record OrdinaryRoomFrameLatch(
     PicturedHud PicturedHud,
     GameplayRenderSnapshot Scrolls,
     RoomFxOverlayRenderSnapshot? RoomFxOverlay,
+    RoomEffectOverlay EffectOverlay,
     MorphBallEyeBeamCone? MorphBallEyeBeam,
     GameplayLatchedTints Tints,
     ScreenLayers ShownLayers,
@@ -44,4 +46,4 @@ public sealed record OrdinaryRoomFrameLatch(
     PhantoonDisplaySnapshot? Phantoon,
     LatchedFirefleaDarkness? Fireflea,
     int? TourianStatueVerticalOffset,
-    XrayRevealPlane? XrayReveal) : RoomFrameLatch(Hud, PicturedHud, Scrolls, RoomFxOverlay, MorphBallEyeBeam, Tints);
+    XrayRevealPlane? XrayReveal) : RoomFrameLatch(Hud, PicturedHud, Scrolls, RoomFxOverlay, EffectOverlay, MorphBallEyeBeam, Tints);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Drawing;
@@ -196,7 +197,7 @@ internal static class GrappleFlarePresentationVerification
         runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, runtime.Player.IntroducedSamus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold);
         runtime.Sprites.FinalizeFrame();
         AssertTrue(runtime.Sprites.Draws.Where(draw => draw.Source.Kind == SpriteSourceKind.SamusGrappleFlare)
-                .All(draw => ReferenceEquals(rebound.Get(SpriteSheetId.ProjectilesPower).Image, ((ImageSpriteDraw)draw).Image.Sheet)),
+                .All(draw => ReferenceEquals(rebound.Get(SpriteSheetId.ProjectilesPower).Image, ((SamusColouredDraw)draw).Image.Sheet)),
             "Real Grapple actor draws its flare from the rebound projectile sheet");
         static byte[] Draw(SuperMetroidRuntime target)
         {

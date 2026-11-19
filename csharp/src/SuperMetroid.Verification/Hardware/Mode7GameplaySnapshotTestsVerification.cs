@@ -39,7 +39,7 @@ internal static class Mode7GameplaySnapshotTestsVerification
             var layer = new TurningRoomLayer(m, floor, ScreenGeometry.GameplayHudHeightPixels);
             samples++;
             var packet = new DisplayPacket(0, new LayeredScene(memory, new DisplayLayer[] { layer }, 15));
-            AssertEqual(layer, (TurningRoomLayer)(packet.Layers ?? throw new InvalidOperationException("Verification requires packet.Layers.")).Layers[0], "the turning-floor band layer keeps its floor view");
+            AssertEqual(layer, (TurningRoomLayer)((LayeredScene)packet.Scene).Layers[0], "the turning-floor band layer keeps its floor view");
             if (samples == 1)
             {
                 AssertThrows<ArgumentException>(() => new LayeredScene(memory,

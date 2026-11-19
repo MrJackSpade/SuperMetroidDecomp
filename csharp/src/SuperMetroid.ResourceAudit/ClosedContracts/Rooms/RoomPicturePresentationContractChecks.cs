@@ -47,9 +47,9 @@ internal static class RoomPicturePresentationContractChecks
                     messages.Picture(shown);
                     messages.Picture(new ShownMessage(GameplayMessageId.EnergyTank, null, null));
                     messages.Picture(new ShownMessage((GameplayMessageId)999, null, null));
-                    RoomEffectPictures.Artwork(overlay, effect, appearance);
-                    RoomEffectPictures.Artwork(overlay, RoomFxType.Lava, appearance);
-                    RoomEffectPictures.Artwork(overlay, RoomFxType.None, appearance);
+                    RoomEffectPictures.Liquid(overlay, effect, appearance);
+                    RoomEffectPictures.Liquid(overlay, RoomFxType.Lava, appearance);
+                    RoomEffectPictures.Atmosphere(overlay, RoomFxType.None, appearance);
                 }
             }
             """, path: "fixture-room-picture-consumer.cs");

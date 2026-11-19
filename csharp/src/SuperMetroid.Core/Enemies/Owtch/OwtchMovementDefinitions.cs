@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.Owtch;
 internal static class OwtchMovementDefinitions
 {
     /// <summary>
-    /// Whether a surfacing Owtch walks off right rather than left (#2479): taken when the sample's ninth bit is set, half the
-    /// random numbers.
+    /// Whether a surfacing Owtch walks off right rather than left (#2479): an even choice, taken by half the random
+    /// numbers.
     /// </summary>
     internal static readonly RandomChance SurfacesMovingRight = RandomChance.Highest(1, new RandomSampleField(8, 1));
 

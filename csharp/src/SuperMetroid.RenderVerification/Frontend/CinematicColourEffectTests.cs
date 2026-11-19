@@ -165,10 +165,10 @@ internal static class CinematicColourEffectTests
     private static int Isolated(D3D11RenderDevice device, D3D11FrameRenderer renderer, int update, LayeredScene scene, PictureShade drawn, string what)
     {
         var boxes = new List<(int Left, int Top, int Right, int Bottom)>();
-        SpriteDraw Unlit(SpriteDraw draw)
+        ImageSpriteDraw Unlit(ImageSpriteDraw image)
         {
-            if (draw is not ImageSpriteDraw { Shading: { } shading } image || !shading.Shades.Contains(drawn))
-                return draw;
+            if (!image.Shading.Shades.Contains(drawn))
+                return image;
             boxes.Add((image.Corner.X, image.Corner.Y, image.Corner.X + image.Image.Size.X, image.Corner.Y + image.Image.Size.Y));
             return image with { Shading = PictureShading.Shaded(drawn) };
         }

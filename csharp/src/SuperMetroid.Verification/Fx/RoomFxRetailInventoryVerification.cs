@@ -506,7 +506,7 @@ internal static class RoomFxRetailInventoryVerification
     /// </summary>
     private static RgbaPixel[] RenderRoomFx(FxOverlayArtwork artwork, RgbColor[] cgram, RoomFxOverlayRenderSnapshot snapshot)
     {
-        OverlayBlendLayer? layer = GameplayEffectCapture.CaptureRoomFxOverlay(snapshot, artwork);
+        OverlayBlendLayer? layer = GameplayEffectCapture.CaptureRoomFxOverlay(FxOverlayFixtures.Overlay(snapshot, artwork));
         return DisplayRendering.Render(new LayeredScene(FramePaint.FromNativeGameplay(cgram, []),
             layer is null ? [] : new DisplayLayer[] { layer }, DisplayBrightness.Full));
     }

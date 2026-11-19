@@ -22,7 +22,7 @@ public sealed class FramePaint
     /// </summary>
     /// <param name="backdrop">The solid colour the screen shows where nothing is drawn.</param>
     public FramePaint(RgbColor backdrop)
-        : this(backdrop, ImmutableArray<SpriteDraw>.Empty)
+        : this(backdrop, ImmutableArray<ImageSpriteDraw>.Empty)
     {
     }
 
@@ -34,15 +34,10 @@ public sealed class FramePaint
     /// </summary>
     /// <param name="backdrop">The solid colour the screen shows where nothing is drawn.</param>
     /// <param name="spriteDraws">The draws, frontmost first, each naming its shading.</param>
-    /// <exception cref="ArgumentException">The draw list is missing, holds a missing draw, or holds a draw that names no shading.</exception>
-    public FramePaint(RgbColor backdrop, ImmutableArray<SpriteDraw> spriteDraws)
+    /// <exception cref="ArgumentException">The draw list is missing or holds a missing draw.</exception>
+    public FramePaint(RgbColor backdrop, ImmutableArray<ImageSpriteDraw> spriteDraws)
     {
         Check(spriteDraws);
-        foreach (SpriteDraw draw in spriteDraws)
-        {
-            if (draw is not ImageSpriteDraw { Shading: not null })
-                throw new ArgumentException("A frontend screen's sprite draw names the shading it shows in.", nameof(spriteDraws));
-        }
         Backdrop = backdrop;
         SpriteDraws = spriteDraws;
     }
@@ -57,21 +52,19 @@ public sealed class FramePaint
     /// <param name="gameplay">How the frame's background pictures are coloured, and its backdrop.</param>
     /// <param name="spriteDraws">The draws, frontmost first, each naming its shading.</param>
     /// <exception cref="ArgumentException">
-    /// The draw list is missing, holds a missing draw, a draw that names no shading, or a draw of a frame that is not empty
-    /// and has no depth among the room's layers.
+    /// The draw list is missing, holds a missing draw, or a draw of a frame that is not empty and has no depth among the
+    /// room's layers.
     /// </exception>
-    public FramePaint(GameplayShading gameplay, ImmutableArray<SpriteDraw> spriteDraws)
+    public FramePaint(GameplayShading gameplay, ImmutableArray<ImageSpriteDraw> spriteDraws)
     {
         Ensure.NotNull(gameplay);
         Check(spriteDraws);
-        var draws = ImmutableArray.CreateBuilder<SpriteDraw>(spriteDraws.Length);
-        foreach (SpriteDraw draw in spriteDraws)
+        var draws = ImmutableArray.CreateBuilder<ImageSpriteDraw>(spriteDraws.Length);
+        foreach (ImageSpriteDraw image in spriteDraws)
         {
-            if (draw is not ImageSpriteDraw { Shading: { } shading } image)
-                throw new ArgumentException("A gameplay sprite draw names the shading it shows in.", nameof(spriteDraws));
             if (image.Depth is null && !image.Image.IsEmpty)
                 throw new ArgumentException($"Gameplay sprite draw {image} shows a frame with no depth among the room's layers.", nameof(spriteDraws));
-            draws.Add(image with { Shading = Shown(image, shading, gameplay) });
+            draws.Add(image with { Shading = Shown(image, image.Shading, gameplay) });
         }
         Gameplay = gameplay;
         Backdrop = gameplay.Backdrop;
@@ -97,7 +90,7 @@ public sealed class FramePaint
     /// gameplay frame's draws each sit at their depth among the room's layers (#1514), the emission order deciding only
     /// between draws at one depth.
     /// </summary>
-    public ImmutableArray<SpriteDraw> SpriteDraws { get; }
+    public ImmutableArray<ImageSpriteDraw> SpriteDraws { get; }
 
     /// <summary>This frame with the backdrop shown in <paramref name="backdrop"/>, as X-ray shows its own.</summary>
     public FramePaint WithBackdrop(RgbColor backdrop) => new(this, backdrop, Gameplay?.WithBackdrop(backdrop));
@@ -113,11 +106,11 @@ public sealed class FramePaint
 
     /// <summary>Checks that a draw list is present and holds no missing draw.</summary>
     /// <exception cref="ArgumentException">The draw list is missing or holds a missing draw.</exception>
-    private static void Check(ImmutableArray<SpriteDraw> spriteDraws)
+    private static void Check(ImmutableArray<ImageSpriteDraw> spriteDraws)
     {
         if (spriteDraws.IsDefault)
             throw new ArgumentException("A frame requires a draw list.", nameof(spriteDraws));
-        foreach (SpriteDraw draw in spriteDraws)
+        foreach (ImageSpriteDraw draw in spriteDraws)
             if (draw is null)
                 throw new ArgumentException("Each sprite draw needs an entry.", nameof(spriteDraws));
     }

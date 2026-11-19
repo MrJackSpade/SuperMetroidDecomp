@@ -28,8 +28,7 @@ internal static class ScenePixels
     /// publication, not what it shows, so it is not compared.
     /// </summary>
     private static bool SameGraph(DisplayPacket left, DisplayPacket right) =>
-        left.Brightness == right.Brightness && left.Size == right.Size && left.SolidColor == right.SolidColor
-        && PublishedGraphs.Same(left.Layers, right.Layers) && PublishedGraphs.Same(left.Floor, right.Floor);
+        left.Size == right.Size && PublishedGraphs.Same(left.Scene, right.Scene);
 
     /// <summary>Whether <paramref name="left"/> and <paramref name="right"/>, each shown alone, show the same pixels.</summary>
     internal static bool Same(LayeredScene left, LayeredScene right) => Same(new DisplayPacket(0, left), new DisplayPacket(0, right));
@@ -43,15 +42,16 @@ internal static class ScenePixels
     {
         ArgumentNullException.ThrowIfNull(left);
         ArgumentNullException.ThrowIfNull(right);
-        if (left.Brightness != right.Brightness || left.Size != right.Size || left.SolidColor != right.SolidColor)
+        if (left.Brightness != right.Brightness || left.Size != right.Size)
             return false;
-        if (left.Layers is { } leftScene)
-            return right.Layers is { } rightScene && SameScene(leftScene, rightScene);
-        if (left.Floor is { } leftFloor)
-            return right.Floor is { } rightFloor && SamePaint(leftFloor.Paint, rightFloor.Paint)
-                && Equals(leftFloor.Background, rightFloor.Background) && Equals(leftFloor.Floor, rightFloor.Floor)
-                && leftFloor.Brightness == rightFloor.Brightness && Equals(leftFloor.Gradient, rightFloor.Gradient);
-        return right.Layers is null && right.Floor is null;
+        return (left.Scene, right.Scene) switch
+        {
+            (LayeredScene leftScene, LayeredScene rightScene) => SameScene(leftScene, rightScene),
+            (FloorScene leftFloor, FloorScene rightFloor) => SamePaint(leftFloor.Paint, rightFloor.Paint)
+                && Equals(leftFloor.Floor, rightFloor.Floor) && Equals(leftFloor.Gradient, rightFloor.Gradient),
+            (SolidColourScene leftColour, SolidColourScene rightColour) => leftColour.Colour == rightColour.Colour,
+            _ => false,
+        };
     }
 
     /// <summary>Whether two scenes describe the same frame: the same paint, brightness and layers in the same order.</summary>
@@ -89,8 +89,7 @@ internal static class ScenePixels
         PictureGridLayer leftGrid => right is PictureGridLayer rightGrid && leftGrid.Scroll == rightGrid.Scroll
             && Equals(leftGrid.Window, rightGrid.Window) && SameGrid(leftGrid.Grid, rightGrid.Grid),
         TurningFloorLayer leftFloor => right is TurningFloorLayer rightFloor && leftFloor.Transform == rightFloor.Transform
-            && Equals(leftFloor.Floor, rightFloor.Floor) && leftFloor.SubtractsSprites == rightFloor.SubtractsSprites
-            && leftFloor.AddsForeground == rightFloor.AddsForeground,
+            && Equals(leftFloor.Floor, rightFloor.Floor) && leftFloor.Blend == rightFloor.Blend,
         HudLayer leftHud => right is HudLayer rightHud && leftHud.DrawsOpaque == rightHud.DrawsOpaque
             && SameHud(leftHud.Hud, rightHud.Hud),
         PicturedPlaneLayer or AddedPicturedPlaneLayer or SpritesLayer or ScreenTintLayer or ScreenGradientLayer

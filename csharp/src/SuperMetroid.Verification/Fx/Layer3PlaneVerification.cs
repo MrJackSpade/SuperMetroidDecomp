@@ -90,7 +90,7 @@ internal static class Layer3PlaneVerification
         RoomFxOverlayRenderSnapshot shown = water.CaptureForDisplay() ?? throw new InvalidOperationException("Water is a renderable effect.");
         AssertEqual(0x0080, shown.NamedSurface, "the published effect carries the constructed liquid level");
         FxOverlayArtwork shownArtwork = FxOverlayFixtures.ArtworkFromPlaneWords(RoomFxType.Water, plane, new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount]);
-        OverlayBlendLayer layer = GameplayEffectCapture.CaptureRoomFxOverlay(shown, shownArtwork)
+        OverlayBlendLayer layer = GameplayEffectCapture.CaptureRoomFxOverlay(FxOverlayFixtures.Overlay(shown, shownArtwork))
             ?? throw new InvalidOperationException("Water at a visible level captures a BG3 layer.");
         // The overlay shows the water's strip and body from its surface's screen line (#1706): the camera at the room's origin
         // places the surface on the line the level names.

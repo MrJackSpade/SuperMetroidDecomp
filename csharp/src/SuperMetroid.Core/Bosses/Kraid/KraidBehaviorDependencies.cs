@@ -32,7 +32,7 @@ internal sealed record KraidBehaviorDependencies
     /// <summary>The room's effect actors, which Kraid's fight shows.</summary>
     public required RoomEffectActors EffectActors { get; init; }
 
-    /// <summary>What the boss draws with: the room\'s presentation surfaces and the installed boss artwork.</summary>
+    /// <summary>What the boss draws with: the room's presentation surfaces and the installed boss artwork.</summary>
     public required BossPresentation Presentation { get; init; }
 
     /// <summary>The enemies' touches, shots and bombs with Samus, which Kraid's fight reacts to.</summary>

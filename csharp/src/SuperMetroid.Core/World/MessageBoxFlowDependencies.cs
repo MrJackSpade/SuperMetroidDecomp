@@ -17,10 +17,6 @@ internal sealed record MessageBoxFlowDependencies
     /// <summary>The HUD, whose counters a closing message box refreshes.</summary>
     public required HudState Hud { get; init; }
 
-    /// <summary>The message box, whose yes-or-no answer a save station and the gunship read.</summary>
-    public required GameplayMessageBoxState MessageBox { get; init; }
-
-
     /// <summary>The suit transformation a Varia or Gravity Suit pickup starts once its message closes.</summary>
     public required SamusSuitPickupState SuitPickup { get; init; }
 

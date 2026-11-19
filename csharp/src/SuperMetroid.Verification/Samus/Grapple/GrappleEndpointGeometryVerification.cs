@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Drawing;
@@ -84,7 +85,7 @@ internal static class GrappleEndpointGeometryVerification
             runtime.Sprites.BeginFrame();
             runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, runtime.Player.IntroducedSamus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold);
             runtime.Sprites.FinalizeFrame();
-            ImageSpriteDraw[] endpoints = [.. runtime.Sprites.Draws.Where(draw => draw.Source.Kind == SpriteSourceKind.SamusGrappleEndpoint).Cast<ImageSpriteDraw>()];
+            SamusColouredDraw[] endpoints = [.. runtime.Sprites.Draws.Where(draw => draw.Source.Kind == SpriteSourceKind.SamusGrappleEndpoint).Cast<SamusColouredDraw>()];
             // The endpoint just above the view is published in every pose; the display clips it (#1541).
             AssertEqual(1, endpoints.Length, $"Actual gameplay actor publishes the endpoint in pose {(int)SamusPoseNumbers.Number(pose):X2}");
             // It is centred on the anchor in every pose, the swinging ones included (#1588).

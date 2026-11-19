@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rendering;
 using System.Diagnostics;
 namespace SuperMetroid.DebugRunner.Tools;
 using SuperMetroid.Diagnostics.Sessions;
@@ -29,7 +30,7 @@ internal static class AutonomousPerformanceStateFixture
             RgbaPixel[] pixels = [];
             for (int sample = 0; sample < 100; sample++) pixels = DisplayRendering.Render(packet);
             Console.WriteLine($"Frame {frame}: {result.Frame.GameState}, room {data.Game.GameplayActiveRoom?.Name}, render={Stopwatch.GetElapsedTime(start).TotalMilliseconds / 100:F3}ms");
-            if (packet.Layers is { } layers)
+            if (packet.Scene is LayeredScene layers)
                 foreach (var layer in layers.Layers) Console.WriteLine($"Layer: {layer.GetType().Name}");
             PngWriterTooling.WriteRgba(Path.Combine(root, "frame.png"), packet.Size, pixels);
             Console.WriteLine(data.SaveSlot(9));

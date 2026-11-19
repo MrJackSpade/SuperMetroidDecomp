@@ -20,8 +20,8 @@ internal static class PoseTransitionSetupVerification
 
     /// <summary>
     /// Every transition any pose's input chooses, under every held chord and every part of it newly pressed, names a setup
-    /// that installs a pose: a transition keeping the pose never reaches the pose update, and the stand-up whose setup is
-    /// not reproduced is chosen only from the Draygon-held ball. Every pose then resolves a lookup-failure setup, and a pose
+    /// that installs a pose: a transition keeping the pose never reaches the pose update, and the Draygon-held stand-up's
+    /// setup is chosen only from the Draygon-held ball's Up. Every pose then resolves a lookup-failure setup, and a pose
     /// stored over the ground turn or the normal jump keeps theirs.
     /// </summary>
     internal static void VerifyPoseTransitionSetups()
@@ -46,7 +46,7 @@ internal static class PoseTransitionSetupVerification
                         {
                             AssertTrue(false, $"{pose} -> {transition.ProspectivePose} under {held} (newly {Chord(pressedBits)}) names " +
                                 $"{transition.Setup}: a pose-changing transition names a defined setup other than the kept pose's, " +
-                                "and the unreproduced stand-up only for the Draygon-held ball's Up");
+                                "and the Draygon-held stand-up's only for the Draygon-held ball's Up");
                         }
                     }
                     if (pressedBits == 0)

@@ -176,6 +176,14 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// #2501 adds, outside hardware owners, the port's loading and its layers yet to come as runtime and gameplay prose tells
 /// them: a load, loader, construction or operation called atomic, a constructor said to do something atomically, the setup
 /// call, and a thing that waits until it gets its own.
+/// #2515 adds, outside hardware owners, the original's routines, flags and bits and the port's reasoning as enemy and world
+/// prose tells them, read across a documentation comment's line breaks: an AI entry, an enemy's shot AI split over two
+/// lines, a flip, curling or mirror flag, a bit by its ordinal, what the port avoided teaching or inventing, a value told
+/// against a representation it no longer has and the camera's scroller distances.
+/// #2522 adds, outside hardware owners, the original's storage of Samus's speeds, timers, positions and flags, read across a
+/// documentation comment's line breaks: a value's two halves, fraction bits, a negative test, a wrap to 65535, a position
+/// told by its range, a wrapping comparison, a value negated back, an expired timer that wraps, a flag named for a
+/// condition or read as this flag, a list scanned last to first, a value stored as a whole and a one-shot index.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -2268,6 +2276,78 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The original's routines, flags and bits and the port's reasoning told in enemy and world prose (#2515), outside
+    /// hardware owners and markup, read across a documentation comment's line breaks: an AI entry (the Pirate's AI entry);
+    /// an enemy's hurt, shot, touch, contact, bomb, frozen or grapple AI with its words on two lines (calls the normal
+    /// enemy shot AI); a flip, curling or mirror flag; a bit by its ordinal (the sample's fifteenth bit, a sample whose
+    /// ninth bit is set, the 15th bit); the port's narration of what it avoided building (without teaching the runtime how
+    /// to own enemies, instead of inventing an enemy, rather than inventing a flare, teaches it how to draw); a value told
+    /// against a representation it no longer has (rather than a signed offset); and the camera's scroller distances or
+    /// offsets. The original named its per-state routines their AI, kept its choices in flags and the bits of its random
+    /// numbers, and the port's earlier code reasoned about what it did not build; Core says what the game does: which
+    /// action the Pirate runs, what a shot does, which way the chain turns, one random number in two, where the Baby is
+    /// drawn, how far above Samus the camera aims. English stays legal: main AI or an AI alone, an entry alone, a flag
+    /// alone, a thing that flips or curls, a bit alone (a bit further), an Etecoon's teaching hops, a signed offset alone,
+    /// the camera's scroll and a hardware owner, which describes the storage it keeps.
+    /// </summary>
+    private static readonly Regex EnemyAndWorldRoutineBitAndReasoningProse = new(
+        @"\bAI\s+entr(?:y|ies)\b" +
+        @"|\b(?:hurt|shot|touch|contact|bomb|power[-\s]bomb|frozen|grapple)\s+AI\b" +
+        @"|\b(?:flip(?:ped)?|curl(?:ing)?|mirror(?:ed|ing)?)\s+flags?\b" +
+        @"|\b(?:zeroth|first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth|thirteenth" +
+        @"|fourteenth|fifteenth|sixteenth|\d+(?:st|nd|rd|th))\s+bits?\b" +
+        @"|\bwithout\s+teaching\b|\bteach(?:es|ing)?\s+[^.;]{0,60}?\bhow\s+to\b" +
+        @"|\b(?:instead\s+of|rather\s+than|without)\s+invent(?:ing)?\b" +
+        @"|\b(?:instead\s+of|rather\s+than)\s+(?:an?\s+|the\s+)?(?:signed|unsigned|raw|packed)\s+(?:offsets?|values?|words?" +
+        @"|numbers?|bytes?|fields?)\b" +
+        @"|\bscroller\s+(?:distances?|offsets?)\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The original's storage of Samus's speeds, timers, positions and flags told in prose (#2522), outside hardware owners
+    /// and markup, read across a documentation comment's line breaks: a value's two halves (clears both velocity halves,
+    /// both base-speed halves, both halves of vertical speed, clears both halves); a fraction bit or fractional bits (its
+    /// lowest fraction bit, the lower fractional bits); a negative test; a value that wraps to 65535 or 255 (its next
+    /// decrement wraps to 65535, a wrap below zero to 65535); a position or a coordinate told by its range (whole-pixel Y,
+    /// 0 through 65535); a wrapping comparison; a value negated back or temporarily negated; an expired timer or count that
+    /// wraps; a slow-scroll, water, liquid or submersion flag and a response or reaction flag (the slow-scrolling flag, the
+    /// common grapple-response flag); this or that flag read, tested, checked or rewritten; a list scanned, searched or
+    /// walked last to first; a value stored, kept or held as a whole; and a one-shot index. The original kept a speed as a
+    /// whole and a fraction word, counted its waits in words that wrapped and read their sign, kept a position in sixteen
+    /// bits, kept its conditions in flags and walked its lists backward; Core says what the game does: the speed is
+    /// cleared, a held frame lasts one more update, a rise is capped unless outside forces reverse it, the camera scrolls
+    /// slowly while the swing is fast. English stays legal: halves of a picture or a body (both halves of the neck), a
+    /// fraction of a pixel, a random sample or frame counter of 0 through 65535, a count that wraps, a flag alone, an
+    /// animation played last to first, a whole step of the turn and a hardware owner, which describes the storage it keeps.
+    /// </summary>
+    private static readonly Regex SamusStorageHalfWrapAndFlagProse = new(
+        @"\bboth\s+(?:[\w'’-]+\s+)?(?:speed|velocity|base-speed|position|value|word|coordinate|count|timer|displacement)\s+halves\b" +
+        @"|\bboth\s+halves\s+of\s+(?:(?:the|its|a|their|her|his)\s+)?(?:[\w'’-]+\s+){0,2}?(?:speeds?|velocit(?:y|ies)|positions?" +
+        @"|values?|words?|coordinates?|displacements?|counts?|timers?)\b" +
+        @"|\b(?:clears?|cleared|clearing|zero(?:e?s|ed|ing)?|erases?|erased|erasing|resets?|resetting)\s+both\s+halves\b" +
+        @"|\bfraction(?:al)?\s+bits?\b" +
+        @"|\bnegative\s+tests?\b" +
+        @"|\bwrap(?:s|ped|ping)?\s+(?:(?:round|around|back|below\s+zero)\s+)?to\s+(?:65,?535|255)\b" +
+        @"|\b(?:positions?|coordinates?|(?-i:[XY]))\b,?\s+(?:from\s+)?(?:0|zero)\s+(?:through|to)\s+65,?535\b" +
+        @"|\bwrapping\s+comparisons?\b" +
+        @"|\bnegat(?:e|es|ed|ing)\s+(?:it|them)\s+back\b|\btemporarily\s+negat\w*" +
+        @"|\b(?:expired|spent|empty)\s+(?:[\w-]+\s+)?(?:timers?|counts?|counters?|countdowns?)\s+wraps?\b" +
+        @"|\bslow[-\s]+scroll(?:ing)?\s+flags?\b|\b(?:water|liquid|submersion|submerged)\s+flags?\b" +
+        @"|\b(?:\w+-)?(?:response|reaction)\s+flags?\b" +
+        @"|\b(?:reads?|tests?|tested|checks?|checked|rewrites?)\s+(?:this|that)\s+flag\b" +
+        @"|\b(?:scann?(?:ed|s|ing)?|search(?:ed|es|ing)?|walk(?:ed|s|ing)?)\s+(?:from\s+)?(?:the\s+)?last\s+to\s+(?:the\s+)?first\b" +
+        @"|\b(?:stored|kept|held)\s+as\s+(?:an?\s+)?whole\b" +
+        @"|\bone-shot\s+(?:[\w-]+\s+){0,2}?ind(?:ex|exes|ices)\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A documentation comment's line break with the next line's comment prefix (#2515), which
+    /// <see cref="EnemyAndWorldRoutineBitAndReasoningProse"/> and <see cref="SamusStorageHalfWrapAndFlagProse"/> read as a
+    /// space so a phrase runs on across it.
+    /// </summary>
+    private static readonly Regex CommentLineBreak = new(@"\s*\r?\n\s*(?:///?|\*+)?\s*", RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A storage unit told on a member whose type already measures it (#2491), outside hardware owners and markup: a
     /// count of 256ths, 512ths, 2048ths or 65536ths of a turn, a step, a pixel or a floor pixel (in 256ths of a turn, the
     /// zoom in 256ths of a floor pixel, 64 256ths of a pixel), or a fraction written 1/N of one (1/512 of a pixel, 1/256
@@ -2829,6 +2909,8 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : FrontendTimerAndInstallationProse.Match(Markup.Replace(text, " ")) is { Success: true } timerInstallation ? timerInstallation.Value
             : typedMeasure && TypedMeasureUnitProse.Match(Markup.Replace(text, " ")) is { Success: true } typedUnit ? typedUnit.Value
             : RuntimeLoaderAndLayerNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } loaderNarration ? loaderNarration.Value
+            : EnemyAndWorldRoutineBitAndReasoningProse.Match(CommentLineBreak.Replace(Markup.Replace(text, " "), " ")) is { Success: true } enemyAndWorld ? enemyAndWorld.Value
+            : SamusStorageHalfWrapAndFlagProse.Match(CommentLineBreak.Replace(Markup.Replace(text, " "), " ")) is { Success: true } samusStorage ? samusStorage.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

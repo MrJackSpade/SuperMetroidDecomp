@@ -12,31 +12,28 @@ internal static class BotwoonNavigationDefinitions
     /// <summary>Whether Botwoon starts its next path inside the hole (#2479): taken by an odd sample, one path in two.</summary>
     internal static readonly RandomChance StartsInsideHole = RandomChance.Highest(1, new RandomSampleField(0, 1));
 
-    /// <summary>The random draw of one of the four destinations a hole's walks lead to.</summary>
-    internal static readonly RandomSampleField PathDraw = new(3, 2);
-
     /// <summary>
-    /// The hole each of the four draws leads to from a hole when Botwoon walks in the open: the other three holes in
-    /// turn, then back into the hole he left.
+    /// The hole a walk in the open leads to from each hole, chosen from four rolls of the walk's random draw (#2510): the
+    /// other three holes in turn, then back into the hole he left.
     /// </summary>
-    internal static readonly Dictionary<BotwoonHole, BotwoonHole[]> OpenDestinations = new()
+    internal static readonly Dictionary<BotwoonHole, WeightedRandomChoice<BotwoonHole>> OpenDestinations = new()
     {
-        [BotwoonHole.Left] = [BotwoonHole.Bottom, BotwoonHole.Top, BotwoonHole.Right, BotwoonHole.Left],
-        [BotwoonHole.Bottom] = [BotwoonHole.Left, BotwoonHole.Top, BotwoonHole.Right, BotwoonHole.Bottom],
-        [BotwoonHole.Top] = [BotwoonHole.Left, BotwoonHole.Bottom, BotwoonHole.Right, BotwoonHole.Top],
-        [BotwoonHole.Right] = [BotwoonHole.Left, BotwoonHole.Bottom, BotwoonHole.Top, BotwoonHole.Right],
+        [BotwoonHole.Left] = WeightedRandomChoice<BotwoonHole>.InTurn(new(3, 2), BotwoonHole.Bottom, BotwoonHole.Top, BotwoonHole.Right, BotwoonHole.Left),
+        [BotwoonHole.Bottom] = WeightedRandomChoice<BotwoonHole>.InTurn(new(3, 2), BotwoonHole.Left, BotwoonHole.Top, BotwoonHole.Right, BotwoonHole.Bottom),
+        [BotwoonHole.Top] = WeightedRandomChoice<BotwoonHole>.InTurn(new(3, 2), BotwoonHole.Left, BotwoonHole.Bottom, BotwoonHole.Right, BotwoonHole.Top),
+        [BotwoonHole.Right] = WeightedRandomChoice<BotwoonHole>.InTurn(new(3, 2), BotwoonHole.Left, BotwoonHole.Bottom, BotwoonHole.Top, BotwoonHole.Right),
     };
 
     /// <summary>
-    /// The hole each of the four draws leads to from a hole when Botwoon travels inside the wall: the other three holes
-    /// in turn, the last of them drawn twice, since no wall path leads back into the hole he left.
+    /// The hole a walk inside the wall leads to from each hole, chosen from four rolls of the walk's random draw (#2510): the
+    /// other three holes in turn, the last of them taken by two rolls, since no wall path leads back into the hole he left.
     /// </summary>
-    internal static readonly Dictionary<BotwoonHole, BotwoonHole[]> WallDestinations = new()
+    internal static readonly Dictionary<BotwoonHole, WeightedRandomChoice<BotwoonHole>> WallDestinations = new()
     {
-        [BotwoonHole.Left] = [BotwoonHole.Bottom, BotwoonHole.Top, BotwoonHole.Right, BotwoonHole.Right],
-        [BotwoonHole.Bottom] = [BotwoonHole.Left, BotwoonHole.Top, BotwoonHole.Right, BotwoonHole.Right],
-        [BotwoonHole.Top] = [BotwoonHole.Left, BotwoonHole.Bottom, BotwoonHole.Right, BotwoonHole.Right],
-        [BotwoonHole.Right] = [BotwoonHole.Left, BotwoonHole.Bottom, BotwoonHole.Top, BotwoonHole.Top],
+        [BotwoonHole.Left] = new(new(3, 2), new(1, BotwoonHole.Bottom), new(1, BotwoonHole.Top), new(2, BotwoonHole.Right)),
+        [BotwoonHole.Bottom] = new(new(3, 2), new(1, BotwoonHole.Left), new(1, BotwoonHole.Top), new(2, BotwoonHole.Right)),
+        [BotwoonHole.Top] = new(new(3, 2), new(1, BotwoonHole.Left), new(1, BotwoonHole.Bottom), new(2, BotwoonHole.Right)),
+        [BotwoonHole.Right] = new(new(3, 2), new(1, BotwoonHole.Left), new(1, BotwoonHole.Bottom), new(2, BotwoonHole.Top)),
     };
 
     /// <summary>

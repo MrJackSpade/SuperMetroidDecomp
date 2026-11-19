@@ -10,7 +10,10 @@ public enum GameplayUpdateTransition
     /// <summary>The update starts nothing: the game stays where it was.</summary>
     None,
 
-    /// <summary>The escape countdown ran out during Samus's update: the time-up begins.</summary>
+    /// <summary>
+    /// The escape countdown ran out during Samus's update, or, once the Zebes time bomb is set, her draw returns the game to
+    /// the time-up the run-out countdown started (#2518): the time-up begins, or goes on where it stood.
+    /// </summary>
     TimeUp,
 
     /// <summary>The escaping gunship's top hull rose past the takeoff height during the enemies' update: the game leaves Zebes.</summary>

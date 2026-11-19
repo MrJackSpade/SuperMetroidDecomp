@@ -393,14 +393,12 @@ internal sealed class FrontendSession
             foreach (MusicRequest request in scope.Enemies.Audio.ConsumeRoomEnemyStartMusic())
                 audio.QueueMusic(request);
 
-        // The message box runs outside gameplay: the save choice's move and the gunship's pad opening as its prompt returns
-        // are events of the box's updates, taken once, so updates that only show the box cannot repeat them. The save choice
-        // never moves on the update the gunship's prompt returns, nor on the one its accepted save starts the saving sound.
+        // The message box runs outside gameplay: the save choice's move, the gunship's saving sound as its accepted prompt
+        // closes and the gunship's pad opening as its prompt returns are events of the box's updates, taken once, so
+        // updates that only show the box cannot repeat them. Each update of the box makes at most one of them.
         if (runtime is not null)
             foreach (SoundRequest sound in runtime.MessageBoxes.TakeSounds())
                 audio.QueueSound(sound);
-        if (runtime?.MessageBox.ConsumeSavingSoundRequest() == true)
-            audio.QueueSound(SamusSound.Saving, priority: SoundRequestPriority.Normal);
     }
     /// <summary>
     /// The game leaves Zebes once the gunship's top hull has risen past Y=256, starting the screen fade from full
@@ -413,13 +411,17 @@ internal sealed class FrontendSession
         Enter(EndingStep.LeavingZebes);
     }
     /// <summary>
-    /// The escape countdown expired. The whole gameplay display, Samus and the HUD among it, fades to white through the
-    /// shared fade step count in the time-up's gradual change (#1512).
+    /// The escape countdown expired, or the game returns to the time-up it started (#2518). The whole gameplay display, Samus
+    /// and the HUD among it, fades to white through the shared fade step count in the time-up's gradual change (#1512).
     /// </summary>
     internal void BeginTimeUp()
     {
         SuperMetroidRuntime live = runtime ?? throw new InvalidOperationException("Time-up requires a gameplay runtime.");
-        live.FadeOut.Begin(RgbColor.White, TimeUpDefinitions.WhiteOutLastStep, GameplayFadeSpares.Nothing);
+        // A white-out the AUTO reserves' refill interrupted goes on from where it stood when the game returns to the time-up
+        // (#2518): the refill neither steps nor restarts it, so its colours stay part-whitened. Only the time-up's own
+        // black-out ends the white-out, and the death that ends the other gameplay fade releases the runtime.
+        if (!live.FadeOut.IsUnderWay)
+            live.FadeOut.Begin(RgbColor.White, TimeUpDefinitions.WhiteOutLastStep, GameplayFadeSpares.Nothing);
         Enter(TimeUpStep.WhiteningOut);
     }
     /// <summary>
@@ -627,6 +629,18 @@ internal sealed class FrontendSession
         GameplayFadeLeadsToCeresArrival = false;
         screenFade.StepEvery(1);
         RecordFullBrightness();
+    }
+    /// <summary>
+    /// Writes the save an update's closing message box completed at a save station or the gunship (#2514) to the selected
+    /// slot, after the update, as the session owns the slot.
+    /// </summary>
+    /// <param name="outcome">The update's outcome, which carries the save it completed, if any.</param>
+    internal void WriteCompletedSave(RuntimeFrameOutcome outcome)
+    {
+        if (outcome.CompletedSave is not { } save)
+            return;
+        saves.SaveSlot(SelectedSaveSlot, GameplayRuntime.SaveSnapshotAt(save.Station));
+        RaiseSavesChanged();
     }
     /// <summary>Persists the automatic Landing Site checkpoint after the gunship lands.</summary>
     internal void HandleGunshipLandingSave()

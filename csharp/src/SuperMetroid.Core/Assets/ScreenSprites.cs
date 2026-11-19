@@ -19,10 +19,10 @@ public sealed class ScreenSprites
     private PlacedPicture[] finished = [];
 
     /// <summary>The draws of the finished frame, until the frame changes.</summary>
-    private SpriteDraw[]? draws;
+    private ImageSpriteDraw[]? draws;
 
     /// <summary>The draws of the most recently finished frame, frontmost first.</summary>
-    public ImmutableArray<SpriteDraw> Draws => ImmutableCollectionsMarshal.AsImmutableArray(draws ??= FinishedDraws());
+    public ImmutableArray<ImageSpriteDraw> Draws => ImmutableCollectionsMarshal.AsImmutableArray(draws ??= FinishedDraws());
 
     /// <summary>Starts a frame: clears the placed frames.</summary>
     public void BeginFrame() => placed.Clear();
@@ -57,9 +57,9 @@ public sealed class ScreenSprites
     }
 
     /// <summary>The finished frame's placed frames as draws.</summary>
-    private SpriteDraw[] FinishedDraws()
+    private ImageSpriteDraw[] FinishedDraws()
     {
-        var result = new SpriteDraw[finished.Length];
+        var result = new ImageSpriteDraw[finished.Length];
         for (int index = 0; index < finished.Length; index++)
             result[index] = Draw(finished[index]);
         return result;

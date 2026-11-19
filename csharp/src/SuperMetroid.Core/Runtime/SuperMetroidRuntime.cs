@@ -240,7 +240,7 @@ internal sealed class SuperMetroidRuntime
         RoomLoader = new RoomLoader(new RoomLoaderDependencies { AudioRequests = AudioRequests, EnemySession = EnemySession, BossArtwork = BossArtwork, ColourEffectSession = ColourEffectSession, TourianStatueDependencies = TourianStatueDependencies, RoomObjectVisuals = RoomObjectVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, PlayerActions = PlayerActions, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads, ScrollCellsPastRoomScreens = artwork.ScrollCellsPastRoomScreens, UnauthoredBoostCadence = UnauthoredBoostCadence, CameraFractions = CameraFractions, FadeStepCount = FadeStepCount, YardKickDistance = YardKickDistance });
         AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { AttractSession = AttractSession, PlayerActions = PlayerActions, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System });
         DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player});
-        MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { AudioRequests = AudioRequests, Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, SuitPickup = SuitPickup, System = System });
+        MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { AudioRequests = AudioRequests, Freeze = Freeze, Hud = Hud, SuitPickup = SuitPickup, System = System });
         RoomObjectPhase = new RoomObjectFramePhase(new RoomObjectFramePhaseDependencies { PlayerActions = PlayerActions, PlayerButtons = PlayerButtons, Options = Options, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, SuitPickup = SuitPickup});
         RoomMains = new RoomMainRoutines(new RoomMainRoutinesDependencies { BackgroundScroll = BackgroundScroll, System = System });
         SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { AttractDemo = AttractDemo, PlayerActions = PlayerActions, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Assists = Assists, Player = Player, System = System, DoorPassage = DoorTransition.Passage });
@@ -710,7 +710,7 @@ internal sealed class SuperMetroidRuntime
         StepCeresElevatorArrival(room, samus, deathOwnsSamus);
         RunMainScrolling(room, samus, tail.PreviousCameraPoint, deathOwnsSamus);
         DrawGameplayActors(room, samus, tail, deathOwnsSamus);
-        bool startsTimeUp = RunEscapeTimer(tail, policy);
+        bool startsTimeUp = RunEscapeTimer(tail, policy) || ReturnsToTimeUp(policy);
         Sprites.FinalizeFrame();
 
         UpdateHud(infiniteAmmoGuard, room, samus);
@@ -726,7 +726,8 @@ internal sealed class SuperMetroidRuntime
 
         // Room shaking runs after room main and game-time handling, but before the active-enemy lists are cleared.
         // An enemy attack above may have started an earthquake this frame; it shakes the screen and counts down once
-        // here at once, and shakes the enemies still listed this frame.
+        // here at once, and shakes the enemies still listed this frame. The refill or death the out-of-health check
+        // began has already frozen time, so neither shakes on the update it begins on (#2519).
         room.Enemies.HandleRoomShaking(Freeze.TimeIsFrozen);
 
         DecrementHurtTimers(room, samus);
@@ -757,15 +758,32 @@ internal sealed class SuperMetroidRuntime
     }
 
     /// <summary>
-    /// The update's out-of-health check (#2509, #2517): the AUTO reserves' refill begins whatever else the update started,
-    /// and Samus's death only while the game is still in main gameplay, which it is when main gameplay owns the update and
-    /// none of its earlier steps moved the game to another state. Any other game state owns the update instead: the death
-    /// is withheld, and the check returns before the update counts the play time.
+    /// The update's out-of-health check (#2509, #2517, #2519): the AUTO reserves' refill begins whatever else the update
+    /// started, and Samus's death only while the game is still in main gameplay, which it is when main gameplay owns the
+    /// update and none of its earlier steps moved the game to another state. Any other game state owns the update instead:
+    /// the death is withheld, and the check returns before the update counts the play time. A game state that enters the
+    /// refill or the death (<see cref="RuntimeFramePolicy.EntersOutOfHealthRoute"/>) has the check freeze gameplay time as
+    /// it begins either, before the rest of the update.
     /// </summary>
+    /// <param name="samus">The update's Samus.</param>
+    /// <param name="policy">
+    /// The update's game-state policy, which says whether main gameplay owns it and whether it enters the refill or the
+    /// death.
+    /// </param>
+    /// <param name="transition">The game state the update's earlier steps moved the game to.</param>
+    private SamusOutOfHealthRoute CheckSamusOutOfHealth(SamusState samus, RuntimeFramePolicy policy, GameplayUpdateTransition transition)
+    {
+        SamusOutOfHealthRoute route = DecideSamusOutOfHealthRoute(samus, policy, transition);
+        if (policy.EntersOutOfHealthRoute && route is SamusOutOfHealthRoute.ReserveRefill or SamusOutOfHealthRoute.Death)
+            Freeze.GameplayTimeFrozen = true;
+        return route;
+    }
+
+    /// <summary>Where the update's out-of-health check sends Samus (#2509, #2517).</summary>
     /// <param name="samus">The update's Samus.</param>
     /// <param name="policy">The update's game-state policy, which says whether main gameplay owns it.</param>
     /// <param name="transition">The game state the update's earlier steps moved the game to.</param>
-    private SamusOutOfHealthRoute CheckSamusOutOfHealth(SamusState samus, RuntimeFramePolicy policy, GameplayUpdateTransition transition)
+    private SamusOutOfHealthRoute DecideSamusOutOfHealthRoute(SamusState samus, RuntimeFramePolicy policy, GameplayUpdateTransition transition)
     {
         // Every damage source applies its normal amount first. The cannot-die assist acts here, where zero energy would
         // otherwise send Samus to the refill or her death.
@@ -788,7 +806,10 @@ internal sealed class SuperMetroidRuntime
     /// </summary>
     /// <param name="start">How the update began.</param>
     /// <param name="policy">The update's game-state policy, which says whether main gameplay owns it.</param>
-    /// <param name="startsTimeUp">Whether the escape countdown ran out earlier in this update.</param>
+    /// <param name="startsTimeUp">
+    /// Whether this update started the time-up earlier: its countdown ran out, or it returned to the time-up the countdown
+    /// started (#2518).
+    /// </param>
     /// <param name="room">The update's room.</param>
     /// <param name="samus">The update's Samus.</param>
     private GameplayUpdateTransition DecideTransition(
@@ -996,6 +1017,19 @@ internal sealed class SuperMetroidRuntime
         return startsTimeUp;
     }
 
+    /// <summary>
+    /// Whether the update returns the game to the time-up its run-out escape countdown started (#2518). Once the Zebes time
+    /// bomb is set, every gameplay update's Samus draw, which follows her update, writes the time-up again while the
+    /// countdown that ran out is shown and the time-up does not own the update. So the AUTO reserves' refill, which takes an
+    /// update from the time-up, gives it back on its own next update, with the refill unfinished, and that update's
+    /// out-of-health check finds the game out of main gameplay. Before the time bomb is set, in the Ceres escape, only
+    /// Samus's Ceres handling writes it again, and the refill's end gives her the normal handling instead, so that game stays
+    /// in gameplay with the run-out countdown shown at zero.
+    /// </summary>
+    /// <param name="policy">The update's game-state policy, which says whether the time-up owns it.</param>
+    private bool ReturnsToTimeUp(RuntimeFramePolicy policy) =>
+        !policy.RunsBehindTimeUp && EscapeTimer.Phase == EscapeTimerPhase.Expired && System.HasEvent(StoryEvent.ZebesTimebombSet);
+
     /// <summary>Rebuilds the HUD counters; the next accepted frame shows the rows as it latches them.</summary>
     private void UpdateHud(AmmoLoanGuard infiniteAmmoGuard, RoomScope room, SamusState samus)
     {
@@ -1077,7 +1111,7 @@ internal sealed class SuperMetroidRuntime
         MotherBrainEnemyState? motherBrain = room.Enemies.DisplaySources.MotherBrain;
         var frameEnd = new GameplayFrameEndDisplayInputs(
             Room.DoorTransitionShownLayers,
-            room.ScrollingSky?.Publish(room.Camera.PixelPosition),
+            room.Sky?.State.Publish(room.Camera.PixelPosition),
             room.Enemies.DisplaySources.CrocomireMelt,
             motherBrain is { RisingFloorClipActive: true },
             motherBrain?.RainbowBeam.RenderSnapshot,
@@ -1169,7 +1203,10 @@ internal sealed class SuperMetroidRuntime
     /// One update of an open message box. Its completion returns into the suspended
     /// gameplay update, whose remaining owners already ran when the box opened.
     /// </summary>
-    /// <returns>The resumed update's outcome when the box closed into it, otherwise the box's update's, which leaves the out-of-health check to the update the box closes on.</returns>
+    /// <returns>
+    /// The resumed update's outcome when the box closed into it, otherwise the box's update's, which leaves the
+    /// out-of-health check to the update the box closes on; either carries the save the box's close completed.
+    /// </returns>
     private RuntimeFrameOutcome StepMessageBoxFrame(
         ControllerButton playerInput,
         GameplayUpdateStart start,
@@ -1179,26 +1216,29 @@ internal sealed class SuperMetroidRuntime
         SamusState samus)
     {
         // The box reads the controller directly; the frame boundary latches none.
-        MessageBox.Step(playerInput);
+        MessageBoxStep step = MessageBox.Step(playerInput);
         if (MessageBox.LastFrameAudio.AdvancesLiquidWaveAndStatueDescent)
         {
             // One update of the box's pause after closing advances the liquid wave and the statues too.
             LiquidWaveAndStatueDescent.Advance(room.RoomObjects, room);
             room.BombProjectiles.AdvancePowerBombExplosion(samus, PlayerActions.Current, RunningGameState);
         }
-        if (MessageBox.ConfirmationSelectionChangedThisFrame)
+        if (step is MessageBoxStep.ChoiceMoved)
             MessageBoxes.SaveChoiceMoved();
-        if (MessageBox.IsActive)
+        if (step is MessageBoxStep.SavingSoundStarted)
+            MessageBoxes.GunshipSavingSoundStarted();
+        if (step is not MessageBoxStep.Closed closing)
             return EndUpdateWithoutGameplayTail(start, policy, infiniteAmmoGuard, room, samus);
 
-        MessageBoxes.ResolveClosedMessageBox(frameSuspended: _suspendedFrameTail is not null, room, samus);
+        SaveStationPersistenceRequest? completedSave =
+            MessageBoxes.ResolveClosedMessageBox(closing, frameSuspended: _suspendedFrameTail is not null, room, samus);
         // The room objects' step returns once the box and its item's step finish; the
         // parked remainder of that gameplay frame runs now, in this same update.
         if (!MessageBox.IsActive && _suspendedFrameTail is { } tail)
         {
             _suspendedFrameTail = null;
-            return FinishGameplayFrame(tail, start, policy, infiniteAmmoGuard, room, samus);
+            return FinishGameplayFrame(tail, start, policy, infiniteAmmoGuard, room, samus) with { CompletedSave = completedSave };
         }
-        return EndUpdateWithoutGameplayTail(start, policy, infiniteAmmoGuard, room, samus);
+        return EndUpdateWithoutGameplayTail(start, policy, infiniteAmmoGuard, room, samus) with { CompletedSave = completedSave };
     }
 }

@@ -312,8 +312,7 @@ internal sealed class NorfairRidleyCombat
     internal void InitializeNorfairRidleyPogoVelocity(NorfairRidleyState state)
     {
         // The pogo choice samples the current random number; it does not advance shared RNG.
-        int pattern = RidleyRandomDefinitions.PogoChoice.Of(_room.Random.Read());
-        RidleyPogoDefinition definition = state.HealthBand.PogoLaunches[pattern];
+        RidleyPogoDefinition definition = state.HealthBand.PogoLaunch.Choose(_room.Random.Read());
         state.PogoUpwardAcceleration = definition.UpwardAcceleration;
         state.PogoDownwardAcceleration = definition.DownwardAcceleration;
         state.Flight.Velocity = state.Flight.Velocity.WithY(definition.Velocity.Y);

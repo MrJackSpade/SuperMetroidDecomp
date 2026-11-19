@@ -796,6 +796,31 @@ performs that setup atomically`, read line by line), `the setup call`, and a thi
 set up on the loading update, and each following update moves the door's scroll. The Atomic, the Wrecked Ship's floating
 atom, a setup or a call alone, a thing of its own and a hardware owner stay English.
 
+#2515 widens SME6454, outside hardware owners, to the original's routines, flags and bits and the port's reasoning as
+enemy and world prose tells them, read across a documentation comment's line breaks: an AI entry (`AI entry, initialized
+for the starting wall`); an enemy's hurt, shot, touch, contact, bomb, frozen or grapple AI with its words on two lines
+(`calls the normal enemy shot` / `AI`); a flip, curling or mirror flag; a bit by its ordinal (`the sample's fifteenth bit`,
+`a sample whose ninth bit is set`); what the port avoided teaching or inventing (`without teaching the reusable Landing
+Site runtime how to own enemies`, `instead of inventing an enemy for the Baby`); a value told against a representation it
+no longer has (`rather than a signed offset`); and the camera's scroller distances or offsets. Core says what the game
+does: which action the Pirate runs, which way the chain turns, one random number in two, where the Baby is drawn, how far
+above Samus the camera aims. Main AI or an AI alone, an entry, a flag or a bit alone, a thing that flips or curls, an
+Etecoon's teaching hops, a signed offset alone, the camera's scroll and a hardware owner stay English.
+
+#2522 widens SME6454, outside hardware owners, to the original's storage of Samus's speeds, timers, positions and flags,
+read across a documentation comment's line breaks: a value's two halves (`clears both velocity halves`, `both base-speed
+halves`, `both halves of vertical speed`, `clears both halves`); a fraction bit or fractional bits (`its lowest fraction
+bit`, `the lower fractional bits`); a negative test; a value that wraps to 65535 or 255 (`its next decrement wraps to
+65535`, `a wrap below zero to 65535`); a position or coordinate told by its range (`whole-pixel Y, 0 through 65535`); a
+wrapping comparison; a value negated back or temporarily negated; an expired timer or count that wraps; a slow-scroll,
+water, liquid or submersion flag and a response or reaction flag (`the slow-scrolling flag`, `the common grapple-response
+flag`); this or that flag read, tested, checked or rewritten; a list scanned, searched or walked last to first; a value
+stored, kept or held as a whole; and a one-shot index (`a one-shot auto-cancel index`). Core says what the game does: the
+speed is cleared, a held frame lasts one more update, a rise is capped unless outside forces reverse it, the camera
+scrolls slowly while the swing is fast. Halves of a picture or a body, a fraction of a pixel, a random sample or frame
+counter of 0 through 65535, a count that wraps, a flag alone, an animation played last to first, a whole step of the turn
+and a hardware owner stay English.
+
 SME6459 (#2309) reads the summary of every member of a Core `*Segment` enum, one run of an actor's animation, and rejects
 one that only restates the member's name: `The facing left shooting animation.`, `The idle.`, `The loop.`, and (#2465)
 any summary whose words are all the name's, the actor's the enum is named for, articles, possessives or `animation`,

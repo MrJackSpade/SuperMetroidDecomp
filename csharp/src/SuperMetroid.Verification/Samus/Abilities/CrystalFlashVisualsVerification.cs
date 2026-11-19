@@ -136,8 +136,8 @@ internal static class CrystalFlashVisualsVerification
     /// <paramref name="draws"/> with <paramref name="beams"/>, a shade colouring all her beam inks in one colour, laid over
     /// Samus's own draws, which carry her shading.
     /// </summary>
-    private static ImmutableArray<SpriteDraw> ShadeSamus(ImmutableArray<SpriteDraw> draws, PictureShade beams) =>
-        [.. draws.Select(draw => draw is ImageSpriteDraw { Shading: { } shading } image && SamusColourDefinitions.Sources.Contains(draw.Source.Kind)
-            ? image with { Shading = shading.With(beams) }
+    private static ImmutableArray<ImageSpriteDraw> ShadeSamus(ImmutableArray<ImageSpriteDraw> draws, PictureShade beams) =>
+        [.. draws.Select(draw => SamusColourDefinitions.Sources.Contains(draw.Source.Kind)
+            ? draw with { Shading = draw.Shading.With(beams) }
             : draw)];
 }

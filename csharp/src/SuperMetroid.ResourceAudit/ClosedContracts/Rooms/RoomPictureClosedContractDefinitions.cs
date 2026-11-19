@@ -58,7 +58,7 @@ internal static class RoomPictureClosedContractDefinitions
              new("csharp/src/SuperMetroid.AssetExtraction/Hud/GameplayMessageArtwork.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Rooms/MessageBoxSheetComposer.cs"),
              Loader]),
-        new("SuperMetroid.Core.Fx.Artwork.RoomEffectPictures", "fx-overlay-complete-effect-artwork", ["Artwork"],
+        new("SuperMetroid.Core.Fx.Artwork.RoomEffectPictures", "fx-overlay-complete-effect-artwork", ["Liquid", "Atmosphere"],
             [new("csharp/src/SuperMetroid.Core/Fx/Artwork/RoomEffectPictures.cs"),
              new("csharp/src/SuperMetroid.Core/Fx/Artwork/RoomEffectArtwork.cs"),
              new("csharp/src/SuperMetroid.Core/Fx/RoomFxTypes.cs"),

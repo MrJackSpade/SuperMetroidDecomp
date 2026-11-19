@@ -29,7 +29,7 @@ internal static class FrontendRenderCaptureTestsVerification
         {
             ScreenContent = presentation,
         });
-        AssertEqual(new RgbaPixel(0, 0, 0, 255), captured.GetRetainedDisplay().SolidColor,
+        AssertEqual<RgbaPixel?>(new RgbaPixel(0, 0, 0, 255), (captured.GetRetainedDisplay().Scene as SolidColourScene)?.Colour,
             "the initial display is a published black frame");
         var states = new HashSet<object>();
         int packetCount = 0;

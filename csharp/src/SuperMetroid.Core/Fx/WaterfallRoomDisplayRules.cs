@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Fx;
 
 /// <summary>
 /// Which layers the waterfall rooms (the Colosseum and Halfie Climb) show directly while their waterfall blends: the rooms
-/// whose effect's blend lays the background behind the room (<see cref="RoomEffectBlend.BackgroundBehind"/>).
+/// whose effect's blend lays the background behind the room (<see cref="OverlayBehindRoomBlend.BackgroundBehind"/>).
 /// </summary>
 public static class WaterfallRoomDisplayRules
 {

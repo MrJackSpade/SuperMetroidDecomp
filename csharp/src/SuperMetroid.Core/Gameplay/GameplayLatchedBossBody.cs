@@ -19,4 +19,10 @@ namespace SuperMetroid.Core.Gameplay;
 public readonly record struct GameplayLatchedBossBody(
     BossBodyLayer? Body,
     Position16<RoomPixels>? Placement,
-    bool Hidden);
+    bool Hidden)
+{
+    /// <summary>The body <paramref name="display"/> shows as the frame boundary reads it, or no body where the room shows none.</summary>
+    /// <param name="display">The boss body the room shows, or null where no boss attached one.</param>
+    internal static GameplayLatchedBossBody Of(IBossBodyDisplay? display) =>
+        display is null ? default : new(display.Layer, display.Placement, display.Hidden);
+}

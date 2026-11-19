@@ -30,7 +30,6 @@ internal static class CharacterSpriteDrawAccess
     }
 
     /// <summary>The composition a pre-coloured image draw stands for; any other kind is an error in the check that reads it.</summary>
-    private static CharacterSpriteDraw Character(SpriteDraw draw) => draw is ImageSpriteDraw image
-        ? SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.CharacterDraw(image)
-        : throw new InvalidOperationException($"{draw} is a {draw.GetType().Name}, not a sheet frame composed from characters.");
+    private static CharacterSpriteDraw Character(SpriteDraw draw) =>
+        SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.CharacterDraw(draw);
 }

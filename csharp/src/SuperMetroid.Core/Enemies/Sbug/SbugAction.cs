@@ -14,7 +14,7 @@ public enum SbugAction
     ActivateZigZag,
     /// <summary>Initializes the 32-update forward segment without moving yet.</summary>
     ActivateMoveForwardThenWait,
-    /// <summary>Adds the precomputed forward magnitudes with signs derived from the spawn angle.</summary>
+    /// <summary>Moves the bug along its spawn heading at its placement's speed each update.</summary>
     MoveForward,
     /// <summary>Selects side velocity and facing by whether the enemy frame counter is in the second half of each 32-frame cycle.</summary>
     ZigZag,

@@ -25,11 +25,12 @@ public static class PhantoonRainPatternDefinitions
     public static PhantoonRainPattern LowerLeft { get; } = new(465, new(88, 128), PhantoonFlameSpawns.RainColumn(3));
 
     /// <summary>
-    /// The patterns a later rain chooses from, by its random draw: each is as likely as the others but the centre, which
-    /// the draw chooses twice as often.
+    /// The pattern a later rain chooses by its random draw (#2510): the centre, upper right, right, lower right, centre again,
+    /// upper left, left and lower left in turn, so each is as likely as the others but the centre, which the draw chooses
+    /// twice as often.
     /// </summary>
-    public static IReadOnlyList<PhantoonRainPattern> Choices { get; } =
-        [Centre, UpperRight, Right, LowerRight, Centre, UpperLeft, Left, LowerLeft];
+    internal static WeightedRandomChoice<PhantoonRainPattern> LaterRain { get; } = WeightedRandomChoice<PhantoonRainPattern>.InTurn(
+        new RandomSampleField(0, 3), Centre, UpperRight, Right, LowerRight, Centre, UpperLeft, Left, LowerLeft);
 
     /// <summary>The first rain's pattern while his body is in the room's left half.</summary>
     public static PhantoonRainPattern FirstRainFromLeftHalf => Centre;

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.Boyon;
 using SuperMetroid.Core.Enemies.Metroids;
 using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -43,7 +44,7 @@ internal static class EnemySoundOrderVerification
         foreach (RoomEnemyPlace place in new[] { firstMetroid, boyon, secondMetroid })
             EnemyAnimationPlayer.AdvanceAnimation(place, samus: RoomEnemyFrameFixtures.StandaloneSamus(), level: RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, controllerInput: 0);
 
-        SoundEffectId cry = MetroidReactions.RandomCrySoundEffect(CryRandom);
+        SoundEffectId cry = MetroidBehaviorDefinitions.Cry.Choose(CryRandom);
         AssertEqual(EnemyAudioQueueAccess.SoundList([cry, EnemySoundEffectDefinitions.BoyonBounceSound, cry]), enemies.Audio.QueuedSoundList,
             "each enemy's sound is queued as it runs, in place order, and both Metroid cries are queued");
         AssertTrue(enemies.Audio.SoundRequests.All(request => request.Priority == SoundRequestPriority.Normal),
@@ -110,7 +111,11 @@ internal static class EnemySoundOrderVerification
         return enemy;
     }
 
-    /// <summary>A Boyon in <paramref name="place"/> whose next script step starts its bounce.</summary>
+    /// <summary>
+    /// A Boyon in <paramref name="place"/> whose next script step starts its bounce, reached as the game reaches it
+    /// (#2521): its first main update derives its arc, and the next, with Samus standing on it, starts its bounce and the
+    /// bouncing animation whose first cue is the bounce sound. The bouncing animation never plays before the Boyon bounces.
+    /// </summary>
     private static RoomEnemyPlace BoyonStartingItsBounce(RoomEnemySystem enemies, int place)
     {
         RoomEnemyPlace enemy = enemies.Places.InUpdateOrder[place];
@@ -120,7 +125,12 @@ internal static class EnemySoundOrderVerification
         enemy.Position = enemy.Position.WithWhole(new(256, 512));
         BoyonBehavior.InitializeBoyon(enemy);
         BoyonEnemyState state = enemy.RequireSpeciesState<BoyonEnemyState>();
-        state.Playback = new AnimationPlayback<BoyonSegment>(BoyonAnimations.StartingWith(BoyonSegment.Bouncing), AnimationPlace.StartOfAnimation);
+        SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
+        samus.Position = FixedPosition<RoomPixels>.FromWhole(enemy.Position.Whole);
+        BoyonBehavior.RunBoyonMain(enemy, state, samus);
+        BoyonBehavior.RunBoyonMain(enemy, state, samus);
+        AssertEqual(new AnimationPlayback<BoyonSegment>(BoyonAnimations.StartingWith(BoyonSegment.Bouncing), AnimationPlace.StartOfAnimation),
+            state.Playback, "Samus on the Boyon starts its bouncing animation");
         enemy.AnimationClock.StepOnNextUpdate();
         return enemy;
     }

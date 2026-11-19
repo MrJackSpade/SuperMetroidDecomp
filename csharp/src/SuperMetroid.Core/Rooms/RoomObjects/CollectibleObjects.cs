@@ -38,8 +38,6 @@ internal sealed class CollectibleObjects
         _blockPairs = Ensure.NotNull(blockPairs);
     }
 
-    /// <summary>Pickup events published by the current room-object step.</summary>
-    private readonly List<CollectiblePickupEvent> _collectiblePickupEvents = new();
     /// <summary>The terrain block pairs the room's collectibles that show their own picture take in turn.</summary>
     private readonly CollectibleBlockPairs _blockPairs;
     /// <summary>The room objects' audio requests, which a pickup's fanfare joins.</summary>
@@ -84,10 +82,6 @@ internal sealed class CollectibleObjects
         _roomFx.SetLiquidSpeed(SpeedBoosterPickupDefinitions.LavaRiseVelocity);
         _pendingSpeedBoosterPickupContinuation = false;
     }
-
-    /// <summary>Pickup publications produced during the most recent room-object step.</summary>
-    public IReadOnlyList<CollectiblePickupEvent> CollectiblePickupEvents =>
-        _collectiblePickupEvents;
 
     /// <summary>Every permanent-item room object the room holds, from the last place in update order back to the first.</summary>
     public IReadOnlyList<CollectibleObjectSnapshot> Collectibles => _places.FromLastPlace
@@ -148,9 +142,6 @@ internal sealed class CollectibleObjects
         return false;
     }
 
-    /// <summary>Clears pickup publications at the start of a room-object step.</summary>
-    internal void BeginCollectibleFrame() => _collectiblePickupEvents.Clear();
-
     /// <summary>
     /// Runs one permanent-item setup on the place selected by the shared room loader, for <paramref name="item"/>, whose
     /// location its placement (<paramref name="placed"/>) names, as the collectible's definition and its pictures describe it.
@@ -192,13 +183,14 @@ internal sealed class CollectibleObjects
     }
 
     /// <summary>
-    /// Collects <paramref name="item"/>, placed at <paramref name="place"/>: sets persistence and inventory before publishing
-    /// the synchronous message and fanfare request.
+    /// Collects <paramref name="item"/>, placed at <paramref name="place"/>: sets persistence and inventory before the
+    /// pickup joins the step's <paramref name="outcome"/>, for the update to open its message, and the fanfare is requested.
     /// </summary>
-    internal void Acquire(CollectibleObject item, RoomObjectPlace place)
+    internal void Acquire(CollectibleObject item, RoomObjectPlace place, RoomObjectStepOutcome outcome)
     {
         Ensure.NotNull(item);
         Ensure.NotNull(place);
+        Ensure.NotNull(outcome);
         IRoomSamus samus = _samus.Current;
         SharedGameState system = _system;
 
@@ -206,8 +198,7 @@ internal sealed class CollectibleObjects
         CollectibleDefinition definition = CollectibleDefinitions.Items[item.Kind];
         definition.Grant.Apply(samus);
 
-        var pickup = new CollectiblePickupEvent(item.Kind, definition.Message, definition.Consequence);
-        _collectiblePickupEvents.Add(pickup);
+        outcome.Collected(new CollectiblePickupEvent(item.Kind, definition.Message, definition.Consequence));
         // The item's cue starts the fanfare as it runs, before its message box opens.
         _sounds.QueuePermanentItemFanfare();
         _pendingSpeedBoosterPickupContinuation =

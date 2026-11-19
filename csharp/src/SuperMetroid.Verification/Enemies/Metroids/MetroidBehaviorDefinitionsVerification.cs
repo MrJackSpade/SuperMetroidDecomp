@@ -36,7 +36,7 @@ internal static class MetroidBehaviorDefinitionsVerification
 
         for (ushort index = 0; index < 8; index++)
         {
-            SoundEffectId cry = MetroidReactions.RandomCrySoundEffect(index);
+            SoundEffectId cry = MetroidBehaviorDefinitions.Cry.Choose(index);
             AssertEqual(SoundEffectCommands.Decode(cry.Library, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3ead6 + index * 2))),
                 cry,
                 $"Metroid random cry {index}");
@@ -141,7 +141,7 @@ internal static class MetroidBehaviorDefinitionsVerification
 
             EnemyAnimationPlayer.AdvanceAnimation(place, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);
 
-            AssertEqual((SoundEffectId?)MetroidReactions.RandomCrySoundEffect(random),
+            AssertEqual((SoundEffectId?)MetroidBehaviorDefinitions.Cry.Choose(random),
                 enemies.Audio.LatestSound,
                 $"production Metroid random cry {random}");
             AssertEqual(16, place.AnimationClock.Hold.RawValue,

@@ -44,19 +44,17 @@ public sealed record MessageBoxLayer : DisplayLayer
     /// <summary>The screen line after the last one the reveal window shows.</summary>
     public int EndLine => GameplayMessageBoxDefinitions.Layout.WindowCenterY + RadiusPixels;
 
-    /// <summary>Publishes the image of the currently exposed message (#1392, #1466); inactive or zero-radius messages emit none.</summary>
+    /// <summary>
+    /// Publishes the image of the message the box's window exposes (#1392, #1466, #2505), or none while its window shows
+    /// nothing.
+    /// </summary>
     /// <param name="messageBox">The message box state.</param>
-    /// <param name="messages">The room's message box images; required while a message is exposed.</param>
-    /// <exception cref="InvalidOperationException">A message is exposed with no room's message box images.</exception>
+    /// <param name="messages">The room's message box images.</param>
     /// <exception cref="InvalidDataException">The images picture no such form of the message shown.</exception>
-    public static MessageBoxLayer? Capture(GameplayMessageBoxState messageBox, MessageBoxSheet? messages)
+    public static MessageBoxLayer? Capture(GameplayMessageBoxState messageBox, MessageBoxSheet messages)
     {
-        Ensure.NotNull(messageBox);
-        if (!messageBox.IsActive || messageBox.RadiusPixels == 0)
-            return null;
-        ShownMessage shown = messageBox.Shown ?? throw new InvalidOperationException("An exposed message box shows a message.");
-        return Of(shown, messageBox.RadiusPixels, messages
-            ?? throw new InvalidOperationException("An exposed message box requires the room's message box images."));
+        Ensure.NotNull(messages);
+        return Ensure.NotNull(messageBox).Exposed is { } exposed ? Of(exposed.Message, exposed.RadiusPixels, messages) : null;
     }
 
     /// <summary>The layer showing <paramref name="sheet"/>'s image of <paramref name="shown"/>.</summary>

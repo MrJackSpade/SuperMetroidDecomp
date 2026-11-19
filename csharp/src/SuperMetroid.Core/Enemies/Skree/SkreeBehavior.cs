@@ -163,8 +163,8 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Handles lethal bombs with Skree's particle burst and its ordinary death after the shared hit path.</summary>
-    /// <remarks>Skree's shot reaction owns its four-piece burst and death animation because it calls the normal enemy shot
-    /// AI that skips the death animation. A normal bomb gives the ordinary death; only missiles give another.</remarks>
+    /// <remarks>Skree's bomb reaction spawns its four-piece burst and starts its death itself, after the common bomb damage,
+    /// which starts no death for it. A normal bomb gives the ordinary death; only missiles give another.</remarks>
     internal EnemyBombReaction SkreeBombReaction => field ??= new()
     {
         RunsGenericDeath = false,

@@ -454,7 +454,6 @@ internal sealed class SamusPoseTransitionPhase
     /// Applies the input transition the input phase selected from the pose's input transitions, through the setup the
     /// transition names. A transition that keeps her pose means "remain in this animation", so nothing is set up.
     /// </summary>
-    /// <exception cref="NotSupportedException">The transition names the stand-up from the Draygon-held ball, whose setup is not reproduced.</exception>
     private void ApplyInputTransition(SamusControlFrame frame, SamusState samus, SamusPoseTransition inputTransition, SamusTerrain terrain)
     {
         SamusPoseId targetPose = inputTransition.ProspectivePose;
@@ -508,8 +507,8 @@ internal sealed class SamusPoseTransitionPhase
                 break;
             case SamusPoseTransitionSetup.TurnOnGround:
                 // Ceres releases controls while the forward-facing pose is still active. Its own input transitions map
-                // Left/Right to generic turning poses; the reversal check recognizes the old front-facing pose and
-                // preserves that target without inventing a source facing.
+                // Left/Right to generic turning poses; the reversal check recognizes the old front-facing pose, which
+                // faces neither way, and keeps that target.
                 SamusGroundedPoseTransitions.ApplyGroundedTurn(samus, targetPose, _playerActions.Current);
                 break;
             case SamusPoseTransitionSetup.CrouchOrStand:
@@ -579,8 +578,9 @@ internal sealed class SamusPoseTransitionPhase
                 SamusAerialPoseTransitions.ApplyShinesparkDirectionTransition(samus, targetPose);
                 break;
             case SamusPoseTransitionSetup.StandUpFromDraygonHold:
-                throw new NotSupportedException(
-                    $"The stand-up {targetPose} from the Draygon-held ball {frame.PoseAtFrameStart} has no reproduced setup.");
+                SamusPosturePoseTransitions.TryApplyDraygonHoldStandUp(samus, terrain.Level, targetPose, _clock.Counter,
+                    terrain.RoomObjects);
+                break;
             default:
                 throw new InvalidDataException($"Undefined {nameof(SamusPoseTransitionSetup)} for input transition {frame.PoseAtFrameStart} -> {targetPose}.");
         }

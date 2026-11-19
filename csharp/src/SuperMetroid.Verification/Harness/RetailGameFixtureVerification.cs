@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Ending;
@@ -5,6 +6,13 @@ using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Verification.Harness;
 
@@ -16,6 +24,29 @@ internal static class RetailGameFixtureVerification
         SuperMetroid.Core.Gameplay.GameplayAssists? assists = null, bool renderGameplayFrames = true,
         SuperMetroidGameHostServices? hostServices = null, SharedRandom? random = null) =>
         InstalledFixtures.CreateGame(saves, assists, renderGameplayFrames, hostServices, random);
+
+    /// <summary>
+    /// A game in main gameplay in a Brinstar room, its Samus standing under her normal movement mode with the new game's
+    /// health and no reserves.
+    /// </summary>
+    internal static (SuperMetroidGame Game, SuperMetroidRuntime Runtime, SamusState Samus) CreateMainGameplayFixture()
+    {
+        var random = new SharedRandom();
+        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(InstalledFixtures.Maps),
+            null, SuperMetroidGameHostServices.Default, random);
+        SuperMetroidRuntime runtime = RetailRuntimeFixtureVerification.CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.AlphaPowerBomb);
+        SamusState samus = runtime.Player.IntroducedSamus;
+        samus.PoseId = SamusPoseId.FacingRightNormalPose;
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
+        game.AdoptRuntime(runtime);
+        game.Session.Enter(SuperMetroidGameState.MainGameplay);
+        return (game, runtime, samus);
+    }
 
     /// <summary>Creates a Ceres destruction state waiting on <paramref name="audio"/>'s music, with optional cinematic artwork.</summary>
     internal static CeresDestructionCinematicState CreateRetailDestructionFixture(AudioQueues audio, ImportIntroCinematicArtwork? artwork = null) =>

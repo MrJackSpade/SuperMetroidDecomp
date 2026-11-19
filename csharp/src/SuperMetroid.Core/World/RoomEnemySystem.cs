@@ -188,7 +188,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>The Yapping Maws, mouths on stalks that bite at Samus and carry her.</summary>
     internal YappingMawBehavior YappingMawBehavior { get; }
 
-    /// <summary>The Covern ghosts that flicker in and out in the Wrecked Ship.</summary>
+    /// <summary>The Wrecked Ship's ghosts, which flicker in and out.</summary>
     internal WreckedShipGhostBehavior WreckedShipGhostBehavior { get; }
 
     /// <summary>The Wrecked Ship's work robots, which patrol and fire lasers.</summary>
@@ -570,11 +570,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <inheritdoc/>
     ImmutableArray<PerspectiveFloorScenery> IEnemyDisplaySources.CeresGetawayChamberWalls => CeresEscape.ChamberWalls();
     /// <inheritdoc/>
-    BossBodyLayer? IEnemyDisplaySources.BossBody => Presentation.BossBodyDisplay?.Layer;
-    /// <inheritdoc/>
-    Position16<RoomPixels>? IEnemyDisplaySources.BossBodyPlacement => Presentation.BossBodyDisplay?.Placement;
-    /// <inheritdoc/>
-    bool IEnemyDisplaySources.BossBodyHidden => Presentation.BossBodyDisplay?.Hidden == true;
+    IBossBodyDisplay? IEnemyDisplaySources.BossBody => Presentation.BossBodyDisplay;
     /// <inheritdoc/>
     MorphBallEyeBeamState IEnemyDisplaySources.MorphBallEyeBeam => MorphBallEyeBehavior.MorphBallEyeBeam;
 
@@ -872,7 +868,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     public IReadOnlyList<SolidEnemyCollisionBody> InteractiveCollisionBodies =>
         _interactiveCollisionBodies;
 
-    /// <summary>What the room\'s bosses draw with: its presentation surfaces and the installed boss artwork.</summary>
+    /// <summary>What the room's bosses draw with: its presentation surfaces and the installed boss artwork.</summary>
     internal BossPresentation BossPresentation { get; }
 
     /// <summary>The bosses' installed artwork, read through the session's binding.</summary>
@@ -1070,7 +1066,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                 place.FrozenTimer != 0 || place.Contact.HasAny(EnemyContact.SolidToSamus)));
         }
         FrameContext.AdvanceRandomEnemyCounter();
-        frame.Samus?.Kinematics.ClearSolidEnemyCollisions();
+        frame.Samus.Kinematics.ClearSolidEnemyCollisions();
         // The room-wide glows step after every enemy has updated, whether or not time is frozen.
         WorkRobotBehavior.StepGlow();
         MagdolliteBehavior.StepGlow();

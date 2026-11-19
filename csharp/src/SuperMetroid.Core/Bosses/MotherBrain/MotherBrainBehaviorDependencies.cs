@@ -31,7 +31,7 @@ internal sealed record MotherBrainBehaviorDependencies
     public required EnemyAudioQueue Audio { get; init; }
 
 
-    /// <summary>What the boss draws with: the room\'s presentation surfaces and the installed boss artwork.</summary>
+    /// <summary>What the boss draws with: the room's presentation surfaces and the installed boss artwork.</summary>
     public required BossPresentation Presentation { get; init; }
 
     /// <summary>The enemy update's random number, frame counter and flags.</summary>

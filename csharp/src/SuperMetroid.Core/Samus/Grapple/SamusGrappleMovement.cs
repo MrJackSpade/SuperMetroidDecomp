@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// here; solid/frozen-enemy wall-jump probing is shared with ordinary movement and asks the next enemy
 /// pass to shake the enemy launched from. The firing-only Draygon-turret damage and the swing's spike damage, which
 /// depends on the kind of spike block, are applied through the shared periodic damage.
-/// Grapple's narrower water flag and persistent environment-selected
+/// Grapple's narrower test of being submerged and its persistent environment-selected
 /// release are kept apart from ordinary aerial movement.
 /// </remarks>
 public static class SamusGrappleMovement
@@ -87,7 +87,7 @@ public static class SamusGrappleMovement
         grapple.ValidateAnchorBlock = false;
         grapple.ValidateAnchorEnemy = false;
         grapple.CloseCollision = false;
-        grapple.SlowScrolling = false; // Firing clears the slow-scroll flag.
+        grapple.SlowScrolling = false; // Firing returns the camera to its ordinary scroll.
         grapple.WallJumpTimer = 0;
         grapple.CancelFromConnectedPose = false;
         SamusGrappleBeamDrawing.InitializeBeamAnimation(grapple);
@@ -139,8 +139,8 @@ public static class SamusGrappleMovement
             return QueueFiringCancellation(grapple);
 
         // Firing tests the current endpoint against ordinary enemies before moving the
-        // beam through its four block-collision substeps. The collision producer sets the
-        // enemy's common grapple-response flag; this reads only the definition's
+        // beam through its four block-collision substeps. The collision reports the
+        // enemy's grapple reaction; firing acts only on the definition's
         // seven common reactions. Kill and no interaction deliberately go on to the room's blocks, exactly like an
         // enemy with no grapple reaction.
         GrappleEnemyCollision enemy = enemyCollision(grapple.Anchor);
@@ -223,8 +223,8 @@ public static class SamusGrappleMovement
     /// Executes the post-phase update of whether the grapple is submerged.
     /// </summary>
     /// <remarks>
-    /// Grapple physics reads this flag during a phase and the grapple beam's step rewrites it only
-    /// afterward, so it runs exactly once at the end of the pass. Only a firing, connected or wall-grabbing beam can stay
+    /// Grapple physics uses whether the grapple is submerged during a phase and the grapple beam's step updates it only
+    /// afterward, so this runs exactly once at the end of the pass. Only a firing, connected or wall-grabbing beam can stay
     /// submerged: release, cancel, dropped, wall-jump, and inactive phases all clear liquid physics immediately.
     /// </remarks>
     public static void RefreshLiquidPhysicsFlag(SamusState samus)
@@ -571,7 +571,7 @@ public static class SamusGrappleMovement
         Position16<RoomPixels> previousPosition,
         out GrappleMovementResult result)
     {
-        // The connections are scanned last to first, and an angle matches only exactly, with no
+        // Each connection has an angle of its own, and an angle matches only exactly, with no
         // tolerance around a wall-grab angle. These connections govern collision positioning.
         IReadOnlyList<GrappleConnectionDefinitions.SpecialConnection> connections = GrappleConnections.SpecialConnections;
         for (int place = connections.Count - 1; place >= 0; place--)
@@ -596,7 +596,7 @@ public static class SamusGrappleMovement
             SamusPresentation.InitializeAnimation(samus);
             grapple.Phase = phase;
             grapple.WallJumpTimer = 0;
-            grapple.SlowScrolling = false; // Connecting clears the slow-scroll flag.
+            grapple.SlowScrolling = false; // Connecting returns the camera to its ordinary scroll.
 
             Position16<RoomPixels> cameraPrevious = ClampPreviousPosition(samus.Position.Whole, previousPosition);
             result = new GrappleMovementResult(
@@ -849,8 +849,8 @@ public static class SamusGrappleMovement
         bool swinging = connection.Kind == GrappleConnectionKind.Swinging;
 
         // Both the connection and the fired beam derive the angle from the body position that fired the beam,
-        // before the connection pose is installed and snaps Samus to the rope. The angle is stored
-        // as a whole step of the 256-step turn; its fraction becomes zero.
+        // before the connection pose is installed and snaps Samus to the rope. The angle is a
+        // whole step of the turn, with no fraction.
         RotationAngle angle = CalculateAngleFromXY(samus.Position.Whole - grapple.Anchor);
         grapple.Angle = angle;
         grapple.MirroredAngle = grapple.Angle;
@@ -1033,7 +1033,7 @@ public static class SamusGrappleMovement
         }
 
         grapple.Phase = GrapplePhase.Inactive;
-        // Cancel and kill both clear the slow-scroll flag.
+        // Cancel and kill both return the camera to its ordinary scroll.
         grapple.SlowScrolling = false;
         grapple.PoseChangeAutoFireTimer = 0;
         grapple.RopeLength = 0;
@@ -1110,7 +1110,7 @@ public static class SamusGrappleMovement
             ? SamusPoseId.NormalJumpForwardLeftPose
             : SamusPoseId.NormalJumpForwardRightPose;
         grapple.Phase = GrapplePhase.Inactive;
-        grapple.SlowScrolling = false; // Releasing clears the slow-scroll flag.
+        grapple.SlowScrolling = false; // Releasing returns the camera to its ordinary scroll.
         grapple.DirectionInputAcceleration = AngularSpeed.Zero;
         grapple.GravityAcceleration = AngularSpeed.Zero;
         grapple.VelocityCorrection = AngularSpeed.Zero;
@@ -1148,7 +1148,7 @@ public static class SamusGrappleMovement
         grapple.JumpImpulse = AngularSpeed.Zero;
         grapple.CollisionBounceTimer = 0;
         grapple.CloseCollision = false;
-        // Dropping and wall jumping clear the slow-scroll flag.
+        // Dropping and wall jumping return the camera to its ordinary scroll.
         grapple.SlowScrolling = false;
         grapple.WallJumpTimer = 0;
         grapple.CancelFromConnectedPose = false;

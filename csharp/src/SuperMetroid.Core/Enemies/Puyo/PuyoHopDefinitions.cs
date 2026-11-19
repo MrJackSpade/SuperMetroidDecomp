@@ -12,7 +12,7 @@ internal static class PuyoHopDefinitions
     {
         [PuyoHopType.NormalSmall] = new(16, SignedEightEight.FromPixels(1), QuadraticSpeedCurvePlace.FromMarks(1), QuadraticSpeedCurvePlace.FromMarks(2), PuyoAirborneMovement.NormalShortHop, SignedSixteenSixteen.FromWholePixels(2)),
         [PuyoHopType.NormalBig] = new(32, SignedEightEight.FromPixels(1), QuadraticSpeedCurvePlace.FromMarks(1), QuadraticSpeedCurvePlace.FromMarks(2), PuyoAirborneMovement.NormalBigHop, SignedSixteenSixteen.FromWholePixels(2)),
-        [PuyoHopType.NormalHigh] = new(32, SignedEightEight.FromPixels(2), QuadraticSpeedCurvePlace.FromMarks(2), QuadraticSpeedCurvePlace.FromMarks(3), PuyoAirborneMovement.NormalLongHop, SignedSixteenSixteen.FromWholePixels(3)),
+        [PuyoHopType.NormalLong] = new(32, SignedEightEight.FromPixels(2), QuadraticSpeedCurvePlace.FromMarks(2), QuadraticSpeedCurvePlace.FromMarks(3), PuyoAirborneMovement.NormalLongHop, SignedSixteenSixteen.FromWholePixels(3)),
         [PuyoHopType.Giant] = new(128, SignedEightEight.FromParts(1, 64), QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(320), QuadraticSpeedCurvePlace.FromMarks(2), PuyoAirborneMovement.GiantHop, SignedSixteenSixteen.FromWholePixels(2)),
         [PuyoHopType.Dropping] = new(0, SignedEightEight.Zero, QuadraticSpeedCurvePlace.Start, QuadraticSpeedCurvePlace.FromMarks(0), PuyoAirborneMovement.Dropping, SignedSixteenSixteen.FromWholePixels(1)),
         [PuyoHopType.DroppedSmall] = new(16, SignedEightEight.FromPixels(1), QuadraticSpeedCurvePlace.FromMarks(1), QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(448), PuyoAirborneMovement.Dropped, SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(448)),
@@ -39,12 +39,12 @@ internal static class PuyoHopDefinitions
         HopRollParity, new(1, PuyoHopType.NormalSmall), new(1, PuyoHopType.NormalBig));
 
     /// <summary>
-    /// The ordinary hop a Puyo that last made the big or the high one takes next (#1619): its <see cref="HopRoll"/> advanced
-    /// by the enemy's frame counter chooses the small hop one time in eight, the big one one time in eight and the high
+    /// The ordinary hop a Puyo that last made the big or the long one takes next (#1619): its <see cref="HopRoll"/> advanced
+    /// by the enemy's frame counter chooses the small hop one time in eight, the big one one time in eight and the long
     /// one six times in eight.
     /// </summary>
     internal static readonly WeightedRandomChoice<PuyoHopType> HopAfterLargerHop = new(
-        HopRoll, new(1, PuyoHopType.NormalSmall), new(1, PuyoHopType.NormalBig), new(6, PuyoHopType.NormalHigh));
+        HopRoll, new(1, PuyoHopType.NormalSmall), new(1, PuyoHopType.NormalBig), new(6, PuyoHopType.NormalLong));
 
     /// <summary>
     /// The chance a dropped Puyo's bounce is <see cref="PuyoHopType.DroppedBig"/> rather than

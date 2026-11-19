@@ -3,17 +3,16 @@ namespace SuperMetroid.Core.Enemies.LavaJumpers;
 /// <summary>The launch velocities, gravity and animation switch of the Norfair lava-jumping enemy (Squeept).</summary>
 internal static class NorfairLavaJumpDefinitions
 {
-    /// <summary>The four upward launch velocities, from the highest jump to the lowest.</summary>
-    internal static readonly SignedEightEight[] InitialVerticalVelocities =
-    [
+    /// <summary>
+    /// The upward velocity a jump launches with, chosen from four rolls of its random number (#2510): the four launch
+    /// velocities in turn, from the highest jump to the lowest.
+    /// </summary>
+    internal static readonly WeightedRandomChoice<SignedEightEight> Launch = WeightedRandomChoice<SignedEightEight>.InTurn(
+        new RandomSampleField(9, 2),
         -SignedEightEight.FromParts(8, 1),
         -SignedEightEight.FromParts(7, 2),
         -SignedEightEight.FromParts(6, 65),
-        -SignedEightEight.FromParts(5, 1),
-    ];
-
-    /// <summary>Which of the four launch velocities a jump uses.</summary>
-    internal static readonly RandomSampleField LaunchSelector = new(9, 2);
+        -SignedEightEight.FromParts(5, 1));
 
     /// <summary>How much the jumper's vertical velocity grows downward after each moving update (#2339).</summary>
     internal static SignedEightEight Gravity { get; } = SignedEightEight.FromParts(0, 56);

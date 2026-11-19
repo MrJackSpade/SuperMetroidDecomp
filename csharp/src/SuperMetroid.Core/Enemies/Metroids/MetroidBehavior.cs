@@ -56,7 +56,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             case MetroidCueKind.PlayRandomCry:
                 // One random number, drawn from the shared random sequence, chooses one of the eight idle cries.
-                _audio.QueueEnemySound(MetroidReactions.RandomCrySoundEffect(_room.Random.Generate()), priority: SoundRequestPriority.Normal);
+                _audio.QueueEnemySound(MetroidBehaviorDefinitions.Cry.Choose(_room.Random.Generate()), priority: SoundRequestPriority.Normal);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(MetroidCueKind)} {cue.Kind}.");

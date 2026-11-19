@@ -228,7 +228,7 @@ internal static class EndingSnapshotTestsVerification
                     int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsShot];
                     var shotFrame = Live();
                     var mode = shotFrame.LayersOf<TurningFloorLayer>().Single();
-                    AssertTrue(mode.SubtractsSprites, "live shot enables native BG1 minus OBJ blending");
+                    AssertTrue(mode.Blend == FloorColorBlend.SubtractSprites, "live shot enables native BG1 minus OBJ blending");
                     AssertEqual((short)104, mode.Transform.Center.X, "post-shot matrix horizontal origin");
                     AssertEqual((short)112, mode.Transform.Center.Y, "post-shot matrix vertical origin");
                     AssertEqual((short)-4, mode.Transform.Scroll.X, "post-shot horizontal scroll");

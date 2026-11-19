@@ -645,25 +645,18 @@ internal sealed class RoomLoader
     }
 
     /// <summary>
-    /// Loads the door's destination while the source room stays on screen; the following
-    /// scroll updates slide the destination in.
+    /// Loads the door's destination while the source room stays on screen; the following scroll updates slide the
+    /// destination in, starting from Samus's place in the source room.
     /// </summary>
-    internal void LoadPendingDoorDestinationForTransition(FixedPosition<RoomPixels> sourceSamus) =>
-        LoadPendingDoorDestination(RoomViewportLoadMode.KeepSourceScreenWhileScrollingIn, sourceSamus);
-
-    /// <summary>
-    /// Builds the selected door's destination, keeping Samus's place in the source room, which the door's opening
-    /// scroll starts from when the destination scrolls in rather than appearing whole.
-    /// </summary>
-    private void LoadPendingDoorDestination(
-        RoomViewportLoadMode viewportLoadMode, FixedPosition<RoomPixels>? sourcePosition = null)
+    /// <param name="sourceSamus">Samus's place in the source room, which the door's opening scroll starts from.</param>
+    internal void LoadPendingDoorDestinationForTransition(FixedPosition<RoomPixels> sourceSamus)
     {
         SamusState samus = _player.IntroducedSamus;
 
         RoomLevelData sourceLevel = _room.LoadedLevelData;
         DoorDefinition door = sourceLevel.PendingDoorTransition
             ?? throw new InvalidOperationException("No door block's collision has chosen a door to go through.");
-        DoorTransitionPlacement placement = CalculateDoorTransitionPlacement(door, sourcePosition ?? samus.Position);
+        DoorTransitionPlacement placement = CalculateDoorTransitionPlacement(door, sourceSamus);
         SelectedRoom room = LoadSelectedRoom(door.DestinationRoom);
 
         // The transition's teardown deletes direct G-Mode's stranded X-ray beam,
@@ -718,7 +711,7 @@ internal sealed class RoomLoader
             door,
             room,
             placement.CameraPosition,
-            viewportLoadMode,
+            RoomViewportLoadMode.KeepSourceScreenWhileScrollingIn,
             new RoomEntry { RunDoorClosingObject = true, PreloadedAssets = assets });
 
         // The door transition loads Samus's suit target colours after room/enemy colours have been
@@ -1122,20 +1115,21 @@ internal sealed class RoomLoader
     /// </remarks>
     public void InitializeCeresStartSamus()
     {
-        if (_room.ActiveRoom is null || _room.ActiveLoadStation is null)
-            throw new InvalidOperationException("The starting Ceres room must be loaded before Samus setup.");
+        SelectedRoom room = _room.LoadedRoom;
+        LoadStation station = _room.ActiveLoadStation
+            ?? throw new InvalidOperationException("The starting Ceres room must be loaded from its load station before Samus setup.");
 
         SamusState samus = InitializeSamus();
         samus.Pose = SamusPoseId.ForwardFacingPowerSuitPose;
         samus.AnimationFrame = SamusAnimationDelays.AnimationForPose(samus.Pose).Start;
-        samus.Position = FixedPosition<RoomPixels>.FromWhole(_room.ActiveLoadStation.Placement.SamusPosition.WithY(0));
+        samus.Position = FixedPosition<RoomPixels>.FromWhole(station.Placement.SamusPosition.WithY(0));
         _player.Samus = samus;
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.ShowPower(_player.Colours);
         _assists.GrantLoadoutToNewSamus(samus);
 
         SamusPoseMetadata.RefreshCollisionRadii(_player.Samus);
         SamusPresentation.InitializeAnimation(_player.Samus);
-        _player.Samus.Ground = SamusGround.Of(_room.ActiveRoom.Definition);
+        _player.Samus.Ground = SamusGround.Of(room.Definition);
         _player.PreviousMovementTypeForXray = SamusPoseMetadata.ReadMovementType(_player.Samus);
 
         // The Ceres elevator's arrival owns its own state from the first draw, the concealer over the room's level drawn in
@@ -1145,7 +1139,7 @@ internal sealed class RoomLoader
         // The locked Ceres start's frame publishes the initial minimap itself, so the HUD shows Ceres's room from the
         // descent's first frame; later frames keep updating it.
         ActiveRoomGeometry roomGeometry = GetActiveRoomGeometry();
-        _hud.UpdateMinimap(_system, new MinimapFrame { Area = roomGeometry.Area, RoomMap = roomGeometry.MapPosition, RoomSize = _room.LevelData?.Size ?? _room.ActiveRoom.Size.ToRoomBlocks(), Samus = _player.Samus.Position.Whole, FrameCounter = _clock.ShortCounter, MapRevealMode = _assists.Current.MapReveal, PresentationMap = _artwork.ScreenContent.Get(roomGeometry.Area) });
+        _hud.UpdateMinimap(_system, new MinimapFrame { Area = roomGeometry.Area, RoomMap = roomGeometry.MapPosition, RoomSize = _room.LoadedLevelData.Size, Samus = _player.Samus.Position.Whole, FrameCounter = _clock.ShortCounter, MapRevealMode = _assists.Current.MapReveal, PresentationMap = _artwork.ScreenContent.Get(roomGeometry.Area) });
 
         // Samus's Ceres-start control setup locks her movement until the elevator's arrival ends.
         _player.GroundedSamusMovementEnabled = false;

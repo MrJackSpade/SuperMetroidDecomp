@@ -24,7 +24,7 @@ internal sealed record CrocomireBehaviorDependencies
     /// <summary>The room's earthquake, which the bridge's collapse and the wall's break start.</summary>
     public required RoomEarthquake Earthquake { get; init; }
 
-    /// <summary>What the boss draws with: the room\'s presentation surfaces and the installed boss artwork.</summary>
+    /// <summary>What the boss draws with: the room's presentation surfaces and the installed boss artwork.</summary>
     public required BossPresentation Presentation { get; init; }
 
     /// <summary>The enemy update's clocks, whose random enemy counter his combat reads.</summary>

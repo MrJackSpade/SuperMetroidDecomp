@@ -11,7 +11,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>Whether a hop is one of the three ordinary hops that proximity and chance choose between.</summary>
     private static bool IsNormalHop(PuyoHopType type) =>
-        type is PuyoHopType.NormalSmall or PuyoHopType.NormalBig or PuyoHopType.NormalHigh;
+        type is PuyoHopType.NormalSmall or PuyoHopType.NormalBig or PuyoHopType.NormalLong;
 
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Puyo];

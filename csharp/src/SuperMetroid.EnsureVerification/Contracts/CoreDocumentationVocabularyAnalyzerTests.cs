@@ -2020,6 +2020,63 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // The Atomic and what it hits, a setup alone, a thing of its own and a hardware owner are English.
         Expect("class P { /// <summary>An Atomic, the Wrecked Ship's floating atom; the Atomic's hit; the scroll's setup; a heading of its own; a load until the room has its own; the elevator's own load.</summary>\nvoid Run() { } }");
         Expect(CompatibilityService + "/// <summary>Evidence: the setup call runs atomically in the constructor until the copy gets its own end.</summary>\n[CompatibilityService(\"load\")] class Load { }");
+        // The original's routines, flags and bits and the port's reasoning told in enemy and world prose, outside hardware
+        // owners and markup, read across a documentation comment's line breaks (#2515): an AI entry, an enemy's shot AI on
+        // two lines, a flip, curling or mirror flag, a bit by its ordinal, what the port avoided teaching or inventing, a
+        // value told against a representation it no longer has and the camera's scroller distances.
+        Expect("class P { /// <summary>\n/// AI entry, initialized for the starting wall.\n/// </summary>\nint Action { get; set; } }", "('AI entry')");
+        Expect("class P { /// <summary>Owns its burst because it calls the normal enemy shot\n    /// AI that skips the death animation.</summary>\nvoid Run() { } }", "('shot AI')");
+        Expect("class P { /// <summary>Picks a head pose from the adjacent angles and the flip flag.</summary>\nvoid Run() { } }", "('flip flag')");
+        Expect("class P { /// <summary>Advances its neighbour angle by the curling flags.</summary>\nvoid Run() { } }", "('curling flags')");
+        Expect("class P { /// <summary>Taken when the sample's fifteenth bit is set, half the random numbers.</summary>\nint F => 0; }", "('fifteenth bit')");
+        Expect("class P { /// <summary>The short big cloud: a sample whose ninth\n/// bit is set, one in two.</summary>\nint F => 0; }", "('ninth bit')");
+        Expect("class P { /// <summary>Taken when its 15th bit is set.</summary>\nint F => 0; }", "('15th bit')");
+        Expect("/// <summary>Room actors draw here without teaching the reusable runtime how to own enemies.</summary>\nclass P { }", "('without teaching')");
+        Expect("class P { /// <summary>It draws the scene, which teaches the landing runtime how to own enemies.</summary>\nvoid Run() { } }",
+            "('teaches the landing runtime how to')");
+        Expect("class P { /// <summary>Keeps the Baby's position instead of inventing an enemy for the Baby.</summary>\nvoid Run() { } }", "('instead of inventing')");
+        Expect("class P { /// <summary>Begins at the first flare rather than invent a static flare.</summary>\nvoid Run() { } }", "('rather than invent')");
+        Expect("class P { /// <summary>The follower reads the parent's visibility switch rather than a signed offset.</summary>\nvoid Run() { } }",
+            "('rather than a signed offset')");
+        Expect("class P { /// <summary>The camera's upward scroller distance in pixels.</summary>\nint F => 0; }", "('scroller distance')");
+        // Main AI, an entry alone, a flag alone, a thing that flips or curls, a bit alone, an Etecoon's teaching hops, a
+        // signed offset alone, the camera's scroll, a line break between ordinary words and a hardware owner are English.
+        Expect("class P { /// <summary>Runs its main AI; the room's entry; a flag; the Pirate flips and the chain curls; a bit\n/// further; the Etecoon's teaching hops; a signed offset; the camera's scroll; a shot\n/// that hits; <see cref=\"Run\"/>.</summary>\nvoid Run() { } }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the AI entry reads the sample's fifteenth bit and the flip flag rather than a signed offset.</summary>\n[CompatibilityService(\"bits\")] class Bits { }");
+        // The original's storage of Samus's speeds, timers, positions and flags, outside hardware owners and markup, read
+        // across a documentation comment's line breaks (#2522): a value's two halves, fraction bits, a negative test, a
+        // wrap to 65535, a position told by its range, a wrapping comparison, a value negated back, an expired timer that
+        // wraps, a flag named for a condition or read as this flag, a list scanned last to first, a value stored as a whole
+        // and a one-shot index.
+        Expect("class P { void Run() { // The landing ends the fall and clears both velocity halves.\n } }", "('both velocity halves')");
+        Expect("class P { /// <summary>Consults the fallback only once both base-speed\n/// halves reach zero.</summary>\nvoid Run() { } }", "('both base-speed halves')");
+        Expect("class P { /// <summary>Erases horizontal base speed and both halves of vertical speed.</summary>\nvoid Run() { } }", "('both halves of vertical speed')");
+        Expect("class P { void Run() { // Once deceleration crosses below zero it clears both halves.\n } }", "('clears both halves')");
+        Expect("class P { void Run() { // The speed halves, truncating its lowest fraction bit.\n } }", "('fraction bit')");
+        Expect("class P { void Run() { // The setup preserves the lower fractional bits of the speed.\n } }", "('fractional bits')");
+        Expect("class P { void Run() { // Which the negative test reads as expired.\n } }", "('negative test')");
+        Expect("class P { void Run() { // Its next decrement wraps to 65535, so the hold lasts longer.\n } }", "('wraps to 65535')");
+        Expect("class P { /// <summary>A wait decremented with a wrap below zero to 65535.</summary>\nint Wait { get; set; } }", "('wrap below zero to 65535')");
+        Expect("class P { /// <summary>Absolute previous whole-pixel Y, 0 through 65535, written this frame.</summary>\nint? PreviousY; }", "('Y, 0 through 65535')");
+        Expect("class P { /// <summary>The enemy's position, from 0 to 65535.</summary>\nint Place; }", "('position, from 0 to 65535')");
+        Expect("class P { void Run() { // The magnitude stays inside the range where the game's wrapping comparison holds.\n } }", "('wrapping comparison')");
+        Expect("class P { void Run() { // The move clamps the magnitude, then negates it back before the room move.\n } }", "('negates it back')");
+        Expect("class P { void Run() { // The upward move temporarily negates the signed result.\n } }", "('temporarily negates')");
+        Expect("class P { void Run() { // The expired timer wraps on the next tick.\n } }", "('expired timer wraps')");
+        Expect("class P { void Run() { // Firing clears the slow-scroll flag.\n } }", "('slow-scroll flag')");
+        Expect("/// <summary>Taken while the grapple's\n/// slow-scrolling flag is set.</summary>\nclass P { }", "('slow-scrolling flag')");
+        Expect("/// <summary>Grapple's narrower water flag stays apart from aerial movement.</summary>\nclass P { }", "('water flag')");
+        Expect("class P { void Run() { // The collision producer sets the enemy's common grapple-response flag.\n } }", "('grapple-response flag')");
+        Expect("class P { /// <summary>Grapple physics reads this\n/// flag during a phase.</summary>\nvoid Run() { } }", "('reads this flag')");
+        Expect("class P { void Run() { // The last step deliberately checks that flag and skips its cleanup.\n } }", "('checks that flag')");
+        Expect("class P { void Run() { // The connections are scanned last to first.\n } }", "('scanned last to first')");
+        Expect("class P { /// <summary>The angle is stored as a whole step of the turn.</summary>\nint Angle; }", "('stored as a whole')");
+        Expect("class P { void Run() { // An item press records a one-shot auto-cancel index.\n } }", "('one-shot auto-cancel index')");
+        // Halves of a picture or a body, a fraction of a pixel, a random sample or frame counter of 0 through 65535, a
+        // count that wraps, a flag alone, an animation played last to first, a whole step of the turn, a negative speed and
+        // a hardware owner are English.
+        Expect("class P { /// <summary>Once both halves of the neck have stopped moving; the door's two halves; a fraction of a pixel; the random\n/// sample, 0 through 65535; the frame counter, 0 through 65535; a count that wraps; a flag; the phases\n/// played last to first; a whole step of the turn; a negative speed; <see cref=\"Run\"/>.</summary>\nvoid Run() { } }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the decrement wraps to 65535, which the negative test reads, and clears both velocity halves.</summary>\n[CompatibilityService(\"halves\")] class Halves { }");
         // The species-owner template on a type that owns no species (#2427), read on the type's own summary; a type that
         // implements or is a species owner's interface owns a species, and an entity's parameter names its owner.
         const string SpeciesOwners = "interface IEnemySpecies { }\ninterface IEnemyEntityFactory { }\n";

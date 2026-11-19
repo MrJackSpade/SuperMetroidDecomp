@@ -22,4 +22,11 @@ public abstract record SpriteDraw
     /// the screen is negative.
     /// </summary>
     public Offset16<ScreenPixels> Origin { get; }
+
+    /// <summary>
+    /// The draw as a frame shows it (#2505): a draw that names its shading as it is, and a draw shown in Samus's colours
+    /// in <paramref name="samusShading"/>, the shading her colours show as the frame publishes.
+    /// </summary>
+    /// <param name="samusShading">The shading Samus's colours show as the frame publishes.</param>
+    internal abstract ImageSpriteDraw Published(PictureShading samusShading);
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
@@ -26,8 +27,8 @@ internal static class IntroProjectileArtworkVerification
         game.Session.Show(intro);
         game.Session.Enter(SuperMetroidGameState.IntroCinematic);
         game.BindArtwork(game.Artwork with { SpriteSheets = InstalledFixtures.SpriteSheets });
-        ImageSpriteDraw Shown(IntroCinematicState scene, SpriteSourceKind kind) =>
-            scene.PrepareMotherBrainSprites().Draws.OfType<ImageSpriteDraw>().Single(draw => draw.Source.Kind == kind);
+        SamusColouredDraw Shown(IntroCinematicState scene, SpriteSourceKind kind) =>
+            scene.PrepareMotherBrainSprites().Draws.OfType<SamusColouredDraw>().Single(draw => draw.Source.Kind == kind);
         SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.IntroProjectiles);
         foreach (ushort family in new ushort[] { 0x10, 0x700 })
         {

@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
-/// <summary>The random field a projectile animation's random choice of its next animation reads.</summary>
+/// <summary>The random chance a projectile animation's random change of its next animation takes.</summary>
 internal static class EnemyProjectileRandomBranchDefinitions
 {
-    /// <summary>The random choice the one-in-four change of animation takes: one of the four quarters of the random number's range.</summary>
-    internal static readonly RandomSampleField OneInFourBranch = new(14, 2);
-
-    /// <summary>The <see cref="OneInFourBranch"/> value that changes the animation: the last of its four.</summary>
-    internal const int OneInFourBranchTaken = 3;
+    /// <summary>
+    /// The one-in-four change of animation (#2510): taken by the top quarter of the random number's range, a sample of
+    /// 49152 or more.
+    /// </summary>
+    internal static readonly RandomChance OneInFourBranch = RandomChance.Highest(1, new RandomSampleField(14, 2));
 }

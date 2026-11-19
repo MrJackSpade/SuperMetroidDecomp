@@ -249,17 +249,11 @@ internal sealed class KraidHead
         rock.StartAnimation(new KraidRockAnimation(KraidRockSegment.SharedPose));
         int random = _access.ReadKraidRandomNumber();
         rock.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole + KraidArenaDefinitions.SpitRockOffset);
-        rock.Velocity = rock.Velocity.WithX(KraidRockLaunchDefinitions.FromRandom(random));
+        rock.Velocity = rock.Velocity.WithX(KraidRockLaunchDefinitions.SpitLaunch.Choose(random));
         rock.Velocity = rock.Velocity.WithY(KraidArenaDefinitions.SpitRockRise);
     }
 
     /// <summary>Derives a thinking delay of one or more 64-update steps from the room RNG; a roll of none takes two.</summary>
-    internal int ReadKraidThinkingTimer()
-    {
-        int random = _room.Random.Read();
-        int steps = KraidRandomDefinitions.ThinkingDelaySteps.Of(random);
-        if (steps == 0)
-            steps = KraidArenaDefinitions.ThinkingDelayStepsOnNoRoll;
-        return steps * KraidArenaDefinitions.ThinkingDelayStepUpdates;
-    }
+    internal int ReadKraidThinkingTimer() =>
+        KraidRandomDefinitions.ThinkingDelaySteps.Choose(_room.Random.Read()) * KraidArenaDefinitions.ThinkingDelayStepUpdates;
 }

@@ -692,47 +692,91 @@ internal sealed class SamusFramePhases
         SamusMovementType movement = SamusPoseMetadata.ReadMovementType(samus.Pose);
         // The special movement type returns before this, and grappling, a compact airborne pose and the unused movement
         // types are owned by their own movers; any other is corrupt pose state.
-        Action<PoseMove> step = PoseMovements.TryGetValue(movement, out Action<PoseMove>? found) ? found
+        SamusPoseMovement step = SamusMovementTypeDefinitions.Movements.TryGetValue(movement, out SamusMovementTypeDefinition? definition)
+            && definition.PoseMovement is { } owned
+            ? owned
             : throw new InvalidDataException(
                 $"Runtime movement step received pose {samus.Pose}, whose movement type {movement} has no movement its pose owns.");
-        step(new PoseMove(samus, room, frame));
+        step.Step(new PoseMoveSteps(this, new PoseMove(samus, room, frame)));
     }
 
-    /// <summary>
-    /// The movement each movement type runs for the pose that owns Samus's movement (#2291), built once; a movement type it
-    /// does not hold has no movement its pose owns.
-    /// </summary>
-    private Dictionary<SamusMovementType, Action<PoseMove>> PoseMovements => field ??= new()
+    /// <summary>The steps of one update's pose movement, against the room and frame it runs in (#2571).</summary>
+    /// <param name="phases">The update's Samus phases, whose clock and actions the steps read.</param>
+    /// <param name="move">What the movement runs against.</param>
+    [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
+    private sealed class PoseMoveSteps(SamusFramePhases phases, PoseMove move) : ISamusPoseMovementSteps
     {
-        [SamusMovementType.Standing] = StepStandingPose,
-        [SamusMovementType.Running] = move => move.Frame.Record(SamusGroundedMovement.StepRunning(move.Level, move.Samus, _clock.Counter, _playerActions.Current, move.RoomObjects)),
-        [SamusMovementType.Moonwalking] = move => move.Frame.Record(SamusGroundedMovement.StepMoonwalking(move.Level, move.Samus, _clock.Counter, move.RoomObjects)),
-        [SamusMovementType.RanIntoWall] = move => move.Frame.Record(SamusGroundedMovement.StepRanIntoWall(move.Level, move.Samus, _clock.Counter, move.RoomObjects)),
-        [SamusMovementType.TurningOnGround] = StepTurningOnGround,
-        [SamusMovementType.TurningWhileJumping] = StepTurningWhileJumpingPose,
-        [SamusMovementType.TurningWhileFalling] = StepTurningInAir,
-        [SamusMovementType.MorphBallGround] = StepMorphBallGrounded,
-        [SamusMovementType.SpringBallGround] = StepMorphBallGrounded,
-        [SamusMovementType.MorphBallFalling] = StepMorphBallFalling,
-        [SamusMovementType.SpringBallFalling] = StepMorphBallFalling,
-        [SamusMovementType.SpringBallInAir] = move => move.Frame.Record(SamusMorphBallMovement.StepSpringBallInAir(move.Level, move.Samus, _playerActions.Current, _clock.Counter, move.RoomObjects)),
-        [SamusMovementType.NormalJumping] = move => move.Frame.Record(SamusAerialMovement.StepNormalJump(move.Level, move.Samus, _playerActions.Current, _clock.Counter, move.RoomObjects)),
-        [SamusMovementType.SpinJumping] = move => move.Frame.Record(SamusAerialMovement.StepSpinJump(move.Level, move.Samus, _playerActions.Current, _clock.Counter, _playerActions.NewlyPressed, move.RoomObjects)),
-        [SamusMovementType.WallJumping] = move => move.Frame.Record(SamusAerialMovement.StepWallJump(move.Level, move.Samus, _playerActions.Current, _clock.Counter, move.RoomObjects)),
-        [SamusMovementType.DamageBoost] = move => move.Frame.Record(SamusAerialMovement.StepDamageBoost(move.Level, move.Samus, _playerActions.Current, _clock.Counter, move.RoomObjects)),
-        [SamusMovementType.Falling] = move => move.Frame.Record(SamusAerialMovement.StepFalling(move.Level, move.Samus, _playerActions.Current, _clock.Counter, move.RoomObjects)),
-        [SamusMovementType.Crouching] = move => move.Frame.Record(SamusPostureMovement.StepCrouching(move.Level, move.Samus, _clock.Counter, move.RoomObjects)),
-        [SamusMovementType.Knockback] = StepKnockbackEndingMovement,
-        [SamusMovementType.PostureTransition] = StepPostureTransitionPose,
-        [SamusMovementType.GlitchBall] = HoldWhereInstalled,
-        // This is the normal step, which only clears the vertical solid-collision result. The actual boss grab keeps Samus
-        // still instead (SamusMovementOwner.DraygonHold). The Draygon-held ball the Hyper Beam freeze installs (#1535) has no
-        // Draygon, so it stays put.
-        [SamusMovementType.DraygonHeld] = move => SamusDraygonGrabbedState.StepMovement(move.Samus),
-        // The glitch-ball knockback's movement type has no movement of its own: once its knockback ends, Samus holds still in
-        // it (#1535).
-        [SamusMovementType.GlitchBallKnockback] = static _ => { },
-    };
+        /// <summary>The update's Samus phases.</summary>
+        private readonly SamusFramePhases _phases = phases;
+
+        /// <summary>What the movement runs against.</summary>
+        private readonly PoseMove _move = move;
+
+        /// <inheritdoc/>
+        public void StepStanding() => _phases.StepStandingPose(_move);
+
+        /// <inheritdoc/>
+        public void StepRunning() => _move.Frame.Record(SamusGroundedMovement.StepRunning(_move.Level, _move.Samus, _phases._clock.Counter, _phases._playerActions.Current, _move.RoomObjects));
+
+        /// <inheritdoc/>
+        public void StepMoonwalking() => _move.Frame.Record(SamusGroundedMovement.StepMoonwalking(_move.Level, _move.Samus, _phases._clock.Counter, _move.RoomObjects));
+
+        /// <inheritdoc/>
+        public void StepRanIntoWall() => _move.Frame.Record(SamusGroundedMovement.StepRanIntoWall(_move.Level, _move.Samus, _phases._clock.Counter, _move.RoomObjects));
+
+        /// <inheritdoc/>
+        public void StepTurningOnGround() => _phases.StepTurningOnGround(_move);
+
+        /// <inheritdoc/>
+        public void StepTurningWhileJumping() => _phases.StepTurningWhileJumpingPose(_move);
+
+        /// <inheritdoc/>
+        public void StepTurningInAir() => _phases.StepTurningInAir(_move);
+
+        /// <inheritdoc/>
+        public void StepMorphBallGrounded() => _phases.StepMorphBallGrounded(_move);
+
+        /// <inheritdoc/>
+        public void StepMorphBallFalling() => _phases.StepMorphBallFalling(_move);
+
+        /// <inheritdoc/>
+        public void StepSpringBallInAir() => _move.Frame.Record(SamusMorphBallMovement.StepSpringBallInAir(_move.Level, _move.Samus, _phases._playerActions.Current, _phases._clock.Counter, _move.RoomObjects));
+
+        /// <inheritdoc/>
+        public void StepNormalJump() => _move.Frame.Record(SamusAerialMovement.StepNormalJump(_move.Level, _move.Samus, _phases._playerActions.Current, _phases._clock.Counter, _move.RoomObjects));
+
+        /// <inheritdoc/>
+        public void StepSpinJump() => _move.Frame.Record(SamusAerialMovement.StepSpinJump(_move.Level, _move.Samus, _phases._playerActions.Current, _phases._clock.Counter, _phases._playerActions.NewlyPressed, _move.RoomObjects));
+
+        /// <inheritdoc/>
+        public void StepWallJump() => _move.Frame.Record(SamusAerialMovement.StepWallJump(_move.Level, _move.Samus, _phases._playerActions.Current, _phases._clock.Counter, _move.RoomObjects));
+
+        /// <inheritdoc/>
+        public void StepDamageBoost() => _move.Frame.Record(SamusAerialMovement.StepDamageBoost(_move.Level, _move.Samus, _phases._playerActions.Current, _phases._clock.Counter, _move.RoomObjects));
+
+        /// <inheritdoc/>
+        public void StepFalling() => _move.Frame.Record(SamusAerialMovement.StepFalling(_move.Level, _move.Samus, _phases._playerActions.Current, _phases._clock.Counter, _move.RoomObjects));
+
+        /// <inheritdoc/>
+        public void StepCrouching() => _move.Frame.Record(SamusPostureMovement.StepCrouching(_move.Level, _move.Samus, _phases._clock.Counter, _move.RoomObjects));
+
+        /// <inheritdoc/>
+        public void StepKnockbackEnding() => _phases.StepKnockbackEndingMovement(_move);
+
+        /// <inheritdoc/>
+        public void StepPostureTransition() => _phases.StepPostureTransitionPose(_move);
+
+        /// <inheritdoc/>
+        public void HoldWhereInstalled() => SamusFramePhases.HoldWhereInstalled(_move);
+
+        /// <inheritdoc/>
+        public void StepDraygonHeld() => SamusDraygonGrabbedState.StepMovement(_move.Samus);
+
+        /// <inheritdoc/>
+        public void HoldStill()
+        {
+        }
+    }
 
     /// <summary>The standing movement type's movement: the forward-facing poses' and the landings' own steps, otherwise standing's.</summary>
     private void StepStandingPose(PoseMove move)

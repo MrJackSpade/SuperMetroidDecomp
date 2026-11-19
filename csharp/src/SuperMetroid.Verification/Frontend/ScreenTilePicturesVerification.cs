@@ -181,10 +181,10 @@ internal static class ScreenTilePicturesVerification
         var audio = AudioQueues.Standalone();
         EndingCreditsState ending = CreateRetailEndingFixture(audio, 10, 59);
         for (int tick = 0; ending.Phase != EndingCreditsPhase.SeeYouNextMission
-            && (afterCredits || ending.Phase < EndingCreditsPhase.Credits); tick++)
+            && (afterCredits || EndingCreditsPhaseOrder.IsBefore(ending.Phase, EndingCreditsPhase.Credits)); tick++)
         {
             // A phase is checked once, so its scene is only built until then, every few updates.
-            if (tick % PhaseSampleUpdates == 0 && (ending.Phase > EndingCreditsPhase.Credits) == afterCredits
+            if (tick % PhaseSampleUpdates == 0 && EndingCreditsPhaseOrder.IsBefore(EndingCreditsPhase.Credits, ending.Phase) == afterCredits
                 && !sampled.Contains($"{ending.Phase}"))
             {
                 LayeredScene scene = EndingCreditsPresentation.CaptureRenderSnapshot(ending);

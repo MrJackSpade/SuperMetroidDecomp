@@ -274,7 +274,7 @@ internal static class EndingPaletteArtworkVerification
 
     /// <summary>
     /// Checks that an ending backdrop document whose space behind the exploding planet lacks a frame's backdrop, or holds a
-    /// channel outside the fade scale, fails to load (#1637).
+    /// colour off the fade scale or not written as <c>#rrggbb</c>, fails to load (#1637, #2564).
     /// </summary>
     /// <param name="installed">The installed ending backdrop directory, whose document each case edits a copy of.</param>
     private static void VerifyEndingBackdropsRejectMalformedSpace(string installed)
@@ -287,7 +287,8 @@ internal static class EndingPaletteArtworkVerification
         try
         {
             Reject(space => space.RemoveAt(space.Count - 1), "an ending backdrop document without a frame's space backdrop");
-            Reject(space => space[0]!["blue"] = FadeLevelColour.FullLevel + 1, "an ending space backdrop channel outside the fade scale");
+            Reject(space => space[0] = "#0000fe", "an ending space backdrop colour off the fade scale");
+            Reject(space => space[0] = "blue", "an ending space backdrop colour not written as #rrggbb");
         }
         finally
         {

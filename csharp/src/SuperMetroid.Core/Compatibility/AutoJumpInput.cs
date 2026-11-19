@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Compatibility;
 /// ordinary input. A shinespark's start and the attract demo reinstate it without the substitution.
 /// </summary>
 /// <remarks>
-/// Evidence: the game's landing and turn transitions install the auto-jump as Samus's input handler, whose next run adds the
-/// Jump press and installs the normal handler again; a recording's import and the showcase comparison read the installed
-/// handler as the game's own state.
+/// Evidence: the game's landing and turn transitions install the auto-jump as Samus's input, whose next run adds the
+/// Jump press and installs her ordinary input again; a recording's import and the showcase comparison read the installed
+/// auto-jump as the game's own state.
 /// Lifetime: Samus's.
 /// </remarks>
 [CompatibilityService("a landing installs the one-shot auto-jump as Samus's pose input for her next update")]

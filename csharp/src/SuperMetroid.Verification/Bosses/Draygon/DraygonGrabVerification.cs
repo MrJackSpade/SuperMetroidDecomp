@@ -87,7 +87,10 @@ internal static class DraygonGrabVerification
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.MovingLeftNormalPose;
         samus.SlowdownLevel = 1;
-        samus.CuePose.Name(pendingPose);
+        if (pendingPose is { } cuePose)
+            samus.CuePose.Name(cuePose);
+        else
+            samus.CuePose.Forget();
         DraygonEnemyState draygon = runtime.Enemies.Draygon
             ?? throw new InvalidOperationException("Draygon's room loads the Draygon encounter.");
         draygon.Phase = DraygonPhase.TryGrabSamus;

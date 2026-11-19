@@ -90,12 +90,12 @@ internal sealed class SamusFramePhases
                 _playerActions.Current,
                 room.RoomObjects,
                 room.Enemies.GrappleTargets.ResolveGrappleEndpoint));
-            grappleOwnsMovement = frame.GrappleMovement.Value.OwnsMovement;
+            grappleOwnsMovement = frame.GrappleMovement is { OwnsMovement: true };
         }
         else if (samus.Grapple.Phase == GrapplePhase.CancelPending)
         {
             frame.Record(SamusGrappleMovement.CompleteFiringCancellation(room.LevelData, samus));
-            grappleOwnsMovement = frame.GrappleMovement.Value.OwnsMovement;
+            grappleOwnsMovement = frame.GrappleMovement is { OwnsMovement: true };
         }
         else if (samus.Grapple.Phase is
             GrapplePhase.ConnectedSwinging or GrapplePhase.ReleaseFromSwing or
@@ -104,7 +104,7 @@ internal sealed class SamusFramePhases
             GrapplePhase.Dropped)
         {
             frame.Record(SamusGrappleMovement.Step(new SamusTerrain { Level = room.LevelData, RoomObjects = room.RoomObjects }, samus, _playerActions.Current, _playerActions.NewlyPressed, room.Enemies.GrappleTargets.ResolveGrappleEndpoint));
-            grappleOwnsMovement = frame.GrappleMovement.Value.OwnsMovement;
+            grappleOwnsMovement = frame.GrappleMovement is { OwnsMovement: true };
         }
         else if (!_freeze.TimeIsFrozen &&
                  SamusGrappleHudInput.IsSelectedAndAdmitted(samus, room.Projectiles.PostureAdmission) &&
@@ -523,7 +523,7 @@ internal sealed class SamusFramePhases
                 frame.Record(samus.CrystalFlash.Step(
                     samus,
                     _clock.Counter));
-                if (frame.CrystalFlashMovement.Value.BubbleStarted)
+                if (frame.CrystalFlashMovement is { BubbleStarted: true })
                 {
                     // Crystal Flash's ending clears its state, copies Samus's raised center into the
                     // shared explosion position, then spawns the Crystal Flash explosion. This movement
@@ -558,7 +558,7 @@ internal sealed class SamusFramePhases
                 // as spark acceleration. The projectile step does not replace it.
                 SamusAerialMovement.ConfigureEnvironmentGravity(samus);
                 frame.Record(samus.Shinespark.Step(new SamusTerrain { Level = room.LevelData, RoomObjects = room.RoomObjects }, samus, new ShinesparkFrame { FrameCounter = _clock.Counter, SamusCannotDie = _assists.Current.SamusCannotDie, Projectiles = room.Projectiles, GameTimeFrames = _gameTime.Frames, PreviousCheckpoint = frame.PreviousCameraPoint }));
-                if (frame.ShinesparkMovement.Value.WindupTimedOut)
+                if (frame.ShinesparkMovement is { WindupTimedOut: true })
                 {
                     // The spark publishes an interrupted vertical pose. That
                     // priority beats an ordinary input transition sampled from the shinespark windup poses

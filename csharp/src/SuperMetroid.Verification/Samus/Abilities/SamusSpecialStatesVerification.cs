@@ -536,7 +536,7 @@ internal static void VerifySamusXray()
     AssertTrue(!standing.Xray.IsActive && !standing.Xray.TimeIsFrozen,
         "X-ray teardown restores time and handlers");
     AssertEqual(SamusPoseId.FacingLeftNormalPose, standing.Pose, "left X-ray exits to ordinary standing");
-    AssertEqual(XrayVisorShadeMode.RestoreSuitShade, standing.Xray.VisorShadeMode,
+    AssertEqual(XrayVisorShadeMode.TornDown, standing.Xray.VisorShadeMode,
         "X-ray teardown requests palette restoration");
     AssertEqual(1, standing.AudioRequests.CountOf(SamusSound.XrayEnd), "X-ray teardown queues its sound once");
     AssertTrue(standing.Xray.UpdateColouring(xrayColours, standing.EquippedItems),

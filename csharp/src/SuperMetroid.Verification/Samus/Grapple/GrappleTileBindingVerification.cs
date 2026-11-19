@@ -56,7 +56,7 @@ internal static class GrappleTileBindingVerification
         static void AssertBoundTo(SuperMetroidRuntime target, InstalledSpriteSheets sheets, string context)
         {
             target.Sprites.BeginFrame();
-            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, target.Player.IntroducedSamus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold);
+            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, target.Player.IntroducedSamus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold, deathStep: null);
             target.Sprites.FinalizeFrame();
             SpriteDraw[] grappleDraws = [.. target.Sprites.Draws
                 .Where(draw => draw.Source.Kind is SpriteSourceKind.SamusGrappleEndpoint or SpriteSourceKind.SamusGrappleRope)];

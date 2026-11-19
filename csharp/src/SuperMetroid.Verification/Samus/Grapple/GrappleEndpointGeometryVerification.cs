@@ -83,7 +83,7 @@ internal static class GrappleEndpointGeometryVerification
             samus.Grapple.FlareOrigin = samus.Grapple.FlareOrigin.WithX(samus.Position.X.Whole);
             samus.Grapple.FlareOrigin = samus.Grapple.FlareOrigin.WithY(samus.Position.Y.Whole);
             runtime.Sprites.BeginFrame();
-            runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, runtime.Player.IntroducedSamus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold);
+            runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, runtime.Player.IntroducedSamus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold, deathStep: null);
             runtime.Sprites.FinalizeFrame();
             SamusColouredDraw[] endpoints = [.. runtime.Sprites.Draws.Where(draw => draw.Source.Kind == SpriteSourceKind.SamusGrappleEndpoint).Cast<SamusColouredDraw>()];
             // The endpoint just above the view is published in every pose; the display clips it (#1541).

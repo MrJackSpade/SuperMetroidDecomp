@@ -320,7 +320,7 @@ public sealed class SamusHorizontalSpeedState
     {
         Ensure.NotNull(colours);
 
-        bool shadeCopied = ApplyPendingSuitShadeRestore(colours, frame.EquippedItems);
+        bool shadeCopied = ShowDueSuitShade(colours, frame.EquippedItems);
         SamusSuit suit = frame.EquippedItems.ShownSuit();
 
         // The stored shine's and the shinespark's suit colourings take priority. Cancellation's

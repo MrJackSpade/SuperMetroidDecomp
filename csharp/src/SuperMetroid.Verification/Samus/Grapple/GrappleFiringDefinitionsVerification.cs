@@ -160,7 +160,7 @@ internal static class GrappleFiringDefinitionsVerification
             samus.Pose = sourcePose = movementPoses[movement];
             samus.Artwork.Body = SamusGraphicsOffsetFixture(127).Gameplay;
             samus.Position = samus.Position.WithWhole(new(coordinate, coordinate));
-            samus.Kinematics.YSpeed = default;
+            samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.Stopped();
             grapple.FireDirection = (SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)direction;
             grapple.Anchor = grapple.Anchor.WithX(unchecked((ushort)(coordinate + 24)));
             grapple.Anchor = grapple.Anchor.WithY(unchecked((ushort)(coordinate + 8)));

@@ -124,10 +124,10 @@ internal static void VerifySamusCrystalFlash()
     AssertTrue(!samus.CrystalFlash.TryBegin(samus, chord | GameplayAction.Jump),
         "Crystal Flash rejects extra held input");
     AssertEqual(96, samus.InvincibilityTimer.RawValue, "rejected Crystal Flash preserves hit immunity");
-    samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithFraction(1);
+    samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(samus.Kinematics.VerticalVelocity.Speed.WithFraction(1));
     AssertTrue(!samus.CrystalFlash.TryBegin(samus, chord),
         "Crystal Flash rejects fractional vertical movement");
-    samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithFraction(0);
+    samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(samus.Kinematics.VerticalVelocity.Speed.WithFraction(0));
     AssertTrue(samus.CrystalFlash.TryBegin(samus, chord),
         "Crystal Flash accepts exact chord and resources");
     AssertEqual(0, samus.InvincibilityTimer.RawValue, "Crystal Flash activation clears native hit immunity");
@@ -622,7 +622,7 @@ internal static void VerifySamusXray()
         var sample = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = pose };
         SamusPoseMetadata.RefreshCollisionRadii(sample);
         SamusPresentation.InitializeAnimation(sample);
-        sample.Kinematics.YSpeed = new UnsignedSixteenSixteen(ySpeed, ySubspeed);
+        sample.Kinematics.VerticalVelocity = sample.Kinematics.VerticalVelocity.WithSpeed(new UnsignedSixteenSixteen(ySpeed, ySubspeed));
         return sample;
     }
 

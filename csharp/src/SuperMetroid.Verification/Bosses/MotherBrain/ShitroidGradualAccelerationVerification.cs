@@ -72,10 +72,10 @@ internal static class ShitroidGradualAccelerationVerification
             shitroid.FrameCounter = 0;
             samus.Health = 500;
             samus.Position = samus.Position.WithWhole(new(0x01c3, 0x00b9));
-            samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(ySpeed);
+            samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(samus.Kinematics.VerticalVelocity.Speed.WithWhole(ySpeed));
             runtime.Enemies.ShitroidBehavior.RunShitroidMain(shitroid, samus, new Position16<RoomPixels>(0x0158, 0x0000), runtime.BombProjectiles);
             AssertEqual(expectedX, shitroid.Position.X.Whole, $"Y speed {ySpeed}: the drain's X add takes CMP #4's carry");
-            AssertEqual(expectedSpeed, samus.Kinematics.YSpeed.Whole, $"Y speed {ySpeed}: the drain clamps only speeds of 4 or more");
+            AssertEqual(expectedSpeed, samus.Kinematics.VerticalVelocity.Speed.Whole, $"Y speed {ySpeed}: the drain clamps only speeds of 4 or more");
         }
         Console.WriteLine("Shitroid drain carry: a Y speed of 4 or more adds one pixel to the latched X.");
     }

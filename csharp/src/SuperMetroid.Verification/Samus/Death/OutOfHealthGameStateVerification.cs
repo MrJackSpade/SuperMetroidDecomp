@@ -419,7 +419,7 @@ internal static class OutOfHealthGameStateVerification
             game.Step(0);
             AssertTrue(++landing < 120, "Samus lands on the elevator");
         }
-        while (!samus.Kinematics.YSpeed.IsZero || landing < 4);
+        while (!samus.Kinematics.VerticalVelocity.Speed.IsZero || landing < 4);
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the dormant shaft keeps Samus in main gameplay");
         AssertTrue(samus.Position.Y.Whole is >= 75 and < 128 && samus.Position.X.Whole is > 112 and <= 144,
             $"Samus stands inside the elevator's trigger at {samus.Position.Whole}");

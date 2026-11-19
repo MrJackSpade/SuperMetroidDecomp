@@ -1,8 +1,10 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>
-/// An unsigned 16.16 fixed-point speed kept as its two halves: a whole part and a fraction, each 0 through 65535.
-/// Samus's speeds are magnitudes in this form; their direction is held separately.
+/// An unsigned 16.16 fixed-point speed kept as its two halves: a whole part and a fraction, each 0 through 65535. It is how
+/// fast something moves, never which way: a velocity type gives a speed its direction (Samus's vertical velocity,
+/// <see cref="Samus.Movement.SamusVerticalVelocity"/>, and her running speed taken toward her side), and how a speed slowed
+/// past zero reads is <see cref="SamusSpeedMagnitude"/>'s.
 /// </summary>
 [EncodingOwner("unsigned 16.16 fixed-point number")]
 public readonly record struct UnsignedSixteenSixteen
@@ -112,8 +114,8 @@ public readonly record struct UnsignedSixteenSixteen
 
     /// <summary>
     /// Subtracts two values: a fraction that drops below zero borrows one from the whole part, and the whole part wraps
-    /// at sixteen bits, so a speed slowed past zero holds a whole part of 32768 or more, which the game's sign tests read as
-    /// having passed zero.
+    /// at sixteen bits, so a speed slowed past zero holds a whole part of 32768 or more, which reads as having passed zero
+    /// (<see cref="SamusSpeedMagnitude.HasPassedZero"/>).
     /// </summary>
     public static UnsignedSixteenSixteen operator -(UnsignedSixteenSixteen left, UnsignedSixteenSixteen right) =>
         FromRaw(unchecked(left.RawValue - right.RawValue));

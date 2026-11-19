@@ -194,7 +194,7 @@ internal static void VerifySamusRenderingSlice()
     SeedForwardFacingSamusData(bus);
     samus.EquippedItems = 0;
     samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(3);
-    samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(2);
+    samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(samus.Kinematics.VerticalVelocity.Speed.WithWhole(2));
     samus.PoseHistory.Restore(SamusPoseId.SpinJumpRightPose, SamusMovementType.SpinJumping, SamusMovementType.WallJumping);
     // A $18 live radius takes MakeSamusFaceForward's no-lift branch, so the drawing
     // checks below keep Samus at the seeded Y.
@@ -215,7 +215,7 @@ internal static void VerifySamusRenderingSlice()
     AssertEqual(radiusBeforeForwardSetup, samus.Kinematics.Radius.Y, "forward setup leaves the live radius");
     AssertEqual(8, samus.AnimationFrameTimer.RawValue, "power forward setup reads delay eight");
     AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Whole, "forward setup clears base X speed");
-    AssertEqual(0, samus.Kinematics.YSpeed.Whole, "forward setup clears Y speed");
+    AssertEqual(0, samus.Kinematics.VerticalVelocity.Speed.Whole, "forward setup clears Y speed");
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.DrawWithoutFlicker(samus, oamFrame, cameraPosition: new(0x0400, 0));

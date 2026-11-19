@@ -375,9 +375,9 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             Check("Samus base fraction", samus.HorizontalSpeed.BaseSpeed.Fraction, NativeSnapshotMemory.BaseFraction);
             Check("Samus extra speed", samus.HorizontalSpeed.ExtraRunSpeed.Whole, NativeSnapshotMemory.ExtraSpeed);
             Check("Samus extra fraction", samus.HorizontalSpeed.ExtraRunSpeed.Fraction, NativeSnapshotMemory.ExtraFraction);
-            Check("Samus vertical speed", samus.Kinematics.YSpeed.Whole, NativeSnapshotMemory.VerticalSpeed);
-            Check("Samus vertical fraction", samus.Kinematics.YSpeed.Fraction, NativeSnapshotMemory.VerticalFraction);
-            Check("Samus vertical direction", SamusVerticalDirectionCodec.ToNative(samus.Kinematics.YDirection), NativeSnapshotMemory.VerticalDirection);
+            Check("Samus vertical speed", samus.Kinematics.VerticalVelocity.Speed.Whole, NativeSnapshotMemory.VerticalSpeed);
+            Check("Samus vertical fraction", samus.Kinematics.VerticalVelocity.Speed.Fraction, NativeSnapshotMemory.VerticalFraction);
+            Check("Samus vertical direction", SamusVerticalDirectionCodec.ToNative(samus.Kinematics.VerticalVelocity.Direction), NativeSnapshotMemory.VerticalDirection);
             Check("Samus SamusXRadius", samus.Kinematics.Radius.X, NativeSnapshotMemory.SamusXRadius);
             Check("Samus SamusYRadius", samus.Kinematics.Radius.Y, NativeSnapshotMemory.SamusYRadius);
             Check("Samus Gravity", samus.Kinematics.YAcceleration.Whole, NativeSnapshotMemory.Gravity);

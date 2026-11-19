@@ -137,9 +137,9 @@ internal static class RoomObjectPopulationVerification
                 DestinationScreen: new(0, 0),
                 SamusSpeed: DoorSamusSpeed.None,
                 Setup: DoorSetupDefinitions.None);
-            int placedBefore = roomObjects.PopulationPlaces.Count();
+            int placedBefore = roomObjects.PopulationPlaces.Count;
             roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, door);
-            bool spawned = roomObjects.PopulationPlaces.Count() > placedBefore;
+            bool spawned = roomObjects.PopulationPlaces.Count > placedBefore;
             AssertEqual(expectedHeader != 0, spawned,
                 $"door-closing direction {direction} fallback admission matches cartridge");
             if (expectedHeader == 0)

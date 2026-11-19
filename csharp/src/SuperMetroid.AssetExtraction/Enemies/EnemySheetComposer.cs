@@ -25,6 +25,9 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 internal static class EnemySheetComposer
 {
+    /// <summary>The enemies in the order a sheet appends those its set does not load (#2567), each listed once.</summary>
+    private static readonly IReadOnlyList<EnemyDefinitionId> AppendedOrder = Ensure.EveryMemberOnce(EnemyDefinitionIdKeys.ListedOrder);
+
     /// <summary>The byte of the OBJ character table the enemy tile region begins at.</summary>
     private const int EnemyRegionTableByte = EncounterCharacterPlacementDefinitions.EnemyTileAreaFirstCharacter * SpriteCharacterTableLayout.CharacterByteCount;
 
@@ -428,14 +431,21 @@ internal static class EnemySheetComposer
     {
         // A record loading artwork for no enemy draws nothing (#1686); only the set's enemies are drawn under it.
         List<EnemyDefinitionId> members = [.. layout.Members.Select(member => member.DefinitionId).OfType<EnemyDefinitionId>()];
-        IEnumerable<EnemyDefinitionId> placed = StatesOf(set)
+        IEnumerable<EnemyDefinitionId> placed = InAppendedOrder(StatesOf(set)
             .SelectMany(state => state.EnemyPopulation.Placements.Span.SelectToArray(record => record.DefinitionId))
-            .Except(members).Distinct().Order();
+            .Except(members));
         EnemyDefinitionId[] loaded = [.. members, .. placed];
         // An encounter's own spawns, such as Mother Brain's tubes and the Baby, draw under the set its spawner loads.
-        EnemyDefinitionId[] spawned = [.. loaded.SelectMany(enemy => EncounterSpawnedEnemyDefinitions.BySpawner.GetValueOrDefault(enemy, []))
-            .Except(loaded).Distinct().Order()];
+        EnemyDefinitionId[] spawned = [.. InAppendedOrder(loaded.SelectMany(enemy => EncounterSpawnedEnemyDefinitions.BySpawner.GetValueOrDefault(enemy, []))
+            .Except(loaded))];
         return [.. loaded, .. spawned];
+    }
+
+    /// <summary>Each of <paramref name="enemies"/> once, in <see cref="AppendedOrder"/>.</summary>
+    private static IEnumerable<EnemyDefinitionId> InAppendedOrder(IEnumerable<EnemyDefinitionId> enemies)
+    {
+        HashSet<EnemyDefinitionId> appended = [.. enemies];
+        return AppendedOrder.Where(appended.Contains);
     }
 
     /// <summary>

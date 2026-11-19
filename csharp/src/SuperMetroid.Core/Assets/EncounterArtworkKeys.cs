@@ -16,4 +16,15 @@ internal static class EncounterArtworkKeys
         [EncounterArtwork.CeresElevatorDoor] = "CeresElevatorDoor",
         [EncounterArtwork.CeresEscape] = "CeresEscape",
     });
+
+    /// <summary>The EncounterArtwork members in the order the installation lists them (#2567), written out beside the keys so reordering the members never reorders an installed sheet or document.</summary>
+    internal static IReadOnlyList<EncounterArtwork> ListedOrder { get; } =
+    [
+        EncounterArtwork.Gunship,
+        EncounterArtwork.Crocomire,
+        EncounterArtwork.BombTorizo,
+        EncounterArtwork.GoldenTorizo,
+        EncounterArtwork.CeresElevatorDoor,
+        EncounterArtwork.CeresEscape,
+    ];
 }

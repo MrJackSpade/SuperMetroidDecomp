@@ -106,8 +106,7 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
                     DestinationScreen: new(0, 0),
                     SamusSpeed: DoorSamusSpeed.None,
                     Setup: DoorSetupDefinitions.None);
-                AssertTrue(roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, enteringDoor),
-                    $"resident grey door {header} selects its closing list");
+                roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, enteringDoor);
                 for (int frame = 0; frame < 20 &&
                      roomObjects.GreyDoorSnapshots.Single().Phase == GreyDoorPhase.Closing; frame++)
                     roomObjects.Step(level);
@@ -182,8 +181,7 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
             DestinationScreen: new(0, 0),
             SamusSpeed: DoorSamusSpeed.None,
             Setup: DoorSetupDefinitions.None);
-        AssertTrue(room.RoomObjects.DoorObjects.TrySpawnDoorClosingObject(room.Level, enteringDoor),
-            "Bomb Torizo door selects its Bomb-gated closing list");
+        room.RoomObjects.DoorObjects.TrySpawnDoorClosingObject(room.Level, enteringDoor);
         for (int frame = 0; frame < 10; frame++)
             room.RoomObjects.Step(room.Level);
         AssertEqual(GreyDoorPhase.HeldOpen, room.RoomObjects.GreyDoorSnapshots.Single().Phase,

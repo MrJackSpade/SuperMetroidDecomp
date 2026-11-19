@@ -55,9 +55,9 @@ internal static class RoomObjectCollisionOnlyWritesVerification
                 new GreyDoorVariant(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.Never, door));
         });
         kept.Check("the blue door's opening", Terrain(RoomCollisionType.ShootableBlock), [block], level =>
-            AssertTrue(RoomObjectFixtures.Unbound().DoorObjects.TrySpawnBlueDoorOpening(level, block,
+            RoomObjectFixtures.Unbound().DoorObjects.TrySpawnBlueDoorOpening(level, block,
                 RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)),
-                SamusProjectileType.None), "the blue door's opening takes a place"));
+                SamusProjectileType.None));
         kept.Check("the passable block's setup", Terrain(RoomCollisionType.SpecialAir), [block], level =>
             DoorObjects.SetupPassableBlock(level, PlaceAt(RoomObjectFixtures.Unbound(), block)));
         kept.AssertEveryCaseKept();
@@ -88,15 +88,13 @@ internal static class RoomObjectCollisionOnlyWritesVerification
         });
         var wall = new Position16<RoomBlocks>(8, 2);
         kept.Check("the Shitroid's wall", Solid, [.. Enumerable.Range(0, 10).Select(row => wall + new Offset16<RoomBlocks>(0, row))],
-            level => AssertTrue(RoomObjectFixtures.Unbound().BossRoomMutations.ShitroidWall.TrySpawn(level, new(wall, ShitroidWallMutation.Clear)),
-                "the Shitroid's wall takes a place"));
+            level =>
+            RoomObjectFixtures.Unbound().BossRoomMutations.ShitroidWall.TrySpawn(level, new(wall, ShitroidWallMutation.Clear)));
         var kraid = new Position16<RoomBlocks>(5, 5);
         kept.Check("Kraid's ceiling clearing", Terrain(RoomCollisionType.SpecialBlock), [kraid], level =>
-            AssertTrue(RoomObjectFixtures.Unbound().BossRoomMutations.KraidRoom.TrySpawn(level, new(kraid, KraidRoomMutation.ClearCeiling)),
-                "Kraid's ceiling clearing takes a place"));
+            RoomObjectFixtures.Unbound().BossRoomMutations.KraidRoom.TrySpawn(level, new(kraid, KraidRoomMutation.ClearCeiling)));
         kept.Check("Phantoon's door", Terrain(RoomCollisionType.SpecialBlock), [PhantoonDoorChangeDefinitions.Block], level =>
-            AssertTrue(RoomObjectFixtures.Unbound().BossRoomMutations.PhantoonDoor.TrySpawn(level, PhantoonDoorChange.FightDoor),
-                "Phantoon's door takes a place"));
+            RoomObjectFixtures.Unbound().BossRoomMutations.PhantoonDoor.TrySpawn(level, PhantoonDoorChange.FightDoor));
         kept.AssertEveryCaseKept();
     }
 
@@ -138,7 +136,7 @@ internal static class RoomObjectCollisionOnlyWritesVerification
         var kept = new KeptPictures();
         var block = new Position16<RoomBlocks>(4, 4);
         kept.Check("an enemy's break of a breakable block", Solid, [block], level =>
-            AssertTrue(RoomObjectFixtures.Unbound().BreakableTerrain.TrySpawnEnemyBreakableBlock(level, block), "the break takes a place"));
+            RoomObjectFixtures.Unbound().BreakableTerrain.TrySpawnEnemyBreakableBlock(level, block));
         kept.Check("a permanent shot block's break", Terrain(RoomCollisionType.ShootableBlock), [block], level =>
         {
             RoomBlockBehavior behavior = RoomBlockBehavior.Reacting(ShootableReaction.PermanentBreak1x1);

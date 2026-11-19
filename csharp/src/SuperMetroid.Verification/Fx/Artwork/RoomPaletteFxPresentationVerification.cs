@@ -117,7 +117,7 @@ internal static class RoomPaletteFxPresentationVerification
                 .ToArray() }, TourianStatueGreyPaletteFxColorDefinitions.FramesThroughDeletion));
         {
             CrateriaLightningPaletteFxColorDefinition definition = CrateriaLightningPaletteFxColorDefinitions.Surface;
-            VerifyInstalledPaletteFxFamily(bus, presentation, "Crateria surface lightning", new PaletteFxFamilyShape { FrameCount = definition.Frames.Count, ColorsPerFrame = definition.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [CrateriaLightningPaletteFxColorDefinition.DefinitionPointer] }, definition.CycleFrames * 2, CrateriaLightningDefinitions.SamusHighOnSurfaceHeight);
+            VerifyInstalledPaletteFxFamily(bus, presentation, "Crateria surface lightning", new PaletteFxFamilyShape { FrameCount = definition.Frames.Count, ColorsPerFrame = definition.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [CrateriaLightningPaletteFxColorDefinition.DefinitionPointer] }, CrateriaLightningPaletteFxColorDefinition.CycleFrames * 2, CrateriaLightningDefinitions.SamusHighOnSurfaceHeight);
         }
         Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "Ceres gunship-engine lights", new PaletteFxFamilyShape { FrameCount = CeresCinematicLightPaletteFxColorDefinitionsConstants.GunshipEngineFrameCount, ColorsPerFrame = CeresCinematicLightPaletteFxColorDefinitions
                 .GunshipEngineColorsPerFrame, ColorPointer = CeresCinematicLightPaletteFxColorDefinitions

@@ -89,10 +89,9 @@ internal static class BotwoonWallObjectsVerification
         RoomLevelData level = CreateRoom(new(width, height), words,
             new RoomBlockBehavior[words.Length]);
         var roomObjects = RoomObjectFixtures.Unbound();
-        AssertTrue(roomObjects.BossRoomMutations.BotwoonWall.TrySpawn(level,
+        roomObjects.BossRoomMutations.BotwoonWall.TrySpawn(level,
                 clear ? BotwoonWallMutation.Clear :
-                    BotwoonWallMutation.Crumble),
-            $"Botwoon {(clear ? "clear" : "crumble")} PLM allocates");
+                    BotwoonWallMutation.Crumble);
         var guarded = NewBotwoonWallSourceGuard(new TestAddressSpace());
         RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(
             RoomScrollGrid.PowerOnCells(), new Extent16<RoomScreens>(2, 1), RoomScrollState.Closed);

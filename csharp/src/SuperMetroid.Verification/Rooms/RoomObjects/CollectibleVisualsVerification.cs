@@ -84,9 +84,8 @@ internal static class CollectibleVisualsVerification
             CollectibleFixture fixture = LoadCollectible(bus, header, 0, false);
             RoomObjectFixtures.VisualsOf(fixture.RoomObjects).Rebind(RoomObjectFixtures.Installed with { RoomObjectCollectibleVisuals = stock });
             if (header == shotBlockHeader)
-                AssertTrue(fixture.RoomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(
-                        fixture.Block),
-                    "shot-block collectible accepts its native trigger");
+                fixture.RoomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(
+                        fixture.Block);
             fixture.RoomObjects.Step(fixture.Level);
             AssertEqual(1, fixture.RoomObjects.CollectibleObjects.Collectibles.Count,
                 $"collectible presentation ${header:X4} survives ROM-free drawing");

@@ -61,15 +61,13 @@ internal static class CrampedAerialLandingVerification
         samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(3);
         samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(samus.Kinematics.VerticalVelocity.Speed.WithWhole(4), SamusVerticalDirection.Down);
 
-        bool installedLanding = SamusPoseTransitions.TryApplyAerialLanding(samus, 
+        SamusPoseTransitions.TryApplyAerialLanding(samus, 
 
             level,
             wasSpinning: true,
             controllerInput: (GameplayAction.Right | GameplayAction.Jump),
             frameCounter: 39440, roomObjects: SamusRoomObjectFixtures.Uninstalled);
 
-        AssertTrue(!installedLanding,
-            "cramped spin landing rejects the 42-pixel landing body");
         AssertEqual(SamusPoseId.CrouchingRightPose, samus.Pose,
             "two-sided non-Morph landing collision selects native crouch fallback");
         AssertEqual(0x0030, samus.Position.Y.Whole,

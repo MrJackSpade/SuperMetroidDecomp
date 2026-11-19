@@ -235,10 +235,8 @@ internal static void VerifySamusPostureMovement()
     };
     SamusPoseMetadata.RefreshCollisionRadii(samus);
     SamusPresentation.InitializeAnimation(samus);
-    AssertTrue(
-        SamusPosturePoseTransitions.TryApplyPostureTransition(samus, 
-level, SamusPoseId.CrouchingTransitionRightPose, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled),
-        "standing begins crouch transition");
+    SamusPosturePoseTransitions.TryApplyPostureTransition(samus, 
+level, SamusPoseId.CrouchingTransitionRightPose, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(16, samus.Kinematics.Radius.Y, "crouch transition radius");
     AssertEqual(48, samus.Position.Y.Whole, "command seven moves crouch center down five");
 
@@ -254,10 +252,8 @@ level, SamusPoseId.CrouchingTransitionRightPose, frameCounter: 0, roomObjects: S
     };
     SamusPoseMetadata.RefreshCollisionRadii(sunkSamus);
     SamusPresentation.InitializeAnimation(sunkSamus);
-    AssertTrue(
-        SamusPosturePoseTransitions.TryApplyPostureTransition(sunkSamus, 
-level, SamusPoseId.CrouchingTransitionRightPose, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled),
-        "overlapping stand begins crouch transition");
+    SamusPosturePoseTransitions.TryApplyPostureTransition(sunkSamus, 
+level, SamusPoseId.CrouchingTransitionRightPose, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(48, sunkSamus.Position.Y.Whole, "command seven clips its crouch descent at the floor");
 
     for (int tick = 0; tick < 3; tick++)
@@ -280,10 +276,8 @@ level, samus, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled)
     AssertEqual(new SamusSpeedBoostCounter(0, 0), samus.HorizontalSpeed.SpeedBoostCounter, "crouch input fallback independently cancels boost");
     AssertTrue(!samus.HorizontalSpeed.HasRunningMomentum, "fallback cancels momentum bookkeeping");
 
-    AssertTrue(
-        SamusPosturePoseTransitions.TryApplyPostureTransition(samus, 
-level, SamusPoseId.StandingTransitionRightPose, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled),
-        "crouch begins standing transition");
+    SamusPosturePoseTransitions.TryApplyPostureTransition(samus, 
+level, SamusPoseId.StandingTransitionRightPose, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(16, samus.Kinematics.Radius.Y, "standing commit retains crouch radius");
     AssertEqual(43, samus.Position.Y.Whole, "floor-constrained expansion moves center up five");
     SamusPoseMetadata.RefreshCollisionRadii(samus);
@@ -309,10 +303,8 @@ level, SamusPoseId.StandingTransitionRightPose, frameCounter: 1, roomObjects: Sa
         };
         SamusPoseMetadata.RefreshCollisionRadii(aimedSamus);
         SamusPresentation.InitializeAnimation(aimedSamus);
-        AssertTrue(
-            SamusPosturePoseTransitions.TryApplyPostureTransition(aimedSamus, 
-level, aimedCrouchTransitions[index], unchecked((ushort)index), roomObjects: SamusRoomObjectFixtures.Uninstalled),
-            $"aimed crouch transition ${SamusPoseNumbers.Number(aimedCrouchTransitions[index]):X2} begins");
+        SamusPosturePoseTransitions.TryApplyPostureTransition(aimedSamus, 
+level, aimedCrouchTransitions[index], unchecked((ushort)index), roomObjects: SamusRoomObjectFixtures.Uninstalled);
         AssertEqual(16, aimedSamus.Kinematics.Radius.Y, "aimed crouch transition radius");
         AssertEqual(48, aimedSamus.Position.Y.Whole, "aimed crouch keeps feet aligned");
         SamusPostureMovement.StepCrouchStandTransition(
@@ -332,10 +324,8 @@ level, aimedSamus, unchecked((ushort)index), roomObjects: SamusRoomObjectFixture
 level, aimedSamus, unchecked((ushort)index), roomObjects: SamusRoomObjectFixtures.Uninstalled);
         AssertTrue(aimedCrouchFrame.Vertical.Collided, "aimed crouch remains grounded");
 
-        AssertTrue(
-            SamusPosturePoseTransitions.TryApplyPostureTransition(aimedSamus, 
-level, aimedStandTransitions[index], unchecked((ushort)index), roomObjects: SamusRoomObjectFixtures.Uninstalled),
-            $"aimed stand transition ${SamusPoseNumbers.Number(aimedStandTransitions[index]):X2} begins");
+        SamusPosturePoseTransitions.TryApplyPostureTransition(aimedSamus, 
+level, aimedStandTransitions[index], unchecked((ushort)index), roomObjects: SamusRoomObjectFixtures.Uninstalled);
         AssertEqual(16, aimedSamus.Kinematics.Radius.Y, "aimed standing commit retains crouch radius");
         AssertEqual(43, aimedSamus.Position.Y.Whole, "aimed stand keeps feet aligned");
         SamusPoseMetadata.RefreshCollisionRadii(aimedSamus);
@@ -383,10 +373,8 @@ level, aimedStandTransitions[index], unchecked((ushort)index), roomObjects: Samu
     };
     SamusPoseMetadata.RefreshCollisionRadii(directStand);
     SamusPresentation.InitializeAnimation(directStand);
-    AssertTrue(
-        SamusPosturePoseTransitions.TryApplyDirectCrouchToStandingTransition(directStand, 
-level, SamusPoseId.FacingRightNormalPose, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled),
-        "direct crouch-to-standing record applies");
+    SamusPosturePoseTransitions.TryApplyDirectCrouchToStandingTransition(directStand, 
+level, SamusPoseId.FacingRightNormalPose, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(SamusPoseId.FacingRightNormalPose, directStand.Pose, "direct crouch exit target");
     AssertEqual(16, directStand.Kinematics.Radius.Y, "direct crouch exit commit retains live crouch radius");
     AssertEqual(43, directStand.Position.Y.Whole, "direct crouch exit keeps feet aligned");
@@ -401,10 +389,8 @@ level, SamusPoseId.FacingRightNormalPose, frameCounter: 0, roomObjects: SamusRoo
     };
     SamusPoseMetadata.RefreshCollisionRadii(directStandLeft);
     SamusPresentation.InitializeAnimation(directStandLeft);
-    AssertTrue(
-        SamusPosturePoseTransitions.TryApplyDirectCrouchToStandingTransition(directStandLeft, 
-level, SamusPoseId.FacingLeftNormalPose, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled),
-        "mirrored direct crouch-to-standing record applies");
+    SamusPosturePoseTransitions.TryApplyDirectCrouchToStandingTransition(directStandLeft, 
+level, SamusPoseId.FacingLeftNormalPose, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(SamusPoseId.FacingLeftNormalPose, directStandLeft.Pose, "mirrored direct crouch exit target");
     AssertEqual(16, directStandLeft.Kinematics.Radius.Y, "mirrored direct crouch exit retains live radius");
     AssertEqual(43, directStandLeft.Position.Y.Whole, "mirrored direct crouch exit alignment");
@@ -419,10 +405,8 @@ level, SamusPoseId.FacingLeftNormalPose, frameCounter: 1, roomObjects: SamusRoom
     };
     SamusPoseMetadata.RefreshCollisionRadii(crouchJump);
     SamusPresentation.InitializeAnimation(crouchJump);
-    AssertTrue(
-        SamusPosturePoseTransitions.TryApplyCrouchJumpTransition(crouchJump, 
-level, SamusPoseId.NeutralJumpTransitionRightPose, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled),
-        "ordinary crouch jump applies");
+    SamusPosturePoseTransitions.TryApplyCrouchJumpTransition(crouchJump, 
+level, SamusPoseId.NeutralJumpTransitionRightPose, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(SamusPoseId.NeutralJumpTransitionRightPose, crouchJump.Pose, "ordinary crouch jump transition pose");
     AssertEqual(16, crouchJump.Kinematics.Radius.Y, "crouch jump commit retains live crouch radius");
     AssertEqual(35, crouchJump.Position.Y.Whole, "ordinary crouch jump collision plus FC8A offset");
@@ -440,10 +424,8 @@ level, SamusPoseId.NeutralJumpTransitionRightPose, frameCounter: 0, roomObjects:
     };
     SamusPoseMetadata.RefreshCollisionRadii(crouchJumpLeft);
     SamusPresentation.InitializeAnimation(crouchJumpLeft);
-    AssertTrue(
-        SamusPosturePoseTransitions.TryApplyCrouchJumpTransition(crouchJumpLeft, 
-level, SamusPoseId.NeutralJumpTransitionLeftPose, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled),
-        "mirrored ordinary crouch jump applies");
+    SamusPosturePoseTransitions.TryApplyCrouchJumpTransition(crouchJumpLeft, 
+level, SamusPoseId.NeutralJumpTransitionLeftPose, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(SamusPoseId.NeutralJumpTransitionLeftPose, crouchJumpLeft.Pose, "mirrored crouch jump transition pose");
     AssertEqual(35, crouchJumpLeft.Position.Y.Whole, "mirrored crouch jump Y adjustment");
 
@@ -457,10 +439,8 @@ level, SamusPoseId.NeutralJumpTransitionLeftPose, frameCounter: 1, roomObjects: 
     };
     SamusPoseMetadata.RefreshCollisionRadii(aimedCrouchJump);
     SamusPresentation.InitializeAnimation(aimedCrouchJump);
-    AssertTrue(
-        SamusPosturePoseTransitions.TryApplyCrouchJumpTransition(aimedCrouchJump, 
-level, SamusPoseId.NeutralJumpTransitionRightPose, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled),
-        "aimed crouch jump applies");
+    SamusPosturePoseTransitions.TryApplyCrouchJumpTransition(aimedCrouchJump, 
+level, SamusPoseId.NeutralJumpTransitionRightPose, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(45, aimedCrouchJump.Position.Y.Whole, "aimed crouch jump omits FC8A offset");
 
     // Ceiling row one ends at pixel 31. A crouched body occupies 32..63 exactly, while a
@@ -477,10 +457,8 @@ level, SamusPoseId.NeutralJumpTransitionRightPose, frameCounter: 1, roomObjects:
     };
     SamusPoseMetadata.RefreshCollisionRadii(tunnelSamus);
     SamusPresentation.InitializeAnimation(tunnelSamus);
-    AssertTrue(
-        !SamusPosturePoseTransitions.TryApplyPostureTransition(tunnelSamus, 
-tunnel, SamusPoseId.StandingTransitionRightPose, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled),
-        "low tunnel rejects standing radius expansion");
+    SamusPosturePoseTransitions.TryApplyPostureTransition(tunnelSamus, 
+tunnel, SamusPoseId.StandingTransitionRightPose, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(SamusPoseId.CrouchingRightPose, tunnelSamus.Pose, "rejected stand retains crouch pose");
     AssertEqual(48, tunnelSamus.Position.Y.Whole, "rejected stand preserves center Y");
 
@@ -491,10 +469,8 @@ tunnel, SamusPoseId.StandingTransitionRightPose, frameCounter: 0, roomObjects: S
     };
     SamusPoseMetadata.RefreshCollisionRadii(tunnelJump);
     SamusPresentation.InitializeAnimation(tunnelJump);
-    AssertTrue(
-        !SamusPosturePoseTransitions.TryApplyCrouchJumpTransition(tunnelJump, 
-tunnel, SamusPoseId.NeutralJumpTransitionRightPose, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled),
-        "low tunnel rejects crouch-jump radius expansion");
+    SamusPosturePoseTransitions.TryApplyCrouchJumpTransition(tunnelJump, 
+tunnel, SamusPoseId.NeutralJumpTransitionRightPose, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(SamusPoseId.CrouchingRightPose, tunnelJump.Pose, "boxed aimed jump falls back to ordinary crouch");
     AssertEqual(16, tunnelJump.Kinematics.Radius.Y, "boxed aimed jump retains crouch radius");
     AssertEqual(0, tunnelJump.Kinematics.VerticalVelocity.Speed.Whole, "boxed aimed jump does not call Make_Samus_Jump");

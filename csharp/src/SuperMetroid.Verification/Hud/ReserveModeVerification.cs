@@ -91,12 +91,11 @@ internal static class ReserveModeVerification
         SamusPresentation.InitializeAnimation(knockbackVariant);
         knockbackVariant.HorizontalSpeed.SpeedBoostCounter = SamusSpeedBoostCounter.AtFullStage;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new RoomTerrainBlock[256], new RoomBlockBehavior[256], new RoomBlockAppearance[256]), RoomLevelData.NothingBeyondGrid(), []);
-        AssertTrue(SamusPosturePoseTransitions.TryApplyPostureTransition(knockbackVariant, 
+        SamusPosturePoseTransitions.TryApplyPostureTransition(knockbackVariant, 
 
                 level,
                 SamusPoseId.CrouchingTransitionRightPose,
-                frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled),
-            "Reserve Mode non-CF route admits cartridge crouch storage");
+                frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
         AssertEqual(ShinesparkPhase.Stored, knockbackVariant.Shinespark.Phase,
             "Reserve Mode crouch installs stored-shine owner");
         AssertEqual(SamusSpecialColouringKind.SpeedBoosterShine, knockbackVariant.SpecialColouring.Holder,

@@ -354,7 +354,6 @@ public static class SpcAudioAssetExtractor
 
     Invalid:
         pcm = [];
-        blockCount = 0;
         loopSampleIndex = null;
         return false;
     }

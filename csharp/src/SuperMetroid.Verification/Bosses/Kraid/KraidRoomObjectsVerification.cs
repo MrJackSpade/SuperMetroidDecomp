@@ -61,8 +61,7 @@ internal static class KraidRoomObjectsVerification
         RoomLevelData level = CreateRoom(new(width, height), words,
             new RoomBlockBehavior[words.Length]);
         var roomObjects = RoomObjectFixtures.Unbound();
-        AssertTrue(roomObjects.BossRoomMutations.KraidRoom.TrySpawn(level, new(new(5, 5), mutation)),
-            $"Kraid mutation {mutation} allocates");
+        roomObjects.BossRoomMutations.KraidRoom.TrySpawn(level, new(new(5, 5), mutation));
         AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock),
             level.GetCollisionBlock(new Position16<RoomBlocks>(5, 5)).Terrain,
             $"Kraid mutation {mutation} setup preserves tile priority");

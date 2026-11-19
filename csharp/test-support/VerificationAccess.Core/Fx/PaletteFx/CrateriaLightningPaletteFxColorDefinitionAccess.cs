@@ -15,10 +15,7 @@ internal static class CrateriaLightningPaletteFxColorDefinitionAccess
         internal static ushort DefinitionPointer => 0xf765;
 
         /// <summary>Full lightning cycle including neutral holds, two flashes, and recovery.</summary>
-        internal int CycleFrames => 240 * (1 + NeutralCount) + 2 * 9 + 5;
-
-        /// <summary>Displayed records across neutral, active, and recovery phases.</summary>
-        internal int DisplayedRecordsPerCycle => 1 + 14 + NeutralCount + 4 + 1;
+        internal static int CycleFrames => 240 * (1 + NeutralCount) + 2 * 9 + 5;
         /// <summary>The live colours each record writes.</summary>
         internal int ColorsPerFrame => self.ColorFrames.ColorsPerFrame;
         /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>

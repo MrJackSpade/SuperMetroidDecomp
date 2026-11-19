@@ -776,7 +776,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual(0xa4e2, runtime.Clock.Counter, "fade accepts exactly one NMI per update");
         AssertEqual(NativeSnapshotMemory.PipeBugAfterFadeInstruction, pipeBugPointers.Pointer(pipeBug.Playback), "fade advances the native enemy instruction");
         AssertEqual(NativeSnapshotMemory.PipeBugAfterFadeSpritemap, actor.SpritemapPointer, "fade changes to the native enemy sprite");
-        AssertEqual((ushort)2, actor.AnimationClock.Hold, "fade installs the native visual duration");
+        AssertEqual(2, actor.AnimationClock.Hold, "fade installs the native visual duration");
         int fadeSteps = 0;
         while (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.FadeOutSourceRoom && fadeSteps++ < 32)
             game.Step(0);
@@ -866,11 +866,11 @@ internal static class RidleyFullMovieVerification
         AssertEqual(1, runtime.Clock.ShortCounter, "first destination drawing frame resumes the byte counter");
         AssertEqual(NativeSnapshotMemory.RidleyFirstFadeInstruction, pointers.Enemy(runtime.Enemies, ridley), "first fade runs native Ridley instruction list");
         AssertEqual(NativeSnapshotMemory.RidleyFirstFadeSpritemap, ridley.SpritemapPointer, "first fade publishes native Ridley sprite");
-        AssertEqual((ushort)12, ridley.AnimationClock.Hold, "first native fade visual duration");
+        AssertEqual(12, ridley.AnimationClock.Hold, "first native fade visual duration");
         AssertEqual(RidleyRevealPhase.WaitForDoorTransition, (runtime.Enemies.NorfairRidley() ?? throw new InvalidOperationException("Verification requires the loaded Ridley.")).RevealPhase, "native Ridley AI remains gated during fade visuals");
         AssertEqual(0, (runtime.Enemies.NorfairRidley() ?? throw new InvalidOperationException("Verification requires the loaded Ridley.")).PhaseTimer.Count, "fade does not consume the reveal countdown");
         game.Step(0);
-        AssertEqual((ushort)11, ridley.AnimationClock.Hold, "later fade updates continue enemy animation");
+        AssertEqual(11, ridley.AnimationClock.Hold, "later fade updates continue enemy animation");
         int remainingFade = 0;
         while (game.IsAt(DoorTransitionStep.Transitioning) && remainingFade++ < 32)
         {

@@ -277,7 +277,7 @@ internal static class LookupStream5Verification
             }
             AssertEqual(PhantoonPhase.WaitingOnEye, state.Phase, "Selected duration stops moving phase");
             AssertEqual(PhantoonPartSegment.EyeOpen, state.EyePart.PlayingProgram(), "Expiration starts exact eye-opening program");
-            AssertEqual((ushort)1, eye.AnimationClock.Hold, "Eye-opening program executes on next instruction step");
+            AssertEqual(1, eye.AnimationClock.Hold, "Eye-opening program executes on next instruction step");
             AssertEqual(false, state.FlameRainRequested, "Opening clears flame-rain trigger");
             AssertEqual(0, state.CasualFlames.Hold.Count, "Casual hold still advances on every movement call: its last update is left");
             AssertEqual(1, randomCalls, "Only independent initial direction consumes RNG in this fixture");

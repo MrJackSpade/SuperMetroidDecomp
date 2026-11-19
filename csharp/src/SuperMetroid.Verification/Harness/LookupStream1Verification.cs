@@ -263,7 +263,7 @@ internal static class LookupStream1Verification
             }
             else
             {
-                AssertEqual((ushort)0, place.AnimationClock.Hold, "Powamp Sleep follows full terminal hold");
+                AssertEqual(0, place.AnimationClock.Hold, "Powamp Sleep follows full terminal hold");
                 ushort terminalY = balloon.Position.Y.Whole;
                 PowampBehavior.AlignPowampBalloonY(body, pair);
                 AssertEqual(terminalY, balloon.Position.Y.Whole, "Sleep preserves terminal balloon collision center");

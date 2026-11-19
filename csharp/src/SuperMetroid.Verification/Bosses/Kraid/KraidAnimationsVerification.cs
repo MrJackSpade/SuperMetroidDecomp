@@ -195,7 +195,7 @@ internal static class KraidAnimationsVerification
         Pass(arm, forceExpiry: true);
         AssertEqual(KraidAnimations.StartingWith(KraidPartSegment.ArmSlow), state.ArmState.Playback.Animation, "below half health the pause starts the slow swing");
         AssertEqual(KraidPartFrameToolingDefinitions.Spritemap(new KraidPartPose(EnemyFrameId.KraidArmRaisedClawClosed)), arm.SpritemapPointer, "the slow swing's first frame shows at once");
-        AssertEqual((ushort)8, arm.AnimationClock.Hold, "the slow swing's first frame lasts eight updates");
+        AssertEqual(8, arm.AnimationClock.Hold, "the slow swing's first frame lasts eight updates");
 
         state.ArmState.Playback = new(KraidAnimations.StartingWith(KraidPartSegment.ArmSlow),
             new AnimationPlace(0, KraidAnimations.Segments.Beats(KraidPartSegment.ArmSlow).Count - 2));

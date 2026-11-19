@@ -212,12 +212,12 @@ internal static class EnemySpeciesCapabilitiesVerification
 
             var doorState = new CeresRidleyRoomDoorState();
             place.SetSpeciesState(doorState);
-            foreach (CeresRidleyRoomDoorDrawing drawing in new[] { CeresRidleyRoomDoorDrawing.ItsOwn, CeresRidleyRoomDoorDrawing.ByRidleysScene })
+            foreach (CeresRidleyRoomDoorLook look in new[] { CeresRidleyRoomDoorLook.Actor, CeresRidleyRoomDoorLook.Overlay })
             {
-                doorState.Drawing = drawing;
-                bool drawnByRidley = entity is IDrawnByCeresRidleyScene door && door.Drawing == CeresRidleyRoomDoorDrawing.ByRidleysScene;
-                AssertEqual(definition == EnemyDefinitionId.CeresRidleyRoomDoor && drawing == CeresRidleyRoomDoorDrawing.ByRidleysScene, drawnByRidley,
-                    $"{definition} hands its drawing to Ceres Ridley's scene when the door's state says {drawing}");
+                doorState.Look = look;
+                bool showsOverlay = entity is CeresRidleyRoomDoorEntity door && door.Look == CeresRidleyRoomDoorLook.Overlay;
+                AssertEqual(definition == EnemyDefinitionId.CeresRidleyRoomDoor && look == CeresRidleyRoomDoorLook.Overlay, showsOverlay,
+                    $"{definition} shows the room door's overlay when the door's state says {look}");
             }
         }
 

@@ -945,7 +945,7 @@ internal static void VerifyBg2ScreenLayout()
     RgbaPixel[] gameplayFrame = RenderOrdinaryGameplay(gameplayCgram,
         new GameplaySceneLayer(
             // The view names the background pixel the screen's top shows: the row below a camera at row $E0 (#1514).
-            new GameplaySceneView(Offset16<RoomPixels>.Zero, GameplaySceneView.LayerPixelAtScreenTop(new Offset16<BackgroundPixels>(0, 0x00e0)),
+            new GameplaySceneView(Offset16<RoomPixels>.Zero, new Offset16<BackgroundPixels>(0, 0x00e0),
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites),
             // BG2 shows the tilemap just loaded, as its library background's image (#1403).
             RoomBackgroundsFixtures.Blank() with
@@ -972,7 +972,7 @@ internal static void VerifyBg2ScreenLayout()
     gameplayFrame = RenderOrdinaryGameplay(gameplayCgram,
         new GameplaySceneLayer(
             // The view names the background pixel the screen's top shows: the row below a camera at row zero (#1514).
-            new GameplaySceneView(Offset16<RoomPixels>.Zero, GameplaySceneView.LayerPixelAtScreenTop(Offset16<BackgroundPixels>.Zero),
+            new GameplaySceneView(Offset16<RoomPixels>.Zero, Offset16<BackgroundPixels>.Zero,
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites),
             // Kraid's body is the 64x64 map he loads at $4000, 512 pixels square, drawn from its pictures (#1403).
             RoomBackgroundsFixtures.Blank() with

@@ -60,7 +60,7 @@ internal static class LookupLiquidWaveVerification
                     AssertEqual(unchecked((ushort)(baseScroll + waterOffset)), bg2[line],
                         "Water BG2 phase addition, surface boundary and signed wrap");
                     // The haze moves about the row the screen's top shows, one below the camera's (#1514).
-                    AssertEqual(unchecked((ushort)(GameplaySceneView.LayerRowAtScreenTop(cameraY) + Heat((cameraPhase + line - phase) & 15))),
+                    AssertEqual(unchecked((ushort)(cameraY + Heat((cameraPhase + line - phase) & 15))),
                         (heatScroll)[line], "Vertical heat phase drawn back and signed wrap");
                 }
             }

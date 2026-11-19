@@ -844,6 +844,8 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifySamusPoseTransitionMatching), () => VerifySamusPoseTransitionMatching()),
         new(nameof(SuperMetroid.Verification.Samus.Poses.PoseTransitionSetupVerification.VerifyPoseTransitionSetups),
             SuperMetroid.Verification.Samus.Poses.PoseTransitionSetupVerification.VerifyPoseTransitionSetups),
+        new(nameof(SuperMetroid.Verification.Samus.Poses.DraygonHoldStandUpVerification.VerifyDraygonHoldStandUp),
+            SuperMetroid.Verification.Samus.Poses.DraygonHoldStandUpVerification.VerifyDraygonHoldStandUp),
         new(nameof(VerifySamusHorizontalSpeed), () => VerifySamusHorizontalSpeed()),
         new(nameof(VerifySamusExtraDisplacement), () => VerifySamusExtraDisplacement()),
         new(nameof(VerifySamusStoredShineAndShinespark), () => VerifySamusStoredShineAndShinespark()),

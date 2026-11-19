@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Runtime;

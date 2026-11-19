@@ -16,7 +16,6 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="ForegroundText">The text an escape shows over the foreground (Ceres's warning), or null (#1555).</param>
 /// <param name="BackgroundText">The text an escape shows over the background (Zebes's warning), or null (#1348, #1555).</param>
 /// <param name="Floor">The turning floor the room shows, or null when it shows none (#1349, #1467, #1649).</param>
-[ArchitectureReview("context-bag", "The background layers one gameplay frame shows, published to the display; every member is a layer's picture data, not a service.")]
 public sealed record RoomBackgrounds(RoomBackgroundLayer Foreground, ShownRoomBackground Background,
     RoomDoorBackground? DoorSource = null, RoomOverlayPictures? ForegroundText = null,
     RoomOverlayPictures? BackgroundText = null, AffineFloor? Floor = null);

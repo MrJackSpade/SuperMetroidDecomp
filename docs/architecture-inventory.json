@@ -11710,6 +11710,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EncounterLookCombination",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/EncounterLookCombination.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.EncounterLookSteps",
       "kind": "record",
       "scope": "product",
@@ -40780,38 +40793,6 @@
     },
     {
       "type": "SuperMetroid.Core.Audio.GameplayAudioRequestsAccess.extension(SuperMetroid.Core.Enemies.EnemyAudioQueue)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Audio/GameplayAudioRequestsAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Audio.GameplayAudioRequestsAccess.extension(SuperMetroid.Core.Fx.ColourEffectSystem)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Audio/GameplayAudioRequestsAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Audio.GameplayAudioRequestsAccess.extension(SuperMetroid.Core.Fx.RoomFxOverlayState)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -100757,6 +100738,32 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Fx.ColourEffectSystem.ScreenWithoutSounds",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/ColourEffectSystem.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.ColourEffectSystem.ShowingEffect",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/ColourEffectSystem.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Fx.ColourEffectSystemAccess",
       "kind": "static class",
       "scope": "test",
@@ -101198,6 +101205,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Fx.ColourEffects.ColourEffectCondition.WatchesNothing",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/ColourEffects/ColourEffectCondition.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Fx.ColourEffects.ColourEffectCue",
       "kind": "record",
       "scope": "product",
@@ -101261,6 +101281,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.ColourEffects.ColourEffectFramesOnOwners",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/ColourEffects/ColourEffectFramesOnOwners.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Fx.ColourEffects.ColourEffectHeatAnimations",
@@ -101430,6 +101463,110 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.ColourEffects.ColourEffectTarget",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/ColourEffects/ColourEffectTarget.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.ColourEffects.ColourEffectTarget.OnEscapeShutters",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/ColourEffects/ColourEffectTarget.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.ColourEffects.ColourEffectTarget.OnGlowingEnemy",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/ColourEffects/ColourEffectTarget.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.ColourEffects.ColourEffectTarget.OnLitTorizo",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/ColourEffects/ColourEffectTarget.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.ColourEffects.ColourEffectTarget.OnOwner",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/ColourEffects/ColourEffectTarget.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.ColourEffects.ColourEffectTarget.OnRoomPictures",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/ColourEffects/ColourEffectTarget.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.ColourEffects.ColourEffectTarget.OnSamusSuit",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/ColourEffects/ColourEffectTarget.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.ColourEffects.ColourEffectTarget.OnScreenPictures",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/ColourEffects/ColourEffectTarget.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Fx.ColourEffects.CrateriaEscapeLightningPaletteFxColorDefinitionAccess",
@@ -104944,6 +105081,45 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Fx.RoomEffectOverlayLook",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/RoomEffectOverlayLook.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.RoomEffectOverlayLook.ShowsAtmosphere",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/RoomEffectOverlayLook.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.RoomEffectOverlayLook.ShowsLiquid",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/RoomEffectOverlayLook.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Fx.RoomFxBlockAnimationDefinitionAccess",
       "kind": "static class",
       "scope": "test",
@@ -105848,6 +106024,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Gameplay.BossBodyBackground",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Gameplay/BossBodyBackground.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Gameplay.CeresPerspectiveFloors",
       "kind": "static class",
       "scope": "product",
@@ -106062,6 +106251,19 @@
       "disposition": "contract"
     },
     {
+      "type": "SuperMetroid.Core.Gameplay.IShownRoomBackgroundMapping\u003CTResult\u003E",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Gameplay/IShownRoomBackgroundMapping.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
       "type": "SuperMetroid.Core.Gameplay.LatchBeforeFirstRoom",
       "kind": "record",
       "scope": "product",
@@ -106088,6 +106290,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Gameplay.LibraryImageBackground",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Gameplay/LibraryImageBackground.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Gameplay.LoaderSamusPlacement",
       "kind": "record struct",
       "scope": "product",
@@ -106099,6 +106314,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Gameplay.NoRoomBackground",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Gameplay/NoRoomBackground.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Gameplay.OrdinaryRoomFrameLatch",
@@ -106150,11 +106378,7 @@
         "csharp/src/SuperMetroid.Core/Gameplay/RoomBackgrounds.cs"
       ],
       "partial": "none",
-      "disposition": "record",
-      "flags": [
-        "context-bag"
-      ],
-      "justified": true
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Gameplay.RoomFrameLatch",
@@ -106165,6 +106389,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Gameplay/RoomFrameLatch.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Gameplay.RoomPlaneBackground",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Gameplay/RoomPlaneBackground.cs"
       ],
       "partial": "none",
       "disposition": "record"
@@ -106217,6 +106454,45 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Gameplay/SavedEncounterReset.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Gameplay.ShownRoomBackground",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Gameplay/ShownRoomBackground.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Gameplay.SkyBackground",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Gameplay/SkyBackground.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Gameplay.XrayRevealBackground",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Gameplay/XrayRevealBackground.cs"
       ],
       "partial": "none",
       "disposition": "record"
@@ -143845,6 +144121,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.EnsureAnalyzer.Contracts.NameHelperFlows",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer/Contracts/NameHelperFlows.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.EnsureAnalyzer.Contracts.NamedLocation",
       "kind": "record struct",
       "scope": "tool",
@@ -145224,19 +145513,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.EnsureVerification.PaletteFx.PaletteFxContractTests.NoSoundQueues",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.EnsureVerification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.EnsureVerification/PaletteFx/PaletteFxContractTests.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.EnsureVerification.Program",
@@ -147545,6 +147821,32 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Rendering.Direct3D11.Frames.D3D11BackgroundSlots",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Rendering.Direct3D11"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Rendering.Direct3D11/Frames/D3D11BackgroundSlots.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Rendering.Direct3D11.Frames.D3D11BackgroundSlots.SlotsOfBackground",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Rendering.Direct3D11"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Rendering.Direct3D11/Frames/D3D11BackgroundSlots.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Rendering.Direct3D11.Frames.D3D11BlendBehind",
       "kind": "enum",
       "scope": "product",
@@ -147751,6 +148053,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Rendering.Direct3D11.Frames.D3D11RoomSources.SourceOfBackground",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Rendering.Direct3D11"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Rendering.Direct3D11/Frames/D3D11RoomSources.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Rendering.Direct3D11.Frames.D3D11SceneColourBuffer",

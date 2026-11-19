@@ -88,7 +88,7 @@ internal static class SpikeDamageBoostVerification
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x4000);
         samus.Position = samus.Position.WithWholeY(232);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0xe000);
-        samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(UnsignedSixteenSixteen.Zero, SamusVerticalDirection.Down);
+        samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(UnsignedSixteenSixteen.Zero, SamusVerticalDirection.Down);
         samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(5, 0);
         samus.HorizontalSpeed.CalculateTotalSpeed(samus.HorizontalSpeed.BaseSpeed);
         samus.KnockbackActive = false;
@@ -101,7 +101,7 @@ internal static class SpikeDamageBoostVerification
         AssertEqual(FixedCoordinate.Of(0x00eb, 0xffff), samus.Kinematics.Position.Y, "expired hurt floor alignment");
         AssertEqual(0u, samus.HorizontalSpeed.BaseSpeed.RawValue, "landing clears residual hurt momentum");
         AssertEqual(SamusVerticalDirection.None, samus.Kinematics.VerticalVelocity.Direction, "landing clears vertical direction");
-        samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(samus.Kinematics.VerticalVelocity.Speed, SamusVerticalDirection.Down);
+        samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(samus.Kinematics.VerticalVelocity.Speed, SamusVerticalDirection.Down);
         runtime.StepFrame((ControllerButton.Right | ControllerButton.A));
         AssertEqual(SamusVerticalDirection.Down, samus.Kinematics.VerticalVelocity.Direction, "landing movement preserves post-landing hurt-expiry direction");
 
@@ -156,7 +156,7 @@ internal static class SpikeDamageBoostVerification
             SamusPresentation.SetAnimationFrameFromMovementOwner(samus, samus.AnimationFrameNumbered(0), 5);
             samus.Position = samus.Position.WithWholeY(200);
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0);
-            samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(samus.Kinematics.VerticalVelocity.Speed, SamusVerticalDirection.Down);
+            samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(samus.Kinematics.VerticalVelocity.Speed, SamusVerticalDirection.Down);
             samus.PoseHistory.Restore(retainedPose, SamusPoseMetadata.ReadMovementType(samus), samus.PoseHistory.MovementBeforePrevious);
             // Standing must have floor support; spin stays above that floor. Held Jump
             // without a new edge selects definition fallback rather than a fresh jump.
@@ -179,7 +179,7 @@ internal static class SpikeDamageBoostVerification
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x3800);
         samus.Position = samus.Position.WithWholeY(237);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0xb800);
-        samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(new UnsignedSixteenSixteen(0, 0x9800), SamusVerticalDirection.Down);
+        samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(0, 0x9800), SamusVerticalDirection.Down);
         samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(0, 0x9000);
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
         runtime.PlayerActions.Latch((GameplayAction.Left | GameplayAction.Jump));

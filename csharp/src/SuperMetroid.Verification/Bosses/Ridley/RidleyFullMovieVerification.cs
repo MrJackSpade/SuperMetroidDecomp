@@ -256,7 +256,7 @@ internal static class RidleyFullMovieVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             };
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(samus.Kinematics.VerticalVelocity.Speed, SamusVerticalDirection.Down);
+            samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(samus.Kinematics.VerticalVelocity.Speed, SamusVerticalDirection.Down);
             samus.HorizontalSpeed.CalculateTotalSpeed(UnsignedSixteenSixteen.FromRaw(0x00054321));
             samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(branch == 3 ? (ushort)0 : (ushort)5);
             if (branch == 0) SamusAerialMovement.StepNormalJump(room, samus, 0, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
@@ -529,7 +529,7 @@ internal static class RidleyFullMovieVerification
         samus.KnockbackActive = true; samus.KnockbackDirection = SamusKnockbackDirection.UpRight;
         samus.KnockbackXDirection = KnockbackHorizontalDirection.Right; samus.KnockbackHold = UpdateCountdown.For(4);
         samus.InvincibilityTimer = WrappingCountdown.Start(95);
-        samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(samus.Kinematics.VerticalVelocity.Speed, SamusVerticalDirection.Up); samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(samus.Kinematics.VerticalVelocity.Speed.WithWhole(5)); samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(samus.Kinematics.VerticalVelocity.Speed.WithFraction(0));
+        samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(samus.Kinematics.VerticalVelocity.Speed, SamusVerticalDirection.Up); samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(samus.Kinematics.VerticalVelocity.Speed.WithWhole(5)); samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(samus.Kinematics.VerticalVelocity.Speed.WithFraction(0));
         runtime.StepFrame(0);
         AssertEqual(FixedCoordinate.Of(0x00cb, 0x4000), samus.Kinematics.Position.X, "stationary spring hurt frame preserves native displacement");
         AssertEqual(0u, samus.HorizontalSpeed.BaseSpeed.RawValue, "stationary spring fallback clears hurt mover base speed");

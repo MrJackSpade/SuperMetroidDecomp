@@ -549,7 +549,7 @@ internal static void VerifySamusExtraDisplacement()
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
     };
     rising.Kinematics.Radius = new(5, 19);
-    rising.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(new UnsignedSixteenSixteen(1, 0), SamusVerticalDirection.Up);
+    rising.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(1, 0), SamusVerticalDirection.Up);
     rising.Kinematics.ExtraDisplacement = rising.Kinematics.ExtraDisplacement.WithWholeY(1).WithFractionY(0x8000);
     FixedCoordinate risingYBefore = rising.Kinematics.Position.Y;
     SamusAerialMovement.StepNormalJump(
@@ -571,7 +571,7 @@ internal static void VerifySamusExtraDisplacement()
         KnockbackDirection = SamusKnockbackDirection.None,
     };
     bouncingBall.Kinematics.Radius = new(5, 7);
-    bouncingBall.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(new UnsignedSixteenSixteen(3, 0x4000), SamusVerticalDirection.Up);
+    bouncingBall.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(3, 0x4000), SamusVerticalDirection.Up);
     bouncingBall.Kinematics.ExtraDisplacement = bouncingBall.Kinematics.ExtraDisplacement.WithWholeY(-1).WithFractionY(0x8000); // -0.8000
     MorphBallMovementResult displacedBounce = SamusMorphBallMovement.StepFalling(
 

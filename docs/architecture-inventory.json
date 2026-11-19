@@ -18980,6 +18980,22 @@
         "csharp/src/SuperMetroid.AssetExtraction/Frontend/Intro/IntroNarrationScriptSources.cs"
       ],
       "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Frontend.Intro.IntroNarrationScriptSourcesConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/Intro/IntroNarrationScriptSourcesConstants.cs"
+      ],
+      "partial": "none",
       "disposition": "static-functions"
     },
     {
@@ -21499,6 +21515,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Frontend.Pause.PauseSheetFrameOrder",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Frontend/Pause/PauseSheetFrameOrder.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Frontend.Pause.PauseTileSetDefinitions",
@@ -28941,6 +28970,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectFamilyFrame\u003CTFrame\u003E",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectFamilyFrame.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectFrameFamily\u003CTFrame\u003E",
@@ -55446,19 +55488,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonSpeedChange",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonSpeedChange.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonStartingFlamesState",
       "kind": "class",
       "scope": "product",
@@ -64391,6 +64420,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Earthquakes.EarthquakeSides",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Earthquakes/EarthquakeSides.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Earthquakes.EarthquakeStrength",
       "kind": "enum",
       "scope": "product",
@@ -71779,6 +71821,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Elevator.ElevatorTravelDirections",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Elevator/ElevatorTravelDirections.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.EnemyAiStates",
       "kind": "enum",
       "scope": "product",
@@ -72544,19 +72599,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.EnemyLinearSpeed",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyLinearSpeed.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.EnemyMath",
@@ -73393,19 +73435,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.EnemySpeedSign",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemySpeedSign.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.EnemyStagingDefinitionsConstants",
@@ -88628,6 +88657,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.YappingMaws.YappingMawCurlPhases",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/YappingMaws/YappingMawCurlPhases.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.YappingMaws.YappingMawEnemyState",
       "kind": "class",
       "scope": "product",
@@ -102404,6 +102446,19 @@
       ],
       "partial": "none",
       "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.ColourEffects.ColourEffectListedOrders",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/ColourEffects/ColourEffectListedOrders.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Fx.ColourEffects.ColourEffectRoomColourDefinitions",
@@ -128616,19 +128671,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Samus.CeresRidleyShoveDirection",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/CeresRidleyShoveDirection.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Samus.Colours.SamusColourDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -132211,6 +132253,35 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Movement.SamusVerticalVelocity",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Movement/SamusVerticalVelocity.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Movement.SamusVerticalVelocityConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Samus/Movement/SamusVerticalVelocityConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Samus.Movement.SamusWallContactAnimationDefinitions",
@@ -138640,6 +138711,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Spatial.TowardDirection",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Spatial/TowardDirection.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Spatial.Trigonometry",
       "kind": "static class",
       "scope": "product",
@@ -138729,6 +138813,22 @@
       ],
       "files": [
         "csharp/test-support/VerificationAccess.Core/Spatial/UnsignedSixteenSixteenAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Spatial.UnsignedSixteenSixteenConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Spatial/UnsignedSixteenSixteenConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -141241,6 +141341,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/World/XrayReveal.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.WrittenOrder\u003CT\u003E",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/WrittenOrder.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -145089,6 +145202,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.EnsureAnalyzer.Contracts.EnumerationOrderAnalyzer",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer/Contracts/EnumerationOrderAnalyzer.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.EnsureAnalyzer.Contracts.FieldInitialization",
       "kind": "record struct",
       "scope": "tool",
@@ -145279,6 +145405,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.EnsureAnalyzer/Contracts/LiteralZeroEnumAnalyzer.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.EnsureAnalyzer.Contracts.MagnitudeAndSignAnalyzer",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer/Contracts/MagnitudeAndSignAnalyzer.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -145503,6 +145642,32 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.EnsureAnalyzer.Contracts.OrderFlows",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer/Contracts/OrderFlows.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.EnsureAnalyzer.Contracts.OrderVerdict",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer/Contracts/OrderVerdict.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.EnsureAnalyzer.Contracts.OwnedReflectionAnalyzer",
@@ -146405,6 +146570,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.EnsureVerification.Contracts.EnumerationOrderAnalyzerTests",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.EnsureVerification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureVerification/Contracts/EnumerationOrderAnalyzerTests.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.EnsureVerification.Contracts.FixedPointVocabularyAnalyzerTests",
       "kind": "static class",
       "scope": "test",
@@ -146478,6 +146656,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.EnsureVerification/Contracts/LiteralZeroEnumAnalyzerTests.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.EnsureVerification.Contracts.MagnitudeAndSignAnalyzerTests",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.EnsureVerification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureVerification/Contracts/MagnitudeAndSignAnalyzerTests.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -188598,6 +188789,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Spatial/HeadingBucketPicksVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Spatial.SignedVelocityVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Spatial/SignedVelocityVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

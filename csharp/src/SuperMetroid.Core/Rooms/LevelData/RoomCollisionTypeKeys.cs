@@ -26,4 +26,25 @@ internal static class RoomCollisionTypeKeys
         [RoomCollisionType.GrappleBlock] = "GrappleBlock",
         [RoomCollisionType.BombableBlock] = "BombableBlock",
     });
+
+    /// <summary>The RoomCollisionType members in the order an installed document lists them (#2567), written out beside the keys so reordering the members never changes the bytes written.</summary>
+    internal static IReadOnlyList<RoomCollisionType> ListedOrder { get; } =
+    [
+        RoomCollisionType.Air,
+        RoomCollisionType.Slope,
+        RoomCollisionType.SpikeAir,
+        RoomCollisionType.SpecialAir,
+        RoomCollisionType.ShootableAir,
+        RoomCollisionType.HorizontalExtension,
+        RoomCollisionType.UnrevealedAir,
+        RoomCollisionType.BombableAir,
+        RoomCollisionType.SolidBlock,
+        RoomCollisionType.DoorBlock,
+        RoomCollisionType.SpikeBlock,
+        RoomCollisionType.SpecialBlock,
+        RoomCollisionType.ShootableBlock,
+        RoomCollisionType.VerticalExtension,
+        RoomCollisionType.GrappleBlock,
+        RoomCollisionType.BombableBlock,
+    ];
 }

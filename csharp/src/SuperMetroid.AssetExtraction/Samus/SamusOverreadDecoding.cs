@@ -96,7 +96,7 @@ internal static class SamusOverreadDecoding
                     pending.Enqueue(phase.Segment);
             }
         }
-        return [.. programs.Order()];
+        return [.. SamusProjectileFrameOrder.Segments.Where(programs.Contains)];
     }
 
     /// <summary>
@@ -153,7 +153,7 @@ internal static class SamusOverreadDecoding
         }
         BitTablePrefix events = ProgressionTableCodec.PrefixOverwrite(Leading(ProgressionSliceLayout.EventsOffset, ProgressionSliceLayout.BossBitsOffset));
         return new SamusOverreadDocument.Overwrite(
-            Named(ProgressionTableCodec.StoryEventsOf(events), Enum.GetValues<StoryEvent>(), StoryEventKeys.Installed.Of),
+            Named(ProgressionTableCodec.StoryEventsOf(events), StoryEventKeys.SavedOrder, StoryEventKeys.Installed.Of),
             ProgressionTableCodec.ZebetitesDestroyedOf(events),
             ProgressionTableCodec.AreaBossesPrefix(Leading(ProgressionSliceLayout.BossBitsOffset, ProgressionSliceLayout.RoomChozoBitsOffset))
                 .ToDictionary(area => AreaIdKeys.Installed.Of(area.Key), area => (IReadOnlyList<string>)[.. BossFlagNames(area.Value)]),
@@ -179,7 +179,7 @@ internal static class SamusOverreadDecoding
     /// <summary>The names of the boss flags <paramref name="bosses"/> holds.</summary>
     [InstalledKey]
     private static IEnumerable<string> BossFlagNames(DefeatedBosses bosses) =>
-        Enum.GetValues<DefeatedBosses>().Where(flag => flag != DefeatedBosses.None && bosses.HasFlag(flag))
+        DefeatedBossesKeys.ListedOrder.Where(flag => bosses.HasFlag(flag))
             .Select(DefeatedBossesKeys.Installed.Of);
 
     /// <summary>
@@ -189,7 +189,7 @@ internal static class SamusOverreadDecoding
     private static Dictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.Cursor>> ChainsawFuseLandings(SamusProjectileListLayout lists)
     {
         var result = new Dictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.Cursor>>();
-        foreach (SamusProjectileSegment program in Enum.GetValues<SamusProjectileSegment>())
+        foreach (SamusProjectileSegment program in SamusProjectileFrameOrder.Segments)
         {
             var landings = new Dictionary<string, SamusOverreadDocument.Cursor>();
             for (int position = 0; position <= SamusProjectileAnimations.Segments.Beats(program).Count; position++)
@@ -222,7 +222,7 @@ internal static class SamusOverreadDecoding
     /// table's twelve rows.
     /// </summary>
     private static Dictionary<string, SamusOverreadDocument.LaunchSpeeds> UnauthoredBeamLaunchSpeeds(IImportCartridgeSource cartridge) =>
-        Enum.GetValues<SamusBeamCombination>()
+        SamusBeamCombinationKeys.ListedOrder
             .Where(beams => !beams.CanBeEquipped)
             .ToDictionary(beams => SamusBeamCombinationKeys.Installed.Of(beams), beams =>
             {
@@ -238,7 +238,7 @@ internal static class SamusOverreadDecoding
     /// cells and the projectile sound table after the held-fire row.
     /// </summary>
     private static Dictionary<string, SamusOverreadDocument.Cooldowns> UnauthoredBeamCooldowns(IImportCartridgeSource cartridge) =>
-        Enum.GetValues<SamusBeamCombination>()
+        SamusBeamCombinationKeys.ListedOrder
             .Where(beams => !beams.CanBeEquipped)
             .ToDictionary(beams => SamusBeamCombinationKeys.Installed.Of(beams), beams => new SamusOverreadDocument.Cooldowns(
                 cartridge.ReadCartridgeByte(SamusOverreadSourceDefinitions.UnchargedCooldowns + beams.TableIndex),

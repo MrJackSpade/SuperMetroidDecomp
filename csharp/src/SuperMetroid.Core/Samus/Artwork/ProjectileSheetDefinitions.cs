@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 
@@ -10,6 +11,26 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// </summary>
 public static class ProjectileSheetDefinitions
 {
+    /// <summary>
+    /// The trail poses every projectile sheet holds, in the sheet's order (#2567): the Ice sparkle's, the Wave ring's, then
+    /// the missile smoke's.
+    /// </summary>
+    public static IReadOnlyList<ProjectileTrailFrame> TrailFrames { get; } =
+    [
+        ProjectileTrailFrame.IceSparkleClustered,
+        ProjectileTrailFrame.IceSparkleTwinkling,
+        ProjectileTrailFrame.IceSparkleScattered,
+        ProjectileTrailFrame.IceSparkleFading,
+        ProjectileTrailFrame.WaveRing,
+        ProjectileTrailFrame.WaveRingSpreading,
+        ProjectileTrailFrame.WaveRingWide,
+        ProjectileTrailFrame.WaveRingBreaking,
+        ProjectileTrailFrame.MissileSmokePuff,
+        ProjectileTrailFrame.MissileSmokeBillowing,
+        ProjectileTrailFrame.MissileSmokeThinning,
+        ProjectileTrailFrame.MissileSmokeFading,
+    ];
+
     /// <summary>
     /// The sheet the projectiles of each beam combination are pictured from (#1586). Spazer with Plasma, and Spazer with
     /// Plasma, Ice and Wave (the Golden Torizo code's Murder Beam), have no pictures of their own: their uncharged shot

@@ -62,7 +62,7 @@ public static class SamusInsideBlockReactions
                     break;
                 case SpecialAirInsideReaction.QuicksandSurface:
                     // The game's setup cancels running momentum even for center/top samples,
-                    // but keeps a sub-pixel part of the base speed rather than stopping it.
+                    // but keeps the base speed's fraction of a pixel rather than stopping it.
                     var speed = samus.HorizontalSpeed;
                     speed.HasRunningMomentum = false;
                     speed.SpeedBoostCounter = default;

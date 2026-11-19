@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// One of Samus's ordinary projectiles: a beam, missile, special-attack particle, echo or explosion. Each is created
 /// fresh when it takes its place in Samus's shot pool (<see cref="SamusShotPool.Occupy"/>), keeps its own state,
 /// and ends when it is deleted, replaced, or Samus's shots are cleared. Nothing it holds reaches the next projectile in
-/// its place but two values gameplay carries over: the horizontal sub-pixel position, which is
+/// its place but two values gameplay carries over: its horizontal position's fraction of a pixel, which is
 /// <see cref="LeftMuzzleSubpixelCarry"/>'s, and, for a beam fired with every place held over the shot in the last place,
 /// the count that shot leaves (<see cref="BeamFiredOverLastShot"/>). A place no projectile holds reads as the projectile
 /// that last ended there, or one never fired: no type, no damage, at rest at the room's origin.
@@ -69,7 +69,7 @@ public sealed class SamusProjectile
     /// </summary>
     public bool IsSpent { get; internal set; }
 
-    /// <summary>Room position in 1/65536 pixels.</summary>
+    /// <summary>Room position, to a fraction of a pixel.</summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
     /// <summary>Velocity in pixels per update.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }

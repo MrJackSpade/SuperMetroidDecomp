@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>
-/// A two-dimensional displacement or per-frame velocity, in pixels and 65536ths of a pixel. Each axis is one
+/// A two-dimensional displacement or per-frame velocity, in pixels and fractions of a pixel. Each axis is one
 /// <see cref="SignedSixteenSixteen"/>, so whole/fraction assembly, overflow and wrap live
 /// in exactly one place.
 /// </summary>

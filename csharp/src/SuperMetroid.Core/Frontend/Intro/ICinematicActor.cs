@@ -11,7 +11,7 @@ internal interface ICinematicActor<TCue>
     /// <summary>Whether the actor is alive: cleared when its animation ends or its owner deletes it.</summary>
     bool IsActive { get; }
 
-    /// <summary>Where the actor stands on the screen, in whole pixels and 65536ths, from the screen's top-left corner.</summary>
+    /// <summary>Where the actor stands on the screen, to a fraction of a pixel, from the screen's top-left corner.</summary>
     FixedVector<ScreenPixels> Position { get; set; }
 
     /// <summary>The whole pixels of <see cref="Position"/>; assigning replaces them and keeps both fractions.</summary>

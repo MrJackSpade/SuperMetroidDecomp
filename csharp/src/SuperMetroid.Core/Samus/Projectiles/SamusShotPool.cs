@@ -23,10 +23,10 @@ internal sealed class SamusShotPool
         Enumerable.Range(0, SamusProjectileSystem.PlaceCount).Select(place => new SamusProjectile(place)).ToArray();
 
     /// <summary>
-    /// Starts an empty pool whose places hand their sub-pixel positions on through <paramref name="muzzleCarry"/> and whose
+    /// Starts an empty pool whose places hand their fractions of a pixel on through <paramref name="muzzleCarry"/> and whose
     /// shots are counted by <paramref name="shotCount"/>.
     /// </summary>
-    /// <param name="muzzleCarry">What each place keeps for its next projectile's horizontal sub-pixel position.</param>
+    /// <param name="muzzleCarry">What each place keeps for its next projectile's horizontal fraction of a pixel.</param>
     /// <param name="shotCount">The shots counted out, which the room's builder creates with the pool.</param>
     internal SamusShotPool(LeftMuzzleSubpixelCarry muzzleCarry, SamusShotCount shotCount)
     {
@@ -34,7 +34,7 @@ internal sealed class SamusShotPool
         ShotCount = Ensure.NotNull(shotCount);
     }
 
-    /// <summary>The horizontal sub-pixel position each place hands its next projectile.</summary>
+    /// <summary>The horizontal fraction of a pixel each place hands its next projectile.</summary>
     internal LeftMuzzleSubpixelCarry MuzzleCarry { get; }
 
     /// <summary>Each place's projectile, in place order.</summary>
@@ -74,7 +74,7 @@ internal sealed class SamusShotPool
 
     /// <summary>
     /// Creates the new projectile of <paramref name="place"/>, ending the one there. It starts at the room's origin with
-    /// the horizontal sub-pixel position the place hands on: the replaced projectile's when it still held the place,
+    /// the horizontal fraction of a pixel the place hands on: the replaced projectile's when it still held the place,
     /// otherwise what the place kept (<see cref="LeftMuzzleSubpixelCarry"/>).
     /// </summary>
     /// <param name="place">The zero-based shot place.</param>
@@ -91,7 +91,7 @@ internal sealed class SamusShotPool
 
     /// <summary>
     /// Creates the new projectile of <paramref name="place"/> at rest at the room's origin, ending the one there; the
-    /// place keeps no sub-pixel position for it. The Super Missile's link starts so.
+    /// place keeps no fraction of a pixel for it. The Super Missile's link starts so.
     /// </summary>
     /// <param name="place">The zero-based shot place.</param>
     /// <returns>The new projectile, holding no damage until its setup gives it some.</returns>
@@ -105,8 +105,8 @@ internal sealed class SamusShotPool
     }
 
     /// <summary>
-    /// Clears Samus's shots all at once: each place a projectile holds keeps that projectile's horizontal sub-pixel
-    /// position for its next one, and every projectile ends.
+    /// Clears Samus's shots all at once: each place a projectile holds keeps that projectile's horizontal fraction of a
+    /// pixel for its next one, and every projectile ends.
     /// </summary>
     internal void ClearAll()
     {
@@ -119,7 +119,7 @@ internal sealed class SamusShotPool
     }
 
     /// <summary>
-    /// The horizontal sub-pixel position <paramref name="place"/> would keep if Samus's shots were cleared now: its
+    /// The horizontal fraction of a pixel <paramref name="place"/> would keep if Samus's shots were cleared now: its
     /// projectile's while one holds it, otherwise what it already keeps.
     /// </summary>
     /// <param name="place">The zero-based shot place.</param>

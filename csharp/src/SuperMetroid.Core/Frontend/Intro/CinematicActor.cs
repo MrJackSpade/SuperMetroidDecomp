@@ -52,7 +52,7 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     public bool IsActive { get; private set; } = true;
 
     /// <summary>
-    /// Where the actor stands on the screen, in whole pixels and 65536ths, measured from the screen's top-left corner
+    /// Where the actor stands on the screen, to a fraction of a pixel, measured from the screen's top-left corner
     /// (#2000): a place left of or above the screen is negative.
     /// </summary>
     public FixedVector<ScreenPixels> Position { get; set; }

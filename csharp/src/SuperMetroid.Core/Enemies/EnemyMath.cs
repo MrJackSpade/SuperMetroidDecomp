@@ -115,9 +115,8 @@ internal static class EnemyMath
 
     /// <summary>
     /// The share of a speed of <paramref name="wholePixels"/> whole pixels per update that <paramref name="angle"/>'s
-    /// unsigned half-wave gives, regardless of direction: the half-wave, 0 through 65535 in 65536ths of the whole
-    /// speed (its peak of 65535 standing for all of it), times the speed, in pixels per update with the fraction in
-    /// 65536ths. The speeds are whole pixels: a Draygon goop's is two, a Multiviola's its spawn speed. Computing the
+    /// unsigned half-wave gives, regardless of direction: the half-wave's share of the whole speed, its peak standing for
+    /// all of it, times the speed, in pixels per update to a fraction of a pixel. The speeds are whole pixels: a Draygon goop's is two, a Multiviola's its spawn speed. Computing the
     /// half-wave deterministically avoids floating-point rounding, so each speed is exactly the game's product.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="wholePixels"/> is negative.</exception>

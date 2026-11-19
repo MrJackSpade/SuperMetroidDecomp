@@ -42,7 +42,7 @@ internal sealed class RidleyBodyAnimation
         ridley.Flight.BodyPlayback = playback;
     }
 
-    /// <summary>The speed Ridley starts rising at as he lifts off: 352/256 of a pixel an update.</summary>
+    /// <summary>The speed Ridley starts rising at as he lifts off: a pixel and three eighths an update.</summary>
     private static readonly SignedEightEight LiftoffRise = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-352);
 
     /// <summary>Carries out one cue of Ridley's body animation, returning the segment whose animation a continue-at cue continues in.</summary>

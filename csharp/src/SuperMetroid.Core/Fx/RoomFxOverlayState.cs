@@ -69,7 +69,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// step, and <see cref="AdvanceTidePhase"/> turns it on, continuing round past a full turn.
     /// </summary>
     internal RotationAngle TidePhase { get; private set; }
-    /// <summary>How far the tide displaces the liquid surface from its base line, in pixels and subpixels.</summary>
+    /// <summary>How far the tide displaces the liquid surface from its base line, to a fraction of a pixel.</summary>
     internal SignedSixteenSixteen TideOffset { get; private set; }
     /// <summary>
     /// Water's effect overlay surface drift, its fraction kept between updates, whose whole pixels offset the surface

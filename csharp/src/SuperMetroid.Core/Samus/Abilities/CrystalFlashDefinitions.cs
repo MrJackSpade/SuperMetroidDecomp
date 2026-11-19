@@ -18,7 +18,7 @@ internal static class CrystalFlashDefinitions
     /// <summary>The updates the flash raises Samus for before it starts spending ammunition.</summary>
     public const int RaiseUpdates = 10;
 
-    /// <summary>The whole pixels the flash raises Samus by on each raising update; her sub-pixel position is kept.</summary>
+    /// <summary>The whole pixels the flash raises Samus by on each raising update; her position's fraction of a pixel is kept.</summary>
     public const int RaiseStep = 2;
 
     /// <summary>

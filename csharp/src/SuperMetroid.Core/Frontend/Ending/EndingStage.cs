@@ -36,7 +36,7 @@ internal sealed class EndingStage : IEndingActorScene
     /// <summary>Master brightness during cinematic fades, from black through full.</summary>
     internal int Brightness => Fade.Level;
 
-    /// <summary>Turning-floor translation; only X uses a subpixel because the game's Y has no fraction.</summary>
+    /// <summary>Turning-floor translation; only X keeps a fraction of a pixel, because the game's Y has none.</summary>
     internal FixedVector<FloorPixels> FloorPosition { get; set; }
 
     /// <summary>

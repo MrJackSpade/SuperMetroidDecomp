@@ -18,8 +18,7 @@ public static class NoobTubeDebrisDefinitions
         new(NoobTubeProjectileDefinition.Crack, CrackOffset, EightEightVector<RoomPixels>.Zero, new NoobTubePieceStart.AtSegment(P.Crack));
 
     /// <summary>
-    /// The ten glass shards in the order they burst, each placed from the crack and flying off at its own speed in 256ths
-    /// of a pixel an update.
+    /// The ten glass shards in the order they burst, each placed from the crack and flying off at its own speed.
     /// </summary>
     public static ImmutableArray<NoobTubePiece> Shards { get; } =
     [

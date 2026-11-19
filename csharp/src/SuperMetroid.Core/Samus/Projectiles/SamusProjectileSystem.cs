@@ -80,7 +80,7 @@ public sealed class SamusProjectileSystem
     /// <param name="charge">The held beam charge, flare and charge glow, which outlive each room's projectiles.</param>
     /// <param name="samusOverreads">The installed services reproducing Samus's glitch reads; the projectiles consult their own group of them.</param>
     /// <param name="muzzleCarry">
-    /// What each of the room's shot places keeps for its next projectile's horizontal sub-pixel position, created by the
+    /// What each of the room's shot places keeps for its next projectile's horizontal fraction of a pixel, created by the
     /// room's builder with the room's shot pool.
     /// </param>
     /// <param name="shotCount">How many shots Samus has out as firing counts them, created by the room's builder with the room's shot pool.</param>
@@ -109,7 +109,7 @@ public sealed class SamusProjectileSystem
     }
 
     /// <summary>
-    /// Starts each shot place keeping the horizontal sub-pixel position the room this one replaces left
+    /// Starts each shot place keeping the horizontal fraction of a pixel the room this one replaces left
     /// (<see cref="RoomHandOver"/>, <see cref="LeftMuzzleSubpixelCarry"/>), before any shot is fired.
     /// </summary>
     internal void TakeOverFrom(RoomHandOver handOver)
@@ -120,7 +120,7 @@ public sealed class SamusProjectileSystem
     }
 
     /// <summary>
-    /// Leaves for the room that replaces this one the horizontal sub-pixel position each shot place keeps as the room's
+    /// Leaves for the room that replaces this one the horizontal fraction of a pixel each shot place keeps as the room's
     /// load clears Samus's shots (<see cref="RoomHandOver"/>, <see cref="LeftMuzzleSubpixelCarry"/>).
     /// </summary>
     internal void HandOverTo(RoomHandOver handOver) =>

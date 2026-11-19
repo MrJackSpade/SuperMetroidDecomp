@@ -273,7 +273,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         // The after-Ceres descent carries all four actors as a rigid body. Above Y=768 it moves
         // 4.5 pixels an update; below that threshold it slows to 2.5 and clamps the
         // top hull to 1119 before beginning its seventeen-frame landing bounce.
-        // The clamp writes only whole positions; subpixels keep this update's sum.
+        // The clamp writes only whole positions; the fractions of a pixel keep this update's sum.
         SignedSixteenSixteen delta = top.Position.Y.Whole < GunshipMotionDefinitions.SlowDescentY ? GunshipMotionDefinitions.FastDescentSpeed : GunshipMotionDefinitions.SlowDescentSpeed;
         MoveGunshipAndSamusVertically(samus, top, delta);
         if (top.Position.Y.Whole < GunshipMotionDefinitions.LandedTopY)

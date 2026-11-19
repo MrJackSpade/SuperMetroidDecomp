@@ -239,7 +239,7 @@ internal sealed class BeamFiring
             return null;
         }
 
-        // The shot starts from the horizontal sub-pixel position its place hands on (LeftMuzzleSubpixelCarry): the left
+        // The shot starts from the horizontal fraction of a pixel its place hands on (LeftMuzzleSubpixelCarry): the left
         // muzzle check's -1 speed can carry it back into the same whole pixel before the velocity setup clears it. Over a
         // held place it also starts from the Power Bomb fuse the shot there leaves (BeamFiredOverLastShot).
         SamusProjectile projectile = _pool.OccupyWithBeam(place);
@@ -332,7 +332,7 @@ internal sealed class BeamFiring
             return null;
         }
 
-        // As for ordinary beams, the shot starts from the sub-pixel position its place hands on (LeftMuzzleSubpixelCarry)
+        // As for ordinary beams, the shot starts from the fraction of a pixel its place hands on (LeftMuzzleSubpixelCarry)
         // and the Power Bomb fuse a shot there leaves (BeamFiredOverLastShot).
         SamusProjectile projectile = _pool.OccupyWithBeam(place);
         projectile.Direction = aim;

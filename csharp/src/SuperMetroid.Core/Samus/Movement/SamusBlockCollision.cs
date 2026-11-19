@@ -20,7 +20,7 @@ public static class SamusBlockCollision
     /// <summary>
     /// Runs the block-only observation of the wall-jump block collision check.
     /// The check reports the available distance but does
-    /// not commit Samus's whole-pixel probe position. Collision still writes subpixels.
+    /// not commit Samus's whole-pixel probe position. Collision still writes her fractions of a pixel.
     /// </summary>
     internal static BlockMoveResult ProbeWallHorizontal(
         RoomLevelData level,
@@ -41,8 +41,8 @@ public static class SamusBlockCollision
         state.YSpeed = probe.YSpeed;
         state.YAcceleration = probe.YAcceleration;
 
-        // A block hit (and square-slope clipping) writes Samus's real X subpixel even through the wall-jump probe. The
-        // probe's accepted displacement is whole pixels on a block hit, so its final subpixel keeps that write, and her
+        // A block hit (and square-slope clipping) writes Samus's real X fraction of a pixel even through the wall-jump probe. The
+        // probe's accepted displacement is whole pixels on a block hit, so its final fraction keeps that write, and her
         // whole X is unchanged; without it, movement away from the wall would gather fractional speed during the
         // wall-check pose.
         if (result.Collided && result.EnemyCollision is null)
@@ -1047,10 +1047,10 @@ public static class SamusBlockCollision
     /// </summary>
     /// <remarks>
     /// The one extension follower (#2529): Samus's collision and inside reactions, her shots' block reactions, her missiles'
-    /// point reactions and her bombs' reactions all follow links here, as the original's reactions share one horizontal and
-    /// one vertical extension step. Those go back into the reaction until a block that is no extension or an extension
+    /// point reactions and her bombs' reactions all follow links here, sharing one horizontal and one vertical extension
+    /// step. Those go back into the reaction until a block that is no extension or an extension
     /// whose behaviour is zero, with no bound; a chain of as many links as the room has blocks must revisit one, a cycle the
-    /// original never leaves, and is reported as malformed room data.
+    /// game never leaves, and is reported as malformed room data.
     /// </remarks>
     /// <exception cref="InvalidDataException">A link leads outside the room's grid, or the chain is cyclic.</exception>
     internal static bool TryResolveExtension(

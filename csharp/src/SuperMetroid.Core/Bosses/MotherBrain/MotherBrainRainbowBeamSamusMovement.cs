@@ -139,7 +139,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
             new FixedCoordinate(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction),
             velocity);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(moved.Fraction);
-        // The push hides its coarse sub-pixel movement from the camera, and every
+        // The push hides the coarse part of its movement within a pixel from the camera, and every
         // exit records the new whole Y as where Samus was: the camera sees no whole-pixel movement.
         cameraCheckpoint.HideCoarseVerticalMovement(moved.Fraction);
 

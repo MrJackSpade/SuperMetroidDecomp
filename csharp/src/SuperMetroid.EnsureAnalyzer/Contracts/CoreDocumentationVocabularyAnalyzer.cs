@@ -197,6 +197,9 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// #2540 adds, outside hardware owners, the original's tables counted and its fractions listed as boss prose tells them,
 /// read across a documentation comment's line breaks: a number of the game's launches, entries, rows, values, records,
 /// copies or variants, a number of them said to be all identical, and fractions listed as zero.
+/// #2546 adds, outside hardware owners, the original's storage units and the original program as room, area and effects
+/// prose tells them, read across a documentation comment's line breaks: an amount of a pixel written over 256, a count of
+/// 65536ths, a value in 1/65536 pixels, subpixels in any spelling, and anything the original's.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -2445,11 +2448,33 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The original's storage units and the original program told in room, area and effects prose (#2546), outside
+    /// hardware owners and markup, read across a documentation comment's line breaks: an amount of a pixel written over 256
+    /// (104/256 of a pixel, 255/256 pixel per frame, 1/256 of a pixel); a count of 65536ths in any form (in pixels and
+    /// 65536ths, its 65536ths, energy and its 65536ths); a value in 1/65536 pixels (held in 1/65536 pixels, wrapping in
+    /// 1/65536 pixels), which #2172 and #2427 had left as a unit of measure; subpixels in any spelling (in pixels and
+    /// subpixels, Samus's Y subpixel, a sub-pixel position), which #2440 had left as English; and anything the original's
+    /// (the original's setup rewrites nothing but the block's type, the original's closing switches the object it finds).
+    /// The original kept its speeds in 256ths and its positions in 65536ths of a pixel, and the port told what its program
+    /// did; Core says what the game does: how fast a thing moves in the game's fractions (thirteen thirty-seconds of a pixel
+    /// an update), that a position carries its fraction of a pixel, which part of a block a setup changes. English stays
+    /// legal: a speed in 1/256 pixels, a 256th or one 65536th of a pixel, a fraction of a pixel, an original alone, the
+    /// original game and a hardware owner, which describes the encoding or the program it reproduces.
+    /// </summary>
+    private static readonly Regex StorageUnitAndOriginalProgramProse = new(
+        @"(?<![\w/])(?:(?!1/)[0-9]+/256(?:ths?)?(?:\s+of\s+an?)?|1/256(?:ths?)?\s+of\s+an?)\s+(?:floor\s+)?(?:pixels?|px)\b" +
+        @"|\b65,?536ths\b" +
+        @"|(?<![\w/])1/65,?536(?:ths?)?(?![\w-])" +
+        @"|\bsub-?pixels?\b" +
+        @"|\bthe\s+original['’]s\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A documentation comment's line break with the next line's comment prefix (#2515), which
     /// <see cref="EnemyAndWorldRoutineBitAndReasoningProse"/>, <see cref="SamusStorageHalfWrapAndFlagProse"/>,
     /// <see cref="CountedWaitAndCalculatorProse"/>, <see cref="EnemyUnitSampleAndProgramByteProse"/>,
-    /// <see cref="RandomOddnessByPronounProse"/> and <see cref="BossTableCountAndFractionProse"/> read as a space so a
-    /// phrase runs on across it.
+    /// <see cref="RandomOddnessByPronounProse"/>, <see cref="BossTableCountAndFractionProse"/> and
+    /// <see cref="StorageUnitAndOriginalProgramProse"/> read as a space so a phrase runs on across it.
     /// </summary>
     private static readonly Regex CommentLineBreak = new(@"\s*\r?\n\s*(?:///?|\*+)?\s*", RegexOptions.CultureInvariant);
 
@@ -3078,6 +3103,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : BossTableCountAndFractionProse.Match(CommentLineBreak.Replace(Markup.Replace(text, " "), " ")) is { Success: true } bossTable ? bossTable.Value
             : typedParameterUnit is not null ? typedParameterUnit
             : RandomOddnessByPronounProse.Match(CommentLineBreak.Replace(Markup.Replace(text, " "), " ")) is { Success: true } randomOddness ? randomOddness.Value
+            : StorageUnitAndOriginalProgramProse.Match(CommentLineBreak.Replace(Markup.Replace(text, " "), " ")) is { Success: true } storageUnit ? storageUnit.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

@@ -11,10 +11,10 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// objects (<see cref="DoorObjects.TrySpawnDoorClosingObject"/>).
 /// </summary>
 /// <remarks>
-/// The search asks <see cref="StaysOpenBehindSamus"/> first and asks only a door that does not stay open to close. The
-/// original's closing switches the object it finds to the closing its kind names. The doors above name one; an eye door's
-/// eye and bottom, the blue cap and escape gate a door's closing places, and every object that is no door name none, so
-/// none of those stands in a door.
+/// The search asks <see cref="StaysOpenBehindSamus"/> first and asks only a door that does not stay open to close: the
+/// door it finds starts the closing of its own kind. Only the doors above close; an eye door's eye and bottom, the blue
+/// cap and escape gate a door's closing places, and every object that is no door have no closing, so none of those stands
+/// in a door.
 /// </remarks>
 internal interface IDoorBehindSamus
 {

@@ -81,7 +81,7 @@ internal sealed class CeresRidleyFlight
         return RidleyAnimations.FireballingEnd.For(state.Flight.FacingDirection);
     }
 
-    /// <summary>Slows Ridley's rise by 20/256 of a pixel an update until he climbs past line 80, where he starts hovering.</summary>
+    /// <summary>Slows Ridley's rise by five sixty-fourths of a pixel an update until he climbs past line 80, where he starts hovering.</summary>
     internal static void TickCeresRidleyLiftoffDecelerating(
         RoomEnemyPlace place,
         CeresRidleyState state)

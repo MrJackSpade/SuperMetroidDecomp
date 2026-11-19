@@ -27,9 +27,9 @@ public static class SuitPickupBeamDefinitions
     public static readonly SuitPickupBeamEdges FullScreenEdges = new(0, RightmostColumn);
     /// <summary>Initial widening speed: one pixel per update.</summary>
     public static readonly SignedEightEight InitialWideningSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256);
-    /// <summary>Per-update widening acceleration: 96/256 of a pixel per update.</summary>
+    /// <summary>Per-update widening acceleration: three eighths of a pixel per update.</summary>
     public static readonly SignedEightEight WideningAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(96);
-    /// <summary>Per-update shrinking deceleration: 32/256 of a pixel per update.</summary>
+    /// <summary>Per-update shrinking deceleration: an eighth of a pixel per update.</summary>
     public static readonly SignedEightEight ShrinkingDeceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32);
     /// <summary>Minimum shrinking speed: one pixel per update.</summary>
     public static readonly SignedEightEight MinimumShrinkingSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256);

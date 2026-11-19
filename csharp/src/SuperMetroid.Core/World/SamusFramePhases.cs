@@ -420,7 +420,7 @@ internal sealed class SamusFramePhases
         {
             // The grapple's close-collision snap clamps previous-position values to twelve
             // pixels after a close-collision snap. Feed those corrected whole pixels
-            // to tracking while preserving the pre-frame subpixels.
+            // to tracking while preserving the pre-frame fractions of a pixel.
             frame.SnapCameraPoint(grapplePrevious);
         }
 

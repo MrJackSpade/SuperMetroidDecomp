@@ -622,7 +622,7 @@ public sealed class SamusState
     /// </summary>
     public SamusVerticalCollisionResult SolidVerticalCollisionResult { get; set; }
 
-    /// <summary>Samus's room position in 1/65536 pixels, owned by <see cref="Kinematics"/>.</summary>
+    /// <summary>Samus's room position, to a fraction of a pixel, owned by <see cref="Kinematics"/>.</summary>
     public FixedPosition<RoomPixels> Position
     {
         get => Kinematics.Position;

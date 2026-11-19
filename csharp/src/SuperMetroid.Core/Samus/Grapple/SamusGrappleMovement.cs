@@ -648,7 +648,7 @@ public static class SamusGrappleMovement
         // The rope start and the flare sit at whole-pixel offsets from Samus's whole position. The endpoint offsets are
         // displacements either way, so a left or upward beam keeps its direction as its fraction accumulates.
         grapple.RopeStart = samus.Position.Whole + grapple.OriginOffset;
-        // The endpoint adds the offset to Samus's subpixel-inclusive position, so the
+        // The endpoint adds the offset to Samus's position, its fraction of a pixel included, so the
         // fraction's overflow reaches the endpoint before the whole origin offset is added.
         grapple.Anchor = samus.Position.Advance(grapple.EndpointOffset).Whole + grapple.OriginOffset;
         grapple.FlareOrigin = samus.Position.Whole + grapple.FlareOffset;

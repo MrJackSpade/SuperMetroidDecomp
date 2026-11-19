@@ -10,10 +10,10 @@ namespace SuperMetroid.Core.Enemies;
 public static class QuadraticSpeedCurveDefinitions
 {
     /// <summary>
-    /// The speed at each mark along the curve, its start through its last mark, toward increasing coordinates: whole
-    /// pixels and 65536ths of a pixel per frame.
+    /// The speed at each mark along the curve, its start through its last mark, toward increasing coordinates, in pixels
+    /// per frame to a fraction of a pixel.
     /// </summary>
-    [SuppressMessage("Design", "SME6447", Justification = "Each speed's fraction is a count of 65536ths of a pixel; only the size of the fractions above half a pixel makes this rule flag them.")]
+    [SuppressMessage("Design", "SME6447", Justification = "Each speed's fraction is the game's own fraction of a pixel, written exactly; only the size of the fractions above half a pixel makes this rule flag them.")]
     internal static readonly QuadraticCurveSpeed[] Speeds =
     [
         new(FromParts(0, 0)), new(FromParts(0, 265)), new(FromParts(0, 795)), new(FromParts(0, 1590)), new(FromParts(0, 2650)),

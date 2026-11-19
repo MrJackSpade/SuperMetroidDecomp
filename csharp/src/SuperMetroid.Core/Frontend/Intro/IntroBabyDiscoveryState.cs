@@ -291,7 +291,7 @@ internal sealed class IntroBabyDiscoveryState
         }
     }
 
-    /// <summary>Subpixel velocity used by the baby's rise and two-axis dance.</summary>
+    /// <summary>The velocity of the baby's rise and two-axis dance.</summary>
     private EightEightVector<ScreenPixels> BabyVelocity { get; set; }
 
     /// <summary>Countdown from the apex of the baby's rise to the start of its dance.</summary>

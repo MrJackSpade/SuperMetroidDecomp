@@ -486,7 +486,7 @@ internal sealed class ProjectileMotion
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
         {
-            _ = roomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.At);
+            roomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.At);
             return true;
         }
         ProjectileTerrainCollision.TrySpawnShootableReaction(level, shot, block, roomObjects);

@@ -44,48 +44,42 @@ internal sealed class TourianObjects
     /// Runs the room setup that spawns the fake wall at block (16,135), whose setup clears the block's collision before
     /// the wall's first update.
     /// </summary>
-    /// <returns>False when the room is full; nothing is spawned then (<see cref="Compatibility.RoomObjectPlaces"/>).</returns>
-    public bool TrySpawnOldTourianEscapeShaftWall(RoomLevelData level)
+    public void TrySpawnOldTourianEscapeShaftWall(RoomLevelData level)
     {
         Ensure.NotNull(level);
         Position16<RoomBlocks> block = level.GridBlock(
             new(OldTourianEscapeShaftWallObjectDefinitions.BlockX, OldTourianEscapeShaftWallObjectDefinitions.BlockY));
         if (_places.Spawn() is not { } place)
-            return false;
+            return;
 
         place.Block = block;
         DoorObjects.SetupPassableBlock(level, place);
         place.Become(new OldTourianWallObject(_samus, _enemies));
-        return true;
     }
     /// <summary>
     /// Runs the room setup that spawns the acid trigger at block (16,16), whose setup leaves a solid block solid and makes
     /// any other block air, as the fake wall's does.
     /// </summary>
-    /// <returns>False when the room is full; nothing is spawned then (<see cref="Compatibility.RoomObjectPlaces"/>).</returns>
-    public bool TrySpawnEscapeAcidRise(RoomLevelData level)
+    public void TrySpawnEscapeAcidRise(RoomLevelData level)
     {
         Ensure.NotNull(level);
         Position16<RoomBlocks> block = level.GridBlock(
             new(EscapeAcidRiseObjectDefinitions.BlockX, EscapeAcidRiseObjectDefinitions.BlockY));
         if (_places.Spawn() is not { } place)
-            return false;
+            return;
 
         place.Block = block;
         DoorObjects.SetupPassableBlock(level, place);
         place.Become(new EscapeAcidRiseObject(_samus, _roomFx));
-        return true;
     }
     /// <summary>Spawns the clear or crumble of the access floor at its block (<see cref="TourianAccessObjectDefinitions.FloorBlock"/>).</summary>
-    /// <returns>False when the room is full; nothing is spawned then (<see cref="Compatibility.RoomObjectPlaces"/>).</returns>
-    public bool TrySpawnTourianAccess(RoomLevelData level, TourianAccessFloor floor)
+    public void TrySpawnTourianAccess(RoomLevelData level, TourianAccessFloor floor)
     {
         TerrainChange change = TourianAccessFloors.ForState(floor);
         if (_places.Spawn() is not { } place)
-            return false;
+            return;
 
         place.Block = level.GridBlock(TourianAccessObjectDefinitions.FloorBlock);
         place.Become(new TerrainChangeObject(change));
-        return true;
     }
 }

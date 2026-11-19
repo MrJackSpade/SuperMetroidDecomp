@@ -62,6 +62,9 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
     /// <summary>Advances RNG through a case callback or the services installed by room loading.</summary>
     public int Generate() => NextRandom is { } next ? next() : Loaded("generate a random number").Random.Generate();
 
+    /// <summary>Advances the fixture's random numbers once, as <see cref="Generate"/> does, its value unread.</summary>
+    public void Advance() => _ = Generate();
+
     /// <summary>Samples current RNG without advancing it through the override or loaded services.</summary>
     public int Read() => ReadRandom is { } read ? read() : Loaded("read the random-number word").Random.Read();
 

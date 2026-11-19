@@ -513,7 +513,7 @@ public static class SamusAerialMovement
     }
 
     /// <summary>Applies the selected medium's base speed and wall collision, preserving the no-input bypass and wall-jump exception.</summary>
-    private static BlockMoveResult MoveNormalAerialX(
+    private static void MoveNormalAerialX(
         RoomLevelData level,
         SamusState samus,
         GameplayAction controllerInput,
@@ -539,14 +539,13 @@ public static class SamusAerialMovement
             speed.BaseSpeed = default;
             // Samus then does not move horizontally, and the previous total speeds are kept: no slope alignment runs
             // either.
-            return BlockMoveResult.NotMoved;
+            return;
         }
 
         var requested = SamusHorizontalDisplacement.ForPoseDirection(samus, calculation.Speed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requested.Displacement, CollisionMovementDirection = requested.CollisionDirection });
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
-        return horizontal;
     }
 
     /// <summary>Runs the shared Y mover and reduces its collision scan to the landing and ceiling signals her movement reads.</summary>
@@ -701,14 +700,14 @@ public static class SamusAerialMovement
     /// Screw Attack can use this physics when both items are
     /// equipped even though its visible pose is the Screw Attack pose.
     /// </summary>
-    private static bool TryRestartSpaceJump(
+    private static void TryRestartSpaceJump(
         SamusState samus,
         GameplayAction controllerNewInput)
     {
         if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.SpaceJump) ||
             !samus.Kinematics.VerticalVelocity.IsFalling)
         {
-            return false;
+            return;
         }
 
         // The window's bounds are whole 256ths of a pixel, and the full falling speed is compared with them. That is the
@@ -725,13 +724,12 @@ public static class SamusAerialMovement
             !fallingSpeed.IsSlowerThan(SamusVerticalMotionDefinitions.SpaceJumpFallingSpeedLimit) ||
             (controllerNewInput & GameplayAction.Jump) == GameplayAction.None)
         {
-            return false;
+            return;
         }
 
         // This is the same jump start used by a grounded launch: authored initial
         // magnitude, Speed Booster's split bonus, dry-air gravity, and upward direction.
         SamusAerialMovement.InitializeJump(samus);
-        return true;
     }
 
     /// <summary>Clears ordinary base X velocity and acceleration while leaving separate boost momentum intact.</summary>

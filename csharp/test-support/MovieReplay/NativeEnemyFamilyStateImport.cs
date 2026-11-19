@@ -977,7 +977,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemies.DeadTourianCorpses[index] is { } corpse)
         {
-            corpse.Phase = DeadTourianCorpsePhaseOf(corpse.Species, words.A);
+            corpse.Phase = DeadTourianCorpsePhaseOf(DeadTourianBehavior.SpeciesOf(enemy.DefinitionId), words.A);
             corpse.PreRotDelay = UpdateCountdownAccess.AtAge(CorpseRotScheduleDefinitions.PreRotDelayUpdates,
                 Math.Min((int)words.B, CorpseRotScheduleDefinitions.PreRotDelayUpdates));
         }

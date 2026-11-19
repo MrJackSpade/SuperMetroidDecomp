@@ -38,7 +38,7 @@ internal static class SamusAerialPoseTransitions
     /// The wall jumps' input transitions use this very same route for their diagonal-aim
     /// poses and gun-extended Shot poses; they do not have a separate wall-fire transition.
     /// </remarks>
-    public static bool TryApplySpinOrWallJumpToNormalJumpTransition(
+    public static void TryApplySpinOrWallJumpToNormalJumpTransition(
         SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
@@ -71,7 +71,7 @@ internal static class SamusAerialPoseTransitions
             roomObjects,
             out int centerAdjustment);
         if (collision == LargerPoseCollisionOutcome.RetainSource)
-            return false;
+            return;
         if (collision == LargerPoseCollisionOutcome.CrouchFallback)
         {
             // Samus takes the ordinary crouch when the expanded body is blocked above and
@@ -79,7 +79,7 @@ internal static class SamusAerialPoseTransitions
             samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
             if (samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
                 samus.HorizontalSpeed.ShowSuitShadeAtColourStep();
-            return true;
+            return;
         }
 
         samus.Pose = targetPose;
@@ -102,7 +102,7 @@ internal static class SamusAerialPoseTransitions
             samus.HorizontalSpeed.ShowSuitShadeAtColourStep();
 
         if (beganShinespark)
-            return true;
+            return;
 
         // The newly installed pose's shot direction is published on the exact Fire
         // edge that selected this pose. The projectile producer consumes it in the input phase.
@@ -110,7 +110,6 @@ internal static class SamusAerialPoseTransitions
             samus.TransitionShot.Hand(SamusTransitionShot.FromPose(samus));
 
         SamusPresentation.InitializeAnimation(samus);
-        return true;
     }
 
     /// <summary>Applies a normal-jump or falling turn, selecting the turn that keeps her aim (<see cref="SamusAimedPoseChoiceDefinitions.JumpingTurns"/>, <see cref="SamusAimedPoseChoiceDefinitions.FallingTurns"/>) after the shared larger-pose collision pass.</summary>
@@ -119,12 +118,11 @@ internal static class SamusAerialPoseTransitions
     /// <param name="genericTargetPose">Generic right-to-left or left-to-right turn pose for the current jumping/falling family; aim-specific art is selected from the source shot direction, not this argument.</param>
     /// <param name="frameCounter">The frame counter supplied to changed-pose block reactions.</param>
     /// <param name="roomObjects">The room's room objects, receiving those collision reactions.</param>
-    /// <returns>True when the aerial turn is installed; false when expansion retains the source or substitutes stable crouch, so failure does not guarantee unchanged state.</returns>
     /// <remarks>An accepted turn folds extra run speed into base turn momentum, preserves vertical velocity, adjusts the whole-pixel Y center if required, and initializes animation while retaining the source collision radius until Samus's next input phase.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="level"/> is null.</exception>
     /// <exception cref="InvalidOperationException">The source/target movement families or facing metadata do not describe an admitted normal-jump/falling turn.</exception>
     /// <exception cref="InvalidDataException">The source pose aims in no shot direction.</exception>
-    public static bool TryApplyAerialTurn(
+    public static void TryApplyAerialTurn(
         SamusState samus,
         RoomLevelData level,
         SamusPoseId genericTargetPose,
@@ -173,11 +171,11 @@ internal static class SamusAerialPoseTransitions
             roomObjects,
             out int centerAdjustment);
         if (collision == LargerPoseCollisionOutcome.RetainSource)
-            return false;
+            return;
         if (collision == LargerPoseCollisionOutcome.CrouchFallback)
         {
             samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
-            return false;
+            return;
         }
 
         // The changed-pose collision resolves expansion before the pose change runs the final movement type.
@@ -187,7 +185,6 @@ internal static class SamusAerialPoseTransitions
         // The changed-pose step preserves the source radius until the next input phase.
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
         SamusPresentation.InitializeAnimation(samus);
-        return true;
     }
 
     /// <summary>
@@ -341,11 +338,7 @@ internal static class SamusAerialPoseTransitions
     /// The drop names its exact target pose and this method runs the shared
     /// block-only pose-expansion collision; the drop itself already cleared Samus's fall momentum.
     /// </summary>
-    /// <returns>
-    /// True when the requested target fits; false when the game's pose-change collision retains
-    /// the source or substitutes stable crouch.
-    /// </returns>
-    public static bool ApplyGrappleDropTransition(
+    public static void ApplyGrappleDropTransition(
         SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
@@ -389,7 +382,6 @@ internal static class SamusAerialPoseTransitions
             samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
         }
 
-        return collision == LargerPoseCollisionOutcome.Allowed;
     }
 
     /// <summary>
@@ -634,7 +626,7 @@ internal static class SamusAerialPoseTransitions
     /// directions are blocked, the crouch selector selects ordinary crouch; if a compensating shift's
     /// second probe is blocked, the collision exit retains the source. Neither case installs the target.
     /// </remarks>
-    public static bool TryApplyCompactAerialTransition(
+    public static void TryApplyCompactAerialTransition(
         SamusState samus,
         RoomLevelData level,
         SamusPoseId targetPose,
@@ -671,7 +663,7 @@ internal static class SamusAerialPoseTransitions
         {
             if (collision == LargerPoseCollisionOutcome.CrouchFallback)
                 samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
-            return false;
+            return;
         }
 
         samus.Pose = targetPose;
@@ -685,11 +677,10 @@ internal static class SamusAerialPoseTransitions
             // not consume the charge or apply the windup's one-pixel adjustment.
             if (TryBeginShinesparkWindup(samus, targetPose,
                 rightJump || leftJump ? SamusMovementType.NormalJumping : SamusMovementType.Falling))
-                return true;
+                return;
             InitializeOrdinaryAerialAcceleration(samus);
         }
         SamusPresentation.InitializeAnimation(samus);
-        return true;
     }
 
     /// <summary>

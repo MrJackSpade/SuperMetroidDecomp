@@ -246,11 +246,10 @@ public sealed class SamusProjectileSystem
     /// a successful shot just as the game does.
     /// </param>
     /// <param name="progression">The progression a Spacetime shot's overwrite turns on and off.</param>
-    internal SamusProjectileFrameResult StepFrame(SamusTerrain terrain, SamusState samus, ProjectileButtonInput buttons, Position16<RoomPixels> cameraPosition, SamusBombProjectileSystem sharedProjectiles, SharedGameState progression)
+    internal void StepFrame(SamusTerrain terrain, SamusState samus, ProjectileButtonInput buttons, Position16<RoomPixels> cameraPosition, SamusBombProjectileSystem sharedProjectiles, SharedGameState progression)
     {
         FireFromHud(terrain, samus, buttons, sharedProjectiles, projectileProducerEnabled: true);
         HandleShots(terrain, samus, cameraPosition, sharedProjectiles, progression);
-        return LastFrameResult;
     }
 
     /// <summary>

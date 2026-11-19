@@ -12,20 +12,16 @@ internal sealed class CrocomireArenaObjects(RoomObjectPlaceList places)
     /// Spawns one of Crocomire's arena mutations at its block. Each mutation's setup does nothing; its terrain change
     /// draws once and is gone on the next update.
     /// </summary>
-    /// <returns>
-    /// False when the room is full; the request is then lost, as the game loses it (<see cref="Compatibility.RoomObjectPlaces"/>).
-    /// </returns>
-    public bool TrySpawn(RoomLevelData level, RoomObjectSpawnRequest<CrocomireArenaMutation> request)
+    public void TrySpawn(RoomLevelData level, RoomObjectSpawnRequest<CrocomireArenaMutation> request)
     {
         Ensure.NotNull(level);
         TerrainChange change = Ensure.Listed(Changes, request.RoomObject);
 
         Position16<RoomBlocks> block = level.GridBlock(request.Block);
         if (places.Spawn() is not { } place)
-            return false;
+            return;
 
         place.Block = block;
         place.Become(new TerrainChangeObject(change));
-        return true;
     }
 }

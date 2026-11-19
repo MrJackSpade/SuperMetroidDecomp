@@ -100,7 +100,7 @@ public sealed class ScreenFade
         return IsBlack;
     }
 
-    /// <summary>One update of fading out by one level, for a caller that tests the fade's brightness itself.</summary>
+    /// <summary>One update of fading out by one level, for a scene that tests the fade's brightness itself.</summary>
     public void StepDarker() => StepDarker(1);
 
     /// <summary>One update of fading out by <paramref name="levels"/> levels a step.</summary>

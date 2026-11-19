@@ -13,8 +13,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// A result nothing reads is not computed, and a parameter nothing needs is not taken (SME6474, #2566). In
 /// <c>SuperMetroid.Core</c> and <c>SuperMetroid.AssetExtraction</c>, a call to a method of the assembly does not throw its
 /// result away (<c>_ = Require(x);</c>, <c>Find(x, out _)</c>): the caller uses what the call reports, or calls an
-/// operation that reports nothing, or states the check it wants by name. A method no caller in its assembly reads the
-/// result of returns nothing; a method that returns null on every path returns nothing; and a method takes no parameter
+/// operation that reports nothing, or states the check it wants by name. A method outside the assembly's public surface
+/// whose result no caller in its assembly reads returns nothing; a method that returns null on every path returns nothing; and a method takes no parameter
 /// it discards (<c>_</c>). The <c>Ensure</c> guards, whose result is the value they checked, are calls made for their
 /// check; a method a delegate refers to keeps the shape the delegate's contract gives it, and overrides and interface
 /// implementations keep their contract's.
@@ -153,7 +153,7 @@ public sealed class UnreadResultAnalyzer : DiagnosticAnalyzer
                     context.ReportDiagnostic(Diagnostic.Create(Rule, shape.Location, method.Name,
                         "returns null on every path; return nothing"));
                 }
-                else if (!method.ReturnsVoid && discarded.ContainsKey(method) && !read.ContainsKey(method))
+                else if (!method.ReturnsVoid && discarded.ContainsKey(method) && !read.ContainsKey(method) && !IsVisibleOutside(method))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(Rule, shape.Location, method.Name,
                         "returns a value no caller reads; return nothing"));
@@ -198,6 +198,20 @@ public sealed class UnreadResultAnalyzer : DiagnosticAnalyzer
             INamedTypeSymbol type = method.ContainingType;
             return !type.AllInterfaces.SelectMany(face => face.GetMembers().OfType<IMethodSymbol>())
                 .Any(member => SymbolEqualityComparer.Default.Equals(type.FindImplementationForInterfaceMember(member), method));
+        }
+
+        /// <summary>
+        /// Whether <paramref name="method"/> is part of the assembly's public surface, whose results the hosts that call it
+        /// may read: its own calls are not all of its callers.
+        /// </summary>
+        private static bool IsVisibleOutside(IMethodSymbol method)
+        {
+            for (ISymbol? symbol = method; symbol is not null and not INamespaceSymbol; symbol = symbol.ContainingSymbol)
+            {
+                if (symbol.DeclaredAccessibility is not (Accessibility.Public or Accessibility.Protected or Accessibility.ProtectedOrInternal))
+                    return false;
+            }
+            return true;
         }
 
         /// <summary>Whether <paramref name="method"/> is one of the <c>Ensure</c> guards.</summary>

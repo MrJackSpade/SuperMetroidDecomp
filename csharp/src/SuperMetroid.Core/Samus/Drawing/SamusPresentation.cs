@@ -393,13 +393,12 @@ internal sealed class SamusPresentation
     /// <param name="cameraPosition">The camera the body is placed against.</param>
     /// <param name="frameCounter">The update counter invincibility's flicker reads.</param>
     /// <param name="turningFloor">The turning floor that rotates her drawn point, or null on a still floor.</param>
-    /// <returns>Whether the body was drawn.</returns>
     /// <remarks>
     /// The body is one whole picture (#1513, #1585): her pose at the picture frame the installed <see cref="SamusShownFrames"/> give the
     /// animation frame, placed at the origin the import baked into that installed frame (#1517). The body is always a whole
     /// Samus of her pose, while her animation frame and carried movement stay as gameplay left them.
     /// </remarks>
-    public bool Draw(SamusState samus,
+    public void Draw(SamusState samus,
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> cameraPosition,
         int frameCounter,
@@ -420,10 +419,9 @@ internal sealed class SamusPresentation
             !SamusCadenceDefinitions.InvincibilityFlickerHidden.IsSetIn(frameCounter);
         // A hidden body keeps the picture and origin it last drew, which the echoes repeat.
         if (!bodyVisible)
-            return false;
+            return;
 
         DrawBody(samus, sprites, cameraPosition, pictureFrame, turningFloor);
-        return true;
     }
 
     /// <summary>

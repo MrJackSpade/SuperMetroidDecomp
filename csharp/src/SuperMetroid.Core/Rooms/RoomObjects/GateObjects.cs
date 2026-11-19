@@ -69,7 +69,7 @@ internal sealed class GateObjects
     }
 
     /// <summary>Runs the gate-trigger shot step and wakes its adjacent gate.</summary>
-    public bool TrySpawnDownwardGateTrigger(
+    public void TrySpawnDownwardGateTrigger(
         RoomLevelData level,
         Position16<RoomBlocks> position,
         RoomBlockBehavior behavior,
@@ -77,14 +77,14 @@ internal sealed class GateObjects
     {
         Ensure.NotNull(level);
         if (!behavior.TryGetDownwardGateTrigger(out DownwardGateTrigger trigger))
-            return false;
+            return;
         DownwardGateTriggerDefinition definition = DownwardGateTriggerDefinitions.Triggers[trigger];
 
         // Spawning the trigger still takes a room-object place even though every trigger setup frees it again
         // at once. A full room therefore drops the collision just
         // as the game does.
         if (_places.Spawn() is not { } temporary)
-            return true;
+            return;
         temporary.Block = position;
 
         if (!definition.SetOffBy.Accepts(projectileType.Family))
@@ -93,7 +93,7 @@ internal sealed class GateObjects
             if (definition.RejectionSound is { } rejection)
                 _sounds.Queue(rejection, Priority: SoundRequestPriority.Normal);
             temporary.Delete();
-            return true;
+            return;
         }
 
         Position16<RoomBlocks> gateBlock = level.ObjectBlockStep(temporary.Block, new Offset16<RoomBlocks>(-ColumnsFromGate(trigger), 0));
@@ -117,7 +117,6 @@ internal sealed class GateObjects
         // Repeated accepted hits before the gate wakes do not accumulate extra close cycles.
         gate.Trigger();
         temporary.Delete();
-        return true;
     }
 
     /// <summary>Requests the moving gate projectile that slides the gate down from the place's block.</summary>

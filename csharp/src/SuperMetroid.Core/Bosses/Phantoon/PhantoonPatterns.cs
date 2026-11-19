@@ -660,11 +660,11 @@ internal sealed class PhantoonPatterns
 
     /// <summary>Initializes a casual flame, which falls from the mouth harmless until it strikes the floor.</summary>
     /// <param name="body">Phantoon's body.</param>
-    internal bool SpawnPhantoonCasualFlame(RoomEnemyPlace body)
+    internal void SpawnPhantoonCasualFlame(RoomEnemyPlace body)
     {
         EnemyProjectile? flame = AllocateDestroyableFlame(body);
         if (flame is null)
-            return false;
+            return;
         flame.Velocity = flame.Velocity.WithX(SignedEightEight.Zero);
         flame.Position = flame.Position.WithWhole(body.Position.Whole + PhantoonArenaDefinitions.MouthOffset);
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.CasualFallingKindling));
@@ -675,56 +675,52 @@ internal sealed class PhantoonPatterns
         // it has struck the floor and changed into the bouncing form.
         flame.CanDamageSamus = false;
         flame.BlocksSamusProjectiles = false;
-        return true;
     }
 
     /// <summary>Initializes an enraged flame, which circles the body from its start as its circle widens.</summary>
     /// <param name="phantoon">The encounter, whose body the flame circles.</param>
     /// <param name="start">Where on its circle the flame starts and which way it circles.</param>
-    internal bool SpawnPhantoonRageFlame(PhantoonEnemyState phantoon, PhantoonRageFlameStart start)
+    internal void SpawnPhantoonRageFlame(PhantoonEnemyState phantoon, PhantoonRageFlameStart start)
     {
         RoomEnemyPlace body = phantoon.Body;
         EnemyProjectile? flame = AllocateDestroyableFlame(body);
         if (flame is null)
-            return false;
+            return;
         flame.State = new PhantoonOrbitingFlameState(phantoon, start.Angle)
         {
             TurnPerUpdate = PhantoonFlameSpawns.RageTurnPerUpdate(start),
         };
         flame.Position = flame.Position.WithWhole(body.Position.Whole + PhantoonArenaDefinitions.MouthOffset);
         flame.StartMotion(PhantoonFlameMotion.RageOrbiting);
-        return true;
     }
 
     /// <summary>Initializes a spiral flame, which circles the body clockwise from its start as its circle widens.</summary>
     /// <param name="phantoon">The encounter, whose body the flame circles.</param>
     /// <param name="start">The flame's starting angle round the body.</param>
-    internal bool SpawnPhantoonSpiralFlame(PhantoonEnemyState phantoon, TrigonometryAngle start)
+    internal void SpawnPhantoonSpiralFlame(PhantoonEnemyState phantoon, TrigonometryAngle start)
     {
         RoomEnemyPlace body = phantoon.Body;
         EnemyProjectile? flame = AllocateDestroyableFlame(body);
         if (flame is null)
-            return false;
+            return;
         flame.State = new PhantoonOrbitingFlameState(phantoon, start);
         flame.Position = flame.Position.WithWhole(body.Position.Whole + PhantoonArenaDefinitions.FlameCircleCentre);
         flame.StartMotion(PhantoonFlameMotion.SpiralOrbiting);
-        return true;
     }
 
     /// <summary>Initializes a rain flame over a room column, falling after it hangs.</summary>
     /// <param name="body">Phantoon's body.</param>
     /// <param name="columnX">The screen X of the rain column the flame falls in (<see cref="PhantoonFlameSpawns.RainXs"/>).</param>
     /// <param name="hangUpdates">The updates from the flame's first to its fall, the flame hanging on every earlier one.</param>
-    internal bool SpawnPhantoonRainFlame(RoomEnemyPlace body, int columnX, int hangUpdates)
+    internal void SpawnPhantoonRainFlame(RoomEnemyPlace body, int columnX, int hangUpdates)
     {
         EnemyProjectile? flame = AllocateDestroyableFlame(body);
         if (flame is null)
-            return false;
+            return;
         flame.State = new PhantoonRainFlameState(hangUpdates);
         flame.Position = flame.Position.WithWholeX(columnX);
         flame.Position = flame.Position.WithWholeY(PhantoonArenaDefinitions.RainStartY);
         flame.StartMotion(PhantoonFlameMotion.RainFalling);
-        return true;
     }
 
     /// <summary>Allocates a destroyable flame and gives it the idle animation and a still, whole-pixel start.</summary>

@@ -119,7 +119,7 @@ internal sealed class CollectibleObjects
     /// Triggers the Chozo orb or concealed item block at <paramref name="block"/> that a shot, bomb or grapple reached:
     /// whatever reached it, the item responds with the same trigger.
     /// </summary>
-    public bool TryNotifyCollectibleProjectileHit(
+    public void TryNotifyCollectibleProjectileHit(
         Position16<RoomBlocks> block)
     {
         foreach (RoomObjectPlace place in _places.FromLastPlace)
@@ -131,12 +131,11 @@ internal sealed class CollectibleObjects
                     CollectiblePhase.ShotBlock or CollectiblePhase.ShotBlockShot or
                     CollectiblePhase.CollectedShotBlock or CollectiblePhase.CollectedShotBlockShot))
             {
-                return false;
+                return;
             }
             item.Trigger();
-            return true;
+            return;
         }
-        return false;
     }
 
     /// <summary>

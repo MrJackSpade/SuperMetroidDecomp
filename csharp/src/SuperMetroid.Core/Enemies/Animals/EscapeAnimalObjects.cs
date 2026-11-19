@@ -29,15 +29,11 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
     /// collision kind and behaviour change: its picture and what it shows stay. The object holds its place until the room
     /// objects first update, and leaves the room then.
     /// </summary>
-    /// <returns>
-    /// False when the room is full; nothing is spawned and the wall's blocks stay as they were then
-    /// (<see cref="Compatibility.RoomObjectPlaces"/>).
-    /// </returns>
-    public bool TrySpawnCrittersEscapeWall(RoomLevelData level, Position16<RoomBlocks> origin)
+    public void TrySpawnCrittersEscapeWall(RoomLevelData level, Position16<RoomBlocks> origin)
     {
         Ensure.NotNull(level);
         if (_places.Spawn() is not { } place)
-            return false;
+            return;
 
         place.Block = origin;
         WriteWallBlock(level, origin, EscapeAnimalWallDefinitions.OriginCollisionType, EscapeAnimalWallDefinitions.ReactionBehavior);
@@ -45,7 +41,6 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
             WriteWallBlock(level, origin + new Offset16<RoomBlocks>(0, row), EscapeAnimalWallDefinitions.ExtensionCollisionType,
                 EscapeAnimalWallDefinitions.ExtensionBehavior);
         place.Become(new CrittersEscapeWallSetupObject());
-        return true;
     }
 
     /// <summary>
@@ -53,23 +48,19 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
     /// removes the wall unless the critters-escaped event is set, so the passage
     /// stays shut when the animals were left behind.
     /// </summary>
-    /// <returns>
-    /// False when no room object remains: the event is unset or the room is full (<see cref="Compatibility.RoomObjectPlaces"/>).
-    /// </returns>
-    public bool TrySpawnCrateriaMainstreetEscapePassage(RoomLevelData level)
+    public void TrySpawnCrateriaMainstreetEscapePassage(RoomLevelData level)
     {
         Ensure.NotNull(level);
         if (_places.IsFull)
-            return false;
+            return;
         if (!_events.Has(StoryEvent.CrittersEscaped))
-            return false;
+            return;
         if (_places.Spawn() is not { } place)
-            return false;
+            return;
 
         place.Block = level.GridBlock(
             new(CrateriaMainstreetEscapePassageObjectDefinitions.BlockX, CrateriaMainstreetEscapePassageObjectDefinitions.BlockY));
         place.Become(new TerrainChangeObject(ScriptedTerrainChangeDefinitions.CrateriaEscapePassage));
-        return true;
     }
 
     /// <summary>Spawns the rescue wall's reaction, which breaks the wall open at its place in the room's update order.</summary>

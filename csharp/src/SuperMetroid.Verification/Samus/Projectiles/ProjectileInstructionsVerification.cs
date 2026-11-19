@@ -149,9 +149,13 @@ internal static class ProjectileInstructionsVerification
                         trail = pointer; pointer = unchecked((ushort)(pointer + 8)); break;
                     }
                 }
-                AssertEqual(deleted, system.Animation.AdvanceProjectileAnimation(slot), "Native delete/timed outcome");
+                system.Animation.AdvanceProjectileAnimation(slot);
+                AssertEqual(deleted, !slot.IsActive, "Native delete/timed outcome"));
                 if (bombPlays)
-                    AssertEqual(deleted, bombs.AdvanceProjectileAnimation(bomb), "Bomb native delete/timed outcome");
+                {
+                    bombs.AdvanceProjectileAnimation(bomb);
+                    AssertEqual(deleted, !bomb.IsActive, "Bomb native delete/timed outcome"));
+                }
                 frames++;
                 if (deleted)
                 {

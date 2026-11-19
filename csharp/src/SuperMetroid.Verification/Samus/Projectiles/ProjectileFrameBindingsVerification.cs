@@ -58,8 +58,9 @@ internal static class ProjectileFrameBindingsVerification
             bool still = SamusProjectileProgramAddresses.ShowsStillPicture(pointer);
             AssertTrue(Word(0) is > 0 and < 0x8000,
                 "native inventory contains timed records");
-            AssertEqual(false, shots.Animation.AdvanceProjectileAnimation(installedShot),
-                "installed projectile frame survives");
+            shots.Animation.AdvanceProjectileAnimation(installedShot);
+            AssertEqual(false, !installedShot.IsActive,
+                "installed projectile frame survives"));
             AssertEqual(nativeShot.SpritemapPointer, installedShot.SpritemapPointer,
                 "installed projectile frame selects the native sprite");
             AssertEqual<int?>(still ? null : nativeShot.NativeFrameHold, installedShot.NativeFrameHold,
@@ -72,8 +73,9 @@ internal static class ProjectileFrameBindingsVerification
                 "projectile Y radius is independent of sprite binding");
             if (still)
                 continue;
-            AssertEqual(false, bombs.AdvanceProjectileAnimation(installedBomb),
-                "installed bomb frame survives");
+            bombs.AdvanceProjectileAnimation(installedBomb);
+            AssertEqual(false, !installedBomb.IsActive,
+                "installed bomb frame survives"));
             AssertEqual(nativeBomb.SpritemapPointer, installedBomb.SpritemapPointer,
                 "installed bomb frame selects the native sprite");
             AssertEqual(nativeBomb.NativeFrameHold, installedBomb.NativeFrameHold,

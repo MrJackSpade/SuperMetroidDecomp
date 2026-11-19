@@ -58,7 +58,7 @@ internal sealed class DraygonGoop
         if (CoordinateAxis.Distance(state.Body.Position.X.Whole, samus.Position.X.Whole) < DraygonArenaDefinitions.GoopTailRange)
         {
             state.Phase = DraygonPhase.GoopTail;
-            state.GoopCounter = DraygonArenaDefinitions.GoopsPerPass;
+            state.GoopShotsLeft.LastFor(DraygonArenaDefinitions.GoopsPerPass);
             return;
         }
         MoveDraygonAlongGoopPath(state, direction);
@@ -82,7 +82,7 @@ internal sealed class DraygonGoop
 
         if (DraygonRandomDefinitions.GoopVolleySteps.IsTakenBy(_room.Random.Read()))
         {
-            if (--state.GoopCounter == 0)
+            if (state.GoopShotsLeft.StepRunsOut())
             {
                 FinishDraygonGoopFiring(state, direction);
                 return;
@@ -132,7 +132,6 @@ internal sealed class DraygonGoop
         if (!offScreen)
             return;
 
-        state.SwoopEntry = DraygonSwoops.PathOf(state).EntryCount;
         if (direction == HorizontalDirection.Right)
         {
             state.Phase = DraygonPhase.SwoopSetup;

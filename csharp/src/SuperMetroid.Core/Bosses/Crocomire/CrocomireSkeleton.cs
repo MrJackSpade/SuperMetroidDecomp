@@ -250,10 +250,7 @@ internal sealed class CrocomireSkeleton
     /// </summary>
     internal void BareCrocomireSkeleton(CrocomireDeathState death)
     {
-        if (death.SkeletonBaringElapsed == CrocomireSkeletonLookDefinitions.BaringDuration)
-            return;
-        death.SkeletonBaringElapsed++;
-        if (death.SkeletonBaringElapsed == CrocomireSkeletonLookDefinitions.BaringDuration)
+        if (death.SkeletonBaring.StepEnds())
             _presentation.ShowLook(CrocomireSkeletonLookDefinitions.SkeletonLook);
     }
 

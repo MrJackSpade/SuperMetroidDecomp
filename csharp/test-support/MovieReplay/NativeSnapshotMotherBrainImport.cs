@@ -264,14 +264,16 @@ internal static class NativeSnapshotMotherBrainImport
         sequence.State.BrainFallSpeed = new SignedEightEight(W(MotherBrainMemory.BodyFunctionTimer));
         sequence.RainbowAttack.AngularWidth = RotationAngleConstants.FromRaw(W(MotherBrainMemory.RainbowBeamAngularWidth));
         // The cartridge counts the attempts left less one, by sign: six at the start, minus one once they are spent.
-        sequence.RainbowAttack.SoundAttemptsLeft = CoordinateAxis.AsSigned(W(MotherBrainMemory.RainbowBeamSoundQueueCount)) + 1;
+        sequence.RainbowAttack.SoundAttempts = UpdateCountdown.For(CoordinateAxis.AsSigned(W(MotherBrainMemory.RainbowBeamSoundQueueCount)) + 1);
         sequence.State.RainbowBeamSoundPlaying = W(MotherBrainMemory.RainbowBeamSoundPlaying) != 0;
         sequence.State.HealthColoursEnabled = W(MotherBrainMemory.HealthBasedPaletteHandling) != 0;
         sequence.State.Phase2CorpseState = DecodePhase2CorpseState(W(MotherBrainMemory.Phase2CorpseState));
         sequence.Revival.BabyMetroidAttackCounter = W(MotherBrainMemory.BabyMetroidAttackCounter);
         // Once the sequence runs, the sub-function word holds the bursts' interval; their place was imported with the
         // encounter, whose cycle the sequence shares.
-        PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Interval), CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunction)));
+        // The cartridge's interval runs below zero on the update a burst is due: a count at zero or below is due next.
+        PrivateState.SetField(state.Bursts, "burstWait",
+            UpdateCountdown.For(Math.Max(0, CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunction))) + 1));
     }
 
     /// <summary>The phases of her rise from which it has placed her body with her (#1949, #2031).</summary>

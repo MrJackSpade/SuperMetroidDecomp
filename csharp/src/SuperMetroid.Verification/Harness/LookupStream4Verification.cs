@@ -873,7 +873,7 @@ internal static class LookupStream4Verification
         // The station's escape flies the getaway (#2228), from its second frame.
         CeresEscape escape = enemies.CeresEscape;
         escape.BeginGetaway();
-        escape.Floor.GetawayUpdate = 1;
+        escape.Floor.Flight = UpdateCountdownAccess.AtAge(CeresRidleyGetawayCurve.Duration, 1);
         SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
         void tick(int frameCounter) => escape.RunGetawayRoomMain(samus, map, frameCounter);
         byte[] untouched = new byte[SnesVram.ByteCount];
@@ -1968,7 +1968,7 @@ internal static class LookupStream4Verification
                 }
                 AssertEqual(RidleyRevealPhase.TakingOff, state.RevealPhase, "Native terminator handoff");
                 AssertEqual<int?>(RidleyLiquidDefinitions.BattleHeight, liquid.TargetSurface, "Native liquid target handoff");
-                AssertEqual(8, state.Flight.Wings.Countdown, "Native wing timer handoff");
+                AssertEqual(8, state.Flight.Wings.Countdown.Left, "Native wing timer handoff");
                 AssertTrue(state.Tail.Links.All(segment => segment.Active), "Native tail activation handoff");
             }
         }

@@ -70,6 +70,12 @@ internal static class ShitroidFightDefinitions
     /// <summary>The lock its hover builds before it chases Samus.</summary>
     internal const int HoverLockToChase = 256;
 
+    /// <summary>How far its horizontal lock builds on each update it keeps within reach of its target's X.</summary>
+    internal const int LockRise = 2;
+
+    /// <summary>How far its horizontal lock decays, never below none, on each update it strays from its target's X.</summary>
+    internal const int LockDecay = 1;
+
     /// <summary>The updates it hovers at Samus's height once its hover restarts, from the update after the restart.</summary>
     internal const int HoverUpdates = 32;
 

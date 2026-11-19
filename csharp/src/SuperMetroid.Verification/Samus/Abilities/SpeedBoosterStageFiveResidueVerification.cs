@@ -48,7 +48,7 @@ internal static class SpeedBoosterStageFiveResidueVerification
         // The station's escape flies the getaway (#2228), from its second frame.
         CeresEscape escape = enemies.CeresEscape;
         escape.BeginGetaway();
-        escape.Floor.GetawayUpdate = 1;
+        escape.Floor.Flight = UpdateCountdownAccess.AtAge(SuperMetroid.Core.Bosses.Ridley.CeresRidleyGetawayCurve.Duration, 1);
 
         // The first NMI advances both: capsule phase one, then wing frame one.
         var samus = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus();

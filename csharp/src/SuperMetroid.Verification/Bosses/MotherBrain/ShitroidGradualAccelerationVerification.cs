@@ -141,7 +141,7 @@ internal static class ShitroidGradualAccelerationVerification
             state.Velocity = velocity;
             state.StateTimer.LastFor(101);
             state.SamusHeightHover = SuperMetroid.Core.Bosses.BossCountdown.Lasting(4);
-            state.HorizontalLockAccumulator = 0;
+            PrivateState.Set(state.HorizontalLock, nameof(ShitroidHorizontalLock.Built), 0);
             shitroid.Position = shitroid.Position.WithWhole(new(700, 150));
             samus.Position = samus.Position.WithWhole(new(600, 180));
             Position16<RoomPixels> target = flight.Target();

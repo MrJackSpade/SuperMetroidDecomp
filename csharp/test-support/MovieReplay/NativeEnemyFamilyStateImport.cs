@@ -247,14 +247,19 @@ internal static class NativeEnemyFamilyStateImport
             switch (DraygonNativeWords.MeaningOfSharedValue(draygonRecord.Phase))
             {
                 case DraygonNativeWords.SharedValue.IntroFrames:
-                    draygonRecord.IntroFrames = words.B;
+                    draygonRecord.IntroStage = UpdateCountdownAccess.AtAge(draygonRecord.Phase == DraygonPhase.IntroDance
+                        ? DraygonIntroDanceDefinitions.DurationFrames
+                        : DraygonArenaDefinitions.IntroUpdates, words.B);
                     break;
                 case DraygonNativeWords.SharedValue.BurialWait:
                     // The cartridge's burial wait holds the updates left, the one he starts sinking on included.
                     draygonRecord.BurialWait.SetCartridgeCount(words.B - 1);
                     break;
                 case DraygonNativeWords.SharedValue.SwoopEntry:
-                    draygonRecord.SwoopEntry = words.B / DraygonNativeWords.SwoopEntryBytes;
+                    // The climb counts its entries up from the first; every other phase counts them down.
+                    draygonRecord.SwoopHalf = draygonRecord.Phase == DraygonPhase.SwoopAscending
+                        ? UpdateCountdownAccess.AtAge(words.C / DraygonNativeWords.SwoopEntryBytes, words.B / DraygonNativeWords.SwoopEntryBytes)
+                        : UpdateCountdown.For(words.B / DraygonNativeWords.SwoopEntryBytes);
                     break;
                 default:
                     throw new InvalidOperationException($"Undefined Draygon shared value meaning for {draygonRecord.Phase}.");

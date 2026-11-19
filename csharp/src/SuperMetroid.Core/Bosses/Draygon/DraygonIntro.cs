@@ -28,9 +28,9 @@ internal sealed class DraygonIntro
         int frameCounter)
     {
         _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
-        if (state.IntroFrames < DraygonArenaDefinitions.IntroUpdates)
+        if (state.IntroStage.IsRunning)
         {
-            if (state.IntroFrames == 0)
+            if (state.IntroStage.Age == 0)
             {
                 // Each Evir the dance spawns carries its own start delay, by the order it spawned in; the dance moves
                 // exactly these.
@@ -43,12 +43,12 @@ internal sealed class DraygonIntro
                     state.IntroDancers.Add(new DraygonIntroDancer(sprite, DraygonIntroDance.StartDelay(dancer)));
                 }
             }
-            state.IntroFrames++;
+            state.IntroStage.Count();
             return;
         }
 
         state.Phase = DraygonPhase.IntroDance;
-        state.IntroFrames = 0;
+        state.IntroStage = UpdateCountdown.Lasting(DraygonIntroDanceDefinitions.DurationFrames);
         state.LeftSideReset = state.Body.Position.Whole;
         state.RightSideResetX = CoordinateAxis.Wrap(state.LeftSideReset.X + DraygonArenaDefinitions.RightSideResetDistance);
         state.Body.Position = state.Body.Position.WithWhole(state.LeftSideReset);
@@ -62,11 +62,10 @@ internal sealed class DraygonIntro
         int frameCounter)
     {
         _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
-        if (state.IntroFrames >= DraygonIntroDanceDefinitions.DurationFrames)
+        if (state.IntroStage.IsOver)
         {
             state.Phase = DraygonPhase.SwoopSetup;
             state.PassDirection = HorizontalDirection.Right;
-            state.IntroFrames = 0;
             return;
         }
 
@@ -74,7 +73,7 @@ internal sealed class DraygonIntro
         foreach (DraygonIntroDancer dancer in state.IntroDancers)
         {
             RoomEffectActor sprite = dancer.Sprite;
-            int step = state.IntroFrames - dancer.StartDelay;
+            int step = state.IntroStage.Age - dancer.StartDelay;
             if (step < 0 || !sprite.IsActive)
                 continue;
 
@@ -89,6 +88,6 @@ internal sealed class DraygonIntro
             sprite.Position += movement.Delta;
         }
 
-        state.IntroFrames++;
+        state.IntroStage.Count();
     }
 }

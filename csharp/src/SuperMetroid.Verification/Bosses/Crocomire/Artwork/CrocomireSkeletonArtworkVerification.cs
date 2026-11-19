@@ -75,8 +75,7 @@ internal static class CrocomireSkeletonArtworkVerification
         AssertEqual(nativeCharacters.Length, installedCharacters.Length, "the OBJ page spans the native OBJ characters");
         AssertEqual(-1, Enumerable.Range(0, nativeCharacters.Length).FirstOrDefault(index => installedCharacters[index] != nativeCharacters[index], -1),
             "all six installed Crocomire skeleton uploads match the native OBJ characters (first differing byte)");
-        AssertEqual(CrocomireSkeletonLookDefinitions.BaringDuration,
-            installedState.SkeletonBaringElapsed,
+        AssertTrue(installedState.SkeletonBaring.IsOver,
             "the update after the skeleton is bared bares nothing more");
         AssertEqual(0, denied.ForbiddenReadAttempts,
             "installed Crocomire skeleton upload reads no ROM bytes");

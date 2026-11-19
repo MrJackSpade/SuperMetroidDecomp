@@ -184,7 +184,7 @@ internal static class DraygonStateQuantitiesVerification
         AssertThrows<ArgumentOutOfRangeException>(() => path.HeightAt(expected.Count + 1), "the path has no height past its starting height");
         uint velocity = SixteenSixteenWords.FromWhole((uint)Math.Abs(CoordinateAxis.AsSigned(unchecked(resetX - 200)))) / (uint)expected.Count;
         AssertEqual(velocity, state.SwoopVelocity.RawValue, "swoop horizontal speed");
-        AssertEqual(expected.Count, state.SwoopEntry, "the descent starts at the swoop's starting height");
+        AssertEqual(expected.Count, state.SwoopHalf.UpdatesLeft, "the descent starts at the swoop's starting height");
     }
 
     /// <summary>Samus at the point the swoop paths aim at.</summary>

@@ -53,10 +53,10 @@ public sealed class BotwoonEnemyState
     /// </summary>
     public QuadraticSpeedCurvePlace FallPlace { get; internal set; }
     /// <summary>
-    /// The updates the wall sequence has run, 0 through <see cref="BotwoonDeathDefinitions.WallExplosionDuration"/>; the
-    /// band its explosions burst in moves down the wall with it.
+    /// The wall sequence, lasting <see cref="BotwoonDeathDefinitions.WallExplosionDuration"/>; the band its explosions
+    /// burst in moves down the wall with its age.
     /// </summary>
-    public int WallExplosionUpdates { get; internal set; }
+    public UpdateCountdown WallSequence { get; internal set; } = UpdateCountdown.Ended();
     /// <summary>
     /// The wait for the next large wall explosion (#2267): from the wall sequence's update 64 one bursts at once, then one
     /// every <see cref="BotwoonDeathDefinitions.LargeExplosionInterval"/>.

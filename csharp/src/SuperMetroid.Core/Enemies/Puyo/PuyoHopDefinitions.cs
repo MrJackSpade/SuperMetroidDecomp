@@ -32,8 +32,8 @@ internal static class PuyoHopDefinitions
     private static readonly RandomSampleField HopRollParity = new(0, 1);
 
     /// <summary>
-    /// The ordinary hop a Puyo that last made the small one takes next (#1619): the parity of its hop roll advanced by the
-    /// enemy's frame counter chooses the small hop again or the big one, one time in two each.
+    /// The ordinary hop a Puyo that last made the small one takes next (#1619): its hop roll advanced by the enemy's frame
+    /// counter chooses the small hop again or the big one, one time in two each.
     /// </summary>
     internal static readonly WeightedRandomChoice<PuyoHopType> HopAfterSmallHop = new(
         HopRollParity, new(1, PuyoHopType.NormalSmall), new(1, PuyoHopType.NormalBig));
@@ -48,8 +48,8 @@ internal static class PuyoHopDefinitions
 
     /// <summary>
     /// The chance a dropped Puyo's bounce is <see cref="PuyoHopType.DroppedBig"/> rather than
-    /// <see cref="PuyoHopType.DroppedSmall"/> (#1619): its hop roll, advanced by the enemy's frame counter, odd, one time
-    /// in two.
+    /// <see cref="PuyoHopType.DroppedSmall"/> (#1619): its hop roll, advanced by the enemy's frame counter, chooses it one
+    /// time in two.
     /// </summary>
     internal static readonly RandomChance BigDroppedBounce = RandomChance.Highest(1, HopRollParity);
 

@@ -7,8 +7,8 @@ internal static class ShaktoolOrbitDefinitions
     internal static RotationAngle StraighteningTurn { get; } = RotationAngle.FromSteps(1);
 
     /// <summary>
-    /// The share of the whole steps left to its target a converging segment turns by each update: a sixty-fourth, four
-    /// 256ths of a step for each step left.
+    /// The share of the whole steps left to its target a converging segment turns by each update: a sixty-fourth of a
+    /// step for each step left.
     /// </summary>
     internal const int ConvergenceShares = 64;
 

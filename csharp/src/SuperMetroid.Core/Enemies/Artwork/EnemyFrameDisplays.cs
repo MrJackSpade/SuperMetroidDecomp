@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// <summary>
 /// Every installed enemy frame as gameplay draws it (#1463, #1513, #1603): which frames are installed, which of them have a
 /// picture on the installed enemy sheets, and the frame displayed for each frame an enemy shows. Each pictured frame is one
-/// whole picture composed by the import pipeline from the frame's pieces; hitboxes stay the game's.
+/// whole picture; hitboxes stay the game's.
 /// </summary>
 public sealed class EnemyFrameDisplays
 {
@@ -39,7 +39,7 @@ public sealed class EnemyFrameDisplays
 
     /// <summary>
     /// Whether the frame gameplay shows is displayed through an installed frame, and whether the displayed frame has a
-    /// picture: the empty frame, a frame shown only on a boss body, and a frame whose pieces show nothing have none.
+    /// picture: the empty frame, a frame shown only on a boss body, and a frame that shows nothing have none.
     /// </summary>
     internal bool TryGetDisplay(EnemyFrameId frame, out bool pictured)
     {
@@ -59,7 +59,10 @@ public sealed class EnemyFrameDisplays
         return true;
     }
 
-    /// <summary>The frame displayed for <paramref name="frame"/>, whose boss body half accompanies the displayed picture.</summary>
+    /// <summary>
+    /// The installed frame that displays <paramref name="frame"/>: the frame its binding names, or the frame itself when no
+    /// binding names one.
+    /// </summary>
     internal EnemyFrameId GetDisplayFrame(EnemyFrameId frame) =>
         _displayFrames.TryGetValue(frame, out EnemyFrameId selected) ? selected : frame;
 }

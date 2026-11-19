@@ -9,10 +9,10 @@ internal static class PhantoonRandomDefinitions
     /// </summary>
     internal static readonly WeightedRandomChoice<int> VulnerableWindow = PhantoonTimerDefinitions.VulnerableWindow.ChosenBy(new(0, 3));
 
-    /// <summary>The figure eight after the eye closes running reversed (#2470): an odd sample, one in two.</summary>
+    /// <summary>The figure eight after the eye closes running reversed (#2470): one time in two.</summary>
     internal static readonly RandomChance FigureEightRunsReversed = RandomChance.Highest(1, new RandomSampleField(0, 1));
 
-    /// <summary>The next figure eight starting on the right, at X 208 (#2470): an odd sample, one in two.</summary>
+    /// <summary>The next figure eight starting on the right, at X 208 (#2470): one time in two.</summary>
     internal static readonly RandomChance FigureEightStartsRight = RandomChance.Highest(1, new RandomSampleField(0, 1));
 
     /// <summary>

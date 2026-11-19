@@ -125,7 +125,7 @@ public sealed class TorizoEnemyState
     /// <summary>
     /// Whether the Torizo falls at <see cref="TorizoMotionDefinitions.RestingFallSpeed"/>, as its setup, a landing and a
     /// walk off a ledge leave it, its vertical speed unchanged since (#1945): a Torizo that meets the ground falling so
-    /// lands without a quake. Only that fall moves at that speed exactly: gravity and the leaps add forty 256ths an update
+    /// lands without a quake. Only that fall moves at that speed exactly: gravity and the leaps add five thirty-seconds of a pixel an update
     /// to a rest or to a leap's rise, neither of which comes back to it.
     /// </summary>
     internal bool FallsAtRestingSpeed { get; private set; }

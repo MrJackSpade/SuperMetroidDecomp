@@ -54,7 +54,7 @@ public readonly record struct AngularSpeed : IComparable<AngularSpeed>
         }
     }
 
-    /// <summary>The fraction beneath <see cref="WholeSteps"/>, 0 through 255 256ths of a step, toward increasing angles.</summary>
+    /// <summary>The fraction beneath <see cref="WholeSteps"/>, less than one step, toward increasing angles.</summary>
     private int Fraction => FractionsOfStep - WholeSteps * FractionsPerStep;
 
     /// <summary>Whether the speed turns toward decreasing angles.</summary>

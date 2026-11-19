@@ -28,7 +28,7 @@ public sealed class WallSpacePirateEnemyState
 
     /// <summary>
     /// The way the Pirate climbs its wall: down at first, reversed by a blocked vertical move, and chosen again by the
-    /// climb animation's direction cues, by whether the random number is odd.
+    /// climb animation's direction cues (<see cref="SpacePirateDecisions.ClimbsUp"/>).
     /// </summary>
     public WallSpacePirateClimbDirection ClimbDirection { get; internal set; }
 

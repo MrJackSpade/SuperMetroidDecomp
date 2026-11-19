@@ -6,7 +6,7 @@ internal static class FlyMotionDefinitions
     /// <summary>How close Samus comes horizontally, in pixels and exclusive, before a circling fly dives at her.</summary>
     internal const int AttackHorizontalRange = 112;
 
-    /// <summary>How far a circling fly turns each update: sixteen 256ths of a turn.</summary>
+    /// <summary>How far a circling fly turns each update: sixteen steps, a sixteenth of a turn.</summary>
     internal const int CircleTurnSteps = 16;
 
     /// <summary>How many updates longer than its dive a fly retreats: the retreat's last update is the one it turns back on.</summary>

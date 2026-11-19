@@ -30,7 +30,7 @@ public static class PhantoonMotionDefinitions
     public static SignedEightEight SwoopNegativeYThreshold { get; } = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1535);
     /// <summary>
     /// The figure-eight's speed change each update while it eases in, in path places per update, in either direction
-    /// (#1936): six 256ths of a place.
+    /// (#1936): three 128ths of a place.
     /// </summary>
     public static SignedSixteenSixteen SlowSpeedChange { get; } = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(6);
     /// <summary>

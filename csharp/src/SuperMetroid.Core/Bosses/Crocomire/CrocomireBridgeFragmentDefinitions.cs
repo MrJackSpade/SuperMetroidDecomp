@@ -9,7 +9,7 @@ internal static class CrocomireBridgeFragmentDefinitions
     /// Where each bridge fragment of Crocomire's fall starts, in the order the bridge crumbles (#2303): the bridge's eleven
     /// sixteen-pixel columns from X 1808 to 1968, visited in an authored order no random number chooses. The collapse
     /// launches one fragment an update in this order; each starts at Y 187 with no horizontal speed and its own picture,
-    /// and falls at a random speed of 64 through 127 256ths of a pixel per update.
+    /// and falls at a random speed per update from a quarter of a pixel up to, but not including, half a pixel.
     /// </summary>
     private static readonly ImmutableArray<int> CrumbleXPositions = [1920, 1840, 1936, 1856, 1968, 1888, 1952, 1904, 1808, 1872, 1824];
 

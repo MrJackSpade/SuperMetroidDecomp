@@ -56,8 +56,7 @@ internal static class MiscDustProjectileBehaviorVerification
         {
             RoomEnemySystem smokeEnemies = CreateRoomEnemySystem();
             smokeEnemies.EyeDoorBehavior.SpawnEyeDoorProjectile(
-                new EyeDoorProjectileRequest(puff, Facing: EyeDoorOrientation.Left, RoomObjectBlock: new(7, 4)),
-                new SharedGameState(new SharedRandom()));
+                new EyeDoorProjectileRequest(puff, Facing: EyeDoorOrientation.Left, RoomObjectBlock: new(7, 4)));
             EnemyProjectile smoke = smokeEnemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.EyeDoorSmoke);
             AssertTrue(smoke.Animation is DustExplosionProjectileAnimation started && started.PlayingSegment == animation,

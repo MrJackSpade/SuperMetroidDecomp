@@ -122,20 +122,18 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         state.Playback = EnemyAnimationPlayback.Start(place, ElevatorAnimations.StartingWith(ElevatorSegment.Idle));
         state.RestingY = place.Position.Y.Whole;
 
+        // An elevator in a room the ride is not arriving in rests idle with its journey cleared; one in the room a ride
+        // is arriving in starts at its arrival height with Samus on it.
         if (ElevatorStatus != ElevatorActorStatus.BeginArrivalReturn)
         {
             ElevatorFlags = ElevatorJourneyFlag.None;
             ElevatorStatus = ElevatorActorStatus.Inactive;
+            return;
         }
 
-        // The game treats a ride as arriving when either its status or its journey flags are set, so a beginning
-        // arrival counts even if a malformed journey lost the door flag.
-        if (ElevatorStatus != ElevatorActorStatus.Inactive || ElevatorFlags != ElevatorJourneyFlag.None)
-        {
-            place.Position = place.Position.WithWholeY(place.SpawnSettings<ElevatorSpawnSettings>().ArrivalY);
-            PinSamusToElevator(place, samus);
-            _arrivalPlacement = place;
-        }
+        place.Position = place.Position.WithWholeY(place.SpawnSettings<ElevatorSpawnSettings>().ArrivalY);
+        PinSamusToElevator(place, samus);
+        _arrivalPlacement = place;
     }
 
     /// <summary>Runs the elevator's main behaviour and its four phases.</summary>

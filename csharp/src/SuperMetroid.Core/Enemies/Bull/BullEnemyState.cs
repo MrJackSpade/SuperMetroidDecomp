@@ -56,8 +56,8 @@ public sealed class BullEnemyState
     public SignedEightEight Speed { get; internal set; }
 
     /// <summary>
-    /// Whether flight is still below <paramref name="maximumSpeed"/>, its spawn settings' 1023 through 2815 256ths of a
-    /// pixel an update; an overshooting update is not clamped.
+    /// Whether flight is still below <paramref name="maximumSpeed"/>, its spawn settings' top speed, from a 256th of a
+    /// pixel short of four to a 256th short of eleven pixels an update; an overshooting update is not clamped.
     /// </summary>
     internal bool IsBelow(SignedEightEight maximumSpeed) => Speed < maximumSpeed;
 

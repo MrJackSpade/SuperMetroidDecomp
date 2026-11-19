@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
-/// <summary>The three non-sidehopper dead-monster graphics families.</summary>
+/// <summary>The three kinds of corpse besides the Sidehopper's that lie in Tourian.</summary>
 public enum DeadTourianCorpseSpecies
 {
     /// <summary>The 24-by-16-pixel Zoomer corpses: on its back or upright.</summary>

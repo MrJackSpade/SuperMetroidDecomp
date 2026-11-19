@@ -61,7 +61,7 @@ internal static class SamusVerticalMotionDefinitions
 
     /// <summary>
     /// Each medium's gravity, the downward speed Samus gains per update: seven sixty-fourths of a pixel in air, a
-    /// thirty-second in water and nine 256ths in lava or acid.
+    /// thirty-second in water and a thirty-second and a 256th in lava or acid.
     /// </summary>
     internal static readonly IReadOnlyDictionary<SamusLiquidMedium, UnsignedSixteenSixteen> Gravities =
         new Dictionary<SamusLiquidMedium, UnsignedSixteenSixteen>

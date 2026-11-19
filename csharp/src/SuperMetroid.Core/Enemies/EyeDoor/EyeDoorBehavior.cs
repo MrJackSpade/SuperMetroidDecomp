@@ -27,12 +27,8 @@ internal sealed class EyeDoorBehavior
     /// with the room's graphics. The projectile keeps the room object's block and room
     /// because its setup reads both.
     /// </summary>
-    public void SpawnEyeDoorProjectile(
-        EyeDoorProjectileRequest request,
-        SharedGameState system)
+    public void SpawnEyeDoorProjectile(EyeDoorProjectileRequest request)
     {
-        Ensure.NotNull(system);
-
         RoomEnemyProjectileKind kind = request.Definition switch
         {
             EyeDoorProjectileDefinition.Sweat =>
@@ -165,8 +161,8 @@ internal sealed class EyeDoorBehavior
     }
 
     /// <summary>
-    /// Starts smoke showing <paramref name="animation"/> scattered across <paramref name="placement"/>: uses one shared
-    /// random sample for both smoke offsets, then advances the seed.
+    /// Starts smoke showing <paramref name="animation"/> scattered across <paramref name="placement"/>: one random number
+    /// places the smoke on both axes, then the smoke draws one more random number of its own.
     /// </summary>
     internal void InitializeEyeDoorSmoke(
         EnemyProjectile projectile,
@@ -182,7 +178,7 @@ internal sealed class EyeDoorBehavior
             placement.Base.X + placement.XScatter.Of(random),
             placement.Base.Y + placement.YScatter.Of(random)));
 
-        // The spawn advances the global seed after sampling it for both coordinates.
+        // The smoke draws the next random number once both axes have read the current one.
         _room.Random.Generate();
     }
 

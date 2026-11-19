@@ -14,7 +14,7 @@ public sealed class BoulderEnemyState
     public BoulderAction Action { get; internal set; }
 
     /// <summary>
-    /// The travel acceleration clock along the quadratic speed curve: advanced by 32 or 64 256ths of a mark per update
+    /// The travel acceleration clock along the quadratic speed curve: advanced by an eighth or a quarter of a mark per update
     /// and capped at mark 80 or 64, so it stays within the start through mark 80; its whole marks select the speed. It
     /// drives horizontal travel while bouncing and rolling, and also the ground-following fall while rolling, so it is
     /// an independent clock rather than one axis of a velocity.
@@ -38,11 +38,12 @@ public sealed class BoulderEnemyState
     }
 
     /// <summary><paramref name="value"/>, checked to lie from the curve's start through <paramref name="largest"/>.</summary>
-    private static QuadraticSpeedCurvePlace InRange(QuadraticSpeedCurvePlace value, QuadraticSpeedCurvePlace largest)
-    {
-        _ = Ensure.BetweenInclusive(0, largest.InTwoHundredFiftySixthsOfMark, value.InTwoHundredFiftySixthsOfMark);
-        return value;
-    }
+    /// <exception cref="ArgumentOutOfRangeException">The place lies before the curve's start or past <paramref name="largest"/>.</exception>
+    private static QuadraticSpeedCurvePlace InRange(QuadraticSpeedCurvePlace value, QuadraticSpeedCurvePlace largest) =>
+        value >= QuadraticSpeedCurvePlace.Start && value <= largest
+            ? value
+            : throw new ArgumentOutOfRangeException(nameof(value), value,
+                $"A Boulder's place on the speed curve lies from the curve's start through {largest}.");
 
     /// <summary>
     /// The ground impacts so far, zero through <see cref="BoulderBounces.ImpactCount"/>; the last impact ends the bounce

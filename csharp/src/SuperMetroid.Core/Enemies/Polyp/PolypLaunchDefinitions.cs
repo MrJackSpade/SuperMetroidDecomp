@@ -28,7 +28,7 @@ internal static class PolypLaunchDefinitions
     /// <summary>
     /// The horizontal velocity a launch's draw chooses (#2510): the sixteen rolls of <see cref="LaunchSelector"/> in turn, the
     /// first eight pushing right and the second eight left by the same magnitudes, each a sixteenth of a pixel per update
-    /// faster than the last from 96 256ths.
+    /// faster than the last from three eighths of a pixel.
     /// </summary>
     internal static readonly WeightedRandomChoice<SignedEightEight> XVelocity = WeightedRandomChoice<SignedEightEight>.InTurn(
         LaunchSelector,

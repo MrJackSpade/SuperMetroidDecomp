@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// <param name="Orientation">The surface it starts on.</param>
 /// <param name="BlockSide">The side of its block it holds, which signs its crawl velocity.</param>
 /// <param name="CrawlSpeed">
-/// Its crawl speed on both axes, in 1/256 pixels per update; none keeps the velocity it has and takes the default speed
-/// after its first landing.
+/// Its crawl speed per update on both axes; none keeps the velocity it has and takes the default speed after its first
+/// landing.
 /// </param>
 internal sealed record CrawlerSpawnSettings(CrawlerSurfaceOrientation Orientation, CrawlerSurfaceOrientation BlockSide, SignedEightEight? CrawlSpeed) : EnemySpawnSettings;

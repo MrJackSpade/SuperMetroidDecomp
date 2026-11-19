@@ -70,7 +70,7 @@ public sealed class CrawlerEnemyState
     /// <see cref="CrawlerMotionDefinitions.MissedProbesBeforeFalling"/>: contact and landing reset it, and the fourth miss selects falling rather
     /// than another outside-corner turn.
     /// </summary>
-    public int ConsecutiveTurnCounter
+    public int ConsecutiveMissedProbes
     {
         get;
         internal set => field = Ensure.AtLeastZero(value);
@@ -82,7 +82,7 @@ public sealed class CrawlerEnemyState
     /// </summary>
     internal bool MissedSurfaceTooOften()
     {
-        ConsecutiveTurnCounter++;
-        return ConsecutiveTurnCounter >= CrawlerMotionDefinitions.MissedProbesBeforeFalling;
+        ConsecutiveMissedProbes++;
+        return ConsecutiveMissedProbes >= CrawlerMotionDefinitions.MissedProbesBeforeFalling;
     }
 }

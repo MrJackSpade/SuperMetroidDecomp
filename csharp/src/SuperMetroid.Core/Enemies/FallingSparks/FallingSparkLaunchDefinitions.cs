@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Enemies.FallingSparks;
 public static class FallingSparkLaunchDefinitions
 {
     /// <summary>
-    /// The launch a spark takes, chosen from eight rolls of its random number (#2510): the seven authored horizontal drifts
-    /// per update in turn, in 256ths of a pixel, four leftward and three rightward, and for the eighth roll the drift past
-    /// them (<see cref="FallingSparkUnauthoredLaunch"/>).
+    /// The launch a spark takes, chosen from eight rolls of its random number (#2510): the seven authored sideways drifts
+    /// per update in turn, four leftward and three rightward, and for the eighth roll the drift past them
+    /// (<see cref="FallingSparkUnauthoredLaunch"/>).
     /// </summary>
     internal static readonly WeightedRandomChoice<FallingSparkLaunch> Launch = WeightedRandomChoice<FallingSparkLaunch>.InTurn(
         new RandomSampleField(2, 3),

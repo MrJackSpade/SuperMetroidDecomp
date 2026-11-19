@@ -10,7 +10,7 @@ public enum BeetomAction
 {
     /// <summary>Decides between lunging at Samus and its own idling, crawling or hopping by whether she is horizontally closer than 96 pixels.</summary>
     DecideAction,
-    /// <summary>Takes a random number that chooses idling, crawling or hopping, and faces right on an odd number.</summary>
+    /// <summary>Takes a random number that chooses idling, crawling or hopping and the way it faces (<see cref="BeetomDecisions.FacesRight"/>).</summary>
     DecideActionSamusNotInProximity,
     /// <summary>Starts the idle's wait, which the Beetom counts down standing still from the next update.</summary>
     StartIdling,

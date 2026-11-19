@@ -9,7 +9,7 @@ internal static class DragonFireballDefinitions
     /// </summary>
     internal static Offset16<RoomPixels> MuzzleFacingRight { get; } = new(12, -28);
 
-    /// <summary>The upward speed a fireball is spat at: three pixels and 193 256ths an update.</summary>
+    /// <summary>The upward speed a fireball is spat at: three and three quarter pixels and a 256th an update.</summary>
     internal static SignedEightEight LaunchRise { get; } = -SignedEightEight.FromParts(3, 193);
 
     /// <summary>The fireball's sideways speed toward the Dragon's facing: two and three quarter pixels an update.</summary>

@@ -18,8 +18,8 @@ internal abstract record CeresBabyCue
     internal sealed record UpdateColors(CeresBabyShade Shade) : CeresBabyCue;
 
     /// <summary>
-    /// The baby cries (#2167); while it is still and the game's current random number is odd it instead rests silently,
-    /// its owner starting its resting loop.
+    /// The baby cries (#2167); while it is still, one time in two by the game's current random number, it instead rests
+    /// silently, its owner starting its resting loop.
     /// </summary>
     internal sealed record Cries : CeresBabyCue;
 }

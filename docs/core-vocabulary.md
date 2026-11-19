@@ -837,6 +837,23 @@ wait lasts for (`the Hyper Beam's cooldown (SamusProjectileCooldownDefinitions.H
 speed moves Samus. A timer, cooldown or countdown alone, a one-update wait, timer or delay, which runs out on the next
 update, a wait counted in prose (`sixteen updates`), a calculation and a hardware owner stay English.
 
+#2533 widens SME6454, outside hardware owners, to the original's storage units, random bits and program bytes as enemy
+prose tells them, read across a documentation comment's line breaks: a value counted as a number of 256ths, in digits or
+words (`twelve 256ths of a pixel`, `1023 through 2815 256ths`, `32 or 64 256ths of a mark`, `four pixels and 80
+256ths`); a random number told by its oddness (`faces right on an odd number`, `an odd sample`, `an odd roll`, `the random
+number is odd`) or its parity (`the parity of the roll`); code, data, words, definitions, entries, lists or tables
+stored, kept or placed after, before, around or past another thing (`drifting by the code stored after them`) and the
+code that follows or precedes one; a definition, entry, table or record pointing a thing at a reaction, routine,
+animation, handler, list, entry, definition, program or segment (`definitions intentionally point touch and shot at the
+same private reaction`, `points the caret sprite at its blinking animation`); and, on a parameter of a method,
+constructor, delegate, indexer, local function or primary constructor typed as a measure (the #2491 types), the unit its
+type already states (`its crawl speed, in 1/256 pixels per update` on a `SignedEightEight?` parameter). Core says what the
+game does: how fast a thing moves in the game's fractions (three sixty-fourths of a pixel an update), one time in two,
+which drift the roll past the authored launches takes, that a touch starts a corpse's rot as a shot does. A unit of
+measure (`in 256ths of a pixel`, `a 256th of a pixel`, `one 256th`), an odd number of things, odd updates, frames, columns
+and counts, a frame counter's parity, a thing stored alone, a thing pointing at another (`the missile points at the
+answer`), the same unit on a parameter typed as a number and a hardware owner stay English.
+
 SME6459 (#2309) reads the summary of every member of a Core `*Segment` enum, one run of an actor's animation, and rejects
 one that only restates the member's name: `The facing left shooting animation.`, `The idle.`, `The loop.`, and (#2465)
 any summary whose words are all the name's, the actor's the enum is named for, articles, possessives or `animation`,

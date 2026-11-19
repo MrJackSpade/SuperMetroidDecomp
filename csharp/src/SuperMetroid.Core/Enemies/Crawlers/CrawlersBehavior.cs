@@ -199,7 +199,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         SignedSixteenSixteen wallProbe = WithProbeMargin(state.Velocity.X, CrawlerMotionDefinitions.ProbeMargin);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, wallProbe))
         {
-            state.ConsecutiveTurnCounter = 0;
+            state.ConsecutiveMissedProbes = 0;
             EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, place);
             SignedSixteenSixteen tangent = state.Velocity.Y.ToSixteenSixteenDelta();
             if (_terrain.MoveEnemyVertically(level, place, tangent))
@@ -236,7 +236,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         SignedSixteenSixteen surfaceProbe = WithProbeMargin(state.Velocity.Y, CrawlerMotionDefinitions.ProbeMargin);
         if (_terrain.MoveEnemyVertically(level, place, surfaceProbe))
         {
-            state.ConsecutiveTurnCounter = 0;
+            state.ConsecutiveMissedProbes = 0;
             SignedSixteenSixteen tangent = GetCrawlerSlopeAdjustedHorizontalDisplacement(place, state, level);
             if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, tangent))
             {
@@ -304,7 +304,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         SignedSixteenSixteen wallProbe = WithProbeMargin(state.Velocity.X, CrawlerMotionDefinitions.ProbeMargin);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, wallProbe))
         {
-            state.ConsecutiveTurnCounter = 0;
+            state.ConsecutiveMissedProbes = 0;
             EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, place);
             SignedSixteenSixteen tangent = state.Velocity.Y.ToSixteenSixteenDelta();
             if (!_terrain.MoveEnemyVertically(level, place, tangent))
@@ -338,7 +338,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         SignedSixteenSixteen surfaceProbe = WithProbeMargin(state.Velocity.Y, CrawlerMotionDefinitions.ProbeMargin);
         if (_terrain.MoveEnemyVertically(level, place, surfaceProbe))
         {
-            state.ConsecutiveTurnCounter = 0;
+            state.ConsecutiveMissedProbes = 0;
             SignedSixteenSixteen tangent = GetCrawlerSlopeAdjustedHorizontalDisplacement(place, state, level);
             if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, tangent))
             {
@@ -378,7 +378,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Velocity = CrawlerMotionDefinitions.DefaultCrawlSpeed;
             }
             state.FallingYVelocity = SignedSixteenSixteen.Zero;
-            state.ConsecutiveTurnCounter = 0;
+            state.ConsecutiveMissedProbes = 0;
             state.Action = state.NonFallingAction;
             return;
         }

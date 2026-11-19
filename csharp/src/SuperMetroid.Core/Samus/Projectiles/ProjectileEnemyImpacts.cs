@@ -48,7 +48,7 @@ internal sealed class ProjectileEnemyImpacts
         }
 
         if (markCollisionState)
-            shot.IsSpent = true;
+            shot.Spend();
     }
 
     /// <summary>

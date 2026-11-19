@@ -319,7 +319,7 @@ internal sealed class BeamCombos
                     spazer.Radius = BeamComboDefinitions.SpazerFlyingStartRadius;
                     spazer.TurnPerUpdate = SpazerTurn(spazer.Part.SpazerTurn, BeamComboDefinitions.SpazerFlyingTurn);
                     shot.Direction = SamusProjectileDirection.UpFacingRight;
-                    shot.IsSpent = false;
+                    shot.FlyOn();
                     spazer.Phase = SpazerComboPhase.FlyingUpTowardsPoint;
                 }
                 break;
@@ -407,7 +407,7 @@ internal sealed class BeamCombos
         shot.Position = OffRoomPlaces.WithWholeX(shot.Position, shot.Position.X.Whole +
             (spazer.Part.SpazerTrail ? -BeamComboDefinitions.SpazerFallSideStep : BeamComboDefinitions.SpazerFallSideStep));
         shot.Direction = SamusProjectileDirection.DownFacingLeft;
-        shot.IsSpent = false;
+        shot.FlyOn();
         shot.Trail = UpdateCountdown.Lasting(ProjectileTimingDefinitions.TrailInterval);
         spazer.Phase = SpazerComboPhase.Falling;
         if (!spazer.Part.SpazerTrail)

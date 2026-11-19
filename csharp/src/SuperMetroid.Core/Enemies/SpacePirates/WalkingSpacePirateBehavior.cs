@@ -476,7 +476,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                 _ => throw new InvalidDataException($"Projectile aim {c.Projectile.Direction} decoded to an undefined direction."),
             };
             c.Projectile.Direction = reflected;
-            c.Projectile.IsSpent = false;
+            c.Projectile.FlyOn();
             c.Projectiles.EnemyImpacts.ReflectFromEnemy(c.Samus,
                 c.Projectile);
             RequestSpacePirateSound(EnemySoundEffectDefinitions.WalkingPirateReflectSound);

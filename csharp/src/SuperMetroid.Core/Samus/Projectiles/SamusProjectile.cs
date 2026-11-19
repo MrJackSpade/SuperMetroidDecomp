@@ -64,10 +64,19 @@ public sealed class SamusProjectile
     public SamusProjectileDirection Direction { get; internal set; }
 
     /// <summary>
-    /// Whether the projectile has already struck something: enemy and enemy-projectile collision set it so later
-    /// collisions skip the projectile, and the projectile's own update then deletes or converts it.
+    /// Whether the projectile has already struck something: an enemy or enemy-projectile collision spends it
+    /// (<see cref="Spend"/>) so later collisions skip it, and the projectile's own update then deletes or converts it.
     /// </summary>
-    public bool IsSpent { get; internal set; }
+    public bool IsSpent { get; private set; }
+
+    /// <summary>The projectile strikes something (#2562): later collisions skip it, and its own update deletes or converts it.</summary>
+    internal void Spend() => IsSpent = true;
+
+    /// <summary>
+    /// The projectile flies on as though it had struck nothing (#2562): an enemy it passes through, or a beam combination
+    /// that keeps it, leaves it unspent, even when an earlier collision this update spent it.
+    /// </summary>
+    internal void FlyOn() => IsSpent = false;
 
     /// <summary>Room position, to a fraction of a pixel.</summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }

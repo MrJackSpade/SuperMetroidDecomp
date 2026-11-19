@@ -428,7 +428,7 @@ internal sealed class RidleyTail
             }
 
             projectile.Position = projectile.Position.WithWhole(joint.Position);
-            projectile.IsSpent = true;
+            projectile.Spend();
 
             // A missile gets the tiny dud and the dud-shot sound. Beams and supers
             // use the larger smoke variant, exactly as the tail's shot reaction selects it.

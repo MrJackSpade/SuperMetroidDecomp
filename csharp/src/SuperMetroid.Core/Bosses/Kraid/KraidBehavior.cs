@@ -170,7 +170,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 new(_shot.Position.Whole, _shot.Radius, _shot.Type, _shot.Damage, IsPlacedBomb: false);
 
             /// <inheritdoc/>
-            public override void MarkCollision() => _shot.IsSpent = true;
+            public override void MarkCollision() => _shot.Spend();
         }
 
         /// <summary>The bomb the passes test past the last shot place: Samus's first bomb.</summary>
@@ -188,7 +188,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 new(_bomb.Position.Whole, _bomb.Radius, _bomb.Type, _bomb.Damage, IsPlacedBomb: !_bomb.IsBombSpread);
 
             /// <inheritdoc/>
-            public override void MarkCollision() => _bomb.IsSpent = true;
+            public override void MarkCollision() => _bomb.Spend();
         }
     }
 

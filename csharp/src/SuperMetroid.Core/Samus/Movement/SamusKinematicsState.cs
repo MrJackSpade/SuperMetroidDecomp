@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// reads.
 /// </summary>
 /// <remarks>
-/// Positions keep their whole pixels and subpixels apart because collision intentionally
-/// sets each on its own (for example, a right wall puts Samus on the last subpixel of her pixel).
+/// Positions keep their whole pixels and fractions of a pixel apart because collision intentionally
+/// sets each on its own (for example, a right wall puts Samus at the largest fraction of her pixel).
 /// Collapsing this state to floats would erase those observable edge semantics.
 /// </remarks>
 public sealed class SamusKinematicsState
@@ -80,8 +80,8 @@ public sealed class SamusKinematicsState
 
     /// <summary>
     /// Room position, to a fraction of a pixel.
-    /// Collision deliberately overwrites the whole pixels or the subpixels on their own (a right wall puts Samus on the
-    /// last subpixel of her pixel), which the operations on each part preserve.
+    /// Collision deliberately overwrites the whole pixels or the fraction on their own (a right wall puts Samus at the
+    /// largest fraction of her pixel), which the operations on each part preserve.
     /// </summary>
     public FixedPosition<RoomPixels> Position { get; set; }
 

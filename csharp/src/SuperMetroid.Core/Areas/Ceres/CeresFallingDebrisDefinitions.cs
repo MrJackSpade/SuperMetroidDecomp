@@ -22,11 +22,11 @@ internal static class CeresFallingDebrisDefinitions
     internal const int StartingY = 42;
 
     /// <summary>The downward speed a piece starts its fall with: a sixteenth of a pixel per update.</summary>
-    internal static readonly SignedEightEight StartingFallSpeed = SignedEightEight.FromParts(0, 16);
+    internal static readonly SignedEightEight StartingFallSpeed = SignedEightEight.FromSixteenthsOfPixel(1);
 
     /// <summary>
     /// The speed a falling piece gains each update before it moves: a sixteenth of a pixel per update, so its first
     /// update already moves it an eighth of a pixel.
     /// </summary>
-    internal static readonly SignedEightEight FallAcceleration = SignedEightEight.FromParts(0, 16);
+    internal static readonly SignedEightEight FallAcceleration = SignedEightEight.FromSixteenthsOfPixel(1);
 }

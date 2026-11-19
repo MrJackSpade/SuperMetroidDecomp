@@ -27,13 +27,23 @@ public static class CartridgeRoomStateImporter
         int Long(int offset) => RomDataReader.ReadLongFixedBank(cartridge, address + offset);
         int levelSource = Long(0);
         RoomLevelId level = RoomLevelSourceDefinitions.Addresses.Single(pair => pair.Value == levelSource).Key;
+        ushort library = LibraryBackgroundPointer(bus, statePointer);
         return new RoomStateSettings(RoomStateSourcesConstants.State(statePointer).Name, level, RoomGraphicsSetCodec.Decode(Byte(3)), RoomMusicCodec.Decode(Byte(4), Byte(5)),
             Word(6) == 0 ? null : SuperMetroid.Core.Fx.RoomFxDefinitions.Get(Word(6)), SuperMetroid.Core.World.RoomStates.RoomEnemyPopulationDefinitions.Get(Word(8)),
             BackgroundScrollCodec.Decode(Byte(12), Byte(13)),
             SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Get(Word(14)), Word(16) == 0 ? null : XrayRoomOverlaySourcesConstants.Overlay(Word(16)),
             RoomBehaviorRoutines.ResolveMain(MainCodePointer(bus, statePointer)), SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Get(Word(20)),
-            Word(22) == 0 ? null : LibraryBackgroundSources.Program(Word(22)).Background, RoomBehaviorRoutines.ResolveSetup(SetupCodePointer(bus, statePointer)));
+            library == 0 ? null : LibraryBackgroundSources.Program(library).Background,
+            RoomBehaviorRoutines.ResolveSetup(SetupCodePointer(bus, statePointer)));
     }
+
+    /// <summary>
+    /// The bank-$8F library-background command list the room-state payload at <paramref name="statePointer"/> names, or
+    /// zero for none, before the import decodes it to the background it builds: several lists build the cleared
+    /// background and the boss's body.
+    /// </summary>
+    public static ushort LibraryBackgroundPointer(ISnesAddressSpace bus, ushort statePointer) =>
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(Ensure.NotNull(bus)), (0x8f0000 | statePointer) + 22);
 
     /// <summary>
     /// The cartridge pointer of the enemy graphics set the bank-$8F room-state payload at <paramref name="statePointer"/>

@@ -1,5 +1,3 @@
-using SuperMetroid.Core.World.RoomStates;
-
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Verification access to <see cref="LibraryBackgroundProgramDefinitions"/> members production does not use.</summary>
@@ -32,13 +30,5 @@ internal static class LibraryBackgroundProgramDefinitionsAccess
     {
         /// <summary>The bank-$8F command-list pointer of this program.</summary>
         internal ushort Pointer => LibraryBackgroundSourcesConstants.PointerOf(self);
-    }
-
-    /// <summary>The background-data word of a room state.</summary>
-    extension(RoomStateSettings self)
-    {
-        /// <summary>The word this state stores for its library background: its program's pointer, or zero for none.</summary>
-        internal ushort BackgroundDataPointer => self.Background is { } background
-            ? LibraryBackgroundSourcesConstants.PointerOf(LibraryBackgroundPrograms.Of(background)) : (ushort)0;
     }
 }

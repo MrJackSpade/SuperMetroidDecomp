@@ -63,7 +63,7 @@ internal sealed class EnemyRoomEffects
     /// <summary>
     /// Starts the glow an enemy's placement started, if any, among the room's colour effects (#1733): the gunship's glow,
     /// which its top hull's placement starts. The glow keeps the gunship it shows on and runs until the room's colour
-    /// effects are cleared (#1783), as the original's glow object runs until the room load clears its colour effects.
+    /// effects are cleared, which a room load does (#1783).
     /// </summary>
     internal static void StartEnemyGlow(EnemyGlowStart? glow, EnemyRoomEffectSite site)
     {

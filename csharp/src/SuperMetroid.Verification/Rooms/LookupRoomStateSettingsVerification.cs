@@ -66,7 +66,7 @@ internal static class LookupRoomStateSettingsVerification
         Suite(nameof(VerifyRoomStateXrayPointer), () => VerifyRoomStateXrayPointer(rom));
         Suite(nameof(VerifyRoomStateMainBehavior), () => VerifyRoomStateMainBehavior(rom));
         Suite(nameof(VerifyRoomStateObjectPointer), () => VerifyRoomStateObjectPointer(rom));
-        Suite(nameof(VerifyRoomStateBackgroundDataPointer), () => VerifyRoomStateBackgroundDataPointer(rom));
+        Suite(nameof(VerifyRoomStateLibraryBackground), () => VerifyRoomStateLibraryBackground(rom));
         Suite(nameof(VerifyRoomStateSetupBehavior), () => VerifyRoomStateSetupBehavior(rom));
     }
 
@@ -166,7 +166,7 @@ internal static class LookupRoomStateSettingsVerification
     /// <summary>Checks the room's PLM population pointer in each state.</summary>
     private static void VerifyRoomStateObjectPointer(CartridgeImportAddressSpace rom) => VerifyRoomStateField(rom, state => state.RoomObjectPointer, "RoomObjectPointer");
     /// <summary>Checks the scripted background-data pointer in each state.</summary>
-    private static void VerifyRoomStateBackgroundDataPointer(CartridgeImportAddressSpace rom) => VerifyRoomStateField(rom, state => state.BackgroundDataPointer, "BackgroundDataPointer");
+    private static void VerifyRoomStateLibraryBackground(CartridgeImportAddressSpace rom) => VerifyRoomStateField(rom, state => state.Background, "LibraryBackground");
     /// <summary>
     /// Checks each state's one-time setup behaviour is the one the import decodes from its cartridge callback pointer,
     /// every routine that returns at once decoding to none (#1787), instead of comparing the raw pointer.

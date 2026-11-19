@@ -5,8 +5,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
 /// The collision the game defines for Crocomire's fifty selected body frames and their thirteen hitbox lists. Each frame lists
-/// only the components that hold hitboxes, each once (#1937): the original's empty low and upper components and the
-/// central body it repeated at the same place could never be the first hitbox a probe met.
+/// only the components that hold hitboxes, each once (#1937).
 /// Sprite and body-layer art are deliberately absent: installed visual overrides cannot
 /// alter the game's component offsets, rectangles, or reaction identities.
 /// Corpse-frame requests delegate to the separate corpse collision catalog.

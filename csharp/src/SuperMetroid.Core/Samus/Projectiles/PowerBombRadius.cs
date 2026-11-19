@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
 /// A Power Bomb's radius, or the change of radius one update of its blast makes, in whole pixels and 256ths of a pixel:
-/// from nothing up to 255 and 255/256 pixels. Lengths add, subtract and compare as plain numbers.
+/// from nothing up to one 256th of a pixel short of 256 pixels. Lengths add, subtract and compare as plain numbers.
 /// </summary>
 /// <remarks>
 /// No explosion leaves that range, so no wrap is kept and a length outside it is refused. The stages that grow a

@@ -14,7 +14,7 @@ internal static class EscapeAcidRiseObjectDefinitions
     /// <summary>The point Samus passes, right of X 240 and below Y 1344, to start the acid rising.</summary>
     internal static SamusTriggerPoint TriggerPoint { get; } = new(new Position16<RoomPixels>(240, 1344));
 
-    /// <summary>The acid's rising speed once triggered: 104/256 of a pixel upward per update.</summary>
+    /// <summary>The acid's rising speed once triggered: thirteen thirty-seconds of a pixel upward per update.</summary>
     internal static SignedEightEight RiseSpeed { get; } = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-104);
 
     /// <summary>The updates the acid waits, shaking the room, before it starts to rise.</summary>

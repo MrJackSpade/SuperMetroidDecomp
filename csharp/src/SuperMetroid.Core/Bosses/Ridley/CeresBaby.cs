@@ -22,7 +22,7 @@ public sealed class CeresBaby
     public CeresBabyAction Action { get; internal set; } = CeresBabyAction.CarriedInArms;
 
     /// <summary>
-    /// Gets the Baby's room position. Its vertical fraction carries the falling integrator's subpixels and
+    /// Gets the Baby's room position. Its vertical fraction of a pixel is the one its fall left and
     /// survives the hand attachments, which replace only the whole pixels.
     /// </summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }

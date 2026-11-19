@@ -59,7 +59,7 @@ internal static class DoorObjectNativeProgramOracle
         {
             NativeColoredDoorLists lists = DoorObjectNativeListAddresses.Colored(color, facing);
             ColoredDoorSequences sequences = ColoredDoorDefinitions.Sequences[new ColoredDoorVariant(color, facing)];
-            DoorCapPaint paint = DoorCaps.PaintOf(color);
+            DoorCapPaint paint = ColoredDoorDefinitions.Colors[color].Paint;
             string at = $"{color} {facing} cap";
 
             ushort cursor = CompareSteps(cartridge, lists.Closing, DoorCapSequenceDefinitions.CapClosing, paint, facing, $"{at} closing", ref images);
@@ -76,7 +76,7 @@ internal static class DoorObjectNativeProgramOracle
 
             VerificationAssertions.AssertEqual(RoomObjectInstruction.IncrementDoorHitCounterAndGoto, InstructionAt<RoomObjectInstruction>(cartridge, lists.Hit),
                 $"{at} counts its hit");
-            VerificationAssertions.AssertEqual(ColoredDoorDefinitions.HitThresholds[color], (int)ReadOperandByte(cartridge, lists.Hit + 2), $"{at} hit count");
+            VerificationAssertions.AssertEqual(ColoredDoorDefinitions.Colors[color].HitsToOpen, (int)ReadOperandByte(cartridge, lists.Hit + 2), $"{at} hit count");
             VerificationAssertions.AssertEqual(lists.Open, Word(cartridge, lists.Hit + 3), $"{at} opens at its count");
             cursor = CompareSteps(cartridge, unchecked((ushort)(lists.Hit + 5)), sequences.Flash, paint, facing, $"{at} flash", ref images);
             _ = ExpectGoto(cartridge, cursor, RoomObjectInstruction.Goto, lists.Sleep, $"{at} rests again after its flash");

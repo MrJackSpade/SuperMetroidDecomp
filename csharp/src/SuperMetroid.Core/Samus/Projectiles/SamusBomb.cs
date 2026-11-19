@@ -17,7 +17,7 @@ public sealed class SamusBomb
     /// <summary>The bomb's place among the five, zero through four: bombs take the lowest free one, and a spread fills all five.</summary>
     public int Place { get; }
 
-    /// <summary>Room position in 1/65536 pixels.</summary>
+    /// <summary>Room position, to a fraction of a pixel.</summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
 
     /// <summary>

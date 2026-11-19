@@ -1,22 +1,28 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Progression;
 using S = SuperMetroid.Core.Rooms.Doors.DoorCapSegment;
 
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// The coloured caps' authored data (#1554): how many hits each colour takes and each colour and facing's animations
+/// The coloured caps' authored data (#1554): each colour's rules (#2546) and each colour and facing's animations
 /// (<see cref="DoorCapSequenceDefinitions"/>). A Super Missile opens any cap it may hit at once, whatever hits the cap has
 /// taken (#1907). Every cap plays the same shape; the yellow downward cap waits on its closed image longer, the yellow left
 /// cap opens fast and lingers open, and the red cap sounds each hit.
 /// </summary>
 internal static class ColoredDoorDefinitions
 {
-    /// <summary>The hits each colour's cap takes before it opens.</summary>
-    internal static IReadOnlyDictionary<ColoredDoorColor, int> HitThresholds { get; } = new Dictionary<ColoredDoorColor, int>
+    /// <summary>
+    /// Each colour's rules: a yellow cap counts a Power Bomb's hit and opens on it, a green cap counts a Super Missile's and
+    /// opens on it, and a red cap counts a missile's or a Super Missile's and opens on its fifth hit.
+    /// </summary>
+    internal static IReadOnlyDictionary<ColoredDoorColor, ColoredDoorColorDefinition> Colors { get; } =
+        new Dictionary<ColoredDoorColor, ColoredDoorColorDefinition>
     {
-        [ColoredDoorColor.Yellow] = 1,
-        [ColoredDoorColor.Green] = 1,
-        [ColoredDoorColor.Red] = 5,
+        [ColoredDoorColor.Yellow] = new([SamusProjectileFamily.PowerBomb], 1, DoorCapPaint.OfColor(ColoredDoorColor.Yellow)),
+        [ColoredDoorColor.Green] = new([SamusProjectileFamily.SuperMissile], 1, DoorCapPaint.OfColor(ColoredDoorColor.Green)),
+        [ColoredDoorColor.Red] = new([SamusProjectileFamily.Missile, SamusProjectileFamily.SuperMissile], 5,
+            DoorCapPaint.OfColor(ColoredDoorColor.Red)),
     };
 
     /// <summary>The yellow downward cap's closed image as it starts to wait, for three updates.</summary>

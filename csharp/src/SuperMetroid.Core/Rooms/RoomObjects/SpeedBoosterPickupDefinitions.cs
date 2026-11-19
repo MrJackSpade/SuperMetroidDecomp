@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal static class SpeedBoosterPickupDefinitions
 {
     /// <summary>
-    /// The lava's upward speed once the Speed Booster acquisition message returns: an eighth of a pixel per update
-    /// (32/256 of a pixel, upward).
+    /// The lava's upward speed once the Speed Booster acquisition message returns: an eighth of a pixel upward per
+    /// update.
     /// </summary>
     internal static SignedEightEight LavaRiseVelocity { get; } = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-32);
 }

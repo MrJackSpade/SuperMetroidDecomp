@@ -391,7 +391,7 @@ helper`, `in signed 1/65536-pixel form`); paired additions, adds, subtractions o
 paired additions`); and a routine run or called as a helper or controller (`Runs the linked-segment placement helper`,
 `runs the last segment's collision/reversal controller`, `calls the previous-pose helper`). Core says what the value or
 the step does: the speed moves the position, a fraction past a whole pixel carries into the whole pixels, the segment is
-placed on its orbit, the chain reverses. A unit of measure (`a speed in 1/65536 pixels`; #2427 reads the hyphenated form),
+placed on its orbit, the chain reverses. A unit of measure (`a speed in 1/65536 pixels`; #2427 reads the hyphenated form and #2546 this one),
 things the game pairs, an addition alone, the player's controller with its input, buttons or port, and a helper or
 controller nothing runs or calls stay English.
 
@@ -596,7 +596,7 @@ prose tells it: `shared` or `common storage` and `storage slots`; a value counte
 65536ths`, `544 65536ths`); the game keeping, holding or storing `one value for` several things, things kept `in one
 value` (or a second or third), a value read `under another meaning` or `under each other's meaning`; and a step that
 `leaves a marker in` a value. Core keeps each meaning on its own and says what the game does with it. A unit of
-measure (`in pixels and 65536ths`, `one 65536th of a pixel further`), a value alone and a marker the game shows stay
+measure (`one 65536th of a pixel further`; #2546 reads `in pixels and 65536ths`), a value alone and a marker the game shows stay
 English.
 
 #2407 widens SME6454, outside hardware owners, to the original's storage and program and the port's reasoning about
@@ -655,7 +655,7 @@ position`, `a signed 1/65536-pixel velocity`), which #2172 had left as a unit of
 template (`The Ceres steam species owner: its per-room state, behaviour and the interactions it registers`) on the
 summary of a type that neither is nor implements `IEnemyEntityFactory` or `IEnemySpecies`. Core says what the game
 does: pictures arrive pre-coloured, a position or speed carries its fraction of a pixel in its type, and a type that owns
-no species says what it is (`The Zebes escape's explosions`, `The falling sparks`). A speed in 1/65536 pixels, a setup
+no species says what it is (`The Zebes escape's explosions`, `The falling sparks`). A setup
 that selects anything but colours and an entity's parameter naming its species owner stay English.
 
 #2433 widens SME6454, outside hardware owners, to the machine's coordinate wrap and the original's stores, calls and
@@ -675,7 +675,7 @@ a tail of the program (`the shared post-combat tail`, `the species tail`, `the c
 type's range (`past the type's range`, `far inside its type`). Core says what the game does: only the whole pixels are
 restored and the place within the pixel carries over, the animation's last frame lets the enemy rest or fall, the setup
 places the platform, the reaction freezes the parts listed after it, a jump's speed stays within a few pixels an update.
-A thing's or a place's entry point (`his entry point`), a sub-pixel position, a fraction of a pixel, a body's tail and a
+A thing's or a place's entry point (`his entry point`), a fraction of a pixel, a body's tail and a
 hardware owner's own range stay English.
 
 #2446 widens SME6454, outside hardware owners, to the original's program, storage and tables as Samus prose tells them:
@@ -692,7 +692,7 @@ what the game does: the runtime clears the damage mode before every movement ste
 once it connects, a ball that is bouncing takes the bouncing step, the accepted gap is never negative, the camera speed is
 the distance Samus moved either way plus one, a solid spike block deals its own damage, the shinespark poses break bomb
 blocks. A body's tail (`Ridley's tail`, `the tail cap`), an entry that is a place or a moment (`the room entry`, `the crash
-entry`, `the entry door`), a number that is nonzero (`a nonzero timer`), a unit of measure (`a speed in 1/65536 pixels`), a
+entry`, `the entry door`), a number that is nonzero (`a nonzero timer`), a
 turn that records, a sprite list alone and a hardware owner stay English.
 
 #2461 widens SME6454, outside hardware owners, to the port's narration of its build and its scope and to the original's
@@ -862,6 +862,18 @@ all identical (`four launches, chosen at random, all identical`), and fractions 
 `leave the fractions zero`, `zero fractions`). Core says what the game does: every launch flies at these speeds, one
 pixel an update leftward, whole pixels only. A number of the game's rooms, doors or areas (`the game's 262 rooms`), a
 thing all identical with no count, a fraction of a pixel, no fraction, a zero fraction and a hardware owner stay English.
+
+#2546 widens SME6454, outside hardware owners, to the original's storage units and the original program as room, area
+and effects prose tells them, read across a documentation comment's line breaks: an amount of a pixel written over 256
+(`104/256 of a pixel`, `255/256 pixel per frame`, `1/256 of a pixel`); a count of 65536ths in any form (`in pixels and
+65536ths`, `in energy and its 65536ths`); a value in 1/65536 pixels (`held in 1/65536 pixels`, `wrapping in 1/65536
+pixels`), which #2172 and #2427 had left as a unit of measure; subpixels in any spelling (`in pixels and subpixels`,
+`Samus's Y subpixel`, `a sub-pixel position`), which #2440 had left as English; and anything the original's (`the
+original's setup rewrites nothing but the block's type`, `the original's closing switches the object it finds`). Core
+says what the game does: how fast a thing moves in the game's fractions (thirteen thirty-seconds of a pixel an update,
+five pixels an update), that a position or a speed carries its fraction of a pixel, which part of a block a setup
+changes, which closing a door starts. A speed in 1/256 pixels, a 256th or one 65536th of a pixel, a fraction of a pixel,
+an original alone, the original game and a hardware owner stay English.
 
 SME6459 (#2309) reads the summary of every member of a Core `*Segment` enum, one run of an actor's animation, and rejects
 one that only restates the member's name: `The facing left shooting animation.`, `The idle.`, `The loop.`, and (#2465)

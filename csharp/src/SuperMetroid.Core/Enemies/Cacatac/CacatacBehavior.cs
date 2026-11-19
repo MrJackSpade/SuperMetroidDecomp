@@ -158,7 +158,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Spawns a spike projectile from the Cacatac and initializes it.
-    /// The source actor supplies both origin subpixels and the sheet and colours its spikes draw in.
+    /// The source actor supplies the origin's fractions of a pixel and the sheet and colours its spikes draw in.
     /// </summary>
     internal void SpawnCacatacSpike(RoomEnemyPlace source, CacatacSpikeDirection direction)
     {

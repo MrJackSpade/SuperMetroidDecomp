@@ -9,12 +9,12 @@ namespace SuperMetroid.Core.Samus;
 public sealed class SamusPeriodicDamage
 {
     /// <summary>
-    /// The periodic damage accumulated and not yet applied, in energy and its 65536ths: <see cref="Apply"/> applies and
+    /// The periodic damage accumulated and not yet applied, in whole energy and its fraction: <see cref="Apply"/> applies and
     /// clears it once an update, so it holds no more than one update's contributions.
     /// </summary>
     public UnsignedSixteenSixteen Pending { get; private set; }
 
-    /// <summary>Adds one periodic-damage contribution, in energy and its 65536ths.</summary>
+    /// <summary>Adds one periodic-damage contribution, in whole energy and its fraction.</summary>
     /// <remarks>
     /// Liquid, block and enemy damage all add to one amount, so fractions that together pass a whole energy add one to
     /// the whole damage.

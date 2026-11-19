@@ -25,7 +25,7 @@ internal enum RidleyBodyCueKind
     /// <summary>Spawns a fireball without an afterburn.</summary>
     SpawnFireballWithoutAfterburn,
     /// <summary>
-    /// Lifts Ridley off at the end of his take-off (#2230): he starts rising at 352/256 of a pixel an update, and the
+    /// Lifts Ridley off at the end of his take-off (#2230): he starts rising at a pixel and three eighths an update, and the
     /// encounter that owns his body starts its flight.
     /// </summary>
     LiftOff,

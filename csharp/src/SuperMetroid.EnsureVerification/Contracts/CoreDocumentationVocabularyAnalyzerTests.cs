@@ -880,9 +880,9 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
             "('1/65536-pixel sum')");
         Expect("class P { string Name => \"Moves the projectile in 1/65536-pixel space.\"; }", "('1/65536-pixel space')");
         Expect("class P { // The 1/65536th constant is exactly -1.0\n }", "('1/65536th constant')");
-        // A unit of measure and a hardware owner are English; a value named by its hyphenated 1/65536-pixel storage is
-        // #2427's.
-        Expect("class P { /// <summary>A speed in 1/65536 pixels; one 65536th of a pixel further.</summary>\nint F => 0; }");
+        // One 65536th of a pixel and a hardware owner are English; a value named by its hyphenated 1/65536-pixel storage is
+        // #2427's, and a value in 1/65536 pixels #2546's.
+        Expect("class P { /// <summary>One 65536th of a pixel further.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the game's 1/65536-pixel additions carry the fraction.</summary>\n[CompatibilityService(\"carry\")] class Carry { }");
         // Paired arithmetic, outside hardware owners, spaced or hyphenated (#2172).
         Expect("class P { // The fraction's overflow and the whole pixels' wraparound match the game's paired additions.\n }", "('paired additions')");
@@ -1640,8 +1640,9 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { void Run() { // the one value a phase reads under another meaning\n } }", "('under another meaning')");
         Expect("class P { /// <summary>The rumble later leaves a marker in the same value.</summary>\nint F => 0; }",
             "('leaves a marker in')");
-        // A unit of measure, one 65536th, a value alone, a marker the game shows and a hardware owner are English.
-        Expect("class P { /// <summary>Where it stands, in pixels and 65536ths; one 65536th of a pixel further; the map marker.</summary>\nint F => 0; }");
+        // One 65536th, a value alone, a marker the game shows and a hardware owner are English; a unit of 65536ths is
+        // #2546's.
+        Expect("class P { /// <summary>Where it stands; one 65536th of a pixel further; the map marker.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the original keeps one counter for both.</summary>\n[CompatibilityService(\"count\")] class Count { }");
         // The original's storage and program and the port's reasoning about them in boss prose, outside hardware owners
         // and markup (#2407): what the original gave or kept, unreachable or unused frames told as not authored, a value
@@ -1768,8 +1769,8 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { /// <summary>A fingernail's signed 1/65536-pixel velocity in pixels per update.</summary>\nint F => 0; }",
             "('1/65536-pixel')");
         Expect("class P { string Name => \"its 1/65536th-pixel steps\"; }", "('1/65536th-pixel')");
-        // A unit of measure, a setup that selects anything but colours and a hardware owner are English.
-        Expect("class P { /// <summary>A speed in 1/65536 pixels; the setup selects the vent's first plume.</summary>\nint F => 0; }");
+        // A setup that selects anything but colours and a hardware owner are English; a value in 1/65536 pixels is #2546's.
+        Expect("class P { /// <summary>A speed; the setup selects the vent's first plume.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the setup selects the common sprite colours for Samus's 1/65536-pixel position.</summary>\n[CompatibilityService(\"setup\")] class Setup { }");
         // The machine's coordinate wrap and the original's stores, calls and writes in enemy prose, outside hardware owners
         // and markup (#2433): a comparison across the room's wrap or on either side of it, a distance measured as an encoding
@@ -1804,9 +1805,9 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { /// <summary>Runs the private post-common-shot tail.</summary>\nvoid Run() { } }", "('private post-common-shot tail')");
         Expect("class P { /// <summary>A velocity past the type's range fails loudly.</summary>\nint F => 0; }", "('type's range')");
         Expect("class P { void Run() { // so the velocity stays far inside its type\n } }", "('inside its type')");
-        // A thing's or a place's entry point, a sub-pixel position, a fraction of a pixel, a body's tail, a type alone or of
-        // something and a hardware owner are English.
-        Expect("class P { /// <summary>Near his entry point; the room's entry point; its sub-pixel position; a fraction of a pixel; Draygon's tail; its tail whips; the shared arena; a type of enemy; inside the type of shot.</summary>\nint F => 0; }");
+        // A thing's or a place's entry point, a fraction of a pixel, a body's tail, a type alone or of something and a
+        // hardware owner are English; a sub-pixel position is #2546's.
+        Expect("class P { /// <summary>Near his entry point; the room's entry point; a fraction of a pixel; Draygon's tail; its tail whips; the shared arena; a type of enemy; inside the type of shot.</summary>\nint F => 0; }");
         Expect(EncodingOwner + "/// <summary>The speed lies outside the type's range; the handshake keeps both subpositions.</summary>\n[EncodingOwner(\"speed\")] struct Speed { }");
         // The original's program, storage and tables in Samus prose, outside hardware owners and markup (#2446): epilogues,
         // tails named by what they end, a routine's entries by kind, an enum or flag told as nonzero, a value told by its
@@ -1843,7 +1844,7 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
             "('RightPose\"/> through <see cref=\"LeftPose')");
         // A body's tail, an entry that is a place or a moment, a number that is nonzero, a unit of measure, a turn that
         // records, a sprite list alone, a pose kept through something and a hardware owner are English.
-        Expect("class P { int RightPose => 0; /// <summary>Ridley's tail whips; the tail cap; the room entry; the crash entry; the entry door; a nonzero timer; a nonzero external value; a speed in 1/65536 pixels; the turn records its angle; the frame's sprite list; keeps <see cref=\"RightPose\"/> through the turn.</summary>\nint F => 0; }");
+        Expect("class P { int RightPose => 0; /// <summary>Ridley's tail whips; the tail cap; the room entry; the crash entry; the entry door; a nonzero timer; a nonzero external value; the turn records its angle; the frame's sprite list; keeps <see cref=\"RightPose\"/> through the turn.</summary>\nint F => 0; }");
         Expect(EncodingOwner + "/// <summary>The common epilogue keeps 0 through 32767, held unsigned, in the damage table.</summary>\n[EncodingOwner(\"speed\")] struct Speed { }");
         // The port's build and scope and the original's animation layout, outside hardware owners and markup (#2461):
         // anything compiled or modelled, the port named as itself, an animation laid out against another, laid out by its
@@ -2143,6 +2144,26 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // pixel, no fraction, a zero fraction and a hardware owner are English.
         Expect("class P { /// <summary>The game's 262 rooms; one of the game's doors; one of the game's values; the game's sixteen collision families; a launch\n/// leftward; the pieces are all identical; a fraction of a pixel; no fraction; a zero fraction; <see cref=\"Run\"/>.</summary>\nvoid Run() { } }");
         Expect(CompatibilityService + "/// <summary>Evidence: all eight of the game's nail launches, four launches all identical, fractions zero.</summary>\n[CompatibilityService(\"table\")] class Table { }");
+        // The original's storage units and the original program, outside hardware owners and markup, read across a
+        // documentation comment's line breaks (#2546): an amount of a pixel written over 256, a count of 65536ths, a value in
+        // 1/65536 pixels, subpixels in any spelling and anything the original's.
+        Expect("class P { /// <summary>The acid's rising speed: 104/256 of a pixel upward per update.</summary>\nint F => 0; }", "('104/256 of a pixel')");
+        Expect("class P { /// <summary>The speed a rise keeps: 255/256 pixel per frame.</summary>\nint F => 0; }", "('255/256 pixel')");
+        Expect("class P { void Run() { // adds 1/256 of a pixel an update\n } }", "('1/256 of a pixel')");
+        Expect("class P { /// <summary>How far the bands have slid, in pixels and\n/// 65536ths.</summary>\nint F => 0; }", "('65536ths')");
+        Expect("class P { /// <summary>The damage not yet applied, in energy and its 65536ths.</summary>\nint F => 0; }", "('65536ths')");
+        Expect("class P { /// <summary>Each is held in 1/65536 pixels, the precision her movement adds them at.</summary>\nint F => 0; }", "('1/65536')");
+        Expect("class P { string Name => \"wrapping in 1/65536 pixels\"; }", "('1/65536')");
+        Expect("class P { /// <summary>How far the tide displaces the surface, in pixels and subpixels.</summary>\nint F => 0; }", "('subpixels')");
+        Expect("class P { void Run() { // Touching clears Samus's Y subpixel.\n } }", "('subpixel')");
+        Expect("class P { /// <summary>Keeps the horizontal sub-pixel position.</summary>\nint F => 0; }", "('sub-pixel')");
+        Expect("class P { /// <summary>Only its collision kind changes, as the\n/// original's setup rewrites nothing but the block's type.</summary>\nvoid Run() { } }", "('the original's')");
+        Expect("interface P { /// <summary>The door closes.</summary>\n/// <remarks>The original’s closing switches the object it finds.</remarks>\nvoid Close(); }", "('The original’s')");
+        // A speed in 1/256 pixels, a 256th or one 65536th of a pixel, a fraction of a pixel, a speed in 256ths of a pixel, a
+        // hyphenated 1/256 precision, an original alone, the original game, a name that holds the word and a hardware owner
+        // are English.
+        Expect("class P { int FractionSubpixels => 0; /// <summary>A speed in 1/256 pixels; a 256th of a pixel; one 65536th of a pixel; a fraction of a pixel; in 256ths of a pixel; an original; the original game; its originals; <see cref=\"FractionSubpixels\"/>.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the original's push hides 255/256 pixel of sub-pixel movement, in 1/65536 pixels and 65536ths.</summary>\n[CompatibilityService(\"push\")] class Push { }");
         // The species-owner template on a type that owns no species (#2427), read on the type's own summary; a type that
         // implements or is a species owner's interface owns a species, and an entity's parameter names its owner.
         const string SpeciesOwners = "interface IEnemySpecies { }\ninterface IEnemyEntityFactory { }\n";

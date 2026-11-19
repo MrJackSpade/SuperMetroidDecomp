@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Spatial;
 /// <summary>
 /// A two-dimensional velocity, acceleration or running displacement: each axis is one
 /// <see cref="SignedEightEight"/> value, added to a <see cref="FixedPosition{TSpace}"/> after
-/// promotion to 1/65536 pixels (<see cref="ToSixteenSixteen"/>), or summed update by update with its fractions kept.
+/// promotion to a displacement (<see cref="ToSixteenSixteen"/>), or summed update by update with its fractions kept.
 /// </summary>
 /// <typeparam name="TSpace">The coordinate space the velocity is measured in.</typeparam>
 [SpatialComponents("Spatial value type: owns its X and Y velocity axes.")]

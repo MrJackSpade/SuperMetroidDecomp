@@ -135,16 +135,17 @@ internal static class RoomCharacterInstallationVerification
                 "substituted background tilemap fails the named identity check");
         }
         SelectedRoom ceres = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0xdf8d);
+        ushort ceresBackgroundList = CartridgeRoomStateImporter.LibraryBackgroundPointer(bus, ceres.State.Pointer);
         int backgroundSource = libraryTransfers
-            .Single(source => source.ListPointer == ceres.State.BackgroundDataPointer &&
+            .Single(source => source.ListPointer == ceresBackgroundList &&
                 source.Command == LibraryBackgroundCommand.Decompress).SourceAddress;
         string backgroundName = RoomBackgroundTilemapArtworkFiles.FileName(
             LibraryBackgroundOperandDecoding.DecompressedSource(backgroundSource).Tilemap);
         var nativeBackgroundVram = new SnesVram();
         var stockBackgroundVram = new SnesVram();
         SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(bus, nativeBackgroundVram,
-            ceres.State.BackgroundDataPointer, activeDoorPointer: 0);
-        LibraryBackgroundReplay.Execute(stockBackgroundVram, LibraryBackgroundProgramDefinitions.Get(ceres.State.BackgroundDataPointer), activeDoor: FixtureRooms.UnmatchedDoor, artwork: new LibraryBackgroundArtwork { TilemapArt = stockBackgrounds });
+            ceresBackgroundList, activeDoorPointer: 0);
+        LibraryBackgroundReplay.Execute(stockBackgroundVram, LibraryBackgroundProgramDefinitions.Get(ceresBackgroundList), activeDoor: FixtureRooms.UnmatchedDoor, artwork: new LibraryBackgroundArtwork { TilemapArt = stockBackgrounds });
         AssertTrue(nativeBackgroundVram.ImageEquals(stockBackgroundVram),
             "extracted Ceres background tilemap retains native VRAM words");
 

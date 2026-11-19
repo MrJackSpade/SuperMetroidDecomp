@@ -71,7 +71,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(ShaktoolAnimations.StartingWith(definition.InitialAnimation), AnimationPlace.StartOfAnimation);
 
         // The leading saw is the chain's fixed anchor. Every later segment centers on the preceding segment's
-        // position, subpixels included. Express that link structurally instead of treating a value the game left behind as an
+        // position, fractions of a pixel included. Express that link structurally instead of treating a value the game left behind as an
         // unrelated center.
         if (definition != ShaktoolSegmentDefinitions.LeadingSaw)
             PositionShaktoolAroundPreviousSegment(place, state);
@@ -320,7 +320,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         leadingSaw.Position = trailingSaw.Position;
         trailingSaw.Position = leadingSawPosition;
 
-        // Every segment between the two saws takes the swap's subpixels.
+        // Every segment between the two saws takes the swap's fractions of a pixel.
         foreach (ShaktoolChainSegment segment in group)
         {
             if (segment.Definition == ShaktoolSegmentDefinitions.LeadingSaw || segment.Definition == ShaktoolSegmentDefinitions.TrailingSaw)

@@ -15,32 +15,12 @@ internal static class DoorCaps
     internal static RoomObjectDraw Image(DoorCapPaint paint, ColoredDoorOrientation orientation, DoorCapFrame image) => image switch
     {
         DoorCapFrame.Clear => GreyDoorCaps.Family.Of(GreyDoorCaps.Draw.ClearedOf(orientation)),
-        DoorCapFrame.Closed => Painted(paint, orientation, DoorCapLook.Closed),
-        DoorCapFrame.Ajar => Painted(paint, orientation, DoorCapLook.Ajar),
-        DoorCapFrame.HalfOpen => Painted(paint, orientation, DoorCapLook.HalfOpen),
-        DoorCapFrame.NearlyOpen => Painted(paint, orientation, DoorCapLook.NearlyOpen),
-        DoorCapFrame.BlueFlash => Painted(DoorCapPaint.Blue, orientation, DoorCapLook.Closed),
+        DoorCapFrame.Closed => paint.Of(orientation, DoorCapLook.Closed),
+        DoorCapFrame.Ajar => paint.Of(orientation, DoorCapLook.Ajar),
+        DoorCapFrame.HalfOpen => paint.Of(orientation, DoorCapLook.HalfOpen),
+        DoorCapFrame.NearlyOpen => paint.Of(orientation, DoorCapLook.NearlyOpen),
+        DoorCapFrame.BlueFlash => DoorCapPaint.Blue.Of(orientation, DoorCapLook.Closed),
         _ => throw new InvalidOperationException($"Undefined {nameof(DoorCapFrame)} {image}."),
-    };
-
-    /// <summary>The paint of a <paramref name="color"/> cap.</summary>
-    internal static DoorCapPaint PaintOf(ColoredDoorColor color) => color switch
-    {
-        ColoredDoorColor.Yellow => DoorCapPaint.Yellow,
-        ColoredDoorColor.Green => DoorCapPaint.Green,
-        ColoredDoorColor.Red => DoorCapPaint.Red,
-        _ => throw new InvalidOperationException($"Undefined {nameof(ColoredDoorColor)} {color}."),
-    };
-
-    /// <summary>The <paramref name="paint"/> cap facing <paramref name="orientation"/> showing <paramref name="look"/>.</summary>
-    private static RoomObjectDraw Painted(DoorCapPaint paint, ColoredDoorOrientation orientation, DoorCapLook look) => paint switch
-    {
-        DoorCapPaint.Blue => BlueDoorCaps.Family.Of(new BlueDoorCaps.Draw(orientation, look)),
-        DoorCapPaint.Grey => GreyDoorCaps.Family.Of(new GreyDoorCaps.Draw(orientation, look)),
-        DoorCapPaint.Yellow => ColoredDoorCaps.Family.Of(new ColoredDoorCaps.Draw(ColoredDoorColor.Yellow, orientation, look)),
-        DoorCapPaint.Green => ColoredDoorCaps.Family.Of(new ColoredDoorCaps.Draw(ColoredDoorColor.Green, orientation, look)),
-        DoorCapPaint.Red => ColoredDoorCaps.Family.Of(new ColoredDoorCaps.Draw(ColoredDoorColor.Red, orientation, look)),
-        _ => throw new InvalidOperationException($"Undefined {nameof(DoorCapPaint)} {paint}."),
     };
 
     /// <summary>The four looks of a cap closing and sliding aside, in the order it opens.</summary>

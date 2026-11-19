@@ -15,7 +15,7 @@ internal static class LibraryBackgroundSourceInventory
         Ensure.NotNull(bus);
         var sources = new List<LibraryBackgroundNativeOperand>();
         foreach (ushort listPointer in RoomStateDefinitions.All
-            .Select(state => state.BackgroundDataPointer)
+            .Select(state => CartridgeRoomStateImporter.LibraryBackgroundPointer(bus, state.Pointer))
             .Where(pointer => unchecked((short)pointer) < 0)
             .Distinct()
             .Order())

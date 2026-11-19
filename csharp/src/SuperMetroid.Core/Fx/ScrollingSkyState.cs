@@ -23,7 +23,7 @@ public sealed class ScrollingSkyState(ScrollingSky sky, bool hasBands = true)
     /// <summary>The land or ocean sky the rows show.</summary>
     public ScrollingSky Sky { get; } = sky;
 
-    /// <summary>How far each drift's bands have slid, in pixels and 65536ths, from where the room loaded them.</summary>
+    /// <summary>How far each drift's bands have slid from where the room loaded them, to a fraction of a pixel.</summary>
     private readonly Dictionary<SkyDrift, FixedCoordinate> _phases =
         ScrollingSkyBandDefinitions.Drifts.ToDictionary(drift => drift, _ => default(FixedCoordinate));
 

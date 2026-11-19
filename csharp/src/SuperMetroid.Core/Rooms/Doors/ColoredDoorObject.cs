@@ -17,10 +17,11 @@ internal sealed class ColoredDoorObject : DoorCapObject, IShootableRoomObject
 {
     /// <summary>A cap of <paramref name="variant"/>'s colour and facing, just placed in <paramref name="door"/>.</summary>
     internal ColoredDoorObject(ColoredDoorVariant variant, PlacedDoor door)
-        : base(variant.Orientation, DoorCaps.PaintOf(variant.Color))
+        : base(variant.Orientation, ColoredDoorDefinitions.Colors[variant.Color].Paint)
     {
         Color = variant.Color;
         Door = Ensure.NotNull(door);
+        _rules = ColoredDoorDefinitions.Colors[variant.Color];
         _sequences = ColoredDoorDefinitions.Sequences[variant];
     }
 
@@ -48,6 +49,9 @@ internal sealed class ColoredDoorObject : DoorCapObject, IShootableRoomObject
     /// takes no shots has yet to take that look.
     /// </summary>
     internal bool TakesShots { get; private set; }
+
+    /// <summary>The colour's rules: the shots it counts and the hits it takes.</summary>
+    private readonly ColoredDoorColorDefinition _rules;
 
     /// <summary>The colour and facing's sequences.</summary>
     private readonly ColoredDoorSequences _sequences;
@@ -82,7 +86,7 @@ internal sealed class ColoredDoorObject : DoorCapObject, IShootableRoomObject
         if (!TakesShots || PendingHit is not { Family: var family })
             return false;
         PendingHit = null;
-        if (!Accepts(family))
+        if (!_rules.Counts(family))
         {
             context.RoomObjects.DoorObjects.QueueDudSound();
             return false;
@@ -116,15 +120,6 @@ internal sealed class ColoredDoorObject : DoorCapObject, IShootableRoomObject
         }
     }
 
-    /// <summary>Whether a shot of <paramref name="family"/> counts as a hit on a cap of this colour.</summary>
-    private bool Accepts(SamusProjectileFamily family) => Color switch
-    {
-        ColoredDoorColor.Yellow => family == SamusProjectileFamily.PowerBomb,
-        ColoredDoorColor.Green => family == SamusProjectileFamily.SuperMissile,
-        ColoredDoorColor.Red => family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile,
-        _ => throw new InvalidOperationException($"Undefined {nameof(ColoredDoorColor)} {Color}."),
-    };
-
     /// <summary>
     /// Looks at the cap's door: one opened for good turns into its blue cap; otherwise the cap starts taking shots and
     /// shows its closed image.
@@ -147,7 +142,7 @@ internal sealed class ColoredDoorObject : DoorCapObject, IShootableRoomObject
     /// </summary>
     private void CountHit(RoomObjectPlace place, RoomObjectStepContext context, bool opensAtOnce)
     {
-        int threshold = ColoredDoorDefinitions.HitThresholds[Color];
+        int threshold = _rules.HitsToOpen;
         HitCounter = opensAtOnce ? threshold : HitCounter + 1;
         if (HitCounter < threshold)
         {

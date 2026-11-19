@@ -595,7 +595,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.SpinJumping &&
             CoordinateAxis.Difference(samus.Position.X.Whole, ShitroidFightDefinitions.ArenaLeftX) >= 0)
         {
-            // The push heads along the negated angle toward Samus and adds 64/256 of a pixel an update to the
+            // The push heads along the negated angle toward Samus and adds a quarter of a pixel an update to the
             // velocity.
             RotationAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(new(
                 CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole),

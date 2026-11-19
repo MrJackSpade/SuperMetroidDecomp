@@ -50,15 +50,15 @@ internal static class LibraryBackgroundViewsVerification
         AssertThrows<InvalidOperationException>(() => RoomLibraryBackgroundPicture.Of(rocks, _ => throw new InvalidOperationException("looked up")),
             "a room loading a background seen as its own picture looks up its installed picture");
 
-        // The boss's body: the fixture is the Parlor's state loading Phantoon's background and his population.
+        // The boss's body: the fixture is the Parlor's state loading the boss's body and Phantoon's population.
         RoomStateSettings boss = pictured with
         {
-            Background = LibraryBackgroundDefinitions.PhantoonDefault,
+            Background = LibraryBackgroundDefinitions.BossBody,
             EnemyPopulation = RoomEnemyPopulationDefinitions.PhantoonDefault,
         };
         AssertEqual(0, RoomBlockUploads.BackgroundNamesOf([boss]).Count, "a background showing the boss's body installs no picture");
         AssertBindsNone(boss.Background, "a room showing the boss's body on its background");
-        AssertThrows<InvalidDataException>(() => RoomBlockUploads.BackgroundNamesOf([pictured with { Background = LibraryBackgroundDefinitions.PhantoonDefault }]),
+        AssertThrows<InvalidDataException>(() => RoomBlockUploads.BackgroundNamesOf([pictured with { Background = LibraryBackgroundDefinitions.BossBody }]),
             "a background showing a boss's body in a room with no boss is refused");
 
         // The sky's rows: the Landing Site installs its sky's rows and none of its library background's door pictures.
@@ -72,8 +72,8 @@ internal static class LibraryBackgroundViewsVerification
         AssertThrows<InvalidDataException>(() => RoomBlockUploads.BackgroundNamesOf([sky with { SetupBehavior = RoomSetupBehavior.None }]),
             "a background showing the sky's rows in a room without the sky's bands is refused");
 
-        // Nothing: the Parlor's state loading the Ceres elevator shaft's cleared background.
-        RoomStateSettings cleared = pictured with { Background = LibraryBackgroundDefinitions.CeresElevator };
+        // Nothing: the Parlor's state loading the cleared background.
+        RoomStateSettings cleared = pictured with { Background = LibraryBackgroundDefinitions.Cleared };
         AssertEqual(0, RoomBlockUploads.BackgroundNamesOf([cleared]).Count, "a cleared background installs no picture");
         AssertBindsNone(cleared.Background, "a room whose background is cleared");
 

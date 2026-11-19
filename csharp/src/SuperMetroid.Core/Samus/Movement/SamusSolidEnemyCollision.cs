@@ -16,7 +16,7 @@ public static class SamusSolidEnemyCollision
     /// <summary>
     /// Runs one directional probe without moving Samus.
     /// </summary>
-    /// <param name="state">Samus's current whole/subpixel position and collision radii.</param>
+    /// <param name="state">Samus's current position and collision radii.</param>
     /// <param name="interactiveEnemies">
     /// Active interactive enemies in the room's enemy order. Non-solid, unfrozen entries remain in
     /// the list because the loop encounters and rejects them individually.
@@ -81,7 +81,7 @@ public static class SamusSolidEnemyCollision
             bool wasTouching = gap == 0;
             if (wasTouching)
             {
-                // Touching clears Samus's Y subpixel whatever the direction, even for a left or right touch: a quirk of
+                // Touching clears Samus's Y fraction of a pixel whatever the direction, even for a left or right touch: a quirk of
                 // the game that decides whether repeated presses into a solid or frozen enemy drift her by a pixel.
                 state.Position = state.Position.WithFractionY(0);
             }

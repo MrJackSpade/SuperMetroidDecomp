@@ -386,7 +386,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// starts from this exact position, fraction of a pixel included, moves this position on by the aimed velocity,
     /// then receives its own randomized secondary velocity.
     /// </summary>
-    /// <remarks>Charging starts it at the beam position with zero subpixels (body Y minus 48).</remarks>
+    /// <remarks>Charging starts it at the beam position with no fraction of a pixel (body Y minus 48).</remarks>
     public FixedPosition<RoomPixels> HandBeamNextPosition { get; internal set; }
     /// <summary>The aimed velocity; moves the shared start position on before each child receives its independent randomized scatter velocity.</summary>
     public EightEightVector<RoomPixels> HandBeamNextVelocity { get; internal set; }

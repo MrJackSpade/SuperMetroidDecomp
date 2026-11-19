@@ -57,7 +57,7 @@ public sealed class BoulderEnemyState
 
     /// <summary>Extra downward collision reach during rolling, in pixels, subtracted from the Y position afterward. Initially two pixels, then zero once the full Y position stops changing.</summary>
     public int VerticalCompensation { get; internal set; }
-    /// <summary>Saved Y position with its subpixel, compared with the current Y to detect stationary rolling; captured at initialization and on the final bounce, then refreshed after each rolling update.</summary>
+    /// <summary>Saved Y position, to a fraction of a pixel, compared with the current Y to detect stationary rolling; captured at initialization and on the final bounce, then refreshed after each rolling update.</summary>
     public FixedCoordinate PreviousY { get; internal set; }
     /// <summary>
     /// The population's spawn height in room pixels, before the initial upward offset: the first fall lands there before

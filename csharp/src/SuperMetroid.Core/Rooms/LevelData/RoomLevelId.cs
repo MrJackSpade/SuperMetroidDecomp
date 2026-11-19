@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// that share a level name the same identity; the installed level stream and visual layout are keyed by it.
 /// </summary>
 /// <param name="Name">The level's name, which its installed files are named by.</param>
-public readonly record struct RoomLevelId(string Name)
+public readonly record struct RoomLevelId([InstalledKey] string Name)
 {
     /// <summary>The level's name.</summary>
     public string Name { get; } = Ensure.NotNull(Name);

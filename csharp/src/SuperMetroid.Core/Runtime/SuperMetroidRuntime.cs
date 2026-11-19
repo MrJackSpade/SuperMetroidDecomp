@@ -484,17 +484,20 @@ internal sealed class SuperMetroidRuntime
         // Every gameplay update runs in a loaded room: each game's start, a saved game's load and the attract demo load
         // one before their first update, and a room load replaces the room whole.
         RoomScope room = Room.LoadedScope;
-        // What the update's game-state transitions read of how it began, before any of its steps run.
-        var start = new GameplayUpdateStart(
-            MessageBox: MessageBox.IsActive ? MessageBox.MessageId : null,
-            SamusInputLocked: samus.Control.InputLocked);
         // The Chozo statue objects an earlier update asked for are placed at the frame's entry, before any producer runs.
         EnemyRoomEffects.ApplyPendingChozoStatueObjects(EnemyRoomEffectSite.Of(room, samus));
         // An open message box runs its own updates inside the suspended gameplay update:
         // the frame boundary latches no input and no random number is drawn nor owner run.
         if (MessageBox.IsActive)
-            return StepMessageBoxFrame(playerInput, start, frameRequest.Policy, infiniteAmmoGuard, room, samus);
-        BeginAcceptedGameplayFrame(playerInput, frameRequest, room);
+        {
+            var boxStart = new GameplayUpdateStart(MessageBox: MessageBox.MessageId, SamusInputLocked: samus.Control.InputLocked);
+            return StepMessageBoxFrame(playerInput, boxStart, frameRequest.Policy, infiniteAmmoGuard, room, samus);
+        }
+        RuntimeFramePolicy policy = BeginAcceptedGameplayFrame(playerInput, frameRequest, room);
+        // What the update's game-state transitions read of how its gameplay began, before any of its steps run: the host's
+        // work after the frame boundary has run, and the reserve refill's completion there gives Samus her control back
+        // before her update's pause check (#2526).
+        var start = new GameplayUpdateStart(MessageBox: null, SamusInputLocked: samus.Control.InputLocked);
         RunLiquidWaveAndStatueDescent(room, samus);
         DrawUpdateRandomNumber();
         RunEffectsBeforePhase(room, samus);
@@ -503,7 +506,7 @@ internal sealed class SuperMetroidRuntime
         RunColourEffects(room, samus);
         BeginSpriteFrame();
         PrepareEnemiesAndEarlyEnemyUpdate(context, room, samus);
-        RunSamusAndEnemyUpdate(context, samus, room, frameRequest.Policy.RunsLowHealthCheck);
+        RunSamusAndEnemyUpdate(context, samus, room, policy.RunsLowHealthCheck);
         bool deathOwnsSamus = context.Samus.Mode.Movement == SamusMovementMode.Fatal;
         if (!deathOwnsSamus)
             DoorTransition.RunEnemyProjectiles(room, samus);
@@ -511,17 +514,19 @@ internal sealed class SuperMetroidRuntime
         OpenGunshipPrompt(room);
         var tail = new SuspendedGameplayFrameTail(context.Samus.Mode, context.Samus.PreviousCameraPoint);
         if (SuspendTailForMessageBox(tail))
-            return EndUpdateWithoutGameplayTail(start, frameRequest.Policy, infiniteAmmoGuard, room, samus);
-        return FinishGameplayFrame(tail, start, frameRequest.Policy, infiniteAmmoGuard, room, samus);
+            return EndUpdateWithoutGameplayTail(start, policy, infiniteAmmoGuard, room, samus);
+        return FinishGameplayFrame(tail, start, policy, infiniteAmmoGuard, room, samus);
     }
 
     /// <summary>Marks the frame's impacts as gameplay's, runs the accepted-frame boundary and the host's post-boundary work, and chooses the screen layers.</summary>
-    private void BeginAcceptedGameplayFrame(ControllerButton playerInput, RuntimeFrameRequest frameRequest, RoomScope room)
+    /// <returns>The policy the host's post-boundary work leaves the rest of the update to run under (#2526).</returns>
+    private RuntimeFramePolicy BeginAcceptedGameplayFrame(ControllerButton playerInput, RuntimeFrameRequest frameRequest, RoomScope room)
     {
         room.Projectiles.ImpactAudio.BeginImpactAudioFrame(context: ImpactAudioContext.Gameplay);
         FrameBoundary.BeginAcceptedFrame(playerInput);
-        frameRequest.AfterFrameBoundary();
+        RuntimeFramePolicy policy = frameRequest.AfterFrameBoundary(frameRequest.Policy);
         ScreenLayers.Choose(room);
+        return policy;
     }
 
     /// <summary>Advances the liquid wave and statue descent and the power bomb's shape step before the update draws its random number.</summary>
@@ -1167,9 +1172,12 @@ internal sealed class SuperMetroidRuntime
     /// <summary>The rest of a gameplay frame, held until a message box a room object opened during it closes.</summary>
     private SuspendedGameplayFrameTail? _suspendedFrameTail;
 
-    /// <summary>How a gameplay update began, which its game-state transitions read after its steps have run (#2517).</summary>
+    /// <summary>
+    /// How a gameplay update began, which its game-state transitions read after its steps have run (#2517): as an open
+    /// message box's update began, or as a gameplay update's steps begin, after the host's work at the frame boundary (#2526).
+    /// </summary>
     /// <param name="MessageBox">The message the box open as the update began shows, or null when none was open.</param>
-    /// <param name="SamusInputLocked">Whether Samus's input was locked as the update began.</param>
+    /// <param name="SamusInputLocked">Whether Samus's input was locked as the update's steps began.</param>
     internal readonly record struct GameplayUpdateStart(GameplayMessageId? MessageBox, bool SamusInputLocked);
 
     /// <summary>

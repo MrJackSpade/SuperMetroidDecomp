@@ -7,8 +7,10 @@ public sealed record RuntimeFramePolicy
     public static RuntimeFramePolicy Gameplay { get; } = new();
 
     /// <summary>
-    /// Allows the Ceres shaft room-main trigger to request departure; the outer game-state loop enables
-    /// this only in main gameplay, not the elevator-hold and blackout departure states. Shaft rotation still advances independently.
+    /// Allows the Ceres shaft room-main trigger to request departure; the outer game-state loop disables it in the
+    /// elevator-hold and blackout departure states and in the reserve refill's own updates, which the elevator takes Samus
+    /// from only once the refill's completion has returned the game to main gameplay (#2526). Shaft rotation still advances
+    /// independently.
     /// </summary>
     public bool AllowCeresElevatorDeparture { get; init; } = true;
 
@@ -34,9 +36,10 @@ public sealed record RuntimeFramePolicy
     /// <summary>
     /// Whether main gameplay owns the update, rather than a game state that runs main gameplay's update behind its own
     /// work (#2509, #2517): the fade-in, the pause's darkening and brightening, the time-up's white-out, the Ceres
-    /// departure, the death, leaving Zebes and the attract demo. Only main gameplay's own update admits Samus's pause check
-    /// and begins her death; under any other the out-of-health check withholds the death of a Samus out of health without
-    /// reserves, and that update does not count the play time. The AUTO reserves' refill begins under any of them.
+    /// departure, the death, leaving Zebes, the attract demo and the reserve refill's own updates. Only main gameplay's own
+    /// update, which the update the refill completes on is (#2526), admits Samus's pause check and begins her death; under
+    /// any other the out-of-health check withholds the death of a Samus out of health without reserves, and that update does
+    /// not count the play time. The AUTO reserves' refill begins under any of them.
     /// </summary>
     public bool MainGameplayOwnsUpdate { get; init; } = true;
 
@@ -48,8 +51,8 @@ public sealed record RuntimeFramePolicy
 
     /// <summary>
     /// Whether the update's game state enters the AUTO reserves' refill or Samus's death that its out-of-health check sends
-    /// her to (#2519, #2517): main gameplay's update, which the pause's brightening and the time-up's white-out also run,
-    /// the pause's darkening, which enters the refill, and the refill's own update, whose completion can begin the death.
+    /// her to (#2519, #2517): main gameplay's update, which the pause's brightening, the time-up's white-out and the update
+    /// the refill completes on also run, the pause's darkening, which enters the refill, and the refill's own update.
     /// The check then freezes gameplay time itself, before the room shakes, so the update that begins either neither shakes
     /// the room nor counts its earthquake down; the game-state loop enters the refill or the death after the update.
     /// </summary>

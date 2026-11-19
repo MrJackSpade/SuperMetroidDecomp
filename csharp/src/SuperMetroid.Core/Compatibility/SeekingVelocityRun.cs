@@ -31,15 +31,12 @@ internal struct SeekingVelocityRun
     /// <summary>Whether the run's next step adds one unit: after a step that crossed zero, or first toward a target the wrap reverses.</summary>
     private bool nextStepLengthened;
 
-    /// <summary>The finest step a speed takes, a 256th of a pixel an update: the unit a seek's step takes for each pixel of distance.</summary>
-    private static readonly SignedEightEight FinestStep = SignedEightEight.FromPixelFraction(1, 256);
-
     /// <summary>
     /// The step a seek takes for <paramref name="pixels"/> pixels of distance already divided by its inertia (#2555): the
     /// finest step a speed takes for each pixel, as the game adds the divided distance to the velocity as it stands.
     /// </summary>
     /// <param name="pixels">The divided distance, zero or more pixels.</param>
-    internal static SignedEightEight StepFor(int pixels) => FinestStep * Ensure.AtLeastZero(pixels);
+    internal static SignedEightEight StepFor(int pixels) => SignedEightEight.FinestStep * Ensure.AtLeastZero(pixels);
 
     /// <summary>Starts a run from <paramref name="start"/> toward <paramref name="target"/> from <paramref name="position"/>.</summary>
     /// <param name="start">The axis velocity before the run.</param>

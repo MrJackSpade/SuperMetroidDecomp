@@ -351,7 +351,7 @@ internal sealed class EnemyProjectileEngine
         projectile.Bind(kind, behavior);
         // The spawn starts the animation timer at one, so the first step runs on the first pass. The spawner then starts
         // the animation it chooses.
-        projectile.FrameHold = WrappingCountdown.Start(1);
+        projectile.FrameHold = WrappingCountdown.OneFrame;
 
         // The spawn shows the blank frame before the first animation tick. It is intentionally not the animation's first
         // frame; advances to that on its own pass.

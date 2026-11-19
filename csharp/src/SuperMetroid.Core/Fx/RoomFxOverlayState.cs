@@ -518,7 +518,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// Cuts the liquid's wait to its next update, as the Speed Booster escape does once Samus has run far enough: a liquid
     /// already waiting starts moving on its next pass.
     /// </summary>
-    internal void EndLiquidWaitNextUpdate() => LiquidMoveDelay = WrappingCountdown.Start(1);
+    internal void EndLiquidWaitNextUpdate() => LiquidMoveDelay = WrappingCountdown.OneFrame;
 
     /// <summary>
     /// Halts the liquid where it stands, as the Speed Booster escape does when Samus has no Speed Booster: it loses its

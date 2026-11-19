@@ -227,7 +227,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> probe = new(
             statue.Position.X.Whole + footstepOffsetX, statue.Position.Y.Whole + ChozoStatueRoomDefinitions.FootstepDepth);
         Position16<RoomBlocks> footstep = level.GridBlock(probe.ToRoomBlock());
-        Position16<RoomBlocks> below = footstep + new Offset16<RoomBlocks>(0, 1);
+        Position16<RoomBlocks> below = footstep + Offset16<RoomBlocks>.OneDown;
         if (!level.Size.Contains(below) || level.GetCollisionBlock(below).CollisionType != RoomCollisionType.SpikeBlock)
             return;
 

@@ -71,6 +71,9 @@ public readonly record struct UnsignedSixteenSixteen
     /// <summary>No speed or distance at all.</summary>
     public static UnsignedSixteenSixteen Zero => default;
 
+    /// <summary>A distance of one whole pixel and no fraction.</summary>
+    public static UnsignedSixteenSixteen OnePixel => FromWholePixels(1);
+
     /// <summary>A distance of <paramref name="wholePixels"/> whole pixels and no fraction, 0 through 65535.</summary>
     public static UnsignedSixteenSixteen FromWholePixels(int wholePixels) => new(wholePixels, 0);
 

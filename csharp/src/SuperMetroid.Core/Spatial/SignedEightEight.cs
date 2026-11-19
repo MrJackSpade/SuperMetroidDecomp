@@ -14,6 +14,9 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>, 
     /// <summary>No velocity at all.</summary>
     public static SignedEightEight Zero => default;
 
+    /// <summary>The smallest velocity toward increasing coordinates the type holds: a 256th of a pixel an update.</summary>
+    public static SignedEightEight FinestStep => FromPixelFraction(1, 256);
+
     /// <summary>
     /// A speed of <paramref name="twoHundredFiftySixths"/> 256ths of a pixel an update, -32768 through 32767: the precision
     /// the game's speeds and accelerations are authored in.

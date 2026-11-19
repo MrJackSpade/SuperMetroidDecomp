@@ -558,7 +558,7 @@ public sealed class BabyMetroidCutsceneState
                 // The cutscene's shake first adds -1 to the Y velocity,
                 // which the common mover then applies, and places the Baby at the saved origin
                 // plus the undoubled shaking offsets.
-                Velocity = Velocity.WithY(Velocity.Y - SignedEightEight.FromPixelFraction(1, 256));
+                Velocity = Velocity.WithY(Velocity.Y - SignedEightEight.FinestStep);
                 int shakingIndex = MotherBrainCadenceDefinitions.BabyShakeStep.Of(enemyFrameCounter);
                 Position = Position.WithWhole(FatalBlowOrigin + MotherBrainShakeDefinitions.Offsets[shakingIndex]);
                 if (PhaseTimer.StepRunsOut())

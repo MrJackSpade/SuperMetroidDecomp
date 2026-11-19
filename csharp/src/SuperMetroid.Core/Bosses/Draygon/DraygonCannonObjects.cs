@@ -12,7 +12,7 @@ internal sealed class DraygonCannonObjects
     private readonly IRoomObjectEnemyEffects _enemies;
 
     /// <summary>Where the lower half of the cannon's core lies from its core block: the block below.</summary>
-    private static readonly Offset16<RoomBlocks> CoreLowerHalf = new(0, 1);
+    private static readonly Offset16<RoomBlocks> CoreLowerHalf = Offset16<RoomBlocks>.OneDown;
 
     /// <summary>Connects the cannons to the active room's enemy services.</summary>
     internal DraygonCannonObjects(IRoomObjectEnemyEffects enemies)

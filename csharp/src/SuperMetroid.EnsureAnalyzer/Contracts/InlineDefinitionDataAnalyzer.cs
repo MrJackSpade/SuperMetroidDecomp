@@ -12,11 +12,12 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// <summary>
 /// Definition data lives in domain catalogs (SME6472, #2575): in <c>SuperMetroid.Core</c>, behaviour code writes no
 /// definition data as literals. Outside a catalog file, a call to a Core member is reported when it builds a Core value
-/// from a nonzero numeric literal (a constructor, or a static factory that returns its own type:
-/// <c>new Offset16&lt;RoomPixels&gt;(1, 0)</c>, <c>SignedSixteenSixteen.FromWholePixels(1)</c>,
-/// <c>UpdateCountdown.Lasting(1)</c>) or passes a nonzero numeric literal by name (<c>count: 5</c>,
+/// wholly from constants, one of them a nonzero numeric literal (a constructor, or a static factory that returns its own
+/// type: <c>new Offset16&lt;RoomPixels&gt;(1, 0)</c>, <c>SignedSixteenSixteen.FromWholePixels(1)</c>,
+/// <c>UpdateCountdown.Lasting(1)</c>), or when it passes a nonzero numeric literal by name (<c>count: 5</c>,
 /// <c>ticks: 1</c>): the literal is a duration, speed, distance, count or shape the game defines, and it belongs to a
-/// domain-named catalog member whose summary gives its meaning. Behaviour code is every member of an instance type,
+/// domain-named catalog member whose summary gives its meaning. A value built from computed state as well as a literal
+/// (<c>new Fade(from, goal, step, 1)</c>) is arithmetic on that state, not a definition. Behaviour code is every member of an instance type,
 /// its static fields included, and every member of a static type that decides something. A static type's member that
 /// holds no decision or procedure (what SME6451 would accept in a catalog) is a table of data and is not reported. A type
 /// building or naming its own values (a quantity's own <c>FromWholePixels</c>, a record's own named instances) is
@@ -125,9 +126,14 @@ public sealed class InlineDefinitionDataAnalyzer : DiagnosticAnalyzer
         return tableMembers.GetOrAdd(member, declaration => !CatalogDecisions.Decides(declaration, model, cancellationToken));
     }
 
-    /// <summary>How a construction of a value from nonzero literals is named, or none when no argument is one.</summary>
+    /// <summary>
+    /// How a construction of a value wholly from constants, one or more of them nonzero literals, is named, or none when an
+    /// argument is computed or no argument is a nonzero literal.
+    /// </summary>
     private static string? Built(IMethodSymbol method, ArgumentListSyntax arguments, SemanticModel model, CancellationToken cancellationToken)
     {
+        if (!arguments.Arguments.All(argument => model.GetConstantValue(argument.Expression, cancellationToken).HasValue))
+            return null;
         string[] literals = [.. arguments.Arguments.Where(argument => IsNonZeroLiteral(argument.Expression, model, cancellationToken))
             .Select(argument => argument.Expression.ToString())];
         return literals.Length == 0

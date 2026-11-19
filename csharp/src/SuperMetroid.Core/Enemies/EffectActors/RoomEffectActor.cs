@@ -30,8 +30,8 @@ public sealed class RoomEffectActor
 
     /// <summary>
     /// The room position, with its fraction of a pixel, converted to screen coordinates by subtracting the camera when drawn. Most
-    /// effect actors move only in whole pixels and leave the fractions zero; Draygon's six burial Evirs move by
-    /// fractional speeds, so discarding the fractions visibly changes their fan-in.
+    /// effect actors move only in whole pixels; Draygon's six burial Evirs move by fractional speeds, so discarding the
+    /// fractions visibly changes their fan-in.
     /// </summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
 

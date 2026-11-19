@@ -178,17 +178,10 @@ internal static class CrocomireMeltingDefinitionsVerification
         // Crocomire's initialization attaches the body his melt image shows on (#1355, #1466, #1515).
         BossBodyCanvasFixtures.AttachCrocomire(enemies, InstalledFixtures.BossBodySheets);
         // #1269 split the loader into the two native phases ($A4:9341 and $A4:93ED).
-        Action<CrocomireEnemyState> initialize = source switch
-        {
-            CrocomireMeltingIllustration.Flesh => enemies.CrocomireBehavior.Melting.ShowFirstCrocomireMeltImage,
-            CrocomireMeltingIllustration.BareSkull => enemies.CrocomireBehavior.Melting.ShowSecondCrocomireMeltImage,
-            _ => throw new ArgumentOutOfRangeException(nameof(source)),
-        };
-
-        initialize(state);
+        enemies.CrocomireBehavior.Melting.ShowCrocomireMeltImage(state, source);
         AssertEqual(CrocomireBodyAnimations.StartingWith(bodyProgram), state.BodyPlayback.Animation,
             $"installed Crocomire melt tilemap ${sourceAddress:X6} body program");
-        AssertEqual(CrocomireDeathPhase.CrumbleBridgeAndSink, state.DeathPhase,
+        AssertEqual(CrocomireDeathStages.Only<CrocomireDeathStage.SinkThroughBridge>(), state.DeathStage,
             $"installed Crocomire melt tilemap ${sourceAddress:X6} phase timing");
         // His body shows the melt image alone, in place of his body frame.
         ushort[] shown = BossBodyWords.Of(enemies.Presentation.RequireBossBody().Publish(), BossBodyOwner.Crocomire, artwork.Bosses);

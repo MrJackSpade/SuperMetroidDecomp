@@ -1065,7 +1065,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                 // A frozen enemy blocks Samus whatever its properties say.
                 place.FrozenTimer != 0 || place.Contact.HasAny(EnemyContact.SolidToSamus)));
         }
-        FrameContext.AdvanceRandomEnemyCounter();
+        FrameContext.CountEnemyPass();
         frame.Samus.Kinematics.ClearSolidEnemyCollisions();
         // The room-wide glows step after every enemy has updated, whether or not time is frozen.
         WorkRobotBehavior.StepGlow();

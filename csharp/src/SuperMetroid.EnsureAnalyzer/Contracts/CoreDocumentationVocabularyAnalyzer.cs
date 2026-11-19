@@ -192,6 +192,9 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// them, read across a documentation comment's line breaks: a value counted as a number of 256ths, a random number told by
 /// its oddness or parity, code or data stored after another thing, a definition pointing a thing at a routine, and, on a
 /// parameter typed as a measure, the unit its type already states.
+/// #2540 adds, outside hardware owners, the original's tables counted and its fractions listed as boss prose tells them,
+/// read across a documentation comment's line breaks: a number of the game's launches, entries, rows, values, records,
+/// copies or variants, a number of them said to be all identical, and fractions listed as zero.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -2404,10 +2407,34 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The original's tables counted and its fractions listed as boss prose tells them (#2540), outside hardware owners and
+    /// markup, read across a documentation comment's line breaks: a number of the game's, the original's or the
+    /// cartridge's launches, entries, rows, values, records, copies or variants (all eight of the game's nail launches, the
+    /// game's four launches, all 128 of the game's values), a number of launches, entries, rows, records, copies or variants
+    /// said to be all identical (four launches, chosen at random, all identical), and fractions listed as zero (X=-1,
+    /// fractions zero; leave the fractions zero; zero fractions). The original kept a launch table of eight identical
+    /// entries and its speeds as whole and fraction words; Core says what the game does: every launch flies at these
+    /// speeds, one pixel an update leftward, whole pixels only. English stays legal: a number of the game's rooms, doors or
+    /// areas (the game's 262 rooms, one of the game's doors), one of the game's values, a launch or entry alone, a thing
+    /// all identical with no count (the pieces are all identical), a fraction of a pixel, no fraction, a zero fraction and
+    /// a hardware owner, which describes the encoding it keeps.
+    /// </summary>
+    private static readonly Regex BossTableCountAndFractionProse = new(
+        @"\b(?!one\b)(?:[0-9]+|" + NumberWordsOnly + @")\s+of\s+the\s+(?:game|original|cartridge)['’]s\s+(?:[\w-]+\s+){0,2}?" +
+        @"(?:launches|entries|rows|values|records|copies|variants)\b" +
+        @"|\bthe\s+(?:game|original|cartridge)['’]s\s+(?:[0-9]+|" + NumberWordsOnly + @")\s+(?:[\w-]+\s+){0,2}?" +
+        @"(?:launches|entries|rows|values|records|copies|variants)\b" +
+        @"|\b(?:[0-9]+|" + NumberWordsOnly + @")\s+(?:[\w-]+\s+)?(?:launches|entries|rows|records|copies|variants)\b" +
+        @"[^.;]{0,60}?\ball\s+identical\b" +
+        @"|\bfractions\s+(?:(?:are|is|stay|left|at|of)\s+)?(?:zero|0)\b" +
+        @"|\b(?:zero|0)\s+fractions\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A documentation comment's line break with the next line's comment prefix (#2515), which
     /// <see cref="EnemyAndWorldRoutineBitAndReasoningProse"/>, <see cref="SamusStorageHalfWrapAndFlagProse"/>,
-    /// <see cref="CountedWaitAndCalculatorProse"/> and <see cref="EnemyUnitSampleAndProgramByteProse"/> read as a space so
-    /// a phrase runs on across it.
+    /// <see cref="CountedWaitAndCalculatorProse"/>, <see cref="EnemyUnitSampleAndProgramByteProse"/> and
+    /// <see cref="BossTableCountAndFractionProse"/> read as a space so a phrase runs on across it.
     /// </summary>
     private static readonly Regex CommentLineBreak = new(@"\s*\r?\n\s*(?:///?|\*+)?\s*", RegexOptions.CultureInvariant);
 
@@ -3033,6 +3060,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : SamusStorageHalfWrapAndFlagProse.Match(CommentLineBreak.Replace(Markup.Replace(text, " "), " ")) is { Success: true } samusStorage ? samusStorage.Value
             : CountedWaitAndCalculatorProse.Match(CommentLineBreak.Replace(Markup.Replace(text, " "), " ")) is { Success: true } countedWait ? countedWait.Value
             : EnemyUnitSampleAndProgramByteProse.Match(CommentLineBreak.Replace(Markup.Replace(text, " "), " ")) is { Success: true } enemyUnit ? enemyUnit.Value
+            : BossTableCountAndFractionProse.Match(CommentLineBreak.Replace(Markup.Replace(text, " "), " ")) is { Success: true } bossTable ? bossTable.Value
             : typedParameterUnit is not null ? typedParameterUnit
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)

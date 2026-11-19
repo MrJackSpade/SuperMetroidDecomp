@@ -125,7 +125,7 @@ internal static class CrocomireCutsceneVerification
         samus.Position = samus.Position.WithWholeX(1312);
         body.Position = body.Position.WithWholeX(1600);
         run(body, samus, new Position16<RoomPixels>(1280, 0));
-        AssertEqual(CrocomireDeathPhase.CrumbleBridgeAndSink, state.DeathPhase, "real bridge collapse begins");
+        AssertEqual(CrocomireDeathStages.Only<CrocomireDeathStage.SinkThroughBridge>(), state.DeathStage, "real bridge collapse begins");
         camera.SetPosition(new Position16<RoomPixels>(1280, 0));
         camera.MoveLeft(1);
         AssertEqual((ushort)1280, camera.PixelPosition.X, "collapse frame retains the native camera lock");
@@ -136,11 +136,11 @@ internal static class CrocomireCutsceneVerification
         scrolls = RoomScrollGrid.LoadNativeTable(storage, new Extent16<RoomScreens>(8, 1));
         camera = new ScrollBoundaryCamera(scrolls);
         enemies.VerificationServices().SetRoomScrollState = scrolls.SetRoomScreen;
-        state.DeathPhase = CrocomireDeathPhase.WaitForSamusAtWall;
+        state.DeathStage = CrocomireDeathStages.Only<CrocomireDeathStage.WaitForSamusAtWall>();
         body.Position = body.Position.WithWholeX(480);
         samus.Position = samus.Position.WithWholeX(639);
         run(body, samus, new Position16<RoomPixels>(544, 0));
-        AssertEqual(CrocomireDeathPhase.RumbleHiddenWall, state.DeathPhase, "left cutscene starts at native Samus threshold");
+        AssertEqual(CrocomireDeathStages.Only<CrocomireDeathStage.RumbleHiddenWall>(), state.DeathStage, "left cutscene starts at native Samus threshold");
         AssertEqual(RoomScrollState.Closed, scrolls.ReadScreen(new(1, 0)), "left cutscene retains red screen one");
         AssertEqual(RoomScrollState.OpenAlignedToTop, scrolls.ReadScreen(new(2, 0)), "left cutscene retains visible screen two");
         AssertEqual(RoomScrollState.Closed, scrolls.ReadScreen(new(3, 0)), "left cutscene closes screen three");
@@ -161,7 +161,7 @@ internal static class CrocomireCutsceneVerification
             camera.TrackMovedSamusHorizontally(point.WithX(point.X.WithWhole(750)), point.WithX(point.X.WithWhole(751)), context, timeIsFrozen: false);
             AssertEqual((ushort)512, camera.PixelPosition.X, "rightward target near holding wall stays within screen two");
         }
-        state.DeathPhase = CrocomireDeathPhase.ClearWallAndOpenScrolls;
+        state.DeathStage = CrocomireDeathStages.Only<CrocomireDeathStage.ClearWallAndOpenScrolls>();
         run(body, samus, new Position16<RoomPixels>(512, 0));
         camera.MoveLeft(1);
         AssertEqual((ushort)511, camera.PixelPosition.X, "left camera unlocks at the native completion phase");

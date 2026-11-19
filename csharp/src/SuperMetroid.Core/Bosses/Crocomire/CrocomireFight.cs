@@ -77,7 +77,7 @@ internal sealed class CrocomireFight
             // In a room whose Crocomire is already dead only his skeleton is shown: it ignores Samus, and stands at a
             // fixed place with a fixed size.
             place.Contact = place.Contact.Replace(EnemyContact.SolidToSamus | EnemyContact.IgnoresSamus, EnemyContact.IgnoresSamus);
-            state.DeathPhase = CrocomireDeathPhase.InertCorpse;
+            state.RestAsCorpse();
             CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodyAnimation.Dead);
             place.Position = place.Position.WithWhole(CrocomireArenaDefinitions.CorpsePosition);
             place.Radius = CrocomireArenaDefinitions.CorpseRadius;
@@ -89,7 +89,6 @@ internal sealed class CrocomireFight
             return;
         }
 
-        state.DeathPhase = CrocomireDeathPhase.Fighting;
         // On the living branch only.
         _cameraDistance.Request(CameraDistanceMode.BossTracking);
         CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodyAnimation.IdleSway);
@@ -129,7 +128,7 @@ internal sealed class CrocomireFight
         SamusState samus,
         PseudoScrewCharge pseudoScrew)
     {
-        if (state.DeathPhase != CrocomireDeathPhase.Fighting)
+        if (state.DeathStage.Entry is not CrocomireDeathStage.Fighting)
             return;
         int leftEdge = body.Position.X.Whole - body.Radius.X - samus.Kinematics.Radius.X;
         if (leftEdge >= samus.Position.X.Whole)
@@ -300,7 +299,7 @@ internal sealed class CrocomireFight
                 return null;
 
             case CrocomireBodyCueKind.StepTowardSpikeWall:
-                if (MoveCrocomire(body, level, CrocomireFightDefinitions.SpikeWallStep))
+                if (MoveCrocomire(body, level, CrocomireStepDefinitions.Advance.HorizontalPixels))
                 {
                     state.Phase = CrocomirePhase.BackingOffSpikeWall;
                     return CrocomireBodyAnimation.BackOffFromSpikeWall;

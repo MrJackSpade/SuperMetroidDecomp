@@ -162,7 +162,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!applyCommonTouch)
         {
             // Every attached Mochtroid queues its own drain sound, so a room full of them queues one each.
-            if (MetroidCadenceDefinitions.DrainSoundEveryEighthEnemyPass.IsDue(_frameContext.RandomEnemyCounter) && samus.Health >= MetroidBehaviorDefinitions.DrainSoundLeastHealth)
+            if (MetroidCadenceDefinitions.DrainSoundEveryEighthEnemyPass.IsDue(_frameContext.EnemyPassCount) && samus.Health >= MetroidBehaviorDefinitions.DrainSoundLeastHealth)
                 _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Normal);
 
             if (state.HasReachedDamagePeriod(MochtroidBehaviorDefinitions.AttachedDrainPeriod))

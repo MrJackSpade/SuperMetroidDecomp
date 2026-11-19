@@ -36,9 +36,9 @@ internal sealed class CrocomireBridgeCollapse
     }
 
     /// <summary>
-    /// Carries out the state transition. The individual bridge room objects and the
-    /// subsequent melting sequence are a separate stage, but the actor/tongue state
-    /// changes occur on the exact X threshold.
+    /// Runs his approach onto the bridge, and starts his death once his body reaches the point where its weight breaks the
+    /// bridge (<see cref="CrocomireBridgeCollapseDefinitions.CollapseStartX"/>): he becomes solid to Samus and starts to sink
+    /// through the bridge, which clears and bursts into dust, and his tongue hides.
     /// </summary>
     internal void HandleCrocomireBridgeThreshold(CrocomireEnemyState state)
     {
@@ -47,11 +47,11 @@ internal sealed class CrocomireBridgeCollapse
         if (body.Position.X.Whole < CrocomireBridgeCollapseDefinitions.CollapseStartX)
             return;
 
-        state.DeathPhase = CrocomireDeathPhase.CrumbleBridgeAndSink;
+        state.AdvanceDeathStage();
         CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodyAnimation.BridgeCollapsed);
         body.Contact = body.Contact.With(EnemyContact.SolidToSamus);
         state.StartVerticalMotion(CrocomireBridgeCollapseDefinitions.SinkStartingAcceleration);
-        body.Radius = body.Radius.WithY(16);
+        body.Radius = body.Radius.WithY(CrocomireBridgeCollapseDefinitions.SinkingReachY);
         _access.RequestCrocomireSound(CrocomireSoundDefinitions.BridgeCollapse);
         CrocomireDeathState death = state.Death;
         death.BridgeFragmentsSpawned = 0;
@@ -65,61 +65,34 @@ internal sealed class CrocomireBridgeCollapse
     }
 
     /// <summary>
-    /// Runs the bridge effects of the bridge approach, in stages a block apart from the bridge's left edge
-    /// (<see cref="CrocomireBridgeCollapseDefinitions.ApproachStartX"/>): the first raises dust at the edge, the second
-    /// crumbles the bridge's first block and the third its next two, each raising dust at its own stage.
+    /// Runs the stage of his approach onto the bridge his body stands at (<see cref="CrocomireBridgeCollapseDefinitions.ApproachStages"/>),
+    /// once as he first reaches it: its blocks start to crumble and its dust rises. Standing off the bridge, left of its
+    /// edge, starts his approach over.
     /// </summary>
     private void HandleCrocomireBridgeApproach(RoomEnemyPlace body, CrocomireDeathState death)
     {
         int x = body.Position.X.Whole;
-        if (x < ApproachStage(0))
+        if (x < CrocomireBridgeCollapseDefinitions.ApproachStartX)
         {
-            death.ApproachDustRaised = false;
-            death.FirstBridgeBlockCrumbling = false;
-            death.NextBridgeBlocksCrumbling = false;
+            death.ApproachStagesRun = 0;
             return;
         }
 
-        if (x < ApproachStage(1))
-        {
-            if (!death.ApproachDustRaised)
-            {
-                death.ApproachDustRaised = true;
-                RaiseBridgeDust(ApproachStage(0));
-            }
+        // He moves a step at a time, less than a stage's width, so he reaches each stage only from the one before it.
+        int stage = (x - CrocomireBridgeCollapseDefinitions.ApproachStartX) / CrocomireBridgeCollapseDefinitions.ApproachStageWidth;
+        if (stage < death.ApproachStagesRun || stage >= CrocomireBridgeCollapseDefinitions.ApproachStages.Count)
             return;
-        }
 
-        // One block deep crumbles the first bridge block.
-        if (x < ApproachStage(2))
-        {
-            if (!death.FirstBridgeBlockCrumbling)
-            {
-                death.FirstBridgeBlockCrumbling = true;
-                _access.PublishCrocomireObject(CrocomireArenaDefinitions.BridgeFirstBlock, CrocomireArenaMutation.CrumbleBridgeBlock);
-                RaiseBridgeDust(ApproachStage(2));
-            }
-            return;
-        }
-
-        // Two blocks deep crumbles the next pair.
-        if (x < ApproachStage(3) &&
-            !death.NextBridgeBlocksCrumbling)
-        {
-            death.NextBridgeBlocksCrumbling = true;
-            _access.PublishCrocomireObject(CrocomireArenaDefinitions.BridgeFirstBlock + new Offset16<RoomBlocks>(1, 0), CrocomireArenaMutation.CrumbleBridgeBlock);
-            _access.PublishCrocomireObject(CrocomireArenaDefinitions.BridgeFirstBlock + new Offset16<RoomBlocks>(2, 0), CrocomireArenaMutation.CrumbleBridgeBlock);
-            RaiseBridgeDust(ApproachStage(3));
-        }
+        death.ApproachStagesRun = stage + 1;
+        CrocomireBridgeApproachStage reached = CrocomireBridgeCollapseDefinitions.ApproachStages[stage];
+        foreach (Position16<RoomBlocks> block in reached.CrumblingBlocks)
+            _access.PublishCrocomireObject(block, CrocomireArenaMutation.CrumbleBridgeBlock);
+        RaiseBridgeDust(reached.Dust);
     }
 
-    /// <summary>Where stage <paramref name="stage"/> of his approach onto the bridge begins, the first stage at the bridge's left edge.</summary>
-    private static int ApproachStage(int stage) =>
-        CrocomireBridgeCollapseDefinitions.ApproachStartX + stage * CrocomireBridgeCollapseDefinitions.ApproachStageWidth;
-
-    /// <summary>Raises a big dust cloud on the bridge at <paramref name="x"/>.</summary>
-    private void RaiseBridgeDust(int x) =>
-        _projectiles.SpawnDustOrExplosion(new(x, CrocomireBridgeCollapseDefinitions.DustY), DustExplosionAnimation.BigDustCloud);
+    /// <summary>Raises a big dust cloud on the bridge at <paramref name="position"/>.</summary>
+    private void RaiseBridgeDust(Position16<RoomPixels> position) =>
+        _projectiles.SpawnDustOrExplosion(position, DustExplosionAnimation.BigDustCloud);
 
     /// <summary>
     /// Clears every bridge block, left to right, and bursts dust as the bridge collapses: the clears are published in that
@@ -131,21 +104,11 @@ internal sealed class CrocomireBridgeCollapse
             _access.PublishCrocomireObject(
                 CrocomireArenaDefinitions.BridgeFirstBlock + new Offset16<RoomBlocks>(block, 0), CrocomireArenaMutation.ClearBridgeBlock);
 
-        for (int puff = 0; puff < CrocomireBridgeCollapseDefinitions.CollapseDustCount; puff++)
-            _projectiles.SpawnDustOrExplosion(CrocomireBridgeDustPosition(puff), DustExplosionAnimation.BigDustCloud);
+        foreach (Position16<RoomPixels> puff in CrocomireBridgeCollapseDefinitions.CollapseDust)
+            RaiseBridgeDust(puff);
 
         _access.PublishCrocomireObject(CrocomireArenaDefinitions.BridgeWallBlock, CrocomireArenaMutation.CreateInvisibleWall);
     }
-
-    /// <summary>
-    /// The collapse's dust puffs, a stage apart along the bridge from its left edge; the first and third rise to the
-    /// approach's dust row, the others lie on the lower row.
-    /// </summary>
-    internal static Position16<RoomPixels> CrocomireBridgeDustPosition(int puff) =>
-        puff is >= 0 and < CrocomireBridgeCollapseDefinitions.CollapseDustCount
-            ? new Position16<RoomPixels>(ApproachStage(puff),
-                puff is 0 or 2 ? CrocomireBridgeCollapseDefinitions.DustY : CrocomireBridgeCollapseDefinitions.LowDustY)
-            : throw new ArgumentOutOfRangeException(nameof(puff));
 
     /// <summary>
     /// Hides his body from the room row two hundred and eighty-eight pixels below the top of Crocomire's view down while he
@@ -154,43 +117,66 @@ internal sealed class CrocomireBridgeCollapse
     private void HideCrocomireSunkenBody(CrocomireEnemyState state, Position16<RoomPixels> camera) =>
         _bodyLayer.HideCrocomireBodyBelow(state, camera.Y + CrocomireBridgeCollapseDefinitions.SinkHiddenRowDepth);
 
-    /// <summary>Runs the body and its body layer while Crocomire sinks into acid.</summary>
-    internal void RunCrocomireSinkingComposite(
-        CrocomireEnemyState state,
-        Position16<RoomPixels> camera)
-    {
-        _bodyLayer.SpawnCrocomireAcidSmoke(state);
-        RunCrocomireSink(state, camera);
-    }
-
-    /// <summary>Runs the body as Crocomire resurfaces.</summary>
-    internal void RunCrocomireRisingComposite(CrocomireEnemyState state)
-    {
-        _bodyLayer.SpawnCrocomireAcidSmoke(state);
-        RunCrocomireRise(state);
-    }
-
     /// <summary>
-    /// Runs the body and its body layer while Crocomire, melted once, sinks into the acid again (#2193): each update
-    /// shows the first melt's picture of the rows still above the acid where he stands, before he sinks.
+    /// Runs his body for one update of a sink into the acid as <paramref name="body"/> (#2193): the acid smokes about him
+    /// and, while he is whole, burns audibly; once he has melted his body shows its melting picture of the rows still above
+    /// the acid where he stands; and he sinks.
     /// </summary>
-    internal void RunCrocomireFirstMeltSinkingComposite(CrocomireEnemyState state, Position16<RoomPixels> camera)
+    internal void RunCrocomireSinkingComposite(CrocomireEnemyState state, CrocomireBodyInAcid body, Position16<RoomPixels> camera)
     {
-        _bodyLayer.SpawnCrocomireAcidSmoke(state);
-        SelectCrocomireMeltAnimation(state, CrocomireMeltingIllustration.Flesh);
+        ShowCrocomireInAcid(state, body);
         RunCrocomireSink(state, camera);
     }
 
     /// <summary>
-    /// Runs the body as Crocomire, melted once, resurfaces (#2193): each update shows the first melt's picture of the rows
-    /// above the acid where he stands, before he rises.
+    /// Runs his body for one update of a rise out of the acid as <paramref name="body"/> (#2193): the acid smokes about
+    /// him and, while he is whole, burns audibly; once he has melted his body shows its melting picture of the rows above
+    /// the acid where he stands; and he rises.
     /// </summary>
-    internal void RunCrocomireFirstMeltRisingComposite(CrocomireEnemyState state)
+    internal void RunCrocomireRisingComposite(CrocomireEnemyState state, CrocomireBodyInAcid body)
     {
-        _bodyLayer.SpawnCrocomireAcidSmoke(state);
-        SelectCrocomireMeltAnimation(state, CrocomireMeltingIllustration.Flesh);
+        ShowCrocomireInAcid(state, body);
         RunCrocomireRise(state);
     }
+
+    /// <summary>
+    /// Runs his body for one update of a rest at the acid's floor as <paramref name="body"/>: while he is whole the acid
+    /// burns audibly and his hidden tongue is held at his body; he starts to rise as the rest's wait runs out.
+    /// </summary>
+    internal void RunCrocomireSubmergedRest(CrocomireEnemyState state, CrocomireBodyInAcid body)
+    {
+        if (body == CrocomireBodyInAcid.Whole)
+        {
+            RunCrocomireAcidSounds(state.Death);
+            CrocomireBodyLayer.PlaceCrocomireTongue(state);
+        }
+        RunCrocomireSubmergedPause(state);
+    }
+
+    /// <summary>
+    /// The acid burns audibly about his body while he is whole and smokes about it, and once he has melted his body shows
+    /// its melting picture of the rows above the acid where he stands.
+    /// </summary>
+    private void ShowCrocomireInAcid(CrocomireEnemyState state, CrocomireBodyInAcid body)
+    {
+        if (body == CrocomireBodyInAcid.Whole)
+            RunCrocomireAcidSounds(state.Death);
+        // The smoke draws a random number and rises by his position, while the picture only starts his body's animation, so
+        // either may come first.
+        _bodyLayer.SpawnCrocomireAcidSmoke(state);
+        if (MeltingPicture(body) is { } illustration)
+            SelectCrocomireMeltAnimation(state, illustration);
+    }
+
+    /// <summary>The melting illustration <paramref name="body"/> shows, or null while he is whole.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="body"/> is not a body in the acid.</exception>
+    private static CrocomireMeltingIllustration? MeltingPicture(CrocomireBodyInAcid body) => body switch
+    {
+        CrocomireBodyInAcid.Whole => null,
+        CrocomireBodyInAcid.MeltingFlesh => CrocomireMeltingIllustration.Flesh,
+        CrocomireBodyInAcid.MeltingBareSkull => CrocomireMeltingIllustration.BareSkull,
+        _ => throw new ArgumentOutOfRangeException(nameof(body), body, $"Undefined {nameof(CrocomireBodyInAcid)}."),
+    };
 
     /// <summary>Plays the acid's burning sound each time its wait runs out, every <see cref="CrocomireBridgeCollapseDefinitions.AcidSoundInterval"/> updates.</summary>
     internal void RunCrocomireAcidSounds(CrocomireDeathState death)
@@ -204,9 +190,9 @@ internal sealed class CrocomireBridgeCollapse
     /// <summary>Rests his body submerged while the pause's wait runs; he starts to rise on the update it runs out.</summary>
     internal static void RunCrocomireSubmergedPause(CrocomireEnemyState state)
     {
-        if (state.DeathPhaseWait.StepKeepsRunning())
+        if (state.DeathStageWait.StepKeepsRunning())
             return;
-        state.DeathPhase = state.DeathPhase.Next();
+        state.AdvanceDeathStage();
         state.VerticalSpeed = CrocomireBridgeCollapseDefinitions.MaximumSinkSpeed;
     }
 
@@ -220,8 +206,8 @@ internal sealed class CrocomireBridgeCollapse
 
         if (body.Position.Y.Whole >= CrocomireBridgeCollapseDefinitions.SunkenY)
         {
-            state.DeathPhase = state.DeathPhase.Next();
-            state.DeathPhaseWait.LastFor(CrocomireBridgeCollapseDefinitions.SubmergedPauseUpdates);
+            state.AdvanceDeathStage();
+            state.DeathStageWait.LastFor(CrocomireBridgeCollapseDefinitions.SubmergedPauseUpdates);
             // The next rise, after a submerged pause or directly after a melt, starts from no acceleration.
             state.VerticalAcceleration = SignedSixteenSixteen.Zero;
             return;
@@ -248,7 +234,7 @@ internal sealed class CrocomireBridgeCollapse
         RoomEnemyPlace body = state.Body;
         if (body.Position.Y.Whole < CrocomireBridgeCollapseDefinitions.RisenY)
         {
-            state.DeathPhase = state.DeathPhase.Next();
+            state.AdvanceDeathStage();
             return;
         }
 
@@ -316,17 +302,18 @@ internal sealed class CrocomireBridgeCollapse
                 "Crocomire melts through his first and second illustrations only."),
         };
 
-    /// <summary>Completes the acid sink and hands control to the skeleton river sequence.</summary>
+    /// <summary>
+    /// Runs one update of his last sink, showing his bare skull's melting picture; once he rests at the acid's floor his
+    /// skeleton starts down the river, the boss tension music starts, and the bridge's screens, invisible wall and camera
+    /// open behind him.
+    /// </summary>
     internal void RunCrocomireFinalSink(CrocomireEnemyState state, Position16<RoomPixels> camera)
     {
-        SelectCrocomireMeltAnimation(state, CrocomireMeltingIllustration.BareSkull);
-        _bodyLayer.SpawnCrocomireAcidSmoke(state);
-        RunCrocomireSink(state, camera);
-        if (state.DeathPhase != CrocomireDeathPhase.WaitForSamusAtWall)
+        RunCrocomireSinkingComposite(state, CrocomireBodyInAcid.MeltingBareSkull, camera);
+        if (state.DeathStage.Entry is not CrocomireDeathStage.FlowDownRiver)
             return;
 
         _access.RequestCrocomireMusic(MusicRequest.SelectTrack(MusicTrack.BossRoomTension), MusicQueueDelay.Shortest);
-        state.DeathPhase = CrocomireDeathPhase.RiverSkeletonDetour;
         CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodyAnimation.SkeletonFlowingDownRiver);
         _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.BridgeLeftScreen, RoomScrollState.OpenAlignedToTop);
         _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.BridgeScreen, RoomScrollState.OpenAlignedToTop);

@@ -2120,6 +2120,20 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { /// <summary>Moves in 256ths of a pixel; a 256th of a pixel; one 256th further; an odd number of hits; odd updates\n/// and odd frames; an odd column; its odd counts; the frame counter's parity; a map stored with its door; the missile\n/// points at the answer; the arrow pointing at the destination; the heading points up at zero; <see cref=\"Run\"/>.</summary>\nvoid Run() { } }");
         Expect(Measures + "class P { /// <summary>Crawls.</summary>\n/// <param name=\"speed\">Its crawl speed, in 1/256 pixels per update.</param>\n/// <param name=\"angle\">The angle it climbs at.</param>\nvoid Crawl(int speed, RotationAngle angle) { } }");
         Expect(CompatibilityService + "struct SignedSixteenSixteen { }\n/// <summary>Evidence: an odd sample drifts by the code stored after the launches, twelve 256ths of a pixel.</summary>\n/// <param name=\"drift\">The drift, in pixels and 65536ths of a pixel.</param>\n[CompatibilityService(\"bytes\")] class Bytes(SignedSixteenSixteen drift) { SignedSixteenSixteen Drift { get; } = drift; }");
+        // The original's tables counted and its fractions listed, outside hardware owners and markup, read across a
+        // documentation comment's line breaks (#2540): a number of the game's launches or values, a number of launches
+        // said to be all identical, and fractions listed as zero.
+        Expect("class P { /// <summary>All eight of the game's nail launches share these speeds.</summary>\nvoid Run() { } }", "('eight of the game's nail launches')");
+        Expect("class P { /// <summary>Picks one of the game's four\n/// launches at random.</summary>\nvoid Run() { } }", "('the game's four launches')");
+        Expect("class P { /// <summary>The wave.</summary>\n/// <remarks>All 128 of the game's values match.</remarks>\nint Wave() => 0; }", "('128 of the game's values')");
+        Expect("class P { void Run() { // Each nail has four launches, chosen at random, all identical.\n } }", "('four launches, chosen at random, all identical')");
+        Expect("class P { /// <summary>The launch flies leftward, fractions zero, against its sibling.</summary>\nint Launch => 0; }", "('fractions zero')");
+        Expect("class P { /// <summary>Effect actors move in whole pixels and leave the\n/// fractions zero.</summary>\nint Position => 0; }", "('fractions zero')");
+        Expect("class P { /// <summary>A whole-pixel displacement with zero fractions.</summary>\nint Offset => 0; }", "('zero fractions')");
+        // A number of the game's rooms, doors or areas, a launch alone, a thing all identical with no count, a fraction of a
+        // pixel, no fraction, a zero fraction and a hardware owner are English.
+        Expect("class P { /// <summary>The game's 262 rooms; one of the game's doors; one of the game's values; the game's sixteen collision families; a launch\n/// leftward; the pieces are all identical; a fraction of a pixel; no fraction; a zero fraction; <see cref=\"Run\"/>.</summary>\nvoid Run() { } }");
+        Expect(CompatibilityService + "/// <summary>Evidence: all eight of the game's nail launches, four launches all identical, fractions zero.</summary>\n[CompatibilityService(\"table\")] class Table { }");
         // The species-owner template on a type that owns no species (#2427), read on the type's own summary; a type that
         // implements or is a species owner's interface owns a species, and an entity's parameter names its owner.
         const string SpeciesOwners = "interface IEnemySpecies { }\ninterface IEnemyEntityFactory { }\n";

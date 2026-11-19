@@ -66,7 +66,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
         enemies.CrocomireBehavior.Fight.InitializeCrocomire(body);
         CrocomireEnemyState state = body.RequireSpeciesState<CrocomireEnemyState>();
-        AssertEqual(CrocomireDeathPhase.Fighting, state.DeathPhase,
+        AssertEqual(CrocomireDeathStages.Only<CrocomireDeathStage.Fighting>(), state.DeathStage,
             "installed Crocomire colors leave living fight phase unchanged");
         AssertEqual(new AnimationPlayback<CrocomireBodySegment>(CrocomireBodyAnimations.StartingWith(CrocomireBodyAnimation.IdleSway), AnimationPlace.StartOfAnimation),
             state.BodyPlayback,
@@ -79,18 +79,18 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         IReadOnlyList<SheetShade> bodyShades = BossSheetShades.Body(BossBodyOwner.Crocomire, bosses, [], []);
         AssertBand(bodyShades, CrocomireShades.FightBody, CrocomireColorDefinitions.FightBodyCount, colors.ResolveFightBody, "restored fight-body");
         body.FlashTimer = 1;
-        enemies.FrameContext.SeedRandomEnemyCounter(2);
+        enemies.FrameContext.SeedEnemyPassCount(2);
         enemies.CrocomireBehavior.Combat.ApplyCrocomireHurtFlash(body, state);
         AssertTrue(state.Colours.HurtFlash, "a flashing hurt update shows the white hurt flash");
         AssertBand(bodyShades, CrocomireShades.BodyHurt, CrocomireColorDefinitions.FightBodyCount, _ => RgbColor.White, "native white hurt flash");
-        AssertEqual(CrocomireDeathPhase.Fighting, state.DeathPhase,
+        AssertEqual(CrocomireDeathStages.Only<CrocomireDeathStage.Fighting>(), state.DeathStage,
             "white hurt flash leaves fight phase unchanged");
-        state.DeathPhaseWait.LastFor(1);
+        state.DeathStageWait.LastFor(1);
         enemies.CrocomireBehavior.Skeleton.RunCrocomireSkeletonRevealAndWallBreak(state);
         AssertTrue(state.Colours.ShowsSkeletonArm, "the wall break shows the skeleton arm's colours");
         AssertBand(BossSheetShades.OwnRow(bosses, EnemyDefinitionId.Crocomire, 0), CrocomireShades.SkeletonArm,
             CrocomireColorDefinitions.SkeletonArmCount, colors.ResolveSkeletonArm, "skeleton-arm");
-        AssertEqual(CrocomireDeathPhase.CrumbleBridgeAndSink, state.DeathPhase,
+        AssertEqual(CrocomireDeathStages.Only<CrocomireDeathStage.SinkThroughBridge>(), state.DeathStage,
             "installed skeleton-arm colors leave death-phase handoff unchanged");
 
         visual.FightBody[1] = visual.FightBody[1] with { Green = 32 };

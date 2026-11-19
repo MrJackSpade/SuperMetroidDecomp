@@ -854,6 +854,15 @@ measure (`in 256ths of a pixel`, `a 256th of a pixel`, `one 256th`), an odd numb
 and counts, a frame counter's parity, a thing stored alone, a thing pointing at another (`the missile points at the
 answer`), the same unit on a parameter typed as a number and a hardware owner stay English.
 
+#2540 widens SME6454, outside hardware owners, to the original's tables counted and its fractions listed as boss prose
+tells them, read across a documentation comment's line breaks: a number of the game's, the original's or the cartridge's
+launches, entries, rows, values, records, copies or variants (`all eight of the game's nail launches`, `the game's four
+launches`, `all 128 of the game's values`), a number of launches, entries, rows, records, copies or variants said to be
+all identical (`four launches, chosen at random, all identical`), and fractions listed as zero (`X=-1, fractions zero`,
+`leave the fractions zero`, `zero fractions`). Core says what the game does: every launch flies at these speeds, one
+pixel an update leftward, whole pixels only. A number of the game's rooms, doors or areas (`the game's 262 rooms`), a
+thing all identical with no count, a fraction of a pixel, no fraction, a zero fraction and a hardware owner stay English.
+
 SME6459 (#2309) reads the summary of every member of a Core `*Segment` enum, one run of an actor's animation, and rejects
 one that only restates the member's name: `The facing left shooting animation.`, `The idle.`, `The loop.`, and (#2465)
 any summary whose words are all the name's, the actor's the enum is named for, articles, possessives or `animation`,

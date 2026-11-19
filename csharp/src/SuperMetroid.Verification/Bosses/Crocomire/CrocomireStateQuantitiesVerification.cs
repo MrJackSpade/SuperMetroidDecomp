@@ -122,7 +122,7 @@ internal static class CrocomireStateQuantitiesVerification
     {
         (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
         RoomEnemyPlace body = state.Body;
-        state.DeathPhase = CrocomireDeathPhase.FirstHopSink;
+        state.DeathStage = CrocomireDeathStages.Nth<CrocomireDeathStage.Sink>(1);
         state.VerticalAcceleration = SignedSixteenSixteen.FromParts(0, acceleration);
         state.VerticalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(speed);
         // The subposition word's high byte is the carried vertical fraction; the low byte is the cartridge's alone.
@@ -134,7 +134,7 @@ internal static class CrocomireStateQuantitiesVerification
             enemies.CrocomireBehavior.BridgeCollapse.RunCrocomireSink(state, default);
             if (!moving)
             {
-                AssertEqual(CrocomireDeathPhase.SecondSubmergedPause, state.DeathPhase, $"{name}: ends on the native frame");
+                AssertEqual(CrocomireDeathStages.Nth<CrocomireDeathStage.SubmergedPause>(2), state.DeathStage, $"{name}: ends on the native frame");
                 return;
             }
             AssertMotionWords(state, SinkAccelerationHeld(acceleration), speed, subposition, y, $"{name} frame {frame}");
@@ -160,7 +160,7 @@ internal static class CrocomireStateQuantitiesVerification
     {
         (_, CrocomireEnemyState state) = NewCrocomire();
         RoomEnemyPlace body = state.Body;
-        state.DeathPhase = CrocomireDeathPhase.FirstHopRise;
+        state.DeathStage = CrocomireDeathStages.Nth<CrocomireDeathStage.Rise>(1);
         state.VerticalAcceleration = SignedSixteenSixteen.FromParts(0, acceleration);
         state.VerticalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(speed);
         // The subposition word's high byte is the carried vertical fraction; the low byte is the cartridge's alone.
@@ -172,7 +172,7 @@ internal static class CrocomireStateQuantitiesVerification
             CrocomireBridgeCollapse.RunCrocomireRise(state);
             if (!moving)
             {
-                AssertEqual(CrocomireDeathPhase.FirstHopSink, state.DeathPhase, $"{name}: ends on the native frame");
+                AssertEqual(CrocomireDeathStages.Nth<CrocomireDeathStage.Sink>(1), state.DeathStage, $"{name}: ends on the native frame");
                 return;
             }
             AssertMotionWords(state, acceleration, speed, subposition, y, $"{name} frame {frame}");
@@ -265,7 +265,7 @@ internal static class CrocomireStateQuantitiesVerification
         FixedPosition<RoomPixels> position = body.Position;
         int delay = 40;
         death.SkeletonFallWait.LastFor(delay);
-        state.DeathPhase = CrocomireDeathPhase.DelaySkeletonFall;
+        state.DeathStage = CrocomireDeathStages.Only<CrocomireDeathStage.DelaySkeletonFall>();
 
         // The drift right of the broken wall, while the skeleton is left of X 224.
         for (int frame = 1; frame <= delay; frame++)
@@ -277,7 +277,7 @@ internal static class CrocomireStateQuantitiesVerification
             CrocomireSkeleton.RunCrocomireWallBreakDelay(state);
             AssertSkeletonWords(state, fraction, whole, position, $"skeleton drift frame {frame}");
         }
-        AssertEqual(CrocomireDeathPhase.ArcSkeletonIntoArena, state.DeathPhase, "the drift ends with its delay");
+        AssertEqual(CrocomireDeathStages.Only<CrocomireDeathStage.ArcSkeletonIntoArena>(), state.DeathStage, "the drift ends with its delay");
 
         // The arc into the arena, falling 224/256 pixel a frame, until the skeleton passes X 576.
         for (int frame = 1; frame <= 400; frame++)
@@ -290,7 +290,7 @@ internal static class CrocomireStateQuantitiesVerification
             if (unchecked((short)(position.X.Whole - 576)) >= 0)
                 break;
         }
-        AssertEqual(CrocomireDeathPhase.WaitForSkeletonTerminalImage, state.DeathPhase, "the arc ends past X 576");
+        AssertEqual(CrocomireDeathStages.Only<CrocomireDeathStage.CollapseSkeleton>(), state.DeathStage, "the arc ends past X 576");
 
         // The collapse keeps accelerating the speed, clamped at six pixels, while the skeleton falls apart.
         state.BodyPlayback = new AnimationPlayback<CrocomireBodySegment>(CrocomireBodyAnimations.StartingWith(CrocomireBodyAnimation.SkeletonFallsApart), AnimationPlace.StartOfAnimation);
@@ -364,7 +364,7 @@ internal static class CrocomireStateQuantitiesVerification
         RoomEnemyPlace body = state.Body;
         body.Position = body.Position.WithWholeX(CrocomireBridgeCollapseDefinitions.CollapseStartX);
         enemies.CrocomireBehavior.BridgeCollapse.HandleCrocomireBridgeThreshold(state);
-        AssertEqual(CrocomireDeathPhase.CrumbleBridgeAndSink, state.DeathPhase, "his weight on the bridge's far block collapses it");
+        AssertEqual(CrocomireDeathStages.Only<CrocomireDeathStage.SinkThroughBridge>(), state.DeathStage, "his weight on the bridge's far block collapses it");
         AssertTrue(state.Tongue.AnimationClock.IsStopped, "the collapse hides his tongue with its clock stopped");
         for (int update = 1; update <= 100; update++)
         {
@@ -375,17 +375,17 @@ internal static class CrocomireStateQuantitiesVerification
                 $"the acid's sound on update {update} of his death");
         }
 
-        state.DeathPhase = CrocomireDeathPhase.FirstHopSink;
+        state.DeathStage = CrocomireDeathStages.Nth<CrocomireDeathStage.Sink>(1);
         body.Position = body.Position.WithWholeY(CrocomireBridgeCollapseDefinitions.SunkenY);
         enemies.CrocomireBehavior.BridgeCollapse.RunCrocomireSink(state, default);
-        AssertEqual(CrocomireDeathPhase.SecondSubmergedPause, state.DeathPhase, "the sink ends at the acid's floor");
+        AssertEqual(CrocomireDeathStages.Nth<CrocomireDeathStage.SubmergedPause>(2), state.DeathStage, "the sink ends at the acid's floor");
         for (int update = 1; update <= 48; update++)
         {
             CrocomireBridgeCollapse.RunCrocomireSubmergedPause(state);
-            AssertEqual(CrocomireDeathPhase.SecondSubmergedPause, state.DeathPhase, $"he still rests submerged on update {update} of the pause");
+            AssertEqual(CrocomireDeathStages.Nth<CrocomireDeathStage.SubmergedPause>(2), state.DeathStage, $"he still rests submerged on update {update} of the pause");
         }
         CrocomireBridgeCollapse.RunCrocomireSubmergedPause(state);
-        AssertEqual(CrocomireDeathPhase.SecondHopRise, state.DeathPhase, "he starts to rise on the pause's 49th update");
+        AssertEqual(CrocomireDeathStages.Nth<CrocomireDeathStage.Rise>(2), state.DeathStage, "he starts to rise on the pause's 49th update");
     }
 
     /// <summary>Creates a Crocomire body with its encounter and death state in a fresh enemy system.</summary>

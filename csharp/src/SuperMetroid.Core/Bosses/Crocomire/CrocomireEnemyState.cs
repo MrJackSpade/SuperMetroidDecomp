@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Crocomire's body state.</summary>
 /// <remarks>
-/// Every phase starts its own values: the bridge collapse and each melt pass start the sink from rest, the sink starts
-/// the pause's wait, the rumble its first step and the skeleton its speed. Only a hop's sink carries on from the phase before
+/// Every death stage starts its own values: the bridge collapse and each melt pass start the sink from rest, the sink starts
+/// the pause's wait, the rumble its first step and the skeleton its speed. Only a hop's sink carries on from the stage before
 /// it, continuing the rise's speed and acceleration. A rise starts from no acceleration (#1476).
 /// </remarks>
 public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
@@ -73,8 +73,20 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
         _tongue = tongue;
     }
 
-    /// <summary>The phase of his death sequence; <see cref="CrocomireDeathPhase.Fighting"/> runs the fight and bridge checks, and <see cref="CrocomireDeathPhase.InertCorpse"/> is a corpse, an already-defeated room's from its setup.</summary>
-    public CrocomireDeathPhase DeathPhase { get; internal set; }
+    /// <summary>
+    /// Where he stands in his course (<see cref="CrocomireDeathStageDefinitions.Stages"/>, #2540): the fight, from his setup
+    /// until the bridge gives way under him, then each stage of his death in turn to his inert corpse.
+    /// </summary>
+    internal ListStep<CrocomireDeathStage> DeathStage { get; set; } = ListStep<CrocomireDeathStage>.FirstOf(CrocomireDeathStageDefinitions.Stages);
+
+    /// <summary>Hands his death over to the stage after the one he is at.</summary>
+    /// <exception cref="InvalidOperationException">He is at his inert corpse, which hands over to no stage.</exception>
+    internal void AdvanceDeathStage() =>
+        DeathStage = DeathStage.Following ?? throw new InvalidOperationException($"Crocomire's death stage {DeathStage} hands over to no other stage.");
+
+    /// <summary>His course stands at his inert corpse from now on, as an already-defeated room's setup leaves him.</summary>
+    internal void RestAsCorpse() =>
+        DeathStage = ListStep<CrocomireDeathStage>.At(CrocomireDeathStageDefinitions.Stages, CrocomireDeathStageDefinitions.Stages.Count - 1);
 
     /// <summary>Whether a mouth hit is waiting for the fight AI to start a backward step.</summary>
     public bool DamageReactionPending { get; internal set; }
@@ -97,12 +109,12 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
     }
 
     /// <summary>
-    /// The wait of a timed death phase (#2463): each sink starts it to last
+    /// The wait of a timed death stage (#2463): each sink starts it to last
     /// <see cref="CrocomireBridgeCollapseDefinitions.SubmergedPauseUpdates"/>, the submerged pause after it rising as it
     /// runs out, and the wall's rumble starts it to last <see cref="CrocomireSkeletonDefinitions.SpikedWallUpdates"/>, his
     /// skeleton breaking through as it runs out.
     /// </summary>
-    public BossCountdown DeathPhaseWait { get; } = new();
+    public BossCountdown DeathStageWait { get; } = new();
 
     /// <summary>
     /// While the hidden wall rumbles: the oscillation under way in <see cref="CrocomireRumbleDefinitions.Oscillations"/>,

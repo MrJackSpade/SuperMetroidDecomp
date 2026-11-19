@@ -18,58 +18,20 @@ internal static class CrocomireNativeWords
     private const int DamageReactionPendingBit = 0x0800;
 
     /// <summary>
-    /// The byte offset into the death dispatcher's jump table, body variable A, naming each <see cref="CrocomireDeathPhase"/>.
-    /// The cartridge advances a phase by one table word, the successor <see cref="CrocomireDeathPhases.Next"/> names.
+    /// The byte offset into the death dispatcher's jump table, body variable A, naming each stage of his course
+    /// (<see cref="CrocomireDeathStageDefinitions.Stages"/>, #2540), by the stage's place in it. The cartridge advances a
+    /// stage by one table word, except that its last sink runs on to the river's entry past the corpse's and the river runs
+    /// back to the wait behind the wall; the live room's inert corpse, and the already-defeated room's waiting and placing of
+    /// his body layer, which the port's corpse does not need (#2031), are each the inert corpse.
     /// </summary>
-    internal static readonly NativeWordIdentities<CrocomireDeathPhase> DeathPhases = new(new Dictionary<CrocomireDeathPhase, ushort>
-    {
-        [CrocomireDeathPhase.Fighting] = 0,
-        [CrocomireDeathPhase.CrumbleBridgeAndSink] = 2,
-        [CrocomireDeathPhase.FirstSubmergedPause] = 4,
-        [CrocomireDeathPhase.FirstHopRise] = 6,
-        [CrocomireDeathPhase.FirstHopSink] = 8,
-        [CrocomireDeathPhase.SecondSubmergedPause] = 10,
-        [CrocomireDeathPhase.SecondHopRise] = 12,
-        [CrocomireDeathPhase.SecondHopSink] = 14,
-        [CrocomireDeathPhase.InstallFirstMeltImage] = 16,
-        [CrocomireDeathPhase.BeginFirstMeltPass] = 18,
-        [CrocomireDeathPhase.ShowFirstMeltBands] = 20,
-        [CrocomireDeathPhase.ThirdHopRise] = 22,
-        [CrocomireDeathPhase.StartFirstDissolve] = 24,
-        [CrocomireDeathPhase.DissolveFirstImage] = 26,
-        [CrocomireDeathPhase.ClearFirstMeltImage] = 28,
-        [CrocomireDeathPhase.FourthHopSink] = 30,
-        [CrocomireDeathPhase.ThirdSubmergedPause] = 32,
-        [CrocomireDeathPhase.FourthHopRise] = 34,
-        [CrocomireDeathPhase.FifthHopSink] = 36,
-        [CrocomireDeathPhase.FourthSubmergedPause] = 38,
-        [CrocomireDeathPhase.FifthHopRise] = 40,
-        [CrocomireDeathPhase.SixthHopSink] = 42,
-        [CrocomireDeathPhase.InstallSecondMeltImage] = 44,
-        [CrocomireDeathPhase.BeginSecondMeltPass] = 46,
-        [CrocomireDeathPhase.ShowSecondMeltBands] = 48,
-        [CrocomireDeathPhase.WaitBeforeSixthHopRise] = 50,
-        [CrocomireDeathPhase.SixthHopRise] = 52,
-        [CrocomireDeathPhase.StartSecondDissolve] = 54,
-        [CrocomireDeathPhase.DissolveSecondImage] = 56,
-        [CrocomireDeathPhase.ClearSecondMeltImage] = 58,
-        [CrocomireDeathPhase.FinalSink] = 60,
-        [CrocomireDeathPhase.WaitForSamusAtWall] = 62,
-        [CrocomireDeathPhase.RumbleHiddenWall] = 64,
-        [CrocomireDeathPhase.BreakSpikeWall] = 66,
-        [CrocomireDeathPhase.DelaySkeletonFall] = 68,
-        [CrocomireDeathPhase.ArcSkeletonIntoArena] = 70,
-        [CrocomireDeathPhase.WaitForSkeletonTerminalImage] = 72,
-        [CrocomireDeathPhase.ClearWallAndOpenScrolls] = 74,
-        [CrocomireDeathPhase.WaitForStableSkeleton] = 76,
-        [CrocomireDeathPhase.WaitBeforeRecordingDefeat] = 78,
-        [CrocomireDeathPhase.PublishDefeatAndRestoreMusic] = 80,
-        [CrocomireDeathPhase.RiverSkeletonDetour] = 88,
-    }.Select(entry => KeyValuePair.Create(entry.Value, entry.Key))
-        // The live room's inert corpse, and the already-defeated room's waiting and placing of his body layer, which the
-        // port's corpse does not need (#2031): each is the inert corpse.
-        .Concat([KeyValuePair.Create((ushort)82, CrocomireDeathPhase.InertCorpse), KeyValuePair.Create((ushort)84, CrocomireDeathPhase.InertCorpse),
-            KeyValuePair.Create((ushort)86, CrocomireDeathPhase.InertCorpse)])
+    internal static readonly NativeWordIdentities<ListStep<CrocomireDeathStage>> DeathStages = new(
+        new ushort[][]
+        {
+            [0], [2], [4], [6], [8], [10], [12], [14], [16], [18], [20], [22], [24], [26], [28], [30], [32], [34], [36], [38],
+            [40], [42], [44], [46], [48], [50], [52], [54], [56], [58], [60], [88], [62], [64], [66], [68], [70], [72], [74],
+            [76], [78], [80], [82, 84, 86],
+        }.SelectMany((words, place) => words.Select(word =>
+            KeyValuePair.Create(word, ListStep<CrocomireDeathStage>.At(CrocomireDeathStageDefinitions.Stages, place))))
         .ToDictionary());
 
     /// <summary>
@@ -118,7 +80,7 @@ internal static class CrocomireNativeWords
     /// </summary>
     internal static void ImportSharedWords(CrocomireEnemyState state, ushort wordD, ushort wordE, ushort wordF)
     {
-        if (state.DeathPhase == CrocomireDeathPhase.Fighting)
+        if (state.DeathStage.Entry is CrocomireDeathStage.Fighting)
         {
             state.StepCounter = wordD;
             state.ShotsSpat = wordF % 2 == 0 ? wordF / 2
@@ -126,13 +88,13 @@ internal static class CrocomireNativeWords
             return;
         }
 
-        if (state.DeathPhase == CrocomireDeathPhase.RumbleHiddenWall)
+        if (state.DeathStage.Entry is CrocomireDeathStage.RumbleHiddenWall)
         {
             (state.RumbleOscillation, state.RumbleTowardExtreme) = RumbleAt(wordD);
         }
         else
         {
-            PrivateState.Set(state.DeathPhaseWait, nameof(BossCountdown.Count), (int)wordD);
+            PrivateState.Set(state.DeathStageWait, nameof(BossCountdown.Count), (int)wordD);
             state.VerticalAcceleration = SignedSixteenSixteen.FromParts(0, wordD);
         }
         state.VerticalSpeed = new SignedEightEight(wordE);

@@ -13,7 +13,7 @@ public readonly record struct FixedVector<TSpace>(SignedSixteenSixteen X, Signed
     /// <summary>No displacement.</summary>
     public static FixedVector<TSpace> Zero => default;
 
-    /// <summary>A whole-pixel displacement with zero fractions.</summary>
+    /// <summary>A displacement of whole pixels only.</summary>
     public static FixedVector<TSpace> FromWholePixels(Offset16<TSpace> offset) =>
         new(SignedSixteenSixteen.FromParts(offset.X, 0), SignedSixteenSixteen.FromParts(offset.Y, 0));
 

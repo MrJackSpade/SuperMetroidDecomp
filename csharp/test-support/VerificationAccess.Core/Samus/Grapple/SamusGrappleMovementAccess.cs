@@ -53,8 +53,7 @@ internal static class SamusGrappleMovementAccess
             // deliberately place an anchor where the current room has no grapple block (the
             // Landing Site regression does exactly that), so only a beam acquired through the
             // block dispatcher opts into bank-$9B's per-frame connection revalidation.
-            grapple.ValidateAnchorBlock = false;
-            grapple.ValidateAnchorEnemy = false;
+            grapple.ValidatedAnchor = null;
             grapple.CloseCollision = false;
             grapple.WallJumpTimer = 0;
             grapple.CancelFromConnectedPose = false;

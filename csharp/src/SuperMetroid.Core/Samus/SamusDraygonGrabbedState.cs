@@ -19,26 +19,27 @@ namespace SuperMetroid.Core.Samus;
 /// </remarks>
 public sealed class SamusDraygonGrabbedState
 {
+    /// <summary>Where Samus is in Draygon's hold: free, held, held while another owner moves her, or released unseen.</summary>
+    public SamusDraygonHoldPhase Phase { get; private set; }
+
     /// <summary>
     /// True while Draygon holds Samus: from the grab until her release, the escape check runs after each of her
     /// movements and counts her presses of the directions.
     /// </summary>
-    public bool IsActive { get; private set; }
-
-    /// <summary>
-    /// Whether another owner has taken Samus's movement while Draygon still holds her: the escape check keeps counting,
-    /// but the hold no longer keeps her still.
-    /// </summary>
-    public bool MovementTakenOver { get; private set; }
+    public bool IsActive => Phase is SamusDraygonHoldPhase.Held or SamusDraygonHoldPhase.HeldMovementTakenOver;
 
     /// <summary>True only while the hold still keeps Samus still, before any other owner takes her movement.</summary>
-    public bool OwnsMovement => IsActive && !MovementTakenOver;
+    public bool OwnsMovement => Phase == SamusDraygonHoldPhase.Held;
 
     /// <summary>
     /// Ends the hold's keeping Samus still when a newer owner takes her movement (<see cref="SamusMovementHandOver"/>),
-    /// while the hold and its escape check continue.
+    /// while the hold and its escape check continue. A hold that does not keep her still has nothing to give up.
     /// </summary>
-    internal void RelinquishMovement() => MovementTakenOver = true;
+    internal void RelinquishMovement()
+    {
+        if (Phase == SamusDraygonHoldPhase.Held)
+            Phase = SamusDraygonHoldPhase.HeldMovementTakenOver;
+    }
 
     /// <summary>The count of escape presses, which Crystal Flash's ammunition drain and the suit pickup's stage share.</summary>
     private readonly SharedEscapeAndDrainCount<SamusSuitPickupStage> escapePresses;
@@ -54,12 +55,6 @@ public sealed class SamusDraygonGrabbedState
     public GameplayAction PreviousDirectionsPressed { get; private set; }
 
     /// <summary>
-    /// Set by the release, the signal Draygon reads when Samus breaks free. The next time
-    /// Draygon carries Samus, it consumes the signal and starts flying upward.
-    /// </summary>
-    public bool ReleasePublishedToOwner { get; private set; }
-
-    /// <summary>
     /// Sets Samus into the grabbed-by-Draygon pose.
     /// </summary>
     public void Begin(SamusState samus, HorizontalDirection draygonFacing)
@@ -72,14 +67,12 @@ public sealed class SamusDraygonGrabbedState
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
 
-        IsActive = true;
-        MovementTakenOver = false;
+        Phase = SamusDraygonHoldPhase.Held;
         escapePresses.ClearEscapePresses();
         // The grab takes Samus's movement and keeps her still, but leaves the Flash shade and its shared
         // shine timer alive. A later release must not resume Flash draining.
         SamusMovementHandOver.To(samus, SamusMovementOwner.DraygonHold);
         PreviousDirectionsPressed = GameplayAction.None;
-        ReleasePublishedToOwner = false;
         // Forced grab owns its history shift; no ordinary input transition is consumed.
         samus.CommitPoseHistory();
         // The grab clears every pending pose. The pose the animation left pending is Samus's to clear; the runtime clears the
@@ -99,7 +92,7 @@ public sealed class SamusDraygonGrabbedState
         HorizontalDirection draygonFacing)
     {
         Ensure.NotNull(samus);
-        if (!IsActive && !ReleasePublishedToOwner)
+        if (Phase == SamusDraygonHoldPhase.Inactive)
         {
             throw new InvalidOperationException(
                 "Draygon places only a held Samus or one whose escape it has not yet seen.");
@@ -184,16 +177,18 @@ public sealed class SamusDraygonGrabbedState
         samus.MorphBallBounceState = SamusBallBounceState.None;
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
 
-        IsActive = false;
-        ReleasePublishedToOwner = true;
+        // The release is the signal Draygon reads when Samus breaks free: the next time Draygon carries her, it sees the
+        // release and starts flying upward.
+        Phase = SamusDraygonHoldPhase.ReleasedUnseen;
     }
 
-    /// <summary>Consumes the Draygon-facing release flag exactly once.</summary>
+    /// <summary>Has Draygon see Samus's release exactly once: whether a release was waiting for it.</summary>
     public bool ConsumeOwnerReleaseSignal()
     {
-        bool published = ReleasePublishedToOwner;
-        ReleasePublishedToOwner = false;
-        return published;
+        if (Phase != SamusDraygonHoldPhase.ReleasedUnseen)
+            return false;
+        Phase = SamusDraygonHoldPhase.Inactive;
+        return true;
     }
 
     /// <summary>Rejects escape checks before Draygon grabs Samus.</summary>

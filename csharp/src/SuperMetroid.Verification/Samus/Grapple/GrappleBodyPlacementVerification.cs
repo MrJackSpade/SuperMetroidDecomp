@@ -29,7 +29,7 @@ internal static class GrappleBodyPlacementVerification
             // as a swing's are: its anchor and the body line it sweeps lie in the room.
             g.Anchor = g.Anchor.WithX(AnchorMargin + (raw & AnchorSpread)); g.Anchor = g.Anchor.WithY(AnchorMargin + (~raw & AnchorSpread));
             g.RopeLength = (ushort)(raw & 127);
-            g.ValidateAnchorBlock = (raw & 1) != 0;
+            g.ValidatedAnchor = (raw & 1) != 0 ? GrappleAnchorKind.Block : null;
             // The physical rope uses Angle; the body mapping uses the remembered mirror.
             g.Angle = RotationAngleConstants.FromRaw(unchecked((ushort)(raw ^ 0x4080)));
             g.MirroredAngle = RotationAngleConstants.FromRaw((ushort)raw);

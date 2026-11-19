@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Samus.Colours;
 
 /// <summary>Immutable game data shared by Samus shades.</summary>
@@ -71,29 +73,25 @@ public static class SamusShadeDefinitions
         public const int BubbleShadeCount = 6;
     }
 
-    /// <summary>The light beam's colour endpoints in the shared Varia/Gravity pickup sequence, in levels.</summary>
+    /// <summary>
+    /// The light beam's colours in the shared Varia/Gravity pickup sequence, on the game's fade scale: the beam starts in
+    /// its suit's colour, each channel rises toward white while the beam widens, and each falls back toward the suit's
+    /// settling colour while the beam shrinks, every channel at its own step until it reaches its target.
+    /// </summary>
     public static class SuitPickup
     {
-        /// <summary>Initial red shared by both transformations.</summary>
-        public const int InitialRed = 16;
-        /// <summary>Initial/terminal Varia green.</summary>
-        public const int VariaGreen = 16;
-        /// <summary>Initial/terminal Gravity green.</summary>
-        public const int GravityGreen = 9;
-        /// <summary>Initial Varia blue.</summary>
-        public const int VariaBlue = 0;
-        /// <summary>Initial/terminal Gravity blue.</summary>
-        public const int GravityBlue = 16;
-        /// <summary>White-ramp red endpoint.</summary>
-        public const int WhiteRed = 31;
-        /// <summary>White-ramp green endpoint.</summary>
-        public const int WhiteGreen = 31;
-        /// <summary>White-ramp blue endpoint.</summary>
-        public const int WhiteBlue = 31;
-        /// <summary>Varia orange-ramp green endpoint.</summary>
-        public const int VariaOrangeGreen = 13;
-        /// <summary>Varia orange-ramp blue endpoint.</summary>
-        public const int VariaOrangeBlue = 3;
+        /// <summary>The Varia beam's colour as it appears.</summary>
+        public static readonly FadeLevelColour VariaBeam = new(16, 16, 0);
+        /// <summary>The Gravity beam's colour as it appears, which its shrinking beam returns to.</summary>
+        public static readonly FadeLevelColour GravityBeam = new(16, 9, 16);
+        /// <summary>The white the widening beam brightens to by the reveal.</summary>
+        public static readonly FadeLevelColour White = new(FadeLevelColour.FullLevel, FadeLevelColour.FullLevel, FadeLevelColour.FullLevel);
+        /// <summary>The orange the shrinking Varia beam settles on.</summary>
+        public static readonly FadeLevelColour VariaOrange = new(FadeLevelColour.FullLevel, 13, 3);
+        /// <summary>The levels a channel rises each widening update, stopping at white's.</summary>
+        public const int WhiteningLevelsPerUpdate = 2;
+        /// <summary>The levels a channel falls each shrinking update, stopping at the settling colour's.</summary>
+        public const int SettlingLevelsPerUpdate = 1;
     }
 
     /// <summary>The glow colour sequences of the Power Bomb and Crystal Flash explosions.</summary>

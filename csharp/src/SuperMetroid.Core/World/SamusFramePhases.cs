@@ -462,7 +462,7 @@ internal sealed class SamusFramePhases
                 // The hurt setup installs the hurt pose and clears every prospective pose and
                 // momentum response. Afterwards the damage-boost check suppresses only a
                 // damage-boost result selected from a knockback pose; it does not
-                // replace the rest of her pose input. A lookup failure there keeps the
+                // replace the rest of her pose input. Input choosing no new pose there keeps the
                 // knockback pose and its Stop momentum response, which clears the X acceleration
                 // mode when the pose is committed.
                 if (samus.CeresRidleyEjection.InitializationPending)
@@ -862,7 +862,7 @@ internal sealed class SamusFramePhases
 
     /// <summary>
     /// Runs the input phase's head: X-ray's beam, the frame's camera point, the frame-start captures, the live radius
-    /// refresh, pose-input lookup and the lookup-failure pose.
+    /// refresh, the pose her input chooses and the fallback pose when it chooses none.
     /// </summary>
     private void RunInputPhaseHead(SamusControlFrame frame, SamusState samus,
         FixedPosition<RoomPixels> cameraPointAtFrameStart, RoomScope room)
@@ -959,7 +959,7 @@ internal sealed class SamusFramePhases
         // A retained pose still chooses a pose transition whose change runs later.
         if (_player.GroundedSamusMovementEnabled && frame.UsePoseDefinitionFallback)
         {
-            _player.ProspectiveSamusFallbackPose = SamusLookupFailurePose.Resolve(
+            _player.ProspectiveSamusFallbackPose = SamusNoTransitionPose.Resolve(
                 SamusPoseMetadata.ReadMovementType(samus),
                 samus.Pose,
                 SamusPoseMetadata.ReadNoInputFallback(samus),

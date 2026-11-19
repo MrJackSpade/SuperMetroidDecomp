@@ -17,8 +17,7 @@ internal static class SamusGrappleHudInput
         SamusHudSelectionMode mode = SamusHudObservations.SelectionMode(SamusPoseMetadata.ReadMovementType(samus));
         return mode switch
         {
-            SamusHudSelectionMode.Standard or SamusHudSelectionMode.Grapple => true,
-            SamusHudSelectionMode.DraygonHeld => SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.DraygonHeld,
+            SamusHudSelectionMode.Standard or SamusHudSelectionMode.Grapple or SamusHudSelectionMode.DraygonHeld => true,
             SamusHudSelectionMode.Turning => samus.PendingTransitionShot is not null,
             SamusHudSelectionMode.Transition => SamusHudInput.PostureTransitionAdmitsWeapons(samus.Pose, grappleActive: false, postureAdmission),
             SamusHudSelectionMode.MorphBall or SamusHudSelectionMode.Jump => false,

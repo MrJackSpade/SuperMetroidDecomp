@@ -299,10 +299,13 @@ public sealed class SamusShinesparkState
     /// <param name="terrain">The room terrain Samus's block collision probes: the level data and the room objects that react to touched blocks (#633).</param>
     /// <param name="samus">Live player state; movement, energy, contact damage, pose state, and echo coordinates may change during the call.</param>
     /// <param name="frame">What one shinespark step reads from the frame: clocks, projectiles, invincibility and the previous checkpoint (#633).</param>
+    /// <exception cref="InvalidOperationException">The spark does not move Samus (<see cref="OwnsMovement"/>): a stored shine or no spark.</exception>
     internal ShinesparkMovementResult Step(SamusTerrain terrain, SamusState samus, ShinesparkFrame frame)
     {
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(samus);
+        if (!OwnsMovement)
+            throw new InvalidOperationException("The shinespark does not move Samus.");
 
         if (Phase == ShinesparkPhase.Windup)
         {
@@ -323,21 +326,12 @@ public sealed class SamusShinesparkState
                 timedOut, PendingLaunchPose: pendingLaunchPose);
         }
 
-        if (Phase is not (ShinesparkPhase.Horizontal or
-            ShinesparkPhase.Vertical or ShinesparkPhase.Diagonal))
-        {
-            if (Phase == ShinesparkPhase.Crash)
-                return StepCrashOrbit(samus);
-            if (Phase == ShinesparkPhase.CrashHold)
-                return StepCrashHold();
-            if (Phase == ShinesparkPhase.CrashFinish)
-                return FinishCrash(samus, frame.Projectiles);
-
-// A stored shine or no spark at all does not move Samus. Returning
-            // an empty snapshot is defensive; runtime normally never runs them here.
-            return new ShinesparkMovementResult(
-                false);
-        }
+        if (Phase == ShinesparkPhase.Crash)
+            return StepCrashOrbit(samus);
+        if (Phase == ShinesparkPhase.CrashHold)
+            return StepCrashHold();
+        if (Phase == ShinesparkPhase.CrashFinish)
+            return FinishCrash(samus, frame.Projectiles);
 
         samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.Shinespark;
         samus.HurtFlash.HoldAt(ShinesparkDefinitions.MovingSparkHurtFlashCount);

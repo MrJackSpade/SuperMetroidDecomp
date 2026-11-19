@@ -728,6 +728,8 @@ internal static void VerifySamusGrabbedByDraygon()
     AssertEqual(SamusPoseId.DraygonGrabbedNeutralRightPose, samus.Pose,
         "right-facing Draygon entry selects $EC");
     AssertEqual(21, samus.Kinematics.Radius.Y, "Draygon entry loads radius 21");
+    AssertEqual(SamusDraygonHoldPhase.Held, samus.DraygonGrabbed.Phase, "the grab holds Samus");
+    AssertTrue(samus.DraygonGrabbed.IsActive && samus.DraygonGrabbed.OwnsMovement, "the grab holds Samus and keeps her still");
 
     samus.DraygonGrabbed.ApplyOwnerPosition(
         samus, ownerPosition: new(0x0100, 0x0180), draygonFacing: HorizontalDirection.Right);
@@ -804,13 +806,23 @@ internal static void VerifySamusGrabbedByDraygon()
     AssertEqual(SamusBallBounceState.None, samus.MorphBallBounceState, "release clears bounce state");
     AssertEqual(SamusAccelerationMode.Accelerating, samus.HorizontalSpeed.AccelerationMode,
         "release clears X acceleration mode");
+    AssertEqual(SamusDraygonHoldPhase.ReleasedUnseen, samus.DraygonGrabbed.Phase, "the release waits for Draygon to see it");
+    AssertTrue(!samus.DraygonGrabbed.IsActive && !samus.DraygonGrabbed.OwnsMovement, "the release ends the hold");
     AssertTrue(samus.DraygonGrabbed.ConsumeOwnerReleaseSignal(),
         "release publishes one owner-consumed bit");
     AssertTrue(!samus.DraygonGrabbed.ConsumeOwnerReleaseSignal(),
         "owner release bit is one-shot");
+    AssertEqual(SamusDraygonHoldPhase.Inactive, samus.DraygonGrabbed.Phase, "Draygon seeing the release frees Samus");
+    samus.DraygonGrabbed.RelinquishMovement();
+    AssertEqual(SamusDraygonHoldPhase.Inactive, samus.DraygonGrabbed.Phase, "a hold that is over gives up no movement");
 
     // Mirror the entry/owner/release direction without repeating the 60-input route.
     samus.DraygonGrabbed.Begin(samus, draygonFacing: HorizontalDirection.Left);
+    samus.DraygonGrabbed.RelinquishMovement();
+    AssertEqual(SamusDraygonHoldPhase.HeldMovementTakenOver, samus.DraygonGrabbed.Phase,
+        "another owner taking her movement leaves Draygon holding her");
+    AssertTrue(samus.DraygonGrabbed.IsActive && !samus.DraygonGrabbed.OwnsMovement,
+        "a hold whose movement another owner took still holds her but no longer keeps her still");
     samus.DraygonGrabbed.ApplyOwnerPosition(
         samus, ownerPosition: new(0x0100, 0x0180), draygonFacing: HorizontalDirection.Left);
     AssertEqual(-8, samus.Position.X.Whole - 0x0100,

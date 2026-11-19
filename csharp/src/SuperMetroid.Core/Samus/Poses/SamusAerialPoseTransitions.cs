@@ -703,7 +703,7 @@ internal static class SamusAerialPoseTransitions
     }
 
     /// <summary>
-    /// Kills Samus's run speed on a falling input-lookup failure. Cancel the
+    /// Kills Samus's run speed when her input chooses no new pose while she falls. Cancel the
     /// dash component after movement, preserving the base speed and acceleration mode.
     /// It is admitted only for a still-falling body, so no new-fall Y reset is needed.
     /// </summary>

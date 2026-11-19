@@ -84,8 +84,7 @@ public static class SamusGrappleMovement
         grapple.VelocityCorrection = AngularSpeed.Zero;
         grapple.JumpImpulse = AngularSpeed.Zero;
         grapple.CollisionBounceTimer = 0;
-        grapple.ValidateAnchorBlock = false;
-        grapple.ValidateAnchorEnemy = false;
+        grapple.ValidatedAnchor = null;
         grapple.CloseCollision = false;
         grapple.SlowScrolling = false; // Firing returns the camera to its ordinary scroll.
         grapple.WallJumpTimer = 0;
@@ -321,10 +320,7 @@ public static class SamusGrappleMovement
         }
 
         bool enemyAnchorHeld = TryRetainEnemyAnchor(grapple, enemyCollision);
-        bool anchorDisconnected = !enemyAnchorHeld &&
-            (grapple.ValidateAnchorEnemy ||
-             grapple.ValidateAnchorBlock &&
-                !SamusGrappleSwing.IsStillConnectedToSupportedBlock(terrain, samus, grapple));
+        bool anchorDisconnected = !enemyAnchorHeld && !IsValidatedAnchorHeld(terrain, samus, grapple);
         if (anchorDisconnected)
         {
             // A block that still stops the beam keeps the rope; one replaced with air (a breakable grapple block that
@@ -360,10 +356,7 @@ public static class SamusGrappleMovement
         // remains held and either an enemy or the stored block still supports the endpoint.
         bool shootHeld = (controllerInput & GameplayAction.Shoot) != GameplayAction.None;
         bool enemyAnchorHeld = TryRetainEnemyAnchor(grapple, enemyCollision);
-        bool anchorHeld = enemyAnchorHeld || (grapple.ValidateAnchorEnemy
-            ? false
-            : !grapple.ValidateAnchorBlock ||
-                SamusGrappleSwing.IsStillConnectedToSupportedBlock(terrain, samus, grapple));
+        bool anchorHeld = enemyAnchorHeld || IsValidatedAnchorHeld(terrain, samus, grapple);
         if (shootHeld && anchorHeld)
         {
             return new GrappleMovementResult(
@@ -381,6 +374,20 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>
+    /// Whether the anchor the connected beam checks still holds this update when the enemy test retained none
+    /// (<see cref="SamusGrappleState.ValidatedAnchor"/>): an enemy anchor is lost, a block anchor holds while a grapple
+    /// block still stops the beam, and an anchor nothing checks always holds.
+    /// </summary>
+    private static bool IsValidatedAnchorHeld(SamusTerrain terrain, SamusState samus, SamusGrappleState grapple) =>
+        grapple.ValidatedAnchor switch
+        {
+            null => true,
+            GrappleAnchorKind.Block => SamusGrappleSwing.IsStillConnectedToSupportedBlock(terrain, samus, grapple),
+            GrappleAnchorKind.Enemy => false,
+            _ => throw new InvalidOperationException($"Undefined {nameof(GrappleAnchorKind)} {grapple.ValidatedAnchor}."),
+        };
+
+    /// <summary>
     /// Repeats the connected beam's enemy test. Any reaction of the enemy at the anchor to the grapple beam keeps the
     /// connection alive for this frame; attach reactions additionally follow a moving actor's center.
     /// </summary>
@@ -395,8 +402,7 @@ public static class SamusGrappleMovement
         if (enemy.Attaches)
         {
             grapple.Anchor = enemy.Anchor;
-            grapple.ValidateAnchorBlock = false;
-            grapple.ValidateAnchorEnemy = true;
+            grapple.ValidatedAnchor = GrappleAnchorKind.Enemy;
         }
         return true;
     }
@@ -434,10 +440,7 @@ public static class SamusGrappleMovement
         SamusGrappleState grapple = samus.Grapple;
         bool shootHeld = (controllerInput & GameplayAction.Shoot) != GameplayAction.None;
         bool enemyAnchorHeld = TryRetainEnemyAnchor(grapple, enemyCollision);
-        bool anchorHeld = enemyAnchorHeld || (grapple.ValidateAnchorEnemy
-            ? false
-            : !grapple.ValidateAnchorBlock ||
-                SamusGrappleSwing.IsStillConnectedToSupportedBlock(terrain, samus, grapple));
+        bool anchorHeld = enemyAnchorHeld || IsValidatedAnchorHeld(terrain, samus, grapple);
         if (shootHeld && anchorHeld)
         {
             return new GrappleMovementResult(
@@ -829,8 +832,7 @@ public static class SamusGrappleMovement
         if (sourceMovementType == SamusMovementType.DraygonHeld)
         {
             grapple.Phase = GrapplePhase.ConnectedLocked;
-            grapple.ValidateAnchorBlock = anchor == GrappleAnchorKind.Block;
-            grapple.ValidateAnchorEnemy = anchor == GrappleAnchorKind.Enemy;
+            grapple.ValidatedAnchor = anchor;
             grapple.CancelFromConnectedPose = false;
             // Connecting clears the delta, then the firing immediately sets it to -8.
             grapple.RopeLengthDelta = GrappleBeamDefinitions.Physics.InitialConnectionRetraction;
@@ -874,8 +876,7 @@ public static class SamusGrappleMovement
         // Block and enemy acquisition share the same connection/pose machinery, but their following-frame validators
         // have different owners; the anchor kind keeps those origins exclusive, so a moving Powamp anchor is never
         // reinterpreted as room terrain.
-        grapple.ValidateAnchorBlock = anchor == GrappleAnchorKind.Block;
-        grapple.ValidateAnchorEnemy = anchor == GrappleAnchorKind.Enemy;
+        grapple.ValidatedAnchor = anchor;
         grapple.CloseCollision = false;
         grapple.WallJumpTimer = 0;
         grapple.CancelFromConnectedPose = false;
@@ -1117,8 +1118,7 @@ public static class SamusGrappleMovement
         grapple.JumpImpulse = AngularSpeed.Zero;
         grapple.RopeLengthDelta = 0;
         grapple.CollisionBounceTimer = 0;
-        grapple.ValidateAnchorBlock = false;
-        grapple.ValidateAnchorEnemy = false;
+        grapple.ValidatedAnchor = null;
         SamusGrappleBeamDrawing.ClearFlareAnimation(grapple);
         SamusHudSelection.ReturnAutoCancelledItem(samus);
         return releasePose;
@@ -1152,8 +1152,7 @@ public static class SamusGrappleMovement
         grapple.SlowScrolling = false;
         grapple.WallJumpTimer = 0;
         grapple.CancelFromConnectedPose = false;
-        grapple.ValidateAnchorBlock = false;
-        grapple.ValidateAnchorEnemy = false;
+        grapple.ValidatedAnchor = null;
         SamusGrappleBeamDrawing.ClearFlareAnimation(grapple);
     }
 }

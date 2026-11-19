@@ -32,14 +32,6 @@ internal static class SamusPaletteDefinitionsVerification
             SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount,
             SamusShadeDefinitionsConstants.HyperBeamFx.FrameCount,
             "full-body and projectile Hyper Beam cycles have equal record counts");
-        AssertTrue(
-            SamusShadeDefinitions.SuitPickup.WhiteRed >=
-                SamusShadeDefinitions.SuitPickup.InitialRed &&
-            SamusShadeDefinitions.SuitPickup.WhiteGreen >=
-                SamusShadeDefinitions.SuitPickup.VariaGreen &&
-            SamusShadeDefinitions.SuitPickup.WhiteBlue >=
-                SamusShadeDefinitions.SuitPickup.GravityBlue,
-            "suit-pickup white ramp advances every enabled component");
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(romPath))

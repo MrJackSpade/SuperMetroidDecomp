@@ -5,7 +5,7 @@ using Aim = SuperMetroid.Core.Samus.Poses.SamusPoseAim;
 using Facing = SuperMetroid.Core.Samus.SamusFacingDirection;
 using Fallback = SuperMetroid.Core.Samus.Poses.SamusNoInputFallback;
 using Move = SuperMetroid.Core.Samus.Movement.SamusMovementType;
-using Setup = SuperMetroid.Core.Samus.Poses.SamusLookupFailureSetup;
+using Setup = SuperMetroid.Core.Samus.Poses.SamusNoTransitionSetup;
 using Shot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection;
 
 namespace SuperMetroid.Core.Samus.Poses;

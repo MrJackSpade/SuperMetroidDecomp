@@ -951,7 +951,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
         angle: RotationAngle.QuarterTurn,
         angularVelocity: AngularSpeed.Zero,
         faceRight: true);
-    disconnectedAnchorSamus.Grapple.ValidateAnchorBlock = true;
+    disconnectedAnchorSamus.Grapple.ValidatedAnchor = GrappleAnchorKind.Block;
     GrappleMovementResult disconnectedAnchor = SamusGrappleMovement.StepAndCommit(new SamusTerrain { Level = CreateEmptyRoom(new(16, 16)), RoomObjects = SamusRoomObjectFixtures.Uninstalled }, disconnectedAnchorSamus, GameplayAction.Shoot, newlyPressedInput: 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
     AssertTrue(disconnectedAnchor.Phase == GrapplePhase.ReleaseFromSwing &&
         disconnectedAnchorSamus.Grapple.ReleasedMovementActive,

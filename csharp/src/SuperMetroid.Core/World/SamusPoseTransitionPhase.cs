@@ -68,9 +68,9 @@ internal sealed class SamusPoseTransitionPhase
         if (!animationTransitionApplied && _player.ProspectiveSamusPose is { } inputTransition)
             ApplyInputTransition(frame, samus, inputTransition, terrain);
         else if (!animationTransitionApplied)
-            ApplyLookupFailureResponse(frame, samus);
+            ApplyNoTransitionResponse(frame, samus);
 
-        // Crouching stops Samus's momentum only on lookup failure. A matched
+        // Crouching stops Samus's momentum only when her input chooses no new pose. A matched
         // angle-held pose must retain boost even though movement zeroed X speed.
         if (!animationTransitionApplied && frame.UsePoseDefinitionFallback &&
             _player.ProspectiveSamusPose is null &&
@@ -88,7 +88,7 @@ internal sealed class SamusPoseTransitionPhase
             samus.Shinespark.Phase == ShinesparkPhase.Windup)
             samus.HorizontalSpeed.ApplyStoppedInputFallback(SamusPoseMetadata.ReadFacingDirection(samus));
 
-        // Falling's lookup-failure momentum response still runs when its definition
+        // Falling's no-transition momentum response still runs when its definition
         // retains the current pose. It follows pose initialization, and must
         // not run when a higher-priority collision or interruption won.
         if (!animationTransitionApplied && frame.UsePoseDefinitionFallback &&
@@ -330,7 +330,7 @@ internal sealed class SamusPoseTransitionPhase
             // selected for the pre-wall movement type.
             if (_player.ProspectiveSamusPose is null && _player.ProspectiveSamusFallbackPose is not null)
             {
-                SamusMomentumResponse response = SamusMomentumResponses.ForLookupFailure(
+                SamusMomentumResponse response = SamusMomentumResponses.ForNoTransition(
                     SamusPoseMetadata.ReadMovementType(frame.PoseAtFrameStart));
                 samus.HorizontalSpeed.ApplyDeceleratingInputFallback(
                     response == SamusMomentumResponse.Decelerate && frame.DeceleratingFallbackHasMomentum,
@@ -588,18 +588,18 @@ internal sealed class SamusPoseTransitionPhase
 
     /// <summary>
     /// Applies the setup Samus's frame-start pose, or else the movement her last pose setup left her in, names for the input
-    /// phase's lookup failure when no transition won (<see cref="SamusLookupFailureSetups"/>), from the fallback pose that
-    /// lookup chose.
+    /// phase when her input chose no new pose and no transition won (<see cref="SamusNoTransitionSetups"/>), from the
+    /// fallback pose the input phase chose.
     /// </summary>
-    private void ApplyLookupFailureResponse(SamusControlFrame frame, SamusState samus)
+    private void ApplyNoTransitionResponse(SamusControlFrame frame, SamusState samus)
     {
         SamusPoseId source = frame.PoseAtFrameStart;
         SamusPoseId? fallback = _player.ProspectiveSamusFallbackPose;
-        switch (SamusLookupFailureSetups.For(source, frame.MovementTypeAtFrameStart))
+        switch (SamusNoTransitionSetups.For(source, frame.MovementTypeAtFrameStart))
         {
-            case SamusLookupFailureSetup.None:
+            case SamusNoTransitionSetup.None:
                 break;
-            case SamusLookupFailureSetup.StopKnockback:
+            case SamusNoTransitionSetup.StopKnockback:
                 // The retained hurt pose still stops Samus's momentum.
                 // Reset deceleration and cancel the momentum flag after movement.
                 // Extra speed survives the stop, but the next normal mover
@@ -610,19 +610,19 @@ internal sealed class SamusPoseTransitionPhase
                     samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
                 }
                 break;
-            case SamusLookupFailureSetup.ReleaseDamageBoost:
+            case SamusNoTransitionSetup.ReleaseDamageBoost:
                 // Releasing every boost chord reaches the neutral jump poses:
                 // the same setup as its held-Jump input transition.
                 if (fallback is { } boostFallback && boostFallback != source)
                     SamusKnockbackMovement.ApplyDamageBoostPoseTransition(samus, boostFallback, _playerActions.NewlyPressed);
                 break;
-            case SamusLookupFailureSetup.ReturnToNeutralDraygonHold:
+            case SamusNoTransitionSetup.ReturnToNeutralDraygonHold:
                 // Zero input uses the pose's fallback pose, returning aimed/firing/
                 // struggling art to the neutral Draygon-grabbed poses without touching owner placement.
                 if (fallback is { } draygonFallback)
                     SamusPoseMetadata.ApplyDraygonGrabbedPoseChange(samus, draygonFallback);
                 break;
-            case SamusLookupFailureSetup.SpinFromWallJump:
+            case SamusNoTransitionSetup.SpinFromWallJump:
                 // The pose definition leaves the launch animation for ordinary spin
                 // art. The wall-jumping movement type kills Samus's X speed. The pose change
                 // reports a replacement only when the pose's initialization itself replaces the
@@ -637,20 +637,20 @@ internal sealed class SamusPoseTransitionPhase
                         samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
                 }
                 break;
-            case SamusLookupFailureSetup.DecelerateFallingBall:
+            case SamusNoTransitionSetup.DecelerateFallingBall:
                 if (fallback == source)
                 {
                     samus.HorizontalSpeed.ApplyDeceleratingInputFallback(
                         frame.DeceleratingFallbackHasMomentum, SamusPoseMetadata.ReadFacingDirection(samus));
                 }
                 break;
-            case SamusLookupFailureSetup.StopBall:
+            case SamusNoTransitionSetup.StopBall:
                 // A still ball and Spring Ball in the air or falling kill Samus's X speed: after this frame's movement,
                 // the kill clears mode and base speed and goes on to cancel boost and extra running speed.
                 if (fallback == source)
                     samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
                 break;
-            case SamusLookupFailureSetup.StopRollingBall:
+            case SamusNoTransitionSetup.StopRollingBall:
                 // Killing X speed clears base and extra momentum after the
                 // current movement frame for both grounded ball movement types.
                 if (fallback is { } stillBall)
@@ -659,7 +659,7 @@ internal sealed class SamusPoseTransitionPhase
                     SamusPosturePoseTransitions.ApplyMorphBallPoseChange(samus, stillBall);
                 }
                 break;
-            case SamusLookupFailureSetup.StopRunning:
+            case SamusNoTransitionSetup.StopRunning:
                 if (fallback == source)
                     DecelerateRetainedRun(samus);
                 else if (fallback is not null)
@@ -668,7 +668,7 @@ internal sealed class SamusPoseTransitionPhase
                     SamusGroundedPoseTransitions.ApplyRunningToStanding(samus);
                 }
                 break;
-            case SamusLookupFailureSetup.StopAimedRunning:
+            case SamusNoTransitionSetup.StopAimedRunning:
                 if (fallback == source)
                     DecelerateRetainedRun(samus);
                 else if (fallback is { } standing)
@@ -677,31 +677,31 @@ internal sealed class SamusPoseTransitionPhase
                     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, standing);
                 }
                 break;
-            case SamusLookupFailureSetup.StopMoonwalk:
+            case SamusNoTransitionSetup.StopMoonwalk:
                 // The stop selected the literal standing/aim fallback during the input phase.
                 // Applying it after movement preserves the one-last-step timing.
                 if (fallback is { } moonwalkFallback)
                     SamusGroundedPoseTransitions.ApplyMoonwalkPoseChange(samus, moonwalkFallback, _options.MoonwalkEnabled);
                 break;
-            case SamusLookupFailureSetup.LowerGroundedAim:
+            case SamusNoTransitionSetup.LowerGroundedAim:
                 // Only the input fallback path above populates this value; the aimed wall stops name the plain wall stops,
                 // which share their radius, animation and cleanup. Validate and apply it through the same
                 // radius/animation seam as held-input aim changes; never assign the authored value directly to Pose.
                 if (fallback is { } aimFallback)
                     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, aimFallback);
                 break;
-            case SamusLookupFailureSetup.AbandonAimedCrouchingTurn:
+            case SamusNoTransitionSetup.AbandonAimedCrouchingTurn:
                 if (frame.UsePoseDefinitionFallback && samus.Pose == source && fallback is { } crouchingTurnFallback)
                     SamusGroundedPoseTransitions.ApplyAimedCrouchingTurnInputFallback(samus, crouchingTurnFallback);
                 break;
-            case SamusLookupFailureSetup.StopTurn:
+            case SamusNoTransitionSetup.StopTurn:
                 // A definition without a fallback pose retains the animation, not the momentum
                 // response. The stop still cancels reverse acceleration,
                 // for ground turns exactly as for aerial ones.
                 if (frame.UsePoseDefinitionFallback && samus.Pose == source)
                     SamusGroundedPoseTransitions.ApplyTurnInputFallback(samus, frame.MovementTypeAtFrameStart);
                 break;
-            case SamusLookupFailureSetup.ContinueNormalJump:
+            case SamusNoTransitionSetup.ContinueNormalJump:
                 // An unchanged prospective pose must not reset animation or invoke
                 // compact-radius expansion. Decelerating still folds momentum after
                 // movement and rechecks the remaining base speed there.
@@ -713,7 +713,7 @@ internal sealed class SamusPoseTransitionPhase
                         frame.DeceleratingFallbackHasMomentum, SamusPoseMetadata.ReadFacingDirection(samus));
                 }
                 break;
-            case SamusLookupFailureSetup.LowerAerialAim:
+            case SamusNoTransitionSetup.LowerAerialAim:
                 // Install the fallback's pose metadata and setup first.
                 // Falling's run-speed kill, after this response, then clears only the extra component;
                 // it must not be folded into base speed like running deceleration.
@@ -723,7 +723,7 @@ internal sealed class SamusPoseTransitionPhase
                     SamusAerialPoseTransitions.ApplySameFacingAerialTransition(samus, aerialFallback);
                 break;
             default:
-                throw new InvalidDataException($"Undefined {nameof(SamusLookupFailureSetup)} for pose {source}.");
+                throw new InvalidDataException($"Undefined {nameof(SamusNoTransitionSetup)} for pose {source}.");
         }
     }
 

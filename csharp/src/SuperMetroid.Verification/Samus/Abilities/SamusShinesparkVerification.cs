@@ -545,6 +545,36 @@ internal static void VerifySamusStoredShineAndShinespark()
     }
 
     /// <summary>
+    /// Checks that the spark's step runs only while the spark moves Samus (#2525): a stored shine and no spark at all
+    /// are not stepped, as the frame runs the step only for the shinespark movement owner, so stepping either is rejected.
+    /// </summary>
+    internal static void VerifyShinesparkStepRequiresMovingSpark()
+    {
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16),
+            new RoomLevelPlanes(new RoomTerrainBlock[16 * 16], new RoomBlockBehavior[16 * 16], new RoomBlockAppearance[16 * 16]), RoomLevelData.NothingBeyondGrid(), []);
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
+        {
+            Pose = SamusPoseId.FacingRightNormalPose,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
+        };
+        var terrain = new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled };
+        var frame = new ShinesparkFrame
+        {
+            FrameCounter = 0,
+            SamusCannotDie = false,
+            Projectiles = Shots(),
+            GameTimeFrames = 0,
+            PreviousCheckpoint = samus.Position,
+        };
+        AssertEqual(ShinesparkPhase.Inactive, samus.Shinespark.Phase, "a new Samus has no spark");
+        AssertThrows<InvalidOperationException>(() => samus.Shinespark.Step(terrain, samus, frame), "no spark is not stepped");
+        samus.Shinespark.TryStoreFromSpeedBooster(SamusSpeedBoostCounter.AtFullStage);
+        AssertEqual(ShinesparkPhase.Stored, samus.Shinespark.Phase, "a full boost stores the shine");
+        AssertThrows<InvalidOperationException>(() => samus.Shinespark.Step(terrain, samus, frame), "a stored shine is not stepped");
+        Console.WriteLine("Shinespark step: no spark and a stored shine are rejected.");
+    }
+
+    /// <summary>
     /// Checks the angles a Shinespark crash releases its echoes at for every pose number (#1500): the six crash poses take
     /// their authored pairs, the drained poses Mother Brain's drain installs mid-crash take the installed service's pairs,
     /// and both are the cartridge's bytes at the pose's distance from the first crash pose; every other pose is rejected.

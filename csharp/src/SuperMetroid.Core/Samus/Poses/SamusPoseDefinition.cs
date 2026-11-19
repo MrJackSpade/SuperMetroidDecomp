@@ -11,9 +11,9 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <param name="VerticalRadius">The pose's vertical collision radius, in pixels.</param>
 /// <param name="Aim">What the pose does with the arm cannon.</param>
 /// <param name="ProjectileHeight">How far above her centre the pose's shots and Grapple start, in pixels.</param>
-/// <param name="LookupFailureSetup">
+/// <param name="NoTransitionSetup">
 /// The setup the pose update runs when her input chooses no new pose from this one; none for a pose whose movement names
-/// it (<see cref="SamusLookupFailureSetups"/>) or that sets nothing up.
+/// it (<see cref="SamusNoTransitionSetups"/>) or that sets nothing up.
 /// </param>
 internal sealed record SamusPoseDefinition(
     SamusFacingDirection Facing,
@@ -24,4 +24,4 @@ internal sealed record SamusPoseDefinition(
     int VerticalRadius,
     SamusPoseAim Aim,
     int ProjectileHeight,
-    SamusLookupFailureSetup LookupFailureSetup = SamusLookupFailureSetup.None);
+    SamusNoTransitionSetup NoTransitionSetup = SamusNoTransitionSetup.None);

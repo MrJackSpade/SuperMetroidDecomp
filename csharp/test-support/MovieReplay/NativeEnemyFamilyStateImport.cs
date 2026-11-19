@@ -267,7 +267,9 @@ internal static class NativeEnemyFamilyStateImport
             }
             // The swoop path's length (word C) is read with the path's heights from the cartridge's table by the snapshot
             // import, which holds the memory the table lies in.
-            draygonRecord.SwoopVelocity = UnsignedSixteenSixteen.FromRaw(SixteenSixteenWords.Compose(words.D, words.E));
+            // The cartridge keeps the pass's speed; the port's velocity takes it toward the pass's side.
+            draygonRecord.SwoopVelocity = UnsignedSixteenSixteen.FromRaw(SixteenSixteenWords.Compose(words.D, words.E)).AsDisplacement()
+                .Toward(draygonRecord.PassDirection);
         }
         // Draygon's encounter keeps his eye's tracking (#2298).
         if (enemy.Entity is DraygonEyeEntity { Encounter.EyeTracking: var draygonEyeRecord })

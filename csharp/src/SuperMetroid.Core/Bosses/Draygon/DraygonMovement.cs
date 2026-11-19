@@ -17,13 +17,11 @@ internal sealed class DraygonMovement
         _effectActors = effectActors;
     }
 
-    /// <summary>Moves Draygon toward <paramref name="direction"/> by the current swoop speed without losing its fraction.</summary>
-    internal static void MoveDraygonHorizontally(DraygonEnemyState state, HorizontalDirection direction)
+    /// <summary>Moves Draygon's X by the pass's velocity without losing its fraction.</summary>
+    internal static void MoveDraygonHorizontally(DraygonEnemyState state)
     {
         RoomEnemyPlace body = state.Body;
-        body.Position = body.Position.WithX(direction == HorizontalDirection.Right
-            ? body.Position.X.MovedForward(state.SwoopVelocity)
-            : body.Position.X.MovedBack(state.SwoopVelocity));
+        body.Position = body.Position.WithX(body.Position.X.MovedBy(state.SwoopVelocity));
     }
 
     /// <summary>Emits a breath bubble every 128 body frames.</summary>

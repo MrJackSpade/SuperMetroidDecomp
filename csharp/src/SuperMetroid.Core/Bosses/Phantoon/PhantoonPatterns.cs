@@ -109,7 +109,7 @@ internal sealed class PhantoonPatterns
     {
         if (figureEight.Stage == PhantoonFigureEightStage.EasingIn)
         {
-            ChangePhantoonSpeed(figureEight, PhantoonMotionDefinitions.SlowSpeedChange, PhantoonSpeedChange.Accelerate);
+            ChangePhantoonSpeed(figureEight, PhantoonMotionDefinitions.SlowSpeedChange);
             if (figureEight.Speed.WholePlaces >= PhantoonMotionDefinitions.ForwardSlowCap)
             {
                 figureEight.Speed = PhantoonMotionDefinitions.ForwardSurgeStart;
@@ -120,7 +120,7 @@ internal sealed class PhantoonPatterns
 
         if (figureEight.Stage == PhantoonFigureEightStage.Surging)
         {
-            ChangePhantoonSpeed(figureEight, PhantoonMotionDefinitions.FastSpeedChange, PhantoonSpeedChange.Accelerate);
+            ChangePhantoonSpeed(figureEight, PhantoonMotionDefinitions.FastSpeedChange);
             if (figureEight.Speed.WholePlaces >= PhantoonMotionDefinitions.ForwardFastCap)
             {
                 figureEight.Speed = PhantoonPathSpeed.FromPlaces(PhantoonMotionDefinitions.ForwardFastCap);
@@ -129,7 +129,7 @@ internal sealed class PhantoonPatterns
             return;
         }
 
-        ChangePhantoonSpeed(figureEight, PhantoonMotionDefinitions.FastSpeedChange, PhantoonSpeedChange.Decelerate);
+        ChangePhantoonSpeed(figureEight, -PhantoonMotionDefinitions.FastSpeedChange);
         if (figureEight.Speed.WholePlaces <= PhantoonMotionDefinitions.ForwardMinimum)
         {
             figureEight.Speed = PhantoonMotionDefinitions.ForwardEaseStart;
@@ -142,7 +142,7 @@ internal sealed class PhantoonPatterns
     {
         if (figureEight.Stage == PhantoonFigureEightStage.EasingIn)
         {
-            ChangePhantoonSpeed(figureEight, PhantoonMotionDefinitions.SlowSpeedChange, PhantoonSpeedChange.Decelerate);
+            ChangePhantoonSpeed(figureEight, -PhantoonMotionDefinitions.SlowSpeedChange);
             if (figureEight.Speed.WholePlaces <= PhantoonMotionDefinitions.ReverseSlowCap)
             {
                 figureEight.Speed = PhantoonMotionDefinitions.ReverseSurgeStart;
@@ -153,7 +153,7 @@ internal sealed class PhantoonPatterns
 
         if (figureEight.Stage == PhantoonFigureEightStage.Surging)
         {
-            ChangePhantoonSpeed(figureEight, PhantoonMotionDefinitions.FastSpeedChange, PhantoonSpeedChange.Decelerate);
+            ChangePhantoonSpeed(figureEight, -PhantoonMotionDefinitions.FastSpeedChange);
             if (figureEight.Speed.WholePlaces <= PhantoonMotionDefinitions.ReverseFastCap)
             {
                 figureEight.Speed = PhantoonMotionDefinitions.ReverseSettleStart;
@@ -162,7 +162,7 @@ internal sealed class PhantoonPatterns
             return;
         }
 
-        ChangePhantoonSpeed(figureEight, PhantoonMotionDefinitions.FastSpeedChange, PhantoonSpeedChange.Accelerate);
+        ChangePhantoonSpeed(figureEight, PhantoonMotionDefinitions.FastSpeedChange);
         int maximum = PhantoonMotionDefinitions.ReverseMaximum;
         if (figureEight.Speed.WholePlaces >= maximum)
         {
@@ -171,13 +171,9 @@ internal sealed class PhantoonPatterns
         }
     }
 
-    /// <summary>Adds a speed change to the figure-eight's speed, or subtracts it when slowing.</summary>
-    private static void ChangePhantoonSpeed(PhantoonFigureEightState figureEight, PhantoonPathSpeed change, PhantoonSpeedChange direction)
-    {
-        figureEight.Speed = direction == PhantoonSpeedChange.Decelerate
-            ? figureEight.Speed - change
-            : figureEight.Speed + change;
-    }
+    /// <summary>Changes the figure-eight's speed by <paramref name="change"/>, a change below none where it slows.</summary>
+    private static void ChangePhantoonSpeed(PhantoonFigureEightState figureEight, PhantoonPathSpeed change) =>
+        figureEight.Speed += change;
 
     /// <summary>Advances the casual-flame burst while he runs his figure-eight.</summary>
     internal void StepPhantoonCasualFlameSchedule(PhantoonEnemyState state)

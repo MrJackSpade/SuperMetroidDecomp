@@ -14,7 +14,7 @@ internal static class FakeKraidProjectiles
             FakeKraidProjectileDefinitions.SpitSpeedPixels.TryGetValue(spit, out int speed)
                 ? speed
                 : throw new InvalidDataException($"Fake Kraid spit {spit} is neither of its two shots."));
-        return new(direction == HorizontalDirection.Right ? horizontal : -horizontal, FakeKraidProjectileDefinitions.SpitRise);
+        return new(horizontal.Toward(direction), FakeKraidProjectileDefinitions.SpitRise);
     }
 
     /// <summary>

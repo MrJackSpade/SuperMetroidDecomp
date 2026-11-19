@@ -61,6 +61,11 @@ public sealed class NorfairRidleyState : RidleyEncounterState
     public Position16<RoomPixels> Target { get; internal set; }
     /// <summary>Gets the pogo bounce counter, reset after its two-bounce threshold.</summary>
     public int PogoBounceCount { get; internal set; }
+    /// <summary>
+    /// The side his pogo bounces toward (#2569): each launch takes its sideways speed toward it, and each bounce chooses
+    /// it afresh, keeping or reversing it.
+    /// </summary>
+    public HorizontalDirection PogoBounce { get; internal set; }
     /// <summary>Gets the positive velocity increment the health band's pogo launch gives downward pogo motion.</summary>
     public SignedEightEight PogoDownwardAcceleration { get; internal set; }
     /// <summary>Gets the positive velocity increment the health band's pogo launch gives upward pogo motion.</summary>

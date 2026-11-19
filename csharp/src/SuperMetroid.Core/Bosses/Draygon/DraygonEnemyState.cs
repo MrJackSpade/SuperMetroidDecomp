@@ -203,6 +203,9 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     /// </summary>
     internal UpdateCountdown SwoopHalf { get; set; } = UpdateCountdown.Ended();
 
-    /// <summary>The horizontal speed the swoop and goop passes move the body's X by, toward their side.</summary>
-    internal UnsignedSixteenSixteen SwoopVelocity { get; set; }
+    /// <summary>
+    /// The horizontal velocity the swoop and goop passes move the body's X by each update (#2569): toward the pass's side,
+    /// so a leftward pass's velocity is negative.
+    /// </summary>
+    internal SignedSixteenSixteen SwoopVelocity { get; set; }
 }

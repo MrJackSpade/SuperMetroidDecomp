@@ -147,10 +147,8 @@ internal sealed class CeresRidleyFlight
     /// <summary>Steers Ridley into his fireball position and installs the mouth/fireball animation.</summary>
     internal void TickCeresRidleyFireballMove(RoomEnemyPlace place, CeresRidleyState state)
     {
-        // Every acceleration clamps Ridley to five pixels an update, so his speed always has a magnitude.
-        SignedEightEight verticalVelocity = state.Flight.Velocity.Y;
-        state.Flight.Velocity = state.Flight.Velocity.WithY(SignedEightEight.Max(CeresRidleyFlightDefinitions.FireballMoveMinimumSpeed, verticalVelocity.Magnitude())
-            .AlongDirectionOf(verticalVelocity));
+        state.Flight.Velocity = state.Flight.Velocity.WithY(
+            state.Flight.Velocity.Y.WithSpeedAtLeast(CeresRidleyFlightDefinitions.FireballMoveMinimumSpeed));
         AccelerateRidleyToward(place, state.Flight, new Position16<RoomPixels>(place.Position.X.Whole, CeresRidleyArenaDefinitions.FireballMoveTargetY), CeresRidleyFlightDefinitions.HoverDivisor);
 
         int height = RidleyFlight.SignedPlace(place).Y;
@@ -176,9 +174,7 @@ internal sealed class CeresRidleyFlight
     {
         // The aim reads the room's current random number without drawing a new one.
         int random = _room.Random.Read();
-        int jitter = BossRandomRolls.InLowerHalf(random)
-            ? RidleyRandomDefinitions.FireballJitter.Of(random)
-            : -RidleyRandomDefinitions.FireballJitter.Of(random);
+        int jitter = RidleyRandomDefinitions.FireballJitter.Of(random).Toward(BossRandomRolls.SideOf(random));
         Position16<RoomPixels> target = CeresRidleyFireballTarget.Around(state.FireballBasePosition, jitter);
         AccelerateRidleyToward(place, state.Flight, target, CeresRidleyFlightDefinitions.HoverDivisor);
         if (state.PhaseTimer.StepRunsOut())

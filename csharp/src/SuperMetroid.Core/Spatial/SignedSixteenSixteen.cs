@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Spatial;
 
 /// <summary>A signed 16.16 fixed-point displacement with explicit whole and fractional halves.</summary>
 [EncodingOwner("signed 16.16 fixed-point number")]
-public readonly record struct SignedSixteenSixteen : IComparable<SignedSixteenSixteen>
+public readonly record struct SignedSixteenSixteen : IComparable<SignedSixteenSixteen>, System.Numerics.IUnaryNegationOperators<SignedSixteenSixteen, SignedSixteenSixteen>
 {
     /// <summary>Wraps an existing signed 32-bit displacement without altering its whole and fraction bits.</summary>
     private SignedSixteenSixteen(int rawValue) => RawValue = rawValue;
@@ -61,6 +61,19 @@ public readonly record struct SignedSixteenSixteen : IComparable<SignedSixteenSi
 
     /// <summary>The zero displacement.</summary>
     public static SignedSixteenSixteen Zero => default;
+
+    /// <summary>
+    /// The velocity toward increasing coordinates that covers <paramref name="wholePixels"/> pixels in
+    /// <paramref name="updates"/> updates (#2569): the distance in 65536ths of a pixel divided by the updates, the remainder
+    /// dropped. A velocity the other way is this one taken toward its direction.
+    /// </summary>
+    /// <param name="wholePixels">The distance, 0 through 65535 pixels.</param>
+    /// <param name="updates">The updates, one or more.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The distance or the update count is out of range.</exception>
+    /// <exception cref="OverflowException">The velocity lies outside the type's range.</exception>
+    public static SignedSixteenSixteen Covering(int wholePixels, int updates) =>
+        new(checked((int)(((long)Ensure.BetweenInclusive(0, ushort.MaxValue, wholePixels) << 16) /
+            Ensure.BetweenInclusive(1, int.MaxValue, updates))));
 
     /// <summary>The whole pixels read as unsigned, 0 through 65535: a displacement of -1 whole pixels reads as 65535.</summary>
     public ushort UnsignedWholePixels => unchecked((ushort)(RawValue >> 16));

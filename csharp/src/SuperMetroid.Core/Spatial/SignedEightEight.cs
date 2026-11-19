@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Spatial;
 
 /// <summary>A signed 8.8 fixed-point velocity: eight whole bits and eight fraction bits, kept exactly.</summary>
 [EncodingOwner("signed 8.8 fixed-point number")]
-public readonly record struct SignedEightEight : IComparable<SignedEightEight>
+public readonly record struct SignedEightEight : IComparable<SignedEightEight>, System.Numerics.IUnaryNegationOperators<SignedEightEight, SignedEightEight>
 {
     /// <summary>The value whose sixteen-bit two's-complement form is <paramref name="rawValue"/>, 0 through 65535.</summary>
     /// <param name="rawValue">The unchanged two's-complement form, eight whole and eight fractional bits.</param>
@@ -205,6 +205,14 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>
 
     /// <summary>This speed pointed the way <paramref name="direction"/> points: reversed when that velocity is negative.</summary>
     public SignedEightEight AlongDirectionOf(SignedEightEight direction) => direction.IsNegative ? -this : this;
+
+    /// <summary>
+    /// The velocity kept at least <paramref name="least"/>'s speed from rest whichever way it points (#2569): a slower
+    /// velocity toward decreasing coordinates moves at <paramref name="least"/> that way, and any other slower velocity,
+    /// at rest included, at <paramref name="least"/> toward increasing coordinates.
+    /// </summary>
+    /// <param name="least">The slowest speed, toward increasing coordinates.</param>
+    public SignedEightEight WithSpeedAtLeast(SignedEightEight least) => IsNegative ? Min(this, -least) : Max(this, least);
 
     /// <summary>
     /// The velocity slowed by <paramref name="drag"/>: its speed lowered by the drag, stopping at rest, and its direction kept,

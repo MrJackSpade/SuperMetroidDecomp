@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Spatial;
 /// carrying beneath them from update to update. Its fraction is a rotation angle's, so a speed turns a rotation angle
 /// exactly. The same measure serves the change a turning speed takes each update.
 /// </summary>
-public readonly record struct AngularSpeed : IComparable<AngularSpeed>
+public readonly record struct AngularSpeed : IComparable<AngularSpeed>, System.Numerics.IUnaryNegationOperators<AngularSpeed, AngularSpeed>
 {
     /// <summary>Number of fractions in one step.</summary>
     private const int FractionsPerStep = 256;

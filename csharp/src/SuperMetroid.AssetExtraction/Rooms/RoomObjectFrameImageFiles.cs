@@ -77,7 +77,7 @@ internal static class RoomObjectFrameImageFiles
         foreach ((TFrame frame, RoomObjectFrameLayout layout) in family.Frames)
         {
             RoomObjectFrameImage image = Picture(bus, family.Name, layout);
-            frames.Add(new FrameEntry(Id(family, frame), image.Cells
+            frames.Add(new FrameEntry(family.Entries[frame].Id, image.Cells
                 .Select(cell => new FrameCell(cell.Key.X, cell.Key.Y, cell.Value.ShowsNothing ? null : cell.Value.Block,
                     cell.Value.Mirroring)).ToArray()));
         }
@@ -148,7 +148,7 @@ internal static class RoomObjectFrameImageFiles
     {
         if (document.Version != FormatVersion || document.Frames is null)
             throw new InvalidDataException("the document's format is not this importer's.");
-        var byId = family.Ids.ToDictionary(pair => pair.Value, pair => pair.Key, StringComparer.Ordinal);
+        var byId = family.Entries.ToDictionary(pair => pair.Value.Id, pair => pair.Key, StringComparer.Ordinal);
         var images = new Dictionary<TFrame, RoomObjectFrameImage>();
         foreach (FrameEntry entry in document.Frames)
         {
@@ -156,11 +156,11 @@ internal static class RoomObjectFrameImageFiles
                 throw new InvalidDataException($"frame {entry?.Id ?? "(unnamed)"} is not one of {family.Name}'s frames.");
             if (images.ContainsKey(frame))
                 throw new InvalidDataException($"frame {entry.Id} is pictured twice.");
-            images.Add(frame, Image(entry, Layout(family, frame).Cells()));
+            images.Add(frame, Image(entry, family.Entries[frame].Layout.Cells()));
         }
         foreach ((TFrame drawn, _) in family.Frames)
             if (!images.ContainsKey(drawn))
-                throw new InvalidDataException($"frame {Id(family, drawn)} is not pictured.");
+                throw new InvalidDataException($"frame {family.Entries[drawn].Id} is not pictured.");
         return new RoomObjectFrameImages<TFrame>(images);
     }
 
@@ -194,18 +194,6 @@ internal static class RoomObjectFrameImageFiles
             throw new InvalidDataException($"frame {entry.Id} pictures {cells.Count} of its {covered.Count} cells.");
         return new RoomObjectFrameImage(cells);
     }
-
-    /// <summary>The geometry of <paramref name="frame"/>.</summary>
-    private static RoomObjectFrameLayout Layout<TFrame>(RoomObjectFrameFamily<TFrame> family, TFrame frame) where TFrame : notnull =>
-        family.Layouts.TryGetValue(frame, out RoomObjectFrameLayout layout)
-            ? layout
-            : throw new InvalidOperationException($"{family.Name} frame {frame} has no geometry.");
-
-    /// <summary>The published name of <paramref name="frame"/>.</summary>
-    private static string Id<TFrame>(RoomObjectFrameFamily<TFrame> family, TFrame frame) where TFrame : notnull =>
-        family.Ids.TryGetValue(frame, out string? id)
-            ? id
-            : throw new InvalidOperationException($"{family.Name} frame {frame} has no published name.");
 
     /// <summary>Reads and parses an installed document, naming its path in a rejection.</summary>
     private static FrameDocument Read(string path, string family)

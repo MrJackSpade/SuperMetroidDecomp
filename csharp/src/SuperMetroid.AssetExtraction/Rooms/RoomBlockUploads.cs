@@ -107,7 +107,7 @@ internal static class RoomBlockUploads
             {
                 TilesetDefinition tileset = RoomTilesets.Get(state.GraphicsSet);
                 if (!tilesets.TryGetValue(tileset, out TilesetUploads? uploads))
-                    tilesets.Add(tileset, uploads = new TilesetUploads(ceres, inputs));
+                    tilesets.Add(tileset, uploads = new TilesetUploads(ceres, inputs, Loaded(inputs, tileset)));
                 else if (uploads.Ceres != ceres)
                     throw new InvalidDataException($"Tileset {tileset} is loaded both inside and outside Ceres.");
                 foreach (AppearanceOption option in Of(inputs, state))
@@ -142,7 +142,7 @@ internal static class RoomBlockUploads
                 }
                 // BG3 shows the HUD over the layer-3 characters the room's load binds, and its effects' pages over their
                 // frames.
-                uploads.AddBg3(Loaded(inputs, tileset), EffectsIn(state));
+                uploads.AddBg3(EffectsIn(state));
                 TileWordWriter[] writers = [.. WritersIn(state)];
                 if (writers.Length > 0 && arena)
                 {
@@ -449,7 +449,7 @@ internal static class RoomBlockUploads
     /// <summary>What one tileset's rooms show over their characters.</summary>
     /// <param name="ceres">Whether the tileset's rooms are Ceres rooms, which load no common room elements.</param>
     /// <param name="inputs">The installed artwork the uploads are drawn from.</param>
-    internal sealed class TilesetUploads(bool ceres, RoomBlockSheetInputs inputs)
+    internal sealed class TilesetUploads(bool ceres, RoomBlockSheetInputs inputs, BgArtworkBindings bg3Content)
     {
         /// <summary>What the rooms show over their tile characters after loading, collectibles aside, each once.</summary>
         private readonly List<AppearanceOption> options = [];
@@ -525,8 +525,8 @@ internal static class RoomBlockUploads
                 RidleyLooks = looks;
         }
 
-        /// <summary>What the first room shows BG3's words over, or null before a room is recorded.</summary>
-        internal BgArtworkBindings? Bg3Content { get; private set; }
+        /// <summary>What the tileset's rooms show BG3's words over: the layer-3 characters the tileset's load binds.</summary>
+        internal BgArtworkBindings Bg3Content { get; } = bg3Content;
 
         /// <summary>The room effects whose BG3 pages the tileset's rooms show.</summary>
         internal HashSet<RoomFxType> FxTypes { get; } = [];
@@ -534,10 +534,9 @@ internal static class RoomBlockUploads
         /// <summary>What the tileset's rooms show over BG3's characters after loading: their effects' frames.</summary>
         internal IReadOnlyList<AppearanceOption> Bg3Options => bg3Options;
 
-        /// <summary>Records a room showing BG3 over <paramref name="content"/>'s layer-3 characters, with <paramref name="effects"/>' pages.</summary>
-        internal void AddBg3(BgArtworkBindings content, IEnumerable<RoomFxType> effects)
+        /// <summary>Records a room showing BG3 over <see cref="Bg3Content"/>, with <paramref name="effects"/>' pages.</summary>
+        internal void AddBg3(IEnumerable<RoomFxType> effects)
         {
-            Bg3Content ??= content;
             foreach (RoomFxType effect in effects)
             {
                 if (!FxTypes.Add(effect))

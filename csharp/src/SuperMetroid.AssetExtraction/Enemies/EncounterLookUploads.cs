@@ -251,11 +251,8 @@ internal static class EncounterLookUploads
     /// <summary>Ceres warning page <paramref name="page"/>, where the cartridge copies it.</summary>
     private static EncounterArtworkUpload Warning(int page, IInstalledArtworkContent installed) =>
         new(CeresWarningGlyphDefinitions.WarningFirstCharacter + CeresWarningTextPages.ByteOffset(page) / SpriteCharacterTableLayout.CharacterByteCount,
-            Areas(installed).CeresEscapeTiles
-                .TryResolve(CeresWarningTextPageDefinitions.InstalledPage, CeresWarningTextPages.ByteOffset(page), CeresWarningTextPages.ByteCount(page),
-                    out ReadOnlyMemory<byte> characters)
-                ? characters
-                : throw new InvalidDataException($"Installed Ceres escape warning text has no characters for warning page {page}."));
+            Areas(installed).CeresEscapeTiles.Characters(CeresWarningTextPageDefinitions.InstalledPage, CeresWarningTextPages.ByteOffset(page),
+                CeresWarningTextPages.ByteCount(page)));
 
     /// <summary>Every page of Mother Brain's <paramref name="sheet"/>, in order, each where the cartridge copies it.</summary>
     /// <exception cref="InvalidDataException">The installed artwork lacks the sheet.</exception>

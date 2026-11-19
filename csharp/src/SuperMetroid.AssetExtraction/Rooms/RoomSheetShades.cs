@@ -31,8 +31,7 @@ internal static class RoomSheetShades
         var shades = new List<SheetShade>(PaletteFxRoomShades.Of(rooms, inputs.Maps.RoomPaletteFx));
         if (rooms.Any(room => room.State.EnemyPopulation.Placements.Span.Any(record => record.DefinitionId == EnemyDefinitionId.Kraid)))
         {
-            shades.AddRange(KraidBackdropShades.Of(inputs.Bosses.KraidColors
-                ?? throw new InvalidDataException("Kraid's room is shaded from the installed Kraid colours.")));
+            shades.AddRange(KraidBackdropShades.Of(inputs.Bosses.KraidColors));
         }
         if (rooms.Any(room => room.State.EnemyPopulation.Placements.Span.Any(record => record.DefinitionId == EnemyDefinitionId.SporeSpawn)))
             shades.AddRange(SporeSpawnSheetShades.Room(inputs.Bosses));
@@ -81,8 +80,7 @@ internal static class RoomSheetShades
     /// <exception cref="InvalidDataException">The door colours are not installed.</exception>
     private static IEnumerable<SheetShade> ElevatorRoomGlow(RoomBlockSheetInputs inputs)
     {
-        CeresDoorVisuals door = inputs.Objects.Areas.CeresDoorVisual
-            ?? throw new InvalidDataException("The Ceres elevator room's glow is shaded from the installed Ceres door colours.");
+        CeresDoorVisuals door = inputs.Objects.Areas.CeresDoorVisual;
         const int firstInk = 2 * 16 + 9;
         for (int step = 0; step < CeresDoorShades.ElevatorRoomGlowSteps; step++)
         {
@@ -99,8 +97,7 @@ internal static class RoomSheetShades
     /// <exception cref="InvalidDataException">The statue colours are not installed.</exception>
     private static IEnumerable<SheetShade> TourianStatueLooks(RoomBlockSheetInputs inputs)
     {
-        TourianStatuePalettes statue = inputs.Objects.Areas.TourianStatueColors
-            ?? throw new InvalidDataException("The Tourian statues' looks are shaded from the installed statue colours.");
+        TourianStatuePalettes statue = inputs.Objects.Areas.TourianStatueColors;
         RgbColor[] grey = [.. Enumerable.Range(0, TourianStatueColorDefinitions.GreyColorCount).Select(statue.GreyColor)];
         const int kraid = 7 * 16, draygon = 6 * 16;
         yield return SheetShade.Run(TourianStatueShades.KraidCleared, kraid + 12, new RgbColor[3]);

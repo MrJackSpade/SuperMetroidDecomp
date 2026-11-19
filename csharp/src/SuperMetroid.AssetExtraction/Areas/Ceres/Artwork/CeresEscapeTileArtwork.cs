@@ -29,6 +29,12 @@ public sealed class CeresEscapeTileArtwork
         this.pages = [.. pages];
     }
 
+    /// <summary>The characters of installed page <paramref name="page"/> from <paramref name="offset"/>, which the definitions place inside it.</summary>
+    /// <param name="page">The page: 0 for the warning text, 1 for the doors (<see cref="CeresEscapeTileArtworkDefinitions.All"/>).</param>
+    /// <param name="offset">The first byte of the page requested.</param>
+    /// <param name="byteCount">The bytes requested.</param>
+    internal ReadOnlyMemory<byte> Characters(int page, int offset, int byteCount) => pages[page].Characters.Slice(offset, byteCount);
+
     /// <summary>Returns a slice of installed page <paramref name="page"/> only when the requested range fits wholly inside it.</summary>
     /// <param name="page">The page: 0 for the warning text, 1 for the doors (<see cref="CeresEscapeTileArtworkDefinitions.All"/>).</param>
     /// <param name="offset">The first byte of the page requested.</param>

@@ -24,10 +24,9 @@ public sealed class RoomStaticPalettes
         byRoomPaletteSet = new Dictionary<RoomPaletteSet, RoomStaticPalette>(palettes);
     }
 
-    /// <summary>The installed RoomStaticPalette for <paramref name="set"/>.</summary>
-    /// <exception cref="InvalidDataException">None is installed for <paramref name="set"/>.</exception>
-    public RoomStaticPalette Get(RoomPaletteSet set) =>
-        byRoomPaletteSet.TryGetValue(set, out RoomStaticPalette? value)
-            ? value
-            : throw new InvalidDataException($"No RoomStaticPalette is installed for {set}.");
+    /// <summary>
+    /// The installed RoomStaticPalette for <paramref name="set"/>, one of the tilesets' palettes, every one of which the
+    /// constructor requires (#2554).
+    /// </summary>
+    public RoomStaticPalette Get(RoomPaletteSet set) => byRoomPaletteSet[set];
 }

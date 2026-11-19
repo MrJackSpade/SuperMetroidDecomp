@@ -136,7 +136,7 @@ internal static class NativeEnemyFamilyStateImport
                 phantoon.FigureEight.PathPlace = PhantoonPath.At(words.A);
                 phantoon.Death.ExplosionPasses = words.A;
                 phantoon.StartingFlames.Orbiting = words.B != 0;
-                phantoon.FigureEight.Speed = SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(words.C), words.B);
+                phantoon.FigureEight.Speed = new PhantoonPathSpeed(SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(words.C), words.B));
                 phantoon.FigureEight.Stage = PhantoonFigureEightStageWords.Decode(words.D);
                 if (words.F != 0)
                     phantoon.Phase = PhantoonNativeWords.Phases.Decode(words.F, "recorded PhantoonPhase");

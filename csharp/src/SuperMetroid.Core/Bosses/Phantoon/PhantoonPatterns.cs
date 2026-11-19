@@ -47,7 +47,7 @@ internal sealed class PhantoonPatterns
         state.FigureEight.Stage = PhantoonFigureEightStage.EasingIn;
         if (PhantoonRandomDefinitions.FigureEightRunsReversed.IsTakenBy(_room.Random.Generate()))
         {
-            state.FigureEight.Speed = SignedSixteenSixteen.Zero;
+            state.FigureEight.Speed = PhantoonPathSpeed.Zero;
             state.FigureEight.Direction = PhantoonPathDirection.Backwards;
             state.FigureEight.PathPlace = PhantoonPath.At(PhantoonPathDefinitions.LastPlace);
         }
@@ -86,8 +86,8 @@ internal sealed class PhantoonPatterns
             AdjustPhantoonForwardFigureEightSpeed(figureEight);
 
         int steps = backwards
-            ? -figureEight.Speed.WholePixels
-            : figureEight.Speed.WholePixels;
+            ? -figureEight.Speed.WholePlaces
+            : figureEight.Speed.WholePlaces;
         for (int step = 0; step < steps; step++)
         {
             Offset16<RoomPixels> pathStep = figureEight.PathPlace.Entry;
@@ -110,7 +110,7 @@ internal sealed class PhantoonPatterns
         if (figureEight.Stage == PhantoonFigureEightStage.EasingIn)
         {
             ChangePhantoonSpeed(figureEight, PhantoonMotionDefinitions.SlowSpeedChange, PhantoonSpeedChange.Accelerate);
-            if (figureEight.Speed.WholePixels >= PhantoonMotionDefinitions.ForwardSlowCap)
+            if (figureEight.Speed.WholePlaces >= PhantoonMotionDefinitions.ForwardSlowCap)
             {
                 figureEight.Speed = PhantoonMotionDefinitions.ForwardSurgeStart;
                 figureEight.Stage = PhantoonFigureEightStage.Surging;
@@ -121,16 +121,16 @@ internal sealed class PhantoonPatterns
         if (figureEight.Stage == PhantoonFigureEightStage.Surging)
         {
             ChangePhantoonSpeed(figureEight, PhantoonMotionDefinitions.FastSpeedChange, PhantoonSpeedChange.Accelerate);
-            if (figureEight.Speed.WholePixels >= PhantoonMotionDefinitions.ForwardFastCap)
+            if (figureEight.Speed.WholePlaces >= PhantoonMotionDefinitions.ForwardFastCap)
             {
-                figureEight.Speed = SignedSixteenSixteen.FromWholePixels(PhantoonMotionDefinitions.ForwardFastCap);
+                figureEight.Speed = PhantoonPathSpeed.FromPlaces(PhantoonMotionDefinitions.ForwardFastCap);
                 figureEight.Stage = PhantoonFigureEightStage.Settling;
             }
             return;
         }
 
         ChangePhantoonSpeed(figureEight, PhantoonMotionDefinitions.FastSpeedChange, PhantoonSpeedChange.Decelerate);
-        if (figureEight.Speed.WholePixels <= PhantoonMotionDefinitions.ForwardMinimum)
+        if (figureEight.Speed.WholePlaces <= PhantoonMotionDefinitions.ForwardMinimum)
         {
             figureEight.Speed = PhantoonMotionDefinitions.ForwardEaseStart;
             figureEight.Stage = PhantoonFigureEightStage.EasingIn;
@@ -143,7 +143,7 @@ internal sealed class PhantoonPatterns
         if (figureEight.Stage == PhantoonFigureEightStage.EasingIn)
         {
             ChangePhantoonSpeed(figureEight, PhantoonMotionDefinitions.SlowSpeedChange, PhantoonSpeedChange.Decelerate);
-            if (figureEight.Speed.WholePixels <= PhantoonMotionDefinitions.ReverseSlowCap)
+            if (figureEight.Speed.WholePlaces <= PhantoonMotionDefinitions.ReverseSlowCap)
             {
                 figureEight.Speed = PhantoonMotionDefinitions.ReverseSurgeStart;
                 figureEight.Stage = PhantoonFigureEightStage.Surging;
@@ -154,7 +154,7 @@ internal sealed class PhantoonPatterns
         if (figureEight.Stage == PhantoonFigureEightStage.Surging)
         {
             ChangePhantoonSpeed(figureEight, PhantoonMotionDefinitions.FastSpeedChange, PhantoonSpeedChange.Decelerate);
-            if (figureEight.Speed.WholePixels <= PhantoonMotionDefinitions.ReverseFastCap)
+            if (figureEight.Speed.WholePlaces <= PhantoonMotionDefinitions.ReverseFastCap)
             {
                 figureEight.Speed = PhantoonMotionDefinitions.ReverseSettleStart;
                 figureEight.Stage = PhantoonFigureEightStage.Settling;
@@ -164,15 +164,15 @@ internal sealed class PhantoonPatterns
 
         ChangePhantoonSpeed(figureEight, PhantoonMotionDefinitions.FastSpeedChange, PhantoonSpeedChange.Accelerate);
         int maximum = PhantoonMotionDefinitions.ReverseMaximum;
-        if (figureEight.Speed.WholePixels >= maximum)
+        if (figureEight.Speed.WholePlaces >= maximum)
         {
-            figureEight.Speed = SignedSixteenSixteen.FromWholePixels(maximum);
+            figureEight.Speed = PhantoonPathSpeed.FromPlaces(maximum);
             figureEight.Stage = PhantoonFigureEightStage.EasingIn;
         }
     }
 
     /// <summary>Adds a speed change to the figure-eight's speed, or subtracts it when slowing.</summary>
-    private static void ChangePhantoonSpeed(PhantoonFigureEightState figureEight, SignedSixteenSixteen change, PhantoonSpeedChange direction)
+    private static void ChangePhantoonSpeed(PhantoonFigureEightState figureEight, PhantoonPathSpeed change, PhantoonSpeedChange direction)
     {
         figureEight.Speed = direction == PhantoonSpeedChange.Decelerate
             ? figureEight.Speed - change
@@ -636,7 +636,7 @@ internal sealed class PhantoonPatterns
         {
             if (state.FigureEight.Direction == PhantoonPathDirection.Forwards)
                 state.FigureEight.PathPlace = state.FigureEight.PathPlace.PreviousInCycle;
-            state.FigureEight.Speed = SignedSixteenSixteen.Zero;
+            state.FigureEight.Speed = PhantoonPathSpeed.Zero;
             state.FigureEight.Stage = PhantoonFigureEightStage.EasingIn;
             state.FigureEight.Direction = PhantoonPathDirection.Backwards;
         }

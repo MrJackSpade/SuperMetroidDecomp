@@ -5,10 +5,6 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <summary>Which pose each pose's input list selects for the held and newly pressed actions.</summary>
 internal static class SamusPoseInputs
 {
-    /// <summary>Maps a pose to its transition list: poses that share a list's transitions share the list.</summary>
-    /// <exception cref="InvalidOperationException">The pose is undefined.</exception>
-    internal static SamusPoseInputList InputList(SamusPoseId pose) => SamusPoseTraits.Of(pose).Inputs;
-
     /// <summary>Evaluates the selected transition list using held and edge inputs.</summary>
     internal static SamusPoseInputMatch Match(SamusPoseInputList inputList, GameplayAction held, GameplayAction newlyPressed) =>
         SamusPoseInputRules.Match(inputList, held, newlyPressed);

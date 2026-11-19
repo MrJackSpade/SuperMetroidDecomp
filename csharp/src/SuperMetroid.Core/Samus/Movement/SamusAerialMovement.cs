@@ -105,14 +105,7 @@ public static class SamusAerialMovement
         // The neutral and aimed jump-transition poses are genuine normal-jumping poses, but the game treats them as
         // a transition: base X speed is forced to zero, only external X/Y displacement is
         // applied, and normal vertical speed does not move Samus on this frame.
-        if (samus.Pose is SamusPoseId.NeutralJumpTransitionRightPose or
-            SamusPoseId.NeutralJumpTransitionLeftPose or
-            SamusPoseId.NormalJumpTransitionAimUpRightPose or
-            SamusPoseId.NormalJumpTransitionAimUpLeftPose or
-            SamusPoseId.NormalJumpTransitionAimDiagonalUpRightPose or
-            SamusPoseId.NormalJumpTransitionAimDiagonalUpLeftPose or
-            SamusPoseId.NormalJumpTransitionAimDiagonalDownRightPose or
-            SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose)
+        if (SamusPoseMetadata.IsJumpTransitionPose(samus.Pose))
         {
             samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
             var requested = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed: default);
@@ -309,7 +302,7 @@ public static class SamusAerialMovement
     {
         ValidateCommon(level, samus);
         if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.DamageBoost ||
-            samus.Pose is not (SamusPoseId.DamageBoostLeftPose or SamusPoseId.DamageBoostRightPose))
+            !SamusPoseMetadata.IsDamageBoostPose(samus.Pose))
         {
             throw new InvalidOperationException(
                 $"Damage-boost movement requires a damage-boost pose, not {samus.Pose}.");

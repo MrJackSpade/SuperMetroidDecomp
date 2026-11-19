@@ -148,35 +148,26 @@ internal static class SamusPosturePoseTransitions
     {
         Ensure.NotNull(level);
 
+        SamusFacingDirection targetFacing = SamusPoseMetadata.ReadFacingDirection(targetPose);
+        bool targetFacesRight = targetFacing == SamusFacingDirection.Right;
+        bool targetFacesLeft = targetFacing == SamusFacingDirection.Left;
         bool startsCrouchingRight =
             (SamusPoseMetadata.IsRightFacingStandingPose(samus.Pose) || SamusPoseMetadata.IsRightFacingRunningPose(samus.Pose) ||
              SamusPoseMetadata.IsMoonwalkingFacingRightPose(samus.Pose) ||
              SamusPoseMetadata.IsRightFacingRanIntoWallPose(samus.Pose) ||
              SamusPoseMetadata.IsRightFacingLandingPose(samus.Pose)) &&
-            targetPose is
-                SamusPoseId.CrouchingTransitionRightPose or SamusPoseId.CrouchingTransitionAimUpRightPose or
-                SamusPoseId.CrouchingTransitionAimDiagonalUpRightPose or
-                SamusPoseId.CrouchingTransitionAimDiagonalDownRightPose;
+            SamusPoseMetadata.IsCrouchingTransitionPose(targetPose) && targetFacesRight;
         bool startsCrouchingLeft =
             (SamusPoseMetadata.IsLeftFacingStandingPose(samus.Pose) || SamusPoseMetadata.IsLeftFacingRunningPose(samus.Pose) ||
              SamusPoseMetadata.IsMoonwalkingFacingLeftPose(samus.Pose) ||
              SamusPoseMetadata.IsLeftFacingRanIntoWallPose(samus.Pose) ||
              SamusPoseMetadata.IsLeftFacingLandingPose(samus.Pose)) &&
-            targetPose is
-                SamusPoseId.CrouchingTransitionLeftPose or SamusPoseId.CrouchingTransitionAimUpLeftPose or
-                SamusPoseId.CrouchingTransitionAimDiagonalUpLeftPose or
-                SamusPoseId.CrouchingTransitionAimDiagonalDownLeftPose;
+            SamusPoseMetadata.IsCrouchingTransitionPose(targetPose) && targetFacesLeft;
         bool startsCrouching = startsCrouchingRight || startsCrouchingLeft;
         bool startsStandingRight = SamusPoseMetadata.IsRightFacingCrouchingPose(samus.Pose) &&
-            targetPose is
-                SamusPoseId.StandingTransitionRightPose or SamusPoseId.StandingTransitionAimUpRightPose or
-                SamusPoseId.StandingTransitionAimDiagonalUpRightPose or
-                SamusPoseId.StandingTransitionAimDiagonalDownRightPose;
+            SamusPoseMetadata.IsStandingTransitionPose(targetPose) && targetFacesRight;
         bool startsStandingLeft = SamusPoseMetadata.IsLeftFacingCrouchingPose(samus.Pose) &&
-            targetPose is
-                SamusPoseId.StandingTransitionLeftPose or SamusPoseId.StandingTransitionAimUpLeftPose or
-                SamusPoseId.StandingTransitionAimDiagonalUpLeftPose or
-                SamusPoseId.StandingTransitionAimDiagonalDownLeftPose;
+            SamusPoseMetadata.IsStandingTransitionPose(targetPose) && targetFacesLeft;
         bool startsStanding = startsStandingRight || startsStandingLeft;
         if (!startsCrouching && !startsStanding)
         {
@@ -281,17 +272,12 @@ internal static class SamusPosturePoseTransitions
         bool startsMorphingLeft = sourceFacing == SamusFacingDirection.Left &&
             targetPose == SamusPoseId.MorphingTransitionLeftPose;
         bool startsMorphing = startsMorphingRight || startsMorphingLeft;
-        bool startsUnmorphingRight =
-            samus.Pose is SamusPoseId.MorphBallGroundRightPose or SamusPoseId.MorphBallMovingRightPose or
-                SamusPoseId.MorphBallFallingRightPose or SamusPoseId.SpringBallGroundRightPose or
-                SamusPoseId.SpringBallMovingRightPose or SamusPoseId.SpringBallFallingRightPose or
-                SamusPoseId.SpringBallJumpRightPose &&
+        // Unmorphing starts from a stable ball pose, ordinary or Spring Ball, and keeps that pose's own facing.
+        bool sourceIsStableBall = SamusPoseMetadata.IsStableBallPose(samus.Pose);
+        SamusFacingDirection sourcePoseFacing = SamusPoseMetadata.ReadFacingDirection(samus.Pose);
+        bool startsUnmorphingRight = sourceIsStableBall && sourcePoseFacing == SamusFacingDirection.Right &&
             targetPose == SamusPoseId.UnmorphingTransitionRightPose;
-        bool startsUnmorphingLeft =
-            samus.Pose is SamusPoseId.MorphBallGroundLeftPose or SamusPoseId.MorphBallMovingLeftPose or
-                SamusPoseId.MorphBallFallingLeftPose or SamusPoseId.SpringBallGroundLeftPose or
-                SamusPoseId.SpringBallMovingLeftPose or SamusPoseId.SpringBallFallingLeftPose or
-                SamusPoseId.SpringBallJumpLeftPose &&
+        bool startsUnmorphingLeft = sourceIsStableBall && sourcePoseFacing == SamusFacingDirection.Left &&
             targetPose == SamusPoseId.UnmorphingTransitionLeftPose;
         bool startsUnmorphing = startsUnmorphingRight || startsUnmorphingLeft;
         if (!startsMorphing && !startsUnmorphing)

@@ -9,7 +9,7 @@ using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>The projectile animation player and drawing: ending shots, live projectile and charge-flare sprites, flare animation state and the suit shade the flare restores.</summary>
+/// <summary>The projectile animation player and drawing: shot animation and endings, live projectile sprites, and the charge flare's components, advanced and drawn.</summary>
 internal sealed class ProjectileAnimation
 {
     /// <summary>The charge flare, whose components' pictures and waits the animation steps.</summary>
@@ -121,17 +121,4 @@ internal sealed class ProjectileAnimation
         SpriteSheetFrame image = artwork.Sheets.SheetOf(SamusBeamCombinations.Of(samus.EquippedBeams)).Frame(ProjectileSheetFrames.FlareFrame(picture));
         sprites.Add(new SamusColouredDraw(new SpriteSource(SpriteSourceKind.SamusChargeFlare), image, place));
     }
-
-    /// <summary>Clears all component frames and countdowns when charge-flare animation is retired.</summary>
-    internal void ClearFlareAnimationState()
-    {
-        _charge.ClearFlare();
-    }
-
-    /// <summary>Shows the shade of the suit Samus has equipped again.</summary>
-    internal static void ShowSuitShade(
-        SamusColours colours,
-        SamusState samus) =>
-        SamusSuitShade.Show(colours, samus.EquippedItems);
-
 }

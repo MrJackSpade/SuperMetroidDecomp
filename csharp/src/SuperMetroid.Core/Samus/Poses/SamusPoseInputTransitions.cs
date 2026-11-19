@@ -29,7 +29,7 @@ public static class SamusPoseInputTransitions
     /// </summary>
     /// <exception cref="InvalidOperationException">The pose is undefined.</exception>
     internal static bool CanSelect(SamusPoseId currentPose, SamusPoseId target) =>
-        SelectableTargets[SamusPoseInputs.InputList(currentPose)].Value.Contains(target);
+        SelectableTargets[SamusPoseTraits.Of(currentPose).Inputs].Value.Contains(target);
 
     /// <summary>
     /// Runs the complete lookup and preserves whether failure enters
@@ -59,7 +59,7 @@ public static class SamusPoseInputTransitions
         GameplayAction held = heldActions & ~StartAndItemSelect;
         GameplayAction newlyPressed = newlyPressedActions & ~StartAndItemSelect;
 
-        SamusPoseInputMatch match = SamusPoseInputs.Match(SamusPoseInputs.InputList(currentPose), held, newlyPressed);
+        SamusPoseInputMatch match = SamusPoseInputs.Match(SamusPoseTraits.Of(currentPose).Inputs, held, newlyPressed);
         if (match.Transition is not { } transition)
             return new SamusPoseTransitionLookup(null, UsesPoseDefinitionFallback: match.HasConditions);
 

@@ -1760,14 +1760,6 @@
    "evidence": "an in-game action named Clear or Reset, not a lifetime reset"
   },
   {
-   "file": "Samus/Projectiles/ProjectileAnimation.cs",
-   "line": 178,
-   "owner": "ProjectileAnimation",
-   "method": "ClearFlareAnimationState",
-   "classification": "gameplay",
-   "evidence": "an in-game action named Clear or Reset, not a lifetime reset"
-  },
-  {
    "file": "Samus/Projectiles/ProjectileInheritanceRecords.cs",
    "line": 45,
    "owner": "ProjectileInheritanceRecords",

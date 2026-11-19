@@ -17,7 +17,7 @@ internal static class SamusSpinSound
                     ? SamusSound.SpaceJump : SamusSound.SpinJump;
         if (movement != SamusMovementType.SpinJumping)
             return null;
-        return samus.Pose is SamusPoseId.ScrewAttackRightPose or SamusPoseId.ScrewAttackLeftPose
+        return SamusPoseMetadata.IsScrewAttackPose(samus.Pose)
             ? SamusSound.ScrewAttack
             : SamusPoseMetadata.IsSpaceJumpPose(samus.Pose)
                 ? SamusSound.SpaceJump : SamusSound.SpinJump;

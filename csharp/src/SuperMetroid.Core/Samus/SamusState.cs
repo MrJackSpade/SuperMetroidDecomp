@@ -1000,6 +1000,6 @@ public sealed class SamusState
     /// </summary>
     internal void CommitPoseHistory()
     {
-        PoseHistory.CommitTransition(Pose, SamusPoseTraits.ReadMovement(InitializedPose));
+        PoseHistory.CommitTransition(Pose, SamusPoseMetadata.ReadMovementType(InitializedPose));
     }
 }

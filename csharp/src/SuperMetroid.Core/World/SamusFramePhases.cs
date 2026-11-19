@@ -471,11 +471,11 @@ internal sealed class SamusFramePhases
                 }
                 else
                 {
-                    if (_player.ProspectiveSamusPose?.ProspectivePose is
-                        SamusPoseId.DamageBoostLeftPose or SamusPoseId.DamageBoostRightPose)
+                    if (_player.ProspectiveSamusPose is { } prospective &&
+                        SamusPoseMetadata.IsDamageBoostPose(prospective.ProspectivePose))
                         _player.ProspectiveSamusPose = null;
-                    if (_player.ProspectiveSamusFallbackPose is
-                        SamusPoseId.DamageBoostLeftPose or SamusPoseId.DamageBoostRightPose)
+                    if (_player.ProspectiveSamusFallbackPose is { } fallback &&
+                        SamusPoseMetadata.IsDamageBoostPose(fallback))
                         _player.ProspectiveSamusFallbackPose = null;
                 }
                 samus.CeresRidleyEjection.Step(

@@ -38,7 +38,7 @@ public abstract record AttractDemoSamusSetup
         /// blocks down the room: the floor's top in pixels, less the pose's vertical radius.
         /// </summary>
         public AttractDemoSamusStaging OnFloor(int x, int floorRow) =>
-            At(new(x, floorRow * RoomGridConversions.BlockPixels - SamusPoseCollisionRadii.ReadVerticalRadius(Pose)));
+            At(new(x, floorRow * RoomGridConversions.BlockPixels - SamusPoseMetadata.ReadPoseYRadius(Pose)));
 
         /// <inheritdoc />
         internal override void Apply(SamusState samus)

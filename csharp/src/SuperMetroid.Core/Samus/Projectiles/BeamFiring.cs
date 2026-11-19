@@ -12,9 +12,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 [RoomLifetime]
 internal sealed class BeamFiring
 {
-    /// <summary>Clears charge flares and initializes launched beam animation.</summary>
-    private readonly ProjectileAnimation _animation;
-    /// <summary>Tracks held Shoot duration, charge effects, and Hyper Beam glow.</summary>
+    /// <summary>Tracks held Shoot duration, charge effects, the charge flare and Hyper Beam glow.</summary>
     private readonly BeamChargeState _charge;
     /// <summary>Handles the special beam attack after the charge counter reaches 120.</summary>
     private readonly BeamCombos _combos;
@@ -25,11 +23,10 @@ internal sealed class BeamFiring
     /// <summary>The speeds a Spazer and Plasma beam launches at and the cooldowns it waits.</summary>
     private readonly UnauthoredBeamFiring<SamusBeamCombination> _unauthoredFiring;
 
-    /// <summary>Connects firing to charge, animation, projectile allocation, combo, and terrain systems.</summary>
-    internal BeamFiring(ProjectileAnimation animation, BeamChargeState charge, BeamCombos combos, SamusShotPool pool,
+    /// <summary>Connects firing to charge, projectile allocation, combo, and terrain systems.</summary>
+    internal BeamFiring(BeamChargeState charge, BeamCombos combos, SamusShotPool pool,
         ProjectileTerrainCollision terrainCollision, UnauthoredBeamFiring<SamusBeamCombination> unauthoredFiring)
     {
-        _animation = animation;
         _charge = charge;
         _combos = combos;
         _pool = pool;
@@ -45,8 +42,8 @@ internal sealed class BeamFiring
     {
         _charge.RestartChargePulse();
         _charge.ClearCount();
-        _animation.ClearFlareAnimationState();
-        ProjectileAnimation.ShowSuitShade(colours, samus);
+        _charge.ClearFlare();
+        SamusSuitShade.Show(colours, samus.EquippedItems);
     }
 
     /// <summary>
@@ -57,7 +54,7 @@ internal sealed class BeamFiring
     {
         _charge.ClearCount();
         _charge.PreviousCharge = BeamChargeLevel.None;
-        _animation.ClearFlareAnimationState();
+        _charge.ClearFlare();
     }
 
     /// <summary>Handles held Shoot, release, pose-transition release, Hyper Beam, and special attack timing.</summary>
@@ -87,7 +84,7 @@ internal sealed class BeamFiring
         if (!chargeEquipped)
         {
             _charge.ClearCount();
-            _animation.ClearFlareAnimationState();
+            _charge.ClearFlare();
             SoundEffectId? sound = held
                 ? TryFireBeam(
                     level,
@@ -109,7 +106,7 @@ internal sealed class BeamFiring
             bool forcedChargedRelease =
                 _charge.HasCharged(BeamChargeDefinitions.FullyChargedCounter);
             _charge.ClearCount();
-            _animation.ClearFlareAnimationState();
+            _charge.ClearFlare();
             return CompleteBeamRelease(samus, TryFireBeam(
                 level,
                 samus,
@@ -129,7 +126,7 @@ internal sealed class BeamFiring
                 _charge.FlareCounter++;
                 if (_charge.FlareCounter == 1)
                 {
-                    _animation.ClearFlareAnimationState();
+                    _charge.ClearFlare();
                     SoundEffectId? sound = TryFireBeam(
                         level,
                         samus,
@@ -153,7 +150,7 @@ internal sealed class BeamFiring
                 // Successful activation clears flare animation and restores the suit;
                 // failed family selection leaves charge intact, including its ammo debit.
                 _charge.ClearCount();
-                _animation.ClearFlareAnimationState();
+                _charge.ClearFlare();
                 samus.HorizontalSpeed.RequestSuitShadeRestore();
                 return new(comboSound, SoundRequestPriority.Normal);
             }
@@ -166,7 +163,7 @@ internal sealed class BeamFiring
         bool releaseCharged =
             _charge.HasCharged(BeamChargeDefinitions.FullyChargedCounter);
         _charge.ClearCount();
-        _animation.ClearFlareAnimationState();
+        _charge.ClearFlare();
         return CompleteBeamRelease(samus, TryFireBeam(
             level,
             samus,
@@ -470,7 +467,7 @@ internal sealed class BeamFiring
         SamusState samus,
         SamusProjectile projectile)
     {
-        int poseYOffset = SamusPoseProjectileOrigins.ReadYOffset(samus.Pose);
+        int poseYOffset = SamusPoseTraits.Of(samus.Pose).ProjectileHeight;
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
 
         // Running and the two moonwalks aiming diagonally up take the running origins; every other pose takes the

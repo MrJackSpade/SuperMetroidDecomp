@@ -422,7 +422,7 @@ internal sealed class SamusPoseTransitionPhase
              SamusPoseMetadata.IsRightFacingRunningPose(frame.PoseAtMovement) ||
              SamusPoseMetadata.IsLeftFacingRunningPose(frame.PoseAtMovement) ||
              SamusPoseMetadata.IsMoonwalkingPose(frame.PoseAtMovement) ||
-             frame.PoseAtMovement is SamusPoseId.KnockbackRightPose or SamusPoseId.KnockbackLeftPose ||
+             SamusPoseMetadata.IsKnockbackPose(frame.PoseAtMovement) ||
              SamusPoseMetadata.IsRanIntoWallPose(frame.PoseAtMovement) ||
              SamusPoseMetadata.IsRightFacingCrouchingPose(frame.PoseAtMovement) ||
              SamusPoseMetadata.IsLeftFacingCrouchingPose(frame.PoseAtMovement)))

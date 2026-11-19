@@ -26619,22 +26619,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgramDefinitionsAccess.extension(SuperMetroid.Core.World.RoomStates.RoomStateSettings)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Rooms/LibraryBackgroundProgramDefinitionsAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgramDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
@@ -112868,6 +112852,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Rooms.Doors.ColoredDoorColorDefinition",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Doors/ColoredDoorColorDefinition.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Rooms.Doors.ColoredDoorDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -113073,7 +113070,7 @@
     },
     {
       "type": "SuperMetroid.Core.Rooms.Doors.DoorCapPaint",
-      "kind": "enum",
+      "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -113082,7 +113079,46 @@
         "csharp/src/SuperMetroid.Core/Rooms/Doors/DoorCapPaint.cs"
       ],
       "partial": "none",
-      "disposition": "value"
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Doors.DoorCapPaint.BluePaint",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Doors/DoorCapPaint.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Doors.DoorCapPaint.ColoredPaint",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Doors/DoorCapPaint.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Doors.DoorCapPaint.GreyPaint",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Doors/DoorCapPaint.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Rooms.Doors.DoorCapSegment",

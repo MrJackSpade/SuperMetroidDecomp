@@ -11,11 +11,11 @@ namespace SuperMetroid.EnsureVerification.Contracts;
 /// <summary>Checks the #2566 unread-result rule, SME6474.</summary>
 internal static class UnreadResultAnalyzerTests
 {
-    /// <summary>The advice a discarded call result ends with.</summary>
-    private const string DiscardAdvice = "discards the call's result";
-
     /// <summary>The advice a discarded out result ends with.</summary>
     private const string OutAdvice = "discards an out result";
+
+    /// <summary>The advice an out result no caller reads ends with.</summary>
+    private const string UnreadOutAdvice = "has an out result no caller reads";
 
     /// <summary>The advice a result no caller reads ends with.</summary>
     private const string UnreadAdvice = "returns a value no caller reads";
@@ -40,27 +40,25 @@ internal static class UnreadResultAnalyzerTests
     /// <summary>One positive per unread form, and the uses the rule leaves alone.</summary>
     internal static void VerifyUnreadResultAnalyzer()
     {
-        // A result discarded by name: the site, and the method no caller reads.
+        // A result no caller reads, discarded by name and through a conditional access.
         Expect(Members("""
             private static int Look(int value) => value + 1;
             internal static void Run() { _ = Look(1); }
-            """), count: 2);
-        Expect(Members("""
-            private static int Look(int value) => value + 1;
-            internal static void Run() { _ = Look(1); }
-            internal static int Read() => Look(2);
-            """), "'Look' " + DiscardAdvice);
-        // A result discarded through a conditional access.
+            """), "'Look' " + UnreadAdvice);
         Expect(Members("""
             private int Look() => 1;
             internal static void Run(Fixture? fixture) { _ = fixture?.Look(); }
-            internal static int Read(Fixture fixture) => fixture.Look();
-            """), DiscardAdvice);
-        // An out result discarded.
+            """), "'Look' " + UnreadAdvice);
+        // An out result discarded with the call's whole report, and an out result no caller reads.
         Expect(Members("""
             private static void Find(int value, out int found) => found = value;
             internal static void Run() => Find(1, out _);
+            internal static int Read() { Find(2, out int found); return found; }
             """), "'Find' " + OutAdvice);
+        Expect(Members("""
+            private static bool TryFind(int value, out int found) { found = value; return value > 0; }
+            internal static bool Run() => TryFind(1, out _);
+            """), "'TryFind' " + UnreadOutAdvice);
         // A result no caller reads, every call a statement of its own.
         Expect(Members("""
             private static bool Step(int[] values) { values[0]++; return values[0] > 3; }
@@ -81,6 +79,13 @@ internal static class UnreadResultAnalyzerTests
         // A guard's result, a framework result, a result some caller reads, a delegate's contract, an override, an
         // interface implementation, a framework out result and other assemblies pass.
         Expect(Members("internal static void Run(object value) { _ = SuperMetroid.Core.Ensure.NotNull(value); }"), count: 0);
+        // A result some caller reads is the operation's report; a public method's callers are not all in its assembly.
+        Expect(Members("""
+            private static int Look(int value) => value + 1;
+            internal static void Run() { _ = Look(1); }
+            internal static int Read() => Look(2);
+            """), count: 0);
+        Expect(Declarations + " namespace SuperMetroid.Core.Enemies { public static class Open { public static int Look(int value) => value + 1; internal static void Run() { _ = Look(1); } } }", count: 0);
         Expect(Members("internal static void Run(System.Collections.Generic.List<int> values) { _ = values.Remove(1); values.Add(2); }"), count: 0);
         Expect(Members("""
             private static bool Step(int[] values) { values[0]++; return values[0] > 3; }
@@ -97,6 +102,11 @@ internal static class UnreadResultAnalyzerTests
         Expect(Members("public override bool Equals(object? _) => false;\npublic override int GetHashCode() => 0;"), count: 0);
         Expect(Members("public int CompareTo(Fixture? _) => 0;", baseList: " : System.IComparable<Fixture>"), count: 0);
         Expect(Members("internal static int Run(string text) => int.TryParse(text, out _) ? 1 : 0;"), count: 0);
+        Expect(Members("""
+            private static bool TryFind(int value, out int found) { found = value; return value > 0; }
+            internal static bool Run() => TryFind(1, out _);
+            internal static int Read() => TryFind(2, out int found) ? found : 0;
+            """), count: 0);
         Expect(Members("internal static System.Func<int, int> Run() => _ => 1;"), count: 0);
         Expect(Members("""
             private static int Look(int value) => value + 1;
@@ -105,7 +115,7 @@ internal static class UnreadResultAnalyzerTests
         Expect(Members("""
             private static int Look(int value) => value + 1;
             internal static void Run() { _ = Look(1); }
-            """), count: 2, assemblyName: "SuperMetroid.AssetExtraction");
+            """), "'Look' " + UnreadAdvice, assemblyName: "SuperMetroid.AssetExtraction");
     }
 
     /// <summary>A Core class <c>Fixture</c> holding <paramref name="members"/>.</summary>

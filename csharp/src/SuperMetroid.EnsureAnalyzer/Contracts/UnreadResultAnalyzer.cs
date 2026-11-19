@@ -11,11 +11,12 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 
 /// <summary>
 /// A result nothing reads is not computed, and a parameter nothing needs is not taken (SME6474, #2566). In
-/// <c>SuperMetroid.Core</c> and <c>SuperMetroid.AssetExtraction</c>, a call to a method of the assembly does not throw its
-/// result away (<c>_ = Require(x);</c>, <c>Find(x, out _)</c>): the caller uses what the call reports, or calls an
-/// operation that reports nothing, or states the check it wants by name. A method outside the assembly's public surface
-/// whose result no caller in its assembly reads returns nothing; a method that returns null on every path returns nothing; and a method takes no parameter
-/// it discards (<c>_</c>). The <c>Ensure</c> guards, whose result is the value they checked, are calls made for their
+/// <c>SuperMetroid.Core</c> and <c>SuperMetroid.AssetExtraction</c>, a method outside the assembly's public surface whose
+/// result no caller in its assembly reads, whether each caller discards it by name (<c>_ = Step();</c>) or calls it as a
+/// statement, returns nothing, and an out result no caller reads is not given; a call that discards an out result with
+/// the rest of what it reports (<c>Find(x, out _);</c>) takes an operation that reports nothing; a method that returns
+/// null on every path returns nothing; and a method takes no parameter it discards (<c>_</c>). A result some caller reads
+/// is the operation's report, which another caller may leave unread. The <c>Ensure</c> guards, whose result is the value they checked, are calls made for their
 /// check; a method a delegate refers to keeps the shape the delegate's contract gives it, and overrides and interface
 /// implementations keep their contract's.
 /// </summary>
@@ -76,6 +77,12 @@ public sealed class UnreadResultAnalyzer : DiagnosticAnalyzer
         /// <summary>The methods a delegate refers to.</summary>
         private readonly ConcurrentDictionary<IMethodSymbol, bool> referenced = new(SymbolEqualityComparer.Default);
 
+        /// <summary>The out parameters some call reads.</summary>
+        private readonly ConcurrentDictionary<IParameterSymbol, bool> readOut = new(SymbolEqualityComparer.Default);
+
+        /// <summary>The out parameters some call discards.</summary>
+        private readonly ConcurrentDictionary<IParameterSymbol, bool> discardedOut = new(SymbolEqualityComparer.Default);
+
         /// <summary>The methods whose shape the rule checks, with what they are found to do.</summary>
         private readonly ConcurrentDictionary<IMethodSymbol, MethodShape> shapes = new(SymbolEqualityComparer.Default);
 
@@ -86,9 +93,21 @@ public sealed class UnreadResultAnalyzer : DiagnosticAnalyzer
             IMethodSymbol method = invocation.TargetMethod.OriginalDefinition;
             if (!IsOwnMethod(method))
                 return;
+            ResultUse use = method.ReturnsVoid ? ResultUse.Discarded : Consumer(invocation);
             foreach (IArgumentOperation argument in invocation.Arguments)
             {
-                if (argument.Parameter is { RefKind: RefKind.Out } && argument.Value is IDiscardOperation)
+                if (argument.Parameter is not { RefKind: RefKind.Out } parameter)
+                    continue;
+                IParameterSymbol definition = method.Parameters[parameter.Ordinal];
+                if (argument.Value is not IDiscardOperation)
+                {
+                    readOut[definition] = true;
+                    continue;
+                }
+                discardedOut[definition] = true;
+                // An out result discarded beside a result the caller reads is a question the call answers; one discarded
+                // beside no read result throws away all the call reports.
+                if (use != ResultUse.Read)
                 {
                     context.ReportDiagnostic(Diagnostic.Create(Rule, argument.Syntax.GetLocation(), method.Name,
                         "discards an out result; take only what the caller uses, or use what the call reports"));
@@ -96,14 +115,9 @@ public sealed class UnreadResultAnalyzer : DiagnosticAnalyzer
             }
             if (method.ReturnsVoid)
                 return;
-            switch (Consumer(invocation))
+            switch (use)
             {
-                case ResultUse.DiscardedByName:
-                    discarded[method] = true;
-                    context.ReportDiagnostic(Diagnostic.Create(Rule, invocation.Syntax.GetLocation(), method.Name,
-                        "discards the call's result; use what the call reports, call an operation that reports nothing, or state the check by name"));
-                    return;
-                case ResultUse.Discarded:
+                case ResultUse.DiscardedByName or ResultUse.Discarded:
                     discarded[method] = true;
                     return;
                 case ResultUse.Read:
@@ -143,6 +157,15 @@ public sealed class UnreadResultAnalyzer : DiagnosticAnalyzer
                 MethodShape shape = entry.Value;
                 if (referenced.ContainsKey(method))
                     continue;
+                if (!IsVisibleOutside(method))
+                {
+                    foreach (IParameterSymbol output in method.Parameters.Where(candidate => candidate.RefKind == RefKind.Out &&
+                        discardedOut.ContainsKey(candidate) && !readOut.ContainsKey(candidate)))
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(Rule, output.Locations.FirstOrDefault(candidate => candidate.IsInSource) ?? shape.Location,
+                            method.Name, "has an out result no caller reads; drop it"));
+                    }
+                }
                 if (shape.DiscardedParameter is { } parameter)
                 {
                     context.ReportDiagnostic(Diagnostic.Create(Rule, parameter, method.Name,

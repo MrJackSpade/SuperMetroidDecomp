@@ -959,13 +959,14 @@ value type names its own units (`SignedSixteenSixteen.OnePixel`, `SignedEightEig
 `UpdateCountdown.LastingOneUpdate()`); zero, a literal beside computed state and a literal passed by position are not
 definitions.
 
-SME6474 (#2566) keeps every result read and every parameter needed, in Core and AssetExtraction. A call to the
-assembly's own method throws away no result (`_ = Require(x);`, `Find(x, out _)`): the caller uses what the call reports,
-calls an operation that reports nothing (`StepDarker`, `Random.Advance`), or states the check by name
-(`RequireArtwork`, `RequireEncodable`). A method no caller in its assembly reads the result of, or that returns null on
-every path, returns nothing, and a method takes no parameter it discards (`_`). The `Ensure` guards, which return the
-value they checked, are calls made for their check; a method a delegate refers to, an override and an interface
-implementation keep their contract's shape.
+SME6474 (#2566) keeps every result read and every parameter needed, in Core and AssetExtraction. A method outside the
+assembly's public surface whose result no caller in the assembly reads, each caller discarding it (`_ = Step();`) or
+calling it as a statement, returns nothing (a spawn no caller acts on a refusal of reports nothing); an out result no
+caller reads is not given, and a call does not throw away an out result with the rest of its report. A method that
+returns null on every path returns nothing (a cue handler whose cues never start another animation plays through
+`AdvanceApplyingCues`), and a method takes no parameter it discards (`_`). A result some caller reads is the operation's
+report, which another caller may leave unread; the `Ensure` guards return the value they checked, and a method a
+delegate refers to, an override and an interface implementation keep their contract's shape.
 
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does

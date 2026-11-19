@@ -39,7 +39,7 @@ internal static class TourianStatueDescentRoundingVerification
         // on the update the descent moves (#2033).
         EnemyProjectile baseDecoration = runtime.Enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.TourianStatueBaseDecoration);
-        int decorationAnchor = baseDecoration.StateOf<AnchoredProjectileState>().Anchor.Y;
+        int decorationAnchor = baseDecoration.Anchor.Y;
         void AssertDecorationFollows(string context) => AssertEqual(decorationAnchor - runtime.TourianStatues.VerticalOffset,
             baseDecoration.Position.Y.Whole, $"the base decoration follows the statue: {context}");
 

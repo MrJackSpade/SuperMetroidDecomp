@@ -118,15 +118,13 @@ public sealed class EnemyProjectile
     /// animations move it in front. This is independent of the projectile's depth against the room's tiles.
     /// </summary>
     public EnemyProjectileDepth Depth { get; internal set; }
-    /// <summary>What the projectile's family keeps on it (#1470), given by its spawner; none until then.</summary>
-    internal EnemyProjectileState? State { get; set; }
-
-    /// <summary>The state the projectile's family gave it, read as that family's own type.</summary>
-    /// <typeparam name="TState">The family's state type.</typeparam>
-    /// <exception cref="InvalidOperationException">The projectile holds no state, or another family's.</exception>
-    internal TState StateOf<TState>() where TState : EnemyProjectileState =>
-        State as TState ?? throw new InvalidOperationException(
-            $"Enemy projectile {Kind} in place {Place} holds {State?.GetType().Name ?? "no state"}, not {typeof(TState).Name}.");
+    /// <summary>
+    /// The point the projectile is tied to, which its spawner sets where the projectile returns to it (#2571): a Tourian
+    /// statue's decorations follow the statue from it, the descending statue's dust and Torizo's explosions return to it
+    /// whenever their animations restart a puff. Everything else its family keeps on it lives in that family's behaviour
+    /// (<see cref="EnemyProjectileStates{TState}"/>).
+    /// </summary>
+    internal Position16<RoomPixels> Anchor { get; set; }
 
     /// <summary>Gets whether this actor damages Samus when it touches her, whether or not it survives contact or stops shots.</summary>
     public bool CanDamageSamus { get; internal set; }
@@ -218,7 +216,7 @@ public sealed class EnemyProjectile
         Graphics = SpriteGraphics.SharedStandard;
         Damage = 0;
         Depth = EnemyProjectileDepth.BehindSamus;
-        State = null;
+        Anchor = Position16<RoomPixels>.Zero;
         CollisionOption = EnemyProjectileCollisionOption.PlaysShotAnimation;
         CanDamageSamus = PersistsOnSamusContact = BlocksSamusProjectiles = false;
     }

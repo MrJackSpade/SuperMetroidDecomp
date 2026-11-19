@@ -52,7 +52,7 @@ internal sealed class FallingSparksBehavior
         Func<int> nextRandom = _room.Random.Generate;
         SignedSixteenSixteen launch = FallingSparkLaunchDefinitions.Launch.Choose(nextRandom())
             .DriftWith(() => _room.Session.Overreads.FallingSparkUnauthoredLaunch);
-        projectile.State = new FallingSparkState(launch);
+        Spark.States.Start(projectile, new FallingSparkState(launch));
     }
 
 
@@ -65,7 +65,7 @@ internal sealed class FallingSparksBehavior
         // A falling spark first looks for the floor: the probe creeps it down (FallingSparkFloorProbe) through the
         // enemy projectiles' block collision, slope reactions included, and the creep stays on top of the spark's own
         // fall below.
-        FallingSparkState spark = projectile.StateOf<FallingSparkState>();
+        FallingSparkState spark = Spark.States.Of(projectile);
         if (!spark.VerticalSpeed.IsNegative)
         {
             if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, Axis.Vertical, _floorProbe.CreepFor(spark.VerticalSpeed)))
@@ -93,26 +93,26 @@ internal sealed class FallingSparksBehavior
     }
 
     /// <summary>Adds the spark's vertical speed to its position, the fraction's overflow passing into the whole.</summary>
-    private static void AddFallingSparkVerticalVelocity(
+    private void AddFallingSparkVerticalVelocity(
         EnemyProjectile projectile) =>
-        projectile.Position = projectile.Position.AdvanceY(projectile.StateOf<FallingSparkState>().VerticalSpeed);
+        projectile.Position = projectile.Position.AdvanceY(Spark.States.Of(projectile).VerticalSpeed);
 
     /// <summary>Adds the spark's horizontal drift, the fraction's overflow passing into the whole.</summary>
-    internal static void AddFallingSparkHorizontalVelocity(
+    internal void AddFallingSparkHorizontalVelocity(
         EnemyProjectile projectile) =>
-        projectile.Position = projectile.Position.AdvanceX(projectile.StateOf<FallingSparkState>().HorizontalStep);
+        projectile.Position = projectile.Position.AdvanceX(Spark.States.Of(projectile).HorizontalStep);
 
     /// <summary>
     /// Switches a falling spark to its floor-impact animation and scales its stored
     /// horizontal delta, the fraction's overflow passing into the whole.
     /// </summary>
-    internal static void BeginFallingSparkFloorImpact(EnemyProjectile projectile)
+    internal void BeginFallingSparkFloorImpact(EnemyProjectile projectile)
     {
         projectile.StartAnimation(new FallingSparkAnimation(FallingSparkSegment.HitFloor));
 
         // The impact quadruples the sideways drift, wrapping round past the largest drift: the unauthored launch the last
         // random selection reads can be any drift, so its quadruple can pass the largest the drift holds.
-        FallingSparkState spark = projectile.StateOf<FallingSparkState>();
+        FallingSparkState spark = Spark.States.Of(projectile);
         spark.HorizontalStep *= FallingSparkMotionDefinitions.ImpactDriftScale;
 
         // While the bounce carries the spark upward, later updates skip collision and gravity as the
@@ -131,6 +131,6 @@ internal sealed class FallingSparksBehavior
     }
 
     /// <summary>A falling spark (#1760): it drops under gravity, bouncing on the floor and leaving a trail.</summary>
-    internal SingleMotionProjectileBehavior Spark => field ??= new(
+    internal StatefulSingleMotionProjectileBehavior<FallingSparkState> Spark => field ??= new(
         context => FallFallingSpark(context.Projectile, context.Level, context.ShortCounter));
 }

@@ -196,7 +196,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         projectile.StartAnimation(new TourianStatueProjectileAnimation(decorations, start));
         projectile.Position = projectile.Position.WithWhole(position);
         // The decoration stays tied to its authored spawn point as the statue descends.
-        projectile.State = new AnchoredProjectileState(position);
+        projectile.Anchor = position;
     }
 
     /// <summary>Drops <paramref name="occupant"/>, which has left its place: the scene shows no later look on its place.</summary>
@@ -242,7 +242,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
                 statue.FinishSinking();
             }
 
-            Position16<RoomPixels> anchor = projectile.StateOf<AnchoredProjectileState>().Anchor;
+            Position16<RoomPixels> anchor = projectile.Anchor;
             projectile.Position = projectile.Position.WithWholeX(anchor.X);
 
             // A decoration stands at its place less how far the statue has sunk, which keeps its pictures on the sinking

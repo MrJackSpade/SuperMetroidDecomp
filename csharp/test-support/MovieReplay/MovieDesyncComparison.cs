@@ -245,7 +245,7 @@ internal static class MovieDesyncComparison
             // The cartridge hides a n00b-tube crack or shard by parking it at X $EE00; the port keeps its column and marks it
             // hidden (#1839), so a hidden piece's native X is that parking column. Hidden pieces have no contact radius.
             if (!bubbleXUnwritten)
-                Check($"Enemy projectile {slot} X", projectile.State is SuperMetroid.Core.Enemies.Projectiles.IFlickeringProjectileState { IsHidden: true }
+                Check($"Enemy projectile {slot} X", projectile.Behavior is { } behavior && behavior.IsHidden(projectile)
                         ? HiddenPieceNativeColumn : projectile.Position.X.Whole,
                     MovieDesyncMemory.EnemyProjectileX + offset);
             Check($"Enemy projectile {slot} Y", projectile.Position.Y.Whole, MovieDesyncMemory.EnemyProjectileY + offset);

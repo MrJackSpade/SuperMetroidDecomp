@@ -77,7 +77,7 @@ internal static class BombTorizoAttackDefinitionsVerification
                     $"Bomb Torizo explosion {parameter} facing {facingRight} X");
                 AssertEqual(unchecked((ushort)(500 + expected.Y)), projectile.Position.Y.Whole,
                     $"Bomb Torizo explosion {parameter} facing {facingRight} Y");
-                AssertEqual(projectile.Position.Whole, projectile.StateOf<AnchoredProjectileState>().Anchor,
+                AssertEqual(projectile.Position.Whole, projectile.Anchor,
                     $"Bomb Torizo explosion {parameter} returns to its spawn point");
             }
         }

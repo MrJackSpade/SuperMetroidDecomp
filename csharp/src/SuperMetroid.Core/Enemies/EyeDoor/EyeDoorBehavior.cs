@@ -83,7 +83,7 @@ internal sealed class EyeDoorBehavior
 
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.EyeDoorProjectile, Shot, graphics: default);
         projectile.StartAnimation(new EyeDoorProjectileAnimation(Shot, EyeDoorProjectileSegment.Fired));
-        InitializeEyeDoorProjectile(projectile, request, system);
+        InitializeEyeDoorProjectile(Shot, projectile, request, system);
     }
 
     /// <summary>
@@ -105,6 +105,9 @@ internal sealed class EyeDoorBehavior
     internal sealed class EyeDoorProjectileBehavior(EyeDoorProjectileMotion? initial, EyeDoorProjectileSegment? shot = null)
         : EnemyProjectileMotionBehavior<EyeDoorProjectileMotion>(initial), IEnemyProjectileCues<EyeDoorProjectileCue>
     {
+        /// <summary>Each shot's door, the game state that records its opening and its heading, given as its eye fires it.</summary>
+        internal EnemyProjectileStates<EyeDoorShotState> Shots { get; } = new();
+
         /// <inheritdoc/>
         internal override EnemyProjectileAnimation ShotAnimation() =>
             shot is { } segment ? new EyeDoorProjectileAnimation(this, segment) : base.ShotAnimation();
@@ -135,6 +138,7 @@ internal sealed class EyeDoorBehavior
     /// opening.
     /// </summary>
     private static void InitializeEyeDoorProjectile(
+        EyeDoorProjectileBehavior owner,
         EnemyProjectile projectile,
         EyeDoorAttackRequest request,
         SharedGameState doors)
@@ -145,7 +149,7 @@ internal sealed class EyeDoorBehavior
             EyeDoorOrientation.Right => EyeDoorEffectDefinitions.RightShotOrigin,
             _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorOrientation)} {request.Facing}."),
         };
-        projectile.State = new EyeDoorShotState(request.Door, doors);
+        owner.Shots.Start(projectile, new EyeDoorShotState(request.Door, doors));
         projectile.Position = projectile.Position.WithWhole(request.RoomObjectBlock.ToRoomPixels() + origin);
     }
 
@@ -199,7 +203,7 @@ internal sealed class EyeDoorBehavior
             return;
         }
 
-        EyeDoorShotState shot = projectile.StateOf<EyeDoorShotState>();
+        EyeDoorShotState shot = owner.Shots.Of(projectile);
         projectile.Velocity = projectile.Velocity.WithX(projectile.Velocity.X + ReadEyeDoorAcceleration(shot.Heading + TrigonometryAngle.QuarterTurn));
         projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y +
             ReadEyeDoorAcceleration(shot.Heading + TrigonometryAngle.HalfTurn));
@@ -248,7 +252,7 @@ internal sealed class EyeDoorBehavior
         switch (cue.Kind)
         {
             case EyeDoorProjectileCueKind.AimAtSamus:
-                AimEyeDoorProjectileAtSamus(projectile, samus);
+                AimEyeDoorProjectileAtSamus(owner, projectile, samus);
                 break;
             case EyeDoorProjectileCueKind.StartFlight:
                 projectile.StartMotion(owner, EyeDoorProjectileMotion.ShotFlying);
@@ -268,9 +272,9 @@ internal sealed class EyeDoorBehavior
     /// Aims the projectile at Samus: keeps the angle to
     /// Samus and launches the shot along it at unit speed.
     /// </summary>
-    private static void AimEyeDoorProjectileAtSamus(EnemyProjectile projectile, IRoomSamus samus)
+    private static void AimEyeDoorProjectileAtSamus(EyeDoorProjectileBehavior owner, EnemyProjectile projectile, IRoomSamus samus)
     {
-        EyeDoorShotState shot = projectile.StateOf<EyeDoorShotState>();
+        EyeDoorShotState shot = owner.Shots.Of(projectile);
         shot.Heading = EnemyMath.CalculateAimAngle(
             new(samus.Position.X.Whole - projectile.Position.X.Whole, samus.Position.Y.Whole - projectile.Position.Y.Whole));
         projectile.Velocity = projectile.Velocity.WithX(EnemyMath.SineVelocity(shot.Heading + TrigonometryAngle.QuarterTurn, 1));

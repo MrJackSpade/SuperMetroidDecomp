@@ -10,7 +10,7 @@ internal sealed class SpeedBoosterEscapeObjects
     private readonly IRoomSamusAccess _samus;
     /// <summary>The game's event flags.</summary>
     private readonly IStoryEvents _events;
-    /// <summary>The room's effect overlay FX.</summary>
+    /// <summary>The room's lava, which the escape raises.</summary>
     private readonly IRoomLiquid _liquid;
     /// <summary>The room's earthquake.</summary>
     private readonly IRoomEarthquakeWriter _earthquake;

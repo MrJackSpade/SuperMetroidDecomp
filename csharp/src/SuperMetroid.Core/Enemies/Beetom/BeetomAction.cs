@@ -32,12 +32,36 @@ public enum BeetomAction
     Idling,
     /// <summary>Moves one quarter pixel per frame toward its heading, reversing at a wall or failed eight-pixel-ahead ledge probe.</summary>
     Crawling,
-    /// <summary>Moves one quarter pixel per frame toward its heading while the vertical speed-curve place decreases or increases by four.</summary>
-    ShortHop,
-    /// <summary>Moves one quarter pixel per frame toward its heading while the vertical speed-curve place decreases or increases by five.</summary>
-    LongHop,
-    /// <summary>Lunges three pixels per frame toward its heading with curve-place steps of minus five rising and plus three falling.</summary>
-    Lunge,
+    /// <summary>
+    /// The short hop's rise (#2531): moves one quarter pixel per frame toward its heading while the vertical speed-curve
+    /// place decreases by four, and falls once it passes the apex.
+    /// </summary>
+    ShortHopRising,
+    /// <summary>
+    /// The short hop's fall: moves one quarter pixel per frame toward its heading while the vertical speed-curve place
+    /// increases by four.
+    /// </summary>
+    ShortHopFalling,
+    /// <summary>
+    /// The long hop's rise (#2531): moves one quarter pixel per frame toward its heading while the vertical speed-curve
+    /// place decreases by five, and falls once it passes the apex.
+    /// </summary>
+    LongHopRising,
+    /// <summary>
+    /// The long hop's fall: moves one quarter pixel per frame toward its heading while the vertical speed-curve place
+    /// increases by five.
+    /// </summary>
+    LongHopFalling,
+    /// <summary>
+    /// The lunge's rise (#2531): lunges three pixels per frame toward its heading while the vertical speed-curve place
+    /// decreases by five, and falls once it passes the apex.
+    /// </summary>
+    LungeRising,
+    /// <summary>
+    /// The lunge's fall: lunges three pixels per frame toward its heading while the vertical speed-curve place increases
+    /// by three.
+    /// </summary>
+    LungeFalling,
     /// <summary>Follows Samus on its heading's side until the input-change counter reaches zero, then throws the Beetom the other way unless blocked.</summary>
     Draining,
     /// <summary>Falls straight down three pixels per frame until collision selects crawling in the stored direction.</summary>

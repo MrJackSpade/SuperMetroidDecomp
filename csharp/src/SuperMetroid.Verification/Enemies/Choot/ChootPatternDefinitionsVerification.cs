@@ -72,8 +72,6 @@ internal static class ChootPatternDefinitionsVerification
                     loopCount * (LittleEndianBytes.LowByte(loopYDistance))));
                 AssertEqual(fallingPath, place.SpawnSettings<ChootSpawnSettings>().FallingPath,
                     $"Choot production pattern {patternIndex}/{loopCount}");
-                AssertEqual(loopYDistance, state.FallingPatternYDistance,
-                    $"Choot production pattern distance {patternIndex}/{loopCount}");
                 AssertEqual(place.Position.X.Whole, state.InitialFallingPosition.X,
                     $"Choot production initial falling X {patternIndex}/{loopCount}");
                 AssertEqual(unchecked((ushort)(0x789a - jumpHeight)),

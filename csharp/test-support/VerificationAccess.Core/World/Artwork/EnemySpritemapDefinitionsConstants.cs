@@ -45,7 +45,7 @@ internal static class EnemySpritemapDefinitionsConstants
     /// <summary>Frames the document lists before the ordinary Metroid's visual frames.</summary>
     internal static int PreMetroidFrameCount => FramesBefore(EnemyFrameId.MetroidNucleiDark);
     /// <summary>Frames the document lists before the shutter compositions.</summary>
-    internal static int PreShutterFrameCount => FramesBefore(EnemyFrameId.ShutterTenPixelsLong);
+    internal static int PreShutterFrameCount => FramesBefore(EnemyFrameId.ShutterQuarterGrown);
     /// <summary>Frames the document lists before the Morph Ball eye artwork.</summary>
     internal static int PreMorphBallEyeFrameCount => FramesBefore(EnemyFrameId.MorphBallEyeLookingUpUpRight);
     /// <summary>Frames the document lists before the face block's visual frames.</summary>

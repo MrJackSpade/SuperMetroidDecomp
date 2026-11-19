@@ -99,7 +99,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             GuardAlcoonJumpSimulation(++iterations, place);
         }
 
-        state.LandingPosition = place.Position.Whole;
+        state.LandingY = place.Position.Y.Whole;
         place.Position = place.Position.WithWholeY(state.SpawnPosition.Y);
     }
 
@@ -144,7 +144,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         AlcoonEnemyState state,
         SamusState samus)
     {
-        if (Math.Abs(state.LandingPosition.Y - samus.Position.Y.Whole) >= AlcoonMotionDefinitions.EmergeYDistance)
+        if (Math.Abs(state.LandingY - samus.Position.Y.Whole) >= AlcoonMotionDefinitions.EmergeYDistance)
             return;
 
         int signedXDistance = samus.Position.X.Whole - place.Position.X.Whole;

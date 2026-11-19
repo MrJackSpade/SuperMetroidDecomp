@@ -1446,14 +1446,14 @@ public enum EnemyFrameId
     MorphEyeMountLeft,
     /// <summary>The Morph Ball eye: mount up.</summary>
     MorphEyeMountUp,
-    /// <summary>The shutter: ten pixels long.</summary>
-    ShutterTenPixelsLong,
-    /// <summary>The shutter: twenty pixels long.</summary>
-    ShutterTwentyPixelsLong,
-    /// <summary>The shutter: thirty pixels long.</summary>
-    ShutterThirtyPixelsLong,
-    /// <summary>The shutter: forty pixels long.</summary>
-    ShutterFortyPixelsLong,
+    /// <summary>The shutter: a quarter grown, its first section alone, as a growing shutter starts.</summary>
+    ShutterQuarterGrown,
+    /// <summary>The shutter: half grown, two of its four sections.</summary>
+    ShutterHalfGrown,
+    /// <summary>The shutter: three quarters grown, three of its four sections.</summary>
+    ShutterThreeQuartersGrown,
+    /// <summary>The shutter: fully grown, all four sections, as a growing shutter ends and every vertical shutter stands.</summary>
+    ShutterFullyGrown,
     /// <summary>The Metroid: its nuclei dark.</summary>
     MetroidNucleiDark,
     /// <summary>The Metroid: its nuclei glowing.</summary>

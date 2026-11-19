@@ -189,7 +189,8 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         GameplayAction newlyPressedControllerInput,
         SamusProjectileSystem samusProjectiles)
     {
-        GameplayAction requiredInput = ElevatorActorDefinitions.RequiredDirectionInputs[place.SpawnSettings<ElevatorSpawnSettings>().Direction];
+        ElevatorTravelDirection direction = place.SpawnSettings<ElevatorSpawnSettings>().Direction;
+        GameplayAction requiredInput = ElevatorActorDefinitions.RequiredDirectionInputs[direction];
         if (!newlyPressedControllerInput.HasAny(requiredInput))
         {
             ElevatorFlags = ElevatorJourneyFlag.None;
@@ -204,16 +205,17 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         samusProjectiles.Reset();
         _frameResults.ElevatorClearedProjectileData = true;
         PinSamusToElevator(place, samus);
+        // The ride travels its elevator's way from its departure to its arrival in the destination room (#2531).
+        ElevatorTravel = direction;
         ElevatorStatus = ElevatorActorStatus.Departing;
         _frameResults.Elevator = ElevatorFrameEvent.DepartureStarted;
     }
 
-    /// <summary>Moves the departing elevator.</summary>
+    /// <summary>Moves the departing elevator the way its ride travels.</summary>
     private void MoveDepartingElevator(
         RoomEnemyPlace place,
         SamusState samus)
     {
-        ElevatorTravel = place.SpawnSettings<ElevatorSpawnSettings>().Direction;
         AddElevatorYVelocity(place, ElevatorTravel is ElevatorTravelDirection.Up
             ? -ElevatorActorDefinitions.TravelSpeed
             : ElevatorActorDefinitions.TravelSpeed);

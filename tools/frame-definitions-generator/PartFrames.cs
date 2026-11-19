@@ -126,15 +126,15 @@ internal sealed record PartFrameConfiguration(
                 ["MotherBrainHead"] = "MotherBrainVisualDefinitions.HeadFrames",
             },
         },
-        // A vertical shutter runs its forty-pixel program, Kamer its platform loop; a growing shutter grows through its
-        // three growth programs to the forty-pixel one.
+        // A vertical shutter runs its fully grown program, Kamer its platform loop; a growing shutter grows through its
+        // three growth programs to the fully grown one.
         new("ShuttersBehavior", null, null, "ShutterAnimations", null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
                 ["Kamer"] = ["KamerPlatform"],
-                ["ShutterDestroyable"] = ["FortyPixels"],
-                ["ShutterShootable"] = ["FortyPixels"],
-                ["ShutterGrowing"] = ["GrowingTenPixels", "GrowingTwentyPixels", "GrowingThirtyPixels", "FortyPixels"],
+                ["ShutterDestroyable"] = ["FullyGrown"],
+                ["ShutterShootable"] = ["FullyGrown"],
+                ["ShutterGrowing"] = ["QuarterGrown", "HalfGrown", "ThreeQuartersGrown", "FullyGrown"],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
         // Each crawler starts in its family's surface program and takes its later surfaces from its species' own family:

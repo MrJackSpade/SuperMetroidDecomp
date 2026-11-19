@@ -24,11 +24,9 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         SetChootAnimation(place, state, ChootSegment.Idle);
         state.SpawnPosition = place.Position.Whole;
 
-        state.FallingPatternYDistance = ChootFalls.LoopYDistance(fallingPath);
-
         // The jump rises as far as its loops of the falling path fall: one to seven loops of under 256 pixels in every
         // room, so the height stays well within the room (#1620).
-        int jumpHeight = place.SpawnSettings<ChootSpawnSettings>().PatternLoops * state.FallingPatternYDistance;
+        int jumpHeight = place.SpawnSettings<ChootSpawnSettings>().PatternLoops * ChootFalls.LoopYDistance(fallingPath);
         state.InitialYSpeedCurvePlace = CalculateInitialChootYSpeedCurvePlace(jumpHeight);
         state.InitialFallingPosition = state.SpawnPosition.WithY(state.SpawnPosition.Y - jumpHeight);
         state.YSpeedCurvePlace = state.InitialYSpeedCurvePlace;
@@ -108,10 +106,11 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Follows authored path offsets, advancing its origin at each loop's end and restoring the exact spawn state after the final loop.</summary>
     internal static void RunChootFall(RoomEnemyPlace place, ChootEnemyState state)
     {
-        Offset16<RoomPixels>? offset = ChootFalls.At(place.SpawnSettings<ChootSpawnSettings>().FallingPath, state.FallingPatternFrame);
+        ChootFallingPath fallingPath = place.SpawnSettings<ChootSpawnSettings>().FallingPath;
+        Offset16<RoomPixels>? offset = ChootFalls.At(fallingPath, state.FallingPatternFrame);
         if (offset is not { } pathOffset)
         {
-            state.FallingOrigin = state.FallingOrigin.WithY(state.FallingOrigin.Y + state.FallingPatternYDistance);
+            state.FallingOrigin = state.FallingOrigin.WithY(state.FallingOrigin.Y + ChootFalls.LoopYDistance(fallingPath));
             state.FallingPatternFrame = 0;
             if (--state.FallingPatternLoopCounter > 0)
                 return;

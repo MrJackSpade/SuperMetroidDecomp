@@ -18,12 +18,12 @@ internal static class BeetomOwnedStateVerification
     internal static void VerifyBeetomOwnedState()
     {
         var arc = new BeetomEnemyState(previous: null, BeetomAction.DecideAction) { YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(8) };
-        arc.StepRisingSpeed(4);
-        AssertEqual(new VerifyBeetomOwnedStateCase(QuadraticSpeedCurvePlace.FromMarks(4), false), new VerifyBeetomOwnedStateCase(arc.YSpeedCurvePlace, arc.Falling), "a rising step above the apex keeps rising");
-        arc.StepRisingSpeed(4);
-        AssertEqual(new VerifyBeetomOwnedStateCase(QuadraticSpeedCurvePlace.Start, false), new VerifyBeetomOwnedStateCase(arc.YSpeedCurvePlace, arc.Falling), "a rising step landing on zero keeps rising");
-        arc.StepRisingSpeed(5);
-        AssertEqual(new VerifyBeetomOwnedStateCase(QuadraticSpeedCurvePlace.Start, true), new VerifyBeetomOwnedStateCase(arc.YSpeedCurvePlace, arc.Falling), "a rising step below zero restarts at zero and falls");
+        bool apex = arc.StepRisingSpeed(4);
+        AssertEqual(new VerifyBeetomOwnedStateCase(QuadraticSpeedCurvePlace.FromMarks(4), false), new VerifyBeetomOwnedStateCase(arc.YSpeedCurvePlace, apex), "a rising step above the apex keeps rising");
+        apex = arc.StepRisingSpeed(4);
+        AssertEqual(new VerifyBeetomOwnedStateCase(QuadraticSpeedCurvePlace.Start, false), new VerifyBeetomOwnedStateCase(arc.YSpeedCurvePlace, apex), "a rising step landing on zero keeps rising");
+        apex = arc.StepRisingSpeed(5);
+        AssertEqual(new VerifyBeetomOwnedStateCase(QuadraticSpeedCurvePlace.Start, true), new VerifyBeetomOwnedStateCase(arc.YSpeedCurvePlace, apex), "a rising step below zero restarts at zero and falls");
         arc.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(61);
         arc.StepFallingSpeed(3);
         AssertEqual(QuadraticSpeedCurvePlace.FromMarks(64), arc.YSpeedCurvePlace, "falling reaches the maximum");

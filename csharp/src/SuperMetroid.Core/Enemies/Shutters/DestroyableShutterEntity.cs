@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 internal sealed class DestroyableShutterEntity(ShuttersBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
     : VerticalShutterEntity(species, place, common)
 {
-    /// <summary>A destroyable shutter shows forty pixels of shutter.</summary>
-    protected override ShutterSegment Pose => ShutterSegment.FortyPixels;
+    /// <summary>A destroyable shutter shows the fully grown shutter.</summary>
+    protected override ShutterSegment Pose => ShutterSegment.FullyGrown;
 
     /// <summary>Sets the shutter up as vertical shutters are, and keeps it among the shutters the escape's flash shows on (#2380).</summary>
     public override void Initialize()

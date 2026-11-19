@@ -401,8 +401,8 @@ internal sealed class IntroBabyDiscoveryState
     /// <summary><paramref name="position"/> moved by one axis of a velocity, fraction included.</summary>
     private static FixedVector<ScreenPixels> WithEightEightVelocity(FixedVector<ScreenPixels> position, Axis axis, SignedEightEight velocity) =>
         axis == Axis.Horizontal
-            ? position.WithX(IntroCinematicMotion.AddEightEight(position.X, velocity))
-            : position.WithY(IntroCinematicMotion.AddEightEight(position.Y, velocity));
+            ? position.WithX(position.X + velocity.ToSixteenSixteenDelta())
+            : position.WithY(position.Y + velocity.ToSixteenSixteenDelta());
 
     /// <summary>Instantiates a cinematic actor with its authored position, colouring and animation.</summary>
     private static CinematicActor<IntroBabyAnimation, CinematicSpritePose, IntroDiscoveryCue> CreateActor(IntroBabyActorDefinition definition) =>

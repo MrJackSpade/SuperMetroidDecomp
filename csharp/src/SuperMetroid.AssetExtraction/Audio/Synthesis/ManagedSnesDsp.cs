@@ -720,7 +720,8 @@ public sealed class ManagedSnesDsp
             EnvelopeState.Decay => DecayRate,
             EnvelopeState.Sustain => SustainRate,
             EnvelopeState.Gain => GainRate,
-            _ => throw new InvalidDataException($"S-DSP envelope phase {phase} has no rate."),
+            EnvelopeState.Release => throw new InvalidDataException("The S-DSP release steps every cycle and has no rate."),
+            _ => throw new InvalidDataException($"Unknown S-DSP envelope phase {phase}."),
         };
 
         /// <summary>Clears all voice registers, PCM cursors, and envelope state for DSP reset.</summary>

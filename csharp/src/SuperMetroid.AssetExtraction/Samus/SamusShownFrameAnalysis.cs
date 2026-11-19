@@ -57,12 +57,6 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </remarks>
 internal sealed class SamusShownFrameAnalysis
 {
-    /// <summary>
-    /// The movement types Samus can be initialized in: the movement types of the poses some path gives her. The drained
-    /// operations write a drained pose without initializing it, so her movement stays the type of whichever of these she was
-    /// last initialized in, and nothing in those operations checks which (the Mother Brain glitch recording carries a spin
-    /// jump's movement into the drained standing pose).
-    /// </summary>
     /// <summary>The movement types in the order the analysis lists those a pose was initialized in (#2567).</summary>
     private static readonly IReadOnlyList<SamusMovementType> MovementTypeOrder = Ensure.EveryMemberOnce<SamusMovementType>(
     [
@@ -94,6 +88,12 @@ internal sealed class SamusShownFrameAnalysis
         SamusMovementType.Special,
     ]);
 
+    /// <summary>
+    /// The movement types Samus can be initialized in: the movement types of the poses some path gives her. The drained
+    /// operations write a drained pose without initializing it, so her movement stays the type of whichever of these she was
+    /// last initialized in, and nothing in those operations checks which (the Mother Brain glitch recording carries a spin
+    /// jump's movement into the drained standing pose).
+    /// </summary>
     private static readonly SamusMovementType[] InitializedMovementTypes =
         [.. MovementTypeOrder.Where(Enum.GetValues<SamusPoseId>().Select(SamusPoseMetadata.ReadMovementType).ToHashSet().Contains)];
 

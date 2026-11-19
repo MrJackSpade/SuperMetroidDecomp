@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// </summary>
 internal sealed class PauseScreen
 {
-    /// <summary>The menu buttons' labels in the order the screen lays them out (#2567).</summary>
+    /// <summary>The menu buttons' labels in the order the screen shows them (#2567).</summary>
     private static readonly IReadOnlyList<PauseButtonLabel> ButtonLabelOrder = Ensure.EveryMemberOnce<PauseButtonLabel>(
     [
         PauseButtonLabel.Map,

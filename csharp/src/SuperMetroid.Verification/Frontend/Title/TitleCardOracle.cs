@@ -57,7 +57,7 @@ internal static class TitleCardOracle
             extracted.Sprites[TitleSprite.SuperMetroidLogo], "title logo is extracted from the logo pointer");
         AssertEqual(TitleGraphicsFormat.Sprites.Count, extracted.Sprites.Count, "extraction maps every title composition");
         AssertEqual(TitleGraphicsFormat.Typings.Count, extracted.Cards.Count, "extraction maps every card typing step");
-        AssertEqual(extracted.All.Count(), extracted.All.Distinct().Count(), "every title composition and typing step has its own spritemap");
+        AssertTrue(extracted.AllDistinct, "every title composition and typing step has its own spritemap");
         return compared;
     }
 

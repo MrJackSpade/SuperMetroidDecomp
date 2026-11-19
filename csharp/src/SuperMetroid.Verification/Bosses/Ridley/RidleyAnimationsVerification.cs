@@ -69,7 +69,7 @@ internal static class RidleyAnimationsVerification
         AssertEqual(RidleyAnimations.StartingWith(RidleyBodySegment.OpeningRoarFacingRight), state.Flight.BodyPlayback.Animation, "a right-facing Ridley roars facing right");
         AssertEqual((EnemyFrameId?)EnemyFrameId.RidleyBodyRight,
             RidleyCollisionDefinitions.BodyFrameAt(body.SpritemapPointer), "the right-facing roar shows its first frame at once");
-        AssertEqual((ushort)6, body.AnimationClock.Hold.RawValue, "the right-facing roar's first frame lasts six updates");
+        AssertEqual((ushort)6, body.AnimationClock.Hold, "the right-facing roar's first frame lasts six updates");
 
         (_, state, body) = NewRidley(EnemyDefinitionId.Ridley, RidleyFacing.Left);
         RidleyFlight.StartAnimation(state.Flight, body, RidleyAnimations.OpeningRoar);

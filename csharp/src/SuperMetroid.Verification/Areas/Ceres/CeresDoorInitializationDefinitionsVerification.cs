@@ -47,7 +47,7 @@ internal static class CeresDoorInitializationDefinitionsVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + selector * 2)),
                 NativeEnemyAnimationOracle.EntryOf(CeresDoorNativeListAddresses.Entries, started),
                 $"production Ceres {actor} {settings} animation, instruction selector {selector}");
-            AssertEqual((ushort)1, place.AnimationClock.Hold.RawValue,
+            AssertEqual((ushort)1, place.AnimationClock.Hold,
                 $"production Ceres {actor} {settings} instruction timer");
         }
 

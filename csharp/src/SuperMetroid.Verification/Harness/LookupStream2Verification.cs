@@ -920,7 +920,7 @@ internal static class LookupStream2Verification
                 AssertEqual(NorfairPipeBugAction.Rise, state.Action, "Actual formation begins rising");
                 AssertEqual(new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(samusX < 128 ? PipeBugSegment.GametRisingLeft : PipeBugSegment.GametRisingRight), AnimationPlace.StartOfAnimation),
                     state.Playback, "Actual formation selects facing");
-                AssertEqual((ushort)(member == 0 ? 1 : member + 4), enemies.Places.InUpdateOrder[member].AnimationClock.Hold.RawValue,
+                AssertEqual((ushort)(member == 0 ? 1 : member + 4), enemies.Places.InUpdateOrder[member].AnimationClock.Hold,
                     "Only leader instruction timer resets");
             }
         }

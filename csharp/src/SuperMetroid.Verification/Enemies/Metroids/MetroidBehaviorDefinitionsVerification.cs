@@ -144,7 +144,7 @@ internal static class MetroidBehaviorDefinitionsVerification
             AssertEqual((SoundEffectId?)MetroidBehaviorDefinitions.Cry.Choose(random),
                 enemies.Audio.LatestSound,
                 $"production Metroid random cry {random}");
-            AssertEqual(16, place.AnimationClock.Hold.RawValue,
+            AssertEqual(16, place.AnimationClock.Hold,
                 $"production Metroid script timer {random}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa3e9d1), place.SpritemapPointer,
                 $"production Metroid script spritemap {random}");

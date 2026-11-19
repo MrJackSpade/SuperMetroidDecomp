@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Bull;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies.YappingMaws;
@@ -12,9 +13,9 @@ namespace SuperMetroid.Verification.Spatial;
 /// negative infinity (Mother Brain's neck, Ridley's tail), the reach rounded toward zero (Phantoon's flames, the charged
 /// beam combos) and the fine sine's coarse reading (the Bull, the Yapping Maw) each equal the raw 8.8 arithmetic they
 /// replace over every angle and every length their callers pass; and the #2453 conversions of the enemies' raw-int
-/// arithmetic, the homing pull and the aim's turn from its slope, equal it over their whole input ranges; and the #2491
+/// arithmetic, the homing pull and the aim's turn from its slope, equal it over their whole input ranges; the #2491
 /// conversions, a liquid tide's sine displacement and a displacement written as a fraction of a pixel, equal the raw
-/// arithmetic they replace.
+/// arithmetic they replace; and the #2532 Bull step equals its raw 256ths product over every angle and speed.
 /// </summary>
 internal static class TypedSineProductsVerification
 {
@@ -28,8 +29,40 @@ internal static class TypedSineProductsVerification
     internal static void VerifyTypedSineProducts()
     {
         int compared = VerifyReachRoundedDown() + VerifyReachTowardZero() + VerifyCoarseSizeOfFineSine() + VerifyHomingPull() + VerifyAimTurnSteps() +
-            VerifyTideDisplacement() + VerifyPixelFractions();
-        Console.WriteLine($"  Typed sine products: {compared} rounded-down, toward-zero and coarse fine-sine products, homing pulls, aim turns, tide displacements and pixel fractions equal the raw arithmetic they replace.");
+            VerifyTideDisplacement() + VerifyPixelFractions() + VerifyBullStep();
+        Console.WriteLine($"  Typed sine products: {compared} rounded-down, toward-zero and coarse fine-sine products, homing pulls, aim turns, tide displacements, pixel fractions and Bull steps equal the raw arithmetic they replace.");
+    }
+
+    /// <summary>
+    /// A Bull's step along an axis (#2532) equals the arithmetic it replaced for every angle and every speed from zero to the
+    /// largest a signed 8.8 speed holds: the fine sine's coarse size, its low eight bits shifted out, times the speed in
+    /// 256ths, counted in 65536ths of a pixel and reversed through <see cref="BullBackwardStep"/> where the fine sine is
+    /// negative. A negative speed is refused, as the replaced product refused it.
+    /// </summary>
+    private static int VerifyBullStep()
+    {
+        int compared = 0;
+        for (int raw = 0; raw <= byte.MaxValue; raw++)
+        {
+            var angle = new TrigonometryAngle(raw);
+            int fineSine = Trigonometry.FineSignedSine(angle);
+            int coarseSize = EightEightOracle.UnsignedWhole(Math.Abs(fineSine));
+            UnitComponent share = UnitComponent.CoarseFineSineOf(angle);
+            for (int speed = 0; speed <= short.MaxValue; speed++)
+            {
+                SignedSixteenSixteen forward = UnsignedSixteenSixteen.ProductOfTwoFiftySixths(coarseSize, speed).AsDisplacement();
+                SignedSixteenSixteen old = fineSine < 0 ? BullBackwardStep.Of(forward) : forward;
+                SignedSixteenSixteen step = BullBehavior.BullStep(share, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(speed));
+                if (step != old)
+                    throw new InvalidDataException($"Angle {raw}, speed {speed}/256: the Bull step {step.RawValue} differs from {old.RawValue}.");
+                compared++;
+            }
+            AssertThrows<ArgumentOutOfRangeException>(
+                () => BullBehavior.BullStep(share, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1)),
+                $"a Bull step at angle {raw} refuses a negative speed");
+        }
+
+        return compared;
     }
 
     /// <summary>

@@ -15,16 +15,18 @@ namespace SuperMetroid.Verification.Enemies;
 /// <summary>Checks signed cartridge trigonometry across Bull, Yapping Maw, and Shaktool consumers.</summary>
 internal static class FamilyTrigonometryVerification
 {
-    /// <summary>Compares all 256 signed sine samples and Bull's production lookup with retail words.</summary>
+    /// <summary>
+    /// Compares all 256 signed sine samples with retail words. The Bull reads them through the coarse fine sine
+    /// (<see cref="UnitComponent.CoarseFineSineOf"/>), whose step <c>TypedSineProductsVerification</c> compares with the
+    /// arithmetic it replaced over every angle and speed (#2532).
+    /// </summary>
     internal static void VerifyFineSignedSineDefinitions(CartridgeImportAddressSpace rom)
     {
-        Func<byte, int> bullSample = angle => BullBehavior.ReadBullSignedSine(new TrigonometryAngle(angle));
         for (int angle = 0; angle < 256; angle++)
         {
             int address = EnemyMathReferenceData.FineSignedSine + angle * 2;
             short original = unchecked((short)(LittleEndianBytes.Word(FineSignedSineDefinitionsRomByte(rom, address), FineSignedSineDefinitionsRomByte(rom, address + 1))));
             AssertEqual(original, Trigonometry.FineSignedSine(new TrigonometryAngle((byte)angle)), "signed 16-bit sample");
-            AssertEqual(original, bullSample((byte)angle), "Bull production sample");
         }
     }
 

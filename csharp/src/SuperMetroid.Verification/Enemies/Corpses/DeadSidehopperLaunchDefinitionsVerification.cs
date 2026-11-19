@@ -50,7 +50,7 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
                     state.Action, "Exact launch versus transformation handoff");
                 AssertEqual(new AnimationPlayback<DeadTourianSegment>(DeadTourianAnimations.StartingWith(launch ? DeadTourianSegment.SidehopperIdle : DeadTourianSegment.SidehopperCorpse), AnimationPlace.StartOfAnimation),
                     state.Playback, "Launch restarts the alive-idle animation");
-                AssertEqual(launch ? (ushort)1 : (ushort)9, place.AnimationClock.Hold.RawValue, "Launch instruction timer");
+                AssertEqual(launch ? (ushort)1 : (ushort)9, place.AnimationClock.Hold, "Launch instruction timer");
                 AssertEqual<int>(phase, state.NextHop.Position, "Launch does not advance landing-owned phase");
             }
         }

@@ -32,7 +32,7 @@ internal static class BullMovementDefinitionsVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8d885 + speed * 2)), place.SpawnSettings<BullSpawnSettings>().MaximumSpeed.InTwoHundredFiftySixthsOfPixel, "Bull compiled speed");
             AssertEqual(BullAction.MovementDelay, state.Action, "Bull initial function");
             AssertEqual(16, state.ActivationTimer, "Bull native activation delay");
-            AssertEqual(1, place.AnimationClock.Hold.RawValue, "Bull instruction timer");
+            AssertEqual(1, place.AnimationClock.Hold, "Bull instruction timer");
             AssertEqual(new AnimationPlayback<BullSegment>(BullAnimations.StartingWith(BullSegment.Idle), AnimationPlace.StartOfAnimation), state.Playback, "Bull initial animation");
         }
         AssertThrows<InvalidDataException>(() => place.SetSpawnParameter2(EnemyDefinitionId.Bull, 8), "Bull import rejects the speed selector past its table");

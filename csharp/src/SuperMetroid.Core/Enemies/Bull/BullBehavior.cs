@@ -144,27 +144,28 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Speed));
     }
 
-    /// <summary>The game's signed fine sine of a Bull's heading, whose sign says which way the Bull steps along an axis.</summary>
-    internal static int ReadBullSignedSine(TrigonometryAngle angle) =>
-        Trigonometry.FineSignedSine(angle);
-
-    /// <summary>
-    /// Moves one axis of the Bull by its speed along the sine of <paramref name="angle"/>: the fine sine's coarse size
-    /// (<see cref="Trigonometry.CoarseSizeOfFineSine"/>) taken as 256ths times the speed in 256ths of a pixel, never below
-    /// zero (<see cref="BullEnemyState.Speed"/>), a step up or left reversed as <see cref="BullBackwardStep"/> reverses it.
-    /// </summary>
+    /// <summary>Moves one axis of the Bull by its step along the sine of <paramref name="angle"/> (<see cref="BullStep"/>).</summary>
     private static FixedCoordinate AddBullComponent(
         FixedCoordinate position,
         TrigonometryAngle angle,
-        SignedEightEight speed)
-    {
-        // The sine's coarse size is below 128 and the speed at most 2880 256ths, so the step is under six pixels.
-        SignedSixteenSixteen forward = UnsignedSixteenSixteen.ProductOfTwoFiftySixths(
-            Trigonometry.CoarseSizeOfFineSine(angle), speed.InTwoHundredFiftySixthsOfPixel).AsDisplacement();
-        SignedSixteenSixteen displacement = ReadBullSignedSine(angle) < 0 ? BullBackwardStep.Of(forward) : forward;
-
+        SignedEightEight speed) =>
         // A fraction that passes a whole pixel moves the Bull one more whole pixel.
-        return position.MovedBy(displacement);
+        position.MovedBy(BullStep(UnitComponent.CoarseFineSineOf(angle), speed));
+
+    /// <summary>
+    /// How far a Bull flying at <paramref name="speed"/> steps in one update along an axis whose share of its heading is
+    /// <paramref name="share"/>, the fine sine read coarsely (<see cref="UnitComponent.CoarseFineSineOf"/>): half the share
+    /// of its speed (<see cref="BullMovementDefinitions.StepHalvings"/>) to the 65536th of a pixel, and a step up or
+    /// left reversed as <see cref="BullBackwardStep"/> reverses it (#2532).
+    /// </summary>
+    /// <param name="share">The axis's share of the Bull's heading.</param>
+    /// <param name="speed">The Bull's speed, never below zero (<see cref="BullEnemyState.Speed"/>).</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="speed"/> is negative.</exception>
+    internal static SignedSixteenSixteen BullStep(UnitComponent share, SignedEightEight speed)
+    {
+        // The share is at most 254 256ths and the speed at most 2880 256ths, so the step is under six pixels.
+        SignedSixteenSixteen forward = share.SizeTimes(speed).Halved(BullMovementDefinitions.StepHalvings).AsDisplacement();
+        return share.IsNegative ? BullBackwardStep.Of(forward) : forward;
     }
 
     /// <summary>

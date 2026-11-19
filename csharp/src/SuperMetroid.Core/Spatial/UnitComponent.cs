@@ -91,6 +91,15 @@ public readonly record struct UnitComponent
     public UnsignedSixteenSixteen SizeTimes(AngularSpeed speed) =>
         UnsignedSixteenSixteen.ProductOfTwoFiftySixths(Math.Abs(TwoFiftySixths), speed.Magnitude.FractionsOfStep);
 
+    /// <summary>
+    /// The speed at which a point moving at <paramref name="speed"/> along the direction moves along the axis (#2532): the
+    /// component's size times the speed, every fraction kept.
+    /// </summary>
+    /// <param name="speed">The speed along the direction, in pixels an update, zero or more.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="speed"/> is negative.</exception>
+    public UnsignedSixteenSixteen SizeTimes(SignedEightEight speed) =>
+        UnsignedSixteenSixteen.ProductOfTwoFiftySixths(Math.Abs(TwoFiftySixths), speed.InTwoHundredFiftySixthsOfPixel);
+
     /// <inheritdoc />
     public override string ToString() => $"{TwoFiftySixths}/256";
 }

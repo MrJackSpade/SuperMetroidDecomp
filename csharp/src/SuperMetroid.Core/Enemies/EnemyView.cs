@@ -25,9 +25,14 @@ internal static class EnemyView
         !CoordinateAxis.Precedes(point.Y + margin, camera.Y) &&
         !CoordinateAxis.Precedes(camera.Y + Extent + margin, point.Y);
 
-    /// <summary>Whether <paramref name="point"/> lies in the view, its right and bottom edges excluded.</summary>
+    /// <summary>
+    /// Whether <paramref name="point"/> lies in the view, its right and bottom edges excluded: no further left or up than
+    /// the camera and less than <see cref="Extent"/> pixels right of and below it. The camera lies inside its room, at most
+    /// 12575 pixels along either axis (#2441), so a point the view holds is never one the room's axis carries past its
+    /// end (#2532).
+    /// </summary>
     internal static bool ContainsBeforeFarEdges(Position16<RoomPixels> point, Position16<RoomPixels> camera) =>
-        CoordinateAxis.Wrap(point.X - camera.X) < Extent && CoordinateAxis.Wrap(point.Y - camera.Y) < Extent;
+        point.X - camera.X is >= 0 and < Extent && point.Y - camera.Y is >= 0 and < Extent;
 
     /// <summary>Deletes <paramref name="projectile"/> once it lies outside the view, its right and bottom edges included in it.</summary>
     internal static void DeleteOutside(EnemyProjectile projectile, Position16<RoomPixels> camera)

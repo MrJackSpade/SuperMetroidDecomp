@@ -45,7 +45,7 @@ internal static class RoomEffectActorAccess
         /// <summary>The native timer word while the object counts down; a holding object counts none.</summary>
         internal ushort FrameHold => self.AnimationClock.IsStopped
             ? throw new InvalidOperationException($"Sprite object {self.Kind} holds its frame and counts no timer.")
-            : checked((ushort)self.AnimationClock.Hold.RemainingFrames);
+            : checked((ushort)self.AnimationClock.Hold);
 
         /// <summary>The bank-$B4 spritemap the object shows, or zero once it has ended.</summary>
         internal ushort SpritemapPointer => self.IsActive ? RoomEffectActorVisualDefinitionsConstants.Spritemap(self.Frame) : (ushort)0;

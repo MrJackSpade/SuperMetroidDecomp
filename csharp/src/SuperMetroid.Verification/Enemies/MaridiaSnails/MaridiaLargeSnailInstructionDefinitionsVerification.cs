@@ -35,7 +35,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
             MaridiaLargeSnailBehavior.StartMaridiaLargeSnailAnimation(place, state, animation);
             AssertTrue(ReferenceEquals(MaridiaLargeSnailAnimations.StartingWith(program), state.Playback.Animation) &&
                 state.Playback.Place == AnimationPlace.StartOfAnimation, $"Oum installed animation {animationIndex}");
-            AssertEqual((ushort)1, place.AnimationClock.Hold.RawValue, $"Oum instruction timer {animationIndex}");
+            AssertEqual((ushort)1, place.AnimationClock.Hold, $"Oum instruction timer {animationIndex}");
         }
         AssertThrows<InvalidDataException>(() => MaridiaSnailsNativeWords.MaridiaLargeSnailAnimations.Decode(8, "Oum animation index"), "Oum selector past table");
 
@@ -113,13 +113,13 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
         place.AnimationClock.HoldFor(0x1234);
         MaridiaLargeSnailBehavior.StartMaridiaLargeSnailAnimation(place, state, MaridiaLargeSnailSegment.FacingRightIdle);
         AssertEqual(spawned, state.Playback, "the spawned Oum keeps its left-facing pose for the right-facing idle it counts as");
-        AssertEqual((ushort)0x1234, place.AnimationClock.Hold.RawValue, "the spawned Oum's frame timer runs on for the right-facing idle");
+        AssertEqual((ushort)0x1234, place.AnimationClock.Hold, "the spawned Oum's frame timer runs on for the right-facing idle");
         MaridiaLargeSnailBehavior.StartMaridiaLargeSnailAnimation(place, state, MaridiaLargeSnailSegment.FacingLeftIdle);
         AssertEqual(spawned, state.Playback, "asking the spawned Oum for its left-facing idle starts that idle");
-        AssertEqual((ushort)1, place.AnimationClock.Hold.RawValue, "asking the spawned Oum for its left-facing idle starts it afresh");
+        AssertEqual((ushort)1, place.AnimationClock.Hold, "asking the spawned Oum for its left-facing idle starts it afresh");
         place.AnimationClock.HoldFor(0x1234);
         MaridiaLargeSnailBehavior.StartMaridiaLargeSnailAnimation(place, state, MaridiaLargeSnailSegment.FacingLeftIdle);
-        AssertEqual((ushort)0x1234, place.AnimationClock.Hold.RawValue, "the started left-facing idle asked for again runs on");
+        AssertEqual((ushort)0x1234, place.AnimationClock.Hold, "the started left-facing idle asked for again runs on");
     }
 
     /// <summary>An Oum after its real initializer.</summary>

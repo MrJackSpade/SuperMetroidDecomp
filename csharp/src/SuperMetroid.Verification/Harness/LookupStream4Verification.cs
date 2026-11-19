@@ -2288,7 +2288,7 @@ internal static class LookupStream4Verification
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | (cursor + 6)), advance(state), "Actual palette instruction selects matching native pose");
                 AssertEqual(new AnimationPlayback<CeresBabySegment>(CeresBabyAnimations.StartingWith(CeresBabySegment.ExpressiveLoop), new AnimationPlace(0, 3 + 2 * phase)), state.Baby.Playback, "Palette instruction runs on to its pose");
                 // The pose record the palette instruction runs on to holds its duration, then its picture (#2228).
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | (cursor + 4)), state.Baby.Clock.Hold.RawValue, "The new pose holds on the Baby's own clock for its native duration");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | (cursor + 4)), state.Baby.Clock.Hold, "The new pose holds on the Baby's own clock for its native duration");
                 ushort[] shown = RidleyLaidColours.Of(state, babySprites, [], 0);
                 for (int color = 0; color < 15; color++)
                     AssertEqual(Native(row, color), shown[177 + color], "Actual pose-selected palette");

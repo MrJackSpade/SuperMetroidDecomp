@@ -72,7 +72,7 @@ internal static class CrocomireFirstMeltHeightVerification
             fixture.Enemies.CrocomireBehavior.RunCrocomireMain(body, samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), camera);
             AssertEqual(CrocomireBodyAnimations.StartingWith(animation), state.BodyPlayback.Animation, $"{at}: animation");
             AssertEqual(AnimationPlace.StartOfAnimation, state.BodyPlayback.Place, $"{at}: the animation starts afresh");
-            AssertEqual(WrappingCountdown.Start(1), body.AnimationClock.Hold, $"{at}: its first picture is due this update");
+            AssertEqual(1, body.AnimationClock.Hold, $"{at}: its first picture is due this update");
 
             fixture.Enemies.CrocomireBehavior.Fight.AdvanceCrocomireBodyAnimation(body, samus, level, camera.X);
             AssertEqual((EnemyFrameId?)frame, body.Frame, $"{at}: picture");

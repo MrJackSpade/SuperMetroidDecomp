@@ -116,7 +116,7 @@ internal static class PhantoonAnimationsVerification
         AssertEqual(PhantoonPartSegment.EyeHitboxBody, PartProgram(enemies, state.Body), "the opened eye installs the eye-only body hitbox");
         AssertEqual(PhantoonPartSegment.EyeOpen, PartProgram(enemies, eye), "the list's sleep keeps the eye on its opened program");
         AssertEqual(PhantoonPartFramesConstants.Spritemap(EnemyFrameId.PhantoonEyeballCentered), eye.SpritemapPointer, "the opened eye keeps its last frame");
-        AssertEqual((ushort)1, eye.AnimationClock.Hold.RawValue, "the callback's one-update timer survives the sleep");
+        AssertEqual((ushort)1, eye.AnimationClock.Hold, "the callback's one-update timer survives the sleep");
     }
 
     /// <summary>The eye's three opening frames, in the order the eyelid opens.</summary>

@@ -161,8 +161,9 @@ internal sealed class DraygonParts
                 part.AnimationClock.Stop();
                 return;
             case AnimationShown<DraygonSegment, EnemyFrameId>.Ended:
-                // The end deletes the part; its animation stays where it stood.
+                // The end deletes the part; its animation stays where it stood and takes no further step (#2532).
                 part.Presence = part.Presence.With(EnemyPresence.Deleted);
+                part.AnimationClock.Stop();
                 return;
             default:
                 throw new InvalidOperationException($"Undefined animation outcome {shown}.");

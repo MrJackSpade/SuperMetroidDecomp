@@ -37,7 +37,7 @@ internal static class WaverAnimationDefinitionsVerification
             AssertEqual(new AnimationPlayback<WaverSegment>(WaverAnimations.StartingWith(selector), AnimationPlace.StartOfAnimation),
                 state.Playback,
                 $"production Waver animation {selector}");
-            AssertEqual(1, place.AnimationClock.Hold.RawValue,
+            AssertEqual(1, place.AnimationClock.Hold,
                 $"production Waver instruction timer {selector}");
         }
 

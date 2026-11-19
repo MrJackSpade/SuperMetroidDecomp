@@ -14,6 +14,13 @@ public static class BullMovementDefinitions
     /// <summary>The speed an immune shot kicks the Bull away at: six pixels an update.</summary>
     internal static readonly SignedEightEight ShotKickSpeed = SignedEightEight.FromPixels(6);
 
+    /// <summary>
+    /// The halvings that take a Bull's step along an axis from its speed's share along that axis (#2532): one. The Bull's
+    /// flight scales its speed by the fine sine's coarse reading, 128ths of the whole, counted as 256ths, so a Bull covers
+    /// half its speed along its heading in each update.
+    /// </summary>
+    internal const int StepHalvings = 1;
+
     /// <summary>How long a Bull waits before it retargets Samus, in updates.</summary>
     internal const int MovementDelay = 16;
 

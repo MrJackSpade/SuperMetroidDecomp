@@ -71,7 +71,7 @@ internal static class RidleyBreakupProgramsVerification
             fragment.AnimationClock.StepOnNextUpdate();
             process(fragment, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);
             AssertEqual(expectedPointer, fragment.SpritemapPointer, "breakup selects native sprite");
-            AssertEqual((ushort)RidleyBreakupFrameDefinitions.PictureShowingUpdates, fragment.AnimationClock.Hold.RawValue,
+            AssertEqual((ushort)RidleyBreakupFrameDefinitions.PictureShowingUpdates, fragment.AnimationClock.Hold,
                 "breakup holds its picture's native frame duration before it sleeps");
             process(fragment, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);
             AssertTrue(fragment.AnimationClock.IsStopped, "breakup sleeps on its picture, its clock stopped");

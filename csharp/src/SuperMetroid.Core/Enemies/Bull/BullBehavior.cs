@@ -204,7 +204,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             AfterCommon = c =>
             {
-                if (c.Enemy.Health == c.HealthBefore)
+                if (c.Enemy.Health == c.HealthBeforeHit)
                     ResolveBullImmuneShot(c.Enemy, c.Enemy.RequireSpeciesState<BullEnemyState>(), BullMovementDefinitions.BombKickAngle);
             },
         };
@@ -218,7 +218,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             AfterCommon = c =>
             {
-                if (c.Froze || c.Enemy.Health == c.HealthBefore)
+                if (c.Froze || c.Enemy.Health == c.HealthBeforeHit)
                     ResolveBullImmuneShot(c.Enemy, c.Enemy.RequireSpeciesState<BullEnemyState>(), BullMotion.ShotAngle(c.ProjectileDirection));
             },
         };

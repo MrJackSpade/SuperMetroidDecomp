@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="UsesFrameHitboxes">Whether the overlap came from the enemy's authored extended hitboxes.</param>
 /// <param name="HitboxShot">The named shot reaction of the overlapping hitbox, if named.</param>
 /// <param name="Camera">The camera's position as the shot pass runs.</param>
-/// <param name="HealthBefore">Enemy health after impact and before vulnerability damage (set for the later stages).</param>
+/// <param name="HealthBefore">Enemy health after impact and before vulnerability damage, set for the later stages; none before them.</param>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal readonly record struct EnemyShotContext(
     RoomEnemyPlace Enemy,
@@ -31,8 +31,12 @@ internal readonly record struct EnemyShotContext(
     bool UsesFrameHitboxes,
     EnemyReaction? HitboxShot,
     Position16<RoomPixels> Camera,
-    int HealthBefore = 0)
+    int? HealthBefore = null)
 {
+    /// <summary>Enemy health after impact and before vulnerability damage, which the later stages read.</summary>
+    /// <exception cref="InvalidOperationException">A stage before the later stages reads it.</exception>
+    internal int HealthBeforeHit => HealthBefore ?? throw new InvalidOperationException("A shot's health before the hit is set for the later stages.");
+
     /// <summary>Whether the common shot reaction froze the enemy at once; set for <see cref="EnemyShotReaction.AfterCommon"/>.</summary>
     internal bool Froze { get; init; }
 

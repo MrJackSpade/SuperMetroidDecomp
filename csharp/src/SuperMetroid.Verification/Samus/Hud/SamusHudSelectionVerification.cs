@@ -3,6 +3,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Hud;
+using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Verification.Samus.Hud;
 

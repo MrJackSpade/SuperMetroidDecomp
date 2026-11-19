@@ -641,7 +641,7 @@ internal static class NativeEnemyFamilyStateImport
             // The cartridge counts both in walk steps left: the walk turns on the step its count reaches zero, and the spit
             // count stops at zero.
             fakeKraidRecord.WalkTurnWait.SetCartridgeCount(words.D - 1);
-            fakeKraidRecord.SpitWait.SetUpdatesLeft((int)words.E);
+            fakeKraidRecord.SpitWait.SetUpdatesLeft(words.E);
         }
         if (enemy.SpeciesState<MaridiaLargeSnailEnemyState>() is { } maridiaLargeSnailRecord)
         {
@@ -1275,7 +1275,7 @@ internal static class NativeEnemyFamilyStateImport
             case KraidBodyState body:
             {
                 // The cartridge holds the head's pose while its count is above zero, and holds at zero.
-                body.Kraid.HeadHold.SetUpdatesLeft((int)words.C);
+                body.Kraid.HeadHold.SetUpdatesLeft(words.C);
                 bool deathWait = KraidNativeWords.DeathWaitUpdatesLeft.TryGetValue(words.A, out int deathWaitLeft);
                 if (deathWait)
                     body.DeathPhase = KraidDeathPhase.WaitBeforeFadeIn;

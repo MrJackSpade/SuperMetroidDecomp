@@ -470,7 +470,7 @@ internal static void VerifyIntroCrossfade()
     // A crossfade takes a step every fourth update, counted down to its last.
     static void StepOnce(IntroCrossfade running)
     {
-        for (int update = 0; update < IntroCinematicDefinitions.Crossfade.StepFrames; update++)
+        for (int update = 0; update < IntroCinematicDefinitionsCrossfadeConstants.StepFrames; update++)
             _ = running.Advance();
     }
 }

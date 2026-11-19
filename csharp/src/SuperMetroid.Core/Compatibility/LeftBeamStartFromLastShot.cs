@@ -45,7 +45,7 @@ public sealed class LeftBeamStartFromLastShot
     public void TakeOverFrom(RoomHandOver handOver)
     {
         Ensure.NotNull(handOver);
-        for (int place = 0; place < _kept.Length; place++)
+        for (int place = 0; place < kept.Length; place++)
             Keep(place, handOver.ShotHorizontalFraction(place));
     }
 
@@ -62,9 +62,9 @@ public sealed class LeftBeamStartFromLastShot
     {
         Ensure.NotNull(handOver);
         Ensure.NotNull(heldFractions);
-        if (heldFractions.Count != _kept.Length)
-            throw new ArgumentException($"Samus has {_kept.Length} shot places, not {heldFractions.Count}.", nameof(heldFractions));
-        handOver.LeaveShots(Enumerable.Range(0, _kept.Length).Select(place => heldFractions[place] ?? _kept[place]));
+        if (heldFractions.Count != kept.Length)
+            throw new ArgumentException($"Samus has {kept.Length} shot places, not {heldFractions.Count}.", nameof(heldFractions));
+        handOver.LeaveShots(Enumerable.Range(0, kept.Length).Select(place => heldFractions[place] ?? kept[place]));
     }
 
     /// <summary>The horizontal fraction of a pixel <paramref name="place"/> keeps for its next projectile.</summary>

@@ -154,6 +154,20 @@ internal static class EnemyMath
     internal static bool SineIsNegative(TrigonometryAngle angle) => angle.TurnedBy(TrigonometryAngle.HalfTurn).IsInSecondHalf;
 
     /// <summary>
+    /// The velocity of <paramref name="wholePixels"/> whole pixels per update along <paramref name="angle"/> (#2539), angle
+    /// zero pointing right and a quarter turn on pointing up: the speed along each axis of the angle's share across and
+    /// down (<see cref="FineUnitComponent"/>). Each component is the share of the speed rounded down and then given its
+    /// direction, so it rounds toward zero: a component pointing left or up is exactly the reverse of the same component
+    /// pointing right or down.
+    /// </summary>
+    /// <param name="angle">The direction of the velocity.</param>
+    /// <param name="wholePixels">The speed along the direction in whole pixels per update, zero or more.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="wholePixels"/> is negative.</exception>
+    internal static FixedVector<RoomPixels> VelocityAlong(TrigonometryAngle angle, int wholePixels) => new(
+        FineUnitComponent.AcrossOf(angle).SpeedAt(wholePixels),
+        FineUnitComponent.DownOf(angle).SpeedAt(wholePixels));
+
+    /// <summary>
     /// The velocity of <paramref name="wholePixels"/> whole pixels per update, none or more, along <paramref name="angle"/>'s
     /// sine: the signed sine, which peaks at one pixel per update, times the whole speed. The product of a whole speed
     /// loses nothing, so it is the sine scaled exactly; the behaviours that read the sine itself as a velocity take one

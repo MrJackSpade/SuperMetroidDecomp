@@ -1,11 +1,8 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>The motion profile of each piece of Crocomire's falling spike wall, by its place from the top piece.</summary>
+/// <summary>The pieces of Crocomire's falling spike wall and how they fall.</summary>
 internal static class CrocomireSpikeMotionDefinitions
 {
-    /// <summary>The pieces the wall breaks into, the top piece first.</summary>
-    internal const int PieceCount = 8;
-
     /// <summary>The row a falling piece lands on and crumbles, inclusive (#2182).</summary>
     internal const int LandingY = 168;
 
@@ -13,30 +10,33 @@ internal static class CrocomireSpikeMotionDefinitions
     internal static readonly SignedSixteenSixteen PieceGravity = SignedSixteenSixteen.FromSixteenthsOfPixel(3);
 
     /// <summary>
-    /// How much each piece's sideways acceleration grows each update, in pixels per update per update, by its place from
-    /// the top (#2181): a ramp rising by the same step from the bottom piece up, the top piece's held just below a
-    /// sixteenth of a pixel instead of taking the ramp's next step.
-    /// </summary>
-    internal static readonly SignedSixteenSixteen[] AccelerationDeltas =
-    [
-        SignedSixteenSixteen.FromParts(0, 4080), SignedSixteenSixteen.FromParts(0, 3808),
-        SignedSixteenSixteen.FromParts(0, 3264), SignedSixteenSixteen.FromParts(0, 2720),
-        SignedSixteenSixteen.FromParts(0, 2176), SignedSixteenSixteen.FromParts(0, 1632),
-        SignedSixteenSixteen.FromParts(0, 1088), SignedSixteenSixteen.FromParts(0, 544),
-    ];
-
-    /// <summary>
-    /// Each piece's acceleration limit is this many times its acceleration's growth. The top piece's held growth keeps the
-    /// largest limit just under a pixel per update per update.
+    /// Each piece's greatest sideways acceleration is this many times its acceleration's growth. The top piece's held
+    /// growth keeps the largest just under a pixel per update per update.
     /// </summary>
     internal const int MaximumAccelerationPerIncrement = 16;
 
     /// <summary>
-    /// The fastest whole-pixel horizontal speed, in pixels per frame, of each piece from the top: the top four
-    /// pieces descend one unit a piece from six, the bottom four one unit a pair.
+    /// The step by which the pieces' acceleration growth rises from one piece to the piece above it, from the bottom piece,
+    /// which grows by one step (#2181).
     /// </summary>
-    internal static readonly int[] MaximumVelocities =
+    private static readonly SignedSixteenSixteen GrowthStep = SignedSixteenSixteen.FromPixelFraction(17, 2048);
+
+    /// <summary>
+    /// The wall's eight pieces, the top piece first, each a spacing of a block below the piece above it (#2539). Their
+    /// acceleration growth ramps by <see cref="GrowthStep"/> from the bottom piece up, the top piece's held just below a
+    /// sixteenth of a pixel instead of taking the ramp's next step; their fastest speeds descend one pixel a piece from six
+    /// for the top four and one a pair for the bottom four; and every other piece, the top piece first, crumbles audibly as
+    /// it lands, so the wall's landings queue four crumbles.
+    /// </summary>
+    internal static IReadOnlyList<CrocomireSpikeWallPiece> Pieces { get; } =
     [
-        6, 5, 4, 3, 2, 2, 1, 1,
+        new(SignedSixteenSixteen.FromPixelFraction(255, 4096), FastestSpeed: 6, Depth: 0, CrumbleSound: CrocomireSoundDefinitions.Crumble),
+        new(GrowthStep * 7, FastestSpeed: 5, Depth: 16, CrumbleSound: null),
+        new(GrowthStep * 6, FastestSpeed: 4, Depth: 32, CrumbleSound: CrocomireSoundDefinitions.Crumble),
+        new(GrowthStep * 5, FastestSpeed: 3, Depth: 48, CrumbleSound: null),
+        new(GrowthStep * 4, FastestSpeed: 2, Depth: 64, CrumbleSound: CrocomireSoundDefinitions.Crumble),
+        new(GrowthStep * 3, FastestSpeed: 2, Depth: 80, CrumbleSound: null),
+        new(GrowthStep * 2, FastestSpeed: 1, Depth: 96, CrumbleSound: CrocomireSoundDefinitions.Crumble),
+        new(GrowthStep * 1, FastestSpeed: 1, Depth: 112, CrumbleSound: null),
     ];
 }

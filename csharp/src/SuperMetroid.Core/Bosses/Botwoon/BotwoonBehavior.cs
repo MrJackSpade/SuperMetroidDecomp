@@ -275,7 +275,8 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
 
         if (state.InsideHole == state.PreviousInsideHole)
         {
-            AddBotwoonAngleVector(head, state.MovementAngle.ToTrigonometryAngle(), state.SpeedStage.MovementSpeed);
+            head.Position = head.Position.Advance(
+                EnemyMath.VelocityAlong(state.MovementAngle.ToTrigonometryAngle(), state.SpeedStage.MovementSpeed));
         }
         else
         {
@@ -717,18 +718,6 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         // The dying head becomes intangible: it leaves the
         // projectile, bomb and touch passes, so a later hit cannot interrupt its fall.
         head.Contact = head.Contact.With(EnemyContact.IgnoresSamus);
-    }
-
-    /// <summary>Moves the head by <paramref name="magnitude"/> along <paramref name="angle"/>.</summary>
-    private static void AddBotwoonAngleVector(
-        RoomEnemyPlace head,
-        TrigonometryAngle angle,
-        int magnitude)
-    {
-        SignedSixteenSixteen xMagnitude = EnemyMath.AbsoluteCosineSpeed(angle, magnitude).AsDisplacement();
-        SignedSixteenSixteen yMagnitude = EnemyMath.AbsoluteSineSpeed(angle, magnitude).AsDisplacement();
-        head.Position = head.Position.AdvanceX(EnemyMath.CosineIsNegative(angle) ? -xMagnitude : xMagnitude);
-        head.Position = head.Position.AdvanceY(EnemyMath.SineIsNegative(angle) ? -yMagnitude : yMagnitude);
     }
 
     /// <summary>Routes bomb hits through the shared shot reaction without generic death animation.</summary>

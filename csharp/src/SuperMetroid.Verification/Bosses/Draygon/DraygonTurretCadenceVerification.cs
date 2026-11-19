@@ -57,7 +57,7 @@ internal static class DraygonTurretCadenceVerification
             EnemyProjectile goop = runtime.Enemies.Projectiles.EnemyProjectiles.Last(p =>
                 p.Kind == RoomEnemyProjectileKind.DraygonGoop);
             AngledFlightState flight = goop.StateOf<AngledFlightState>();
-            var velocity = new SpawnGoopResult(flight.Heading, flight.HorizontalSpeed, flight.VerticalSpeed);
+            var velocity = new SpawnGoopResult(flight.Heading, flight.Velocity);
             goop.Delete();
             return velocity;
         }
@@ -65,8 +65,8 @@ internal static class DraygonTurretCadenceVerification
         runtime.Enemies.DraygonBehavior.Turrets.SpawnDraygonWallTurret(runtime.Player.IntroducedSamus, 0);
         var afterTurret = SpawnGoop();
         AssertEqual(beforeTurret, afterTurret, "goop speed does not inherit a turret's parameter");
-        AssertEqual(EnemyMath.AbsoluteCosineSpeed(afterTurret.Heading, DraygonProjectileSpeeds.Goop), afterTurret.HorizontalSpeed,
-            "goop horizontal speed is speed two");
+        AssertEqual(EnemyMath.VelocityAlong(afterTurret.Heading, DraygonProjectileSpeeds.Goop), afterTurret.Velocity,
+            "goop velocity is speed two along its heading");
 
         // #1269: $86:8E0F starts with $86:8D5C. Inside the power-bomb ellipse the goop loses
         // its ID and Samus's SlowdownLevel clears, but the routine still moves the slot.

@@ -1,10 +1,14 @@
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Bull;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Spatial;
 
@@ -15,7 +19,9 @@ namespace SuperMetroid.Verification.Spatial;
 /// replace over every angle and every length their callers pass; and the #2453 conversions of the enemies' raw-int
 /// arithmetic, the homing pull and the aim's turn from its slope, equal it over their whole input ranges; the #2491
 /// conversions, a liquid tide's sine displacement and a displacement written as a fraction of a pixel, equal the raw
-/// arithmetic they replace; and the #2532 Bull step equals its raw 256ths product over every angle and speed.
+/// arithmetic they replace; the #2532 Bull step equals its raw 256ths product over every angle and speed; and the #2539
+/// velocity along an angle, the bosses' sine velocities and a speed written as a fraction of a pixel equal the
+/// hand-written arithmetic they replace.
 /// </summary>
 internal static class TypedSineProductsVerification
 {
@@ -29,8 +35,132 @@ internal static class TypedSineProductsVerification
     internal static void VerifyTypedSineProducts()
     {
         int compared = VerifyReachRoundedDown() + VerifyReachTowardZero() + VerifyCoarseSizeOfFineSine() + VerifyHomingPull() + VerifyAimTurnSteps() +
-            VerifyTideDisplacement() + VerifyPixelFractions() + VerifyBullStep();
-        Console.WriteLine($"  Typed sine products: {compared} rounded-down, toward-zero and coarse fine-sine products, homing pulls, aim turns, tide displacements, pixel fractions and Bull steps equal the raw arithmetic they replace.");
+            VerifyTideDisplacement() + VerifyPixelFractions() + VerifyBullStep() + VerifyVelocityAlong() + VerifyBossSineVelocities() +
+            VerifyUnsignedPixelFractions();
+        Console.WriteLine($"  Typed sine products: {compared} rounded-down, toward-zero and coarse fine-sine products, homing pulls, aim turns, tide displacements, pixel fractions, Bull steps, velocities along an angle and boss sine velocities equal the raw arithmetic they replace.");
+    }
+
+    /// <summary>The slowest speed compared along an angle: none.</summary>
+    private const int SlowestAngledSpeed = 0;
+
+    /// <summary>The fastest speed compared along an angle: the most whole pixels a signed displacement holds.</summary>
+    private const int FastestAngledSpeed = short.MaxValue;
+
+    /// <summary>The speeds the velocity along an angle is read at for every angle, past its axes' whole-range sweep.</summary>
+    private static readonly int[] SampledAngledSpeeds = [0, 1, 2, 3, 4, 5, 8, 16, 127, 128, 255, 256, 4095, FastestAngledSpeed];
+
+    /// <summary>
+    /// The velocity along an angle (#2539) equals each hand-written arithmetic it replaces. Each axis's share of every angle
+    /// (<see cref="FineUnitComponent"/>), at every whole-pixel speed from none to the most a signed displacement holds, equals
+    /// the unsigned half-wave a quarter turn (across) or a half turn (down) ahead times the speed, negated where that turned
+    /// angle lies in the turn's second half, as Botwoon's head, Spore Spawn's death drift and the Sbug's forward leg signed
+    /// it; moves a coordinate as the same magnitude moved back or forward by the quadrant, as Draygon's angled move and the
+    /// angled projectiles moved; and reversed equals the magnitude signed the other way, as the burial Evirs' drift took it.
+    /// The velocity along every angle is those two shares' speeds at every speed sampled; the launched angled flight and the
+    /// six burial Evirs' drifts read it at their sites; and a negative speed is refused, as the replaced products refused it.
+    /// </summary>
+    private static int VerifyVelocityAlong()
+    {
+        var start = FixedCoordinate.Of(512, 32769);
+        ParallelSweep.For(0, byte.MaxValue + 1, raw =>
+        {
+            var angle = new TrigonometryAngle(raw);
+            foreach ((FineUnitComponent share, TrigonometryAngle turned, string axis) in new (FineUnitComponent, TrigonometryAngle, string)[]
+                     {
+                         (FineUnitComponent.AcrossOf(angle), angle.TurnedBy(TrigonometryAngle.QuarterTurn), "across"),
+                         (FineUnitComponent.DownOf(angle), angle.TurnedBy(TrigonometryAngle.HalfTurn), "down"),
+                     })
+            {
+                bool back = turned.IsInSecondHalf;
+                int halfWave = Trigonometry.UnsignedHalfWave(turned.StepsIntoHalfTurn);
+                for (int speed = SlowestAngledSpeed; speed <= FastestAngledSpeed; speed++)
+                {
+                    UnsignedSixteenSixteen magnitude = UnsignedSixteenSixteen.ShareOfWholePixels(speed, halfWave);
+                    SignedSixteenSixteen signed = back ? -magnitude.AsDisplacement() : magnitude.AsDisplacement();
+                    SignedSixteenSixteen actual = share.SpeedAt(speed);
+                    if (actual != signed)
+                        throw new InvalidDataException($"Angle {raw}, speed {speed}: the speed {axis} {actual.RawValue} differs from the signed magnitude {signed.RawValue}.");
+                    if (start.MovedBy(actual) != (back ? start.MovedBack(magnitude) : start.MovedForward(magnitude)))
+                        throw new InvalidDataException($"Angle {raw}, speed {speed}: the speed {axis} moves a coordinate other than the quadrant's move back or forward.");
+                    if (-actual != (back ? magnitude.AsDisplacement() : -magnitude.AsDisplacement()))
+                        throw new InvalidDataException($"Angle {raw}, speed {speed}: the reversed speed {axis} differs from the magnitude signed the other way.");
+                }
+                AssertThrows<ArgumentOutOfRangeException>(() => share.SpeedAt(-1), $"the speed {axis} along angle {raw} refuses a negative speed");
+            }
+
+            foreach (int speed in SampledAngledSpeeds)
+            {
+                FixedVector<RoomPixels> expected = new(FineUnitComponent.AcrossOf(angle).SpeedAt(speed), FineUnitComponent.DownOf(angle).SpeedAt(speed));
+                if (EnemyMath.VelocityAlong(angle, speed) != expected)
+                    throw new InvalidDataException($"Angle {raw}, speed {speed}: the velocity along it differs from its shares' speeds.");
+            }
+            AssertThrows<ArgumentOutOfRangeException>(() => EnemyMath.VelocityAlong(angle, -1), $"a velocity along angle {raw} refuses a negative speed");
+            if (AngledFlightState.Launch(angle, DraygonProjectileSpeeds.Goop).Velocity != EnemyMath.VelocityAlong(angle, DraygonProjectileSpeeds.Goop))
+                throw new InvalidDataException($"Angle {raw}: a launched angled flight's velocity differs from the speed along its heading.");
+        });
+        foreach (DraygonBurialEvirDefinition evir in DraygonBurialEvirDefinitions.InSpawnOrder)
+        {
+            SignedSixteenSixteen across = EnemyMath.AbsoluteCosineSpeed(evir.Heading, 1).AsDisplacement();
+            SignedSixteenSixteen down = EnemyMath.AbsoluteSineSpeed(evir.Heading, 1).AsDisplacement();
+            var old = new FixedVector<RoomPixels>(EnemyMath.CosineIsNegative(evir.Heading) ? across : -across,
+                EnemyMath.SineIsNegative(evir.Heading) ? down : -down);
+            AssertEqual(old, DraygonDeath.BurialDrift(evir), $"the burial Evir heading {evir.Heading.RawValue} drifts back along it");
+        }
+
+        return (byte.MaxValue + 1) * (2 * (FastestAngledSpeed - SlowestAngledSpeed + 1) + SampledAngledSpeeds.Length);
+    }
+
+    /// <summary>
+    /// The bosses' sine velocities (#2539) equal the raw products they replace at every angle: Crocomire's volley shot, its
+    /// signed sine and negative cosine each four times in 256ths of a pixel, and Mother Brain's glass shard, its sine once
+    /// and its negative cosine four times.
+    /// </summary>
+    private static int VerifyBossSineVelocities()
+    {
+        int compared = 0;
+        for (int raw = 0; raw <= byte.MaxValue; raw++)
+        {
+            Bearing bearing = Bearing.Up.TurnedBySteps(raw);
+            TrigonometryAngle heading = bearing.ToMirroredTrigonometryAngle();
+            var volley = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(
+                Trigonometry.SignedSine(heading) * 4, Trigonometry.SignedSine(heading - TrigonometryAngle.QuarterTurn) * 4);
+            AssertEqual(volley, CrocomireCombat.CalculateCrocomireProjectileVelocity(bearing), $"Crocomire's volley velocity at bearing {raw}");
+
+            var angle = new TrigonometryAngle(raw);
+            AssertEqual(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(Trigonometry.SignedSine(angle)),
+                EnemyMath.SineVelocity(angle, MotherBrainGlassShardDefinitions.LaunchAcrossSpeed), $"a glass shard's sideways launch at angle {raw}");
+            AssertEqual(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(4 * Trigonometry.SignedSine(angle - TrigonometryAngle.QuarterTurn)),
+                EnemyMath.SineVelocity(angle - TrigonometryAngle.QuarterTurn, MotherBrainGlassShardDefinitions.LaunchDownSpeed),
+                $"a glass shard's vertical launch at angle {raw}");
+            compared += 3;
+        }
+
+        return compared;
+    }
+
+    /// <summary>
+    /// A speed written as a fraction of a pixel (#2539) equals the fractional word it replaces for every power-of-two
+    /// denominator and the numerators the catalogs pass, and a negative numerator or a denominator that is no power of two
+    /// fails.
+    /// </summary>
+    private static int VerifyUnsignedPixelFractions()
+    {
+        int compared = 0;
+        for (int denominator = 1; denominator <= 65536; denominator *= 2)
+        {
+            foreach (int numerator in (int[])[0, 1, 3, 7])
+            {
+                UnsignedSixteenSixteen expected = UnsignedSixteenSixteen.FromRaw((uint)(numerator * (65536 / denominator)));
+                if (UnsignedSixteenSixteen.FromPixelFraction(numerator, denominator) != expected)
+                    throw new InvalidDataException($"{numerator}/{denominator} of a pixel differs from {expected.RawValue} 65536ths.");
+                compared++;
+            }
+        }
+        AssertEqual(new UnsignedSixteenSixteen(0, 384), UnsignedSixteenSixteen.FromPixelFraction(3, 512), "Crocomire's distortion slope growth");
+        AssertThrows<ArgumentOutOfRangeException>(() => UnsignedSixteenSixteen.FromPixelFraction(1, 3),
+            "a third of a pixel, which no 65536ths hold exactly, is rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => UnsignedSixteenSixteen.FromPixelFraction(-1, 2), "a negative speed is rejected");
+        return compared + 1;
     }
 
     /// <summary>

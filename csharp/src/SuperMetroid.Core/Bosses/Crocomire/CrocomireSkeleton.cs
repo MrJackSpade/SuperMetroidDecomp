@@ -269,14 +269,14 @@ internal sealed class CrocomireSkeleton
 
     /// <summary>
     /// Spawns the wall's pieces, bottom piece first, and runs the spike-wall piece setup on each. Each piece carries
-    /// its place in the wall, zero for the top piece, and stands that many spacings below the wall's top, so the spawn
-    /// order runs from the bottom piece up. The melt empties the enemy projectiles just before, so every piece is spawned.
+    /// its definition, which sets how far below the wall's top it stands. The melt empties the enemy projectiles just
+    /// before, so every piece is spawned.
     /// </summary>
     internal void SpawnCrocomireSpikeWallPieces(CrocomireEnemyState state)
     {
         SpriteGraphics graphics = SpriteGraphics.SpawnedBy(state.Body);
 
-        for (int count = 0; count < CrocomireSpikeMotionDefinitions.PieceCount; count++)
+        foreach (CrocomireSpikeWallPiece piece in CrocomireSpikeMotionDefinitions.Pieces.Reverse())
         {
             EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
             if (projectile is null)
@@ -288,9 +288,8 @@ internal sealed class CrocomireSkeleton
                 _combat.Debris,
                 graphics);
             projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileSegment.SpikeWallPiece));
-            int piece = CrocomireSpikeMotionDefinitions.PieceCount - 1 - count;
             projectile.Position = projectile.Position.WithWhole(CrocomireSkeletonDefinitions.SpikeWallTop
-                + new Offset16<RoomPixels>(0, piece * CrocomireSkeletonDefinitions.SpikeWallPieceSpacing));
+                + new Offset16<RoomPixels>(0, piece.Depth));
             projectile.Velocity = EightEightVector<RoomPixels>.Zero;
             projectile.State = new CrocomireSpikeWallPieceState(piece);
             projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);

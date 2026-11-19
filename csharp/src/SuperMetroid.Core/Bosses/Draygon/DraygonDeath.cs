@@ -162,17 +162,12 @@ internal sealed class DraygonDeath
     }
 
     /// <summary>
-    /// How far a burial Evir drifts each update: just under a pixel back along its heading toward the arc's centre, each
-    /// axis's share of it the game's integer sine of the heading (<see cref="EnemyMath.AbsoluteCosineSpeed"/>,
-    /// <see cref="EnemyMath.AbsoluteSineSpeed"/>). An Evir left of the centre drifts right, and every one drifts down.
+    /// How far a burial Evir drifts each update: just under a pixel back along its heading toward the arc's centre, the
+    /// reverse of a pixel an update along the heading (<see cref="EnemyMath.VelocityAlong"/>). An Evir left of the centre
+    /// drifts right, and every one drifts down.
     /// </summary>
-    internal static FixedVector<RoomPixels> BurialDrift(DraygonBurialEvirDefinition evir)
-    {
-        SignedSixteenSixteen across = EnemyMath.AbsoluteCosineSpeed(evir.Heading, 1).AsDisplacement();
-        SignedSixteenSixteen down = EnemyMath.AbsoluteSineSpeed(evir.Heading, 1).AsDisplacement();
-        return new(EnemyMath.CosineIsNegative(evir.Heading) ? across : -across,
-            EnemyMath.SineIsNegative(evir.Heading) ? down : -down);
-    }
+    internal static FixedVector<RoomPixels> BurialDrift(DraygonBurialEvirDefinition evir) =>
+        -EnemyMath.VelocityAlong(evir.Heading, 1);
 
     /// <summary>Drifts the six burial Evirs, in the order they spawned, by their definitions' headings.</summary>
     internal static void MoveDraygonDeathEvirs(DraygonEnemyState state)

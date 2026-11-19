@@ -3805,7 +3805,7 @@ internal static class VerificationAssert
         Suite(nameof(VerifyCrocomireSpikeAccelerationDelta), () => VerifyCrocomireSpikeAccelerationDelta(spikeOracle));
         Suite(nameof(VerifyCrocomireSpikeMaximumAcceleration), () => VerifyCrocomireSpikeMaximumAcceleration(spikeOracle));
         Suite(nameof(VerifyCrocomireSpikeMaximumVelocity), () => VerifyCrocomireSpikeMaximumVelocity(spikeOracle));
-        Console.WriteLine("Crocomire spike motion: all 54 native slot values and invalid bounds pass.");
+        Console.WriteLine("Crocomire spike motion: all eight pieces' growth, limits, depths and crumbles pass.");
         return 0;
     }
 

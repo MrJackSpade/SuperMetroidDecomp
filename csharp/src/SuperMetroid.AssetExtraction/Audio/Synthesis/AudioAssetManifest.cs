@@ -9,6 +9,11 @@ public sealed record AudioAssetManifest(
     IReadOnlyList<AudioSoundProgramMetadata> SoundPrograms,
     IReadOnlyList<AudioSoundLibraryMetadata> SoundLibraries)
 {
-    /// <summary>Accepted manifest schema version 4, including canonical PCM aliases and decoded, address-stable music/SFX programs.</summary>
-    public const int CurrentFormatVersion = 5;
+    /// <summary>
+    /// Accepted manifest schema version: canonical PCM aliases and decoded, slot-stable music/SFX programs. Version 6 (#2548)
+    /// names each phrase and channel program by its place among its bank's instead of its slot's address, has each track
+    /// play a phrase by its identity, repeats a track from the place of one of its own instructions instead of an address,
+    /// and holds each track instruction as its own closed kind.
+    /// </summary>
+    public const int CurrentFormatVersion = 6;
 }

@@ -229,7 +229,7 @@ public static class SpcAudioAssetExtractor
                     int programAddress = ReadWord(commonRam, pointerAddress);
                     if (!programsByAddress.TryGetValue(programAddress, out AudioSoundProgramMetadata? program))
                     {
-                        string id = $"sfx-program-{programAddress:x4}";
+                        string id = $"sfx-program-slot-{programAddress:x4}";
                         program = SpcSoundEffectProgramCodec.Decode(
                             id,
                             checked((ushort)programAddress),
@@ -248,8 +248,16 @@ public static class SpcAudioAssetExtractor
             }
             libraries.Add(new AudioSoundLibraryMetadata(library + 1, effects));
         }
-        programs = programsByAddress.Values.OrderBy(program => program.Address).ToArray();
-        return libraries;
+        // Each program is named by its place among the programs in their slots' order, never by its slot (#2548).
+        AudioSoundProgramMetadata[] ordered = [.. programsByAddress.Values.OrderBy(program => program.Address)];
+        var ids = new Dictionary<string, string>(ordered.Length, StringComparer.Ordinal);
+        for (int place = 0; place < ordered.Length; place++)
+            ids.Add(ordered[place].Id, $"sfx-program-{place:000}");
+        programs = [.. ordered.Select(program => program with { Id = ids[program.Id] })];
+        return [.. libraries.Select(library => library with
+        {
+            Effects = [.. library.Effects.Select(effect => effect with { ChannelPrograms = [.. effect.ChannelPrograms.Select(id => ids[id])] })],
+        })];
     }
 
     /// <summary>Builds an exact finite PCM prefix and recurring loop from BRR predictor states.</summary>

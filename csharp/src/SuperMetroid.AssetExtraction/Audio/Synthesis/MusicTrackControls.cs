@@ -19,4 +19,8 @@ internal static class MusicTrackControls
     /// <summary>True when <paramref name="record"/> is exactly <paramref name="control"/>.</summary>
     internal static bool Is(int record, MusicTrackControl control) =>
         TryDecode(record, out MusicTrackControl decoded) && decoded == control;
+
+    /// <summary>The control word of <paramref name="control"/>.</summary>
+    /// <exception cref="InvalidOperationException">The control has no word.</exception>
+    internal static int Encode(MusicTrackControl control) => controls.Single(entry => entry.Value == control).Key;
 }

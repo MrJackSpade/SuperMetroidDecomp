@@ -42,7 +42,7 @@ internal sealed record SoundEffectStateScan(
         {
             switch (instruction.Operation)
             {
-                case AudioSoundInstructionOperations.PlayNote:
+                case AudioSoundOperation.PlayNote:
                     byte instrument = instruction.Arguments[0];
                     if (!sawNote && instruction.Arguments[NoteArgument] == SpcDriverDefinitions.SoundEffects.RetainedNote)
                         retainsPreviousNote = true;
@@ -53,20 +53,20 @@ internal sealed record SoundEffectStateScan(
                     if ((instrument & SpcDriverDefinitions.Instruments.PercussionMarker) != 0)
                         percussionInstruments.Add(instrument);
                     break;
-                case AudioSoundInstructionOperations.BeginRepeat:
+                case AudioSoundOperation.BeginRepeat:
                     sawRepeatStart = true;
                     break;
-                case AudioSoundInstructionOperations.EndRepeat:
-                case AudioSoundInstructionOperations.RepeatForever:
+                case AudioSoundOperation.EndRepeat:
+                case AudioSoundOperation.RepeatForever:
                     repeatsWithoutStart |= !sawRepeatStart;
                     break;
-                case AudioSoundInstructionOperations.EnableNoise:
+                case AudioSoundOperation.EnableNoise:
                     noisePending = true;
                     break;
-                case AudioSoundInstructionOperations.SetAdsr:
-                case AudioSoundInstructionOperations.PitchSlide:
-                case AudioSoundInstructionOperations.PitchSlideLegato:
-                case AudioSoundInstructionOperations.End:
+                case AudioSoundOperation.SetAdsr:
+                case AudioSoundOperation.PitchSlide:
+                case AudioSoundOperation.PitchSlideLegato:
+                case AudioSoundOperation.End:
                     break;
                 default:
                     throw new InvalidDataException($"Sound program '{program.Id}' uses unknown operation '{instruction.Operation}'.");

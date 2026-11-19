@@ -3,11 +3,16 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>
-/// One channel command. Timing contains the optional length/articulation prefix; Arguments
-/// contains effect operands. Opcode is retained for exact lossless recompilation.
+/// One channel command (#2548): what it is, decoded once, and its bytes. Timing contains the optional
+/// length/articulation prefix; Arguments contains effect operands. Opcode is retained for exact lossless recompilation,
+/// and names an effect command's effect.
 /// </summary>
+/// <param name="Kind">What the command is.</param>
+/// <param name="Opcode">The command's opcode byte.</param>
+/// <param name="Timing">The timing prefix bytes, none, one or two.</param>
+/// <param name="Arguments">The effect operand bytes; none for any other command.</param>
 public sealed record AudioMusicInstructionMetadata(
-    string Operation,
+    AudioMusicInstructionKind Kind,
     int Opcode,
     IReadOnlyList<byte> Timing,
     IReadOnlyList<byte> Arguments)

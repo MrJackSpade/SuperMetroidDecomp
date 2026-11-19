@@ -47,6 +47,10 @@ public sealed class InstalledKeys<TIdentity>
     [InstalledKey]
     public string Of(TIdentity identity) => Ensure.Listed(keys, identity);
 
+    /// <summary>Whether <paramref name="key"/> is the installed key of a member, and that member, read without allocating.</summary>
+    public bool TryParse(ReadOnlySpan<char> key, out TIdentity identity) =>
+        identities.GetAlternateLookup<ReadOnlySpan<char>>().TryGetValue(key, out identity);
+
     /// <summary>Whether <paramref name="key"/> is the installed key of a member, and that member.</summary>
     public bool TryParse(string? key, out TIdentity identity)
     {

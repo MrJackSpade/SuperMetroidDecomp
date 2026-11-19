@@ -63,6 +63,11 @@ internal sealed class EnemyTerrain
         FixedCoordinate newPosition = place.Position.X.MovedBy(displacement);
         int targetCenter = newPosition.Whole;
         bool movingLeft = displacement.IsNegative;
+        // The movers move every terrain-bound family, and not every one is established to keep its body inside the room's
+        // left and top edges (#2532): the centres the families' facts bound (#2430, #2438, #2449) do not bound their spans,
+        // and a room's first column and row are open in places. An edge past either stays on the room's axis, as
+        // CoordinateAxis.Wrap keeps it, and the scan numbers its blocks as BlockScanCycle and EnemyMovePastRoom do, so the
+        // edges, the span and the alignment against the block met keep the wrap.
         int targetEdge = movingLeft
             ? CoordinateAxis.Wrap(targetCenter - place.Radius.X)
             : CoordinateAxis.Wrap(targetCenter + place.Radius.X - 1);
@@ -125,6 +130,7 @@ internal sealed class EnemyTerrain
         FixedCoordinate newPosition = place.Position.Y.MovedBy(displacement);
         int targetCenter = newPosition.Whole;
         bool movingUp = displacement.IsNegative;
+        // The edges, the span and the alignment keep the wrap for the reason the horizontal mover gives (#2532).
         int targetEdge = movingUp
             ? CoordinateAxis.Wrap(targetCenter - place.Radius.Y)
             : CoordinateAxis.Wrap(targetCenter + place.Radius.Y - 1);
@@ -187,11 +193,15 @@ internal sealed class EnemyTerrain
         RoomEnemyPlace place,
         SignedSixteenSixteen distance)
     {
+        // Skrees and Metarees, the probe's only users, stay inside the room (#2532): each hangs from a spawn 128 pixels or
+        // more from the room's left edge and 56 or more below its top, and dives down it drifting toward Samus, who keeps
+        // 21 pixels or more from its left edge (#2441), by at most two pixels an update, so its centre stays 19 or more
+        // from the edge, past its 8-pixel half width, and the probe ends each dive before a step passes the room's bottom
+        // row (#2438, #2449). The edges and the columns they span are plain room pixels.
         int targetCenter = place.Position.Y.MovedBy(distance).Whole;
-        int targetEdge = CoordinateAxis.Wrap(targetCenter + place.Radius.Y - 1);
-        int row = RoomGridConversions.PixelToBlock(targetEdge);
-        int firstColumn = RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(place.Position.X.Whole - place.Radius.X));
-        int lastColumn = RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(place.Position.X.Whole + place.Radius.X - 1));
+        int row = RoomGridConversions.PixelToBlock(targetCenter + place.Radius.Y - 1);
+        int firstColumn = RoomGridConversions.PixelToBlock(place.Position.X.Whole - place.Radius.X);
+        int lastColumn = RoomGridConversions.PixelToBlock(place.Position.X.Whole + place.Radius.X - 1);
         for (int column = firstColumn; column <= lastColumn; column++)
         {
             if (!level.Size.Contains(new(column, row)) ||
@@ -215,6 +225,9 @@ internal sealed class EnemyTerrain
     {
         int targetCenter = place.Position.X.MovedBy(displacement).Whole;
         bool movingLeft = displacement.IsNegative;
+        // Its users are the Etecoons and the Yards, whose bodies are not established to stay inside the room's left and
+        // top edges (#2532): an edge past either stays on the room's axis, as CoordinateAxis.Wrap keeps it, so a column
+        // past the left edge or a span from above the top meets the rows and columns the wrapped pixels name.
         int targetEdge = movingLeft
             ? CoordinateAxis.Wrap(targetCenter - place.Radius.X)
             : CoordinateAxis.Wrap(targetCenter + place.Radius.X - 1);
@@ -243,6 +256,10 @@ internal sealed class EnemyTerrain
     internal static bool EnemyMeetsAttachmentBlockVerticallyAhead(RoomLevelData level, RoomEnemyPlace place, SignedSixteenSixteen displacement)
     {
         int center = place.Position.Y.MovedBy(displacement).Whole;
+        // The Yard's probe keeps the wrap (#2532): an edge above the room's top stays on the room's axis, as
+        // CoordinateAxis.Wrap keeps it, a row past the room's height, which stops the Yard; and a Yard's centre stays in
+        // the room (#2449) but its body is not established to stay right of the room's left edge, where the wrapped span
+        // tests no column.
         int edge = displacement.IsNegative
             ? CoordinateAxis.Wrap(center - place.Radius.Y)
             : CoordinateAxis.Wrap(center + place.Radius.Y - 1);
@@ -500,6 +517,7 @@ internal sealed class EnemyTerrain
             int adjustment = height - edgeWithinBlock - 1;
             if (adjustment > 0)
                 return false;
+            // The vertical mover's centres keep the wrap for the reason the horizontal mover gives (#2532).
             place.Position = place.Position.WithY(new(CoordinateAxis.Wrap(targetCenter - adjustment), 0));
             return true;
         }
@@ -526,15 +544,20 @@ internal sealed class EnemyTerrain
         RoomLevelData level,
         RoomEnemyPlace place)
     {
+        // Not every aligning family, the Torizos and the Chozo statue among them, is established to keep its centre below
+        // the room's top (#2532): a centre above it lies at the end of the room's axis, and its floor sample stays on the
+        // axis, as CoordinateAxis.Wrap keeps it, in the room's first rows.
         bool adjustedFloor = AlignAgainstSlopeAtPixel(
             level,
             place,
             new(place.Position.X.Whole, CoordinateAxis.Wrap(place.Position.Y.Whole + place.Radius.Y - 1)),
             surface: SlopeSurface.Top);
-        bool adjustedCeiling = AlignAgainstSlopeAtPixel(
+        // A top above the room's top meets no slope: the room's grid starts at its top (#2532).
+        int top = place.Position.Y.Whole - place.Radius.Y;
+        bool adjustedCeiling = top >= 0 && AlignAgainstSlopeAtPixel(
             level,
             place,
-            new(place.Position.X.Whole, CoordinateAxis.Wrap(place.Position.Y.Whole - place.Radius.Y)),
+            new(place.Position.X.Whole, top),
             surface: SlopeSurface.Underside);
         return adjustedFloor || adjustedCeiling;
     }
@@ -568,8 +591,11 @@ internal sealed class EnemyTerrain
         int adjustment = height - edgeWithinBlock - 1;
         if (adjustment >= 0)
             return false;
+        // Below an underside the centre moves down by at most a block from a top inside the room's grid, so it stays on
+        // the room's axis (#2532). Onto a floor it moves up from the floor sample, which keeps the wrap for the reason
+        // its sample gives.
         place.Position = place.Position.WithWholeY(surface == SlopeSurface.Underside
-            ? CoordinateAxis.Wrap(place.Position.Y.Whole - adjustment)
+            ? place.Position.Y.Whole - adjustment
             : CoordinateAxis.Wrap(place.Position.Y.Whole + adjustment));
         return true;
     }

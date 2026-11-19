@@ -191,7 +191,7 @@ internal static class CrocomireAnimationsVerification
         Pass(enemies, state);
         AssertEqual(CrocomireBodyFramesTooling.Spritemap(EnemyFrameId.CrocomireBodyArmUprightMouthOpen), state.Body.SpritemapPointer,
             "the sleeping body shows its initial frame");
-        AssertEqual((ushort)1, state.Body.AnimationClock.Hold.RawValue, "the initial frame lasts one update");
+        AssertEqual((ushort)1, state.Body.AnimationClock.Hold, "the initial frame lasts one update");
 
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         samus.Position = samus.Position.WithWholeX(state.Body.Position.X.Whole);
@@ -199,7 +199,7 @@ internal static class CrocomireAnimationsVerification
         AssertEqual(CrocomirePhase.WaitingForFirstDamage, state.Phase, "Samus within range wakes Crocomire");
         AssertEqual(CrocomireBodyFramesTooling.Spritemap(EnemyFrameId.CrocomireBodyArmUprightMouthShut), state.Body.SpritemapPointer,
             "the redirect shows the damage wait's first frame in the same update");
-        AssertEqual((ushort)34, state.Body.AnimationClock.Hold.RawValue, "the damage wait's first frame lasts 34 updates");
+        AssertEqual((ushort)34, state.Body.AnimationClock.Hold, "the damage wait's first frame lasts 34 updates");
         AssertEqual(CrocomireBodyAnimations.StartingWith(CrocomireBodyAnimation.WaitForFirstSecondDamage), state.BodyPlayback.Animation, "the damage wait animation plays");
     }
 
@@ -219,7 +219,7 @@ internal static class CrocomireAnimationsVerification
             Pass(enemies, state);
             AssertEqual(CrocomireBodyFramesTooling.Spritemap(CrocomireBodyFramesTooling.BodyOrder[expected[index].Frame]), state.Body.SpritemapPointer,
                 $"roar close frame {index}");
-            AssertEqual((ushort)expected[index].Duration, state.Body.AnimationClock.Hold.RawValue, $"roar close duration {index}");
+            AssertEqual((ushort)expected[index].Duration, state.Body.AnimationClock.Hold, $"roar close duration {index}");
         }
         AssertEqual(CrocomireBodySegment.RoarOpenMouth, state.BodyPlayback.Animation.Phases[state.BodyPlayback.Place.Phase].Segment,
             "the closed mouth's fight cue is followed by the roar again");

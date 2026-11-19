@@ -195,7 +195,7 @@ internal static class KraidAnimationsVerification
         Pass(arm, forceExpiry: true);
         AssertEqual(KraidAnimations.StartingWith(KraidPartSegment.ArmSlow), state.ArmState.Playback.Animation, "below half health the pause starts the slow swing");
         AssertEqual(KraidPartFrameToolingDefinitions.Spritemap(new KraidPartPose(EnemyFrameId.KraidArmRaisedClawClosed)), arm.SpritemapPointer, "the slow swing's first frame shows at once");
-        AssertEqual((ushort)8, arm.AnimationClock.Hold.RawValue, "the slow swing's first frame lasts eight updates");
+        AssertEqual((ushort)8, arm.AnimationClock.Hold, "the slow swing's first frame lasts eight updates");
 
         state.ArmState.Playback = new(KraidAnimations.StartingWith(KraidPartSegment.ArmSlow),
             new AnimationPlace(0, KraidAnimations.Segments.Beats(KraidPartSegment.ArmSlow).Count - 2));
@@ -307,7 +307,7 @@ internal static class KraidAnimationsVerification
         state.TopLintState.Playback = Started(KraidPartSegment.LintInitial);
         lint.AnimationClock.Stop();
         lint.AnimationClock.Extend(1);
-        SuperMetroid.Core.Compatibility.WrappingCountdown stoppedHold = lint.AnimationClock.Hold;
+        int stoppedHold = lint.AnimationClock.Hold;
         for (int update = 0; update < 256; update++)
         {
             Pass(lint);
@@ -332,13 +332,13 @@ internal static class KraidAnimationsVerification
         Update();
         Update();
         EnemyFrameId? shown = arm.Frame;
-        int held = arm.AnimationClock.Hold.RawValue;
+        int held = arm.AnimationClock.Hold;
         AssertTrue(shown is not null && held > 1, "the arm's swing shows a frame with updates of its hold left");
         state.ArmMouthReopens();
         for (int update = 0; update < 256; update++)
         {
             Update();
-            if (arm.Frame != shown || arm.AnimationClock.Hold.RawValue != held || arm.AnimationClock.ShowsNewFrame)
+            if (arm.Frame != shown || arm.AnimationClock.Hold != held || arm.AnimationClock.ShowsNewFrame)
                 throw new InvalidOperationException($"Verification failed: the waiting arm's swing moved on at update {update} of the reopens.");
         }
         state.ClearMouthReactions();

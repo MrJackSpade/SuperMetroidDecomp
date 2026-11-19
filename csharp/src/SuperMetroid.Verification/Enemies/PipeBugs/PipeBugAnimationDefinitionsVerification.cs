@@ -54,7 +54,7 @@ internal static class PipeBugAnimationDefinitionsVerification
                 PipeBugsBehavior.SelectBrinstarPipeBugAnimation(place, state, selector);
                 AssertEqual(new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(selector), AnimationPlace.StartOfAnimation), state.Playback,
                     $"production {(strong ? "strong" : "normal")} Pipe Bug animation {selector}");
-                AssertEqual(1, place.AnimationClock.Hold.RawValue,
+                AssertEqual(1, place.AnimationClock.Hold,
                     $"production {(strong ? "strong" : "normal")} Pipe Bug timer {selector}");
             }
         }

@@ -56,7 +56,7 @@ internal static class DragonAnimationDefinitionsVerification
         state.Playback = playing;
         DragonBehavior.StartDragonAnimation(place, state, DragonSegment.AttackingFacingLeft);
         AssertEqual(playing, state.Playback, "Dragon keeps playing the requested animation where it stands");
-        AssertEqual(0x2222, place.AnimationClock.Hold.RawValue, "Dragon installs nothing for the playing animation");
+        AssertEqual(0x2222, place.AnimationClock.Hold, "Dragon installs nothing for the playing animation");
     }
 
     /// <summary>
@@ -187,7 +187,7 @@ internal static class DragonAnimationDefinitionsVerification
         AssertEqual(new AnimationPlayback<DragonSegment>(DragonAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation),
             state.Playback,
             $"{context} animation");
-        AssertEqual(expectedFrameHold, place.AnimationClock.Hold.RawValue,
+        AssertEqual(expectedFrameHold, place.AnimationClock.Hold,
             $"{context} instruction timer");
     }
 

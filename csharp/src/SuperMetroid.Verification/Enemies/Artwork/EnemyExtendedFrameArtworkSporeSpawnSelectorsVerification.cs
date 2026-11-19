@@ -146,7 +146,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
         var properties = new SuperMetroid.AssetExtraction.Enemies.EnemyPropertyState(
             place.Contact, place.Processing, place.Presence, place.CollidesByFrameHitboxes, place.AnimationClock.ShowsNewFrame);
         return new SporeSpawnProgramFrame(
-            NativeBodyInstruction(steps, state), place.AnimationClock.IsStopped ? null : place.AnimationClock.Hold.RawValue,
+            NativeBodyInstruction(steps, state), place.AnimationClock.IsStopped ? null : checked((ushort)place.AnimationClock.Hold),
             place.SpritemapPointer, place.Position.Whole,
             checked((ushort)place.Health), checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodePropertyWord(properties)), checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodeExtraPropertyWord(properties)),
             state.Movement, state.Angle.ToTrigonometryAngle().RawValue, checked((ushort)state.SwayRadius.Pixels),

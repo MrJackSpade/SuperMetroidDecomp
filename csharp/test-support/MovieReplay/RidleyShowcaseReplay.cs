@@ -119,7 +119,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             foreach (var actor in runtime.Enemies.Places.InUpdateOrder)
                 words.AddRange([SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(actor.DefinitionId), actor.Position.X.Whole, actor.Position.X.Fraction,
                     actor.Position.Y.Whole, actor.Position.Y.Fraction, checked((ushort)actor.Health), actor.SpritemapPointer,
-                    actor.AnimationClock.Hold.RawValue]);
+                    checked((ushort)actor.AnimationClock.Hold)]);
             return words.ToArray();
         }
         int pairedBodyDraws = 0, phaseShiftedBodyDraws = 0, retainedHiddenBodyRecords = 0;
@@ -519,7 +519,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     Check(owner + " instruction", instruction, address + 26);
                 // A stopped clock (#2454) counts nothing, while the native timer counts on from its sleep.
                 if (!actor.AnimationClock.IsStopped)
-                    Check(owner + " instruction timer", actor.AnimationClock.Hold.RawValue, address + 28);
+                    Check(owner + " instruction timer", actor.AnimationClock.Hold, address + 28);
                 Check(owner + " XRadius", actor.Radius.X, address + 10);
                 Check(owner + " YRadius", actor.Radius.Y, address + 12);
                 // The native words also hold species bits that species code writes and nothing reads (#1472); the port

@@ -205,7 +205,7 @@ internal static class RidleyExplosionDefinitionsVerification
                 fragment.SetSpeciesState(new RidleyBreakupSource(state, body.Position.Whole));
                 initialize(fragment);
 
-                AssertEqual((ushort)1, fragment.AnimationClock.Hold.RawValue,
+                AssertEqual((ushort)1, fragment.AnimationClock.Hold,
                     "Ridley breakup production instruction timer");
                 AssertEqual(state.Colours.SpriteShading(flashing: false), fragment.Shading,
                     "Ridley breakup production colours: the shades Ridley laid over his own sprites");

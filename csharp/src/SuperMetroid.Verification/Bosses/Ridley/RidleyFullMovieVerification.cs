@@ -59,7 +59,7 @@ internal static class RidleyFullMovieVerification
             runtime.Enemies.NorfairRidleyBehavior.Combat.TickNorfairRidleyWallSweep(body, state, samus, RidleyWallSweepTarget.WallBehind);
             AssertEqual(sample.Fourth ? RidleyBodyNativeInstructionPointers.BodyEntry(RidleyBodySegment.FireballingFacingLeft) : NativeSnapshotMemory.RidleyRightFlyingSleep,
                 pointers.Body(state.Flight), "native spin-response fireball threshold/roar/facing gate");
-            AssertEqual(sample.Fourth ? (ushort)1 : (ushort)9, body.AnimationClock.Hold.RawValue, "native fireball restarts instruction timer only when admitted");
+            AssertEqual(sample.Fourth ? (ushort)1 : (ushort)9, body.AnimationClock.Hold, "native fireball restarts instruction timer only when admitted");
             AssertEqual((ushort)sample.First, runtime.System.RandomNumber, "native fireball admission does not generate random state");
         }
         Console.WriteLine("Ridley spin-response fireball: native RNG threshold, roar/turn gates and instruction reset pass.");
@@ -619,7 +619,7 @@ internal static class RidleyFullMovieVerification
                 : sample.Facing == RidleyFacing.Left ? RidleyBodyNativeInstructionPointers.BodyEntry(RidleyBodySegment.TurnFromLeftToRight)
                 : RidleyBodyNativeInstructionPointers.BodyEntry(RidleyBodySegment.TurnFromRightToLeft);
             AssertEqual(expected, pointers.Body(state.Flight), $"native center-facing instruction at {sample.X:X4}, facing {sample.Facing}");
-            AssertEqual(sample.Turn ? (ushort)2 : (ushort)7, place.AnimationClock.Hold.RawValue, "turn timer changes only when native condition is met");
+            AssertEqual(sample.Turn ? (ushort)2 : (ushort)7, place.AnimationClock.Hold, "turn timer changes only when native condition is met");
         }
         var hoverState = new NorfairRidleyState { Phase = NorfairRidleyPhase.Hover };
         hoverState.PhaseTimer.LastFor(1);
@@ -776,7 +776,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual(0xa4e2, runtime.Clock.Counter, "fade accepts exactly one NMI per update");
         AssertEqual(NativeSnapshotMemory.PipeBugAfterFadeInstruction, pipeBugPointers.Pointer(pipeBug.Playback), "fade advances the native enemy instruction");
         AssertEqual(NativeSnapshotMemory.PipeBugAfterFadeSpritemap, actor.SpritemapPointer, "fade changes to the native enemy sprite");
-        AssertEqual((ushort)2, actor.AnimationClock.Hold.RawValue, "fade installs the native visual duration");
+        AssertEqual((ushort)2, actor.AnimationClock.Hold, "fade installs the native visual duration");
         int fadeSteps = 0;
         while (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.FadeOutSourceRoom && fadeSteps++ < 32)
             game.Step(0);
@@ -866,11 +866,11 @@ internal static class RidleyFullMovieVerification
         AssertEqual(1, runtime.Clock.ShortCounter, "first destination drawing frame resumes the byte counter");
         AssertEqual(NativeSnapshotMemory.RidleyFirstFadeInstruction, pointers.Enemy(runtime.Enemies, ridley), "first fade runs native Ridley instruction list");
         AssertEqual(NativeSnapshotMemory.RidleyFirstFadeSpritemap, ridley.SpritemapPointer, "first fade publishes native Ridley sprite");
-        AssertEqual((ushort)12, ridley.AnimationClock.Hold.RawValue, "first native fade visual duration");
+        AssertEqual((ushort)12, ridley.AnimationClock.Hold, "first native fade visual duration");
         AssertEqual(RidleyRevealPhase.WaitForDoorTransition, (runtime.Enemies.NorfairRidley() ?? throw new InvalidOperationException("Verification requires the loaded Ridley.")).RevealPhase, "native Ridley AI remains gated during fade visuals");
         AssertEqual(0, (runtime.Enemies.NorfairRidley() ?? throw new InvalidOperationException("Verification requires the loaded Ridley.")).PhaseTimer.Count, "fade does not consume the reveal countdown");
         game.Step(0);
-        AssertEqual((ushort)11, ridley.AnimationClock.Hold.RawValue, "later fade updates continue enemy animation");
+        AssertEqual((ushort)11, ridley.AnimationClock.Hold, "later fade updates continue enemy animation");
         int remainingFade = 0;
         while (game.IsAt(DoorTransitionStep.Transitioning) && remainingFade++ < 32)
         {

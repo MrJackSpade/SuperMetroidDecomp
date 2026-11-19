@@ -110,7 +110,7 @@ internal static class ZoaAnimationDefinitionsVerification
         AssertEqual(new AnimationPlayback<ZoaSegment>(ZoaAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation),
             state.Playback,
             $"{context} animation");
-        AssertEqual(1, place.AnimationClock.Hold.RawValue, $"{context} instruction timer");
+        AssertEqual(1, place.AnimationClock.Hold, $"{context} instruction timer");
     }
 
 }

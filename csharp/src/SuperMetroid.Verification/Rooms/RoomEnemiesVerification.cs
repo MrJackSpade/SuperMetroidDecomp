@@ -474,7 +474,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         ripper.FrozenTimer = 400;
         ushort initialX = ripper.Position.X.Whole;
         EnemyFrameId? initialFrame = ripper.Frame;
-        WrappingCountdown initialFrameHold = ripper.AnimationClock.Hold;
+        int initialFrameHold = ripper.AnimationClock.Hold;
         for (int frame = 1; frame <= 12; frame++)
         {
             enemies.StepStandaloneFrame(enemies.StandaloneFrame(level) with { Camera = new(0, 0), TimeIsFrozen = true });
@@ -746,7 +746,7 @@ internal static void VerifyCeresDoorBossBranch()
     }
     AssertTrue(door.Contact.HasAny(EnemyContact.IgnoresSamus),
         $"defeated Ceres boss advances door bytecode to intangible setup " +
-        $"(timer=${door.AnimationClock.Hold.RawValue:X4}, " +
+        $"(timer=${door.AnimationClock.Hold:X4}, " +
         $"contact={door.Contact}, processing={door.Processing}, presence={door.Presence}, bossReads={areaBossReads})");
     Console.WriteLine("  Ceres door: area-boss branch opens the physical Ridley-room actor.");
 }

@@ -9,8 +9,14 @@ using SuperMetroid.Verification.Harness;
 /// </summary>
 internal static class EnemyViewVerification
 {
-    /// <summary>The camera positions checked: the room's corner, an ordinary place, both sides of the half-space and the wrap.</summary>
-    private static readonly int[] Cameras = [0, 100, 32_600, 32_768, 65_400];
+    /// <summary>
+    /// The camera positions checked: the room's corner, an ordinary place, the farthest a room's camera lies, both sides of
+    /// the half-space and the wrap.
+    /// </summary>
+    private static readonly int[] Cameras = [0, 100, LargestRoomCamera, 32_600, 32_768, 65_400];
+
+    /// <summary>The farthest a camera lies along either axis inside a room of 50 screens (#2441).</summary>
+    private const int LargestRoomCamera = 12_575;
 
     /// <summary>The point offsets from the camera checked on each axis: every offset around both edges and the far half-space.</summary>
     private static IEnumerable<int> Offsets() =>
@@ -66,6 +72,14 @@ internal static class EnemyViewVerification
             CoordinateAxis.Precedes(camera.Y + 256, point.Y);
         AssertEqual(!precedesOffScreen, EnemyView.Contains(point, camera), $"{label}: the on-screen centre test");
 
+        // The view excluding its far edges measures a point plainly from the camera (#2532), which equals the culls it
+        // replaced wherever a room's camera lies; a camera past that is not one a room places.
+        if (camera.X > LargestRoomCamera || camera.Y > LargestRoomCamera)
+        {
+            CompareWidenedView(point, camera, label);
+            return;
+        }
+
         // The dust and pirate culls, which already count the far edges as outside.
         bool strictOutside = CoordinateAxis.Difference(point.X, camera.X) < 0 ||
             CoordinateAxis.Difference(point.X, camera.X + 256) >= 0 ||
@@ -76,7 +90,12 @@ internal static class EnemyViewVerification
         // Magdollite's lava and the Skree particles, measured from the camera.
         bool unsignedOutside = CoordinateAxis.Wrap(point.X - camera.X) >= 256 || CoordinateAxis.Wrap(point.Y - camera.Y) >= 256;
         AssertEqual(!unsignedOutside, EnemyView.ContainsBeforeFarEdges(point, camera), $"{label}: the lava cull");
+        CompareWidenedView(point, camera, label);
+    }
 
+    /// <summary>Asserts the widened view at <paramref name="point"/> equals the Evir's inline comparison it replaced.</summary>
+    private static void CompareWidenedView(Position16<RoomPixels> point, Position16<RoomPixels> camera, string label)
+    {
         // The Evir's spit, which regenerates once a further screen's width outside the view.
         const int evirMargin = 256;
         bool farOffscreen =

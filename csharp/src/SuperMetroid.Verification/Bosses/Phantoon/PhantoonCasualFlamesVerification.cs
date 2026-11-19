@@ -94,7 +94,7 @@ internal static class PhantoonCasualFlamesVerification
                     "Actual casual frame remaining count");
                 AssertEqual(PhantoonPart.Starting(draw ? PhantoonPartSegment.MouthSpawnFlame : PhantoonPartSegment.MouthInitial), mouth.RequireSpeciesState<PhantoonPart>().Playback,
                     "Exact casual mouth animation trigger frame");
-                AssertEqual(draw ? 1 : RestingMouthHold, mouth.AnimationClock.Hold.RawValue, "Exact casual instruction timer reset, the resting hold kept otherwise");
+                AssertEqual(draw ? 1 : RestingMouthHold, mouth.AnimationClock.Hold, "Exact casual instruction timer reset, the resting hold kept otherwise");
             }
         }
         Console.WriteLine("Phantoon casual schedules: 30 native words, 65536 RNG selections and 8192 frame-exact mouth transitions match without a bus.");

@@ -38,7 +38,7 @@ internal static class FrozenMetroidShellVerification
         for (int update = 0; update < first.Duration; update++)
             shell.Step();
         var shown = AssertIs<AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Frame>(shellBeats[1], "second shell beat");
-        Require(shell.Frame == shown.Shown && shell.AnimationClock.Hold.RemainingFrames == shown.Duration, "The shell must reach its second record with that record's whole duration.");
+        Require(shell.Frame == shown.Shown && shell.AnimationClock.Hold == shown.Duration, "The shell must reach its second record with that record's whole duration.");
         Require(shell.InstructionPointer == 0xc4ba, "The reproduction must run the native empty shell record.");
         OamBuffer actual = ShellOam();
         Require(shell.SpritemapPointer == 0xbda6 && actual.NextByteOffset == 0,
@@ -57,7 +57,7 @@ internal static class FrozenMetroidShellVerification
             enemies.EffectActors.StepRoomEffectActors();
             Require(shell.SpritemapPointer == expectedPointer,
                 $"Frozen shell retained ${shell.SpritemapPointer:X4}, expected ${expectedPointer:X4}.");
-            Require(shell.AnimationClock.Hold.RemainingFrames == first.Duration && shell.DisableFlags == 1,
+            Require(shell.AnimationClock.Hold == first.Duration && shell.DisableFlags == 1,
                 "Freezing starts the frozen animation at its first frame's whole duration while disabling advancement.");
             actual = ShellOam();
             Require(actual.NextByteOffset == expected.NextByteOffset &&

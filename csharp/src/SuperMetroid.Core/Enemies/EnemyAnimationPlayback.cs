@@ -115,7 +115,8 @@ internal static class EnemyAnimationPlayback
     /// <summary>
     /// Plays <paramref name="playback"/> on to its next frame after the place's frame expired (#1600): a frame becomes the
     /// place's frame for its duration, a held frame becomes it for good (#1607), a pause holds the place's frame for its own, a
-    /// hold leaves the place as it is with its clock stopped (#2454), and the animation's end deletes the enemy.
+    /// hold leaves the place as it is with its clock stopped (#2454), and the animation's end deletes the enemy and stops
+    /// its clock (#2532).
     /// </summary>
     /// <exception cref="InvalidOperationException">The animation passes every beat without showing a frame.</exception>
     internal static void Play<TSegment, TFrame, TEvent>(
@@ -171,8 +172,9 @@ internal static class EnemyAnimationPlayback
                 enemy.AnimationClock.Stop();
                 return;
             case AnimationShown<TSegment, TFrame>.Ended:
-                // The common end deletes the enemy.
+                // The common end deletes the enemy, and its animation takes no further step (#2532).
                 enemy.Presence = enemy.Presence.With(EnemyPresence.Deleted);
+                enemy.AnimationClock.Stop();
                 return;
             default:
                 throw new InvalidOperationException($"Enemy {enemy.DefinitionId}'s animation reached an undefined {shown}.");

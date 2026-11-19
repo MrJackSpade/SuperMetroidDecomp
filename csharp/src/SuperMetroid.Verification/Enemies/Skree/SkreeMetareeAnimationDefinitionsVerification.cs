@@ -150,7 +150,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
     {
         AssertTrue(ReferenceEquals(SkreeMetareeAnimations.StartingWith(expected), playback.Animation) &&
             playback.Place == AnimationPlace.StartOfAnimation, $"{context} animation");
-        AssertEqual(1, place.AnimationClock.Hold.RawValue, $"{context} instruction timer");
+        AssertEqual(1, place.AnimationClock.Hold, $"{context} instruction timer");
     }
 
 }

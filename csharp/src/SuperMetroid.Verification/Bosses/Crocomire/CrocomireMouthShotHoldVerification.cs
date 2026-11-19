@@ -36,10 +36,10 @@ internal static class CrocomireMouthShotHoldVerification
                 SamusProjectileType superMissile = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile);
                 var camera = new Position16<RoomPixels>(cameraX, 0);
                 enemies.CrocomireBehavior.Combat.ResolveCrocomireMouthShot(state, body, superMissile, body.Position.Whole, camera);
-                AssertEqual(expected, body.AnimationClock.Hold.RemainingFrames, $"a {place} mouth shot during {phase} holds the frame eight more");
+                AssertEqual(expected, body.AnimationClock.Hold, $"a {place} mouth shot during {phase} holds the frame eight more");
 
                 enemies.CrocomireBehavior.Combat.ResolveCrocomireMouthShot(state, body, superMissile, body.Position.Whole, camera);
-                AssertEqual(expected, body.AnimationClock.Hold.RemainingFrames, $"a {place} mouth shot during {phase}'s pending reaction adds no hold");
+                AssertEqual(expected, body.AnimationClock.Hold, $"a {place} mouth shot during {phase}'s pending reaction adds no hold");
                 cases++;
             }
         }
@@ -77,7 +77,7 @@ internal static class CrocomireMouthShotHoldVerification
                 StruckOccupant = body.OccupantStates,
             }, state);
             AssertEqual(reacts, state.DamageReactionPending, $"a bomb with the camera at column {cameraX} finds his body {place}");
-            AssertEqual(reacts ? expected : StartingHold, body.AnimationClock.Hold.RemainingFrames,
+            AssertEqual(reacts ? expected : StartingHold, body.AnimationClock.Hold,
                 $"a bomb with the camera at column {cameraX} {(reacts ? "holds" : "leaves")} his frame");
         }
         Console.WriteLine("  Crocomire mouth shot: the reaction reads the pass's camera.");

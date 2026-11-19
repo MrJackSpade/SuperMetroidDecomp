@@ -77,6 +77,6 @@ internal static class NativeEnemyProjectileParity
     {
         ArgumentNullException.ThrowIfNull(clock);
         if (!clock.IsStopped)
-            AssertEqual(nativeTimer, clock.Hold.RawValue, $"{at}: timer");
+            AssertEqual(nativeTimer, clock.Hold, $"{at}: timer");
     }
 }

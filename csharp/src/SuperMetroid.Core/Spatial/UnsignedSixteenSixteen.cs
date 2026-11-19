@@ -166,6 +166,12 @@ public readonly record struct UnsignedSixteenSixteen
     public UnsignedSixteenSixteen Times(int factor) => FromRaw(checked(RawValue * (uint)Ensure.AtLeastZero(factor)));
 
     /// <summary>
+    /// This speed with its whole pixels lowered to <paramref name="most"/>'s when they lie above them, its own fraction kept
+    /// (#2555), as the game caps only a speed's whole pixels.
+    /// </summary>
+    public UnsignedSixteenSixteen WithWholePixelsAtMost(UnsignedSixteenSixteen most) => Whole > most.Whole ? WithWhole(most.Whole) : this;
+
+    /// <summary>
     /// This speed with its whole pixels halved, an odd pixel dropped rather than halved into the fraction, and its fraction
     /// kept (#2555).
     /// </summary>

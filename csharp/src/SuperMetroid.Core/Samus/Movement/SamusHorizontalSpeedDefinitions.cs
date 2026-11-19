@@ -8,6 +8,12 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// </summary>
 internal static class SamusHorizontalSpeedDefinitions
 {
+    /// <summary>The extra run speed the Speed Booster's dash is held at: seven pixels an update.</summary>
+    internal static readonly UnsignedSixteenSixteen BoostedExtraRunSpeedCap = UnsignedSixteenSixteen.FromWholePixels(7);
+
+    /// <summary>The extra run speed a dash without the Speed Booster is held at: two pixels an update.</summary>
+    internal static readonly UnsignedSixteenSixteen UnboostedExtraRunSpeedCap = UnsignedSixteenSixteen.FromWholePixels(2);
+
     /// <summary>The most times the slowdown level halves the total speed, however high the level (#2280).</summary>
     internal const int LargestSpeedHalvings = 4;
 

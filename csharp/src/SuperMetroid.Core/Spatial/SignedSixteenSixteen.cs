@@ -96,6 +96,12 @@ public readonly record struct SignedSixteenSixteen : IComparable<SignedSixteenSi
     /// </summary>
     public bool WholePixelsReachEitherWay(SignedSixteenSixteen speed) => Math.Abs(WholePixels) >= speed.WholePixels;
 
+    /// <summary>
+    /// The part of a pixel the displacement holds past its whole pixels, its whole pixels cleared (#2555): none up to the
+    /// finest step short of a pixel, the whole pixels taken toward decreasing coordinates for a negative displacement.
+    /// </summary>
+    public SignedSixteenSixteen WithoutWholePixels() => FromParts(0, Fraction);
+
     /// <summary>The displacement with no fraction: its whole pixels, the fraction dropped.</summary>
     public SignedSixteenSixteen WithoutFraction() => FromParts(WholePixels, 0);
 
@@ -112,6 +118,12 @@ public readonly record struct SignedSixteenSixteen : IComparable<SignedSixteenSi
     /// </summary>
     public SignedSixteenSixteen WithWholePixelsAtLeast(int minimumWhole) =>
         WholePixels < minimumWhole ? WithWholePixels(minimumWhole) : this;
+
+    /// <summary>
+    /// The displacement with its whole pixels lowered to <paramref name="most"/>'s when they lie above them, its fraction
+    /// kept (#2555), as the game limits only a displacement's whole pixels.
+    /// </summary>
+    public SignedSixteenSixteen WithWholePixelsAtMost(SignedSixteenSixteen most) => WithWholePixelsAtMost(most.WholePixels);
 
     /// <summary>
     /// The displacement with its whole pixels raised to <paramref name="least"/>'s when they lie below them, its fraction

@@ -436,7 +436,7 @@ public sealed class ScrollBoundaryCamera
         if (CoordinateAxis.Difference(IdealPosition.X, Position.X.Whole) < 0)
         {
             // Overshoot snaps to the ideal position and discards the fractional camera position.
-            Position = Position.WithX(new FixedCoordinate(IdealPosition.X, 0));
+            Position = Position.WithX(FixedCoordinate.FromWhole(IdealPosition.X));
         }
 
         int roomMaximum = RoomGridConversions.ScreenToPixels(Scrolls.Size.X - 1);
@@ -464,7 +464,7 @@ public sealed class ScrollBoundaryCamera
         if (CoordinateAxis.Difference(Position.X.Whole, IdealPosition.X) < 0)
         {
             // Overshoot snaps to the ideal position and discards the fractional camera position.
-            Position = Position.WithX(new FixedCoordinate(IdealPosition.X, 0));
+            Position = Position.WithX(FixedCoordinate.FromWhole(IdealPosition.X));
         }
 
         if (CoordinateAxis.AsSigned(Position.X.Whole) < 0)
@@ -497,7 +497,7 @@ public sealed class ScrollBoundaryCamera
         if (CoordinateAxis.Difference(IdealPosition.Y, Position.Y.Whole) < 0)
         {
             // Overshoot snaps to the ideal position and discards the fractional camera position.
-            Position = Position.WithY(new FixedCoordinate(IdealPosition.Y, 0));
+            Position = Position.WithY(FixedCoordinate.FromWhole(IdealPosition.Y));
         }
 
         int boundary = RoomGridConversions.ScreenToPixels(Scrolls.Size.Y - 1) + verticalAlignment;
@@ -531,7 +531,7 @@ public sealed class ScrollBoundaryCamera
         if (CoordinateAxis.Difference(Position.Y.Whole, IdealPosition.Y) < 0)
         {
             // Overshoot snaps to the ideal position and discards the fractional camera position.
-            Position = Position.WithY(new FixedCoordinate(IdealPosition.Y, 0));
+            Position = Position.WithY(FixedCoordinate.FromWhole(IdealPosition.Y));
         }
 
         if (CoordinateAxis.AsSigned(Position.Y.Whole) < 0)

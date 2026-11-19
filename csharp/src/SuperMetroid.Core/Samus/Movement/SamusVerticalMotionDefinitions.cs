@@ -7,7 +7,7 @@ internal static class SamusVerticalMotionDefinitions
     /// The upward speed of the Morph Ball's first rebound; the second rebound is one pixel per frame slower, and
     /// both rebounds have zero fractional speed.
     /// </summary>
-    internal static UnsignedSixteenSixteen BallBounceSpeed { get; } = new(1, 0);
+    internal static UnsignedSixteenSixteen BallBounceSpeed { get; } = UnsignedSixteenSixteen.FromWholePixels(1);
 
     /// <summary>The bomb jump's initial vertical speeds: bomb launch is weakened equally in both liquids,
     /// as upward speeds by medium.</summary>
@@ -81,13 +81,13 @@ internal static class SamusVerticalMotionDefinitions
     internal static UnsignedSixteenSixteen SpaceJumpLiquidMinimumFallingSpeed { get; } = UnsignedSixteenSixteen.FromPixelFraction(1, 2);
 
     /// <summary>The falling speed at and above which Space Jump no longer restarts the spin jump: five pixels per update.</summary>
-    internal static UnsignedSixteenSixteen SpaceJumpFallingSpeedLimit { get; } = new(5, 0);
+    internal static UnsignedSixteenSixteen SpaceJumpFallingSpeedLimit { get; } = UnsignedSixteenSixteen.FromWholePixels(5);
 
     /// <summary>
-    /// The whole pixels an update Ceres Ridley's shove drops Samus at from its start, and below which its fall gathers
-    /// speed.
+    /// The speed Ceres Ridley's shove drops Samus at from its start, and below which its fall gathers speed: five pixels
+    /// an update.
     /// </summary>
-    internal const int CeresRidleyShoveFallingSpeed = 5;
+    internal static UnsignedSixteenSixteen CeresRidleyShoveFallingSpeed { get; } = UnsignedSixteenSixteen.FromWholePixels(5);
 
     /// <summary>The whole pixels an update at which a falling bouncing ball stops gathering speed.</summary>
     internal const int BallBounceFallingSpeed = 5;
@@ -99,5 +99,5 @@ internal static class SamusVerticalMotionDefinitions
     internal const int TerminalFallWholeSpeed = 5;
 
     /// <summary>The upward speed of the Morph Ball's second rebound: one pixel an update slower than its first, so none.</summary>
-    internal static UnsignedSixteenSixteen SecondBallBounceSpeed { get; } = new(0, 0);
+    internal static UnsignedSixteenSixteen SecondBallBounceSpeed { get; } = UnsignedSixteenSixteen.Zero;
 }

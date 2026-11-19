@@ -53,7 +53,7 @@ internal sealed class GameplayActorDrawing
     /// <summary>What Samus's projectile, bomb, flare and trail draws show: each the sheet of its own beams (#1586).</summary>
     private ProjectileDrawArtwork ProjectileArtwork => new(_artwork.ProjectileSheets);
     /// <summary>Shared enemy-layer/Samus/projectile drawing, independently of movement.</summary>
-    internal void DrawGameplayActors(RoomScope room, SamusState samus, SamusDrawOwner owner, SamusColourEffects colourEffects = SamusColourEffects.Advance)
+    internal void DrawGameplayActors(RoomScope room, SamusState samus, SamusDrawOwner owner, SamusColourEffects colourEffects)
     {
         bool deathOwnsSamus = owner == SamusDrawOwner.DeathSequence;
         // The frame draws bomb/projectile explosions before reaching the enemy-layer

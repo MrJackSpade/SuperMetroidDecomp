@@ -993,7 +993,7 @@ internal sealed class SuperMetroidRuntime
         MotherBrainEnemyState? motherBrain = room.Enemies.DisplaySources.MotherBrain;
         var frameEnd = new GameplayFrameEndDisplayInputs(
             Room.DoorTransitionShownLayers,
-            room.ScrollingSky?.Publish(room.Camera.PixelPosition),
+            room.Sky?.State.Publish(room.Camera.PixelPosition),
             room.Enemies.DisplaySources.CrocomireMelt,
             motherBrain is { RisingFloorClipActive: true },
             motherBrain?.RainbowBeam.RenderSnapshot,

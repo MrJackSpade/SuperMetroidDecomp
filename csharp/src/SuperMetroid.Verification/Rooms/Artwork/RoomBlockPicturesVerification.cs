@@ -127,7 +127,7 @@ internal static class RoomBlockPicturesVerification
             ?? throw new InvalidOperationException($"{room.Name}: BG2 shows no sky image.");
         // The sky pages the import pictured, which are import data (#1638); the runtime holds only their picture (#1466).
         SkyTilemap sky = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SkyTilemaps
-            .Tilemap((runtime.Room.Scope?.ScrollingSky ?? throw new InvalidOperationException($"{room.Name} has no sky.")).Sky);
+            .Tilemap((runtime.Room.Scope?.Sky?.State ?? throw new InvalidOperationException($"{room.Name} has no sky.")).Sky);
         ReadOnlySpan<byte> vram = runtime.ComposedVram();
         int rows = 0;
         for (int row = 0; row < SkyTilemap.Rows; row++)
@@ -309,7 +309,7 @@ internal static class RoomBlockPicturesVerification
     {
         SuperMetroidRuntime runtime = LoadRoom(room);
         runtime.StepFrame(0);
-        WrittenPictureSheet sheet = (runtime.Room.Scope?.BackgroundWrittenPictures ?? throw new InvalidOperationException($"{room.Name} has no written pictures.")).Sheet;
+        WrittenPictureSheet sheet = (runtime.Room.Scope?.WrittenPictures ?? throw new InvalidOperationException($"{room.Name} has no written pictures.")).Sheet;
         ReadOnlySpan<byte> vram = runtime.ComposedVram();
         var typewriter = new EscapeTypewriterState(runtime.BossArtwork.EscapeTypewriterPresentation.Get(EscapeTypewriterMessageId.Zebes));
         // The typewriter types each glyph's picture by name (#1466); the overlay is checked against the tiles it typed.

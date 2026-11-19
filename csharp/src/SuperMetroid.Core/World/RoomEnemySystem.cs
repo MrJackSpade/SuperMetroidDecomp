@@ -570,11 +570,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <inheritdoc/>
     ImmutableArray<PerspectiveFloorScenery> IEnemyDisplaySources.CeresGetawayChamberWalls => CeresEscape.ChamberWalls();
     /// <inheritdoc/>
-    BossBodyLayer? IEnemyDisplaySources.BossBody => Presentation.BossBodyDisplay?.Layer;
-    /// <inheritdoc/>
-    Position16<RoomPixels>? IEnemyDisplaySources.BossBodyPlacement => Presentation.BossBodyDisplay?.Placement;
-    /// <inheritdoc/>
-    bool IEnemyDisplaySources.BossBodyHidden => Presentation.BossBodyDisplay?.Hidden == true;
+    IBossBodyDisplay? IEnemyDisplaySources.BossBody => Presentation.BossBodyDisplay;
     /// <inheritdoc/>
     MorphBallEyeBeamState IEnemyDisplaySources.MorphBallEyeBeam => MorphBallEyeBehavior.MorphBallEyeBeam;
 
@@ -1070,7 +1066,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                 place.FrozenTimer != 0 || place.Contact.HasAny(EnemyContact.SolidToSamus)));
         }
         FrameContext.AdvanceRandomEnemyCounter();
-        frame.Samus?.Kinematics.ClearSolidEnemyCollisions();
+        frame.Samus.Kinematics.ClearSolidEnemyCollisions();
         // The room-wide glows step after every enemy has updated, whether or not time is frozen.
         WorkRobotBehavior.StepGlow();
         MagdolliteBehavior.StepGlow();

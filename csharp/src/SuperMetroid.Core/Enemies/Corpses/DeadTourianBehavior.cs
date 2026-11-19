@@ -127,7 +127,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Spawns randomized dust for a completed rot row and gates its sound on the enemy counter.</summary>
     private void FinishDeadTourianCorpseRow(RoomEnemyPlace place) =>
-        _rowDust.Spawn(place, _room.Random.Read(), _projectiles, _frameContext.RandomEnemyCounter);
+        _rowDust.Spawn(place, _room.Random.Read(), _projectiles, _frameContext.EnemyPassCount);
 
     /// <summary>Routes bomb hits through the shared shot reaction, which begins decomposition.</summary>
     internal static void ReplaceDeadTourianBombDamage(EnemyBombContext c) =>

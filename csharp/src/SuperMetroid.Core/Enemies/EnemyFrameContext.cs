@@ -21,10 +21,10 @@ internal sealed class EnemyFrameContext
     /// The count of enemy passes, read by AI and projectiles: every reader takes a power-of-two cadence of it (an
     /// <see cref="UpdateCadence"/> or <see cref="UpdateCounterField"/>), so it is a plain count.
     /// </summary>
-    internal int RandomEnemyCounter
+    internal int EnemyPassCount
     {
-        get => _session.RandomEnemyCounter;
-        private set => _session.RandomEnemyCounter = value;
+        get => _session.EnemyPassCount;
+        private set => _session.EnemyPassCount = value;
     }
 
     /// <summary>
@@ -57,5 +57,5 @@ internal sealed class EnemyFrameContext
     }
 
     /// <summary>Counts the enemy pass that has just ended.</summary>
-    internal void AdvanceRandomEnemyCounter() => RandomEnemyCounter++;
+    internal void CountEnemyPass() => EnemyPassCount++;
 }

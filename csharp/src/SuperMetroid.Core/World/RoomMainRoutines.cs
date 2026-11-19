@@ -33,7 +33,7 @@ internal sealed class RoomMainRoutines
     {
         Ensure.NotNull(crocomire);
         if (crocomire.Body.Presence.HasAny(EnemyPresence.Hidden) ||
-            crocomire.DeathPhase != CrocomireDeathPhase.RumbleHiddenWall)
+            crocomire.DeathStage.Entry is not CrocomireDeathStage.RumbleHiddenWall)
             return;
 
         // The rumble moves the foreground's view by a plain offset from the camera's row: in Crocomire's one-screen-high

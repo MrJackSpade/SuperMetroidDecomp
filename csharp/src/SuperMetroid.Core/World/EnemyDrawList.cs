@@ -203,7 +203,7 @@ internal sealed class EnemyDrawList
         // A hit flash shows the common hurt colours on alternate phases. The flash shades the draw over the enemy's own
         // shading: the colours it changes show the flash, and the colours it leaves as they are keep showing what the
         // enemy's own effects laid there.
-        if (place.FlashTimer != 0 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(_frameContext.RandomEnemyCounter))
+        if (place.FlashTimer != 0 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(_frameContext.EnemyPassCount))
             return place.Shading.With(EnemyShades.HurtFlash);
 
         if (place.FrozenTimer != 0 &&

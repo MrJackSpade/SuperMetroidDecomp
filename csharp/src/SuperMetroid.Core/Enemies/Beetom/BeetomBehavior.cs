@@ -432,7 +432,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (BeetomCadenceDefinitions.DrainSoundEveryEighthEnemyPass.IsDue(_frameContext.RandomEnemyCounter) && samus.Health >= BeetomCadenceDefinitions.DrainSoundLeastHealth)
+        if (BeetomCadenceDefinitions.DrainSoundEveryEighthEnemyPass.IsDue(_frameContext.EnemyPassCount) && samus.Health >= BeetomCadenceDefinitions.DrainSoundLeastHealth)
             _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Normal);
 
         // Unlike ordinary touch damage, the drain every 64th update hurts Samus by her suit-scaled damage and then

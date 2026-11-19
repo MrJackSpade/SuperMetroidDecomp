@@ -77,8 +77,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         state.PreviousInsideHole = true;
         state.InitialAction = true;
         state.TargetHole = BotwoonHole.Left;
-        state.HalfHealth = head.Health / BotwoonFightDefinitions.FasterBelowShareOfHealth;
-        state.QuarterHealth = head.Health / BotwoonFightDefinitions.FastestBelowShareOfHealth;
+        state.StartingHealth = head.Health;
         // The setup makes the head intangible: it starts hidden in its hole, out of every collision pass.
         head.Contact = head.Contact.With(EnemyContact.IgnoresSamus);
 
@@ -220,7 +219,6 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
 
         state.PathComplete = false;
         state.Phase = BotwoonPhase.FollowAuthoredPath;
-        state.HeadAction = BotwoonHeadAction.AnimateFromMovement;
 
         state.InsideHole = !state.PendingDeath && BotwoonNavigationDefinitions.StartsInsideHole.IsTakenBy(_room.Random.Generate());
         state.PreviousInsideHole = state.InsideHole;
@@ -648,15 +646,18 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         state.SmallExplosionWait.LastFor(1);
     }
 
-    /// <summary>Runs the 192-frame wall sequence, then records the boss's defeat and queues delayed music.</summary>
+    /// <summary>
+    /// Runs the wall's explosions for their <see cref="BotwoonDeathDefinitions.WallExplosionDuration"/>, then removes
+    /// Botwoon, records the boss's defeat and asks for the elevator music.
+    /// </summary>
     private void RunBotwoonWallExplosions(RoomEnemyPlace head, BotwoonEnemyState state)
     {
         if (state.WallExplosionUpdates >= BotwoonDeathDefinitions.WallExplosionDuration)
         {
             head.Presence = head.Presence.With(EnemyPresence.Deleted);
             _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaMiniBoss);
-            // The death sequence invokes the shortest-delay request for the elevator song only after the complete 192-frame
-            // wall-explosion phase, not when health first reaches zero.
+            // The elevator music is asked for, at the shortest delay, once the wall's explosions have run their whole course,
+            // not when his health first runs out.
             _audio.QueueEnemyMusic(new DelayedMusicRequest(
                 MusicRequest.SelectTrack(MusicTrack.Elevator),
                 MusicQueueDelay.Shortest));

@@ -96,10 +96,12 @@ public sealed class BotwoonEnemyState
         : PictureShading.Standard;
     /// <summary>The health band his head and body show (#2266), or null while he still shows his own colours.</summary>
     public BotwoonHealthBand? HealthBand { get; internal set; }
+    /// <summary>The health his living setup starts him with, before combat can change it.</summary>
+    public int StartingHealth { get; internal set; }
     /// <summary>Half his starting health, rounded down: below it he moves at <see cref="BotwoonSpeedStageDefinitions.BelowHalf"/>.</summary>
-    public int HalfHealth { get; internal set; }
+    internal int HalfHealth => StartingHealth / BotwoonFightDefinitions.FasterBelowShareOfHealth;
     /// <summary>A quarter of his starting health, rounded down: below it he moves at <see cref="BotwoonSpeedStageDefinitions.BelowQuarter"/>.</summary>
-    public int QuarterHealth { get; internal set; }
+    internal int QuarterHealth => StartingHealth / BotwoonFightDefinitions.FastestBelowShareOfHealth;
     /// <summary>Whether the head travels within the wall/hole; crossing a hole rectangle toggles this state and hidden movement disables collision.</summary>
     public bool InsideHole { get; internal set; }
     /// <summary>Inside-hole state observed by the direct-movement behaviour on its previous update; a difference marks that traversal complete.</summary>

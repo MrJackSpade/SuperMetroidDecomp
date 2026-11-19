@@ -3,6 +3,7 @@ using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus.Poses;
@@ -56,37 +57,37 @@ internal static class RetailCrocomireCaptureTests
         // Reuse the cartridge audit's bridge threshold, then let the complete
         // runtime execute every death state, PLM, DMA and scanline publication.
         boss.Body.Position = boss.Body.Position.WithWholeX(CrocomireCaptureFixture.BridgeThreshold);
-        var phases = new HashSet<CrocomireDeathPhase>();
+        var phases = new HashSet<ListStep<CrocomireDeathStage>>();
         bool distorted = false, complete = false;
         int samples = 0;
         for (int tick = 0; tick < 20000; tick++)
         {
-            if (boss.DeathPhase == CrocomireDeathPhase.WaitForSamusAtWall)
+            if (boss.DeathStage.Entry is CrocomireDeathStage.WaitForSamusAtWall)
                 samus.Position = samus.Position.WithWholeX(CrocomireCaptureFixture.ReturnSamusX);
             runtime.StepFrame(0);
-            bool shouldMelt = boss.DeathPhase is CrocomireDeathPhase.DissolveFirstImage or CrocomireDeathPhase.DissolveSecondImage;
+            bool shouldMelt = boss.DeathStage.Entry is CrocomireDeathStage.Dissolve;
             if ((death ?? throw new InvalidOperationException("Verification requires death.")).MeltingScrollActive != shouldMelt)
-                throw new InvalidOperationException($"Crocomire HDMA lifecycle disagrees in phase {boss.DeathPhase}.");
-            bool changed = phases.Add(boss.DeathPhase);
+                throw new InvalidOperationException($"Crocomire HDMA lifecycle disagrees in stage {boss.DeathStage}.");
+            bool changed = phases.Add(boss.DeathStage);
             // The melt shows its stretch once some gameplay line of his body layer scrolls differently from the first (#1468).
             bool nonuniform = shouldMelt && Enumerable.Range(ScreenGeometry.GameplayHudHeightPixels, BackgroundLineScrolls.GameplayLines)
                 .Select(line => ScrollShapeLines.StretchScroll(BossLineScrolls.Of(death.MeltDistortion, runtime.Display.LatchedRoomFrame.Scrolls.ForegroundPosition), line)).Distinct().Count() > 1;
             bool firstDistortion = nonuniform && !distorted;
             distorted |= nonuniform;
-            complete = boss.DeathPhase == CrocomireDeathPhase.InertCorpse;
+            complete = boss.DeathStage.Entry is CrocomireDeathStage.InertCorpse;
             if (changed || firstDistortion || tick % 16 == 0 || complete)
             {
                 var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
                 samples++;
                 var packet = new DisplayPacket((ushort)tick, GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
-                    $"{device.Kind}: Crocomire tick={tick}, phase={boss.DeathPhase}");
+                    $"{device.Kind}: Crocomire tick={tick}, stage={boss.DeathStage}");
             }
             if (complete) break;
         }
-        if (!complete || !distorted || !phases.Contains(CrocomireDeathPhase.DissolveFirstImage) ||
-            !phases.Contains(CrocomireDeathPhase.DissolveSecondImage) || !phases.Contains(CrocomireDeathPhase.BreakSpikeWall))
-            throw new InvalidOperationException($"Crocomire fixture incomplete: phase={boss.DeathPhase}, distortion={distorted}.");
+        if (!complete || !distorted || phases.Count(stage => stage.Entry is CrocomireDeathStage.Dissolve) != 2 ||
+            !phases.Any(stage => stage.Entry is CrocomireDeathStage.BreakSpikeWall))
+            throw new InvalidOperationException($"Crocomire fixture incomplete: stage={boss.DeathStage}, distortion={distorted}.");
         Console.WriteLine($"{device.Kind}: {samples} exact Crocomire death samples across {phases.Count} phases, both dissolves, scanline distortion and skeleton completion; {latchedScrollChanges} fight frames displayed the preceding main loop's body placement.");
     }
 }

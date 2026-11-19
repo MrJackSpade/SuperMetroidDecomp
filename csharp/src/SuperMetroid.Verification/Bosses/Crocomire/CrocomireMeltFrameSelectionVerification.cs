@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Verification.Enemies;
@@ -32,22 +33,22 @@ internal static class CrocomireMeltFrameSelectionVerification
             fixture.Call(c => state => c.Melting.BeginCrocomireMeltPass(state, pass));
             AssertBands(fixture, expected, $"{pass} pass begins");
 
-            CrocomireDeathPhase showing = fixture.Actor.DeathPhase;
+            ListStep<CrocomireDeathStage> showing = fixture.Actor.DeathStage;
             for (int update = 1; update <= bands + 1; update++)
             {
                 fixture.Call(_ => CrocomireMelting.ShowNextCrocomireMeltBand);
                 updates++;
                 if (update <= bands)
                     expected[update - 1] = (pass, 0);
-                AssertEqual(update <= bands ? showing : showing.Next(), fixture.Actor.DeathPhase,
+                AssertEqual(update <= bands ? showing : showing.Following, fixture.Actor.DeathStage,
                     $"{pass} band update {update} phase");
                 AssertBands(fixture, expected, $"{pass} band update {update}");
             }
 
             fixture.Call(_ => CrocomireMelting.BeginCrocomireMelting);
-            CrocomireDeathPhase dissolving = fixture.Actor.DeathPhase;
+            ListStep<CrocomireDeathStage> dissolving = fixture.Actor.DeathStage;
             int step = 0;
-            while (fixture.Actor.DeathPhase == dissolving)
+            while (fixture.Actor.DeathStage == dissolving)
             {
                 fixture.Dissolve();
                 updates++;

@@ -1,10 +1,9 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>The launch speeds of Kraid's paired fingernails.</summary>
-/// <remarks>
-/// Each of the two nails has four launches, chosen at random, all identical:
-/// X=-1, fractions zero, and Y opposite the sibling's sign. RNG remains relevant to spawn-mode selection.
-/// </remarks>
+/// <summary>
+/// The launch speeds of Kraid's paired fingernails: every nail flies off one pixel an update leftward, and up or down
+/// against its sibling's vertical travel. The random number its launch draws changes neither.
+/// </summary>
 public static class KraidNailLaunchDefinitions
 {
     /// <summary>The launch's horizontal speed: one pixel per frame leftward.</summary>

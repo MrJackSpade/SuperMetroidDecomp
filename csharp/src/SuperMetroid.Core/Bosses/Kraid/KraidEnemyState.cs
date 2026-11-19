@@ -3,9 +3,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Shared Kraid encounter state, plus the room-level effects whose
-/// owners sit outside any one enemy. No combat simplification
-/// is represented here: thresholds and formulas are the game's own.
+/// Kraid's encounter state, which all of his parts share, and the room's effects that belong to no one part of him.
 /// </summary>
 public sealed class KraidEnemyState
 {

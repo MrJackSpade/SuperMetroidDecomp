@@ -22,11 +22,29 @@ internal sealed class CrocomireMelting
         _bodyLayer = bodyLayer;
     }
 
+    /// <summary>Shows <paramref name="illustration"/>'s melt image on his body and hands his death over to its next stage.</summary>
+    /// <exception cref="InvalidDataException">His body sheet has no such melt image.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="illustration"/> is not one of his two melting illustrations.</exception>
+    internal void ShowCrocomireMeltImage(CrocomireEnemyState state, CrocomireMeltingIllustration illustration)
+    {
+        switch (illustration)
+        {
+            case CrocomireMeltingIllustration.Flesh:
+                ShowFirstCrocomireMeltImage(state);
+                return;
+            case CrocomireMeltingIllustration.BareSkull:
+                ShowSecondCrocomireMeltImage(state);
+                return;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(illustration), illustration, "Crocomire melts through his first and second illustrations only.");
+        }
+    }
+
     /// <summary>
-    /// Shows the first melting image of Crocomire's death hop. Only
-    /// this first melt hands the tongue its melting animation and moves it onto the body.
+    /// Shows his flesh's melt image. Only this first melt hands the tongue its melting animation and moves it onto the
+    /// body.
     /// </summary>
-    internal void ShowFirstCrocomireMeltImage(CrocomireEnemyState state)
+    private void ShowFirstCrocomireMeltImage(CrocomireEnemyState state)
     {
         _ = RequireCrocomireMeltingImage(CrocomireMeltingIllustration.Flesh);
         StartCrocomireMeltingBodyAnimation(state, CrocomireBodyAnimation.MeltingFleshTopRow);
@@ -41,11 +59,8 @@ internal sealed class CrocomireMelting
         ShowCrocomireMeltingImage(CrocomireMeltingIllustration.Flesh);
     }
 
-    /// <summary>
-    /// Shows the second melting image of Crocomire's death hop. It first levels the melt's distortion and leaves the
-    /// tongue alone.
-    /// </summary>
-    internal void ShowSecondCrocomireMeltImage(CrocomireEnemyState state)
+    /// <summary>Shows his bare skull's melt image. It first levels the melt's distortion and leaves the tongue alone.</summary>
+    private void ShowSecondCrocomireMeltImage(CrocomireEnemyState state)
     {
         _ = RequireCrocomireMeltingImage(CrocomireMeltingIllustration.BareSkull);
         CrocomireBodyLayer.LevelCrocomireMeltDistortion(state);
@@ -54,7 +69,7 @@ internal sealed class CrocomireMelting
     }
 
     /// <summary>
-    /// Requires melt image <paramref name="illustration"/> in Crocomire's installed body sheet before any phase, actor or
+    /// Requires melt image <paramref name="illustration"/> in Crocomire's installed body sheet before any stage, actor or
     /// body state changes (#1466).
     /// </summary>
     /// <exception cref="InvalidOperationException">No boss body sheets are installed.</exception>
@@ -65,7 +80,7 @@ internal sealed class CrocomireMelting
     /// <summary>Starts the selected body melting animation, which the melt image just shown on his body layer goes with.</summary>
     private static void StartCrocomireMeltingBodyAnimation(CrocomireEnemyState state, CrocomireBodyAnimation bodyAnimation)
     {
-        state.DeathPhase = state.DeathPhase.Next();
+        state.AdvanceDeathStage();
         CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, bodyAnimation);
     }
 
@@ -84,7 +99,7 @@ internal sealed class CrocomireMelting
         CrocomireDeathState death = state.Death;
         _ = RequireCrocomireMeltingImage(pass);
         CrocomireBodyLayer.LevelCrocomireMeltDistortion(state);
-        state.DeathPhase = state.DeathPhase.Next();
+        state.AdvanceDeathStage();
         death.DistortionStep = CrocomireMeltingDefinitions.FirstDistortionSlope;
         death.LowestDistortionSourceRow = CrocomireMeltingDefinitions.LowestDistortionSourceRow;
         death.DistortionSourceRow = death.LowestDistortionSourceRow;
@@ -96,14 +111,14 @@ internal sealed class CrocomireMelting
 
     /// <summary>
     /// Shows the pass's next band at its image before any column is erased, one band an update; the update after the
-    /// last band moves to the next death phase and starts the bands over.
+    /// last band moves to the next death stage and starts the bands over.
     /// </summary>
     internal static void ShowNextCrocomireMeltBand(CrocomireEnemyState state)
     {
         CrocomireDeathState death = state.Death;
         if (death.NextMeltBand == BandCount(death.MeltPass))
         {
-            state.DeathPhase = state.DeathPhase.Next();
+            state.AdvanceDeathStage();
             death.NextMeltBand = 0;
             return;
         }
@@ -132,7 +147,7 @@ internal sealed class CrocomireMelting
         death.MeltingScrollActive = true;
         CrocomireBodyLayer.LevelCrocomireMeltDistortion(state);
 
-        state.DeathPhase = state.DeathPhase.Next();
+        state.AdvanceDeathStage();
         death.BodyXBeforeMelting = state.Body.Position.X.Whole;
     }
 
@@ -216,12 +231,12 @@ internal sealed class CrocomireMelting
             Math.Min(distortionLine + ScreenGeometry.GameplayHudHeightPixels, ScreenGeometry.ScreenHeightPixels);
     }
 
-    /// <summary>Ends the current dissolve and selects the next death-scene phase.</summary>
+    /// <summary>Ends the current dissolve and hands his death over to its next stage.</summary>
     internal static void CompleteCrocomireMeltingDissolve(CrocomireEnemyState state)
     {
         CrocomireDeathState death = state.Death;
         death.MeltingScrollActive = false;
-        state.DeathPhase = state.DeathPhase.Next();
+        state.AdvanceDeathStage();
         death.NextMeltBand = 0;
     }
 
@@ -230,6 +245,6 @@ internal sealed class CrocomireMelting
     {
         state.StartVerticalMotion(CrocomireBridgeCollapseDefinitions.SinkStartingAcceleration);
         _bodyLayer.ClearCrocomireBody();
-        state.DeathPhase = state.DeathPhase.Next();
+        state.AdvanceDeathStage();
     }
 }

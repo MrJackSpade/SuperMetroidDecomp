@@ -21,8 +21,6 @@ internal static class CrocomireFightDefinitions
     /// <summary>How far his invisible wall pushes Samus each update she presses it: four pixels back and one up.</summary>
     internal static readonly Offset16<RoomPixels> WallPush = new(-4, -1);
 
-    /// <summary>How far each step toward the spike wall moves him, in pixels.</summary>
-    internal const int SpikeWallStep = -4;
 
     /// <summary>How far either side of his body the dust of a step toward the spike wall rises before its spread, in pixels.</summary>
     internal const int SpikeWallDustSide = 32;

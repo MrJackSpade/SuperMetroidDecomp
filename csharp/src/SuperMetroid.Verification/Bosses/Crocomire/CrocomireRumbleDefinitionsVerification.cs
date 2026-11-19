@@ -79,7 +79,7 @@ internal static class CrocomireRumbleDefinitionsVerification
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         var state = new CrocomireEnemyState(body)
         {
-            DeathPhase = CrocomireDeathPhase.RumbleHiddenWall,
+            DeathStage = CrocomireDeathStages.Only<CrocomireDeathStage.RumbleHiddenWall>(),
             RumbleOscillation = 0,
             RumbleTowardExtreme = false,
         };
@@ -94,7 +94,7 @@ internal static class CrocomireRumbleDefinitionsVerification
         ushort referenceY = unchecked((ushort)death.RumbleYOffset);
         ushort referenceCooldown = 10;
         ushort referenceDelta = 1;
-        ushort referenceDeathIndex = CrocomireNativeWords.DeathPhases.Word(state.DeathPhase);
+        ushort referenceDeathIndex = CrocomireNativeWords.DeathStages.Word(state.DeathStage);
         int frames = 0;
         while (referenceIndex != 0x0080 && frames < 2048)
         {
@@ -110,7 +110,7 @@ internal static class CrocomireRumbleDefinitionsVerification
 
             // The terminator writes its marker into the word the rumble shares with the melt shake counter; every
             // melt is over by then and nothing reads either again, so production keeps neither the marker nor the place.
-            if (state.DeathPhase == CrocomireDeathPhase.RumbleHiddenWall)
+            if (state.DeathStage.Entry is CrocomireDeathStage.RumbleHiddenWall)
             {
                 AssertEqual(referenceIndex, CrocomireNativeWords.RumbleCursor(state.RumbleOscillation, state.RumbleTowardExtreme),
                     $"Crocomire rumble frame {frames} target");
@@ -126,12 +126,12 @@ internal static class CrocomireRumbleDefinitionsVerification
                 AssertEqual(referenceDelta, CrocomireRumbleDefinitions.Oscillations[state.RumbleOscillation].Speed,
                     $"Crocomire rumble frame {frames} speed");
             }
-            AssertEqual(referenceDeathIndex, CrocomireNativeWords.DeathPhases.Word(state.DeathPhase),
+            AssertEqual(referenceDeathIndex, CrocomireNativeWords.DeathStages.Word(state.DeathStage),
                 $"Crocomire rumble frame {frames} death index");
         }
 
         AssertTrue(frames < 2048, "Crocomire rumble production sequence terminates");
-        AssertEqual(0x0080, state.DeathPhaseWait.Count,
+        AssertEqual(0x0080, state.DeathStageWait.Count,
             "Crocomire rumble production terminator handoff");
 
         // The termination loads the wall spikes' colours, which the import pre-colours his sprites in (#1512).

@@ -36,7 +36,7 @@ internal sealed class CrocomireCombat
     /// <summary>Runs Crocomire's eight-color body hurt flash.</summary>
     internal void ApplyCrocomireHurtFlash(RoomEnemyPlace body, CrocomireEnemyState state)
     {
-        bool white = body.FlashTimer != 0 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(_frameContext.RandomEnemyCounter);
+        bool white = body.FlashTimer != 0 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(_frameContext.EnemyPassCount);
         // His body shows its fight colours or the white flash as the import's shades of them (#1512).
         state.Colours.ShowBody(white);
     }
@@ -333,7 +333,7 @@ internal sealed class CrocomireCombat
     /// <summary>Runs Crocomire's power-bomb reaction without applying normal power-bomb HP damage.</summary>
     private static void ResolveCrocomirePowerBombReaction(RoomEnemyPlace body, CrocomireEnemyState state)
     {
-        if (state.DeathPhase != CrocomireDeathPhase.Fighting)
+        if (state.DeathStage.Entry is not CrocomireDeathStage.Fighting)
             return;
 
         state.StepCounter = CrocomireFightDefinitions.PowerBombSteps;

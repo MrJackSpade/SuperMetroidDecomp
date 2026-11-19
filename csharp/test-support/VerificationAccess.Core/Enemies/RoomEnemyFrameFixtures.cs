@@ -104,7 +104,7 @@ internal static class RoomEnemyFrameFixtures
         /// projectile, bomb and colour inputs on every pass.
         /// </summary>
         internal RoomEnemyFrame StandaloneFrame(RoomLevelData level) =>
-            Standalone(level, self.FrameContext.RandomEnemyCounter, SystemInputs.GetValue(self, _ => new StandaloneInputs()));
+            Standalone(level, self.FrameContext.EnemyPassCount, SystemInputs.GetValue(self, _ => new StandaloneInputs()));
 
         /// <summary>
         /// Runs an enemy pass outside the running game: builds the processing list at the frame's camera first, as a door

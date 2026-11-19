@@ -118,11 +118,20 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
         MoveNoobTubeBubbleVertically(projectile);
     }
 
-    /// <summary>Advances the debris's own horizontal position.</summary>
+    /// <summary>Advances the debris's own horizontal position by one update's <paramref name="velocity"/>.</summary>
+    /// <remarks>
+    /// The position keeps the room's axis, as <see cref="FixedCoordinate.MovedBy(SignedEightEight)"/> keeps it, because a
+    /// shard can pass the room's left edge (#2537): in the Glass Tunnel the tube's block lies two blocks from that edge,
+    /// so the shard that flies up and out starts 64 pixels from it and flies 48 pixels toward it, and a swaying fall whose
+    /// sway starts late in the range it is drawn from drifts up to about 21 pixels further, carrying the
+    /// shard past the edge unless its fall has already taken it far enough below the camera to delete it. Its column then
+    /// lies at the end of the axis, and its mirror image across the tube just past the room's right edge, as the reflected
+    /// flicker places it.
+    /// </remarks>
     private static void AdvanceNoobTubeShardX(EnemyProjectile projectile, SignedEightEight velocity)
     {
         NoobTubeDebrisState debris = projectile.StateOf<NoobTubeDebrisState>();
-        debris.X = EnemyMath.AddVelocity(debris.X, velocity);
+        debris.X = debris.X.MovedBy(velocity);
     }
 
     /// <summary>Uses the sine of the debris's sway to advance its own horizontal position, then steps the sway.</summary>
@@ -210,11 +219,13 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
             switch (cue.Kind)
             {
                 case NoobTubeProjectileCueKind.FlickerReflected:
-                    // The shard shows itself at its column, or its mirror image mirrored across the tube.
+                    // The shard shows itself at its column, or its mirror image mirrored across the tube. A column past the
+                    // room's left edge lies at the end of the room's axis (AdvanceNoobTubeShardX), and its mirror image
+                    // lies as far past the room's right edge, on the axis as CoordinateAxis.Wrap keeps it (#2537).
                     int column = projectile.StateOf<NoobTubeDebrisState>().X.Whole;
                     projectile.Position = projectile.Position.WithWholeX(atOwnColumn
                         ? column
-                        : NoobTubeDebrisDefinitions.ShardMirrorSpan - column);
+                        : CoordinateAxis.Wrap(NoobTubeDebrisDefinitions.ShardMirrorSpan - column));
                     ShardAnimation(projectile).ShowsMirroredFrame = !atOwnColumn;
                     break;
                 case NoobTubeProjectileCueKind.FlickerHidden:

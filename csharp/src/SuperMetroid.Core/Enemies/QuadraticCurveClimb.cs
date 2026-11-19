@@ -10,10 +10,9 @@ namespace SuperMetroid.Core.Enemies;
 internal readonly record struct QuadraticCurveClimb(SignedSixteenSixteen Height, QuadraticSpeedCurvePlace StepPerPass)
 {
     /// <summary>
-    /// The most passes a search can make before its place leaves the curve: a step of a single 256th of a mark leaves it
-    /// after this many.
+    /// The most passes a search can make before its place leaves the curve: the finest step leaves it after this many.
     /// </summary>
-    private static int MostPasses => QuadraticSpeedCurvePlace.PastLastMark.InTwoHundredFiftySixthsOfMark;
+    private static int MostPasses => QuadraticSpeedCurvePlace.PastLastMark.StepsOf(QuadraticSpeedCurvePlace.FinestStep);
 
     /// <summary>
     /// The place the climb starts from: stepping from the curve's start <see cref="StepPerPass"/> a pass, the first place
@@ -35,7 +34,7 @@ internal readonly record struct QuadraticCurveClimb(SignedSixteenSixteen Height,
             for (int pass = 0; pass < MostPasses; pass++)
             {
                 place += StepPerPass;
-                climbed += SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(place.Speed.CoarseToward(EnemySpeedSign.Positive));
+                climbed += place.Speed.CoarseRise;
                 if (climbed >= Height)
                     return place;
             }

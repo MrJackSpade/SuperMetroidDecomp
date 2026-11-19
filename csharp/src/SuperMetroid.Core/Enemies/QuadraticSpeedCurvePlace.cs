@@ -37,6 +37,9 @@ public readonly record struct QuadraticSpeedCurvePlace : IComparable<QuadraticSp
     /// <summary>The place one mark past <see cref="LastMark"/>, where the curve has no speed.</summary>
     public static QuadraticSpeedCurvePlace PastLastMark => FromMarks(QuadraticSpeedCurveDefinitions.MarkCount);
 
+    /// <summary>The finest step along the curve: a 256th of a mark.</summary>
+    public static QuadraticSpeedCurvePlace FinestStep => FromTwoHundredFiftySixthsOfMark(1);
+
     /// <summary>The place <paramref name="marks"/> whole marks along the curve, or the step of that many marks.</summary>
     public static QuadraticSpeedCurvePlace FromMarks(int marks) => new(checked(marks * TwoHundredFiftySixthsPerMark));
 
@@ -69,6 +72,14 @@ public readonly record struct QuadraticSpeedCurvePlace : IComparable<QuadraticSp
     /// <exception cref="ArgumentOutOfRangeException">The place lies before the start or the parts are not positive.</exception>
     public QuadraticSpeedCurvePlace DividedBy(int parts) =>
         new(Ensure.AtLeastZero(InTwoHundredFiftySixthsOfMark) / Ensure.BetweenInclusive(1, int.MaxValue, parts));
+
+    /// <summary>
+    /// How many whole steps of <paramref name="step"/> reach this place from the curve's start (#2537), for a place at or
+    /// after the start: the place's share of the step, rounded down.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The place lies before the start or the step does not move forward.</exception>
+    public int StepsOf(QuadraticSpeedCurvePlace step) =>
+        Ensure.AtLeastZero(InTwoHundredFiftySixthsOfMark) / Ensure.BetweenInclusive(1, int.MaxValue, step.InTwoHundredFiftySixthsOfMark);
 
     /// <summary>The earlier of two places.</summary>
     public static QuadraticSpeedCurvePlace Min(QuadraticSpeedCurvePlace left, QuadraticSpeedCurvePlace right) =>

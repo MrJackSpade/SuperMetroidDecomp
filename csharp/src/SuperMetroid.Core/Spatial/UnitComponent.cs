@@ -36,6 +36,14 @@ public readonly record struct UnitComponent
         return new(Trigonometry.FineSignedSine(angle) < 0 ? -size : size);
     }
 
+    /// <summary>
+    /// The size of the game's sine of <paramref name="angle"/> as its coarse half-wave reads it (#2537,
+    /// <see cref="Trigonometry.CoarseHalfWave"/>): the sine's size, the same in both halves of the turn, with the quarter
+    /// turn's whole share read a 256th short of the whole. The enemies' short circle product takes the sine's direction
+    /// from the half of the turn the angle lies in.
+    /// </summary>
+    public static UnitComponent CoarseHalfWaveOf(TrigonometryAngle angle) => new(Trigonometry.CoarseHalfWave(angle.StepsIntoHalfTurn));
+
     /// <summary>The component pointing the other way along the axis.</summary>
     public UnitComponent Reversed => new(-TwoFiftySixths);
 

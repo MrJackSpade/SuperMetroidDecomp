@@ -15,7 +15,8 @@ namespace SuperMetroid.Verification.Spatial;
 /// replace over every angle and every length their callers pass; and the #2453 conversions of the enemies' raw-int
 /// arithmetic, the homing pull and the aim's turn from its slope, equal it over their whole input ranges; the #2491
 /// conversions, a liquid tide's sine displacement and a displacement written as a fraction of a pixel, equal the raw
-/// arithmetic they replace; and the #2532 Bull step equals its raw 256ths product over every angle and speed.
+/// arithmetic they replace; the #2532 Bull step equals its raw product over every angle and speed; and the #2537 short
+/// circle sine, coarse curve rise and finest curve steps equal the arithmetic they replace over their input ranges.
 /// </summary>
 internal static class TypedSineProductsVerification
 {
@@ -29,8 +30,98 @@ internal static class TypedSineProductsVerification
     internal static void VerifyTypedSineProducts()
     {
         int compared = VerifyReachRoundedDown() + VerifyReachTowardZero() + VerifyCoarseSizeOfFineSine() + VerifyHomingPull() + VerifyAimTurnSteps() +
-            VerifyTideDisplacement() + VerifyPixelFractions() + VerifyBullStep();
-        Console.WriteLine($"  Typed sine products: {compared} rounded-down, toward-zero and coarse fine-sine products, homing pulls, aim turns, tide displacements, pixel fractions and Bull steps equal the raw arithmetic they replace.");
+            VerifyTideDisplacement() + VerifyPixelFractions() + VerifyBullStep() + VerifyCircleSine() + VerifyCoarseRise() + VerifyCurveSteps();
+        Console.WriteLine($"  Typed sine products: {compared} rounded-down, toward-zero and coarse fine-sine products, homing pulls, aim turns, tide displacements, pixel fractions, Bull steps, short circle sines, coarse rises and curve steps equal the raw arithmetic they replace.");
+    }
+
+    /// <summary>The longest radius the short circle sine is compared at: two of the product's radius spans.</summary>
+    private const int LongestCircleRadius = 2 * ShortCircleProduct.RadiusSpan - 1;
+
+    /// <summary>
+    /// The short circle product's sine distance (#2537) equals the arithmetic it replaced for every angle and every radius
+    /// through two of the product's radius spans: the coarse half-wave times the radius's place within the span, counted
+    /// in 256ths of a pixel and reversed partwise in the turn's second half. A negative radius is refused, as the replaced
+    /// product refused it.
+    /// </summary>
+    private static int VerifyCircleSine()
+    {
+        int compared = 0;
+        for (int raw = 0; raw <= byte.MaxValue; raw++)
+        {
+            var angle = new TrigonometryAngle(raw);
+            int sample = Trigonometry.CoarseHalfWave(angle.StepsIntoHalfTurn);
+            for (int radius = 0; radius <= LongestCircleRadius; radius++)
+            {
+                SignedSixteenSixteen product = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(sample * (radius % ShortCircleProduct.RadiusSpan));
+                SignedSixteenSixteen old = angle.IsInSecondHalf ? ShortCircleProduct.Reversed(product) : product;
+                SignedSixteenSixteen sine = EnemyMath.CircleSine(angle, radius);
+                if (sine != old)
+                    throw new InvalidDataException($"Angle {raw}, radius {radius}: the short circle sine {sine.RawValue} differs from {old.RawValue}.");
+                compared++;
+            }
+            AssertThrows<ArgumentOutOfRangeException>(() => EnemyMath.CircleSine(angle, -1), $"a short circle sine at angle {raw} refuses a negative radius");
+        }
+        return compared;
+    }
+
+    /// <summary>
+    /// A quadratic curve speed's coarse rise (#2537) equals the coarse speed it replaced, counted back into a displacement,
+    /// at every mark of the curve; and the displacement read at that precision equals its reading in 256ths counted back,
+    /// for every whole pixel at the fractions around a 256th's edges and for every fraction of the whole pixels around zero.
+    /// </summary>
+    private static int VerifyCoarseRise()
+    {
+        int compared = 0;
+        for (int mark = 0; mark < QuadraticSpeedCurveDefinitions.MarkCount; mark++)
+        {
+            QuadraticCurveSpeed speed = QuadraticSpeedCurve.AtMark(mark);
+            SignedSixteenSixteen old = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(speed.CoarseToward(EnemySpeedSign.Positive));
+            if (speed.CoarseRise != old)
+                throw new InvalidDataException($"Mark {mark}: the coarse rise {speed.CoarseRise.RawValue} differs from {old.RawValue}.");
+            compared++;
+        }
+        for (int whole = short.MinValue; whole <= short.MaxValue; whole++)
+        {
+            foreach (int fraction in (int[])[0, 1, 255, 256, 257, 32768, 65280, 65535])
+                compared += CompareRoundedDown(SignedSixteenSixteen.FromParts(whole, fraction));
+        }
+        foreach (int whole in (int[])[-1, 0, 1])
+        {
+            for (int fraction = 0; fraction <= ushort.MaxValue; fraction++)
+                compared += CompareRoundedDown(SignedSixteenSixteen.FromParts(whole, fraction));
+        }
+        return compared;
+
+        static int CompareRoundedDown(SignedSixteenSixteen value)
+        {
+            SignedSixteenSixteen old = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(value.InTwoFiftySixths);
+            if (value.RoundedDownToTwoFiftySixths() != old)
+                throw new InvalidDataException($"{value.RawValue}: rounded down it is {value.RoundedDownToTwoFiftySixths().RawValue}, not {old.RawValue}.");
+            return 1;
+        }
+    }
+
+    /// <summary>
+    /// The finest steps that reach a place along the quadratic curve (#2537) equal the place's reading in 256ths of a mark,
+    /// which the climb's pass limit read, for every place from the curve's start to one mark past its last; a place before
+    /// the start and a step that does not move forward are refused.
+    /// </summary>
+    private static int VerifyCurveSteps()
+    {
+        int compared = 0;
+        for (int raw = 0; raw <= QuadraticSpeedCurvePlace.PastLastMark.InTwoHundredFiftySixthsOfMark; raw++)
+        {
+            QuadraticSpeedCurvePlace place = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(raw);
+            if (place.StepsOf(QuadraticSpeedCurvePlace.FinestStep) != raw)
+                throw new InvalidDataException($"Place {raw}: {place.StepsOf(QuadraticSpeedCurvePlace.FinestStep)} finest steps reach it, not {raw}.");
+            compared++;
+        }
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(-1).StepsOf(QuadraticSpeedCurvePlace.FinestStep),
+            "a place before the curve's start is refused");
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => QuadraticSpeedCurvePlace.OneMark.StepsOf(QuadraticSpeedCurvePlace.Start), "a step that does not move is refused");
+        return compared;
     }
 
     /// <summary>

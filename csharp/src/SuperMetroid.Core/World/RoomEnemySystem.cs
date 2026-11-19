@@ -1072,7 +1072,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// </summary>
     internal void ShakeWallJumpLaunchEnemy(SamusState samus)
     {
-        if (Places.EnemyCount == 0 || samus.Kinematics.TakeWallJumpLaunchShake() is not { } launchedFrom)
+        if (Places.EnemyCount == 0 || samus.Kinematics.WallJumpLaunch.Take() is not { } launchedFrom)
             return;
         launchedFrom.ShakeFromWallJumpLaunch();
     }

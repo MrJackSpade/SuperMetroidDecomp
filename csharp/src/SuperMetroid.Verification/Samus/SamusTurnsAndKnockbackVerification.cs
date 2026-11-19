@@ -30,12 +30,13 @@ internal static void VerifySamusAerialTurnsAndWallJump()
     foreach (var (timer, accepts) in new VerifySamusAerialTurnsAndWallJumpCase[]
         { new VerifySamusAerialTurnsAndWallJumpCase(0, false), new VerifySamusAerialTurnsAndWallJumpCase(1, true), new VerifySamusAerialTurnsAndWallJumpCase(8, true), new VerifySamusAerialTurnsAndWallJumpCase(9, false), new VerifySamusAerialTurnsAndWallJumpCase(32767, false), new VerifySamusAerialTurnsAndWallJumpCase(32768, false), new VerifySamusAerialTurnsAndWallJumpCase(32776, false), new VerifySamusAerialTurnsAndWallJumpCase(32777, true), new VerifySamusAerialTurnsAndWallJumpCase(65535, true) })
     {
-        var autoJump = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { InputSnapshot = { AutoJumpTimer = timer, AutoJumpInputPending = true } };
+        var autoJump = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { InputSnapshot = { AutoJumpTimer = timer } };
+        autoJump.InputSnapshot.AutoJump.Install();
         GameplayAction physical = GameplayAction.Shoot;
         AssertEqual(physical | (accepts ? GameplayAction.Jump : GameplayAction.None),
-            autoJump.InputSnapshot.ConsumeAutoJumpInput(physical), "native signed auto-jump timer gate");
-        AssertTrue(!autoJump.InputSnapshot.AutoJumpInputPending, "auto-jump handler returns to ordinary input");
-        AssertEqual(physical, autoJump.InputSnapshot.ConsumeAutoJumpInput(physical), "auto-jump substitution is one-shot");
+            autoJump.InputSnapshot.ApplyAutoJumpInput(physical), "native signed auto-jump timer gate");
+        AssertTrue(!autoJump.InputSnapshot.AutoJump.IsInstalled, "auto-jump handler returns to ordinary input");
+        AssertEqual(physical, autoJump.InputSnapshot.ApplyAutoJumpInput(physical), "auto-jump substitution is one-shot");
         autoJump.InputSnapshot.SnapshotDrawInput(GameplayAction.Jump, physical);
         AssertEqual(0, autoJump.InputSnapshot.AutoJumpTimer, "first held draw does not increment timer");
         autoJump.InputSnapshot.SnapshotDrawInput(GameplayAction.Jump, 0);
@@ -73,7 +74,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         }
         bool jumpWins = !locked && selected.HasValue && selected != SamusPoseId.MovingRightNormalPose;
         AssertEqual(jumpWins ? null : SamusPoseId.FacingRightNormalPose,
-            endpoint.PendingTransitionalPose, "F8 respects selected jump and disabled-input exception");
+            endpoint.CuePose.Named, "F8 respects selected jump and disabled-input exception");
     }
 
     const int width = 8;
@@ -371,7 +372,7 @@ level, heldOnly, (GameplayAction.Left | GameplayAction.Jump), 0, 0, roomObjects:
     RoomEnemyPlace withdrawnEnemy = withdrawnRoom.Places.InUpdateOrder[9];
     var withdrawn = CreateSpinSamus(animationFrame: 0x0b);
     withdrawn.Kinematics.InteractiveEnemies = [enemyEligible.Kinematics.InteractiveEnemies[0] with { Enemy = withdrawnEnemy }];
-    withdrawn.Kinematics.RequestWallJumpLaunchShake(withdrawnEnemy);
+    withdrawn.Kinematics.WallJumpLaunch.Launch(withdrawnEnemy);
     AssertTrue(!SamusAerialMovement.StepSpinJump(level, withdrawn, (GameplayAction.Left | GameplayAction.Jump), 0, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled).WallJumpTriggered,
         "held Jump against the enemy without a fresh edge does not launch");
     WallJumpLaunchShakeChecks.AssertEnemyPassShakes(withdrawnRoom, withdrawn, null, "a check that does not launch");

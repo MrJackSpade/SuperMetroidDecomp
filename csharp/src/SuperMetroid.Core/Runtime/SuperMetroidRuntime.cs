@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -494,6 +495,7 @@ internal sealed class SuperMetroidRuntime
         DrawUpdateRandomNumber();
         RunEffectsBeforePhase(room, samus);
         var context = new GameplayFrameContext(samus.Position);
+        LatestGameplayFrame = context.Samus;
         PrepareEnemyProcessingList(room);
         RunColourEffects(room, samus);
         BeginSpriteFrame();
@@ -504,7 +506,7 @@ internal sealed class SuperMetroidRuntime
             DoorTransition.RunEnemyProjectiles(room, samus);
         RoomObjectPhase.RunObjectPhase(deathOwnsSamus, samus, room);
         OpenGunshipPrompt(earlyEnemyPass ?? lateEnemyPass);
-        var tail = new SuspendedGameplayFrameTail(context.Samus.Mode, context.Samus.PreviousCameraPoint);
+        var tail = new SuspendedGameplayFrameTail(context.Samus.Mode, context.Samus.PreviousCameraPoint, context.Samus.DeathSequenceStep);
         if (SuspendTailForMessageBox(tail))
             return EndUpdateWithoutGameplayTail(start, owner, infiniteAmmoGuard, room, samus);
         return FinishGameplayFrame(tail, start, owner, infiniteAmmoGuard, room, samus);
@@ -1007,7 +1009,8 @@ internal sealed class SuperMetroidRuntime
             // The stationary lock's movement mode does not run Samus's
             // colour effects. In particular, automatic Reserve recovery freezes a
             // stored shine instead of consuming it while Samus is stationary.
-            tail.Mode.Movement is SamusMovementMode.SuitPickup or SamusMovementMode.ScriptLocked ? SamusColourEffects.Hold : SamusColourEffects.Advance);
+            tail.Mode.Movement is SamusMovementMode.SuitPickup or SamusMovementMode.ScriptLocked ? SamusColourEffects.Hold : SamusColourEffects.Advance,
+            tail.DeathStep);
     }
 
     /// <summary>
@@ -1151,7 +1154,7 @@ internal sealed class SuperMetroidRuntime
             PowerBombRenderSnapshot.Capture(room.BombProjectiles.PowerBombExplosion),
             MessageBoxLayer.Capture(MessageBox, room.MessageBoxes),
             SuitPickup.IsActive ? SuitPickup.Beam : null,
-            SamusXrayDisplaySnapshot.Capture(samus, Player.LastXrayBeamStep));
+            SamusXrayDisplaySnapshot.Capture(samus, LatestGameplayFrame?.XrayBeamStep));
         return new(Display.Latched, frameEnd, new FramePaint(PublishShading(samus),
             Player.Colours.ShadeOwnDraws(DisplayedSprites.Draws)));
     }
@@ -1191,9 +1194,17 @@ internal sealed class SuperMetroidRuntime
     /// </summary>
     /// <param name="Mode">The frame's installed input and movement modes.</param>
     /// <param name="PreviousCameraPoint">Samus's camera point carried to the frame tail.</param>
+    /// <param name="DeathStep">The frame's death-sequence step, which the tail draws, or null when death does not own Samus.</param>
     internal readonly record struct SuspendedGameplayFrameTail(
         SamusControlMode Mode,
-        FixedPosition<RoomPixels> PreviousCameraPoint);
+        FixedPosition<RoomPixels> PreviousCameraPoint,
+        SamusDeathSequenceStepResult? DeathStep);
+
+    /// <summary>
+    /// Samus's control in the most recent gameplay frame, which the display shows the X-ray beam's last step from: each
+    /// gameplay frame replaces it whole as it begins, and a frame that runs no gameplay (a message box's) leaves it.
+    /// </summary>
+    internal SamusControlFrame? LatestGameplayFrame { get; private set; }
 
     /// <summary>The rest of a gameplay frame, held until a message box a room object opened during it closes.</summary>
     private SuspendedGameplayFrameTail? _suspendedFrameTail;

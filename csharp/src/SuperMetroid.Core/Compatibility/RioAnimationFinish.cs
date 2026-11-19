@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies.Rios;
+namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// The finish of a Rio's swoop-opening, takeoff, ascent-opening, landing or cooldown animation, which the animation's
@@ -7,6 +7,12 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// the update after, and the opening's finish then carries through the rebound and, as the Rio lands, ends its wait for its
 /// next animation at once. A Rio waiting for Samus forgets a finish it does not use.
 /// </summary>
+/// <remarks>
+/// Evidence: a Rio's instruction list's finishing cue sets the Rio's animation-finished flag, which its main AI
+/// reads and clears only as it moves on; a wall or floor rebound does not clear it, so the finish of the opening
+/// carries through the rebound (#2450).
+/// </remarks>
+[CompatibilityService("a Rio's animation finish waits for its main AI to move on")]
 public sealed class RioAnimationFinish
 {
     /// <summary>Whether a finish waits for the Rio's main AI.</summary>

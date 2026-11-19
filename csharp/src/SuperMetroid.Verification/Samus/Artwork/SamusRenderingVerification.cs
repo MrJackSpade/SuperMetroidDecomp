@@ -118,12 +118,12 @@ internal static void VerifySamusRenderingSlice()
     var itemTransitionSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MorphingTransitionLeftPose };
     SamusPresentation.InitializeAnimation(itemTransitionSamus, itemTransitionSamus.PoseFrameNumbered(29));
     SamusPresentation.AnimateDeathFrame(itemTransitionSamus);
-    AssertEqual(SamusPoseId.MorphBallGroundRightPose, itemTransitionSamus.PendingTransitionalPose,
+    AssertEqual(SamusPoseId.MorphBallGroundRightPose, itemTransitionSamus.CuePose.Named,
         "an item transition without Spring Ball selects its unequipped pose");
     itemTransitionSamus.EquippedItems = SamusEquipmentFlags.SpringBall;
     SamusPresentation.InitializeAnimation(itemTransitionSamus, itemTransitionSamus.PoseFrameNumbered(29));
     SamusPresentation.AnimateDeathFrame(itemTransitionSamus);
-    AssertEqual(SamusPoseId.SpringBallGroundRightPose, itemTransitionSamus.PendingTransitionalPose,
+    AssertEqual(SamusPoseId.SpringBallGroundRightPose, itemTransitionSamus.CuePose.Named,
         "an item transition with Spring Ball selects its equipped pose");
 
     // Restore the ordinary debugger scenario before verifying frame-zero drawing below.
@@ -826,12 +826,12 @@ internal static void VerifySamusHurtFlashPalette()
         samusColours, charging, GameplayAction.Shoot);
     AssertEqual(0, charging.LiquidPhysics.SoundRequests.Count,
         "counter forty arms charging-beam recovery without an immediate sound");
-    AssertTrue(charging.ResumeChargingBeamSoundPending,
+    AssertTrue(charging.ChargingSound.IsArmed,
         "charging recovery publishes native flag one");
-    AssertTrue(SamusHurtFlash.ConsumeResumeChargingBeamSound(
+    AssertTrue(SamusHurtFlash.ResumeChargingBeamSound(
             charging, GameplayAction.Shoot),
         "post-draw handler queues held charging sound");
-    AssertTrue(!charging.ResumeChargingBeamSoundPending,
+    AssertTrue(!charging.ChargingSound.IsArmed,
         "post-draw handler clears charging recovery flag");
     AssertEqual(new SoundRequest(SamusSound.ResumeChargingBeam, SoundRequestPriority.High),
         charging.LiquidPhysics.SoundRequests[^1],
@@ -853,7 +853,7 @@ internal static void VerifySamusHurtFlashPalette()
     cancelledGrapple.Grapple.Phase = GrapplePhase.CancelPending;
     SamusHurtFlash.Update(
         samusColours, cancelledGrapple, controllerInput: 0);
-    AssertTrue(!cancelledGrapple.ResumeChargingBeamSoundPending,
+    AssertTrue(!cancelledGrapple.ChargingSound.IsArmed,
         "grapple cancel cutoff suppresses recovery sound and charging latch");
     AssertEqual(0, cancelledGrapple.LiquidPhysics.SoundRequests.Count,
         "cancelled grapple leaves sound queue empty");

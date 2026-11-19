@@ -639,7 +639,7 @@ internal static class SamusPoseMetadata
                 SamusAerialPoseTransitions.InitializeInstalledNormalJumpPose(samus, movementType, controllerNewInput);
                 if (movementType == SamusMovementType.WallJumping &&
                     samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
-                    samus.HorizontalSpeed.RequestSuitShadeRestore();
+                    samus.HorizontalSpeed.ShowSuitShadeAtColourStep();
 
                 // The selected forward-jump poses are NOT the transition poses that
                 // initialize ordinary jump speed (or apply the crouch jump offset).

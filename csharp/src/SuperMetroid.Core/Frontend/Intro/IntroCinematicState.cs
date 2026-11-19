@@ -806,7 +806,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // Both the demo and locked movement modes end by resetting the
         // movement and pose-change state, so a later missile inherits only the
         // movement recorded in its own update.
-        SamusAerialPoseTransitions.DropPendingTransitionShot(FlashbackSamus);
+        SamusAerialPoseTransitions.DropTransitionShot(FlashbackSamus);
         FlashbackSamus.ProjectileInheritance.ClearMovement();
     }
 

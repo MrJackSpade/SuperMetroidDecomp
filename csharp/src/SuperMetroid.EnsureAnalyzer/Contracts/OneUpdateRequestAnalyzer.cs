@@ -10,15 +10,19 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// <summary>
 /// A step returns what happened; nothing stores a request for another phase to consume and clear (SME6470, #2562). In
 /// <c>SuperMetroid.Core</c>, the rule reports a mutable field, or a property with a setter, typed <c>bool</c> or nullable,
-/// whose name says it holds a request kept for a later reader (a camel-case word <c>Request</c>, <c>Requested</c>,
-/// <c>Requests</c>, <c>Pending</c>, <c>Signal</c> or <c>Queued</c>, or the words <c>ThisFrame</c>, <c>ThisPass</c> or
-/// <c>ThisUpdate</c>) and which the code both sets (to <c>true</c> or a value) and clears (to <c>false</c>, <c>null</c> or
-/// <c>default</c>): a flag one owner sets for another to act on and clear. It also reports a method named <c>Consume…</c>
-/// that reads such a <c>bool</c> or nullable member of its own type and clears it: the read-and-clear hand-over itself.
+/// which the code both sets (to <c>true</c> or a value) and clears (to <c>false</c>, <c>null</c> or <c>default</c>), when
+/// its name says it holds a request kept for a later reader (a camel-case word <c>Request</c>, <c>Requested</c>,
+/// <c>Requests</c>, <c>Pending</c>, <c>Signal</c> or <c>Queued</c>, or the words <c>ThisFrame</c>, <c>ThisPass</c>,
+/// <c>ThisUpdate</c>, <c>NextFrame</c>, <c>NextPass</c> or <c>NextUpdate</c>) or its type is a step's result (a nullable
+/// of a type named <c>…Result</c>): a flag one owner sets for another to act on and clear, or a step's result kept on
+/// longer-lived state, cleared each update and refilled for a later phase to read. It also reports a method named
+/// <c>Consume…</c>, <c>Take…</c> or <c>HandOver…</c> that reads a <c>bool</c> or nullable member of its own type and
+/// clears it: the read-and-clear hand-over itself.
 /// </summary>
 /// <remarks>
 /// What replaces such a flag is the step's returned result, an event the step publishes, a direct call to the owner of
-/// the effect, or a state of the owner's own course that names where it stands. Members of a
+/// the effect, a value of the one update's own record that the phases are handed, or a state of the owner's own course
+/// that names where it stands. Members of a
 /// <c>[CompatibilityService]</c> type are not reported: such a service is the named place a reproduced one-update
 /// hand-over of the original lives, with its evidence. Only Core is read.
 /// </remarks>
@@ -33,7 +37,14 @@ public sealed class OneUpdateRequestAnalyzer : DiagnosticAnalyzer
         ImmutableHashSet.Create("Request", "Requested", "Requests", "Pending", "Signal", "Queued");
 
     /// <summary>The phrases that name a value kept for the rest of one update.</summary>
-    private static readonly ImmutableArray<string> UpdatePhrases = ["ThisFrame", "ThisPass", "ThisUpdate"];
+    private static readonly ImmutableArray<string> UpdatePhrases =
+        ["ThisFrame", "ThisPass", "ThisUpdate", "NextFrame", "NextPass", "NextUpdate"];
+
+    /// <summary>The name prefixes of a method that hands a kept value over to its reader.</summary>
+    private static readonly ImmutableArray<string> HandOverPrefixes = ["Consume", "Take", "HandOver"];
+
+    /// <summary>The ending of the name of a type a step returns as its result.</summary>
+    private const string ResultTypeEnding = "Result";
 
     /// <summary>The attribute that marks a compatibility service.</summary>
     private const string CompatibilityServiceAttribute = "CompatibilityServiceAttribute";
@@ -46,8 +57,9 @@ public sealed class OneUpdateRequestAnalyzer : DiagnosticAnalyzer
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "A step returns what happened (#2562): a bool or nullable flag one owner sets and another consumes and " +
-            "clears, named as a request or as a value of one update, hides the hand-over in shared state. The step's " +
-            "result, a published event, a direct call or a named state of the owner's course says what happened instead.",
+            "clears, named as a request or as a value of one update, or a step's result kept on longer-lived state and cleared " +
+            "each update, hides the hand-over in shared state. The step's result, a published event, a direct call, the " +
+            "update's own record or a named state of the owner's course says what happened instead.",
         customTags: [WellKnownDiagnosticTags.CompilationEnd]);
 
     /// <inheritdoc/>
@@ -79,7 +91,8 @@ public sealed class OneUpdateRequestAnalyzer : DiagnosticAnalyzer
             {
                 foreach (ISymbol member in cleared.Keys)
                 {
-                    if (!set.ContainsKey(member) || !NamesRequest(member.Name) || InCompatibilityService(member))
+                    if (!set.ContainsKey(member) || !(NamesRequest(member.Name) || HoldsStepResult(member)) ||
+                        InCompatibilityService(member))
                         continue;
                     foreach (Location location in member.Locations.Where(location => location.IsInSource))
                         end.ReportDiagnostic(Diagnostic.Create(Rule, location, member.Name));
@@ -88,11 +101,11 @@ public sealed class OneUpdateRequestAnalyzer : DiagnosticAnalyzer
         });
     }
 
-    /// <summary>Reports a <c>Consume…</c> method that reads a flag of its own type and clears it.</summary>
+    /// <summary>Reports a <c>Consume…</c>, <c>Take…</c> or <c>HandOver…</c> method that reads a flag of its own type and clears it.</summary>
     private static void AnalyzeConsumer(OperationAnalysisContext context)
     {
         if (context.ContainingSymbol is not IMethodSymbol { ContainingType: { } type } method ||
-            !method.Name.StartsWith("Consume", StringComparison.Ordinal) || InCompatibilityService(method))
+            !HandOverPrefixes.Any(prefix => method.Name.StartsWith(prefix, StringComparison.Ordinal)) || InCompatibilityService(method))
             return;
         var operations = context.Operation.Descendants().ToArray();
         var clearedHere = operations.OfType<ISimpleAssignmentOperation>()
@@ -131,6 +144,24 @@ public sealed class OneUpdateRequestAnalyzer : DiagnosticAnalyzer
         return type is not null && (type.SpecialType == SpecialType.System_Boolean ||
             type.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T ||
             (type.IsReferenceType && type.NullableAnnotation == NullableAnnotation.Annotated));
+    }
+
+    /// <summary>Whether <paramref name="member"/> holds a step's result: a nullable of a type named <c>…Result</c>.</summary>
+    private static bool HoldsStepResult(ISymbol member)
+    {
+        ITypeSymbol? type = member switch
+        {
+            IFieldSymbol field => field.Type,
+            IPropertySymbol property => property.Type,
+            _ => null,
+        };
+        ITypeSymbol? held = type switch
+        {
+            INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T } nullable => nullable.TypeArguments[0],
+            { IsReferenceType: true, NullableAnnotation: NullableAnnotation.Annotated } reference => reference,
+            _ => null,
+        };
+        return held is not null && held.Name.EndsWith(ResultTypeEnding, StringComparison.Ordinal);
     }
 
     /// <summary>Whether <paramref name="value"/> clears a flag: <c>false</c>, <c>null</c> or <c>default</c>.</summary>

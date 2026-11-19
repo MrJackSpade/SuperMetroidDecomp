@@ -27,7 +27,7 @@ internal static class DraygonGrabVerification
             samus.Pose, "Draygon grabs Samus");
         AssertTrue(runtime.Enemies.LastEnemyFrame.Has<DraygonHoldChanged>(),
             "the grab publishes that alpha's pose requests are discarded");
-        AssertTrue(samus.PendingTransitionalPose is null, "the grab empties Samus's super-special pose request");
+        AssertTrue(samus.CuePose.Named is null, "the grab empties Samus's super-special pose request");
         Console.WriteLine("Draygon grab pose requests: the grab discards the pose requests alpha chose.");
     }
 
@@ -87,7 +87,7 @@ internal static class DraygonGrabVerification
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.MovingLeftNormalPose;
         samus.SlowdownLevel = 1;
-        samus.PendingTransitionalPose = pendingPose;
+        samus.CuePose.Name(pendingPose);
         DraygonEnemyState draygon = runtime.Enemies.Draygon
             ?? throw new InvalidOperationException("Draygon's room loads the Draygon encounter.");
         draygon.Phase = DraygonPhase.TryGrabSamus;

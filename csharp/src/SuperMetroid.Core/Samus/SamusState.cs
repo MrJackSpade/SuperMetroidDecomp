@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -69,24 +70,11 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// Set when a control setup run during enemy AI cancels the pending pose transition: the setup
-    /// clears every prospective pose and momentum response, so this frame's pending
-    /// transition is not committed. The runtime consumes it before the pose update.
+    /// A control setup's cancellation of her pending pose transition during the enemies: the setup clears every prospective
+    /// pose and momentum response, so this frame's pending transition is not committed; the movement phase's resample takes
+    /// it before the pose update.
     /// </summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "A control setup during the enemy pass cancels the input phase's prospective poses, which only the movement phase's resample holds; an update whose movement is disabled skips the resample, so the cancellation waits for the next one.")]
-    public bool PendingPoseTransitionCancelled { get; private set; }
-
-    /// <summary>Records the cancellation of the pending pose transition.</summary>
-    internal void CancelPendingPoseTransition() => PendingPoseTransitionCancelled = true;
-
-    /// <summary>Returns and clears the pending-transition cancellation.</summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "The movement phase's resample takes the cancellation (see PendingPoseTransitionCancelled), the one point that holds the prospective poses it cancels.")]
-    internal bool ConsumePendingPoseTransitionCancellation()
-    {
-        bool cancelled = PendingPoseTransitionCancelled;
-        PendingPoseTransitionCancelled = false;
-        return cancelled;
-    }
+    public PoseTransitionCancellation PoseTransitionCancellation { get; } = new();
 
     /// <summary>
     /// Where Samus's animation stands (#2048): a frame of a named segment of the animation of <see cref="AnimatedPose"/>.
@@ -384,8 +372,7 @@ public sealed class SamusState
     /// the new pose's direction, and a turn out of a moonwalk hands the moonwalk's. The next update's weapon firing
     /// fires it, and that update then drops it whether or not a shot was fired.
     /// </summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "The shot direction a jump or turn transition hands the weapon firing and the HUD's beam producer, which run later in the update in other owners; it is dropped after the HUD and projectile step of every update.")]
-    public SamusTransitionShot? PendingTransitionShot { get; internal set; }
+    public TransitionShot<SamusTransitionShot> TransitionShot { get; } = new();
 
     /// <summary>Whether Mother Brain's hyper beam is enabled.</summary>
     public bool HyperBeamEnabled { get; set; }
@@ -445,8 +432,7 @@ public sealed class SamusState
     /// recovery sets it at counter forty when a non-spinning Samus is still holding a sufficiently charged beam, and the
     /// post-draw sound check consumes it later in the same gameplay pass; a spin's end sets it for the next pass.
     /// </summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "The charge sound's resumption waits for a post-draw sound pass, the next update's when a spin ends, and is cancelled by firing; a recording's import and the showcase comparison read it as the game's own resumption, so it lasts across the update boundary as a state of the charge sound.")]
-    public bool ResumeChargingBeamSoundPending { get; internal set; }
+    public ChargingSoundResumption ChargingSound { get; } = new();
 
     /// <summary>
     /// The general Samus invincibility timer tested by enemy, projectile,
@@ -540,16 +526,15 @@ public sealed class SamusState
     internal FramesBeyondAnimation<SamusAnimationName, SamusAnimationFrame, SamusAnimationPlaceName, SamusPoseAnimationStep> FramesBeyondAnimation { get; }
 
     /// <summary>
-    /// The pose the animation's pose-transition cue left pending, which outranks every other pose transition. Null means
-    /// the animation has not requested that transition.
+    /// The pose the animation's pose-transition cue named, which outranks every other pose transition; it names none while
+    /// the animation has not reached such a cue.
     /// </summary>
     /// <remarks>
     /// This holds the pose between the animation's cue and the pose update that installs it. Samus's pose handling
     /// consumes it after animation, at the same pose-transition point used by the game.
     /// Keeping it explicit makes the turn's final facing change its own step.
     /// </remarks>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "The transitional pose the animation's cues choose for the following pose transitions, which run after the animation in the same update; a grab or a pose installation clears it as it discards the transitions.")]
-    public SamusPoseId? PendingTransitionalPose { get; internal set; }
+    public AnimationCuePose<SamusPoseId> CuePose { get; } = new();
 
     /// <summary>The position, to a fraction of a pixel, and the radii that collision reads.</summary>
     public SamusKinematicsState Kinematics { get; }

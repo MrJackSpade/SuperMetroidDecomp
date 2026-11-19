@@ -360,7 +360,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             Check("PreviousHealthForHurtCheck", SamusCountWords.Encode(samus.PreviousHealthForHurtCheck), NativeSnapshotMemory.SamusPreviousHealthForFlash);
             VerificationAssertions.AssertTrue(!samus.InputSnapshot.ShinesparkPoseInputLocked && !samus.InputSnapshot.CrystalFlashPoseInputLocked,
                 "Movie now uses a special pose-input lock; map its handler explicitly");
-            Check("Samus input handler", samus.InputSnapshot.AutoJumpInputPending
+            Check("Samus input handler", samus.InputSnapshot.AutoJump.IsInstalled
                 ? NativeSnapshotMemory.SamusAutoJumpInputHandler : NativeSnapshotMemory.SamusNormalInputHandler,
                 NativeSnapshotMemory.SamusInputHandler);
 
@@ -749,11 +749,11 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     W(NativeSnapshotMemory.PowerBombExplosionStatus) == 0,
                     "Movie now activates a power bomb; add its full live-state mapping");
                 Check("BombSpreadChargeTimeoutCounter", checked((ushort)samus.BombSpreadCharge.Age), NativeSnapshotMemory.BombSpreadChargeTimeout);
-                if (samus.PendingTransitionShot != SamusSnapshotWords.DecodeTransitionShot(W(NativeSnapshotMemory.PoseShotDirection)))
-                    mismatches.Add($"PendingTransitionShot: native={W(NativeSnapshotMemory.PoseShotDirection):X4} port={samus.PendingTransitionShot}");
+                if (samus.TransitionShot.Handed != SamusSnapshotWords.DecodeTransitionShot(W(NativeSnapshotMemory.PoseShotDirection)))
+                    mismatches.Add($"PendingTransitionShot: native={W(NativeSnapshotMemory.PoseShotDirection):X4} port={samus.TransitionShot.Handed}");
                 Check("HyperBeam", SamusSnapshotWords.EncodeHyperBeam(samus.HyperBeamEnabled), NativeSnapshotMemory.HyperBeam);
-                if (samus.ResumeChargingBeamSoundPending != SamusSnapshotWords.DecodeResumeChargingBeamSound(W(NativeSnapshotMemory.ResumeChargeSound)))
-                    mismatches.Add($"ResumeChargingBeamSound: native={W(NativeSnapshotMemory.ResumeChargeSound):X4} port={samus.ResumeChargingBeamSoundPending}");
+                if (samus.ChargingSound.IsArmed != SamusSnapshotWords.DecodeResumeChargingBeamSound(W(NativeSnapshotMemory.ResumeChargeSound)))
+                    mismatches.Add($"ResumeChargingBeamSound: native={W(NativeSnapshotMemory.ResumeChargeSound):X4} port={samus.ChargingSound.IsArmed}");
 
             }
             if (game.GameState == SuperMetroidGameState.MainGameplay)

@@ -17,7 +17,7 @@ internal static class SamusGrappleHudInput
         return mode switch
         {
             SamusHudSelectionMode.Standard or SamusHudSelectionMode.Grapple or SamusHudSelectionMode.DraygonHeld => true,
-            SamusHudSelectionMode.Turning => samus.PendingTransitionShot is not null,
+            SamusHudSelectionMode.Turning => samus.TransitionShot.Handed is not null,
             SamusHudSelectionMode.Transition => SamusHudInput.PostureTransitionAdmitsWeapons(samus.Pose, grappleActive: false, postureAdmission),
             SamusHudSelectionMode.MorphBall or SamusHudSelectionMode.Jump => false,
             _ => throw new InvalidOperationException($"Undefined {nameof(SamusHudSelectionMode)} {mode}."),

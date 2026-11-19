@@ -230,9 +230,9 @@ internal static class NativeSnapshotImport
             : throw new InvalidDataException($"Native charge palette byte offset {chargePaletteByteOffset} names no step.");
         runtime.BombProjectiles.BombCounter = W(NativeSnapshotMemory.BombCount);
         samus.BombSpreadCharge = UpdateCountdownAccess.AtAge(MorphBallBombDefinitions.DownChargeTimeoutUpdates, W(NativeSnapshotMemory.BombSpreadChargeTimeout));
-        samus.PendingTransitionShot = SamusSnapshotWords.DecodeTransitionShot(W(NativeSnapshotMemory.PoseShotDirection));
+        samus.TransitionShot.Hand(SamusSnapshotWords.DecodeTransitionShot(W(NativeSnapshotMemory.PoseShotDirection)));
         samus.HyperBeamEnabled = SamusSnapshotWords.DecodeHyperBeam(W(NativeSnapshotMemory.HyperBeam));
-        samus.ResumeChargingBeamSoundPending = SamusSnapshotWords.DecodeResumeChargingBeamSound(W(NativeSnapshotMemory.ResumeChargeSound));
+        if (SamusSnapshotWords.DecodeResumeChargingBeamSound(W(NativeSnapshotMemory.ResumeChargeSound))) samus.ChargingSound.Arm(); else samus.ChargingSound.Cancel();
         PrivateState.Set(samus.InputSnapshot, nameof(SamusInputSnapshot.PreviousDrawHeldInput), GameplayActionWordCodec.FromJoypadWord(W(NativeSnapshotMemory.SamusFilteredHeld), "native Samus filtered held input"));
         samus.InputSnapshot.PreviousDrawNewInput = GameplayActionWordCodec.FromJoypadWord(W(NativeSnapshotMemory.SamusFilteredNew), "native Samus filtered new input");
         samus.InputSnapshot.AutoJumpTimer = W(NativeSnapshotMemory.SamusAutoJumpTimer);
@@ -240,7 +240,7 @@ internal static class NativeSnapshotImport
         VerificationAssertions.AssertTrue(W(NativeSnapshotMemory.SamusInputHandler) is
             NativeSnapshotMemory.SamusNormalInputHandler or NativeSnapshotMemory.SamusAutoJumpInputHandler,
             "initial movie input handler has a verified semantic mapping");
-        samus.InputSnapshot.AutoJumpInputPending = W(NativeSnapshotMemory.SamusInputHandler) == NativeSnapshotMemory.SamusAutoJumpInputHandler;
+        if (W(NativeSnapshotMemory.SamusInputHandler) == NativeSnapshotMemory.SamusAutoJumpInputHandler) samus.InputSnapshot.AutoJump.Install(); else samus.InputSnapshot.AutoJump.Reinstate();
         samus.EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(W(NativeSnapshotMemory.Items));
         samus.EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(W(NativeSnapshotMemory.Beams));
         samus.Health = SamusCountWords.Decode(W(NativeSnapshotMemory.Health));

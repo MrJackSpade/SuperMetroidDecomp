@@ -42,7 +42,7 @@ internal static class CinematicCrystalFlashVerification
                 $"Mother Brain command $18 retains Flash pointer after {movementCalls} calls");
 
             runtime.StepFrame(0);
-            AssertTrue(runtime.Player.LastCrystalFlashMovement is null,
+            AssertTrue(runtime.LatestGameplayFrame?.CrystalFlashMovement is null,
                 $"Mother Brain's locked beta suspends retained Flash after {movementCalls} calls");
             AssertEqual(phaseBefore, samus.CrystalFlash.Phase,
                 "locked beta does not discard the suspended movement pointer");
@@ -71,7 +71,7 @@ internal static class CinematicCrystalFlashVerification
                 continue;
 
             motherUnlocked = true;
-            AssertTrue(motherRuntime.Player.LastCrystalFlashMovement is not null,
+            AssertTrue(motherRuntime.LatestGameplayFrame?.CrystalFlashMovement is not null,
                 "Mother Brain command-one unlock resumes retained Flash on the same beta pass");
             break;
         }
@@ -87,7 +87,7 @@ internal static class CinematicCrystalFlashVerification
         AssertEqual(DrainedSamusPhase.WaitingForFallingCue, superSamus.Drained.Phase,
             "Super Metroid terminal drain installs crouching/falling controller state");
         superRuntime.StepFrame(0);
-        AssertTrue(superRuntime.Player.LastCrystalFlashMovement is not null,
+        AssertTrue(superRuntime.LatestGameplayFrame?.CrystalFlashMovement is not null,
             "Super Metroid drained pose does not suppress retained Flash movement");
         AssertEqual(CrystalFlashPhase.DrainingAmmo, superSamus.CrystalFlash.Phase,
             "Super Metroid interruption retains Flash ammo handler");

@@ -41,7 +41,7 @@ internal static class MotherBrainGlitchMechanicsVerification
         // $90:F3FB returns carry set; Run_Samus_Command then cancels the pending transition.
         var frozen = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose };
         SamusDrainedState.FreezeForHyperBeamAcquisition(frozen);
-        AssertTrue(frozen.PendingPoseTransitionCancelled, "Samus command $19 cancels the pending pose transition");
+        AssertTrue(frozen.PoseTransitionCancellation.IsWaiting, "Samus command $19 cancels the pending pose transition");
 
         // $A0:A07A: touch requires |dx| - SamusXRadius < enemy X radius (strict), skips an
         // invincible Samus, and uses the Baby's position before this frame's main AI moves it.

@@ -175,7 +175,7 @@ floor, SamusPoseId.MorphingTransitionLeftPose, frameCounter: 0, roomObjects: Sam
         samus.LiquidPhysics.BeginFrameSoundRequests();
         SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
     }
-    AssertEqual(SamusPoseId.MorphBallGroundRightPose, (samus.PendingTransitionalPose ?? throw new InvalidOperationException("Verification requires samus.PendingTransitionalPose.")),
+    AssertEqual(SamusPoseId.MorphBallGroundRightPose, (samus.CuePose.Named ?? throw new InvalidOperationException("Verification requires samus.CuePose.Named.")),
         "F9 selects no-spring grounded endpoint");
     AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(samus), "grounded F9 endpoint applies");
     AssertEqual(SamusPoseId.MorphBallGroundRightPose, samus.Pose, "morph entry reaches stable ball");
@@ -505,7 +505,7 @@ floor, SamusPoseId.MorphingTransitionRightPose, frameCounter: 0, roomObjects: Sa
         airborneEntry.LiquidPhysics.BeginFrameSoundRequests();
         SamusPresentation.Animate(airborneEntry, new SamusAnimationStep { Random = new SharedRandom() });
     }
-    AssertEqual(SamusPoseId.MorphBallFallingRightPose, (airborneEntry.PendingTransitionalPose ?? throw new InvalidOperationException("Verification requires airborneEntry.PendingTransitionalPose.")),
+    AssertEqual(SamusPoseId.MorphBallFallingRightPose, (airborneEntry.CuePose.Named ?? throw new InvalidOperationException("Verification requires airborneEntry.CuePose.Named.")),
         "F9 nonzero Y subspeed selects airborne endpoint");
 
     // Repeat entry with Spring Ball bit `$0002`. F9 must use its equipped grounded operand,
@@ -527,7 +527,7 @@ floor, SamusPoseId.MorphingTransitionRightPose, frameCounter: 0, roomObjects: Sa
         spring.LiquidPhysics.BeginFrameSoundRequests();
         SamusPresentation.Animate(spring, new SamusAnimationStep { Random = new SharedRandom() });
     }
-    AssertEqual(SamusPoseId.SpringBallGroundRightPose, (spring.PendingTransitionalPose ?? throw new InvalidOperationException("Verification requires spring.PendingTransitionalPose.")),
+    AssertEqual(SamusPoseId.SpringBallGroundRightPose, (spring.CuePose.Named ?? throw new InvalidOperationException("Verification requires spring.CuePose.Named.")),
         "F9 equipped endpoint selects Spring Ball ground");
     AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(spring), "Spring Ball F9 applies");
     SamusPosturePoseTransitions.ApplyMorphBallPoseChange(spring, SamusPoseId.SpringBallMovingRightPose);

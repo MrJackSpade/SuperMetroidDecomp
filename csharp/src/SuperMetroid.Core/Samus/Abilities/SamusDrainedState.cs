@@ -140,7 +140,7 @@ public sealed class SamusDrainedState
     {
         Ensure.NotNull(samus);
         SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.HyperBeamAcquisitionFrame, timer: SamusDrainedAnimationDefinitions.SetFrameTimer);
-        samus.CancelPendingPoseTransition();
+        samus.PoseTransitionCancellation.Cancel();
     }
 
     /// <summary>Starts Samus's rainbow colouring.</summary>
@@ -365,7 +365,7 @@ public sealed class SamusDrainedState
             SamusBeamFlags.Plasma;
         samus.HyperBeamEnabled = true;
         HyperBeamColourEffect = new();
-        samus.ResumeChargingBeamSoundPending = false;
+        samus.ChargingSound.Cancel();
     }
 
     /// <summary>Ends the Samus-side drain lock after release art reaches its transition to the facing standing pose.</summary>

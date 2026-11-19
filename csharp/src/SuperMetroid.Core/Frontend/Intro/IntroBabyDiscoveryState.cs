@@ -117,7 +117,7 @@ internal sealed class IntroBabyDiscoveryState
             demo.Step(HandleDemoCue);
             // The input phase ends by resetting the movement and pose-change state,
             // before this update's movement records new distances.
-            SamusAerialPoseTransitions.DropPendingTransitionShot(Samus);
+            SamusAerialPoseTransitions.DropTransitionShot(Samus);
             Samus.ProjectileInheritance.ClearMovement();
 
             // An end cue read above already stopped Samus's update, so this

@@ -1,6 +1,5 @@
-using SuperMetroid.Core.Compatibility;
 
-namespace SuperMetroid.Core.Samus;
+namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// How this update corrects the camera's record of where Samus was, before its scrolling measures how far she moved
@@ -11,10 +10,12 @@ namespace SuperMetroid.Core.Samus;
 /// correction applied, and the next update starts with none.
 /// </summary>
 /// <remarks>
-/// The game writes the corrections into the record as they happen; the record is the camera's from the frame boundary,
-/// which the update samples before any owner runs, so its corrections are kept here, beside Samus, and applied to the
-/// sampled record where the scrolling reads it.
+/// Evidence: the game's owners that run before the scrolling write Samus's previous position in place, and its
+/// scrolling reads the written position when it measures her movement. The record here is the camera's from the frame
+/// boundary, which the update samples before any owner runs, so the corrections are kept here, beside Samus, and applied
+/// to the sampled record where the scrolling reads it.
 /// </remarks>
+[CompatibilityService("owners before the scrolling correct the camera's record of where Samus was in place")]
 public sealed class SamusPreviousPositionCorrections
 {
     /// <summary>The previous whole-pixel X an owner wrote this update, or null when none did.</summary>

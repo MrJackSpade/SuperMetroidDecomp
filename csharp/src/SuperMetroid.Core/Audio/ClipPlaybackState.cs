@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Compatibility;
+
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>
@@ -31,9 +33,8 @@ public sealed class ClipPlaybackState(BeatLength initialBeat)
     /// <summary>Absolute frame of the song's frame zero.</summary>
     internal long SongStart { get; private set; }
 
-    /// <summary>The song change waiting for the music's next beat, or null when none waits.</summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "The song change waiting for the music's next beat, a state of the playback lasting until that beat, which the playback's own step takes.")]
-    internal SongChange? PendingSongChange { get; private set; }
+    /// <summary>The song change waiting for the music's next beat, which the playback's step at that beat takes.</summary>
+    internal SongChangeAtBeat<SongChange> SongChange { get; } = new();
 
     /// <summary>The music's beat: how much of it has played, and how long it lasts while no song plays.</summary>
     internal MusicBeat Beat { get; } = new(initialBeat);
@@ -41,22 +42,11 @@ public sealed class ClipPlaybackState(BeatLength initialBeat)
     /// <summary>Records that playback has reached absolute frame <paramref name="sample"/>.</summary>
     internal void RenderedTo(long sample) => Sample = sample;
 
-    /// <summary>Holds <paramref name="change"/> until the music's next beat, replacing any change already waiting.</summary>
-    internal void RequestSongChange(SongChange change) => PendingSongChange = change;
-
-    /// <summary>Takes the song change waiting for this beat, leaving none.</summary>
-    internal SongChange? TakeSongChange()
-    {
-        SongChange? change = PendingSongChange;
-        PendingSongChange = null;
-        return change;
-    }
-
     /// <summary>Switching to <paramref name="clipSet"/>'s clips stops the song and drops the waiting song change.</summary>
     internal void SwitchClipSet(MusicDataSet? clipSet)
     {
         StopSong();
-        PendingSongChange = null;
+        SongChange.Forget();
         ClipSet = clipSet;
     }
 

@@ -683,7 +683,7 @@ public static class SamusAerialMovement
         // before it reads the held direction; earlier frames leave it waiting.
         bool launchFrameReached = samus.AnimationHasReached(firstEligibleFrame);
         if (launchFrameReached)
-            samus.Kinematics.WithdrawWallJumpLaunchShake();
+            samus.Kinematics.WallJumpLaunch.Withdraw();
 
         bool heldLeft = (controllerInput & GameplayAction.Left) != GameplayAction.None;
         bool heldRight = (controllerInput & GameplayAction.Right) != GameplayAction.None;
@@ -721,7 +721,7 @@ public static class SamusAerialMovement
             // A launch off a solid or frozen enemy asks the next enemy pass to shake that enemy; a launch off
             // terrain asks nothing.
             if (probe.EnemyCollision is { Enemy: { } launchedFrom })
-                samus.Kinematics.RequestWallJumpLaunchShake(launchedFrom);
+                samus.Kinematics.WallJumpLaunch.Launch(launchedFrom);
         }
         return triggered;
     }

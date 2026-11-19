@@ -68,7 +68,7 @@ internal static class MovieDesyncComparison
         if (game.RuntimeForVerification?.EscapeTimer is { } escape)
             Console.WriteLine($"  escape port={escape.Phase}/{escape.IsActive} {escape.Readout.Minutes:D2}:{escape.Readout.Seconds:D2}.{escape.Readout.Centiseconds:D2} " +
                 $"native={Native(0x0943)} {memory[0x0947]:X2}:{memory[0x0946]:X2}.{memory[0x0945]:X2}");
-        Console.WriteLine("  aerial port  " + game.RuntimeForVerification?.Player.LastAerialSamusMovement);
+        Console.WriteLine("  aerial port  " + game.RuntimeForVerification?.LatestGameplayFrame?.AerialMovement);
         if (game.RuntimeForVerification is { } projectileRuntime)
         {
             Console.WriteLine("  sproj port   " + string.Join(" ", projectileRuntime.Projectiles.Shots

@@ -198,11 +198,6 @@ internal static class SuperMetroidRuntimeAccess
                     (ushort)Math.Max(0, restingY - desiredScreenY)));
                 self.Player.IntroducedSamus.Position = self.Player.IntroducedSamus.Position.WithWholeY(restingY);
                 self.Player.GroundedSamusMovementEnabled = true;
-                self.Player.LastGroundedSamusMovement = null;
-                self.Player.LastAerialSamusMovement = null;
-                self.Player.LastMorphBallMovement = null;
-                self.Player.LastBombJumpMovement = null;
-                self.Player.LastKnockbackMovement = null;
                 self.BombProjectiles.Reset();
                 self.Projectiles.Reset();
                 self.Player.IntroducedSamus.HorizontalSpeed.ClearSpeedEchoes();

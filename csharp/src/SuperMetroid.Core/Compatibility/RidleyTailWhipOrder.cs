@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.Ridley;
+namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// The whip Ridley's fight orders of his tail (#1940, #2562): the swoop's lowest point, his wall sweep, a missed lunge and
@@ -6,6 +6,12 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// aiming it a whole turn further along its swing than an idle random whip, and the order waits until then, through any
 /// updates his tail spends on another action.
 /// </summary>
+/// <remarks>
+/// Evidence: Ridley's fight sets his tail's whip order, which the tail's neutral control reads and clears only on
+/// an update when every link of the tail is active, so the order survives the updates the tail spends on another
+/// action (#1940).
+/// </remarks>
+[CompatibilityService("Ridley's ordered tail whip waits for his tail's neutral control with all its links active")]
 public sealed class RidleyTailWhipOrder
 {
     /// <summary>Whether an ordered whip waits for his tail's neutral control.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Poses;
 
@@ -22,10 +23,11 @@ public sealed class SamusKinematicsState
     private readonly Dictionary<SamusCollisionDirection, ISolidEnemy> _solidEnemyContacts = [];
 
     /// <summary>
-    /// The solid enemy Samus's latest wall jump launched from, waiting for the next enemy pass to shake it; null when no
-    /// launch from an enemy waits. It names an enemy of the room it was made in, which withdraws it when it unloads.
+    /// The solid enemy Samus's latest wall jump launched from, which the next enemy pass shakes. Each wall-jump check
+    /// withdraws a waiting launch before it looks for a new one; it names an enemy of the room it was made in, which
+    /// withdraws it when it unloads.
     /// </summary>
-    private ISolidEnemy? _wallJumpLaunchEnemy;
+    internal WallJumpLaunchShake<ISolidEnemy> WallJumpLaunch { get; } = new();
 
     /// <summary>
     /// Contact-damage snapshot for ownerless geometry probes. Sand still reads this
@@ -171,24 +173,7 @@ public sealed class SamusKinematicsState
     /// </summary>
     internal void ForgetUnloadedRoomEnemies()
     {
-        WithdrawWallJumpLaunchShake();
+        WallJumpLaunch.Withdraw();
         ClearSolidEnemyCollisions();
-    }
-
-    /// <summary>Asks the next enemy pass to shake <paramref name="launchedFrom"/>, which a wall jump has just launched from.</summary>
-    internal void RequestWallJumpLaunchShake(ISolidEnemy launchedFrom) => _wallJumpLaunchEnemy = Ensure.NotNull(launchedFrom);
-
-    /// <summary>
-    /// Withdraws a waiting launch's shake, as each wall-jump check does before it looks for a new launch, and as a room
-    /// does when it unloads with the enemy the launch named.
-    /// </summary>
-    internal void WithdrawWallJumpLaunchShake() => _wallJumpLaunchEnemy = null;
-
-    /// <summary>Takes the enemy a wall jump launched from for the enemy pass to shake, leaving none waiting.</summary>
-    internal ISolidEnemy? TakeWallJumpLaunchShake()
-    {
-        ISolidEnemy? launchedFrom = _wallJumpLaunchEnemy;
-        _wallJumpLaunchEnemy = null;
-        return launchedFrom;
     }
 }

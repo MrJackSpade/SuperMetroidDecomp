@@ -283,13 +283,13 @@ internal static void VerifySamusCrystalFlash()
     samus.LiquidPhysics.BeginFrameSoundRequests();
     SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom(), ControllerInput = chord });
     int finishFrames = 0;
-    while (samus.PendingTransitionalPose is null && finishFrames++ < 20)
+    while (samus.CuePose.Named is null && finishFrames++ < 20)
     {
         samus.CrystalFlash.Step(samus, (ushort)(0x0100 + finishFrames));
         samus.LiquidPhysics.BeginFrameSoundRequests();
         SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom(), ControllerInput = chord });
     }
-    AssertEqual<SamusPoseId?>(SamusPoseId.FacingRightNormalPose, samus.PendingTransitionalPose,
+    AssertEqual<SamusPoseId?>(SamusPoseId.FacingRightNormalPose, samus.CuePose.Named,
         "Crystal Flash ROM finish command publishes standing right");
     AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(samus),
         "Crystal Flash standing transition is applied");

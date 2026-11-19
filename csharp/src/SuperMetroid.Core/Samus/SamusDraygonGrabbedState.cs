@@ -77,7 +77,7 @@ public sealed class SamusDraygonGrabbedState
         samus.CommitPoseHistory();
         // The grab clears every pending pose. The pose the animation left pending is Samus's to clear; the runtime clears the
         // others after the enemy update, which publishes the grab.
-        samus.PendingTransitionalPose = null;
+        samus.CuePose.Forget();
     }
 
     /// <summary>

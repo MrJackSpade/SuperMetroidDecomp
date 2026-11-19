@@ -51,7 +51,7 @@ internal sealed class EnemyFramePhase
     {
         // Samus's collision follows the enemies' update, so her stand at the elevator's door on the update before reaches
         // the elevator here, immediately before this update's elevator step (#2545).
-        if (room.RoomObjects.DoorContacts.HandOverElevatorStandFromLastUpdate())
+        if (room.RoomObjects.DoorContacts.ElevatorStand.Take())
             room.Enemies.Elevator.PublishElevatorDoorContact();
         // The frame start clears all four external-displacement values before
         // the enemy pass. Rideable enemies then accumulate accepted platform deltas and

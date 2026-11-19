@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
@@ -88,8 +89,7 @@ public sealed class SamusHorizontalSpeedState
     /// Whether cancelling a speed boost asked for the suit's shade back at once. Movement cancels the boost and the
     /// colour step, later in the same frame, shows the suit.
     /// </summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "The suit's shade a cancelled boost or a new pose asks for waits for the update's colour step, which shows it before the charge and drained colourings of the same update; the steps that ask for it run in movement, pose and firing and reach only Samus, not the colour step's colours.")]
-    public bool SuitShadeRestoreRequested { get; private set; }
+    public SuitShadeAtColourStep SuitShade { get; } = new();
 
     /// <summary>
     /// What the speed echoes are doing. Ordinary active Speed Booster captures alternate between the first and second
@@ -389,23 +389,22 @@ public sealed class SamusHorizontalSpeedState
     /// Defers restoring Samus's normal suit colours until just before this update's suit colourings run.
     /// The game's pose initialization performs this when leaving a Screw Attack spin family.
     /// </summary>
-    public void RequestSuitShadeRestore() => SuitShadeRestoreRequested = true;
+    public void ShowSuitShadeAtColourStep() => SuitShade.Show();
 
     /// <summary>
     /// Shows at once the suit colours requested by momentum cancellation and
     /// pose initialization. These precede charge and special colouring handling, which may
     /// replace their colors in the same frame; they must not erase a later charge flash.
     /// </summary>
-    public bool ApplyPendingSuitShadeRestore(
+    public bool ShowDueSuitShade(
         SamusColours colours,
         SamusEquipmentFlags equippedItems)
     {
         Ensure.NotNull(colours);
-        if (!SuitShadeRestoreRequested)
+        if (!SuitShade.Take())
             return false;
 
         SamusSuitShade.Show(colours, equippedItems);
-        SuitShadeRestoreRequested = false;
         return true;
     }
 
@@ -494,7 +493,7 @@ public sealed class SamusHorizontalSpeedState
             HasRunningMomentum = false;
             SpeedBoostCounter = default;
             SamusGlowPlay.Restart(FullBodyGlow, FullBodyGlowStart);
-            SuitShadeRestoreRequested = true;
+            SuitShade.Show();
         }
 
         // This block is intentionally outside the momentum test. Every movement can

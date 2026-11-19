@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Animation;
+﻿using SuperMetroid.Core.Compatibility;
+using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>

@@ -93,7 +93,7 @@ public static class SamusGrappleMovement
 
         QueueGrappleSound(samus, GrappleBeamDefinitions.Sounds.Fire);
         // The grapple's firing sound, like a beam shot's, cancels a pending resume of the charging sound (#1689).
-        samus.ResumeChargingBeamSoundPending = false;
+        samus.ChargingSound.Cancel();
         // Firing again ends the released-from-swing movement, so
         // Samus moves with ordinary physics from this same frame.
         grapple.ReleasedMovementActive = false;
@@ -475,7 +475,7 @@ public static class SamusGrappleMovement
         grapple.WallJumpTimer.Count();
 
         // Each eligible check first withdraws an earlier launch's enemy shake.
-        samus.Kinematics.WithdrawWallJumpLaunchShake();
+        samus.Kinematics.WallJumpLaunch.Withdraw();
 
         // The wall-jump probe tests solid/frozen enemies first, then 16 pixels of room blocks toward
         // the wall named by the contact pose's facing. The shared probe preserves
@@ -492,7 +492,7 @@ public static class SamusGrappleMovement
         {
             // Accepted off a solid or frozen enemy, the wall jump asks this update's enemy pass to shake it.
             if (wall.EnemyCollision is { Enemy: { } launchedFrom })
-                samus.Kinematics.RequestWallJumpLaunchShake(launchedFrom);
+                samus.Kinematics.WallJumpLaunch.Launch(launchedFrom);
             grapple.Phase = GrapplePhase.WallJumping;
             return new GrappleMovementResult(
                 grapple.Phase);

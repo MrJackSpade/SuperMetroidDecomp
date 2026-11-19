@@ -173,10 +173,6 @@ internal static class EncounterLookUploads
         return index >= 0 ? index : throw new InvalidDataException($"{encounter} has no look {look}.");
     }
 
-    /// <summary>The place among <paramref name="encounter"/>'s looks of the look gameplay names as <paramref name="look"/>.</summary>
-    /// <exception cref="InvalidDataException">The look is none of the encounter's.</exception>
-    internal static int IndexOf(ComposedEncounter encounter, EncounterLook look) => IndexOf(encounter, ComposedLook.Of(encounter, look));
-
     /// <summary>What each of <paramref name="encounter"/>'s looks copies, resolved against <paramref name="installed"/>.</summary>
     /// <exception cref="InvalidDataException">The installed artwork lacks a look's characters.</exception>
     internal static EncounterLookSteps Steps(ComposedEncounter encounter, IInstalledArtworkContent installed) =>

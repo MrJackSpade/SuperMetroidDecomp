@@ -229,21 +229,23 @@ internal static class EnemyTileArtworkVerification
                 AssertTrue(actual.SequenceEqual(expected),
                     $"installed Crocomire {pass} melt image preserves the image the cartridge assembles");
             }
-            foreach (string file in files)
+            // Each sheet is filed under its enemy's or artwork's key (#2548): the header only addresses the cartridge.
+            foreach (UnplacedEnemyArtwork unplaced in EnemyTileSourceDefinitions.Unplaced)
             {
-                int header = Convert.ToUInt16(Path.GetFileName(file).Substring(6, 4), 16);
-                if (!EnemyDefinitionIds.TryFromHeaderPointer(header, out EnemyDefinitionId pointer))
-                {
-                    // Artwork a graphics set loads for no enemy (#1686) holds the cartridge tiles its header names.
-                    UnplacedEnemyArtwork unplaced = SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWords.UnplacedArtworkHeaders
-                        .Decode(header, "header of unplaced enemy artwork");
-                    int unplacedBytes = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSetAt(bus, header).ByteCount;
-                    byte[] unplacedNative = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-                        SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileDataSourceAt(bus, header), unplacedBytes);
-                    AssertTrue(stock.Enemies.UnplacedTilesOf(unplaced).Span.SequenceEqual(unplacedNative),
-                        $"unplaced artwork {unplaced}'s extracted tiles hold the cartridge tiles its header names");
-                    continue;
-                }
+                // Artwork a graphics set loads for no enemy (#1686) holds the cartridge tiles its header names.
+                AssertTrue(File.Exists(Path.Combine(importData, EnemyTileArtworkFiles.FileName(EnemyTileArtworkFiles.SheetStem(unplaced)))),
+                    $"unplaced artwork {unplaced}'s page is filed under its key");
+                int header = SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWords.UnplacedArtworkHeaders.WordsByIdentity[unplaced].Single();
+                int unplacedBytes = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSetAt(bus, header).ByteCount;
+                byte[] unplacedNative = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+                    SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileDataSourceAt(bus, header), unplacedBytes);
+                AssertTrue(stock.Enemies.UnplacedTilesOf(unplaced).Span.SequenceEqual(unplacedNative),
+                    $"unplaced artwork {unplaced}'s extracted tiles hold the cartridge tiles its header names");
+            }
+            foreach (EnemyDefinitionId pointer in EnemyTileSourceDefinitions.All.Select(source => source.DefinitionId))
+            {
+                AssertTrue(File.Exists(Path.Combine(importData, EnemyTileArtworkFiles.FileName(EnemyTileArtworkFiles.SheetStem(pointer)))),
+                    $"enemy {pointer}'s page is filed under its key");
                 int byteCount = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporterConstants.TileSet(bus, pointer).ByteCount;
                 byte[] native = ReadNativeEnemyTiles(bus, pointer, byteCount);
                 AssertTrue(stock.Enemies.TilesOf(pointer).Span.SequenceEqual(native),

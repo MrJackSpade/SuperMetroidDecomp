@@ -75,7 +75,7 @@ internal sealed class DoorObjects
             return false;
 
         place.Block = block;
-        place.Become(fallback.BlueCapFacing is { } facing
+        place.Become(fallback is DoorClosingObjectDefinition.BlueCap { Facing: var facing }
             ? BlueDoorCapObject.Closing(facing)
             : new MotherBrainEscapeGateObject(MotherBrainEscapeGateDefinitions.Closing));
         SetupPassableBlock(level, place);

@@ -12,7 +12,7 @@ internal static class TypedDoorObjectOracle
 {
     /// <summary>The native list the closer <paramref name="definition"/> places starts at.</summary>
     internal static ushort ClosingListOf(DoorClosingObjectDefinition definition) =>
-        definition.BlueCapFacing is { } facing
+        definition is DoorClosingObjectDefinition.BlueCap { Facing: var facing }
             ? DoorObjectNativeListAddresses.Blue(facing).Closing
             : DoorObjectNativeListAddresses.EscapeGateClosing;
 

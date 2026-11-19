@@ -47487,7 +47487,7 @@
         "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidRockLaunchDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Kraid.KraidRockMotion",
@@ -54673,7 +54673,7 @@
         "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyAttackDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Ridley.CeresRidleyBabyScene",
@@ -72438,6 +72438,45 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.FallingSparks.FallingSparkLaunch",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/FallingSparks/FallingSparkLaunch.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.FallingSparks.FallingSparkLaunch.Authored",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/FallingSparks/FallingSparkLaunch.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.FallingSparks.FallingSparkLaunch.PastAuthored",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/FallingSparks/FallingSparkLaunch.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.FallingSparks.FallingSparkLaunchDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -72449,19 +72488,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.FallingSparks.FallingSparkLaunches",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/FallingSparks/FallingSparkLaunches.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.FallingSparks.FallingSparkMotionDefinitions",
@@ -75917,19 +75943,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumps",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/LavaJumpers/NorfairLavaJumps.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.LeadingPartPlacement",
@@ -141104,6 +141117,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.EnsureAnalyzer.Contracts.RandomSampleSelectionAnalyzer",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer/Contracts/RandomSampleSelectionAnalyzer.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.EnsureAnalyzer.Contracts.RepositoryOwnership",
       "kind": "static class",
       "scope": "tool",
@@ -141999,6 +142025,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.EnsureVerification/Contracts/PrivateInstallationAnalyzerTests.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.EnsureVerification.Contracts.RandomSampleSelectionAnalyzerTests",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.EnsureVerification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureVerification/Contracts/RandomSampleSelectionAnalyzerTests.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -159537,6 +159576,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Verification.Enemies.Alcoon.AlcoonRandomChoicesVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Alcoon/AlcoonRandomChoicesVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Enemies.Alcoon.ReachedPose",
       "kind": "record struct",
       "scope": "test",
@@ -162730,6 +162782,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Enemies/EnemyDropChanceDefinitionsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.EnemyDropRollChanceVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/EnemyDropRollChanceVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -166110,6 +166175,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Enemies/Projectiles/EnemyProjectileProgramOracleVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Projectiles.EnemyProjectileRandomBranchChanceVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Projectiles/EnemyProjectileRandomBranchChanceVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

@@ -17,9 +17,6 @@ internal sealed class MotherBrainShake(UpdateCounterField cadence)
     /// <summary>Whether the shake has updates left.</summary>
     internal bool IsShaking => left.IsRunning;
 
-    /// <summary>Whether the shake still had updates left when it last counted one off.</summary>
-    internal bool ShookAtLastStep { get; private set; }
-
     /// <summary>The offset the shake shows with the updates it has left.</summary>
     internal Offset16<RoomPixels> Offset => MotherBrainShakeDefinitions.Offsets[cadence.Of(UpdatesLeft)];
 
@@ -31,9 +28,11 @@ internal sealed class MotherBrainShake(UpdateCounterField cadence)
     internal void Stop() => left.End();
 
     /// <summary>Counts one of the shake's updates off, while it has any left.</summary>
-    internal void Step()
+    /// <returns>Whether the shake still had an update left to count off.</returns>
+    internal bool Step()
     {
-        ShookAtLastStep = IsShaking;
+        bool shook = IsShaking;
         left.Step();
+        return shook;
     }
 }

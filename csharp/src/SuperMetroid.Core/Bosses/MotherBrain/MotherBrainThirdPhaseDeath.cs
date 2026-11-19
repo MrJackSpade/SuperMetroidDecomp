@@ -210,7 +210,7 @@ internal sealed class MotherBrainThirdPhaseDeath
             body.Presence = body.Presence.With(EnemyPresence.Hidden);
             body.Processing = body.Processing.Without(EnemyProcessing.Animates);
             body.CollidesByFrameHitboxes = false;
-            body.AnimationClock.ShowsNewFrame = false;
+            body.AnimationClock.Halt();
             Encounter.DeathPhase = MotherBrainDeathPhase.FinalFewExplosions;
             Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.FinalExplosionsUpdates);
         }
@@ -350,7 +350,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         brain.Presence = brain.Presence.With(EnemyPresence.Hidden);
         brain.Processing = brain.Processing.Without(EnemyProcessing.Animates);
         brain.CollidesByFrameHitboxes = false;
-        brain.AnimationClock.ShowsNewFrame = false;
+        brain.AnimationClock.Halt();
         requests.Start(MotherBrainStepEffect.MusicStop);   // Queue the music stop.
         requests.Start(MotherBrainStepEffect.EscapeMusic); // Queue the escape music.
         Encounter.DeathPhase = MotherBrainDeathPhase.PauseBeforeEscape;

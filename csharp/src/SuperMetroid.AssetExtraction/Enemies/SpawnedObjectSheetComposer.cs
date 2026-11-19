@@ -123,10 +123,8 @@ internal static class SpawnedObjectSheetComposer
                 rowShades.AddRange(commonRows);
             }
         }
-        EnemyProjectileSpritemapCatalog projectiles = enemies.ProjectileSpritemaps
-            ?? throw new InvalidDataException("Spawned-object sheets require the installed projectile compositions.");
-        EnemySpritemapCatalog spritemaps = enemies.Spritemaps
-            ?? throw new InvalidDataException("Spawned-object sheets require the installed enemy compositions.");
+        EnemyProjectileSpritemapCatalog projectiles = enemies.ProjectileSpritemaps;
+        EnemySpritemapCatalog spritemaps = enemies.Spritemaps;
         int projectileBase = checked((ushort)plan.ProjectileCharacters);
         int objectBase = checked((ushort)plan.ObjectCharacters);
         SpawnedObjects spawned = Spawned(plan);

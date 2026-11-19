@@ -165,7 +165,7 @@ public static class EndingMode7ArtworkFiles
             LoadScene(EndingFloorSceneId.PlanetExplosion),
             LoadRewardIcon());
 
-        EndingRewardIconArtwork LoadRewardIcon()
+        EndingRewardIconCharacters LoadRewardIcon()
         {
             (string mapPath, byte[] map) = ReadExtracted(EndingRewardIconArtworkFormat.MapFileName);
             (string pngPath, byte[] png) = ReadExtracted(EndingRewardIconArtworkFormat.CharacterFileName);
@@ -182,7 +182,7 @@ public static class EndingMode7ArtworkFiles
             }
         }
 
-        EndingFloorSceneArtwork LoadScene(EndingFloorSceneId id)
+        EndingFloorSceneCharacters LoadScene(EndingFloorSceneId id)
         {
             (string mapPath, byte[] map) = ReadExtracted(EndingFloorArtworkFormat.MapFileName(id));
             (string pngPath, byte[] png) = ReadExtracted(EndingFloorArtworkFormat.CharacterFileName(id));

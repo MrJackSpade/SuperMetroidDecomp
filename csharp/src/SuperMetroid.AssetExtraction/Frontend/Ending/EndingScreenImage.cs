@@ -26,36 +26,35 @@ internal static class EndingScreenImage
     internal static void Execute(SnesVram vram, EndingTransfer transfer, EndingTransferArtwork artwork)
     {
         var ending = new EndingVram(vram);
-        switch (transfer.Kind)
+        switch (transfer)
         {
-            case EndingTransferKind.EscapeClouds:
-                ending.PostCreditsObjects.Load(Objects(artwork).Clouds.Characters.Span[..EndingArtworkExtentDefinitions.FloorBytes]);
+            case EndingTransfer.EscapeClouds:
+                ending.PostCreditsObjects.Load(artwork.Objects.Clouds.Characters.Span[..EndingArtworkExtentDefinitions.FloorBytes]);
                 break;
-            case EndingTransferKind.ExplosionObjects:
-                ending.ExplosionObjects.Load(Objects(artwork).Explosion.Characters.Span[..EndingTransferExtentDefinitions.ExplosionObjectBytes]);
+            case EndingTransfer.ExplosionObjects:
+                ending.ExplosionObjects.Load(artwork.Objects.Explosion.Characters.Span[..EndingTransferExtentDefinitions.ExplosionObjectBytes]);
                 break;
-            case EndingTransferKind.ExplosionMap:
-                EndingExplosionPicture fragment = transfer.Fragment ?? throw new InvalidOperationException("An explosion map transfer names its map.");
-                ending.ObjectFragment(fragment).Load(MapBytes(Objects(artwork).Fragment(fragment)).AsSpan(0, EndingTransferExtentDefinitions.ObjectFragmentBytes));
+            case EndingTransfer.ExplosionMap(EndingExplosionPicture fragment):
+                ending.ObjectFragment(fragment).Load(MapBytes(artwork.Objects.Fragment(fragment)).AsSpan(0, EndingTransferExtentDefinitions.ObjectFragmentBytes));
                 break;
-            case EndingTransferKind.EndingFont:
-                ending.EndingFont.Load(Font(artwork).Characters.Span[..EndingTransferExtentDefinitions.ObjectFragmentLimit]);
+            case EndingTransfer.EndingFont:
+                ending.EndingFont.Load(artwork.Font.Characters.Span[..EndingTransferExtentDefinitions.ObjectFragmentLimit]);
                 break;
-            case EndingTransferKind.CreditsCharacterArt:
+            case EndingTransfer.CreditsCharacterArt:
                 ExecuteCreditsCharacterArt(ending, artwork);
                 break;
-            case EndingTransferKind.PostShotPart:
-                ExecutePostShotPart(vram, transfer.Chunk, artwork);
+            case EndingTransfer.PostShotPart(int chunk):
+                ExecutePostShotPart(vram, chunk, artwork);
                 break;
             default:
-                throw new ArgumentOutOfRangeException(nameof(transfer), transfer.Kind, "Undefined ending transfer.");
+                throw new ArgumentOutOfRangeException(nameof(transfer), transfer, "Undefined ending transfer.");
         }
     }
 
     /// <summary>The waiting, shooting and reward characters with the post-credits map fragments.</summary>
     private static void ExecuteCreditsCharacterArt(EndingVram ending, EndingTransferArtwork artwork)
     {
-        ImportEndingObjectArtwork objects = Objects(artwork);
+        ImportEndingObjectArtwork objects = artwork.Objects;
         ReadOnlySpan<byte> waiting = objects.WaitingSamus.Characters.Span;
         ending.WaitingCharacters.Load(waiting[..EndingTransferExtentDefinitions.WaitingCharacterBytes]);
         ending.PostCreditsObjects.Load(objects.ShootingScreen.Characters.Span[..EndingTransferExtentDefinitions.ShootingCharacterBytes]);
@@ -74,10 +73,10 @@ internal static class EndingScreenImage
         int length = transfer.Length;
         ReadOnlySpan<byte> bytes = transfer.Source switch
         {
-            EndingPostShotUploadSource.Subtitle => Font(artwork).Characters.Span.Slice(EndingPostShotUploadDefinitions.SubtitleFontOffset, length),
-            EndingPostShotUploadSource.LogoTiles => Objects(artwork).PostShotLogoTiles.Characters.Span.Slice(
+            EndingPostShotUploadSource.Subtitle => artwork.Font.Characters.Span.Slice(EndingPostShotUploadDefinitions.SubtitleFontOffset, length),
+            EndingPostShotUploadSource.LogoTiles => artwork.Objects.PostShotLogoTiles.Characters.Span.Slice(
                 transfer.Offset, length),
-            EndingPostShotUploadSource.LogoMap => MapBytes(Objects(artwork).PostShotLogoMap).AsSpan(0, length),
+            EndingPostShotUploadSource.LogoMap => MapBytes(artwork.Objects.PostShotLogoMap).AsSpan(0, length),
             _ => throw new InvalidOperationException($"Undefined {nameof(EndingPostShotUploadSource)} {(int)transfer.Source}."),
         };
         vram.LoadBytes(EndingVramDestinations.PostShotWordOf(transfer) * sizeof(ushort), bytes);
@@ -85,12 +84,4 @@ internal static class EndingScreenImage
 
     /// <summary>An installed map's tiles as the little-endian tilemap words a transfer writes.</summary>
     internal static byte[] MapBytes(RoomBackgroundTilemapAtlas map) => BackgroundTileWords.ToBytes(map.Tiles.Span);
-
-    /// <summary>The bound OBJ artwork as the import pipeline read it, with its character atlases and maps.</summary>
-    private static ImportEndingObjectArtwork Objects(EndingTransferArtwork artwork) =>
-        artwork.Objects ?? throw new InvalidOperationException("Ending objects require installed artwork.");
-
-    /// <summary>The bound ending font.</summary>
-    private static EndingFontCharacters Font(EndingTransferArtwork artwork) =>
-        artwork.Font ?? throw new InvalidOperationException("Ending font requires installed presentation assets.");
 }

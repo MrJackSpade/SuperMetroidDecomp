@@ -51,7 +51,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     /// What the ending shows with its phase, which owns that scene's own actors (#2541): the cast, the staff credits, the
     /// reward's reveal, gesture, jump, shot and white flash, or the final logo. The ending changes it only with its phase.
     /// </summary>
-    internal EndingScene Scene { get; private set; } = new EndingCastScene();
+    internal EndingScene Scene { get; private set; } = new EndingCastScene(EndingCreditsPhase.SetupEscapeFromZebes);
 
     /// <summary>
     /// The wait of the phase running now (#2541), begun as the phase is entered: the setup's waits, the explosion's hold and
@@ -111,6 +111,12 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
 
     /// <summary>Enters <paramref name="phase"/>, which shows the scene already showing.</summary>
     private void Enter(EndingCreditsPhase phase) => Phase = phase;
+
+    /// <summary>Enters the cast's <paramref name="phase"/>, which shows the cast in that phase.</summary>
+    private void Enter(EndingCastPhase phase) => Show(phase, new EndingCastScene(phase));
+
+    /// <summary>Enters the cast's <paramref name="phase"/>, which shows the cast in that phase and waits <paramref name="holdUpdates"/> updates.</summary>
+    private void Enter(EndingCastPhase phase, int holdUpdates) => Show(phase, new EndingCastScene(phase), holdUpdates);
 
     /// <summary>Enters <paramref name="phase"/>, which waits <paramref name="holdUpdates"/> updates, from the next update on.</summary>
     private void Enter(EndingCreditsPhase phase, int holdUpdates)
@@ -201,17 +207,6 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     {
         if (Phase != phase)
             throw new InvalidOperationException($"The {Scene.GetType().Name} runs no {Phase} phase.");
-    }
-
-    /// <summary>
-    /// Runs one update of a phase that shows the ending's cast: the escape, the explosion, the planet escape, the fade to
-    /// the credits and the post-credits waits before the reward.
-    /// </summary>
-    /// <returns>Whether the update goes on past the phase to the ending's colour effects and stars: false for a setup wait.</returns>
-    /// <exception cref="InvalidOperationException">The phase is not one the cast shows.</exception>
-    internal bool StepCast()
-    {
-        return Phase.StepCast(this);
     }
 
     /// <summary>Runs one update of the cast's <see cref="EndingCreditsPhase.SetupEscapeFromZebes"/> phase.</summary>
@@ -570,7 +565,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
         if (!scroll.Finished)
             return;
         CreditsRoll.SetupPostCreditsBlank();
-        Show(EndingCreditsPhase.PostCreditsBlank, new EndingCastScene(), EndingSequenceDefinitions.Timing.PostCreditsBlankFrames);
+        Enter(EndingCreditsPhase.PostCreditsBlank, EndingSequenceDefinitions.Timing.PostCreditsBlankFrames);
     }
 
     /// <summary>

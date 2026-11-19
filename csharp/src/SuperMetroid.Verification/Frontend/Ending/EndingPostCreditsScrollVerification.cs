@@ -26,7 +26,7 @@ internal static class EndingPostCreditsScrollVerification
 
         // The post-shot is reached only after the reward has shown the producer panel and replaced it with the
         // copyright, which the white flash then clears; the production steps show that text before the shot begins.
-        PrivateState.Set(ending, nameof(EndingCreditsState.Phase), EndingCreditsPhase.PostCreditsWaitingBackdrop);
+        ending.ShowCastPhase(EndingCreditsPhase.PostCreditsWaitingBackdrop);
         PrivateState.Set(ending, nameof(EndingCreditsState.PhaseHold), UpdateCountdown.Lasting(1));
         ending.Step();
         AssertEqual(EndingCreditsPhase.PostCreditsWaitingSamus, ending.Phase, "the waiting backdrop shows the producer panel");

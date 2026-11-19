@@ -92,7 +92,7 @@ internal static class EndingShootingStarsTests
                 SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingObjects));
         scene.InstalledArtwork.LoadCreditsAndPostCreditsAssets();
         scene.CreditsRoll.SetupPostCreditsBlank();
-        PrivateState.Set(scene, nameof(EndingCreditsState.Phase), EndingCreditsPhase.PostCreditsBlank);
+        scene.ShowCastPhase(EndingCreditsPhase.PostCreditsBlank);
         PrivateState.Set(scene, nameof(EndingCreditsState.PhaseHold), UpdateCountdown.Lasting(EndingSequenceDefinitions.Timing.PostCreditsBlankFrames));
         var seen = new HashSet<EndingCreditsPhase>();
         for (int tick = 0; tick < 400; tick++)

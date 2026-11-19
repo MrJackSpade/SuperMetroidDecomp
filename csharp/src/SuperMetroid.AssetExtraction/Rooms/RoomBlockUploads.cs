@@ -248,7 +248,10 @@ internal static class RoomBlockUploads
         }
     }
 
-    /// <summary>No door, for the background's ordinary picture, and each door that shows its own picture of it.</summary>
+    /// <summary>
+    /// No door, for the background's ordinary picture, and each door that shows its own picture of it. The null is the
+    /// absence of a picture door, which is what shows the ordinary picture: no door of the program's is entered through.
+    /// </summary>
     private static IEnumerable<DoorDefinition?> DoorVariants(LibraryBackgroundProgram program) => [null, .. program.Background.PictureDoors];
 
     /// <summary>
@@ -262,11 +265,9 @@ internal static class RoomBlockUploads
     {
         BgArtworkBindings content = Loaded(inputs, tileset);
         var vram = new SnesVram();
-        // A door no transfer names stands for every door the program does not tell apart.
-        DoorDefinition entry = door ?? new DoorDefinition("no library background door", room,
-            new DoorOrientation(DoorDirection.Right, DoorClosingBehavior.None), default, default, DoorSamusSpeed.None, DoorSetupDefinitions.None);
+        // Entered through no picture door, the room runs as every door the program does not tell apart does.
         LibraryBackgroundReplay.Execute(vram, program,
-            entry, new LibraryBackgroundArtwork
+            door, new LibraryBackgroundArtwork
             {
                 TilemapArt = inputs.BackgroundTilemaps,
                 SkyArt = inputs.Skies,

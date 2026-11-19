@@ -57,6 +57,15 @@ internal sealed class SelectedPresentationHash
         Append(label, bytes);
     }
 
+    /// <summary>Adds an optional signed integer field: no payload when it is absent, its four-byte form when it is present.</summary>
+    public void Append(string label, int? value)
+    {
+        if (value is int present)
+            Append(label, present);
+        else
+            Append(label, ReadOnlySpan<byte>.Empty);
+    }
+
     /// <summary>Adds a sequence of 16-bit values in little-endian order.</summary>
     /// <param name="label">The field's label.</param>
     /// <param name="words">The values, each 0 through 65535; any other value is rejected.</param>

@@ -44,7 +44,7 @@ internal static class DoorDefinitionsVerification
             RoomLevelData.NothingBeyondGrid(), [new RoomDoorBlock(at, DoorBlockExit.Physical(CrateriaDoorDefinitions.LandingSiteToParlor))]);
         SamusCollisionPose pose = SamusPoseId.ForwardFacingPowerSuitPose.ForRoomCollision();
         DoorBlockExit exit = level.DoorExitAt(level.GetCollisionBlock(at));
-        AssertEqual(CrateriaDoorDefinitions.LandingSiteToParlor, exit.Door,
+        AssertEqual(CrateriaDoorDefinitions.LandingSiteToParlor, (exit as DoorBlockExit.ThroughDoor)?.Door,
             "the door block leads through the door its room names");
         var contacts = new RoomDoorContacts();
         contacts.Meet(DoorContact.Of(exit, pose));

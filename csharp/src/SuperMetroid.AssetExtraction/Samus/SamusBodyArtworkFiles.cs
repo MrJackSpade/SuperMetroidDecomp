@@ -46,9 +46,13 @@ public static class SamusBodyArtworkFiles
     /// installs the body without the cartridge's digest and the arm cannon and death documents without manifests (#1693).
     /// Revision fifteen keys each pose's frames by their names in the pose's animation, the segment and the frame within it,
     /// and installs the frames each pose shows with the picture frame each draws (#2048). Revision sixteen names each
-    /// pose's art origin <c>artOrigin</c> (#2113).
+    /// pose's art origin <c>artOrigin</c> (#2113). Revision seventeen records a frame that names no lower half with no
+    /// lower group, as null (#2558).
     /// </summary>
-    private const int FormatVersion = 16;
+    private const int FormatVersion = 17;
+
+    /// <summary>The lower group index with which the cartridge's frame names no lower half, the largest a selector holds.</summary>
+    private const int CartridgeNoBottomSet = byte.MaxValue;
     /// <summary>Each split-DMA definition occupies eight 8x8 tiles across its PNG row.</summary>
     private const int TileWidth = 64;
     /// <summary>Two tile rows reserve sixteen graphics tiles for one DMA definition.</summary>
@@ -104,8 +108,9 @@ public static class SamusBodyArtworkFiles
         for (int index = 0; index < frames.Length; index++)
         {
             int address = SamusSourceDefinitions.BodyFrames.Value + index * 4;
+            int bottomSet = bus.ReadCartridgeByte(address + 2);
             frames[index] = new SamusBodyFrameSelection(bus.ReadCartridgeByte(address),
-                bus.ReadCartridgeByte(address + 1), bus.ReadCartridgeByte(address + 2), bus.ReadCartridgeByte(address + 3));
+                bus.ReadCartridgeByte(address + 1), bottomSet == CartridgeNoBottomSet ? null : bottomSet, bus.ReadCartridgeByte(address + 3));
         }
 
         ushort[] allPointers = topPointers.Concat(bottomPointers).OrderBy(value => value).ToArray();

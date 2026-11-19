@@ -16,7 +16,8 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 internal static class LibraryBackgroundReplay
 {
     /// <summary>
-    /// Replays <paramref name="program"/> as a room entered through <paramref name="activeDoor"/> runs it, into
+    /// Replays <paramref name="program"/> as a room entered through <paramref name="activeDoor"/> (null for a door the program
+    /// names no transfer for) runs it, into
     /// <paramref name="vram"/>. The tilemap staging starts empty and the enemy BG2 staging holds
     /// <paramref name="enemyBg2Staging"/> (empty for none, as a room load leaves it).
     /// </summary>
@@ -25,7 +26,7 @@ internal static class LibraryBackgroundReplay
     /// installed artwork owns.
     /// </exception>
     internal static void Execute(SnesVram vram, LibraryBackgroundProgram program,
-        DoorDefinition activeDoor, LibraryBackgroundArtwork artwork, ReadOnlyMemory<byte> enemyBg2Staging = default) =>
+        DoorDefinition? activeDoor, LibraryBackgroundArtwork artwork, ReadOnlyMemory<byte> enemyBg2Staging = default) =>
         Execute(vram, Ensure.NotNull(program).Name, program.Instructions, activeDoor, artwork, enemyBg2Staging);
 
     /// <summary>
@@ -38,7 +39,7 @@ internal static class LibraryBackgroundReplay
     /// installed artwork owns.
     /// </exception>
     internal static void Execute(SnesVram vram, string list, IReadOnlyList<LibraryBackgroundInstruction> instructions,
-        DoorDefinition activeDoor, LibraryBackgroundArtwork artwork, ReadOnlyMemory<byte> enemyBg2Staging = default)
+        DoorDefinition? activeDoor, LibraryBackgroundArtwork artwork, ReadOnlyMemory<byte> enemyBg2Staging = default)
     {
         Ensure.NotNull(vram);
         ArgumentException.ThrowIfNullOrEmpty(list);

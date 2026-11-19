@@ -74,8 +74,8 @@ public sealed class SamusBodyCharacterArtwork
     {
         int? topRecord = topPicture is { } shownTop ? SamusBodySources.Record(shownTop) : null;
         int? bottomRecord = bottomPicture is { } shownBottom ? SamusBodySources.Record(shownBottom) : null;
-        int topOrdinal = topRecord is { } upper ? definitionOrdinals[upper] : -1;
-        int bottomOrdinal = bottomRecord is { } lower ? definitionOrdinals[lower] : -1;
+        int? topOrdinal = topRecord is { } upper ? definitionOrdinals[upper] : null;
+        int? bottomOrdinal = bottomRecord is { } lower ? definitionOrdinals[lower] : null;
         return bodyArtwork.GetOrAdd(new SamusBodyArtworkKey(topOrdinal, bottomOrdinal), key =>
         {
             var characters = new byte[BodyCharacterCount * SpriteArtwork.CharacterByteCount];

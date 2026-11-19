@@ -76,7 +76,7 @@ internal static class RoomBlockReadingGenerator
         .Append(Reaction(readings.Spike)).Append(", ")
         .Append(Reaction(readings.Grapple)).Append(",\n").Append(indent)
         .Append("new(SlopeShapeDefinitions.").Append(readings.Slope.Shape.Name).Append(", BlockMirroring.").Append(readings.Slope.Mirroring).Append("), ")
-        .Append(readings.ExtensionOffset).Append(')')
+        .Append(readings.ExtensionOffset).Append(readings.ResolvedByArea ? ", ResolvedByArea: true" : "").Append(')')
         .ToString();
 
     /// <summary>A reading's source: the reaction by its type and name, or null for a kind with no reaction (#1742).</summary>

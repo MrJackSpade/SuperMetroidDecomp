@@ -40,7 +40,7 @@ public static class RoomMetatileArtworkFiles
         var entries = new Dictionary<string, RoomMetatileFileEntry>();
         foreach ((string name, RoomBlockSource source) in ExpectedSources())
         {
-            SnesAddress address = source.Set is { } set ? tilesets.Blocks[set]
+            SnesAddress address = source is RoomBlockSource.OfSet(RoomBlockSet set) ? tilesets.Blocks[set]
                 : RoomTilesetSourceDefinitions.CreBlocks;
             byte[] json = files[name];
             int nativeLength = RomDataReader.Decompress(CartridgeImportSource.Require(bus), address).Length;
@@ -91,7 +91,7 @@ public static class RoomMetatileArtworkFiles
             {
                 throw new InvalidDataException($"Invalid room metatile JSON {stockPath}: {error.Message}", error);
             }
-            if (source.Set is { } set) selected.Add(set, atlas);
+            if (source is RoomBlockSource.OfSet(RoomBlockSet set)) selected.Add(set, atlas);
             else cre = atlas;
         }
         return new RoomMetatileCatalog(
@@ -103,19 +103,31 @@ public static class RoomMetatileArtworkFiles
     {
         var sources = new Dictionary<string, RoomBlockSource>
         {
-            [RoomMetatileFormat.CreFileName] = new(null),
+            [RoomMetatileFormat.CreFileName] = new RoomBlockSource.Common(),
         };
         foreach (TilesetDefinition tileset in RoomTilesets.All)
         {
             RoomBlockSet set = tileset.Blocks;
-            sources[RoomMetatileFormat.FileName(set)] = new(set);
+            sources[RoomMetatileFormat.FileName(set)] = new RoomBlockSource.OfSet(set);
         }
         return sources;
     }
 
-    /// <summary>A block file's table: none for the common room elements.</summary>
-    /// <param name="Set">The table, or null for the common room elements.</param>
-    private readonly record struct RoomBlockSource(RoomBlockSet? Set);
+    /// <summary>A block file's table: the common room elements' or a block set's.</summary>
+    private abstract record RoomBlockSource
+    {
+        /// <summary>Only the nested cases derive.</summary>
+        private RoomBlockSource()
+        {
+        }
+
+        /// <summary>The common room elements' table.</summary>
+        internal sealed record Common : RoomBlockSource;
+
+        /// <summary>A block set's table.</summary>
+        /// <param name="Set">The set.</param>
+        internal sealed record OfSet(RoomBlockSet Set) : RoomBlockSource;
+    }
 
     /// <summary>Strict camel-case serialization settings for the metatile provenance manifest.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

@@ -144,7 +144,7 @@ internal static class RoomDoorBlockFiles
     }
 
     /// <summary>The name the document gives an exit: its door's, or the elevator ride's.</summary>
-    private static string NameOf(DoorBlockExit exit) => exit.Door?.Name ?? ElevatorRideName;
+    private static string NameOf(DoorBlockExit exit) => exit is DoorBlockExit.ThroughDoor { Door: var door } ? door.Name : ElevatorRideName;
 
     /// <summary>Each retail room's door blocks in each level its states use, by the room's, the level's and each exit's name.</summary>
     private sealed record RoomDoorBlocksDocument(int Version,

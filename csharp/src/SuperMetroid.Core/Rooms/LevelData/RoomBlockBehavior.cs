@@ -129,7 +129,7 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
 
     /// <summary>A resolution's readings with the special-block and special-air readings its area gives left out.</summary>
     private static RoomBlockReadings Unresolved(RoomBlockReadings resolution) =>
-        resolution with { Special = null, SpecialAir = null };
+        resolution with { Special = null, SpecialAir = null, ResolvedByArea = true };
 
     /// <summary>The empty behaviour's readings: the kept behaviour whose extension ends its chain.</summary>
     private static readonly RoomBlockReadings EmptyReadings = ExtensionWrites.Carrying(0);

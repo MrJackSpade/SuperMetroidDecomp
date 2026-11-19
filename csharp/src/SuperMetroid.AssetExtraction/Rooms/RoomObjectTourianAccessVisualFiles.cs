@@ -30,7 +30,7 @@ public static class RoomObjectTourianAccessVisualFiles
 
     /// <summary>The draw lists of every Tourian access draw, in the cartridge's order: the empty row, the crumble's stages, the clear.</summary>
     internal static IEnumerable<RoomObjectDrawLists.DrawList> All =>
-        [Compile(TourianAccessDraw.EmptyRow), .. RoomObjectVisualIdDefinitions.TourianAccessCrumble.Keys.Select(CompileCrumble),
+        [Compile(TourianAccessDraw.EmptyRow), .. TourianAccessObjectDrawDefinitions.CrumbleShapes.Keys.Select(CompileCrumble),
             Compile(TourianAccessDraw.Clear)];
 
     /// <summary>Gets the stable artwork identity of a Tourian access draw: a crumble stage's, or the empty row's or the clear's.</summary>
@@ -40,14 +40,12 @@ public static class RoomObjectTourianAccessVisualFiles
             : VisualId(RoomObjectDrawIdentity.FrameOf<TourianAccessDraw>(draw, "Tourian access"));
 
     /// <summary>Names the empty row or the six-row clear frame for visual files.</summary>
-    internal static string VisualId(TourianAccessDraw draw) =>
-        RoomObjectVisualIdDefinitions.TourianAccess.TryGetValue(draw, out string? id)
-            ? id : throw new InvalidOperationException($"Undefined TourianAccessDraw {draw}.");
+    internal static string VisualId(TourianAccessDraw draw) => TourianAccessDrawKeys.Installed.Of(draw);
 
-    /// <summary>Names a drawn stage of a row's crumble for visual files (#2291).</summary>
+    /// <summary>Names a drawn stage of a row's crumble for visual files (#2291): the crumble's word, then the stage's key.</summary>
     private static string CrumbleVisualId(BlockBreakupStage stage) =>
-        RoomObjectVisualIdDefinitions.TourianAccessCrumble.TryGetValue(stage, out string? id)
-            ? id : throw new InvalidOperationException($"A Tourian access row's crumble draws no stage {stage}.");
+        TourianAccessObjectDrawDefinitions.CrumbleShapes.ContainsKey(stage) ? "crumble-" + BlockBreakupStageKeys.Installed.Of(stage)
+            : throw new InvalidOperationException($"A Tourian access row's crumble draws no stage {stage}.");
 
     /// <summary>The draw list of a Tourian access draw: its block shape written one four-block row at a time, top row first (#1862).</summary>
     internal static RoomObjectDrawLists.DrawList Compile(TourianAccessDraw draw) =>

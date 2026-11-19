@@ -55,15 +55,15 @@ internal static class GraphicsSetCharacterLayoutVerification
                 $"the dead Sidehopper draws {legs} from the large Sidehopper's tiles");
         AssertEqual(corpse.TileIndexBase, bigBoy.TileBaseOf(EnemyDefinitionId.CorpseSidehopper, EnemyFrameId.DeadSidehopperSprawled),
             "the dead Sidehopper draws its sprawled corpse from its own characters");
-        GraphicsSetCharacterLayout corpseAlone = GraphicsSetCharacterLayout.Of(new RoomEnemyGraphicsSetMembers("dead Sidehopper alone",
+        GraphicsSetCharacterLayout corpseAlone = GraphicsSetCharacterLayout.Of(new RoomEnemyGraphicsSetMembers(new RoomEnemyGraphicsSetDefinition("dead Sidehopper alone"),
             [new(EnemyDefinitionId.CorpseSidehopper)]));
         AssertThrows<InvalidDataException>(() => corpseAlone.TileBaseOf(EnemyDefinitionId.CorpseSidehopper, EnemyFrameId.LargeSidehopperLegsBent),
             "a set that loads no large Sidehopper tiles cannot draw the dead Sidehopper's legs");
 
-        AssertThrows<InvalidDataException>(() => GraphicsSetCharacterLayout.Of(new RoomEnemyGraphicsSetMembers("five members",
+        AssertThrows<InvalidDataException>(() => GraphicsSetCharacterLayout.Of(new RoomEnemyGraphicsSetMembers(new RoomEnemyGraphicsSetDefinition("five members"),
             [.. Enumerable.Repeat(new RoomEnemyGraphicsSetMember(EnemyDefinitionId.Beetom), 5)])),
             "a set of more than four members is rejected");
-        AssertThrows<InvalidDataException>(() => GraphicsSetCharacterLayout.Of(new RoomEnemyGraphicsSetMembers("after a fixed block",
+        AssertThrows<InvalidDataException>(() => GraphicsSetCharacterLayout.Of(new RoomEnemyGraphicsSetMembers(new RoomEnemyGraphicsSetDefinition("after a fixed block"),
             [new(UnplacedEnemyArtwork.CeresDoors), new(EnemyDefinitionId.Beetom)])),
             "a member after one staged at a fixed block is rejected");
         Console.WriteLine("  Graphics-set layout: ordinary and fixed-block members land where the cartridge stages them.");

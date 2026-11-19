@@ -38,7 +38,7 @@ internal static class EmptyRoomSpawnedPicturesVerification
             foreach (CommonSpawnedObjects spawner in CommonSpawners.RunningIn([state], []))
             {
                 frames.UnionWith(spawner.Objects.Projectiles);
-                precious |= state == MaridiaRoomStateDefinitions.ThePreciousDefault && spawner.Spawner == nameof(SuperMetroid.Core.Enemies.EyeDoor.EyeDoorBehavior);
+                precious |= state == MaridiaRoomStateDefinitions.ThePreciousDefault && spawner.Spawner == CommonSpawner.EyeDoorBehavior;
             }
         }
         VerificationAssertions.AssertTrue(precious, "The Precious runs its eye door's smoke spawner");

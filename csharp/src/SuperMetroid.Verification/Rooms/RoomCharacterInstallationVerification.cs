@@ -41,7 +41,8 @@ internal static class RoomCharacterInstallationVerification
         AssertEqual(0, Directory.GetFiles(installed.EnemyTileDirectory, "*-colors.json").Length,
             "the installation holds no enemy, boss or area colour document");
         AssertEqual(EnemyTileArtworkFormat.RetailEntryCount,
-            Directory.GetFiles(CartridgeImportContent.ImportData(GameInstallationLayout.EnemyTileDirectoryName), "enemy-????-colors.json").Length,
+            Directory.GetFiles(CartridgeImportContent.ImportData(GameInstallationLayout.EnemyTileDirectoryName), "enemy-sheet-*-colors.json").Length +
+                Directory.GetFiles(CartridgeImportContent.ImportData(GameInstallationLayout.EnemyTileDirectoryName), "enemy-unplaced-*-colors.json").Length,
             "the import extracts every retail enemy palette, and every palette a set loads for no enemy, into its import data");
         _ = installed.LoadEnemyTiles();
         // Room characters are the import's input (#1466) and import data no installation holds (#1636): they are read

@@ -29,29 +29,9 @@ public static class RoomObjectShotBlockVisualFiles
     /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a shot-block draw.</exception>
     internal static string VisualId(RoomObjectDraw draw) => draw switch
     {
-        RoomObjectFrameDraw<ShotBlockObjectDraws.BreakupDraw> { Frame: var breakup } => $"{ShapeName(breakup.Layout)}-{StageName(breakup.Stage)}",
-        RoomObjectFrameDraw<ShotBlockObjectDraws.RestorationDraw> { Frame: var restoration } => $"{ShapeName(restoration.Layout)}-restore",
+        RoomObjectFrameDraw<ShotBlockObjectDraws.BreakupDraw> { Frame: var breakup } => $"{BlockArrangementKeys.Installed.Of(breakup.Layout)}-{BlockBreakupStageKeys.Installed.Of(breakup.Stage)}",
+        RoomObjectFrameDraw<ShotBlockObjectDraws.RestorationDraw> { Frame: var restoration } => $"{BlockArrangementKeys.Installed.Of(restoration.Layout)}-restore",
         _ => throw new InvalidDataException($"{draw} is not a shot-block draw."),
-    };
-
-    /// <summary>A shape's word in a shot-block draw's identity.</summary>
-    private static string ShapeName(BlockArrangement shape) => shape switch
-    {
-        BlockArrangement.Single => "single",
-        BlockArrangement.Horizontal => "horizontal",
-        BlockArrangement.Vertical => "vertical",
-        BlockArrangement.Square => "square",
-        _ => throw new InvalidOperationException($"Undefined shot-block shape {shape}."),
-    };
-
-    /// <summary>A breakup stage's words in a shot-block draw's identity.</summary>
-    private static string StageName(BlockBreakupStage stage) => stage switch
-    {
-        BlockBreakupStage.Rock => "rock",
-        BlockBreakupStage.Pieces => "pieces",
-        BlockBreakupStage.Dust => "dust",
-        BlockBreakupStage.Gone => "gone",
-        _ => throw new InvalidOperationException($"Undefined {nameof(BlockBreakupStage)} {stage}."),
     };
 
     /// <summary>The draw lists of every breakup and restoration draw, built from the calculated draws.</summary>

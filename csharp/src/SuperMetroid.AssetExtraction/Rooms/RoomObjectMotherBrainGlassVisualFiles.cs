@@ -14,7 +14,7 @@ public static class RoomObjectMotherBrainGlassVisualFiles
 
     /// <summary>The glass as the import pictures it: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<MotherBrainGlassDraw> Family { get; } =
-        new(VisualFileName, "Mother Brain glass", Layouts(), RoomObjectVisualIdDefinitions.MotherBrainGlass);
+        new(VisualFileName, "Mother Brain glass", Layouts(), MotherBrainGlassDrawKeys.Installed.ByIdentity);
 
     /// <summary>Pictures the eleven glass frames from the cartridge's draw lists and writes the installed file.</summary>
     /// <param name="bus">The cartridge, whose draw lists are checked against the glass's geometry and collision.</param>

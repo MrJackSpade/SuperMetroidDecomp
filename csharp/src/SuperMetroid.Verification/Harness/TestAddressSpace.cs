@@ -190,8 +190,8 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
             .Where(set => RoomEnemyGraphicsSetLists.MembersOf(set).Records.Span.SequenceEqual(records.ToArray()))];
         if (matches.Length == 0)
             return null;
-        IReadOnlyDictionary<string, int[]> rows = SuperMetroid.AssetExtraction.Enemies.EnemyGraphicsSetPaletteRowDefinitions.Rows;
-        if (matches.Select(set => string.Join(',', rows[set.Name])).Distinct().Count() != 1)
+        IReadOnlyDictionary<RoomEnemyGraphicsSetDefinition, int[]> rows = SuperMetroid.AssetExtraction.Enemies.EnemyGraphicsSetPaletteRowDefinitions.Rows;
+        if (matches.Select(set => string.Join(',', rows[set])).Distinct().Count() != 1)
             throw new InvalidDataException($"Retail graphics sets {string.Join(", ", matches.Select(set => set.Name))} hold these records in different palette rows.");
         return matches[0];
     }

@@ -19,11 +19,11 @@ internal sealed record SoundEffectProgramScan(bool RepeatsForever, IReadOnlyList
         var instruments = new SortedSet<byte>();
         foreach (AudioSoundInstructionMetadata instruction in program.Instructions)
         {
-            if (instruction.Operation == AudioSoundInstructionOperations.PlayNote)
+            if (instruction.Operation == AudioSoundOperation.PlayNote)
                 instruments.Add(instruction.Arguments[0]);
         }
         return new SoundEffectProgramScan(
-            program.Instructions.Any(instruction => instruction.Operation == AudioSoundInstructionOperations.RepeatForever),
+            program.Instructions.Any(instruction => instruction.Operation == AudioSoundOperation.RepeatForever),
             [.. instruments]);
     }
 

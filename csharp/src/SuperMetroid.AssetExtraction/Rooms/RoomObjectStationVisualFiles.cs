@@ -60,30 +60,7 @@ public static class RoomObjectStationVisualFiles
     /// arms' states. These are identity selections, independent of the terrain. Only complete lists have IDs.
     /// </summary>
     internal static string VisualId(RoomObjectDraw request) =>
-        RoomObjectDrawIdentity.FrameOf<StationDraw>(request, "station draw list") switch
-        {
-            StationDraw.MapDim => "map-dim",
-            StationDraw.MapLit => "map-lit",
-            StationDraw.MapBright => "map-bright",
-            StationDraw.EnergyDim => "energy-dim",
-            StationDraw.EnergyLit => "energy-lit",
-            StationDraw.EnergyBright => "energy-bright",
-            StationDraw.MissileDim => "missile-dim",
-            StationDraw.MissileLit => "missile-lit",
-            StationDraw.MissileBright => "missile-bright",
-            StationDraw.SaveIdle => "save-idle",
-            StationDraw.SaveLit => "save-lit",
-            StationDraw.SaveDark => "save-dark",
-            StationDraw.MapRightRetracted => "map-right-retracted",
-            StationDraw.MapRightExtended => "map-right-extended",
-            StationDraw.MapLeftRetracted => "map-left-retracted",
-            StationDraw.MapLeftExtended => "map-left-extended",
-            StationDraw.ResourceRightRetracted => "resource-right-retracted",
-            StationDraw.ResourceRightExtended => "resource-right-extended",
-            StationDraw.ResourceLeftRetracted => "resource-left-retracted",
-            StationDraw.ResourceLeftExtended => "resource-left-extended",
-            _ => throw new InvalidOperationException($"Undefined station draw list {request}."),
-        };
+        StationDrawKeys.Installed.Of(RoomObjectDrawIdentity.FrameOf<StationDraw>(request, "station draw list"));
 
     /// <summary>Calculates the twenty complete station lists in published enumeration order.</summary>
     internal static IEnumerable<RoomObjectDrawLists.DrawList> All

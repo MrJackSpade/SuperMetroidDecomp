@@ -14,7 +14,7 @@ public static class RoomObjectDraygonCannonVisualFiles
 
     /// <summary>The cannons as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<DraygonCannonDraw> Family { get; } =
-        new(VisualFileName, "Draygon cannon", Layouts(), RoomObjectVisualIdDefinitions.DraygonCannon);
+        new(VisualFileName, "Draygon cannon", Layouts(), DraygonCannonDrawKeys.Installed.ByIdentity);
 
     /// <summary>Pictures the twelve cannon frames from the cartridge's draw lists and writes the installed file.</summary>
     /// <param name="bus">The cartridge, whose draw lists are checked against the cannons' geometry and collision.</param>

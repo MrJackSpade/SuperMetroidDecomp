@@ -11,5 +11,5 @@ internal static class CeresElevatorArrivalCommonSpawner
 {
     /// <summary>What the arrival puts on the shared sheet: no projectile or effect actor, the pictures of every pose.</summary>
     internal static CommonSpawnedObjects Spawned { get; } =
-        new(nameof(CeresElevatorArrivalState), new SpawnedObjects([], []), Enum.GetValues<CeresElevatorArrivalPose>());
+        new(CommonSpawner.CeresElevatorArrivalState, new SpawnedObjects([], []), Enum.GetValues<CeresElevatorArrivalPose>());
 }

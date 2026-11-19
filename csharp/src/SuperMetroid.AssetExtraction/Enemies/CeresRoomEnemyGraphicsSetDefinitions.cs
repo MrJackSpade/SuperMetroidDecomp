@@ -7,41 +7,41 @@ internal static class CeresRoomEnemyGraphicsSetDefinitions
     /// <summary>The region's lists, in table order.</summary>
     internal static RoomEnemyGraphicsSetMembers[] Build() =>
     [
-        new(nameof(RoomEnemyGraphicsSetDefinitions.CeresElevatorDefault), [
+        new(RoomEnemyGraphicsSetDefinitions.CeresElevatorDefault, [
             new(UnplacedEnemyArtwork.CeresDoors),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.FallingTileDefault), [
+        new(RoomEnemyGraphicsSetDefinitions.FallingTileDefault, [
             new(UnplacedEnemyArtwork.CeresDoors),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.MagnetStairsDefault), [
+        new(RoomEnemyGraphicsSetDefinitions.MagnetStairsDefault, [
             new(UnplacedEnemyArtwork.CeresDoors),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.DeadScientistDefault), [
+        new(RoomEnemyGraphicsSetDefinitions.DeadScientistDefault, [
             new(UnplacedEnemyArtwork.CeresDoors),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.CeresRidleyHallwayDefault), [
+        new(RoomEnemyGraphicsSetDefinitions.CeresRidleyHallwayDefault, [
             new(UnplacedEnemyArtwork.CeresDoors),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.CeresRidleyDefault), [
+        new(RoomEnemyGraphicsSetDefinitions.CeresRidleyDefault, [
             new(EnemyDefinitionId.RidleyCeres),
             new(UnplacedEnemyArtwork.CeresDoors),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.CeresElevatorWhenAreaBossDead), [
+        new(RoomEnemyGraphicsSetDefinitions.CeresElevatorWhenAreaBossDead, [
             new(UnplacedEnemyArtwork.CeresDoors),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.FallingTileWhenAreaBossDead), [
+        new(RoomEnemyGraphicsSetDefinitions.FallingTileWhenAreaBossDead, [
             new(UnplacedEnemyArtwork.CeresDoors),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.MagnetStairsWhenAreaBossDead), [
+        new(RoomEnemyGraphicsSetDefinitions.MagnetStairsWhenAreaBossDead, [
             new(UnplacedEnemyArtwork.CeresDoors),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.DeadScientistWhenAreaBossDead), [
+        new(RoomEnemyGraphicsSetDefinitions.DeadScientistWhenAreaBossDead, [
             new(UnplacedEnemyArtwork.CeresDoors),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.CeresRidleyHallwayWhenAreaBossDead), [
+        new(RoomEnemyGraphicsSetDefinitions.CeresRidleyHallwayWhenAreaBossDead, [
             new(UnplacedEnemyArtwork.CeresDoors),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.CeresRidleyWhenAreaBossDead), [
+        new(RoomEnemyGraphicsSetDefinitions.CeresRidleyWhenAreaBossDead, [
             new(UnplacedEnemyArtwork.CeresDoors),
         ]),
     ];

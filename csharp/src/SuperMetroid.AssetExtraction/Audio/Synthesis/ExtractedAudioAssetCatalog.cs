@@ -354,37 +354,30 @@ public sealed class ExtractedAudioAssetCatalog
                 $"Audio bank '{bank.Name}' has {bank.TrackPointers.Count} track pointers but " +
                 $"{bank.MusicTracks.Count} decoded tracks.");
         }
-        Dictionary<int, AudioMusicPhraseMetadata> phrases = [];
-        foreach (AudioMusicPhraseMetadata phrase in bank.MusicPhrases)
+        // Phrases and programs are named by their place among the bank's in their slots' order, never by a slot (#2548).
+        Dictionary<string, AudioMusicPhraseMetadata> phrases = new(StringComparer.Ordinal);
+        for (int place = 0; place < bank.MusicPhrases.Count; place++)
         {
-            string expectedId = $"music-{bank.DataIndex:x2}-phrase-{phrase.Address:x4}";
-            if (phrase.Id != expectedId || !phrases.TryAdd(phrase.Address, phrase))
+            AudioMusicPhraseMetadata phrase = bank.MusicPhrases[place];
+            if (phrase.Id != SpcMusicDefinitionCodec.PhraseId(bank.DataIndex, place) ||
+                (place > 0 && phrase.Address <= bank.MusicPhrases[place - 1].Address) || !phrases.TryAdd(phrase.Id, phrase))
                 throw new InvalidDataException($"Audio bank '{bank.Name}' has invalid phrase identity '{phrase.Id}'.");
         }
         Dictionary<int, AudioMusicProgramMetadata> programs = [];
-        foreach (AudioMusicProgramMetadata program in bank.MusicPrograms)
+        for (int place = 0; place < bank.MusicPrograms.Count; place++)
         {
-            string expectedId = $"music-{bank.DataIndex:x2}-program-{program.Address:x4}";
-            if (program.Id != expectedId || !programs.TryAdd(program.Address, program))
+            AudioMusicProgramMetadata program = bank.MusicPrograms[place];
+            if (program.Id != SpcMusicDefinitionCodec.ProgramId(bank.DataIndex, place) || !programs.TryAdd(program.Address, program) ||
+                (place > 0 && program.Address <= bank.MusicPrograms[place - 1].Address))
                 throw new InvalidDataException($"Audio bank '{bank.Name}' has invalid program identity '{program.Id}'.");
         }
         for (int trackIndex = 0; trackIndex < bank.MusicTracks.Count; trackIndex++)
         {
             AudioMusicTrackMetadata track = bank.MusicTracks[trackIndex];
-            string expectedId = $"music-{bank.DataIndex:x2}-track-{trackIndex:00}";
-            if (track.Track != trackIndex || track.Id != expectedId ||
+            if (track.Track != trackIndex || track.Id != SpcMusicDefinitionCodec.TrackId(bank.DataIndex, trackIndex) ||
                 track.Address != bank.TrackPointers[trackIndex])
                 throw new InvalidDataException($"Audio bank '{bank.Name}' has invalid track identity '{track.Id}'.");
-            _ = SpcMusicDefinitionCodec.EncodeTrack(track);
-            foreach (AudioMusicTrackInstructionMetadata instruction in track.Instructions)
-            {
-                if (instruction.Operation == AudioMusicInstructionOperations.PlayPhrase &&
-                    !phrases.ContainsKey(instruction.Value))
-                {
-                    throw new InvalidDataException(
-                        $"Music track '{track.Id}' references missing phrase ${instruction.Value:X4}.");
-                }
-            }
+            _ = SpcMusicDefinitionCodec.EncodeTrack(track, phrases);
         }
         foreach (AudioMusicProgramMetadata program in bank.MusicPrograms)
         {
@@ -513,8 +506,15 @@ public sealed class ExtractedAudioAssetCatalog
     private static AudioAssetManifest DeserializeManifest(string path)
     {
         using var file = File.OpenRead(path);
-        return JsonSerializer.Deserialize<AudioAssetManifest>(file, AudioAssetJson.Options)
-            ?? throw new InvalidDataException($"Audio manifest '{path}' deserialized to null.");
+        try
+        {
+            return JsonSerializer.Deserialize<AudioAssetManifest>(file, AudioAssetJson.Options)
+                ?? throw new InvalidDataException($"Audio manifest '{path}' deserialized to null.");
+        }
+        catch (JsonException error)
+        {
+            throw new InvalidDataException($"Audio manifest '{path}' is not a manifest of its format.", error);
+        }
     }
 
 }

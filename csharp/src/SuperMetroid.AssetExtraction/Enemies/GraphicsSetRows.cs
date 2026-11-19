@@ -13,18 +13,18 @@ internal sealed class GraphicsSetRows
     /// <summary>The set whose rows these are.</summary>
     private readonly RoomEnemyGraphicsSetMembers set;
 
-    /// <summary>Each set's record rows by set name, among them the set's.</summary>
-    private readonly IReadOnlyDictionary<string, int[]> catalogue;
+    /// <summary>Each set's record rows by set, among them the set's.</summary>
+    private readonly IReadOnlyDictionary<RoomEnemyGraphicsSetDefinition, int[]> catalogue;
 
     /// <summary>The set's catalogued rows, resolved when a lookup first needs them.</summary>
     private Rows? resolved;
 
     /// <summary>
-    /// Keeps set <paramref name="set"/>, whose record rows <paramref name="catalogue"/> names by set name: the retail
+    /// Keeps set <paramref name="set"/>, whose record rows <paramref name="catalogue"/> holds by set: the retail
     /// catalogue for an installation's sets, or a fixture's own for the set it seeds, as its records' placement words
     /// name them. They are resolved when a lookup needs them.
     /// </summary>
-    internal GraphicsSetRows(RoomEnemyGraphicsSetMembers set, IReadOnlyDictionary<string, int[]> catalogue)
+    internal GraphicsSetRows(RoomEnemyGraphicsSetMembers set, IReadOnlyDictionary<RoomEnemyGraphicsSetDefinition, int[]> catalogue)
     {
         this.set = Ensure.NotNull(set);
         this.catalogue = Ensure.NotNull(catalogue);
@@ -38,10 +38,10 @@ internal sealed class GraphicsSetRows
             return resolved;
         ReadOnlySpan<RoomEnemyGraphicsSetMember> records = set.Records.Span;
         int[] recordRows = records.Length == 0 ? []
-            : catalogue.TryGetValue(set.Name, out int[]? catalogued) ? catalogued
-            : throw new InvalidDataException($"Enemy graphics set {set.Name} has no catalogued palette rows.");
+            : catalogue.TryGetValue(set.Set, out int[]? catalogued) ? catalogued
+            : throw new InvalidDataException($"Enemy graphics set {set.Set} has no catalogued palette rows.");
         if (recordRows.Length != records.Length)
-            throw new InvalidDataException($"Enemy graphics set {set.Name} catalogues {recordRows.Length} palette rows for {records.Length} records.");
+            throw new InvalidDataException($"Enemy graphics set {set.Set} catalogues {recordRows.Length} palette rows for {records.Length} records.");
         var memberRows = new Dictionary<EnemyDefinitionId, int>();
         for (int record = 0; record < records.Length; record++)
         {

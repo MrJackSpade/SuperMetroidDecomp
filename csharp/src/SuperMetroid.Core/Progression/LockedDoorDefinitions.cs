@@ -12,430 +12,430 @@ namespace SuperMetroid.Core.Progression;
 public static class LockedDoorDefinitions
 {
     /// <summary>The green door facing left at column 142, row 70 of the Landing Site room, in its default state, its state once Samus has Power Bombs and its state once Zebes is awake: once opened, it stays open for good.</summary>
-    public static LockedDoor LandingSiteGreenDoorFacingLeft { get; } = new(nameof(LandingSiteGreenDoorFacingLeft));
+    public static LockedDoor LandingSiteGreenDoorFacingLeft { get; } = new("LandingSiteGreenDoorFacingLeft");
 
     /// <summary>The yellow door facing left at column 142, row 22 of the Landing Site room, in its default state, its state once Samus has Power Bombs and its state once Zebes is awake: once opened, it stays open for good.</summary>
-    public static LockedDoor LandingSiteYellowDoorFacingLeft { get; } = new(nameof(LandingSiteYellowDoorFacingLeft));
+    public static LockedDoor LandingSiteYellowDoorFacingLeft { get; } = new("LandingSiteYellowDoorFacingLeft");
 
     /// <summary>The grey door facing right at column 1, row 38 of the Landing Site room, in its state once the Zebes time bomb is set: it never opens.</summary>
-    public static LockedDoor LandingSiteGreyDoorFacingRight { get; } = new(nameof(LandingSiteGreyDoorFacingRight));
+    public static LockedDoor LandingSiteGreyDoorFacingRight { get; } = new("LandingSiteGreyDoorFacingRight");
 
     /// <summary>The grey door facing left at column 142, row 70 of the Landing Site room, in its state once the Zebes time bomb is set: it never opens.</summary>
-    public static LockedDoor LandingSiteGreyDoorFacingLeftAt142x70 { get; } = new(nameof(LandingSiteGreyDoorFacingLeftAt142x70));
+    public static LockedDoor LandingSiteGreyDoorFacingLeftAt142x70 { get; } = new("LandingSiteGreyDoorFacingLeftAt142x70");
 
     /// <summary>The grey door facing left at column 142, row 22 of the Landing Site room, in its state once the Zebes time bomb is set: it never opens.</summary>
-    public static LockedDoor LandingSiteGreyDoorFacingLeftAt142x22 { get; } = new(nameof(LandingSiteGreyDoorFacingLeftAt142x22));
+    public static LockedDoor LandingSiteGreyDoorFacingLeftAt142x22 { get; } = new("LandingSiteGreyDoorFacingLeftAt142x22");
 
     /// <summary>The red door facing left at column 30, row 54 of the Parlor room, in its default state and its state once Zebes is awake: once opened, it stays open for good.</summary>
-    public static LockedDoor ParlorRedDoorFacingLeft { get; } = new(nameof(ParlorRedDoorFacingLeft));
+    public static LockedDoor ParlorRedDoorFacingLeft { get; } = new("ParlorRedDoorFacingLeft");
 
     /// <summary>The grey door facing right at column 1, row 6 of the Parlor room, in its state once the Zebes time bomb is set: it never opens.</summary>
-    public static LockedDoor ParlorGreyDoorFacingRightAt1x6 { get; } = new(nameof(ParlorGreyDoorFacingRightAt1x6));
+    public static LockedDoor ParlorGreyDoorFacingRightAt1x6 { get; } = new("ParlorGreyDoorFacingRightAt1x6");
 
     /// <summary>The grey door facing right at column 17, row 38 of the Parlor room, in its state once the Zebes time bomb is set: it never opens.</summary>
-    public static LockedDoor ParlorGreyDoorFacingRightAt17x38 { get; } = new(nameof(ParlorGreyDoorFacingRightAt17x38));
+    public static LockedDoor ParlorGreyDoorFacingRightAt17x38 { get; } = new("ParlorGreyDoorFacingRightAt17x38");
 
     /// <summary>The grey door facing right at column 17, row 54 of the Parlor room, in its state once the Zebes time bomb is set: it never opens.</summary>
-    public static LockedDoor ParlorGreyDoorFacingRightAt17x54 { get; } = new(nameof(ParlorGreyDoorFacingRightAt17x54));
+    public static LockedDoor ParlorGreyDoorFacingRightAt17x54 { get; } = new("ParlorGreyDoorFacingRightAt17x54");
 
     /// <summary>The grey door facing left at column 30, row 54 of the Parlor room, in its state once the Zebes time bomb is set: it never opens.</summary>
-    public static LockedDoor ParlorGreyDoorFacingLeft { get; } = new(nameof(ParlorGreyDoorFacingLeft));
+    public static LockedDoor ParlorGreyDoorFacingLeft { get; } = new("ParlorGreyDoorFacingLeft");
 
     /// <summary>The grey door facing up at column 22, row 77 of the Parlor room, in its state once the Zebes time bomb is set: it never opens.</summary>
-    public static LockedDoor ParlorGreyDoorFacingUp { get; } = new(nameof(ParlorGreyDoorFacingUp));
+    public static LockedDoor ParlorGreyDoorFacingUp { get; } = new("ParlorGreyDoorFacingUp");
 
     /// <summary>The grey door facing left at column 94, row 54 of the West Ocean room: it never opens.</summary>
-    public static LockedDoor WestOceanGreyDoorFacingLeft { get; } = new(nameof(WestOceanGreyDoorFacingLeft));
+    public static LockedDoor WestOceanGreyDoorFacingLeft { get; } = new("WestOceanGreyDoorFacingLeft");
 
     /// <summary>The green door facing left at column 126, row 70 of the West Ocean room: once opened, it stays open for good.</summary>
-    public static LockedDoor WestOceanGreenDoorFacingLeft { get; } = new(nameof(WestOceanGreenDoorFacingLeft));
+    public static LockedDoor WestOceanGreenDoorFacingLeft { get; } = new("WestOceanGreenDoorFacingLeft");
 
     /// <summary>The yellow door facing left at column 46, row 6 of the Crateria Kihunter room: once opened, it stays open for good.</summary>
-    public static LockedDoor CrateriaKihunterYellowDoorFacingLeft { get; } = new(nameof(CrateriaKihunterYellowDoorFacingLeft));
+    public static LockedDoor CrateriaKihunterYellowDoorFacingLeft { get; } = new("CrateriaKihunterYellowDoorFacingLeft");
 
     /// <summary>The yellow door facing up at column 22, row 45 of the Crateria Kihunter room: once opened, it stays open for good.</summary>
-    public static LockedDoor CrateriaKihunterYellowDoorFacingUp { get; } = new(nameof(CrateriaKihunterYellowDoorFacingUp));
+    public static LockedDoor CrateriaKihunterYellowDoorFacingUp { get; } = new("CrateriaKihunterYellowDoorFacingUp");
 
     /// <summary>The yellow door facing up at column 6, row 13 of the Forgotten Highway Elbow room: once opened, it stays open for good.</summary>
-    public static LockedDoor ForgottenHighwayElbowYellowDoorFacingUp { get; } = new(nameof(ForgottenHighwayElbowYellowDoorFacingUp));
+    public static LockedDoor ForgottenHighwayElbowYellowDoorFacingUp { get; } = new("ForgottenHighwayElbowYellowDoorFacingUp");
 
     /// <summary>The yellow door facing down at column 6, row 2 of the Red Brinstar Elevator room: once opened, it stays open for good.</summary>
-    public static LockedDoor RedBrinstarElevatorYellowDoorFacingDown { get; } = new(nameof(RedBrinstarElevatorYellowDoorFacingDown));
+    public static LockedDoor RedBrinstarElevatorYellowDoorFacingDown { get; } = new("RedBrinstarElevatorYellowDoorFacingDown");
 
     /// <summary>The grey door facing left at column 46, row 6 of the Climb room, in its default state and its state once Zebes is awake: it never opens.</summary>
-    public static LockedDoor ClimbGreyDoorFacingLeftAt46x6 { get; } = new(nameof(ClimbGreyDoorFacingLeftAt46x6));
+    public static LockedDoor ClimbGreyDoorFacingLeftAt46x6 { get; } = new("ClimbGreyDoorFacingLeftAt46x6");
 
     /// <summary>The grey door facing right at column 1, row 134 of the Climb room, in its default state and its state once Zebes is awake: it never opens.</summary>
-    public static LockedDoor ClimbGreyDoorFacingRight { get; } = new(nameof(ClimbGreyDoorFacingRight));
+    public static LockedDoor ClimbGreyDoorFacingRight { get; } = new("ClimbGreyDoorFacingRight");
 
     /// <summary>The yellow door facing left at column 46, row 118 of the Climb room, in its default state and its state once Zebes is awake: once opened, it stays open for good.</summary>
-    public static LockedDoor ClimbYellowDoorFacingLeft { get; } = new(nameof(ClimbYellowDoorFacingLeft));
+    public static LockedDoor ClimbYellowDoorFacingLeft { get; } = new("ClimbYellowDoorFacingLeft");
 
     /// <summary>The grey door facing left at column 46, row 6 of the Climb room, in its state once the Zebes time bomb is set: it never opens.</summary>
-    public static LockedDoor ClimbGreyDoorFacingLeftAt46x6WhenZebesTimebombSet { get; } = new(nameof(ClimbGreyDoorFacingLeftAt46x6WhenZebesTimebombSet));
+    public static LockedDoor ClimbGreyDoorFacingLeftAt46x6WhenZebesTimebombSet { get; } = new("ClimbGreyDoorFacingLeftAt46x6WhenZebesTimebombSet");
 
     /// <summary>The grey door facing left at column 46, row 118 of the Climb room, in its state once the Zebes time bomb is set: it never opens.</summary>
-    public static LockedDoor ClimbGreyDoorFacingLeftAt46x118 { get; } = new(nameof(ClimbGreyDoorFacingLeftAt46x118));
+    public static LockedDoor ClimbGreyDoorFacingLeftAt46x118 { get; } = new("ClimbGreyDoorFacingLeftAt46x118");
 
     /// <summary>The grey door facing left at column 30, row 134 of the Climb room, in its state once the Zebes time bomb is set: it never opens.</summary>
-    public static LockedDoor ClimbGreyDoorFacingLeftAt30x134 { get; } = new(nameof(ClimbGreyDoorFacingLeftAt30x134));
+    public static LockedDoor ClimbGreyDoorFacingLeftAt30x134 { get; } = new("ClimbGreyDoorFacingLeftAt30x134");
 
     /// <summary>The grey door facing right at column 1, row 134 of the Climb room, in its state once the Zebes time bomb is set: it never opens.</summary>
-    public static LockedDoor ClimbGreyDoorFacingRightWhenZebesTimebombSet { get; } = new(nameof(ClimbGreyDoorFacingRightWhenZebesTimebombSet));
+    public static LockedDoor ClimbGreyDoorFacingRightWhenZebesTimebombSet { get; } = new("ClimbGreyDoorFacingRightWhenZebesTimebombSet");
 
     /// <summary>The grey door facing right at column 1, row 6 of the Pit room, in its default state: it never opens.</summary>
-    public static LockedDoor PitGreyDoorFacingRightNeverOpening { get; } = new(nameof(PitGreyDoorFacingRightNeverOpening));
+    public static LockedDoor PitGreyDoorFacingRightNeverOpening { get; } = new("PitGreyDoorFacingRightNeverOpening");
 
     /// <summary>The grey door facing left at column 46, row 6 of the Pit room, in its state once Samus has the Morph Ball and missiles: it stays shut until enough of the room's enemies are killed, and once opened, it stays open for good.</summary>
-    public static LockedDoor PitGreyDoorFacingLeft { get; } = new(nameof(PitGreyDoorFacingLeft));
+    public static LockedDoor PitGreyDoorFacingLeft { get; } = new("PitGreyDoorFacingLeft");
 
     /// <summary>The grey door facing right at column 1, row 6 of the Pit room, in its state once Samus has the Morph Ball and missiles: it stays shut until enough of the room's enemies are killed, and once opened, it stays open for good.</summary>
-    public static LockedDoor PitGreyDoorFacingRightUntilEnemiesKilled { get; } = new(nameof(PitGreyDoorFacingRightUntilEnemiesKilled));
+    public static LockedDoor PitGreyDoorFacingRightUntilEnemiesKilled { get; } = new("PitGreyDoorFacingRightUntilEnemiesKilled");
 
     /// <summary>The Bomb Torizo's grey door at column 1, row 6 of the Bomb Torizo room, in its default state and its state once the area's Torizo is dead: it stays shut until the area's Torizo is dead, and once opened, it stays open for good.</summary>
-    public static LockedDoor BombTorizoGreyDoor { get; } = new(nameof(BombTorizoGreyDoor));
+    public static LockedDoor BombTorizoGreyDoor { get; } = new("BombTorizoGreyDoor");
 
     /// <summary>The grey door facing right at column 1, row 6 of the Bomb Torizo room, in its state once the Zebes time bomb is set: it stays shut until the critters have escaped, and once opened, it stays open for good.</summary>
-    public static LockedDoor BombTorizoGreyDoorFacingRight { get; } = new(nameof(BombTorizoGreyDoorFacingRight));
+    public static LockedDoor BombTorizoGreyDoorFacingRight { get; } = new("BombTorizoGreyDoorFacingRight");
 
     /// <summary>The red door facing left at column 46, row 6 of the Flyway room, in its default state and its state once the area's Torizo is dead: once opened, it stays open for good.</summary>
-    public static LockedDoor FlywayRedDoorFacingLeft { get; } = new(nameof(FlywayRedDoorFacingLeft));
+    public static LockedDoor FlywayRedDoorFacingLeft { get; } = new("FlywayRedDoorFacingLeft");
 
     /// <summary>The red door facing left at column 14, row 102 of the Green Pirates Shaft room: once opened, it stays open for good.</summary>
-    public static LockedDoor GreenPiratesShaftRedDoorFacingLeft { get; } = new(nameof(GreenPiratesShaftRedDoorFacingLeft));
+    public static LockedDoor GreenPiratesShaftRedDoorFacingLeft { get; } = new("GreenPiratesShaftRedDoorFacingLeft");
 
     /// <summary>The red door facing right at column 1, row 86 of the Green Brinstar Main Shaft room: once opened, it stays open for good.</summary>
-    public static LockedDoor GreenBrinstarMainShaftRedDoorFacingRightAt1x86 { get; } = new(nameof(GreenBrinstarMainShaftRedDoorFacingRightAt1x86));
+    public static LockedDoor GreenBrinstarMainShaftRedDoorFacingRightAt1x86 { get; } = new("GreenBrinstarMainShaftRedDoorFacingRightAt1x86");
 
     /// <summary>The red door facing right at column 1, row 70 of the Green Brinstar Main Shaft room: once opened, it stays open for good.</summary>
-    public static LockedDoor GreenBrinstarMainShaftRedDoorFacingRightAt1x70 { get; } = new(nameof(GreenBrinstarMainShaftRedDoorFacingRightAt1x70));
+    public static LockedDoor GreenBrinstarMainShaftRedDoorFacingRightAt1x70 { get; } = new("GreenBrinstarMainShaftRedDoorFacingRightAt1x70");
 
     /// <summary>The red door facing left at column 14, row 70 of the Green Brinstar Main Shaft room: once opened, it stays open for good.</summary>
-    public static LockedDoor GreenBrinstarMainShaftRedDoorFacingLeftAt14x70 { get; } = new(nameof(GreenBrinstarMainShaftRedDoorFacingLeftAt14x70));
+    public static LockedDoor GreenBrinstarMainShaftRedDoorFacingLeftAt14x70 { get; } = new("GreenBrinstarMainShaftRedDoorFacingLeftAt14x70");
 
     /// <summary>The red door facing left at column 14, row 102 of the Green Brinstar Main Shaft room: once opened, it stays open for good.</summary>
-    public static LockedDoor GreenBrinstarMainShaftRedDoorFacingLeftAt14x102 { get; } = new(nameof(GreenBrinstarMainShaftRedDoorFacingLeftAt14x102));
+    public static LockedDoor GreenBrinstarMainShaftRedDoorFacingLeftAt14x102 { get; } = new("GreenBrinstarMainShaftRedDoorFacingLeftAt14x102");
 
     /// <summary>The red door facing right at column 1, row 102 of the Green Brinstar Main Shaft room: once opened, it stays open for good.</summary>
-    public static LockedDoor GreenBrinstarMainShaftRedDoorFacingRightAt1x102 { get; } = new(nameof(GreenBrinstarMainShaftRedDoorFacingRightAt1x102));
+    public static LockedDoor GreenBrinstarMainShaftRedDoorFacingRightAt1x102 { get; } = new("GreenBrinstarMainShaftRedDoorFacingRightAt1x102");
 
     /// <summary>The grey door facing left at column 14, row 118 of the Green Brinstar Main Shaft room: it never opens.</summary>
-    public static LockedDoor GreenBrinstarMainShaftGreyDoorFacingLeft { get; } = new(nameof(GreenBrinstarMainShaftGreyDoorFacingLeft));
+    public static LockedDoor GreenBrinstarMainShaftGreyDoorFacingLeft { get; } = new("GreenBrinstarMainShaftGreyDoorFacingLeft");
 
     /// <summary>The grey door facing left at column 46, row 6 of the Brinstar Pre Map room: it stays shut until enough of the room's enemies are killed, and once opened, it stays open for good.</summary>
-    public static LockedDoor BrinstarPreMapGreyDoorFacingLeft { get; } = new(nameof(BrinstarPreMapGreyDoorFacingLeft));
+    public static LockedDoor BrinstarPreMapGreyDoorFacingLeft { get; } = new("BrinstarPreMapGreyDoorFacingLeft");
 
     /// <summary>The red door facing left at column 46, row 22 of the Early Supers room: once opened, it stays open for good.</summary>
-    public static LockedDoor EarlySupersRedDoorFacingLeft { get; } = new(nameof(EarlySupersRedDoorFacingLeft));
+    public static LockedDoor EarlySupersRedDoorFacingLeft { get; } = new("EarlySupersRedDoorFacingLeft");
 
     /// <summary>The green door facing right at column 1, row 38 of the Green Brinstar Firefleas room: once opened, it stays open for good.</summary>
-    public static LockedDoor GreenBrinstarFirefleasGreenDoorFacingRight { get; } = new(nameof(GreenBrinstarFirefleasGreenDoorFacingRight));
+    public static LockedDoor GreenBrinstarFirefleasGreenDoorFacingRight { get; } = new("GreenBrinstarFirefleasGreenDoorFacingRight");
 
     /// <summary>The yellow door facing left at column 62, row 70 of the Big Pink room: once opened, it stays open for good.</summary>
-    public static LockedDoor BigPinkYellowDoorFacingLeft { get; } = new(nameof(BigPinkYellowDoorFacingLeft));
+    public static LockedDoor BigPinkYellowDoorFacingLeft { get; } = new("BigPinkYellowDoorFacingLeft");
 
     /// <summary>The green door facing left at column 62, row 102 of the Big Pink room: once opened, it stays open for good.</summary>
-    public static LockedDoor BigPinkGreenDoorFacingLeft { get; } = new(nameof(BigPinkGreenDoorFacingLeft));
+    public static LockedDoor BigPinkGreenDoorFacingLeft { get; } = new("BigPinkGreenDoorFacingLeft");
 
     /// <summary>The red door facing left at column 62, row 6 of the Big Pink room: once opened, it stays open for good.</summary>
-    public static LockedDoor BigPinkRedDoorFacingLeft { get; } = new(nameof(BigPinkRedDoorFacingLeft));
+    public static LockedDoor BigPinkRedDoorFacingLeft { get; } = new("BigPinkRedDoorFacingLeft");
 
     /// <summary>The red door facing right at column 1, row 150 of the Big Pink room: once opened, it stays open for good.</summary>
-    public static LockedDoor BigPinkRedDoorFacingRight { get; } = new(nameof(BigPinkRedDoorFacingRight));
+    public static LockedDoor BigPinkRedDoorFacingRight { get; } = new("BigPinkRedDoorFacingRight");
 
     /// <summary>The grey door facing right at column 1, row 6 of the Spore Spawn Kihunters room: it stays shut until enough of the room's enemies are killed, and once opened, it stays open for good.</summary>
-    public static LockedDoor SporeSpawnKihuntersGreyDoorFacingRight { get; } = new(nameof(SporeSpawnKihuntersGreyDoorFacingRight));
+    public static LockedDoor SporeSpawnKihuntersGreyDoorFacingRight { get; } = new("SporeSpawnKihuntersGreyDoorFacingRight");
 
     /// <summary>The grey door facing down at column 54, row 3 of the Spore Spawn Kihunters room: it stays shut until enough of the room's enemies are killed, and once opened, it stays open for good.</summary>
-    public static LockedDoor SporeSpawnKihuntersGreyDoorFacingDown { get; } = new(nameof(SporeSpawnKihuntersGreyDoorFacingDown));
+    public static LockedDoor SporeSpawnKihuntersGreyDoorFacingDown { get; } = new("SporeSpawnKihuntersGreyDoorFacingDown");
 
     /// <summary>The green door facing up at column 6, row 46 of the Spore Spawn room: once opened, it stays open for good.</summary>
-    public static LockedDoor SporeSpawnGreenDoorFacingUp { get; } = new(nameof(SporeSpawnGreenDoorFacingUp));
+    public static LockedDoor SporeSpawnGreenDoorFacingUp { get; } = new("SporeSpawnGreenDoorFacingUp");
 
     /// <summary>The grey door facing left at column 30, row 6 of the Pink Brinstar Power Bombs room: it stays shut until enough of the room's enemies are killed, and once opened, it stays open for good.</summary>
-    public static LockedDoor PinkBrinstarPowerBombsGreyDoorFacingLeft { get; } = new(nameof(PinkBrinstarPowerBombsGreyDoorFacingLeft));
+    public static LockedDoor PinkBrinstarPowerBombsGreyDoorFacingLeft { get; } = new("PinkBrinstarPowerBombsGreyDoorFacingLeft");
 
     /// <summary>The yellow door facing left at column 30, row 6 of the Green Hill Zone room: once opened, it stays open for good.</summary>
-    public static LockedDoor GreenHillZoneYellowDoorFacingLeft { get; } = new(nameof(GreenHillZoneYellowDoorFacingLeft));
+    public static LockedDoor GreenHillZoneYellowDoorFacingLeft { get; } = new("GreenHillZoneYellowDoorFacingLeft");
 
     /// <summary>The grey door facing right at column 1, row 38 of the Morph Ball room, in its state once Zebes is awake: it stays shut until enough of the room's enemies are killed, and once opened, it stays open for good.</summary>
-    public static LockedDoor MorphBallGreyDoorFacingRight { get; } = new(nameof(MorphBallGreyDoorFacingRight));
+    public static LockedDoor MorphBallGreyDoorFacingRight { get; } = new("MorphBallGreyDoorFacingRight");
 
     /// <summary>The red door facing left at column 14, row 6 of the Construction Zone room: once opened, it stays open for good.</summary>
-    public static LockedDoor ConstructionZoneRedDoorFacingLeft { get; } = new(nameof(ConstructionZoneRedDoorFacingLeft));
+    public static LockedDoor ConstructionZoneRedDoorFacingLeft { get; } = new("ConstructionZoneRedDoorFacingLeft");
 
     /// <summary>The green door facing left at column 94, row 6 of the Noob Bridge room: once opened, it stays open for good.</summary>
-    public static LockedDoor NoobBridgeGreenDoorFacingLeft { get; } = new(nameof(NoobBridgeGreenDoorFacingLeft));
+    public static LockedDoor NoobBridgeGreenDoorFacingLeft { get; } = new("NoobBridgeGreenDoorFacingLeft");
 
     /// <summary>The green door facing right at column 1, row 6 of the Etecoon Energy Tank room: once opened, it stays open for good.</summary>
-    public static LockedDoor EtecoonEnergyTankGreenDoorFacingRight { get; } = new(nameof(EtecoonEnergyTankGreenDoorFacingRight));
+    public static LockedDoor EtecoonEnergyTankGreenDoorFacingRight { get; } = new("EtecoonEnergyTankGreenDoorFacingRight");
 
     /// <summary>The green door facing right at column 1, row 6 of the Spore Spawn Farming room: once opened, it stays open for good.</summary>
-    public static LockedDoor SporeSpawnFarmingGreenDoorFacingRight { get; } = new(nameof(SporeSpawnFarmingGreenDoorFacingRight));
+    public static LockedDoor SporeSpawnFarmingGreenDoorFacingRight { get; } = new("SporeSpawnFarmingGreenDoorFacingRight");
 
     /// <summary>The grey door facing right at column 1, row 22 of the Pink Brinstar Hoppers room: it stays shut until enough of the room's enemies are killed, and once opened, it stays open for good.</summary>
-    public static LockedDoor PinkBrinstarHoppersGreyDoorFacingRight { get; } = new(nameof(PinkBrinstarHoppersGreyDoorFacingRight));
+    public static LockedDoor PinkBrinstarHoppersGreyDoorFacingRight { get; } = new("PinkBrinstarHoppersGreyDoorFacingRight");
 
     /// <summary>The grey door facing left at column 30, row 22 of the Pink Brinstar Hoppers room: it stays shut until enough of the room's enemies are killed, and once opened, it stays open for good.</summary>
-    public static LockedDoor PinkBrinstarHoppersGreyDoorFacingLeft { get; } = new(nameof(PinkBrinstarHoppersGreyDoorFacingLeft));
+    public static LockedDoor PinkBrinstarHoppersGreyDoorFacingLeft { get; } = new("PinkBrinstarHoppersGreyDoorFacingLeft");
 
     /// <summary>The green door facing right at column 1, row 150 of the Red Tower room: once opened, it stays open for good.</summary>
-    public static LockedDoor RedTowerGreenDoorFacingRight { get; } = new(nameof(RedTowerGreenDoorFacingRight));
+    public static LockedDoor RedTowerGreenDoorFacingRight { get; } = new("RedTowerGreenDoorFacingRight");
 
     /// <summary>The yellow door facing right at column 1, row 102 of the Red Tower room: once opened, it stays open for good.</summary>
-    public static LockedDoor RedTowerYellowDoorFacingRight { get; } = new(nameof(RedTowerYellowDoorFacingRight));
+    public static LockedDoor RedTowerYellowDoorFacingRight { get; } = new("RedTowerYellowDoorFacingRight");
 
     /// <summary>The red door facing right at column 1, row 6 of the Red Brinstar Firefleas room: once opened, it stays open for good.</summary>
-    public static LockedDoor RedBrinstarFirefleasRedDoorFacingRight { get; } = new(nameof(RedBrinstarFirefleasRedDoorFacingRight));
+    public static LockedDoor RedBrinstarFirefleasRedDoorFacingRight { get; } = new("RedBrinstarFirefleasRedDoorFacingRight");
 
     /// <summary>The green door facing right at column 1, row 54 of the Caterpillar room: once opened, it stays open for good.</summary>
-    public static LockedDoor CaterpillarGreenDoorFacingRightAt1x54 { get; } = new(nameof(CaterpillarGreenDoorFacingRightAt1x54));
+    public static LockedDoor CaterpillarGreenDoorFacingRightAt1x54 { get; } = new("CaterpillarGreenDoorFacingRightAt1x54");
 
     /// <summary>The yellow door facing right at column 1, row 86 of the Caterpillar room: once opened, it stays open for good.</summary>
-    public static LockedDoor CaterpillarYellowDoorFacingRight { get; } = new(nameof(CaterpillarYellowDoorFacingRight));
+    public static LockedDoor CaterpillarYellowDoorFacingRight { get; } = new("CaterpillarYellowDoorFacingRight");
 
     /// <summary>The green door facing right at column 1, row 118 of the Caterpillar room: once opened, it stays open for good.</summary>
-    public static LockedDoor CaterpillarGreenDoorFacingRightAt1x118 { get; } = new(nameof(CaterpillarGreenDoorFacingRightAt1x118));
+    public static LockedDoor CaterpillarGreenDoorFacingRightAt1x118 { get; } = new("CaterpillarGreenDoorFacingRightAt1x118");
 
     /// <summary>The grey door facing left at column 30, row 6 of the Beta Power Bomb room: it stays shut until enough of the room's enemies are killed, and once opened, it stays open for good.</summary>
-    public static LockedDoor BetaPowerBombGreyDoorFacingLeft { get; } = new(nameof(BetaPowerBombGreyDoorFacingLeft));
+    public static LockedDoor BetaPowerBombGreyDoorFacingLeft { get; } = new("BetaPowerBombGreyDoorFacingLeft");
 
     /// <summary>The green door facing left at column 30, row 6 of the Below Spazer room: once opened, it stays open for good.</summary>
-    public static LockedDoor BelowSpazerGreenDoorFacingLeft { get; } = new(nameof(BelowSpazerGreenDoorFacingLeft));
+    public static LockedDoor BelowSpazerGreenDoorFacingLeft { get; } = new("BelowSpazerGreenDoorFacingLeft");
 
     /// <summary>The grey door facing right at column 1, row 22 of the Warehouse Zeela room: it stays shut until the area's boss is dead, and once opened, it stays open for good.</summary>
-    public static LockedDoor WarehouseZeelaGreyDoorFacingRight { get; } = new(nameof(WarehouseZeelaGreyDoorFacingRight));
+    public static LockedDoor WarehouseZeelaGreyDoorFacingRight { get; } = new("WarehouseZeelaGreyDoorFacingRight");
 
     /// <summary>The grey door facing left at column 14, row 6 of the Warehouse Energy Tank room: it stays shut until enough of the room's enemies are killed, and once opened, it stays open for good.</summary>
-    public static LockedDoor WarehouseEnergyTankGreyDoorFacingLeft { get; } = new(nameof(WarehouseEnergyTankGreyDoorFacingLeft));
+    public static LockedDoor WarehouseEnergyTankGreyDoorFacingLeft { get; } = new("WarehouseEnergyTankGreyDoorFacingLeft");
 
     /// <summary>The grey door facing left at column 94, row 6 of the Mini Kraid room: it stays shut until enough of the room's enemies are killed, and once opened, it stays open for good.</summary>
-    public static LockedDoor MiniKraidGreyDoorFacingLeft { get; } = new(nameof(MiniKraidGreyDoorFacingLeft));
+    public static LockedDoor MiniKraidGreyDoorFacingLeft { get; } = new("MiniKraidGreyDoorFacingLeft");
 
     /// <summary>The grey door facing right at column 1, row 6 of the Mini Kraid room: it stays shut until enough of the room's enemies are killed, and once opened, it stays open for good.</summary>
-    public static LockedDoor MiniKraidGreyDoorFacingRight { get; } = new(nameof(MiniKraidGreyDoorFacingRight));
+    public static LockedDoor MiniKraidGreyDoorFacingRight { get; } = new("MiniKraidGreyDoorFacingRight");
 
     /// <summary>The green door facing left at column 14, row 6 of the Kraid Eye Door room: once opened, it stays open for good.</summary>
-    public static LockedDoor KraidEyeDoorGreenDoorFacingLeft { get; } = new(nameof(KraidEyeDoorGreenDoorFacingLeft));
+    public static LockedDoor KraidEyeDoorGreenDoorFacingLeft { get; } = new("KraidEyeDoorGreenDoorFacingLeft");
 
     /// <summary>The eye door facing left at column 30, row 22 of the Kraid Eye Door room: once opened, it stays open for good.</summary>
-    public static LockedDoor KraidEyeDoorEyeDoorFacingLeft { get; } = new(nameof(KraidEyeDoorEyeDoorFacingLeft));
+    public static LockedDoor KraidEyeDoorEyeDoorFacingLeft { get; } = new("KraidEyeDoorEyeDoorFacingLeft");
 
     /// <summary>The grey door facing left at column 30, row 22 of the Kraid room: it stays shut until the area's boss is dead, and once opened, it stays open for good.</summary>
-    public static LockedDoor KraidGreyDoorFacingLeft { get; } = new(nameof(KraidGreyDoorFacingLeft));
+    public static LockedDoor KraidGreyDoorFacingLeft { get; } = new("KraidGreyDoorFacingLeft");
 
     /// <summary>The grey door facing right at column 1, row 22 of the Kraid room: it stays shut until the area's boss is dead, and once opened, it stays open for good.</summary>
-    public static LockedDoor KraidGreyDoorFacingRight { get; } = new(nameof(KraidGreyDoorFacingRight));
+    public static LockedDoor KraidGreyDoorFacingRight { get; } = new("KraidGreyDoorFacingRight");
 
     /// <summary>The grey door facing right at column 1, row 6 of the Statues room: it stays shut until the Tourian statues have finished, and the room shuts it again whenever it loads.</summary>
-    public static LockedDoor StatuesGreyDoorFacingRight { get; } = new(nameof(StatuesGreyDoorFacingRight));
+    public static LockedDoor StatuesGreyDoorFacingRight { get; } = new("StatuesGreyDoorFacingRight");
 
     /// <summary>The green door facing left at column 46, row 22 of the Cathedral room: once opened, it stays open for good.</summary>
-    public static LockedDoor CathedralGreenDoorFacingLeft { get; } = new(nameof(CathedralGreenDoorFacingLeft));
+    public static LockedDoor CathedralGreenDoorFacingLeft { get; } = new("CathedralGreenDoorFacingLeft");
 
     /// <summary>The red door facing left at column 46, row 6 of the Cathedral Entrance room: once opened, it stays open for good.</summary>
-    public static LockedDoor CathedralEntranceRedDoorFacingLeft { get; } = new(nameof(CathedralEntranceRedDoorFacingLeft));
+    public static LockedDoor CathedralEntranceRedDoorFacingLeft { get; } = new("CathedralEntranceRedDoorFacingLeft");
 
     /// <summary>The green door facing right at column 1, row 54 of the Business Center room: once opened, it stays open for good.</summary>
-    public static LockedDoor BusinessCenterGreenDoorFacingRight { get; } = new(nameof(BusinessCenterGreenDoorFacingRight));
+    public static LockedDoor BusinessCenterGreenDoorFacingRight { get; } = new("BusinessCenterGreenDoorFacingRight");
 
     /// <summary>The yellow door facing right at column 1, row 70 of the Business Center room: once opened, it stays open for good.</summary>
-    public static LockedDoor BusinessCenterYellowDoorFacingRight { get; } = new(nameof(BusinessCenterYellowDoorFacingRight));
+    public static LockedDoor BusinessCenterYellowDoorFacingRight { get; } = new("BusinessCenterYellowDoorFacingRight");
 
     /// <summary>The red door facing right at column 1, row 86 of the Business Center room: once opened, it stays open for good.</summary>
-    public static LockedDoor BusinessCenterRedDoorFacingRight { get; } = new(nameof(BusinessCenterRedDoorFacingRight));
+    public static LockedDoor BusinessCenterRedDoorFacingRight { get; } = new("BusinessCenterRedDoorFacingRight");
 
     /// <summary>The green door facing up at column 198, row 45 of the Crocomire Speedway room: once opened, it stays open for good.</summary>
-    public static LockedDoor CrocomireSpeedwayGreenDoorFacingUp { get; } = new(nameof(CrocomireSpeedwayGreenDoorFacingUp));
+    public static LockedDoor CrocomireSpeedwayGreenDoorFacingUp { get; } = new("CrocomireSpeedwayGreenDoorFacingUp");
 
     /// <summary>The grey door facing down at column 54, row 2 of the Crocomire room: it stays shut until the area's mini-boss is dead, and once opened, it stays open for good.</summary>
-    public static LockedDoor CrocomireGreyDoorFacingDown { get; } = new(nameof(CrocomireGreyDoorFacingDown));
+    public static LockedDoor CrocomireGreyDoorFacingDown { get; } = new("CrocomireGreyDoorFacingDown");
 
     /// <summary>The grey door facing left at column 30, row 6 of the Hi Jump Energy Tank room: it stays shut until enough of the room's enemies are killed, and once opened, it stays open for good.</summary>
-    public static LockedDoor HiJumpEnergyTankGreyDoorFacingLeft { get; } = new(nameof(HiJumpEnergyTankGreyDoorFacingLeft));
+    public static LockedDoor HiJumpEnergyTankGreyDoorFacingLeft { get; } = new("HiJumpEnergyTankGreyDoorFacingLeft");
 
     /// <summary>The red door facing right at column 1, row 6 of the Post Crocomire Farming room: once opened, it stays open for good.</summary>
-    public static LockedDoor PostCrocomireFarmingRedDoorFacingRight { get; } = new(nameof(PostCrocomireFarmingRedDoorFacingRight));
+    public static LockedDoor PostCrocomireFarmingRedDoorFacingRight { get; } = new("PostCrocomireFarmingRedDoorFacingRight");
 
     /// <summary>The red door facing left at column 14, row 54 of the Post Crocomire Shaft room: once opened, it stays open for good.</summary>
-    public static LockedDoor PostCrocomireShaftRedDoorFacingLeft { get; } = new(nameof(PostCrocomireShaftRedDoorFacingLeft));
+    public static LockedDoor PostCrocomireShaftRedDoorFacingLeft { get; } = new("PostCrocomireShaftRedDoorFacingLeft");
 
     /// <summary>The green door facing right at column 1, row 6 of the Bubble Mountain room: once opened, it stays open for good.</summary>
-    public static LockedDoor BubbleMountainGreenDoorFacingRight { get; } = new(nameof(BubbleMountainGreenDoorFacingRight));
+    public static LockedDoor BubbleMountainGreenDoorFacingRight { get; } = new("BubbleMountainGreenDoorFacingRight");
 
     /// <summary>The green door facing left at column 30, row 6 of the Bubble Mountain room: once opened, it stays open for good.</summary>
-    public static LockedDoor BubbleMountainGreenDoorFacingLeft { get; } = new(nameof(BubbleMountainGreenDoorFacingLeft));
+    public static LockedDoor BubbleMountainGreenDoorFacingLeft { get; } = new("BubbleMountainGreenDoorFacingLeft");
 
     /// <summary>The red door facing left at column 190, row 22 of the Speed Booster Hall room: once opened, it stays open for good.</summary>
-    public static LockedDoor SpeedBoosterHallRedDoorFacingLeft { get; } = new(nameof(SpeedBoosterHallRedDoorFacingLeft));
+    public static LockedDoor SpeedBoosterHallRedDoorFacingLeft { get; } = new("SpeedBoosterHallRedDoorFacingLeft");
 
     /// <summary>The red door facing left at column 14, row 22 of the Single Chamber room: once opened, it stays open for good.</summary>
-    public static LockedDoor SingleChamberRedDoorFacingLeft { get; } = new(nameof(SingleChamberRedDoorFacingLeft));
+    public static LockedDoor SingleChamberRedDoorFacingLeft { get; } = new("SingleChamberRedDoorFacingLeft");
 
     /// <summary>The red door facing left at column 62, row 6 of the Double Chamber room: once opened, it stays open for good.</summary>
-    public static LockedDoor DoubleChamberRedDoorFacingLeft { get; } = new(nameof(DoubleChamberRedDoorFacingLeft));
+    public static LockedDoor DoubleChamberRedDoorFacingLeft { get; } = new("DoubleChamberRedDoorFacingLeft");
 
     /// <summary>The yellow door facing right at column 17, row 38 of the Kronic Boost room: once opened, it stays open for good.</summary>
-    public static LockedDoor KronicBoostYellowDoorFacingRight { get; } = new(nameof(KronicBoostYellowDoorFacingRight));
+    public static LockedDoor KronicBoostYellowDoorFacingRight { get; } = new("KronicBoostYellowDoorFacingRight");
 
     /// <summary>The grey door facing left at column 30, row 22 of the Golden Torizo room: it stays shut until the area's Torizo is dead, and once opened, it stays open for good.</summary>
-    public static LockedDoor GoldenTorizoGreyDoorFacingLeft { get; } = new(nameof(GoldenTorizoGreyDoorFacingLeft));
+    public static LockedDoor GoldenTorizoGreyDoorFacingLeft { get; } = new("GoldenTorizoGreyDoorFacingLeft");
 
     /// <summary>The grey door facing left at column 14, row 6 of the Ridley room: it stays shut until the area's boss is dead, and once opened, it stays open for good.</summary>
-    public static LockedDoor RidleyGreyDoorFacingLeft { get; } = new(nameof(RidleyGreyDoorFacingLeft));
+    public static LockedDoor RidleyGreyDoorFacingLeft { get; } = new("RidleyGreyDoorFacingLeft");
 
     /// <summary>The grey door facing right at column 1, row 22 of the Ridley room: it stays shut until the area's boss is dead, and once opened, it stays open for good.</summary>
-    public static LockedDoor RidleyGreyDoorFacingRight { get; } = new(nameof(RidleyGreyDoorFacingRight));
+    public static LockedDoor RidleyGreyDoorFacingRight { get; } = new("RidleyGreyDoorFacingRight");
 
     /// <summary>The eye door facing right at column 1, row 6 of the Lower Norfair Farming room: once opened, it stays open for good.</summary>
-    public static LockedDoor LowerNorfairFarmingEyeDoorFacingRight { get; } = new(nameof(LowerNorfairFarmingEyeDoorFacingRight));
+    public static LockedDoor LowerNorfairFarmingEyeDoorFacingRight { get; } = new("LowerNorfairFarmingEyeDoorFacingRight");
 
     /// <summary>The grey door facing right at column 1, row 54 of the Mickey Mouse room: it stays shut until enough of the room's enemies are killed, and once opened, it stays open for good.</summary>
-    public static LockedDoor MickeyMouseGreyDoorFacingRight { get; } = new(nameof(MickeyMouseGreyDoorFacingRight));
+    public static LockedDoor MickeyMouseGreyDoorFacingRight { get; } = new("MickeyMouseGreyDoorFacingRight");
 
     /// <summary>The yellow door facing up at column 38, row 77 of the Red Kihunter Shaft room: once opened, it stays open for good.</summary>
-    public static LockedDoor RedKihunterShaftYellowDoorFacingUp { get; } = new(nameof(RedKihunterShaftYellowDoorFacingUp));
+    public static LockedDoor RedKihunterShaftYellowDoorFacingUp { get; } = new("RedKihunterShaftYellowDoorFacingUp");
 
     /// <summary>The green door facing right at column 17, row 38 of the Wasteland room: once opened, it stays open for good.</summary>
-    public static LockedDoor WastelandGreenDoorFacingRight { get; } = new(nameof(WastelandGreenDoorFacingRight));
+    public static LockedDoor WastelandGreenDoorFacingRight { get; } = new("WastelandGreenDoorFacingRight");
 
     /// <summary>The grey door facing right at column 1, row 6 of the Metal Pirates room: it stays shut until enough of the room's enemies are killed, and once opened, it stays open for good.</summary>
-    public static LockedDoor MetalPiratesGreyDoorFacingRight { get; } = new(nameof(MetalPiratesGreyDoorFacingRight));
+    public static LockedDoor MetalPiratesGreyDoorFacingRight { get; } = new("MetalPiratesGreyDoorFacingRight");
 
     /// <summary>The grey door facing right at column 1, row 6 of the Attic room, in its default state: it stays shut until the area's boss is dead, and once opened, it stays open for good.</summary>
-    public static LockedDoor AtticGreyDoorFacingRightUntilAreaBossDead { get; } = new(nameof(AtticGreyDoorFacingRightUntilAreaBossDead));
+    public static LockedDoor AtticGreyDoorFacingRightUntilAreaBossDead { get; } = new("AtticGreyDoorFacingRightUntilAreaBossDead");
 
     /// <summary>The grey door facing left at column 110, row 6 of the Attic room, in its default state: it stays shut until the area's boss is dead, and once opened, it stays open for good.</summary>
-    public static LockedDoor AtticGreyDoorFacingLeftUntilAreaBossDead { get; } = new(nameof(AtticGreyDoorFacingLeftUntilAreaBossDead));
+    public static LockedDoor AtticGreyDoorFacingLeftUntilAreaBossDead { get; } = new("AtticGreyDoorFacingLeftUntilAreaBossDead");
 
     /// <summary>The grey door facing right at column 65, row 102 of the Wrecked Ship Main Shaft room: it stays shut until the area's boss is dead, and once opened, it stays open for good.</summary>
-    public static LockedDoor WreckedShipMainShaftGreyDoorFacingRight { get; } = new(nameof(WreckedShipMainShaftGreyDoorFacingRight));
+    public static LockedDoor WreckedShipMainShaftGreyDoorFacingRight { get; } = new("WreckedShipMainShaftGreyDoorFacingRight");
 
     /// <summary>The grey door facing left at column 78, row 70 of the Wrecked Ship Main Shaft room: it stays shut until the area's boss is dead, and once opened, it stays open for good.</summary>
-    public static LockedDoor WreckedShipMainShaftGreyDoorFacingLeft { get; } = new(nameof(WreckedShipMainShaftGreyDoorFacingLeft));
+    public static LockedDoor WreckedShipMainShaftGreyDoorFacingLeft { get; } = new("WreckedShipMainShaftGreyDoorFacingLeft");
 
     /// <summary>The green door facing up at column 70, row 125 of the Wrecked Ship Main Shaft room: once opened, it stays open for good.</summary>
-    public static LockedDoor WreckedShipMainShaftGreenDoorFacingUp { get; } = new(nameof(WreckedShipMainShaftGreenDoorFacingUp));
+    public static LockedDoor WreckedShipMainShaftGreenDoorFacingUp { get; } = new("WreckedShipMainShaftGreenDoorFacingUp");
 
     /// <summary>The eye door facing left at column 78, row 6 of the Basement room, in its default state: once opened, it stays open for good.</summary>
-    public static LockedDoor BasementEyeDoorFacingLeft { get; } = new(nameof(BasementEyeDoorFacingLeft));
+    public static LockedDoor BasementEyeDoorFacingLeft { get; } = new("BasementEyeDoorFacingLeft");
 
     /// <summary>The grey door facing right at column 1, row 6 of the Phantoon room: it stays shut until the area's boss is dead, and once opened, it stays open for good.</summary>
-    public static LockedDoor PhantoonGreyDoorFacingRight { get; } = new(nameof(PhantoonGreyDoorFacingRight));
+    public static LockedDoor PhantoonGreyDoorFacingRight { get; } = new("PhantoonGreyDoorFacingRight");
 
     /// <summary>The grey door facing right at column 1, row 22 of the Bowling Alley room, in its state once the area's boss is dead: it never opens.</summary>
-    public static LockedDoor BowlingAlleyGreyDoorFacingRight { get; } = new(nameof(BowlingAlleyGreyDoorFacingRight));
+    public static LockedDoor BowlingAlleyGreyDoorFacingRight { get; } = new("BowlingAlleyGreyDoorFacingRight");
 
     /// <summary>The grey door facing right at column 1, row 6 of the Attic room, in its state once the area's boss is dead: it stays shut until enough of the room's enemies are killed, and once opened, it stays open for good.</summary>
-    public static LockedDoor AtticGreyDoorFacingRightUntilEnemiesKilled { get; } = new(nameof(AtticGreyDoorFacingRightUntilEnemiesKilled));
+    public static LockedDoor AtticGreyDoorFacingRightUntilEnemiesKilled { get; } = new("AtticGreyDoorFacingRightUntilEnemiesKilled");
 
     /// <summary>The grey door facing left at column 110, row 6 of the Attic room, in its state once the area's boss is dead: it stays shut until enough of the room's enemies are killed, and once opened, it stays open for good.</summary>
-    public static LockedDoor AtticGreyDoorFacingLeftUntilEnemiesKilled { get; } = new(nameof(AtticGreyDoorFacingLeftUntilEnemiesKilled));
+    public static LockedDoor AtticGreyDoorFacingLeftUntilEnemiesKilled { get; } = new("AtticGreyDoorFacingLeftUntilEnemiesKilled");
 
     /// <summary>The grey door facing up at column 70, row 14 of the Attic room, in its state once the area's boss is dead: it stays shut until enough of the room's enemies are killed, and once opened, it stays open for good.</summary>
-    public static LockedDoor AtticGreyDoorFacingUp { get; } = new(nameof(AtticGreyDoorFacingUp));
+    public static LockedDoor AtticGreyDoorFacingUp { get; } = new("AtticGreyDoorFacingUp");
 
     /// <summary>The red door facing right at column 1, row 6 of the Electric Death room, in its state once the area's boss is dead: once opened, it stays open for good.</summary>
-    public static LockedDoor ElectricDeathRedDoorFacingRight { get; } = new(nameof(ElectricDeathRedDoorFacingRight));
+    public static LockedDoor ElectricDeathRedDoorFacingRight { get; } = new("ElectricDeathRedDoorFacingRight");
 
     /// <summary>The red door facing left at column 14, row 38 of the Glass Tunnel room: once opened, it stays open for good.</summary>
-    public static LockedDoor GlassTunnelRedDoorFacingLeft { get; } = new(nameof(GlassTunnelRedDoorFacingLeft));
+    public static LockedDoor GlassTunnelRedDoorFacingLeft { get; } = new("GlassTunnelRedDoorFacingLeft");
 
     /// <summary>The red door facing left at column 30, row 118 of the Main Street room: once opened, it stays open for good.</summary>
-    public static LockedDoor MainStreetRedDoorFacingLeft { get; } = new(nameof(MainStreetRedDoorFacingLeft));
+    public static LockedDoor MainStreetRedDoorFacingLeft { get; } = new("MainStreetRedDoorFacingLeft");
 
     /// <summary>The red door facing left at column 62, row 38 of the Fish Tank room: once opened, it stays open for good.</summary>
-    public static LockedDoor FishTankRedDoorFacingLeft { get; } = new(nameof(FishTankRedDoorFacingLeft));
+    public static LockedDoor FishTankRedDoorFacingLeft { get; } = new("FishTankRedDoorFacingLeft");
 
     /// <summary>The green door facing left at column 30, row 54 of the Crab Shaft room: once opened, it stays open for good.</summary>
-    public static LockedDoor CrabShaftGreenDoorFacingLeft { get; } = new(nameof(CrabShaftGreenDoorFacingLeft));
+    public static LockedDoor CrabShaftGreenDoorFacingLeft { get; } = new("CrabShaftGreenDoorFacingLeft");
 
     /// <summary>The red door facing left at column 14, row 22 of the Crab Hole room: once opened, it stays open for good.</summary>
-    public static LockedDoor CrabHoleRedDoorFacingLeft { get; } = new(nameof(CrabHoleRedDoorFacingLeft));
+    public static LockedDoor CrabHoleRedDoorFacingLeft { get; } = new("CrabHoleRedDoorFacingLeft");
 
     /// <summary>The grey door facing right at column 1, row 6 of the Plasma room: it stays shut until enough of the room's enemies are killed, and once opened, it stays open for good.</summary>
-    public static LockedDoor PlasmaGreyDoorFacingRight { get; } = new(nameof(PlasmaGreyDoorFacingRight));
+    public static LockedDoor PlasmaGreyDoorFacingRight { get; } = new("PlasmaGreyDoorFacingRight");
 
     /// <summary>The red door facing left at column 14, row 70 of the Maridia Elevator room: once opened, it stays open for good.</summary>
-    public static LockedDoor MaridiaElevatorRedDoorFacingLeft { get; } = new(nameof(MaridiaElevatorRedDoorFacingLeft));
+    public static LockedDoor MaridiaElevatorRedDoorFacingLeft { get; } = new("MaridiaElevatorRedDoorFacingLeft");
 
     /// <summary>The grey door facing left at column 46, row 22 of the Plasma Spark room: it stays shut until the area's boss is dead, and once opened, it stays open for good.</summary>
-    public static LockedDoor PlasmaSparkGreyDoorFacingLeft { get; } = new(nameof(PlasmaSparkGreyDoorFacingLeft));
+    public static LockedDoor PlasmaSparkGreyDoorFacingLeft { get; } = new("PlasmaSparkGreyDoorFacingLeft");
 
     /// <summary>The green door facing up at column 6, row 45 of the Plasma Spark room: once opened, it stays open for good.</summary>
-    public static LockedDoor PlasmaSparkGreenDoorFacingUp { get; } = new(nameof(PlasmaSparkGreenDoorFacingUp));
+    public static LockedDoor PlasmaSparkGreenDoorFacingUp { get; } = new("PlasmaSparkGreenDoorFacingUp");
 
     /// <summary>The green door facing down at column 6, row 2 of the Oasis room: once opened, it stays open for good.</summary>
-    public static LockedDoor OasisGreenDoorFacingDown { get; } = new(nameof(OasisGreenDoorFacingDown));
+    public static LockedDoor OasisGreenDoorFacingDown { get; } = new("OasisGreenDoorFacingDown");
 
     /// <summary>The red door facing right at column 1, row 38 of the Aqueduct room: once opened, it stays open for good.</summary>
-    public static LockedDoor AqueductRedDoorFacingRight { get; } = new(nameof(AqueductRedDoorFacingRight));
+    public static LockedDoor AqueductRedDoorFacingRight { get; } = new("AqueductRedDoorFacingRight");
 
     /// <summary>The grey door facing left at column 14, row 6 of the Butterfly room: it stays shut until the area's boss is dead, and once opened, it stays open for good.</summary>
-    public static LockedDoor ButterflyGreyDoorFacingLeft { get; } = new(nameof(ButterflyGreyDoorFacingLeft));
+    public static LockedDoor ButterflyGreyDoorFacingLeft { get; } = new("ButterflyGreyDoorFacingLeft");
 
     /// <summary>The red door facing left at column 110, row 6 of the Colosseum room: once opened, it stays open for good.</summary>
-    public static LockedDoor ColosseumRedDoorFacingLeft { get; } = new(nameof(ColosseumRedDoorFacingLeft));
+    public static LockedDoor ColosseumRedDoorFacingLeft { get; } = new("ColosseumRedDoorFacingLeft");
 
     /// <summary>The green door facing left at column 78, row 38 of the Colosseum room: once opened, it stays open for good.</summary>
-    public static LockedDoor ColosseumGreenDoorFacingLeftAt78x38 { get; } = new(nameof(ColosseumGreenDoorFacingLeftAt78x38));
+    public static LockedDoor ColosseumGreenDoorFacingLeftAt78x38 { get; } = new("ColosseumGreenDoorFacingLeftAt78x38");
 
     /// <summary>The green door facing left at column 110, row 22 of the Colosseum room: once opened, it stays open for good.</summary>
-    public static LockedDoor ColosseumGreenDoorFacingLeftAt110x22 { get; } = new(nameof(ColosseumGreenDoorFacingLeftAt110x22));
+    public static LockedDoor ColosseumGreenDoorFacingLeftAt110x22 { get; } = new("ColosseumGreenDoorFacingLeftAt110x22");
 
     /// <summary>The eye door facing right at column 1, row 38 of the The Precious room: once opened, it stays open for good.</summary>
-    public static LockedDoor ThePreciousEyeDoorFacingRight { get; } = new(nameof(ThePreciousEyeDoorFacingRight));
+    public static LockedDoor ThePreciousEyeDoorFacingRight { get; } = new("ThePreciousEyeDoorFacingRight");
 
     /// <summary>The grey door facing right at column 1, row 22 of the Halfie Climb room: it stays shut until the area's boss is dead, and once opened, it stays open for good.</summary>
-    public static LockedDoor HalfieClimbGreyDoorFacingRight { get; } = new(nameof(HalfieClimbGreyDoorFacingRight));
+    public static LockedDoor HalfieClimbGreyDoorFacingRight { get; } = new("HalfieClimbGreyDoorFacingRight");
 
     /// <summary>The grey door facing right at column 1, row 6 of the Botwoon room: it stays shut until the area's mini-boss is dead, and once opened, it stays open for good.</summary>
-    public static LockedDoor BotwoonGreyDoorFacingRight { get; } = new(nameof(BotwoonGreyDoorFacingRight));
+    public static LockedDoor BotwoonGreyDoorFacingRight { get; } = new("BotwoonGreyDoorFacingRight");
 
     /// <summary>The grey door facing left at column 30, row 6 of the Draygon room: it stays shut until the area's boss is dead, and once opened, it stays open for good.</summary>
-    public static LockedDoor DraygonGreyDoorFacingLeft { get; } = new(nameof(DraygonGreyDoorFacingLeft));
+    public static LockedDoor DraygonGreyDoorFacingLeft { get; } = new("DraygonGreyDoorFacingLeft");
 
     /// <summary>The grey door facing right at column 1, row 22 of the Draygon room: it stays shut until the area's boss is dead, and once opened, it stays open for good.</summary>
-    public static LockedDoor DraygonGreyDoorFacingRight { get; } = new(nameof(DraygonGreyDoorFacingRight));
+    public static LockedDoor DraygonGreyDoorFacingRight { get; } = new("DraygonGreyDoorFacingRight");
 
     /// <summary>The grey door facing right at column 1, row 6 of the Metroids 1 room: it stays shut until enough of the room's enemies are killed, and once opened, it stays open for good.</summary>
-    public static LockedDoor Metroids1GreyDoorFacingRight { get; } = new(nameof(Metroids1GreyDoorFacingRight));
+    public static LockedDoor Metroids1GreyDoorFacingRight { get; } = new("Metroids1GreyDoorFacingRight");
 
     /// <summary>The grey door facing left at column 14, row 22 of the Metroids 2 room: it stays shut until enough of the room's enemies are killed, and once opened, it stays open for good.</summary>
-    public static LockedDoor Metroids2GreyDoorFacingLeft { get; } = new(nameof(Metroids2GreyDoorFacingLeft));
+    public static LockedDoor Metroids2GreyDoorFacingLeft { get; } = new("Metroids2GreyDoorFacingLeft");
 
     /// <summary>The grey door facing left at column 94, row 6 of the Metroids 3 room: it stays shut until enough of the room's enemies are killed, and once opened, it stays open for good.</summary>
-    public static LockedDoor Metroids3GreyDoorFacingLeft { get; } = new(nameof(Metroids3GreyDoorFacingLeft));
+    public static LockedDoor Metroids3GreyDoorFacingLeft { get; } = new("Metroids3GreyDoorFacingLeft");
 
     /// <summary>The grey door facing up at column 6, row 30 of the Metroids 4 room: it stays shut until enough of the room's enemies are killed, and once opened, it stays open for good.</summary>
-    public static LockedDoor Metroids4GreyDoorFacingUp { get; } = new(nameof(Metroids4GreyDoorFacingUp));
+    public static LockedDoor Metroids4GreyDoorFacingUp { get; } = new("Metroids4GreyDoorFacingUp");
 
     /// <summary>The grey door facing left at column 30, row 6 of the Dust Torizo room: it never opens.</summary>
-    public static LockedDoor DustTorizoGreyDoorFacingLeft { get; } = new(nameof(DustTorizoGreyDoorFacingLeft));
+    public static LockedDoor DustTorizoGreyDoorFacingLeft { get; } = new("DustTorizoGreyDoorFacingLeft");
 
     /// <summary>The grey door facing right at column 1, row 6 of the Dust Torizo room: it stays shut until enough of the room's enemies are killed, and once opened, it stays open for good.</summary>
-    public static LockedDoor DustTorizoGreyDoorFacingRight { get; } = new(nameof(DustTorizoGreyDoorFacingRight));
+    public static LockedDoor DustTorizoGreyDoorFacingRight { get; } = new("DustTorizoGreyDoorFacingRight");
 
     /// <summary>The grey door facing left at column 62, row 6 of the Big Boy room: it never opens.</summary>
-    public static LockedDoor BigBoyGreyDoorFacingLeft { get; } = new(nameof(BigBoyGreyDoorFacingLeft));
+    public static LockedDoor BigBoyGreyDoorFacingLeft { get; } = new("BigBoyGreyDoorFacingLeft");
 
     /// <summary>The red door facing left at column 14, row 22 of the Seaweed room: once opened, it stays open for good.</summary>
-    public static LockedDoor SeaweedRedDoorFacingLeft { get; } = new(nameof(SeaweedRedDoorFacingLeft));
+    public static LockedDoor SeaweedRedDoorFacingLeft { get; } = new("SeaweedRedDoorFacingLeft");
 
     /// <summary>The eye door facing left at column 62, row 6 of the Tourian Eye Door room: once opened, it stays open for good.</summary>
-    public static LockedDoor TourianEyeDoorEyeDoorFacingLeft { get; } = new(nameof(TourianEyeDoorEyeDoorFacingLeft));
+    public static LockedDoor TourianEyeDoorEyeDoorFacingLeft { get; } = new("TourianEyeDoorEyeDoorFacingLeft");
 
     /// <summary>The red door facing right at column 1, row 38 of the Rinka Shaft room: once opened, it stays open for good.</summary>
-    public static LockedDoor RinkaShaftRedDoorFacingRight { get; } = new(nameof(RinkaShaftRedDoorFacingRight));
+    public static LockedDoor RinkaShaftRedDoorFacingRight { get; } = new("RinkaShaftRedDoorFacingRight");
 
     /// <summary>The grey door facing down at column 6, row 3 of the Tourian Escape 2 room: it never opens.</summary>
-    public static LockedDoor TourianEscape2GreyDoorFacingDown { get; } = new(nameof(TourianEscape2GreyDoorFacingDown));
+    public static LockedDoor TourianEscape2GreyDoorFacingDown { get; } = new("TourianEscape2GreyDoorFacingDown");
 
     /// <summary>The grey door facing right at column 1, row 22 of the Tourian Escape 3 room: it never opens.</summary>
-    public static LockedDoor TourianEscape3GreyDoorFacingRight { get; } = new(nameof(TourianEscape3GreyDoorFacingRight));
+    public static LockedDoor TourianEscape3GreyDoorFacingRight { get; } = new("TourianEscape3GreyDoorFacingRight");
 
     /// <summary>The grey door facing right at column 1, row 54 of the Tourian Escape 4 room: it never opens.</summary>
-    public static LockedDoor TourianEscape4GreyDoorFacingRight { get; } = new(nameof(TourianEscape4GreyDoorFacingRight));
+    public static LockedDoor TourianEscape4GreyDoorFacingRight { get; } = new("TourianEscape4GreyDoorFacingRight");
 
     /// <summary>Every door, in the order saves list them.</summary>
     public static IReadOnlyList<LockedDoor> All { get; } =

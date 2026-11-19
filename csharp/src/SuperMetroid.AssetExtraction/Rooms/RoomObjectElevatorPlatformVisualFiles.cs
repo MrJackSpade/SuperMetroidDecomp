@@ -41,10 +41,7 @@ public static class RoomObjectElevatorPlatformVisualFiles
 
     /// <summary>Maps a platform draw to its stable artwork identifier.</summary>
     internal static string VisualId(RoomObjectDraw request) =>
-        RoomObjectVisualIdDefinitions.ElevatorPlatform.TryGetValue(
-            RoomObjectDrawIdentity.FrameOf<ElevatorPlatformDraw>(request, "elevator-platform draw list"), out string? id)
-            ? id
-            : throw new InvalidOperationException($"Undefined elevator-platform draw list {request}.");
+        ElevatorPlatformDrawKeys.Installed.Of(RoomObjectDrawIdentity.FrameOf<ElevatorPlatformDraw>(request, "elevator-platform draw list"));
 
     /// <summary>
     /// The draw list of a platform frame (#1862): its block shape written as its two upper edge blocks, the object's and

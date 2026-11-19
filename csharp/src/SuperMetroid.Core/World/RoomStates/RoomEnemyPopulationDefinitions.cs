@@ -14,13 +14,13 @@ public static class RoomEnemyPopulationDefinitions
     /// <summary>The rooms' enemy populations in their authored list order, checked complete before gameplay can use them.</summary>
     internal static readonly RoomEnemyPopulationDefinition[] Definitions = RoomEnemyPopulations.Complete(
     [
-        ..CrateriaRoomEnemyPopulationDefinitions.Build(),
-        ..BrinstarRoomEnemyPopulationDefinitions.Build(),
-        ..NorfairRoomEnemyPopulationDefinitions.Build(),
-        ..WreckedShipRoomEnemyPopulationDefinitions.Build(),
-        ..MaridiaRoomEnemyPopulationDefinitions.Build(),
-        ..TourianRoomEnemyPopulationDefinitions.Build(),
-        ..CeresRoomEnemyPopulationDefinitions.Build(),
+        ..CrateriaRoomEnemyPopulationDefinitions.Lists,
+        ..BrinstarRoomEnemyPopulationDefinitions.Lists,
+        ..NorfairRoomEnemyPopulationDefinitions.Lists,
+        ..WreckedShipRoomEnemyPopulationDefinitions.Lists,
+        ..MaridiaRoomEnemyPopulationDefinitions.Lists,
+        ..TourianRoomEnemyPopulationDefinitions.Lists,
+        ..CeresRoomEnemyPopulationDefinitions.Lists,
     ], ListCount, PlacementCount);
 
     /// <summary>Number of distinct populations the room states select, empty ones included.</summary>
@@ -28,613 +28,607 @@ public static class RoomEnemyPopulationDefinitions
     /// <summary>Total placements across the distinct populations, a population that several room states select counted once.</summary>
     public const int PlacementCount = 1658;
 
-    /// <summary>Each room's enemy population by name.</summary>
-    private static readonly Dictionary<string, RoomEnemyPopulationDefinition> ByName = Definitions.ToDictionary(list => list.Name);
-
-    /// <summary>The population named <paramref name="name"/>.</summary>
-    private static RoomEnemyPopulationDefinition Find(string name) => ByName[name];
-
     /// <summary>The enemy population shared by the Draygon room and the Mother Brain room once each area's boss is dead.</summary>
-    public static RoomEnemyPopulationDefinition DraygonOrMotherBrainWhenAreaBossDead { get; } = Find(nameof(DraygonOrMotherBrainWhenAreaBossDead));
+    public static RoomEnemyPopulationDefinition DraygonOrMotherBrainWhenAreaBossDead => MaridiaRoomEnemyPopulationDefinitions.DraygonOrMotherBrainWhenAreaBossDead;
     /// <summary>The enemy population of the East Ocean room.</summary>
-    public static RoomEnemyPopulationDefinition EastOcean { get; } = Find(nameof(EastOcean));
+    public static RoomEnemyPopulationDefinition EastOcean => CrateriaRoomEnemyPopulationDefinitions.EastOcean;
     /// <summary>The enemy population of the Crateria Power Bombs room.</summary>
-    public static RoomEnemyPopulationDefinition CrateriaPowerBombs { get; } = Find(nameof(CrateriaPowerBombs));
+    public static RoomEnemyPopulationDefinition CrateriaPowerBombs => CrateriaRoomEnemyPopulationDefinitions.CrateriaPowerBombs;
     /// <summary>The enemy population of the Terminator room.</summary>
-    public static RoomEnemyPopulationDefinition Terminator { get; } = Find(nameof(Terminator));
+    public static RoomEnemyPopulationDefinition Terminator => CrateriaRoomEnemyPopulationDefinitions.Terminator;
     /// <summary>The enemy population of the Final Missile Bombway room once Zebes is awake.</summary>
-    public static RoomEnemyPopulationDefinition FinalMissileBombwayWhenZebesAwake { get; } = Find(nameof(FinalMissileBombwayWhenZebesAwake));
+    public static RoomEnemyPopulationDefinition FinalMissileBombwayWhenZebesAwake => CrateriaRoomEnemyPopulationDefinitions.FinalMissileBombwayWhenZebesAwake;
     /// <summary>The enemy population of the Final Missile Bombway room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition FinalMissileBombwayDefault { get; } = Find(nameof(FinalMissileBombwayDefault));
+    public static RoomEnemyPopulationDefinition FinalMissileBombwayDefault => CrateriaRoomEnemyPopulationDefinitions.FinalMissileBombwayDefault;
     /// <summary>The enemy population of the Parlor room once Zebes is awake.</summary>
-    public static RoomEnemyPopulationDefinition ParlorWhenZebesAwake { get; } = Find(nameof(ParlorWhenZebesAwake));
+    public static RoomEnemyPopulationDefinition ParlorWhenZebesAwake => CrateriaRoomEnemyPopulationDefinitions.ParlorWhenZebesAwake;
     /// <summary>The enemy population of the Flyway room while the Zebes timebomb is not set.</summary>
-    public static RoomEnemyPopulationDefinition FlywayBeforeTimebomb { get; } = Find(nameof(FlywayBeforeTimebomb));
+    public static RoomEnemyPopulationDefinition FlywayBeforeTimebomb => CrateriaRoomEnemyPopulationDefinitions.FlywayBeforeTimebomb;
     /// <summary>The enemy population of the Pit room once Samus has the Morph Ball and Missiles.</summary>
-    public static RoomEnemyPopulationDefinition PitWithMorphBallAndMissiles { get; } = Find(nameof(PitWithMorphBallAndMissiles));
+    public static RoomEnemyPopulationDefinition PitWithMorphBallAndMissiles => CrateriaRoomEnemyPopulationDefinitions.PitWithMorphBallAndMissiles;
     /// <summary>The enemy population of the Gauntlet Entrance room.</summary>
-    public static RoomEnemyPopulationDefinition GauntletEntrance { get; } = Find(nameof(GauntletEntrance));
+    public static RoomEnemyPopulationDefinition GauntletEntrance => CrateriaRoomEnemyPopulationDefinitions.GauntletEntrance;
     /// <summary>The enemy population of the Bomb Torizo room while the Zebes timebomb is not set.</summary>
-    public static RoomEnemyPopulationDefinition BombTorizoBeforeTimebomb { get; } = Find(nameof(BombTorizoBeforeTimebomb));
+    public static RoomEnemyPopulationDefinition BombTorizoBeforeTimebomb => CrateriaRoomEnemyPopulationDefinitions.BombTorizoBeforeTimebomb;
     /// <summary>The enemy population of the Green Pirates Shaft room.</summary>
-    public static RoomEnemyPopulationDefinition GreenPiratesShaft { get; } = Find(nameof(GreenPiratesShaft));
+    public static RoomEnemyPopulationDefinition GreenPiratesShaft => CrateriaRoomEnemyPopulationDefinitions.GreenPiratesShaft;
     /// <summary>The enemy population of the Green Brinstar Elevator room.</summary>
-    public static RoomEnemyPopulationDefinition GreenBrinstarElevator { get; } = Find(nameof(GreenBrinstarElevator));
+    public static RoomEnemyPopulationDefinition GreenBrinstarElevator => CrateriaRoomEnemyPopulationDefinitions.GreenBrinstarElevator;
     /// <summary>The enemy population of the Final Missile room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition FinalMissileDefault { get; } = Find(nameof(FinalMissileDefault));
+    public static RoomEnemyPopulationDefinition FinalMissileDefault => CrateriaRoomEnemyPopulationDefinitions.FinalMissileDefault;
     /// <summary>The enemy population of the Crateria Map room.</summary>
-    public static RoomEnemyPopulationDefinition CrateriaMap { get; } = Find(nameof(CrateriaMap));
+    public static RoomEnemyPopulationDefinition CrateriaMap => CrateriaRoomEnemyPopulationDefinitions.CrateriaMap;
     /// <summary>The enemy population of the Final Missile room once Zebes is awake.</summary>
-    public static RoomEnemyPopulationDefinition FinalMissileWhenZebesAwake { get; } = Find(nameof(FinalMissileWhenZebesAwake));
+    public static RoomEnemyPopulationDefinition FinalMissileWhenZebesAwake => CrateriaRoomEnemyPopulationDefinitions.FinalMissileWhenZebesAwake;
     /// <summary>The enemy population of the Climb room once the Zebes timebomb is set.</summary>
-    public static RoomEnemyPopulationDefinition ClimbWhenZebesTimebombSet { get; } = Find(nameof(ClimbWhenZebesTimebombSet));
+    public static RoomEnemyPopulationDefinition ClimbWhenZebesTimebombSet => CrateriaRoomEnemyPopulationDefinitions.ClimbWhenZebesTimebombSet;
     /// <summary>The enemy population of the Crateria Save room.</summary>
-    public static RoomEnemyPopulationDefinition CrateriaSave { get; } = Find(nameof(CrateriaSave));
+    public static RoomEnemyPopulationDefinition CrateriaSave => CrateriaRoomEnemyPopulationDefinitions.CrateriaSave;
     /// <summary>The enemy population of the Forgotten Highway Elbow room.</summary>
-    public static RoomEnemyPopulationDefinition ForgottenHighwayElbow { get; } = Find(nameof(ForgottenHighwayElbow));
+    public static RoomEnemyPopulationDefinition ForgottenHighwayElbow => CrateriaRoomEnemyPopulationDefinitions.ForgottenHighwayElbow;
     /// <summary>The enemy population of the Moat room.</summary>
-    public static RoomEnemyPopulationDefinition Moat { get; } = Find(nameof(Moat));
+    public static RoomEnemyPopulationDefinition Moat => CrateriaRoomEnemyPopulationDefinitions.Moat;
     /// <summary>The enemy population of the Climb room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition ClimbDefault { get; } = Find(nameof(ClimbDefault));
+    public static RoomEnemyPopulationDefinition ClimbDefault => CrateriaRoomEnemyPopulationDefinitions.ClimbDefault;
     /// <summary>The enemy population of the West Ocean room.</summary>
-    public static RoomEnemyPopulationDefinition WestOcean { get; } = Find(nameof(WestOcean));
+    public static RoomEnemyPopulationDefinition WestOcean => CrateriaRoomEnemyPopulationDefinitions.WestOcean;
     /// <summary>The enemy population of the Parlor room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition ParlorDefault { get; } = Find(nameof(ParlorDefault));
+    public static RoomEnemyPopulationDefinition ParlorDefault => CrateriaRoomEnemyPopulationDefinitions.ParlorDefault;
     /// <summary>The enemy population of the Landing Site room while the Zebes timebomb is not set.</summary>
-    public static RoomEnemyPopulationDefinition LandingSiteBeforeTimebomb { get; } = Find(nameof(LandingSiteBeforeTimebomb));
+    public static RoomEnemyPopulationDefinition LandingSiteBeforeTimebomb => CrateriaRoomEnemyPopulationDefinitions.LandingSiteBeforeTimebomb;
     /// <summary>The enemy population of the Crateria Super room.</summary>
-    public static RoomEnemyPopulationDefinition CrateriaSuper { get; } = Find(nameof(CrateriaSuper));
+    public static RoomEnemyPopulationDefinition CrateriaSuper => CrateriaRoomEnemyPopulationDefinitions.CrateriaSuper;
     /// <summary>The enemy population of the Pre Bowling room.</summary>
-    public static RoomEnemyPopulationDefinition PreBowling { get; } = Find(nameof(PreBowling));
+    public static RoomEnemyPopulationDefinition PreBowling => CrateriaRoomEnemyPopulationDefinitions.PreBowling;
     /// <summary>The enemy population of the Climb room once Zebes is awake.</summary>
-    public static RoomEnemyPopulationDefinition ClimbWhenZebesAwake { get; } = Find(nameof(ClimbWhenZebesAwake));
+    public static RoomEnemyPopulationDefinition ClimbWhenZebesAwake => CrateriaRoomEnemyPopulationDefinitions.ClimbWhenZebesAwake;
     /// <summary>The enemy population of the Bowling Alley Path room.</summary>
-    public static RoomEnemyPopulationDefinition BowlingAlleyPath { get; } = Find(nameof(BowlingAlleyPath));
+    public static RoomEnemyPopulationDefinition BowlingAlleyPath => CrateriaRoomEnemyPopulationDefinitions.BowlingAlleyPath;
     /// <summary>The enemy population of the Red Brinstar Elevator room.</summary>
-    public static RoomEnemyPopulationDefinition RedBrinstarElevator { get; } = Find(nameof(RedBrinstarElevator));
+    public static RoomEnemyPopulationDefinition RedBrinstarElevator => CrateriaRoomEnemyPopulationDefinitions.RedBrinstarElevator;
     /// <summary>The enemy population of the Gauntlet Energy Tank room.</summary>
-    public static RoomEnemyPopulationDefinition GauntletEnergyTank { get; } = Find(nameof(GauntletEnergyTank));
+    public static RoomEnemyPopulationDefinition GauntletEnergyTank => CrateriaRoomEnemyPopulationDefinitions.GauntletEnergyTank;
     /// <summary>The enemy population of the Pit room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition PitDefault { get; } = Find(nameof(PitDefault));
+    public static RoomEnemyPopulationDefinition PitDefault => CrateriaRoomEnemyPopulationDefinitions.PitDefault;
     /// <summary>The enemy population of the Crab Maze room.</summary>
-    public static RoomEnemyPopulationDefinition CrabMaze { get; } = Find(nameof(CrabMaze));
+    public static RoomEnemyPopulationDefinition CrabMaze => CrateriaRoomEnemyPopulationDefinitions.CrabMaze;
     /// <summary>The enemy population of the Crateria Tube room.</summary>
-    public static RoomEnemyPopulationDefinition CrateriaTube { get; } = Find(nameof(CrateriaTube));
+    public static RoomEnemyPopulationDefinition CrateriaTube => CrateriaRoomEnemyPopulationDefinitions.CrateriaTube;
     /// <summary>The enemy population of the Forgotten Highway Kagos room.</summary>
-    public static RoomEnemyPopulationDefinition ForgottenHighwayKagos { get; } = Find(nameof(ForgottenHighwayKagos));
+    public static RoomEnemyPopulationDefinition ForgottenHighwayKagos => CrateriaRoomEnemyPopulationDefinitions.ForgottenHighwayKagos;
     /// <summary>The enemy population of the Elevator to Blue Brinstar room.</summary>
-    public static RoomEnemyPopulationDefinition ElevatorToBlueBrinstar { get; } = Find(nameof(ElevatorToBlueBrinstar));
+    public static RoomEnemyPopulationDefinition ElevatorToBlueBrinstar => CrateriaRoomEnemyPopulationDefinitions.ElevatorToBlueBrinstar;
     /// <summary>The enemy population of the Forgotten Highway Elevator room.</summary>
-    public static RoomEnemyPopulationDefinition ForgottenHighwayElevator { get; } = Find(nameof(ForgottenHighwayElevator));
+    public static RoomEnemyPopulationDefinition ForgottenHighwayElevator => CrateriaRoomEnemyPopulationDefinitions.ForgottenHighwayElevator;
     /// <summary>The enemy population of the Pre Map Flyway room.</summary>
-    public static RoomEnemyPopulationDefinition PreMapFlyway { get; } = Find(nameof(PreMapFlyway));
+    public static RoomEnemyPopulationDefinition PreMapFlyway => CrateriaRoomEnemyPopulationDefinitions.PreMapFlyway;
     /// <summary>The enemy population of the Lower Mushrooms room.</summary>
-    public static RoomEnemyPopulationDefinition LowerMushrooms { get; } = Find(nameof(LowerMushrooms));
+    public static RoomEnemyPopulationDefinition LowerMushrooms => CrateriaRoomEnemyPopulationDefinitions.LowerMushrooms;
     /// <summary>The enemy population of the Landing Site room once the Zebes timebomb is set.</summary>
-    public static RoomEnemyPopulationDefinition LandingSiteWhenZebesTimebombSet { get; } = Find(nameof(LandingSiteWhenZebesTimebombSet));
+    public static RoomEnemyPopulationDefinition LandingSiteWhenZebesTimebombSet => CrateriaRoomEnemyPopulationDefinitions.LandingSiteWhenZebesTimebombSet;
     /// <summary>The enemy population of the Parlor room once the Zebes timebomb is set.</summary>
-    public static RoomEnemyPopulationDefinition ParlorWhenZebesTimebombSet { get; } = Find(nameof(ParlorWhenZebesTimebombSet));
+    public static RoomEnemyPopulationDefinition ParlorWhenZebesTimebombSet => CrateriaRoomEnemyPopulationDefinitions.ParlorWhenZebesTimebombSet;
     /// <summary>The enemy population of the Bomb Torizo room once the Zebes timebomb is set.</summary>
-    public static RoomEnemyPopulationDefinition BombTorizoWhenZebesTimebombSet { get; } = Find(nameof(BombTorizoWhenZebesTimebombSet));
+    public static RoomEnemyPopulationDefinition BombTorizoWhenZebesTimebombSet => CrateriaRoomEnemyPopulationDefinitions.BombTorizoWhenZebesTimebombSet;
     /// <summary>The enemy population of the Flyway room once the Zebes timebomb is set.</summary>
-    public static RoomEnemyPopulationDefinition FlywayWhenZebesTimebombSet { get; } = Find(nameof(FlywayWhenZebesTimebombSet));
+    public static RoomEnemyPopulationDefinition FlywayWhenZebesTimebombSet => CrateriaRoomEnemyPopulationDefinitions.FlywayWhenZebesTimebombSet;
     /// <summary>The enemy population of the Crateria Kihunter room.</summary>
-    public static RoomEnemyPopulationDefinition CrateriaKihunter { get; } = Find(nameof(CrateriaKihunter));
+    public static RoomEnemyPopulationDefinition CrateriaKihunter => CrateriaRoomEnemyPopulationDefinitions.CrateriaKihunter;
     /// <summary>The enemy population of the Brinstar Pre Map room.</summary>
-    public static RoomEnemyPopulationDefinition BrinstarPreMap { get; } = Find(nameof(BrinstarPreMap));
+    public static RoomEnemyPopulationDefinition BrinstarPreMap => BrinstarRoomEnemyPopulationDefinitions.BrinstarPreMap;
     /// <summary>The enemy population of the Green Brinstar Map room.</summary>
-    public static RoomEnemyPopulationDefinition GreenBrinstarMap { get; } = Find(nameof(GreenBrinstarMap));
+    public static RoomEnemyPopulationDefinition GreenBrinstarMap => BrinstarRoomEnemyPopulationDefinitions.GreenBrinstarMap;
     /// <summary>The enemy population of the Green Brinstar Missile Refill room.</summary>
-    public static RoomEnemyPopulationDefinition GreenBrinstarMissileRefill { get; } = Find(nameof(GreenBrinstarMissileRefill));
+    public static RoomEnemyPopulationDefinition GreenBrinstarMissileRefill => BrinstarRoomEnemyPopulationDefinitions.GreenBrinstarMissileRefill;
     /// <summary>The enemy population of the Spore Spawn Kihunters room.</summary>
-    public static RoomEnemyPopulationDefinition SporeSpawnKihunters { get; } = Find(nameof(SporeSpawnKihunters));
+    public static RoomEnemyPopulationDefinition SporeSpawnKihunters => BrinstarRoomEnemyPopulationDefinitions.SporeSpawnKihunters;
     /// <summary>The enemy population of the Etecoon Super room.</summary>
-    public static RoomEnemyPopulationDefinition EtecoonSuper { get; } = Find(nameof(EtecoonSuper));
+    public static RoomEnemyPopulationDefinition EtecoonSuper => BrinstarRoomEnemyPopulationDefinitions.EtecoonSuper;
     /// <summary>The enemy population of the Dachora Energy Refill room.</summary>
-    public static RoomEnemyPopulationDefinition DachoraEnergyRefill { get; } = Find(nameof(DachoraEnergyRefill));
+    public static RoomEnemyPopulationDefinition DachoraEnergyRefill => BrinstarRoomEnemyPopulationDefinitions.DachoraEnergyRefill;
     /// <summary>The enemy population of the Spore Spawn Farming room.</summary>
-    public static RoomEnemyPopulationDefinition SporeSpawnFarming { get; } = Find(nameof(SporeSpawnFarming));
+    public static RoomEnemyPopulationDefinition SporeSpawnFarming => BrinstarRoomEnemyPopulationDefinitions.SporeSpawnFarming;
     /// <summary>The enemy population of the Statues room.</summary>
-    public static RoomEnemyPopulationDefinition Statues { get; } = Find(nameof(Statues));
+    public static RoomEnemyPopulationDefinition Statues => CrateriaRoomEnemyPopulationDefinitions.Statues;
     /// <summary>The enemy population of the Hopper Energy Tank room.</summary>
-    public static RoomEnemyPopulationDefinition HopperEnergyTank { get; } = Find(nameof(HopperEnergyTank));
+    public static RoomEnemyPopulationDefinition HopperEnergyTank => BrinstarRoomEnemyPopulationDefinitions.HopperEnergyTank;
     /// <summary>The enemy population of the Beta Power Bomb room.</summary>
-    public static RoomEnemyPopulationDefinition BetaPowerBomb { get; } = Find(nameof(BetaPowerBomb));
+    public static RoomEnemyPopulationDefinition BetaPowerBomb => BrinstarRoomEnemyPopulationDefinitions.BetaPowerBomb;
     /// <summary>The enemy population of the Waterway Energy Tank room.</summary>
-    public static RoomEnemyPopulationDefinition WaterwayEnergyTank { get; } = Find(nameof(WaterwayEnergyTank));
+    public static RoomEnemyPopulationDefinition WaterwayEnergyTank => BrinstarRoomEnemyPopulationDefinitions.WaterwayEnergyTank;
     /// <summary>The enemy population of the Construction Zone room once Zebes is awake.</summary>
-    public static RoomEnemyPopulationDefinition ConstructionZoneWhenZebesAwake { get; } = Find(nameof(ConstructionZoneWhenZebesAwake));
+    public static RoomEnemyPopulationDefinition ConstructionZoneWhenZebesAwake => BrinstarRoomEnemyPopulationDefinitions.ConstructionZoneWhenZebesAwake;
     /// <summary>The enemy population of the Blue Brinstar Energy Tank room once Zebes is awake.</summary>
-    public static RoomEnemyPopulationDefinition BlueBrinstarEnergyTankWhenZebesAwake { get; } = Find(nameof(BlueBrinstarEnergyTankWhenZebesAwake));
+    public static RoomEnemyPopulationDefinition BlueBrinstarEnergyTankWhenZebesAwake => BrinstarRoomEnemyPopulationDefinitions.BlueBrinstarEnergyTankWhenZebesAwake;
     /// <summary>The enemy population of the Noob Bridge room.</summary>
-    public static RoomEnemyPopulationDefinition NoobBridge { get; } = Find(nameof(NoobBridge));
+    public static RoomEnemyPopulationDefinition NoobBridge => BrinstarRoomEnemyPopulationDefinitions.NoobBridge;
     /// <summary>The enemy population of the Morph Ball room once Zebes is awake.</summary>
-    public static RoomEnemyPopulationDefinition MorphBallWhenZebesAwake { get; } = Find(nameof(MorphBallWhenZebesAwake));
+    public static RoomEnemyPopulationDefinition MorphBallWhenZebesAwake => BrinstarRoomEnemyPopulationDefinitions.MorphBallWhenZebesAwake;
     /// <summary>The enemy population of the Warehouse Save room.</summary>
-    public static RoomEnemyPopulationDefinition WarehouseSave { get; } = Find(nameof(WarehouseSave));
+    public static RoomEnemyPopulationDefinition WarehouseSave => BrinstarRoomEnemyPopulationDefinitions.WarehouseSave;
     /// <summary>The enemy population of the Morph Ball room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition MorphBallDefault { get; } = Find(nameof(MorphBallDefault));
+    public static RoomEnemyPopulationDefinition MorphBallDefault => BrinstarRoomEnemyPopulationDefinitions.MorphBallDefault;
     /// <summary>The enemy population of the Warehouse Zeela room.</summary>
-    public static RoomEnemyPopulationDefinition WarehouseZeela { get; } = Find(nameof(WarehouseZeela));
+    public static RoomEnemyPopulationDefinition WarehouseZeela => BrinstarRoomEnemyPopulationDefinitions.WarehouseZeela;
     /// <summary>The enemy population of the Red Tower room.</summary>
-    public static RoomEnemyPopulationDefinition RedTower { get; } = Find(nameof(RedTower));
+    public static RoomEnemyPopulationDefinition RedTower => BrinstarRoomEnemyPopulationDefinitions.RedTower;
     /// <summary>The enemy population of the Blue Brinstar Boulders room.</summary>
-    public static RoomEnemyPopulationDefinition BlueBrinstarBoulders { get; } = Find(nameof(BlueBrinstarBoulders));
+    public static RoomEnemyPopulationDefinition BlueBrinstarBoulders => BrinstarRoomEnemyPopulationDefinitions.BlueBrinstarBoulders;
     /// <summary>The enemy population of the Billy Mays room.</summary>
-    public static RoomEnemyPopulationDefinition BillyMays { get; } = Find(nameof(BillyMays));
+    public static RoomEnemyPopulationDefinition BillyMays => BrinstarRoomEnemyPopulationDefinitions.BillyMays;
     /// <summary>The enemy population of the Big Pink Save Room.</summary>
-    public static RoomEnemyPopulationDefinition BigPinkSaveRoom { get; } = Find(nameof(BigPinkSaveRoom));
+    public static RoomEnemyPopulationDefinition BigPinkSaveRoom => BrinstarRoomEnemyPopulationDefinitions.BigPinkSaveRoom;
     /// <summary>The enemy population of the Big Pink room.</summary>
-    public static RoomEnemyPopulationDefinition BigPink { get; } = Find(nameof(BigPink));
+    public static RoomEnemyPopulationDefinition BigPink => BrinstarRoomEnemyPopulationDefinitions.BigPink;
     /// <summary>The enemy population of the Etecoon Save room.</summary>
-    public static RoomEnemyPopulationDefinition EtecoonSave { get; } = Find(nameof(EtecoonSave));
+    public static RoomEnemyPopulationDefinition EtecoonSave => BrinstarRoomEnemyPopulationDefinitions.EtecoonSave;
     /// <summary>The enemy population of the Below Spazer room.</summary>
-    public static RoomEnemyPopulationDefinition BelowSpazer { get; } = Find(nameof(BelowSpazer));
+    public static RoomEnemyPopulationDefinition BelowSpazer => BrinstarRoomEnemyPopulationDefinitions.BelowSpazer;
     /// <summary>The enemy population of the Green Brinstar Save room.</summary>
-    public static RoomEnemyPopulationDefinition GreenBrinstarSave { get; } = Find(nameof(GreenBrinstarSave));
+    public static RoomEnemyPopulationDefinition GreenBrinstarSave => BrinstarRoomEnemyPopulationDefinitions.GreenBrinstarSave;
     /// <summary>The enemy population of the Spazer room.</summary>
-    public static RoomEnemyPopulationDefinition Spazer { get; } = Find(nameof(Spazer));
+    public static RoomEnemyPopulationDefinition Spazer => BrinstarRoomEnemyPopulationDefinitions.Spazer;
     /// <summary>The enemy population of the Pink Brinstar Power Bombs room.</summary>
-    public static RoomEnemyPopulationDefinition PinkBrinstarPowerBombs { get; } = Find(nameof(PinkBrinstarPowerBombs));
+    public static RoomEnemyPopulationDefinition PinkBrinstarPowerBombs => BrinstarRoomEnemyPopulationDefinitions.PinkBrinstarPowerBombs;
     /// <summary>The enemy population of the Red Tower Refill room.</summary>
-    public static RoomEnemyPopulationDefinition RedTowerRefill { get; } = Find(nameof(RedTowerRefill));
+    public static RoomEnemyPopulationDefinition RedTowerRefill => BrinstarRoomEnemyPopulationDefinitions.RedTowerRefill;
     /// <summary>The enemy population of the Kraid Refill room.</summary>
-    public static RoomEnemyPopulationDefinition KraidRefill { get; } = Find(nameof(KraidRefill));
+    public static RoomEnemyPopulationDefinition KraidRefill => BrinstarRoomEnemyPopulationDefinitions.KraidRefill;
     /// <summary>The enemy population of the Varia Suit room.</summary>
-    public static RoomEnemyPopulationDefinition VariaSuit { get; } = Find(nameof(VariaSuit));
+    public static RoomEnemyPopulationDefinition VariaSuit => BrinstarRoomEnemyPopulationDefinitions.VariaSuit;
     /// <summary>The enemy population of the Red Brinstar Save room.</summary>
-    public static RoomEnemyPopulationDefinition RedBrinstarSave { get; } = Find(nameof(RedBrinstarSave));
+    public static RoomEnemyPopulationDefinition RedBrinstarSave => BrinstarRoomEnemyPopulationDefinitions.RedBrinstarSave;
     /// <summary>The enemy population of the Blue Brinstar Energy Tank room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition BlueBrinstarEnergyTankDefault { get; } = Find(nameof(BlueBrinstarEnergyTankDefault));
+    public static RoomEnemyPopulationDefinition BlueBrinstarEnergyTankDefault => BrinstarRoomEnemyPopulationDefinitions.BlueBrinstarEnergyTankDefault;
     /// <summary>The enemy population of the Green Brinstar Firefleas room.</summary>
-    public static RoomEnemyPopulationDefinition GreenBrinstarFirefleas { get; } = Find(nameof(GreenBrinstarFirefleas));
+    public static RoomEnemyPopulationDefinition GreenBrinstarFirefleas => BrinstarRoomEnemyPopulationDefinitions.GreenBrinstarFirefleas;
     /// <summary>The enemy population of the Green Brinstar Beetoms room.</summary>
-    public static RoomEnemyPopulationDefinition GreenBrinstarBeetoms { get; } = Find(nameof(GreenBrinstarBeetoms));
+    public static RoomEnemyPopulationDefinition GreenBrinstarBeetoms => BrinstarRoomEnemyPopulationDefinitions.GreenBrinstarBeetoms;
     /// <summary>The enemy population of the Etecoon Energy Tank room.</summary>
-    public static RoomEnemyPopulationDefinition EtecoonEnergyTank { get; } = Find(nameof(EtecoonEnergyTank));
+    public static RoomEnemyPopulationDefinition EtecoonEnergyTank => BrinstarRoomEnemyPopulationDefinitions.EtecoonEnergyTank;
     /// <summary>The enemy population of the Pink Brinstar Hoppers room.</summary>
-    public static RoomEnemyPopulationDefinition PinkBrinstarHoppers { get; } = Find(nameof(PinkBrinstarHoppers));
+    public static RoomEnemyPopulationDefinition PinkBrinstarHoppers => BrinstarRoomEnemyPopulationDefinitions.PinkBrinstarHoppers;
     /// <summary>The enemy population of the Warehouse Energy Tank room.</summary>
-    public static RoomEnemyPopulationDefinition WarehouseEnergyTank { get; } = Find(nameof(WarehouseEnergyTank));
+    public static RoomEnemyPopulationDefinition WarehouseEnergyTank => BrinstarRoomEnemyPopulationDefinitions.WarehouseEnergyTank;
     /// <summary>The enemy population of the Warehouse Entrance room.</summary>
-    public static RoomEnemyPopulationDefinition WarehouseEntrance { get; } = Find(nameof(WarehouseEntrance));
+    public static RoomEnemyPopulationDefinition WarehouseEntrance => BrinstarRoomEnemyPopulationDefinitions.WarehouseEntrance;
     /// <summary>The enemy population of the Warehouse Kihunter room.</summary>
-    public static RoomEnemyPopulationDefinition WarehouseKihunter { get; } = Find(nameof(WarehouseKihunter));
+    public static RoomEnemyPopulationDefinition WarehouseKihunter => BrinstarRoomEnemyPopulationDefinitions.WarehouseKihunter;
     /// <summary>The enemy population of the Green Brinstar Main Shaft room.</summary>
-    public static RoomEnemyPopulationDefinition GreenBrinstarMainShaft { get; } = Find(nameof(GreenBrinstarMainShaft));
+    public static RoomEnemyPopulationDefinition GreenBrinstarMainShaft => BrinstarRoomEnemyPopulationDefinitions.GreenBrinstarMainShaft;
     /// <summary>The enemy population of the Spore Spawn Super room.</summary>
-    public static RoomEnemyPopulationDefinition SporeSpawnSuper { get; } = Find(nameof(SporeSpawnSuper));
+    public static RoomEnemyPopulationDefinition SporeSpawnSuper => BrinstarRoomEnemyPopulationDefinitions.SporeSpawnSuper;
     /// <summary>The enemy population of the Early Supers room.</summary>
-    public static RoomEnemyPopulationDefinition EarlySupers { get; } = Find(nameof(EarlySupers));
+    public static RoomEnemyPopulationDefinition EarlySupers => BrinstarRoomEnemyPopulationDefinitions.EarlySupers;
     /// <summary>The enemy population of the Red Brinstar Firefleas room.</summary>
-    public static RoomEnemyPopulationDefinition RedBrinstarFirefleas { get; } = Find(nameof(RedBrinstarFirefleas));
+    public static RoomEnemyPopulationDefinition RedBrinstarFirefleas => BrinstarRoomEnemyPopulationDefinitions.RedBrinstarFirefleas;
     /// <summary>The enemy population of the Construction Zone room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition ConstructionZoneDefault { get; } = Find(nameof(ConstructionZoneDefault));
+    public static RoomEnemyPopulationDefinition ConstructionZoneDefault => BrinstarRoomEnemyPopulationDefinitions.ConstructionZoneDefault;
     /// <summary>The enemy population of the Green Hill Zone room.</summary>
-    public static RoomEnemyPopulationDefinition GreenHillZone { get; } = Find(nameof(GreenHillZone));
+    public static RoomEnemyPopulationDefinition GreenHillZone => BrinstarRoomEnemyPopulationDefinitions.GreenHillZone;
     /// <summary>The enemy population of the Dachora room.</summary>
-    public static RoomEnemyPopulationDefinition Dachora { get; } = Find(nameof(Dachora));
+    public static RoomEnemyPopulationDefinition Dachora => BrinstarRoomEnemyPopulationDefinitions.Dachora;
     /// <summary>The enemy population of the Hellway room.</summary>
-    public static RoomEnemyPopulationDefinition Hellway { get; } = Find(nameof(Hellway));
+    public static RoomEnemyPopulationDefinition Hellway => BrinstarRoomEnemyPopulationDefinitions.Hellway;
     /// <summary>The enemy population of the First Missile room.</summary>
-    public static RoomEnemyPopulationDefinition FirstMissile { get; } = Find(nameof(FirstMissile));
+    public static RoomEnemyPopulationDefinition FirstMissile => BrinstarRoomEnemyPopulationDefinitions.FirstMissile;
     /// <summary>The enemy population of the Kraid room.</summary>
-    public static RoomEnemyPopulationDefinition Kraid { get; } = Find(nameof(Kraid));
+    public static RoomEnemyPopulationDefinition Kraid => BrinstarRoomEnemyPopulationDefinitions.Kraid;
     /// <summary>The enemy population of the Brinstar Reserve Tank room.</summary>
-    public static RoomEnemyPopulationDefinition BrinstarReserveTank { get; } = Find(nameof(BrinstarReserveTank));
+    public static RoomEnemyPopulationDefinition BrinstarReserveTank => BrinstarRoomEnemyPopulationDefinitions.BrinstarReserveTank;
     /// <summary>The enemy population of the X-Ray Scope room.</summary>
-    public static RoomEnemyPopulationDefinition XrayScope { get; } = Find(nameof(XrayScope));
+    public static RoomEnemyPopulationDefinition XrayScope => BrinstarRoomEnemyPopulationDefinitions.XrayScope;
     /// <summary>The enemy population of the Statues Hallway room.</summary>
-    public static RoomEnemyPopulationDefinition StatuesHallway { get; } = Find(nameof(StatuesHallway));
+    public static RoomEnemyPopulationDefinition StatuesHallway => CrateriaRoomEnemyPopulationDefinitions.StatuesHallway;
     /// <summary>The enemy population of the Alpha Power Bomb room.</summary>
-    public static RoomEnemyPopulationDefinition AlphaPowerBomb { get; } = Find(nameof(AlphaPowerBomb));
+    public static RoomEnemyPopulationDefinition AlphaPowerBomb => BrinstarRoomEnemyPopulationDefinitions.AlphaPowerBomb;
     /// <summary>The enemy population of the Kraid Eye Door room.</summary>
-    public static RoomEnemyPopulationDefinition KraidEyeDoor { get; } = Find(nameof(KraidEyeDoor));
+    public static RoomEnemyPopulationDefinition KraidEyeDoor => BrinstarRoomEnemyPopulationDefinitions.KraidEyeDoor;
     /// <summary>The enemy population of the Caterpillar room.</summary>
-    public static RoomEnemyPopulationDefinition Caterpillar { get; } = Find(nameof(Caterpillar));
+    public static RoomEnemyPopulationDefinition Caterpillar => BrinstarRoomEnemyPopulationDefinitions.Caterpillar;
     /// <summary>The enemy population of the Mini Kraid room.</summary>
-    public static RoomEnemyPopulationDefinition MiniKraid { get; } = Find(nameof(MiniKraid));
+    public static RoomEnemyPopulationDefinition MiniKraid => BrinstarRoomEnemyPopulationDefinitions.MiniKraid;
     /// <summary>The enemy population of the Spore Spawn room.</summary>
-    public static RoomEnemyPopulationDefinition SporeSpawn { get; } = Find(nameof(SporeSpawn));
+    public static RoomEnemyPopulationDefinition SporeSpawn => BrinstarRoomEnemyPopulationDefinitions.SporeSpawn;
     /// <summary>The enemy population of the Skree Boost room.</summary>
-    public static RoomEnemyPopulationDefinition SkreeBoost { get; } = Find(nameof(SkreeBoost));
+    public static RoomEnemyPopulationDefinition SkreeBoost => BrinstarRoomEnemyPopulationDefinitions.SkreeBoost;
     /// <summary>The enemy population of the Grapple Tutorial 3 room.</summary>
-    public static RoomEnemyPopulationDefinition GrappleTutorial3 { get; } = Find(nameof(GrappleTutorial3));
+    public static RoomEnemyPopulationDefinition GrappleTutorial3 => NorfairRoomEnemyPopulationDefinitions.GrappleTutorial3;
     /// <summary>The enemy population of the Post-Crocomire Shaft room.</summary>
-    public static RoomEnemyPopulationDefinition PostCrocomireShaft { get; } = Find(nameof(PostCrocomireShaft));
+    public static RoomEnemyPopulationDefinition PostCrocomireShaft => NorfairRoomEnemyPopulationDefinitions.PostCrocomireShaft;
     /// <summary>The enemy population of the Metal Pirates room.</summary>
-    public static RoomEnemyPopulationDefinition MetalPirates { get; } = Find(nameof(MetalPirates));
+    public static RoomEnemyPopulationDefinition MetalPirates => NorfairRoomEnemyPopulationDefinitions.MetalPirates;
     /// <summary>The enemy population of the Acid Statue room.</summary>
-    public static RoomEnemyPopulationDefinition AcidStatue { get; } = Find(nameof(AcidStatue));
+    public static RoomEnemyPopulationDefinition AcidStatue => NorfairRoomEnemyPopulationDefinitions.AcidStatue;
     /// <summary>The enemy population of the Purple Farming room.</summary>
-    public static RoomEnemyPopulationDefinition PurpleFarming { get; } = Find(nameof(PurpleFarming));
+    public static RoomEnemyPopulationDefinition PurpleFarming => NorfairRoomEnemyPopulationDefinitions.PurpleFarming;
     /// <summary>The enemy population of the Ice Beam Gate room.</summary>
-    public static RoomEnemyPopulationDefinition IceBeamGate { get; } = Find(nameof(IceBeamGate));
+    public static RoomEnemyPopulationDefinition IceBeamGate => NorfairRoomEnemyPopulationDefinitions.IceBeamGate;
     /// <summary>The enemy population of the Spiky Acid Snakes Tunnel room.</summary>
-    public static RoomEnemyPopulationDefinition SpikyAcidSnakesTunnel { get; } = Find(nameof(SpikyAcidSnakesTunnel));
+    public static RoomEnemyPopulationDefinition SpikyAcidSnakesTunnel => NorfairRoomEnemyPopulationDefinitions.SpikyAcidSnakesTunnel;
     /// <summary>The enemy population of the Red Kihunter Shaft room.</summary>
-    public static RoomEnemyPopulationDefinition RedKihunterShaft { get; } = Find(nameof(RedKihunterShaft));
+    public static RoomEnemyPopulationDefinition RedKihunterShaft => NorfairRoomEnemyPopulationDefinitions.RedKihunterShaft;
     /// <summary>The enemy population of the Fast Ripper room.</summary>
-    public static RoomEnemyPopulationDefinition FastRipper { get; } = Find(nameof(FastRipper));
+    public static RoomEnemyPopulationDefinition FastRipper => NorfairRoomEnemyPopulationDefinitions.FastRipper;
     /// <summary>The enemy population of the Wave Beam room.</summary>
-    public static RoomEnemyPopulationDefinition WaveBeam { get; } = Find(nameof(WaveBeam));
+    public static RoomEnemyPopulationDefinition WaveBeam => NorfairRoomEnemyPopulationDefinitions.WaveBeam;
     /// <summary>The enemy population of the Fast Pillars Setup room.</summary>
-    public static RoomEnemyPopulationDefinition FastPillarsSetup { get; } = Find(nameof(FastPillarsSetup));
+    public static RoomEnemyPopulationDefinition FastPillarsSetup => NorfairRoomEnemyPopulationDefinitions.FastPillarsSetup;
     /// <summary>The enemy population of the Lower Norfair Elevator room.</summary>
-    public static RoomEnemyPopulationDefinition LowerNorfairElevator { get; } = Find(nameof(LowerNorfairElevator));
+    public static RoomEnemyPopulationDefinition LowerNorfairElevator => NorfairRoomEnemyPopulationDefinitions.LowerNorfairElevator;
     /// <summary>The enemy population of the Lower Norfair Save room.</summary>
-    public static RoomEnemyPopulationDefinition LowerNorfairSave { get; } = Find(nameof(LowerNorfairSave));
+    public static RoomEnemyPopulationDefinition LowerNorfairSave => NorfairRoomEnemyPopulationDefinitions.LowerNorfairSave;
     /// <summary>The enemy population of the Upper Norfair Refill room.</summary>
-    public static RoomEnemyPopulationDefinition UpperNorfairRefill { get; } = Find(nameof(UpperNorfairRefill));
+    public static RoomEnemyPopulationDefinition UpperNorfairRefill => NorfairRoomEnemyPopulationDefinitions.UpperNorfairRefill;
     /// <summary>The enemy population of the Norfair Map room.</summary>
-    public static RoomEnemyPopulationDefinition NorfairMap { get; } = Find(nameof(NorfairMap));
+    public static RoomEnemyPopulationDefinition NorfairMap => NorfairRoomEnemyPopulationDefinitions.NorfairMap;
     /// <summary>The enemy population of the Mickey Mouse room.</summary>
-    public static RoomEnemyPopulationDefinition MickeyMouse { get; } = Find(nameof(MickeyMouse));
+    public static RoomEnemyPopulationDefinition MickeyMouse => NorfairRoomEnemyPopulationDefinitions.MickeyMouse;
     /// <summary>The enemy population of the Golden Torizo Energy Refill room.</summary>
-    public static RoomEnemyPopulationDefinition GoldenTorizoEnergyRefill { get; } = Find(nameof(GoldenTorizoEnergyRefill));
+    public static RoomEnemyPopulationDefinition GoldenTorizoEnergyRefill => NorfairRoomEnemyPopulationDefinitions.GoldenTorizoEnergyRefill;
     /// <summary>The enemy population of the Ridley room.</summary>
-    public static RoomEnemyPopulationDefinition Ridley { get; } = Find(nameof(Ridley));
+    public static RoomEnemyPopulationDefinition Ridley => NorfairRoomEnemyPopulationDefinitions.Ridley;
     /// <summary>The enemy population of the Post-Crocomire Power Bombs room.</summary>
-    public static RoomEnemyPopulationDefinition PostCrocomirePowerBombs { get; } = Find(nameof(PostCrocomirePowerBombs));
+    public static RoomEnemyPopulationDefinition PostCrocomirePowerBombs => NorfairRoomEnemyPopulationDefinitions.PostCrocomirePowerBombs;
     /// <summary>The enemy population of the Ice Beam room.</summary>
-    public static RoomEnemyPopulationDefinition IceBeam { get; } = Find(nameof(IceBeam));
+    public static RoomEnemyPopulationDefinition IceBeam => NorfairRoomEnemyPopulationDefinitions.IceBeam;
     /// <summary>The enemy population of the Hi-Jump Boots room.</summary>
-    public static RoomEnemyPopulationDefinition HiJumpBoots { get; } = Find(nameof(HiJumpBoots));
+    public static RoomEnemyPopulationDefinition HiJumpBoots => NorfairRoomEnemyPopulationDefinitions.HiJumpBoots;
     /// <summary>The enemy population of the Post-Crocomire Save room.</summary>
-    public static RoomEnemyPopulationDefinition PostCrocomireSave { get; } = Find(nameof(PostCrocomireSave));
+    public static RoomEnemyPopulationDefinition PostCrocomireSave => NorfairRoomEnemyPopulationDefinitions.PostCrocomireSave;
     /// <summary>The enemy population of the Frog Speedway room.</summary>
-    public static RoomEnemyPopulationDefinition FrogSpeedway { get; } = Find(nameof(FrogSpeedway));
+    public static RoomEnemyPopulationDefinition FrogSpeedway => NorfairRoomEnemyPopulationDefinitions.FrogSpeedway;
     /// <summary>The enemy population of the Rising Tide room.</summary>
-    public static RoomEnemyPopulationDefinition RisingTide { get; } = Find(nameof(RisingTide));
+    public static RoomEnemyPopulationDefinition RisingTide => NorfairRoomEnemyPopulationDefinitions.RisingTide;
     /// <summary>The enemy population of the Post-Crocomire Farming room.</summary>
-    public static RoomEnemyPopulationDefinition PostCrocomireFarming { get; } = Find(nameof(PostCrocomireFarming));
+    public static RoomEnemyPopulationDefinition PostCrocomireFarming => NorfairRoomEnemyPopulationDefinitions.PostCrocomireFarming;
     /// <summary>The enemy population of the Worst Room in the Game.</summary>
-    public static RoomEnemyPopulationDefinition WorstRoomInTheGame { get; } = Find(nameof(WorstRoomInTheGame));
+    public static RoomEnemyPopulationDefinition WorstRoomInTheGame => NorfairRoomEnemyPopulationDefinitions.WorstRoomInTheGame;
     /// <summary>The enemy population of the Double Chamber room.</summary>
-    public static RoomEnemyPopulationDefinition DoubleChamber { get; } = Find(nameof(DoubleChamber));
+    public static RoomEnemyPopulationDefinition DoubleChamber => NorfairRoomEnemyPopulationDefinitions.DoubleChamber;
     /// <summary>The enemy population of the Grapple Beam room.</summary>
-    public static RoomEnemyPopulationDefinition GrappleBeam { get; } = Find(nameof(GrappleBeam));
+    public static RoomEnemyPopulationDefinition GrappleBeam => NorfairRoomEnemyPopulationDefinitions.GrappleBeam;
     /// <summary>The enemy population of the Red Pirate Shaft room.</summary>
-    public static RoomEnemyPopulationDefinition RedPirateShaft { get; } = Find(nameof(RedPirateShaft));
+    public static RoomEnemyPopulationDefinition RedPirateShaft => NorfairRoomEnemyPopulationDefinitions.RedPirateShaft;
     /// <summary>The enemy population of the Crocomire Speedway room.</summary>
-    public static RoomEnemyPopulationDefinition CrocomireSpeedway { get; } = Find(nameof(CrocomireSpeedway));
+    public static RoomEnemyPopulationDefinition CrocomireSpeedway => NorfairRoomEnemyPopulationDefinitions.CrocomireSpeedway;
     /// <summary>The enemy population of the Plowerhouse room.</summary>
-    public static RoomEnemyPopulationDefinition Plowerhouse { get; } = Find(nameof(Plowerhouse));
+    public static RoomEnemyPopulationDefinition Plowerhouse => NorfairRoomEnemyPopulationDefinitions.Plowerhouse;
     /// <summary>The enemy population of the Lower Norfair Fireflea room.</summary>
-    public static RoomEnemyPopulationDefinition LowerNorfairFireflea { get; } = Find(nameof(LowerNorfairFireflea));
+    public static RoomEnemyPopulationDefinition LowerNorfairFireflea => NorfairRoomEnemyPopulationDefinitions.LowerNorfairFireflea;
     /// <summary>The enemy population of the Magdollite Tunnel room.</summary>
-    public static RoomEnemyPopulationDefinition MagdolliteTunnel { get; } = Find(nameof(MagdolliteTunnel));
+    public static RoomEnemyPopulationDefinition MagdolliteTunnel => NorfairRoomEnemyPopulationDefinitions.MagdolliteTunnel;
     /// <summary>The enemy population of the Lava Dive room.</summary>
-    public static RoomEnemyPopulationDefinition LavaDive { get; } = Find(nameof(LavaDive));
+    public static RoomEnemyPopulationDefinition LavaDive => NorfairRoomEnemyPopulationDefinitions.LavaDive;
     /// <summary>The enemy population of the Pillar room.</summary>
-    public static RoomEnemyPopulationDefinition Pillar { get; } = Find(nameof(Pillar));
+    public static RoomEnemyPopulationDefinition Pillar => NorfairRoomEnemyPopulationDefinitions.Pillar;
     /// <summary>The enemy population of the Crocomire Escape room.</summary>
-    public static RoomEnemyPopulationDefinition CrocomireEscape { get; } = Find(nameof(CrocomireEscape));
+    public static RoomEnemyPopulationDefinition CrocomireEscape => NorfairRoomEnemyPopulationDefinitions.CrocomireEscape;
     /// <summary>The enemy population of the Lower Norfair Spring Ball Maze room.</summary>
-    public static RoomEnemyPopulationDefinition LowerNorfairSpringBallMaze { get; } = Find(nameof(LowerNorfairSpringBallMaze));
+    public static RoomEnemyPopulationDefinition LowerNorfairSpringBallMaze => NorfairRoomEnemyPopulationDefinitions.LowerNorfairSpringBallMaze;
     /// <summary>The enemy population of the Lower Norfair Escape Power Bombs room.</summary>
-    public static RoomEnemyPopulationDefinition LowerNorfairEscapePowerBombs { get; } = Find(nameof(LowerNorfairEscapePowerBombs));
+    public static RoomEnemyPopulationDefinition LowerNorfairEscapePowerBombs => NorfairRoomEnemyPopulationDefinitions.LowerNorfairEscapePowerBombs;
     /// <summary>The enemy population of the Purple Shaft room.</summary>
-    public static RoomEnemyPopulationDefinition PurpleShaft { get; } = Find(nameof(PurpleShaft));
+    public static RoomEnemyPopulationDefinition PurpleShaft => NorfairRoomEnemyPopulationDefinitions.PurpleShaft;
     /// <summary>The enemy population of the Ridley Energy Tank room.</summary>
-    public static RoomEnemyPopulationDefinition RidleyEnergyTank { get; } = Find(nameof(RidleyEnergyTank));
+    public static RoomEnemyPopulationDefinition RidleyEnergyTank => NorfairRoomEnemyPopulationDefinitions.RidleyEnergyTank;
     /// <summary>The enemy population of the Screw Attack room.</summary>
-    public static RoomEnemyPopulationDefinition ScrewAttack { get; } = Find(nameof(ScrewAttack));
+    public static RoomEnemyPopulationDefinition ScrewAttack => NorfairRoomEnemyPopulationDefinitions.ScrewAttack;
     /// <summary>The enemy population of the Green Bubbles Missiles room.</summary>
-    public static RoomEnemyPopulationDefinition GreenBubblesMissiles { get; } = Find(nameof(GreenBubblesMissiles));
+    public static RoomEnemyPopulationDefinition GreenBubblesMissiles => NorfairRoomEnemyPopulationDefinitions.GreenBubblesMissiles;
     /// <summary>The enemy population of the Amphitheatre room.</summary>
-    public static RoomEnemyPopulationDefinition Amphitheatre { get; } = Find(nameof(Amphitheatre));
+    public static RoomEnemyPopulationDefinition Amphitheatre => NorfairRoomEnemyPopulationDefinitions.Amphitheatre;
     /// <summary>The enemy population of the Cathedral Entrance room.</summary>
-    public static RoomEnemyPopulationDefinition CathedralEntrance { get; } = Find(nameof(CathedralEntrance));
+    public static RoomEnemyPopulationDefinition CathedralEntrance => NorfairRoomEnemyPopulationDefinitions.CathedralEntrance;
     /// <summary>The enemy population of the Main Hall room.</summary>
-    public static RoomEnemyPopulationDefinition MainHall { get; } = Find(nameof(MainHall));
+    public static RoomEnemyPopulationDefinition MainHall => NorfairRoomEnemyPopulationDefinitions.MainHall;
     /// <summary>The enemy population of the Post-Crocomire Jump room.</summary>
-    public static RoomEnemyPopulationDefinition PostCrocomireJump { get; } = Find(nameof(PostCrocomireJump));
+    public static RoomEnemyPopulationDefinition PostCrocomireJump => NorfairRoomEnemyPopulationDefinitions.PostCrocomireJump;
     /// <summary>The enemy population of the Frog Save room.</summary>
-    public static RoomEnemyPopulationDefinition FrogSave { get; } = Find(nameof(FrogSave));
+    public static RoomEnemyPopulationDefinition FrogSave => NorfairRoomEnemyPopulationDefinitions.FrogSave;
     /// <summary>The enemy population of the Crocomire Save room.</summary>
-    public static RoomEnemyPopulationDefinition CrocomireSave { get; } = Find(nameof(CrocomireSave));
+    public static RoomEnemyPopulationDefinition CrocomireSave => NorfairRoomEnemyPopulationDefinitions.CrocomireSave;
     /// <summary>The enemy population of the Crumble Shaft room.</summary>
-    public static RoomEnemyPopulationDefinition CrumbleShaft { get; } = Find(nameof(CrumbleShaft));
+    public static RoomEnemyPopulationDefinition CrumbleShaft => NorfairRoomEnemyPopulationDefinitions.CrumbleShaft;
     /// <summary>The enemy population of the Wasteland room.</summary>
-    public static RoomEnemyPopulationDefinition Wasteland { get; } = Find(nameof(Wasteland));
+    public static RoomEnemyPopulationDefinition Wasteland => NorfairRoomEnemyPopulationDefinitions.Wasteland;
     /// <summary>The enemy population of the Acid Snakes Tunnel room.</summary>
-    public static RoomEnemyPopulationDefinition AcidSnakesTunnel { get; } = Find(nameof(AcidSnakesTunnel));
+    public static RoomEnemyPopulationDefinition AcidSnakesTunnel => NorfairRoomEnemyPopulationDefinitions.AcidSnakesTunnel;
     /// <summary>The enemy population of the Grapple Tutorial 1 room.</summary>
-    public static RoomEnemyPopulationDefinition GrappleTutorial1 { get; } = Find(nameof(GrappleTutorial1));
+    public static RoomEnemyPopulationDefinition GrappleTutorial1 => NorfairRoomEnemyPopulationDefinitions.GrappleTutorial1;
     /// <summary>The enemy population of the Bubble Mountain Save room.</summary>
-    public static RoomEnemyPopulationDefinition BubbleMountainSave { get; } = Find(nameof(BubbleMountainSave));
+    public static RoomEnemyPopulationDefinition BubbleMountainSave => NorfairRoomEnemyPopulationDefinitions.BubbleMountainSave;
     /// <summary>The enemy population of the Hi-Jump Energy Tank room.</summary>
-    public static RoomEnemyPopulationDefinition HiJumpEnergyTank { get; } = Find(nameof(HiJumpEnergyTank));
+    public static RoomEnemyPopulationDefinition HiJumpEnergyTank => NorfairRoomEnemyPopulationDefinitions.HiJumpEnergyTank;
     /// <summary>The enemy population of the Bubble Mountain room.</summary>
-    public static RoomEnemyPopulationDefinition BubbleMountain { get; } = Find(nameof(BubbleMountain));
+    public static RoomEnemyPopulationDefinition BubbleMountain => NorfairRoomEnemyPopulationDefinitions.BubbleMountain;
     /// <summary>The enemy population of the Ice Beam Acid room.</summary>
-    public static RoomEnemyPopulationDefinition IceBeamAcid { get; } = Find(nameof(IceBeamAcid));
+    public static RoomEnemyPopulationDefinition IceBeamAcid => NorfairRoomEnemyPopulationDefinitions.IceBeamAcid;
     /// <summary>The enemy population of the Ice Beam Tutorial room.</summary>
-    public static RoomEnemyPopulationDefinition IceBeamTutorial { get; } = Find(nameof(IceBeamTutorial));
+    public static RoomEnemyPopulationDefinition IceBeamTutorial => NorfairRoomEnemyPopulationDefinitions.IceBeamTutorial;
     /// <summary>The enemy population of the Post-Crocomire Missile room.</summary>
-    public static RoomEnemyPopulationDefinition PostCrocomireMissile { get; } = Find(nameof(PostCrocomireMissile));
+    public static RoomEnemyPopulationDefinition PostCrocomireMissile => NorfairRoomEnemyPopulationDefinitions.PostCrocomireMissile;
     /// <summary>The enemy population of the Cathedral room.</summary>
-    public static RoomEnemyPopulationDefinition Cathedral { get; } = Find(nameof(Cathedral));
+    public static RoomEnemyPopulationDefinition Cathedral => NorfairRoomEnemyPopulationDefinitions.Cathedral;
     /// <summary>The enemy population of the Norfair Reserve Tank room.</summary>
-    public static RoomEnemyPopulationDefinition NorfairReserveTank { get; } = Find(nameof(NorfairReserveTank));
+    public static RoomEnemyPopulationDefinition NorfairReserveTank => NorfairRoomEnemyPopulationDefinitions.NorfairReserveTank;
     /// <summary>The enemy population of the Grapple Tutorial 2 room.</summary>
-    public static RoomEnemyPopulationDefinition GrappleTutorial2 { get; } = Find(nameof(GrappleTutorial2));
+    public static RoomEnemyPopulationDefinition GrappleTutorial2 => NorfairRoomEnemyPopulationDefinitions.GrappleTutorial2;
     /// <summary>The enemy population of the Ice Beam Snake room.</summary>
-    public static RoomEnemyPopulationDefinition IceBeamSnake { get; } = Find(nameof(IceBeamSnake));
+    public static RoomEnemyPopulationDefinition IceBeamSnake => NorfairRoomEnemyPopulationDefinitions.IceBeamSnake;
     /// <summary>The enemy population of the Golden Torizo room.</summary>
-    public static RoomEnemyPopulationDefinition GoldenTorizo { get; } = Find(nameof(GoldenTorizo));
+    public static RoomEnemyPopulationDefinition GoldenTorizo => NorfairRoomEnemyPopulationDefinitions.GoldenTorizo;
     /// <summary>The enemy population of the Spiky Platforms Tunnel room.</summary>
-    public static RoomEnemyPopulationDefinition SpikyPlatformsTunnel { get; } = Find(nameof(SpikyPlatformsTunnel));
+    public static RoomEnemyPopulationDefinition SpikyPlatformsTunnel => NorfairRoomEnemyPopulationDefinitions.SpikyPlatformsTunnel;
     /// <summary>The enemy population of the Speed Booster room.</summary>
-    public static RoomEnemyPopulationDefinition SpeedBooster { get; } = Find(nameof(SpeedBooster));
+    public static RoomEnemyPopulationDefinition SpeedBooster => NorfairRoomEnemyPopulationDefinitions.SpeedBooster;
     /// <summary>The enemy population of the Lower Norfair Farming room.</summary>
-    public static RoomEnemyPopulationDefinition LowerNorfairFarming { get; } = Find(nameof(LowerNorfairFarming));
+    public static RoomEnemyPopulationDefinition LowerNorfairFarming => NorfairRoomEnemyPopulationDefinitions.LowerNorfairFarming;
     /// <summary>The enemy population of the Single Chamber room.</summary>
-    public static RoomEnemyPopulationDefinition SingleChamber { get; } = Find(nameof(SingleChamber));
+    public static RoomEnemyPopulationDefinition SingleChamber => NorfairRoomEnemyPopulationDefinitions.SingleChamber;
     /// <summary>The enemy population of the Speed Booster Hall room.</summary>
-    public static RoomEnemyPopulationDefinition SpeedBoosterHall { get; } = Find(nameof(SpeedBoosterHall));
+    public static RoomEnemyPopulationDefinition SpeedBoosterHall => NorfairRoomEnemyPopulationDefinitions.SpeedBoosterHall;
     /// <summary>The enemy population of the Bat Cave room.</summary>
-    public static RoomEnemyPopulationDefinition BatCave { get; } = Find(nameof(BatCave));
+    public static RoomEnemyPopulationDefinition BatCave => NorfairRoomEnemyPopulationDefinitions.BatCave;
     /// <summary>The enemy population of the Kronic Boost room.</summary>
-    public static RoomEnemyPopulationDefinition KronicBoost { get; } = Find(nameof(KronicBoost));
+    public static RoomEnemyPopulationDefinition KronicBoost => NorfairRoomEnemyPopulationDefinitions.KronicBoost;
     /// <summary>The enemy population of the Business Center room.</summary>
-    public static RoomEnemyPopulationDefinition BusinessCenter { get; } = Find(nameof(BusinessCenter));
+    public static RoomEnemyPopulationDefinition BusinessCenter => NorfairRoomEnemyPopulationDefinitions.BusinessCenter;
     /// <summary>The enemy population of the Three Musketeers room.</summary>
-    public static RoomEnemyPopulationDefinition ThreeMusketeers { get; } = Find(nameof(ThreeMusketeers));
+    public static RoomEnemyPopulationDefinition ThreeMusketeers => NorfairRoomEnemyPopulationDefinitions.ThreeMusketeers;
     /// <summary>The enemy population of the Crocomire room.</summary>
-    public static RoomEnemyPopulationDefinition Crocomire { get; } = Find(nameof(Crocomire));
+    public static RoomEnemyPopulationDefinition Crocomire => NorfairRoomEnemyPopulationDefinitions.Crocomire;
     /// <summary>The enemy population of the Lower Norfair Elevator Save room.</summary>
-    public static RoomEnemyPopulationDefinition LowerNorfairElevatorSave { get; } = Find(nameof(LowerNorfairElevatorSave));
+    public static RoomEnemyPopulationDefinition LowerNorfairElevatorSave => NorfairRoomEnemyPopulationDefinitions.LowerNorfairElevatorSave;
     /// <summary>The enemy population of the Volcano room.</summary>
-    public static RoomEnemyPopulationDefinition Volcano { get; } = Find(nameof(Volcano));
+    public static RoomEnemyPopulationDefinition Volcano => NorfairRoomEnemyPopulationDefinitions.Volcano;
     /// <summary>The enemy population of the Upper Norfair Farming room.</summary>
-    public static RoomEnemyPopulationDefinition UpperNorfairFarming { get; } = Find(nameof(UpperNorfairFarming));
+    public static RoomEnemyPopulationDefinition UpperNorfairFarming => NorfairRoomEnemyPopulationDefinitions.UpperNorfairFarming;
     /// <summary>The enemy population of the Sponge Bath room once the area's boss is dead.</summary>
-    public static RoomEnemyPopulationDefinition SpongeBathWhenAreaBossDead { get; } = Find(nameof(SpongeBathWhenAreaBossDead));
+    public static RoomEnemyPopulationDefinition SpongeBathWhenAreaBossDead => WreckedShipRoomEnemyPopulationDefinitions.SpongeBathWhenAreaBossDead;
     /// <summary>The enemy population of the Wrecked Ship Energy Tank room once the area's boss is dead.</summary>
-    public static RoomEnemyPopulationDefinition WreckedShipEnergyTankWhenAreaBossDead { get; } = Find(nameof(WreckedShipEnergyTankWhenAreaBossDead));
+    public static RoomEnemyPopulationDefinition WreckedShipEnergyTankWhenAreaBossDead => WreckedShipRoomEnemyPopulationDefinitions.WreckedShipEnergyTankWhenAreaBossDead;
     /// <summary>The enemy population of the Wrecked Ship Main Shaft room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition WreckedShipMainShaftDefault { get; } = Find(nameof(WreckedShipMainShaftDefault));
+    public static RoomEnemyPopulationDefinition WreckedShipMainShaftDefault => WreckedShipRoomEnemyPopulationDefinitions.WreckedShipMainShaftDefault;
     /// <summary>The enemy population of the Bowling Alley room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition BowlingAlleyDefault { get; } = Find(nameof(BowlingAlleyDefault));
+    public static RoomEnemyPopulationDefinition BowlingAlleyDefault => WreckedShipRoomEnemyPopulationDefinitions.BowlingAlleyDefault;
     /// <summary>The enemy population of the Attic room once the area's boss is dead.</summary>
-    public static RoomEnemyPopulationDefinition AtticWhenAreaBossDead { get; } = Find(nameof(AtticWhenAreaBossDead));
+    public static RoomEnemyPopulationDefinition AtticWhenAreaBossDead => WreckedShipRoomEnemyPopulationDefinitions.AtticWhenAreaBossDead;
     /// <summary>The enemy population of the Basement room once the area's boss is dead.</summary>
-    public static RoomEnemyPopulationDefinition BasementWhenAreaBossDead { get; } = Find(nameof(BasementWhenAreaBossDead));
+    public static RoomEnemyPopulationDefinition BasementWhenAreaBossDead => WreckedShipRoomEnemyPopulationDefinitions.BasementWhenAreaBossDead;
     /// <summary>The enemy population of the Wrecked Ship Map room once the area's boss is dead.</summary>
-    public static RoomEnemyPopulationDefinition WreckedShipMapWhenAreaBossDead { get; } = Find(nameof(WreckedShipMapWhenAreaBossDead));
+    public static RoomEnemyPopulationDefinition WreckedShipMapWhenAreaBossDead => WreckedShipRoomEnemyPopulationDefinitions.WreckedShipMapWhenAreaBossDead;
     /// <summary>The enemy population of the Wrecked Ship West Super room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition WreckedShipWestSuperDefault { get; } = Find(nameof(WreckedShipWestSuperDefault));
+    public static RoomEnemyPopulationDefinition WreckedShipWestSuperDefault => WreckedShipRoomEnemyPopulationDefinitions.WreckedShipWestSuperDefault;
     /// <summary>The enemy population of the Spiky Death room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition SpikyDeathDefault { get; } = Find(nameof(SpikyDeathDefault));
+    public static RoomEnemyPopulationDefinition SpikyDeathDefault => WreckedShipRoomEnemyPopulationDefinitions.SpikyDeathDefault;
     /// <summary>The enemy population of the Sponge Bath room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition SpongeBathDefault { get; } = Find(nameof(SpongeBathDefault));
+    public static RoomEnemyPopulationDefinition SpongeBathDefault => WreckedShipRoomEnemyPopulationDefinitions.SpongeBathDefault;
     /// <summary>The enemy population of the Wrecked Ship Entrance room once the area's boss is dead.</summary>
-    public static RoomEnemyPopulationDefinition WreckedShipEntranceWhenAreaBossDead { get; } = Find(nameof(WreckedShipEntranceWhenAreaBossDead));
+    public static RoomEnemyPopulationDefinition WreckedShipEntranceWhenAreaBossDead => WreckedShipRoomEnemyPopulationDefinitions.WreckedShipEntranceWhenAreaBossDead;
     /// <summary>The enemy population of the Electric Death room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition ElectricDeathDefault { get; } = Find(nameof(ElectricDeathDefault));
+    public static RoomEnemyPopulationDefinition ElectricDeathDefault => WreckedShipRoomEnemyPopulationDefinitions.ElectricDeathDefault;
     /// <summary>The enemy population of the Bowling Alley room once the area's boss is dead.</summary>
-    public static RoomEnemyPopulationDefinition BowlingAlleyWhenAreaBossDead { get; } = Find(nameof(BowlingAlleyWhenAreaBossDead));
+    public static RoomEnemyPopulationDefinition BowlingAlleyWhenAreaBossDead => WreckedShipRoomEnemyPopulationDefinitions.BowlingAlleyWhenAreaBossDead;
     /// <summary>The enemy population of Wrecked Ship's Assembly Line room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition AssemblyLineDefault { get; } = Find(nameof(AssemblyLineDefault));
+    public static RoomEnemyPopulationDefinition AssemblyLineDefault => WreckedShipRoomEnemyPopulationDefinitions.AssemblyLineDefault;
     /// <summary>The enemy population of the Phantoon room once the area's boss is dead.</summary>
-    public static RoomEnemyPopulationDefinition PhantoonWhenAreaBossDead { get; } = Find(nameof(PhantoonWhenAreaBossDead));
+    public static RoomEnemyPopulationDefinition PhantoonWhenAreaBossDead => WreckedShipRoomEnemyPopulationDefinitions.PhantoonWhenAreaBossDead;
     /// <summary>The enemy population of the Wrecked Ship Energy Tank room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition WreckedShipEnergyTankDefault { get; } = Find(nameof(WreckedShipEnergyTankDefault));
+    public static RoomEnemyPopulationDefinition WreckedShipEnergyTankDefault => WreckedShipRoomEnemyPopulationDefinitions.WreckedShipEnergyTankDefault;
     /// <summary>The enemy population of the Gravity Suit room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition GravitySuitDefault { get; } = Find(nameof(GravitySuitDefault));
+    public static RoomEnemyPopulationDefinition GravitySuitDefault => WreckedShipRoomEnemyPopulationDefinitions.GravitySuitDefault;
     /// <summary>The enemy population of the Wrecked Ship Map room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition WreckedShipMapDefault { get; } = Find(nameof(WreckedShipMapDefault));
+    public static RoomEnemyPopulationDefinition WreckedShipMapDefault => WreckedShipRoomEnemyPopulationDefinitions.WreckedShipMapDefault;
     /// <summary>The enemy population of the Gravity Suit room once the area's boss is dead.</summary>
-    public static RoomEnemyPopulationDefinition GravitySuitWhenAreaBossDead { get; } = Find(nameof(GravitySuitWhenAreaBossDead));
+    public static RoomEnemyPopulationDefinition GravitySuitWhenAreaBossDead => WreckedShipRoomEnemyPopulationDefinitions.GravitySuitWhenAreaBossDead;
     /// <summary>The enemy population of the Basement room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition BasementDefault { get; } = Find(nameof(BasementDefault));
+    public static RoomEnemyPopulationDefinition BasementDefault => WreckedShipRoomEnemyPopulationDefinitions.BasementDefault;
     /// <summary>The enemy population of the Wrecked Ship Entrance room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition WreckedShipEntranceDefault { get; } = Find(nameof(WreckedShipEntranceDefault));
+    public static RoomEnemyPopulationDefinition WreckedShipEntranceDefault => WreckedShipRoomEnemyPopulationDefinitions.WreckedShipEntranceDefault;
     /// <summary>The enemy population of Wrecked Ship's Assembly Line room once the area's boss is dead.</summary>
-    public static RoomEnemyPopulationDefinition AssemblyLineWhenAreaBossDead { get; } = Find(nameof(AssemblyLineWhenAreaBossDead));
+    public static RoomEnemyPopulationDefinition AssemblyLineWhenAreaBossDead => WreckedShipRoomEnemyPopulationDefinitions.AssemblyLineWhenAreaBossDead;
     /// <summary>The enemy population of the Wrecked Ship Save room once the area's boss is dead.</summary>
-    public static RoomEnemyPopulationDefinition WreckedShipSaveWhenAreaBossDead { get; } = Find(nameof(WreckedShipSaveWhenAreaBossDead));
+    public static RoomEnemyPopulationDefinition WreckedShipSaveWhenAreaBossDead => WreckedShipRoomEnemyPopulationDefinitions.WreckedShipSaveWhenAreaBossDead;
     /// <summary>The enemy population of the Wrecked Ship West Super room once the area's boss is dead.</summary>
-    public static RoomEnemyPopulationDefinition WreckedShipWestSuperWhenAreaBossDead { get; } = Find(nameof(WreckedShipWestSuperWhenAreaBossDead));
+    public static RoomEnemyPopulationDefinition WreckedShipWestSuperWhenAreaBossDead => WreckedShipRoomEnemyPopulationDefinitions.WreckedShipWestSuperWhenAreaBossDead;
     /// <summary>The enemy population of the Attic room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition AtticDefault { get; } = Find(nameof(AtticDefault));
+    public static RoomEnemyPopulationDefinition AtticDefault => WreckedShipRoomEnemyPopulationDefinitions.AtticDefault;
     /// <summary>The enemy population of the Wrecked Ship East Super room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition WreckedShipEastSuperDefault { get; } = Find(nameof(WreckedShipEastSuperDefault));
+    public static RoomEnemyPopulationDefinition WreckedShipEastSuperDefault => WreckedShipRoomEnemyPopulationDefinitions.WreckedShipEastSuperDefault;
     /// <summary>The enemy population of the Wrecked Ship Save room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition WreckedShipSaveDefault { get; } = Find(nameof(WreckedShipSaveDefault));
+    public static RoomEnemyPopulationDefinition WreckedShipSaveDefault => WreckedShipRoomEnemyPopulationDefinitions.WreckedShipSaveDefault;
     /// <summary>The enemy population of the Electric Death room once the area's boss is dead.</summary>
-    public static RoomEnemyPopulationDefinition ElectricDeathWhenAreaBossDead { get; } = Find(nameof(ElectricDeathWhenAreaBossDead));
+    public static RoomEnemyPopulationDefinition ElectricDeathWhenAreaBossDead => WreckedShipRoomEnemyPopulationDefinitions.ElectricDeathWhenAreaBossDead;
     /// <summary>The enemy population of the Spiky Death room once the area's boss is dead.</summary>
-    public static RoomEnemyPopulationDefinition SpikyDeathWhenAreaBossDead { get; } = Find(nameof(SpikyDeathWhenAreaBossDead));
+    public static RoomEnemyPopulationDefinition SpikyDeathWhenAreaBossDead => WreckedShipRoomEnemyPopulationDefinitions.SpikyDeathWhenAreaBossDead;
     /// <summary>The enemy population of the Wrecked Ship East Super room once the area's boss is dead.</summary>
-    public static RoomEnemyPopulationDefinition WreckedShipEastSuperWhenAreaBossDead { get; } = Find(nameof(WreckedShipEastSuperWhenAreaBossDead));
+    public static RoomEnemyPopulationDefinition WreckedShipEastSuperWhenAreaBossDead => WreckedShipRoomEnemyPopulationDefinitions.WreckedShipEastSuperWhenAreaBossDead;
     /// <summary>The enemy population of the Phantoon room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition PhantoonDefault { get; } = Find(nameof(PhantoonDefault));
+    public static RoomEnemyPopulationDefinition PhantoonDefault => WreckedShipRoomEnemyPopulationDefinitions.PhantoonDefault;
     /// <summary>The enemy population of the Wrecked Ship Main Shaft room once the area's boss is dead.</summary>
-    public static RoomEnemyPopulationDefinition WreckedShipMainShaftWhenAreaBossDead { get; } = Find(nameof(WreckedShipMainShaftWhenAreaBossDead));
+    public static RoomEnemyPopulationDefinition WreckedShipMainShaftWhenAreaBossDead => WreckedShipRoomEnemyPopulationDefinitions.WreckedShipMainShaftWhenAreaBossDead;
     /// <summary>The enemy population of the Mt. Everest room.</summary>
-    public static RoomEnemyPopulationDefinition MtEverest { get; } = Find(nameof(MtEverest));
+    public static RoomEnemyPopulationDefinition MtEverest => MaridiaRoomEnemyPopulationDefinitions.MtEverest;
     /// <summary>The enemy population of the Halfie Climb room.</summary>
-    public static RoomEnemyPopulationDefinition HalfieClimb { get; } = Find(nameof(HalfieClimb));
+    public static RoomEnemyPopulationDefinition HalfieClimb => MaridiaRoomEnemyPopulationDefinitions.HalfieClimb;
     /// <summary>The enemy population of the Watering Hole room.</summary>
-    public static RoomEnemyPopulationDefinition WateringHole { get; } = Find(nameof(WateringHole));
+    public static RoomEnemyPopulationDefinition WateringHole => MaridiaRoomEnemyPopulationDefinitions.WateringHole;
     /// <summary>The enemy population of the Crab Shaft room.</summary>
-    public static RoomEnemyPopulationDefinition CrabShaft { get; } = Find(nameof(CrabShaft));
+    public static RoomEnemyPopulationDefinition CrabShaft => MaridiaRoomEnemyPopulationDefinitions.CrabShaft;
     /// <summary>The enemy population of the Maridia Elevator room.</summary>
-    public static RoomEnemyPopulationDefinition MaridiaElevator { get; } = Find(nameof(MaridiaElevator));
+    public static RoomEnemyPopulationDefinition MaridiaElevator => MaridiaRoomEnemyPopulationDefinitions.MaridiaElevator;
     /// <summary>The enemy population of the Colosseum room.</summary>
-    public static RoomEnemyPopulationDefinition Colosseum { get; } = Find(nameof(Colosseum));
+    public static RoomEnemyPopulationDefinition Colosseum => MaridiaRoomEnemyPopulationDefinitions.Colosseum;
     /// <summary>The enemy population of the Aqueduct Save room.</summary>
-    public static RoomEnemyPopulationDefinition AqueductSave { get; } = Find(nameof(AqueductSave));
+    public static RoomEnemyPopulationDefinition AqueductSave => MaridiaRoomEnemyPopulationDefinitions.AqueductSave;
     /// <summary>The enemy population of the Precious room.</summary>
-    public static RoomEnemyPopulationDefinition ThePrecious { get; } = Find(nameof(ThePrecious));
+    public static RoomEnemyPopulationDefinition ThePrecious => MaridiaRoomEnemyPopulationDefinitions.ThePrecious;
     /// <summary>The enemy population of the Botwoon Energy Tank room.</summary>
-    public static RoomEnemyPopulationDefinition BotwoonEnergyTank { get; } = Find(nameof(BotwoonEnergyTank));
+    public static RoomEnemyPopulationDefinition BotwoonEnergyTank => MaridiaRoomEnemyPopulationDefinitions.BotwoonEnergyTank;
     /// <summary>The enemy population of the Draygon Save room.</summary>
-    public static RoomEnemyPopulationDefinition DraygonSave { get; } = Find(nameof(DraygonSave));
+    public static RoomEnemyPopulationDefinition DraygonSave => MaridiaRoomEnemyPopulationDefinitions.DraygonSave;
     /// <summary>The enemy population of the Maridia Missile Refill room.</summary>
-    public static RoomEnemyPopulationDefinition MaridiaMissileRefill { get; } = Find(nameof(MaridiaMissileRefill));
+    public static RoomEnemyPopulationDefinition MaridiaMissileRefill => MaridiaRoomEnemyPopulationDefinitions.MaridiaMissileRefill;
     /// <summary>The enemy population of the Plasma Beach Quicksand room.</summary>
-    public static RoomEnemyPopulationDefinition PlasmaBeachQuicksand { get; } = Find(nameof(PlasmaBeachQuicksand));
+    public static RoomEnemyPopulationDefinition PlasmaBeachQuicksand => MaridiaRoomEnemyPopulationDefinitions.PlasmaBeachQuicksand;
     /// <summary>The enemy population of the Botwoon Quicksand room.</summary>
-    public static RoomEnemyPopulationDefinition BotwoonQuicksand { get; } = Find(nameof(BotwoonQuicksand));
+    public static RoomEnemyPopulationDefinition BotwoonQuicksand => MaridiaRoomEnemyPopulationDefinitions.BotwoonQuicksand;
     /// <summary>The enemy population of the Shaktool room.</summary>
-    public static RoomEnemyPopulationDefinition Shaktool { get; } = Find(nameof(Shaktool));
+    public static RoomEnemyPopulationDefinition Shaktool => MaridiaRoomEnemyPopulationDefinitions.Shaktool;
     /// <summary>The enemy population of the Draygon room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition DraygonDefault { get; } = Find(nameof(DraygonDefault));
+    public static RoomEnemyPopulationDefinition DraygonDefault => MaridiaRoomEnemyPopulationDefinitions.DraygonDefault;
     /// <summary>The enemy population of the Aqueduct room.</summary>
-    public static RoomEnemyPopulationDefinition Aqueduct { get; } = Find(nameof(Aqueduct));
+    public static RoomEnemyPopulationDefinition Aqueduct => MaridiaRoomEnemyPopulationDefinitions.Aqueduct;
     /// <summary>The enemy population of the Red Fish room.</summary>
-    public static RoomEnemyPopulationDefinition RedFish { get; } = Find(nameof(RedFish));
+    public static RoomEnemyPopulationDefinition RedFish => MaridiaRoomEnemyPopulationDefinitions.RedFish;
     /// <summary>The enemy population of the Plasma room.</summary>
-    public static RoomEnemyPopulationDefinition Plasma { get; } = Find(nameof(Plasma));
+    public static RoomEnemyPopulationDefinition Plasma => MaridiaRoomEnemyPopulationDefinitions.Plasma;
     /// <summary>The enemy population of the Space Jump room.</summary>
-    public static RoomEnemyPopulationDefinition SpaceJump { get; } = Find(nameof(SpaceJump));
+    public static RoomEnemyPopulationDefinition SpaceJump => MaridiaRoomEnemyPopulationDefinitions.SpaceJump;
     /// <summary>The enemy population of the Pants room.</summary>
-    public static RoomEnemyPopulationDefinition Pants { get; } = Find(nameof(Pants));
+    public static RoomEnemyPopulationDefinition Pants => MaridiaRoomEnemyPopulationDefinitions.Pants;
     /// <summary>The enemy population of the Glass Tunnel Save room.</summary>
-    public static RoomEnemyPopulationDefinition GlassTunnelSave { get; } = Find(nameof(GlassTunnelSave));
+    public static RoomEnemyPopulationDefinition GlassTunnelSave => MaridiaRoomEnemyPopulationDefinitions.GlassTunnelSave;
     /// <summary>The enemy population of the Glass Tunnel room.</summary>
-    public static RoomEnemyPopulationDefinition GlassTunnel { get; } = Find(nameof(GlassTunnel));
+    public static RoomEnemyPopulationDefinition GlassTunnel => MaridiaRoomEnemyPopulationDefinitions.GlassTunnel;
     /// <summary>The enemy population of the West Tunnel room.</summary>
-    public static RoomEnemyPopulationDefinition WestTunnel { get; } = Find(nameof(WestTunnel));
+    public static RoomEnemyPopulationDefinition WestTunnel => MaridiaRoomEnemyPopulationDefinitions.WestTunnel;
     /// <summary>The enemy population of the East Tunnel room.</summary>
-    public static RoomEnemyPopulationDefinition EastTunnel { get; } = Find(nameof(EastTunnel));
+    public static RoomEnemyPopulationDefinition EastTunnel => MaridiaRoomEnemyPopulationDefinitions.EastTunnel;
     /// <summary>The enemy population of the Mama Turtle room.</summary>
-    public static RoomEnemyPopulationDefinition MamaTurtle { get; } = Find(nameof(MamaTurtle));
+    public static RoomEnemyPopulationDefinition MamaTurtle => MaridiaRoomEnemyPopulationDefinitions.MamaTurtle;
     /// <summary>The enemy population of the Crab Tunnel room.</summary>
-    public static RoomEnemyPopulationDefinition CrabTunnel { get; } = Find(nameof(CrabTunnel));
+    public static RoomEnemyPopulationDefinition CrabTunnel => MaridiaRoomEnemyPopulationDefinitions.CrabTunnel;
     /// <summary>The enemy population of the Northwest Maridia Bug room.</summary>
-    public static RoomEnemyPopulationDefinition NorthwestMaridiaBug { get; } = Find(nameof(NorthwestMaridiaBug));
+    public static RoomEnemyPopulationDefinition NorthwestMaridiaBug => MaridiaRoomEnemyPopulationDefinitions.NorthwestMaridiaBug;
     /// <summary>The enemy population of the Pseudo Plasma Spark room.</summary>
-    public static RoomEnemyPopulationDefinition PseudoPlasmaSpark { get; } = Find(nameof(PseudoPlasmaSpark));
+    public static RoomEnemyPopulationDefinition PseudoPlasmaSpark => MaridiaRoomEnemyPopulationDefinitions.PseudoPlasmaSpark;
     /// <summary>The enemy population of the West Sand Hall Tunnel room.</summary>
-    public static RoomEnemyPopulationDefinition WestSandHallTunnel { get; } = Find(nameof(WestSandHallTunnel));
+    public static RoomEnemyPopulationDefinition WestSandHallTunnel => MaridiaRoomEnemyPopulationDefinitions.WestSandHallTunnel;
     /// <summary>The enemy population of the Plasma Tutorial room.</summary>
-    public static RoomEnemyPopulationDefinition PlasmaTutorial { get; } = Find(nameof(PlasmaTutorial));
+    public static RoomEnemyPopulationDefinition PlasmaTutorial => MaridiaRoomEnemyPopulationDefinitions.PlasmaTutorial;
     /// <summary>The enemy population of the Thread the Needle room.</summary>
-    public static RoomEnemyPopulationDefinition ThreadTheNeedle { get; } = Find(nameof(ThreadTheNeedle));
+    public static RoomEnemyPopulationDefinition ThreadTheNeedle => MaridiaRoomEnemyPopulationDefinitions.ThreadTheNeedle;
     /// <summary>The enemy population of the Plasma Spark room.</summary>
-    public static RoomEnemyPopulationDefinition PlasmaSpark { get; } = Find(nameof(PlasmaSpark));
+    public static RoomEnemyPopulationDefinition PlasmaSpark => MaridiaRoomEnemyPopulationDefinitions.PlasmaSpark;
     /// <summary>The enemy population of the Toilet room.</summary>
-    public static RoomEnemyPopulationDefinition Toilet { get; } = Find(nameof(Toilet));
+    public static RoomEnemyPopulationDefinition Toilet => MaridiaRoomEnemyPopulationDefinitions.Toilet;
     /// <summary>The enemy population of the West Sand Hall room.</summary>
-    public static RoomEnemyPopulationDefinition WestSandHall { get; } = Find(nameof(WestSandHall));
+    public static RoomEnemyPopulationDefinition WestSandHall => MaridiaRoomEnemyPopulationDefinitions.WestSandHall;
     /// <summary>The enemy population of the Oasis room.</summary>
-    public static RoomEnemyPopulationDefinition Oasis { get; } = Find(nameof(Oasis));
+    public static RoomEnemyPopulationDefinition Oasis => MaridiaRoomEnemyPopulationDefinitions.Oasis;
     /// <summary>The enemy population of the East Sand Hall room.</summary>
-    public static RoomEnemyPopulationDefinition EastSandHall { get; } = Find(nameof(EastSandHall));
+    public static RoomEnemyPopulationDefinition EastSandHall => MaridiaRoomEnemyPopulationDefinitions.EastSandHall;
     /// <summary>The enemy population of the West Aqueduct Quicksand room.</summary>
-    public static RoomEnemyPopulationDefinition WestAqueductQuicksand { get; } = Find(nameof(WestAqueductQuicksand));
+    public static RoomEnemyPopulationDefinition WestAqueductQuicksand => MaridiaRoomEnemyPopulationDefinitions.WestAqueductQuicksand;
     /// <summary>The enemy population of the East Aqueduct Quicksand room.</summary>
-    public static RoomEnemyPopulationDefinition EastAqueductQuicksand { get; } = Find(nameof(EastAqueductQuicksand));
+    public static RoomEnemyPopulationDefinition EastAqueductQuicksand => MaridiaRoomEnemyPopulationDefinitions.EastAqueductQuicksand;
     /// <summary>The enemy population of the Butterfly room.</summary>
-    public static RoomEnemyPopulationDefinition Butterfly { get; } = Find(nameof(Butterfly));
+    public static RoomEnemyPopulationDefinition Butterfly => MaridiaRoomEnemyPopulationDefinitions.Butterfly;
     /// <summary>The enemy population of the Botwoon Hallway room.</summary>
-    public static RoomEnemyPopulationDefinition BotwoonHallway { get; } = Find(nameof(BotwoonHallway));
+    public static RoomEnemyPopulationDefinition BotwoonHallway => MaridiaRoomEnemyPopulationDefinitions.BotwoonHallway;
     /// <summary>The enemy population of the East Pants room.</summary>
-    public static RoomEnemyPopulationDefinition EastPants { get; } = Find(nameof(EastPants));
+    public static RoomEnemyPopulationDefinition EastPants => MaridiaRoomEnemyPopulationDefinitions.EastPants;
     /// <summary>The enemy population of the Springball room.</summary>
-    public static RoomEnemyPopulationDefinition Springball { get; } = Find(nameof(Springball));
+    public static RoomEnemyPopulationDefinition Springball => MaridiaRoomEnemyPopulationDefinitions.Springball;
     /// <summary>The enemy population of the Below Botwoon Energy Tank room.</summary>
-    public static RoomEnemyPopulationDefinition BelowBotwoonEnergyTank { get; } = Find(nameof(BelowBotwoonEnergyTank));
+    public static RoomEnemyPopulationDefinition BelowBotwoonEnergyTank => MaridiaRoomEnemyPopulationDefinitions.BelowBotwoonEnergyTank;
     /// <summary>The enemy population of the Kassiuz room.</summary>
-    public static RoomEnemyPopulationDefinition Kassiuz { get; } = Find(nameof(Kassiuz));
+    public static RoomEnemyPopulationDefinition Kassiuz => MaridiaRoomEnemyPopulationDefinitions.Kassiuz;
     /// <summary>The enemy population of the Forgotten Highway Save room.</summary>
-    public static RoomEnemyPopulationDefinition ForgottenHighwaySave { get; } = Find(nameof(ForgottenHighwaySave));
+    public static RoomEnemyPopulationDefinition ForgottenHighwaySave => MaridiaRoomEnemyPopulationDefinitions.ForgottenHighwaySave;
     /// <summary>The enemy population of the Maridia Energy Refill room.</summary>
-    public static RoomEnemyPopulationDefinition MaridiaEnergyRefill { get; } = Find(nameof(MaridiaEnergyRefill));
+    public static RoomEnemyPopulationDefinition MaridiaEnergyRefill => MaridiaRoomEnemyPopulationDefinitions.MaridiaEnergyRefill;
     /// <summary>The enemy population of the Maridia Map room.</summary>
-    public static RoomEnemyPopulationDefinition MaridiaMap { get; } = Find(nameof(MaridiaMap));
+    public static RoomEnemyPopulationDefinition MaridiaMap => MaridiaRoomEnemyPopulationDefinitions.MaridiaMap;
     /// <summary>The enemy population of the Crab Hole room.</summary>
-    public static RoomEnemyPopulationDefinition CrabHole { get; } = Find(nameof(CrabHole));
+    public static RoomEnemyPopulationDefinition CrabHole => MaridiaRoomEnemyPopulationDefinitions.CrabHole;
     /// <summary>The enemy population of the Botwoon room.</summary>
-    public static RoomEnemyPopulationDefinition Botwoon { get; } = Find(nameof(Botwoon));
+    public static RoomEnemyPopulationDefinition Botwoon => MaridiaRoomEnemyPopulationDefinitions.Botwoon;
     /// <summary>The enemy population of the Main Street room.</summary>
-    public static RoomEnemyPopulationDefinition MainStreet { get; } = Find(nameof(MainStreet));
+    public static RoomEnemyPopulationDefinition MainStreet => MaridiaRoomEnemyPopulationDefinitions.MainStreet;
     /// <summary>The enemy population of the Bug Sand Hole room.</summary>
-    public static RoomEnemyPopulationDefinition BugSandHole { get; } = Find(nameof(BugSandHole));
+    public static RoomEnemyPopulationDefinition BugSandHole => MaridiaRoomEnemyPopulationDefinitions.BugSandHole;
     /// <summary>The enemy population of the East Sand Hole room.</summary>
-    public static RoomEnemyPopulationDefinition EastSandHole { get; } = Find(nameof(EastSandHole));
+    public static RoomEnemyPopulationDefinition EastSandHole => MaridiaRoomEnemyPopulationDefinitions.EastSandHole;
     /// <summary>The enemy population of the West Sand Hole room.</summary>
-    public static RoomEnemyPopulationDefinition WestSandHole { get; } = Find(nameof(WestSandHole));
+    public static RoomEnemyPopulationDefinition WestSandHole => MaridiaRoomEnemyPopulationDefinitions.WestSandHole;
     /// <summary>The enemy population of the West Cactus Alley room.</summary>
-    public static RoomEnemyPopulationDefinition WestCactusAlley { get; } = Find(nameof(WestCactusAlley));
+    public static RoomEnemyPopulationDefinition WestCactusAlley => MaridiaRoomEnemyPopulationDefinitions.WestCactusAlley;
     /// <summary>The enemy population of the East Cactus Alley room.</summary>
-    public static RoomEnemyPopulationDefinition EastCactusAlley { get; } = Find(nameof(EastCactusAlley));
+    public static RoomEnemyPopulationDefinition EastCactusAlley => MaridiaRoomEnemyPopulationDefinitions.EastCactusAlley;
     /// <summary>The enemy population of the Fish Tank room.</summary>
-    public static RoomEnemyPopulationDefinition FishTank { get; } = Find(nameof(FishTank));
+    public static RoomEnemyPopulationDefinition FishTank => MaridiaRoomEnemyPopulationDefinitions.FishTank;
     /// <summary>The enemy population of the Tourian Escape 4 room.</summary>
-    public static RoomEnemyPopulationDefinition TourianEscape4 { get; } = Find(nameof(TourianEscape4));
+    public static RoomEnemyPopulationDefinition TourianEscape4 => TourianRoomEnemyPopulationDefinitions.TourianEscape4;
     /// <summary>The enemy population of the Mother Brain Save room.</summary>
-    public static RoomEnemyPopulationDefinition MotherBrainSave { get; } = Find(nameof(MotherBrainSave));
+    public static RoomEnemyPopulationDefinition MotherBrainSave => TourianRoomEnemyPopulationDefinitions.MotherBrainSave;
     /// <summary>The enemy population of the Metroids 1 room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition Metroids1Default { get; } = Find(nameof(Metroids1Default));
+    public static RoomEnemyPopulationDefinition Metroids1Default => TourianRoomEnemyPopulationDefinitions.Metroids1Default;
     /// <summary>The enemy population of the Dust Torizo room.</summary>
-    public static RoomEnemyPopulationDefinition DustTorizo { get; } = Find(nameof(DustTorizo));
+    public static RoomEnemyPopulationDefinition DustTorizo => TourianRoomEnemyPopulationDefinitions.DustTorizo;
     /// <summary>The enemy population of the Big Boy room.</summary>
-    public static RoomEnemyPopulationDefinition BigBoy { get; } = Find(nameof(BigBoy));
+    public static RoomEnemyPopulationDefinition BigBoy => TourianRoomEnemyPopulationDefinitions.BigBoy;
     /// <summary>The enemy population of the Mother Brain room until she is defeated.</summary>
-    public static RoomEnemyPopulationDefinition MotherBrainBeforeDefeat { get; } = Find(nameof(MotherBrainBeforeDefeat));
+    public static RoomEnemyPopulationDefinition MotherBrainBeforeDefeat => TourianRoomEnemyPopulationDefinitions.MotherBrainBeforeDefeat;
     /// <summary>The enemy population of the Tourian Eye Door room.</summary>
-    public static RoomEnemyPopulationDefinition TourianEyeDoor { get; } = Find(nameof(TourianEyeDoor));
+    public static RoomEnemyPopulationDefinition TourianEyeDoor => TourianRoomEnemyPopulationDefinitions.TourianEyeDoor;
     /// <summary>The enemy population of the Blue Hopper room.</summary>
-    public static RoomEnemyPopulationDefinition BlueHopper { get; } = Find(nameof(BlueHopper));
+    public static RoomEnemyPopulationDefinition BlueHopper => TourianRoomEnemyPopulationDefinitions.BlueHopper;
     /// <summary>The enemy population of the Tourian Escape 1 room.</summary>
-    public static RoomEnemyPopulationDefinition TourianEscape1 { get; } = Find(nameof(TourianEscape1));
+    public static RoomEnemyPopulationDefinition TourianEscape1 => TourianRoomEnemyPopulationDefinitions.TourianEscape1;
     /// <summary>The enemy population of the Tourian First room.</summary>
-    public static RoomEnemyPopulationDefinition TourianFirst { get; } = Find(nameof(TourianFirst));
+    public static RoomEnemyPopulationDefinition TourianFirst => TourianRoomEnemyPopulationDefinitions.TourianFirst;
     /// <summary>The enemy population of the Metroids 2 room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition Metroids2Default { get; } = Find(nameof(Metroids2Default));
+    public static RoomEnemyPopulationDefinition Metroids2Default => TourianRoomEnemyPopulationDefinitions.Metroids2Default;
     /// <summary>The enemy population of the Metroids 4 room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition Metroids4Default { get; } = Find(nameof(Metroids4Default));
+    public static RoomEnemyPopulationDefinition Metroids4Default => TourianRoomEnemyPopulationDefinitions.Metroids4Default;
     /// <summary>The enemy population of the Metroids 1 room once the first Metroid hall is cleared.</summary>
-    public static RoomEnemyPopulationDefinition Metroids1WhenFirstMetroidHallCleared { get; } = Find(nameof(Metroids1WhenFirstMetroidHallCleared));
+    public static RoomEnemyPopulationDefinition Metroids1WhenFirstMetroidHallCleared => TourianRoomEnemyPopulationDefinitions.Metroids1WhenFirstMetroidHallCleared;
     /// <summary>The enemy population of the Metroids 2 room once the first Metroid shaft is cleared.</summary>
-    public static RoomEnemyPopulationDefinition Metroids2WhenFirstMetroidShaftCleared { get; } = Find(nameof(Metroids2WhenFirstMetroidShaftCleared));
+    public static RoomEnemyPopulationDefinition Metroids2WhenFirstMetroidShaftCleared => TourianRoomEnemyPopulationDefinitions.Metroids2WhenFirstMetroidShaftCleared;
     /// <summary>The enemy population of the Tourian Escape 2 room.</summary>
-    public static RoomEnemyPopulationDefinition TourianEscape2 { get; } = Find(nameof(TourianEscape2));
+    public static RoomEnemyPopulationDefinition TourianEscape2 => TourianRoomEnemyPopulationDefinitions.TourianEscape2;
     /// <summary>The enemy population of the Metroids 3 room once the second Metroid hall is cleared.</summary>
-    public static RoomEnemyPopulationDefinition Metroids3WhenSecondMetroidHallCleared { get; } = Find(nameof(Metroids3WhenSecondMetroidHallCleared));
+    public static RoomEnemyPopulationDefinition Metroids3WhenSecondMetroidHallCleared => TourianRoomEnemyPopulationDefinitions.Metroids3WhenSecondMetroidHallCleared;
     /// <summary>The enemy population of the Metroids 4 room once the second Metroid shaft is cleared.</summary>
-    public static RoomEnemyPopulationDefinition Metroids4WhenSecondMetroidShaftCleared { get; } = Find(nameof(Metroids4WhenSecondMetroidShaftCleared));
+    public static RoomEnemyPopulationDefinition Metroids4WhenSecondMetroidShaftCleared => TourianRoomEnemyPopulationDefinitions.Metroids4WhenSecondMetroidShaftCleared;
     /// <summary>The enemy population of the Tourian Escape 3 room.</summary>
-    public static RoomEnemyPopulationDefinition TourianEscape3 { get; } = Find(nameof(TourianEscape3));
+    public static RoomEnemyPopulationDefinition TourianEscape3 => TourianRoomEnemyPopulationDefinitions.TourianEscape3;
     /// <summary>The enemy population of the Seaweed room.</summary>
-    public static RoomEnemyPopulationDefinition Seaweed { get; } = Find(nameof(Seaweed));
+    public static RoomEnemyPopulationDefinition Seaweed => TourianRoomEnemyPopulationDefinitions.Seaweed;
     /// <summary>The enemy population of the Tourian Recharge room.</summary>
-    public static RoomEnemyPopulationDefinition TourianRecharge { get; } = Find(nameof(TourianRecharge));
+    public static RoomEnemyPopulationDefinition TourianRecharge => TourianRoomEnemyPopulationDefinitions.TourianRecharge;
     /// <summary>The enemy population of the Upper Tourian Save room.</summary>
-    public static RoomEnemyPopulationDefinition UpperTourianSave { get; } = Find(nameof(UpperTourianSave));
+    public static RoomEnemyPopulationDefinition UpperTourianSave => TourianRoomEnemyPopulationDefinitions.UpperTourianSave;
     /// <summary>The enemy population of the Metroids 3 room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition Metroids3Default { get; } = Find(nameof(Metroids3Default));
+    public static RoomEnemyPopulationDefinition Metroids3Default => TourianRoomEnemyPopulationDefinitions.Metroids3Default;
     /// <summary>The enemy population of the Rinka Shaft room.</summary>
-    public static RoomEnemyPopulationDefinition RinkaShaft { get; } = Find(nameof(RinkaShaft));
+    public static RoomEnemyPopulationDefinition RinkaShaft => TourianRoomEnemyPopulationDefinitions.RinkaShaft;
     /// <summary>The enemy population of the Ceres Elevator room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition CeresElevatorDefault { get; } = Find(nameof(CeresElevatorDefault));
+    public static RoomEnemyPopulationDefinition CeresElevatorDefault => CeresRoomEnemyPopulationDefinitions.CeresElevatorDefault;
     /// <summary>The enemy population of the Falling Tile room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition FallingTileDefault { get; } = Find(nameof(FallingTileDefault));
+    public static RoomEnemyPopulationDefinition FallingTileDefault => CeresRoomEnemyPopulationDefinitions.FallingTileDefault;
     /// <summary>The enemy population of the Magnet Stairs room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition MagnetStairsDefault { get; } = Find(nameof(MagnetStairsDefault));
+    public static RoomEnemyPopulationDefinition MagnetStairsDefault => CeresRoomEnemyPopulationDefinitions.MagnetStairsDefault;
     /// <summary>The enemy population of the Dead Scientist room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition DeadScientistDefault { get; } = Find(nameof(DeadScientistDefault));
+    public static RoomEnemyPopulationDefinition DeadScientistDefault => CeresRoomEnemyPopulationDefinitions.DeadScientistDefault;
     /// <summary>The enemy population of the Ceres Ridley hallway in its default state.</summary>
-    public static RoomEnemyPopulationDefinition CeresRidleyHallwayDefault { get; } = Find(nameof(CeresRidleyHallwayDefault));
+    public static RoomEnemyPopulationDefinition CeresRidleyHallwayDefault => CeresRoomEnemyPopulationDefinitions.CeresRidleyHallwayDefault;
     /// <summary>The enemy population of the Ceres Ridley room in its default state.</summary>
-    public static RoomEnemyPopulationDefinition CeresRidleyDefault { get; } = Find(nameof(CeresRidleyDefault));
+    public static RoomEnemyPopulationDefinition CeresRidleyDefault => CeresRoomEnemyPopulationDefinitions.CeresRidleyDefault;
     /// <summary>The enemy population of the Ceres Elevator room once the area's boss is dead.</summary>
-    public static RoomEnemyPopulationDefinition CeresElevatorWhenAreaBossDead { get; } = Find(nameof(CeresElevatorWhenAreaBossDead));
+    public static RoomEnemyPopulationDefinition CeresElevatorWhenAreaBossDead => CeresRoomEnemyPopulationDefinitions.CeresElevatorWhenAreaBossDead;
     /// <summary>The enemy population of the Falling Tile room once the area's boss is dead.</summary>
-    public static RoomEnemyPopulationDefinition FallingTileWhenAreaBossDead { get; } = Find(nameof(FallingTileWhenAreaBossDead));
+    public static RoomEnemyPopulationDefinition FallingTileWhenAreaBossDead => CeresRoomEnemyPopulationDefinitions.FallingTileWhenAreaBossDead;
     /// <summary>The enemy population of the Magnet Stairs room once the area's boss is dead.</summary>
-    public static RoomEnemyPopulationDefinition MagnetStairsWhenAreaBossDead { get; } = Find(nameof(MagnetStairsWhenAreaBossDead));
+    public static RoomEnemyPopulationDefinition MagnetStairsWhenAreaBossDead => CeresRoomEnemyPopulationDefinitions.MagnetStairsWhenAreaBossDead;
     /// <summary>The enemy population of the Dead Scientist room once the area's boss is dead.</summary>
-    public static RoomEnemyPopulationDefinition DeadScientistWhenAreaBossDead { get; } = Find(nameof(DeadScientistWhenAreaBossDead));
+    public static RoomEnemyPopulationDefinition DeadScientistWhenAreaBossDead => CeresRoomEnemyPopulationDefinitions.DeadScientistWhenAreaBossDead;
     /// <summary>The enemy population of the Ceres Ridley hallway once the area's boss is dead.</summary>
-    public static RoomEnemyPopulationDefinition CeresRidleyHallwayWhenAreaBossDead { get; } = Find(nameof(CeresRidleyHallwayWhenAreaBossDead));
+    public static RoomEnemyPopulationDefinition CeresRidleyHallwayWhenAreaBossDead => CeresRoomEnemyPopulationDefinitions.CeresRidleyHallwayWhenAreaBossDead;
     /// <summary>The enemy population of the Ceres Ridley room once the area's boss is dead.</summary>
-    public static RoomEnemyPopulationDefinition CeresRidleyWhenAreaBossDead { get; } = Find(nameof(CeresRidleyWhenAreaBossDead));
+    public static RoomEnemyPopulationDefinition CeresRidleyWhenAreaBossDead => CeresRoomEnemyPopulationDefinitions.CeresRidleyWhenAreaBossDead;
 
 }

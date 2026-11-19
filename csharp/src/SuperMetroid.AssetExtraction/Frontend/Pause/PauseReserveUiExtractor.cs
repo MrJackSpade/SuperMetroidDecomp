@@ -16,10 +16,10 @@ public static class PauseReserveUiExtractor
     {
         var labels = new Dictionary<string, PauseReserveLabelVisual>
         {
-            [PauseReserveUiTiles.Name(PauseReserveLabel.Mode)] = Label(0, PauseReserveUiDefinitions.LabelWords),
-            [PauseReserveUiTiles.Name(PauseReserveLabel.ReserveTank)] = Label(1, PauseReserveUiDefinitions.LabelWords),
-            [PauseReserveUiTiles.Name(PauseReserveLabel.Manual)] = DirectLabel(PauseMenuSourceDefinitions.ReserveManualText, PauseReserveUiDefinitions.ModeCell, PauseReserveUiDefinitions.ModeWords),
-            [PauseReserveUiTiles.Name(PauseReserveLabel.Auto)] = DirectLabel(PauseMenuSourceDefinitions.ReserveAutoText, PauseReserveUiDefinitions.ModeCell, PauseReserveUiDefinitions.ModeWords),
+            [PauseReserveLabelKeys.Installed.Of(PauseReserveLabel.Mode)] = Label(0, PauseReserveUiDefinitions.LabelWords),
+            [PauseReserveLabelKeys.Installed.Of(PauseReserveLabel.ReserveTank)] = Label(1, PauseReserveUiDefinitions.LabelWords),
+            [PauseReserveLabelKeys.Installed.Of(PauseReserveLabel.Manual)] = DirectLabel(PauseMenuSourceDefinitions.ReserveManualText, PauseReserveUiDefinitions.ModeCell, PauseReserveUiDefinitions.ModeWords),
+            [PauseReserveLabelKeys.Installed.Of(PauseReserveLabel.Auto)] = DirectLabel(PauseMenuSourceDefinitions.ReserveAutoText, PauseReserveUiDefinitions.ModeCell, PauseReserveUiDefinitions.ModeWords),
         };
         var digits = new PauseReserveDigitVisual
         {

@@ -1172,7 +1172,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     var escapeResolver = new SuperMetroid.TestSupport.VerificationOracles.EnemyTileTransfers(InstalledFixtures.EnemyArtwork,
         timer: InstalledFixtures.ImportMaps.EscapeTimerTiles);
     IReadOnlyList<EncounterArtworkUpload> warningPages = EncounterLookUploads.Uploads(SuperMetroid.AssetExtraction.Enemies.ComposedEncounter.CeresEscape,
-        EncounterLookUploads.IndexOf(SuperMetroid.AssetExtraction.Enemies.ComposedEncounter.CeresEscape, CeresEscapeWarningLookDefinitions.WarningLook.Name), escapeResolver);
+        EncounterLookUploads.IndexOf(SuperMetroid.AssetExtraction.Enemies.ComposedEncounter.CeresEscape, CeresEscapeWarningLookDefinitions.WarningLook), escapeResolver);
     AssertEqual(spriteTransfers.Count, warningPages.Count, "the warning look copies one page a native sprite transfer");
     for (int index = 0; index < spriteTransfers.Count; index++)
     {
@@ -1468,7 +1468,7 @@ static void SeedCeresRidleyRoomEntryCartridge(
     // The room's graphics set is the retail Ceres Ridley set, Ridley and the Ceres door, each in the palette row the
     // import catalogues for it (#1512), so its members' sheets compose in the rows the cartridge loads their colours into.
     RoomEnemyGraphicsSetDefinition ceresRidleySet = RoomEnemyGraphicsSetDefinitions.CeresRidleyDefault;
-    int[] ceresRidleyRows = SuperMetroid.AssetExtraction.Enemies.EnemyGraphicsSetPaletteRowDefinitions.Rows[ceresRidleySet.Name];
+    int[] ceresRidleyRows = SuperMetroid.AssetExtraction.Enemies.EnemyGraphicsSetPaletteRowDefinitions.Rows[ceresRidleySet];
     ReadOnlySpan<RoomEnemyGraphicsSetMember> ceresRidleyRecords = RoomEnemyGraphicsSetLists.MembersOf(ceresRidleySet).Records.Span;
     for (int record = 0; record < ceresRidleyRecords.Length; record++)
     {

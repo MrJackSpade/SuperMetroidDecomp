@@ -108,7 +108,7 @@ public static class EnemySheetFiles
             SpawnedObjectOwner sheetOwner = SuperMetroid.AssetExtraction.Enemies.SpawnedObjectOwnerNames.Parse(entry.Owner);
             Dictionary<string, FrameLookChange[]> frameChanges = LookChanges(entry.LookChanges, name);
             CommonSpawnedObjects[] common =
-                [.. entry.Common.Select(spawner => CommonSpawners.Named(spawner).Spawned)];
+                [.. entry.Common.Select(spawner => CommonSpawners.Named(Common(spawner, name)).Spawned)];
             HashSet<string> pictures = [.. SpawnedObjectSheetComposer.FrameNames(sheetOwner, spawners, sharedSpawners, common).SelectMany(frame => PictureNames(frame,
                 frameChanges))];
             HashSet<string> blank = Empty(entry.Empty, $"spawned-object variant {name}", pictures);
@@ -161,6 +161,12 @@ public static class EnemySheetFiles
         }
         return new PopulationArtwork(enemies, spawned);
     }
+
+    /// <summary>The common spawner <paramref name="key"/> names, in the manifest's spawned-object variant <paramref name="variant"/>.</summary>
+    /// <exception cref="InvalidDataException">The key is no common spawner's.</exception>
+    private static CommonSpawner Common(string key, string variant) =>
+        CommonSpawnerKeys.Installed.TryParse(key, out CommonSpawner spawner)
+            ? spawner : throw new InvalidDataException($"Enemy sheet manifest spawned-object variant {variant} names unknown common spawner {key}.");
 
     /// <summary>The enemy definition <paramref name="name"/> names, in the manifest's <paramref name="entry"/>.</summary>
     /// <exception cref="InvalidDataException">The name is no enemy definition.</exception>

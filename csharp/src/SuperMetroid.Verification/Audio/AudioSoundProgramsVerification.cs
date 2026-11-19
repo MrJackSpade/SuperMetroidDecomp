@@ -64,19 +64,15 @@ internal static class AudioSoundProgramsVerification
             AudioSoundProgramMetadata originalProgram = manifest.SoundPrograms.Single(
                 program => program.Id == programId);
             int playIndex = originalProgram.Instructions.ToList().FindIndex(
-                instruction => instruction.Operation == AudioSoundInstructionOperations.PlayNote);
+                instruction => instruction.Operation == AudioSoundOperation.PlayNote);
             AssertTrue(playIndex >= 0, $"fixture program {programId} contains a playable note");
-            AudioSoundInstructionMetadata originalPlay = originalProgram.Instructions[playIndex];
-
-            AudioSoundInstructionMetadata badOperation = originalPlay with { Operation = "unknownOpcode" };
-            AudioSoundInstructionMetadata[] invalidInstructions = [.. originalProgram.Instructions];
-            invalidInstructions[playIndex] = badOperation;
-            WriteAudioManifest(manifestPath, manifest with
-            {
-                SoundPrograms = manifest.SoundPrograms.Select(program => program.Id == programId
-                    ? program with { Instructions = invalidInstructions }
-                    : program).ToArray(),
-            });
+            // An operation is a typed member, so the unknown one is written into the manifest's text: its key names none (#2548).
+            WriteAudioManifest(manifestPath, manifest);
+            string written = File.ReadAllText(manifestPath);
+            const string playNote = "\"operation\": \"playNote\"";
+            int known = written.IndexOf(playNote, StringComparison.Ordinal);
+            AssertTrue(known >= 0, "the written manifest names a playNote operation");
+            File.WriteAllText(manifestPath, string.Concat(written.AsSpan(0, known), "\"operation\": \"unknownOpcode\"", written.AsSpan(known + playNote.Length)));
             AssertThrows<InvalidDataException>(
                 () => ExtractedAudioAssetCatalog.Load(fixtureDirectory),
                 "SFX manifest rejects unknown operation");

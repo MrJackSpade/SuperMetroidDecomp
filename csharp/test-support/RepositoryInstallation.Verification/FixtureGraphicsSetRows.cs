@@ -28,14 +28,14 @@ internal static class FixtureGraphicsSetRows
     }
 
     /// <summary>
-    /// The rows a sheet composed under <paramref name="set"/> is coloured in, by set name: the set's recorded rows when a
+    /// The rows a sheet composed under <paramref name="set"/> is coloured in, by set: the set's recorded rows when a
     /// fixture recorded them, and otherwise the retail catalogue, which names every retail set's.
     /// </summary>
-    internal static IReadOnlyDictionary<string, int[]> CatalogueFor(RoomEnemyGraphicsSetDefinition set)
+    internal static IReadOnlyDictionary<RoomEnemyGraphicsSetDefinition, int[]> CatalogueFor(RoomEnemyGraphicsSetDefinition set)
     {
         ArgumentNullException.ThrowIfNull(set);
         return rows.TryGetValue(set, out int[]? recorded)
-            ? new Dictionary<string, int[]>(StringComparer.Ordinal) { [set.Name] = recorded }
+            ? new Dictionary<RoomEnemyGraphicsSetDefinition, int[]> { [set] = recorded }
             : SuperMetroid.AssetExtraction.Enemies.EnemyGraphicsSetPaletteRowDefinitions.Rows;
     }
 }

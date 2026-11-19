@@ -115,12 +115,12 @@ public static class XrayRevealVisualFiles
 
         XrayRevealVisualEntry[] entries = groups
             .Select(pair => new XrayRevealVisualEntry(
-                pair.Key.Type, [.. pair.Value.OfType<Enum>().Select(reaction => reaction.ToString())],
+                pair.Key.Type, [.. pair.Value.OfType<Enum>().Select(BlockReactionFamilies.KeyOf)],
                 NameOf(pair.Key.Definition.Shape),
                 [.. (pair.Key.Definition.Blocks ?? throw new InvalidOperationException(
                     $"Drawable X-ray reveal {pair.Key.Type} shows no blocks.")).InReadingOrder]))
             .OrderBy(entry => entry.CollisionType)
-            .ThenBy(entry => entry.Reactions.Length == 0 ? -1 : ReactionsOf(entry.CollisionType).Select(reaction => reaction.ToString()).ToList().IndexOf(entry.Reactions[0]))
+            .ThenBy(entry => entry.Reactions.Length == 0 ? -1 : ReactionsOf(entry.CollisionType).Select(BlockReactionFamilies.KeyOf).ToList().IndexOf(entry.Reactions[0]))
             .ToArray();
         // The first draws reveal the item set up in each block pair as that pair's first frame, which shows the item's own
         // picture; the port reveals such an item as its kind's first frame (#1538). The tanks' draws follow, in the order of
@@ -204,7 +204,7 @@ public static class XrayRevealVisualFiles
             if (entry is null || entry.Reactions is null || !Enum.IsDefined(entry.CollisionType) ||
                 (BlockReactionFamilies.Of(entry.CollisionType) is null ? entry.Reactions.Length != 0 : entry.Reactions.Length == 0) ||
                 entry.Reactions.Any(name => name is null ||
-                    !ReactionsOf(entry.CollisionType).Any(reaction => string.Equals(reaction.ToString(), name, StringComparison.Ordinal))))
+                    !ReactionsOf(entry.CollisionType).Any(reaction => string.Equals(BlockReactionFamilies.KeyOf(reaction), name, StringComparison.Ordinal))))
                 throw new InvalidDataException($"X-ray visuals {path} contain an invalid reaction group.");
             if (XrayRevealTable.Find(entry.CollisionType, ReadingsNamed(entry)[0]) is not { } command ||
                 !InstalledXrayReveals.IsDrawable(command) || entry.Shape != NameOf(command))
@@ -390,7 +390,7 @@ public static class XrayRevealVisualFiles
     private static IReadOnlyList<Enum?> ReadingsNamed(XrayRevealVisualEntry entry) =>
         entry.Reactions.Length == 0
             ? [null]
-            : [.. entry.Reactions.Select(name => ReactionsOf(entry.CollisionType).Single(reaction => string.Equals(reaction.ToString(), name, StringComparison.Ordinal)))];
+            : [.. entry.Reactions.Select(name => ReactionsOf(entry.CollisionType).Single(reaction => string.Equals(BlockReactionFamilies.KeyOf(reaction), name, StringComparison.Ordinal)))];
     /// <summary>One room-specific overlay, named by its overlay, and its ordered editable block records.</summary>
     /// <param name="Overlay">The overlay's name in <see cref="XrayRoomOverlayDefinitions"/>.</param>
     /// <param name="Tiles">The overlay's block records, in order.</param>

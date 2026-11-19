@@ -22,10 +22,6 @@ public static class TitleGradientFile
     /// </summary>
     public const int Version = 4;
 
-    /// <summary>Every gradient blend by its exact name.</summary>
-    private static readonly Dictionary<string, GradientBlend> BlendsByName =
-        Enum.GetValues<GradientBlend>().ToDictionary(blend => GradientBlendKeys.Installed.Of(blend), StringComparer.Ordinal);
-
     /// <summary>Validates all sixteen authored zoom variants and compiles their stops.</summary>
     /// <param name="json">UTF-8 JSON read from its current position to the end and left open for the caller.</param>
     /// <returns>An immutable presentation whose gradients do not retain the document's mutable arrays.</returns>
@@ -90,7 +86,7 @@ public static class TitleGradientFile
     /// </summary>
     /// <exception cref="InvalidDataException">The stop names no gradient blend.</exception>
     private static GradientBlend Blend(TitleGradientStop stop) =>
-        stop.Blend is not null && BlendsByName.TryGetValue(stop.Blend, out GradientBlend blend)
+        GradientBlendKeys.Installed.TryParse(stop.Blend, out GradientBlend blend)
             ? blend
             : throw new InvalidDataException(
                 $"Title gradient stop at line {stop.Line} names blend '{stop.Blend}', which neither darkens the floor and the backdrop nor brightens them and the sprites.");

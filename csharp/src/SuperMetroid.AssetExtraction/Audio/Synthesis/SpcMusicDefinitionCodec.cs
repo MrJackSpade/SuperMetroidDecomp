@@ -431,15 +431,28 @@ internal static class SpcMusicDefinitionCodec
             var places = new Dictionary<int, int>();
             for (int place = 0; place < Words.Count; place++)
                 places.Add(Address + Words[place].Offset, place);
-            AudioMusicTrackInstructionMetadata[] instructions = [.. Words.Select(word =>
-                word.Phrase is { } phrase ? new AudioMusicPlayPhrase(phraseIds[phrase])
-                : word.RepeatTarget is { } target ? new AudioMusicRepeat(word.Value, places.TryGetValue(target, out int repeated) ? repeated
-                    : throw new InvalidDataException($"Music track '{Id}' repeats from ${target:X4}, which begins none of its words."))
-                : word.Value == 0 ? new AudioMusicTrackEnd()
-                : MusicTrackControls.Is(word.Value, MusicTrackControl.FastForwardOn) ? new AudioMusicFastForwardOn()
-                : MusicTrackControls.Is(word.Value, MusicTrackControl.FastForwardOff) ? new AudioMusicFastForwardOff()
-                : (AudioMusicTrackInstructionMetadata)throw new InvalidOperationException($"Music track '{Id}' word ${word.Value:X4} is no instruction."))];
+            AudioMusicTrackInstructionMetadata[] instructions = [.. Words.Select(word => Instruction(word, phraseIds, places))];
             return new(Track, Id, Address, ByteCapacity, instructions);
+        }
+
+        /// <summary>The instruction <paramref name="word"/> is, its phrase named and its repeat's slot found among <paramref name="places"/>.</summary>
+        /// <exception cref="InvalidDataException">A repeat's slot begins none of the track's words.</exception>
+        private AudioMusicTrackInstructionMetadata Instruction(TrackWord word, IReadOnlyDictionary<ushort, string> phraseIds,
+            Dictionary<int, int> places)
+        {
+            if (word.Phrase is { } phrase)
+                return new AudioMusicPlayPhrase(phraseIds[phrase]);
+            if (word.RepeatTarget is { } target)
+            {
+                return places.TryGetValue(target, out int repeated) ? new AudioMusicRepeat(word.Value, repeated)
+                    : throw new InvalidDataException($"Music track '{Id}' repeats from ${target:X4}, which begins none of its words.");
+            }
+            if (word.Value == 0)
+                return new AudioMusicTrackEnd();
+            if (MusicTrackControls.Is(word.Value, MusicTrackControl.FastForwardOn))
+                return new AudioMusicFastForwardOn();
+            return MusicTrackControls.Is(word.Value, MusicTrackControl.FastForwardOff) ? new AudioMusicFastForwardOff()
+                : throw new InvalidOperationException($"Music track '{Id}' word ${word.Value:X4} is no instruction.");
         }
     }
 

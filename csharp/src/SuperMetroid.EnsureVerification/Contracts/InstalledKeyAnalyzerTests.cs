@@ -236,6 +236,10 @@ internal static class InstalledKeyAnalyzerTests
         Expect(Types + "static class Doors { static Shade Of(string name) => name.Length == 0 ? throw new System.ArgumentException(\"empty\", nameof(name)) : new(\"Left\", 0); }",
             count: 0);
         Expect(Types + "static class Doors { static void Log(string text) => System.Console.WriteLine(text); static void Run() => Log(nameof(Run)); }", count: 0);
+        // A helper handing its parameter back, as a null check does, reaches a key at some calls only: it is not followed.
+        Expect(Types + "static class Check { public static string NotNull(string value) => value; } " +
+            "sealed class Marked { [SuperMetroid.Core.InstalledKey] public string Key { get; } = Check.NotNull(\"key\"); } " +
+            "sealed class Plain(string name) { public string Name { get; } = Check.NotNull(name); static Plain Of() => new(nameof(Of)); }", count: 0);
         ExpectKeyed(Usings + Types + "record Room(string Name); static class Rooms { static Room Parlor { get; } = new(nameof(Parlor)); " +
             "static string Show() => Parlor.Name; }", count: 0);
     }

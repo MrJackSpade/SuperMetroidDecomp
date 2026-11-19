@@ -298,7 +298,7 @@ internal static class EncounterLookUploads
             $"{installed.GetType().Name} holds no installed boss artwork to compose an encounter's artwork from.")).BossTiles;
 
     /// <summary>One of Mother Brain's looks after her room's load.</summary>
-    /// <param name="Name">The look's name.</param>
+    /// <param name="Look">The look.</param>
     /// <param name="Sheet">The sheet whose pages the look copies.</param>
     private readonly record struct MotherBrainLook(ComposedLook Look, MotherBrainSpriteSheet Sheet);
 

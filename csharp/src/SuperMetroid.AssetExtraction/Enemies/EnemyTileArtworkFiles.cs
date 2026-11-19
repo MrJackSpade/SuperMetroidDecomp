@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Enemies;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;

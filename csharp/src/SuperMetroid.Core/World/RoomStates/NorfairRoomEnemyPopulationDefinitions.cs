@@ -27,6 +27,7 @@ using SuperMetroid.Core.Enemies.YappingMaws;
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>The enemy placement lists of the Norfair rooms.</summary>
+[NumberedIdentities("Each numbered member is the enemy population of a room whose own name carries the number (Grapple Tutorial Room 1-3, Metroid Room 1-4, Tourian Escape Room 1-4); nothing indexes the populations by number.")]
 internal static class NorfairRoomEnemyPopulationDefinitions
 {
     /// <summary>The enemy population of the Grapple Tutorial 3 room.</summary>
@@ -193,7 +194,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Ridley room.</summary>
     internal static RoomEnemyPopulationDefinition Ridley { get; } = new("Ridley",
     [
-        new(EnemyDefinitionId.Ridley, new(48, 65520), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.Ridley, Position16<RoomPixels>.Wrapped(48, -16), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
     ], 0);
 
     /// <summary>The enemy population of the Post-Crocomire Power Bombs room.</summary>

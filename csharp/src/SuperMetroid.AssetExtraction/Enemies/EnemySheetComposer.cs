@@ -178,7 +178,7 @@ internal static class EnemySheetComposer
     private sealed record SetLayouts(GraphicsSetSheetSources Sources, SpriteSheetLayout[] Enemies, SpriteSheetLayout[] Spawned);
 
     /// <summary>A graphics set's sheets, each by the distinct layout it paints.</summary>
-    /// <param name="Name">The set's name.</param>
+    /// <param name="Set">The set.</param>
     /// <param name="Enemies">Each enemy's sheet, in the order the set's sources list them.</param>
     /// <param name="Spawned">Each spawned-object sheet, in the order the set's sources list them.</param>
     private sealed record LaidGraphicsSet(RoomEnemyGraphicsSetDefinition Set, IReadOnlyList<LaidEnemySheet> Enemies, IReadOnlyList<LaidSpawnedSheet> Spawned);

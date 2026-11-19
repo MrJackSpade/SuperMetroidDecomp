@@ -7,8 +7,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// <summary>
 /// The name helpers of one compilation (SME6460, SME6462, #2544, #2548): the names each unmarked method, local function or
 /// property makes its result, the keys its callers hand that result to, and the helpers whose results it returns; and the
-/// names each parameter of the compilation is handed, the keys a reference of that parameter reaches, the parameters it
-/// is handed on to and the helpers that return it. A record's positional parameter reaches whatever its property reaches.
+/// names each parameter of the compilation is handed, the keys a reference of that parameter reaches and the parameters it
+/// is handed on to. A record's positional parameter reaches whatever its property reaches.
 /// At the compilation's end each name a helper returns, or a parameter is handed, is reported against the key it reaches,
 /// through any chain of helpers and parameters.
 /// </summary>
@@ -40,7 +40,7 @@ internal sealed class NameHelperFlows
 
     /// <summary>
     /// Records that the value of <paramref name="value"/>, a parameter or a helper's result, reaches whatever
-    /// <paramref name="onward"/> reaches: a parameter it is handed on to, or the helper that returns it.
+    /// <paramref name="onward"/>, a parameter it is handed on to, reaches.
     /// </summary>
     internal void HandsOn(ISymbol value, ISymbol onward) => inner.GetOrAdd(onward.OriginalDefinition, _ => []).Add(value.OriginalDefinition);
 

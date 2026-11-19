@@ -169,10 +169,10 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Draygon room in its default state.</summary>
     internal static RoomEnemyPopulationDefinition DraygonDefault { get; } = new("DraygonDefault",
     [
-        new(EnemyDefinitionId.DraygonBody, new(65456, 65456), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
-        new(EnemyDefinitionId.DraygonEye, new(65456, 65456), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
-        new(EnemyDefinitionId.DraygonTail, new(65456, 65456), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
-        new(EnemyDefinitionId.DraygonArms, new(65456, 65456), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.DraygonBody, Position16<RoomPixels>.Wrapped(-80, -80), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.DraygonEye, Position16<RoomPixels>.Wrapped(-80, -80), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.DraygonTail, Position16<RoomPixels>.Wrapped(-80, -80), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.DraygonArms, Position16<RoomPixels>.Wrapped(-80, -80), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
     ], 0);
 
     /// <summary>The enemy population of the Aqueduct room.</summary>

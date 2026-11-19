@@ -29,7 +29,7 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// <para>
 /// #2548 widens both to every source name: a <c>nameof</c> of any member, a property, field, method or event, or of a type,
 /// is the member's or the type's source name, and a name handed to a parameter of the same assembly is followed into
-/// whatever that parameter's references reach, through the parameters and helpers it is handed on to; a record's positional
+/// whatever that parameter's references reach, through the parameters it is handed on to; a record's positional
 /// parameter reaches whatever its property's reads reach. A definition found again by its own name (a <c>Find(nameof(X))</c>
 /// into a dictionary keyed by the definitions' names) is reported where the name is spelled.
 /// </para>
@@ -165,16 +165,15 @@ public sealed class InstalledKeyAnalyzer : DiagnosticAnalyzer
         }, OperationKind.LocalReference);
         block.RegisterOperationAction(operation =>
         {
-            // A parameter's value reaches what its references reach: a key, a parameter it is handed on to, or a helper's result.
+            // A parameter's value reaches what its references reach: a key, or a parameter it is handed on to. A helper returning
+            // its parameter, such as Ensure.NotNull, is not followed: its result reaches a key at some calls and not others.
             var reference = (IParameterReferenceOperation)operation.Operation;
             if (!SymbolEqualityComparer.Default.Equals(reference.Parameter.ContainingAssembly, assembly))
                 return;
-            KeyDestination? key = Destination(reference, operation.ContainingSymbol, marker, assembly, out _, out ISymbol? result,
+            KeyDestination? key = Destination(reference, operation.ContainingSymbol, marker, assembly, out _, out _,
                 out IParameterSymbol? parameter);
             if (key is { } destination)
                 helpers.Feeds(reference.Parameter.OriginalDefinition, destination);
-            else if (result is not null)
-                helpers.HandsOn(reference.Parameter, result);
             else if (parameter is not null)
                 helpers.HandsOn(reference.Parameter, parameter);
         }, OperationKind.ParameterReference);

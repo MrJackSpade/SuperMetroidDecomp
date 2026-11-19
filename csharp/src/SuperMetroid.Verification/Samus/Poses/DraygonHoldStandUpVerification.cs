@@ -74,7 +74,7 @@ internal static class DraygonHoldStandUpVerification
             }
 
             samus.Pose = SamusPoseId.DraygonHeldBallLeftPose;
-            samus.Position = samus.Position.WithWhole(new((ushort)(Column * RoomGridConversions.BlockPixels), (ushort)centreY));
+            samus.Position = samus.Position.WithWhole(new(Column * RoomGridConversions.BlockPixels, (ushort)centreY));
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             samus.CommitPoseHistory();

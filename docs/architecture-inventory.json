@@ -50155,7 +50155,7 @@
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassProjectileRequest",
-      "kind": "record struct",
+      "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -50164,7 +50164,7 @@
         "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainGlassProjectileRequest.cs"
       ],
       "partial": "none",
-      "disposition": "value"
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassSegment",
@@ -57706,7 +57706,7 @@
     },
     {
       "type": "SuperMetroid.Core.Bosses.Torizo.BombTorizoStatueProjectileRequest",
-      "kind": "record struct",
+      "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -57715,7 +57715,7 @@
         "csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoStatueProjectileRequest.cs"
       ],
       "partial": "none",
-      "disposition": "value"
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Torizo.BombTorizoVariant",
@@ -106411,6 +106411,84 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Hud.MessageBoxStep",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Hud/MessageBoxStep.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Hud.MessageBoxStep.Answered",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Hud/MessageBoxStep.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Hud.MessageBoxStep.ChoiceMoved",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Hud/MessageBoxStep.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Hud.MessageBoxStep.Closed",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Hud/MessageBoxStep.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Hud.MessageBoxStep.NothingAsked",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Hud/MessageBoxStep.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Hud.MessageBoxStep.SavingSoundStarted",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Hud/MessageBoxStep.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Hud.MinimapCell",
       "kind": "record",
       "scope": "product",
@@ -118921,6 +118999,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectProjectileRequest",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectProjectileRequest.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectRoom",
       "kind": "record",
       "scope": "product",
@@ -119228,6 +119319,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectStepOutcome",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectStepOutcome.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectSystemAccess",
@@ -181935,6 +182039,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Samus/Palettes/SpeedBoostPalettePointersVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Samus.Poses.DraygonHoldStandUpVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Samus/Poses/DraygonHoldStandUpVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

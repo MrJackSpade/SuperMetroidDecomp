@@ -18,8 +18,19 @@ public sealed class CeresBaby
         Clock.Restart();
     }
 
-    /// <summary>Gets the Baby's behavior selecting hand attachment, falling setup, falling motion, or idle.</summary>
+    /// <summary>Gets the Baby's behaviour: held at a hand, falling, or idle.</summary>
     public CeresBabyAction Action { get; internal set; } = CeresBabyAction.CarriedInArms;
+
+    /// <summary>
+    /// Lets the Baby fall from where Ridley held it: its fall starts from rest at a whole pixel, and the Baby's own update
+    /// later in the same update moves it its first falling step.
+    /// </summary>
+    internal void Drop()
+    {
+        Position = Position.WithFractionY(PixelFraction.None);
+        VerticalVelocity = SignedEightEight.Zero;
+        Action = CeresBabyAction.Dropped;
+    }
 
     /// <summary>
     /// Gets the Baby's room position. Its vertical fraction of a pixel is the one its fall left and

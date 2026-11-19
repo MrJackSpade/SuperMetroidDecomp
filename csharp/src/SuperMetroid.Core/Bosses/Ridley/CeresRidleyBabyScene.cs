@@ -35,47 +35,7 @@ internal sealed class CeresRidleyBabyScene
     /// <summary>Keeps the Baby at Ridley's arm anchor, falls independently, then follows the grasp point on retrieval.</summary>
     /// <param name="place">Ridley's body, which carries the Baby.</param>
     /// <param name="baby">The Baby.</param>
-    internal static void TickCeresBaby(RoomEnemyPlace place, CeresBaby baby)
-    {
-        switch (baby.Action)
-        {
-            case CeresBabyAction.CarriedInArms:
-                // Until the fake retreat, Ridley carries the Baby at his left-hand anchor, so it is where he holds it
-                // when he lets it fall.
-                baby.Position = baby.Position.WithWhole(place.Position.Whole + CeresRidleyArenaDefinitions.BabyArmsAnchor);
-                return;
-
-            case CeresBabyAction.Drop:
-                baby.Position = baby.Position.WithFractionY(PixelFraction.None);
-                baby.VerticalVelocity = SignedEightEight.Zero;
-                baby.Action = CeresBabyAction.Dropped;
-                goto case CeresBabyAction.Dropped;
-
-            case CeresBabyAction.Dropped:
-                // The falling speed only grows from zero and the fall ends at the Baby's floor, so it stays a few pixels an
-                // update.
-                baby.VerticalVelocity += CeresRidleyArenaDefinitions.BabyFallGravity;
-                baby.Position = baby.Position.WithY(baby.Position.Y.MovedBy(baby.VerticalVelocity));
-                if (baby.Position.Y.Whole >= CeresRidleyArenaDefinitions.BabyFloorY)
-                {
-                    baby.Position = baby.Position.WithWholeY(CeresRidleyArenaDefinitions.BabyFloorY);
-                    baby.Action = CeresBabyAction.Idle;
-                }
-                return;
-
-            case CeresBabyAction.CarriedInFeet:
-                // Once the hand rectangles overlap, the Baby follows the grasp point for
-                // the real retreat and disappears with Ridley at the escape handoff.
-                baby.Position = baby.Position.WithWhole(place.Position.Whole + CeresRidleyArenaDefinitions.BabyFeetAnchor);
-                return;
-
-            case CeresBabyAction.Idle:
-                return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(CeresBabyAction)} {baby.Action}.");
-        }
-    }
+    internal static void TickCeresBaby(RoomEnemyPlace place, CeresBaby baby) => baby.Action.Move(place, baby);
 
     /// <summary>
     /// Runs the Baby's animation at the enemy pass's end while Ridley's movement and animation are off (#2573). Until his

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -57,13 +58,16 @@ internal sealed class ColoredDoorObject : DoorCapObject, IShootableRoomObject
     private readonly ColoredDoorSequences _sequences;
 
     /// <summary>
-    /// The shot at the cap's block it has yet to take, or null for none (#2484). A shot that arrives before the cap takes shots waits for
+    /// The shot at the cap's block it has yet to take (#2484, #2562). A shot that arrives before the cap takes shots waits for
     /// it; a later shot before the cap takes it replaces it.
     /// </summary>
-    internal ResidentObjectProjectileHit? PendingHit { get; private set; }
+    private readonly StrikeAwaitingRoomObject<ResidentObjectProjectileHit> _strike = new();
+
+    /// <summary>The shot at the cap's block it has yet to take, or null for none.</summary>
+    internal ResidentObjectProjectileHit? AwaitingStrike => _strike.Awaiting;
 
     /// <inheritdoc/>
-    public void Strike(ResidentObjectProjectileHit hit) => PendingHit = hit;
+    public void Strike(ResidentObjectProjectileHit hit) => _strike.Land(hit);
 
     /// <inheritdoc/>
     public override void CloseBehindSamus()
@@ -83,9 +87,8 @@ internal sealed class ColoredDoorObject : DoorCapObject, IShootableRoomObject
     /// <inheritdoc/>
     private bool React(RoomObjectPlace place, RoomObjectStepContext context)
     {
-        if (!TakesShots || PendingHit is not { Family: var family })
+        if (!TakesShots || _strike.Take() is not { Family: var family })
             return false;
-        PendingHit = null;
         if (!_rules.Counts(family))
         {
             context.RoomObjects.DoorObjects.QueueDudSound();

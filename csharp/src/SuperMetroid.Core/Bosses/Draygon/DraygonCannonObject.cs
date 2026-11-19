@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
@@ -57,8 +58,11 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
     /// <summary>Whether a missile strike wakes the cannon: from its first update until a hit destroys it.</summary>
     internal bool WakeArmed { get; private set; }
 
-    /// <summary>The strike on the cannon's block its wake has not yet read, or null for none.</summary>
-    internal ResidentObjectProjectileHit? PendingHit { get; private set; }
+    /// <summary>The strike on the cannon's block it has yet to take (#2562).</summary>
+    private readonly StrikeAwaitingRoomObject<ResidentObjectProjectileHit> _strike = new();
+
+    /// <summary>The strike on the cannon's block it has yet to take, or null for none.</summary>
+    internal ResidentObjectProjectileHit? AwaitingStrike => _strike.Awaiting;
 
     /// <summary>
     /// The play of what the cannon shows (#2401): its shield, its hit flash or its sparks, each picture with the updates it
@@ -67,16 +71,16 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
     private readonly AnimationPlayer<DraygonCannonSegment, DraygonCannonDraw, NoAnimationCue> player;
 
     /// <inheritdoc/>
-    public void Strike(ResidentObjectProjectileHit hit) => PendingHit = hit;
+    public void Strike(ResidentObjectProjectileHit hit) => _strike.Land(hit);
 
     /// <inheritdoc/>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
-        if (WakeArmed && PendingHit is { } hit && hit.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
+        if (WakeArmed && _strike.Awaiting is { } hit && hit.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
         {
-            // The struck cannon takes the hit on the update it wakes, before its timing runs.
-            PendingHit = null;
+            // The struck cannon takes the hit on the update it wakes, before its timing runs; any other strike waits on.
+            _ = _strike.Take();
             CountHit(place, context, destroysAtOnce: hit.Family == SamusProjectileFamily.SuperMissile);
             return;
         }

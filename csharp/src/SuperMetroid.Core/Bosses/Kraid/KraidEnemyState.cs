@@ -88,12 +88,6 @@ public sealed class KraidEnemyState
     /// </summary>
     public int EjectionLimitY { get; internal set; }
     /// <summary>
-    /// Whether a charged shot hit his mouth or body this pass (#2400): his body's pass clears it before it tests, a charged
-    /// beam into his mouth or a charged shot into his body sets it, and a body hit that starts his eye glow reads it.
-    /// </summary>
-    internal bool ChargedHitThisPass { get; set; }
-
-    /// <summary>
     /// Whether his mouth's reopens are armed (#2400): a charged body hit that started his eye glow arms them, and only a
     /// clear of his mouth disarms them.
     /// </summary>
@@ -215,7 +209,6 @@ public sealed class KraidEnemyState
     /// <summary>Forgets every hit on his mouth and body that would reopen it, and the reopens still pending.</summary>
     internal void ClearMouthReactions()
     {
-        ChargedHitThisPass = false;
         MouthReopenArmed = false;
         MouthReopenPending = false;
         PendingMouthReopens = 0;

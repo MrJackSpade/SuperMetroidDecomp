@@ -84,21 +84,18 @@ internal sealed class MotherBrainHead
     /// <summary>Runs the head main/hurt entry and its brain action's choice of whether her brain and neck are drawn.</summary>
     internal static void RunMotherBrainHeadMain(RoomEnemyPlace head, MotherBrainEnemyState state, SamusState samus)
     {
-        // The head main first stops drawing her brain and neck; her brain's action then draws them again.
-        state.DrawBrain = false;
-        state.DrawNeck = false;
+        // Her brain's action decides whether her own draw shows her neck with her brain.
         switch (state.BrainAction)
         {
             case MotherBrainBrainAction.SetupBrainToBeDrawn:
-                state.DrawBrain = true;
+                state.BrainActionDrawn = MotherBrainBrainAction.SetupBrainToBeDrawn;
                 return;
             case MotherBrainBrainAction.SetupBrainAndNeckToBeDrawn:
                 StepMotherBrainNeck(
                     state,
                     samus);
                 head.Position = head.Position.WithWhole(state.Neck.BrainAnchor.Position + MotherBrainNeckJointDefinitions.BrainAboveAnchor);
-                state.DrawBrain = true;
-                state.DrawNeck = true;
+                state.BrainActionDrawn = MotherBrainBrainAction.SetupBrainAndNeckToBeDrawn;
                 return;
             default:
                 throw new InvalidDataException(

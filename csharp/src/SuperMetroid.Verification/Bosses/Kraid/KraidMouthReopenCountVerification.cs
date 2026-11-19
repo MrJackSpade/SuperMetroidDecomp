@@ -30,11 +30,10 @@ internal static class KraidMouthReopenCountVerification
         _ = AssertThrows<InvalidOperationException>(state.RemoveOneMouthReopen, "removing a reopen from none is rejected: no caller reaches it, so no wrap is kept (#1627)");
         AssertEqual(0, state.PendingMouthReopens, "the rejected removal leaves the count at none");
 
-        state.ChargedHitThisPass = true;
         state.MouthReopenArmed = true;
         state.MouthReopenPending = true;
         state.ClearMouthReactions();
-        AssertTrue(!state.ChargedHitThisPass && !state.MouthReopenArmed && !state.MouthReopenPending, "clearing the mouth clears every latch");
+        AssertTrue(!state.MouthReopenArmed && !state.MouthReopenPending, "clearing the mouth clears every latch");
         AssertEqual(0, state.PendingMouthReopens, "clearing the mouth clears the pending reopen count with the latches");
 
         VerifyKraidHurtFlash();

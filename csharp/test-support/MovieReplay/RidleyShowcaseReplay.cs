@@ -676,7 +676,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     // The cartridge keeps a pending projectile hit in the loop counter's storage; a pending hit is
                     // compared as the family the recorded word decodes to. A grey cap counts no loops of its own, its
                     // repeated flashes being steps of its sequence, so the counter is not compared otherwise.
-                    if (typedDoor.PendingHit is { } pendingHit)
+                    if (typedDoor.AwaitingStrike is { } pendingHit)
                     {
                         SamusProjectileFamily recordedHit = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(W(NativeSnapshotMemory.RoomObjectLoopTimer + offset)).Family;
                         if (recordedHit != pendingHit.Family)

@@ -339,7 +339,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Fake Kraid's spit and spikes (#1760): their spawners start their animations.</summary>
-    internal static readonly EnemyProjectileBehavior SpitAndSpikes = new SpitAndSpikeBehavior();
+    internal EnemyProjectileBehavior SpitAndSpikes { get; } = new SpitAndSpikeBehavior();
 
     /// <summary>Fake Kraid's spit, with room collision then capped gravity, or a spike flying until it strikes a wall.</summary>
     private sealed class SpitAndSpikeBehavior() : EnemyProjectileMotionBehavior<FakeKraidProjectileMotion>(StartingMotions)

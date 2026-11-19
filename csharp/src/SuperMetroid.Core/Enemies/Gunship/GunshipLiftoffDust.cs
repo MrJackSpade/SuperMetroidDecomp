@@ -10,13 +10,12 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 internal static class GunshipLiftoffDust
 {
     /// <summary>The gunship's liftoff dust clouds (#1760): each holds still and leaves when its animation ends.</summary>
-    internal static GunshipDustBehavior Behavior { get; } = new();
 
     /// <summary>
     /// Spawns one of the liftoff's six dust clouds, <paramref name="placement"/>, below <paramref name="samus"/> into
     /// <paramref name="projectiles"/>. A spawn that finds every place held spawns nothing.
     /// </summary>
-    internal static void SpawnCloud(EnemyProjectileEngine projectiles, GunshipDustPlacement placement, SamusState samus)
+    internal static void SpawnCloud(EnemyProjectileEngine projectiles, GunshipDustBehavior dust, GunshipDustPlacement placement, SamusState samus)
     {
         Ensure.NotNull(projectiles);
         Ensure.NotNull(samus);
@@ -27,11 +26,11 @@ internal static class GunshipLiftoffDust
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.GunshipLiftoffDustCloud,
-            Behavior,
+            Ensure.NotNull(dust),
             graphics: default);
         projectile.Position = projectile.Position.WithWhole(new(samus.Position.X.Whole + placement.XOffset, samus.Position.Y.Whole + GunshipDustDefinitions.YOffset));
         projectile.Velocity = new(SignedEightEight.Zero, SignedEightEight.Zero);
-        projectile.StartAnimation(new GunshipDustAnimation(Behavior, placement.Animation));
+        projectile.StartAnimation(new GunshipDustAnimation(dust, placement.Animation));
     }
 
     /// <summary>A gunship liftoff dust cloud, which ends with its animation.</summary>

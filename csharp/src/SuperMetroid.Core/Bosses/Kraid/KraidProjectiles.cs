@@ -78,13 +78,13 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>The rocks Kraid's rise throws up and the ceiling rocks his roar shakes down (#1760): their spawners start their animations.</summary>
-    internal static RockBehavior Rocks { get; } = new();
+    internal RockBehavior Rocks { get; } = new();
 
     /// <summary>
     /// A rock Kraid spits (#1760): its spawner starts its animation, and a shot one runs its typed burst, the animation its
     /// definition names.
     /// </summary>
-    internal static RockBehavior SpitRock { get; } = new(KraidRockSegment.SpitRockShot);
+    internal RockBehavior SpitRock { get; } = new(KraidRockSegment.SpitRockShot);
 
     /// <summary>
     /// One of Kraid's rocks: a rock's flight with room collision, drag and gravity, a ceiling rock's fall, and the rock

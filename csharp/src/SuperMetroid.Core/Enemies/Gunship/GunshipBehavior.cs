@@ -39,6 +39,9 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     private readonly EnemyAudioQueue _audio;
     /// <summary>Creates gunship dust during takeoff.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+
+    /// <summary>The dust clouds the gunship's liftoff raises, its own (#2571).</summary>
+    internal GunshipLiftoffDust.GunshipDustBehavior Dust { get; } = new();
     /// <summary>The loaded room's bindings: its events and the game-state services that set up Samus's pose.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>The room's enemy places, where the top hull finds the ship's other pieces when it is placed.</summary>
@@ -501,7 +504,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             // The six clouds rise as the rumble strengthens. Each takes the highest projectile place still free, so
             // the last cloud, the outer left one, takes the highest place the other five left.
             foreach (GunshipDustPlacement cloud in GunshipDustDefinitions.LiftoffClouds)
-                GunshipLiftoffDust.SpawnCloud(_projectiles, cloud, samus);
+                GunshipLiftoffDust.SpawnCloud(_projectiles, Dust, cloud, samus);
         }
         if (rumbled)
             State(top).Phase = GunshipPhase.SteadyLiftoff;

@@ -20,8 +20,10 @@ internal sealed class KraidBackground
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal KraidBackground(EnemyProjectileEngine projectiles, EnemyPresentation presentation, KraidEncounterAccess access, BossArtworkBinding bossArtwork)
+    internal KraidBackground(EnemyProjectileEngine projectiles, EnemyPresentation presentation, KraidEncounterAccess access, BossArtworkBinding bossArtwork,
+        KraidProjectiles.RockBehavior rocks)
     {
+        Rocks = Ensure.NotNull(rocks);
         _bossArtwork = bossArtwork;
         _projectiles = projectiles;
         _presentation = presentation;
@@ -30,6 +32,9 @@ internal sealed class KraidBackground
 
     /// <summary>Kraid's installed eye colours, which his eye glow shows and times his roar from.</summary>
     internal KraidEyeColours EyeColours => _bossArtwork.KraidEyes;
+
+    /// <summary>The rocks his rise throws up and his roar shakes down from the ceiling, his encounter's own (#2571).</summary>
+    internal KraidProjectiles.RockBehavior Rocks { get; }
 
     /// <summary>
     /// Takes one step of the room backdrop's fade toward <paramref name="fade"/>'s colours on the shared gradual colour
@@ -63,9 +68,9 @@ internal sealed class KraidBackground
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             rock,
             RoomEnemyProjectileKind.KraidCeilingRock,
-            KraidProjectiles.Rocks,
+            Rocks,
             graphics: SpriteGraphics.SharedIn(KraidColours.RocksShading));
-        rock.StartAnimation(new KraidRockAnimation(KraidProjectiles.Rocks, KraidRockSegment.SharedPose));
+        rock.StartAnimation(new KraidRockAnimation(Rocks, KraidRockSegment.SharedPose));
         rock.Position = FixedPosition<RoomPixels>.FromWhole(new(xPosition, KraidArenaDefinitions.CeilingRockY));
         rock.Velocity = rock.Velocity.WithX(SignedEightEight.Zero);
         rock.Velocity = rock.Velocity.WithY(KraidRandomDefinitions.CeilingRockFallSpeed.Of(_access.ReadKraidRandomNumber()));

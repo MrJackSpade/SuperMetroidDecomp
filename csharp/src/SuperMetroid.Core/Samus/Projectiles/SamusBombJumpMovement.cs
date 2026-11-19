@@ -46,8 +46,7 @@ public static class SamusBombJumpMovement
         if (!samus.BombJumpActive)
             throw new InvalidOperationException("Bomb-jump movement requires an active jump.");
 
-        SamusBombJumpDirection direction = samus.BombJumpRequest.Direction;
-        if (direction == SamusBombJumpDirection.None)
+        if (samus.BombJumpRequest.Direction is not { } direction)
             return End(samus, null);
 
         BlockMoveResult? horizontal;

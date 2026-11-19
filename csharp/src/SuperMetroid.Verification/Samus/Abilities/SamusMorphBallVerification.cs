@@ -1539,8 +1539,8 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     SamusPresentation.InitializeAnimation(bombJump);
     bombJump.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x4000);
     AssertThrows<ArgumentOutOfRangeException>(
-        () => bombJump.RequestMorphedBombJump(SamusBombJumpDirection.None),
-        "bomb-jump direction zero rejected");
+        () => bombJump.RequestMorphedBombJump((SamusBombJumpDirection)(-1)),
+        "an undefined bomb-jump direction rejected");
 
     bombJump.RequestMorphedBombJump(SamusBombJumpDirection.Right);
     AssertEqual(SamusBombJumpRequest.Published(SamusBombJumpDirection.Right).Accept(), bombJump.BombJumpRequest, "right bomb jump accepted");

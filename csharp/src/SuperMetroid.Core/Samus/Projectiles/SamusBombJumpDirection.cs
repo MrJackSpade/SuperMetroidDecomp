@@ -5,9 +5,6 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </summary>
 public enum SamusBombJumpDirection
 {
-    /// <summary>No overlapping bomb published a launch this pass.</summary>
-    None,
-
     /// <summary>Samus is left of the bomb and is launched up and to the left.</summary>
     Left,
 

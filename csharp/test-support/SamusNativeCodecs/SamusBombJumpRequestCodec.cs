@@ -17,9 +17,9 @@ internal static class SamusBombJumpRequestCodec
         DirectionByte(request.Direction) | (request.Accepted ? AcceptedBit : 0);
 
     /// <summary>The direction's native low byte.</summary>
-    private static int DirectionByte(SamusBombJumpDirection direction) => direction switch
+    private static int DirectionByte(SamusBombJumpDirection? direction) => direction switch
     {
-        SamusBombJumpDirection.None => 0,
+        null => 0,
         SamusBombJumpDirection.Left => 1,
         SamusBombJumpDirection.Straight => 2,
         SamusBombJumpDirection.Right => 3,

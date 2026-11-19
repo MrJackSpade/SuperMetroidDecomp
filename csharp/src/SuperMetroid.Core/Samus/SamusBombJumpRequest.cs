@@ -10,28 +10,27 @@ namespace SuperMetroid.Core.Samus;
 public readonly record struct SamusBombJumpRequest
 {
     /// <summary>Stores a request not yet accepted; a request is made with <see cref="None"/>, <see cref="Published"/> and <see cref="Accept"/>.</summary>
-    private SamusBombJumpRequest(SamusBombJumpDirection direction) => Direction = direction;
+    private SamusBombJumpRequest(SamusBombJumpDirection? direction) => Direction = direction;
 
     /// <summary>No bomb jump requested.</summary>
     public static SamusBombJumpRequest None => default;
 
     /// <summary>A blast's request to launch Samus in <paramref name="direction"/>, not yet handled by her pose.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The direction is none or undefined.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The direction is undefined.</exception>
     public static SamusBombJumpRequest Published(SamusBombJumpDirection direction) => direction switch
     {
         SamusBombJumpDirection.Left or SamusBombJumpDirection.Straight or SamusBombJumpDirection.Right => new(direction),
-        SamusBombJumpDirection.None => throw new ArgumentOutOfRangeException(nameof(direction), direction, "A published bomb jump has a direction."),
         _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined bomb-jump direction."),
     };
 
-    /// <summary>Which way the jump launches Samus, or <see cref="SamusBombJumpDirection.None"/> when none is requested.</summary>
-    public SamusBombJumpDirection Direction { get; }
+    /// <summary>Which way the jump launches Samus, or null when none is requested.</summary>
+    public SamusBombJumpDirection? Direction { get; }
 
     /// <summary>Whether Samus's pose handling has accepted the request and armed the jump.</summary>
     public bool Accepted { get; private init; }
 
     /// <summary>Whether a published request waits for Samus's pose handling to accept or reject it.</summary>
-    public bool AwaitsPoseHandling => Direction != SamusBombJumpDirection.None && !Accepted;
+    public bool AwaitsPoseHandling => Direction is not null && !Accepted;
 
     /// <summary>The request accepted by Samus's pose handling.</summary>
     /// <exception cref="InvalidOperationException">No published request waits for pose handling.</exception>

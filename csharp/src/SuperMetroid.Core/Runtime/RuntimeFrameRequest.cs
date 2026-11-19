@@ -12,8 +12,10 @@ public sealed record RuntimeFrameRequest
     public RuntimeFramePolicy Policy { get; init; } = RuntimeFramePolicy.Gameplay;
 
     /// <summary>
-    /// Host work immediately after the ordinary frame boundary and before the liquid wave, statue descent and the update's owners;
-    /// the suspended message-box frame path does not run it.
+    /// Host work immediately after the ordinary frame boundary and before the liquid wave, statue descent and the update's
+    /// owners, given <see cref="Policy"/> and returning the policy the rest of the update runs under: the work can move the
+    /// game to another state before the update's gameplay runs, as the reserve refill's completion returns it to main
+    /// gameplay (#2526). The suspended message-box frame path does not run it.
     /// </summary>
-    public Action AfterFrameBoundary { get; init; } = static () => { };
+    public Func<RuntimeFramePolicy, RuntimeFramePolicy> AfterFrameBoundary { get; init; } = static policy => policy;
 }

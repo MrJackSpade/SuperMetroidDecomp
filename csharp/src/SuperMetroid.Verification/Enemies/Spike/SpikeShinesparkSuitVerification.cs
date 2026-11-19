@@ -76,8 +76,11 @@ internal static class SpikeShinesparkSuitVerification
         int frozenShineTimer = frozenSamus.Shinespark.ShineTimer;
         SamusSpecialColouringKind frozenPalette = frozenSamus.SpecialColouring.Holder;
         int frozenKnockbackTimer = frozenSamus.KnockbackTimer;
-        frozenRuntime.StepFrame(0, new RuntimeFrameRequest { AfterFrameBoundary = () =>
-            shortRecovery.StepAfterFrame(frozenSamus, frozenRuntime.Clock.Counter) });
+        frozenRuntime.StepFrame(0, new RuntimeFrameRequest { AfterFrameBoundary = policy =>
+            {
+                shortRecovery.StepAfterFrame(frozenSamus, frozenRuntime.Clock.Counter);
+                return policy;
+            } });
         AssertEqual(new SpikeShinesparkSuitVerifySpikeShinesparkSuitCase(frozenX, frozenY),
             new SpikeShinesparkSuitVerifySpikeShinesparkSuitCase(SixteenSixteenWords.Compose(frozenSamus.Kinematics.Position.X), SixteenSixteenWords.Compose(frozenSamus.Kinematics.Position.Y)),
             "Reserve command zero freezes spike-knockback position");
@@ -142,10 +145,11 @@ internal static class SpikeShinesparkSuitVerification
             ControllerButton input = samus.ReserveEnergy == 1 && launchAfter == 0
                 ? ControllerButton.A
                 : 0;
-            runtime.StepFrame(input, new RuntimeFrameRequest { AfterFrameBoundary = () =>
+            runtime.StepFrame(input, new RuntimeFrameRequest { AfterFrameBoundary = policy =>
             {
                 if (recovery.StepAfterFrame(samus, runtime.Clock.Counter).Completed)
                     runtime.Freeze.GameplayTimeFrozen = false;
+                return policy;
             } });
         }
         for (int frame = 1; frame < 25; frame++)

@@ -161,47 +161,10 @@ internal static class OutOfHealthGameStateVerification
     /// </summary>
     internal static void VerifyDoorWinsOverDeathWithoutReserves()
     {
-        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(InstalledFixtures.Maps));
-        InstalledFixtures.BindGame(game);
-        game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
-        SuperMetroidRuntime runtime = game.Session.GameplayRuntime;
-        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.System.SetEvent(StoryEvent.ZebesAwake);
-        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Parlor);
-        foreach (RoomEnemyPlace enemy in runtime.Enemies.Places.InUpdateOrder)
-            enemy.Clear();
-        var words = new RoomTerrainBlock[32 * 16];
-        var bts = new RoomBlockBehavior[words.Length];
-        var doorBlocks = new List<RoomDoorBlock>();
-        for (int row = 0; row < 16; row++)
-        {
-            words[row * 32 + 10] = Door;
-            doorBlocks.Add(new RoomDoorBlock(new(10, row), TourianSaveDoor));
-            words[row * 32 + 12] = Solid;
-        }
-        RoomLevelData level = Harness.VerificationHelpersVerification.CreateRoom(new Extent16<RoomBlocks>(32, 16), words, bts, doorBlocks: doorBlocks);
-        runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { LevelData = level });
-        SamusState samus = runtime.Player.IntroducedSamus;
-        samus.Control.Unlock();
-        samus.Health = 999;
-        samus.ReserveEnergy = 0;
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
-        SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
-        samus.Shinespark.TryStoreFromSpeedBooster(SamusSpeedBoostCounter.AtFullStage);
-        samus.Shinespark.BeginWindup(samus);
-        samus.Shinespark.BeginDirectionalLaunch(samus, SamusPoseId.ShinesparkHorizontalRightPose);
-        samus.CommitPoseHistory();
-        samus.Position = samus.Position.WithWhole(new(128, 128));
-        game.Session.Enter(SuperMetroidGameState.MainGameplay);
-        game.Step(0);
-        AssertTrue(!runtime.RoomLoader.HasPendingDoorTransition, "the spark's first update is short of the door");
-        AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the spark's first update stays in main gameplay");
+        (SuperMetroidGame game, SuperMetroidRuntime runtime, SamusState samus) = MainGameplaySparkingTowardADoor();
 
         // The next update's spark reaches the door, and the periodic damage Samus's movement applies after it empties her.
-        samus.Position = samus.Position.WithWholeX((ushort)(160 - samus.Kinematics.Radius.X - 1));
+        PlaceJustShortOfTheDoor(samus);
         samus.PeriodicDamage.Accumulate(new UnsignedSixteenSixteen(999, 0));
         GameClockReading beforeDoor = runtime.GameTime.Reading;
         game.Step(0);
@@ -233,37 +196,7 @@ internal static class OutOfHealthGameStateVerification
     /// </summary>
     internal static void VerifyCeresElevatorWinsOverDeathWithoutReserves()
     {
-        var random = new SharedRandom();
-        SuperMetroidGame game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(InstalledFixtures.Maps), renderGameplayFrames: false, random: random);
-        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
-        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.System.RecordBossesDefeated(AreaId.Ceres, DefeatedBosses.AreaBoss);
-        DoorDefinition door = CeresDoorDefinitions.FallingTileToCeresElevator;
-        runtime.LoadCartridgeRoomThroughDoorForVerification(door, door.DestinationScreen.ToRoomPixels());
-        AssertTrue(runtime.Room.LoadedScope.CeresElevatorShaft is not null, "the elevator door's event starts the shaft's turn");
-        // The shaft stays dormant until the elevator room's door is destroyed, while Samus lands on the elevator.
-        runtime.EnemySession.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
-        SamusState samus = runtime.Player.IntroducedSamus;
-        samus.Control.Unlock();
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
-        SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
-        samus.Position = samus.Position.WithWhole(new(128, 96));
-        game.AdoptRuntime(runtime);
-        game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
-        game.Session.Enter(SuperMetroidGameState.MainGameplay);
-        int landing = 0;
-        do
-        {
-            game.Step(0);
-            AssertTrue(++landing < 120, "Samus lands on the elevator");
-        }
-        while (!samus.Kinematics.YSpeed.IsZero || landing < 4);
-        AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the dormant shaft keeps Samus in main gameplay");
-        AssertTrue(samus.Position.Y.Whole is >= 75 and < 128 && samus.Position.X.Whole is > 112 and <= 144,
-            $"Samus stands inside the elevator's trigger at {samus.Position.Whole}");
+        (SuperMetroidGame game, SuperMetroidRuntime runtime, SamusState samus) = MainGameplayOnTheDormantCeresElevator();
 
         runtime.EnemySession.CeresStatus = CeresEscapeStatus.ElevatorDoorDestroyed;
         RunsOutOfHealthWithoutReserves(samus);
@@ -370,8 +303,103 @@ internal static class OutOfHealthGameStateVerification
     private static int TotalFrames(GameClockReading reading) =>
         (((reading.Hours * 60) + reading.Minutes) * 60 + reading.Seconds) * 60 + reading.Frames;
 
+    /// <summary>
+    /// A game in main gameplay in a room whose block column 10 is a door into the Tourian save room, with a wall two columns
+    /// beyond it and no enemies, its Samus in full health and without reserves sparking rightwards from x 128 under her
+    /// control; one update of the spark has run, short of the door.
+    /// </summary>
+    internal static (SuperMetroidGame Game, SuperMetroidRuntime Runtime, SamusState Samus) MainGameplaySparkingTowardADoor()
+    {
+        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(InstalledFixtures.Maps));
+        InstalledFixtures.BindGame(game);
+        game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
+        SuperMetroidRuntime runtime = game.Session.GameplayRuntime;
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.System.SetEvent(StoryEvent.ZebesAwake);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Parlor);
+        foreach (RoomEnemyPlace enemy in runtime.Enemies.Places.InUpdateOrder)
+            enemy.Clear();
+        var words = new RoomTerrainBlock[32 * 16];
+        var bts = new RoomBlockBehavior[words.Length];
+        var doorBlocks = new List<RoomDoorBlock>();
+        for (int row = 0; row < 16; row++)
+        {
+            words[row * 32 + 10] = Door;
+            doorBlocks.Add(new RoomDoorBlock(new(10, row), TourianSaveDoor));
+            words[row * 32 + 12] = Solid;
+        }
+        RoomLevelData level = Harness.VerificationHelpersVerification.CreateRoom(new Extent16<RoomBlocks>(32, 16), words, bts, doorBlocks: doorBlocks);
+        runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { LevelData = level });
+        SamusState samus = runtime.Player.IntroducedSamus;
+        samus.Control.Unlock();
+        samus.Health = 999;
+        samus.ReserveEnergy = 0;
+        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
+        samus.Shinespark.TryStoreFromSpeedBooster(SamusSpeedBoostCounter.AtFullStage);
+        samus.Shinespark.BeginWindup(samus);
+        samus.Shinespark.BeginDirectionalLaunch(samus, SamusPoseId.ShinesparkHorizontalRightPose);
+        samus.CommitPoseHistory();
+        samus.Position = samus.Position.WithWhole(new(128, 128));
+        game.Session.Enter(SuperMetroidGameState.MainGameplay);
+        game.Step(0);
+        AssertTrue(!runtime.RoomLoader.HasPendingDoorTransition, "the spark's first update is short of the door");
+        AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the spark's first update stays in main gameplay");
+        return (game, runtime, samus);
+    }
+
+    /// <summary>
+    /// Places the sparking Samus of <see cref="MainGameplaySparkingTowardADoor"/> one pixel short of the door column, which
+    /// her spark's next update reaches.
+    /// </summary>
+    internal static void PlaceJustShortOfTheDoor(SamusState samus) =>
+        samus.Position = samus.Position.WithWholeX((ushort)(160 - samus.Kinematics.Radius.X - 1));
+
+    /// <summary>
+    /// A game in main gameplay in the Ceres elevator shaft after Ceres Ridley's defeat, its Samus landed on the elevator
+    /// inside its trigger under her control while the shaft stays dormant: the elevator room's door is not destroyed yet.
+    /// </summary>
+    internal static (SuperMetroidGame Game, SuperMetroidRuntime Runtime, SamusState Samus) MainGameplayOnTheDormantCeresElevator()
+    {
+        var random = new SharedRandom();
+        SuperMetroidGame game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(InstalledFixtures.Maps), renderGameplayFrames: false, random: random);
+        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.System.RecordBossesDefeated(AreaId.Ceres, DefeatedBosses.AreaBoss);
+        DoorDefinition door = CeresDoorDefinitions.FallingTileToCeresElevator;
+        runtime.LoadCartridgeRoomThroughDoorForVerification(door, door.DestinationScreen.ToRoomPixels());
+        AssertTrue(runtime.Room.LoadedScope.CeresElevatorShaft is not null, "the elevator door's event starts the shaft's turn");
+        // The shaft stays dormant until the elevator room's door is destroyed, while Samus lands on the elevator.
+        runtime.EnemySession.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
+        SamusState samus = runtime.Player.IntroducedSamus;
+        samus.Control.Unlock();
+        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
+        samus.Position = samus.Position.WithWhole(new(128, 96));
+        game.AdoptRuntime(runtime);
+        game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
+        game.Session.Enter(SuperMetroidGameState.MainGameplay);
+        int landing = 0;
+        do
+        {
+            game.Step(0);
+            AssertTrue(++landing < 120, "Samus lands on the elevator");
+        }
+        while (!samus.Kinematics.YSpeed.IsZero || landing < 4);
+        AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the dormant shaft keeps Samus in main gameplay");
+        AssertTrue(samus.Position.Y.Whole is >= 75 and < 128 && samus.Position.X.Whole is > 112 and <= 144,
+            $"Samus stands inside the elevator's trigger at {samus.Position.Whole}");
+        return (game, runtime, samus);
+    }
+
     /// <summary>A game in main gameplay in the X-ray Scope room, its Samus standing on the open floor under her control.</summary>
-    private static (SuperMetroidGame Game, SuperMetroidRuntime Runtime, SamusState Samus) MainGameplayInTheScopeRoom()
+    internal static (SuperMetroidGame Game, SuperMetroidRuntime Runtime, SamusState Samus) MainGameplayInTheScopeRoom()
     {
         var random = new SharedRandom();
         SuperMetroidGame game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(InstalledFixtures.Maps), renderGameplayFrames: false, random: random);
@@ -395,7 +423,7 @@ internal static class OutOfHealthGameStateVerification
     }
 
     /// <summary>A game in main gameplay at the Landing Site under <paramref name="camera"/>, its Samus under her control.</summary>
-    private static (SuperMetroidGame Game, SuperMetroidRuntime Runtime, SamusState Samus) MainGameplayAtTheLandingSite(Position16<RoomPixels> camera)
+    internal static (SuperMetroidGame Game, SuperMetroidRuntime Runtime, SamusState Samus) MainGameplayAtTheLandingSite(Position16<RoomPixels> camera)
     {
         var random = new SharedRandom();
         SuperMetroidGame game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(InstalledFixtures.Maps), renderGameplayFrames: false, random: random);

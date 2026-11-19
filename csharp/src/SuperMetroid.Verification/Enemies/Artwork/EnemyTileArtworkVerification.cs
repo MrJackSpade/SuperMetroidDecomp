@@ -213,7 +213,7 @@ internal static class EnemyTileArtworkVerification
         string importData = CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.EnemyTileDirectoryName);
         {
             ImportEnemyArtwork stock = InstalledFixtures.EnemyArtwork;
-            string[] files = Directory.GetFiles(importData, "enemy-????-tiles.png");
+            string[] files = [.. Directory.GetFiles(importData, "enemy-sheet-*-tiles.png"), .. Directory.GetFiles(importData, "enemy-unplaced-*-tiles.png")];
             AssertEqual(EnemyTileArtworkFormat.RetailEntryCount, files.Length,
                 "one indexed page per distinct retail enemy graphics definition and per artwork a set loads for no enemy");
             _ = VerifyInstalledCrocomireMeltingTilemap(

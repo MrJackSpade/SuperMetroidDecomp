@@ -19,9 +19,6 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("Samus's solid-enemy probe tests one pixel past her reach inside a pixel, two past it when the reach's fraction crosses a pixel's edge, but pixel 0 itself when the crossing lands there")]
 public static class SolidEnemyProbeReach
 {
-    /// <summary>The steps of a pixel's fraction: a fraction sum that reaches them crosses into the next pixel.</summary>
-    private const int FractionSteps = 65536;
-
     /// <summary>
     /// The pixel tested when Samus's centre at <paramref name="centre"/> reaches <paramref name="reach"/> towards larger
     /// coordinates (right or down), 0 through 65535.
@@ -31,7 +28,7 @@ public static class SolidEnemyProbeReach
     public static int TestedPixelForward(FixedCoordinate centre, UnsignedSixteenSixteen reach)
     {
         FixedCoordinate reached = centre.MovedForward(reach);
-        bool crossedPixelEdge = centre.Fraction + reach.Fraction >= FractionSteps;
+        bool crossedPixelEdge = centre.CrossesPixelEdgeMovingForward(reach);
         return Stepped(reached, crossedPixelEdge, step: 1);
     }
 
@@ -44,7 +41,7 @@ public static class SolidEnemyProbeReach
     public static int TestedPixelBack(FixedCoordinate centre, UnsignedSixteenSixteen reach)
     {
         FixedCoordinate reached = centre.MovedBack(reach);
-        bool crossedPixelEdge = centre.Fraction < reach.Fraction;
+        bool crossedPixelEdge = centre.CrossesPixelEdgeMovingBack(reach);
         return Stepped(reached, crossedPixelEdge, step: -1);
     }
 
@@ -57,7 +54,7 @@ public static class SolidEnemyProbeReach
     {
         if (crossedPixelEdge && reached.Whole == 0)
             return 0;
-        if (!crossedPixelEdge && reached.Fraction == 0)
+        if (!crossedPixelEdge && reached.FractionOfPixel == PixelFraction.None)
             return reached.Whole;
         return CoordinateAxis.Wrap(reached.Whole + step);
     }

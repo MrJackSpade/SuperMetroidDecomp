@@ -50,7 +50,14 @@ public readonly record struct FloorZoom : IComparable<FloorZoom>
 
     /// <summary>The zoom narrowed by one <paramref name="step"/>: the floor shown larger.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The step would leave the zoom negative.</exception>
-    public FloorZoom Narrowed(FloorZoomStep step) => new(checked(TwoHundredFiftySixths - step.TwoHundredFiftySixths));
+    public FloorZoom Narrowed(FloorZoomStep step) => Narrowed(step, 1);
+
+    /// <summary>The zoom narrowed by <paramref name="steps"/> of <paramref name="step"/> (#2555): the floor shown larger.</summary>
+    /// <param name="step">How far each step narrows the zoom.</param>
+    /// <param name="steps">How many steps, zero or more.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The steps would leave the zoom negative.</exception>
+    public FloorZoom Narrowed(FloorZoomStep step, int steps) =>
+        new(checked(TwoHundredFiftySixths - Ensure.AtLeastZero(steps) * step.TwoHundredFiftySixths));
 
     /// <inheritdoc />
     public int CompareTo(FloorZoom other) => TwoHundredFiftySixths.CompareTo(other.TwoHundredFiftySixths);

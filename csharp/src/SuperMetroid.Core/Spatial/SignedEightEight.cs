@@ -100,6 +100,13 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>
     [IntegerQuantity("whole-pixel part of a signed 8.8 velocity")]
     public int WholePixels => InTwoHundredFiftySixthsOfPixel >> 8;
 
+    /// <summary>
+    /// The velocity's speed, whichever way it points, counted in its finest steps, a 256th of a pixel an update each
+    /// (#2555): the count a Torizo's ground probe reads as whole pixels.
+    /// </summary>
+    [IntegerQuantity("finest steps of a signed 8.8 speed's magnitude")]
+    public int MagnitudeInFinestSteps => Math.Abs(InTwoHundredFiftySixthsOfPixel);
+
     /// <summary>The whole pixels of the velocity's speed, whichever way it points: its magnitude, the fraction dropped.</summary>
     [IntegerQuantity("whole-pixel part of a signed 8.8 speed")]
     public int MagnitudeWholePixels => Math.Abs(InTwoHundredFiftySixthsOfPixel) >> 8;

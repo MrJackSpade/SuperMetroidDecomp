@@ -159,6 +159,27 @@ public readonly record struct UnsignedSixteenSixteen
     public UnsignedSixteenSixteen WithWhole(int whole) => new(whole, Fraction);
 
     /// <summary>
+    /// This speed scaled by a whole <paramref name="factor"/>, zero or more (#2555): the product must fit the type.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The factor is negative.</exception>
+    /// <exception cref="OverflowException">The product lies outside the type's range.</exception>
+    public UnsignedSixteenSixteen Times(int factor) => FromRaw(checked(RawValue * (uint)Ensure.AtLeastZero(factor)));
+
+    /// <summary>
+    /// This speed with its whole pixels halved, an odd pixel dropped rather than halved into the fraction, and its fraction
+    /// kept (#2555).
+    /// </summary>
+    public UnsignedSixteenSixteen WithWholePixelsHalved() => new(Whole / 2, Fraction);
+
+    /// <summary>
+    /// This speed and <paramref name="other"/> added part by part (#2555): the whole pixels added, and the fractions added
+    /// with the carry past a whole pixel dropped, so a fraction sum past a pixel keeps only its remainder.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The whole pixels' sum lies outside the type's range.</exception>
+    public UnsignedSixteenSixteen AddedPartwise(UnsignedSixteenSixteen other) =>
+        new(Whole + other.Whole, (Fraction + other.Fraction) % FractionsPerPixel);
+
+    /// <summary>
     /// This speed with its whole pixels replaced by <paramref name="speed"/>'s and its own fraction kept (#2555), as the
     /// game sets only a speed's whole pixels.
     /// </summary>

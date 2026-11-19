@@ -154,7 +154,7 @@ internal static class BossBodyLayeredPartsVerification
         ShownBossBody shown = new BossBodyLayer([body, nothing]).Show();
         SpriteSheetFrame picture = body.Picture ?? throw new InvalidOperationException("Crocomire's body frame has a picture.");
         BossBodyDepth depth = body.Depth ?? throw new InvalidOperationException("Crocomire's body frame has a depth.");
-        AssertTrue(shown.Parts.Length == 1 && shown.Parts[0] == new ShownBossBodyPart(picture, body.Anchor, new Extent16<BackgroundPixels>(picture.Size.X, picture.Size.Y), depth),
+        AssertTrue(shown.Parts.Length == 1 && shown.Parts[0] == new ShownBossBodyPart(picture, body.Anchor, picture.Size, depth),
             "a part showing nothing is not drawn, and the body beneath it shows whole at its depth");
     }
 

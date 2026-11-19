@@ -18,9 +18,6 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("Speed Booster's jump bonus adds half the dash's whole extra speed and its whole fraction to the jump's speed each on its own, a fraction past a pixel losing its carry")]
 internal static class SpeedBoosterJumpBonus
 {
-    /// <summary>The steps of a speed's fraction of a pixel; a fraction sum past them keeps only its remainder.</summary>
-    private const int FractionSteps = 1 << 16;
-
     /// <summary>
     /// <paramref name="jumpSpeed"/> raised by Speed Booster's dash: half <paramref name="extraRunSpeed"/>'s whole pixels,
     /// the odd pixel dropped, added to its whole speed, and <paramref name="extraRunSpeed"/>'s fraction added to its
@@ -29,5 +26,5 @@ internal static class SpeedBoosterJumpBonus
     /// <param name="jumpSpeed">The jump's launch speed upward.</param>
     /// <param name="extraRunSpeed">The dash's extra run speed.</param>
     internal static UnsignedSixteenSixteen Boosted(UnsignedSixteenSixteen jumpSpeed, UnsignedSixteenSixteen extraRunSpeed) =>
-        new(jumpSpeed.Whole + extraRunSpeed.Whole / 2, (jumpSpeed.Fraction + extraRunSpeed.Fraction) % FractionSteps);
+        jumpSpeed.AddedPartwise(extraRunSpeed.WithWholePixelsHalved());
 }

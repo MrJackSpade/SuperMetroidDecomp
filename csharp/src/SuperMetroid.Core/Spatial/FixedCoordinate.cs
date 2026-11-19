@@ -81,6 +81,18 @@ public readonly record struct FixedCoordinate
     public FixedCoordinate MovedForward(UnsignedSixteenSixteen distance) => FromSubpixels(unchecked(Subpixels + distance.RawValue));
 
     /// <summary>
+    /// Whether moving this position toward increasing coordinates by <paramref name="distance"/> carries its fraction of a
+    /// pixel across a pixel's edge (#2555): the two fractions together reach a whole pixel.
+    /// </summary>
+    public bool CrossesPixelEdgeMovingForward(UnsignedSixteenSixteen distance) => Fraction + distance.Fraction >= FractionsPerPixel;
+
+    /// <summary>
+    /// Whether moving this position toward decreasing coordinates by <paramref name="distance"/> borrows its fraction of a
+    /// pixel across a pixel's edge (#2555): the distance's fraction is larger than the position's.
+    /// </summary>
+    public bool CrossesPixelEdgeMovingBack(UnsignedSixteenSixteen distance) => Fraction < distance.Fraction;
+
+    /// <summary>
     /// This position moved toward decreasing coordinates by <paramref name="distance"/>, the fraction borrowing from the
     /// whole pixel, which wraps around the coordinate range as <see cref="MovedBy(SignedSixteenSixteen)"/> does.
     /// </summary>

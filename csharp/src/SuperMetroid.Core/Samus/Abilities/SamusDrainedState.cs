@@ -23,10 +23,10 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public sealed class SamusDrainedState
 {
     /// <summary>
-    /// Latches the immediate suit-colour restore from letting drained Samus fall or the rainbow stop
-    /// until the same frame's colour pass runs.
+    /// Where the rainbow's colouring stands (#2562): showing, or ended by letting drained Samus fall or the rainbow's stop,
+    /// the same update's colour pass then showing her suit's colours again.
     /// </summary>
-    private bool _suitShadeRestoreRequested;
+    private SpecialColouringStage _colouringStage;
 
     /// <summary>The drained phase: the drained pose Samus holds, or her fall.</summary>
     public DrainedSamusPhase Phase { get; private set; }
@@ -150,7 +150,7 @@ public sealed class SamusDrainedState
         RainbowGlowing = true;
         RainbowGlowHold = RainbowGlowHold.Starting;
         SamusGlowPlay.RestartShowing(Rainbow, SamusGlowSegment.HyperBeamRainbow, RainbowGlowHold.Updates);
-        _suitShadeRestoreRequested = false;
+        _colouringStage = SpecialColouringStage.Showing;
     }
 
     /// <summary>
@@ -170,7 +170,7 @@ public sealed class SamusDrainedState
         RainbowGlowing = false;
         RainbowGlowHold = RainbowGlowHold.None;
         SamusGlowPlay.Restart(Rainbow, SamusGlowSegment.HyperBeamRainbow);
-        _suitShadeRestoreRequested = true;
+        _colouringStage = SpecialColouringStage.Ending;
         SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.RainbowStopFrame, timer: SamusDrainedAnimationDefinitions.SetFrameTimer);
     }
 
@@ -189,12 +189,12 @@ public sealed class SamusDrainedState
     {
         Ensure.NotNull(colours);
 
-        if (_suitShadeRestoreRequested)
+        if (_colouringStage == SpecialColouringStage.Ending)
         {
             // The drained shade and the rainbow stop choose Gravity before Varia, then Power, as every
             // other path restoring Samus's suit shade does.
             SamusSuitShade.Show(colours, equippedItems);
-            _suitShadeRestoreRequested = false;
+            _colouringStage = SpecialColouringStage.Showing;
             return true;
         }
 
@@ -241,7 +241,7 @@ public sealed class SamusDrainedState
         SamusPresentation.InitializeAnimation(samus, SamusDrainedAnimationDefinitions.FallInitialFrame);
         ClearBaseAndVerticalSpeed(samus);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
-        _suitShadeRestoreRequested = true;
+        _colouringStage = SpecialColouringStage.Ending;
         Phase = DrainedSamusPhase.WaitingForFallingCue;
         // Letting her fall, standing her, crouching her and releasing her report themselves handled; their step
         // then shifts history even when the pose is unchanged. Enabling the Hyper Beam does not.

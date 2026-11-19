@@ -183,7 +183,7 @@ internal static void VerifySamusCrystalFlash()
     }
     AssertEqual((initialY - 18), samus.Position.Y.Whole, "first nine raise calls move 18 pixels");
 
-    samus.CrystalFlash.Step(samus, 9);
+    CrystalFlashMovementResult raiseEnd = samus.CrystalFlash.Step(samus, 9);
     AssertEqual(0, samus.InvincibilityTimer.RawValue, "raise completion clears hit immunity");
     AssertEqual(CrystalFlashPhase.DrainingAmmo, samus.CrystalFlash.Phase,
         "tenth raise call installs ammo handler");
@@ -191,7 +191,7 @@ internal static void VerifySamusCrystalFlash()
     AssertEqual(samus.Position.Y.Whole, samus.CrystalFlash.RaisedHeight,
         "raised Y capture follows tenth displacement");
     AssertEqual(6, samus.AnimationNumber, "raise transition forces animation frame six");
-    AssertTrue(samus.CrystalFlash.BubbleEffectRequested,
+    AssertTrue(raiseEnd.BubbleStarted,
         "raise transition publishes Crystal Flash HDMA spawn seam");
     AssertSequenceEqual(new[] { new SoundRequest(RoomSound.Silence, SoundRequestPriority.Essential) },
         samus.AudioRequests.SoundRequests.Where(request => request.SoundEffect == RoomSound.Silence),
@@ -300,7 +300,7 @@ internal static void VerifySamusCrystalFlash()
     AssertEqual(0, samus.InvincibilityTimer.RawValue, "Crystal Flash normal-input completion clears hit immunity");
     AssertEqual(CrystalFlashPhase.Inactive, samus.CrystalFlash.Phase,
         "following beta pass restores normal movement handler");
-    AssertTrue(samus.CrystalFlash.BeamShadeRestoreRequested,
+    AssertTrue(samus.CrystalFlash.Colouring == SpecialColouringStage.Ending,
         "cleanup requests normal palette restoration");
     AssertTrue(samus.CrystalFlash.UpdateColouring(crystalColours, samus),
         "Crystal Flash finish restores beam palette");

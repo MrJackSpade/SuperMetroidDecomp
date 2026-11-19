@@ -523,8 +523,7 @@ internal sealed class SamusFramePhases
                 _player.LastCrystalFlashMovement = samus.CrystalFlash.Step(
                     samus,
                     _clock.Counter);
-                if (_player.LastCrystalFlashMovement.Value.PhaseAtStart == CrystalFlashPhase.Raising &&
-                    _player.LastCrystalFlashMovement.Value.BubbleEffectRequested)
+                if (_player.LastCrystalFlashMovement.Value.BubbleStarted)
                 {
                     // Crystal Flash's ending clears its state, copies Samus's raised center into the
                     // shared explosion position, then spawns the Crystal Flash explosion. This movement

@@ -41,7 +41,7 @@ internal static class PoseTransitionSetupVerification
                         bool standUp = pose == SamusPoseId.DraygonHeldBallLeftPose &&
                             transition.ProspectivePose == SamusPoseId.DraygonHeldStandingUpLeftPose;
                         // The messages are built only for a failing transition: the sweep looks up millions of chords.
-                        if (!Enum.IsDefined(transition.Setup) || transition.Setup == SamusPoseTransitionSetup.KeepPose ||
+                        if (transition.Setup is null || transition.Setup == SamusPoseTransitionSetup.KeepPose ||
                             standUp != (transition.Setup == SamusPoseTransitionSetup.StandUpFromDraygonHold))
                         {
                             AssertTrue(false, $"{pose} -> {transition.ProspectivePose} under {held} (newly {Chord(pressedBits)}) names " +

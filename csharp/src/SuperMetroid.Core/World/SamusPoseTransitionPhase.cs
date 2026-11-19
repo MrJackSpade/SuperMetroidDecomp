@@ -440,6 +440,362 @@ internal sealed class SamusPoseTransitionPhase
         return animationTransitionApplied;
     }
 
+    /// <summary>Runs the <see cref="SamusPoseTransitionSetup.StartJump"/> setup.</summary>
+    internal void SetUpStartJump(SamusState samus, SamusPoseId targetPose)
+    {
+        // Every standing turn on the ground, the aimed turns and the moonwalk turns among them, continues taking
+        // the standing pose's input transitions, which can interrupt the art with either same-facing spin or
+        // neutral jump; the landings expose the same standing input transitions while their brief transitions
+        // are active. Preserve newly pressed Shoot as well: the normal-jump setup owns the simultaneous
+        // Jump+Fire bridge when the selected body is SamusMovementType.NormalJumping.
+        SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(samus, targetPose, _playerActions.NewlyPressed);
+    }
+
+    /// <summary>Runs the <see cref="SamusPoseTransitionSetup.JumpFromCrouch"/> setup.</summary>
+    internal void SetUpJumpFromCrouch(SamusState samus, SamusPoseId targetPose, SamusTerrain terrain)
+    {
+        // The crouched aim poses use the ordinary neutral-jump transition
+        // art for every crouched aim direction, keeping the crouching-turn poses' ten-pixel adjustment.
+        SamusPosturePoseTransitions.TryApplyCrouchJumpTransition(samus, terrain.Level, targetPose, _clock.Counter,
+            terrain.RoomObjects);
+    }
+
+    /// <summary>Runs the <see cref="SamusPoseTransitionSetup.StartDamageBoost"/> setup.</summary>
+    internal void SetUpStartDamageBoost(SamusControlFrame frame, SamusState samus, SamusPoseId targetPose)
+    {
+        // The accepted pose restores normal movement while
+        // preserving the hurt arc and remaining timer.
+        SamusKnockbackMovement.ApplyDamageBoostTransition(samus, frame.PoseAtFrameStart, targetPose);
+    }
+
+    /// <summary>Runs the <see cref="SamusPoseTransitionSetup.JumpFromDamageBoost"/> setup.</summary>
+    internal void SetUpJumpFromDamageBoost(SamusState samus, SamusPoseId targetPose)
+    {
+        SamusKnockbackMovement.ApplyDamageBoostPoseTransition(samus, targetPose, _playerActions.NewlyPressed);
+    }
+
+    /// <summary>Runs the <see cref="SamusPoseTransitionSetup.StartMoonwalkTurnJump"/> setup.</summary>
+    internal void SetUpStartMoonwalkTurnJump(SamusState samus, SamusPoseId targetPose)
+    {
+        // The stable moonwalk poses' input transitions select a generic
+        // reversal target. The reversal check validates it against the old
+        // shot direction, folds momentum, and leaves the moonwalk turn-jump poses
+        // grounded until either its input transitions or the turn transition starts the jump.
+        SamusGroundedPoseTransitions.ApplyMoonwalkTurnJump(samus, targetPose);
+    }
+
+    /// <summary>Runs the <see cref="SamusPoseTransitionSetup.ChangeMoonwalkPose"/> setup.</summary>
+    internal void SetUpChangeMoonwalkPose(SamusState samus, SamusPoseId targetPose)
+    {
+        SamusGroundedPoseTransitions.ApplyMoonwalkPoseChange(samus, targetPose, _options.MoonwalkEnabled);
+    }
+
+    /// <summary>Runs the <see cref="SamusPoseTransitionSetup.StartRunning"/> setup.</summary>
+    internal void SetUpStartRunning(SamusState samus, SamusPoseId targetPose)
+    {
+        SamusGroundedPoseTransitions.StartRunning(samus, targetPose);
+    }
+
+    /// <summary>Runs the <see cref="SamusPoseTransitionSetup.ChangeGroundedAim"/> setup.</summary>
+    internal void SetUpChangeGroundedAim(SamusState samus, SamusPoseId targetPose)
+    {
+        SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, targetPose);
+    }
+
+    /// <summary>Runs the <see cref="SamusPoseTransitionSetup.TurnOnGround"/> setup.</summary>
+    internal void SetUpTurnOnGround(SamusState samus, SamusPoseId targetPose)
+    {
+        // Ceres releases controls while the forward-facing pose is still active. Its own input transitions map
+        // Left/Right to generic turning poses; the reversal check recognizes the old front-facing pose, which
+        // faces neither way, and keeps that target.
+        SamusGroundedPoseTransitions.ApplyGroundedTurn(samus, targetPose, _playerActions.Current);
+    }
+
+    /// <summary>Runs the <see cref="SamusPoseTransitionSetup.CrouchOrStand"/> setup.</summary>
+    internal void SetUpCrouchOrStand(SamusState samus, SamusPoseId targetPose, SamusTerrain terrain)
+    {
+        SamusPosturePoseTransitions.TryApplyPostureTransition(samus, terrain.Level, targetPose, _clock.Counter,
+            terrain.RoomObjects);
+    }
+
+    /// <summary>Runs the <see cref="SamusPoseTransitionSetup.StandFromCrouch"/> setup.</summary>
+    internal void SetUpStandFromCrouch(SamusState samus, SamusPoseId targetPose, SamusTerrain terrain)
+    {
+        // These direct facing-normal poses bypass the animated
+        // aimed standing-transition family, but still run pose-expansion
+        // collision before installing the final standing body.
+        SamusPosturePoseTransitions.TryApplyDirectCrouchToStandingTransition(samus, terrain.Level, targetPose,
+            _clock.Counter, terrain.RoomObjects);
+    }
+
+    /// <summary>Runs the <see cref="SamusPoseTransitionSetup.MorphOrUnmorph"/> setup.</summary>
+    internal void SetUpMorphOrUnmorph(SamusState samus, SamusPoseId targetPose, SamusTerrain terrain)
+    {
+        SamusPosturePoseTransitions.TryApplyMorphTransition(samus, terrain.Level, targetPose, _clock.Counter,
+            terrain.RoomObjects);
+    }
+
+    /// <summary>Runs the <see cref="SamusPoseTransitionSetup.ChangeBallPose"/> setup.</summary>
+    internal void SetUpChangeBallPose(SamusState samus, SamusPoseId targetPose)
+    {
+        // These six poses all share one animation.
+        // The setup preserves frame/timer and applies turning
+        // reversal momentum only when direction actually changes.
+        SamusPosturePoseTransitions.ApplyMorphBallPoseChange(samus, targetPose);
+    }
+
+    /// <summary>Runs the <see cref="SamusPoseTransitionSetup.JumpSpringBall"/> setup.</summary>
+    internal void SetUpJumpSpringBall(SamusState samus, SamusPoseId targetPose)
+    {
+        SamusPosturePoseTransitions.ApplySpringBallJump(samus, targetPose);
+    }
+
+    /// <summary>Runs the <see cref="SamusPoseTransitionSetup.FallFromUnmorph"/> setup.</summary>
+    internal void SetUpFallFromUnmorph(SamusState samus, SamusPoseId targetPose, SamusTerrain terrain)
+    {
+        // Route an animation/collision-selected falling body through
+        // ordinary expansion collision while preserving the fall.
+        // Posture transitions read no input transitions:
+        // the posture-transition movement type's input lookup returns at once.
+        SamusPosturePoseTransitions.TryApplyUnmorphToFallingTransition(samus, terrain.Level, targetPose,
+            _clock.Counter, terrain.RoomObjects);
+    }
+
+    /// <summary>Runs the <see cref="SamusPoseTransitionSetup.TurnInAir"/> setup.</summary>
+    internal void SetUpTurnInAir(SamusState samus, SamusPoseId targetPose, SamusTerrain terrain)
+    {
+        // The input transitions select the generic jumping and falling turns. The turn
+        // reads the source pose's shot direction, chooses the exact
+        // aimed aerial turn art when needed, folds momentum, and runs compact
+        // pose-expansion collision before committing the turn.
+        SamusAerialPoseTransitions.TryApplyAerialTurn(samus, terrain.Level, targetPose, _clock.Counter,
+            terrain.RoomObjects);
+    }
+
+    /// <summary>Runs the <see cref="SamusPoseTransitionSetup.ChangeSpinDirection"/> setup.</summary>
+    internal void SetUpChangeSpinDirection(SamusState samus, SamusPoseId targetPose)
+    {
+        SamusAerialPoseTransitions.ApplySpinJumpDirectionTransition(samus, targetPose);
+    }
+
+    /// <summary>Runs the <see cref="SamusPoseTransitionSetup.AimFromSpin"/> setup.</summary>
+    internal void SetUpAimFromSpin(SamusState samus, SamusPoseId targetPose, SamusTerrain terrain)
+    {
+        // Aim and Fire cancel both compact spin and wall-
+        // jump bodies through the same normal-jump setup without
+        // restarting the jump arc. The wall-jump Shot transition, for example, maps Shot
+        // directly from the right wall jump to the right gun-extended normal jump. The jump's start performs
+        // changed-pose collision for every radius expansion; a rejected
+        // body leaves the compact source pose installed.
+        SamusAerialPoseTransitions.TryApplySpinOrWallJumpToNormalJumpTransition(samus, terrain.Level, targetPose,
+            _clock.Counter, _playerActions.NewlyPressed, terrain.RoomObjects);
+    }
+
+    /// <summary>Runs the <see cref="SamusPoseTransitionSetup.ChangeAerialAim"/> setup.</summary>
+    internal void SetUpChangeAerialAim(SamusState samus, SamusPoseId targetPose)
+    {
+        SamusAerialPoseTransitions.ApplySameFacingAerialTransition(samus, targetPose);
+    }
+
+    /// <summary>Runs the <see cref="SamusPoseTransitionSetup.ChangeCompactAerialPose"/> setup.</summary>
+    internal void SetUpChangeCompactAerialPose(SamusState samus, SamusPoseId targetPose, SamusTerrain terrain)
+    {
+        SamusAerialPoseTransitions.TryApplyCompactAerialTransition(samus, terrain.Level, targetPose, _clock.Counter,
+            terrain.RoomObjects);
+    }
+
+    /// <summary>Runs the <see cref="SamusPoseTransitionSetup.AimShinespark"/> setup.</summary>
+    internal void SetUpAimShinespark(SamusState samus, SamusPoseId targetPose)
+    {
+        // These are ordinary held/new input transitions, but
+        // their transition hands her movement to a special owner instead of
+        // invoking a normal movement-type setup.
+        SamusAerialPoseTransitions.ApplyShinesparkDirectionTransition(samus, targetPose);
+    }
+
+    /// <summary>Runs the <see cref="SamusPoseTransitionSetup.ChangeDraygonGrabbedPose"/> setup.</summary>
+    internal void SetUpChangeDraygonGrabbedPose(SamusState samus, SamusPoseId targetPose)
+    {
+        // Both sets of input transitions stay within one facing; the change keeps it and starts the target's
+        // own animation.
+        SamusPoseMetadata.ApplyDraygonGrabbedPoseChange(samus, targetPose);
+    }
+
+    /// <summary>Runs the <see cref="SamusPoseTransitionSetup.StandUpFromDraygonHold"/> setup.</summary>
+    internal void SetUpStandUpFromDraygonHold(SamusState samus, SamusPoseId targetPose, SamusTerrain terrain)
+    {
+        SamusPosturePoseTransitions.TryApplyDraygonHoldStandUp(samus, terrain.Level, targetPose, _clock.Counter,
+            terrain.RoomObjects);
+    }
+
+    /// <summary>Runs the <see cref="SamusNoTransitionSetup.StopKnockback"/> setup.</summary>
+    internal void RespondStopKnockback(SamusState samus, SamusPoseId source, SamusPoseId? fallback)
+    {
+        // The retained hurt pose still stops Samus's momentum.
+        // Reset deceleration and cancel the momentum flag after movement.
+        // Extra speed survives the stop, but the next normal mover
+        // consumes the cancellation through HandleExtraRunSpeed.
+        if (fallback == source)
+        {
+            samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
+            samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
+        }
+    }
+
+    /// <summary>Runs the <see cref="SamusNoTransitionSetup.ReleaseDamageBoost"/> setup.</summary>
+    internal void RespondReleaseDamageBoost(SamusState samus, SamusPoseId source, SamusPoseId? fallback)
+    {
+        // Releasing every boost chord reaches the neutral jump poses:
+        // the same setup as its held-Jump input transition.
+        if (fallback is { } boostFallback && boostFallback != source)
+            SamusKnockbackMovement.ApplyDamageBoostPoseTransition(samus, boostFallback, _playerActions.NewlyPressed);
+    }
+
+    /// <summary>Runs the <see cref="SamusNoTransitionSetup.ReturnToNeutralDraygonHold"/> setup.</summary>
+    internal void RespondReturnToNeutralDraygonHold(SamusState samus, SamusPoseId? fallback)
+    {
+        // Zero input uses the pose's fallback pose, returning aimed/firing/
+        // struggling art to the neutral Draygon-grabbed poses without touching owner placement.
+        if (fallback is { } draygonFallback)
+            SamusPoseMetadata.ApplyDraygonGrabbedPoseChange(samus, draygonFallback);
+    }
+
+    /// <summary>Runs the <see cref="SamusNoTransitionSetup.SpinFromWallJump"/> setup.</summary>
+    internal void RespondSpinFromWallJump(SamusState samus, SamusPoseId? fallback)
+    {
+        // The pose definition leaves the launch animation for ordinary spin
+        // art. The wall-jumping movement type kills Samus's X speed. The pose change
+        // reports a replacement only when the pose's initialization itself replaces the
+        // installed pose; then the pose update skips the kill. So
+        // a spin jump keeps its launch speed only when initialization promotes it
+        // to Space Jump or Screw Attack; otherwise the kill clears base/extra speed.
+        if (fallback is SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose)
+        {
+            SamusPoseId spinFallback = fallback.Value;
+            SamusAerialPoseTransitions.ApplySpinJumpDirectionTransition(samus, spinFallback);
+            if (samus.Pose == spinFallback)
+                samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
+        }
+    }
+
+    /// <summary>Runs the <see cref="SamusNoTransitionSetup.DecelerateFallingBall"/> setup.</summary>
+    internal void RespondDecelerateFallingBall(SamusControlFrame frame, SamusState samus, SamusPoseId source, SamusPoseId? fallback)
+    {
+        if (fallback == source)
+        {
+            samus.HorizontalSpeed.ApplyDeceleratingInputFallback(
+                frame.DeceleratingFallbackHasMomentum, SamusPoseMetadata.ReadFacingDirection(samus));
+        }
+    }
+
+    /// <summary>Runs the <see cref="SamusNoTransitionSetup.StopBall"/> setup.</summary>
+    internal void RespondStopBall(SamusState samus, SamusPoseId source, SamusPoseId? fallback)
+    {
+        // A still ball and Spring Ball in the air or falling kill Samus's X speed: after this frame's movement,
+        // the kill clears mode and base speed and goes on to cancel boost and extra running speed.
+        if (fallback == source)
+            samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
+    }
+
+    /// <summary>Runs the <see cref="SamusNoTransitionSetup.StopRollingBall"/> setup.</summary>
+    internal void RespondStopRollingBall(SamusState samus, SamusPoseId? fallback)
+    {
+        // Killing X speed clears base and extra momentum after the
+        // current movement frame for both grounded ball movement types.
+        if (fallback is { } stillBall)
+        {
+            samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
+            SamusPosturePoseTransitions.ApplyMorphBallPoseChange(samus, stillBall);
+        }
+    }
+
+    /// <summary>Runs the <see cref="SamusNoTransitionSetup.StopRunning"/> setup.</summary>
+    internal void RespondStopRunning(SamusState samus, SamusPoseId source, SamusPoseId? fallback)
+    {
+        if (fallback == source)
+            DecelerateRetainedRun(samus);
+        else if (fallback is not null)
+        {
+            samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
+            SamusGroundedPoseTransitions.ApplyRunningToStanding(samus);
+        }
+    }
+
+    /// <summary>Runs the <see cref="SamusNoTransitionSetup.StopAimedRunning"/> setup.</summary>
+    internal void RespondStopAimedRunning(SamusState samus, SamusPoseId source, SamusPoseId? fallback)
+    {
+        if (fallback == source)
+            DecelerateRetainedRun(samus);
+        else if (fallback is { } standing)
+        {
+            samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
+            SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, standing);
+        }
+    }
+
+    /// <summary>Runs the <see cref="SamusNoTransitionSetup.StopMoonwalk"/> setup.</summary>
+    internal void RespondStopMoonwalk(SamusState samus, SamusPoseId? fallback)
+    {
+        // The stop selected the literal standing/aim fallback during the input phase.
+        // Applying it after movement preserves the one-last-step timing.
+        if (fallback is { } moonwalkFallback)
+            SamusGroundedPoseTransitions.ApplyMoonwalkPoseChange(samus, moonwalkFallback, _options.MoonwalkEnabled);
+    }
+
+    /// <summary>Runs the <see cref="SamusNoTransitionSetup.LowerGroundedAim"/> setup.</summary>
+    internal void RespondLowerGroundedAim(SamusState samus, SamusPoseId? fallback)
+    {
+        // Only the input fallback path above populates this value; the aimed wall stops name the plain wall stops,
+        // which share their radius, animation and cleanup. Validate and apply it through the same
+        // radius/animation seam as held-input aim changes; never assign the authored value directly to Pose.
+        if (fallback is { } aimFallback)
+            SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, aimFallback);
+    }
+
+    /// <summary>Runs the <see cref="SamusNoTransitionSetup.AbandonAimedCrouchingTurn"/> setup.</summary>
+    internal void RespondAbandonAimedCrouchingTurn(SamusControlFrame frame, SamusState samus, SamusPoseId source, SamusPoseId? fallback)
+    {
+        if (frame.UsePoseDefinitionFallback && samus.Pose == source && fallback is { } crouchingTurnFallback)
+            SamusGroundedPoseTransitions.ApplyAimedCrouchingTurnInputFallback(samus, crouchingTurnFallback);
+    }
+
+    /// <summary>Runs the <see cref="SamusNoTransitionSetup.StopTurn"/> setup.</summary>
+    internal void RespondStopTurn(SamusControlFrame frame, SamusState samus, SamusPoseId source)
+    {
+        // A definition without a fallback pose retains the animation, not the momentum
+        // response. The stop still cancels reverse acceleration,
+        // for ground turns exactly as for aerial ones.
+        if (frame.UsePoseDefinitionFallback && samus.Pose == source)
+            SamusGroundedPoseTransitions.ApplyTurnInputFallback(samus, frame.MovementTypeAtFrameStart);
+    }
+
+    /// <summary>Runs the <see cref="SamusNoTransitionSetup.ContinueNormalJump"/> setup.</summary>
+    internal void RespondContinueNormalJump(SamusControlFrame frame, SamusState samus, SamusPoseId? fallback)
+    {
+        // An unchanged prospective pose must not reset animation or invoke
+        // compact-radius expansion. Decelerating still folds momentum after
+        // movement and rechecks the remaining base speed there.
+        if (fallback is { } jumpFallback)
+        {
+            if (jumpFallback != samus.Pose)
+                SamusAerialPoseTransitions.ApplySameFacingAerialTransition(samus, jumpFallback);
+            samus.HorizontalSpeed.ApplyDeceleratingInputFallback(
+                frame.DeceleratingFallbackHasMomentum, SamusPoseMetadata.ReadFacingDirection(samus));
+        }
+    }
+
+    /// <summary>Runs the <see cref="SamusNoTransitionSetup.LowerAerialAim"/> setup.</summary>
+    internal void RespondLowerAerialAim(SamusState samus, SamusPoseId? fallback)
+    {
+        // Install the fallback's pose metadata and setup first.
+        // Falling's run-speed kill, after this response, then clears only the extra component;
+        // it must not be folded into base speed like running deceleration.
+        // A retained compact pose selects history/momentum work only;
+        // pose initialization and animation restart require a change.
+        if (fallback is { } aerialFallback && aerialFallback != samus.Pose)
+            SamusAerialPoseTransitions.ApplySameFacingAerialTransition(samus, aerialFallback);
+    }
+
     /// <summary>
     /// Applies the input transition the input phase selected from the pose's input transitions, through the setup the
     /// transition names. A transition that keeps her pose means "remain in this animation", so nothing is set up.
@@ -447,133 +803,7 @@ internal sealed class SamusPoseTransitionPhase
     private void ApplyInputTransition(SamusControlFrame frame, SamusState samus, SamusPoseTransition inputTransition, SamusTerrain terrain)
     {
         SamusPoseId targetPose = inputTransition.ProspectivePose;
-        switch (inputTransition.Setup)
-        {
-            case SamusPoseTransitionSetup.KeepPose:
-                // Reinitializing frame zero would prevent the turn transition from ever being reached.
-                break;
-            case SamusPoseTransitionSetup.ChangeDraygonGrabbedPose:
-                // Both sets of input transitions stay within one facing; the change keeps it and starts the target's
-                // own animation.
-                SamusPoseMetadata.ApplyDraygonGrabbedPoseChange(samus, targetPose);
-                break;
-            case SamusPoseTransitionSetup.ChangeMoonwalkPose:
-                SamusGroundedPoseTransitions.ApplyMoonwalkPoseChange(samus, targetPose, _options.MoonwalkEnabled);
-                break;
-            case SamusPoseTransitionSetup.StartMoonwalkTurnJump:
-                // The stable moonwalk poses' input transitions select a generic
-                // reversal target. The reversal check validates it against the old
-                // shot direction, folds momentum, and leaves the moonwalk turn-jump poses
-                // grounded until either its input transitions or the turn transition starts the jump.
-                SamusGroundedPoseTransitions.ApplyMoonwalkTurnJump(samus, targetPose);
-                break;
-            case SamusPoseTransitionSetup.StartJump:
-                // Every standing turn on the ground, the aimed turns and the moonwalk turns among them, continues taking
-                // the standing pose's input transitions, which can interrupt the art with either same-facing spin or
-                // neutral jump; the landings expose the same standing input transitions while their brief transitions
-                // are active. Preserve newly pressed Shoot as well: the normal-jump setup owns the simultaneous
-                // Jump+Fire bridge when the selected body is SamusMovementType.NormalJumping.
-                SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(samus, targetPose, _playerActions.NewlyPressed);
-                break;
-            case SamusPoseTransitionSetup.JumpFromCrouch:
-                // The crouched aim poses use the ordinary neutral-jump transition
-                // art for every crouched aim direction, keeping the crouching-turn poses' ten-pixel adjustment.
-                SamusPosturePoseTransitions.TryApplyCrouchJumpTransition(samus, terrain.Level, targetPose, _clock.Counter,
-                    terrain.RoomObjects);
-                break;
-            case SamusPoseTransitionSetup.StartDamageBoost:
-                // The accepted pose restores normal movement while
-                // preserving the hurt arc and remaining timer.
-                SamusKnockbackMovement.ApplyDamageBoostTransition(samus, frame.PoseAtFrameStart, targetPose);
-                break;
-            case SamusPoseTransitionSetup.JumpFromDamageBoost:
-                SamusKnockbackMovement.ApplyDamageBoostPoseTransition(samus, targetPose, _playerActions.NewlyPressed);
-                break;
-            case SamusPoseTransitionSetup.StartRunning:
-                SamusGroundedPoseTransitions.StartRunning(samus, targetPose);
-                break;
-            case SamusPoseTransitionSetup.ChangeGroundedAim:
-                SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, targetPose);
-                break;
-            case SamusPoseTransitionSetup.TurnOnGround:
-                // Ceres releases controls while the forward-facing pose is still active. Its own input transitions map
-                // Left/Right to generic turning poses; the reversal check recognizes the old front-facing pose, which
-                // faces neither way, and keeps that target.
-                SamusGroundedPoseTransitions.ApplyGroundedTurn(samus, targetPose, _playerActions.Current);
-                break;
-            case SamusPoseTransitionSetup.CrouchOrStand:
-                SamusPosturePoseTransitions.TryApplyPostureTransition(samus, terrain.Level, targetPose, _clock.Counter,
-                    terrain.RoomObjects);
-                break;
-            case SamusPoseTransitionSetup.StandFromCrouch:
-                // These direct facing-normal poses bypass the animated
-                // aimed standing-transition family, but still run pose-expansion
-                // collision before installing the final standing body.
-                SamusPosturePoseTransitions.TryApplyDirectCrouchToStandingTransition(samus, terrain.Level, targetPose,
-                    _clock.Counter, terrain.RoomObjects);
-                break;
-            case SamusPoseTransitionSetup.MorphOrUnmorph:
-                SamusPosturePoseTransitions.TryApplyMorphTransition(samus, terrain.Level, targetPose, _clock.Counter,
-                    terrain.RoomObjects);
-                break;
-            case SamusPoseTransitionSetup.ChangeBallPose:
-                // These six poses all share one animation.
-                // The setup preserves frame/timer and applies turning
-                // reversal momentum only when direction actually changes.
-                SamusPosturePoseTransitions.ApplyMorphBallPoseChange(samus, targetPose);
-                break;
-            case SamusPoseTransitionSetup.JumpSpringBall:
-                SamusPosturePoseTransitions.ApplySpringBallJump(samus, targetPose);
-                break;
-            case SamusPoseTransitionSetup.FallFromUnmorph:
-                // Route an animation/collision-selected falling body through
-                // ordinary expansion collision while preserving the fall.
-                // Posture transitions read no input transitions:
-                // the posture-transition movement type's input lookup returns at once.
-                SamusPosturePoseTransitions.TryApplyUnmorphToFallingTransition(samus, terrain.Level, targetPose,
-                    _clock.Counter, terrain.RoomObjects);
-                break;
-            case SamusPoseTransitionSetup.TurnInAir:
-                // The input transitions select the generic jumping and falling turns. The turn
-                // reads the source pose's shot direction, chooses the exact
-                // aimed aerial turn art when needed, folds momentum, and runs compact
-                // pose-expansion collision before committing the turn.
-                SamusAerialPoseTransitions.TryApplyAerialTurn(samus, terrain.Level, targetPose, _clock.Counter,
-                    terrain.RoomObjects);
-                break;
-            case SamusPoseTransitionSetup.ChangeSpinDirection:
-                SamusAerialPoseTransitions.ApplySpinJumpDirectionTransition(samus, targetPose);
-                break;
-            case SamusPoseTransitionSetup.AimFromSpin:
-                // Aim and Fire cancel both compact spin and wall-
-                // jump bodies through the same normal-jump setup without
-                // restarting the jump arc. The wall-jump Shot transition, for example, maps Shot
-                // directly from the right wall jump to the right gun-extended normal jump. The jump's start performs
-                // changed-pose collision for every radius expansion; a rejected
-                // body leaves the compact source pose installed.
-                SamusAerialPoseTransitions.TryApplySpinOrWallJumpToNormalJumpTransition(samus, terrain.Level, targetPose,
-                    _clock.Counter, _playerActions.NewlyPressed, terrain.RoomObjects);
-                break;
-            case SamusPoseTransitionSetup.ChangeAerialAim:
-                SamusAerialPoseTransitions.ApplySameFacingAerialTransition(samus, targetPose);
-                break;
-            case SamusPoseTransitionSetup.ChangeCompactAerialPose:
-                SamusAerialPoseTransitions.TryApplyCompactAerialTransition(samus, terrain.Level, targetPose, _clock.Counter,
-                    terrain.RoomObjects);
-                break;
-            case SamusPoseTransitionSetup.AimShinespark:
-                // These are ordinary held/new input transitions, but
-                // their transition hands her movement to a special owner instead of
-                // invoking a normal movement-type setup.
-                SamusAerialPoseTransitions.ApplyShinesparkDirectionTransition(samus, targetPose);
-                break;
-            case SamusPoseTransitionSetup.StandUpFromDraygonHold:
-                SamusPosturePoseTransitions.TryApplyDraygonHoldStandUp(samus, terrain.Level, targetPose, _clock.Counter,
-                    terrain.RoomObjects);
-                break;
-            default:
-                throw new InvalidDataException($"Undefined {nameof(SamusPoseTransitionSetup)} for input transition {frame.PoseAtFrameStart} -> {targetPose}.");
-        }
+        inputTransition.Setup.Apply(this, frame, samus, targetPose, terrain);
     }
 
     /// <summary>
@@ -585,136 +815,7 @@ internal sealed class SamusPoseTransitionPhase
     {
         SamusPoseId source = frame.PoseAtFrameStart;
         SamusPoseId? fallback = _player.ProspectiveSamusFallbackPose;
-        switch (SamusNoTransitionSetups.For(source, frame.MovementTypeAtFrameStart))
-        {
-            case SamusNoTransitionSetup.None:
-                break;
-            case SamusNoTransitionSetup.StopKnockback:
-                // The retained hurt pose still stops Samus's momentum.
-                // Reset deceleration and cancel the momentum flag after movement.
-                // Extra speed survives the stop, but the next normal mover
-                // consumes the cancellation through HandleExtraRunSpeed.
-                if (fallback == source)
-                {
-                    samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
-                    samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
-                }
-                break;
-            case SamusNoTransitionSetup.ReleaseDamageBoost:
-                // Releasing every boost chord reaches the neutral jump poses:
-                // the same setup as its held-Jump input transition.
-                if (fallback is { } boostFallback && boostFallback != source)
-                    SamusKnockbackMovement.ApplyDamageBoostPoseTransition(samus, boostFallback, _playerActions.NewlyPressed);
-                break;
-            case SamusNoTransitionSetup.ReturnToNeutralDraygonHold:
-                // Zero input uses the pose's fallback pose, returning aimed/firing/
-                // struggling art to the neutral Draygon-grabbed poses without touching owner placement.
-                if (fallback is { } draygonFallback)
-                    SamusPoseMetadata.ApplyDraygonGrabbedPoseChange(samus, draygonFallback);
-                break;
-            case SamusNoTransitionSetup.SpinFromWallJump:
-                // The pose definition leaves the launch animation for ordinary spin
-                // art. The wall-jumping movement type kills Samus's X speed. The pose change
-                // reports a replacement only when the pose's initialization itself replaces the
-                // installed pose; then the pose update skips the kill. So
-                // a spin jump keeps its launch speed only when initialization promotes it
-                // to Space Jump or Screw Attack; otherwise the kill clears base/extra speed.
-                if (fallback is SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose)
-                {
-                    SamusPoseId spinFallback = fallback.Value;
-                    SamusAerialPoseTransitions.ApplySpinJumpDirectionTransition(samus, spinFallback);
-                    if (samus.Pose == spinFallback)
-                        samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
-                }
-                break;
-            case SamusNoTransitionSetup.DecelerateFallingBall:
-                if (fallback == source)
-                {
-                    samus.HorizontalSpeed.ApplyDeceleratingInputFallback(
-                        frame.DeceleratingFallbackHasMomentum, SamusPoseMetadata.ReadFacingDirection(samus));
-                }
-                break;
-            case SamusNoTransitionSetup.StopBall:
-                // A still ball and Spring Ball in the air or falling kill Samus's X speed: after this frame's movement,
-                // the kill clears mode and base speed and goes on to cancel boost and extra running speed.
-                if (fallback == source)
-                    samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
-                break;
-            case SamusNoTransitionSetup.StopRollingBall:
-                // Killing X speed clears base and extra momentum after the
-                // current movement frame for both grounded ball movement types.
-                if (fallback is { } stillBall)
-                {
-                    samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
-                    SamusPosturePoseTransitions.ApplyMorphBallPoseChange(samus, stillBall);
-                }
-                break;
-            case SamusNoTransitionSetup.StopRunning:
-                if (fallback == source)
-                    DecelerateRetainedRun(samus);
-                else if (fallback is not null)
-                {
-                    samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
-                    SamusGroundedPoseTransitions.ApplyRunningToStanding(samus);
-                }
-                break;
-            case SamusNoTransitionSetup.StopAimedRunning:
-                if (fallback == source)
-                    DecelerateRetainedRun(samus);
-                else if (fallback is { } standing)
-                {
-                    samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
-                    SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, standing);
-                }
-                break;
-            case SamusNoTransitionSetup.StopMoonwalk:
-                // The stop selected the literal standing/aim fallback during the input phase.
-                // Applying it after movement preserves the one-last-step timing.
-                if (fallback is { } moonwalkFallback)
-                    SamusGroundedPoseTransitions.ApplyMoonwalkPoseChange(samus, moonwalkFallback, _options.MoonwalkEnabled);
-                break;
-            case SamusNoTransitionSetup.LowerGroundedAim:
-                // Only the input fallback path above populates this value; the aimed wall stops name the plain wall stops,
-                // which share their radius, animation and cleanup. Validate and apply it through the same
-                // radius/animation seam as held-input aim changes; never assign the authored value directly to Pose.
-                if (fallback is { } aimFallback)
-                    SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, aimFallback);
-                break;
-            case SamusNoTransitionSetup.AbandonAimedCrouchingTurn:
-                if (frame.UsePoseDefinitionFallback && samus.Pose == source && fallback is { } crouchingTurnFallback)
-                    SamusGroundedPoseTransitions.ApplyAimedCrouchingTurnInputFallback(samus, crouchingTurnFallback);
-                break;
-            case SamusNoTransitionSetup.StopTurn:
-                // A definition without a fallback pose retains the animation, not the momentum
-                // response. The stop still cancels reverse acceleration,
-                // for ground turns exactly as for aerial ones.
-                if (frame.UsePoseDefinitionFallback && samus.Pose == source)
-                    SamusGroundedPoseTransitions.ApplyTurnInputFallback(samus, frame.MovementTypeAtFrameStart);
-                break;
-            case SamusNoTransitionSetup.ContinueNormalJump:
-                // An unchanged prospective pose must not reset animation or invoke
-                // compact-radius expansion. Decelerating still folds momentum after
-                // movement and rechecks the remaining base speed there.
-                if (fallback is { } jumpFallback)
-                {
-                    if (jumpFallback != samus.Pose)
-                        SamusAerialPoseTransitions.ApplySameFacingAerialTransition(samus, jumpFallback);
-                    samus.HorizontalSpeed.ApplyDeceleratingInputFallback(
-                        frame.DeceleratingFallbackHasMomentum, SamusPoseMetadata.ReadFacingDirection(samus));
-                }
-                break;
-            case SamusNoTransitionSetup.LowerAerialAim:
-                // Install the fallback's pose metadata and setup first.
-                // Falling's run-speed kill, after this response, then clears only the extra component;
-                // it must not be folded into base speed like running deceleration.
-                // A retained compact pose selects history/momentum work only;
-                // pose initialization and animation restart require a change.
-                if (fallback is { } aerialFallback && aerialFallback != samus.Pose)
-                    SamusAerialPoseTransitions.ApplySameFacingAerialTransition(samus, aerialFallback);
-                break;
-            default:
-                throw new InvalidDataException($"Undefined {nameof(SamusNoTransitionSetup)} for pose {source}.");
-        }
+        SamusNoTransitionSetups.For(source, frame.MovementTypeAtFrameStart).Apply(this, frame, samus, source, fallback);
     }
 
     /// <summary>

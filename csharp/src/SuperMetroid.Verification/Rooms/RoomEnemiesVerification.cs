@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.AssetExtraction.Enemies;

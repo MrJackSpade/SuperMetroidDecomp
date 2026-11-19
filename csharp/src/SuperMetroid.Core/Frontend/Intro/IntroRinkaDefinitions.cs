@@ -28,8 +28,7 @@ internal static class IntroRinkaDefinitions
 
     /// <summary>
     /// The flashback's launches, in turn (#2561): the striking pair on the 75th update of the flashback's Rinka scene, then
-    /// the missing pair 128 updates later. The original timed them with an invisible spawner object whose blank frame held
-    /// 74 updates from its first update, then 128.
+    /// the missing pair 128 updates later (#2561).
     /// </summary>
     internal static IReadOnlyList<IntroRinkaLaunchWave> Launches { get; } =
     [

@@ -301,7 +301,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             deadSidehopperRecord.Action = CorpsesNativeWords.DeadSidehopperActions.Decode(words.A, "recorded DeadSidehopperAction");
             deadSidehopperRecord.PreRotDelay = UpdateCountdownAccess.AtAge(CorpseRotScheduleDefinitions.PreRotDelayUpdates,
-                Math.Min(words.B, CorpseRotScheduleDefinitions.PreRotDelayUpdates));
+                Math.Min((int)words.B, CorpseRotScheduleDefinitions.PreRotDelayUpdates));
             deadSidehopperRecord.PostLandingPause = TrueWait(words.F);
         }
         if (enemy.SpeciesState<BotwoonEnemyState>() is { } botwoonRecord)
@@ -512,19 +512,12 @@ internal static class NativeEnemyFamilyStateImport
             owtchRecord.Behavior = OwtchNativeWords.Behaviors.Decode(words.E, "recorded OwtchBehaviorState");
             // The sink depth is the sink's age while sinking and the rise's updates left while rising; underground the Owtch
             // is wholly buried, and walking it is not buried at all.
-            switch (owtchRecord.Behavior)
-            {
-                case OwtchBehaviorState.Sinking:
-                    owtchRecord.Sink = UpdateCountdownAccess.AtAge(OwtchMovementDefinitions.MaximumBurialDepth, words.F);
-                    break;
-                case OwtchBehaviorState.Rising:
-                    owtchRecord.Rise = UpdateCountdown.For(words.F);
-                    break;
-                case OwtchBehaviorState.Underground when words.F != OwtchMovementDefinitions.MaximumBurialDepth:
-                    throw new InvalidDataException($"Recorded underground Owtch sink depth {words.F} is not a whole burial.");
-                default:
-                    break;
-            }
+            if (owtchRecord.Behavior == OwtchBehaviorState.Sinking)
+                owtchRecord.Sink = UpdateCountdownAccess.AtAge(OwtchMovementDefinitions.MaximumBurialDepth, words.F);
+            else if (owtchRecord.Behavior == OwtchBehaviorState.Rising)
+                owtchRecord.Rise = UpdateCountdown.For(words.F);
+            else if (owtchRecord.Behavior == OwtchBehaviorState.Underground && words.F != OwtchMovementDefinitions.MaximumBurialDepth)
+                throw new InvalidDataException($"Recorded underground Owtch sink depth {words.F} is not a whole burial.");
         }
         if (enemy.SpeciesState<BullEnemyState>() is { } bullRecord)
         {
@@ -981,7 +974,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             corpse.Phase = DeadTourianCorpsePhaseOf(corpse.Species, words.A);
             corpse.PreRotDelay = UpdateCountdownAccess.AtAge(CorpseRotScheduleDefinitions.PreRotDelayUpdates,
-                Math.Min(words.B, CorpseRotScheduleDefinitions.PreRotDelayUpdates));
+                Math.Min((int)words.B, CorpseRotScheduleDefinitions.PreRotDelayUpdates));
         }
         if (enemies.RioStates[index] is { } rio)
         {
@@ -1036,7 +1029,7 @@ internal static class NativeEnemyFamilyStateImport
             switch (fly.Action)
             {
                 case FlyAction.AttackSamus:
-                    fly.DiveUpdates = unchecked((short)words.A);
+                    PrivateState.Set(fly.Dive, nameof(ElapsedUpdates.Age), (int)unchecked((short)words.A));
                     break;
                 case FlyAction.Retreat:
                     fly.RetreatUpdatesLeft = TrueWait(words.A);

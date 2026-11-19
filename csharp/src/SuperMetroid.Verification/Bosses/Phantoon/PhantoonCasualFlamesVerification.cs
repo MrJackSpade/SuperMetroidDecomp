@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonSoundDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Phantoon;

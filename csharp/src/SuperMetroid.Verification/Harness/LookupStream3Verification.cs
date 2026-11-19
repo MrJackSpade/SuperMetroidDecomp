@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Menus;
 using System.Collections.Immutable;
@@ -1083,7 +1084,7 @@ internal static class LookupStream3Verification
             // As the stagger's setup does before each walk: the stage selects its speed.
             sequence.DrainedByBaby.PainfulWalkingSpeed = stages[stage].Speed;
             sequence.DrainedByBaby.StepPainfulWalking();
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9c049 + 2 * stage) - 1, sequence.DrainedByBaby.PainfulWalkingPause?.Count,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9c049 + 2 * stage) - 1, sequence.DrainedByBaby.PainfulWalkingPause?.CartridgeCount,
                 "stream 3 real stagger pause after each stage's walk");
         }
     }

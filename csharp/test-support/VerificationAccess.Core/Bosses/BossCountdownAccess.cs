@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 namespace SuperMetroid.Core.Bosses;
 
 /// <summary>Verification access to the boss countdowns' waits, which production starts only with a duration.</summary>
@@ -16,7 +17,7 @@ internal static class BossCountdownAccess
         internal int CartridgeCount => self.UpdatesLeft - 1;
 
         /// <summary>
-        /// Places the countdown at the count the cartridge holds for it (<see cref="CartridgeCount"/>): a count below zero
+        /// Places the countdown at the count the cartridge holds for it, one less than its updates left: a count below zero
         /// has run out.
         /// </summary>
         internal void SetCartridgeCount(int count) => self.SetUpdatesLeft(Math.Max(0, count + 1));

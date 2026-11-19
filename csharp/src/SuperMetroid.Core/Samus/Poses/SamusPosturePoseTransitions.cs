@@ -323,7 +323,7 @@ internal static class SamusPosturePoseTransitions
 
             // This is the bomb-spread charge timeout, not the arm-cannon flare counter. Bomb-spread charging is
             // invalid once the body has entered either ordinary or Spring Ball form.
-            samus.BombSpreadCharge = UpdateCountdown.Lasting(MorphBallBombDefinitions.DownChargeTimeoutUpdates);
+            samus.BombSpreadCharge = UpdateCountdown.Lasting(Projectiles.MorphBallBombDefinitions.DownChargeTimeoutUpdates);
 
             // The posture change also cancels any bounce before starting the transition; an ordinary crouch has none
             // to cancel.

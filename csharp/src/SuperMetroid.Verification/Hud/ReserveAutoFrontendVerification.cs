@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Drawing;
@@ -176,7 +177,7 @@ internal static class ReserveAutoFrontendVerification
         var ship = runtime.Enemies.Places.InUpdateOrder[0];
         GunshipState shipPart = GunshipState.Of(ship);
         shipPart.Phase = GunshipPhase.WaitForEntranceToOpen;
-        shipPart.PhaseTimer = 100;
+        shipPart.PhaseTimer = UpdateCountdown.For(100);
         (samus ?? throw new InvalidOperationException("Verification requires samus.")).HealthWarning.Update(99, runtime.AudioRequests);
         samus.Health = 30; samus.Control.EnterGunship();
         audio.Reset();

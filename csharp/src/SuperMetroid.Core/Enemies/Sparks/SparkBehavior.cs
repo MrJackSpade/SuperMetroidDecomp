@@ -101,7 +101,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Counts one update of the Spark's wait: whether it ends on this update, which every caller follows with a new wait.</summary>
+    /// <summary>Counts one update of the Spark's wait: whether it ends on this update, which every action follows with a new wait.</summary>
     /// <exception cref="InvalidOperationException">The wait is already over: a counting Spark's base time is zero.</exception>
     internal static bool DecrementSparkTimerAndTestExpired(SparkEnemyState state) => state.ActionTimer.Count();
 

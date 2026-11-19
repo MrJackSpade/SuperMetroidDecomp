@@ -10,8 +10,8 @@ public sealed class FlyEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<FlySegment> Playback { get; set; }
 
-    /// <summary>How many updates the fly's dive has lasted (#2369), counted from the update it starts on.</summary>
-    public int DiveUpdates { get; internal set; }
+    /// <summary>The updates the fly's dive has lasted (#2369), counted from the update it starts on.</summary>
+    public ElapsedUpdates Dive { get; } = new();
 
     /// <summary>
     /// The retreat (#2369): its dive's updates and <see cref="FlyMotionDefinitions.RetreatBeyondDive"/> more, the last the

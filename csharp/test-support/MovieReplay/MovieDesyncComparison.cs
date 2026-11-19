@@ -1,4 +1,5 @@
 using SuperMetroid.Diagnostics.Input;
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.Core.Frontend.Options;

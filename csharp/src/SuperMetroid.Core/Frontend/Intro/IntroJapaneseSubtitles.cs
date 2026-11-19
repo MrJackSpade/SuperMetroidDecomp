@@ -41,7 +41,7 @@ internal sealed class IntroJapaneseSubtitles
     /// True on the one update the input wait's hold has counted its first update: the second subtitle showed on the update
     /// before. The next-page arrow hides for the hold from then (#1655).
     /// </summary>
-    public bool HoldFirstCounted => inputWaitHold.Age == 1;
+    public bool HoldFirstCounted => inputWaitHold.HasCountedOnlyItsFirst;
 
     /// <summary>Begins <paramref name="page"/>'s text: Japanese text shows the page's first subtitle.</summary>
     public void BeginPage(IntroNarrationPageId page)

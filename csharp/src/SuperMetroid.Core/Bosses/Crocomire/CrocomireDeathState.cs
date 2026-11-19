@@ -94,7 +94,7 @@ public sealed class CrocomireDeathState
     public int RumbleYOffset { get; internal set; }
 
     /// <summary>The swings left in the current rumble oscillation after the one under way; it stops at zero.</summary>
-    public int RumbleRepeatsLeft { get; internal set; }
+    public UpdateCountdown RumbleRepeatsLeft { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// The skeleton's wait before it falls once it has broken through the wall (#2463): the break-through starts it to last

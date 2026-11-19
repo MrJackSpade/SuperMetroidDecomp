@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

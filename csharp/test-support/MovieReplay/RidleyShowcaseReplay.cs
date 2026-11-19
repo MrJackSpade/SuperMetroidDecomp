@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.TestSupport.Assertions;
 using static SuperMetroid.TestSupport.MovieReplay.RidleySamusDrawReference;
@@ -599,7 +600,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check("Ridley TailDamage", checked((ushort)ridleyState.Tail.Damage), NativeSnapshotMemory.RidleyTailDamage);
                 Check("Ridley FeetDistanceIndex", checked((ushort)RidleyClawHeightPlaces.ByteOffset(ridleyState.Flight.ClawHeight)), NativeSnapshotMemory.RidleyFeetDistanceIndex);
                 // The cartridge counts the release's intangibility down to zero, one above what the countdown holds, and holds zero while none runs.
-                Check("Ridley IntangibilityTimer", ridleyState.ReleaseIntangibility is { } intangibility ? checked((ushort)(intangibility.Count + 1)) : (ushort)0, NativeSnapshotMemory.RidleyIntangibilityTimer);
+                Check("Ridley IntangibilityTimer", ridleyState.ReleaseIntangibility is { } intangibility ? checked((ushort)intangibility.UpdatesLeft) : (ushort)0, NativeSnapshotMemory.RidleyIntangibilityTimer);
                 if (ridleyState.LiftedOff && ridleyState.Phase is NorfairRidleyPhase.SwoopMoveToStart or
                     NorfairRidleyPhase.SwoopAimDown or NorfairRidleyPhase.SwoopAimSideways or
                     NorfairRidleyPhase.SwoopAimUp or NorfairRidleyPhase.SwoopClimb or NorfairRidleyPhase.SwoopRecover)

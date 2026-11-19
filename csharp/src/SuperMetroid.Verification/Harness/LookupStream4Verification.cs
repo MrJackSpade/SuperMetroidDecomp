@@ -1249,7 +1249,7 @@ internal static class LookupStream4Verification
             var state = new NorfairRidleyState { GrabState = RidleyGrabState.CarryingSamus, Tail = { WhipRequested = false, Action = RidleyTailAction.Pogo }, ReleaseIntangibility = BossCountdown.Lasting(99) };
             release(state, samus);
             // The release's intangibility lasts its frames: the countdown runs out on the step of the last.
-            AssertEqual((flags & 0x40) != 0 ? morphedFrames - 1 : ordinaryFrames - 1, state.ReleaseIntangibility?.Count, "Actual release preserves native movement-dependent intangibility");
+            AssertEqual((flags & 0x40) != 0 ? morphedFrames - 1 : ordinaryFrames - 1, state.ReleaseIntangibility?.CartridgeCount, "Actual release preserves native movement-dependent intangibility");
             AssertEqual(RidleyGrabState.Released, state.GrabState, "Actual release clears grab");
             AssertTrue(state.Tail.WhipRequested, "Actual release requests tail whip");
             AssertEqual(RidleyTailAction.Neutral, state.Tail.Action, "Actual release resets tail controller");
@@ -1855,7 +1855,7 @@ internal static class LookupStream4Verification
                     for (int shade = 0; shade < 4; shade++) AssertEqual(Pack(document.HealthBands[band][shade]), cgram.Colors[89 + shade], "Actual health producer shows the band's colours");
                     PictureShading heldBand = DraygonRoomShading(state.Colours); update(state);
                     AssertEqual(heldBand, DraygonRoomShading(state.Colours), "Same health band keeps the shading it shows");
-                    body.HurtFlash.Restart(2; hurt(body,state,SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus()); LayDraygonShading(cgram, selected, state.Colours));
+                    body.HurtFlash.Restart(2); hurt(body,state,SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus()); LayDraygonShading(cgram, selected, state.Colours);
                     for (int color = 0; color < 16; color++) AssertEqual(Pack(document.WhiteFlash[color]),cgram.Colors[80 + color],"Actual white hurt phase");
                     body.HurtFlash.End(); hurt(body,state,SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus()); LayDraygonShading(cgram, selected, state.Colours);
                     for (int color = 0; color < 16; color++)

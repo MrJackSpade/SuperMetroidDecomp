@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Bosses.Crocomire;

@@ -1,3 +1,5 @@
+using SuperMetroid.Core;
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Input;

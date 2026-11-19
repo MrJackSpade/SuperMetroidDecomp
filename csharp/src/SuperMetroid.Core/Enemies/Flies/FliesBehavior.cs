@@ -110,7 +110,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
             new(samus.Position.X.Whole - place.Position.X.Whole, CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole))).ToMirroredTrigonometryAngle();
         state.Velocity = DiveVelocity(angle);
         state.TargetY = samus.Position.Y.Whole;
-        state.DiveUpdates = 0;
+        state.Dive.Restart();
         state.Action = FlyAction.AttackSamus;
     }
 
@@ -118,7 +118,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RunFlyAttack(RoomEnemyPlace place, FlyEnemyState state)
     {
         MoveFlyAccordingToVelocities(place, state);
-        state.DiveUpdates++;
+        state.Dive.Count();
 
         bool crossedTarget = state.Velocity.Y.IsNegative
             ? place.Position.Y.Whole < state.TargetY
@@ -127,7 +127,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.Velocity = state.Velocity.ReversedY();
-        state.RetreatUpdatesLeft = UpdateCountdown.For(state.DiveUpdates + FlyMotionDefinitions.RetreatBeyondDive);
+        state.RetreatUpdatesLeft = UpdateCountdown.For(state.Dive.Age + FlyMotionDefinitions.RetreatBeyondDive);
         state.Action = FlyAction.Retreat;
     }
 

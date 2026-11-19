@@ -30,7 +30,7 @@ internal sealed class DraygonIntro
         _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
         if (state.IntroStage.IsRunning)
         {
-            if (state.IntroStage.Age == 0)
+            if (state.IntroStage.IsUncounted)
             {
                 // Each Evir the dance spawns carries its own start delay, by the order it spawned in; the dance moves
                 // exactly these.

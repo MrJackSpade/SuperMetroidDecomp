@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -62,7 +63,7 @@ internal static class CrocomirePresentation1193Verification
             boss.RumbleOscillation = 0;
             boss.RumbleTowardExtreme = true;
             (death ?? throw new InvalidOperationException("Verification requires death.")).RumbleYOffset = 0;
-            death.RumbleRepeatsLeft = 10;
+            death.RumbleRepeatsLeft = UpdateCountdown.For(10);
         }
         int[] sources = [0x879d84, 0x879e04, 0x879e84, 0x879e04, 0x879d84];
         int sourceIndex = 0;

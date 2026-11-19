@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.TestSupport.SamusNativeCodecs;
 using SuperMetroid.TestSupport.MovieReplay;
 using System.Globalization;

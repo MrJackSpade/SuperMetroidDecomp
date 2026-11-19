@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Collections.Frozen;
 using System.Collections.Immutable;

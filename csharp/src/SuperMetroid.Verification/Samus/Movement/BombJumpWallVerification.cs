@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

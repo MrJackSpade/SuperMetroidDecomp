@@ -5,8 +5,8 @@ namespace SuperMetroid.Core;
 /// owner that waits counts it once on each of its updates and reads from it whether it is over, its age or the updates it
 /// has left. A wait of <c>n</c> updates is over on its <c>n</c>th count; a wait that is over stays over until it is
 /// restarted. Every wait of the game is one of these or an animation segment, apart from the boss fights' own
-/// (<see cref="Bosses.BossCountdown"/>, <see cref="Bosses.HeldBossCountdown"/>) and the timers whose sixteen-bit wrap
-/// the game shows (<see cref="Compatibility.WrappingCountdown"/>).
+/// (<see cref="Bosses.BossCountdown"/>, <see cref="Bosses.HeldBossCountdown"/>) and the timers whose wrap past zero the
+/// game shows (<see cref="Compatibility.WrappingCountdown"/>).
 /// </summary>
 /// <remarks>
 /// Three ways of counting cover what owners do once the wait is over: <see cref="Count"/> for an owner that never counts
@@ -32,6 +32,12 @@ public sealed class UpdateCountdown
 
     /// <summary>The updates the wait has counted so far, from none at its start to <see cref="Length"/> once it is over.</summary>
     public int Age => Length - UpdatesLeft;
+
+    /// <summary>Whether the wait has counted none of its updates yet.</summary>
+    public bool IsUncounted => UpdatesLeft == Length;
+
+    /// <summary>Whether the wait has counted its first update and no other.</summary>
+    public bool HasCountedOnlyItsFirst => Length != 0 && UpdatesLeft == Length - 1;
 
     /// <summary>Whether the wait has counted every one of its updates.</summary>
     public bool IsOver => UpdatesLeft == 0;

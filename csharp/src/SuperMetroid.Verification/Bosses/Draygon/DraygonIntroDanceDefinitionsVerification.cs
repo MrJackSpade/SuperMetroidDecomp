@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies.EffectActors;

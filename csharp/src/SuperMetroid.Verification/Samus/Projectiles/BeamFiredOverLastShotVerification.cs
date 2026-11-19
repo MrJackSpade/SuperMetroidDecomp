@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Input;

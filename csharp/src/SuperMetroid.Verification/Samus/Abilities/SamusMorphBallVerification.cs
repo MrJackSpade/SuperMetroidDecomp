@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Bosses;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Verification.Rooms.RoomObjects;
@@ -128,7 +130,7 @@ floor, SamusPoseId.MorphingTransitionRightPose, frameCounter: 0, roomObjects: Sa
         Pose = SamusPoseId.FallingAimDownLeftPose,
         EquippedItems = SamusEquipmentFlags.MorphBall,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 40)),
-        BombSpreadChargeTimeoutCounter = 52,
+        BombSpreadCharge = UpdateCountdownAccess.AtAge(SuperMetroid.Core.Samus.Projectiles.MorphBallBombDefinitions.DownChargeTimeoutUpdates, 52),
     }.WithBeamChargeCount(0x003c);
     SamusPoseMetadata.RefreshCollisionRadii(fallingMorph);
     fallingMorph.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
@@ -835,7 +837,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
         Pose = SamusPoseId.MorphBallGroundRightPose,
         EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
         Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)),
-        BombSpreadChargeTimeoutCounter = 0x00bf,
+        BombSpreadCharge = UpdateCountdownAccess.AtAge(SuperMetroid.Core.Samus.Projectiles.MorphBallBombDefinitions.DownChargeTimeoutUpdates, 0x00bf),
     }.WithBeamChargeCount(BeamChargeDefinitions.FullyChargedCounter);
     SamusPoseMetadata.RefreshCollisionRadii(timeoutSamus);
     var timeoutBombs = CreateBombFixture();

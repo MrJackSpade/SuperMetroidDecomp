@@ -135,7 +135,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         controller.Latch(controllerInput);
         ControllerButton pressed = controller.NewlyPressed;
         // The selection missile animates from the black hold's second update on.
-        if (Phase != GameOptionsPhase.BlackHold || blackHold.Age > 0)
+        if (Phase != GameOptionsPhase.BlackHold || !blackHold.IsUncounted)
             missile.Step();
 
         switch (Phase)

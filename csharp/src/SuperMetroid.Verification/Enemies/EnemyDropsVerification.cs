@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Audio;
 using static SuperMetroid.Verification.Enemies.Deaths.EnemyDeathProjectilePrograms;

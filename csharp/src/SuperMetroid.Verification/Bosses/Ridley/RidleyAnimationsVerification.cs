@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.TestSupport.MovieReplay.RidleyNativeListAddresses;

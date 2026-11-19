@@ -82,14 +82,14 @@ public sealed class SamusParticle
     internal static int UpdatesUntilFinished(SamusParticleKind kind, AnimationPlace from, SamusParticleStart start)
     {
         var particle = new SamusParticle(kind, from, start, default, Offset16<RoomPixels>.Zero);
-        int updates = 0;
+        var shown = new ElapsedUpdates();
         do
         {
             particle.Advance();
-            updates++;
+            shown.Count();
         }
         while (!particle.IsFinished);
-        return updates;
+        return shown.Age;
     }
 
     /// <summary>

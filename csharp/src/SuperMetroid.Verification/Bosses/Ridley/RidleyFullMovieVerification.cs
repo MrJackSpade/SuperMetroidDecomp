@@ -481,13 +481,13 @@ internal static class RidleyFullMovieVerification
         // Original source 3062/3063: pre-movement Y253 is outside camera Y287.
         RidleyInteractions.UpdateNorfairRidleyIntangibility(body, state, new Position16<RoomPixels>(0, 287));
         AssertTrue(body.Contact.HasAny(EnemyContact.IgnoresSamus), "native above-camera Ridley disables collision");
-        AssertEqual(2, state.ReleaseIntangibility?.Count, "offscreen return preserves release timer");
+        AssertEqual(2, state.ReleaseIntangibility?.CartridgeCount, "offscreen return preserves release timer");
         // At the next AI call Y257 is inside. EnemyMain already tested the old
         // collision bit; the cleared gate is consumed by the following update.
         body.Position = body.Position.WithWholeY(257);
         RidleyInteractions.UpdateNorfairRidleyIntangibility(body, state, new Position16<RoomPixels>(0, 287));
         AssertTrue(!body.Contact.HasAny(EnemyContact.IgnoresSamus), "native reentry clears collision gate");
-        AssertEqual(1, state.ReleaseIntangibility?.Count, "onscreen AI resumes release timer");
+        AssertEqual(1, state.ReleaseIntangibility?.CartridgeCount, "onscreen AI resumes release timer");
         AssertTrue(RidleyCollision.IsOutsideInteractionWindow(new(64, 254), new(0, 287)), "one pixel above native window");
         AssertTrue(!RidleyCollision.IsOutsideInteractionWindow(new(64, 255), new(0, 287)), "native upper edge is admitted");
         AssertTrue(RidleyCollision.IsOutsideInteractionWindow(new(64, 543), new(0, 287)), "native lower edge is excluded");

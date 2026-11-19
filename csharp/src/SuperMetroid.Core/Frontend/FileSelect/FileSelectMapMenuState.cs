@@ -151,13 +151,13 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         navigation.Step(input);
         if (Phase != before)
         {
-            requestWait = Phase switch
-            {
-                FileSelectMapNavigationPhase.AreaReturnRequested => UpdateCountdown.Lasting(FileSelectMapDefinitions.ReturnSetupFrames),
-                FileSelectMapNavigationPhase.LoadRequested => UpdateCountdown.Lasting(
-                    FileSelectMapDefinitions.LoadPreludeFrames + FileSelectMapDefinitions.LoadFadeFrames + FileSelectMapDefinitions.LoadBlackFrames),
-                _ => UpdateCountdown.Ended(),
-            };
+            if (Phase == FileSelectMapNavigationPhase.AreaReturnRequested)
+                requestWait = UpdateCountdown.Lasting(FileSelectMapDefinitions.ReturnSetupFrames);
+            else if (Phase == FileSelectMapNavigationPhase.LoadRequested)
+                requestWait = UpdateCountdown.Lasting(
+                    FileSelectMapDefinitions.LoadPreludeFrames + FileSelectMapDefinitions.LoadFadeFrames + FileSelectMapDefinitions.LoadBlackFrames);
+            else
+                requestWait = UpdateCountdown.Ended();
             if (Phase is FileSelectMapNavigationPhase.PreparingWindow or FileSelectMapNavigationPhase.LoadRequested)
                 Queue(SamusSound.MenuConfirm);
             if (Phase == FileSelectMapNavigationPhase.ExpandingWindow) Queue(SamusSound.MapExpand);

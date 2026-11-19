@@ -177,7 +177,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// update, which takes its first wait, until the update that sets it up.
     /// </summary>
     internal bool IsWaitingOutDisplayFrame =>
-        openingWait is { Age: > 0 };
+        openingWait is { IsUncounted: false };
 
     /// <summary>Binds the installed station-blast colors when the game is bound to its installed content.</summary>
     internal void BindGlowColors(InstalledPowerBombGlowColors colors) => glowColors = Ensure.NotNull(colors);

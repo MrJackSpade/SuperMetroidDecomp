@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Drawing;

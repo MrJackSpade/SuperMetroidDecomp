@@ -121,7 +121,7 @@ internal static class LookupStream5Verification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)),
             "Skeleton transfer oracle revision");
         VerifyCrocomireSkeletonArtwork(oracle, InstalledFixtures.EnemyArtwork);
-        AssertThrows<InvalidDataException>(() => CrocomireSkeletonArtwork.IsChunk(-1),
+        AssertThrows<InvalidDataException>(() => CrocomireSkeletonArtwork.RequireChunk(-1),
             "Skeleton negative transfer index rejects");
         AssertThrows<ArgumentOutOfRangeException>(() => _ = CrocomireSourceDefinitions.SkeletonChunk(6),
             "Skeleton view excludes sentinel");

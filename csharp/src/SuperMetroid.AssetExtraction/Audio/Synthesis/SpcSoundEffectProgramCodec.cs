@@ -105,7 +105,7 @@ internal static class SpcSoundEffectProgramCodec
             AudioSoundInstructionMetadata instruction = program.Instructions[index]
                 ?? throw new InvalidDataException(
                     $"SPC sound program '{program.Id}' contains a null instruction at {index}.");
-            (int opcode, int argumentCount, bool terminal) = instruction.Operation switch
+            (int? opcode, int argumentCount, bool terminal) = instruction.Operation switch
             {
                 AudioSoundOperation.SetAdsr => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.SetAdsr), 4, false),
                 AudioSoundOperation.PitchSlideLegato => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.PitchSlideLegato), 2, false),
@@ -115,7 +115,7 @@ internal static class SpcSoundEffectProgramCodec
                 AudioSoundOperation.RepeatForever => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.RepeatForever), 0, true),
                 AudioSoundOperation.EndRepeat => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.EndRepeat), 0, false),
                 AudioSoundOperation.EnableNoise => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.EnableNoise), 0, false),
-                AudioSoundOperation.PlayNote => new SoundEffectOpcodeShape(0, 5, false),
+                AudioSoundOperation.PlayNote => new SoundEffectOpcodeShape(null, 5, false),
                 _ => throw new InvalidDataException(
                     $"SPC sound program '{program.Id}' uses unknown operation '{instruction.Operation}'."),
             };
@@ -135,7 +135,9 @@ internal static class SpcSoundEffectProgramCodec
                 throw new InvalidDataException(
                     $"SPC sound program '{program.Id}' contains instructions after its terminal operation.");
             }
-            if (instruction.Operation == AudioSoundOperation.PlayNote)
+            if (opcode is int command)
+                bytes.Add(unchecked((byte)command));
+            else
             {
                 if (opcodes.ContainsKey(instruction.Arguments[0]))
                 {
@@ -145,9 +147,7 @@ internal static class SpcSoundEffectProgramCodec
                 }
                 bytes.Add(instruction.Arguments[0]);
             }
-            else
-                bytes.Add(unchecked((byte)opcode));
-            int firstArgument = instruction.Operation == AudioSoundOperation.PlayNote ? 1 : 0;
+            int firstArgument = opcode is null ? 1 : 0;
             for (int argument = firstArgument; argument < instruction.Arguments.Count; argument++)
                 bytes.Add(instruction.Arguments[argument]);
             terminated = terminal;

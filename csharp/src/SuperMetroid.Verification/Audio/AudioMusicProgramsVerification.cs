@@ -43,7 +43,7 @@ internal static class AudioMusicProgramsVerification
                 int pointer = SpcDriverDefinitions.Ram.DefaultMusicPointer + track * 2;
                 ushort actual = unchecked(
                     LittleEndianBytes.Word(raw.ReadApuByteForVerification(pointer), raw.ReadApuByteForVerification(pointer + 1)));
-                AssertEqual(bank.MusicTracks[track].Address, actual, $"{bank.Name} track {track} route");
+                AssertEqual(SpcMusicDefinitionCodec.DriverPointer(bank.MusicTracks[track]), (int)actual, $"{bank.Name} track {track} route");
             }
         }
 

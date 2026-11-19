@@ -85,9 +85,8 @@ internal static class MusicTrackNumbers
     {
         if (SharedNumbers.TryGetValue(track, out int shared))
             return shared;
-        int index = dataSet is MusicDataSet set ? OwnSongs[set].IndexOf(track) : -1;
-        return index >= 0
-            ? AreaThemeTrack + index
-            : throw new ArgumentOutOfRangeException(nameof(track), track, $"The loaded music ({dataSet?.ToString() ?? "only the shared songs"}) holds no such song.");
+        if (dataSet is MusicDataSet set && OwnSongs[set].IndexOf(track) is int index and >= 0)
+            return AreaThemeTrack + index;
+        throw new ArgumentOutOfRangeException(nameof(track), track, $"The loaded music ({dataSet?.ToString() ?? "only the shared songs"}) holds no such song.");
     }
 }

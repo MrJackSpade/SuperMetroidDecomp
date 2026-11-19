@@ -37,6 +37,6 @@ public sealed class SpriteFrame
     /// <summary>The parts, frontmost first.</summary>
     public ImmutableArray<SpriteFramePart> Parts => ImmutableCollectionsMarshal.AsImmutableArray(parts);
 
-    /// <summary>The highest character any part reads, or -1 for an empty frame.</summary>
-    public int LastCharacter => Parts.IsEmpty ? -1 : Parts.Max(part => part.LastCharacter);
+    /// <summary>The highest character any part reads, or null for an empty frame, which reads none.</summary>
+    public int? LastCharacter => Parts.IsEmpty ? null : Parts.Max(part => part.LastCharacter);
 }

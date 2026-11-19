@@ -250,8 +250,8 @@ internal sealed class SpriteSheetLayout
         ImageColourGroups groups = ImageColourGroups.None;
         // Each shown pixel's ink, zero where no part shows one, in the frame's own rectangle.
         var inks = new byte[bound.Size.X * bound.Size.Y];
-        // Each shown pixel's game priority, one up so that zero marks a pixel no part shows, in the frame's own rectangle.
-        var shownPriorities = new int[inks.Length];
+        // Each shown pixel's game priority, null where no part shows one, in the frame's own rectangle.
+        var shownPriorities = new int?[inks.Length];
         // Back to front, so the first part ends in front.
         for (int partIndex = source.Frame.Parts.Length - 1; partIndex >= 0; partIndex--)
         {
@@ -272,7 +272,7 @@ internal sealed class SpriteSheetLayout
                     int ink = ownRow * RowColours + colour;
                     inks[at] = checked((byte)ink);
                     // Parts are laid back to front, so each pixel ends with the priority of the part in front.
-                    shownPriorities[at] = 1 + (part.Priority ?? priority);
+                    shownPriorities[at] = part.Priority ?? priority;
                     // A part keeping its own row under a drawn row keeps its colours under every row shade.
                     if (part.Palette is null || !sources.PartsKeepOwnRows)
                         ShadeRows(ink);
@@ -332,29 +332,29 @@ internal sealed class SpriteSheetLayout
     private const int GamePriorities = 4;
 
     /// <summary>
-    /// The depth a frame whose shown pixels hold <paramref name="shownPriorities"/> (each priority one up, zero for none) is
+    /// The depth a frame whose shown pixels hold <paramref name="shownPriorities"/> (null for a pixel no part shows) is
     /// drawn at (#1514): the priority most of its pixels show, the front one of a tie. The game's priorities zero and one both
     /// draw behind the whole room, two between its back and front tiles, and three in front of it.
     /// </summary>
     /// <exception cref="InvalidDataException">A pixel holds a priority the game does not have.</exception>
-    private static ActorDepth? DepthOf(ReadOnlySpan<int> shownPriorities, string frame)
+    private static ActorDepth? DepthOf(ReadOnlySpan<int?> shownPriorities, string frame)
     {
         Span<int> counts = stackalloc int[GamePriorities];
-        foreach (int shown in shownPriorities)
+        foreach (int? shown in shownPriorities)
         {
-            if (shown == 0)
+            if (shown is not int priority)
                 continue;
-            if (shown > GamePriorities)
-                throw new InvalidDataException($"Sheet frame {frame} shows a pixel of priority {shown - 1}, which the game does not have.");
-            counts[shown - 1]++;
+            if (priority is < 0 or >= GamePriorities)
+                throw new InvalidDataException($"Sheet frame {frame} shows a pixel of priority {priority}, which the game does not have.");
+            counts[priority]++;
         }
-        int main = -1;
+        int? main = null;
         for (int candidate = 0; candidate < GamePriorities; candidate++)
         {
-            if (counts[candidate] > 0 && (main < 0 || counts[candidate] >= counts[main]))
+            if (counts[candidate] > 0 && (main is not int leading || counts[candidate] >= counts[leading]))
                 main = candidate;
         }
-        return main < 0 ? null : DepthOfPriority[main];
+        return main is int depth ? DepthOfPriority[depth] : null;
     }
 
     /// <summary>The depth each of the game's priorities draws at, from priority zero up.</summary>

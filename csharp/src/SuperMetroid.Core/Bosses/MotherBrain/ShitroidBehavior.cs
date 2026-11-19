@@ -316,7 +316,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // Puts the camera at its arena's edge directly, then rescrolls the room's four screens as the wall entrance does: the second
         // and fourth are closed, the first and third keep the scroll they have. This is not ordinary camera
         // tracking.
-        _passEvents.Publish(new ShitroidCameraMove(ShitroidFightDefinitions.ArenaLeftX));
+        _passEvents.Publish(new EnemyCameraXWrite(ShitroidFightDefinitions.ArenaLeftX));
         SetShitroidScrollPair(RoomScrollState.Closed);
         QueueShitroidWallObjects(ShitroidWallMutation.Create);
         state.Action = ShitroidAction.BeginEntranceDelay;

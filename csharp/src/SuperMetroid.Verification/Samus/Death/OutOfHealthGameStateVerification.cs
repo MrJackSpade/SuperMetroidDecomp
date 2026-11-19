@@ -264,7 +264,7 @@ internal static class OutOfHealthGameStateVerification
         GameClockReading beforeTakeoff = runtime.GameTime.Reading;
 
         game.Step(0);
-        AssertTrue(runtime.EnemyFrameResults.LastEnemyFrame.Reports(GunshipFrameEvent.EscapeTakeoffCompleted),
+        AssertTrue(runtime.EnemyFrameResults.LastEnemyFrame.Reports(new GunshipEvent(GunshipFrameEvent.EscapeTakeoffCompleted)),
             $"the ship's ascent completes the takeoff; the top hull is at {top.Position.Y.Whole} in {GunshipState.Of(top).Phase}");
         AssertTrue(game.IsAt(EndingStep.LeavingZebes), $"the gunship's takeoff takes the update Samus runs out of health on, not her death; ended in {game.GameState}");
         AssertEqual(beforeTakeoff, runtime.GameTime.Reading, "the out-of-health check returns before counting the play time");

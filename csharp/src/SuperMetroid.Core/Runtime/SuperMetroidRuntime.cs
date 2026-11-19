@@ -670,7 +670,7 @@ internal sealed class SuperMetroidRuntime
         // inside the ship, so the owners between the enemy phase and here have nothing to
         // act on; the box therefore opens at this shared suspension seam, and the
         // remainder resumes after the YES/NO/completion chain returns.
-        if (enemyPass is { } pass && pass.Reports(GunshipFrameEvent.SavePromptRequested))
+        if (enemyPass is { } pass && pass.Reports(new GunshipEvent(GunshipFrameEvent.SavePromptRequested)))
         {
             if (MessageBox.IsActive)
             {
@@ -841,7 +841,7 @@ internal sealed class SuperMetroidRuntime
     {
         if (startsTimeUp)
             return GameplayUpdateTransition.TimeUp;
-        if (EnemyFrameResults.LastEnemyFrame.Reports(GunshipFrameEvent.EscapeTakeoffCompleted))
+        if (EnemyFrameResults.LastEnemyFrame.Reports(new GunshipEvent(GunshipFrameEvent.EscapeTakeoffCompleted)))
             return GameplayUpdateTransition.LeavesZebes;
         // The map station's completion message pauses on the map as it closes, independently of Start or the station's
         // lock on Samus's input.

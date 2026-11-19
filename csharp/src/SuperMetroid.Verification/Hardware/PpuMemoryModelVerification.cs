@@ -192,13 +192,14 @@ internal static class PpuMemoryModelVerification
     {
         var vram = new SnesVram();
         var cgram = new SnesCgram();
-        ushort[] row = new ushort[32];
+        // The views' own paths only: the word reads and strided writes checks use are verification helpers (#2570).
+        byte[] row = new byte[32 * sizeof(ushort)];
         byte[] mapRow = new byte[128];
         Run(1);
         long before = GC.GetAllocatedBytesForCurrentThread();
         Run(256);
         long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
-        AssertEqual(0L, allocated, "palette writes/reads, tilemap row/column writes, tilemap reads and Mode 7 map loads allocate nothing per entry");
+        AssertEqual(0L, allocated, "palette writes/reads, tilemap row loads and Mode 7 map loads allocate nothing per entry");
 
         void Run(int frames)
         {
@@ -210,14 +211,9 @@ internal static class PpuMemoryModelVerification
                 VramRegion bg1 = new VramRegion(vram, GameplayVramLayoutConstants.Bg1Tilemap);
                 for (int line = 0; line < 32; line++)
                 {
-                    row.AsSpan().Fill((ushort)(frame + line));
-                    bg1.Write(row, line * 32);
-                    bg1.Write(row, line, 32);
+                    row.AsSpan().Fill((byte)(frame + line));
+                    bg1.Load(row, line * row.Length);
                 }
-                int sum = 0;
-                for (int word = 0; word < bg1.WordCount; word++)
-                    sum += new SnesBgTilemapWord(bg1.ReadWord(word)).CharacterIndex;
-                AssertTrue(sum >= 0, "tilemap reads complete");
                 new Mode7Vram(vram).LoadMap(mapRow, (frame & 127) * 128);
             }
         }

@@ -142,11 +142,6 @@ internal sealed class FrontendDisplay
     {
         DisplayPacket frame = composedDisplay;
         int brightness = screenBrightness is { } level ? DisplayBrightness.Combine(frame.Brightness, level) : frame.Brightness;
-        if (frame.Layers is { } layers)
-            return new(number, brightness == layers.Brightness ? layers : new LayeredScene(layers.Paint, layers.Layers, brightness));
-        if (frame.Floor is { } floor)
-            return new(number, brightness == floor.Brightness ? floor : new FloorScene(floor.Paint, floor.Background, brightness, floor.Gradient, floor.Floor));
-        if (frame.SolidColor is { } color) return new(number, color, brightness);
-        throw new InvalidDataException("Captured display has no composition.");
+        return new(number, frame.Scene.AtBrightness(brightness));
     }
 }

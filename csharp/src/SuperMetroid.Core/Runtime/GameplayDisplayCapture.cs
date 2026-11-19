@@ -41,7 +41,7 @@ public static class GameplayDisplayCapture
         GameplayFrameEndDisplayInputs live = frame.FrameEnd;
         OrdinaryGameplayBase basis = CaptureOrdinaryBase(latched, live);
         if (live.DoorTransitionShownLayers is not null)
-            return Compose(frame, latched, basis.Room, latched.Rooms.FxOverlay);
+            return Compose(frame, latched, basis.Room);
         if (CaptureXray(frame, latched, basis) is { } xray) return xray;
         // The room's scene, which the effects lie on, and the effect blending it, of which a room shows one at most:
         // Phantoon's translucent body, Fireflea's darkness, or a room effect lying behind the room.
@@ -58,13 +58,13 @@ public static class GameplayDisplayCapture
         // While the rainbow beam shows, its added colour takes the place of the room effect's overlay and blend. An effect
         // whose overlay lies behind the room blends the room with it; one lying over the room is drawn over the finished
         // scene (#1545).
-        if (live.RainbowBeam is null && latched.RoomFxOverlay is { Blend.BlendsBehind: not null } behind)
+        if (live.RainbowBeam is null && latched.EffectOverlay is ShownRoomEffectOverlay { Blend: OverlayBehindRoomBlend behind } lyingBehind)
         {
             if (blended is not null)
                 throw new NotSupportedException("An effect blending behind the room requires a room no other effect blends.");
-            blended = GameplayEffectCapture.CaptureEffectBlendingBehind(scene, behind);
+            blended = GameplayEffectCapture.CaptureEffectBlendingBehind(scene, lyingBehind, behind);
         }
-        return Compose(frame, latched, (DisplayLayer?)blended ?? scene, latched.Rooms.FxOverlay);
+        return Compose(frame, latched, (DisplayLayer?)blended ?? scene);
     }
 
     /// <summary>
@@ -79,7 +79,7 @@ public static class GameplayDisplayCapture
         {
             if (live.Xray is { WarmUp.ShowsBlendedRoom: true })
                 throw new NotSupportedException("X-ray display requires ordinary gameplay layers.");
-            if (live.RainbowBeam is null && latched.RoomFxOverlay is { Blend.BlendsBehind: not null })
+            if (live.RainbowBeam is null && latched.EffectOverlay is ShownRoomEffectOverlay { Blend: OverlayBehindRoomBlend })
                 throw new NotSupportedException("An effect blending behind the room requires an ordinary gameplay base.");
         }
         GameplayRenderSnapshot scrolls = latched.Scrolls;
@@ -101,7 +101,7 @@ public static class GameplayDisplayCapture
         {
             Scenery = Scenery(perspective.Scenery, scrolls.ForegroundPosition),
         };
-        return Compose(frame, latched, layer, latched.FxOverlay);
+        return Compose(frame, latched, layer);
     }
 
     /// <summary>
@@ -113,16 +113,15 @@ public static class GameplayDisplayCapture
     /// <param name="frame">The published frame.</param>
     /// <param name="latched">The room's frame the frame boundary latched.</param>
     /// <param name="room">The room as the frame shows it, its effects that blend it composed.</param>
-    /// <param name="fxOverlay">The room effect's artwork on the effect overlay.</param>
-    private static LayeredScene Compose(GameplayDisplayFrame frame, RoomFrameLatch latched, DisplayLayer room, FxOverlayArtwork fxOverlay)
+    private static LayeredScene Compose(GameplayDisplayFrame frame, RoomFrameLatch latched, DisplayLayer room)
     {
         GameplayFrameEndDisplayInputs live = frame.FrameEnd;
         Position16<RoomPixels> camera = latched.Scrolls.ForegroundPosition;
         var layers = new List<DisplayLayer> { room, Hud(latched) };
         if (live.DoorTransitionShownLayers is null)
         {
-            if (live.RainbowBeam is null && latched.RoomFxOverlay is { } over && over.Blend?.BlendsBehind is null)
-                AddLayer(GameplayEffectCapture.CaptureRoomFxOverlay(over, fxOverlay));
+            if (live.RainbowBeam is null && latched.EffectOverlay is ShownRoomEffectOverlay { Blend: OverlayOverRoomBlend } over)
+                AddLayer(GameplayEffectCapture.CaptureRoomFxOverlay(over));
             if (live.CeresHaze is { } haze)
                 AddLayer(GameplayEffectCapture.CaptureCeresHaze(live.CeresHazeTints, haze.Tint, haze.Strength));
             if (latched.MorphBallEyeBeam is { } eye)
@@ -336,8 +335,8 @@ public static class GameplayDisplayCapture
             : new GameplaySceneLayer(view, ordinary.Rooms, ordinary.BackgroundLineScrolls);
         // Outside the cone the room blends with its liquid or fog lying behind it, except in Fireflea's room, whose darkness
         // blends with its shade alone.
-        OverlayBlendLayer? overlayBehind = !mode.KeepsDarkness && latched.RoomFxOverlay is { } fx
-            ? GameplayEffectCapture.CaptureRoomFxOverlay(fx, ordinary.Rooms.FxOverlay) : null;
+        OverlayBlendLayer? overlayBehind = !mode.KeepsDarkness
+            ? GameplayEffectCapture.CaptureRoomFxOverlay(latched.EffectOverlay) : null;
         // A room with no visible effect blends with nothing behind (#1514). With nothing lying behind, the room combines with the
         // blend's colour unhalved, as it does wherever its liquid shows nothing.
         // Whether the blend darkens belongs to the room's liquid, even when the liquid is currently off screen and shows

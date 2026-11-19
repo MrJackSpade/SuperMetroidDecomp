@@ -208,16 +208,13 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         // Only a library background the player sees as its own picture has one installed (#1649).
         BackgroundImage = RoomLibraryBackgroundPicture.Of(Room.State.Background, background => new RoomBackgroundImageResolver(
             Assets.Pictures.Background(background, background.PictureDoor(Door), Assets.Tileset), Assets.BlockSheet)),
-        BackgroundWrittenPictures = Assets.Pictures.Written.TryGetValue(Assets.Tileset, out WrittenPictureSheet? written) ? new WrittenPictureResolver(written) : null,
-        ForegroundWrittenPictures = written is null ? null : new WrittenPictureResolver(written),
+        WrittenPictures = Assets.Pictures.Written.TryGetValue(Assets.Tileset, out WrittenPictureSheet? written) ? new WrittenPictureResolver(written) : null,
         FxOverlayPictures = new WrittenPictureResolver(Assets.Pictures.FxOverlay(Assets.Tileset)),
         HudPictures = Assets.Pictures.Hud(Assets.Tileset),
         MessageBoxes = Assets.Pictures.MessageBox(Assets.Tileset),
-        SkyImage = ScrollingSky is { } sky
-            ? new RoomBackgroundImageResolver(Assets.Pictures.Sky(sky.Sky, Assets.Tileset),
-                Assets.BlockSheet)
+        Sky = ScrollingSky is { } sky
+            ? new RoomSky(sky, new RoomBackgroundImageResolver(Assets.Pictures.Sky(sky.Sky, Assets.Tileset), Assets.BlockSheet))
             : null,
-        ScrollingSky = ScrollingSky,
         Floor = Floor,
         Projectiles = Projectiles ?? throw Missing(nameof(Projectiles)),
         BombProjectiles = BombProjectiles ?? throw Missing(nameof(BombProjectiles)),

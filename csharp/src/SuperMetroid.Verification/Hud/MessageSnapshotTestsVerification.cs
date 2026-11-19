@@ -53,7 +53,7 @@ internal static class MessageSnapshotTestsVerification
                         new LayeredScene(memory, layers, 15));
                     if (layer is not null)
                     {
-                        AssertTrue(ReferenceEquals(layer.Picture, messages.Picture(state.Shown ?? throw new InvalidOperationException($"Message {id} shows nothing."))),
+                        AssertTrue(ReferenceEquals(layer.Picture, messages.Picture((state.Exposed ?? throw new InvalidOperationException($"Message {id} shows nothing.")).Message)),
                             $"captured message {id} at radius {state.RadiusPixels} shows the image of the form shown");
                         if (held is null) { held = packet; heldPixels = DisplayRendering.Render(packet); }
                     }

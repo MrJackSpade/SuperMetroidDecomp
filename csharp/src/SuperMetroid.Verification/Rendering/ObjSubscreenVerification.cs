@@ -66,7 +66,7 @@ internal static class ObjSubscreenVerification
                     oam[0] = 8; oam[1] = 8; oam[3] = (byte)(palette * 2 + priority * 16);
                     var memory = FramePaint.FromOam(vram, shownColours, oam, 1, 3);
                     var packet = new DisplayPacket(0, new LayeredScene(memory,
-                        new DisplayLayer[] { new TurningFloorLayer(registers, floor, AddsForeground: true) }, 15));
+                        new DisplayLayer[] { new TurningFloorLayer(registers, floor, FloorColorBlend.AddForeground) }, 15));
                     var pixels = DisplayRendering.Render(packet);
                     bool behindFloor = opaqueBg && priority < 2;
                     RgbaPixel expected = behindFloor ? new(0, 132, 0)
@@ -74,8 +74,6 @@ internal static class ObjSubscreenVerification
                     AssertEqual(expected, pixels[8 * 256 + 8], "a sprite behind the room lies under the floor; a blending sprite in front takes its colour");
                     AssertEqual(opaqueBg ? new RgbaPixel(0, 132, 0) : new RgbaPixel(0, 0, 24), pixels[0],
                         "BG1 doubles itself but transparent BG1 preserves unmodified backdrop");
-                    AssertThrows<ArgumentException>(() => new LayeredScene(memory,
-                        new DisplayLayer[] { new TurningFloorLayer(registers, floor, true, true) }, 15), "reject contradictory Mode7 math modes");
                 }
             }
         }
@@ -94,7 +92,7 @@ internal static class ObjSubscreenVerification
         oam[0] = 8; oam[1] = 8;
         var memory = FramePaint.FromOam(vram, ToColors(colors), oam, 1, 3);
         var packet = new DisplayPacket(0, new LayeredScene(memory,
-            new DisplayLayer[] { new TurningFloorLayer(new FloorView(0, FloorView.OwnSize, default, default), AffineFloorFixtures.Floor(vram, ToColors(colors)), true) }, 15));
+            new DisplayLayer[] { new TurningFloorLayer(new FloorView(0, FloorView.OwnSize, default, default), AffineFloorFixtures.Floor(vram, ToColors(colors)), FloorColorBlend.SubtractSprites) }, 15));
         var pixels = DisplayRendering.Render(packet);
         AssertEqual(new RgbaPixel(198, 99, 0), pixels[8 * 256 + 8], "Mode7 minus OBJ clamps each five-bit component without halving");
         AssertEqual(new RgbaPixel(255, 99, 0), pixels[0], "transparent OBJ leaves Mode7 color unchanged");

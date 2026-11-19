@@ -40,20 +40,10 @@ internal interface IEnemyDisplaySources
     ImmutableArray<PerspectiveFloorScenery> CeresGetawayChamberWalls { get; }
 
     /// <summary>
-    /// The body a boss shows (#1352, #1353, #1466, #1515): Kraid's while he owns it, otherwise the one a boss attached
-    /// while its room shows it; null without either.
+    /// The body the room's boss shows (#1352, #1353, #1466, #1515, #2031), whole (#2513): its layer, where the boss places it
+    /// and whether it shows nothing this frame; null where no boss attached one.
     /// </summary>
-    BossBodyLayer? BossBody { get; }
-
-    /// <summary>
-    /// Where the room's boss places its body (#2031), the room pixel each of its installed frames lies against: Kraid's
-    /// position while his body shows, Phantoon's and Crocomire's, Draygon's shifted by his tail whip's shake of his body's
-    /// picture, and Mother Brain's once she places hers; null where no boss places a body.
-    /// </summary>
-    Position16<RoomPixels>? BossBodyPlacement { get; }
-
-    /// <summary>Whether the boss's body shows nothing this frame: Draygon is deleted, or Mother Brain's death flicker hides hers.</summary>
-    bool BossBodyHidden { get; }
+    IBossBodyDisplay? BossBody { get; }
 
     /// <summary>The morph-ball eye's beam.</summary>
     MorphBallEyeBeamState MorphBallEyeBeam { get; }

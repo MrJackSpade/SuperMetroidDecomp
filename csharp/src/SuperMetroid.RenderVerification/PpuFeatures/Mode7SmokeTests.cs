@@ -40,13 +40,13 @@ internal static class Mode7SmokeTests
         {
             var registers = new FloorView(angle, scale, new Offset16<FloorPixels>(128, 112), new Offset16<FloorPixels>(offset, offset), overflow);
             var frame = new DisplayPacket(0,
-                new FloorScene(memory, registers, DisplayBrightness.Combine(13, 11), floor: map));
+                new FloorScene(memory, new PlacedFloor(registers, map), DisplayBrightness.Combine(13, 11)));
             Check(frame);
             Check(new DisplayPacket(0, new LayeredScene(new FramePaint(memory.Backdrop),
                 new DisplayLayer[] { new SpritesLayer(memory.SpriteDraws), new TurningFloorLayer(registers, map),
                     new ScreenTintLayer(new FadeLevelColour(3, 7, 11).ToColour()) }, 15)));
             Check(new DisplayPacket(0, new LayeredScene(memory,
-                new DisplayLayer[] { new TurningFloorLayer(registers, map, AddsForeground: true) }, 15)));
+                new DisplayLayer[] { new TurningFloorLayer(registers, map, FloorColorBlend.AddForeground) }, 15)));
         }
         Check(new DisplayPacket(0, new FloorScene(memory, null, 15)));
         foreach (int hud in new[] { 0, 8, 32, 208 })

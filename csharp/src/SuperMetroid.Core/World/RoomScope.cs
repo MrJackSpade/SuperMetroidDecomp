@@ -65,14 +65,11 @@ internal sealed record RoomScope
     /// </summary>
     public required RoomLibraryBackgroundPicture BackgroundImage { get; init; }
 
-    /// <summary>Resolves what the room's scrolling sky shows on the background, or null for a room without one (#1392).</summary>
-    public required RoomBackgroundImageResolver? SkyImage { get; init; }
-
-    /// <summary>Resolves what pictures written over the background show, or null in a tileset nothing writes pictures over (#1392, #1466).</summary>
-    public required WrittenPictureResolver? BackgroundWrittenPictures { get; init; }
-
-    /// <summary>Resolves what pictures written over the foreground show, or null in a tileset nothing writes pictures over (#1392, #1466).</summary>
-    public required WrittenPictureResolver? ForegroundWrittenPictures { get; init; }
+    /// <summary>
+    /// Resolves what pictures written over the room's layers show, or null in a tileset nothing writes pictures over (#1392,
+    /// #1466): Zebes's warning over the background and Ceres's over the foreground, which no room shows both of.
+    /// </summary>
+    public required WrittenPictureResolver? WrittenPictures { get; init; }
 
     /// <summary>Resolves what the room effect's liquid or atmosphere shows on the effect overlay (#1392, #1466, #1706).</summary>
     public required WrittenPictureResolver FxOverlayPictures { get; init; }
@@ -83,8 +80,8 @@ internal sealed record RoomScope
     /// <summary>The images of the message boxes the room shows (#1392).</summary>
     public required MessageBoxSheet MessageBoxes { get; init; }
 
-    /// <summary>The scrolling-sky updater of a scrolling-sky room, or null.</summary>
-    public required ScrollingSkyState? ScrollingSky { get; init; }
+    /// <summary>The scrolling sky of a sky room, its state with its image (#2513), or null for a room without one.</summary>
+    public required RoomSky? Sky { get; init; }
 
     /// <summary>The turning floor the room shows, or null when it shows none (#1349, #1467, #1649).</summary>
     public required RoomFloor? Floor { get; init; }

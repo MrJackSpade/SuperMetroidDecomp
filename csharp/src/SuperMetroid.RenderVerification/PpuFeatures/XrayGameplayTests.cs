@@ -165,8 +165,7 @@ internal static class XrayGameplayTests
                 });
             var lines = RandomWindow(random);
             int bg3Rows = frame % 2 == 0 ? 32 : 64;
-            AtmosphereArtwork seededOverlay = gameplay.Rooms.FxOverlay.Shown as AtmosphereArtwork
-                ?? throw new InvalidOperationException("A seeded room shows a seeded effect atmosphere.");
+            AtmosphereArtwork seededOverlay = RoomBackgroundsFixtures.SeededFxOverlay(random, frame % 5 == 0 ? colors : new RgbColor[SnesCgram.ColorCount]);
             int bg3FirstRow = random.Next(FxOverlayPlaneConstants.Rows - bg3Rows + 1);
             // The blend plane's line scrolls are random described shapes (#1468): a sine wave across, a stretch down.
             var bg3Across = new ScrollWave(Word(), UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(random.Next(65536)), new TrigonometryAngle((byte)random.Next(256)), 1 + random.Next(256), 32, 224);

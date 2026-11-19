@@ -153,27 +153,30 @@ public sealed class D3D11FrameRenderer : IDisposable
         renderedDisplay = packet;
     }
 
-    /// <summary>Selects layered, turning-floor or solid-color composition and submits its compute passes.</summary>
-    private unsafe void RenderCore(DisplayPacket packet)
+    /// <summary>Submits the compute passes of the packet's layered, turning-floor or solid-colour scene.</summary>
+    private void RenderCore(DisplayPacket packet) => packet.Scene.DrawWith(new PacketDrawing(this, packet));
+
+    /// <summary>Draws a frontend screen's turning-floor frame: its floor, its sprites in front of it, then its gradient.</summary>
+    /// <exception cref="NotSupportedException">The frame paints with a gameplay frame's shading.</exception>
+    private void DrawTurningFloor(DisplayPacket packet, FloorScene turningFloor)
     {
-        if (packet.Layers is { } layers) { DrawLayers(packet, layers); return; }
-        if (packet.Floor is { } turningFloor)
-        {
-            // A turning-floor frame is a frontend screen's: its floor, its sprites in front of it, then its gradient.
-            if (turningFloor.Paint.Gameplay is not null)
-                throw new NotSupportedException("A turning-floor frame shows a frontend screen, not gameplay.");
-            var operations = new List<DisplayLayer>();
-            if (turningFloor.Background is { } background && turningFloor.Floor is { } shownFloor) operations.Add(new TurningFloorLayer(background, shownFloor));
-            operations.Add(new SpritesLayer(turningFloor.Paint.SpriteDraws));
-            if (turningFloor.Gradient is { } gradient) operations.Add(gradient);
-            DrawLayers(packet, new LayeredScene(new FramePaint(turningFloor.Paint.Backdrop),
-                operations.ToArray(), turningFloor.Brightness));
-            return;
-        }
-        RgbaPixel color = packet.SolidColor ?? throw new NotSupportedException("This compute path does not yet support the requested composition.");
+        if (turningFloor.Paint.Gameplay is not null)
+            throw new NotSupportedException("A turning-floor frame shows a frontend screen, not gameplay.");
+        var operations = new List<DisplayLayer>();
+        if (turningFloor.Floor is { } shownFloor) operations.Add(new TurningFloorLayer(shownFloor.View, shownFloor.Map));
+        operations.Add(new SpritesLayer(turningFloor.Paint.SpriteDraws));
+        if (turningFloor.Gradient is { } gradient) operations.Add(gradient);
+        DrawLayers(packet, new LayeredScene(new FramePaint(turningFloor.Paint.Backdrop),
+            operations.ToArray(), turningFloor.Brightness));
+    }
+
+    /// <summary>Fills the packet's screen with the scene's one colour at its brightness.</summary>
+    private unsafe void DrawSolidColour(DisplayPacket packet, SolidColourScene scene)
+    {
+        RgbaPixel color = scene.Colour;
         uint[] data = ClearUploadConstants();
         data[0] = D3D11ConstantPacking.Bytes(color.R, color.G, color.B, color.A);
-        data[1] = (uint)packet.Brightness;
+        data[1] = (uint)scene.Brightness;
         data[2] = packet.Size.X; data[3] = packet.Size.Y;
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.CSSetShader(shader);
@@ -181,6 +184,21 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.CSSetUnorderedAccessView(0, view);
         owner.Context.Dispatch((uint)((packet.Size.X + D3D11ShaderLayout.DispatchTileEdge - 1) / D3D11ShaderLayout.DispatchTileEdge),
             (uint)((packet.Size.Y + D3D11ShaderLayout.DispatchTileEdge - 1) / D3D11ShaderLayout.DispatchTileEdge), 1);
+    }
+
+    /// <summary>Draws each kind of <paramref name="Packet"/>'s scene with <paramref name="Renderer"/>'s passes for it (#2505).</summary>
+    /// <param name="Renderer">The renderer submitting the passes.</param>
+    /// <param name="Packet">The frame whose scene is drawn.</param>
+    private readonly record struct PacketDrawing(D3D11FrameRenderer Renderer, DisplayPacket Packet) : IDisplaySceneDrawer
+    {
+        /// <inheritdoc/>
+        public void DrawLayered(LayeredScene scene) => Renderer.DrawLayers(Packet, scene);
+
+        /// <inheritdoc/>
+        public void DrawTurningFloor(FloorScene scene) => Renderer.DrawTurningFloor(Packet, scene);
+
+        /// <inheritdoc/>
+        public void DrawSolidColour(SolidColourScene scene) => Renderer.DrawSolidColour(Packet, scene);
     }
 
     /// <summary>Unbinds renderer shader/resource state and releases its owned GPU objects in reverse creation order on the owner thread; the shared device remains alive and repeated disposal is harmless.</summary>
@@ -795,8 +813,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                     DispatchFloorRoom(gameplay);
                     break;
                 case TurningFloorLayer turning:
-                    DispatchFloor(turning.Transform, blend: turning.AddsForeground ? FloorColorBlend.AddForeground
-                        : turning.SubtractsSprites ? FloorColorBlend.SubtractSprites : FloorColorBlend.None);
+                    DispatchFloor(turning.Transform, blend: turning.Blend);
                     break;
                 case SpritesLayer sprites:
                     // The layer's sprites over what lies behind them, or glowing over it; a tint brightens those that blend (#1514).
@@ -927,7 +944,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     private static readonly ActorDepth[] FrontToBack = [ActorDepth.InFront, ActorDepth.BehindFrontParts, ActorDepth.BehindRoom];
 
     /// <summary>The frame's draws in the order they are packed, reused from frame to frame.</summary>
-    private readonly List<SpriteDraw> packedDraws = [];
+    private readonly List<ImageSpriteDraw> packedDraws = [];
 
     /// <summary>The depth each of <see cref="packedDraws"/> is packed at, reused from frame to frame.</summary>
     private readonly List<ActorDepth> packedDepths = [];
@@ -940,27 +957,24 @@ public sealed class D3D11FrameRenderer : IDisposable
     /// composes, sit at their frames' depths where their frames have one and in front of the floor otherwise.
     /// </summary>
     /// <exception cref="InvalidDataException">A gameplay draw shows a frame that is not empty and has no depth.</exception>
-    /// <exception cref="InvalidOperationException">A paint draw is not an image draw.</exception>
     private void PackOrder(LayeredScene scene, bool composesGameplay)
     {
         packedDraws.Clear();
         packedDepths.Clear();
-        ReadOnlySpan<SpriteDraw> draws = scene.SpriteDraws.AsSpan();
+        ReadOnlySpan<ImageSpriteDraw> draws = scene.SpriteDraws.AsSpan();
         int paintDraws = scene.Paint.SpriteDraws.Length;
         foreach (ActorDepth depth in FrontToBack)
         {
-            foreach (SpriteDraw draw in draws[..paintDraws])
+            foreach (ImageSpriteDraw image in draws[..paintDraws])
             {
-                if (draw is not ImageSpriteDraw image)
-                    throw new InvalidOperationException($"A frame's paint holds a {draw.GetType().Name}, not an image draw.");
                 ActorDepth shown = composesGameplay ? DepthOf(image) : image.Depth ?? ActorDepth.InFront;
                 if (shown != depth)
                     continue;
-                packedDraws.Add(draw);
+                packedDraws.Add(image);
                 packedDepths.Add(shown);
             }
         }
-        foreach (SpriteDraw draw in draws[paintDraws..])
+        foreach (ImageSpriteDraw draw in draws[paintDraws..])
         {
             packedDraws.Add(draw);
             packedDepths.Add(ActorDepth.InFront);

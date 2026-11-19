@@ -109,12 +109,12 @@ internal static class InstalledSporesTests
                 if (frame is 0 or 10 or 20 or 30 or 44 or 511 or 1024)
                 {
                     var gameplay = new GameplaySceneLayer(new(default, default,
-                        ScreenLayers.Background), RoomBackgroundsFixtures.Blank() with
-                        {
-                            FxOverlay = FxOverlayFixtures.ArtworkOf(baseline.EffectPlane, stock.RoomFxPages,
-                                new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount]),
-                        });
-                    var layer = GameplayEffectCapture.CaptureEffectBlendingBehind(gameplay, (baseline.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires baseline.CaptureForDisplay().")));
+                        ScreenLayers.Background), RoomBackgroundsFixtures.Blank());
+                    ShownRoomEffectOverlay spores = FxOverlayFixtures.Overlay(
+                        baseline.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires baseline.CaptureForDisplay()."),
+                        FxOverlayFixtures.ArtworkOf(baseline.EffectPlane, stock.RoomFxPages,
+                            new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount]));
+                    var layer = GameplayEffectCapture.CaptureEffectBlendingBehind(gameplay, spores, (OverlayBehindRoomBlend)spores.Blend);
                     Require(!layer.RevealBlocks && layer.Blend.Blended == (BlendedLayers.Background | BlendedLayers.Actors | BlendedLayers.Backdrop) &&
                         layer.Blend.Operation == BlendOperation.Add && !layer.Blend.Halved &&
                         layer.Window.IsClosed && layer.OverlayBehind is not null && !layer.BackgroundBehind,
@@ -200,11 +200,11 @@ internal static class InstalledSporesTests
             var registers = new GameplaySceneView(Offset16<RoomPixels>.Zero, Offset16<BackgroundPixels>.Zero,
                 ScreenLayers.Sprites | ((enabled & 1) != 0 ? ScreenLayers.Foreground : 0) |
                     ((enabled & 2) != 0 ? ScreenLayers.Background : 0));
-            var layer = GameplayEffectCapture.CaptureEffectBlendingBehind(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, colors, new((ushort)(1 | (bg1High ? 0x2000 : 0)))) with
-                {
-                    FxOverlay = FxOverlayFixtures.ArtworkFromVram(RoomFxType.Spores, vram.Bytes, colors, 0x4000),
-                }),
-                new(RoomFxType.Spores, RoomEffectBlendDefinitions.SporesBrightenBehind, Position16<OverlayPixels>.Zero, null));
+            ShownRoomEffectOverlay spores = FxOverlayFixtures.Overlay(
+                new(RoomFxType.Spores, RoomEffectBlendDefinitions.SporesBrightenBehind, Position16<OverlayPixels>.Zero, null),
+                FxOverlayFixtures.ArtworkFromVram(RoomFxType.Spores, vram.Bytes, colors, 0x4000));
+            var layer = GameplayEffectCapture.CaptureEffectBlendingBehind(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, colors, new((ushort)(1 | (bg1High ? 0x2000 : 0))))),
+                spores, (OverlayBehindRoomBlend)spores.Blend);
             var scene = new LayeredScene(FramePaint.FromOamGameplay(vram.Bytes, colors, oam, 1, 0), [layer], 15);
             RgbaPixel[] pixels = DisplayRendering.Render(scene);
             // Independent Mode-1 priority and integer BGR555 oracle. A color-only

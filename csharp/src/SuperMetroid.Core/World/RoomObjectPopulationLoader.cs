@@ -25,8 +25,6 @@ internal sealed class RoomObjectPopulationLoader
         Ensure.NotNull(room);
         Ensure.NotNull(population);
         Ensure.NotNull(services);
-        Ensure.NotNull(services.Samus);
-        Ensure.NotNull(services.Bosses);
 
         for (int placementIndex = 0; placementIndex < population.Placements.Length; placementIndex++)
         {

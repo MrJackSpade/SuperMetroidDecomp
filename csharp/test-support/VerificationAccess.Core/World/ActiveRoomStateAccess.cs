@@ -9,6 +9,6 @@ internal static class ActiveRoomStateAccess
     extension(ActiveRoomState self)
     {
         /// <summary>Landing Site's scrolling-sky updater after room initialization.</summary>
-        public ScrollingSkyState? ScrollingSky => self.View(c => c.ScrollingSky, s => s.ScrollingSky);
+        public ScrollingSkyState? ScrollingSky => self.View(c => c.ScrollingSky, s => s.Sky?.State);
     }
 }

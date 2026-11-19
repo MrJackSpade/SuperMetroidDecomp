@@ -56,10 +56,10 @@ internal static class SpriteDrawSmokeTests
             // Red covers x 10..17, blue x 14..21 and green x 12..19, all on row 10, emitted in that order.
             ImmutableArray<SpriteDraw> draws =
             [
-                new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer), Frame(0), new(10, 10), SpriteMirror.None),
-                new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer), Frame(2), new(14, 10), SpriteMirror.None),
-                new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer), Frame(1), new(12, 10), SpriteMirror.None),
-                new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer), Frame(3), new(40, 30), SpriteMirror.Horizontal),
+                new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer), Frame(0), new(10, 10), SpriteMirror.None) { Shading = PictureShading.Standard },
+                new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer), Frame(2), new(14, 10), SpriteMirror.None) { Shading = PictureShading.Standard },
+                new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer), Frame(1), new(12, 10), SpriteMirror.None) { Shading = PictureShading.Standard },
+                new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer), Frame(3), new(40, 30), SpriteMirror.Horizontal) { Shading = PictureShading.Standard },
             ];
             var memory = FramePaint.FromNative(palette, draws);
             RgbaPixel[] pixels = Check(memory, [], "ordering and flip");
@@ -113,7 +113,7 @@ internal static class SpriteDrawSmokeTests
                 var image = new SpriteSheetFrame(sheet, corner, size, new((short)random.Next(-8, 40), (short)random.Next(-8, 40)));
                 var origin = new Offset16<ScreenPixels>(random.Next(-60, 300), random.Next(-60, 270));
                 draws.Insert(random.Next(draws.Count + 1), new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer), image, origin,
-                    (SpriteMirror)random.Next(4)));
+                    (SpriteMirror)random.Next(4)) { Shading = PictureShading.Standard });
             }
             var memory = FramePaint.FromNative(palette, draws.ToImmutable());
             PicturedPlane plane = VramPictureFixtures.Plane(vram, palette, GameplayVramLayout.Bg2TilemapWord, GameplayVramLayout.HudCharacterWord, TileInkDepth.SixteenColours,

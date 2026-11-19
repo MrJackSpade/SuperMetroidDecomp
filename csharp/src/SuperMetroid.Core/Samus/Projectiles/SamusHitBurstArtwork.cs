@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Artwork;
@@ -22,6 +23,6 @@ public readonly record struct SamusHitBurstArtwork(ProjectileDrawArtwork Sheets,
     {
         Ensure.NotNull(sprites);
         SpriteSheetFrame image = Sheets.SheetOf(EquippedBeams).Frame(ProjectileSheetFrames.HitBurstFrame(picture));
-        sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusHitBurst), image, origin, SpriteMirror.None));
+        sprites.Add(new SamusColouredDraw(new SpriteSource(SpriteSourceKind.SamusHitBurst), image, origin));
     }
 }

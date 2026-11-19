@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
@@ -262,12 +263,12 @@ internal static class ProjectileCompositionsVerification
         }
         Console.WriteLine("Projectile runtime binding: three actor draw passes, sheet frames and sheet rebinding pass.");
 
-        static ImageSpriteDraw Shown(SuperMetroid.Core.Runtime.SuperMetroidRuntime target, SpriteSourceKind kind)
+        static SamusColouredDraw Shown(SuperMetroid.Core.Runtime.SuperMetroidRuntime target, SpriteSourceKind kind)
         {
             target.Sprites.BeginFrame();
             target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, target.Player.IntroducedSamus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold);
             target.Sprites.FinalizeFrame();
-            return target.Sprites.Draws.OfType<ImageSpriteDraw>().Single(draw => draw.Source.Kind == kind);
+            return target.Sprites.Draws.OfType<SamusColouredDraw>().Single(draw => draw.Source.Kind == kind);
         }
     }
 

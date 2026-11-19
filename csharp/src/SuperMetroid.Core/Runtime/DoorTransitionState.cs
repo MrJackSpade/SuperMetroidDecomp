@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 /// <remarks>
 /// The destination room is set up on its loading update by
-/// <see cref="SuperMetroid.Core.World.RoomLoader.LoadPendingDoorDestination"/>; the transition runs the updates before and
+/// <see cref="SuperMetroid.Core.World.RoomLoader.LoadPendingDoorDestinationForTransition"/>; the transition runs the updates before and
 /// after it. How the transition counts frames is
 /// <see cref="DoorTransitionFrameCounting"/>'s, where its liquid wave and statue descent stop is
 /// <see cref="LiquidWaveAndStatueDescentOrder"/>'s, how many updates it spends before the door's scroll starts is

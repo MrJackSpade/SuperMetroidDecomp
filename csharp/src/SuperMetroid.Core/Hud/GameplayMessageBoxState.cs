@@ -85,6 +85,13 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     public ShownMessage? Shown => MessageId is not { } message ? null
         : new ShownMessage(message, PanelButton(message), IsSaveConfirmation ? ConfirmationSelection : null);
 
+    /// <summary>
+    /// The message the box's window exposes in the most recently completed frame (#2505): what the box shows, with the
+    /// window's half-height; null while the window shows nothing: before a message begins, while its window is closed
+    /// and once it has finished.
+    /// </summary>
+    public ExposedMessage? Exposed => RadiusPixels > 0 && Shown is { } shown ? new ExposedMessage(shown, RadiusPixels) : null;
+
     /// <summary>The answer a save confirmation highlights.</summary>
     public SaveChoice ConfirmationSelection { get; private set; } = SaveChoice.Yes;
 

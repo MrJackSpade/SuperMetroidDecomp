@@ -60,7 +60,7 @@ internal static class PauseScreenPublicationVerification
         LayeredScene scene = pause.CaptureRenderSnapshot();
         FramePaint memory = scene.Paint;
         // The page's markers, cursors and labels are the scene's sprite layer (#1514), not draws in the paint.
-        ImmutableArray<SpriteDraw> painted = scene.Layers.ToArray().OfType<SpritesLayer>().Single().Draws;
+        ImmutableArray<ImageSpriteDraw> painted = scene.Layers.ToArray().OfType<SpritesLayer>().Single().Draws;
         byte[] vram = pause.ShownVram(artwork);
         BackgroundTile[] frame = pause.ShownBg2Tiles(artwork);
         AssertTiles(vram, PauseMenuLayoutConstants.Bg1TilemapWord, pause.ShownBg1Tiles(artwork), $"{page} BG1");

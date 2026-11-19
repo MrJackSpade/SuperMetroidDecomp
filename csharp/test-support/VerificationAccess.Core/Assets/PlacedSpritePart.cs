@@ -15,13 +15,13 @@ namespace SuperMetroid.Core.Assets;
 internal readonly record struct PlacedSpritePart(SpriteArtworkId Artwork, SpriteScreenPart Part)
 {
     /// <summary>Every part of <paramref name="draws"/>, frontmost first.</summary>
-    internal static PlacedSpritePart[] Of(ImmutableArray<SpriteDraw> draws)
+    internal static PlacedSpritePart[] Of(IEnumerable<SpriteDraw> draws)
     {
         var parts = new List<PlacedSpritePart>();
         foreach (SpriteDraw draw in draws)
         {
             // A whole pre-coloured frame stands for the parts of the composition it was composed from.
-            CharacterSpriteDraw character = SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.CharacterDraw((ImageSpriteDraw)draw);
+            CharacterSpriteDraw character = SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.CharacterDraw(draw);
             for (int index = 0; index < character.Frame.Parts.Length; index++)
                 parts.Add(new(character.Artwork.Id, character.Place(index)));
         }

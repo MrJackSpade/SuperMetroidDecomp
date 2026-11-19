@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
@@ -311,8 +312,7 @@ public sealed class SamusBombProjectileSystem
             if (sheet.ShowsNothing(frame))
                 continue;
             SpriteSheetFrame image = sheet.Frame(frame);
-            sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusBomb), image,
-                place, SpriteMirror.None));
+            sprites.Add(new SamusColouredDraw(new SpriteSource(SpriteSourceKind.SamusBomb), image, place));
         }
     }
 

@@ -57,8 +57,7 @@ public sealed class MaridiaElevatubeRoomMainState
     /// through her ordinary vertical collision check, then add the acceleration to the velocity unless that passes the
     /// maximum speed.
     /// </summary>
-    internal BlockMoveResult Step(
-
+    internal void Step(
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
@@ -77,14 +76,12 @@ public sealed class MaridiaElevatubeRoomMainState
         TrackedY = TrackedY.MovedBy(displacement);
         carryover.LeaveFraction(TrackedY.Fraction);
 
-        BlockMoveResult movement = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), IncludeSolidEnemies = false });
+        SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), IncludeSolidEnemies = false });
 
         // The game's range test is exactly the inclusive range of the maximum speed either way; a candidate outside it is
         // rejected rather than clamped, leaving the preceding velocity intact.
         SignedEightEight candidate = Velocity.Accelerated(Acceleration);
         if (candidate >= -MaridiaElevatubeDefinitions.MaximumSpeed && candidate <= MaridiaElevatubeDefinitions.MaximumSpeed)
             Velocity = candidate;
-
-        return movement;
     }
 }

@@ -2,48 +2,34 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
-/// One displayed frame, closed and immutable: a layered scene, a turning-floor scene or a solid colour, shown at one
-/// brightness. It holds neither game objects nor the display's resources.
+/// One displayed frame, closed and immutable: its scene (a layered scene, a turning-floor scene or a solid colour, #2505),
+/// shown at the scene's brightness. It holds neither game objects nor the display's resources.
 /// </summary>
 public sealed class DisplayPacket
 {
     /// <summary>The number of the game update this frame shows, counted as the game counts its updates.</summary>
     public int FrameNumber { get; }
-    /// <summary>The layered scene this frame shows, or <see langword="null"/> when it shows a turning floor or a solid colour.</summary>
-    public LayeredScene? Layers { get; }
-    /// <summary>The turning floor, backdrop and sprites this frame shows, or <see langword="null"/> when it shows layers or a solid colour.</summary>
-    public FloorScene? Floor { get; }
-    /// <summary>The colour filling the whole frame when it shows a solid colour, or <see langword="null"/> when it shows a scene.</summary>
-    public RgbaPixel? SolidColor { get; }
+
+    /// <summary>What the frame shows: a layered scene, a turning floor with its sprites, or one colour.</summary>
+    public DisplayScene Scene { get; }
+
     /// <summary>The frame's visible size of 256 by 224 pixels, the HUD included where there is one, before the host scales it to the window.</summary>
     public Extent16<ScreenPixels> Size { get; } = ScreenGeometry.ScreenSize;
 
     /// <summary>
     /// The frame's one brightness, from black (zero) to <see cref="DisplayBrightness.Full"/>, applied once after the
-    /// scene is composed: the scene's own for a layered or turning-floor frame, the frame's for a solid colour.
+    /// scene is composed: its scene's.
     /// </summary>
-    public int Brightness { get; }
+    public int Brightness => Scene.Brightness;
 
-    /// <summary>Creates a frame showing a layered scene at the scene's brightness.</summary>
+    /// <summary>Creates a frame showing <paramref name="scene"/> at the scene's brightness.</summary>
     /// <param name="frameNumber">The number of the game update this frame shows.</param>
-    /// <param name="layers">The complete layered scene, including its brightness.</param>
-    public DisplayPacket(int frameNumber, LayeredScene layers)
-        : this(frameNumber)
+    /// <param name="scene">The complete scene, including its brightness.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The frame number is negative.</exception>
+    public DisplayPacket(int frameNumber, DisplayScene scene)
     {
-        Ensure.NotNull(layers);
-        Layers = layers;
-        Brightness = layers.Brightness;
-    }
-
-    /// <summary>Creates a frame showing a turning floor, backdrop and sprites at the scene's brightness.</summary>
-    /// <param name="frameNumber">The number of the game update this frame shows.</param>
-    /// <param name="floor">The complete turning-floor scene, including its brightness.</param>
-    public DisplayPacket(int frameNumber, FloorScene floor)
-        : this(frameNumber)
-    {
-        Ensure.NotNull(floor);
-        Floor = floor;
-        Brightness = floor.Brightness;
+        FrameNumber = Ensure.AtLeastZero(frameNumber);
+        Scene = Ensure.NotNull(scene);
     }
 
     /// <summary>Creates a frame filled with one colour, shown at <paramref name="brightness"/>.</summary>
@@ -52,12 +38,7 @@ public sealed class DisplayPacket
     /// <param name="brightness">The frame's brightness, from black (zero) to <see cref="DisplayBrightness.Full"/>.</param>
     /// <exception cref="ArgumentOutOfRangeException">The frame number is negative, or the brightness is below black or above full.</exception>
     public DisplayPacket(int frameNumber, RgbaPixel solidColor, int brightness = DisplayBrightness.Full)
-        : this(frameNumber)
+        : this(frameNumber, new SolidColourScene(solidColor, brightness))
     {
-        SolidColor = solidColor;
-        Brightness = DisplayBrightness.Require(brightness);
     }
-
-    /// <summary>Records the frame number, which is never negative.</summary>
-    private DisplayPacket(int frameNumber) => FrameNumber = Ensure.AtLeastZero(frameNumber);
 }

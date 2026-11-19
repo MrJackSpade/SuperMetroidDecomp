@@ -40,7 +40,7 @@ internal sealed class GameplayScreenLayers
                     ? ScreenLayers.None
                     : ScreenLayers.Background));
         if (_room.DoorTransitionShownLayers is null &&
-            room.FxOverlay.Blend is { BackgroundBehind: true })
+            room.FxOverlay.Blend is OverlayBehindRoomBlend { BackgroundBehind: true })
         {
             Chosen = WaterfallRoomDisplayRules.ShownLayers;
         }

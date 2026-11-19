@@ -27,16 +27,16 @@ internal static class RoomEnemyGraphicsSetLists
         ..MaridiaRoomEnemyGraphicsSetDefinitions.Build(),
         ..TourianRoomEnemyGraphicsSetDefinitions.Build(),
         ..CeresRoomEnemyGraphicsSetDefinitions.Build(),
-    ], ListCount, RecordCount, RoomEnemyGraphicsSetDefinitions.SessionStart.Name);
+    ], ListCount, RecordCount, RoomEnemyGraphicsSetDefinitions.SessionStart);
 
-    /// <summary>The members each set rooms draw under loads, by set name: every retail set's, and the session start's, which loads none.</summary>
-    internal static IReadOnlyDictionary<string, RoomEnemyGraphicsSetMembers> Members { get; } =
-        Retail.Append(new RoomEnemyGraphicsSetMembers(RoomEnemyGraphicsSetDefinitions.SessionStart.Name, []))
-            .ToDictionary(set => set.Name, StringComparer.Ordinal);
+    /// <summary>The members each set rooms draw under loads, by set: every retail set's, and the session start's, which loads none.</summary>
+    internal static IReadOnlyDictionary<RoomEnemyGraphicsSetDefinition, RoomEnemyGraphicsSetMembers> Members { get; } =
+        Retail.Append(new RoomEnemyGraphicsSetMembers(RoomEnemyGraphicsSetDefinitions.SessionStart, []))
+            .ToDictionary(set => set.Set);
 
     /// <summary>Every retail graphics set, in the game's list order.</summary>
     internal static IReadOnlyList<RoomEnemyGraphicsSetDefinition> All { get; } =
-        [.. Retail.Select(set => new RoomEnemyGraphicsSetDefinition(set.Name))];
+        [.. Retail.Select(set => set.Set)];
 
     /// <summary>
     /// Every graphics set rooms draw under: each retail set a room state that places enemies names, in the game's list
@@ -54,7 +54,7 @@ internal static class RoomEnemyGraphicsSetLists
     /// <summary>The graphics set room state <paramref name="state"/>'s header names, whether or not its population loads it.</summary>
     /// <exception cref="InvalidDataException">The state is no retail state.</exception>
     internal static RoomEnemyGraphicsSetDefinition Of(RoomStateSettings state) =>
-        RoomStateEnemyGraphicsSetDefinitions.ByState.TryGetValue(Ensure.NotNull(state).Name, out RoomEnemyGraphicsSetDefinition? set) ? set
+        RoomStateEnemyGraphicsSetDefinitions.ByState.TryGetValue(Ensure.NotNull(state), out RoomEnemyGraphicsSetDefinition? set) ? set
             : throw new InvalidDataException($"Room state {state.Name} names no catalogued enemy graphics set.");
 
     /// <summary>
@@ -84,16 +84,16 @@ internal static class RoomEnemyGraphicsSetLists
     internal static RoomEnemyGraphicsSetMembers MembersOf(RoomEnemyGraphicsSetDefinition set) => MembersOf(set, Members);
 
     /// <summary>
-    /// The members <paramref name="set"/> loads, as <paramref name="catalogue"/> names them by set name: the retail
+    /// The members <paramref name="set"/> loads, as <paramref name="catalogue"/> holds them by set: the retail
     /// catalogue for an installation's sets, or a fixture's own for the set it seeds.
     /// </summary>
-    /// <exception cref="InvalidDataException">The catalogue names no members for the set.</exception>
+    /// <exception cref="InvalidDataException">The catalogue holds no members for the set.</exception>
     internal static RoomEnemyGraphicsSetMembers MembersOf(RoomEnemyGraphicsSetDefinition set,
-        IReadOnlyDictionary<string, RoomEnemyGraphicsSetMembers> catalogue)
+        IReadOnlyDictionary<RoomEnemyGraphicsSetDefinition, RoomEnemyGraphicsSetMembers> catalogue)
     {
         Ensure.NotNull(set);
         Ensure.NotNull(catalogue);
-        return catalogue.TryGetValue(set.Name, out RoomEnemyGraphicsSetMembers? members) ? members
+        return catalogue.TryGetValue(set, out RoomEnemyGraphicsSetMembers? members) ? members
             : throw new InvalidDataException($"Enemy graphics set {set.Name} has no catalogued members.");
     }
 }

@@ -1468,7 +1468,7 @@ static void SeedCeresRidleyRoomEntryCartridge(
     // The room's graphics set is the retail Ceres Ridley set, Ridley and the Ceres door, each in the palette row the
     // import catalogues for it (#1512), so its members' sheets compose in the rows the cartridge loads their colours into.
     RoomEnemyGraphicsSetDefinition ceresRidleySet = RoomEnemyGraphicsSetDefinitions.CeresRidleyDefault;
-    int[] ceresRidleyRows = SuperMetroid.AssetExtraction.Enemies.EnemyGraphicsSetPaletteRowDefinitions.Rows[ceresRidleySet.Name];
+    int[] ceresRidleyRows = SuperMetroid.AssetExtraction.Enemies.EnemyGraphicsSetPaletteRowDefinitions.Rows[ceresRidleySet];
     ReadOnlySpan<RoomEnemyGraphicsSetMember> ceresRidleyRecords = RoomEnemyGraphicsSetLists.MembersOf(ceresRidleySet).Records.Span;
     for (int record = 0; record < ceresRidleyRecords.Length; record++)
     {

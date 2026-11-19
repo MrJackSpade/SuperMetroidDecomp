@@ -7,151 +7,151 @@ internal static class CrateriaRoomEnemyGraphicsSetDefinitions
     /// <summary>The region's lists, in table order.</summary>
     internal static RoomEnemyGraphicsSetMembers[] Build() =>
     [
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Draygon1MotherBrain2), [
+        new(RoomEnemyGraphicsSetDefinitions.Draygon1MotherBrain2, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.EastOcean), [
+        new(RoomEnemyGraphicsSetDefinitions.EastOcean, [
             new(EnemyDefinitionId.Choot),
             new(EnemyDefinitionId.Skultera),
             new(EnemyDefinitionId.SuspensorPlatform),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.CrateriaPowerBombs), [
+        new(RoomEnemyGraphicsSetDefinitions.CrateriaPowerBombs, [
             new(EnemyDefinitionId.Alcoon),
             new(EnemyDefinitionId.Zero),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Terminator), [
+        new(RoomEnemyGraphicsSetDefinitions.Terminator, [
             new(EnemyDefinitionId.Waver),
             new(EnemyDefinitionId.Zoomer),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.FinalMissileBombwayWhenZebesAwake), [
+        new(RoomEnemyGraphicsSetDefinitions.FinalMissileBombwayWhenZebesAwake, [
             new(EnemyDefinitionId.FaceBlock),
             new(UnplacedEnemyArtwork.Stoke),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.FinalMissileBombwayDefault), [
+        new(RoomEnemyGraphicsSetDefinitions.FinalMissileBombwayDefault, [
             new(EnemyDefinitionId.FaceBlock),
             new(UnplacedEnemyArtwork.Stoke),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.ParlorWhenZebesAwake), [
+        new(RoomEnemyGraphicsSetDefinitions.ParlorWhenZebesAwake, [
             new(EnemyDefinitionId.Zoomer),
             new(EnemyDefinitionId.Skree),
             new(EnemyDefinitionId.Ripper),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.FlywayBeforeTimebomb), [
+        new(RoomEnemyGraphicsSetDefinitions.FlywayBeforeTimebomb, [
             new(EnemyDefinitionId.Waver),
             new(EnemyDefinitionId.Mellow),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.PitWithMorphBallAndMissiles), [
+        new(RoomEnemyGraphicsSetDefinitions.PitWithMorphBallAndMissiles, [
             new(EnemyDefinitionId.PirateGreyWalking),
             new(EnemyDefinitionId.PirateGreyWall),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.GauntletEntrance), [
+        new(RoomEnemyGraphicsSetDefinitions.GauntletEntrance, [
             new(EnemyDefinitionId.YappingMaw),
             new(EnemyDefinitionId.Waver),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.BombTorizoBeforeTimebomb), [
+        new(RoomEnemyGraphicsSetDefinitions.BombTorizoBeforeTimebomb, [
             new(EnemyDefinitionId.BombTorizo),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.GreenPiratesShaft), [
+        new(RoomEnemyGraphicsSetDefinitions.GreenPiratesShaft, [
             new(EnemyDefinitionId.PirateGreenWalking),
             new(EnemyDefinitionId.Beetom),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.GreenBrinstarElevator), [
+        new(RoomEnemyGraphicsSetDefinitions.GreenBrinstarElevator, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.FinalMissileDefault), [
+        new(RoomEnemyGraphicsSetDefinitions.FinalMissileDefault, [
             new(EnemyDefinitionId.MorphBallEye),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.CrateriaMap), [
+        new(RoomEnemyGraphicsSetDefinitions.CrateriaMap, [
             new(EnemyDefinitionId.BombTorizo),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.FinalMissileWhenZebesAwake), [
+        new(RoomEnemyGraphicsSetDefinitions.FinalMissileWhenZebesAwake, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.ClimbWhenZebesTimebombSet), [
+        new(RoomEnemyGraphicsSetDefinitions.ClimbWhenZebesTimebombSet, [
             new(EnemyDefinitionId.PirateSilverNinja),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.CrateriaSave), [
+        new(RoomEnemyGraphicsSetDefinitions.CrateriaSave, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.ForgottenHighwayElbow), [
+        new(RoomEnemyGraphicsSetDefinitions.ForgottenHighwayElbow, [
             new(EnemyDefinitionId.FaceBlock),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Moat), [
+        new(RoomEnemyGraphicsSetDefinitions.Moat, [
             new(EnemyDefinitionId.FaceBlock),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.ClimbDefault), [
+        new(RoomEnemyGraphicsSetDefinitions.ClimbDefault, [
             new(EnemyDefinitionId.Sbug),
             new(EnemyDefinitionId.FaceBlock),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WestOcean), [
+        new(RoomEnemyGraphicsSetDefinitions.WestOcean, [
             new(EnemyDefinitionId.Skultera),
             new(EnemyDefinitionId.Zeb),
             new(EnemyDefinitionId.GrappleRipper),
             new(EnemyDefinitionId.Tripper),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.ParlorDefault), [
+        new(RoomEnemyGraphicsSetDefinitions.ParlorDefault, [
             new(EnemyDefinitionId.Sbug),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.LandingSiteBeforeTimebomb), [
+        new(RoomEnemyGraphicsSetDefinitions.LandingSiteBeforeTimebomb, [
             new(EnemyDefinitionId.ShipTop),
             new(EnemyDefinitionId.ShipBottomEntrance),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.CrateriaSuper), [
+        new(RoomEnemyGraphicsSetDefinitions.CrateriaSuper, [
             new(EnemyDefinitionId.Boyon),
             new(EnemyDefinitionId.YappingMaw),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.PreBowling), [
+        new(RoomEnemyGraphicsSetDefinitions.PreBowling, [
             new(EnemyDefinitionId.OrangeZoomer),
             new(EnemyDefinitionId.Sova),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.ClimbWhenZebesAwake), [
+        new(RoomEnemyGraphicsSetDefinitions.ClimbWhenZebesAwake, [
             new(EnemyDefinitionId.PirateGreyWall),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.BowlingAlleyPath), [
+        new(RoomEnemyGraphicsSetDefinitions.BowlingAlleyPath, [
             new(EnemyDefinitionId.Waver),
             new(EnemyDefinitionId.Choot),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.RedBrinstarElevator), [
+        new(RoomEnemyGraphicsSetDefinitions.RedBrinstarElevator, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.GauntletEnergyTank), [
+        new(RoomEnemyGraphicsSetDefinitions.GauntletEnergyTank, [
             new(EnemyDefinitionId.YappingMaw),
             new(EnemyDefinitionId.Zebbo),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.PitDefault), [
+        new(RoomEnemyGraphicsSetDefinitions.PitDefault, [
             new(EnemyDefinitionId.Sbug),
             new(EnemyDefinitionId.FaceBlock),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.CrabMaze), [
+        new(RoomEnemyGraphicsSetDefinitions.CrabMaze, [
             new(EnemyDefinitionId.Sciser),
             new(EnemyDefinitionId.Puyo),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.CrateriaTube), [
+        new(RoomEnemyGraphicsSetDefinitions.CrateriaTube, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.ForgottenHighwayKagos), [
+        new(RoomEnemyGraphicsSetDefinitions.ForgottenHighwayKagos, [
             new(EnemyDefinitionId.Kago),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.ElevatorToBlueBrinstar), [
+        new(RoomEnemyGraphicsSetDefinitions.ElevatorToBlueBrinstar, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.ForgottenHighwayElevator), [
+        new(RoomEnemyGraphicsSetDefinitions.ForgottenHighwayElevator, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.PreMapFlyway), [
+        new(RoomEnemyGraphicsSetDefinitions.PreMapFlyway, [
             new(EnemyDefinitionId.Mellow),
             new(EnemyDefinitionId.Rio),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.LowerMushrooms), [
+        new(RoomEnemyGraphicsSetDefinitions.LowerMushrooms, [
             new(EnemyDefinitionId.Kago),
             new(EnemyDefinitionId.ArmoredZoomer),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.LandingSiteWhenZebesTimebombSet), [
+        new(RoomEnemyGraphicsSetDefinitions.LandingSiteWhenZebesTimebombSet, [
             new(EnemyDefinitionId.ShipTop),
             new(EnemyDefinitionId.ShipBottomEntrance),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.ParlorWhenZebesTimebombSet), [
+        new(RoomEnemyGraphicsSetDefinitions.ParlorWhenZebesTimebombSet, [
             new(EnemyDefinitionId.Sbug),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.BombTorizoWhenZebesTimebombSet), [
+        new(RoomEnemyGraphicsSetDefinitions.BombTorizoWhenZebesTimebombSet, [
             new(EnemyDefinitionId.EtecoonEscape),
             new(EnemyDefinitionId.DachoraEscape),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.FlywayWhenZebesTimebombSet), [
+        new(RoomEnemyGraphicsSetDefinitions.FlywayWhenZebesTimebombSet, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.CrateriaKihunter), [
+        new(RoomEnemyGraphicsSetDefinitions.CrateriaKihunter, [
             new(EnemyDefinitionId.KihunterGreen),
             new(EnemyDefinitionId.Sciser),
             new(EnemyDefinitionId.Zero),

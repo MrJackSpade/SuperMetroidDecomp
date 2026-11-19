@@ -124,9 +124,9 @@ internal sealed class GraphicsSetCharacterLayout
         foreach (RoomEnemyGraphicsSetMember source in set.Records.Span)
         {
             if (members.Count == MaximumMembers)
-                throw new InvalidDataException($"Enemy graphics set {set.Name} has more than the four members a room's enemy graphics can hold.");
+                throw new InvalidDataException($"Enemy graphics set {set.Set} has more than the four members a room's enemy graphics can hold.");
             if (followsFixedBlock)
-                throw new InvalidDataException($"Enemy graphics set {set.Name} places {source.Name} after a member shown at a fixed block.");
+                throw new InvalidDataException($"Enemy graphics set {set.Set} places {source.Name} after a member shown at a fixed block.");
 
             int byteCount = source.TileByteCount;
             int? block = source.FixedBlock;

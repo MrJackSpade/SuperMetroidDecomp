@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>
 /// An effect one update of Mother Brain's late fight and death starts in her room (#2562). The update's phases ask for
 /// each as they run (<see cref="MotherBrainRainbowBeamStepRequests"/>), and the step reports the effects it asked for
-/// (<see cref="MotherBrainRainbowBeamAttackStepResult.Effects"/>), which the encounter and the room carry out.
+/// (<see cref="MotherBrainRainbowBeamAttackStepResult.Effects"/>), which the encounter and the room then start.
 /// </summary>
 public enum MotherBrainStepEffect
 {

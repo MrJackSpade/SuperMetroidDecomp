@@ -38,6 +38,7 @@ internal sealed class MessageBoxFlow
     }
 
     /// <summary>What waits for the open message box to close, or null when the box waits for nothing or none is open.</summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "What waits for the open message box to close, which lasts as many updates as the box shows: a state of the message box's flow, not a one-update request.")]
     private MessageBoxOutcome? _pending;
 
     /// <summary>

@@ -37,6 +37,7 @@ public sealed class AudioQueues
     /// The request the music queue fetched and is waiting out the delay of, or none when its next pass fetches the
     /// next request from the queue.
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "The music queue's dispatch waiting out its delay, a state of the queue lasting the delay's updates, not a request another step consumes in one update; the queue's own pass fetches and clears it.")]
     internal PendingMusicDispatch? PendingMusic { get; private set; }
     /// <summary>
     /// The sound-queue passes, <see cref="AudioQueueDefinitions.MusicChangeSoundDowntimePasses"/> from a music change, for

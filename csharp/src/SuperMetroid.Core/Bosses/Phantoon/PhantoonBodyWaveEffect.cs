@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 public sealed class PhantoonBodyWaveEffect
 {
     /// <summary>Whether a requested wave still needs its setup-only first update.</summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "Whether the wave Phantoon's fight started still runs its setup-only first update: a state of the wave's own course, kept and cleared by the wave alone.")]
     private bool _pendingSetup;
     /// <summary>The length captured for the next setup: the introductory or final-death wave.</summary>
     private PhantoonWaveLength _pendingLength;

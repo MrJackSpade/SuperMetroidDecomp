@@ -73,12 +73,14 @@ public sealed class SamusState
     /// clears every prospective pose and momentum response, so this frame's pending
     /// transition is not committed. The runtime consumes it before the pose update.
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "A control setup during the enemy pass cancels the input phase's prospective poses, which only the movement phase's resample holds; an update whose movement is disabled skips the resample, so the cancellation waits for the next one.")]
     public bool PendingPoseTransitionCancelled { get; private set; }
 
     /// <summary>Records the cancellation of the pending pose transition.</summary>
     internal void CancelPendingPoseTransition() => PendingPoseTransitionCancelled = true;
 
     /// <summary>Returns and clears the pending-transition cancellation.</summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "The movement phase's resample takes the cancellation (see PendingPoseTransitionCancelled), the one point that holds the prospective poses it cancels.")]
     internal bool ConsumePendingPoseTransitionCancellation()
     {
         bool cancelled = PendingPoseTransitionCancelled;
@@ -383,6 +385,7 @@ public sealed class SamusState
     /// the new pose's direction, and a turn out of a moonwalk hands the moonwalk's. The next update's weapon firing
     /// fires it, and that update then drops it whether or not a shot was fired.
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "The shot direction a jump or turn transition hands the weapon firing and the HUD's beam producer, which run later in the update in other owners; it is dropped after the HUD and projectile step of every update.")]
     public SamusTransitionShot? PendingTransitionShot { get; internal set; }
 
     /// <summary>Whether Mother Brain's hyper beam is enabled.</summary>
@@ -443,6 +446,7 @@ public sealed class SamusState
     /// recovery sets it at counter forty when a non-spinning Samus is still holding a sufficiently charged beam, and the
     /// post-draw sound check consumes it later in the same gameplay pass; a spin's end sets it for the next pass.
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "The charge sound's resumption waits for a post-draw sound pass, the next update's when a spin ends, and is cancelled by firing; the native snapshot import and the showcase comparison read it as the game's resume flag, so it lasts across the update boundary as a state of the charge sound.")]
     public bool ResumeChargingBeamSoundPending { get; internal set; }
 
     /// <summary>
@@ -545,6 +549,7 @@ public sealed class SamusState
     /// consumes it after animation, at the same pose-transition point used by the game.
     /// Keeping it explicit makes the turn's final facing change its own step.
     /// </remarks>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "The transitional pose the animation's cues choose for the following pose transitions, which run after the animation in the same update; a grab or a pose installation clears it as it discards the transitions.")]
     public SamusPoseId? PendingTransitionalPose { get; internal set; }
 
     /// <summary>The position, to a fraction of a pixel, and the radii that collision reads.</summary>
@@ -886,7 +891,7 @@ public sealed class SamusState
 
     /// <summary>
     /// Applies this frame's previous-position corrections before scrolling calculates distance: the whole writes, keeping
-    /// the fractions, then what the rainbow-beam push hides of its sub-pixel movement. Later in the update the whole
+    /// the fractions, then what the rainbow-beam push hides of its movement within a pixel. Later in the update the whole
     /// position replaces the checkpoint.
     /// </summary>
     internal FixedPosition<RoomPixels> ApplyPreviousPositionWrites(FixedPosition<RoomPixels> previous) =>

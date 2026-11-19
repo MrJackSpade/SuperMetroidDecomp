@@ -88,6 +88,7 @@ public sealed class SamusHorizontalSpeedState
     /// Whether cancelling a speed boost asked for the suit's shade back at once. Movement cancels the boost and the
     /// colour step, later in the same frame, shows the suit.
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "The suit's shade a cancelled boost or a new pose asks for waits for the update's colour step, which shows it before the charge and drained colourings of the same update; the steps that ask for it run in movement, pose and firing and reach only Samus, not the colour step's colours.")]
     public bool SuitShadeRestoreRequested { get; private set; }
 
     /// <summary>

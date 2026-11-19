@@ -32,6 +32,7 @@ public sealed class ClipPlaybackState(BeatLength initialBeat)
     internal long SongStart { get; private set; }
 
     /// <summary>The song change waiting for the music's next beat, or null when none waits.</summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "The song change waiting for the music's next beat, a state of the playback lasting until that beat, which the playback's own step takes.")]
     internal SongChange? PendingSongChange { get; private set; }
 
     /// <summary>The music's beat: how much of it has played, and how long it lasts while no song plays.</summary>

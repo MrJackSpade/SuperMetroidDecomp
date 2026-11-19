@@ -28,7 +28,7 @@ internal sealed class EnemyRoomEffects
     /// <summary>Records defeated bosses and the Zebes timebomb event requested by the encounter.</summary>
     private readonly SharedGameState _system;
 
-    /// <summary>Binds the room systems needed to carry out the enemies' events immediately after their AI pass.</summary>
+    /// <summary>Binds the room systems that act on the enemies' events immediately after their AI pass.</summary>
     internal EnemyRoomEffects(EnemyRoomEffectsDependencies dependencies)
     {
         _escapeTimer = dependencies.EscapeTimer;
@@ -42,8 +42,8 @@ internal sealed class EnemyRoomEffects
     internal void StartCeresEscape() => _escapeTimer.RequestCeresStart();
 
     /// <summary>
-    /// Carries out the room objects and room effects that <paramref name="pass"/>'s enemies asked for, in the order they
-    /// asked for them.
+    /// Spawns the room objects and starts the room effects that <paramref name="pass"/>'s enemies asked for, in the order
+    /// they asked for them; the pass's other events are the runtime's (<see cref="EnemyFramePhase"/>).
     /// </summary>
     /// <remarks>
     /// Actors spawn their fixed room objects and make their other room writes
@@ -94,6 +94,9 @@ internal sealed class EnemyRoomEffects
                     break;
                 case TorizoBellyGlowRequest glow:
                     site.ColourEffects.StartTorizoBellyGlow(glow.Glow, glow.Torizo, site.Samus.EquippedItems);
+                    break;
+                default:
+                    // The pass's events for Samus, the camera, the escape and the game are the runtime's.
                     break;
             }
         }

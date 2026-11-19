@@ -229,8 +229,8 @@ internal sealed class FrontendSession
     internal ScreenFade EscapeFade { get; } = new(DisplayBrightness.Full);
     /// <summary>The room state whose music was last queued.</summary>
     internal RoomStateSettings? LastAudioRoomState { get; set; }
-    /// <summary>The loaded room's enemies whose start music was last queued, which a room load replaces (#2562).</summary>
-    private RoomEnemySystem? _startMusicQueuedFor;
+    /// <summary>The runtime and its room load whose enemies' start music was last queued (#2562).</summary>
+    private (SuperMetroidRuntime Runtime, int RoomLoad)? _startMusicQueuedFor;
     /// <summary>Forgets the room whose music was last queued, so the next runtime's room music is queued from scratch.</summary>
     internal void ForgetQueuedAudio() => LastAudioRoomState = null;
     /// <summary>
@@ -405,11 +405,11 @@ internal sealed class FrontendSession
         }
         // The music this room's enemies start is queued after the room's own, with the shortest delay. Before the
         // first room load, such as while a Ceres save starts its destruction cinematic, there are no enemies.
-        if (runtime?.Room.Scope is { Enemies: var enemies } && enemies != _startMusicQueuedFor)
+        if (runtime?.Room.Scope is { Enemies: var enemies } && _startMusicQueuedFor != (runtime, runtime.Room.RoomsLoaded))
         {
             foreach (MusicRequest request in enemies.Audio.RoomStartMusic)
                 audio.QueueMusic(request);
-            _startMusicQueuedFor = enemies;
+            _startMusicQueuedFor = (runtime, runtime.Room.RoomsLoaded);
         }
 
         // The message box runs outside gameplay: the save choice's move, the gunship's saving sound as its accepted prompt

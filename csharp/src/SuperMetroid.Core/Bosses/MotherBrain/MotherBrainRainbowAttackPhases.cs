@@ -292,7 +292,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// Pushes the held Samus toward the wall behind her until she reaches it. True when her next phase runs on in this
     /// same update.
     /// </summary>
-    internal bool PushSamusToWall(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
+    internal bool PushSamusToWall(SamusState samus, MotherBrainRainbowBeamStepRequests requests)
     {
         RunContinuingBeamEffects(
             samus,
@@ -311,7 +311,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// Pushes Samus for one more update, then shakes the room as the beam pins her to the wall. True when her next
     /// phase runs on in this same update.
     /// </summary>
-    internal bool PinSamusToWall(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
+    internal bool PinSamusToWall(SamusState samus, MotherBrainRainbowBeamStepRequests requests)
     {
         RunContinuingBeamEffects(
             samus,
@@ -405,7 +405,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// <summary>
     /// Moves the falling Samus until she lands. True when her next phase runs on in this same update.
     /// </summary>
-    internal bool WaitForSamusToLand(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
+    internal bool WaitForSamusToLand(SamusState samus, MotherBrainRainbowBeamStepRequests requests)
     {
         requests.Movement = _movement.StepFallingAfterRainbowBeam(samus);
         if (requests.Movement.Value.ReachedVerticalBoundary)
@@ -461,13 +461,13 @@ internal sealed class MotherBrainRainbowAttackPhases
         MotherBrainRainbowPhase.WaitForCharge => WaitForCharge(requests),
         MotherBrainRainbowPhase.ExtendNeckDown => LowerNeckToFire(requests),
         MotherBrainRainbowPhase.StartFiring => WidenBeamUntilItTakesHold(samus, frame, requests),
-        MotherBrainRainbowPhase.MoveSamusTowardWall => PushSamusToWall(samus, frame, requests),
-        MotherBrainRainbowPhase.OneFrameDelay => PinSamusToWall(samus, frame, requests),
+        MotherBrainRainbowPhase.MoveSamusTowardWall => PushSamusToWall(samus, requests),
+        MotherBrainRainbowPhase.OneFrameDelay => PinSamusToWall(samus, requests),
         MotherBrainRainbowPhase.StartDrainingSamus => StartDrainingSamus(requests),
         MotherBrainRainbowPhase.DrainingSamus => DrainSamus(samus, frame, requests),
         MotherBrainRainbowPhase.FinishFiring => NarrowBeamAndReleaseSamus(samus, requests),
         MotherBrainRainbowPhase.LetSamusFall => LetSamusFall(samus),
-        MotherBrainRainbowPhase.WaitForSamusToLand => WaitForSamusToLand(samus, frame, requests),
+        MotherBrainRainbowPhase.WaitForSamusToLand => WaitForSamusToLand(samus, requests),
         MotherBrainRainbowPhase.LowerHead => StartPauseBeforeDeciding(),
         MotherBrainRainbowPhase.DecideNextAction => FireAgainOrFinishSamusOff(samus),
         _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainRainbowPhase)} {Encounter.RainbowPhase}."),

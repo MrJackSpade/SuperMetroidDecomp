@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus;
 /// How this update corrects the camera's record of where Samus was, before its scrolling measures how far she moved
 /// (#2562). Owners that run before the scrolling write her previous whole position (a pose's collision correction, facing
 /// forward's lift, a shinespark's lag, the gunship or a suit pickup placing her, Kraid's arena, the scrolling-speed cap),
-/// a feet alignment after a pose change shifts its height, and Mother Brain's rainbow-beam push hides its sub-pixel
+/// a feet alignment after a pose change shifts its height, and Mother Brain's rainbow-beam push hides its fraction of a pixel
 /// movement from it (<see cref="RainbowBeamCameraCheckpoint"/>). The scrolling hands the record over once, with every
 /// correction applied, and the next update starts with none.
 /// </summary>
@@ -26,17 +26,17 @@ public sealed class SamusPreviousPositionCorrections
     /// <summary>How far the feet alignments since the last written height have moved the previous height.</summary>
     private int _feetShift;
 
-    /// <summary>What the rainbow-beam push hides of its sub-pixel movement from the record this update.</summary>
+    /// <summary>What the rainbow-beam push hides of its movement within a pixel from the record this update.</summary>
     internal RainbowBeamCameraCheckpoint RainbowPush { get; } = new();
 
     /// <summary>
-    /// Writes Samus's previous whole X, as an owner that runs before the scrolling does; the record's sub-pixel is kept.
+    /// Writes Samus's previous whole X, as an owner that runs before the scrolling does; the record's fraction of a pixel is kept.
     /// </summary>
     internal void WriteX(int x) => _x = x;
 
     /// <summary>
     /// Writes Samus's previous whole Y, as a pose's collision correction or facing forward's lift does; the record's
-    /// sub-pixel is kept, and the write discards any earlier feet alignment this update.
+    /// fraction of a pixel is kept, and the write discards any earlier feet alignment this update.
     /// </summary>
     internal void WriteY(int y)
     {
@@ -52,7 +52,7 @@ public sealed class SamusPreviousPositionCorrections
 
     /// <summary>
     /// Hands <paramref name="record"/> to the scrolling with every correction this update made applied: the written whole
-    /// pixels, then what the rainbow-beam push hides of its sub-pixel movement. The next update starts with none. The
+    /// pixels, then what the rainbow-beam push hides of its movement within a pixel. The next update starts with none. The
     /// written X is a whole pixel of the room's coordinates, which <see cref="FixedCoordinate"/> holds (#1627).
     /// </summary>
     internal FixedPosition<RoomPixels> HandOver(FixedPosition<RoomPixels> record)

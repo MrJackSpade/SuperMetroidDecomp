@@ -19,6 +19,7 @@ public sealed class SamusCeresRidleyEjectionState
     public bool IsActive { get; private set; }
 
     /// <summary>True until the first shove update installs pose and velocity.</summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "The shove's first update installs Samus's pose and velocity: a state of the shove's own course, kept and cleared by the shove alone.")]
     public bool InitializationPending { get; private set; }
 
     /// <summary>

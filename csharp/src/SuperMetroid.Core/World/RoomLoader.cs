@@ -149,8 +149,10 @@ internal sealed class RoomLoader
     /// Where an arriving elevator places Samus, set up on the destination's loading update but applied only once loading
     /// has reached that enemy's setup (<see cref="IRoomLoadProgress"/>).
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "An arriving elevator places Samus only once the destination's loading has reached that elevator's setup (IRoomLoadProgress), several updates after the loading update: a state of the door's loading, not a one-update request.")]
     private LoaderSamusPlacement? _pendingLoaderSamusPlacement;
     /// <summary>What the source room showed, kept until the door-opening scroll's offsets are installed.</summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "What the source room showed, kept from the door's fade until the door-opening scroll installs its offsets updates later: a state of the door transition, not a one-update request.")]
     private DoorOpeningSourceView? _pendingDoorOpeningSourceView;
 
     /// <summary>

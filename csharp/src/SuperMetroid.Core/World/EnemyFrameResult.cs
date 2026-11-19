@@ -5,8 +5,8 @@ using SuperMetroid.Core.Enemies.Gunship;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// What one enemy pass, or a room's enemy setup, did for the runtime to carry out after it (#2562): the events its enemies
-/// published, in the order they published them. Each is carried out at the point the game performs it; see
+/// What one enemy pass, or a room's enemy setup, did for the runtime to act on after it (#2562): the events its enemies
+/// published, in the order they published them. The runtime acts on each at the point the game performs it; see
 /// <see cref="EnemyFramePhase"/> and <see cref="EnemyRoomEffects"/>.
 /// </summary>
 /// <param name="Events">The pass's events, in publication order.</param>

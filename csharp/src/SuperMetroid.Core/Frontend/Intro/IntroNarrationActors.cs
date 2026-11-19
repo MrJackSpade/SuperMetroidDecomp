@@ -69,6 +69,7 @@ internal sealed class IntroNarrationActors
     public IntroNarrationPageId? AwaitingInputPage { get; private set; }
 
     /// <summary>Set after the last page's final hold.</summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "The narration's last page has finished its hold: a state the cinematic reads on every update of its final fade until the intro ends, set by the last page and cleared only as a page starts.")]
     public bool IntroFinishRequested { get; private set; }
 
     /// <summary>

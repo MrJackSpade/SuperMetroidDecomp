@@ -22,15 +22,11 @@ internal static class SamusPoseTransitions
         ISamusRoomObjects roomObjects)
     {
         Ensure.NotNull(level);
+        // A walk-off is chosen from the pose that moved, while this check reads the live pose. Beyond the walk-off
+        // sources it also accepts the moonwalk turn jumps, the grounded turn between a moonwalk and its jump.
         bool supportedSource =
-            SamusPoseMetadata.IsRightFacingStandingPose(samus.Pose) || SamusPoseMetadata.IsLeftFacingStandingPose(samus.Pose) ||
-            SamusPoseMetadata.IsRightFacingLandingPose(samus.Pose) || SamusPoseMetadata.IsLeftFacingLandingPose(samus.Pose) ||
-            SamusPoseMetadata.IsRightFacingRunningPose(samus.Pose) || SamusPoseMetadata.IsLeftFacingRunningPose(samus.Pose) ||
-            SamusPoseMetadata.IsMoonwalkingPose(samus.Pose) ||
-            SamusPoseMetadata.IsMoonwalkTurnJumpPose(samus.Pose) ||
-            SamusPoseMetadata.IsKnockbackPose(samus.Pose) ||
-            SamusPoseMetadata.IsRanIntoWallPose(samus.Pose) ||
-            SamusPoseMetadata.IsRightFacingCrouchingPose(samus.Pose) || SamusPoseMetadata.IsLeftFacingCrouchingPose(samus.Pose);
+            SamusPoseMetadata.WalksOffFloor(samus.Pose) ||
+            SamusPoseMetadata.IsMoonwalkTurnJumpPose(samus.Pose);
         SamusPoseId expectedTarget = SelectFallingPoseForCurrentAim(samus);
         if (!supportedSource || targetPose != expectedTarget)
         {

@@ -27,19 +27,4 @@ internal class MissileShotState : SamusShotKindState
         Ignition = SamusMissileIgnition.Ignited;
         IgnitionSpeed = speed;
     }
-
-    /// <summary>
-    /// The count the missile leaves (<see cref="BeamFiredOverLastShot"/>): nothing before it first ignites, the head start
-    /// its reflection gave it while it waits to re-ignite, and once ignited the speed it ignited at, in 256ths of a pixel.
-    /// </summary>
-    internal override int FuseLeftForBeamFiredOver => Ignition switch
-    {
-        SamusMissileIgnition.Pending => 0,
-        SamusMissileIgnition.PendingAfterReflection =>
-            (SamusProjectileMotionDefinitions.ReflectedMissileIgnitionSpeed - SamusProjectileMotionDefinitions.MissileIgnitionSpeed)
-                .InTwoHundredFiftySixthsOfPixel,
-        SamusMissileIgnition.Ignited => (IgnitionSpeed
-            ?? throw new InvalidOperationException("An ignited missile keeps the speed it ignited at.")).InTwoHundredFiftySixthsOfPixel,
-        _ => throw new InvalidOperationException($"Undefined {nameof(SamusMissileIgnition)} {Ignition}."),
-    };
 }

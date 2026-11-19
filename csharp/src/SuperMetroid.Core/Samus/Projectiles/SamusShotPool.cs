@@ -66,8 +66,7 @@ internal sealed class SamusShotPool
     /// <returns>The new beam, holding no damage until its setup gives it some.</returns>
     internal SamusProjectile OccupyWithBeam(int place)
     {
-        SamusProjectile replaced = _places[place];
-        int fuse = replaced.IsOccupied ? replaced.FuseLeftForBeamFiredOver : 0;
+        int fuse = BeamFiredOverLastShot.FuseLeftBy(_places[place].AsReplacedByBeam);
         SamusProjectile beam = Occupy(place);
         beam.BeamFuse = fuse;
         return beam;

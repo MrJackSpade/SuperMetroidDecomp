@@ -9,11 +9,4 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// until it ends. Beams, the Hyper Beam and explosions keep nothing beyond the shot's own state, the Power Bomb fuse a beam
 /// carries (<see cref="SamusProjectile.BeamFuse"/>) among it.
 /// </summary>
-internal abstract class SamusShotKindState
-{
-    /// <summary>
-    /// The Power Bomb fuse, in updates, a beam fired over a shot of this kind starts with (<see cref="BeamFiredOverLastShot"/>):
-    /// the count the kind leaves in the shot's place.
-    /// </summary>
-    internal abstract int FuseLeftForBeamFiredOver { get; }
-}
+internal abstract class SamusShotKindState;

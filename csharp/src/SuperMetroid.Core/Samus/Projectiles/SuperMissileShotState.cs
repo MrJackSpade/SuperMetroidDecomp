@@ -14,14 +14,4 @@ internal sealed class SuperMissileShotState(SamusMissileIgnition ignition, int? 
     /// is created until it ignites with a link of its own; a reflection leaves it naming none until it re-ignites.
     /// </summary>
     internal int? LinkPlace { get; set; } = linkPlace;
-
-    /// <summary>
-    /// The count the Super Missile leaves (<see cref="BeamFiredOverLastShot"/>): once ignited naming a link, the whole
-    /// pixels of its ignition speed with twice the link's place below them; otherwise a missile's, the link's nothing
-    /// among them.
-    /// </summary>
-    internal override int FuseLeftForBeamFiredOver =>
-        Ignition == SamusMissileIgnition.Ignited && LinkPlace is { } link && IgnitionSpeed is { } speed
-            ? BeamFiredOverLastShot.FuseLeftByLinkedSuperMissile(speed, link)
-            : base.FuseLeftForBeamFiredOver;
 }

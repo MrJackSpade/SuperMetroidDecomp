@@ -290,7 +290,7 @@ internal static class QuicksandVerification
     private static void VerifySpecialAirField<TReaction>(CartridgeImportAddressSpace rom,
         Func<SpecialAirReaction?, TReaction> resolve, IReadOnlyDictionary<TReaction, ushort> headers,
         IReadOnlyDictionary<TReaction, ushort> setups, TReaction nothing, int nativePointers, bool setup)
-        where TReaction : struct, Enum
+        where TReaction : notnull
     {
         for (int rawArea = 0; rawArea <= byte.MaxValue; rawArea++)
         {
@@ -324,7 +324,7 @@ internal static class QuicksandVerification
     private static void VerifySpecialAirEntry<TReaction>(CartridgeImportAddressSpace rom, TReaction actual,
         IReadOnlyDictionary<TReaction, ushort> headers, IReadOnlyDictionary<TReaction, ushort> setups, TReaction nothing,
         int nativePointers, bool setup, int rawArea, int index)
-        where TReaction : struct, Enum
+        where TReaction : notnull
     {        // Follow the original area pointer and header, independently of the production cases.
         ushort table = ReadRomWord(rom, nativePointers + rawArea * 2);
         ushort header = ReadRomWord(rom, 0x940000 | (table + index * 2));

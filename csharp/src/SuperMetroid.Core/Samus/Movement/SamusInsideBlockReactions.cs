@@ -50,65 +50,48 @@ public static class SamusInsideBlockReactions
             {
                 return;
             }
-            switch (reaction)
+            if (reaction.Plant is { } plant)
+                roomObjects.SamusEater.TrySpawnSamusEater(level, block, plant, samus.RoomView);
+            else if (reaction.IsQuicksandSurface)
             {
-                case SpecialAirInsideReaction.Nothing:
-                    break;
-                case SpecialAirInsideReaction.BrinstarFloorPlant:
-                    roomObjects.SamusEater.TrySpawnSamusEater(level, block, SamusEaterObjectDefinitions.Floor, samus.RoomView);
-                    break;
-                case SpecialAirInsideReaction.BrinstarCeilingPlant:
-                    roomObjects.SamusEater.TrySpawnSamusEater(level, block, SamusEaterObjectDefinitions.Ceiling, samus.RoomView);
-                    break;
-                case SpecialAirInsideReaction.QuicksandSurface:
-                    // The game's setup cancels running momentum even for center/top samples,
-                    // but keeps the base speed's fraction of a pixel rather than stopping it.
-                    var speed = samus.HorizontalSpeed;
-                    speed.HasRunningMomentum = false;
-                    speed.SpeedBoostCounter = default;
-                    speed.EchoSoundPlaying = false;
-                    speed.ExtraRunSpeed = default;
-                    speed.BaseSpeed = QuicksandSurfaceSpeedLeftover.Leftover(speed.BaseSpeed);
-                    if (!bottomPoint) return;
-                    QuicksandSurfacePhysics physics =
-                        QuicksandReactions.SurfacePhysics(
-                            samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit));
-                    // One reaction per vertical direction; a still Samus takes the grounded reaction.
-                    switch (body.VerticalVelocity.Direction)
-                    {
-                        case SamusVerticalDirection.None:
-                            body.VerticalVelocity = body.VerticalVelocity.Stopped();
-                            SetExtra(physics.StationaryDisplacement);
-                            break;
-                        case SamusVerticalDirection.Up:
-                            SignedSixteenSixteen limit = physics.UpwardSpeedLimit;
-                            // A speed past the limit takes the limit's whole pixels and fraction.
-                            if (body.VerticalVelocity.Speed.IsFasterInTwoFiftySixthsThan(limit))
-                            {
-                                body.VerticalVelocity = body.VerticalVelocity.WithSpeed(UnsignedSixteenSixteen.FromDisplacement(limit));
-                            }
-                            SetExtra(physics.MovingDisplacement);
-                            break;
-                        case SamusVerticalDirection.Down:
-                            SetExtra(physics.MovingDisplacement);
-                            break;
-                        default:
-                            throw new InvalidOperationException(
-                                $"Undefined {nameof(SamusVerticalDirection)} {body.VerticalVelocity.Direction}.");
-                    }
-                    break;
-                case SpecialAirInsideReaction.SubmergingQuicksand:
-                    SetExtra(QuicksandDefinitions.SubmergingSinkDisplacement);
-                    break;
-                case SpecialAirInsideReaction.SlowSandfall:
-                    SetExtra(QuicksandDefinitions.SlowSandfallDisplacement);
-                    break;
-                case SpecialAirInsideReaction.FastSandfall:
-                    SetExtra(QuicksandDefinitions.FastSandfallDisplacement);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(SpecialAirInsideReaction)} {reaction}.");
+                // The game's setup cancels running momentum even for center/top samples,
+                // but keeps the base speed's fraction of a pixel rather than stopping it.
+                var speed = samus.HorizontalSpeed;
+                speed.HasRunningMomentum = false;
+                speed.SpeedBoostCounter = default;
+                speed.EchoSoundPlaying = false;
+                speed.ExtraRunSpeed = default;
+                speed.BaseSpeed = QuicksandSurfaceSpeedLeftover.Leftover(speed.BaseSpeed);
+                if (!bottomPoint) return;
+                QuicksandSurfacePhysics physics =
+                    QuicksandReactions.SurfacePhysics(
+                        samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit));
+                // One reaction per vertical direction; a still Samus takes the grounded reaction.
+                switch (body.VerticalVelocity.Direction)
+                {
+                    case SamusVerticalDirection.None:
+                        body.VerticalVelocity = body.VerticalVelocity.Stopped();
+                        SetExtra(physics.StationaryDisplacement);
+                        break;
+                    case SamusVerticalDirection.Up:
+                        SignedSixteenSixteen limit = physics.UpwardSpeedLimit;
+                        // A speed past the limit takes the limit's whole pixels and fraction.
+                        if (body.VerticalVelocity.Speed.IsFasterInTwoFiftySixthsThan(limit))
+                        {
+                            body.VerticalVelocity = body.VerticalVelocity.WithSpeed(UnsignedSixteenSixteen.FromDisplacement(limit));
+                        }
+                        SetExtra(physics.MovingDisplacement);
+                        break;
+                    case SamusVerticalDirection.Down:
+                        SetExtra(physics.MovingDisplacement);
+                        break;
+                    default:
+                        throw new InvalidOperationException(
+                            $"Undefined {nameof(SamusVerticalDirection)} {body.VerticalVelocity.Direction}.");
+                }
             }
+            else if (reaction.Carry is { } carry)
+                SetExtra(carry);
         }
         void ApplyConveyor(ConveyorBlock conveyor)
         {
@@ -161,13 +144,13 @@ public static class SamusInsideBlockReactions
         {
             return SpecialAirCollisionOutcome.PassesThrough;
         }
-        if (reaction == SpecialAirCollisionReaction.SubmergingQuicksand)
+        if (reaction.StopsFall)
         {
             body.VerticalVelocity = body.VerticalVelocity.Stopped();
             body.YAcceleration = default;
             return SpecialAirCollisionOutcome.PassesThrough;
         }
-        if (reaction != SpecialAirCollisionReaction.QuicksandSurface) return SpecialAirCollisionOutcome.PassesThrough;
+        if (!reaction.IsQuicksandSurface) return SpecialAirCollisionOutcome.PassesThrough;
         SamusCollisionDirection reactionDirection = blockReactionDirection ??
             (axis == Axis.Vertical
                 ? displacement.IsNegative ? SamusCollisionDirection.Up : SamusCollisionDirection.Down

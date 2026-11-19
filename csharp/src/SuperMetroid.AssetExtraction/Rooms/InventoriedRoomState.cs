@@ -113,9 +113,7 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
                 (block.Behavior.Special is not null &&
                     BombSpecialBlockReactions.ChangeFor(block.Behavior.Special) == SpeedBoosterBlockObjectDefinitions.BombReveal))) ||
         (IsReactingSpecialAir(block) &&
-            SpecialAirReactions.CollisionOf(block.Behavior.SpecialAir) is SpecialAirCollisionReaction.BrinstarSlowRespawningSpeedBlock
-                or SpecialAirCollisionReaction.BrinstarSlowPermanentSpeedBlock or SpecialAirCollisionReaction.DachoraRespawningSpeedBlock
-                or SpecialAirCollisionReaction.PermanentSpeedBlock));
+            SpecialAirReactions.CollisionOf(block.Behavior.SpecialAir).IsSpeedBlock));
 
     /// <summary>Whether the state's terrain holds a Grapple block that breaks under the beam.</summary>
     internal bool HoldsBreakableGrappleBlocks => Terrain.Any(block => block.Collision == RoomCollisionType.GrappleBlock &&
@@ -143,8 +141,7 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
 
     /// <summary>Whether the state's terrain holds a special-air block whose inside reaction is a Brinstar plant that bites Samus.</summary>
     internal bool HoldsSamusEaterPlants => Terrain.Any(block => IsReactingSpecialAir(block) &&
-        SpecialAirReactions.InsideOf(block.Behavior.SpecialAir) is SpecialAirInsideReaction.BrinstarFloorPlant
-            or SpecialAirInsideReaction.BrinstarCeilingPlant);
+        SpecialAirReactions.InsideOf(block.Behavior.SpecialAir).Plant is not null);
 
     /// <summary>
     /// Whether <paramref name="block"/> is a special-air block with a reaction: a reaction that is the same in every area

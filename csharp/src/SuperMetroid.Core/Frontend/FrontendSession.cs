@@ -507,7 +507,7 @@ internal sealed class FrontendSession
             },
             Artwork = Artwork,
             // Attract scripts retain the default controls and options of their private runtime.
-            Selected = attract ? null : ChosenOptions ?? new SelectedGameplayOptions(false, ControllerBindings.Default, false, false),
+            Selected = attract ? null : ChosenOptions ?? SelectedGameplayOptions.Default,
         });
     }
     /// <summary>Applies live menu controller and gameplay choices to a newly created runtime.</summary>

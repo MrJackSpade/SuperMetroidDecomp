@@ -126,7 +126,9 @@ internal static class FloorSheetComposer
         int width = Math.Max(SidePixels, pictures.Max(picture => picture.Columns * TilePixels));
         var places = new List<Position16<ImagePixels>>(pictures.Count);
         // A picture showing the same cells as one laid before it is held where that one is, under its own name and origin,
-        // so the sheet holds each picture once (#1513).
+        // so the sheet holds each picture once (#1513). A sheet of one picture holds it once whatever it shows, so what a
+        // picture shows, a whole floor's million pixels spelled out, is spelled out only where there are others to compare.
+        bool compares = pictures.Count > 1;
         var placeOf = new Dictionary<string, int>(StringComparer.Ordinal);
         var firstOf = new int[pictures.Count];
         int left = 0, top = 0, rowHeight = 0;
@@ -137,14 +139,17 @@ internal static class FloorSheetComposer
                 throw new InvalidDataException($"Floor picture {picture.Name} is not whole rows of cells.");
             if (picture.Column < 0 || picture.Row < 0 || picture.Column + picture.Columns > Side || picture.Row + picture.Rows > Side)
                 throw new InvalidDataException($"Floor picture {picture.Name} leaves the floor.");
-            string shown = Shown(picture);
-            if (placeOf.TryGetValue(shown, out int first))
+            if (compares)
             {
-                firstOf[index] = first;
-                places.Add(places[first]);
-                continue;
+                string shown = Shown(picture);
+                if (placeOf.TryGetValue(shown, out int first))
+                {
+                    firstOf[index] = first;
+                    places.Add(places[first]);
+                    continue;
+                }
+                placeOf.Add(shown, index);
             }
-            placeOf.Add(shown, index);
             firstOf[index] = index;
             int pictureWidth = picture.Columns * TilePixels;
             if (left + pictureWidth > width)

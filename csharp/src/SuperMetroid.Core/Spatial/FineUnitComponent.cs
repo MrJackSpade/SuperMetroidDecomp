@@ -8,24 +8,19 @@ namespace SuperMetroid.Core.Spatial;
 /// </summary>
 internal readonly record struct FineUnitComponent
 {
-    /// <summary>The component the half-wave at <paramref name="axisAngle"/> gives (#2569).</summary>
-    private FineUnitComponent(TrigonometryAngle axisAngle)
-    {
-        _axisAngle = axisAngle;
-        _size = Trigonometry.HalfWaveShare(axisAngle.StepsIntoHalfTurn);
-    }
+    /// <summary>
+    /// The component the half-wave at <paramref name="axisAngle"/> gives (#2569): its share of the whole
+    /// (<see cref="Trigonometry.HalfWaveShare"/>), less than one whole, toward the axis's decreasing side where the angle
+    /// lies in the turn's second half.
+    /// </summary>
+    private FineUnitComponent(TrigonometryAngle axisAngle) =>
+        _share = axisAngle.WithSineSign(Trigonometry.HalfWaveShare(axisAngle.StepsIntoHalfTurn).AsDisplacement());
 
     /// <summary>
-    /// The angle whose half-wave gives the share (<see cref="Trigonometry.HalfWaveShare"/>), less than one whole, and whose
-    /// half of the turn gives its side: toward the axis's decreasing side in the turn's second half.
+    /// The share of the whole, read once as the component is made: under one whole either way, negative toward
+    /// the axis's decreasing side.
     /// </summary>
-    private readonly TrigonometryAngle _axisAngle;
-
-    /// <summary>The share's size, the half-wave's at the axis angle, less than one whole, read once as the share is made.</summary>
-    private readonly UnsignedSixteenSixteen _size;
-
-    /// <summary>The share's size, the half-wave's, less than one whole.</summary>
-    private UnsignedSixteenSixteen Size => _size;
+    private readonly SignedSixteenSixteen _share;
 
     /// <summary>
     /// The share of <paramref name="angle"/> across, its cosine: the half-wave a quarter turn on, pointing left where that
@@ -44,13 +39,13 @@ internal readonly record struct FineUnitComponent
 
     /// <summary>
     /// The speed along the axis of a point moving at <paramref name="wholePixels"/> whole pixels per update along the
-    /// direction: the share's size times the speed, every finer fraction dropped, then given the component's side, so the
-    /// speed rounds toward zero and a speed toward the decreasing side is exactly the reverse of the same speed the other way.
+    /// direction: the share times the speed, which keeps every fraction the share holds, so a speed toward the decreasing
+    /// side is exactly the reverse of the same speed the other way.
     /// </summary>
     /// <param name="wholePixels">The speed along the direction in whole pixels per update, zero or more.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="wholePixels"/> is negative.</exception>
-    internal SignedSixteenSixteen SpeedAt(int wholePixels) => _axisAngle.WithSineSign(Size.Times(wholePixels).AsDisplacement());
+    internal SignedSixteenSixteen SpeedAt(int wholePixels) => _share * Ensure.AtLeastZero(wholePixels);
 
     /// <inheritdoc />
-    public override string ToString() => $"{(_axisAngle.IsInSecondHalf ? "-" : string.Empty)}{Size}";
+    public override string ToString() => _share.ToString();
 }

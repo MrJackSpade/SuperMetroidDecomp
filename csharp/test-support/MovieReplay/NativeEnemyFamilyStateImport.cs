@@ -701,7 +701,9 @@ internal static class NativeEnemyFamilyStateImport
             // A special Rinka holding a point was placed at it, which makes it the point it respawns at (#2256).
             if (rinkaRecord.HeldSpawnPoint is { } heldPoint)
                 rinkaRecord.SpawnPoint = heldPoint;
-            PrivateState.Set(rinkaRecord.DelayTimer, nameof(BossCountdown.Count), CoordinateAxis.AsSigned(words.F));
+            // The record's one wait is the respawn delay while the Rinka waits to respawn, and its aim delay otherwise.
+            PrivateState.Set(rinkaRecord.Action == RinkaAction.DeathRespawnDelay ? rinkaRecord.RespawnDelay : rinkaRecord.AimDelay,
+                nameof(BossCountdown.Count), CoordinateAxis.AsSigned(words.F));
         }
         if (enemy.SpeciesState<EtecoonEnemyState>() is { } etecoonRecord)
         {

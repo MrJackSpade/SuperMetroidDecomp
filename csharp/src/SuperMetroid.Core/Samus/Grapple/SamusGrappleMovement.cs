@@ -798,6 +798,10 @@ public static class SamusGrappleMovement
                 // reports the block solid to the beam from its collision reaction.
                 return GrappleBlockReaction.Solid;
 
+            case RoomCollisionType.HorizontalExtension:
+            case RoomCollisionType.VerticalExtension:
+                throw new InvalidOperationException($"Continuing block {block.Position} reached the grapple's endpoint in place of the block it stands for.");
+
             default:
                 throw new InvalidDataException(
                     $"Grapple block type {block.CollisionType} escaped the complete " +

@@ -52,11 +52,23 @@ public sealed class LeftBeamStartFromLastShot
             Keep(place, handOver.ShotHorizontalFraction(place));
     }
 
-    /// <summary>Leaves what each place keeps as the room's load clears Samus's shots for the room that replaces this one.</summary>
+    /// <summary>
+    /// Leaves for the room that replaces this one what each place keeps as the room's load clears Samus's shots: the
+    /// fraction of the projectile holding it, or what it already keeps while none does.
+    /// </summary>
     /// <param name="handOver">What this room leaves for the next.</param>
-    /// <param name="keptOnClear">What each place keeps as the shots are cleared, in place order, 0 through 65535.</param>
-    public void HandOverTo(RoomHandOver handOver, IEnumerable<int> keptOnClear) =>
-        Ensure.NotNull(handOver).LeaveShots(keptOnClear);
+    /// <param name="heldFractions">
+    /// The fraction of the projectile holding each place, in place order, 0 through 65535; null for a place no projectile
+    /// holds.
+    /// </param>
+    public void HandOverTo(RoomHandOver handOver, IReadOnlyList<int?> heldFractions)
+    {
+        Ensure.NotNull(handOver);
+        Ensure.NotNull(heldFractions);
+        if (heldFractions.Count != _kept.Length)
+            throw new ArgumentException($"Samus has {_kept.Length} shot places, not {heldFractions.Count}.", nameof(heldFractions));
+        handOver.LeaveShots(Enumerable.Range(0, _kept.Length).Select(place => heldFractions[place] ?? _kept[place]));
+    }
 
     /// <summary>What <paramref name="place"/> keeps for its next projectile, 0 through 65535.</summary>
     public int Kept(int place) => _kept[place];

@@ -478,6 +478,10 @@ public static class SamusGrappleSwing
                 ApplySwingSpikeDamage(samus, block.Behavior.Spike, block: SwingSpikeBlock.Solid);
                 return true;
 
+            case RoomCollisionType.HorizontalExtension:
+            case RoomCollisionType.VerticalExtension:
+                throw new InvalidOperationException($"Continuing block {block.Position} reached the grapple's swing in place of the block it stands for.");
+
             default:
                 throw new InvalidDataException(
                     $"Invalid grapple swing collision type {block.CollisionType}.");

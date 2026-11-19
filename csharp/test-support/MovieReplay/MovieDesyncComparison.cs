@@ -203,16 +203,14 @@ internal static class MovieDesyncComparison
                 Check($"Ridley tail {index} X", ridley.Tail.Links[index].Position.X, tail + MovieDesyncMemory.RidleyTailXOffset);
                 Check($"Ridley tail {index} Y", ridley.Tail.Links[index].Position.Y, tail + MovieDesyncMemory.RidleyTailYOffset);
             }
-        var projectiles = runtime.Enemies.Projectiles.EnemyProjectiles;
-        if (projectiles.Count != MovieDesyncMemory.EnemyProjectileSlots)
-            throw new InvalidOperationException($"Port has {projectiles.Count} enemy-projectile slots.");
+        var projectiles = runtime.Enemies.Projectiles;
         // The fresh-Ceres pad ($86:A387) and concealer ($86:A395) live in their own arrival
         // model, which owns native slots $22 and $20 while they exist; the pool leaves them free.
         var arrival = runtime.Room.CeresElevatorArrival;
         void CheckArrivalSlot(int slot, bool active, ushort id, ushort y)
         {
             int offset = 2 * slot;
-            if (projectiles[slot].IsActive)
+            if (projectiles.LatestInPlace(slot) is { IsActive: true })
                 mismatches.Add($"Enemy projectile {slot} is allocated while the Ceres arrival owns it");
             Check($"Enemy projectile {slot} ID", active ? id : (ushort)0, MovieDesyncMemory.EnemyProjectileIds + offset);
             if (!active) return;
@@ -225,17 +223,17 @@ internal static class MovieDesyncComparison
             CheckArrivalSlot(17, (arrival ?? throw new InvalidOperationException("Verification requires arrival.")).PadActive, 0xa387, arrival.PadPosition.Y);
             CheckArrivalSlot(16, arrival.PlatformActive, 0xa395, arrival.PlatformPosition.Y);
         }
-        for (int slot = 0; slot < (arrivalLive ? 16 : projectiles.Count); slot++)
+        for (int slot = 0; slot < (arrivalLive ? 16 : SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine.PlaceCount); slot++)
         {
             // The port's projectile kind is the native bank-$86 header pointer.
-            var projectile = projectiles[slot];
+            var latest = projectiles.LatestInPlace(slot);
             int offset = 2 * slot;
             // Identical cartridge definitions that differ only in their way or look name one kind (#2278).
-            Check($"Enemy projectile {slot} ID", projectile.IsActive
-                    ? EnemyProjectileNativeWords.IdentityWord(projectile.Kind, Word(memory, MovieDesyncMemory.EnemyProjectileIds + offset))
+            Check($"Enemy projectile {slot} ID", latest is { IsActive: true }
+                    ? EnemyProjectileNativeWords.IdentityWord(latest.Kind, Word(memory, MovieDesyncMemory.EnemyProjectileIds + offset))
                     : (ushort)0,
                 MovieDesyncMemory.EnemyProjectileIds + offset);
-            if (!projectile.IsActive) continue;
+            if (latest is not { IsActive: true } projectile) continue;
             // $86:8097 leaves the whole X word unwritten and the n00b-tube bubble's init only
             // stores its X in Var1; $86:D8DF copies it on its first run. Until then native X
             // is whatever the aliased RAM held (slot 3's X is CinematicFrameCounter $1A51).

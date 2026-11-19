@@ -118,17 +118,6 @@ internal sealed class SamusShotPool
         }
     }
 
-    /// <summary>
-    /// The horizontal fraction of a pixel <paramref name="place"/> would keep if Samus's shots were cleared now: its
-    /// projectile's while one holds it, otherwise what it already keeps.
-    /// </summary>
-    /// <param name="place">The zero-based shot place.</param>
-    internal int FractionKeptOnClear(int place)
-    {
-        SamusProjectile projectile = _places[place];
-        return projectile.IsOccupied ? projectile.Position.X.Fraction : LeftBeamStart.Kept(place);
-    }
-
     /// <summary>Each place's projectile in update order, highest place first.</summary>
     internal IEnumerable<SamusProjectile> InUpdateOrder
     {

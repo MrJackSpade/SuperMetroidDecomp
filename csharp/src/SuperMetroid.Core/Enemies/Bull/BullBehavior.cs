@@ -163,7 +163,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="speed"/> is negative.</exception>
     internal static SignedSixteenSixteen BullStep(UnitComponent share, SignedEightEight speed)
     {
-        // The share is at most 254 256ths and the speed at most 2880 256ths, so the step is under six pixels.
+        // The share is under one and the speed at most eleven and a quarter pixels, so the step is under six pixels.
         SignedSixteenSixteen forward = share.SizeTimes(speed).Halved(BullMovementDefinitions.StepHalvings).AsDisplacement();
         return share.IsNegative ? BullBackwardStep.Of(forward) : forward;
     }

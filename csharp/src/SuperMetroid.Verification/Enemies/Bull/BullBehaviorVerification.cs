@@ -104,7 +104,7 @@ internal static class BullBehaviorVerification
         AssertEqual(304, Brake(), "a braked kick runs its acceleration below zero with 304 256ths left");
         AssertEqual(-8, state.Acceleration.InTwoHundredFiftySixthsOfPixel, "a braked kick's acceleration ends below zero");
 
-        state.ShotReactionDisableTimer = 0;
+        state.ShotReactionDisableTimer = UpdateCountdown.Ended();
         BullBehavior.ResolveBullImmuneShot(slot, state, BullMotion.ShotAngle(SamusProjectileDirection.Right));
         state.AccelerationDelta = SignedEightEight.Zero;
         AssertEqual(0, Brake(), "a kick while the Bull waits brakes a pixel an interval onto exactly zero");

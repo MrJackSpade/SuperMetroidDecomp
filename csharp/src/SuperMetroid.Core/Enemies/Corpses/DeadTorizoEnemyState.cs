@@ -23,10 +23,17 @@ public sealed class DeadTorizoEnemyState
 
     /// <summary>The corpse's body rows as its rot has left them, which its body frame is drawn whole through (#1539).</summary>
     internal RottingCorpseRows Rows { get; } = new(DeadTorizoCorpseDefinitions.RowCount);
-    /// <summary>Contact-delay updates counted before rotting, 0..16: the sixteenth enters rotting and the corpse never returns to the delay. Direct shot or touch triggering bypasses it.</summary>
-    public int PreRotDelayCounter { get; internal set; }
-    /// <summary>Count of the corpse's rot updates since initialization, including the update that completes its final entry; its sand heap forms by it.</summary>
-    public int RotUpdateCount { get; internal set; }
+    /// <summary>
+    /// The contact delay before rotting, counted once each update: the sixteenth enters rotting and the corpse never returns
+    /// to the delay. Direct shot or touch triggering bypasses it.
+    /// </summary>
+    public UpdateCountdown PreRotDelay { get; internal set; } = UpdateCountdown.Lasting(CorpseRotScheduleDefinitions.PreRotDelayUpdates);
+    /// <summary>
+    /// The sand heap's forming, counted once each of the corpse's rot updates until its last line has fallen: one more line
+    /// falls each <see cref="DeadTorizoCorpseDefinitions.RotUpdatesPerSandLine"/> of its age.
+    /// </summary>
+    public UpdateCountdown SandForming { get; } =
+        UpdateCountdown.Lasting(DeadTorizoCorpseDefinitions.SandLines * DeadTorizoCorpseDefinitions.RotUpdatesPerSandLine);
 
     /// <summary>The corpse phase.</summary>
     internal DeadTorizoPhase Phase { get; set; }

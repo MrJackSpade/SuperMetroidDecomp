@@ -38,6 +38,6 @@ public sealed class AlcoonEnemyState
     /// </summary>
     public int LandingY { get; internal set; }
 
-    /// <summary>The walk cycles, each of four strides, the Alcoon still walks before another fire volley.</summary>
-    public int WalkCyclesBeforeVolley { get; internal set; }
+    /// <summary>The walk cycles, each of four strides, the Alcoon still walks before another fire volley, counted as each completes.</summary>
+    public UpdateCountdown WalkCyclesBeforeVolley { get; internal set; } = UpdateCountdown.Ended();
 }

@@ -17,7 +17,7 @@ internal static class CorpseRotScheduleChecks
         {
             CorpseRowFall fall = actual.Rows[row];
             AssertEqual(rowCount - 1 - row, fall.PixelRow, $"{context} row {row} starts at its own pixel row");
-            AssertEqual(2 * row, fall.DelayUpdates, $"{context} row {row} waits two calls longer than the row below");
+            AssertEqual(2 * row, fall.Delay.UpdatesLeft, $"{context} row {row} waits two calls longer than the row below");
             AssertTrue(!fall.HasFallen, $"{context} row {row} has not fallen");
         }
     }

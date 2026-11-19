@@ -11,10 +11,10 @@ public sealed class DachoraEchoState
     internal AnimationPlayback<DachoraSegment> Playback { get; set; }
 
     /// <summary>
-    /// The updates the echo stays visible, counted down to zero and never below it; zero marks the echo free for the next
+    /// The updates the echo stays visible, counted once each update it shows; once it is over the echo is free for the next
     /// trail position.
     /// </summary>
-    public int Lifetime { get; internal set; }
+    public UpdateCountdown Lifetime { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// Whether the echo shows on odd updates rather than even ones while it is visible. Its body sets it each time it places

@@ -12,4 +12,10 @@ internal static class UpdateCountdownAccess
             wait.Count();
         return wait;
     }
+
+    /// <summary>
+    /// The wait a recorded count of updates left stands for: a count at zero or below, which the cartridge's countdown has
+    /// run past, is over.
+    /// </summary>
+    internal static UpdateCountdown Recorded(int count) => UpdateCountdown.For(Math.Max(0, count));
 }

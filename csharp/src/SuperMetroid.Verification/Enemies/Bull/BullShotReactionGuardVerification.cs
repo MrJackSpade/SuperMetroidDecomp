@@ -24,22 +24,22 @@ internal static class BullShotReactionGuardVerification
         BullEnemyState state = inheritance.Inherit(place.Ordinal, static previous => new BullEnemyState(previous, BullAction.MovementDelay)
         {
             Action = BullAction.MovementDelay,
-            ActivationTimer = 100,
+            ActivationTimer = UpdateCountdown.Lasting(100),
         });
 
-        state.ShotReactionDisableTimer = 2;
+        state.ShotReactionDisableTimer = UpdateCountdown.For(2);
         BullBehavior.RunBullMain(place, state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
-        AssertEqual(1, state.ShotReactionDisableTimer, "the guard counts down each update");
+        AssertEqual(1, state.ShotReactionDisableTimer.UpdatesLeft, "the guard counts down each update");
         AssertTrue(state.ShotReactionDisabled, "the counting guard stays set");
         BullEnemyState successor = inheritance.Inherit(place.Ordinal, static previous => new BullEnemyState(previous, BullAction.MovementDelay));
-        AssertEqual(1, successor.ShotReactionDisableTimer, "the next Bull set up in the same slot inherits the count");
+        AssertEqual(1, successor.ShotReactionDisableTimer.UpdatesLeft, "the next Bull set up in the same slot inherits the count");
         AssertTrue(successor.ShotReactionDisabled, "the next Bull set up in the same slot inherits the set guard");
 
         BullBehavior.RunBullMain(place, state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
-        AssertEqual(0, state.ShotReactionDisableTimer, "the guard's countdown runs out");
+        AssertEqual(0, state.ShotReactionDisableTimer.UpdatesLeft, "the guard's countdown runs out");
         AssertTrue(!state.ShotReactionDisabled, "the expired guard clears");
         BullBehavior.RunBullMain(place, state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
-        AssertEqual(0, state.ShotReactionDisableTimer, "a guard that ran out counts no further");
+        AssertEqual(0, state.ShotReactionDisableTimer.UpdatesLeft, "a guard that ran out counts no further");
         Console.WriteLine("Bull shot-reaction guard: the guard counts down, the slot's next Bull inherits it, and it clears when its countdown runs out.");
     }
 

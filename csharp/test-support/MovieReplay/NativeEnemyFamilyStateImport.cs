@@ -299,8 +299,9 @@ internal static class NativeEnemyFamilyStateImport
         if (enemy.SpeciesState<DeadSidehopperEnemyState>() is { } deadSidehopperRecord)
         {
             deadSidehopperRecord.Action = CorpsesNativeWords.DeadSidehopperActions.Decode(words.A, "recorded DeadSidehopperAction");
-            deadSidehopperRecord.PreRotDelayCounter = words.B;
-            deadSidehopperRecord.StateTimer = TrueDuration(words.F);
+            deadSidehopperRecord.PreRotDelay = UpdateCountdownAccess.AtAge(CorpseRotScheduleDefinitions.PreRotDelayUpdates,
+                Math.Min(words.B, CorpseRotScheduleDefinitions.PreRotDelayUpdates));
+            deadSidehopperRecord.PostLandingPause = TrueWait(words.F);
         }
         if (enemy.SpeciesState<BotwoonEnemyState>() is { } botwoonRecord)
         {
@@ -340,9 +341,9 @@ internal static class NativeEnemyFamilyStateImport
             // holds its body's trail timer, which Core keeps on the body listed right before it (#2147).
             if (words.F != AnimalsNativeWords.DachoraEchoRoutine)
                 throw new InvalidDataException($"Recorded Dachora echo {enemy.Ordinal} runs routine {words.F:X4}, not the echo's.");
-            dachoraEcho.Lifetime = unchecked((short)words.D);
+            dachoraEcho.Lifetime = UpdateCountdownAccess.Recorded(unchecked((short)words.D));
             if (enemies.Places.ListedBeforeOrNone(enemy, 1)?.SpeciesState<DachoraEnemyState>() is { } echoBody)
-                echoBody.TrailTimer = unchecked((short)words.A);
+                echoBody.TrailTimer = UpdateCountdownAccess.Recorded(unchecked((short)words.A));
         }
         if (enemy.SpeciesState<DachoraEnemyState>() is { } dachoraRecord)
         {
@@ -352,7 +353,7 @@ internal static class NativeEnemyFamilyStateImport
             // in variable D; each is read here as the meaning the recorded phase gives it.
             if (dachoraRecord.Action is DachoraAction.BlinkingBeforeRun or DachoraAction.ChargingShinespark)
             {
-                dachoraRecord.PhaseTimer = unchecked((short)words.A);
+                dachoraRecord.PhaseTimer = UpdateCountdownAccess.Recorded(unchecked((short)words.A));
                 dachoraRecord.Speed = SignedSixteenSixteen.FromParts(0, words.B);
                 dachoraRecord.VerticalAcceleration = SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.D);
             }
@@ -516,8 +517,8 @@ internal static class NativeEnemyFamilyStateImport
             bullRecord.Acceleration = new SignedEightEight(words.B);
             bullRecord.AccelerationDelta = new SignedEightEight(words.C);
             bullRecord.Speed = new SignedEightEight(words.D);
-            bullRecord.ActivationTimer = unchecked((short)words.E);
-            bullRecord.AccelerationIntervalTimer = unchecked((short)words.F);
+            bullRecord.ActivationTimer = UpdateCountdownAccess.Recorded(unchecked((short)words.E));
+            bullRecord.AccelerationIntervalTimer = UpdateCountdownAccess.Recorded(unchecked((short)words.F));
         }
         if (enemy.SpeciesState<BoyonEnemyState>() is { } boyonRecord)
         {
@@ -718,7 +719,7 @@ internal static class NativeEnemyFamilyStateImport
             if (etecoonRecord.Action == EtecoonAction.Dormant && unchecked((short)words.E) >= 0)
                 etecoonRecord.Action = EtecoonAction.Flexing;
             if (etecoonRecord.Action != EtecoonAction.Dormant)
-                etecoonRecord.ActionTimer = words.E;
+                etecoonRecord.ActionTimer = UpdateCountdown.For(words.E);
         }
         if (enemy.SpeciesState<MochtroidEnemyState>() is { } mochtroidRecord)
         {
@@ -773,7 +774,7 @@ internal static class NativeEnemyFamilyStateImport
             // Only an action that goes one way names its heading (#2277).
             if (beetomHeading is { } beetomGoes)
                 beetom.Heading = beetomGoes;
-            beetom.ActionTimer = TrueDuration(words.D);
+            beetom.ActionTimer = TrueWait(words.D);
             beetom.ButtonCounter = unchecked((short)words.E);
             beetom.LastSeenPlayerActions = GameplayActionWordCodec.FromJoypadWord(words.F, "native Beetom previous controller input");
         }
@@ -797,8 +798,8 @@ internal static class NativeEnemyFamilyStateImport
             choot.Action = ChootNativeWords.ChootActions.Decode(words.A, "recorded ChootAction");
             // The ascent cursor is 8.8 and moves by whole records, so its signed high byte is the record index.
             choot.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(unchecked((short)words.B) >> 8);
-            choot.FallingPatternFrame = (words.C & 0xff) == 0
-                ? words.C >> 8
+            choot.FallingLoop = (words.C & 0xff) == 0
+                ? UpdateCountdownAccess.AtAge(ChootFalls.LoopUpdates(enemy.SpawnSettings<ChootSpawnSettings>().FallingPath), words.C >> 8)
                 : throw new InvalidDataException($"Recorded Choot falling cursor ${words.C:X4} is not a whole frame.");
             choot.FallingPatternLoopCounter = TrueDuration(words.D);
             // The Choot falls along its placement's path (#2476), which the recording's must be.
@@ -964,7 +965,8 @@ internal static class NativeEnemyFamilyStateImport
         if (enemies.DeadTourianCorpses[index] is { } corpse)
         {
             corpse.Phase = DeadTourianCorpsePhaseOf(corpse.Species, words.A);
-            corpse.PreRotDelayCounter = words.B;
+            corpse.PreRotDelay = UpdateCountdownAccess.AtAge(CorpseRotScheduleDefinitions.PreRotDelayUpdates,
+                Math.Min(words.B, CorpseRotScheduleDefinitions.PreRotDelayUpdates));
         }
         if (enemies.RioStates[index] is { } rio)
         {

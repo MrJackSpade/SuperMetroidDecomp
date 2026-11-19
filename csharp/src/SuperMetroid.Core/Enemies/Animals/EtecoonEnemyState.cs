@@ -19,15 +19,10 @@ public sealed class EtecoonEnemyState
     public FixedVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>
-    /// The updates the current behaviour still waits, 0 through <see cref="EtecoonTimingDefinitions.FlexDuration"/>:
-    /// every behaviour that waits starts its wait on entry and moves on in the update its wait reaches zero, so the wait
-    /// never runs past zero.
+    /// The current behaviour's wait, at most <see cref="EtecoonTimingDefinitions.FlexDuration"/>: every behaviour that
+    /// waits starts its wait on entry and moves on in the update its wait ends, so the wait is never counted once over.
     /// </summary>
-    public int ActionTimer
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, EtecoonTimingDefinitions.FlexDuration, value);
-    }
+    public UpdateCountdown ActionTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>The main-AI behaviour.</summary>
     public EtecoonAction Action { get; internal set; }
@@ -36,11 +31,7 @@ public sealed class EtecoonEnemyState
     /// The updates an earthquake still suspends the Etecoon for: an earthquake starts
     /// <see cref="EtecoonQuakeDefinitions.QuakePauseFrames"/>, and an Etecoon is placed with none.
     /// </summary>
-    public int QuakePauseFrames
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, EtecoonQuakeDefinitions.QuakePauseFrames, value);
-    }
+    public UpdateCountdown QuakePauseFrames { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// The way the Etecoon is heading (#2277): it is placed heading left, until it first takes a heading of its own.

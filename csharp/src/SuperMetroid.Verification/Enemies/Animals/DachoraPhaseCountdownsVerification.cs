@@ -20,11 +20,11 @@ internal static class DachoraPhaseCountdownsVerification
         place.SetSpeciesState(state);
 
         state.StartBlinking(5);
-        AssertEqual(5, state.PhaseTimer, "the warning countdown starts");
+        AssertEqual(5, state.PhaseTimer.UpdatesLeft, "the warning countdown starts");
         AssertEqual(SignedSixteenSixteen.Zero, state.Speed, "the run after the warning countdown starts at rest");
         state.Speed = SignedSixteenSixteen.FromWholePixels(7) + SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(128);
         state.StartCharging(5);
-        AssertEqual(5, state.PhaseTimer, "the charge countdown starts");
+        AssertEqual(5, state.PhaseTimer.UpdatesLeft, "the charge countdown starts");
         AssertEqual(SignedSixteenSixteen.Zero, state.Speed, "the launch after the charge countdown starts at rest");
         Console.WriteLine("Dachora phase countdowns: each countdown leaves the next phase at rest.");
     }

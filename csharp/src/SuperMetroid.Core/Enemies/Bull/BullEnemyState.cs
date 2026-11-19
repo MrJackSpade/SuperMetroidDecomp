@@ -20,7 +20,7 @@ public sealed class BullEnemyState
     internal BullEnemyState(BullEnemyState? previous, BullAction action)
     {
         Action = action;
-        ShotReactionDisableTimer = previous?.ShotReactionDisableTimer ?? 0;
+        ShotReactionDisableTimer = UpdateCountdown.For(previous?.ShotReactionDisableTimer.UpdatesLeft ?? 0);
     }
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
@@ -82,13 +82,13 @@ public sealed class BullEnemyState
     /// Movement-delay countdown initialized/reloaded to 16, with targeting selected when its decrement
     /// reaches exactly zero.
     /// </summary>
-    public int ActivationTimer { get; internal set; }
+    public UpdateCountdown ActivationTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// Shared acceleration/deceleration interval countdown, decremented on eligible speed updates and reloaded
     /// from the current phase's reset value on exact-zero expiry.
     /// </summary>
-    public int AccelerationIntervalTimer { get; internal set; }
+    public UpdateCountdown AccelerationIntervalTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>Latest bearing toward Samus with zero pointing right; compared with the captured flight angle rather than continuously steering it.</summary>
     public RotationAngle AngleToSamus { get; internal set; }
@@ -100,16 +100,11 @@ public sealed class BullEnemyState
     /// Whether repeated no-damage projectile kicks are suppressed during the shot-reaction cooldown: while its countdown
     /// runs (#2432). It does not disable ordinary health processing.
     /// </summary>
-    public bool ShotReactionDisabled => ShotReactionDisableTimer > 0;
+    public bool ShotReactionDisabled => ShotReactionDisableTimer.IsRunning;
 
     /// <summary>
-    /// The main-AI updates left before a no-damage kick's guard runs out, inherited from the place's previous Bull: set to
-    /// 48 by the kick and counted down each main-AI update, the guard clearing on the update it reaches zero (#2282). Zero
-    /// while no guard counts.
+    /// The no-damage kick's guard, inherited from the place's previous Bull: started for 48 main-AI updates by the kick and
+    /// counted each main-AI update, the guard clearing on the update it ends (#2282). Over while no guard counts.
     /// </summary>
-    public int ShotReactionDisableTimer
-    {
-        get;
-        internal set => field = Ensure.AtLeastZero(value);
-    }
+    public UpdateCountdown ShotReactionDisableTimer { get; internal set; }
 }

@@ -58,10 +58,10 @@ public sealed class CorpseRotSchedule
             if (row.HasFallen)
                 continue;
 
-            if (row.DelayUpdates != 0)
+            if (row.Delay.IsRunning)
             {
-                row.DelayUpdates--;
-                if (row.DelayUpdates < CorpseRotScheduleDefinitions.LeadInUpdates)
+                row.Delay.Count();
+                if (row.Delay.UpdatesLeft < CorpseRotScheduleDefinitions.LeadInUpdates)
                     moveRow(row.PixelRow, index >= FirstMovingLeadInRow ? CorpseRowOperation.Move : CorpseRowOperation.Copy);
                 continue;
             }

@@ -66,7 +66,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         BeetomEnemyState state = _inheritance.Inherit(place.Ordinal, static previous => new BeetomEnemyState(previous, BeetomAction.DecideAction));
         place.SetSpeciesState(state);
 
-        state.ActionTimer = 0;
+        state.ActionTimer = UpdateCountdown.Ended();
         state.AttachedToSamus = false;
         state.ButtonCounter = BeetomMotionDefinitions.MashCount;
         state.LastSeenPlayerActions = controllerInput;
@@ -102,7 +102,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 ChooseDistantBeetomAction(state);
                 return;
             case BeetomAction.StartIdling:
-                state.ActionTimer = BeetomMotionDefinitions.IdleDuration;
+                state.ActionTimer = UpdateCountdown.For(BeetomMotionDefinitions.IdleDuration);
                 state.Action = BeetomAction.Idling;
                 return;
             case BeetomAction.StartCrawling:
@@ -128,7 +128,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Action = BeetomAction.BeingFlung;
                 return;
             case BeetomAction.Idling:
-                if (--state.ActionTimer <= 0)
+                if (state.ActionTimer.Step())
                     state.Action = BeetomAction.DecideAction;
                 return;
             case BeetomAction.Crawling:
@@ -266,9 +266,9 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Probes eight pixels ahead for a ledge, then crawls or reverses at terrain.</summary>
     private void RunBeetomCrawl(RoomEnemyPlace place, BeetomEnemyState state, RoomLevelData level, HorizontalDirection direction)
     {
-        if (--state.ActionTimer <= 0)
+        if (state.ActionTimer.Step())
         {
-            state.ActionTimer = BeetomMotionDefinitions.CrawlDuration;
+            state.ActionTimer = UpdateCountdown.For(BeetomMotionDefinitions.CrawlDuration);
             state.Action = BeetomAction.DecideAction;
             return;
         }

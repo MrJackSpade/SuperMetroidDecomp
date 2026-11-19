@@ -67,14 +67,14 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         if (Math.Abs(samus.Position.X.Whole - place.Position.X.Whole) >= ChootMotionDefinitions.ActivationDistance)
             return;
 
-        state.JumpDelayTimer = place.SpawnSettings<ChootSpawnSettings>().JumpDelay + EnemyWaitDefinitions.RunOutUpdate;
+        state.JumpDelayTimer = UpdateCountdown.For(place.SpawnSettings<ChootSpawnSettings>().JumpDelay + EnemyWaitDefinitions.RunOutUpdate);
         state.Action = ChootAction.PreparingJump;
     }
 
     /// <summary>Waits out the jump delay, then starts the jumping animation.</summary>
     internal static void PrepareChootJump(RoomEnemyPlace place, ChootEnemyState state)
     {
-        if (--state.JumpDelayTimer > 0)
+        if (!state.JumpDelayTimer.Step())
             return;
 
         SetChootAnimation(place, state, ChootSegment.Jumping);
@@ -96,7 +96,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         // where it lies within a pixel stays until the final spawn reset, just as in the game.
         place.Position = place.Position.WithWhole(state.InitialFallingPosition);
         state.FallingOrigin = state.InitialFallingPosition;
-        state.FallingPatternFrame = 0;
+        state.FallingLoop = UpdateCountdown.Lasting(ChootFalls.LoopUpdates(place.SpawnSettings<ChootSpawnSettings>().FallingPath));
         // A population loop count of zero falls one loop, as a count of one does.
         state.FallingPatternLoopCounter = Math.Max(1, place.SpawnSettings<ChootSpawnSettings>().PatternLoops);
         SetChootAnimation(place, state, ChootSegment.Falling);
@@ -107,11 +107,10 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void RunChootFall(RoomEnemyPlace place, ChootEnemyState state)
     {
         ChootFallingPath fallingPath = place.SpawnSettings<ChootSpawnSettings>().FallingPath;
-        Offset16<RoomPixels>? offset = ChootFalls.At(fallingPath, state.FallingPatternFrame);
-        if (offset is not { } pathOffset)
+        if (state.FallingLoop.IsOver)
         {
             state.FallingOrigin = state.FallingOrigin.WithY(state.FallingOrigin.Y + ChootFalls.LoopYDistance(fallingPath));
-            state.FallingPatternFrame = 0;
+            state.FallingLoop = UpdateCountdown.Lasting(ChootFalls.LoopUpdates(fallingPath));
             if (--state.FallingPatternLoopCounter > 0)
                 return;
 
@@ -124,8 +123,10 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
+        Offset16<RoomPixels> pathOffset = ChootFalls.At(fallingPath, state.FallingLoop.Age)
+            ?? throw new InvalidDataException($"Choot falling path {fallingPath} ends before its loop's {state.FallingLoop.Length} updates.");
         place.Position = place.Position.WithWhole(state.FallingOrigin + pathOffset);
-        state.FallingPatternFrame++;
+        state.FallingLoop.Count();
     }
 
     /// <summary>

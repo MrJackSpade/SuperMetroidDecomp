@@ -180,7 +180,7 @@ internal sealed class MotherBrainRainbowAndDeath
                 WriteZebesTypewriterGlyph(typed.Glyph);
             if (typing is EscapeTypewriterStep.TypedWithClick) _motherBrainEncounter.RequestCueSound(EscapeTypewriterDefinitions.ZebesClick);
         }
-        MotherBrainRainbowBeamAttackStepResult step = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = enemyFrameCounter, EnemyPassCount = _frameContext.EnemyPassCount, PowerBombActive = sharedProjectiles.PowerBombExplosion.IsActive, RandomNumberSeed = MotherBrainRandomSample.FromGenerator(_room.Random.Read()), NextRandomNumber = _room.Random.Generate, AlternateEscapeText = _room.Session.JapaneseText, TypewriterFinished = typewriterFinished, RoomEarthquakeStopped = !_earthquake.IsShaking, CameraCheckpoint = _room.Session.RainbowBeamCameraCheckpoint });
+        MotherBrainRainbowBeamAttackStepResult step = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = enemyFrameCounter, EnemyPassCount = _frameContext.EnemyPassCount, PowerBombActive = sharedProjectiles.PowerBombExplosion.IsActive, RandomNumberSeed = MotherBrainRandomSample.FromGenerator(_room.Random.Read()), NextRandomNumber = _room.Random.Generate, AlternateEscapeText = _room.Session.JapaneseText, TypewriterFinished = typewriterFinished, RoomEarthquakeStopped = !_earthquake.IsShaking });
         _passEvents.Publish(new MotherBrainDeathStepTaken(step));
         ApplyLiveMotherBrainRainbowState(state, sequence, step, samus, sharedProjectiles);
     }

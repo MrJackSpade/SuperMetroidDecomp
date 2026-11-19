@@ -1033,14 +1033,14 @@ internal static class LookupStream3Verification
         sequence.Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.EscapeStartUpdates);
         var bus = new TestAddressSpace();
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99 };
-        var firstPage = sequence.Step(samus, MotherBrainLateFightFixtures.QuietFrame(new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint(), 0, 0));
+        var firstPage = sequence.Step(samus, MotherBrainLateFightFixtures.QuietFrame(0, 0));
         AssertEqual(0, firstPage.EscapeColourEffectRequests.Count, "stream 3 escape palette effects wait for door graphics");
-        var handoff = sequence.Step(samus, MotherBrainLateFightFixtures.QuietFrame(new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint(), 0, 0));
+        var handoff = sequence.Step(samus, MotherBrainLateFightFixtures.QuietFrame(0, 0));
         AssertEqual(4, handoff.EscapeColourEffectRequests.Count, "stream 3 four escape palette registrations");
         for (int effect = 0; effect < 4; effect++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b296 + 7 * effect)), PaletteFxObjectAccess.NativeAddress(handoff.EscapeColourEffectRequests[effect]),
                 "stream 3 native escape palette registration order");
-        var text = sequence.Step(samus, MotherBrainLateFightFixtures.QuietFrame(new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint(), 0, 0));
+        var text = sequence.Step(samus, MotherBrainLateFightFixtures.QuietFrame(0, 0));
         AssertEqual(0, text.EscapeColourEffectRequests.Count, "stream 3 escape palette registrations occur once");
     }
 

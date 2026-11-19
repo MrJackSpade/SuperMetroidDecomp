@@ -9,7 +9,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// with the push. Its effect on the camera's position is gameplay-observable.
 /// </summary>
 /// <remarks>
-/// Written by the rainbow beam's forced movement during the enemy pass; consulted, and cleared, when the update's
+/// Written by the rainbow beam's forced movement during the enemy pass, beside the whole pixels the push writes, as part
+/// of Samus's corrections to the camera's record of where she was (#2562); consulted, and cleared, when the update's
 /// scrolling measures how far Samus moved. Evidence: the original routines at <c>$A9:BBFD-$BC75</c> store one byte
 /// of the sub-pixel position into the previous-position record and the full word at the arena clamps, and the camera's
 /// speed routine subtracts the full sub-pixel words; the 100% movie's fall into the floor clamp established the

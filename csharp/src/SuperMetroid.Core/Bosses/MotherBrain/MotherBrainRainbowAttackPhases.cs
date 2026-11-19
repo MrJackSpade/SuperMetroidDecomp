@@ -298,7 +298,7 @@ internal sealed class MotherBrainRainbowAttackPhases
             samus,
             growth: MotherBrainRainbowBeamGrowth.Widening,
             requests);
-        requests.Movement = _movement.MoveTowardWall(samus, frame.CameraCheckpoint);
+        requests.Movement = _movement.MoveTowardWall(samus);
         if (requests.Movement.Value.ReachedVerticalBoundary)
         {
             Encounter.RainbowPhase = MotherBrainRainbowPhase.OneFrameDelay;
@@ -317,7 +317,7 @@ internal sealed class MotherBrainRainbowAttackPhases
             samus,
             growth: MotherBrainRainbowBeamGrowth.Widening,
             requests);
-        requests.Movement = _movement.MoveTowardWall(samus, frame.CameraCheckpoint);
+        requests.Movement = _movement.MoveTowardWall(samus);
 
         // The one-update delay runs out on this very update.
         if (Encounter.PhaseTimer.StepRunsOut())
@@ -353,7 +353,7 @@ internal sealed class MotherBrainRainbowAttackPhases
             requests);
         DamageSamusDueToRainbowBeam(samus);
         DecrementAmmoDueToRainbowBeam(samus, frame.EnemyPassCount);
-        requests.Movement = MotherBrainRainbowBeamSamusMovement.MoveTowardMiddleOfWall(samus, frame.CameraCheckpoint);
+        requests.Movement = MotherBrainRainbowBeamSamusMovement.MoveTowardMiddleOfWall(samus);
 
         if (Encounter.PhaseTimer.StepRunsOut())
             Encounter.RainbowPhase = MotherBrainRainbowPhase.FinishFiring;
@@ -407,7 +407,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// </summary>
     internal bool WaitForSamusToLand(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
-        requests.Movement = _movement.StepFallingAfterRainbowBeam(samus, frame.CameraCheckpoint);
+        requests.Movement = _movement.StepFallingAfterRainbowBeam(samus);
         if (requests.Movement.Value.ReachedVerticalBoundary)
             Encounter.RainbowPhase = MotherBrainRainbowPhase.LowerHead;
         return false;

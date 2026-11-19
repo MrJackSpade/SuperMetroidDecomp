@@ -117,12 +117,6 @@ internal sealed class SuperMetroidRuntime
     internal GameplayActorDrawing ActorDrawing { get; }
 
     /// <summary>
-    /// What Mother Brain's rainbow-beam push hides from the camera this update, injected into the enemy session and consumed by
-    /// the update's scrolling.
-    /// </summary>
-    internal RainbowBeamCameraCheckpoint RainbowBeamCameraCheckpoint { get; } = new();
-
-    /// <summary>
     /// How far the camera last measured Samus moving sideways, plus one pixel, which a kicked Yard flies off with; created
     /// with the runtime, recorded by the update's scrolling and handed to every room's enemies.
     /// </summary>
@@ -208,7 +202,7 @@ internal sealed class SuperMetroidRuntime
         var sessionAudio = new SessionGameplayAudioQueues(session.Audio, AttractSession);
         AudioRequests = new GameplayAudioRequests(sessionAudio, sessionAudio);
         EnemySession = new EnemySession(
-            AudioRequests,artwork.EnemyOverreads, artwork.BossAndIntroOverreads, RainbowBeamCameraCheckpoint,
+            AudioRequests,artwork.EnemyOverreads, artwork.BossAndIntroOverreads,
             artwork.EnemySheets, artwork.EnemyFrameDisplays);
 
         BeamCharge = new BeamChargeState();
@@ -949,7 +943,7 @@ internal sealed class SuperMetroidRuntime
             ScrollBoundaryCamera camera = room.Camera;
             ActiveRoomGeometry roomGeometry = RoomLoader.GetActiveRoomGeometry();
 
-            previousCameraPoint = RainbowBeamCameraCheckpoint.Consume(samus.ApplyPreviousPositionWrites(previousCameraPoint));
+            previousCameraPoint = samus.ApplyPreviousPositionWrites(previousCameraPoint);
             var currentCameraPoint = samus.Position;
 
             // The main gameplay state runs the main scrolling after movement and room objects and before

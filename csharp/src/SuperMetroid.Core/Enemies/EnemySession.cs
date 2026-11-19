@@ -21,24 +21,18 @@ public sealed class EnemySession
     /// <param name="bossOverreads">
     /// The installation's services reproducing what Kraid's fingernails and Crocomire's volley read past their data (#1500).
     /// </param>
-    /// <param name="rainbowBeamCameraCheckpoint">
-    /// The runtime's record of what Mother Brain's rainbow-beam push hides from the camera, which the runtime's scrolling
-    /// consumes.
-    /// </param>
     /// <param name="sheets">The installed pre-coloured enemy sheets every room's enemies draw from.</param>
     /// <param name="frameDisplays">Every installed enemy frame's display, which drawing an enemy reads.</param>
     internal EnemySession(
         GameplayAudioRequests audioRequests,
         EnemyOverreadServices overreads,
         BossAndIntroOverreadServices bossOverreads,
-        RainbowBeamCameraCheckpoint rainbowBeamCameraCheckpoint,
         IEnemySheetSource sheets,
         EnemyFrameDisplays frameDisplays)
     {
         AudioRequests = Ensure.NotNull(audioRequests);
         Overreads = Ensure.NotNull(overreads);
         BossOverreads = Ensure.NotNull(bossOverreads);
-        RainbowBeamCameraCheckpoint = Ensure.NotNull(rainbowBeamCameraCheckpoint);
         Sheets = Ensure.NotNull(sheets);
         FrameDisplays = Ensure.NotNull(frameDisplays);
     }
@@ -74,12 +68,6 @@ public sealed class EnemySession
     /// keeps the quota of the last room that did.
     /// </summary>
     internal int DeathQuota { get; set; }
-
-    /// <summary>
-    /// The runtime's record of what Mother Brain's rainbow-beam push hides from the camera, which the push writes during
-    /// the enemy pass.
-    /// </summary>
-    internal RainbowBeamCameraCheckpoint RainbowBeamCameraCheckpoint { get; }
 
     /// <summary>
     /// The installation's services reproducing what Kraid's fingernails and Crocomire's volley read past their data

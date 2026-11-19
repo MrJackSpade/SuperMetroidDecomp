@@ -846,27 +846,16 @@ public sealed class SamusState
         SamusPresentation.InitializeAnimation(this);
     }
 
-    /// <summary>
-    /// Samus's previous whole-pixel Y in the room, written by a pose-collision correction this frame; null when
-    /// nothing wrote it. Only <see cref="WritePreviousYPosition"/> stores it.
-    /// </summary>
-    private int? _poseCollisionPreviousYPosition;
-    /// <summary>Relative previous-Y correction accumulated while preserving feet across a pose change.</summary>
-    private int _poseAlignmentPreviousYDelta;
-    /// <summary>
-    /// Samus's previous whole-pixel X in the room, written by a room or pose owner this frame; null when nothing
-    /// wrote it. Only <see cref="WritePreviousXPosition"/> stores it.
-    /// </summary>
-    private int? _previousXPositionWrite;
+    /// <summary>How this update corrects the camera's record of where Samus was before its scrolling (#2562).</summary>
+    public SamusPreviousPositionCorrections PreviousPositionCorrections { get; } = new();
 
     /// <summary>
     /// Records Samus's previous X position as set by an owner that runs
     /// before the main scrolling, such as the landed gunship placing Samus.
     /// Only the whole pixels change; the previous X fraction is untouched (Mother Brain's
-    /// rainbow-beam push records its fraction in <see cref="RainbowBeamCameraCheckpoint"/>).
+    /// rainbow-beam push hides its fraction through <see cref="SamusPreviousPositionCorrections.RainbowPush"/>).
     /// </summary>
-    internal void WritePreviousXPosition(int xPosition) =>
-        _previousXPositionWrite = xPosition;
+    internal void WritePreviousXPosition(int xPosition) => PreviousPositionCorrections.WriteX(xPosition);
 
     /// <summary>
     /// Aligns Samus's bottom with the previous pose after installing a new pose:
@@ -877,7 +866,7 @@ public sealed class SamusState
     {
         int delta = previousRadius - targetRadius;
         Position += new Offset16<RoomPixels>(0, delta);
-        _poseAlignmentPreviousYDelta += delta;
+        PreviousPositionCorrections.ShiftFeet(delta);
     }
 
     /// <summary>
@@ -886,49 +875,22 @@ public sealed class SamusState
     /// fraction is deliberately not changed: the game writes only the whole pixels, not the fraction.
     /// The write is absolute, discarding any earlier bottom-alignment shift this frame.
     /// </summary>
-    internal void WritePreviousYPosition(int correctedY)
-    {
-        _poseCollisionPreviousYPosition = correctedY;
-        _poseAlignmentPreviousYDelta = 0;
-    }
+    internal void WritePreviousYPosition(int correctedY) => PreviousPositionCorrections.WriteY(correctedY);
 
     /// <summary>
     /// Samus's live previous X and Y positions: the
-    /// frame-start checkpoint with this frame's writes so far, without consuming them.
+    /// frame-start checkpoint with this frame's writes so far, without handing them over.
     /// </summary>
-    internal Position16<RoomPixels> PeekPreviousPosition(FixedPosition<RoomPixels> previous) => new Position16<RoomPixels>(
-        _previousXPositionWrite ?? previous.X.Whole, PreviousYWithWrites(previous));
+    internal Position16<RoomPixels> PeekPreviousPosition(FixedPosition<RoomPixels> previous) =>
+        PreviousPositionCorrections.Peek(previous);
 
     /// <summary>
-    /// The previous whole-pixel Y with this frame's writes: the written height or the checkpoint's, moved by the feet
-    /// alignments since.
+    /// Applies this frame's previous-position corrections before scrolling calculates distance: the whole writes, keeping
+    /// the fractions, then what the rainbow-beam push hides of its sub-pixel movement. Later in the update the whole
+    /// position replaces the checkpoint.
     /// </summary>
-    /// <remarks>
-    /// The sum stays in the room. The checkpoint lies above the room's top only on a departing up-elevator's last
-    /// updates, when the locked input mode runs no pose change, no shinespark or Ceres shove holds her, and the ride keeps
-    /// the boarding pose's radius, 21 or 24, which a hurt pose does not exceed, so nothing writes the height or moves it.
-    /// Elsewhere every written height lies in the room, and a feet alignment lowers her (no pose-transition cue grows her
-    /// body), raises her by two pixels as a shinespark crash's radius-19 body, which block collision keeps below the top,
-    /// stands up, or ends the Ceres shove in Ceres Ridley's room, whose top row is solid.
-    /// </remarks>
-    private int PreviousYWithWrites(FixedPosition<RoomPixels> previous) =>
-        (_poseCollisionPreviousYPosition ?? previous.Y.Whole) + _poseAlignmentPreviousYDelta;
-
-    /// <summary>
-    /// Applies this frame's whole previous-position writes before scrolling calculates
-    /// distance; the fractions are kept. Later in the update the whole position replaces the checkpoint. The written X is
-    /// a whole pixel of the room's coordinates, which <see cref="FixedCoordinate"/> holds (#1627).
-    /// </summary>
-    internal FixedPosition<RoomPixels> ApplyPreviousPositionWrites(FixedPosition<RoomPixels> previous)
-    {
-        var written = new FixedPosition<RoomPixels>(
-            FixedCoordinate.Of(_previousXPositionWrite ?? previous.X.Whole, previous.X.Fraction),
-            FixedCoordinate.Of(PreviousYWithWrites(previous), previous.Y.Fraction));
-        _poseCollisionPreviousYPosition = null;
-        _poseAlignmentPreviousYDelta = 0;
-        _previousXPositionWrite = null;
-        return written;
-    }
+    internal FixedPosition<RoomPixels> ApplyPreviousPositionWrites(FixedPosition<RoomPixels> previous) =>
+        PreviousPositionCorrections.HandOver(previous);
 
     /// <summary>Persistent low-energy warning state, shared by the movement phase and reserve recovery.</summary>
     public SamusHealthWarningState HealthWarning => field ??= new();

@@ -59,12 +59,11 @@ internal static class CinematicCrystalFlashVerification
         motherSamus.MaxHealth = 9999;
         motherSamus.Health = 699;
         var motherRainbow = MotherBrainLateFightFixtures.NewSequence();
-        motherRainbow.RainbowAttack.StartActiveBeam(motherSamus);
-        var motherCameraCheckpoint = new RainbowBeamCameraCheckpoint();
+        motherRainbow.RainbowAttack.StartActiveBeam(motherSamus);
         bool motherUnlocked = false;
         for (ushort frame = 0; frame < 700; frame++)
         {
-            MotherBrainRainbowBeamAttackStepResult step = motherRainbow.Step(motherSamus, MotherBrainLateFightFixtures.QuietFrame(motherCameraCheckpoint, frame, frame));
+            MotherBrainRainbowBeamAttackStepResult step = motherRainbow.Step(motherSamus, MotherBrainLateFightFixtures.QuietFrame(frame, frame));
             // `$90:F117` command one clears the input lock as the beam installs LetSamusFall.
             bool unlockedSamus = !motherSamus.Control.InputLocked && step.BeamEnded;
             motherRuntime.StepFrame(0);

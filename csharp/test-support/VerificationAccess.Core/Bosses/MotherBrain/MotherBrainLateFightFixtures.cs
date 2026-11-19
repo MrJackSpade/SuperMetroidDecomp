@@ -37,15 +37,12 @@ internal static class MotherBrainLateFightFixtures
     /// One late-fight update with nothing else under way (#2261): no Power Bomb, the room's random number zero and a fresh
     /// shared random sequence for the draws, the ordinary escape text not yet typed, and the room's earthquake not stopped.
     /// </summary>
-    /// <param name="cameraCheckpoint">The session's record of what the beam's push hides from the camera.</param>
     /// <param name="enemyFrameCounter">The enemy frame counter's count.</param>
     /// <param name="enemyPassCount">The main enemy pass counter's count.</param>
     internal static RainbowBeamAttackFrame QuietFrame(
-        SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint cameraCheckpoint,
         int enemyFrameCounter,
         int enemyPassCount) => new()
     {
-        CameraCheckpoint = cameraCheckpoint,
         EnemyFrameCounter = enemyFrameCounter,
         EnemyPassCount = enemyPassCount,
         PowerBombActive = false,

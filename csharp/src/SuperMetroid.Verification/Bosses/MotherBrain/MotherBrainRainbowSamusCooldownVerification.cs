@@ -16,8 +16,7 @@ internal static class MotherBrainRainbowSamusCooldownVerification
     /// it releases her; no other step touches it.
     /// </summary>
     internal static void VerifyMotherBrainRainbowSamusCooldown()
-    {
-        var cameraCheckpoint = new RainbowBeamCameraCheckpoint();
+    {
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
             Health = 999,
@@ -28,7 +27,7 @@ internal static class MotherBrainRainbowSamusCooldownVerification
         attack.Encounter.Body.Position = FixedPosition<RoomPixels>.FromWhole(new(64, 100));
         attack.Encounter.RainbowPhase = MotherBrainRainbowPhase.WaitForCharge;
         attack.Encounter.PhaseTimer.LastFor(1);
-        RainbowBeamAttackFrame Frame() => MotherBrainLateFightFixtures.QuietFrame(cameraCheckpoint, 0, 0);
+        RainbowBeamAttackFrame Frame() => MotherBrainLateFightFixtures.QuietFrame(0, 0);
 
         MotherBrainRainbowBeamAttackStepResult neckLowered = attack.Step(samus, Frame());
         AssertEqual(MotherBrainRainbowPhase.StartFiring, attack.Encounter.RainbowPhase,

@@ -23,7 +23,7 @@ public sealed class NorfairRioEnemyState
     /// The finish then carries into that wait, where it rests the Rio idle the next time it does not attack, or ends at
     /// once the takeoff of an attack it starts first.
     /// </summary>
-    public bool AnimationSignal { get; internal set; }
+    public RioAnimationFinish Finish { get; } = new();
 
     /// <summary>
     /// The flame follower's vertical placement relative to its parent, -16 through 12 pixels, negative above it. Private

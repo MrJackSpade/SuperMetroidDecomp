@@ -47,7 +47,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
                 calls);
             AssertEqual(offset, state.FollowerYOffset,
                 $"Norfair Rio {name} publishes its final follower offset");
-            AssertEqual(signal, state.AnimationSignal,
+            AssertEqual(signal, state.Finish.IsRaised,
                 $"Norfair Rio {name} animation signal");
         }
 

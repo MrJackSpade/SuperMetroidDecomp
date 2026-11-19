@@ -986,7 +986,7 @@ internal static class NativeEnemyFamilyStateImport
             rio.SavedHorizontalVelocity = new SignedEightEight(words.A);
             rio.Action = RiosNativeWords.RioActions.Decode(words.B, "recorded RioAction");
             rio.Velocity = new(new SignedEightEight(words.D), new SignedEightEight(words.C));
-            rio.AnimationFinished = words.E != 0;
+            if (words.E != 0) rio.Finish.Raise(); else rio.Finish.Forget();
         }
         if (enemy.EntityState<NorfairRioEntity, NorfairRioEnemyState>() is { } norfairRio)
         {

@@ -54,8 +54,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
     internal static void InitializeLowerNorfairRio(RoomEnemyPlace place)
     {
         place.SetSpeciesState(new LowerNorfairRioEnemyState(LowerNorfairRioAction.WaitForAttackOpportunity)
-        {
-            AnimationSignal = false,
+        {
             FollowerVisible = false,
             Playback = new(LowerNorfairRioAnimations.StartingWith(LowerNorfairRioSegment.Idle), AnimationPlace.StartOfAnimation),
         });
@@ -82,7 +81,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                     // Unlike the Norfair Rio, a Lower Norfair Rio that does not attack forgets that its animation finished
                     // and asks for its idle animation on every such update; the idle animation already playing does not
                     // restart.
-                    state.AnimationSignal = false;
+                    state.Finish.Forget();
                     StartLowerNorfairRioAnimation(
                         place,
                         state,
@@ -103,9 +102,8 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                 return;
 
             case LowerNorfairRioAction.WaitForTakeoffAnimation:
-                if (!state.AnimationSignal)
+                if (!state.Finish.Take())
                     return;
-                state.AnimationSignal = false;
                 StartLowerNorfairRioAnimation(
                     place,
                     state,
@@ -145,9 +143,8 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                 }
 
                 ApplyLowerNorfairRioGravity(state);
-                if (state.AnimationSignal)
+                if (state.Finish.Take())
                 {
-                    state.AnimationSignal = false;
                     StartLowerNorfairRioAnimation(
                         place,
                         state,
@@ -156,9 +153,8 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                 return;
 
             case LowerNorfairRioAction.WaitForLandingAnimation:
-                if (!state.AnimationSignal)
+                if (!state.Finish.Take())
                     return;
-                state.AnimationSignal = false;
                 StartLowerNorfairRioAnimation(
                     place,
                     state,
@@ -178,7 +174,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
         switch (cue.Kind)
         {
             case LowerNorfairRioCueKind.AnimationFinished:
-                state.AnimationSignal = true;
+                state.Finish.Raise();
                 break;
             case LowerNorfairRioCueKind.HideFlames:
                 state.FollowerVisible = false;

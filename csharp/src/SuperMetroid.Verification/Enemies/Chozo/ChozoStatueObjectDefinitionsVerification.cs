@@ -46,8 +46,9 @@ internal static class ChozoStatueObjectDefinitionsVerification
     private static void VerifyChozoTerrainHeaders(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-        ChozoStatueRoomObject[] statueObjects = Enum.GetValues<ChozoStatueRoomObject>();
-        AssertEqual(6, statueObjects.Length, "Chozo statue room object count");
+        ChozoStatueRoomObject[] statueObjects = [ChozoStatueRoomObject.LowerNorfairHand, ChozoStatueRoomObject.WreckedShipHand,
+            ChozoStatueRoomObject.SlopeAccessOpening, ChozoStatueRoomObject.SlopeAccessClosing, ChozoStatueRoomObject.PlugCrumbleAtHand,
+            ChozoStatueRoomObject.PlugCrumbleUnderFootstep];
 
         ushort[] headers = [0xd6d6,0xd6ee,0xd6f8,0xd6fc,0xd113];
         AssertTrue(headers.SequenceEqual(statueObjects.Select(statueObject => NativeHeaders[statueObject]).Distinct()),
@@ -92,39 +93,25 @@ internal static class ChozoStatueObjectDefinitionsVerification
             AssertTrue(statueObject == ChozoStatueRoomObject.LowerNorfairHand
                     ? place.Behaviour is LowerNorfairChozoHandObject { Phase: LowerNorfairChozoHandPhase.Starting }
                     : place.Behaviour is TerrainChangeObject { Change: var started } && started == changes[statueObject]
-                        && (place.Behaviour is ChozoSlopeAccessObject) == (statueObject is ChozoStatueRoomObject.SlopeAccessOpening or ChozoStatueRoomObject.SlopeAccessClosing),
+                        && (place.Behaviour is ChozoSlopeAccessObject) == (statueObject == ChozoStatueRoomObject.SlopeAccessOpening || statueObject == ChozoStatueRoomObject.SlopeAccessClosing),
                 $"Chozo statue's {statueObject} starts as its typed object");
 
             RoomCollisionBlock left = level.GetCollisionBlock(block);
-            switch (statueObject)
+            if (statueObject == ChozoStatueRoomObject.WreckedShipHand)
             {
-                case ChozoStatueRoomObject.WreckedShipHand:
-                    AssertEqual(RoomCollisionType.SpecialBlock, left.CollisionType, "Wrecked Ship hand installs special-block collision");
-                    AssertEqual(ChozoStatueRoomDefinitions.WreckedShipHandBehavior, left.Behavior, "Wrecked Ship hand installs its special-solid behaviour");
-                    break;
-                case ChozoStatueRoomObject.PlugCrumbleAtHand:
-                    // The spawn at a fixed block leaves the empty draw program, read as block 416 mirrored both ways.
-                    AssertEqual(RoomTerrainBlock.Of(416, BlockMirroring.Both, RoomCollisionType.Air), left.Terrain,
-                        "the hand's plug crumble, spawned at a fixed block, leaves block 416 mirrored both ways as air");
-                    break;
-                case ChozoStatueRoomObject.PlugCrumbleUnderFootstep:
-                    AssertEqual(RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Air), left.Terrain,
-                        "the footstep's plug crumble, spawned at the block the footstep found, leaves block zero as air");
-                    break;
-                case ChozoStatueRoomObject.LowerNorfairHand:
-                case ChozoStatueRoomObject.SlopeAccessOpening:
-                case ChozoStatueRoomObject.SlopeAccessClosing:
-                    AssertEqual(before, left.Terrain, $"{statueObject}'s spawn leaves its block as it was");
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(ChozoStatueRoomObject)} {statueObject}.");
+                AssertEqual(RoomCollisionType.SpecialBlock, left.CollisionType, "Wrecked Ship hand installs special-block collision");
+                AssertEqual(ChozoStatueRoomDefinitions.WreckedShipHandBehavior, left.Behavior, "Wrecked Ship hand installs its special-solid behaviour");
             }
+            else if (statueObject == ChozoStatueRoomObject.PlugCrumbleAtHand)
+                // The spawn at a fixed block leaves the empty draw program, read as block 416 mirrored both ways.
+                AssertEqual(RoomTerrainBlock.Of(416, BlockMirroring.Both, RoomCollisionType.Air), left.Terrain,
+                    "the hand's plug crumble, spawned at a fixed block, leaves block 416 mirrored both ways as air");
+            else if (statueObject == ChozoStatueRoomObject.PlugCrumbleUnderFootstep)
+                AssertEqual(RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Air), left.Terrain,
+                    "the footstep's plug crumble, spawned at the block the footstep found, leaves block zero as air");
+            else
+                AssertEqual(before, left.Terrain, $"{statueObject}'s spawn leaves its block as it was");
         }
-
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => RoomObjectFixtures.Unbound().ChozoStatue.TrySpawnChozoStatueObject(CreateEmptyRoom(new(32, 16)),
-                new RoomObjectSpawnRequest<ChozoStatueRoomObject>(new(3, 4), (ChozoStatueRoomObject)(-1))),
-            "a spawn naming no statue room object fails");
     }
 
     /// <summary>

@@ -120,18 +120,18 @@ internal static class FrontendFloorSheetComposer
     /// <exception cref="InvalidDataException">No cell of the map shows the Baby's tiles.</exception>
     private static BabyCellRectangle BabyCells(byte[] map)
     {
-        int left = FloorSheetComposer.Side, top = FloorSheetComposer.Side, right = -1, bottom = -1;
+        // The cells' bounds so far, none before the first cell of the Baby's.
+        (int Left, int Top, int Right, int Bottom)? bounds = null;
         for (int cell = 0; cell < map.Length; cell++)
         {
             if (map[cell] is < TitleFloorTileDefinitions.BabyFirstTile or >= TitleFloorTileDefinitions.BabyFirstTile + TitleFloorTileDefinitions.BabyTileCount)
                 continue;
             int column = cell % FloorSheetComposer.Side, row = cell / FloorSheetComposer.Side;
-            left = Math.Min(left, column);
-            top = Math.Min(top, row);
-            right = Math.Max(right, column);
-            bottom = Math.Max(bottom, row);
+            bounds = bounds is { } held
+                ? (Math.Min(held.Left, column), Math.Min(held.Top, row), Math.Max(held.Right, column), Math.Max(held.Bottom, row))
+                : (column, row, column, row);
         }
-        return right >= 0 ? new BabyCellRectangle(left, top, right - left + 1, bottom - top + 1)
+        return bounds is { } found ? new BabyCellRectangle(found.Left, found.Top, found.Right - found.Left + 1, found.Bottom - found.Top + 1)
             : throw new InvalidDataException("The title floor's map shows no cell of the Baby Metroid.");
     }
 

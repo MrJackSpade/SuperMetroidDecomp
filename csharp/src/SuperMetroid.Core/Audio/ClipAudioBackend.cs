@@ -58,7 +58,8 @@ public sealed class ClipAudioBackend
         long frameStart = State.Sample;
         int cursor = 0;
         bool stepped = false;
-        int lastStep = -1;
+        // The sample offset of the update's last clock step, none before its first.
+        int? lastStep = null;
         bool lastChecked = false;
         foreach (AudioEvent audioEvent in events)
         {

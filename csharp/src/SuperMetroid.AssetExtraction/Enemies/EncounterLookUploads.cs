@@ -190,7 +190,8 @@ internal static class EncounterLookUploads
     /// <exception cref="InvalidDataException">The look is none of the encounter's.</exception>
     internal static int IndexOf(ComposedEncounter encounter, ComposedLook look)
     {
-        int index = look.Encounter == encounter ? Looks(encounter).ToList().IndexOf(look) : -1;
+        int index = look.Encounter == encounter ? Looks(encounter).ToList().IndexOf(look)
+            : throw new InvalidDataException($"{encounter} has no look {look}.");
         return index >= 0 ? index : throw new InvalidDataException($"{encounter} has no look {look}.");
     }
 

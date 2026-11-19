@@ -353,11 +353,11 @@ public static class GameSaveJsonCodec
             progress.SetDefeatedBosses(area, bosses);
         }
         DecodeNamed(progression.UsedStations, LoadStationDefinitions.Usable, station => station.Name, progress.UsedStations, $"{property}.usedStations");
-        int previousMap = -1;
+        int? previousMap = null;
         foreach (AreaId area in progression.AcquiredMaps)
         {
             int index = ListPosition(area);
-            if (index <= previousMap)
+            if (previousMap is int previous && index <= previous)
                 throw new InvalidDataException($"{property}.acquiredMaps must be in area order without duplicates");
             progress.SetAreaMap(area, acquired: true);
             previousMap = index;
@@ -366,13 +366,13 @@ public static class GameSaveJsonCodec
         {
             MapCoordinateJsonDocument[] tiles = progression.ExploredAreas[ListPosition(area)].Tiles ??
                 throw new InvalidDataException($"{property}.exploredAreas of {area} requires tiles");
-            int previousIndex = -1;
+            int? previousIndex = null;
             foreach (MapCoordinateJsonDocument tile in tiles)
             {
                 if (tile is null || !AreaMapSize.Extent.Contains(tile.Cell))
                     throw new InvalidDataException($"{property}.exploredAreas of {area} contains an invalid tile");
                 int logicalIndex = AreaMapSize.Extent.RowMajorIndex(tile.Cell);
-                if (logicalIndex <= previousIndex)
+                if (previousIndex is int previousTile && logicalIndex <= previousTile)
                     throw new InvalidDataException($"{property}.exploredAreas of {area} must be row-major and unique");
                 progress.SetExplored(area, tile.Cell, explored: true);
                 previousIndex = logicalIndex;
@@ -441,13 +441,13 @@ public static class GameSaveJsonCodec
         for (int index = 0; index < names.Length; index++)
         {
             string name = names[index] ?? throw new InvalidDataException($"{property}[{index}] is null");
-            int place = -1;
+            int? named = null;
             for (int candidate = 0; candidate < kind.Count; candidate++)
             {
                 if (string.Equals(nameOf(kind[candidate]), name, StringComparison.Ordinal))
-                    place = candidate;
+                    named = candidate;
             }
-            if (place < 0)
+            if (named is not int place)
                 throw new InvalidDataException($"{property}[{index}] '{name}' names nothing the game places");
             if (happened.Contains(kind[place]))
                 throw new InvalidDataException($"{property}[{index}] '{name}' lists a name listed before it");

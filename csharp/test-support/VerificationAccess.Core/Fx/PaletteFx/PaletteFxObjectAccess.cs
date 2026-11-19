@@ -96,7 +96,11 @@ internal static class PaletteFxObjectAccess
         internal void Start(ushort definition, SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated = false)
         {
             ColourEffectId effect = FromNative(definition);
-            if (ColourEffectEnemyColourDefinitions.EnemyColours.Contains(ColourEffectAnimations.Definition(effect).Colours))
+            ColourEffectDefinition shown = ColourEffectAnimations.Definition(effect);
+            // A Torizo's belly glow lights the check's unwatched Torizo; another enemy's glow shows on its unwatched enemy (#2544).
+            if (shown.Condition is ColourEffectCondition.EndsWhenTorizoDies)
+                self.StartTorizoBellyGlow(effect, UnwatchedEnemy.Instance, equippedItems);
+            else if (ColourEffectEnemyColourDefinitions.EnemyColours.Contains(shown.Colours))
                 self.StartShownOn(effect, UnwatchedEnemy.Instance, equippedItems);
             else
                 self.Start(effect, equippedItems, areaMiniBossDefeated);

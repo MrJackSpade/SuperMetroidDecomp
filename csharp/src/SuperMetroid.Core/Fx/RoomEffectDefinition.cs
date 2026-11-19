@@ -17,7 +17,10 @@ namespace SuperMetroid.Core.Fx;
 /// <param name="LiquidMoveDelay">The updates the liquid waits, once its level has somewhere to go, before it starts to move.</param>
 /// <param name="Type">The kind of effect the room shows.</param>
 /// <param name="VisorAnimation">Whether the room animates Samus's visor.</param>
-/// <param name="EffectBlend">How the effect's overlay blends with the room, or null when the effect shows no overlay (#1545).</param>
+/// <param name="EffectBlend">
+/// How the effect's overlay blends with the room, or null when the effect shows no overlay (#1545): every effect that shows
+/// on the overlay describes one, and no other effect does, which the room's load checks (<see cref="RoomEffectOverlayLook.Of"/>, #2544).
+/// </param>
 /// <param name="Liquid">The liquid the effect fills the room with, or null for an effect with none.</param>
 /// <param name="ColourEffects">The colour effects the room effect starts, in the order they start.</param>
 /// <param name="BlockAnimations">The block animations the room effect starts, in the order they start.</param>

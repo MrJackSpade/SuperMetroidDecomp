@@ -110,13 +110,10 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     private LiquidRisePhase liquidRisePhase;
 
     /// <summary>
-    /// The update's audio requests the effect's sounds join as it makes them: the runtime's, which it binds before the
-    /// effect runs (#2057).
+    /// The update's sound requests the effect's sounds join as it makes them (#2057, #2544): the runtime's, given as the room
+    /// loads its effect.
     /// </summary>
-    /// <exception cref="InvalidOperationException">No runtime has bound its audio requests: a sound then has no request to join.</exception>
-    internal GameplayAudioRequests AudioRequests { get => field
-        ?? throw new InvalidOperationException("The room effect made a sound before a runtime bound its update's audio requests."); private set;
-    }
+    private readonly GameplaySoundRequests sounds;
     /// <summary>
     /// Countdown to the next quake sound while rising lava or acid or the Tourian statues rumble: the sound plays on the
     /// update the countdown runs past zero.
@@ -163,7 +160,13 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     public WrappingCountdown LiquidMoveDelay { get; private set; }
 
     /// <summary>How the effect's overlay blends with the room (#1545), as the room effect describes it, or null when it shows no overlay.</summary>
-    public RoomEffectBlend? Blend { get; private set; }
+    public RoomEffectBlend? Blend => overlayLook?.Blend;
+
+    /// <summary>
+    /// What the effect shows on the effect overlay and how it blends (#2544), as the room effect describes it: its liquid or
+    /// its atmosphere, or null for an effect that shows nothing there.
+    /// </summary>
+    private RoomEffectOverlayLook? overlayLook;
 
     /// <summary>
     /// The effect overlay's live scroll: an atmosphere's across and down; a liquid's across only, as its surface line
@@ -192,9 +195,6 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     public RoomLiquid? Liquid { get; private set; }
 
-    /// <summary>Points the effect's sounds at <paramref name="requests"/>, the update's audio requests of the runtime running it.</summary>
-    internal void BindAudioRequests(GameplayAudioRequests requests) => AudioRequests = Ensure.NotNull(requests);
-
     /// <summary>
     /// The earthquake the current effect pass sustains (<see cref="RoomEarthquake.Sustain"/>), if any: rising lava's or
     /// acid's, every update it waits or moves.
@@ -205,19 +205,22 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <param name="fx">The room state's effect selection, from which <paramref name="door"/> picks the room's effect.</param>
     /// <param name="door">The entry door, which selects the room effect.</param>
     /// <param name="randomNumber">The session random number rain reads.</param>
+    /// <param name="sounds">The update's sound requests of the runtime running the effect, which its sounds join.</param>
     /// <param name="room">The room, for rooms that suppress the earthquake sound.</param>
-    public static RoomFxOverlayState ForRoom(
+    internal static RoomFxOverlayState ForRoom(
         RoomFxSelection? fx,
         DoorDefinition? door,
         int randomNumber,
+        GameplaySoundRequests sounds,
         RoomDefinition? room = null) =>
-        ForSource(new RoomFxLoadSource { Fx = fx, Door = door, RandomNumber = randomNumber, Room = room, SuppliedDefinition = null });
+        ForSource(new RoomFxLoadSource { Fx = fx, Door = door, RandomNumber = randomNumber, Room = room, SuppliedDefinition = null }, sounds);
 
     /// <summary>Builds one room's effect-overlay FX from a load source, which may supply its effect directly.</summary>
     /// <param name="source">The room effect's source.</param>
-    internal static RoomFxOverlayState ForSource(RoomFxLoadSource source)
+    /// <param name="sounds">The update's sound requests of the runtime running the effect, which its sounds join.</param>
+    internal static RoomFxOverlayState ForSource(RoomFxLoadSource source, GameplaySoundRequests sounds)
     {
-        var fx = new RoomFxOverlayState();
+        var fx = new RoomFxOverlayState(sounds);
         fx.SelectEffect(source);
         return fx;
     }
@@ -240,7 +243,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         Surface = BaseLine;
 
         Type = definition.Type;
-        Blend = definition.EffectBlend;
+        overlayLook = RoomEffectOverlayLook.Of(definition.Type, definition.EffectBlend);
         VisorAnimation = definition.VisorAnimation;
         if (effectOverlayAnimation is not null)
             throw new InvalidOperationException($"The room's effect already plays {effectOverlayAnimation.Playback.PlayingSegment}: each room builds its own.");
@@ -362,7 +365,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             return;
         lavaBubbling = lavaBubbling.Run(out bool bubbles);
         if (bubbles)
-            AudioRequests.QueueSound(LavaAcidWaveDefinitions.AmbientSound.Choose(random), LavaAcidWaveDefinitions.AmbientSoundPriority);
+            sounds.QueueSound(LavaAcidWaveDefinitions.AmbientSound.Choose(random), LavaAcidWaveDefinitions.AmbientSoundPriority);
     }
 
     /// <summary>
@@ -458,10 +461,10 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     }
 
     /// <summary>Captures values visible alongside the current frame boundary's sprite frame.</summary>
-    public RoomFxOverlayRenderSnapshot? CaptureForDisplay() => IsRenderable
+    public RoomFxOverlayRenderSnapshot? CaptureForDisplay() => overlayLook is { } look
         ? new RoomFxOverlayRenderSnapshot(
             Type,
-            Blend,
+            look,
             Scroll,
             Surface,
             Liquid,
@@ -529,8 +532,13 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
     /// <summary>
     /// Reapplying a room effect restores its motion, blending, visor animation and tint, but does not restart
-    /// the room effect's screen waves, block animations, or the liquid's current motion phase as a room load would.
+    /// the room effect's screen waves, block animations, or the liquid's current motion phase as a room load would. The
+    /// room keeps the kind of effect it loaded, which the reapplied effect's blend now blends.
     /// </summary>
+    /// <exception cref="ArgumentException">
+    /// The reapplied effect describes no blend for a room whose effect shows on the overlay, or one for a room whose effect
+    /// shows nothing there.
+    /// </exception>
     internal void ApplyEntry(RoomEffectDefinition definition)
     {
         Ensure.NotNull(definition);
@@ -538,7 +546,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         LiquidLevelSpeed = definition.LiquidLevelSpeed;
         LiquidMoveDelay = WrappingCountdown.Start(definition.LiquidMoveDelay);
         Liquid = definition.Liquid;
-        Blend = definition.EffectBlend;
+        overlayLook = RoomEffectOverlayLook.Of(Type, definition.EffectBlend);
         VisorAnimation = definition.VisorAnimation;
         Tint = definition.Tint;
     }
@@ -702,7 +710,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         if (!step.IsNegative)
             return;
 
-        AudioRequests.QueueSound(EnemySound.Lavaquake, SoundRequestPriority.Normal);
+        sounds.QueueSound(EnemySound.Lavaquake, SoundRequestPriority.Normal);
         EarthquakeSoundTimer = WrappingCountdown.Start(EarthquakeSoundRhythm.Current)
             .AddFrames(RoomEarthquakeDefinitions.RisingLiquidSoundJitter.Of(randomNumber) + earthquakeSoundDelay.ExtraFrames);
         EarthquakeSoundRhythm = EarthquakeSoundRhythm.Next;
@@ -794,14 +802,16 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             : throw new InvalidOperationException("A room liquid with no surface has a tide.");
     }
 
-    /// <summary>Creates one room's effect state, with no room effect selected.</summary>
-    public RoomFxOverlayState()
+    /// <summary>Creates one room's effect state, with no room effect selected, its sounds joining <paramref name="sounds"/>.</summary>
+    /// <param name="sounds">The update's sound requests of the runtime running the effect.</param>
+    internal RoomFxOverlayState(GameplaySoundRequests sounds)
     {
+        this.sounds = Ensure.NotNull(sounds);
         Type = RoomFxType.None;
         TargetSurface = null;
         LiquidLevelSpeed = default;
         LiquidMoveDelay = WrappingCountdown.Start(0);
-        Blend = null;
+        overlayLook = null;
         Scroll = Position16<OverlayPixels>.Zero;
         drift = TextureDrift.None;
         rainWind = EightEightVector<OverlayPixels>.Zero;

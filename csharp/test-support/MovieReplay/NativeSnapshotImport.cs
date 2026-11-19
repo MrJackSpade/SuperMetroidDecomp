@@ -138,7 +138,11 @@ internal static class NativeSnapshotImport
                         .SpriteStatueGreyOut(SuperMetroid.Core.Areas.Tourian.TourianStatueAnimationDefinitions.Statues.Values.Single(statue => statue.ColourEffect == effect)
                             .GreyedSprite ?? throw new InvalidDataException($"The native snapshot greys {effect}, no sprite statue's grey-out."))
                     : litTorizo;
-            var imported = new RoomColourEffect(effect, resumed.FramesOf, litTorizo, glowingEnemy);
+            // Each effect shows on the target its start hands it (#2544).
+            ColourEffectTarget target = litTorizo is not null ? new ColourEffectTarget.OnLitTorizo(litTorizo)
+                : glowingEnemy is not null ? new ColourEffectTarget.OnGlowingEnemy(glowingEnemy)
+                : ColourEffectTarget.OfGameplay(effect);
+            var imported = new RoomColourEffect(effect, resumed.FramesOf, target);
             // The effect's animation goes on from the recorded place, its shown frame holding for the recorded updates (#2488).
             AnimationPlayer<ColourEffectSegment, int, ColourEffectCue> play =
                 PrivateState.Field<RoomColourEffect, AnimationPlayer<ColourEffectSegment, int, ColourEffectCue>>(imported, "play");
@@ -462,17 +466,16 @@ internal static class NativeSnapshotImport
             if (LastShownFrame(effect.FramesOf, effect.Animation, effect.Place) is not { } frame)
                 continue;
             PrivateState.Set(effect, nameof(RoomColourEffect.Frame), frame);
-            if (ColourEffectRoomColourDefinitions.RoomColours.Contains(colours))
-                continue;
-            if (ColourEffectSamusColourDefinitions.SuitColours.Contains(colours))
-                runtime.Player.Colours.LayOverSuit(ColourEffectShades.Of(colours, frame));
-            else if (colours == ColourEffectEnemyColourDefinitions.EscapeShutterColours)
-                runtime.Enemies.ShowEscapeShutterFlash(frame);
-            else if (ColourEffectEnemyColourDefinitions.EnemyColours.Contains(colours))
-                (effect.GlowingEnemy ?? throw new InvalidOperationException(
-                    $"Imported colour effect {effect.Effect} shows on an enemy but holds none.")).ShowGlow(frame);
-            else
-                throw new InvalidOperationException($"Imported colour effect {effect.Effect} showed {colours}, which no gameplay picture shows.");
+            // The frame goes to the owner of the effect's target, as the effect's turn hands it over (#2544).
+            var shown = new ColourEffectFramesOnOwners();
+            if (effect.Target is ColourEffectTarget.OnOwner owner)
+                owner.Show(new ShownColourEffectFrame(colours, frame), shown);
+            foreach (ShownColourEffectFrame suit in shown.Suit)
+                runtime.Player.Colours.LayOverSuit(ColourEffectShades.Of(suit.Colours, suit.Frame));
+            foreach (ColourEffectFrame flash in shown.ShutterFlash)
+                runtime.Enemies.ShowEscapeShutterFlash(flash);
+            foreach (ShownEnemyGlow glow in shown.Glows)
+                glow.Enemy.ShowGlow(glow.Frame);
         }
     }
 

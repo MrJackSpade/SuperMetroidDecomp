@@ -808,8 +808,8 @@ internal sealed class RoomLoader
             room.State.Fx,
             door,
             _system.RandomNumber,
+            _audioRequests,
             room.Definition);
-        roomFxOverlay.BindAudioRequests(_audioRequests);
         scope.FxOverlay = roomFxOverlay;
         roomFxOverlay.PrimeViewport(destinationCamera.PixelPosition);
         // The room's setup composes its own parts, the sky's bands, the Ceres haze or the statues' room, which only the
@@ -837,8 +837,8 @@ internal sealed class RoomLoader
             room.State.Fx,
             door,
             loadingSamus.EquippedItems,
-            _system.HasDefeatedAnyOf(room.Area, DefeatedBosses.AreaMiniBoss));
-        roomColourEffects.BindAudioRequests(_audioRequests);
+            _system.HasDefeatedAnyOf(room.Area, DefeatedBosses.AreaMiniBoss),
+            _audioRequests);
         scope.ColourEffects = roomColourEffects;
 
 

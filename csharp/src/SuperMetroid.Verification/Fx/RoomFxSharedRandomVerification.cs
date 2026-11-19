@@ -33,8 +33,7 @@ internal static class RoomFxSharedRandomVerification
         fx.AdvanceLiquidMotion(system, true);
         fx.AdvanceLiquidMotion(system, false);
         AssertEqual(swaps ? 0x3412 : 0x1234, system.RandomNumber, $"{type} frozen startup still installs callback");
-        fx = RoomFxOverlayState.ForRoom(null, null, 0);
-        fx.BindAudioRequests(GameplayAudioRequests.Standalone());
+        fx = RoomFxOverlayState.ForRoom(null, null, 0, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         system.SetRandomNumber(0x1234);
         fx.AdvanceLiquidMotion(system, false);
         fx.AdvanceLiquidMotion(system, false);

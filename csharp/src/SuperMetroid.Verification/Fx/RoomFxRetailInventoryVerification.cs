@@ -264,8 +264,7 @@ internal static class RoomFxRetailInventoryVerification
 
         var actual = RoomFxOverlayState.ForRoom(room.State.Fx,
             EntryDoor(doorPointer),
-            randomNumber: 0);
-        actual.BindAudioRequests(GameplayAudioRequests.Standalone());
+            randomNumber: 0, sounds: SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         AssertEqual(expectedRecord,
             RoomFxDefinitions.SelectedRecordPointer(room.State.Fx, EntryDoor(doorPointer)),
             $"room {room.Definition.Name} state $8F:{room.State.Pointer:X4} entry " +
@@ -416,8 +415,7 @@ internal static class RoomFxRetailInventoryVerification
             RetailRoomFxDefinitions.VisibleLavaRoom);
         var vram = new SnesVram();
         var cgram = new RgbColor[SnesCgram.ColorCount];
-        var fx = RoomFxOverlayState.ForRoom(room.State.Fx, door: null, randomNumber: 0);
-        fx.BindAudioRequests(GameplayAudioRequests.Standalone());
+        var fx = RoomFxOverlayState.ForRoom(room.State.Fx, door: null, randomNumber: 0, sounds: SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
 
         // Give the three nontransparent two-bit values distinct colors so the assertion
         // observes changes in the ROM pixels, not merely a still opaque rectangle.
@@ -734,8 +732,7 @@ internal static class RoomFxRetailInventoryVerification
         var fx = RoomFxOverlayState.ForRoom(room.State.Fx,
             door,
             randomNumber: 0,
-            room: room.Definition);
-        fx.BindAudioRequests(GameplayAudioRequests.Standalone());
+            room: room.Definition, sounds: SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         AssertEqual(RoomFxType.Lava, fx.Type, $"room {definition.Room.Name} rising FX type");
         AssertEqual(definition.InitialY, fx.NamedBaseY.Whole,
             $"room {definition.Room.Name} initial lava Y");
@@ -816,7 +813,7 @@ internal static class RoomFxRetailInventoryVerification
             runtime.StepFrame(0);
             // Lava's ambient sound ($88:B421, #1269) shares the request list; this checks the
             // earthquake cadence only.
-            AssertEqual(expectedRequests, runtime.RoomFxOverlay.SoundRequests.Count(request =>
+            AssertEqual(expectedRequests, runtime.AudioRequests.SoundRequests.Count(request =>
                     request.SoundEffect == EnemySound.Lavaquake),
                 $"room $02/$28 earthquake sound cadence frame {frame}");
         }
@@ -828,7 +825,7 @@ internal static class RoomFxRetailInventoryVerification
         // accepted frame of this effect publishes a non-default delta.
         static bool Shook(RoomShakeFrameResult shake) => shake != default;
         // The runtime's update records every system's sounds in one ordered list (#1620); the effect's are its quake and lava sounds.
-        IReadOnlyList<SoundRequest> EffectSounds() => [.. runtime.RoomFxOverlay.SoundRequests.Where(request =>
+        IReadOnlyList<SoundRequest> EffectSounds() => [.. runtime.AudioRequests.SoundRequests.Where(request =>
             request.SoundEffect == EnemySound.Lavaquake || request.SoundEffect == EnemySound.LavaBubbling1 ||
             request.SoundEffect == EnemySound.LavaBubbling2 || request.SoundEffect == EnemySound.LavaBubbling3)];
 
@@ -882,7 +879,7 @@ internal static class RoomFxRetailInventoryVerification
             "room $02/$28 alternating shake BG2 Y");
 
         int appliedFrames = 2;
-        int EarthquakeSounds() => runtime.RoomFxOverlay.SoundRequests.Count(request =>
+        int EarthquakeSounds() => runtime.AudioRequests.SoundRequests.Count(request =>
             request.SoundEffect == EnemySound.Lavaquake);
         int emittedSounds = 1 + EarthquakeSounds();
         int firstMovementFrame = -1;
@@ -926,8 +923,7 @@ internal static class RoomFxRetailInventoryVerification
         RoomFxOverlayState fx;
         fx = RoomFxOverlayState.ForRoom(room.State.Fx,
             EntryDoor(doorPointer),
-            randomNumber: 0);
-        fx.BindAudioRequests(GameplayAudioRequests.Standalone());
+            randomNumber: 0, sounds: SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
 
         int maximumAbsoluteOffset = 0;
@@ -968,23 +964,20 @@ internal static class RoomFxRetailInventoryVerification
         var vram = new SnesVram();
         var cgram = new RgbColor[SnesCgram.ColorCount];
         SeedVisibleRoomFxPalette(cgram);
-        var fx = RoomFxOverlayState.ForRoom(visibleRoom.State.Fx, door: null, randomNumber: 0);
-        fx.BindAudioRequests(GameplayAudioRequests.Standalone());
+        var fx = RoomFxOverlayState.ForRoom(visibleRoom.State.Fx, door: null, randomNumber: 0, sounds: SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
         fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false });
         AssertEqual(RoomFxType.Lava, fx.Type, "transition source owns visible lava");
 
         // Loading a no-FX room must clear the owner even though the old tilemap and
         // animated characters remain in VRAM until another producer overwrites them.
-        fx = RoomFxOverlayState.ForRoom(fx: null, door: null, randomNumber: 0);
-        fx.BindAudioRequests(GameplayAudioRequests.Standalone());
+        fx = RoomFxOverlayState.ForRoom(fx: null, door: null, randomNumber: 0, sounds: SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         AssertTrue(fx.CaptureForDisplay() is null,
             "transition to no-FX room clears the prior liquid snapshot");
 
         // Loading a heat-only $FFFF record retains the lava type and BG2/palette owners,
         // but the stale visible liquid plane must remain suppressed.
-        fx = RoomFxOverlayState.ForRoom(hiddenRoom.State.Fx, door: null, randomNumber: 0);
-        fx.BindAudioRequests(GameplayAudioRequests.Standalone());
+        fx = RoomFxOverlayState.ForRoom(hiddenRoom.State.Fx, door: null, randomNumber: 0, sounds: SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         ushort[] hiddenPlane = EffectPlane(fx);
         fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
         fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false });

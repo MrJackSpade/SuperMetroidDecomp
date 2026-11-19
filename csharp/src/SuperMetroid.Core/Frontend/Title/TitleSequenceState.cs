@@ -49,7 +49,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// Runs the title's colour effects (#1714): the two console lights for the whole sequence, and the logo's and the
     /// copyright's fades from the updates they first show.
     /// </summary>
-    private ColourEffectSystem colourEffects = new(new ColourEffectSessionState());
+    private ColourEffectSystem colourEffects = ColourEffectSystem.ForScreen();
     /// <summary>The title's sprites this frame, the active composition and the copyright, in drawing order (#1358).</summary>
     internal readonly ScreenSprites screenSprites;
     /// <summary>Preserves newly pressed input edges for title skip and file-select entry.</summary>
@@ -410,7 +410,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// </summary>
     private void RestartColourEffects()
     {
-        colourEffects = new ColourEffectSystem(new ColourEffectSessionState());
+        colourEffects = ColourEffectSystem.ForScreen();
         colourEffects.StartScreen(TitleSequenceDefinitions.ConsoleColourEffects.SlowLights);
         colourEffects.StartScreen(TitleSequenceDefinitions.ConsoleColourEffects.FastLights);
     }

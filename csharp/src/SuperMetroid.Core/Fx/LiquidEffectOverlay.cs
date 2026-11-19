@@ -58,9 +58,8 @@ public sealed record LiquidEffectOverlay : ShownRoomEffectOverlay
     /// <summary>The liquid the effect captured as <paramref name="fx"/> shows with <paramref name="artwork"/>.</summary>
     /// <param name="fx">The liquid's display state.</param>
     /// <param name="artwork">Its surface strip and body.</param>
-    /// <exception cref="InvalidDataException">The effect describes no blend.</exception>
     public static LiquidEffectOverlay Of(RoomFxOverlayRenderSnapshot fx, LiquidArtwork artwork) =>
-        new(artwork, BlendOf(fx), fx.Scroll.X,
+        new(artwork, fx.Blend, fx.Scroll.X,
             RoomFxTypes.UsesWater(fx.Type) ? fx.WaterOverlayWavePhase : null,
             fx.Surface is >= 0 ? fx.WaterSurfaceScreenY : null,
             fx.LiquidSurfaceLine);

@@ -23,8 +23,7 @@ internal static class SpeedBoosterPickupVerification
         var bus = new TestAddressSpace();
         SeedCollectibleRom(bus);
         var vram = new SnesVram();
-        var fx = RoomFxOverlayState.ForRoom(RoomFxDefinitions.Suffix(0x8600), null, 0);
-        fx.BindAudioRequests(GameplayAudioRequests.Standalone());
+        var fx = RoomFxOverlayState.ForRoom(RoomFxDefinitions.Suffix(0x8600), null, 0, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         // The room's first update begins its liquid's motion, long before Samus reaches the item.
         var system = new SharedGameState(new SuperMetroid.Core.Compatibility.SharedRandom());
         fx.AdvanceLiquidMotion(system, timeIsFrozen: false);

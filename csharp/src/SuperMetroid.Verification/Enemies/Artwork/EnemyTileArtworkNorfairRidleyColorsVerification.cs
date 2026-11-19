@@ -58,7 +58,6 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             NorfairRidleyState installedState) = Create(guard, stock);
         // The reveal's terminator hands the battle liquid height to the room's liquid.
         RoomFxOverlayState installedLiquid = installed.RoomFx.FxOverlay;
-        installedLiquid.BindAudioRequests(GameplayAudioRequests.Standalone());
         AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(Shown(installedState, stock))),
             "Norfair Ridley initial palette matches all native CGRAM entries");
         // The reference's pointer-table row, which its three-call cadence reaches; the production reveal plays its steps on

@@ -31,7 +31,8 @@ internal static class Mode7SmokeTests
         AffineFloor map = AffineFloorFixtures.Floor(vram, palette);
         // Below the floor band, the room's layer-2 plane drawn from its block pictures (#1403).
         RoomBackgroundLayer floorRoom = RoomBackgroundsFixtures.Seeded(random, default, new Position16<PlanePixels>(17, 65535), pictureColours: palette).Background
-            ?? throw new InvalidOperationException("A seeded room with a BG2 scroll has a layer-2 plane.");
+            is SuperMetroid.Core.Gameplay.RoomPlaneBackground { Plane: var plane } ? plane
+            : throw new InvalidOperationException("A seeded room with a BG2 scroll has a layer-2 plane.");
         int count = 0;
         foreach (double angle in new[] { 0, 0.4, Math.PI / 2, -2.5 })
         foreach (double scale in new[] { 0, 0.25, 1, 2, 127.5 })

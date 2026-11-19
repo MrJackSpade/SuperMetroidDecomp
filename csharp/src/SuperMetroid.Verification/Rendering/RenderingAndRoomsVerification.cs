@@ -950,8 +950,8 @@ internal static void VerifyBg2ScreenLayout()
             // BG2 shows the tilemap just loaded, as its library background's image (#1403).
             RoomBackgroundsFixtures.Blank() with
             {
-                BackgroundImage = RoomBlockFixtures.LoadedBackground(gameplayVram.Bytes, gameplayCgram.Colors, GameplayVramLayout.Bg2TilemapWord,
-                    pagesInOneColumn: true),
+                Background = new SuperMetroid.Core.Gameplay.LibraryImageBackground(RoomBlockFixtures.LoadedBackground(gameplayVram.Bytes, gameplayCgram.Colors,
+                    GameplayVramLayout.Bg2TilemapWord, pagesInOneColumn: true)),
             },
             // The sky's first gameplay line scrolls eight pixels; the rest keep BG2's own scroll (#1468).
             new BackgroundLineScrolls { Horizontal = new ScrollBands(0, [new ScrollBand(ScreenGeometry.GameplayHudHeightPixels, 8), new ScrollBand(ScreenGeometry.GameplayHudHeightPixels + 1, 0)]) }));
@@ -977,8 +977,8 @@ internal static void VerifyBg2ScreenLayout()
             // Kraid's body is the 64x64 map he loads at $4000, 512 pixels square, drawn from its pictures (#1403).
             RoomBackgroundsFixtures.Blank() with
             {
-                BossBody = RoomBackgroundsFixtures.BodyFromTilemap(gameplayVram.Bytes, gameplayCgram.Colors, kraidBg2BaseWord,
-                    new Extent16<BackgroundPixels>(512, 512)),
+                Background = new SuperMetroid.Core.Gameplay.BossBodyBackground(RoomBackgroundsFixtures.BodyFromTilemap(gameplayVram.Bytes, gameplayCgram.Colors,
+                    kraidBg2BaseWord, new Extent16<BackgroundPixels>(512, 512))),
             }));
     AssertEqual(new RgbaPixel(255, 0, 0),
         gameplayFrame[ScreenGeometry.GameplayHudHeightPixels * ScreenGeometry.ScreenWidthPixels],

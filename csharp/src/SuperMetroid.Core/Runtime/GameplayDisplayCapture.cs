@@ -329,9 +329,10 @@ public static class GameplayDisplayCapture
         };
         // The reveal must not take the room's parallax or liquid line scrolls. Excluded rooms keep their background and its
         // line scrolls.
-        // The reveal is drawn on the background from block pictures (#1392), so the room's own background is not shown under it.
+        // The reveal is drawn on the background from block pictures (#1392), so it replaces what the room's background shows
+        // (#2544). No boss whose body shows on the background lets X-ray reveal blocks (XrayBlockRevealDefinitions).
         var gameplay = shownReveal is not null
-            ? new GameplaySceneLayer(view, ordinary.Rooms with { Background = null, Sky = null, XrayReveal = shownReveal })
+            ? new GameplaySceneLayer(view, ordinary.Rooms with { Background = new XrayRevealBackground(shownReveal) })
             : new GameplaySceneLayer(view, ordinary.Rooms, ordinary.BackgroundLineScrolls);
         // Outside the cone the room blends with its liquid or fog lying behind it, except in Fireflea's room, whose darkness
         // blends with its shade alone.

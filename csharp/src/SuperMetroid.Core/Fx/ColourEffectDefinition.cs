@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Fx;
 /// <param name="Start">How the effect starts.</param>
 /// <param name="Colours">The colours the effect shows every frame in.</param>
 /// <param name="Condition">
-/// The condition the effect checks at the start of each turn from the update after it shows its first frame, or null for
-/// an effect that watches nothing.
+/// The condition the effect checks at the start of each turn from the update after it shows its first frame:
+/// <see cref="ColourEffectCondition.WatchesNothing"/> for an effect that watches nothing.
 /// </param>
 /// <param name="Animation">
 /// The animation the effect plays, in its own frames; the heat shimmer plays none of its own, since its start chooses its
@@ -20,5 +20,5 @@ namespace SuperMetroid.Core.Fx;
 internal sealed record ColourEffectDefinition(
     ColourEffectStart Start,
     ColourEffectColours Colours,
-    ColourEffectCondition? Condition,
+    ColourEffectCondition Condition,
     Animation<ColourEffectSegment> Animation);

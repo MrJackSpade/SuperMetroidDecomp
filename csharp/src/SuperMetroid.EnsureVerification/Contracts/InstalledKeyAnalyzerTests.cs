@@ -124,6 +124,32 @@ internal static class InstalledKeyAnalyzerTests
             "class Art { Doc Of(Glow[] glows) => new([.. glows.Where(glow => glow != Glow.Dim).Select(glow => glow.ToString())]); }",
             "into the installed key 'Glows'");
 
+        // #2544: a name helper whose result a caller hands to a key: string.Create's interpolated text, a property, a local
+        // function, a helper returning another helper's result, a result held in a local, and a collection's key.
+        Expect(Types + "static class Names { public static string Of(Glow glow) => string.Create(System.Globalization.CultureInfo.InvariantCulture, $\"glow {glow}\"); } " +
+            "class Art { Shade Of(Glow glow) => new(Names.Of(glow), 0); }",
+            "'{glow}' writes the name of a 'Glow' member into the installed key 'Effect'" + Advice);
+        Expect(Types + "class Art { Glow _glow; string Name => $\"glow-{_glow}\"; Shade Of() => new(Name, 0); }", "into the installed key 'Effect'");
+        Expect(Types + "class Art { Shade Of(Glow glow) { string Name() => glow.ToString(); return new(Name(), 0); } }", "'glow.ToString()'");
+        Expect(Types + "static class Names { public static string Inner(Glow glow) => $\"{glow}\"; public static string Outer(Glow glow) => \"glow-\" + Inner(glow); } " +
+            "class Art { Shade Of(Glow glow) => new(Names.Outer(glow), 0); }", "'{glow}'");
+        Expect(Types + "static class Names { public static string Of(Glow glow) { string name = $\"glow-{glow}\"; return name; } } " +
+            "class Art { Shade Of(Glow glow) { string key = Names.Of(glow); return new(key, 0); } }", "'{glow}'");
+        Expect(Types + "static class Names { public static string Of(Glow glow) => $\"{glow}\"; } " +
+            "class Art { void Name([SuperMetroid.Core.InstalledKey] string name) { } void Run(Glow glow) => Name(Names.Of(glow)); }", "'name'");
+        ExpectKeyed(Usings + Types + "static class Names { public static string Of(Glow glow) => glow.ToString(); } " +
+            "class Art { readonly Dictionary<string, int> anchors = []; bool Has(Glow glow) => anchors.ContainsKey(Names.Of(glow)); }",
+            "'glow.ToString()' keys the collection of 'anchors'");
+        // A helper whose result no caller hands to a key, a helper spelling a written-out key, and one whose caller only
+        // shows its text are none; a helper of another assembly is that assembly's to report.
+        Expect(Types + "static class Names { public static string Of(Glow glow) => $\"glow {glow}\"; } " +
+            "class Art { void Log(string text) { } void Run(Glow glow) => Log(Names.Of(glow)); }", count: 0);
+        Expect(Types + "static class Names { static readonly System.Collections.Generic.Dictionary<Glow, string> Keys = new() { [Glow.Dim] = \"Dim\", [Glow.Bright] = \"Bright\" }; " +
+            "public static string Of(Glow glow) => string.Create(System.Globalization.CultureInfo.InvariantCulture, $\"glow {Keys[glow]}\"); } " +
+            "class Art { Shade Of(Glow glow) => new(Names.Of(glow), 0); }", count: 0);
+        Expect(Types + "static class Names { public static string Of(Glow glow) => $\"glow {glow}\"; } " +
+            "class Art { Shade Of(Glow glow) => throw new System.ArgumentException(Names.Of(glow)); }", count: 0);
+
         // SME6462: an enum member's name made a dictionary's or set's key, through a local or a member, read or written.
         ExpectKeyed(Usings + Types + "class Art { void Run(Glow glow) { var anchors = new Dictionary<string, int>(); anchors.Add(glow.ToString(), 1); } }",
             "'glow.ToString()' keys the collection of 'anchors': it spells a 'Glow' by its members' names");

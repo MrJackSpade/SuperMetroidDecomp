@@ -27,7 +27,7 @@ internal sealed class IntroCeresFlightState
     /// The flight's colour effects (#1733): the scene's setup clears them, and the rear view's setup starts the gunship
     /// engine's flicker and the station's navigation lights.
     /// </summary>
-    internal ColourEffectSystem ColourEffects { get; } = new(new ColourEffectSessionState());
+    internal ColourEffectSystem ColourEffects { get; } = ColourEffectSystem.ForScreen();
     /// <summary>The rear view's actors' installed starting places (#1596).</summary>
     private CeresFlightActorPlacements actorLayout;
     /// <summary>Front-view star actor, whose rush also drives the diagonal background rush.</summary>

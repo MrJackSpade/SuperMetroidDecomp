@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Globalization;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Rooms.Artwork;
 
@@ -21,9 +22,14 @@ public static class RoomBlockPictureNames
     public static string Of(int block, ImmutableArray<AppearanceInput> inputs, ReadOnlySpan<string> values) =>
         AppearancePictureNames.Of(string.Create(CultureInfo.InvariantCulture, $"block {Ensure.AtLeastZero(block)}"), inputs, values);
 
-    /// <summary>The name of the picture of <paramref name="collectible"/>'s look (#1538, #1994), which depends on no input.</summary>
+    /// <summary>
+    /// The name of the picture of <paramref name="collectible"/>'s look (#1538, #1994), which depends on no input: its kind
+    /// and its look spelled by their installed keys (#2544).
+    /// </summary>
+    [InstalledKey]
     public static string OfCollectible(CollectiblePicture collectible) =>
-        string.Create(CultureInfo.InvariantCulture, $"collectible {collectible.Kind} {collectible.Look}");
+        string.Create(CultureInfo.InvariantCulture,
+            $"collectible {InWorldCollectibleKindKeys.Installed.Of(collectible.Kind)} {CollectibleLookKeys.Installed.Of(collectible.Look)}");
 
     /// <summary>
     /// The name the pictures of cell <paramref name="cell"/> of background image <paramref name="background"/> begin with

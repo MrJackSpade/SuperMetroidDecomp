@@ -95,7 +95,7 @@ internal static class XrayGameplayTests
                     if (blackBody) bodyColors[2] = RgbColor.Black;
                     var bodyBackgrounds = RoomBackgroundsFixtures.Uniform(vram.Bytes, bodyColors, new(1));
                     var bodyRooms = bossImage
-                        ? bodyBackgrounds with { BossBody = RoomBackgroundsFixtures.UniformBody(new(2), new(512, 256), vram.Bytes, bodyColors) }
+                        ? bodyBackgrounds with { Background = new SuperMetroid.Core.Gameplay.BossBodyBackground(RoomBackgroundsFixtures.UniformBody(new(2), new(512, 256), vram.Bytes, bodyColors)) }
                         : bodyBackgrounds;
                     var additive = new GameplayBlendLayer(new(registers with
                     {
@@ -195,7 +195,7 @@ internal static class XrayGameplayTests
                 new Offset16<BackgroundPixels>(Fine(), Fine()),
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
             SuperMetroid.Core.Gameplay.RoomBackgrounds seeded = RoomBackgroundsFixtures.Seeded(random, registers.ForegroundScroll.AsPlaneScroll(), pictureColours: colors);
-            var gameplay = new GameplaySceneLayer(registers, seeded with { XrayReveal = RoomBackgroundsFixtures.SeededReveal(random, colors) });
+            var gameplay = new GameplaySceneLayer(registers, seeded with { Background = new SuperMetroid.Core.Gameplay.XrayRevealBackground(RoomBackgroundsFixtures.SeededReveal(random, colors)) });
             var lines = RandomWindow(random);
             var layer = new GameplayBlendLayer(gameplay, lines, true, RandomBlend(random), null);
             var memory = FramePaint.FromOamGameplay(bytes, colors, oam, 128, 3);

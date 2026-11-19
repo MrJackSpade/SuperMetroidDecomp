@@ -345,8 +345,7 @@ internal static class NoobTubeObjectVerification
     {
         // FX mechanics now come from compiled records. Use the actual Glass Tunnel record.
         var roomFx = RoomFxOverlayState.ForRoom(RoomFxDefinitions.Suffix(0x9c94), door: null,
-            randomNumber: 0);
-        roomFx.BindAudioRequests(GameplayAudioRequests.Standalone());
+            randomNumber: 0, sounds: SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         return roomFx;
     }
 

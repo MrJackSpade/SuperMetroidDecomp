@@ -94,7 +94,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// The scene's colour effects (#1733): none before the station is set up; from its setup the station's navigation
     /// lights; once the Zebes reveal's setup clears them, the gunship engine's flicker and the PLANET ZEBES caption's fades.
     /// </summary>
-    internal ColourEffectSystem ColourEffects { get; private set; } = new(new ColourEffectSessionState());
+    internal ColourEffectSystem ColourEffects { get; private set; } = ColourEffectSystem.ForScreen();
     /// <summary>
     /// The Japanese subtitle the title's cue has just spawned, which runs on the same update, after the title, before it
     /// joins the reveal's actors.
@@ -421,7 +421,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         FloorShot = CeresFloorShot.Station;
         Backdrop = content.CeresFlight.Backdrop;
         // The setup clears the colour effects and starts the station's navigation lights (#1733).
-        ColourEffects = new ColourEffectSystem(new ColourEffectSessionState());
+        ColourEffects = ColourEffectSystem.ForScreen();
         ColourEffects.StartScreen(CeresDestructionSceneDefinitions.NavigationLights);
 
         ceresActors.Clear();
@@ -443,7 +443,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         ZebesRevealed = true;
         FloorShot = CeresFloorShot.ZebesApproach;
         // The reveal clears the colour effects, ending the station's navigation lights, and starts the engine's flicker.
-        ColourEffects = new ColourEffectSystem(new ColourEffectSessionState());
+        ColourEffects = ColourEffectSystem.ForScreen();
         ColourEffects.StartScreen(CeresDestructionSceneDefinitions.GunshipEngineFlicker);
 
         ceresActors.Clear();

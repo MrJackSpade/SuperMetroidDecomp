@@ -46,7 +46,7 @@ internal sealed class EndingColours
     private EndingLogoCrossfadeStep? logoCrossfadeStep;
 
     /// <summary>The ending's colour effects, which each scene boundary clears.</summary>
-    internal ColourEffectSystem ColourEffects { get; private set; } = new(new ColourEffectSessionState());
+    internal ColourEffectSystem ColourEffects { get; private set; } = ColourEffectSystem.ForScreen();
 
     /// <summary>
     /// Shows the installed colours <paramref name="load"/>. A scene's whole screen of colours starts that scene, with
@@ -98,7 +98,7 @@ internal sealed class EndingColours
     /// <summary>
     /// Clears the colour effects at a scene boundary (#1544): every effect ends, so the frames they showed stop showing.
     /// </summary>
-    internal void ResetColourEffects() => ColourEffects = new ColourEffectSystem(new ColourEffectSessionState());
+    internal void ResetColourEffects() => ColourEffects = ColourEffectSystem.ForScreen();
 
     /// <summary>
     /// The solid colour shown behind every layer, where nothing is drawn (#1597): the scene's own backdrop, the white the

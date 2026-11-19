@@ -108,7 +108,7 @@ internal static class RoomBlockPicturesVerification
         AssertEqual(RoomLibraryBackgroundPicture.SeenOtherwise,
             RoomScopeOf(runtime).BackgroundImage, "Phantoon's room binds no background picture");
         RoomBackgrounds rooms = runtime.Display.LatchedOrdinaryRoom.Rooms;
-        AssertTrue(rooms.BackgroundImage is null, "Phantoon's room draws no background picture");
+        AssertTrue(rooms.Background is not SuperMetroid.Core.Gameplay.LibraryImageBackground, "Phantoon's room draws no background picture");
         Console.WriteLine("Room background images: Phantoon's room binds and draws no background picture.");
     }
 
@@ -123,8 +123,8 @@ internal static class RoomBlockPicturesVerification
     {
         SuperMetroidRuntime runtime = LoadRoom(room);
         runtime.StepFrame(0);
-        var shown = runtime.Display.LatchedOrdinaryRoom.Rooms.Sky
-            ?? throw new InvalidOperationException($"{room.Name}: BG2 shows no sky image.");
+        var shown = runtime.Display.LatchedOrdinaryRoom.Rooms.Background is SuperMetroid.Core.Gameplay.SkyBackground { Rows: var skyRows } ? skyRows
+            : throw new InvalidOperationException($"{room.Name}: BG2 shows no sky image.");
         // The sky pages the import pictured, which are import data (#1638); the runtime holds only their picture (#1466).
         SkyTilemap sky = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SkyTilemaps
             .Tilemap((runtime.Room.Scope?.Sky?.State ?? throw new InvalidOperationException($"{room.Name} has no sky.")).Sky);
@@ -576,8 +576,8 @@ internal static class RoomBlockPicturesVerification
     private static int AssertBackgroundPaintsTiles(SuperMetroidRuntime runtime, RoomAnimatedCharacters animations,
         ArtworkFrameSelections latched, string where)
     {
-        RoomBackgroundImagePlane plane = runtime.Display.LatchedOrdinaryRoom.Rooms.BackgroundImage
-            ?? throw new InvalidOperationException($"{where}: BG2 shows no library background image.");
+        RoomBackgroundImagePlane plane = runtime.Display.LatchedOrdinaryRoom.Rooms.Background is SuperMetroid.Core.Gameplay.LibraryImageBackground { Image: var image } ? image
+            : throw new InvalidOperationException($"{where}: BG2 shows no library background image.");
         ReadOnlySpan<byte> vram = runtime.ComposedVram();
         // The room's load selects the image by name (#1406); its tilemap words are the pages the library list builds, as
         // the import pipeline replays them (#1466).

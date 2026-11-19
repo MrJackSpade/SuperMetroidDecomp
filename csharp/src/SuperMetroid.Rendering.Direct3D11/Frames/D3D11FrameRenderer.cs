@@ -736,8 +736,11 @@ public sealed class D3D11FrameRenderer : IDisposable
             else if (layer is GameplayBlendLayer { OverlayBehind: { } behind })
                 overlay = SameOverlay(overlay, behind);
         }
-        var levels = new RoomLevelLayers(rooms?.Foreground, rooms?.Background ?? floor, rooms?.DoorSource, rooms?.ForegroundText, rooms?.Sky, ShownFxOverlay.Of(overlay?.Picture),
-            rooms?.BackgroundText, floorMap, rooms?.BossBody, rooms?.XrayReveal, rooms?.BackgroundImage,
+        // The background's pictures are packed in the slot of the kind it shows (#2544); a turning floor's band shows the
+        // background plane's slot.
+        D3D11BackgroundSlots background = rooms?.Background.Map(D3D11BackgroundSlots.Of) ?? default;
+        var levels = new RoomLevelLayers(rooms?.Foreground, background.Plane ?? floor, rooms?.DoorSource, rooms?.ForegroundText, background.Sky, ShownFxOverlay.Of(overlay?.Picture),
+            rooms?.BackgroundText, floorMap, background.Body, background.Reveal, background.Image,
             messagePicture, hud,
             planes.Count == 0 ? null : new PicturedPlaneTables([.. planes]), grids.Count == 0 ? null : new PictureGridTables([.. grids]),
             scene.Paint.Gameplay is null ? D3D11PictureColouring.OwnShading : D3D11PictureColouring.Hud, floorColouring);

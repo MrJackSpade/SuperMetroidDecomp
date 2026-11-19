@@ -62,7 +62,8 @@ internal static class InstalledSporesTests
         {
             records++;
             var baselineFrames = new ArtworkFrameSelections();
-            RoomFxOverlayState baseline = RoomFxOverlayState.ForDefinition(definition, 0);
+            var baselineSounds = GameplayAudioRequests.Standalone();
+            RoomFxOverlayState baseline = RoomFxOverlayState.ForDefinition(definition, 0, baselineSounds);
             Require(baseline.Type == RoomFxType.Spores && baseline.CaptureForDisplay() is not null,
                 "The cartridge's spores FX has no display capture.");
             Require(baseline.Blend == RoomEffectBlendDefinitions.SporesBrightenBehind,
@@ -104,7 +105,7 @@ internal static class InstalledSporesTests
                     Require(liquid.FxType == RoomFxType.Spores && liquid.WaterSurfaceY is null &&
                         liquid.LavaAcidSurfaceY is null, "Spore artwork activated liquid physics.");
                 }
-                Require(baseline.SoundRequests.Count == 0 && baseline.SustainedEarthquake is null,
+                Require(baselineSounds.SoundRequests.Count == 0 && baseline.SustainedEarthquake is null,
                     "Spore presentation produced audio or earthquake side effects.");
                 if (frame is 0 or 10 or 20 or 30 or 44 or 511 or 1024)
                 {
@@ -201,7 +202,7 @@ internal static class InstalledSporesTests
                 ScreenLayers.Sprites | ((enabled & 1) != 0 ? ScreenLayers.Foreground : 0) |
                     ((enabled & 2) != 0 ? ScreenLayers.Background : 0));
             ShownRoomEffectOverlay spores = FxOverlayFixtures.Overlay(
-                new(RoomFxType.Spores, RoomEffectBlendDefinitions.SporesBrightenBehind, Position16<OverlayPixels>.Zero, null),
+                new(RoomFxType.Spores, RoomEffectOverlayLook.Atmosphere(RoomEffectBlendDefinitions.SporesBrightenBehind), Position16<OverlayPixels>.Zero, null),
                 FxOverlayFixtures.ArtworkFromVram(RoomFxType.Spores, vram.Bytes, colors, 0x4000));
             var layer = GameplayEffectCapture.CaptureEffectBlendingBehind(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, colors, new((ushort)(1 | (bg1High ? 0x2000 : 0))))),
                 spores, (OverlayBehindRoomBlend)spores.Blend);

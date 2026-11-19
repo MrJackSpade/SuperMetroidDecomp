@@ -251,8 +251,7 @@ internal static class LookupStream2Verification
             AssertEqual(64, cycle, "Native pass cadence sums to its exact loop period");
             var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out _);
             var actualSession = new ColourEffectSessionState();
-            var actual = new ColourEffectSystem(actualSession);
-            actual.BindAudioRequests(GameplayAudioRequests.Standalone());
+            var actual = new ColourEffectSystem(actualSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
             actual.Start(definition.DefinitionPointer, equippedItems: 0);
             var cgram = new SnesCgram();
             var colors = new ReferencePaletteFxColorSource(guarded);

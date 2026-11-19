@@ -31,9 +31,7 @@ internal static class PaletteFxContractTests
         // A frontend screen's step writes no colours either: each effect holds the record it shows, which the screen
         // shades its pictures with (#1597). The gunship engine flickers on the Ceres destruction cinematic, so its first
         // step shows the flicker's first record in the engine's colours.
-        var fxSession = new ColourEffectSessionState();
-        var fx = new ColourEffectSystem(fxSession);
-        fx.BindAudioRequests(new GameplaySoundRequests(new NoSoundQueues()));
+        var fx = ColourEffectSystem.ForScreen();
         fx.StartScreen(ColourEffectId.CutsceneGunshipEngineFlicker);
         fx.StepScreen();
         IReadOnlyList<ShownColourEffectFrame> shown = fx.Shown;
@@ -68,13 +66,5 @@ internal static class PaletteFxContractTests
         if (expectedError is null ? errors.Length != 0 : errors.Length != 1 || errors[0].Id != expectedError)
             throw new InvalidOperationException(
                 $"{description}: expected {expectedError ?? "successful compilation"}; got {string.Join("; ", errors.Select(error => error.ToString()))}");
-    }
-
-    /// <summary>The sound queues of a frontend screen's effects, which make no sound: a request fails the check (#2057).</summary>
-    private sealed class NoSoundQueues : IGameplaySoundQueue
-    {
-        /// <inheritdoc/>
-        public SoundQueueAdmission QueueSound(SoundRequest request) =>
-            throw new InvalidOperationException($"A frontend screen's colour effect requested {request}.");
     }
 }

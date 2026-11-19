@@ -548,7 +548,7 @@ modular absolute difference`, `modular Y proximity`); a coordinate's wraparound 
 move `wrapping within the coordinate range`; installing or loading art (`installs crawling art`, `installs hop art for
 its heading`); the game storing, checking or subtracting a value (`the game subtracts one mark`); a `completion call` or
 `draining calls`; `table multipliers`; and a value `of 0 through 255`. Core says how far apart two things lie and which
-way, citing `CoordinateAxis`, the encoding owner that states the wrap once; which animation starts; what the game does
+way, citing the compatibility service that reproduces the wrap (`DistanceAcrossRoomEdge`, SME6463); which animation starts; what the game does
 with the value and on which update. A thing wrapped around, a turn's wrap, installed art and loading installed art, a
 table, a multiplier and a range alone stay English.
 
@@ -664,7 +664,7 @@ across the room's wrap`, `on either side of the wrap`); a distance measured as a
 across the room as CoordinateAxis.Difference measures it`); `clearing stores` or writes; a thing that issues calls
 (`leaving the room issues both calls`); and `overlapping writes` or stores. Core says what the game does: an Atomic
 moves towards Samus, Samus lies to the block's left or right, the drain cancels her invincibility and knockback, leaving
-queues the departure sound and then the spin-end sound, the release leaves five screens closed; `CoordinateAxis` states
+queues the departure sound and then the spin-end sound, the release leaves five screens closed; a compatibility service states
 the wrap once. A turn's wrap, a thing wrapped across something, clearing a thing, an issue, a call and overlapping things
 that are not writes stay English.
 

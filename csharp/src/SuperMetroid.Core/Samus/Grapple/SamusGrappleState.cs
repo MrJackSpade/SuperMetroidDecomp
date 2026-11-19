@@ -136,18 +136,12 @@ public sealed class SamusGrappleState
     /// </summary>
     public bool ReleasedMovementActive { get; set; }
     /// <summary>
-    /// True only when the anchor came from the room block check. A beam started
-    /// already connected leaves this false, because its anchor need not be a grapple block
-    /// of the room.
+    /// What the connected beam's anchor is checked against on each following update, or null when nothing checks it. A
+    /// block anchor came from the room block check and holds while a grapple block still stops the beam; an enemy anchor
+    /// came from the interactive-enemy list and must be reacquired every connected update. A beam started already
+    /// connected checks nothing, because its anchor need not be a grapple block of the room.
     /// </summary>
-    public bool ValidateAnchorBlock { get; set; }
-
-    /// <summary>
-    /// True when the accepted endpoint came from the interactive-enemy list. Such an
-    /// anchor must be reacquired every connected frame; it cannot be treated as a permanent
-    /// already-connected anchor merely because <see cref="ValidateAnchorBlock"/> is false.
-    /// </summary>
-    public bool ValidateAnchorEnemy { get; set; }
+    public GrappleAnchorKind? ValidatedAnchor { get; set; }
 
     /// <summary>
     /// Whether the swing collided while the rope was at its shortest: such a collision has the next update look for the

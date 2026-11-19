@@ -95,9 +95,9 @@ public sealed class SamusSuitPickupState
             throw new InvalidOperationException("A suit pickup transformation is already active.");
 
         Kind = kind;
-        BeamColor = kind == SamusSuitPickupKind.Varia
-            ? new FadeLevelColour(SamusShadeDefinitions.SuitPickup.InitialRed, SamusShadeDefinitions.SuitPickup.VariaGreen, SamusShadeDefinitions.SuitPickup.VariaBlue).ToColour()
-            : new FadeLevelColour(SamusShadeDefinitions.SuitPickup.InitialRed, SamusShadeDefinitions.SuitPickup.GravityGreen, SamusShadeDefinitions.SuitPickup.GravityBlue).ToColour();
+        BeamColor = (kind == SamusSuitPickupKind.Varia
+            ? SamusShadeDefinitions.SuitPickup.VariaBeam
+            : SamusShadeDefinitions.SuitPickup.GravityBeam).ToColour();
         Stage = SamusSuitPickupStage.LightBeamAppears;
         _lightBeamLines = 0;
         _lightBeamLeft = 0;
@@ -365,34 +365,22 @@ public sealed class SamusSuitPickupState
     private static int ScreenColumn(int column) =>
         Ensure.BetweenInclusive(0, SuitPickupBeamDefinitions.RightmostColumn, column);
 
-    /// <summary>Raises each channel by two toward the white reveal colour.</summary>
-    private void AdvanceColorTowardWhite() =>
-        BeamColor = new FadeLevelColour(AddTwoAndClamp(BeamColor.FadeLevels.Red, SamusShadeDefinitions.SuitPickup.WhiteRed),
-            AddTwoAndClamp(BeamColor.FadeLevels.Green, SamusShadeDefinitions.SuitPickup.WhiteGreen),
-            AddTwoAndClamp(BeamColor.FadeLevels.Blue, SamusShadeDefinitions.SuitPickup.WhiteBlue)).ToColour();
+    /// <summary>Raises each channel toward the white reveal colour, stopping at white's level.</summary>
+    private void AdvanceColorTowardWhite()
+    {
+        FadeLevelColour white = SamusShadeDefinitions.SuitPickup.White;
+        BeamColor = BeamColor.FadeLevels.Map((channel, level) =>
+            Math.Min(level + SamusShadeDefinitions.SuitPickup.WhiteningLevelsPerUpdate, white[channel])).ToColour();
+    }
 
     /// <summary>Returns the Varia beam's colour toward its orange target during the shrinking stage.</summary>
-    private void AdvanceColorTowardOrange() => StepColorDownToward(
-        SamusShadeDefinitions.SuitPickup.WhiteRed,
-        SamusShadeDefinitions.SuitPickup.VariaOrangeGreen,
-        SamusShadeDefinitions.SuitPickup.VariaOrangeBlue);
+    private void AdvanceColorTowardOrange() => StepColorDownToward(SamusShadeDefinitions.SuitPickup.VariaOrange);
 
-    /// <summary>Returns the Gravity beam's colour toward its blue target during the shrinking stage.</summary>
-    private void AdvanceColorTowardBlue() => StepColorDownToward(
-        SamusShadeDefinitions.SuitPickup.InitialRed,
-        SamusShadeDefinitions.SuitPickup.GravityGreen,
-        SamusShadeDefinitions.SuitPickup.GravityBlue);
+    /// <summary>Returns the Gravity beam's colour toward its own colour during the shrinking stage.</summary>
+    private void AdvanceColorTowardBlue() => StepColorDownToward(SamusShadeDefinitions.SuitPickup.GravityBeam);
 
-    /// <summary>Lowers each channel by one until it reaches its target.</summary>
-    private void StepColorDownToward(int red, int green, int blue) =>
-        BeamColor = new FadeLevelColour(BeamColor.FadeLevels.Red == red ? red : BeamColor.FadeLevels.Red - 1, BeamColor.FadeLevels.Green == green ? green : BeamColor.FadeLevels.Green - 1,
-            BeamColor.FadeLevels.Blue == blue ? blue : BeamColor.FadeLevels.Blue - 1).ToColour();
-
-    /// <summary>Advances a channel by two without overshooting its stage target.</summary>
-    private static int AddTwoAndClamp(int value, int target)
-    {
-        if (value == target)
-            return value;
-        return Math.Min(value + 2, target);
-    }
+    /// <summary>Lowers each channel toward <paramref name="target"/> until it reaches the target's level.</summary>
+    private void StepColorDownToward(FadeLevelColour target) =>
+        BeamColor = BeamColor.FadeLevels.Map((channel, level) =>
+            level == target[channel] ? level : level - SamusShadeDefinitions.SuitPickup.SettlingLevelsPerUpdate).ToColour();
 }

@@ -84,8 +84,8 @@ internal static class GrappleConnectionDefinitionsVerification
             g.FireDirection = (SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)direction; g.Anchor = g.Anchor.WithX(536); g.Anchor = g.Anchor.WithY(520); g.RopeLength = 32;
             samus.LiquidPhysics.BeginFrameSoundRequests();
             var result = connect(samus, g, new(512, 512), enemy ? GrappleAnchorKind.Enemy : GrappleAnchorKind.Block);
-            AssertEqual(!enemy, g.ValidateAnchorBlock, "Connection preserves block owner");
-            AssertEqual(enemy, g.ValidateAnchorEnemy, "Connection preserves enemy owner");
+            AssertEqual<GrappleAnchorKind?>(enemy ? GrappleAnchorKind.Enemy : GrappleAnchorKind.Block, g.ValidatedAnchor,
+                "Connection preserves the anchor's owner");
             AssertEqual(-8, g.RopeLengthDelta, "Connection caller begins native retraction");
             if (movement == 26)
             {

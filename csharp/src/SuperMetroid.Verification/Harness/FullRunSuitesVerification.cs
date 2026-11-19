@@ -855,6 +855,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifySamusHorizontalSpeed), () => VerifySamusHorizontalSpeed()),
         new(nameof(VerifySamusExtraDisplacement), () => VerifySamusExtraDisplacement()),
         new(nameof(VerifySamusStoredShineAndShinespark), () => VerifySamusStoredShineAndShinespark()),
+        new(nameof(VerifyShinesparkStepRequiresMovingSpark), () => VerifyShinesparkStepRequiresMovingSpark()),
         new(nameof(VerifySamusCrystalFlash), () => VerifySamusCrystalFlash()),
         .. SuperMetroid.Verification.Samus.Abilities.CrystalFlashCleanupVerification.CrystalFlashRuntimeSuites(),
         new(nameof(VerifySamusXray), () => VerifySamusXray()),

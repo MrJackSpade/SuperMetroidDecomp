@@ -67,7 +67,7 @@ internal sealed class MotherBrainProjectiles
         /// <summary>Flies the bullet, flickering its vulnerability, until it meets a solid block.</summary>
         /// <param name="context">The projectile and what its pass hands every motion.</param>
         /// <param name="motion">The bullet's one motion.</param>
-        private protected override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
+        internal override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
             FlyMotherBrainTurretBullet(context.Projectile, context.Level);
 
         /// <inheritdoc/>
@@ -138,7 +138,7 @@ internal sealed class MotherBrainProjectiles
         };
 
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, MotherBrainProjectileMotion motion)
+        internal override void Move(EnemyProjectileMotionContext context, MotherBrainProjectileMotion motion)
         {
             EnemyProjectile projectile = context.Projectile;
             switch (motion)

@@ -81,7 +81,7 @@ internal sealed class TorizoAttacks
         };
 
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, TorizoProjectileMotion motion)
+        internal override void Move(EnemyProjectileMotionContext context, TorizoProjectileMotion motion)
         {
             EnemyProjectile projectile = context.Projectile;
             switch (motion)

@@ -582,7 +582,7 @@ internal sealed class EnemyDeathsAndDrops
     /// </summary>
     /// <param name="context">The projectile and what its pass hands every motion.</param>
     /// <param name="motion">The pickup's one motion.</param>
-    private protected override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
+    internal override void Move(EnemyProjectileMotionContext context, SingleMotion motion) =>
         TendEnemyPickup(context.Projectile, context.Samus);
 
     /// <summary>

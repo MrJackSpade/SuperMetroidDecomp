@@ -759,7 +759,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, KiHunterAcidMotion motion)
+        internal override void Move(EnemyProjectileMotionContext context, KiHunterAcidMotion motion)
         {
             switch (motion)
             {

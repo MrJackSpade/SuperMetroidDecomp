@@ -83,7 +83,7 @@ internal sealed class CrocomireCombat
         };
 
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, CrocomireProjectileMotion motion)
+        internal override void Move(EnemyProjectileMotionContext context, CrocomireProjectileMotion motion)
         {
             switch (motion)
             {

@@ -352,7 +352,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         };
 
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, FakeKraidProjectileMotion motion)
+        internal override void Move(EnemyProjectileMotionContext context, FakeKraidProjectileMotion motion)
         {
             switch (motion)
             {

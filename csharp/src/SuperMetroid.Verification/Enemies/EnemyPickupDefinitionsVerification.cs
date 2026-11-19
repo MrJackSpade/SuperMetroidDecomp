@@ -46,7 +46,7 @@ internal static class EnemyPickupDefinitionsVerification
             AssertEqual(400, projectile.StateOf<EnemyPickupState>().Lifetime.UpdatesLeft,
                 $"production pickup lifetime {kind}");
             AssertEqual<Enum?>(SingleMotion.Moving,
-                projectile.Motion,
+                projectile.MotionValue,
                 $"production pickup pre-instruction {kind}");
             AssertTrue(!projectile.PersistsOnSamusContact,
                 $"production pickup contact persistence {kind}");

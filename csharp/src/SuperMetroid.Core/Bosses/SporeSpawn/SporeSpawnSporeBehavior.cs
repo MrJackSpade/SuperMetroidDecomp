@@ -16,7 +16,7 @@ internal sealed class SporeSpawnSporeBehavior(EnemyDeathsAndDrops deathsAndDrops
     /// <summary>Drifts the spore one step along its path.</summary>
     /// <param name="context">The spore and what its pass hands every motion.</param>
     /// <param name="motion">The spore's one motion, its drift.</param>
-    private protected override void Move(EnemyProjectileMotionContext context, SingleMotion motion) => DriftSpore(context.Projectile);
+    internal override void Move(EnemyProjectileMotionContext context, SingleMotion motion) => DriftSpore(context.Projectile);
 
     /// <summary>Carries out a cue of a shot spore's burst: its impact properties, the killed sound, its drop and its deletion.</summary>
     public void RunCue(EnemyProjectileCueContext context, SporeSpawnProjectileCue cue)

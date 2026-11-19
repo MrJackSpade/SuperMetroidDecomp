@@ -17,7 +17,7 @@ internal sealed class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProj
     /// <summary>Releases spores on the spawner's random cadence while Spore Spawn lets it.</summary>
     /// <param name="context">The spawner and what its pass hands every motion.</param>
     /// <param name="motion">The spawner's motion, its releasing, which only a spawner's spawn starts.</param>
-    private protected override void Move(EnemyProjectileMotionContext context, SporeSpawnSpawnerMotion motion)
+    internal override void Move(EnemyProjectileMotionContext context, SporeSpawnSpawnerMotion motion)
     {
         switch (motion)
         {

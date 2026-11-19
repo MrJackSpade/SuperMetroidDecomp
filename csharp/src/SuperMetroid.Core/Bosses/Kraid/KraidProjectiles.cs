@@ -102,7 +102,7 @@ internal sealed class KraidProjectiles
         };
 
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, KraidRockMotion motion)
+        internal override void Move(EnemyProjectileMotionContext context, KraidRockMotion motion)
         {
             switch (motion)
             {

@@ -106,7 +106,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         : EnemyProjectileMotionBehavior<KagoBugMotion>(shot: () => new KagoBugProjectileAnimation(KagoBugProjectileSegment.Shot)), IEnemyProjectileCues<KagoBugProjectileCue>
     {
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, KagoBugMotion motion)
+        internal override void Move(EnemyProjectileMotionContext context, KagoBugMotion motion)
         {
             switch (motion)
             {

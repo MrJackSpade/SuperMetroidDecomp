@@ -220,7 +220,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
             projectile.StartMotion(TourianStatueDecorationMotion.FollowingReveal);
 
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, TourianStatueDecorationMotion motion)
+        internal override void Move(EnemyProjectileMotionContext context, TourianStatueDecorationMotion motion)
         {
             switch (motion)
             {
@@ -236,7 +236,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         /// <summary>Follows the statue down as it sinks and, for the base decoration, marks the sinking finished once the statues rest.</summary>
         private void PositionTourianEntranceStatueProjectile(EnemyProjectile projectile)
         {
-            if (projectile.Motion is TourianStatueDecorationMotion.FollowingReveal &&
+            if (projectile.MovesBy(TourianStatueDecorationMotion.FollowingReveal) &&
                 statue.AtRest)
             {
                 statue.FinishSinking();

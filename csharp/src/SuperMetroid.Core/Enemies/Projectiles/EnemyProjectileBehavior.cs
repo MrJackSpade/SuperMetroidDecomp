@@ -52,18 +52,13 @@ internal class EnemyProjectileBehavior
     /// or null when it starts holding still. A kind of this class itself never moves itself.
     /// </summary>
     /// <param name="kind">What the freshly spawned projectile is.</param>
-    internal virtual Enum? InitialMotion(RoomEnemyProjectileKind kind) => null;
+    internal virtual EnemyProjectileMotion? InitialMotion(RoomEnemyProjectileKind kind) => null;
 
     /// <summary>
-    /// Moves the projectile one projectile pass by its motion, before its animation advances (#1843). A projectile that
-    /// holds still does not move itself: it holds still while its animation plays, or its owner positions it.
+    /// Moves the projectile one projectile pass by its motion, before its animation advances (#1843): the motion moves it
+    /// through the behaviour that owns it. A projectile that holds still does not move itself: it holds still while its
+    /// animation plays, or its owner positions it.
     /// </summary>
     /// <param name="context">The projectile and what its pass hands every motion.</param>
-    /// <exception cref="InvalidOperationException">The projectile moves by a motion this behaviour does not own.</exception>
-    internal virtual void RunMotion(EnemyProjectileMotionContext context)
-    {
-        if (context.Projectile.Motion is { } motion)
-            throw new InvalidOperationException(
-                $"Enemy projectile {context.Projectile.Kind} in place {context.Projectile.Place} moves by {motion.GetType().Name}.{motion}, which its behaviour does not run.");
-    }
+    internal virtual void RunMotion(EnemyProjectileMotionContext context) => context.Projectile.Motion?.Move(context);
 }

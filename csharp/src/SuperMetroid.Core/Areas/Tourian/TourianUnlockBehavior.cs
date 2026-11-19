@@ -199,7 +199,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
     /// <summary>Moves one of the unlock's effects: the splash's hold, the particle's fall and the soul's rise.</summary>
     /// <param name="context">The projectile and what its pass hands every motion.</param>
     /// <param name="motion">The effect's motion.</param>
-    private protected override void Move(EnemyProjectileMotionContext context, TourianStatueEffectMotion motion)
+    internal override void Move(EnemyProjectileMotionContext context, TourianStatueEffectMotion motion)
     {
         switch (motion)
         {

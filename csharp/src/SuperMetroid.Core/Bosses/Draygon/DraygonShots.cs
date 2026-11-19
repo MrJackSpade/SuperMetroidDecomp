@@ -52,7 +52,7 @@ internal sealed class DraygonShots
         : EnemyProjectileMotionBehavior<DraygonShotMotion>(initial, shot, touch), IEnemyProjectileCues<DraygonProjectileCue>
     {
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, DraygonShotMotion motion)
+        internal override void Move(EnemyProjectileMotionContext context, DraygonShotMotion motion)
         {
             EnemyProjectile projectile = context.Projectile;
             switch (motion)

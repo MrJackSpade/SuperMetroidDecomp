@@ -67,7 +67,7 @@ internal static class EnemyProjectileDefinitionsVerification
             projectile.Delete();
             FamilyProjectileStarts.Initialize(enemies, projectile, kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook));
             AssertEqual(kind, projectile.Kind, $"{kind} production kind");
-            AssertEqual(startingMotions[kind], projectile.Motion,
+            AssertEqual(startingMotions[kind], projectile.MotionValue,
                 $"{kind} production pre-instruction");
             // A kind whose spawner starts a typed initial program (#641, #1760) runs it in place of the definition's native list.
             bool typedStart = FamilyProjectileStarts.StartingAnimation(kind) is not null;

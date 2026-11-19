@@ -106,7 +106,7 @@ internal sealed class EyeDoorBehavior
         : EnemyProjectileMotionBehavior<EyeDoorProjectileMotion>(initial, shot), IEnemyProjectileCues<EyeDoorProjectileCue>
     {
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, EyeDoorProjectileMotion motion)
+        internal override void Move(EnemyProjectileMotionContext context, EyeDoorProjectileMotion motion)
         {
             switch (motion)
             {

@@ -85,10 +85,10 @@ public sealed class EnemyProjectile
     public EnemyProjectileFrameId? Frame { get; internal set; }
     /// <summary>
     /// How the projectile moves itself on each pass, before its animation advances (#1843): one of the motions its
-    /// behaviour owns (<see cref="EnemyProjectileMotionBehavior{TMotion}"/>), or null while it holds still. Its behaviour starts
-    /// it at spawn and changes it; a shot that destroys the projectile stops it.
+    /// behaviour owns (<see cref="EnemyProjectileMotionBehavior{TMotion}"/>), held through that behaviour (#2571), or null
+    /// while it holds still. Its behaviour starts it at spawn and changes it; a shot that destroys the projectile stops it.
     /// </summary>
-    internal Enum? Motion { get; set; }
+    internal EnemyProjectileMotion? Motion { get; private set; }
     /// <summary>
     /// What the projectile's kind does (#1760): it moves the projectile each update, carries out its animations'
     /// cues and names its shot and touch animations. The spawner binds it with the kind; none until then. A projectile
@@ -154,7 +154,15 @@ public sealed class EnemyProjectile
 
     /// <summary>Moves the projectile by <paramref name="motion"/>, one of its behaviour's motions, from its next pass.</summary>
     /// <typeparam name="TMotion">The behaviour's motions.</typeparam>
-    internal void StartMotion<TMotion>(TMotion motion) where TMotion : struct, Enum => Motion = motion;
+    /// <exception cref="InvalidOperationException">The projectile's behaviour does not own <typeparamref name="TMotion"/>.</exception>
+    internal void StartMotion<TMotion>(TMotion motion) where TMotion : struct, Enum =>
+        Motion = (Behavior as EnemyProjectileMotionBehavior<TMotion> ?? throw new InvalidOperationException(
+            $"Enemy projectile {Kind} in place {Place} is bound to {Behavior?.GetType().Name ?? "no behaviour"}, which owns no {typeof(TMotion).Name}.")).Moving(motion);
+
+    /// <summary>Whether the projectile moves by <paramref name="motion"/>, one of its behaviour's motions.</summary>
+    /// <typeparam name="TMotion">The behaviour's motions.</typeparam>
+    internal bool MovesBy<TMotion>(TMotion motion) where TMotion : struct, Enum =>
+        Motion is EnemyProjectileFamilyMotion<TMotion> moving && EqualityComparer<TMotion>.Default.Equals(moving.Motion, motion);
 
     /// <summary>Stops the projectile moving itself: it holds still while its animation plays, or its owner positions it.</summary>
     internal void HoldStill() => Motion = null;

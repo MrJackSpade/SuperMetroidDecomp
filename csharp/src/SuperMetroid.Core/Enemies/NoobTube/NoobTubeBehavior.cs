@@ -173,7 +173,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
         };
 
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, NoobTubePieceMotion motion)
+        internal override void Move(EnemyProjectileMotionContext context, NoobTubePieceMotion motion)
         {
             EnemyProjectile projectile = context.Projectile;
             switch (motion)

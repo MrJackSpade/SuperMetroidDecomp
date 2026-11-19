@@ -81,7 +81,7 @@ internal sealed class PhantoonCombat
         : EnemyProjectileMotionBehavior<PhantoonFlameMotion>(initial, shot), IEnemyProjectileCues<PhantoonFlameCue>
     {
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, PhantoonFlameMotion motion)
+        internal override void Move(EnemyProjectileMotionContext context, PhantoonFlameMotion motion)
         {
             EnemyProjectile flame = context.Projectile;
             switch (motion)

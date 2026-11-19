@@ -194,7 +194,7 @@ internal static class MotherBrainEffectBehaviorVerification
                 Process(rom, ringEnemies, ring, samus);
             AssertTrue(ring.IsActive, "onion-ring impact survives all six five-frame stages");
             AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard, ring.ShownGraphics, "onion-ring impact draws its fire from the room's sheet in its standard colours");
-            AssertEqual<Enum?>(null, ring.Motion, "onion-ring impact clears its movement");
+            AssertEqual<Enum?>(null, ring.MotionValue, "onion-ring impact clears its movement");
             Process(rom, ringEnemies, ring, samus);
             AssertTrue(!ring.IsActive, "onion-ring impact deletes on the frame after its 30-frame lifetime");
         }
@@ -210,10 +210,10 @@ internal static class MotherBrainEffectBehaviorVerification
 
             for (int frame = 0; frame < 50; frame++)
                 Process(rom, droolEnemies, drool, samus);
-            AssertEqual<Enum?>(MotherBrainProjectileMotion.DroolHanging, drool.Motion,
+            AssertEqual<Enum?>(MotherBrainProjectileMotion.DroolHanging, drool.MotionValue,
                 $"{expectedKind} remains attached for five ten-frame stages");
             Process(rom, droolEnemies, drool, samus);
-            AssertEqual<Enum?>(MotherBrainProjectileMotion.DroolFalling, drool.Motion,
+            AssertEqual<Enum?>(MotherBrainProjectileMotion.DroolFalling, drool.MotionValue,
                 $"{expectedKind} switches to falling after its fifth attached stage");
             AssertEqual(unchecked((ushort)(attachedY + 12)), drool.Position.Y.Whole, $"{expectedKind} release drops the drool twelve pixels");
             AssertTrue(drool.Animation is MotherBrainEffectAnimation { PlayingSegment: MotherBrainEffectSegment.Drool },

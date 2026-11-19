@@ -125,7 +125,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         RotationAngle angle)
     {
         // The speed's size times the sine's size in 256ths, in the sine's direction.
-        return Trigonometry.MultiplySignedSine(
+        return SpeedAlongAngle.Along(
             speed, (angle + RotationAngle.QuarterTurn).ToTrigonometryAngle());
     }
 

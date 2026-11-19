@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <remarks>
 /// The entrance moves by a velocity in 256ths of a pixel, adding it to the position's 256ths of a pixel and carrying
 /// into its whole pixels, and the curved entrance scales by the game's sine
-/// (<see cref="Trigonometry.MultiplySignedSine"/>). Those steps decide the update on which the Baby's hit area reaches
+/// (<see cref="SpeedAlongAngle.Along"/>). Those steps decide the update on which the Baby's hit area reaches
 /// Mother Brain's brain, so a smooth curve that looks the same would change it.
 /// </remarks>
 [ArchitectureReview("back-reference", "The Baby of Mother Brain's late fight (#2471): the late fight makes and owns its Baby for the rest of the room, and the Baby's steps move the late fight that made it on, so the two share one lifetime.")]
@@ -808,7 +808,7 @@ public sealed class BabyMetroidCutsceneState
         TrigonometryAngle angle)
     {
         // The speed is multiplied by the sine's size and the product's sign is the sine's.
-        return Trigonometry.MultiplySignedSine(speed, angle);
+        return SpeedAlongAngle.Along(speed, angle);
     }
 
     /// <summary>Moves the Baby by its velocity, in 256ths of a pixel, leaving the position's finer-than-256ths part untouched.</summary>

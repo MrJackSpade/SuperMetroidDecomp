@@ -29,14 +29,6 @@ public static class Trigonometry
     }
 
     /// <summary>
-    /// The sine or cosine product: <paramref name="speed"/>, taken as a value 0 through 65535 as the game's multiply takes it, scaled by
-    /// <paramref name="angle"/>'s sine, a signed number of 256ths (<see cref="ScaledBySine"/>), the result wrapping as a velocity does.
-    /// A cosine is this product at the angle a quarter-turn on.
-    /// </summary>
-    public static SignedEightEight MultiplySignedSine(SignedEightEight speed, TrigonometryAngle angle) =>
-        SignedEightEight.Wrapped(ScaledBySine(speed.UnsignedTwoHundredFiftySixthsOfPixel, angle));
-
-    /// <summary>
     /// The velocity <paramref name="angle"/>'s sine gives at <paramref name="peakPixels"/> pixels an update (#2482): the signed
     /// sine's 256ths of its peak taken as 256ths of a pixel, times the peak, exactly with nothing dropped. A cosine is the sine
     /// a quarter-turn on, a negative cosine the sine a quarter-turn back.

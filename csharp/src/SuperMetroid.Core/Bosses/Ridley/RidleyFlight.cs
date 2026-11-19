@@ -116,8 +116,8 @@ internal sealed class RidleyFlight
             angle = targetAngle;
         flight.SwoopAngleAccumulator = angle;
         TrigonometryAngle phase = angle.ToTrigonometryAngle();
-        flight.Velocity = flight.Velocity.WithX(Trigonometry.MultiplySignedSine(speed, phase));
-        flight.Velocity = flight.Velocity.WithY(Trigonometry.MultiplySignedSine(speed, phase.TurnedBy(TrigonometryAngle.QuarterTurn)));
+        flight.Velocity = flight.Velocity.WithX(SpeedAlongAngle.Along(speed, phase));
+        flight.Velocity = flight.Velocity.WithY(SpeedAlongAngle.Along(speed, phase.TurnedBy(TrigonometryAngle.QuarterTurn)));
     }
 
     /// <summary>Tests an inclusive actor rectangle for hover, lunge or retrieval handoffs.</summary>

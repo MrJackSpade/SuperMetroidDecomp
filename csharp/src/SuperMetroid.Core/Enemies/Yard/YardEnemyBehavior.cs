@@ -262,7 +262,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // A crawl along a wall moves vertically, one along a floor or ceiling horizontally.
         bool movesVertically = YardDirections.IsOnWall(state.Crawl);
-        YardTurnDefinition turn = YardTurns.ForCrawl(
+        YardCrawlStep turn = YardTurns.ForCrawl(
             state.Crawl,
             state.TurnsSuppressed);
 
@@ -297,7 +297,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             SetYardAnimationAndDisableTurn(
                 place,
                 state,
-                turn.OutsideTurnAnimation);
+                turn.WhenSurfaceEnds);
             return;
         }
 
@@ -313,7 +313,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
                 SetYardAnimationAndDisableTurn(
                     place,
                     state,
-                    turn.InsideTurnAnimation);
+                    turn.WhenSurfaceMet);
             }
             return;
         }
@@ -328,7 +328,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             SetYardAnimationAndDisableTurn(
                 place,
                 state,
-                turn.InsideTurnAnimation);
+                turn.WhenSurfaceMet);
             return;
         }
 

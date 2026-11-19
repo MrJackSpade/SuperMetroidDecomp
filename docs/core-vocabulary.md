@@ -917,6 +917,17 @@ enum member's name made a dictionary's or set's key (`Add`, `TryGetValue`, `Cont
 `Enum.Parse`, `Enum.TryParse`, `Enum.GetNames` and `JsonStringEnumConverter` in any form. Diagnostic text, exception
 messages and an import run's own fingerprints and content identities, which nothing installs, stay free to name members.
 
+SME6463 (#2564) keeps installed content free of hardware data. In AssetExtraction, a type the import hands to
+`JsonSerializer` or `JsonAssetDocument.Read` (directly, or through a generic helper whose type argument reaches one) is
+a document, and so is every AssetExtraction type its serialized properties hold. A document is reported where it is
+declared for each property, at any depth, that holds a colour as red, green and blue channel levels (`PaletteRgb5`, a
+gradient stop's levels), a palette row (an integer named as a palette) and the priority of a tile or sprite that has
+one, a palette index (an integer named as an ink) or a sixteen-bit word. An installed document writes its colours as
+`#rrggbb` (`InstalledColourText`, which reads them back on the game's fade scale where the game steps from them), and
+its pictures are pre-coloured and pre-assembled. A document only the import reads, which an extraction writes to its
+component's import data and the installer deletes before it publishes, is justified at its declaration by naming the
+extraction and the import data that hold it.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

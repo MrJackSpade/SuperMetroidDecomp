@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.World;
 /// <param name="Shaking">The room's horizontal and diagonal shakes and the chance an update turns it diagonal.</param>
 /// <param name="Countdown">The updates left of the diagonal shake, carried from the previous room's main.</param>
 [RoomLifetime]
-internal sealed record EscapeDiagonalQuake(EscapeDiagonalShaking Shaking, EscapeDiagonalQuakeState Countdown);
+internal sealed record EscapeDiagonalQuake(EscapeDiagonalShaking Shaking, EscapeQuakeCarriedAcrossRooms Countdown);

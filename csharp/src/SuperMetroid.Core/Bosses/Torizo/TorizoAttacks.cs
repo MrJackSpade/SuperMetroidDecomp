@@ -255,10 +255,10 @@ internal sealed class TorizoAttacks
             bool collided = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical);
             if (projectile.Velocity.Y.IsNegative || !collided)
             {
-                EnemyProjectile firstPlace = projectiles.EnemyProjectiles[0];
+                EnemyProjectile? firstPlace = projectiles.LatestInPlace(0);
                 SignedEightEight acceleration = FirstPlaceFallAcceleration.Of(
-                    firstPlace.IsActive,
-                    firstPlace.IsActive && firstPlace.State is BombTorizoStatueFragmentState piece ? piece.Acceleration : null);
+                    firstPlace is { IsActive: true },
+                    firstPlace is { IsActive: true, State: BombTorizoStatueFragmentState piece } ? piece.Acceleration : null);
                 // A piece's speed stops at the runaway speed, so the acceleration never carries it out of range.
                 projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + acceleration);
                 if (IsRunaway(projectile.Velocity.Y))
@@ -353,8 +353,8 @@ internal sealed class TorizoAttacks
     /// unit either way, so the velocity never exceeds the speed.
     /// </summary>
     internal static EightEightVector<RoomPixels> VelocityAlong(SignedEightEight speed, TrigonometryAngle heading) =>
-        new(Trigonometry.MultiplySignedSine(speed, heading),
-            Trigonometry.MultiplySignedSine(speed, heading - TrigonometryAngle.QuarterTurn));
+        new(SpeedAlongAngle.Along(speed, heading),
+            SpeedAlongAngle.Along(speed, heading - TrigonometryAngle.QuarterTurn));
 
     /// <summary>Places a swipe explosion at the left-facing hand placement <paramref name="placement"/>, mirroring it for right-facing Torizo.</summary>
     internal void SpawnBombTorizoExplosiveSwipe(RoomEnemyPlace torizo, Offset16<RoomPixels> placement)

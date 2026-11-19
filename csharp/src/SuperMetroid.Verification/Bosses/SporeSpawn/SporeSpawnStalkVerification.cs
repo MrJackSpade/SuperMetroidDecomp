@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.World;
@@ -33,7 +34,7 @@ internal static class SporeSpawnStalkVerification
         AssertEqual(4, state.StalkLinks.Count, "Spore Spawn's stalk has four links");
         for (int link = 0; link < state.StalkLinks.Count; link++)
         {
-            AssertTrue(ReferenceEquals(enemies.Projectiles.EnemyProjectiles[14 + link], state.StalkLinks[link]),
+            AssertTrue(ReferenceEquals(enemies.Projectiles.ProjectileInPlace(14 + link), state.StalkLinks[link]),
                 $"Spore Spawn's stalk link {link} is the projectile in the original's place {14 + link}");
         }
         AssertEqual(new Position16<RoomPixels>(128, 560), state.StalkLinks[0].Position.Whole,
@@ -46,7 +47,7 @@ internal static class SporeSpawnStalkVerification
         EnemyProjectile[] live = [.. enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.IsActive)];
         AssertEqual(4, live.Length, "Spore Spawn's death clear leaves only his stalk");
         AssertTrue(live.All(projectile => state.StalkLinks.Contains(projectile)), "every survivor of the clear is a stalk link");
-        AssertTrue(enemies.Projectiles.EnemyProjectiles.Take(14).All(projectile => !projectile.IsActive),
+        AssertTrue(Enumerable.Range(0, 14).All(place => enemies.Projectiles.LatestInPlace(place) is not { IsActive: true }),
             "the clear empties places 0 through 13, as the original's did");
         Console.WriteLine("  Spore Spawn stalk: the links are the original's places 14 through 17 and survive his death's clear.");
     }

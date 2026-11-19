@@ -80,9 +80,10 @@ Each must become a named `RoomTransitionCarryOver` member or stay a field of a s
   escape progress, the critical-energy drop bias (`$0E1E`), the language flag, the random enemy counter, the death
   quota an empty population keeps, the staging surfaces, the Mode 7 transfer residue, the OBJ character table and the
   installed enemy artwork.
-- **`RoomMainCarryover`**, the compatibility service for the value one room main leaves the next (#1470), is never
-  cleared by room loading (8933bb109). The Ceres hall debris timer, an escape room's diagonal quake and the elevatube
-  fraction depend on it.
+- **`RoomMainHandOvers`**, the compatibility services for what one room main leaves the next (#1470, #2572), are never
+  cleared by room loading (8933bb109). The Ceres hall debris timer (`ShaftTurnSetsDebrisWait`), an escape room's
+  diagonal quake (`EscapeQuakeCarriedAcrossRooms`) and the elevatube fraction (`ElevatubeInheritedFraction`) depend on
+  them, all over the one value the room mains share (`RoomMainCarryover`).
 - **Camera tracking state and fraction words** survive door loading (`ScrollBoundaryCamera.InheritTrackingState`,
   `RetainSubpositions`; 80cc097fc, #1266). `InheritedLayer1Position` supplies them when there is no previous camera.
 - **Samus velocity** survives; only `ExtraDisplacement` is cleared.

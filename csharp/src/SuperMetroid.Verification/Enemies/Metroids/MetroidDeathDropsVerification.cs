@@ -51,13 +51,13 @@ internal static class MetroidDeathDropsVerification
         runtime.Enemies.ResolveShotsOnInteractiveEnemies(runtime.Projectiles, runtime.BombProjectiles, runtime.Room.LoadedRoom.Area, samus);
         AssertEqual(0, metroid.Health, $"the missile kills the frozen Metroid (already marked: {alreadyMarked})");
 
-        var projectiles = runtime.Enemies.Projectiles.EnemyProjectiles;
-        int explosion = projectiles.Count - 1;
-        while (explosion >= 0 && projectiles[explosion].Kind != RoomEnemyProjectileKind.EnemyDeathExplosion)
+        var projectiles = runtime.Enemies.Projectiles;
+        int explosion = SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine.PlaceCount - 1;
+        while (explosion >= 0 && projectiles.LatestInPlace(explosion)?.Kind != RoomEnemyProjectileKind.EnemyDeathExplosion)
             explosion--;
         AssertTrue(explosion >= 0, "EnemyDeath spawns the death explosion");
-        for (int slot = explosion + 1; slot < projectiles.Count; slot++)
-            AssertTrue(projectiles[slot].Kind != RoomEnemyProjectileKind.EnemyDeathPickup,
+        for (int slot = explosion + 1; slot < SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine.PlaceCount; slot++)
+            AssertTrue(projectiles.LatestInPlace(slot)?.Kind != RoomEnemyProjectileKind.EnemyDeathPickup,
                 $"no drop sits above the explosion (slot {slot})");
         AssertEqual(5, runtime.Enemies.ActiveEnemyDropPickups, "the Metroid requests its five special drops");
     }

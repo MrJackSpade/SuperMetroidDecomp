@@ -51,15 +51,15 @@ internal static class GoldNinjaDeathDropsVerification
             pirate, Position16<RoomPixels>.Zero);
         AssertEqual(0, pirate.Health, "the shot kills the Gold Ninja Pirate");
 
-        var projectiles = runtime.Enemies.Projectiles.EnemyProjectiles;
-        int explosion = projectiles.Count - 1;
-        while (explosion >= 0 && projectiles[explosion].Kind != RoomEnemyProjectileKind.EnemyDeathExplosion)
+        var projectiles = runtime.Enemies.Projectiles;
+        int explosion = SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine.PlaceCount - 1;
+        while (explosion >= 0 && projectiles.LatestInPlace(explosion)?.Kind != RoomEnemyProjectileKind.EnemyDeathExplosion)
             explosion--;
         AssertTrue(explosion >= 0, "EnemyDeath spawns the death explosion");
-        for (int slot = explosion + 1; slot < projectiles.Count; slot++)
-            AssertTrue(projectiles[slot].Kind != RoomEnemyProjectileKind.EnemyDeathPickup,
+        for (int slot = explosion + 1; slot < SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine.PlaceCount; slot++)
+            AssertTrue(projectiles.LatestInPlace(slot)?.Kind != RoomEnemyProjectileKind.EnemyDeathPickup,
                 $"no drop sits above the explosion (slot {slot})");
-        AssertEqual(5, projectiles.Take(explosion).Count(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathPickup),
+        AssertEqual(5, Enumerable.Range(0, explosion).Count(place => projectiles.LatestInPlace(place)?.Kind == RoomEnemyProjectileKind.EnemyDeathPickup),
             "MetalNinjaPirateDeathItemDropRoutine spawns its five drops below the explosion");
         Console.WriteLine("Gold Ninja death drops: the explosion is spawned before the five drops.");
     }

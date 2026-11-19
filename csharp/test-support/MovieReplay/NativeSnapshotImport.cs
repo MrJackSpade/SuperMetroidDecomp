@@ -329,7 +329,8 @@ internal static class NativeSnapshotImport
             VerificationAssertions.AssertTrue(W(NativeSnapshotMemory.RoomObjectHeaders + index * 2) == 0, "native initial PLM pool is empty");
             initialObjects[index].Delete();
         }
-        foreach (var projectile in runtime.Enemies.Projectiles.EnemyProjectiles)
+        // Every place takes the snapshot's projectile, or, for a free one, what it holds for the room's next spawn there.
+        foreach (var projectile in runtime.Enemies.Projectiles.EveryPlace())
             ImportNativeEnemyProjectile(runtime.Enemies, projectile, runtime.Enemies.GraphicsSet, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W);
         // This is a one-time initial snapshot import. No native state is fed back during replay.
         runtime.System.SetRandomNumber(W(NativeSnapshotMemory.Random));

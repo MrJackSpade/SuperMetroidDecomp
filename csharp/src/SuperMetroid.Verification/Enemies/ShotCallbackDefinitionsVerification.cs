@@ -157,7 +157,7 @@ internal static class ShotCallbackDefinitionsVerification
             {
                 Shot = EnemyInteractionCallbacks.DecodeShot(shotBank, shotWord),
             });
-            var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
+            var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             SamusProjectile projectile = projectiles.Shots[0];
             projectile.Type = SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false);
             projectile.Damage = 20;

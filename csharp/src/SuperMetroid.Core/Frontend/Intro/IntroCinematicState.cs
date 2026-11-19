@@ -248,7 +248,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         flashbackBombProjectiles = new SamusBombProjectileSystem(flashbackAudioRequests, samusArtwork);
         // The flashback's shots shake an earthquake of their own, which nothing in the flashback shows.
         flashbackProjectiles = new SamusProjectileSystem(flashbackAudioRequests, new BeamChargeState(), samusOverreads,
-            new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), samusArtwork, new RoomEarthquake());
+            new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), samusArtwork, new RoomEarthquake());
 
         subtitles = new IntroJapaneseSubtitles(japaneseText);
         this.audio = Ensure.NotNull(audio);

@@ -27,7 +27,7 @@ public abstract class RoomMainBehavior
 
     /// <summary>
     /// No room-specific main behaviour runs: the state names no main, one that returns at once and leaves the working
-    /// value <see cref="RoomMainCarryover"/> holds untouched (#1787), or Ridley's room's, whose only work nothing
+    /// value the room mains share (<see cref="RoomMainHandOvers"/>) untouched (#1787), or Ridley's room's, whose only work nothing
     /// reads (#2287).
     /// </summary>
     public static RoomMainBehavior None { get; } = new NoRoomMain();

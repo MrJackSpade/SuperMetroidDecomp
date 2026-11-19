@@ -16,9 +16,10 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// <para>
 /// Evidence: the original game filled the room's whole level space with solid blocks before decompressing the room over
-/// its beginning (<c>$82:EA73</c>), and indexed it without a bound on the room's width or height. Two shipped coloured
-/// doors are placed off their rooms, so their setup writes land in this space and must persist without disturbing the
-/// room; the bottom-edge column fill shows that the decompressed data following a short room's grid is what lies
+/// its beginning (<c>$82:EA73</c>), and indexed it without a bound on the room's width or height. A room object's draw
+/// whose cells the room's reading order carries past the last row writes there (<see cref="RoomReadingOrder"/>); the two
+/// shipped coloured doors placed off their rooms write nothing there, since nothing reaches them and they only hold their
+/// places. The bottom-edge column fill shows that the decompressed data following a short room's grid is what lies
 /// there before the solid fill. The game's terrain probes therefore find these blocks, not empty space.
 /// </para>
 /// <para>

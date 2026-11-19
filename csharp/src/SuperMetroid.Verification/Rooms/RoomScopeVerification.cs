@@ -43,7 +43,8 @@ internal static class RoomScopeVerification
         runtime.ColourEffectSession.PublishedHeatPhase = heatPhase;
         source.Enemies.Earthquake.Start(NativeEarthquakeTypes.Shake(5), 4);
         runtime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyEscaped;
-        EnemyProjectile sourceProjectile = source.Enemies.Projectiles.EnemyProjectiles[3];
+        EnemyProjectile sourceProjectile = source.Enemies.Projectiles.AllocateEnemyProjectile() ??
+            throw new InvalidOperationException("The Landing Site holds every enemy-projectile place.");
         sourceProjectile.Position = FixedPosition<RoomPixels>.FromStoredParts(0x0140, 0x1234, 0x0090, 0x5678);
         sourceProjectile.Velocity = new(SignedEightEight.FromPixels(2), SignedEightEight.FromPixels(-2));
         SamusProjectile sourceShot = source.Projectiles.Pool.Shots[2];
@@ -103,13 +104,13 @@ internal static class RoomScopeVerification
             "no enemy earthquake survives the load");
         VerificationAssertions.AssertEqual(CeresEscapeStatus.RidleyEscaped, destination.Enemies.Ceres.CeresStatus,
             "Ceres's escape progress survives the load on the enemy session");
-        EnemyProjectile destinationProjectile = destination.Enemies.Projectiles.EnemyProjectiles[3];
-        VerificationAssertions.AssertEqual(FixedPosition<RoomPixels>.FromStoredParts(0x0140, 0, 0x0090, 0), destinationProjectile.Position,
+        SuperMetroid.Core.Compatibility.EnemyProjectileHandOver carried = runtime.Room.HandOver.EnemyProjectile(sourceProjectile.Place);
+        VerificationAssertions.AssertEqual(new Position16<RoomPixels>(0x0140, 0x0090), carried.Position,
             "an enemy projectile slot's whole coordinates survive the load; its fractions clear");
-        VerificationAssertions.AssertEqual(sourceProjectile.Velocity, destinationProjectile.Velocity,
+        VerificationAssertions.AssertEqual(sourceProjectile.Velocity, carried.Velocity,
             "an enemy projectile slot's velocity survives the load");
-        VerificationAssertions.AssertEqual(0x4321, destination.Projectiles.Pool.MuzzleCarry.Kept(2),
-            "a shot place keeps for its next projectile the horizontal sub-pixel position of the outgoing room's shot in it (RoomHandOver, LeftMuzzleSubpixelCarry)");
+        VerificationAssertions.AssertEqual(0x4321, destination.Projectiles.Pool.LeftBeamStart.Kept(2),
+            "a shot place keeps for its next projectile the horizontal sub-pixel position of the outgoing room's shot in it (RoomHandOver, LeftBeamStartFromLastShot)");
         VerificationAssertions.AssertEqual(FixedPosition<RoomPixels>.Zero, destination.Projectiles.Pool.Shots[2].Position,
             "nothing else of the outgoing shot reaches the next room: the place reads as at rest at the origin");
         VerificationAssertions.AssertEqual(previous.Position.X.Fraction, destination.Camera.Position.X.Fraction, "X fraction word carried");

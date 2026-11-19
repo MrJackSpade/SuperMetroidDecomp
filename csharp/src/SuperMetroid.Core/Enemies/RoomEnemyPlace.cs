@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies;
 /// timers, and the species state installed for it. A place is found by the place object or its ordinal
 /// (<see cref="Ordinal"/>); <see cref="EnemyPlaceOrder"/> sets how places are allocated and processed.
 /// </summary>
-public sealed class RoomEnemyPlace : ISolidEnemy
+public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
 {
     /// <summary>Creates the place at <paramref name="ordinal"/> in <see cref="EnemyPlaceOrder"/>, before any occupant is installed.</summary>
     /// <param name="ordinal">The place's position in allocation and processing order.</param>
@@ -184,6 +184,16 @@ public sealed class RoomEnemyPlace : ISolidEnemy
     public FixedPosition<RoomPixels> Position { get; internal set; }
     /// <summary>Collision half-extents in pixels, initially the definition's.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }
+
+    /// <inheritdoc/>
+    FixedPosition<RoomPixels> IEnemyTerrainBody.Position
+    {
+        get => Position;
+        set => Position = value;
+    }
+
+    /// <inheritdoc/>
+    Extent16<RoomPixels> IEnemyTerrainBody.Radius => Radius;
     /// <summary>How the occupant meets Samus and her shots, initially the population entry's.</summary>
     public EnemyContact Contact { get; internal set; }
     /// <summary>What the room's enemy passes run for the occupant, initially the population entry's.</summary>

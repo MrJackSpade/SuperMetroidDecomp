@@ -86,7 +86,6 @@ internal static class DachoraShaftCameraVerification
             FrameCounter = runtime.Clock.Counter,
             TimeIsFrozen = runtime.Freeze.TimeIsFrozen,
             Display = runtime.Display,
-            Carryover = runtime.Room.RoomMainCarryover,
             AllowCeresElevatorDeparture = true,
         });
     }

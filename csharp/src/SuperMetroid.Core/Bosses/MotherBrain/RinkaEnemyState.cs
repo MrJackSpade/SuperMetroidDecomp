@@ -45,8 +45,9 @@ public sealed class RinkaEnemyState
     /// </summary>
     public RinkaSpawnPoint? SpawnPoint { get; internal set; }
 
-    /// <summary>
-    /// The wait before the Rinka aims or, for a special Rinka, before it respawns: one of its two waits at a time (#2253).
-    /// </summary>
-    public BossCountdown DelayTimer { get; } = new();
+    /// <summary>The wait before the Rinka aims at Samus, which each life starts (#2253, #2572).</summary>
+    public BossCountdown AimDelay { get; } = new();
+
+    /// <summary>The wait before a special Rinka killed by Samus respawns, which its death starts (#2253, #2572).</summary>
+    public BossCountdown RespawnDelay { get; } = new();
 }

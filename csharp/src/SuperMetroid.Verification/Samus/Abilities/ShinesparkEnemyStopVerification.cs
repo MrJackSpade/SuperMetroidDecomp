@@ -28,7 +28,7 @@ internal static class ShinesparkEnemyStopVerification
             [new SolidEnemyCollisionBody(Enemy: enemy, Position: new(100, (ushort)(100 - 19 - 8 - gap)),
                 Radius: new(8, 8), Solid: true)];
             FixedCoordinate initialY = samus.Kinematics.Position.Y;
-            samus.Shinespark.StepAndCommit(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, frameCounter: 0, projectiles: new SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem(GameplayAudioRequests.Standalone(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake()));
+            samus.Shinespark.StepAndCommit(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, frameCounter: 0, projectiles: new SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem(GameplayAudioRequests.Standalone(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake()));
             if (gap == 4)
             {
                 AssertEqual(initialY, samus.Kinematics.Position.Y, "spark enemy hit retains exact crash Y instead of advancing to boundary");

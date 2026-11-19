@@ -1103,7 +1103,6 @@ internal sealed class SuperMetroidRuntime
             FrameCounter = Clock.Counter,
             TimeIsFrozen = Freeze.TimeIsFrozen,
             Display = Display,
-            Carryover = Room.RoomMainCarryover,
             AllowCeresElevatorDeparture = gameInMainGameplay,
         });
     }

@@ -917,6 +917,18 @@ enum member's name made a dictionary's or set's key (`Add`, `TryGetValue`, `Cont
 `Enum.Parse`, `Enum.TryParse`, `Enum.GetNames` and `JsonStringEnumConverter` in any form. Diagnostic text, exception
 messages and an import run's own fingerprints and content identities, which nothing installs, stay free to name members.
 
+#2548 widens both rules to every source name. A `nameof` of any member, a property, field, method or event, or of a type
+is that member's or type's source name, and a name handed to a parameter of the same assembly is followed into whatever
+the parameter's references reach, through the parameters and helpers it is handed on to; a record's positional parameter
+reaches whatever its property's reads reach. So a catalog property found again by its own name (`Find(nameof(Parlor))`
+into a dictionary keyed by the definitions' names) and a definition named by its member (`new(nameof(LandingSite), ...)`
+into a marked or looked-up name) are reported. Each catalog property is its definition, built where it is declared with
+its key written out (`RoomDefinitions.LandingSite` is `new("LandingSite", ...)`, the authored list gathered from the
+properties); a pairing table is keyed by the definition or the identity itself (`RoomStateEnemyGraphicsSetDefinitions.ByState`
+by the room state, the palette rows and members by the graphics set); and an installed name is never an address
+(`music-xx-phrase-NNN` names a phrase by its place, a track repeats from the place of one of its instructions, enemy-tile
+import data files a sheet under its enemy's key).
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

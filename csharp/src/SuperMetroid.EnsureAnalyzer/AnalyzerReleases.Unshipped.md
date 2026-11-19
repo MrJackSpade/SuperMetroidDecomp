@@ -67,3 +67,4 @@ SME6462 | Design | Error | InstalledKeyAnalyzer
 SME6463 | Design | Error | CoordinateWrapAnalyzer
 SME6464 | Design | Error | HandRunCountdownAnalyzer
 SME6466 | Design | Error | CarriedValueAnalyzer
+SME6470 | Design | Error | OneUpdateRequestAnalyzer

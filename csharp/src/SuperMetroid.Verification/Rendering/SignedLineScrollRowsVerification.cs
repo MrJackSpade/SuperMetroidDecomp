@@ -32,15 +32,16 @@ internal static class SignedLineScrollRowsVerification
             ?? throw new InvalidOperationException("A vertical heat haze describes the background's vertical scroll.");
         SampledScrollWave wrapped = GameplayEffectCapture.BuildLavaAcidBackgroundVerticalScrolls(heat, ushort.MaxValue - 2)
             ?? throw new InvalidOperationException("A vertical heat haze describes the background's vertical scroll.");
-        AssertEqual(-3, signed.BaseScroll, "the heat haze's base row, the camera's above the origin, is negative");
+        AssertEqual(-2, RoomView.ShownRow(-3), "the row the screen's top shows below a camera above the origin is negative");
+        AssertEqual(-2, signed.BaseScroll, "the heat haze's base row above the origin is negative");
         AssertSequenceEqual(ScrollShapeLines.GameplayScrolls(wrapped), ScrollShapeLines.GameplayScrolls(signed),
             "the signed heat haze shows the lines the wrapped row showed");
 
         // Crocomire's melt with the camera above his body's rows: the rows the screen's top shows of his body are negative.
         var camera = new Position16<RoomPixels>(0, 290);
         ScrollStretch melt = BossLineScrolls.Of(new CrocomireMeltDistortion(300, 310, 100, 150, UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(64)), camera);
-        AssertEqual(290 - 300, melt.ScrollAbove, "the melt's levelled row above the camera's is negative");
-        AssertEqual(290 - 310, melt.BaseScroll, "the melt's row above the camera's is negative");
+        AssertEqual(RoomView.ShownRow(290 - 300), melt.ScrollAbove, "the melt's levelled row above the camera's is negative");
+        AssertEqual(RoomView.ShownRow(290 - 310), melt.BaseScroll, "the melt's row above the camera's is negative");
 
         // Phantoon's wave with his body right of the camera's corner: the wave's base scroll is negative.
         ScrollWave wave = BossLineScrolls.Of(new PhantoonWave(new UnsignedSixteenSixteen(1, 0), default, 64), new Position16<RoomPixels>(100, 0), new Position16<RoomPixels>(130, 0));

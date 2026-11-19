@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Rendering;
 /// How a frame views the gameplay scene below the HUD: the room pixels the foreground and the background show at the
 /// screen's top-left corner, which layers show and how the background is pixelated. The background covers every line of the
 /// gameplay area below the HUD.
-/// Every screen pixel shows the layer pixel that far from the corner, with no further offset (#1514): the camera's row is
-/// the row the screen's top shows, as it is the row a sprite at the camera's height shows on (#2573). What the background
+/// Every screen pixel shows the layer pixel that far from the corner, with no further offset (#1514); where that corner lies
+/// against the camera is <see cref="RoomView"/>'s (#2573). What the background
 /// shows says how far it reaches before it repeats: each of its pictures repeats by its own size, or shows nothing beyond
 /// its edges (#2305).
 /// </summary>

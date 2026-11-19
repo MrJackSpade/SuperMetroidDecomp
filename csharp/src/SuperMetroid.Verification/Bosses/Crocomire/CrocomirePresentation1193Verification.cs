@@ -97,7 +97,7 @@ internal static class CrocomirePresentation1193Verification
                         "Rumble becomes visible at the following accepted NMI");
                     var layer = runtime.PublishDisplayFrame().OrdinaryBase.Room;
                     // The view shows the foreground row below the displayed camera row at the screen's top (#1514).
-                    AssertEqual(previousScroll, (int)layer.View.ForegroundScroll.Y,
+                    AssertEqual(RoomView.ShownRow(previousScroll), (int)layer.View.ForegroundScroll.Y,
                         "Production foreground composition receives the displayed rumble scroll as a plain signed row");
                 }
                 previousScroll = expected;
@@ -143,7 +143,7 @@ internal static class CrocomirePresentation1193Verification
             AssertEqual(-4, scroll.ForegroundScroll.Y, "The rumble above the room's top leaves a negative foreground view row");
             runtime.FrameBoundary.PublishWhileLoading();
             var risen = runtime.PublishDisplayFrame().OrdinaryBase.Room;
-            AssertEqual(-4, (int)risen.View.ForegroundScroll.Y,
+            AssertEqual(RoomView.ShownRow(-4), (int)risen.View.ForegroundScroll.Y,
                 "The frame shows the risen view's signed row at the screen's top");
             scroll.ForegroundPosition = scroll.ForegroundPosition.WithY(100);
             boss.Body.Presence = boss.Body.Presence.With(EnemyPresence.Hidden);

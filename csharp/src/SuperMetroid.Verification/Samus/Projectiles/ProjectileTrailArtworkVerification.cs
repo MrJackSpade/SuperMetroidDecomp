@@ -36,10 +36,10 @@ internal static class ProjectileTrailArtworkVerification
             var authoredSystem = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             // The native interpreter's own trail, run beside the port's, and the cartridge's retained tile words it keeps.
             var nativeTrail = new NativeTrail(NativeTrailSide.StartingAt(start, Position16<RoomPixels>.Of(100, 100)), NativeTrailSide.StartingAt(start, Position16<RoomPixels>.Of(100, 100)));
-            SamusProjectileTrail authoredTrail = authoredSystem.AddTrail();
+            SamusProjectileTrail authoredTrail = authoredSystem.AddTrail(Position16<RoomPixels>.Of(100, 100));
             var nativeWords = new Dictionary<NativeTrailSide, ushort>();
             foreach (var side in new[] { authoredTrail.Left, authoredTrail.Right })
-            { side.RestoreNative(start, 1, shownPose: null); side.Position = side.Position.WithX(100).WithY(100); }
+                side.RestoreNative(start, 1, shownPose: null);
             for (int frame = 0; frame < 80; frame++)
             {
                 var nativeOam = new OamBuffer();
@@ -59,7 +59,7 @@ internal static class ProjectileTrailArtworkVerification
                     if (sides.First.FrameHold != 0)
                         AssertEqual(sides.First.InstructionPointer, sides.Second.InstructionPointer, "Trail artwork cannot change instruction cursor");
                     AssertEqual(sides.First.FrameHold, sides.Second.FrameHold, "Trail artwork cannot change live timing");
-                    AssertEqual(sides.First.Position.Y, sides.Second.Position.Y, "Trail artwork cannot change sibling-targeted movement");
+                    AssertEqual(sides.First.Position.Y, authoredTrail.Origin.Y + sides.Second.Offset.Y, "Trail artwork cannot change sibling-targeted movement");
                 }
             }
         }
@@ -87,9 +87,8 @@ internal static class ProjectileTrailArtworkVerification
             ushort frame = ProjectileTrailNative.Address(pose);
             ushort attributes = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusSourceDefinitions.MovementBank.Value | (frame + 2));
             var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-            var side = system.AddTrail().Left;
+            var side = system.AddTrail(Position16<RoomPixels>.Of(coordinate, coordinate)).Left;
             side.RestoreNative((ushort)(frame + 4), 3, pose);
-            side.Position = side.Position.WithX(coordinate).WithY(coordinate);
             // The OAM capacity stop is a dropped presentation quirk (#1308), and so is the off-screen cull (#1541):
             // a trail on the screen draws its native sprite, and one off it is published where it lies for the
             // display to clip.
@@ -115,8 +114,8 @@ internal static class ProjectileTrailArtworkVerification
         var document = RequiredJson.Parse(json);
         ProjectileTrailFrame first = ProjectileTrailFrame.IceSparkleClustered;
         var animation = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-        var trail = animation.AddTrail().Left;
-        trail.RestoreNative(ProjectileTrailNative.Address(first), 1, shownPose: null); trail.Position = trail.Position.WithX(100).WithY(100);
+        var trail = animation.AddTrail(Position16<RoomPixels>.Of(100, 100)).Left;
+        trail.RestoreNative(ProjectileTrailNative.Address(first), 1, shownPose: null);
         OamBuffer frozen = SpriteFrameBuffer.DrawnOam(sprites =>
         {
             animation.AdvanceTrails(true);

@@ -211,7 +211,9 @@ internal static class SamusPosturePoseTransitions
             BlockMoveResult alignment = samus.ProbeChangedPoseVertical(
                 level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.CrouchEntryDownwardPixels),
                 SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), targetPose, roomObjects);
-            samus.Kinematics.Position = samus.Kinematics.Position.WithWrappedWholeY(
+            // The crouching body lies inside the standing one, which was clear, so the probe moves her down by at most
+            // five pixels, clear of the terrain that bounds the room: she stays in it.
+            samus.Kinematics.Position = samus.Kinematics.Position.WithWholeY(
                 samus.Kinematics.Position.Y.Whole + alignment.AcceptedDisplacement.WholePixels);
             // The posture change publishes the aligned whole Y before scrolling; the
             // posture change itself must not become camera movement.
@@ -320,7 +322,9 @@ internal static class SamusPosturePoseTransitions
             BlockMoveResult alignment = samus.ProbeChangedPoseVertical(
                 level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDownwardPixels),
                 SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), targetPose, roomObjects);
-            samus.Kinematics.Position = samus.Kinematics.Position.WithWrappedWholeY(
+            // The ball lies inside the body it shrank from, which was clear, so the probe moves her down by at most nine
+            // pixels, clear of the terrain that bounds the room: she stays in it.
+            samus.Kinematics.Position = samus.Kinematics.Position.WithWholeY(
                 samus.Kinematics.Position.Y.Whole + alignment.AcceptedDisplacement.WholePixels);
             // The posture change replaces the previous whole-Y checkpoint
             // after alignment, so the camera does not count pose displacement as motion.

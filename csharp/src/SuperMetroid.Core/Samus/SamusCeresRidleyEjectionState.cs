@@ -74,9 +74,11 @@ public sealed class SamusCeresRidleyEjectionState
                 ? SamusPoseId.KnockbackLeftPose
                 : SamusPoseId.KnockbackRightPose;
             SamusPresentation.InitializeAnimation(samus);
-            // The shove's first update shifts her pose history, once.
+            // The shove's first update shifts her pose history, once. Moving her centre by the hurt pose's radius less
+            // her live one keeps her in Ceres Ridley's room, whose top row is solid: her top lies at least a block below
+            // the room's, and the move is at most 14 pixels either way.
             samus.CommitPoseHistory();
-            samus.Position = samus.Position.WithWrappedWholeY(
+            samus.Position = samus.Position.WithWholeY(
                 samus.Position.Y.Whole - (SamusPoseMetadata.ReadPoseYRadius(samus.Pose) - samus.Kinematics.Radius.Y));
 
             // The side is selected from Samus's place on the screen, not in the room. The exact centre belongs to the

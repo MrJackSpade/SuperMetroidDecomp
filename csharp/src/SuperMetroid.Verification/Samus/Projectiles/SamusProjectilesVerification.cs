@@ -732,10 +732,12 @@ internal static void VerifySamusPowerBeamProjectiles()
         "charged power leaves one trail every fourth alpha pass");
     SamusProjectileTrail chargedTrail = chargeProjectiles.LiveTrails[0];
     AssertEqual(1, chargedTrail.Left.FrameHold, "a new trail's left sparkle starts its program on the next update");
-    AssertEqual(unchecked((ushort)(trailSourceX - 4)), chargedTrail.Left.Position.X,
-        "trail samples projectile X before movement and subtracts four");
-    AssertEqual(unchecked((ushort)(trailSourceY - 4)), chargedTrail.Left.Position.Y,
-        "trail samples projectile Y before movement and subtracts four");
+    // The sparkle's place is kept as the shot's place and the sparkle's offset from it, which the native's single sparkle
+    // place adds.
+    AssertEqual(Position16<RoomPixels>.Of(trailSourceX, trailSourceY), chargedTrail.Origin,
+        "trail samples the projectile's place before movement");
+    AssertEqual(Offset16<RoomPixels>.Of(-4, -4), chargedTrail.Left.Offset,
+        "trail places its sparkle four pixels up and left of the projectile");
 
     OamBuffer trailOam = SpriteFrameBuffer.DrawnOam(frame =>
     {
@@ -752,7 +754,8 @@ internal static void VerifySamusPowerBeamProjectiles()
         DrawnEntries(frame => chargeProjectiles.DrawTrails(frame, Position16<RoomPixels>.Zero, trailArtwork)),
         new SpriteSource(SpriteSourceKind.SamusProjectileTrail),
         ProjectileSheetFrames.TrailFrame(chargedTrail.Left.ShownPose ?? throw new InvalidOperationException("The charged trail shows a pose.")),
-        SamusBeamCombinations.Of(chargeSamus.EquippedBeams), new Position16<ScreenPixels>(chargedTrail.Left.DisplayedPosition.X, chargedTrail.Left.DisplayedPosition.Y), "Charged trail");
+        SamusBeamCombinations.Of(chargeSamus.EquippedBeams), new Position16<ScreenPixels>(chargedTrail.Origin.X + chargedTrail.Left.DisplayedOffset.X,
+            chargedTrail.Origin.Y + chargedTrail.Left.DisplayedOffset.Y), "Charged trail");
     AssertEqual(6, firstTrailObj.Palette, "charged trail retains packed OBJ palette six");
     AssertTrue(!firstTrailObj.IsLarge, "projectile trail is an explicit small OBJ");
 
@@ -773,7 +776,7 @@ internal static void VerifySamusPowerBeamProjectiles()
 
     // Five more records reach the inline `$B525` opcode on the sixth call after the first
     // draw. It mutates world Y, then falls through to the following timed tile in one pass.
-    ushort beforeTrailCommandY = chargedTrail.Left.Position.Y;
+    int beforeTrailCommandY = chargedTrail.Left.Offset.Y;
     for (int call = 0; call < 6; call++)
     {
         trailOam = SpriteFrameBuffer.DrawnOam(frame =>
@@ -782,7 +785,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             chargeProjectiles.DrawTrails(frame, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork());
         });
     }
-    AssertEqual(unchecked((ushort)(beforeTrailCommandY + 1)), chargedTrail.Left.Position.Y,
+    AssertEqual(beforeTrailCommandY + 1, (int)chargedTrail.Left.Offset.Y,
         "inline `$B525` command moves the left trail down one pixel");
     AssertEqual(0x039, trailOam.GetEntry(0).TileNumber,
         "position command falls through to the following `$2C39` timed record");
@@ -799,9 +802,9 @@ internal static void VerifySamusPowerBeamProjectiles()
              })
     {
         var commandProjectiles = CreateSyntheticProjectiles();
-        var pair = commandProjectiles.AddTrail();
-        pair.Left.Position = pair.Left.Position.WithY(100);
-        pair.Right.Position = pair.Right.Position.WithY(120);
+        var pair = commandProjectiles.AddTrail(Position16<RoomPixels>.Zero);
+        pair.Left.Offset = Offset16<RoomPixels>.Of(0, 100);
+        pair.Right.Offset = Offset16<RoomPixels>.Of(0, 120);
         var executingSide = executeOnLeft ? pair.Left : pair.Right;
         ushort commandAddress = unchecked((ushort)(list + 6 * 4));
         AssertEqual(ProjectileTrailNative.InstructionAddress(command), ProjectileTrailSparkleAnimations.Read(SamusSourceDefinitions.MovementBank.Value | commandAddress),
@@ -814,9 +817,9 @@ internal static void VerifySamusPowerBeamProjectiles()
             commandProjectiles.DrawTrails(frame, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork());
         });
         AssertEqual(command == ProjectileTrailCue.MoveLeftDown ? 101 : 100,
-            pair.Left.Position.Y, "trail command targets named left side regardless of executing stream");
+            (int)pair.Left.Offset.Y, "trail command targets named left side regardless of executing stream");
         AssertEqual(command == ProjectileTrailCue.MoveRightDown ? 121 : 120,
-            pair.Right.Position.Y, "trail command targets named right side regardless of executing stream");
+            (int)pair.Right.Offset.Y, "trail command targets named right side regardless of executing stream");
         AssertEqual(unchecked((ushort)(commandAddress + 6)), executingSide.InstructionPointer,
             "cross-side command continues the executing stream through its timed record");
     }

@@ -967,10 +967,10 @@ internal static class LookupStream2Verification
             var nativeTrail = new SuperMetroid.Verification.Samus.Projectiles.NativeTrail(
                 SuperMetroid.Verification.Samus.Projectiles.NativeTrailSide.StartingAt(start, Position16<RoomPixels>.Of(100, 100)),
                 SuperMetroid.Verification.Samus.Projectiles.NativeTrailSide.StartingAt(start, Position16<RoomPixels>.Of(100, 100)));
-            SamusProjectileTrail authoredTrail = authoredSystem.AddTrail();
+            SamusProjectileTrail authoredTrail = authoredSystem.AddTrail(Position16<RoomPixels>.Of(100, 100));
             nativeWords.Clear();
             foreach (var side in new[] { authoredTrail.Left, authoredTrail.Right })
-            { side.RestoreNative(start, 1, shownPose: null); side.Position = side.Position.WithX(100).WithY(100); }
+                side.RestoreNative(start, 1, shownPose: null);
             for (int frame = 0; frame < 80; frame++)
             {
                 var nativeOam = new OamBuffer();
@@ -991,7 +991,7 @@ internal static class LookupStream2Verification
                     if (sides.First.FrameHold != 0)
                         AssertEqual(sides.First.InstructionPointer, sides.Second.InstructionPointer, "Trail artwork cannot change instruction cursor");
                     AssertEqual(sides.First.FrameHold, sides.Second.FrameHold, "Trail artwork cannot change live timing");
-                    AssertEqual(sides.First.Position.Y, sides.Second.Position.Y, "Trail artwork cannot change sibling-targeted movement");
+                    AssertEqual(sides.First.Position.Y, authoredTrail.Origin.Y + sides.Second.Offset.Y, "Trail artwork cannot change sibling-targeted movement");
                 }
             }
         }
@@ -1073,7 +1073,7 @@ internal static class LookupStream2Verification
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), start + selection * 2), trail.Left.InstructionPointer, "Real spawn selects the left table's trail");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomDataTrailsConstants.RightInstructionPointers + selection * 2), trail.Right.InstructionPointer, "Real spawn selects the right table's trail");
             AssertEqual(1, trail.Left.FrameHold, "Selector extraction leaves allocation timer unchanged");
-            AssertEqual(96, trail.Left.Position.X, "Selector extraction leaves origin offset unchanged");
+            AssertEqual(96, trail.Origin.X + trail.Left.Offset.X, "Selector extraction leaves origin offset unchanged");
         }
         Console.WriteLine("Trail selectors: every trailing projectile's real spawn selection passes.");
     }

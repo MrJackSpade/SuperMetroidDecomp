@@ -578,7 +578,8 @@ internal static class SamusPoseMetadata
 
                 samus.Pose = targetPose;
                 RefreshCollisionRadii(samus);
-                samus.Kinematics.Position = samus.Kinematics.Position.WithWrappedWholeY(
+                // The collision check keeps the corrected centre in the room (ResolveLargerPoseCollision).
+                samus.Kinematics.Position = samus.Kinematics.Position.WithWholeY(
                     samus.Kinematics.Position.Y.Whole + centerAdjustment);
 
                 // The special target installs through the pose setup, which runs the new

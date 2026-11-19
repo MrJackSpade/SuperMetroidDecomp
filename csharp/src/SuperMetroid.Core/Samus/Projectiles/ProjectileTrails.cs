@@ -60,20 +60,24 @@ internal sealed class ProjectileTrails
             ProjectileTrailPlacements.Start(placements, frame) is not { } placement)
             return;
 
-        var trail = new SamusProjectileTrail(projectile.PicturedBeams);
-        StartSide(trail.Left, animations.Left, projectile.Position.Whole, placement.Left);
-        StartSide(trail.Right, animations.Right, projectile.Position.Whole, placement.Right);
+        var trail = new SamusProjectileTrail(projectile.PicturedBeams, projectile.Position.Whole);
+        StartSide(trail.Left, animations.Left, placement.Left);
+        StartSide(trail.Right, animations.Right, placement.Right);
         Add(trail);
     }
 
     /// <summary>
     /// Starts <paramref name="side"/> on <paramref name="segment"/>, which it begins at its next update, placed
-    /// <paramref name="offset"/> from the shot at <paramref name="origin"/>.
+    /// <paramref name="placement"/> from the shot, with its picture drawn from up and left of that
+    /// (<see cref="ProjectileTrailPlacementDefinitions.PictureInset"/>). The sparkle keeps its offset from the shot's place
+    /// rather than a room position of its own, so a sparkle beside a shot past the room's top or left edge simply lies
+    /// beyond it.
     /// </summary>
-    private static void StartSide(SamusProjectileTrailSide side, ProjectileTrailSegment segment, Position16<RoomPixels> origin, Offset16<RoomPixels> offset)
+    private static void StartSide(SamusProjectileTrailSide side, ProjectileTrailSegment segment, Offset16<RoomPixels> placement)
     {
         side.Animation = ProjectileTrailSparkleAnimations.Start(segment);
-        side.Position = Position16<RoomPixels>.Of(AddOffset(origin.X, offset.X), AddOffset(origin.Y, offset.Y));
+        side.Offset = Offset16<RoomPixels>.Of(placement.X - ProjectileTrailPlacementDefinitions.PictureInset,
+            placement.Y - ProjectileTrailPlacementDefinitions.PictureInset);
     }
 
     /// <summary>
@@ -82,9 +86,6 @@ internal sealed class ProjectileTrails
     /// </summary>
     internal static SamusProjectileFrameId? GetTrailFrame(SamusProjectile projectile) =>
         (projectile.Animation ?? throw new InvalidOperationException("A trail read the frame of an inactive projectile.")).Shown;
-
-    /// <summary>Places a sparkle <paramref name="offset"/> pixels from <paramref name="origin"/>, drawn four pixels up and left, with the position wrapping at 65536.</summary>
-    private static int AddOffset(int origin, int offset) => CoordinateAxis.Wrap(origin + offset - 4);
 
     /// <summary>
     /// Advances every trail one update, left sparkle before right, unless time is frozen, and removes the trails whose
@@ -123,7 +124,7 @@ internal sealed class ProjectileTrails
                 throw new InvalidOperationException($"Trail sparkle animation came to rest at {animation.Playback.Place}; a sparkle shows frames and ends.");
         }
 
-        side.DisplayedPosition = side.Position;
+        side.DisplayedOffset = side.Offset;
     }
 
     /// <summary>
@@ -138,7 +139,7 @@ internal sealed class ProjectileTrails
             ProjectileTrailCue.MoveRightDown => pair.Right,
             _ => throw new InvalidOperationException($"Undefined {nameof(ProjectileTrailCue)} {cue}."),
         };
-        moved.Position = moved.Position.WithY(CoordinateAxis.Wrap(moved.Position.Y + 1));
+        moved.Offset = moved.Offset.WithY(moved.Offset.Y + 1);
     }
 
     /// <summary>
@@ -173,7 +174,7 @@ internal sealed class ProjectileTrails
             return;
 
         // The trail is published wherever it lies; the display clips it to the view (#1541).
-        Offset16<ScreenPixels> place = side.DisplayedPosition.RelativeToCamera(cameraPosition);
+        Offset16<ScreenPixels> place = pair.PlaceOnScreen(side, cameraPosition);
 
         SpriteSheetFrame image = sheets.SheetOf(pair.PicturedBeams).Frame(ProjectileSheetFrames.TrailFrame(pose));
         sprites.Add(new SamusColouredDraw(new SpriteSource(SpriteSourceKind.SamusProjectileTrail), image, place));

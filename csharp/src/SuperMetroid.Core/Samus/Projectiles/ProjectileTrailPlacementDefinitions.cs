@@ -12,6 +12,9 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 [ArchitectureReview("large", "Data only: every trail list's placement for each frame a shot selecting that list can show, keyed by the frame (#2124), with the family and list choices; the trail spawner reads it as one table, and splitting it by family would only scatter the lists a shot's family and direction choose between.")]
 internal static class ProjectileTrailPlacementDefinitions
 {
+    /// <summary>How far up and left of its placement a trail sparkle's picture is drawn from, in pixels.</summary>
+    internal const int PictureInset = 4;
+
     /// <summary>
     /// The family each choice names. Null is a choice that names no family, which draws no trail: a Spazer and Plasma
     /// combination's, which the game authors none for (#1926).

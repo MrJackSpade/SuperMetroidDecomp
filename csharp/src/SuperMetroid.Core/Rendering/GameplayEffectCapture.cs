@@ -72,9 +72,9 @@ public static class GameplayEffectCapture
         if (fx.Liquid is not RoomLavaOrAcid { Haze: HeatHazeDirection.Vertical })
             return null;
 
-        // The vertical haze's lines move about the row the screen's top shows, while its phase stays counted from the
-        // camera's row.
-        return HeatHaze(GameplaySceneView.LayerRowAtScreenTop(backgroundVerticalScroll), backgroundVerticalScroll,
+        // The vertical haze's lines move about the camera's row, the row the screen's top shows (#2573), and its phase is
+        // counted from it.
+        return HeatHaze(backgroundVerticalScroll, backgroundVerticalScroll,
             fx.LavaAcidBackgroundWavePhase, LavaAcidWaveDefinitions.HazeWaveforms[HeatHazeDirection.Vertical]);
     }
 

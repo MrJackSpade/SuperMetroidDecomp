@@ -183,12 +183,11 @@ public static class GameplayDisplayCapture
         ScreenLayers displayedLayers = bosses.Hidden
             ? latched.ShownLayers & ~ScreenLayers.Background
             : latched.ShownLayers;
-        // The cameras become the pixels the layers show at the screen's top-left corner (#1514): the layers show one row
-        // below their cameras, so the backend draws the view with no offset of its own. A sky room's background shows the
-        // sky's rows down the screen.
-        var view = new GameplaySceneView(GameplaySceneView.LayerPixelAtScreenTop(foregroundScroll),
-            GameplaySceneView.LayerPixelAtScreenTop(bodyPlacement is null && sky is { } latchedSky
-                ? backgroundScroll.WithY(latchedSky.CameraRow + shake.Background.Y) : backgroundScroll),
+        // The cameras are the pixels the layers show at the screen's top-left corner (#1514, #2573), so the backend draws the
+        // view with no offset of its own. A sky room's background shows the sky's rows down the screen.
+        var view = new GameplaySceneView(foregroundScroll,
+            bodyPlacement is null && sky is { } latchedSky
+                ? backgroundScroll.WithY(latchedSky.CameraRow + shake.Background.Y) : backgroundScroll,
             live.DoorTransitionShownLayers ?? displayedLayers,
             BackgroundPixelation: latched.Phantoon is { } phantoonDisplay ? new BackgroundPixelation(phantoonDisplay.PixelationBlockSize) : default);
         // Phantoon's wave owns the background's horizontal scroll while it shows, rippling his body about where it lies;

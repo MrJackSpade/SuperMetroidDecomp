@@ -28,7 +28,7 @@ public static class BossLineScrolls
     /// <summary>
     /// Crocomire's melt as a stretch of his body, in the rows of his body the screen's top shows (#1514, #1802, #2031): the
     /// boss publishes the room rows his body lies on, each frame's rows reckoned from there, and <paramref name="camera"/>
-    /// shows his body from below the camera row the screen hides.
+    /// shows his body from the camera's row.
     /// </summary>
     /// <param name="melt">The melt the boss published.</param>
     /// <param name="camera">The frame's camera, the room pixel at the screen's top-left.</param>
@@ -37,8 +37,9 @@ public static class BossLineScrolls
 
     /// <summary>
     /// The row of a body placed on room row <paramref name="top"/> that the screen's top shows against
-    /// <paramref name="camera"/>, a signed row (#2308): negative while the body's row lies below the screen's top.
+    /// <paramref name="camera"/>, the camera's row (#2573), a signed row (#2308): negative while the body's row lies below
+    /// the screen's top.
     /// </summary>
     private static int BodyRowAtScreenTop(int top, Position16<RoomPixels> camera) =>
-        GameplaySceneView.LayerRowAtScreenTop(CameraPastRoomEdge.CameraPast(camera.Y, top));
+        CameraPastRoomEdge.CameraPast(camera.Y, top);
 }

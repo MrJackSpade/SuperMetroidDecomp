@@ -344,7 +344,7 @@ public sealed class InstalledKeyAnalyzer : DiagnosticAnalyzer
                         _ => null,
                     }, marker);
                 case IArgumentOperation { Parameter: { } parameter } argument:
-                    return Writes(argument) ? new KeyDestination(((IInvocationOperation)argument.Parent!).TargetMethod.Name, false)
+                    return Writes(argument) && argument.Parent is IInvocationOperation writer ? new KeyDestination(writer.TargetMethod.Name, false)
                         : IsKey(parameter, marker) ? new KeyDestination(parameter.Name, false)
                         : null;
                 case IReturnOperation:

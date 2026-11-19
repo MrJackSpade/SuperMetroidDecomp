@@ -40,7 +40,7 @@ internal sealed class PrePhantoonRoomBehavior
         projectile.StartAnimation(new PrePhantoonRoomAnimation());
     }
 
-    /// <summary>The held place, which counts its hold on each of its updates and frees the place on the last.</summary>
+    /// <summary>The held place, which counts its hold on each of its updates and frees the place on the update after it.</summary>
     /// <param name="heldPlace">The hold the room's setup takes.</param>
     private sealed class HoldingProjectileBehavior(PrePhantoonRoomHeldProjectilePlace heldPlace) : EnemyProjectileBehavior
     {

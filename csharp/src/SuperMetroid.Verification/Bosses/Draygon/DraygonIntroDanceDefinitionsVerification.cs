@@ -108,7 +108,11 @@ internal static class DraygonIntroDanceDefinitionsVerification
         enemies.VerificationServices().NextRandom = () => 0;
         Action<DraygonEnemyState, SamusState, byte> run = (danceState, danceSamus, frameCounter) =>
             enemies.DraygonBehavior.Intro.RunDraygonIntroDance(danceState, danceSamus, frameCounter);
-        var state = new DraygonEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
+        // The dance starts its own stage, as the intro's handoff does.
+        var state = new DraygonEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3])
+        {
+            IntroStage = UpdateCountdown.Lasting(DraygonIntroDanceDefinitions.DurationFrames),
+        };
 
         ushort[] expectedX = new ushort[4];
         ushort[] expectedY = new ushort[4];

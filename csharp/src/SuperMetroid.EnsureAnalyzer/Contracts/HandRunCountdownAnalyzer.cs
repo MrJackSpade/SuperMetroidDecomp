@@ -8,7 +8,7 @@ using SuperMetroid.EnsureAnalyzer.Modules;
 namespace SuperMetroid.EnsureAnalyzer.Contracts;
 
 /// <summary>
-/// A wait is the shared countdown, never an integer stepped by hand (SME6463, #2561): in <c>SuperMetroid.Core</c>, an
+/// A wait is the shared countdown, never an integer stepped by hand (SME6464, #2561): in <c>SuperMetroid.Core</c>, an
 /// integral field, property or local whose name says it times a wait (a timer, countdown, delay, cooldown, wait, hold or
 /// lifetime, the updates, frames or ticks counted, or what is left of one) is not stepped by one in place:
 /// <c>x++</c>, <c>++x</c>, <c>x--</c>, <c>--x</c>, <c>x += 1</c>, <c>x -= 1</c>, or an assignment to <c>x</c> whose value
@@ -22,7 +22,7 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 public sealed class HandRunCountdownAnalyzer : DiagnosticAnalyzer
 {
     /// <summary>Core steps a wait's integer by hand.</summary>
-    public const string HandRunCountdownId = "SME6463";
+    public const string HandRunCountdownId = "SME6464";
 
     /// <summary>
     /// The shared types that own stepping a count by one: the countdown and the elapsed count, the value-typed repeating

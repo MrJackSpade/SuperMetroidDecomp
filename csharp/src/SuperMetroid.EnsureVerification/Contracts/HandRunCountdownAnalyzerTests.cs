@@ -8,10 +8,10 @@ using SuperMetroid.EnsureVerification.Harness;
 
 namespace SuperMetroid.EnsureVerification.Contracts;
 
-/// <summary>Checks the #2561 hand-run countdown rule, SME6463.</summary>
+/// <summary>Checks the #2561 hand-run countdown rule, SME6464.</summary>
 internal static class HandRunCountdownAnalyzerTests
 {
-    /// <summary>The advice every SME6463 message ends with.</summary>
+    /// <summary>The advice every SME6464 message ends with.</summary>
     private const string Advice = "by hand; hold it as an UpdateCountdown (Count, Step or StepEnds say how it ends), or as ElapsedUpdates for a count with no length";
 
     /// <summary>One positive per way a wait is stepped by hand, and the uses and owners the rule leaves alone.</summary>
@@ -87,7 +87,7 @@ internal static class HandRunCountdownAnalyzerTests
         }
         """;
 
-    /// <summary>Compiles one source and compares the SME6463 count and an optional message fragment.</summary>
+    /// <summary>Compiles one source and compares the SME6464 count and an optional message fragment.</summary>
     private static void Expect(string source, string? message = null, int count = 1, string assemblyName = CoreLayerAnalyzer.CoreAssembly)
     {
         var tree = CSharpSyntaxTree.ParseText(source, new CSharpParseOptions(LanguageVersion.Preview),

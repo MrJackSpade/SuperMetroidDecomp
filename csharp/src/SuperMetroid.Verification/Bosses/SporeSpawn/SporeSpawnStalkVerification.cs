@@ -33,7 +33,7 @@ internal static class SporeSpawnStalkVerification
         AssertEqual(4, state.StalkLinks.Count, "Spore Spawn's stalk has four links");
         for (int link = 0; link < state.StalkLinks.Count; link++)
         {
-            AssertTrue(ReferenceEquals(enemies.Projectiles.EnemyProjectiles[14 + link], state.StalkLinks[link]),
+            AssertTrue(ReferenceEquals(enemies.Projectiles.InPlace(14 + link), state.StalkLinks[link]),
                 $"Spore Spawn's stalk link {link} is the projectile in the original's place {14 + link}");
         }
         AssertEqual(new Position16<RoomPixels>(128, 560), state.StalkLinks[0].Position.Whole,

@@ -86,7 +86,7 @@ internal static class KraidSinkScheduleVerification
                 "Sinking callback rock count");
             if (empty) continue;
             ushort expectedX = LittleEndianBytes.Word(KraidSinkRockPlacementRomByte(rom, code + 1), KraidSinkRockPlacementRomByte(rom, code + 2));
-            AssertEqual(expectedX, enemies.Projectiles.EnemyProjectiles[^1].Position.X.Whole, "Production sinking rock matches native immediate");
+            AssertEqual(expectedX, enemies.Projectiles.InPlace(17).Position.X.Whole, "Production sinking rock matches native immediate");
         }
     }
 

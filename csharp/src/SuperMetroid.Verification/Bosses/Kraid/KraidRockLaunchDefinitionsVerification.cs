@@ -42,7 +42,7 @@ internal static class KraidRockLaunchDefinitionsVerification
         enemies.VerificationServices().NextRandom = () => throw new InvalidOperationException("Kraid rock must not advance RNG.");
         Action<RoomEnemyPlace> spawn = enemies.KraidBehavior.Head.SpawnKraidSpitRock;
         var body = enemies.Places.InUpdateOrder[0];
-        var rock = enemies.Projectiles.EnemyProjectiles[^1];
+        var rock = enemies.Projectiles.InPlace(17);
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             random = (ushort)raw;
@@ -53,7 +53,7 @@ internal static class KraidRockLaunchDefinitionsVerification
             reads = 0;
             spawn(body);
             // A spawn creates a new projectile in the place, which the place now holds (#1590).
-            rock = enemies.Projectiles.EnemyProjectiles[^1];
+            rock = enemies.Projectiles.InPlace(17);
             AssertTrue(rock.IsActive, "Kraid rock allocation succeeds: the pool's last place holds a live rock");
             AssertEqual(1, reads, "Kraid rock reads current RNG once");
             AssertEqual(RoomEnemyProjectileKind.KraidSpitRock, rock.Kind, "Native reverse allocation slot");

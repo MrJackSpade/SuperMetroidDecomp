@@ -57,7 +57,7 @@ internal static class EnemyProjectileDefinitionsVerification
             statueRoom: new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
         enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(setupBus.ReadEnemyPopulation(populationPointer), BgArtworkFixtures.For(new SnesVram()), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
         var guard = NewEnemyProjectileDefinitionReadGuard(setupBus, forbidden);
-        EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles[^1];
+        EnemyProjectile projectile = enemies.Projectiles.InPlace(17);
         Func<EnemyProjectile, SamusState, SuperMetroid.Core.Samus.Movement.KnockbackHorizontalDirection?> collideWithSamus =
             EnemyProjectileEngine.ResolveEnemyProjectileSamusCollision;
 

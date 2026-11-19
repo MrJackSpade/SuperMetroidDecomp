@@ -114,7 +114,7 @@ internal sealed class MotherBrainFakeDeath
         if (progress.Stage == MotherBrainTubeDropStage.Standing)
         {
             bool falls = tube == MotherBrainTubeCollapseProgress.FirstTube
-                ? _projectiles.EnemyProjectiles.Count(projectile => !projectile.IsActive) >= MotherBrainTubeCollapseDefinitions.FreeProjectilesNeeded
+                ? _projectiles.FreePlaceCount >= MotherBrainTubeCollapseDefinitions.FreeProjectilesNeeded
                 : state.TubeCollapseTimer.StepRunsOut();
             if (!falls)
                 return;

@@ -76,7 +76,7 @@ internal static class SporeSpawnProjectileDefinitionsVerification
                 $"Spore Spawn production emitter Y {index}");
         }
 
-        EnemyProjectile spore = enemies.Projectiles.EnemyProjectiles[0];
+        EnemyProjectile spore = enemies.Projectiles.InPlace(0);
         for (int step = 0; step < 128; step++)
         for (int mirrored = 0; mirrored < 2; mirrored++)
         {

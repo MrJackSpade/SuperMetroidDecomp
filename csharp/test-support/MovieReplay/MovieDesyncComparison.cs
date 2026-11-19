@@ -92,7 +92,7 @@ internal static class MovieDesyncComparison
         if (game.RuntimeForVerification?.Enemies is { } traceEnemies)
         {
             // $1997 IDs, $1A4B X, $1A93 Y: one word per slot.
-            var portProjectiles = traceEnemies.Projectiles.EnemyProjectiles.Select((projectile, slot) => new PortProjectile(projectile, slot))
+            var portProjectiles = traceEnemies.Projectiles.EnemyProjectiles.Select(projectile => new PortProjectile(projectile, projectile.Place))
                 .Where(entry => entry.Projectile.IsActive)
                 .Select(entry => $"{entry.Slot}:{EnemyProjectileNativeWords.IdentityWord(entry.Projectile.Kind, Word(memory, 0x1997 + 2 * entry.Slot)):X4}@{entry.Projectile.Position.X.Whole:X}/{entry.Projectile.Position.Y.Whole:X}" +
                     $"#{entry.Projectile.Animation?.GetType().Name}/{entry.Projectile.FrameHold.RawValue:X}");

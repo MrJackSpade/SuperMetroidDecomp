@@ -24,7 +24,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
         Action<RoomEnemyPlace> spawn = enemies.FallingSparksBehavior.SpawnFallingSpark;
         Action<EnemyProjectile> move = FallingSparksBehavior.AddFallingSparkHorizontalVelocity;
         var source = enemies.Places.InUpdateOrder[0];
-        var projectile = enemies.Projectiles.EnemyProjectiles[^1];
+        var projectile = enemies.Projectiles.InPlace(17);
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             random = (ushort)raw;
@@ -40,7 +40,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
             advances = 0;
             spawn(source);
             // A spawn creates a new projectile in the place, which the place now holds (#1590).
-            projectile = enemies.Projectiles.EnemyProjectiles[^1];
+            projectile = enemies.Projectiles.InPlace(17);
             AssertEqual(1, advances, "Successful spark spawn advances RNG once");
             AssertEqual(RoomEnemyProjectileKind.FallingSpark, projectile.Kind, "Reverse allocator owns last free slot");
             AssertEqual(source.Position.X.Whole, projectile.Position.X.Whole, "Spark copies source X");

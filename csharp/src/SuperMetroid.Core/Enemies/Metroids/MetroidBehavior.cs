@@ -240,10 +240,10 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 // The body attack throws the Metroid away from Samus at a quarter of their distance an update.
                 StoreMetroidXVelocity(
                     state,
-                    SignedSixteenSixteen.FromSixteenthsOfPixel(MetroidBehaviorDefinitions.BodyAttackThrowPerDistance * (place.Position.X.Whole - samus.Position.X.Whole)));
+                    MetroidBehaviorDefinitions.BodyAttackThrowPerDistance * (place.Position.X.Whole - samus.Position.X.Whole));
                 StoreMetroidYVelocity(
                     state,
-                    SignedSixteenSixteen.FromSixteenthsOfPixel(MetroidBehaviorDefinitions.BodyAttackThrowPerDistance * (place.Position.Y.Whole - targetY)));
+                    MetroidBehaviorDefinitions.BodyAttackThrowPerDistance * (place.Position.Y.Whole - targetY));
                 state.Movement = MetroidMovement.Homing;
                 SetMetroidAnimation(place, state, MetroidSegment.ChasingSamus);
             }
@@ -275,7 +275,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Subtracts one health at suit-dependent fractional intervals without ordinary hurt flash or knockback.</summary>
     private static void DrainSamusWithMetroid(MetroidEnemyState state, SamusState samus)
     {
-        int drainFraction = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
+        EnergyAmount drainFraction = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
             ? MetroidBehaviorDefinitions.GravityDrainFraction
             : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
                 ? MetroidBehaviorDefinitions.VariaDrainFraction
@@ -314,10 +314,10 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // that edge, still pushes the Metroid away from it the short way, as CoordinateAxis.Difference gives it.
         StoreMetroidXVelocity(
             state,
-            SignedSixteenSixteen.FromSixteenthsOfPixel(MetroidBehaviorDefinitions.ShotRecoilPerDistance * CoordinateAxis.Difference(place.Position.X.Whole, recoilOrigin.X)));
+            MetroidBehaviorDefinitions.ShotRecoilPerDistance * CoordinateAxis.Difference(place.Position.X.Whole, recoilOrigin.X));
         StoreMetroidYVelocity(
             state,
-            SignedSixteenSixteen.FromSixteenthsOfPixel(MetroidBehaviorDefinitions.ShotRecoilPerDistance * CoordinateAxis.Difference(place.Position.Y.Whole, recoilOrigin.Y)));
+            MetroidBehaviorDefinitions.ShotRecoilPerDistance * CoordinateAxis.Difference(place.Position.Y.Whole, recoilOrigin.Y));
         state.Movement = MetroidMovement.Homing;
         SetMetroidAnimation(place, state, MetroidSegment.ChasingSamus);
 
@@ -376,7 +376,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Clamps the signed whole pixels of homing speed to three while retaining in-range fractions.</summary>
-    private static SignedSixteenSixteen ClampMetroidVelocity(SignedSixteenSixteen velocity) => EnemyMath.ClampWholeVelocity(velocity, MetroidBehaviorDefinitions.FastestChase);
+    private static SignedSixteenSixteen ClampMetroidVelocity(SignedSixteenSixteen velocity) => EnemyMath.LimitedEitherWay(velocity, MetroidBehaviorDefinitions.FastestHoming);
 
     /// <summary>Stores the recoil or homing X speed.</summary>
     private static void StoreMetroidXVelocity(MetroidEnemyState state, SignedSixteenSixteen velocity) =>

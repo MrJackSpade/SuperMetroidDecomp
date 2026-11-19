@@ -1634,28 +1634,28 @@ static void SeedLandingSiteInlineRoomByte(TestAddressSpace bus)
 
         samus.Health = 50;
         PrivateState.Set(samus, nameof(SamusState.EnergyFraction), PeriodicDamageEnergyFraction.Holding(ThreeQuarterUnits));
-        samus.PeriodicDamage.Accumulate(new UnsignedSixteenSixteen(whole: 1, fraction: HalfUnit));
+        samus.PeriodicDamage.Accumulate(EnergyAmount.FromStoredParts(1, HalfUnit));
         samus.PeriodicDamage.Apply(samus, timeIsFrozen: false);
         AssertEqual(49, samus.Health, "a covered fraction takes only the whole damage");
         AssertEqual(QuarterUnit, samus.EnergyFraction.Parts, "a covered fraction keeps its remainder without borrowing");
 
         samus.Health = 50;
         PrivateState.Set(samus, nameof(SamusState.EnergyFraction), PeriodicDamageEnergyFraction.Holding(QuarterUnit));
-        samus.PeriodicDamage.Accumulate(new UnsignedSixteenSixteen(whole: 1, fraction: HalfUnit));
+        samus.PeriodicDamage.Accumulate(EnergyAmount.FromStoredParts(1, HalfUnit));
         samus.PeriodicDamage.Apply(samus, timeIsFrozen: false);
         AssertEqual(48, samus.Health, "an uncovered fraction borrows one more whole unit");
         AssertEqual(ThreeQuarterUnits, samus.EnergyFraction.Parts, "an uncovered fraction wraps to the remainder");
 
         samus.Health = 0;
         PrivateState.Set(samus, nameof(SamusState.EnergyFraction), PeriodicDamageEnergyFraction.None);
-        samus.PeriodicDamage.Accumulate(new UnsignedSixteenSixteen(whole: 0, fraction: HalfUnit));
+        samus.PeriodicDamage.Accumulate(EnergyAmount.FromStoredParts(0, HalfUnit));
         samus.PeriodicDamage.Apply(samus, timeIsFrozen: false);
         AssertEqual(0, samus.Health, "a borrow from zero energy clamps energy to zero");
         AssertEqual(0, samus.EnergyFraction.Parts, "a fatal borrow clears the fraction instead of wrapping it");
 
         samus.Health = 1;
         PrivateState.Set(samus, nameof(SamusState.EnergyFraction), PeriodicDamageEnergyFraction.Holding(HalfUnit));
-        samus.PeriodicDamage.Accumulate(new UnsignedSixteenSixteen(whole: 2, fraction: 0));
+        samus.PeriodicDamage.Accumulate(EnergyAmount.FromEnergy(2));
         samus.PeriodicDamage.Apply(samus, timeIsFrozen: false);
         AssertEqual(0, samus.Health, "whole damage beyond the remaining energy clamps energy to zero");
         AssertEqual(0, samus.EnergyFraction.Parts, "fatal whole damage clears the fraction too");

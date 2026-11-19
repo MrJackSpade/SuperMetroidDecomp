@@ -532,7 +532,7 @@ public static class SamusGrappleSwing
         if (damage == 0)
             return;
 
-        samus.PeriodicDamage.Accumulate(new UnsignedSixteenSixteen(whole: damage, fraction: 0));
+        samus.PeriodicDamage.Accumulate(EnergyAmount.FromEnergy(damage));
         samus.InvincibilityTimer = WrappingCountdown.Start(SpikeHazardDefinitions.InvincibilityFrames);
         samus.KnockbackTimer = SpikeHazardDefinitions.KnockbackFrames;
     }

@@ -703,7 +703,7 @@ public static class SamusGrappleMovement
                         return GrappleBlockReaction.Passes;
                     if (spike == SpikeReaction.TurretSpike)
                     {
-                        samus.PeriodicDamage.Accumulate(new UnsignedSixteenSixteen(whole: 1, fraction: 0));
+                        samus.PeriodicDamage.Accumulate(EnergyAmount.FromEnergy(1));
                         return GrappleBlockReaction.Connects;
                     }
 

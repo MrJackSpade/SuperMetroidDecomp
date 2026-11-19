@@ -99,7 +99,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Caps a velocity by its whole-pixel component at three pixels.</summary>
-    private static SignedSixteenSixteen ClampMochtroidVelocity(SignedSixteenSixteen velocity) => EnemyMath.ClampWholeVelocity(velocity, MochtroidBehaviorDefinitions.FastestFlight);
+    private static SignedSixteenSixteen ClampMochtroidVelocity(SignedSixteenSixteen velocity) => EnemyMath.LimitedEitherWay(velocity, MochtroidBehaviorDefinitions.FastestFlight);
 
     /// <summary>Moves one pixel per axis toward Samus, resolving X before Y while attached.</summary>
     private void RunMochtroidAttachedFlight(

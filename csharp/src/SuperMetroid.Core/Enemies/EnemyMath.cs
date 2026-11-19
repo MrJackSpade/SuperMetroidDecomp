@@ -7,18 +7,11 @@ namespace SuperMetroid.Core.Enemies;
 internal static class EnemyMath
 {
     /// <summary>
-    /// Clamps a velocity to plus or minus <paramref name="maximum"/> whole pixels: a whole part at or past
-    /// the maximum becomes exactly the maximum, one below its negation exactly the negation.
+    /// Holds a velocity within <paramref name="fastest"/>, a whole-pixel speed, either way (#2555): a velocity at or past
+    /// it becomes exactly it, one below its reversal exactly the reversal, and any other keeps its fraction.
     /// </summary>
-    internal static SignedSixteenSixteen ClampWholeVelocity(SignedSixteenSixteen velocity, int maximum)
-    {
-        int whole = velocity.WholePixels;
-        if (whole >= maximum)
-            return SignedSixteenSixteen.FromWholePixels(maximum);
-        if (whole < -maximum)
-            return SignedSixteenSixteen.FromWholePixels(-maximum);
-        return velocity;
-    }
+    internal static SignedSixteenSixteen LimitedEitherWay(SignedSixteenSixteen velocity, SignedSixteenSixteen fastest) =>
+        velocity >= fastest ? fastest : velocity < -fastest ? -fastest : velocity;
 
     /// <summary>The share of its distance from its target a homing Metroid or Mochtroid pulls by each update: a 1024th.</summary>
     private const int HomingPullShare = 1024;

@@ -76,5 +76,5 @@ public interface IRoomSamus
 
     /// <summary>Takes periodic damage, as a chewing plant or a heated room deals it, through the fractional periodic-damage path.</summary>
     /// <param name="damage">The energy the damage takes, in whole energy and a fraction of one.</param>
-    void TakePeriodicDamage(UnsignedSixteenSixteen damage);
+    void TakePeriodicDamage(EnergyAmount damage);
 }

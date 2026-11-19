@@ -27,8 +27,8 @@ public static class BullMovementDefinitions
     /// <summary>How long a Bull ignores further shots after a shot kicks it, in updates.</summary>
     internal const int ShotReactionGuardDuration = 48;
 
-    /// <summary>The turn from a Bull's heading to Samus's bearing, in 256ths of a turn, from which it is off target and brakes.</summary>
-    internal const int OffTargetTurn = 48;
+    /// <summary>The turn from a Bull's heading to Samus's bearing from which it is off target and brakes: 48 steps.</summary>
+    internal static TrigonometryAngle OffTargetTurn { get; } = TrigonometryAngle.Zero.TurnedBySteps(48);
 
     /// <summary>
     /// The compass angle a shot in each direction moves the Bull at: up and down whichever way Samus faces, and each

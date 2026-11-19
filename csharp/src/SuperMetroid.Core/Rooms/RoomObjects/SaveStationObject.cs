@@ -26,14 +26,11 @@ internal sealed class SaveStationObject(LoadStation savedAt) : RoomObjectBehavio
         AnimationPlayer<StationAnimation, StationDraw, NoAnimationCue>.Starting(
             StationAnimationDefinitions.Segments, StationAnimationDefinitions.Animations[StationAnimation.SaveFlash]);
 
-    /// <summary>Records Samus's accepted touch of the floor for the station's next update.</summary>
-    public bool Triggered { get; private set; }
-
-    /// <summary>Where the station stands in a save.</summary>
+    /// <summary>Where the station stands in a save, from Samus's accepted touch of its floor on.</summary>
     public SaveStationPhase SavePhase { get; private set; }
 
-    /// <summary>Samus's accepted touch of the station's floor, which the station's next update takes.</summary>
-    internal void Trigger() => Triggered = true;
+    /// <summary>Samus's accepted touch of the idle station's floor, which the station's next update takes (#2545).</summary>
+    internal void Trigger() => SavePhase = SaveStationPhase.Touched;
 
     /// <summary>The save is over, declined at its confirmation or completed once its message closed.</summary>
     internal void EndSave() => SavePhase = SaveStationPhase.Idle;
@@ -42,9 +39,8 @@ internal sealed class SaveStationObject(LoadStation savedAt) : RoomObjectBehavio
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
-        if (Triggered)
+        if (SavePhase == SaveStationPhase.Touched)
         {
-            Triggered = false;
             SavePhase = SaveStationPhase.AwaitingConfirmation;
             context.Outcome.StationActed(new SaveConfirmationRequested(SaveActivation(place)));
         }

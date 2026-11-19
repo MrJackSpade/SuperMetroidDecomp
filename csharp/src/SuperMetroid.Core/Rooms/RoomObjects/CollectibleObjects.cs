@@ -110,7 +110,8 @@ internal sealed class CollectibleObjects
                 CollectiblePhase.EmptyAwaitingDelete)
                 return true;
             if (item.Phase is not (
-                    CollectiblePhase.Visible or CollectiblePhase.ShotBlockVisible))
+                    CollectiblePhase.Visible or CollectiblePhase.VisibleTouched or
+                    CollectiblePhase.ShotBlockVisible or CollectiblePhase.ShotBlockVisibleTouched))
                 return false;
             item.Trigger();
             return true;
@@ -130,9 +131,9 @@ internal sealed class CollectibleObjects
             if (!place.Active || place.Block != block || place.Behaviour is not CollectibleObject item)
                 continue;
             if (item.Phase is not (
-                    CollectiblePhase.ChozoOrb or
-                    CollectiblePhase.ShotBlock or
-                    CollectiblePhase.CollectedShotBlock))
+                    CollectiblePhase.ChozoOrb or CollectiblePhase.ChozoOrbShot or
+                    CollectiblePhase.ShotBlock or CollectiblePhase.ShotBlockShot or
+                    CollectiblePhase.CollectedShotBlock or CollectiblePhase.CollectedShotBlockShot))
             {
                 return false;
             }

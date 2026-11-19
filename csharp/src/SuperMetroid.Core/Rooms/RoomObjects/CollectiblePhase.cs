@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.Core.Rooms.RoomObjects;
+namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>Phase of one permanent-item room object.</summary>
 public enum CollectiblePhase
@@ -7,22 +7,32 @@ public enum CollectiblePhase
     CollectedEmpty,
     /// <summary>The exposed item alternates its two looks and accepts a touch trigger for acquisition.</summary>
     Visible,
+    /// <summary>Samus touched the exposed item; its next update collects it (#2545).</summary>
+    VisibleTouched,
     /// <summary>The intact Chozo orb pulses its shell while waiting for a projectile trigger.</summary>
     ChozoOrb,
+    /// <summary>A shot, bomb or grapple reached the intact orb; its next update bursts it open (#2545).</summary>
+    ChozoOrbShot,
     /// <summary>The triggered Chozo orb bursts open before revealing the item.</summary>
     ChozoOrbBurst,
     /// <summary>An uncollected item is concealed in its saved shot block and waits for a projectile trigger.</summary>
     ShotBlock,
+    /// <summary>A shot, bomb or grapple reached the concealing block; its next update crumbles it away (#2545).</summary>
+    ShotBlockShot,
     /// <summary>The shot block crumbles away before showing the item it conceals.</summary>
     ShotBlockReveal,
     /// <summary>A previously collected item's shot block crumbles away before showing its empty space (#2482).</summary>
     CollectedShotBlockReveal,
     /// <summary>The revealed item accepts touch acquisition while it alternates its two looks twenty-two times.</summary>
     ShotBlockVisible,
+    /// <summary>Samus touched the revealed item; its next update collects it (#2545).</summary>
+    ShotBlockVisibleTouched,
     /// <summary>An uncollected revealed item is hidden as its shot block forms again and restores its concealed shot block.</summary>
     ShotBlockReconceal,
     /// <summary>A previously collected item's restored shot block waits for another projectile trigger.</summary>
     CollectedShotBlock,
+    /// <summary>A shot, bomb or grapple reached the collected item's restored block; its next update crumbles it away (#2545).</summary>
+    CollectedShotBlockShot,
     /// <summary>The collected shot block remains empty for twenty-two eight-frame intervals before respawning.</summary>
     CollectedShotBlockEmpty,
     /// <summary>The collected shot block grows back before restoring its saved block.</summary>

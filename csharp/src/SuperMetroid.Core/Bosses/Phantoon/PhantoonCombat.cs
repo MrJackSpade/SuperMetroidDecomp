@@ -296,9 +296,10 @@ internal sealed class PhantoonCombat
             }
 
             if (hitboxShot == EnemyReaction.Ignore ||
-                state.Phase is PhantoonPhase.DyingFadeInOut or PhantoonPhase.DyingExplosions or
-                    PhantoonPhase.BeginFinalWavyDeath or PhantoonPhase.DyingFadeOut or PhantoonPhase.AlmostDead or
-                    PhantoonPhase.Dead or PhantoonPhase.WaitingOnEye)
+                state.Phase == PhantoonPhase.DyingFadeInOut || state.Phase == PhantoonPhase.DyingExplosions ||
+                    state.Phase == PhantoonPhase.BeginFinalWavyDeath || state.Phase == PhantoonPhase.DyingFadeOut ||
+                    state.Phase == PhantoonPhase.AlmostDead || state.Phase == PhantoonPhase.Dead ||
+                    state.Phase == PhantoonPhase.WaitingOnEye)
             {
                 projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(
                     projectile,
@@ -359,9 +360,7 @@ internal sealed class PhantoonCombat
         _audio.RequestPhantoonCombatSound(PhantoonSoundDefinitions.ShotCry);
         SamusProjectileFamily family = projectileType.Family;
         PhantoonPhase phase = state.Phase;
-        bool vulnerableWindow = phase is
-            PhantoonPhase.EyeTracksSamus or
-            PhantoonPhase.TrackSamusDuringFlameRain;
+        bool vulnerableWindow = phase == PhantoonPhase.EyeTracksSamus || phase == PhantoonPhase.TrackSamusDuringFlameRain;
         bool swooping = phase == PhantoonPhase.Swooping;
 
         if (vulnerableWindow || swooping)
@@ -428,9 +427,7 @@ internal sealed class PhantoonCombat
     private static void BeginPhantoonDeathSequence(
         PhantoonEnemyState state)
     {
-        state.Phase = state.Phase is
-            PhantoonPhase.Swooping or
-            PhantoonPhase.FadeOutWhileSwooping
+        state.Phase = state.Phase == PhantoonPhase.Swooping || state.Phase == PhantoonPhase.FadeOutWhileSwooping
                 ? PhantoonPhase.FinishFatalSwoop
                 : PhantoonPhase.DyingFadeInOut;
         state.FigureEight.Direction = PhantoonPathDirection.Forwards;

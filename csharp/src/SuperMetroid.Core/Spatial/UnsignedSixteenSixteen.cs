@@ -73,6 +73,26 @@ public readonly record struct UnsignedSixteenSixteen
     public static UnsignedSixteenSixteen FromTwoHundredFiftySixthsOfPixel(int twoHundredFiftySixths) =>
         FromRaw(checked((uint)twoHundredFiftySixths * 256u));
 
+    /// <summary>
+    /// A speed of <paramref name="numerator"/> <paramref name="denominator"/>ths of a pixel (#2539), the denominator a power
+    /// of two from 1 through 65536 so the fraction is kept exactly, as <see cref="SignedSixteenSixteen.FromPixelFraction"/>
+    /// reads a displacement.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The numerator is negative, or the denominator is no power of two from 1 through 65536.
+    /// </exception>
+    /// <exception cref="OverflowException">The speed lies outside the type's range.</exception>
+    public static UnsignedSixteenSixteen FromPixelFraction(int numerator, int denominator)
+    {
+        int fractionsEach = FractionsPerPixel / Ensure.BetweenInclusive(1, FractionsPerPixel, denominator);
+        if (fractionsEach * denominator != FractionsPerPixel)
+            throw new ArgumentOutOfRangeException(nameof(denominator), denominator, "The denominator must be a power of two from 1 through 65536.");
+        return FromRaw(checked((uint)Ensure.AtLeastZero(numerator) * (uint)fractionsEach));
+    }
+
+    /// <summary>The fractions of a pixel the speed counts: 65536 to the pixel.</summary>
+    private const int FractionsPerPixel = 65536;
+
     /// <summary>Whether this speed is slower than <paramref name="other"/>, comparing whole pixels and fraction together.</summary>
     public bool IsSlowerThan(UnsignedSixteenSixteen other) => RawValue < other.RawValue;
 

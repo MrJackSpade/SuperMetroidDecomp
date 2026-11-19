@@ -10,7 +10,7 @@ public static class PhantoonMotionDefinitions
     public static SignedEightEight SwoopPositiveXLimit { get; } = SignedEightEight.FromPixels(8);
 
     /// <summary>The speed his figure-eight starts from along its path: one place an update.</summary>
-    public static SignedSixteenSixteen FigureEightStartSpeed { get; } = SignedSixteenSixteen.FromParts(1, 0);
+    public static SignedSixteenSixteen FigureEightStartSpeed { get; } = SignedSixteenSixteen.FromWholePixels(1);
 
     /// <summary>The vertical swoop velocity, six pixels an update, at which the downward pull stops.</summary>
     public static SignedEightEight SwoopPositiveYLimit { get; } = SignedEightEight.FromPixels(6);
@@ -49,13 +49,13 @@ public static class PhantoonMotionDefinitions
     /// <summary>The whole speed at which a returning figure-eight stops surging and settles: seven places per update back.</summary>
     public const int ReverseFastCap = -7;
     /// <summary>The speed a forward figure-eight surges from once it has eased in: a place an update.</summary>
-    public static SignedSixteenSixteen ForwardSurgeStart { get; } = SignedSixteenSixteen.FromParts(ForwardSlowCap - 1, 0);
+    public static SignedSixteenSixteen ForwardSurgeStart { get; } = SignedSixteenSixteen.FromWholePixels(ForwardSlowCap - 1);
     /// <summary>The speed a forward figure-eight eases in from again once it has settled: a place an update.</summary>
-    public static SignedSixteenSixteen ForwardEaseStart { get; } = SignedSixteenSixteen.FromParts(ForwardMinimum + 1, 0);
+    public static SignedSixteenSixteen ForwardEaseStart { get; } = SignedSixteenSixteen.FromWholePixels(ForwardMinimum + 1);
     /// <summary>The speed a returning figure-eight surges from once it has eased in: at rest.</summary>
-    public static SignedSixteenSixteen ReverseSurgeStart { get; } = SignedSixteenSixteen.FromParts(ReverseSlowCap + 2, 0);
+    public static SignedSixteenSixteen ReverseSurgeStart { get; } = SignedSixteenSixteen.FromWholePixels(ReverseSlowCap + 2);
     /// <summary>The speed a returning figure-eight settles from once it has surged: six places an update back.</summary>
-    public static SignedSixteenSixteen ReverseSettleStart { get; } = SignedSixteenSixteen.FromParts(ReverseFastCap + 1, 0);
+    public static SignedSixteenSixteen ReverseSettleStart { get; } = SignedSixteenSixteen.FromWholePixels(ReverseFastCap + 1);
     /// <summary>The highest his swoop carries him.</summary>
     public const int SwoopMinimumY = 64;
     /// <summary>The lowest his swoop carries him.</summary>

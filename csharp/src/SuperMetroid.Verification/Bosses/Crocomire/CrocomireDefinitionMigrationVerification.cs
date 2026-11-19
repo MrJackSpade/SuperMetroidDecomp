@@ -27,7 +27,7 @@ internal static class CrocomireDefinitionMigrationVerification
 
         // The volley's authored gradients, for every shot before the last, in firing order.
         AssertTrue(CrocomireProjectileDefinitions.AuthoredGradients.SequenceEqual([0, 32, -16, 0, 32, -16, 0, 32]), "volley gradients in firing order");
-        AssertEqual(4, CrocomireProjectileDefinitions.VelocityMultiplier, "volley velocity factor");
+        AssertEqual(4, CrocomireProjectileDefinitions.VolleySpeed, "volley speed");
 
         // The damage-reaction latch is a bit of the cartridge's body variable B, whose mouth-hit count nothing in the fight
         // reads, nor the claw-touch latch only the unreachable claw attack reads, nor the engagement mark nothing reads.

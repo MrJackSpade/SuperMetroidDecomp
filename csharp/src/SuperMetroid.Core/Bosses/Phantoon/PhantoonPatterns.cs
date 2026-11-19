@@ -123,7 +123,7 @@ internal sealed class PhantoonPatterns
             ChangePhantoonSpeed(figureEight, PhantoonMotionDefinitions.FastSpeedChange, PhantoonSpeedChange.Accelerate);
             if (figureEight.Speed.WholePixels >= PhantoonMotionDefinitions.ForwardFastCap)
             {
-                figureEight.Speed = SignedSixteenSixteen.FromParts(PhantoonMotionDefinitions.ForwardFastCap, 0);
+                figureEight.Speed = SignedSixteenSixteen.FromWholePixels(PhantoonMotionDefinitions.ForwardFastCap);
                 figureEight.Stage = PhantoonFigureEightStage.Settling;
             }
             return;
@@ -166,7 +166,7 @@ internal sealed class PhantoonPatterns
         int maximum = PhantoonMotionDefinitions.ReverseMaximum;
         if (figureEight.Speed.WholePixels >= maximum)
         {
-            figureEight.Speed = SignedSixteenSixteen.FromParts(maximum, 0);
+            figureEight.Speed = SignedSixteenSixteen.FromWholePixels(maximum);
             figureEight.Stage = PhantoonFigureEightStage.EasingIn;
         }
     }

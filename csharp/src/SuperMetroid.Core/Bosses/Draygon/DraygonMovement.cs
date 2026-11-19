@@ -38,30 +38,9 @@ internal sealed class DraygonMovement
     }
 
     /// <summary>
-    /// The distance one axis of an angled move covers: the unsigned sine sample <paramref name="phase"/> ahead of
-    /// <paramref name="angle"/> times <paramref name="speed"/> whole pixels, a quarter turn ahead for the horizontal axis
-    /// and a half turn for the vertical, whose direction Draygon's movement takes from the angle.
+    /// Moves <paramref name="body"/> along <paramref name="angle"/> at <paramref name="speed"/> whole pixels an update
+    /// (<see cref="EnemyMath.VelocityAlong"/>), keeping each axis's fraction.
     /// </summary>
-    /// <param name="angle">The movement angle.</param>
-    /// <param name="speed">The speed in whole pixels an update, never negative.</param>
-    /// <param name="phase">The turn the sample is read ahead of the angle.</param>
-    internal static UnsignedSixteenSixteen AngleMagnitude(TrigonometryAngle angle, int speed, RotationAngle phase) =>
-        EnemyMath.UnsignedSineSpeed(angle.TurnedBy(phase.ToTrigonometryAngle()), speed);
-
-    /// <summary>
-    /// Moves <paramref name="body"/> along <paramref name="angle"/> at <paramref name="speed"/> whole pixels an update,
-    /// across first and then down: each axis moves back where the angle's cosine or sine is negative, and forward
-    /// otherwise, keeping its fraction.
-    /// </summary>
-    internal static void MoveDraygonAtAngle(RoomEnemyPlace body, TrigonometryAngle angle, int speed)
-    {
-        UnsignedSixteenSixteen across = AngleMagnitude(angle, speed, RotationAngle.QuarterTurn);
-        UnsignedSixteenSixteen down = AngleMagnitude(angle, speed, RotationAngle.HalfTurn);
-        body.Position = body.Position.WithX(EnemyMath.CosineIsNegative(angle)
-            ? body.Position.X.MovedBack(across)
-            : body.Position.X.MovedForward(across));
-        body.Position = body.Position.WithY(EnemyMath.SineIsNegative(angle)
-            ? body.Position.Y.MovedBack(down)
-            : body.Position.Y.MovedForward(down));
-    }
+    internal static void MoveDraygonAtAngle(RoomEnemyPlace body, TrigonometryAngle angle, int speed) =>
+        body.Position = body.Position.Advance(EnemyMath.VelocityAlong(angle, speed));
 }

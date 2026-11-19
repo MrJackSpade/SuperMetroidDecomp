@@ -41,7 +41,9 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         // Each update takes the speeds along each axis afresh from the heading the bounces turn (#2531). The products are
-        // magnitudes; the signs of the heading's cosine and sine give each axis its direction.
+        // magnitudes; the signs of the heading's cosine and sine give each axis its direction. They are not
+        // EnemyMath.VelocityAlong's components: an axis the Multiviola heads left or up along takes MultiviolaLeftOrUpSpeed,
+        // which is not the speed's exact reverse and moves it a pixel an update even where the axis has no speed.
         int speed = place.SpawnSettings<MultiviolaSpawnSettings>().Speed;
         SignedSixteenSixteen horizontalDisplacement = EnemyMath.AbsoluteCosineSpeed(state.Heading, speed).AsDisplacement();
         if (!EnemyMath.CosineIsNegative(state.Heading))

@@ -25,7 +25,7 @@ internal static class CrocomireMeltingDefinitions
     public static readonly UnsignedSixteenSixteen FirstDistortionSlope = UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(1);
 
     /// <summary>How much steeper the distortion's slope grows each update it stretches: one and a half 256ths of a row a line.</summary>
-    public static readonly UnsignedSixteenSixteen DistortionSlopeGrowth = new(0, 384);
+    public static readonly UnsignedSixteenSixteen DistortionSlopeGrowth = UnsignedSixteenSixteen.FromPixelFraction(3, 512);
 
     /// <summary>The steepest the distortion's slope grows: five sixteenths of a row a line, which ends the dissolve once its band is stretched.</summary>
     public static readonly UnsignedSixteenSixteen SteepestDistortionSlope = UnsignedSixteenSixteen.FromSixteenthsOfPixel(5);

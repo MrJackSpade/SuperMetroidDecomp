@@ -13,7 +13,7 @@ internal static class CrocomireBridgeCollapseDefinitions
     internal static readonly SignedSixteenSixteen SinkStartingAcceleration = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(8);
 
     /// <summary>Acceleration the sink adds each update (#2299).</summary>
-    internal static readonly SignedSixteenSixteen SinkAccelerationIncrement = SignedSixteenSixteen.FromParts(0, 896);
+    internal static readonly SignedSixteenSixteen SinkAccelerationIncrement = SignedSixteenSixteen.FromPixelFraction(7, 512);
 
     /// <summary>The most the sink's acceleration grows to (#2299).</summary>
     internal static readonly SignedSixteenSixteen MaximumSinkAcceleration = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(48);

@@ -51,6 +51,9 @@ public readonly record struct FixedVector<TSpace>(SignedSixteenSixteen X, Signed
     public static FixedVector<TSpace> operator -(FixedVector<TSpace> vector, Offset16<TSpace> wholePixels) =>
         vector - FromWholePixels(wholePixels);
 
+    /// <summary>The displacement reversed: each axis's whole pixels and fraction reversed together.</summary>
+    public static FixedVector<TSpace> operator -(FixedVector<TSpace> vector) => new(-vector.X, -vector.Y);
+
     /// <summary>Subtracts two displacements, fractions included, wrapping each axis at 65536 whole pixels.</summary>
     public static FixedVector<TSpace> operator -(FixedVector<TSpace> left, FixedVector<TSpace> right) =>
         new(left.X - right.X, left.Y - right.Y);

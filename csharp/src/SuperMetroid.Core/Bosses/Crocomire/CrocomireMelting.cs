@@ -206,7 +206,7 @@ internal sealed class CrocomireMelting
         // The source row rises a whole row less the slope each line, so it first reaches the lowest row on the line after
         // its rise passes one row short of it.
         UnsignedSixteenSixteen slope = death.DistortionStep;
-        int bandLines = rows <= 0 ? 0 : (new UnsignedSixteenSixteen(1, 0) - slope).WholeStepsWithin(rows - 1) + 1;
+        int bandLines = rows <= 0 ? 0 : (UnsignedSixteenSixteen.FromWholePixels(1) - slope).WholeStepsWithin(rows - 1) + 1;
         int endLine = Math.Min(firstLine + bandLines, CrocomireMeltingDefinitions.DistortionLines);
         death.MeltDistortion = new CrocomireMeltDistortion(death.MeltDistortion.LevelledTop, state.Body.Position.Y.Whole,
             ScreenLine(firstLine), ScreenLine(endLine), slope);

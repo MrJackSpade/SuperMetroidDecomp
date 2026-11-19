@@ -43,7 +43,7 @@ internal static class BabyMetroidCutsceneFlightDefinitions
     internal static readonly SignedEightEight FaceSpeed = SignedEightEight.FromPixels(14);
 
     /// <summary>How much the curve's speed changes each update toward its target: an eighth of a pixel an update.</summary>
-    internal static readonly SignedEightEight CurveSpeedStep = SignedEightEight.FromParts(0, 32);
+    internal static readonly SignedEightEight CurveSpeedStep = SignedEightEight.FromSixteenthsOfPixel(2);
 
     /// <summary>
     /// The extra speed a reversal adds while the Baby is off screen on its approaches to Mother Brain, the ceiling, Samus
@@ -55,7 +55,7 @@ internal static class BabyMetroidCutsceneFlightDefinitions
     /// The extra speed a reversal adds while the Baby is off screen as it stares Mother Brain down and flies to the final
     /// charge's start: a sixteenth of a pixel an update.
     /// </summary>
-    internal static readonly SignedEightEight StagingWrongWaySpeed = SignedEightEight.FromParts(0, 16);
+    internal static readonly SignedEightEight StagingWrongWaySpeed = SignedEightEight.FromSixteenthsOfPixel(1);
 
     /// <summary>
     /// What a gentle approach divides the remaining distance by: sixteen, the pull of its approaches to Mother Brain, the

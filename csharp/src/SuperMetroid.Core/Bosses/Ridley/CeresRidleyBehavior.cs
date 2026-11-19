@@ -174,9 +174,9 @@ internal sealed class CeresRidleyBehavior : IRidleyRevealEncounter<CeresRidleySt
                     nextUpdates: CeresRidleyFlightDefinitions.SwoopClimbUpdates);
                 if (state.Phase == CeresRidleyPhase.SwoopAscendingAimingUp)
                 {
-                    // At the bottom of the swoop his tail flings once, aimed: the neutral tail takes the request
-                    // later this update and clears it.
-                    state.Tail.WhipRequested = true;
+                    // At the bottom of the swoop his tail flings once, aimed: the neutral tail takes the order later
+                    // this update.
+                    state.Tail.Whip.Give();
                 }
                 return true;
 

@@ -1047,8 +1047,8 @@ internal static void VerifyCeresRidleyRoomEntry()
         AssertEqual(1, enemies.CeresRidleyBehavior.Hits.ResolveCeresRidleyProjectileHits(
             projectiles, sharedProjectiles),
             $"Ceres Ridley hit {hit + 1} reaches enemy shot AI");
-        observedNormalRidleyPalette |= !state.BodyFlashing;
-        observedFlashRidleyPalette |= state.BodyFlashing;
+        observedNormalRidleyPalette |= !state.HurtFlashShows.Body;
+        observedFlashRidleyPalette |= state.HurtFlashShows.Body;
         if (hit == 49)
             AssertEqual(0x7000, Shown()[0xf1],
                 "Ceres Ridley 50-hit health palette");

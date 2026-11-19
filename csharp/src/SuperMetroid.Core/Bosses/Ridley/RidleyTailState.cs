@@ -66,10 +66,10 @@ public sealed class RidleyTailState
     /// </summary>
     public RidleyTailAngle? CounterClockwiseWhipTarget { get; internal set; }
     /// <summary>
-    /// Gets whether a one-shot tail whip is requested, which neutral tail control consumes (#1940): a requested whip aims a
-    /// whole turn further along its swing than an unrequested random one.
+    /// The whip the fight orders of his tail, which his tail's neutral control carries out (#1940, #2562): an ordered whip
+    /// aims a whole turn further along its swing than an unordered random one.
     /// </summary>
-    public bool WhipRequested { get; internal set; }
+    public RidleyTailWhipOrder Whip { get; } = new();
     /// <summary>Gets whether neutral tail control may start random or proximity-triggered whips; the Ceres swoop disables it.</summary>
     public bool IdleWhipEnabled { get; internal set; }
     /// <summary>Gets the distance (fifteen sixteenths or one and a half pixels) tail links extend each update toward their targets.</summary>

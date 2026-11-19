@@ -579,7 +579,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     Check("Ridley AI timer", unchecked((ushort)timer), NativeSnapshotMemory.RidleyFunctionTimer);
                 Check("Ridley TailFunctionIndex", RidleyNativeWords.TailActions.Word(ridleyState.Tail.Action), NativeSnapshotMemory.RidleyTailFunctionIndex);
                 Check("Ridley IdleTailWhipEnabled", ridleyState.Tail.IdleWhipEnabled ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyIdleTailWhipEnabled);
-                Check("Ridley TailWhipRequest", ridleyState.Tail.WhipRequested ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyTailWhipRequest);
+                Check("Ridley TailWhipRequest", ridleyState.Tail.Whip.IsWaiting ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyTailWhipRequest);
                 Check("Ridley TailExtensionSpeed", ridleyState.Tail.ExtensionSpeed.RawValue, NativeSnapshotMemory.RidleyTailExtensionSpeed);
                 Check("Ridley TailAngleDelta", checked((ushort)ridleyState.Tail.SwingStep.Steps), NativeSnapshotMemory.RidleyTailAngleDelta);
                 Check("Ridley TailMinimumClockwiseAngle", RidleyTailNativeWords.Angle(ridleyState.Tail.MinimumClockwiseAngle), NativeSnapshotMemory.RidleyTailMinimumClockwiseAngle);

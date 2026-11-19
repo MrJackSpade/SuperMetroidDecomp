@@ -1246,12 +1246,12 @@ internal static class LookupStream4Verification
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseNumbering.FromNumber(pose) };
             byte flags = rom.ReadCartridgeByte(0xa6bd04 + rom.ReadCartridgeByte(0x91b62a + pose * 8));
             AssertEqual((flags & 0x80) != 0, canGrab(samus), "Actual grab policy preserves each native real-pose classification");
-            var state = new NorfairRidleyState { GrabState = RidleyGrabState.CarryingSamus, Tail = { WhipRequested = false, Action = RidleyTailAction.Pogo }, ReleaseIntangibility = BossCountdown.Lasting(99) };
+            var state = new NorfairRidleyState { GrabState = RidleyGrabState.CarryingSamus, Tail = { Action = RidleyTailAction.Pogo }, ReleaseIntangibility = BossCountdown.Lasting(99) };
             release(state, samus);
             // The release's intangibility lasts its frames: the countdown runs out on the step of the last.
             AssertEqual((flags & 0x40) != 0 ? morphedFrames - 1 : ordinaryFrames - 1, state.ReleaseIntangibility?.CartridgeCount, "Actual release preserves native movement-dependent intangibility");
             AssertEqual(RidleyGrabState.Released, state.GrabState, "Actual release clears grab");
-            AssertTrue(state.Tail.WhipRequested, "Actual release requests tail whip");
+            AssertTrue(state.Tail.Whip.IsWaiting, "Actual release requests tail whip");
             AssertEqual(RidleyTailAction.Neutral, state.Tail.Action, "Actual release resets tail controller");
         }
 

@@ -52,7 +52,6 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         var state = new BoyonEnemyState
         {
-            BounceMovement = BoyonBounceMovement.Rising,
             CurvePlace = BoyonCurvePlace.Top,
             BaselineCurvePlace = BoyonCurvePlace.Top,
             Phase = BoyonPhase.DerivingArc,
@@ -77,14 +76,14 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (IsBoyonSamusWithinHorizontalRange(place, samus))
         {
             // Proximity permits another bounce: a resting Boyon starts bouncing and a landed one bounces again, its
-            // bouncing animation restarting; an arc already under way plays on.
-            if (state.Phase != BoyonPhase.Bouncing)
+            // bouncing animation restarting; an arc already under way plays on. Every bounce starts with its rise.
+            if (!state.IsBouncing)
             {
-                state.Phase = BoyonPhase.Bouncing;
+                state.Phase = BoyonPhase.Rising;
                 SetBoyonAnimation(place, state, BoyonSegment.Bouncing);
             }
         }
-        else if (state.Phase != BoyonPhase.Bouncing)
+        else if (!state.IsBouncing)
         {
             // Boyon may only return to idle after the falling half has reached its baseline.
             // Leaving the trigger range in midair therefore finishes the current arc.
@@ -96,17 +95,20 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        switch (state.BounceMovement)
+        switch (state.Phase)
         {
-            case BoyonBounceMovement.Falling:
+            case BoyonPhase.Falling:
                 MoveBoyonFalling(place, state);
                 break;
-            case BoyonBounceMovement.Rising:
+            case BoyonPhase.Rising:
                 MoveBoyonRising(place, state);
                 break;
+            case BoyonPhase.DerivingArc:
+            case BoyonPhase.Resting:
+            case BoyonPhase.Landed:
             default:
                 throw new InvalidDataException(
-                    $"Boyon has no behaviour for bounce movement {state.BounceMovement}.");
+                    $"Boyon has no bounce movement in its {state.Phase} phase.");
         }
     }
 
@@ -129,8 +131,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         SignedSixteenSixteen distance = SignedSixteenSixteen.Zero;
         do
         {
-            state.Speed = MultiplyBoyonCurveEntry(state, multiplier);
-            distance += state.Speed.AsDisplacement();
+            distance += MultiplyBoyonCurveEntry(state, multiplier).AsDisplacement();
             state.FallOneEntry();
         }
         while (distance < jumpHeight);
@@ -143,25 +144,24 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void MoveBoyonFalling(RoomEnemyPlace place, BoyonEnemyState state)
     {
         state.FallOneEntry();
-        state.Speed = MultiplyBoyonCurveEntry(state, place.SpawnSettings<BoyonSpawnSettings>().SpeedMultiplier);
+        UnsignedSixteenSixteen speed = MultiplyBoyonCurveEntry(state, place.SpawnSettings<BoyonSpawnSettings>().SpeedMultiplier);
 
         // Taking the product's whole pixels discards its fraction. Boyon keeps no fraction of a pixel
         // here: each frame moves by exactly the product's whole pixels.
-        place.Position = place.Position.WithWholeY(place.Position.Y.Whole + state.Speed.Whole);
+        place.Position = place.Position.WithWholeY(place.Position.Y.Whole + speed.Whole);
         if (state.CurvePlace < state.BaselineCurvePlace)
             return;
 
-        state.BounceMovement = BoyonBounceMovement.Rising;
         state.Phase = BoyonPhase.Landed;
     }
 
     /// <summary>Runs rising movement.</summary>
     private static void MoveBoyonRising(RoomEnemyPlace place, BoyonEnemyState state)
     {
-        state.Speed = MultiplyBoyonCurveEntry(state, place.SpawnSettings<BoyonSpawnSettings>().SpeedMultiplier);
-        place.Position = place.Position.WithWholeY(place.Position.Y.Whole - state.Speed.Whole);
+        UnsignedSixteenSixteen speed = MultiplyBoyonCurveEntry(state, place.SpawnSettings<BoyonSpawnSettings>().SpeedMultiplier);
+        place.Position = place.Position.WithWholeY(place.Position.Y.Whole - speed.Whole);
         if (state.RiseOneEntry())
-            state.BounceMovement = BoyonBounceMovement.Falling;
+            state.Phase = BoyonPhase.Falling;
     }
 
     /// <summary>
@@ -192,7 +192,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <exception cref="InvalidOperationException">The Boyon is not bouncing.</exception>
     private void StartBoyonBounce(BoyonEnemyState state)
     {
-        if (state.Phase != BoyonPhase.Bouncing)
+        if (!state.IsBouncing)
             throw new InvalidOperationException($"A Boyon's bounce cue ran in its {state.Phase} phase.");
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.BoyonBounceSound, priority: SoundRequestPriority.Normal);
     }

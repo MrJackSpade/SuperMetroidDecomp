@@ -515,7 +515,7 @@ internal static class NativeEnemyFamilyStateImport
             BoyonSpawnSettings boyonSettings = enemy.SpawnSettings<BoyonSpawnSettings>();
             if (words.A != boyonSettings.SpeedMultiplier)
                 throw new InvalidDataException($"Recorded Boyon multiplier {words.A} is not its placement's {boyonSettings.SpeedMultiplier}.");
-            boyonRecord.Speed = UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(words.B);
+            // The speed word is the last update's product, which every update multiplies afresh before it moves (#2531).
             if (SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(words.C) != SignedSixteenSixteen.FromWholePixels(boyonSettings.JumpHeight))
                 throw new InvalidDataException($"Recorded Boyon height ${words.C:X4} is not its placement's {boyonSettings.JumpHeight} pixels.");
             // The arc's distance is only the first update's working sum (#2432): a Boyon still to derive its arc has summed
@@ -525,7 +525,7 @@ internal static class NativeEnemyFamilyStateImport
             // The rise leaves the curve index one below the top entry, the word's largest value, past the top.
             boyonRecord.CurvePlace = words.E == ushort.MaxValue ? BoyonCurvePlaceConstants.PastTheTop : BoyonCurvePlaceConstants.AtEntry(words.E);
             // The bouncing word is the phase's own: the record holds none of the latches the rest of the phase reads.
-            if ((words.F != 0) != (boyonRecord.Phase == BoyonPhase.Bouncing))
+            if ((words.F != 0) != boyonRecord.IsBouncing)
                 throw new InvalidDataException($"Recorded Boyon bouncing word ${words.F:X4} disagrees with its {boyonRecord.Phase} phase.");
         }
         if (enemy.SpeciesState<GrowingShutterEnemyState>() is { } growingShutterRecord)
@@ -793,7 +793,9 @@ internal static class NativeEnemyFamilyStateImport
             ChootFallingPath chootPath = ChootNativeWords.ChootFallingPaths.Decode(words.E, "recorded Choot falling pattern");
             if (chootPath != enemy.SpawnSettings<ChootSpawnSettings>().FallingPath)
                 throw new InvalidDataException($"Recorded Choot falling path {chootPath} is not its placement's {enemy.SpawnSettings<ChootSpawnSettings>().FallingPath}.");
-            choot.FallingPatternYDistance = words.F;
+            // The loop's Y distance is the placement's path's (#2531), which the recording's copy must be.
+            if (words.F != ChootFalls.LoopYDistance(chootPath))
+                throw new InvalidDataException($"Recorded Choot loop Y distance {words.F} is not its {chootPath} path's {ChootFalls.LoopYDistance(chootPath)}.");
         }
         if (enemies.SkulteraStates[index] is { } skultera)
         {
@@ -847,8 +849,8 @@ internal static class NativeEnemyFamilyStateImport
             walkingPirate.LeftPostX = words.E;
             walkingPirate.RightPostX = words.F;
         }
-        if (enemy.EntityState<MultiviolaEntity, MultiviolaEnemyState>() is { } multiviola)
-            multiviola.Velocity = FixedVector<RoomPixels>.FromStoredParts(words.C, words.D, words.E, words.F);
+        // A Multiviola's velocity words (C to F) are the last update's, which every update rebuilds from its heading before it
+        // moves (#2531), so none is imported.
         if (enemy.EntityState<CrawlerEntity, CrawlerEnemyState>() is { } crawler)
         {
             crawler.Velocity = new(new SignedEightEight(words.A), new SignedEightEight(words.B));
@@ -1126,8 +1128,8 @@ internal static class NativeEnemyFamilyStateImport
 
     /// <summary>
     /// Translates the family facts some enemies keep among their extra variables rather than their record words (#2473):
-    /// a Ki-Hunter body's swipe and wingless flags, a hopper's and a Puyo's falling flags, a Wrecked Ship ghost's watch timers
-    /// and a Kago's hits left (#2512).
+    /// a Ki-Hunter body's swipe and wingless flags, a hopper's, a Puyo's and a Beetom's falling flags, a Boyon's bounce
+    /// movement (#2531), a Wrecked Ship ghost's watch timers and a Kago's hits left (#2512).
     /// </summary>
     /// <param name="enemy">The imported slot, its record words already imported.</param>
     /// <param name="words">The enemy's six recorded record words.</param>
@@ -1153,6 +1155,26 @@ internal static class NativeEnemyFamilyStateImport
                 (_, false) => hopper.Action,
                 (var other, true) => throw new InvalidDataException($"Recorded hopper {other} has its falling flag set."),
             };
+        }
+        // The falling flag ($7E:780A) is an arc's having passed its apex (#2531); a Beetom on the ground keeps the last arc's,
+        // which its next hop or lunge clears.
+        if (enemy.SpeciesState<BeetomEnemyState>() is { } beetomArc && extraWord(BeetomFallingFlagOffset) != 0 &&
+            BeetomArcFalls.TryGetValue(beetomArc.Action, out BeetomAction beetomFall))
+            beetomArc.Action = beetomFall;
+        if (enemy.SpeciesState<BoyonEnemyState>() is { } boyon)
+        {
+            // The bounce movement index ($7E:7802) names a bounce's half, one the rise and zero the fall (#2531); the load
+            // and every landing leave it rising, so only a bouncing Boyon falls.
+            bool boyonFalls = extraWord(BoyonBounceMovementOffset) switch
+            {
+                0 => true,
+                1 => false,
+                var other => throw new InvalidDataException($"Recorded Boyon bounce movement index ${other:X4} is neither the rise nor the fall."),
+            };
+            if (boyon.IsBouncing)
+                boyon.Phase = boyonFalls ? BoyonPhase.Falling : BoyonPhase.Rising;
+            else if (boyonFalls)
+                throw new InvalidDataException($"Recorded Boyon falls in its {boyon.Phase} phase.");
         }
         if (enemy.SpeciesState<PuyoEnemyState>() is { Action: PuyoAction.Rising } puyo && extraWord(PuyoFallingFlagOffset) != 0)
         {
@@ -1185,6 +1207,20 @@ internal static class NativeEnemyFamilyStateImport
 
     /// <summary>The byte offset of a hopper's falling flag among its extra variables ($7E:7806).</summary>
     private const int HopperFallingFlagOffset = 0x06;
+
+    /// <summary>The byte offset of a Boyon's bounce movement index among its extra variables ($7E:7802).</summary>
+    private const int BoyonBounceMovementOffset = 0x02;
+
+    /// <summary>The byte offset of a Beetom's falling flag among its extra variables ($7E:780A).</summary>
+    private const int BeetomFallingFlagOffset = 0x0a;
+
+    /// <summary>Each Beetom arc's rise, which its routine word names, and the fall its falling flag tells (#2531).</summary>
+    private static readonly Dictionary<BeetomAction, BeetomAction> BeetomArcFalls = new()
+    {
+        [BeetomAction.ShortHopRising] = BeetomAction.ShortHopFalling,
+        [BeetomAction.LongHopRising] = BeetomAction.LongHopFalling,
+        [BeetomAction.LungeRising] = BeetomAction.LungeFalling,
+    };
 
     /// <summary>The byte offset of a Wrecked Ship ghost's lock-on timer among its extra variables ($7E:781A).</summary>
     private const int CovenLockOnTimerOffset = 0x1a;

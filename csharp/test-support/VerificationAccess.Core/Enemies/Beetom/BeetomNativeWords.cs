@@ -10,7 +10,8 @@ internal static class BeetomNativeWords
 {
     /// <summary>
     /// The routine word naming each <see cref="BeetomAction"/> and, for an action that goes one way, its heading (#2277),
-    /// the cartridge giving each heading a routine of its own.
+    /// the cartridge giving each heading a routine of its own. A hop's or lunge's routine runs both its halves and names its
+    /// rise; its falling flag ($7E:780A) tells the fall (#2531).
     /// </summary>
     internal static readonly NativeWordIdentities<(BeetomAction Action, HorizontalDirection? Heading)> BeetomActions =
         new(new Dictionary<(BeetomAction Action, HorizontalDirection? Heading), ushort>
@@ -32,12 +33,12 @@ internal static class BeetomNativeWords
             [(BeetomAction.Idling, null)] = 0xb9b2,
             [(BeetomAction.Crawling, HorizontalDirection.Left)] = 0xb9c1,
             [(BeetomAction.Crawling, HorizontalDirection.Right)] = 0xba24,
-            [(BeetomAction.ShortHop, HorizontalDirection.Left)] = 0xba84,
-            [(BeetomAction.ShortHop, HorizontalDirection.Right)] = 0xbab7,
-            [(BeetomAction.LongHop, HorizontalDirection.Left)] = 0xbb55,
-            [(BeetomAction.LongHop, HorizontalDirection.Right)] = 0xbb88,
-            [(BeetomAction.Lunge, HorizontalDirection.Left)] = 0xbc26,
-            [(BeetomAction.Lunge, HorizontalDirection.Right)] = 0xbc5a,
+            [(BeetomAction.ShortHopRising, HorizontalDirection.Left)] = 0xba84,
+            [(BeetomAction.ShortHopRising, HorizontalDirection.Right)] = 0xbab7,
+            [(BeetomAction.LongHopRising, HorizontalDirection.Left)] = 0xbb55,
+            [(BeetomAction.LongHopRising, HorizontalDirection.Right)] = 0xbb88,
+            [(BeetomAction.LungeRising, HorizontalDirection.Left)] = 0xbc26,
+            [(BeetomAction.LungeRising, HorizontalDirection.Right)] = 0xbc5a,
             [(BeetomAction.Draining, HorizontalDirection.Left)] = 0xbcf8,
             [(BeetomAction.Draining, HorizontalDirection.Right)] = 0xbd42,
             [(BeetomAction.Dropping, null)] = 0xbd9d,

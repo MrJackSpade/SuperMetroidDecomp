@@ -43,8 +43,6 @@ public sealed class BeetomEnemyState
     public GameplayAction LastSeenPlayerActions { get; internal set; }
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<BeetomSegment> Playback { get; set; }
-    /// <summary>Arc phase: false uses the rising speed-curve half; passing the apex switches to the falling half at the curve's start.</summary>
-    public bool Falling { get; internal set; }
     /// <summary>Whether the Beetom clings to Samus: from its first touch until it escapes or a shot knocks it off; while it clings, touches do not attach it again.</summary>
     public bool AttachedToSamus { get; internal set; }
     /// <summary>The way the Beetom faces, inherited from the place's previous Beetom; collision reverses it, while the flung state moves opposite this facing.</summary>
@@ -64,17 +62,18 @@ public sealed class BeetomEnemyState
     }
 
     /// <summary>
-    /// One rising update of an arc: moves the place back by <paramref name="marks"/> marks; once that would pass the
-    /// curve's start the arc has reached its apex, so the place restarts at the curve's start and the arc falls.
+    /// One rising update of an arc: moves the place back by <paramref name="marks"/> marks and reports whether the arc has
+    /// reached its apex, which it has once that would pass the curve's start; the place then restarts at the curve's start
+    /// and the arc's fall follows (#2531).
     /// </summary>
     /// <param name="marks">The arc's rising step, three to five marks.</param>
-    internal void StepRisingSpeed(int marks)
+    internal bool StepRisingSpeed(int marks)
     {
         YSpeedCurvePlace -= QuadraticSpeedCurvePlace.FromMarks(marks);
         if (!YSpeedCurvePlace.IsNegative)
-            return;
+            return false;
         YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
-        Falling = true;
+        return true;
     }
 
     /// <summary>One falling update: moves the place on by <paramref name="marks"/> marks, holding at <see cref="BeetomMotionDefinitions.MaximumYSpeedCurvePlace"/>.</summary>

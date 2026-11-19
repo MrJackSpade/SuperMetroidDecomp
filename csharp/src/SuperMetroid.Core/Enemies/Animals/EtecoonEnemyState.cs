@@ -1,7 +1,10 @@
 using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Animals;
 
-/// <summary>The state of an Etecoon.</summary>
+/// <summary>
+/// The state of an Etecoon. The route it takes after its first landing is its spawn settings', which it reads where it
+/// takes it (#2531).
+/// </summary>
 public sealed class EtecoonEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
@@ -28,9 +31,6 @@ public sealed class EtecoonEnemyState
 
     /// <summary>The main-AI behaviour.</summary>
     public EtecoonAction Action { get; internal set; }
-
-    /// <summary>The authored route it takes after its first landing.</summary>
-    public EtecoonRoute Route { get; internal set; }
 
     /// <summary>
     /// The updates an earthquake still suspends the Etecoon for: an earthquake starts
@@ -68,7 +68,4 @@ public sealed class EtecoonEnemyState
         Heading = side;
         TeachingHops = 0;
     }
-
-    /// <summary>Installs the authored route from the spawn settings.</summary>
-    internal void InstallSpawnSettings(EtecoonSpawnSettings settings) => Route = Ensure.NotNull(settings).Route;
 }

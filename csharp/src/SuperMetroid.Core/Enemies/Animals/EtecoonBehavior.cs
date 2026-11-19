@@ -45,8 +45,9 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Etecoon.</summary>
     internal static void InitializeEtecoon(RoomEnemyPlace place)
     {
+        // The placement must name the route, which the Etecoon reads where it takes it (#2531).
+        _ = place.SpawnSettings<EtecoonSpawnSettings>();
         var state = new EtecoonEnemyState(EtecoonAction.Dormant);
-        state.InstallSpawnSettings(place.SpawnSettings<EtecoonSpawnSettings>());
         place.SetSpeciesState(state);
 
         // The setup makes the Etecoon animate, whether or not its placement does.
@@ -153,7 +154,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EtecoonIsWithinY(place, samus, EtecoonRouteDefinitions.ActivationYDistance))
             return;
 
-        if (state.Route == EtecoonRoute.RunLeftToTeachingStart)
+        if (place.SpawnSettings<EtecoonSpawnSettings>().Route == EtecoonRoute.RunLeftToTeachingStart)
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.EtecoonWakeSound, priority: SoundRequestPriority.Essential);
         state.Playback = new(EtecoonAnimations.Flexing, AnimationPlace.StartOfAnimation);
         place.AnimationClock.StepOnNextUpdate();
@@ -361,7 +362,8 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         SetEtecoonVerticalVelocity(state, EtecoonMotionDefinitions.HopSpeed);
-        switch (state.Route)
+        EtecoonRoute route = place.SpawnSettings<EtecoonSpawnSettings>().Route;
+        switch (route)
         {
             case EtecoonRoute.RunLeftToTeachingStart:
                 state.Action = EtecoonAction.MoveLeftToTeachingStart;
@@ -382,7 +384,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 SetEtecoonHorizontalVelocity(state, EtecoonMotionDefinitions.RightRunSpeed);
                 break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(EtecoonRoute)} {state.Route}.");
+                throw new InvalidOperationException($"Undefined {nameof(EtecoonRoute)} {route}.");
         }
         place.AnimationClock.StepOnNextUpdate();
     }
@@ -494,7 +496,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.ActionTimer = EtecoonTimingDefinitions.HopCrouch;
             StartEtecoonAnimation(place, state, EtecoonSegment.HoppingFacingLeft);
-            state.Action = state.Route == EtecoonRoute.TeachAtOnce &&
+            state.Action = place.SpawnSettings<EtecoonSpawnSettings>().Route == EtecoonRoute.TeachAtOnce &&
                 place.Position.X.Whole < EtecoonRouteDefinitions.LongRunMaximumX
                     ? EtecoonAction.WaitForSamusBeforeLongRun
                     : EtecoonAction.IdleBetweenTeachingJumps;
@@ -525,7 +527,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             // The count empties before the teach-at-once route is tested, so that route hops lesson after lesson.
             state.TeachingHops = 0;
         }
-        if (lessonContinues || state.Route == EtecoonRoute.TeachAtOnce)
+        if (lessonContinues || place.SpawnSettings<EtecoonSpawnSettings>().Route == EtecoonRoute.TeachAtOnce)
         {
             state.Action = EtecoonAction.TeachingJump;
             state.Playback = new(EtecoonAnimations.StartingWith(EtecoonSegment.ContinueHoppingFacingLeft), AnimationPlace.StartOfAnimation);

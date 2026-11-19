@@ -32,9 +32,11 @@ public sealed class AlcoonEnemyState
     /// </summary>
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
 
-
-    /// <summary>The floor-aligned position the complete initialization jump lands at: the spawn X and the landing Y.</summary>
-    public Position16<RoomPixels> LandingPosition { get; internal set; }
+    /// <summary>
+    /// The floor row the complete initialization jump lands on (#2531): Samus must come within the emerging distance of it,
+    /// vertically, to wake the Alcoon.
+    /// </summary>
+    public int LandingY { get; internal set; }
 
     /// <summary>The walk cycles, each of four strides, the Alcoon still walks before another fire volley.</summary>
     public int WalkCyclesBeforeVolley { get; internal set; }

@@ -54,7 +54,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
             Health = 999,
             MaxHealth = 999,
             Pose = SamusPoseId.FacingRightNormalPose,
-            Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(actor.Position.X.Whole + 1)), state.LandingPosition.Y)),
+            Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(actor.Position.X.Whole + 1)), state.LandingY)),
         };
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
@@ -82,7 +82,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
             }
 
             samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(actor.Position.X.Whole +
-                (state.WalkingDirection == HorizontalDirection.Left ? -32 : 32))), state.LandingPosition.Y));
+                (state.WalkingDirection == HorizontalDirection.Left ? -32 : 32))), state.LandingY));
             foreach (EnemyProjectile projectile in enemies.Projectiles.EnemyProjectiles.Where(
                          projectile => projectile.Kind == RoomEnemyProjectileKind.AlcoonFireball))
             {

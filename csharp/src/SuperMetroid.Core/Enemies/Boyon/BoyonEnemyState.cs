@@ -2,20 +2,14 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Boyon;
 
 /// <summary>
-/// The state of a Boyon: its bounce, its speed and its animation. It scales its bounce curve by its spawn settings'
-/// multiplier and bounces as high as their jump height, which it reads where it uses them (#2476).
+/// The state of a Boyon: its bounce and its animation. It scales its bounce curve by its spawn settings' multiplier and
+/// bounces as high as their jump height, which it reads where it uses them (#2476); each update's speed is the product
+/// it moves by on that update (#2531).
 /// </summary>
 public sealed class BoyonEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<BoyonSegment> Playback { get; set; }
-
-    /// <summary>
-    /// The latest product of the curve sample and the multiplier, read as a speed each update; the Boyon moves by its whole
-    /// pixels.
-    /// </summary>
-    public UnsignedSixteenSixteen Speed { get; internal set; }
-
 
     /// <summary>
     /// Where the Boyon stands along its bounce curve: rising moves it up one entry an update (<see cref="RiseOneEntry"/>),
@@ -38,12 +32,15 @@ public sealed class BoyonEnemyState
         return CurvePlace.IsPastTheTop;
     }
 
-    /// <summary>Where it stands in its rest-and-bounce cycle (#2432); a freshly loaded Boyon derives its arc first.</summary>
+    /// <summary>
+    /// Where it stands in its rest-and-bounce cycle (#2432), a bounce's rise and fall each a phase of its own (#2531); a
+    /// freshly loaded Boyon derives its arc first.
+    /// </summary>
     public BoyonPhase Phase { get; internal set; }
+
+    /// <summary>Whether the Boyon is bouncing: rising or falling along its arc, its bouncing animation playing.</summary>
+    public bool IsBouncing => Phase is BoyonPhase.Rising or BoyonPhase.Falling;
 
     /// <summary>The place along the curve at which falling reaches the spawn-height baseline, derived on the first update.</summary>
     public BoyonCurvePlace BaselineCurvePlace { get; internal set; }
-
-    /// <summary>The bounce movement the Boyon runs each update.</summary>
-    public BoyonBounceMovement BounceMovement { get; internal set; }
 }

@@ -31,10 +31,6 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
             Heading = place.SpawnSettings<MultiviolaSpawnSettings>().Heading,
         };
         place.SetSpeciesState(state);
-
-        // The speeds along each axis are set as the room loads, before the first update, as each update
-        // sets them again.
-        CalculateMultiviolaVelocityMagnitudes(place, state);
         state.Playback = new(MultiviolaAnimations.StartingWith(MultiviolaSegment.Flying), AnimationPlace.StartOfAnimation);
     }
 
@@ -44,17 +40,13 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
         MultiviolaEnemyState state,
         RoomLevelData level)
     {
-        // Each update sets the speeds along each axis afresh from the heading the bounces turn; a bounce turns the
-        // heading, never the velocity.
-        CalculateMultiviolaVelocityMagnitudes(place, state);
-
-        // The products are magnitudes; the signs of the heading's cosine and sine give each axis its direction.
+        // Each update takes the speeds along each axis afresh from the heading the bounces turn (#2531). The products are
+        // magnitudes; the signs of the heading's cosine and sine give each axis its direction.
+        int speed = place.SpawnSettings<MultiviolaSpawnSettings>().Speed;
+        SignedSixteenSixteen horizontalDisplacement = EnemyMath.AbsoluteCosineSpeed(state.Heading, speed).AsDisplacement();
         if (!EnemyMath.CosineIsNegative(state.Heading))
-        {
-            TurnLeftOrUp(state, Axis.Horizontal);
-        }
+            horizontalDisplacement = MultiviolaLeftOrUpSpeed.Of(horizontalDisplacement);
 
-        SignedSixteenSixteen horizontalDisplacement = state.Velocity.X;
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 place,
@@ -67,36 +59,13 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
+        // The wall test left the heading as it was, so the vertical speed is the one this update's heading gives.
+        SignedSixteenSixteen verticalDisplacement = EnemyMath.AbsoluteSineSpeed(state.Heading, speed).AsDisplacement();
         if (!EnemyMath.SineIsNegative(state.Heading))
-            TurnLeftOrUp(state, Axis.Vertical);
+            verticalDisplacement = MultiviolaLeftOrUpSpeed.Of(verticalDisplacement);
 
-        SignedSixteenSixteen verticalDisplacement = state.Velocity.Y;
         if (_terrain.MoveEnemyVertically(level, place, verticalDisplacement))
             state.Heading = MultiviolaQuarterBounce.OffFloorOrCeiling(state.Heading);
-    }
-
-    /// <summary>
-    /// Sets the Multiviola's speed along each axis from its heading and its spawn settings' speed in whole pixels per
-    /// update, without direction: the heading's signs turn each speed left or up before it moves.
-    /// </summary>
-    private static void CalculateMultiviolaVelocityMagnitudes(RoomEnemyPlace place, MultiviolaEnemyState state)
-    {
-        int magnitude = place.SpawnSettings<MultiviolaSpawnSettings>().Speed;
-        state.Velocity = new FixedVector<RoomPixels>(
-            EnemyMath.AbsoluteCosineSpeed(state.Heading, magnitude).AsDisplacement(),
-            EnemyMath.AbsoluteSineSpeed(state.Heading, magnitude).AsDisplacement());
-    }
-
-    /// <summary>Turns the Multiviola's speed along <paramref name="axis"/> leftward or upward (<see cref="MultiviolaLeftOrUpSpeed"/>).</summary>
-    private static void TurnLeftOrUp(MultiviolaEnemyState state, Axis axis)
-    {
-        if (axis == Axis.Horizontal)
-        {
-            state.Velocity = state.Velocity.WithX(MultiviolaLeftOrUpSpeed.Of(state.Velocity.X));
-            return;
-        }
-
-        state.Velocity = state.Velocity.WithY(MultiviolaLeftOrUpSpeed.Of(state.Velocity.Y));
     }
 
     /// <summary>Advances Multiviola's typed animation.</summary>

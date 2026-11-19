@@ -67,7 +67,6 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         place.SetSpeciesState(state);
 
         state.ActionTimer = 0;
-        state.Falling = false;
         state.AttachedToSamus = false;
         state.ButtonCounter = BeetomMotionDefinitions.MashCount;
         state.LastSeenPlayerActions = controllerInput;
@@ -135,14 +134,29 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             case BeetomAction.Crawling:
                 RunBeetomCrawl(place, state, level, state.Heading);
                 return;
-            case BeetomAction.ShortHop:
-                RunBeetomArc(place, state, level, state.Heading, BeetomArcKind.Hop, risingDelta: BeetomMotionDefinitions.ShortHopMarks, fallingDelta: BeetomMotionDefinitions.ShortHopMarks);
+            case BeetomAction.ShortHopRising:
+                RiseBeetom(place, state, level, BeetomMotionDefinitions.ShortHopMarks, fall: BeetomAction.ShortHopFalling);
+                MoveBeetomAcrossArc(place, state, level, state.Heading, BeetomArcKind.Hop);
                 return;
-            case BeetomAction.LongHop:
-                RunBeetomArc(place, state, level, state.Heading, BeetomArcKind.Hop, risingDelta: BeetomMotionDefinitions.LongHopMarks, fallingDelta: BeetomMotionDefinitions.LongHopMarks);
+            case BeetomAction.ShortHopFalling:
+                FallBeetom(place, state, level, BeetomMotionDefinitions.ShortHopMarks);
+                MoveBeetomAcrossArc(place, state, level, state.Heading, BeetomArcKind.Hop);
                 return;
-            case BeetomAction.Lunge:
-                RunBeetomArc(place, state, level, state.Heading, BeetomArcKind.Lunge, risingDelta: BeetomMotionDefinitions.LungeRisingMarks, fallingDelta: BeetomMotionDefinitions.LungeFallingMarks);
+            case BeetomAction.LongHopRising:
+                RiseBeetom(place, state, level, BeetomMotionDefinitions.LongHopMarks, fall: BeetomAction.LongHopFalling);
+                MoveBeetomAcrossArc(place, state, level, state.Heading, BeetomArcKind.Hop);
+                return;
+            case BeetomAction.LongHopFalling:
+                FallBeetom(place, state, level, BeetomMotionDefinitions.LongHopMarks);
+                MoveBeetomAcrossArc(place, state, level, state.Heading, BeetomArcKind.Hop);
+                return;
+            case BeetomAction.LungeRising:
+                RiseBeetom(place, state, level, BeetomMotionDefinitions.LungeRisingMarks, fall: BeetomAction.LungeFalling);
+                MoveBeetomAcrossArc(place, state, level, state.Heading, BeetomArcKind.Lunge);
+                return;
+            case BeetomAction.LungeFalling:
+                FallBeetom(place, state, level, BeetomMotionDefinitions.LungeFallingMarks);
+                MoveBeetomAcrossArc(place, state, level, state.Heading, BeetomArcKind.Lunge);
                 return;
             case BeetomAction.Draining:
                 RunBeetomDrain(place, state, samus, level, controllerInput, side: state.Heading);
@@ -196,11 +210,10 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         state.YSpeedCurvePlace = initialYSpeedCurvePlace;
         state.Begin(length switch
         {
-            BeetomHopLength.Short => BeetomAction.ShortHop,
-            BeetomHopLength.Long => BeetomAction.LongHop,
+            BeetomHopLength.Short => BeetomAction.ShortHopRising,
+            BeetomHopLength.Long => BeetomAction.LongHopRising,
             _ => throw new ArgumentOutOfRangeException(nameof(length), length, "Unknown Beetom hop."),
         }, direction);
-        state.Falling = false;
         SetBeetomAnimation(
             place,
             state,
@@ -217,8 +230,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             : HorizontalDirection.Right;
         state.YSpeedCurvePlace = BeetomLeapDefinitions.Lunge.StartPlace;
         state.Facing = towardSamus;
-        state.Begin(BeetomAction.Lunge, towardSamus);
-        state.Falling = false;
+        state.Begin(BeetomAction.LungeRising, towardSamus);
         SetBeetomAnimation(
             place,
             state,
@@ -248,7 +260,6 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Facing == HorizontalDirection.Right
                 ? BeetomSegment.CrawlingRight
                 : BeetomSegment.CrawlingLeft);
-        state.Falling = false;
         state.Action = BeetomAction.Dropping;
     }
 
@@ -281,18 +292,17 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Begin(BeetomAction.StartCrawling, direction.Reversed());
     }
 
-    /// <summary>Runs vertical arc before horizontal movement even when the first half changes AI state.</summary>
-    private void RunBeetomArc(
+    /// <summary>
+    /// Moves an arc's Beetom toward <paramref name="direction"/> after its rise or fall, even on the update that rise or fall
+    /// changed its action, and drops it at a wall.
+    /// </summary>
+    private void MoveBeetomAcrossArc(
         RoomEnemyPlace place,
         BeetomEnemyState state,
         RoomLevelData level,
         HorizontalDirection direction,
-        BeetomArcKind arc,
-        int risingDelta,
-        int fallingDelta)
+        BeetomArcKind arc)
     {
-        RunBeetomVerticalArc(place, state, level, risingDelta, fallingDelta);
-
         // The horizontal half still runs on the exact frame that vertical collision changes
         // the AI action. That ordering is easy to lose when expressing the two axes
         // as a single combined movement vector.
@@ -306,33 +316,41 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = BeetomAction.StartDropping;
     }
 
-    /// <summary>Advances the ascent's or descent's place along the speed curve and switches state at ceiling or ground contact.</summary>
-    private void RunBeetomVerticalArc(
-        RoomEnemyPlace place,
-        BeetomEnemyState state,
-        RoomLevelData level,
-        int risingDelta,
-        int fallingDelta)
+    /// <summary>
+    /// Raises an arc's Beetom by its place along the speed curve, dropping it at a ceiling; passing the apex moves it on to
+    /// the arc's <paramref name="fall"/> (#2531).
+    /// </summary>
+    /// <param name="place">The Beetom's place.</param>
+    /// <param name="state">The Beetom.</param>
+    /// <param name="level">The room's level data.</param>
+    /// <param name="marks">The arc's rising step along the speed curve.</param>
+    /// <param name="fall">The arc's falling half.</param>
+    private void RiseBeetom(RoomEnemyPlace place, BeetomEnemyState state, RoomLevelData level, int marks, BeetomAction fall)
     {
-        if (!state.Falling)
+        if (_terrain.MoveEnemyVertically(level, place, state.YSpeedCurvePlace.Speed.Negative))
         {
-            if (_terrain.MoveEnemyVertically(level, place, state.YSpeedCurvePlace.Speed.Negative))
-            {
-                state.Action = BeetomAction.StartDropping;
-                return;
-            }
-
-            state.StepRisingSpeed(risingDelta);
+            state.Action = BeetomAction.StartDropping;
             return;
         }
 
+        if (state.StepRisingSpeed(marks))
+            state.Action = fall;
+    }
+
+    /// <summary>Lowers an arc's Beetom by its place along the speed curve; landing ends the arc and asks for a new action.</summary>
+    /// <param name="place">The Beetom's place.</param>
+    /// <param name="state">The Beetom.</param>
+    /// <param name="level">The room's level data.</param>
+    /// <param name="marks">The arc's falling step along the speed curve.</param>
+    private void FallBeetom(RoomEnemyPlace place, BeetomEnemyState state, RoomLevelData level, int marks)
+    {
         if (_terrain.MoveEnemyVertically(level, place, state.YSpeedCurvePlace.Speed.Positive))
         {
             state.Action = BeetomAction.DecideAction;
             return;
         }
 
-        state.StepFallingSpeed(fallingDelta);
+        state.StepFallingSpeed(marks);
     }
 
     /// <summary>Follows Samus until enough input changes occur, then throws Beetom clear of terrain.</summary>

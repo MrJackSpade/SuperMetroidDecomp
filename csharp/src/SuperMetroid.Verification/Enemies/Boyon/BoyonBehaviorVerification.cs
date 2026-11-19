@@ -55,7 +55,7 @@ internal static class BoyonBehaviorVerification
         AssertTrue(bounce.Processing.HasAny(EnemyProcessing.OffScreen), "Boyon bounce processes off screen");
         AssertEqual((SoundEffectId?)BoyonNativeValues.BounceSound,
             bounceSystem.Audio.LatestSound, "Boyon bounce plays its library-two bounce sound");
-        AssertEqual(BoyonPhase.Bouncing, bounceState.Phase, "Boyon bounce permits the movement arc");
+        AssertTrue(bounceState.IsBouncing, "Boyon bounce permits the movement arc");
         Console.WriteLine("  Boyon behavior: the idle and bounce loops with their off-screen, sound and arc cues pass.");
     }
 
@@ -111,24 +111,29 @@ internal static class BoyonBehaviorVerification
             int y = place.Position.Y.Whole;
             for (int update = 0; update < 4 * (baseline + 1); update++)
             {
+                // The original's rise or fall for the next update; a fall that selects the rise has landed, and the next
+                // update, Samus still close by, bounces again (#2531).
+                BoyonPhase expected;
                 if (rising)
                 {
                     y = (y - (Sample(samples, index) * multiplier >> 8)) & 0xffff;
                     index = (index - 1) & 0xffff;
                     rising = (index & 0x8000) == 0;
+                    expected = rising ? BoyonPhase.Rising : BoyonPhase.Falling;
                 }
                 else
                 {
                     index = (index + 1) & 0xffff;
                     y = (y + (Sample(samples, index) * multiplier >> 8)) & 0xffff;
                     rising = unchecked((short)(index - baseline)) >= 0;
+                    expected = rising ? BoyonPhase.Landed : BoyonPhase.Falling;
                 }
 
                 BoyonBehavior.RunBoyonMain(place, state, samus);
                 updates++;
                 string at = $"{context}, update {update}";
                 AssertEqual(y, (int)place.Position.Y.Whole, $"{at}: height");
-                AssertEqual(rising ? BoyonBounceMovement.Rising : BoyonBounceMovement.Falling, state.BounceMovement, $"{at}: rise or fall");
+                AssertEqual(expected, state.Phase, $"{at}: rise, fall or landing");
                 AssertEqual(index == ushort.MaxValue ? BoyonCurvePlaceConstants.PastTheTop : BoyonCurvePlaceConstants.AtEntry(index), state.CurvePlace, $"{at}: place on the curve");
             }
         }

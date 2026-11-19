@@ -9,9 +9,9 @@ internal enum IntroSamusDisplay
     /// <summary>Samus is neither processed nor drawn.</summary>
     Hidden,
 
-    /// <summary>Samus is shown under the cinematic actors, which draw first and so over her.</summary>
-    ActorsFirst,
+    /// <summary>Samus is shown behind the cinematic actors.</summary>
+    BehindActors,
 
-    /// <summary>Samus is shown over the cinematic actors: she and her projectiles draw first.</summary>
-    SamusFirst,
+    /// <summary>Samus and her projectiles are shown in front of the cinematic actors.</summary>
+    InFrontOfActors,
 }

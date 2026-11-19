@@ -1,7 +1,10 @@
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
-/// <summary>The animated parts of a Ceres room's turning floor, each showing one of its own frames at a time (#1626).</summary>
-public enum CeresFloorPart
+/// <summary>
+/// The actors a Ceres room's turning floor shows (#1626, #2573), each one of its own pictures at a time, drawn with the
+/// floor's transform over it: they are not the floor's, which holds only the floor.
+/// </summary>
+public enum CeresFloorActor
 {
     /// <summary>The elevator room's landing platform, alternating its light and dark frames.</summary>
     ElevatorPlatform,

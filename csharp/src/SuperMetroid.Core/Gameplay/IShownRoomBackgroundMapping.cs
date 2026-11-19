@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus.Abilities;
 
@@ -21,10 +20,6 @@ public interface IShownRoomBackgroundMapping<out TResult>
     /// <summary>The value of the scrolling sky's rows.</summary>
     /// <param name="sky">The sky's rows, drawn from its image.</param>
     TResult Sky(SkyPictures sky);
-
-    /// <summary>The value of a boss's body.</summary>
-    /// <param name="body">The body's pictures, placed where they show.</param>
-    TResult BossBody(ShownBossBody body);
 
     /// <summary>The value of the room's library background image.</summary>
     /// <param name="image">The image, repeated across and down.</param>

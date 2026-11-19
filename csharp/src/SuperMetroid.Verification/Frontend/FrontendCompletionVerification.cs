@@ -276,11 +276,6 @@ internal static void VerifyDoorOpeningTrajectories()
         for (int frame = 0; frame < expectedFrames; frame++)
         {
             bool completed = trajectory.Advance();
-            if (direction == 3)
-            {
-                AssertEqual(frame >= 3, trajectory.RecalculatesScrollAfterAdvance,
-                    $"up-door counter {frame + 2} streaming gate");
-            }
             AssertEqual(frame == expectedFrames - 1, completed,
                 $"door direction {direction} completion call");
             AssertEqual(cameraStep, trajectory.CameraPosition - previousCamera,

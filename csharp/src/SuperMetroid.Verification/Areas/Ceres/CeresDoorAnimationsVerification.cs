@@ -40,8 +40,8 @@ internal static class CeresDoorAnimationsVerification
         CeresDoorCueKind.LeftDoorStandsClosed => CeresDoorBehavior.LeftDoorWaitingAnimation,
         CeresDoorCueKind.RidleyRoomDoorWaits => CeresDoorBehavior.RidleyRoomDoorWaitingAnimation,
         CeresDoorCueKind.ElevatorRoomWallAppears => CeresDoorBehavior.ElevatorRoomWallDoorAnimation,
-        CeresDoorCueKind.HandDrawingToRidley or CeresDoorCueKind.MakeIntangible or CeresDoorCueKind.MakeInvisible or
-            CeresDoorCueKind.MakeTangible or CeresDoorCueKind.MakeVisible or CeresDoorCueKind.MakeVisibleAndTakeDrawingBack or
+        CeresDoorCueKind.ShowOverlay or CeresDoorCueKind.MakeIntangible or CeresDoorCueKind.MakeInvisible or
+            CeresDoorCueKind.MakeTangible or CeresDoorCueKind.MakeVisible or CeresDoorCueKind.MakeVisibleAndShowActor or
             CeresDoorCueKind.PlayOpeningSound or _ => throw new InvalidOperationException($"Ceres door cue {kind} starts no animation."),
     };
 }

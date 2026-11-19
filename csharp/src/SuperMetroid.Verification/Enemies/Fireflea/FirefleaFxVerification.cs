@@ -33,7 +33,8 @@ internal static class FirefleaFxVerification
         // Independent transcription of $88:B058/$88:B070. These are deliberately not
         // generated from the production catalog or implementation.
         ushort[] flash = [0, 0x100, 0x200, 0x300, 0x400, 0x500, 0x600, 0x500, 0x400, 0x300, 0x200, 0x100];
-        ushort[] darkness = [0, 0x600, 0xC00, 0x1200, 0x1800, 0x1900, 0xC208];
+        // A sixth death's faint darkness is not kept (#2573); the deepest step holds.
+        ushort[] darkness = [0, 0x600, 0xC00, 0x1200, 0x1800, 0x1900];
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyFirefleaFlashingAlgorithm), () => VerifyFirefleaFlashingAlgorithm(rom));
         Suite(nameof(VerifyFirefleaDarknessAlgorithm), () => VerifyFirefleaDarknessAlgorithm(rom));
@@ -107,17 +108,18 @@ internal static class FirefleaFxVerification
     }
 
     /// <summary>
-    /// Checks the seven darkness steps' fade levels, the sixth death's faint darkness included, against the high byte of
-    /// each cartridge word below its channel bits, which for the sixth death name channels the writes set to the same
-    /// level; the low byte cannot reach the shade because the flash words' low bytes are zero (#1415).
+    /// Checks the six darkness steps' fade levels against the high byte of each cartridge word below its channel bits; the
+    /// low byte cannot reach the shade because the flash words' low bytes are zero (#1415). A sixth death keeps the
+    /// deepest step (#2573).
     /// </summary>
     private static void VerifyFirefleaDarknessAlgorithm(CartridgeImportAddressSpace rom)
     {
-        AssertEqual(7, FirefleaFxDefinitions.DarknessLevels.Length, "Fireflea darkness steps");
+        AssertEqual(6, FirefleaFxDefinitions.DarknessLevels.Length, "Fireflea darkness steps");
         for (int step = 0; step < FirefleaFxDefinitions.DarknessLevels.Length; step++)
             AssertEqual(LittleEndianBytes.HighByte(CartridgeImportSource.Require(rom).ReadCartridgeWord((FirefleaFxDefinitions.DarknessReferenceAddress + step * 2))) & FadeLevelColour.FullLevel,
                 new FirefleaDarkness(step).Level, $"Original Fireflea darkness of step {step}");
-        AssertThrows<ArgumentOutOfRangeException>(() => new FirefleaDarkness(7), "Darkness upper bound");
+        AssertEqual(new FirefleaDarkness(5), new FirefleaDarkness(5).Deeper, "a death past the fifth keeps the deepest darkness");
+        AssertThrows<ArgumentOutOfRangeException>(() => new FirefleaDarkness(6), "Darkness upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => new FirefleaDarkness(-1), "Darkness negative step");
     }
 

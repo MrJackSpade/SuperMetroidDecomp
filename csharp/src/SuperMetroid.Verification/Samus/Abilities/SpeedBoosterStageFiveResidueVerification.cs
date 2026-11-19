@@ -54,7 +54,7 @@ internal static class SpeedBoosterStageFiveResidueVerification
         // The first NMI advances both: capsule phase one, then wing frame one.
         var samus = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus();
         escape.RunGetawayRoomMain(samus, ceresFloor, 0);
-        byte[] expected = NativeQueueImage(bus, CeresFloorAnimationFrame.BabyRound, CeresFloorAnimationFrame.WingsLowered);
+        byte[] expected = NativeQueueImage(bus, CeresFloorActorPicture.BabyRound, CeresFloorActorPicture.WingsLowered);
         AssertStageFive(cadence, stageFiveQueueOffset, expected, "after the getaway queues wing frame one");
 
         // Four NMIs later only the capsule queues; the wing residue at $0303 is untouched.
@@ -64,7 +64,7 @@ internal static class SpeedBoosterStageFiveResidueVerification
         // Eight NMIs in, capsule phase three (frame one again) and wing frame zero queue together.
         escape.RunGetawayRoomMain(samus, ceresFloor, 8);
         AssertStageFive(cadence, stageFiveQueueOffset,
-            NativeQueueImage(bus, CeresFloorAnimationFrame.BabyRound, CeresFloorAnimationFrame.WingsRaised),
+            NativeQueueImage(bus, CeresFloorActorPicture.BabyRound, CeresFloorActorPicture.WingsRaised),
             "after the getaway queues wing frame zero");
         Console.WriteLine("  Speed Booster stage five: takes the delays the Ceres getaway's wings leave at $0303 and keeps them across capsule-only frames.");
     }
@@ -73,13 +73,13 @@ internal static class SpeedBoosterStageFiveResidueVerification
     /// The queue bytes <c>QueueMode7Transfers</c> leaves after one capsule list and one wing list: each descriptor
     /// copied at the running offset, a zero after the last, and the NMI handler's clear of the first word.
     /// </summary>
-    private static byte[] NativeQueueImage(ISnesAddressSpace bus, CeresFloorAnimationFrame capsule, CeresFloorAnimationFrame wing)
+    private static byte[] NativeQueueImage(ISnesAddressSpace bus, CeresFloorActorPicture capsule, CeresFloorActorPicture wing)
     {
         IImportCartridgeSource rom = CartridgeImportSource.Require(bus);
         const int descriptorBytes = 9;
         var image = new byte[QueueBytes];
         int offset = 0;
-        foreach (CeresFloorAnimationFrame list in new[] { capsule, wing })
+        foreach (CeresFloorActorPicture list in new[] { capsule, wing })
         {
             var source = new SnesAddress(0xa6, CeresNativeWords.FloorAnimationFrames.Word(list));
             for (int descriptor = 0; descriptor < CeresFloorDrawingDefinitions.Frames[list].Count; descriptor++, offset += descriptorBytes)

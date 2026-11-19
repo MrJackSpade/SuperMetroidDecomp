@@ -38,7 +38,7 @@ internal static class CeresRidleyBodyPublicationVerification
         escape.BeginGetaway();
         escape.Floor.Angle = RotationAngleConstants.FromRaw(1);
         RotationAngle? previousAngle = null;
-        foreach ((int nmiFrame, CeresFloorAnimationFrame wings) in new[] { new VerifyCeresRidleyBodyPublicationCase(0, CeresFloorAnimationFrame.WingsLowered), new VerifyCeresRidleyBodyPublicationCase(8, CeresFloorAnimationFrame.WingsRaised) })
+        foreach ((int nmiFrame, CeresFloorActorPicture wings) in new[] { new VerifyCeresRidleyBodyPublicationCase(0, CeresFloorActorPicture.WingsLowered), new VerifyCeresRidleyBodyPublicationCase(8, CeresFloorActorPicture.WingsRaised) })
         {
             escape.RunGetawayRoomMain(runtime.Player.IntroducedSamus, runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException("Ridley's arena shows his floor."), nmiFrame);
             runtime.FrameBoundary.BeginAcceptedFrame(0);

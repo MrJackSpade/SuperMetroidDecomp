@@ -4,23 +4,23 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// The door of Ceres Ridley's room (#1953): it attaches itself to Ridley's scene, which draws it while the door's
-/// animation hands its drawing over, and keeps the station's escape quake going through the background and the enemies,
-/// leaving the foreground still.
+/// The door of Ceres Ridley's room (#1953): it shows its actor frames or, while its animation shows it so, its fixed
+/// overlay picture (#2573), and keeps the station's escape quake going through the background and the enemies, leaving
+/// the foreground still.
 /// </summary>
 /// <param name="doors">The room's owner of the Ceres doors and walls.</param>
 /// <param name="place">The place the door occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class CeresRidleyRoomDoorEntity(CeresDoorBehavior doors, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IDrawnByCeresRidleyScene
+    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
     public void Initialize()
     {
         doors.Start(Place, CeresDoorSegment.RidleyRoomDoor);
         Place.SetSpeciesState(new CeresRidleyRoomDoorState());
-        // Ridley's scene draws this door while the door hands its drawing to him (#1877).
-        doors.RidleyScene.AttachRoomDoor(Place);
+        // The room's Ceres doors show this door's overlay while its look is the overlay (#2573).
+        doors.AttachRidleyRoomDoor(Place);
     }
 
     /// <inheritdoc/>
@@ -30,9 +30,8 @@ internal sealed class CeresRidleyRoomDoorEntity(CeresDoorBehavior doors, RoomEne
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, context.Samus);
 
     /// <summary>
-    /// Who draws the door: Ridley's scene from the door's animation handing its drawing over
-    /// (<see cref="CeresDoorCueKind.HandDrawingToRidley"/>) until it takes it back
-    /// (<see cref="CeresDoorCueKind.MakeVisibleAndTakeDrawingBack"/>), otherwise the door itself.
+    /// How the door shows (#2573): its overlay picture from its animation's <see cref="CeresDoorCueKind.ShowOverlay"/>
+    /// until its <see cref="CeresDoorCueKind.MakeVisibleAndShowActor"/>, otherwise its actor frames.
     /// </summary>
-    public CeresRidleyRoomDoorDrawing Drawing => Place.RequireSpeciesState<CeresRidleyRoomDoorState>().Drawing;
+    public CeresRidleyRoomDoorLook Look => Place.RequireSpeciesState<CeresRidleyRoomDoorState>().Look;
 }

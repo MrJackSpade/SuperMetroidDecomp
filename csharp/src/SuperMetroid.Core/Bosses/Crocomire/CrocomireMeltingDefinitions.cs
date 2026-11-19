@@ -12,14 +12,17 @@ internal static class CrocomireMeltingDefinitions
     /// </summary>
     public const int ColumnCount = 49;
 
-    /// <summary>Bands of the first melt image, one eight-pixel row of the image each, shown one per update.</summary>
-    public const int FirstPassBandCount = 6;
+    /// <summary>Bands of each melt image, one eight-pixel row of the image each.</summary>
+    public const int MeltImageBandCount = 6;
+
+    /// <summary>The updates of one round of the first pass's bands: one band shown an update.</summary>
+    public const int FirstPassBandRound = MeltImageBandCount;
 
     /// <summary>
-    /// Bands of the second melt image. Its seventh band shows what follows the image's six eight-pixel rows, as the game
-    /// shows it.
+    /// The updates of one round of the second pass's bands: one band shown an update and, after its six bands, an update
+    /// that shows none, the cadence the bare skull's melt keeps.
     /// </summary>
-    public const int SecondPassBandCount = 7;
+    public const int SecondPassBandRound = MeltImageBandCount + 1;
 
     /// <summary>The slope each pass's distortion starts at: a 256th of a row further behind each line.</summary>
     public static readonly UnsignedSixteenSixteen FirstDistortionSlope = UnsignedSixteenSixteen.FromPixelFraction(1, 256);

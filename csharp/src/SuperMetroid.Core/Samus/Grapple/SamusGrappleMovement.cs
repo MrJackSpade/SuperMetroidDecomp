@@ -939,6 +939,41 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>
+    /// Settles a firing beam's origins once every move of the update is made (#2573): while the beam is firing and its
+    /// flare shows, its rope start and flare follow Samus's final position (<see cref="RefreshFiringOrigins"/>). The
+    /// grapple moved before Samus's ordinary movement, so a running shot would otherwise lag her by an update. Connected
+    /// phases set their exact rope and flare pair during movement.
+    /// </summary>
+    internal static void SettleFiringOrigins(SamusState samus)
+    {
+        SamusGrappleState grapple = Ensure.NotNull(samus).Grapple;
+        if (grapple.Phase == GrapplePhase.Firing && grapple.FlareStage != GrappleFlareStage.None)
+            RefreshFiringOrigins(samus, grapple);
+    }
+
+    /// <summary>
+    /// Recomputes a firing beam's rope start and flare from Samus's final pose and position, the rope start at her
+    /// projectile height and the flare at her picture's art origin.
+    /// </summary>
+    internal static void RefreshFiringOrigins(
+        SamusState samus,
+        SamusGrappleState grapple)
+    {
+        bool useRunOffsets = SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Running;
+        var origin = GrappleFiring.Origin(grapple.FireDirection, useRunOffsets);
+        var flare = ReadFlareOrigin(grapple, grapple.FireDirection, useRunOffsets);
+        int artOrigin = SamusPoseMetadata.ReadArtOrigin(samus);
+        int physicalYOffset = SamusPoseTraits.Of(samus.Pose).ProjectileHeight;
+
+        // Recompute from the final pose/position, not cached launch offsets. The rope start and the flare remain separate
+        // coordinate pairs.
+        grapple.RopeStart = samus.Position.Whole + new Offset16<RoomPixels>(
+            origin.X, origin.Y - physicalYOffset);
+        grapple.FlareOrigin = samus.Position.Whole + new Offset16<RoomPixels>(
+            flare.X, flare.Y - artOrigin);
+    }
+
+    /// <summary>
     /// The direction of <paramref name="delta"/> as an angle, worked out in whole numbers one octant at a time.
     /// The returned angle is measured clockwise from negative Y: zero up, 64 right, 128 down,
     /// and 192 left. Each octant's steps are truncated toward zero, as the game's are.

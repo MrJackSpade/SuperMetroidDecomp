@@ -49,11 +49,12 @@ internal static class SpeedBoosterEchoDrawVerification
         echoes.FinalizeFrame();
         SpriteDraw[] drawn = [.. echoes.Draws.Where(draw => draw.Source.Kind == SpriteSourceKind.SamusEcho)];
         AssertEqual(2, drawn.Length, "both echoes are published, though neither lies in the view");
-        AssertEqual(Offset16<ScreenPixels>.Wrapped(below.X - camera.X, below.Y - artOrigin - camera.Y),
-            drawn[0].Origin, "the second echo, below the view, is drawn first, where it lies");
+        // The echoes are drawn in their own order, the first before the second (#2573).
         AssertEqual(Offset16<ScreenPixels>.Wrapped(above.X - camera.X, above.Y - artOrigin - camera.Y),
-            drawn[1].Origin, "the first echo, above the view, is drawn second, where it lies");
-        AssertTrue(CoordinateAxis.AsSigned(drawn[1].Origin.Y) < 0 && drawn[0].Origin.Y >= 224,
+            drawn[0].Origin, "the first echo, above the view, is drawn first, where it lies");
+        AssertEqual(Offset16<ScreenPixels>.Wrapped(below.X - camera.X, below.Y - artOrigin - camera.Y),
+            drawn[1].Origin, "the second echo, below the view, is drawn second, where it lies");
+        AssertTrue(CoordinateAxis.AsSigned(drawn[0].Origin.Y) < 0 && drawn[1].Origin.Y >= 224,
             "one echo lies above the view's top and the other below its bottom");
         Console.WriteLine("Speed Booster echoes: published above and below the view for the display to clip.");
     }

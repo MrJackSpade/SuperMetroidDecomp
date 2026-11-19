@@ -11,10 +11,9 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 /// </summary>
 /// <param name="Plane">The room's background plane, when the background shows it.</param>
 /// <param name="Sky">The sky's rows, when the background shows them.</param>
-/// <param name="Body">A boss's body, when the background shows it.</param>
 /// <param name="Reveal">The X-ray's reveal, when the background shows it.</param>
 /// <param name="Image">The room's library background image, when the background shows it.</param>
-internal readonly record struct D3D11BackgroundSlots(RoomBackgroundLayer? Plane, SkyPictures? Sky, ShownBossBody? Body, XrayRevealPlane? Reveal,
+internal readonly record struct D3D11BackgroundSlots(RoomBackgroundLayer? Plane, SkyPictures? Sky, XrayRevealPlane? Reveal,
     RoomBackgroundImagePlane? Image)
 {
     /// <summary>The slots of each kind of background.</summary>
@@ -31,9 +30,6 @@ internal readonly record struct D3D11BackgroundSlots(RoomBackgroundLayer? Plane,
 
         /// <inheritdoc/>
         public D3D11BackgroundSlots Sky(SkyPictures sky) => new() { Sky = sky };
-
-        /// <inheritdoc/>
-        public D3D11BackgroundSlots BossBody(ShownBossBody body) => new() { Body = body };
 
         /// <inheritdoc/>
         public D3D11BackgroundSlots LibraryImage(RoomBackgroundImagePlane image) => new() { Image = image };

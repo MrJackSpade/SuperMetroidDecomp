@@ -23,12 +23,12 @@ internal static class CrocomireMeltFrameSelectionVerification
     internal static void VerifyCrocomireMeltFrameSelection()
     {
         var fixture = new EnemyEffectsFixtureVerification.CrocomireEffectFixture(EnemyEffectsFixtureVerification.MeltEffectArtwork());
-        var expected = new (CrocomireMeltingIllustration Pass, int Step)?[CrocomireMeltingDefinitions.SecondPassBandCount];
+        var expected = new (CrocomireMeltingIllustration Pass, int Step)?[CrocomireMeltingDefinitions.MeltImageBandCount];
         int updates = 0;
         foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
         {
-            int bands = pass == CrocomireMeltingIllustration.Flesh
-                ? CrocomireMeltingDefinitions.FirstPassBandCount : CrocomireMeltingDefinitions.SecondPassBandCount;
+            // A round shows the image's six bands, and the bare skull's one more update that shows none (#2573).
+            int bands = CrocomireMelting.BandRound(pass);
             fixture.InitializeMap(pass);
             fixture.Call(c => state => c.Melting.BeginCrocomireMeltPass(state, pass));
             AssertBands(fixture, expected, $"{pass} pass begins");
@@ -38,7 +38,7 @@ internal static class CrocomireMeltFrameSelectionVerification
             {
                 fixture.Call(_ => CrocomireMelting.ShowNextCrocomireMeltBand);
                 updates++;
-                if (update <= bands)
+                if (update <= CrocomireMeltingDefinitions.MeltImageBandCount)
                     expected[update - 1] = (pass, 0);
                 AssertEqual(update <= bands ? showing : showing.Following, fixture.Actor.DeathStage,
                     $"{pass} band update {update} phase");
@@ -55,7 +55,8 @@ internal static class CrocomireMeltFrameSelectionVerification
                 if (step < CrocomireMeltingDefinitions.ColumnCount)
                 {
                     step++;
-                    expected[(step - 1) % bands] = (pass, step);
+                    if ((step - 1) % bands < CrocomireMeltingDefinitions.MeltImageBandCount)
+                        expected[(step - 1) % bands] = (pass, step);
                 }
                 AssertEqual(step, fixture.Effect.MeltColumnsErased, $"{pass} dissolve update {step} columns erased");
                 AssertBands(fixture, expected, $"{pass} dissolve update");

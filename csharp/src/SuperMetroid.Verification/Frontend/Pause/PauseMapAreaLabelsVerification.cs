@@ -69,16 +69,17 @@ internal static class PauseMapAreaLabelsVerification
                 $"; object {differs / 4} emitted {Convert.ToHexString(emitted, differs / 4 * 4, 4)}, native {Convert.ToHexString(native.LowTable.Slice(differs / 4 * 4, 4))}"));
             AssertLabels(start, "stable map");
             pause.AdvanceAnimations(0, PauseAnimationPhase.FadingOut); _ = pause.CaptureRenderSnapshot();
-            AssertLabels(0, "outer unpause fade-out");
+            // The labels keep the stable map's layering through every fade (#2573).
+            AssertLabels(start, "outer unpause fade-out");
             LayeredScene beforeRestore = pause.CaptureRenderSnapshot();
             // The capture names the installed content by path, as a host's store does, instead of copying it (#1532).
             pause = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(pause);
             pause.BindFixtureArtwork(RetailPresentationFixture());
-            AssertTrue(ScenePixels.Same(beforeRestore, pause.CaptureRenderSnapshot()), "restoring preserves destination-label fade priority");
+            AssertTrue(ScenePixels.Same(beforeRestore, pause.CaptureRenderSnapshot()), "restoring preserves the destination labels' layering");
             pause.Step(ControllerButton.R, 0); _ = pause.CaptureRenderSnapshot();
             AssertLabels(pause.screen.Sprites.LastFinalizedSpriteCount * 4 - labelBytes, "R input stable-map dispatch");
             pause.Step(0, 0); _ = pause.CaptureRenderSnapshot();
-            AssertLabels(0, "map-to-equipment fade-out");
+            AssertLabels(pause.screen.Sprites.LastFinalizedSpriteCount * 4 - labelBytes, "map-to-equipment fade-out");
             for (int frame = 0; frame < 29; frame++) pause.Step(0, 0);
             _ = pause.CaptureRenderSnapshot();
             AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "equipment page reached");

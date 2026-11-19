@@ -131,12 +131,8 @@ internal sealed class EnemyFramePhase
             // cleared as the elevator updated; clearing her bombs and the shared cooldown here completes it.
             room.BombProjectiles.Reset();
         }
-        // Ceres Ridley draws the Baby and door over every enemy only once his animation
-        // starts. Before the reveal he draws them directly
-        // during the enemy pass, so emit the Baby/door sprites now, before queued enemy layers.
-        room.Enemies.Ceres.DrawCeresRidleyImmediateBabyAndDoor(
-            _sprites,
-            room.Camera.PixelPosition);
+        // Until Ceres Ridley's animation starts, his Baby's animation runs as the enemy pass ends.
+        room.Enemies.Ceres.StepCeresBabyWithEnemyPass();
         samus.Kinematics.InteractiveEnemies = room.Enemies.InteractiveCollisionBodies;
         if (result.Reports(GunshipFrameEvent.EntryStarted))
         {

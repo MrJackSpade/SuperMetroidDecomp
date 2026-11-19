@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
@@ -58,8 +59,14 @@ internal static class RoomFloorSheetComposer
         }
         if (!FloorSheetComposer.ShowsAnything(RoomFloorSheet.FloorFrameName, map, pixels))
             throw new InvalidDataException($"No cell of floor {RoomFloorSheet.FloorFrameName} shows anything.");
-        return FloorSheetComposer.ComposeRoom(
-            [FloorSheetComposer.Whole(RoomFloorSheet.FloorFrameName, map, pixels), .. CeresFloorDrawings.Pictures(map, pixels)],
+        // The floor holds only the floor (#2573): where an actor rests on it, as the room's map pictures one of the actor's
+        // pictures, it shows nothing, and the actor shows that picture there, installed as its resting picture.
+        IReadOnlyDictionary<CeresFloorActor, CeresFloorActorPicture> resting = CeresFloorDrawings.Resting(map);
+        FloorSheetComposer.FloorPicture whole = FloorSheetComposer.Whole(RoomFloorSheet.FloorFrameName, map, pixels)
+            with { Cleared = resting.Values.SelectMany(CeresFloorDrawings.Covered).ToHashSet() };
+        return FloorSheetComposer.ComposeRoom([whole, .. CeresFloorDrawings.Pictures(map, pixels),
+            .. CeresFloorActors.DrawingOrder.Where(resting.ContainsKey)
+                .Select(actor => CeresFloorDrawings.Picture(resting[actor], map, pixels) with { Name = RoomFloorSheet.RestingNameOf(resting[actor]) })],
             colours);
     }
 }

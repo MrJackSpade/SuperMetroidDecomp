@@ -46,9 +46,6 @@ internal sealed class DoorOpeningScrollState
     /// <summary>Exact camera endpoint published after the scroll's final update.</summary>
     public Position16<RoomPixels> FinalCameraPosition { get; }
 
-    /// <summary>Whether the just-advanced update recomputes the layer scrolls; upward doors delay their first updates.</summary>
-    public bool RecalculatesScrollAfterAdvance { get; private set; } = true;
-
     /// <summary>
     /// Builds the setup position and the scroll's trajectory from a door and its destination camera and background
     /// positions; the background's endpoint is reached through directional four-pixel steps.
@@ -140,10 +137,7 @@ internal sealed class DoorOpeningScrollState
         BackgroundPosition += LayerStep<BackgroundPixels>(Direction);
         SamusPosition = SamusPosition.Advance(SamusScrollStep);
 
-        bool finished = Scroll.Count();
-        RecalculatesScrollAfterAdvance = Direction != DoorDirection.Up ||
-            Scroll.Age > DoorOpeningScrollDefinitions.UpwardUpdatesBeforeScrollRecalculation;
-        return finished;
+        return Scroll.Count();
     }
 
     /// <summary>

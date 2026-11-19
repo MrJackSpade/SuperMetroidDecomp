@@ -235,8 +235,8 @@ public sealed class KraidEnemyState
     internal void ShowBody() => BodyShown = true;
 
     /// <summary>
-    /// True while Kraid's body layer stands in for the room's background layer behind the level: his two-by-two-screen
-    /// body layer from his room's load, and after his death the hidden layer for the rest of the visit (#1427).
+    /// True while the room shows Kraid's body layer behind the level: from his room's load until his sunk body is hidden,
+    /// when the room's own background shows (#2573).
     /// </summary>
     public bool ShowsBodyLayer { get; internal set; }
 

@@ -315,7 +315,7 @@ internal static class LookupStream5Verification
         IndexedPng.Write(png,size,pixels,SnesGraphics.DiagnosticPalette(16));
         byte[] pngBytes = png.ToArray();
         var stock = CeresDoorVisualFiles.Read(new MemoryStream(pngBytes),new MemoryStream(CeresDoorVisualFiles.Write(document)));
-        CeresFloorAnimationFrame[] strips = [CeresFloorAnimationFrame.ElevatorLight, CeresFloorAnimationFrame.ElevatorDark];
+        CeresFloorActorPicture[] strips = [CeresFloorActorPicture.ElevatorLight, CeresFloorActorPicture.ElevatorDark];
         for (int frame = 0; frame < strips.Length; frame++)
         {
             IReadOnlyDictionary<int, int> cells = CeresFloorDrawings.Cells(strips[frame]);
@@ -334,7 +334,7 @@ internal static class LookupStream5Verification
         {
             places[0].FrameCounter = tick;
             places[0].ElevatorDoor().RunMainAi(aiFrame);
-            AssertEqual(strips[(tick & 2) >> 1], floor.Shown[CeresFloorPart.ElevatorPlatform], "Actual platform phase draws its strip over the floor");
+            AssertEqual(strips[(tick & 2) >> 1], floor.Shown[CeresFloorActor.ElevatorPlatform], "Actual platform phase draws its strip over the floor");
         }
         string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1",content =>
         {
@@ -439,7 +439,7 @@ internal static class LookupStream5Verification
             int count = ReadVerificationWord(rom, 0xa6c15d) / sizeof(ushort);
             // The getaway writes the title's picture by name (#1466); the words it stands for are the page's.
             System.Collections.Immutable.ImmutableArray<int> shownWords = system.CeresEscape.Warning.Overlay.WordsIn(result);
-            AssertEqual(count, shownWords.Count(word => word != RoomWrittenOverlay.Unwritten), "Native emergency word extent");
+            AssertEqual(count, shownWords.Count(word => word != RoomWarningText.Unwritten), "Native emergency word extent");
             AssertEqual(source.Pages["emergency"].Length, count, "Emergency page keeps its native extent");
             for (int index = 0; index < count; index++)
                 AssertEqual(source.Pages["emergency"][index].PackedWord, shownWords[first + index], "Actual shown emergency words");
@@ -1604,8 +1604,8 @@ internal static class LookupStream5Verification
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
         var door = enemies.Places.InUpdateOrder[1];
         door.BindCeresDoorOrWall(EnemyDefinitionId.CeresRidleyRoomDoor, EnemySpawnSettings.None);
-        ((SuperMetroid.Core.Areas.Ceres.ICeresRidleyScene)enemies.RidleyEncounter).AttachRoomDoor(door);
-        door.SetSpeciesState(new CeresRidleyRoomDoorState { Drawing = SuperMetroid.Core.Areas.Ceres.CeresRidleyRoomDoorDrawing.ByRidleysScene });
+        enemies.CeresDoorBehavior.AttachRidleyRoomDoor(door);
+        door.SetSpeciesState(new CeresRidleyRoomDoorState { Look = SuperMetroid.Core.Areas.Ceres.CeresRidleyRoomDoorLook.Overlay });
         door.Position = door.Position.WithWholeY(80);
         foreach (ushort x in new ushort[] { 0, 1, 3, 255, 256, 511, ushort.MaxValue })
         foreach (ushort camera in new ushort[] { 0, ushort.MaxValue })
@@ -1613,7 +1613,7 @@ internal static class LookupStream5Verification
         {
             door.Position = door.Position.WithWholeX(x); enemies.Earthquake.Start(NativeEarthquakeTypes.Shake(29), phase);
             var actual = new OamBuffer(); actual.BeginFrame();
-            actual.AppendDrawn(frame => enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(frame, new(camera, 0))); actual.FinalizeFrame();
+            actual.AppendDrawn(frame => enemies.CeresDoorBehavior.PublishRidleyRoomDoorOverlay(frame, new(camera, 0))); actual.FinalizeFrame();
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6a321 + phase * 2);
             AssertEqual(unchecked((short)native), CeresDoorQuake.XOffset(phase),
                 "Quake offset is the authored word of its phase");

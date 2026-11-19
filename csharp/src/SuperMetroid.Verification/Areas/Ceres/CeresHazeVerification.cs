@@ -37,7 +37,8 @@ internal static class CeresHazeVerification
         // Visible last-written amplitudes, not the next counter. These are original
         // trace evidence; do not replace them with the production counter formula.
         int[] entering = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-        int[] leaving = [16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
+        // The fade-out's first update shows full strength, not one step past it (#2573).
+        int[] leaving = [15, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
         foreach (bool dead in new[] { false, true })
         foreach (bool immediate in new[] { false, true })
         {
@@ -64,7 +65,7 @@ internal static class CeresHazeVerification
             foreach (int expected in leaving)
             {
                 haze.StepWhileRoomFadesIn();
-                AssertEqual(expected, haze.Strength.FadeSteps, "Native fade-out writes before decrement");
+                AssertEqual(expected, haze.Strength.FadeSteps, "the fade-out shows its counter, within the haze's range");
             }
             haze.Step();
             haze.StepWhileRoomFadesIn();

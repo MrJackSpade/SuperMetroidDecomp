@@ -112,8 +112,9 @@ internal static class ProjectileSheetComposer
         {
             frames.Add(new(ProjectileSheetFrames.FlareFrame(composition), artwork.Compositions.Flares.Frame(composition), page));
         }
+        // A trail sparkle's picture is placed by its centre, where the sparkle is (#2573).
         foreach (ProjectileTrailFrame pose in TrailFrames)
-            frames.Add(new(ProjectileSheetFrames.TrailFrame(pose), SpritePartFrames.SmallObject(artwork.Compositions.Trails.Resolve(pose), 0), page));
+            frames.Add(new(ProjectileSheetFrames.TrailFrame(pose), SpritePartFrames.CentredSmallObject(artwork.Compositions.Trails.Resolve(pose), 0), page));
         // The burst is one of Samus's weapon effects: it is pictured over the combination's page in her beams' colours, and
         // shows her beams' current colouring through the sheet's shades as her other beam pictures do.
         foreach (ProjectileSpriteId composition in HitBursts(sheet))

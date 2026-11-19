@@ -91,15 +91,20 @@ internal static class OrdinarySmokeTests
         }
         // A boss body (#1352) drawn from its pictures (#1403) at the 64x64 map its registers select, with and without HDMA
         // scrolls.
-        var boss = rooms with
-        {
-            Background = new SuperMetroid.Core.Gameplay.BossBodyBackground(RoomBackgroundsFixtures.SeededBody(random, colors, 128, new Extent16<BackgroundPixels>(512, 512))),
-        };
+        ShownBossBody seededBoss = RoomBackgroundsFixtures.SeededBody(random, colors, 128, new Extent16<BackgroundPixels>(512, 512));
+        var boss = rooms with { Background = SuperMetroid.Core.Gameplay.ShownRoomBackground.Nothing };
         for (int hdma = 0; hdma < 4; hdma++)
         {
             var registers = new GameplaySceneView(new Offset16<RoomPixels>(511, 255), new Offset16<BackgroundPixels>(-1, 511),
-                ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
-            var layer = new GameplaySceneLayer(registers, boss, new BackgroundLineScrolls { Horizontal = (hdma & 1) != 0 ? x : null, Vertical = (hdma & 2) != 0 ? y : null });
+                ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.BossBody | ScreenLayers.Sprites);
+            var layer = new GameplaySceneLayer(registers, boss)
+            {
+                BossBody = new BossBodyView(seededBoss, registers.BackgroundScroll)
+                {
+                    Horizontal = (hdma & 1) != 0 ? x : null,
+                    Vertical = (hdma & 2) != 0 ? y : null,
+                },
+            };
             count++;
             var frame = new DisplayPacket(0, new LayeredScene(memory, new DisplayLayer[] { layer }, 15));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
@@ -111,19 +116,19 @@ internal static class OrdinarySmokeTests
             var shown = new GameplaySceneView(new Offset16<RoomPixels>(511, 255), new Offset16<BackgroundPixels>(-1, 511),
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
             var hidden = shown with { ShownLayers = ScreenLayers.Foreground | ScreenLayers.Sprites };
-            var nothing = rooms with { Background = SuperMetroid.Core.Gameplay.ShownRoomBackground.Nothing, BackgroundText = null };
+            var nothing = rooms with { Background = SuperMetroid.Core.Gameplay.ShownRoomBackground.Nothing, Warning = null };
             DisplayPacket Frame(GameplaySceneView view, SuperMetroid.Core.Gameplay.RoomBackgrounds shownRooms) =>
                 new(0, new LayeredScene(memory, new DisplayLayer[] { new GameplaySceneLayer(view, shownRooms, default) }, 15));
             count++;
-            PixelComparison.Verify(Frame(shown, nothing), renderer.RenderForReadback(Frame(hidden, rooms with { BackgroundText = null })),
+            PixelComparison.Verify(Frame(shown, nothing), renderer.RenderForReadback(Frame(hidden, rooms with { Warning = null })),
                 renderer.RenderForReadback(Frame(shown, nothing)), $"{device.Kind}: ordinary {count}, a background showing nothing");
-            var written = nothing with { BackgroundText = RoomBackgroundsFixtures.SeededPicturedOverlay(random, colors) };
+            var written = nothing with { Warning = RoomBackgroundsFixtures.SeededPicturedOverlay(random, colors, RoomWarningDepth.WithBackground) };
             count++;
             PixelComparison.Verify(Frame(shown, written), DisplayRendering.Render(Frame(shown, written)), renderer.RenderForReadback(Frame(shown, written)),
                 $"{device.Kind}: ordinary {count}, words written over a background showing nothing");
         }
         // Words written over BG2 drawn from their pictures (#1392), some still from their characters, over each BG2 map size.
-        var typed = pictured with { BackgroundText = RoomBackgroundsFixtures.SeededPicturedOverlay(random, colors) };
+        var typed = pictured with { Warning = RoomBackgroundsFixtures.SeededPicturedOverlay(random, colors, RoomWarningDepth.WithBackground) };
         foreach (var geometry in new[] { new OrdinarySmokeRunCase(64, 32), new OrdinarySmokeRunCase(32, 64) })
         {
             var registers = new GameplaySceneView(new Offset16<RoomPixels>(511, 255), new Offset16<BackgroundPixels>(-1, 511),
@@ -136,7 +141,7 @@ internal static class OrdinarySmokeTests
         }
         // Words written over BG1 drawn from their pictures (#1392), as the Ceres escape's warning is, some still from their
         // characters.
-        var warned = pictured with { ForegroundText = RoomBackgroundsFixtures.SeededPicturedOverlay(random, colors) };
+        var warned = pictured with { Warning = RoomBackgroundsFixtures.SeededPicturedOverlay(random, colors, RoomWarningDepth.WithForeground) };
         {
             var registers = new GameplaySceneView(new Offset16<RoomPixels>(511, 255), new Offset16<BackgroundPixels>(-1, 511),
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
@@ -166,7 +171,11 @@ internal static class OrdinarySmokeTests
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
             DisplayPacket Frame(ShownBossBodyPart part) => new(0, new LayeredScene(memory, new DisplayLayer[]
             {
-                new GameplaySceneLayer(registers, rooms with { Background = new SuperMetroid.Core.Gameplay.BossBodyBackground(new ShownBossBody(seeded.Parts.SetItem(0, part))) }, default),
+                new GameplaySceneLayer(registers with { ShownLayers = registers.ShownLayers | ScreenLayers.BossBody },
+                    rooms with { Background = SuperMetroid.Core.Gameplay.ShownRoomBackground.Nothing })
+                {
+                    BossBody = new BossBodyView(new ShownBossBody(seeded.Parts.SetItem(0, part)), registers.BackgroundScroll),
+                },
             }, 15));
             count++;
             DisplayPacket frame = Frame(masked);

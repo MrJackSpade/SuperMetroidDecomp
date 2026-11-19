@@ -46,27 +46,31 @@ internal static class CeresMode7MapVerification
             {
                 int tile = map[y / 8 * (FloorSheetComposer.SidePixels / 8) + x / 8];
                 int expected = pixels[tile * 64 + y % 8 * 8 + x % 8];
-                bool within = x >= left && x < left + first.Image.Size.X && y >= top && y < top + first.Image.Size.Y;
+                // An actor resting on the floor shows its own picture where it stands, which the floor leaves clear (#2573).
+                SpriteSheetFrame shownAt = FrontmostAt(first, x, y);
+                int shownLeft = -shownAt.Origin.X, shownTop = -shownAt.Origin.Y;
+                bool within = x >= shownLeft && x < shownLeft + shownAt.Size.X && y >= shownTop && y < shownTop + shownAt.Size.Y;
                 int painted = within
-                    ? InstalledPictureColoursConstants.ComposedIndexAt(image, (first.Image.Corner.Y + y - top) * image.Size.X + first.Image.Corner.X + x - left)
+                    ? InstalledPictureColoursConstants.ComposedIndexAt(shownAt.Sheet, (shownAt.Corner.Y + y - shownTop) * shownAt.Sheet.Size.X + shownAt.Corner.X + x - shownLeft)
                     : 0;
                 if (painted != expected)
                     mismatches++;
             }
         }
-        AssertEqual(0, mismatches, "the published floor pictures the tileset map the room's character upload carries");
+        AssertEqual(0, mismatches, "the published floor and its resting actors picture the tileset map the room's character upload carries");
         AssertEqual(runtime.Room.LoadedScope.Assets.Tileset, (runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException("Ceres shows no floor.")).Sheet.Tileset,
             "the floor is the room's tileset's");
-        AssertTrue(first.DrawnOver.IsEmpty, "nothing is drawn over the floor a room starts with");
+        // Only the actors resting on the floor show their pictures over the floor a room starts with (#2573).
+        SuperMetroid.Core.Rooms.Artwork.RoomFloorSheet sheet = (runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException("Ceres shows no floor.")).Sheet;
+        SpriteSheetFrame[] resting = [.. CeresFloorActors.DrawingOrder.Where(sheet.Resting.ContainsKey).Select(actor => sheet.Picture(sheet.Resting[actor]))];
+        AssertTrue(first.DrawnOver.SequenceEqual(resting), "only the resting actors' pictures are drawn over the floor a room starts with");
 
-        CeresFloorAnimationFrame platform = CeresFloorAnimationFrame.ElevatorLight;
+        CeresFloorActorPicture platform = CeresFloorActorPicture.ElevatorLight;
         (runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException("Ceres shows no floor.")).Show(platform);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AffineFloor second = Published(runtime);
-        AssertTrue(second.DrawnOver.Length == 1 && second.DrawnOver[0].Equals(
-                (runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException("Ceres shows no floor.")).Sheet.Picture(platform)),
-            "a drawn picture reaches the next NMI's floor");
-        AssertTrue(first.DrawnOver.IsEmpty, "the earlier published floor keeps what it showed");
+        AssertTrue(second.DrawnOver.Contains(sheet.Picture(platform)), "a drawn picture reaches the next NMI's floor");
+        AssertTrue(first.DrawnOver.SequenceEqual(resting), "the earlier published floor keeps what it showed");
 
         // The station's escape owns the getaway's floor (#2228).
         runtime.Enemies.CeresEscape.Floor.Active = true;
@@ -76,6 +80,11 @@ internal static class CeresMode7MapVerification
         AssertTrue(mode7.Floor.Equals(second), "the floor layer draws the published floor");
         Console.WriteLine("  Ceres floor: the tileset floor publishes, drawn pictures reach the next NMI, and the floor layer draws it.");
     }
+
+    /// <summary>The picture of <paramref name="floor"/> drawn frontmost at floor pixel (<paramref name="x"/>, <paramref name="y"/>): the last picture drawn over it that covers the pixel, else its image.</summary>
+    private static SpriteSheetFrame FrontmostAt(AffineFloor floor, int x, int y) =>
+        floor.DrawnOver.LastOrDefault(over => x >= -over.Origin.X && x < -over.Origin.X + over.Size.X && y >= -over.Origin.Y && y < -over.Origin.Y + over.Size.Y)
+            ?? floor.Image;
 
     /// <summary>The floor the runtime's last NMI published.</summary>
     private static AffineFloor Published(SuperMetroidRuntime runtime) =>

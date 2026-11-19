@@ -9,17 +9,17 @@ namespace SuperMetroid.Core.Areas.Ceres;
 public static class CeresFloorAnimationDefinitions
 {
     /// <summary>The capsule's four phases: the Baby squishes vertically, rounds, squishes horizontally and rounds again.</summary>
-    internal static readonly CeresFloorAnimationFrame[] CapsuleCycle =
+    internal static readonly CeresFloorActorPicture[] CapsuleCycle =
     [
-        CeresFloorAnimationFrame.BabyVertical, CeresFloorAnimationFrame.BabyRound,
-        CeresFloorAnimationFrame.BabyHorizontal, CeresFloorAnimationFrame.BabyRound,
+        CeresFloorActorPicture.BabyVertical, CeresFloorActorPicture.BabyRound,
+        CeresFloorActorPicture.BabyHorizontal, CeresFloorActorPicture.BabyRound,
     ];
 
     /// <summary>The elevator platform's two phases: its light strip, then its dark strip.</summary>
-    internal static readonly CeresFloorAnimationFrame[] ElevatorPlatformCycle =
-        [CeresFloorAnimationFrame.ElevatorLight, CeresFloorAnimationFrame.ElevatorDark];
+    internal static readonly CeresFloorActorPicture[] ElevatorPlatformCycle =
+        [CeresFloorActorPicture.ElevatorLight, CeresFloorActorPicture.ElevatorDark];
 
     /// <summary>The wings' two beats: raised, then lowered.</summary>
-    internal static readonly CeresFloorAnimationFrame[] WingCycle =
-        [CeresFloorAnimationFrame.WingsRaised, CeresFloorAnimationFrame.WingsLowered];
+    internal static readonly CeresFloorActorPicture[] WingCycle =
+        [CeresFloorActorPicture.WingsRaised, CeresFloorActorPicture.WingsLowered];
 }

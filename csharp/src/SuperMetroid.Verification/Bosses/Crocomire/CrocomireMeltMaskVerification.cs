@@ -56,8 +56,8 @@ internal static class CrocomireMeltMaskVerification
                     }
                 }
             }
-            var bandSteps = new int[CrocomireMeltingDefinitions.SecondPassBandCount];
-            for (int band = 0; band < CrocomireMelting.BandCount(pass); band++)
+            var bandSteps = new int[CrocomireMeltingDefinitions.MeltImageBandCount];
+            for (int band = 0; band < CrocomireMeltingDefinitions.MeltImageBandCount; band++)
             {
                 for (int step = 0; step < steps.Length; step++)
                 {
@@ -101,7 +101,7 @@ internal static class CrocomireMeltMaskVerification
         foreach ((int layerCell, BackgroundTile tile) in source.Cells)
         {
             int band = tile.Tile / CrocomireMeltDissolve.BandRowCharacters, group = tile.Tile % CrocomireMeltDissolve.BandRowCharacters;
-            if (band >= CrocomireMelting.BandCount(pass) || group >= CrocomireMeltDissolve.BandCharacterCount)
+            if (band >= CrocomireMeltingDefinitions.MeltImageBandCount || group >= CrocomireMeltDissolve.BandCharacterCount)
                 continue;
             Position16<BackgroundPixels> at = BossBodyPainter.PixelOf(layerCell);
             shown.Add(new ShownCharacter(at.X - corner.X, at.Y - corner.Y, band, tile.Tile, tile.FlipHorizontally, tile.FlipVertically));

@@ -37,14 +37,14 @@ internal sealed class MotherBrainRainbowAttackPhases
     public BossCountdown ExplosionTimer { get; } = new();
 
     /// <summary>
-    /// The next beam explosion's offset among <see cref="MotherBrainRainbowBeamAttackSequence.ExplosionOffsets"/>, cycling
+    /// The next beam explosion's offset among <see cref="MotherBrainBeamDefinitions.ExplosionOffsets"/>, cycling
     /// through them in order.
     /// </summary>
     public ListStep<Offset16<RoomPixels>> NextExplosion { get; private set; } = FirstExplosion;
 
     /// <summary>The beam's first explosion offset, which every beam bursts first.</summary>
     private static ListStep<Offset16<RoomPixels>> FirstExplosion =>
-        ListStep<Offset16<RoomPixels>>.FirstOf(MotherBrainRainbowBeamAttackSequence.ExplosionOffsets);
+        ListStep<Offset16<RoomPixels>>.FirstOf(MotherBrainBeamDefinitions.ExplosionOffsets);
 
     /// <summary>Whether the rainbow attack has started its beam and not yet ended it.</summary>
     public bool BeamActive { get; internal set; }

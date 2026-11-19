@@ -83,7 +83,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal void InitializePhantoonBody(RoomEnemyPlace body)
     {
-        RoomEnemyPlace[] parts = _places.ListedRunAfter(body, count: 3);
+        RoomEnemyPlace[] parts = _places.ListedRunAfter(body, PhantoonPartListingDefinitions.PartsAfterBody);
         var state = new PhantoonEnemyState(body, eye: parts[0], tentacles: parts[1], mouth: parts[2]);
         // The room steps his body wave and visibility and its display latches them from the room from here (#2194).
         _encounters.Attach(state);
@@ -116,7 +116,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Sets Phantoon's eye up, listed right after his body, closed; its start ends any wave.</summary>
     internal void InitializePhantoonEye(RoomEnemyPlace eye)
     {
-        PhantoonEnemyState state = JoiningEncounter(eye, placesAfterBody: 1);
+        PhantoonEnemyState state = JoiningEncounter(eye, PhantoonPartListingDefinitions.EyePlacesAfterBody);
         StartPhantoonPart(state.EyePart);
         state.Wave.Length = null;
         JoinPhantoon(state.EyePart);
@@ -125,7 +125,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Sets Phantoon's tentacles up, listed after his eye.</summary>
     internal void InitializePhantoonTentacles(RoomEnemyPlace tentacles)
     {
-        PhantoonEnemyState state = JoiningEncounter(tentacles, placesAfterBody: 2);
+        PhantoonEnemyState state = JoiningEncounter(tentacles, PhantoonPartListingDefinitions.TentaclesPlacesAfterBody);
         StartPhantoonPart(state.TentaclesPart);
         JoinPhantoon(state.TentaclesPart);
     }
@@ -133,7 +133,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Sets Phantoon's mouth up, listed after his tentacles.</summary>
     internal void InitializePhantoonMouth(RoomEnemyPlace mouth)
     {
-        PhantoonEnemyState state = JoiningEncounter(mouth, placesAfterBody: 3);
+        PhantoonEnemyState state = JoiningEncounter(mouth, PhantoonPartListingDefinitions.MouthPlacesAfterBody);
         StartPhantoonPart(state.MouthPart);
         JoinPhantoon(state.MouthPart);
     }

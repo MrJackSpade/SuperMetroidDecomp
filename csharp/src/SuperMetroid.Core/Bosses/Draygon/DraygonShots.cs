@@ -109,8 +109,8 @@ internal sealed class DraygonShots
             // Samus outside the boundary still plays its touch animation instead of being deleted.
             FreePlaceIfPowerBombed(goop, samus, powerBomb);
             MoveDraygonProjectile(goop);
-            int xDistance = CoordinateAxis.Distance(samus.Position.X.Whole, goop.Position.X.Whole);
-            int yDistance = CoordinateAxis.Distance(samus.Position.Y.Whole, goop.Position.Y.Whole);
+            int xDistance = DistanceAcrossRoomEdge.Between(samus.Position.X.Whole, goop.Position.X.Whole);
+            int yDistance = DistanceAcrossRoomEdge.Between(samus.Position.Y.Whole, goop.Position.Y.Whole);
             if (xDistance < DraygonArenaDefinitions.GoopTouchReach.X && yDistance < DraygonArenaDefinitions.GoopTouchReach.Y)
             {
                 goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileSegment.GoopTouch));
@@ -158,7 +158,9 @@ internal sealed class DraygonShots
             }
 
             DraygonGoopAttachedState attached = goop.StateOf<DraygonGoopAttachedState>();
-            goop.Position = goop.Position.WithWhole(new(samus.Position.X.Whole, CoordinateAxis.Wrap(samus.Position.Y.Whole + attached.StackPosition * DraygonArenaDefinitions.GoopStackSpacing + DraygonArenaDefinitions.GoopStackTop)));
+            // The stack's top lies 12 pixels above Samus's centre, which stays more than her radius below the arena's
+            // solid ceiling, so a stuck goop stays in the room.
+            goop.Position = goop.Position.WithWhole(new(samus.Position.X.Whole, samus.Position.Y.Whole + attached.StackPosition * DraygonArenaDefinitions.GoopStackSpacing + DraygonArenaDefinitions.GoopStackTop));
             if (attached.Lifetime.StepRunsOut())
                 RemoveAttachedDraygonGoop(goop, samus);
         }
@@ -175,8 +177,8 @@ internal sealed class DraygonShots
                 return;
             // The vertical radius is three quarters of the horizontal: half of it, rounded up, plus the whole, halved down.
             int verticalRadius = (horizontalRadius + (horizontalRadius + 1) / 2) / 2;
-            int xDistance = CoordinateAxis.Distance(powerBomb.Position.X, projectile.Position.X.Whole);
-            int yDistance = CoordinateAxis.Distance(powerBomb.Position.Y, projectile.Position.Y.Whole);
+            int xDistance = DistanceAcrossRoomEdge.Between(powerBomb.Position.X, projectile.Position.X.Whole);
+            int yDistance = DistanceAcrossRoomEdge.Between(powerBomb.Position.Y, projectile.Position.Y.Whole);
             if (xDistance >= horizontalRadius || yDistance >= verticalRadius)
                 return;
             projectile.FreePlace();
@@ -205,8 +207,10 @@ internal sealed class DraygonShots
             : samus.SlowdownLevel - 1;
     }
 
-    /// <summary>Tests the projectile against the 512-by-512-pixel Draygon arena bounds.</summary>
+    /// <summary>
+    /// Tests the projectile against the 512-by-512-pixel Draygon arena bounds: a place before the room, counted back from
+    /// the far end of the room's coordinates (<see cref="OffRoomPlaces"/>), lies past the arena's far edges too.
+    /// </summary>
     private static bool IsOutsideDraygonRoom(EnemyProjectile projectile) =>
-        CoordinateAxis.AsSigned(projectile.Position.X.Whole) < 0 || projectile.Position.X.Whole >= DraygonArenaDefinitions.ArenaSize ||
-        CoordinateAxis.AsSigned(projectile.Position.Y.Whole) < 0 || projectile.Position.Y.Whole >= DraygonArenaDefinitions.ArenaSize;
+        projectile.Position.X.Whole >= DraygonArenaDefinitions.ArenaSize || projectile.Position.Y.Whole >= DraygonArenaDefinitions.ArenaSize;
 }

@@ -362,10 +362,11 @@ internal sealed class ProjectileMotion
         // A fast link samples its shortfall behind the owner's speed beyond the owner's previous
         // position to close the point-collision gap, and does so even when the owner has
         // just exploded; only then is it cleared. A missile that skips a door cap and
-        // strikes the door behind it still opens the cap through its link.
+        // strikes the door behind it still opens the cap through its link. A missile flown past the room's top or left
+        // edge stands at a place OffRoomPlaces keeps, and its link trails it across that edge.
         int offset = wholeMagnitude - SuperMissileDefinitions.FastLinkShortfall;
         int ownerPosition = axis == Axis.Vertical ? owner.Position.Y.Whole : owner.Position.X.Whole;
-        int linkPosition = CoordinateAxis.Wrap(ownerPosition + (velocity.IsNegative ? offset : -offset));
+        int linkPosition = OffRoomPlaces.Place(ownerPosition + (velocity.IsNegative ? offset : -offset));
         if (axis == Axis.Vertical)
             link.Position = link.Position.WithWholeY(linkPosition);
         else

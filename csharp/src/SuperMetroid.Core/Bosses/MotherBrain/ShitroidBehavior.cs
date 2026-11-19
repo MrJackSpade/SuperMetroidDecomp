@@ -66,7 +66,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         place.AnimationClock.Restart();
 
         // A Shitroid entered with the camera left of the room's start lies dormant; any other waits for the camera.
-        bool dormant = CoordinateAxis.AsSigned(cameraX) < 0;
+        bool dormant = CameraPastRoomEdge.LiesBeforeRoom(cameraX);
         var state = new ShitroidEnemyState(dormant ? ShitroidAction.Dormant : ShitroidAction.WaitForCamera, ShitroidSegment.Normal)
         {
             Velocity = default,
@@ -244,9 +244,11 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                     place,
                     state,
                     ShitroidFlightDefinitions.DriftDivisor,
+                    // Samus can stand within 64 pixels of the room's left wall, so the place to her left can lie left of
+                    // the room; the place to her right lies inside the room's four screens.
                     toHerLeft
-                        ? new(CoordinateAxis.Wrap(samus.Position.X.Whole + ShitroidFightDefinitions.BesideLeftX), ShitroidFightDefinitions.BesideLeftY)
-                        : new(CoordinateAxis.Wrap(samus.Position.X.Whole + ShitroidFightDefinitions.BesideRightX), ShitroidFightDefinitions.BesideRightY),
+                        ? new(OffRoomPlaces.Place(samus.Position.X.Whole + ShitroidFightDefinitions.BesideLeftX), ShitroidFightDefinitions.BesideLeftY)
+                        : new(samus.Position.X.Whole + ShitroidFightDefinitions.BesideRightX, ShitroidFightDefinitions.BesideRightY),
                     camera);
                 if (!state.StateTimer.StepRunsOut())
                     return;
@@ -308,7 +310,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void WaitForShitroidCamera(ShitroidEnemyState state, Position16<RoomPixels> camera)
     {
-        if (CoordinateAxis.Difference(camera.X, ShitroidFightDefinitions.ArenaLeftX) > 0)
+        if (CameraPastRoomEdge.CameraPast(camera.X, ShitroidFightDefinitions.ArenaLeftX) > 0)
             return;
 
         // Puts the camera at its arena's edge directly, then rescrolls the room's four screens as the wall entrance does: the second
@@ -378,8 +380,9 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> camera)
     {
         UpdateShitroidHorizontalLock(state, place.Position.X.Whole, samus.Position.X.Whole, threshold: ShitroidFightDefinitions.HoverLockReach);
+        // Samus stays between the room's walls, so her X is compared with the arena's edge plainly.
         if (state.HorizontalLockAccumulator >= ShitroidFightDefinitions.HoverLockToChase ||
-            CoordinateAxis.Difference(samus.Position.X.Whole, ShitroidFightDefinitions.ArenaLeftX) < 0)
+            samus.Position.X.Whole < ShitroidFightDefinitions.ArenaLeftX)
         {
             state.Action = ShitroidAction.ChaseSamus;
             return;
@@ -467,8 +470,9 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             ShitroidFlightDefinitions.RemorseDivisor,
             SelectShitroidHoverTarget(state, samus.Position.Whole + ShitroidFightDefinitions.FollowOffset),
             camera);
+        // Samus stays between the room's walls, so her X is compared with the leaving line plainly.
         return state.HorizontalLockAccumulator >= ShitroidFightDefinitions.FollowLockToLeave ||
-            CoordinateAxis.Difference(samus.Position.X.Whole, ShitroidFightDefinitions.FollowLeaveSamusX) < 0;
+            samus.Position.X.Whole < ShitroidFightDefinitions.FollowLeaveSamusX;
     }
 
     /// <summary>Accumulates two lock ticks within a narrow X threshold and decays by one when separated.</summary>
@@ -478,7 +482,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         int targetX,
         int threshold)
     {
-        int distance = CoordinateAxis.Distance(currentX, targetX);
+        int distance = DistanceAcrossRoomEdge.Between(currentX, targetX);
         if (distance < threshold)
         {
             state.HorizontalLockAccumulator += 2;
@@ -515,14 +519,14 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Tests the Baby Metroid's asymmetric flight window against <paramref name="camera"/>, the camera as the step runs.</summary>
     private static bool ShitroidIsOffScreen(RoomEnemyPlace place, Position16<RoomPixels> camera)
     {
-        if (CoordinateAxis.AsSigned(place.Position.Y.Whole) < 0)
+        if (OffRoomPlaces.LiesBeforeRoom(place.Position.Y.Whole))
             return true;
-        int screenY = CoordinateAxis.AsSigned(place.Position.Y.Whole + BabyMetroidFlightWindowDefinitions.VerticalMargin - camera.Y);
+        int screenY = CameraPastRoomEdge.FromCamera(place.Position.Y.Whole + BabyMetroidFlightWindowDefinitions.VerticalMargin, camera.Y);
         if (screenY is < 0 or >= BabyMetroidFlightWindowDefinitions.Height)
             return true;
-        if (CoordinateAxis.AsSigned(place.Position.X.Whole) < 0)
+        if (OffRoomPlaces.LiesBeforeRoom(place.Position.X.Whole))
             return true;
-        int screenX = CoordinateAxis.AsSigned(place.Position.X.Whole + BabyMetroidFlightWindowDefinitions.HorizontalMargin - camera.X);
+        int screenX = CameraPastRoomEdge.FromCamera(place.Position.X.Whole + BabyMetroidFlightWindowDefinitions.HorizontalMargin, camera.X);
         return screenX is < 0 or >= BabyMetroidFlightWindowDefinitions.Width;
     }
 
@@ -555,7 +559,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         SignedEightEight velocity,
         SignedEightEight acceleration)
     {
-        int delta = CoordinateAxis.Difference(current, target);
+        int delta = DistanceAcrossRoomEdge.Apart(current, target);
         if (delta == 0)
             return new ShitroidAxisStep(true, velocity);
 
@@ -564,16 +568,16 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         SignedEightEight speed = delta >= 0
             ? SignedEightEight.Max(-ShitroidFlightDefinitions.LatchMaximumSpeed, velocity - acceleration)
             : SignedEightEight.Min(ShitroidFlightDefinitions.LatchMaximumSpeed, velocity + acceleration);
-        int predicted = CoordinateAxis.Difference(current + speed.WholePixels, target);
+        int predicted = DistanceAcrossRoomEdge.Apart(current + speed.WholePixels, target);
         bool crossed = delta >= 0 ? predicted <= 0 : predicted >= 0;
         return new ShitroidAxisStep(crossed, crossed ? default : speed);
     }
 
     /// <summary>Tests inclusive-radius overlap between two enemy rectangles using signed coordinate deltas.</summary>
     private static bool ShitroidActorsOverlap(RoomEnemyPlace left, RoomEnemyPlace right) =>
-        CoordinateAxis.Distance(right.Position.X.Whole, left.Position.X.Whole) <
+        DistanceAcrossRoomEdge.Between(right.Position.X.Whole, left.Position.X.Whole) <
             left.Radius.X + right.Radius.X + 1 &&
-        CoordinateAxis.Distance(right.Position.Y.Whole, left.Position.Y.Whole) <
+        DistanceAcrossRoomEdge.Between(right.Position.Y.Whole, left.Position.Y.Whole) <
             left.Radius.Y + right.Radius.Y + 1;
 
     /// <summary>Tests Shitroid against a scripted rectangle without allocating another enemy place.</summary>
@@ -581,8 +585,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace place,
         Position16<RoomPixels> center,
         Extent16<RoomPixels> radius) =>
-        CoordinateAxis.Distance(center.X, place.Position.X.Whole) < place.Radius.X + radius.X + 1 &&
-        CoordinateAxis.Distance(center.Y, place.Position.Y.Whole) < place.Radius.Y + radius.Y + 1;
+        DistanceAcrossRoomEdge.Between(center.X, place.Position.X.Whole) < place.Radius.X + radius.X + 1 &&
+        DistanceAcrossRoomEdge.Between(center.Y, place.Position.Y.Whole) < place.Radius.Y + radius.Y + 1;
 
     /// <summary>Resolves the Baby's private touch reaction.</summary>
     private static void ResolveShitroidTouch(RoomEnemyPlace place, SamusState samus)
@@ -592,14 +596,15 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         BreakReleasedShitroidFollow(state);
+        // Samus stays between the room's walls, so her X is compared with the arena's edge plainly.
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.SpinJumping &&
-            CoordinateAxis.Difference(samus.Position.X.Whole, ShitroidFightDefinitions.ArenaLeftX) >= 0)
+            samus.Position.X.Whole >= ShitroidFightDefinitions.ArenaLeftX)
         {
             // The push heads along the negated angle toward Samus and adds a quarter of a pixel an update to the
             // velocity.
             RotationAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(new(
-                CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole),
-                CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole)));
+                DistanceAcrossRoomEdge.Apart(samus.Position.X.Whole, place.Position.X.Whole),
+                DistanceAcrossRoomEdge.Apart(samus.Position.Y.Whole, place.Position.Y.Whole)));
             RotationAngle angle = RotationAngle.Zero - sourceAngle;
             state.Velocity += new EightEightVector<RoomPixels>(
                 EnemyMath.SineSpeed(ShitroidFlightDefinitions.ContactPushSpeed, angle.ToTrigonometryAngle()),
@@ -642,8 +647,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         BreakReleasedShitroidFollow(state);
         RotationAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(new(
-            CoordinateAxis.Difference(recoilOrigin.Position.X.Whole, place.Position.X.Whole),
-            CoordinateAxis.Difference(recoilOrigin.Position.Y.Whole, place.Position.Y.Whole)));
+            DistanceAcrossRoomEdge.Apart(recoilOrigin.Position.X.Whole, place.Position.X.Whole),
+            DistanceAcrossRoomEdge.Apart(recoilOrigin.Position.Y.Whole, place.Position.Y.Whole)));
         RotationAngle angle = RotationAngle.Zero - sourceAngle;
         // The recoil strength is a multiple of the damage, capped at its limit.
         SignedEightEight magnitude = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(Math.Min(ShitroidFightDefinitions.RecoilPerDamage * collisionDamage, ShitroidFightDefinitions.RecoilLimit));

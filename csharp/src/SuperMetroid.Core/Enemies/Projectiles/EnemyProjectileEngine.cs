@@ -575,10 +575,10 @@ internal sealed class EnemyProjectileEngine
         int random = _room.Random.Generate();
         // The death actor stands where its enemy died, which can lie above or left of the room's origin (a fly that has
         // climbed through the ceiling, a Bull braking past Samus), so a sprite scattered across the origin continues from
-        // the space's far end, as CoordinateAxis.Wrap gives it.
-        _ = _effectActors.SpawnRoomEffectActor(new(
-            CoordinateAxis.Wrap(projectile.Position.X.Whole + spread.HorizontalScatter.Of(random) - spread.Radius),
-            CoordinateAxis.Wrap(projectile.Position.Y.Whole + spread.VerticalScatter.Of(random) - spread.Radius)),
+        // the space's far end, as OffRoomPlaces places it.
+        _ = _effectActors.SpawnRoomEffectActor(OffRoomPlaces.Placed<RoomPixels>(
+            projectile.Position.X.Whole + spread.HorizontalScatter.Of(random) - spread.Radius,
+            projectile.Position.Y.Whole + spread.VerticalScatter.Of(random) - spread.Radius),
             kind, graphics: default);
     }
 
@@ -607,7 +607,9 @@ internal sealed class EnemyProjectileEngine
         while (xOffset < 0);
         if (EnemyProjectileScatter.XOffsetTurnsLeft.IsTakenBy(signSample))
             xOffset = -xOffset;
-        projectile.Position = projectile.Position.WithWrappedWholeX(projectile.Position.X.Whole + xOffset);
+        // The scattered projectiles burst against the room's walls and floors, a Bomb Torizo's sonic boom among them, so a
+        // scatter toward the room's left or top edge can carry one past it.
+        projectile.Position = OffRoomPlaces.WithWholeX(projectile.Position, projectile.Position.X.Whole + xOffset);
 
         int yOffset;
         do
@@ -617,7 +619,7 @@ internal sealed class EnemyProjectileEngine
         while (yOffset < 0);
         if (EnemyProjectileScatter.YOffsetTurnsUp.IsTakenBy(signSample))
             yOffset = -yOffset;
-        projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + yOffset);
+        projectile.Position = OffRoomPlaces.WithWholeY(projectile.Position, projectile.Position.Y.Whole + yOffset);
     }
 
     /// <summary>

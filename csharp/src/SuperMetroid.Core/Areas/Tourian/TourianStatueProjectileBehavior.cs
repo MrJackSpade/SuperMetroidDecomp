@@ -40,8 +40,8 @@ internal abstract class TourianStatueProjectileBehavior<TMotion>
                 break;
             case TourianStatueProjectileCue.MoveDown moveDown:
                 // A statue effect can stand above the room's top, its Y past the seam, and a move down carries it back
-                // across, so the move wraps as room positions do.
-                projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + moveDown.Pixels);
+                // across, so the move keeps its place as OffRoomPlaces does.
+                projectile.Position = OffRoomPlaces.WithWholeY(projectile.Position, projectile.Position.Y.Whole + moveDown.Pixels);
                 break;
             case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.FollowReveal }:
                 FollowReveal(projectile);

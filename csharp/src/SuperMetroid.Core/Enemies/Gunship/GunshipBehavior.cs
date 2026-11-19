@@ -121,8 +121,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (_gunshipLoadScenario == GunshipLoadScenario.EscapingCeres)
         {
             // Post-Ceres initialization attaches the top hull seventeen pixels above Samus and
-            // enters the high-altitude descent used only after Ceres.
-            place.Position = place.Position.WithWrappedWholeY(samus.Position.Y.Whole - GunshipMotionDefinitions.TopHullAboveSamus);
+            // enters the high-altitude descent used only after Ceres, which starts the ship above the room's top.
+            place.Position = OffRoomPlaces.WithWholeY(place.Position, samus.Position.Y.Whole - GunshipMotionDefinitions.TopHullAboveSamus);
             ship = new GunshipState(GunshipPhase.DescendAfterCeres) { EngineSoundTimer = GunshipHoverSoundDefinitions.FirstDelayAfterCeres };
         }
         else
@@ -153,14 +153,15 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
 
         if (place.SpawnSettings<GunshipSpawnSettings>().Part == GunshipBottomPiece.EntrancePad)
         {
-            place.Position = place.Position.WithWrappedWholeY(GunshipPadBorrowedHeight.Start(
+            // The hull the pad borrows its height from can stand above the room's top, after Ceres.
+            place.Position = OffRoomPlaces.WithWholeY(place.Position, GunshipPadBorrowedHeight.Start(
                 distance => _places.ListedBefore(place, distance).Position.Y.Whole));
         }
         else
         {
             if (_gunshipLoadScenario == GunshipLoadScenario.EscapingCeres)
             {
-                place.Position = place.Position.WithWrappedWholeY(samus.Position.Y.Whole + GunshipMotionDefinitions.BottomHullBelowSamus);
+                place.Position = OffRoomPlaces.WithWholeY(place.Position, samus.Position.Y.Whole + GunshipMotionDefinitions.BottomHullBelowSamus);
             }
             else
             {
@@ -322,7 +323,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     private void RaisePostCeresSamus(RoomEnemyPlace top, SamusState samus)
     {
         samus.Position -= new Offset16<RoomPixels>(0, GunshipBoardingDefinitions.ArrivalRiseStep);
-        if (CoordinateAxis.Difference(samus.Position.Y.Whole, State(top).BaseY - GunshipBoardingDefinitions.ExitHeight) >= 0)
+        // The landed ship and Samus rising out of it lie inside the landing site, so her height is compared plainly.
+        if (samus.Position.Y.Whole >= State(top).BaseY - GunshipBoardingDefinitions.ExitHeight)
             return;
 
         RoomEnemyPlace pad = Pieces(top).EntrancePad;
@@ -384,9 +386,10 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             return;
 
         // Samus stands within the entrance's half width of the ship's middle, the left edge excluded, and less than the
-        // entrance's height above its top.
-        int samusFromShipX = CoordinateAxis.Difference(samus.Position.X.Whole, top.Position.X.Whole);
-        int samusFromShipY = CoordinateAxis.Difference(samus.Position.Y.Whole, top.Position.Y.Whole);
+        // entrance's height above its top. She stands on the landed ship, inside the landing site, so her offset from it is
+        // a plain one.
+        int samusFromShipX = samus.Position.X.Whole - top.Position.X.Whole;
+        int samusFromShipY = samus.Position.Y.Whole - top.Position.Y.Whole;
         bool insideEntrance =
             samusFromShipX > -GunshipBoardingDefinitions.EntranceHalfWidth && samusFromShipX <= GunshipBoardingDefinitions.EntranceHalfWidth &&
             samusFromShipY > -GunshipBoardingDefinitions.EntranceHeight && samusFromShipY <= 0;
@@ -421,7 +424,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     private void LowerSamusIntoGunship(RoomEnemyPlace top, SamusState samus)
     {
         samus.Position += new Offset16<RoomPixels>(0, GunshipBoardingDefinitions.BoardingStep);
-        if (CoordinateAxis.Difference(samus.Position.Y.Whole, State(top).BaseY + GunshipBoardingDefinitions.BoardedDepth) < 0)
+        // Samus sinks into the landed ship, inside the landing site, so her height is compared plainly.
+        if (samus.Position.Y.Whole < State(top).BaseY + GunshipBoardingDefinitions.BoardedDepth)
             return;
 
         RoomEnemyPlace pad = Pieces(top).EntrancePad;
@@ -463,7 +467,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     private void RaiseSamusOutOfGunship(RoomEnemyPlace top, SamusState samus)
     {
         samus.Position -= new Offset16<RoomPixels>(0, GunshipBoardingDefinitions.LeavingStep);
-        if (CoordinateAxis.Difference(samus.Position.Y.Whole, State(top).BaseY - GunshipBoardingDefinitions.ExitHeight) >= 0)
+        // Samus rises out of the landed ship, inside the landing site, so her height is compared plainly.
+        if (samus.Position.Y.Whole >= State(top).BaseY - GunshipBoardingDefinitions.ExitHeight)
             return;
 
         RoomEnemyPlace pad = Pieces(top).EntrancePad;
@@ -513,8 +518,10 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// <summary>Runs constant two-pixel liftoff.</summary>
     private static void LiftGunshipAtConstantSpeed(RoomEnemyPlace top, SamusState samus)
     {
-        MoveGunshipAndSamusToY(top, samus, CoordinateAxis.Wrap(samus.Position.Y.Whole - GunshipTakeoffDefinitions.SteadyLiftoffRise));
-        if (CoordinateAxis.Difference(top.Position.Y.Whole, GunshipTakeoffDefinitions.AcceleratingLiftoffY) < 0)
+        // The steady liftoff rises two pixels an update from the landed ship until the hull passes 896, deep inside the
+        // landing site, so it moves and compares plainly.
+        MoveGunshipAndSamusToY(top, samus, samus.Position.Y.Whole - GunshipTakeoffDefinitions.SteadyLiftoffRise);
+        if (top.Position.Y.Whole < GunshipTakeoffDefinitions.AcceleratingLiftoffY)
         {
             State(top).Phase = GunshipPhase.AcceleratingLiftoff;
             State(top).EscapeVelocity = GunshipMotionDefinitions.EscapeStartVelocity;
@@ -525,7 +532,9 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     private void AccelerateEscapingGunship(RoomEnemyPlace top, SamusState samus)
     {
         MoveEscapingGunship(top, samus);
-        if (CoordinateAxis.Difference(top.Position.Y.Whole, GunshipTakeoffDefinitions.TakeoffCompleteY) < 0)
+        // The accelerating takeoff ends once the hull passes 256, long before its speed could carry it past the room's top
+        // in one update, so it compares plainly.
+        if (top.Position.Y.Whole < GunshipTakeoffDefinitions.TakeoffCompleteY)
         {
             State(top).Phase = GunshipPhase.MoveAccelerating;
             _frameResults.Gunship = GunshipFrameEvent.EscapeTakeoffCompleted;
@@ -553,14 +562,18 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         PlaceGunshipAroundSamus(top, samusY);
     }
 
-    /// <summary>Places the top hull, the entrance pad and the bottom hull where they sit around Samus at <paramref name="samusY"/>.</summary>
+    /// <summary>
+    /// Places the top hull, the entrance pad and the bottom hull where they sit around Samus at <paramref name="samusY"/>: the
+    /// escaping ship climbs past the room's top, and arrives from above it after Ceres, so each piece keeps its place as
+    /// <see cref="OffRoomPlaces"/> does.
+    /// </summary>
     private static void PlaceGunshipAroundSamus(RoomEnemyPlace top, int samusY)
     {
         RoomEnemyPlace bottom = Pieces(top).Bottom;
         RoomEnemyPlace pad = Pieces(top).EntrancePad;
-        top.Position = top.Position.WithWrappedWholeY(samusY - GunshipMotionDefinitions.TopHullAboveSamus);
-        pad.Position = pad.Position.WithWrappedWholeY(top.Position.Y.Whole - GunshipMotionDefinitions.PadAboveTopHull);
-        bottom.Position = bottom.Position.WithWrappedWholeY(samusY + GunshipMotionDefinitions.BottomHullBelowSamus);
+        top.Position = OffRoomPlaces.WithWholeY(top.Position, samusY - GunshipMotionDefinitions.TopHullAboveSamus);
+        pad.Position = OffRoomPlaces.WithWholeY(pad.Position, top.Position.Y.Whole - GunshipMotionDefinitions.PadAboveTopHull);
+        bottom.Position = OffRoomPlaces.WithWholeY(bottom.Position, samusY + GunshipMotionDefinitions.BottomHullBelowSamus);
     }
 
     /// <summary>Restores a resource by the ship's refill step without exceeding its maximum.</summary>

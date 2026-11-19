@@ -479,8 +479,8 @@ internal sealed class BeamFiring
         // Samus's centre lies at least 21 pixels from the room's left edge, which every row she reaches closes with terrain
         // or a door, and no muzzle lies more than 19 left of her, so the muzzle lies in the room across. A room open at the
         // top (the Landing Site's sky) lets her rise until her top meets the room's, and a shot aimed up then leaves the
-        // muzzle above the room's top, a height CoordinateAxis.Wrap gives it.
-        projectile.Position = projectile.Position.WithWhole(new(samus.Position.X.Whole + origin.X, CoordinateAxis.Wrap(samus.Position.Y.Whole + origin.Y - poseYOffset)));
+        // muzzle above the room's top, a height OffRoomPlaces gives it.
+        projectile.Position = projectile.Position.WithWhole(new(samus.Position.X.Whole + origin.X, OffRoomPlaces.Place(samus.Position.Y.Whole + origin.Y - poseYOffset)));
     }
 
     /// <summary>

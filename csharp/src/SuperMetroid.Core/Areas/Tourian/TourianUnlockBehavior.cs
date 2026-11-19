@@ -52,7 +52,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
     /// across the room's wrapping lines, is negative, so a particle thrown above the room's top lies above the water.
     /// </summary>
     private bool IsBelowWaterSurface(EnemyProjectile projectile) =>
-        CoordinateAxis.Difference(WaterSurface, projectile.Position.Y.Whole) < 0;
+        DistanceAcrossRoomEdge.LiesBefore(WaterSurface, projectile.Position.Y.Whole);
     /// <summary>Creates the descending Tourian statue's fixed-position dust puffs.</summary>
     internal void SpawnTourianDescentDust()
     {
@@ -156,7 +156,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
     private static void RaiseTourianStatueSoul(EnemyProjectile projectile)
     {
         projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
-        if (CoordinateAxis.AsSigned(projectile.Position.Y.Whole) < 0)
+        if (OffRoomPlaces.LiesBeforeRoom(projectile.Position.Y.Whole))
             projectile.Delete();
         projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y - TourianStatueSoulDefinitions.RiseAcceleration);
     }
@@ -174,7 +174,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
         bool submergedAfter = IsBelowWaterSurface(projectile);
         if (submergedBefore != submergedAfter)
             SpawnTourianSplash(projectile);
-        if (CoordinateAxis.AsSigned(projectile.Position.Y.Whole) >= TourianStatueParticleDefinitions.SunkDepth)
+        if (OffRoomPlaces.Signed(projectile.Position.Y.Whole) >= TourianStatueParticleDefinitions.SunkDepth)
             projectile.Delete();
         else projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + TourianStatueParticleDefinitions.Gravity);
     }

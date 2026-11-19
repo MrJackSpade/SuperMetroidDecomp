@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
 /// The Ceres Baby Metroid's behaviour while Ridley holds, drops or retrieves it (#2571): each action moves the Baby itself
-/// each update. The Baby starts in his arms (#2228); dropping it is the transition <see cref="CeresBaby.Drop"/> that sets
-/// up its fall.
+/// each update. The Baby starts in his arms (#2228); Ridley lets it fall through <see cref="CeresBaby.Drop"/>, and its own
+/// update then sets up its fall and falls on.
 /// </summary>
 public sealed class CeresBabyAction
 {
@@ -36,6 +36,18 @@ public sealed class CeresBabyAction
         // Once the hand rectangles overlap, the Baby follows the grasp point for the real retreat and disappears with
         // Ridley at the escape handoff.
         baby.Position = baby.Position.WithWhole(place.Position.Whole + CeresRidleyArenaDefinitions.BabyFeetAnchor));
+
+    /// <summary>
+    /// Ridley has just let the Baby go: its update starts its fall from rest at a whole pixel and falls its first step in
+    /// the same update.
+    /// </summary>
+    public static CeresBabyAction Dropping { get; } = new(nameof(Dropping), (place, baby) =>
+    {
+        baby.Position = baby.Position.WithFractionY(PixelFraction.None);
+        baby.VerticalVelocity = SignedEightEight.Zero;
+        baby.Action = Dropped;
+        Dropped.Move(place, baby);
+    });
 
     /// <summary>The Baby falls under gravity until it lands.</summary>
     public static CeresBabyAction Dropped { get; } = new(nameof(Dropped), (_, baby) =>

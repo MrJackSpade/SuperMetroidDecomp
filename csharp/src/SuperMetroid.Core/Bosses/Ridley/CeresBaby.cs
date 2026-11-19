@@ -22,15 +22,10 @@ public sealed class CeresBaby
     public CeresBabyAction Action { get; internal set; } = CeresBabyAction.CarriedInArms;
 
     /// <summary>
-    /// Lets the Baby fall from where Ridley held it: its fall starts from rest at a whole pixel, and the Baby's own update
-    /// later in the same update moves it its first falling step.
+    /// Lets the Baby fall from where Ridley held it: its own update, later in the same update, sets its fall up and moves
+    /// it its first falling step (<see cref="CeresBabyAction.Dropping"/>).
     /// </summary>
-    internal void Drop()
-    {
-        Position = Position.WithFractionY(PixelFraction.None);
-        VerticalVelocity = SignedEightEight.Zero;
-        Action = CeresBabyAction.Dropped;
-    }
+    internal void Drop() => Action = CeresBabyAction.Dropping;
 
     /// <summary>
     /// Gets the Baby's room position. Its vertical fraction of a pixel is the one its fall left and

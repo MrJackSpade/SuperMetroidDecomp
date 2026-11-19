@@ -54,7 +54,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeNorfairRio(RoomEnemyPlace place)
     {
         place.SetSpeciesState(new NorfairRioEnemyState(NorfairRioAction.WaitForAttackOpportunity)
-        {
+        {
             FollowerYOffset = 0,
             Flames = NorfairRioFlames.Ascending,
             Playback = new(NorfairRioAnimations.StartingWith(NorfairRioSegment.Idle), AnimationPlace.StartOfAnimation),

@@ -27,7 +27,7 @@ internal static void VerifyMotherBrainRainbowBeamSamusMovement()
     static ushort YEightEight(SamusState state) =>
         unchecked((ushort)((EightEightOracle.FromWhole(state.Position.Y.Whole)) | LittleEndianBytes.HighByte(state.Kinematics.Position.Y.Fraction)));
 
-    var movement = new MotherBrainRainbowBeamSamusMovement();
+    var movement = new MotherBrainRainbowBeamSamusMovement();
     var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
         Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
@@ -154,8 +154,7 @@ internal static void VerifyMotherBrainRainbowBeamSamusMovement()
 /// that isolated helper checks cannot see.
 /// </summary>
 internal static void VerifyMotherBrainRainbowBeamAttackSequence()
-{
-
+{
     var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
         Health = 999,

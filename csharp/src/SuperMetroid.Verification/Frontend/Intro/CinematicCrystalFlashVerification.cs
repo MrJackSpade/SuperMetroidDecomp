@@ -59,7 +59,7 @@ internal static class CinematicCrystalFlashVerification
         motherSamus.MaxHealth = 9999;
         motherSamus.Health = 699;
         var motherRainbow = MotherBrainLateFightFixtures.NewSequence();
-        motherRainbow.RainbowAttack.StartActiveBeam(motherSamus);
+        motherRainbow.RainbowAttack.StartActiveBeam(motherSamus);
         bool motherUnlocked = false;
         for (ushort frame = 0; frame < 700; frame++)
         {

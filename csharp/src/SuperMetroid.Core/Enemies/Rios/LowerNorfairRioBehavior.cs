@@ -54,7 +54,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
     internal static void InitializeLowerNorfairRio(RoomEnemyPlace place)
     {
         place.SetSpeciesState(new LowerNorfairRioEnemyState(LowerNorfairRioAction.WaitForAttackOpportunity)
-        {
+        {
             FollowerVisible = false,
             Playback = new(LowerNorfairRioAnimations.StartingWith(LowerNorfairRioSegment.Idle), AnimationPlace.StartOfAnimation),
         });

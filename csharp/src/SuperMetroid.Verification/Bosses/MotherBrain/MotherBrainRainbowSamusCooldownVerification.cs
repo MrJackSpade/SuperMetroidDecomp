@@ -16,7 +16,7 @@ internal static class MotherBrainRainbowSamusCooldownVerification
     /// it releases her; no other step touches it.
     /// </summary>
     internal static void VerifyMotherBrainRainbowSamusCooldown()
-    {
+    {
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
             Health = 999,

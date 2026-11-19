@@ -34,7 +34,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeRio(RoomEnemyPlace place)
     {
         var state = new RioEnemyState(RioAction.WaitingForSamus)
-        {
+        {
         };
         place.SetSpeciesState(state);
 

@@ -122052,6 +122052,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Runtime.GameplayUpdateTransition",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Runtime/GameplayUpdateTransition.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Runtime.OrdinaryDoorTransition",
       "kind": "class",
       "scope": "product",
@@ -122154,6 +122167,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Runtime.SuperMetroidRuntime.GameplayUpdateStart",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Runtime.SuperMetroidRuntime.SuspendedGameplayFrameTail",
@@ -129109,32 +129135,6 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Poses.SamusLookupFailureSetup",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Poses/SamusLookupFailureSetup.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Poses.SamusLookupFailureSetups",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Poses/SamusLookupFailureSetups.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Samus.Poses.SamusMomentumResponses",
       "kind": "static class",
       "scope": "product",
@@ -129198,6 +129198,32 @@
       ],
       "files": [
         "csharp/test-support/VerificationAccess.Tooling/Core/Samus/Poses/SamusNoInputFallbackNumbers.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Poses.SamusNoTransitionSetup",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Poses/SamusNoTransitionSetup.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Poses.SamusNoTransitionSetups",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Poses/SamusNoTransitionSetups.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -132666,6 +132692,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Samus.SamusDraygonHoldPhase",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/SamusDraygonHoldPhase.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.SamusEnergyRestoration",
       "kind": "static class",
       "scope": "product",
@@ -132747,19 +132786,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Samus.SamusLookupFailurePose",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/SamusLookupFailurePose.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Samus.SamusMetroidAttachmentShade",
       "kind": "enum",
       "scope": "product",
@@ -132820,6 +132846,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Samus/SamusMovementOwner.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.SamusNoTransitionPose",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/SamusNoTransitionPose.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -178963,19 +179002,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Verification.Rooms.RoomObjects.VerifySuitPickupBeamSequenceCase",
-      "kind": "record struct",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Rooms/RoomObjects/VerifySuitPickupBeamSequenceCase.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Verification.Rooms.RoomScopeVerification",
       "kind": "static class",
       "scope": "test",
@@ -180690,6 +180716,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Verification.Samus.Death.OutOfHealthGameStateVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Samus/Death/OutOfHealthGameStateVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Verification.Samus.Death.SamusDeathExplosionTimingDefinitionsVerification",

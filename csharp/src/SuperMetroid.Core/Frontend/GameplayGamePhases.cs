@@ -3,7 +3,6 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend;
 

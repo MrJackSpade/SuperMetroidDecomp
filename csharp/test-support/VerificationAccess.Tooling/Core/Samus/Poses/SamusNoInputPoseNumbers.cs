@@ -7,12 +7,12 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// fallbacks with the records (#2050). The records spell keeping the current pose as the last byte value, a number past
 /// every record that names no pose.
 /// </summary>
-internal static class SamusNoInputFallbackNumbers
+internal static class SamusNoInputPoseNumbers
 {
     /// <summary>The record byte that keeps the current pose.</summary>
     private const byte KeepCurrentPoseByte = byte.MaxValue;
 
     /// <summary>The record byte <paramref name="fallback"/> stands for.</summary>
-    internal static byte Number(SamusNoInputFallback fallback) =>
+    internal static byte Number(SamusNoInputPose fallback) =>
         fallback.TryGetPose(out SamusPoseId pose) ? SamusPoseNumbers.Number(pose) : KeepCurrentPoseByte;
 }

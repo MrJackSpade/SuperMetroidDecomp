@@ -7,10 +7,10 @@ internal static class LibraryBackgroundSourceDefinitions
     internal static IReadOnlyDictionary<ushort, LibraryBackgroundProgram> ByPointer { get; } = new Dictionary<ushort, LibraryBackgroundProgram>
     {
         [0xb76a] = LibraryBackgroundProgramDefinitions.ScrollingSkyLandingSite,
-        [0xb7ae] = LibraryBackgroundProgramDefinitions.ScrollingSkyWreckedShipEntrance,
+        [0xb7ae] = LibraryBackgroundProgramDefinitions.ScrollingSkyWestOcean,
         [0xb7f2] = LibraryBackgroundProgramDefinitions.ScrollingSkyEastOcean,
-        [0xb80a] = LibraryBackgroundProgramDefinitions.ScrollingSkyBowlingAlley,
-        [0xb815] = LibraryBackgroundProgramDefinitions.BrinstarKraidUpperLower,
+        [0xb80a] = LibraryBackgroundProgramDefinitions.ScrollingSkyPreBowling,
+        [0xb815] = LibraryBackgroundProgramDefinitions.KraidAlive,
         [0xb840] = LibraryBackgroundProgramDefinitions.KraidDead,
         [0xb84d] = LibraryBackgroundProgramDefinitions.CrocomireDefault,
         [0xb858] = LibraryBackgroundProgramDefinitions.CrocomireWhenAreaMiniBossDead,

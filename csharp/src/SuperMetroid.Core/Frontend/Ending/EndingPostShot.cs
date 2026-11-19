@@ -5,9 +5,9 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal sealed class EndingPostShot
 {
     /// <summary>The shot picture's fade out (#2541): a step on each of the shot's updates from its first.</summary>
-    private readonly PacedFadeSteps shotFade = new(EndingPostShotDefinitions.FadeFrames, updatesPerStep: 1, firstStepUpdate: 1);
+    private readonly PacedFadeSteps shotFade = new(EndingPostShotDefinitions.FadeSteps, updatesPerStep: 1, firstStepUpdate: 1);
     /// <summary>Samus's fade out (#2541): a step on each of the shot's updates once its delay has passed.</summary>
-    private readonly PacedFadeSteps samusFade = new(EndingPostShotDefinitions.FadeFrames, updatesPerStep: 1,
+    private readonly PacedFadeSteps samusFade = new(EndingPostShotDefinitions.FadeSteps, updatesPerStep: 1,
         firstStepUpdate: EndingPostShotDefinitions.SamusFadeDelay + 1);
     /// <summary>The hold before the white flash (#2541), which counts the updates after the rotation reaches its minimum zoom.</summary>
     private readonly UpdateCountdown hold = UpdateCountdown.Lasting(EndingPostShotDefinitions.HoldFrames);

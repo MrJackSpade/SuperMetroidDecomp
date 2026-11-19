@@ -189,10 +189,10 @@ internal static class EndingObjectArtworkVerification
                 $"installed ending OBJ art preserves phase at frame {frame}");
             if (phases.Add(native.Phase) || frame % 211 == 0)
             {
-                LayeredScene expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
+                LayeredScene expected = EndingCreditsPresentation.ComposeScene(native);
                 RgbColor[] expectedColours = EndingShownColours.Of(native);
                 byte[] expectedVram = native.ShownVram();
-                LayeredScene actual = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
+                LayeredScene actual = EndingCreditsPresentation.ComposeScene(installed);
                 RgbColor[] actualColours = EndingShownColours.Of(installed);
                 byte[] actualVram = installed.ShownVram();
                 AssertTrue(actualVram.SequenceEqual(expectedVram) &&

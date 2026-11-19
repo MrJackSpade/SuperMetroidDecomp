@@ -13,10 +13,10 @@ internal static class EnemyAiRoutineDefinitions
         /// <summary>The shared enemy bank, $A0, whose common prologue callbacks every enemy header can name.</summary>
         public const byte Bank = 0xa0;
 
-        /// <summary><c>NormalEnemyTouchAI</c> at $A0:8023.</summary>
-        public static readonly SnesAddress NormalEnemyTouch = new(Bank, 0x8023);
-        /// <summary><c>NormalEnemyShotAI</c> at $A0:802D.</summary>
-        public static readonly SnesAddress NormalEnemyShot = new(Bank, 0x802d);
+        /// <summary><c>OrdinaryTouchAI</c> at $A0:8023.</summary>
+        public static readonly SnesAddress OrdinaryTouch = new(Bank, 0x8023);
+        /// <summary><c>OrdinaryShotAI</c> at $A0:802D.</summary>
+        public static readonly SnesAddress OrdinaryShot = new(Bank, 0x802d);
         /// <summary>Shared dud-shot callback at $A0:8046.</summary>
         public static readonly SnesAddress DudShot = new(Bank, 0x8046);
         /// <summary>Shared no-op interaction callback at $A0:804C.</summary>

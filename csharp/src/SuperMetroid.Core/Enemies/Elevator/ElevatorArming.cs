@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Elevator;
 
 /// <summary>What has armed an elevator's pseudo-door for the coming door transition.</summary>
-public enum ElevatorJourneyFlag
+public enum ElevatorArming
 {
     /// <summary>Nothing: an ordinary door finishes at once, and the elevator waits for a collision.</summary>
     None,

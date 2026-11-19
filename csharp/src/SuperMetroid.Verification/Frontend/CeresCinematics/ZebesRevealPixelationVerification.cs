@@ -68,7 +68,7 @@ internal static class ZebesRevealPixelationVerification
             if (setting is not { } current)
                 continue;
 
-            LayeredScene snapshot = scene.CaptureRenderSnapshot();
+            LayeredScene snapshot = scene.ComposeScene();
             PicturedPlaneLayer[] planes = snapshot.LayersOf<PicturedPlaneLayer>();
             if (before == CeresDestructionPhase.RemoveZebesPixelation)
             {

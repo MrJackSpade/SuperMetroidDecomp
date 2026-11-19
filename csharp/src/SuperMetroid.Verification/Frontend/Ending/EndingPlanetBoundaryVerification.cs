@@ -42,7 +42,7 @@ internal static class EndingPlanetBoundaryVerification
         int composedFloorFrames = 0;
         while (ending.Phase is EndingCreditsPhase.FadeInZebesExplosion or EndingCreditsPhase.ZebesExplosionCrossfade)
         {
-            var snapshot = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
+            var snapshot = EndingCreditsPresentation.ComposeScene(ending);
             RgbColor[] snapshotColours = EndingShownColours.Of(ending);
             var projection = snapshot.LayersOf<TurningFloorLayer>().Single();
             // The native floor shows what the reconstruction's floor shows in the frame's colours. Where the live floor shows
@@ -95,7 +95,7 @@ internal static class EndingPlanetBoundaryVerification
         int floorFrames = 0, drawnFrames = 0;
         for (int frame = 0; frame < 2048 && ending.Phase != EndingCreditsPhase.PlanetEscapeFast; frame++)
         {
-            var live = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
+            var live = EndingCreditsPresentation.ComposeScene(ending);
             TurningFloorLayer[] liveFloors = live.LayersOf<TurningFloorLayer>();
             // The reconstruction changes only the turning floor: a frame that shows none is the same scene either way.
             if (liveFloors.Length > 0)

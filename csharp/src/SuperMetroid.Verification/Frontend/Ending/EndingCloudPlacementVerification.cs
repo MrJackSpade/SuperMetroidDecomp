@@ -87,7 +87,7 @@ internal static class EndingCloudPlacementVerification
             oam.BeginFrame();
             foreach (var actor in actors) actor.Picture.Draw(oam, installedArt: cloudSprites);
             oam.FinalizeFrame();
-            var actual = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
+            var actual = EndingCreditsPresentation.ComposeScene(ending);
             RgbColor[] actualColours = EndingShownColours.Of(ending);
             AssertEqual(sceneLoads, EndingScreenLoads.Of(ending.Phase), $"scene B frame {frame} shows the loads its memory image holds");
             byte[] oamBytes = [.. oam.LowTable.ToArray(), .. oam.HighTable.ToArray()];
@@ -120,7 +120,7 @@ internal static class EndingCloudPlacementVerification
         }
         AssertEqual(EndingCreditsPhase.SideCloudEscape, ending.Phase, "takeoff color-math scene reached");
         for (int frame = 0; frame < 90; frame++) ending.Step();
-        TurningFloorLayer shown = EndingCreditsPresentation.CaptureRenderSnapshot(ending).LayersOf<TurningFloorLayer>().First();
+        TurningFloorLayer shown = EndingCreditsPresentation.ComposeScene(ending).LayersOf<TurningFloorLayer>().First();
         if (checkWrapping)
         {
             // SetupPpu_5_Mode7 ($8B:8293) writes M7SEL=0, not the $80 transparent-overflow mode.

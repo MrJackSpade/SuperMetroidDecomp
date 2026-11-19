@@ -85,7 +85,7 @@ Each must become a named `RoomTransitionCarryOver` member or stay a field of a s
   diagonal quake (`EscapeQuakeCarriedAcrossRooms`) and the elevatube fraction (`ElevatubeInheritedFraction`) depend on
   them, all over the one value the room mains share (`RoomMainCarryover`).
 - **Camera tracking state and fraction words** survive door loading (`ScrollBoundaryCamera.InheritTrackingState`,
-  `RetainSubpositions`; 80cc097fc, #1266). `InheritedLayer1Position` supplies them when there is no previous camera.
+  `RetainFractions`; 80cc097fc, #1266). `InheritedLayer1Position` supplies them when there is no previous camera.
 - **Samus velocity** survives; only `ExtraDisplacement` is cleared.
 - **Beam charge, flare counters and the charge palette** survive `ResetProjectileData`: they live on the session
   `BeamChargeState`, which each room's `SamusProjectileSystem` receives at construction.

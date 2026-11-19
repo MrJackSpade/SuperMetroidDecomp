@@ -301,7 +301,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         requests.Movement = _movement.MoveTowardWall(samus);
         if (requests.Movement.Value.ReachedVerticalBoundary)
         {
-            Encounter.RainbowPhase = MotherBrainRainbowPhase.OneFrameDelay;
+            Encounter.RainbowPhase = MotherBrainRainbowPhase.PinSamusToWall;
             Encounter.PhaseTimer.LastFor(1);
         }
         return false;
@@ -443,7 +443,7 @@ internal sealed class MotherBrainRainbowAttackPhases
                 _state.RequestWalkForward(
                     _state.BodyPosition.X + MotherBrainLateFightDefinitions.FinishOffStepX, MotherBrainWalkSpeed.ReallySlow);
                 _state.BabyMetroidSpawned = false;
-                Encounter.FinishOffPhase = MotherBrainFinishOffPhase.GetSamusToLowEnergy;
+                Encounter.FinishOffPhase = MotherBrainFinishOffPhase.AttackUntilSamusIsLow;
             }
         }
         return false;
@@ -462,7 +462,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         MotherBrainRainbowPhase.ExtendNeckDown => LowerNeckToFire(requests),
         MotherBrainRainbowPhase.StartFiring => WidenBeamUntilItTakesHold(samus, frame, requests),
         MotherBrainRainbowPhase.MoveSamusTowardWall => PushSamusToWall(samus, requests),
-        MotherBrainRainbowPhase.OneFrameDelay => PinSamusToWall(samus, requests),
+        MotherBrainRainbowPhase.PinSamusToWall => PinSamusToWall(samus, requests),
         MotherBrainRainbowPhase.StartDrainingSamus => StartDrainingSamus(requests),
         MotherBrainRainbowPhase.DrainingSamus => DrainSamus(samus, frame, requests),
         MotherBrainRainbowPhase.FinishFiring => NarrowBeamAndReleaseSamus(samus, requests),

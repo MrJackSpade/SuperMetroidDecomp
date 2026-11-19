@@ -28,13 +28,13 @@ internal static class EndingScreenPublicationVerification
                 audio.AdvanceFrame(default);
             }
             AssertEqual(target, ending.Phase, $"the ending reaches {target}");
-            FramePaint shown = EndingCreditsPresentation.CaptureRenderSnapshot(ending).Paint;
+            FramePaint shown = EndingCreditsPresentation.ComposeScene(ending).Paint;
             byte[] shownVram = ending.ShownVram();
             EndingCreditsState restored = RoundTrip(ending);
             restored.InstalledArtwork.BindFixtureObjectArtwork(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingObjects);
             restored.InstalledArtwork.BindBackdrops(InstalledFixtures.EndingBackdrops);
             restored.InstalledArtwork.BindEndingText(InstalledFixtures.Maps.EndingText);
-            FramePaint restoredShown = EndingCreditsPresentation.CaptureRenderSnapshot(restored).Paint;
+            FramePaint restoredShown = EndingCreditsPresentation.ComposeScene(restored).Paint;
             var shownRestored = restored.ShownVram();
             AssertTrue(shownVram.SequenceEqual(shownRestored), $"a restored ending shows the same image at {target}");
             AssertTrue(ending.screen.Colours.Shading == restored.screen.Colours.Shading && shown.Backdrop == restoredShown.Backdrop, $"a restored ending shows the same shading and backdrop at {target}");

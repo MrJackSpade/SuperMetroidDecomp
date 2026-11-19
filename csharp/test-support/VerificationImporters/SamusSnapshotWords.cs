@@ -163,7 +163,7 @@ internal static class SamusSnapshotWords
 
     /// <summary>Encodes a beam charge as the word the game keeps it in.</summary>
     internal static ushort EncodeBeamCharge(BeamChargeLevel charge) =>
-        charge.HyperBeamFlare ? HyperBeamFlareWord : checked((ushort)charge.FlareCounter);
+        charge.HyperBeamFlare ? HyperBeamFlareWord : checked((ushort)charge.UpdatesHeld);
 
     /// <summary>The bit of <c>$0A46</c> that enables Samus's slope alignment after a horizontal move.</summary>
     private const int SlopeAlignmentBit = 1 << 1;

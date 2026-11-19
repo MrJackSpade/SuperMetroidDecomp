@@ -34,7 +34,7 @@ internal static class EscapeRunningFootstepsVerification
             SamusPresentation.InitializeAnimation(samus);
             if (able) samus.Drained.SetupForRainbowBeamAbleToStand(samus);
             else samus.Drained.SetupForRainbowBeamUnableToStand(samus);
-            samus.Drained.PutCrouchingOrFalling(samus);
+            samus.Drained.CrouchDrained(samus);
             if (!able)
             {
                 AssertTrue(samus.Drained.RunGetUpCheck(samus, GameplayAction.Up), "cutscene still accepts failed stand-up");
@@ -43,7 +43,7 @@ internal static class EscapeRunningFootstepsVerification
 
             // Begin at the identified native timer-handoff phase, not a boss playthrough.
             var sequence = MotherBrainLateFightFixtures.NewSequence();
-            sequence.Encounter.DeathPhase = MotherBrainDeathPhase.DoorExplodingStartTimer;
+            sequence.Encounter.DeathPhase = MotherBrainDeathPhase.EscapeDoorBursts;
             var request = sequence.Step(samus, MotherBrainLateFightFixtures.QuietFrame(0, 0) with { NextRandomNumber = () => 0 });
             AssertTrue(request.Starts(MotherBrainStepEffect.GetUpRelease) && request.Starts(MotherBrainStepEffect.EscapeTimerStart),
                 "native death phase emits command F and timer start together");

@@ -38,11 +38,11 @@ internal static class CinematicSnapshotTestsVerification
             bool changed = flightPhases.Add(flight.Phase);
             if (changed || tick % 14 == 0)
             {
-                LayeredScene snapshot = flight.CaptureRenderSnapshot();
+                LayeredScene snapshot = flight.ComposeScene();
                 byte[] held = GraphDigest(snapshot);
                 coloredRearView |= snapshot.Layers.Any(layer => layer is ScreenTintLayer c
                     && c.Colour != RgbColor.Black);
-                AssertTrue(ScenePixels.Same(flight.CaptureRenderSnapshot(), snapshot), $"Ceres flight snapshot tick {tick} shows the live scene's pixels");
+                AssertTrue(ScenePixels.Same(flight.ComposeScene(), snapshot), $"Ceres flight snapshot tick {tick} shows the live scene's pixels");
                 flight.StepFrame();
                 Survives(held, snapshot, tick);
                 flightSamples++;
@@ -63,7 +63,7 @@ internal static class CinematicSnapshotTestsVerification
             bool changed = phases.Add(destruction.Phase);
             if (changed || tick % 26 == 0)
             {
-                LayeredScene snapshot = destruction.CaptureRenderSnapshot();
+                LayeredScene snapshot = destruction.ComposeScene();
                 byte[] held = GraphDigest(snapshot);
                 mode7 |= snapshot.Layers.Any(layer => layer is TurningFloorLayer);
                 mode1 |= snapshot.Layers.Any(layer => layer is PicturedPlaneLayer);
@@ -75,7 +75,7 @@ internal static class CinematicSnapshotTestsVerification
                     explosionCoversTop |= coloured && window.Window.FirstLine == 0 && window.Window.Shapes.Length != 0 &&
                         window.Window.Shapes[0] is WindowOval oval && oval.CoreStart.Y - oval.Radii.Y <= 0;
                 }
-                AssertTrue(ScenePixels.Same(destruction.CaptureRenderSnapshot(), snapshot), $"Ceres destruction snapshot tick {tick} shows the live scene's pixels");
+                AssertTrue(ScenePixels.Same(destruction.ComposeScene(), snapshot), $"Ceres destruction snapshot tick {tick} shows the live scene's pixels");
                 { destruction.Step(); destructionAudio.AdvanceFrame(default); }
                 Survives(held, snapshot, tick);
                 samples++;
@@ -97,12 +97,12 @@ internal static class CinematicSnapshotTestsVerification
             {
                 // The menu is captured every update, as the game draws it; each phase's first update and every fourth are
                 // rendered and digested (#1532).
-                LayeredScene snapshot = menu.CaptureRenderSnapshot();
+                LayeredScene snapshot = menu.ComposeScene();
                 bool sample = menu.Phase != sampledPhase || tick % 4 == 0;
                 sampledPhase = menu.Phase;
                 byte[] held = sample ? GraphDigest(snapshot) : [];
                 if (sample)
-                    AssertTrue(ScenePixels.Same(menu.CaptureRenderSnapshot(), snapshot), $"game-over snapshot tick {tick} shows the live menu's pixels");
+                    AssertTrue(ScenePixels.Same(menu.ComposeScene(), snapshot), $"game-over snapshot tick {tick} shows the live menu's pixels");
                 ControllerButton input = 0;
                 if (menu.Phase == GameOverMenuPhase.Main)
                 {
@@ -144,8 +144,8 @@ internal static class CinematicSnapshotTestsVerification
             // Independent owners are essential: legacy draw advances projectile trails.
             // Calling both producers on one scene would run those side effects twice.
             // Each owner draws every update for those side effects; the pixels are compared on sampled updates only (#1532).
-            LayeredScene expected = legacy.CaptureRenderSnapshot();
-            LayeredScene snapshot = captured.CaptureRenderSnapshot();
+            LayeredScene expected = legacy.ComposeScene();
+            LayeredScene snapshot = captured.ComposeScene();
             bool newPhase = phases.Add(legacy.Phase);
             bool sample = newPhase || tick % 62 == 0;
             byte[] held = sample ? GraphDigest(snapshot) : [];

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Progression;
 /// The startup route a save resumes by after file selection: the opening cinematic for a new game, the file-select area
 /// map and saved checkpoint for the main game, or one of the two Ceres checkpoints.
 /// </summary>
-public enum SaveLoadingGameState
+public enum SaveStartupRoute
 {
     /// <summary>The opening cinematic and a new Ceres start.</summary>
     OpeningCinematic,

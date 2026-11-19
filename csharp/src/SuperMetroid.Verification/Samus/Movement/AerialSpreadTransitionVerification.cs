@@ -47,11 +47,11 @@ internal static class AerialSpreadTransitionVerification
         if (frame == 259) AssertEqual(0, runtime.BombProjectiles.BombCounter, "aerial spread expires completely");
         if (delay == 6 && frame is >= 92 and <= 104)
         {
-            AssertEqual(80, samus.BeamCharge.FlareCounter, "airborne morph preserves earned charge while Down is held");
+            AssertEqual(80, samus.BeamCharge.UpdatesHeld, "airborne morph preserves earned charge while Down is held");
             AssertEqual((ushort)(frame - 91), samus.BombSpreadCharge.Age, "airborne hold advances after morph completes");
         }
         if (releasedSpread)
-            AssertEqual(0, samus.BeamCharge.FlareCounter, "airborne spread consumes charge");
+            AssertEqual(0, samus.BeamCharge.UpdatesHeld, "airborne spread consumes charge");
     }
 
     /// <summary>Checks walljump pose, retained charge, held-Down release, and negative input controls frame by frame.</summary>
@@ -66,7 +66,7 @@ internal static class AerialSpreadTransitionVerification
             int morphFrame = 94 + delay;
             int releaseFrame = 115 + delay;
             if (frame >= 87 && frame < releaseFrame)
-                AssertEqual(71, samus.BeamCharge.FlareCounter, "walljump retains charge through released Shoot and morph");
+                AssertEqual(71, samus.BeamCharge.UpdatesHeld, "walljump retains charge through released Shoot and morph");
             if (frame >= morphFrame && frame < morphFrame + 6)
                 AssertEqual(left ? SamusPoseId.MorphingTransitionRightPose : SamusPoseId.MorphingTransitionLeftPose,
                     samus.Pose, "six-frame airborne morph follows charged walljump");
@@ -77,7 +77,7 @@ internal static class AerialSpreadTransitionVerification
             if (frame == releaseFrame)
                 AssertEqual(5, runtime.BombProjectiles.BombCounter, "Down release launches all five bombs");
             if (frame >= releaseFrame)
-                AssertEqual(0, samus.BeamCharge.FlareCounter, "walljump spread consumes charge");
+                AssertEqual(0, samus.BeamCharge.UpdatesHeld, "walljump spread consumes charge");
             if (delay == 41 && frame == 134)
                 AssertTrue((FixedCoordinate.Of(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction) - previousY).IsPositive,
                     "late success starts morph after descent has already begun, as native permits");
@@ -89,7 +89,7 @@ internal static class AerialSpreadTransitionVerification
                 AssertEqual(left ? SamusPoseId.NormalJumpGunExtendedRightPose : SamusPoseId.NormalJumpGunExtendedLeftPose, samus.Pose,
                     "held Shoot interrupts the newly earned walljump into normal jump");
             if (timingCase == 13 && frame == 95)
-                AssertEqual(0, samus.BeamCharge.FlareCounter, "intervening turn fires the retained charge instead of morphing");
+                AssertEqual(0, samus.BeamCharge.UpdatesHeld, "intervening turn fires the retained charge instead of morphing");
         }
         if (frame == 299) AssertEqual(0, runtime.BombProjectiles.BombCounter, "walljump spread expires");
     }

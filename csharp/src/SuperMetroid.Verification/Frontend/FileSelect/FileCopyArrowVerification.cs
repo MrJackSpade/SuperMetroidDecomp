@@ -38,7 +38,7 @@ internal static class FileCopyArrowVerification
             }
             ScreenSprites Capture()
             {
-                menu.CaptureRenderSnapshot();
+                menu.ComposeScene();
                 return menu.screen.Sprites;
             }
             Until(FileSelectPhase.Main);
@@ -99,7 +99,7 @@ internal static class FileCopyArrowVerification
             }
             // Rendering must not advance animation.
             FileCopyArrowRotationStep beforeRender = menu.CopyArrowRotation;
-            menu.Render(); menu.CaptureRenderSnapshot();
+            menu.Render(); menu.ComposeScene();
             AssertEqual(beforeRender, menu.CopyArrowRotation, "render leaves the arrows' rotation alone");
             Press(ControllerButton.A);
             AssertEqual(FileSelectPhase.CopyCompleted, menu.Phase, "copy completes");

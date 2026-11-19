@@ -56,7 +56,7 @@ internal static class RoomObjectDefinitionMigrationVerification
         AssertEqual(0xfb00, NoobTubeDebrisDefinitions.BubbleInitialYVelocity.RawValue, "bubble velocity");
         AssertEqual(0x00c0, NoobTubeDebrisDefinitions.CrackFallVelocity.RawValue, "crack velocity");
         AssertEqual(0x00c0, NoobTubeDebrisDefinitions.ShardFallYVelocity.RawValue, "shard fall velocity");
-        AssertEqual(0x0ae0, SpeedBoosterEscapeDefinitions.StartFxMotionSamusX, "lavaquake start X");
+        AssertEqual(0x0ae0, SpeedBoosterEscapeDefinitions.LavaStartsMovingSamusX, "lavaquake start X");
         AssertEqual(0xff80, SpeedBoosterEscapeDefinitions.InitialLavaquakeVelocity.RawValue, "lavaquake velocity");
         AssertEqual(0xffe0, SpeedBoosterPickupDefinitions.LavaRiseVelocity.RawValue, "pickup lava velocity");
         AssertEqual(16, SamusEaterObjectDefinitions.HeldInvincibilityFrames, "plant hold sustained invincibility frames");
@@ -69,9 +69,9 @@ internal static class RoomObjectDefinitionMigrationVerification
             "ninth metroids-cleared entry places an escape room's held place");
         AssertThrows<InvalidDataException>(() => RoomObjectRoomArgumentWords.Decode(RoomObjectKind.MetroidRoomClearance, 16),
             "a no-op entry decodes to no clearance watch");
-        AssertEqual<RoomObjectRoomArgument?>(new MetroidRoomArgument(StoryEvent.FirstMetroidHallCleared),
+        AssertEqual<RoomObjectRoomArgument?>(new WatchedMetroidRoom(StoryEvent.FirstMetroidHallCleared),
             RoomObjectRoomArgumentWords.Decode(RoomObjectKind.MetroidRoomClearance, 18), "first quota observer");
-        AssertEqual<RoomObjectRoomArgument?>(new MetroidRoomArgument(StoryEvent.SecondMetroidShaftCleared),
+        AssertEqual<RoomObjectRoomArgument?>(new WatchedMetroidRoom(StoryEvent.SecondMetroidShaftCleared),
             RoomObjectRoomArgumentWords.Decode(RoomObjectKind.MetroidRoomClearance, 24), "last quota observer");
 
         // Terrain blocks keep the collision kind and appearance of the former literal words.

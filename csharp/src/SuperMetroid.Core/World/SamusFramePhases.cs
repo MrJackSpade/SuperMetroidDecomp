@@ -108,7 +108,7 @@ internal sealed class SamusFramePhases
         }
         else if (!_freeze.TimeIsFrozen &&
                  SamusGrappleHudInput.IsSelectedAndAdmitted(samus, room.Projectiles.PostureAdmission) &&
-                 ((_playerActions.NewlyPressed | samus.InputSnapshot.PreviousDrawNewInput) & GameplayAction.Shoot) != GameplayAction.None)
+                 ((_playerActions.NewlyPressed | samus.InputSnapshot.PressesSeenLastUpdate) & GameplayAction.Shoot) != GameplayAction.None)
         {
             // Selecting the grapple on the HUD fires it once the pose's movement type admits it.
             SamusGrappleMovement.BeginFiring(samus, _playerActions.Current);
@@ -214,10 +214,10 @@ internal sealed class SamusFramePhases
     internal void RunInputPhase(SamusControlFrame frame, SuperMetroid.Core.Progression.SuperMetroidGameState gameState, SamusState samus,
         FixedPosition<RoomPixels> cameraPointAtFrameStart, RoomScope room)
     {
-        RunInputPhaseHead(frame, samus, cameraPointAtFrameStart, room);
+        ChooseSamusPoseFromInput(frame, samus, cameraPointAtFrameStart, room);
         frame.SampleMovementEnabled(_player.GroundedSamusMovementEnabled);
         if (frame.MovementEnabled)
-            RunInputPhaseTail(frame, gameState, samus, room);
+            RunHudAndProjectileInput(frame, gameState, samus, room);
     }
 
     /// <summary>
@@ -232,14 +232,14 @@ internal sealed class SamusFramePhases
     {
         if (frame.MovementEnabled)
             RunMovement(frame, samus, room);
-        RunMovementPhaseTail(frame, samus, runsLowHealthCheck, room);
+        AnimateAndSettleSamus(frame, samus, runsLowHealthCheck, room);
     }
 
     /// <summary>
     /// Runs the input phase's tail once movement is enabled: environment gravity, terrain hazards, inside-block reactions, HUD
     /// selection, X-ray admission, bombs, grapple and projectiles, then the end-of-input-phase movement snapshot.
     /// </summary>
-    private void RunInputPhaseTail(SamusControlFrame frame, SuperMetroid.Core.Progression.SuperMetroidGameState gameState, SamusState samus,
+    private void RunHudAndProjectileInput(SamusControlFrame frame, SuperMetroid.Core.Progression.SuperMetroidGameState gameState, SamusState samus,
         RoomScope room)
     {
         // The input phase refreshes the liquid-gravity values after pose input/radius setup and
@@ -316,7 +316,7 @@ internal sealed class SamusFramePhases
             // and colour effects while time is frozen. Normal bombs cannot be placed or
             // advanced through this producer during the X-ray interval.
             // The bombs' share of the HUD item's step runs the shared cooldown, then the morph ball's producer.
-            if (room.BombProjectiles.RunHudProducer(samus, _playerActions.Current, _playerActions.NewlyPressed))
+            if (room.BombProjectiles.TickCooldownAndPlaceBombs(samus, _playerActions.Current, _playerActions.NewlyPressed))
             {
                 room.Projectiles.Firing.CancelCharge();
                 SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, samus.EquippedItems);
@@ -334,7 +334,7 @@ internal sealed class SamusFramePhases
             // its exact off-screen deletion window. A Spacetime beam shot changes Samus's items and progress during this
             // pass, so the rest of this update, and a save, see the change.
             var shotTerrain = new SamusTerrain { Level = room.LevelData, RoomObjects = room.RoomObjects };
-            room.Projectiles.FireFromHud(shotTerrain, samus, new ProjectileButtonInput { ControllerInput = _playerActions.Current, ControllerNewInput = _playerActions.NewlyPressed, ControllerPreviousNewInput = samus.InputSnapshot.PreviousDrawNewInput }, room.BombProjectiles, projectileProducerEnabled: !frame.InputHandlingLocked(samus));
+            room.Projectiles.FireFromHud(shotTerrain, samus, new ProjectileButtonInput { ControllerInput = _playerActions.Current, ControllerNewInput = _playerActions.NewlyPressed, ControllerPreviousNewInput = samus.InputSnapshot.PressesSeenLastUpdate }, room.BombProjectiles, projectileProducerEnabled: !frame.InputHandlingLocked(samus));
             room.BombProjectiles.HandleBombs(shotTerrain, samus, overlap: BombJumpOverlapPublication.Deferred);
             room.Projectiles.HandleShots(shotTerrain, samus, room.Camera.PixelPosition, room.BombProjectiles, _system);
 
@@ -854,7 +854,7 @@ internal sealed class SamusFramePhases
     /// Runs the input phase's head: X-ray's beam, the frame's camera point, the frame-start captures, the live radius
     /// refresh, the pose her input chooses and the fallback pose when it chooses none.
     /// </summary>
-    private void RunInputPhaseHead(SamusControlFrame frame, SamusState samus,
+    private void ChooseSamusPoseFromInput(SamusControlFrame frame, SamusState samus,
         FixedPosition<RoomPixels> cameraPointAtFrameStart, RoomScope room)
     {
         // X-ray's beam is not part of Samus's frame phases. Advance its explicit
@@ -950,7 +950,7 @@ internal sealed class SamusFramePhases
             _player.ProspectiveSamusFallbackPose = SamusNoTransitionPose.Resolve(
                 SamusPoseMetadata.ReadMovementType(samus),
                 samus.Pose,
-                SamusPoseMetadata.ReadNoInputFallback(samus),
+                SamusPoseMetadata.ReadNoInputPose(samus),
                 frame.DeceleratingFallbackHasMomentum).ProspectivePose;
         }
     }
@@ -960,7 +960,7 @@ internal sealed class SamusFramePhases
     /// her movement (the drained get-up and Draygon's escape), animation or the death sequence, the pose transitions, and
     /// periodic damage with the low-energy check.
     /// </summary>
-    private void RunMovementPhaseTail(SamusControlFrame frame, SamusState samus, bool runsLowHealthCheck, RoomScope room)
+    private void AnimateAndSettleSamus(SamusControlFrame frame, SamusState samus, bool runsLowHealthCheck, RoomScope room)
     {
         // Samus's normal movement phase updates the speed echo after her movement owner has moved her
         // and before animation/pose transitions. Every fourth gameplay frame at the full boost stage, it alternates

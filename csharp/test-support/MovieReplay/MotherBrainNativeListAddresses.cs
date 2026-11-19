@@ -605,6 +605,6 @@ internal static class MotherBrainNativeListAddresses
     /// <summary>Each native <see cref="MotherBrainBrainAction"/> routine pointer and the function it decodes to.</summary>
     internal static readonly Dictionary<ushort, MotherBrainBrainAction> NativeBrainActions = new()
     {
-        [0x87a2] = MotherBrainBrainAction.SetupBrainAndNeckToBeDrawn,
-        [0x87d0] = MotherBrainBrainAction.SetupBrainToBeDrawn,
+        [0x87a2] = MotherBrainBrainAction.ShowsBrainOnNeck,
+        [0x87d0] = MotherBrainBrainAction.ShowsBrainAlone,
     };}

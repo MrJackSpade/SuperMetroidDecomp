@@ -27,7 +27,7 @@ internal static class RetailPauseTests
         });
         void Compare(string page)
         {
-            var packet = new DisplayPacket(0, pause.CaptureRenderSnapshot());
+            var packet = new DisplayPacket(0, pause.ComposeScene());
             PixelComparison.Verify(packet, DisplayRendering.Render(packet), renderer.RenderForReadback(packet), $"{device.Kind}: pause {page}");
         }
         Compare("map");

@@ -36,7 +36,7 @@ internal sealed class EyeDoorObjects
     /// good; the eye's first look then turns it into the ordinary blue cap. The setup changes only each block's collision
     /// kind and behaviour, so each keeps what it shows (#2496).
     /// </summary>
-    internal void SetupEyeDoorEye(RoomLevelData level, RoomObjectPlace place, EyeDoorOrientation orientation, LockedDoorArgument door)
+    internal void SetupEyeDoorEye(RoomLevelData level, RoomObjectPlace place, EyeDoorOrientation orientation, DoorLock door)
     {
         Ensure.NotNull(place);
         var placedDoor = new PlacedDoor(Ensure.NotNull(door));
@@ -53,7 +53,7 @@ internal sealed class EyeDoorObjects
     /// first look then removes it. The body stands in the door, which Samus's arrival through it asks to close (#2493). The
     /// setup changes only the block's collision kind and behaviour, so it keeps what it shows (#2496).
     /// </summary>
-    internal void SetupEyeDoorPart(RoomLevelData level, RoomObjectPlace place, EyeDoorPart part, LockedDoorArgument door)
+    internal void SetupEyeDoorPart(RoomLevelData level, RoomObjectPlace place, EyeDoorPart part, DoorLock door)
     {
         Ensure.NotNull(place);
         var placedDoor = new PlacedDoor(door);

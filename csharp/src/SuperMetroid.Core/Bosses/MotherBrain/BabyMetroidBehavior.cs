@@ -89,16 +89,16 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="place">The Baby Metroid's place.</param>
     /// <param name="samus">Samus, when the update has one.</param>
     /// <param name="camera">The enemy pass's camera, which the wait for the camera and the off-screen test read.</param>
-    /// <param name="sharedProjectiles">Samus's bomb and projectile counters, which draining Samus locks.</param>
+    /// <param name="samusBombs">Samus's bomb and projectile counters, which draining Samus locks.</param>
     internal void RunBabyMetroidMain(
         RoomEnemyPlace place,
         SamusState samus,
         Position16<RoomPixels> camera,
-        SamusBombProjectileSystem sharedProjectiles)
+        SamusBombProjectileSystem samusBombs)
     {
-        Ensure.NotNull(sharedProjectiles);
+        Ensure.NotNull(samusBombs);
         BabyMetroidEnemyState state = place.RequireSpeciesState<BabyMetroidEnemyState>();
-        RunBabyMetroidState(place, state, samus, camera, sharedProjectiles);
+        RunBabyMetroidState(place, state, samus, camera, samusBombs);
         place.Position = place.Position.MovedBy(state.Velocity);
         // The room's enemies run between a door fade's steps; the membrane pulse waits for the fade.
         if (!_fadeStepCount.IsPastStart)
@@ -111,7 +111,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         BabyMetroidEnemyState state,
         SamusState samus,
         Position16<RoomPixels> camera,
-        SamusBombProjectileSystem sharedProjectiles)
+        SamusBombProjectileSystem samusBombs)
     {
         switch (state.Action)
         {
@@ -205,7 +205,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                     place,
                     state,
                     samus,
-                    sharedProjectiles);
+                    samusBombs);
                 return;
 
             case BabyMetroidAction.BeginPostDrainPause:
@@ -418,12 +418,12 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace place,
         BabyMetroidEnemyState state,
         SamusState samus,
-        SamusBombProjectileSystem sharedProjectiles)
+        SamusBombProjectileSystem samusBombs)
     {
         if (samus.Health < BabyMetroidFightDefinitions.DrainStopHealth)
         {
             samus.SlowdownLevel = 0;
-            sharedProjectiles.ReleaseCountAfterDrain();
+            samusBombs.ReleaseCountAfterDrain();
             state.Action = BabyMetroidAction.BeginPostDrainPause;
             state.Velocity = default;
             SetBabyMetroidAnimation(place, BabyMetroidSegment.FinishDraining);
@@ -435,8 +435,8 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        sharedProjectiles.SetSharedCooldown(BabyMetroidFightDefinitions.DrainShotCooldown);
-        sharedProjectiles.HoldCountForDrain();
+        samusBombs.SetSharedCooldown(BabyMetroidFightDefinitions.DrainShotCooldown);
+        samusBombs.HoldCountForDrain();
         samus.SlowdownLevel = BabyMetroidFightDefinitions.DrainXSpeedDivisor;
         // A speed slowed past zero at the apex reads as below four in the clamp's comparison, so it keeps its value
         // (#1562); the Baby Metroid sits a pixel right while the speed reads four or more (DrainingBabyMetroidFallShift).
@@ -707,7 +707,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         ResolveBabyMetroidShot(c.Enemy, c.Bomb.Damage, MetroidRecoilOrigin.Of(c.OrdinaryProjectiles.Shots));
 
     /// <summary>Runs Baby Metroid's initialization AI.</summary>
-    internal static void RunBabyMetroidInitializationAi(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
+    internal static void SetUpBabyMetroid(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
     {
         InitializeBabyMetroid(place, surroundings.Camera.X);
     }
@@ -715,7 +715,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs Baby Metroid's main AI.</summary>
     internal void RunBabyMetroidMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunBabyMetroidMain(place, frame.Samus, frame.Camera, frame.SharedProjectiles);
+        RunBabyMetroidMain(place, frame.Samus, frame.Camera, frame.SamusBombs);
     }
 
     /// <summary>
@@ -756,7 +756,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // enters vulnerability damage. Its own reaction converts shot strength and the first shot's aim into recoil.
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
             ResolveBabyMetroidShot(c.Enemy, c.Projectile.Damage, MetroidRecoilOrigin.Of(c.Projectiles.Shots));
             return true;
         },

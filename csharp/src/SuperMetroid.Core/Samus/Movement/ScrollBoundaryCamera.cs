@@ -104,14 +104,14 @@ public sealed class ScrollBoundaryCamera
     /// Room and game loads write only the integer positions, so the
     /// previous room's fractions remain.
     /// </summary>
-    public void RetainSubpositions(ScrollBoundaryCamera previous) =>
-        RetainSubpositions(previous.Position);
+    public void RetainFractions(ScrollBoundaryCamera previous) =>
+        RetainFractions(previous.Position);
 
     /// <summary>
     /// Keeps the fractions of <paramref name="retained"/>, such as those that
     /// survived a released gameplay owner; the whole pixels are unchanged.
     /// </summary>
-    public void RetainSubpositions(FixedPosition<RoomPixels> retained) =>
+    public void RetainFractions(FixedPosition<RoomPixels> retained) =>
         Position = Position.WithFractionsOf(retained);
 
     /// <summary>

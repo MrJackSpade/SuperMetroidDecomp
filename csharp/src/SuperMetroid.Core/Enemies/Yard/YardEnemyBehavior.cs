@@ -557,7 +557,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        _collision.ResolveNormalEnemyTouch(place, samus, pseudoScrew);
+        _collision.ResolveOrdinaryTouch(place, samus, pseudoScrew);
         state.CrawlSpeed = place.SpawnSettings<YardSpawnSettings>().CrawlSpeed;
         if (state.Behavior != YardBehavior.NormalCrawling)
             TurnYardAround(state);

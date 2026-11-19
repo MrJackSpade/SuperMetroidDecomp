@@ -3,19 +3,19 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <summary>
 /// What a pose falls back to when no input transition applies: another pose, or keeping the pose Samus is in.
 /// </summary>
-public readonly record struct SamusNoInputFallback
+public readonly record struct SamusNoInputPose
 {
     /// <summary>The pose fallen back to, or null where the pose is kept.</summary>
     private readonly SamusPoseId? _pose;
 
     /// <summary>A fallback to <paramref name="pose"/>, or keeping the current pose where it is null.</summary>
-    private SamusNoInputFallback(SamusPoseId? pose) => _pose = pose;
+    private SamusNoInputPose(SamusPoseId? pose) => _pose = pose;
 
     /// <summary>The fallback that keeps the pose Samus is in.</summary>
-    public static SamusNoInputFallback KeepCurrentPose => default;
+    public static SamusNoInputPose KeepCurrentPose => default;
 
     /// <summary>The fallback to <paramref name="pose"/>.</summary>
-    public static SamusNoInputFallback ToPose(SamusPoseId pose) => new(pose);
+    public static SamusNoInputPose ToPose(SamusPoseId pose) => new(pose);
 
     /// <summary>Whether the fallback keeps the pose Samus is in.</summary>
     public bool KeepsCurrentPose => _pose is null;

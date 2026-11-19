@@ -15,7 +15,7 @@ internal sealed class DoorOpeningScrollState
     {
         Direction = setup.Direction;
         SamusScrollStep = setup.SamusScrollStep;
-        Scroll = UpdateCountdown.For(setup.RemainingFrames);
+        Scroll = UpdateCountdown.For(setup.ScrollUpdates);
         CameraPosition = setup.CameraPosition;
         BackgroundPosition = setup.BackgroundPosition;
         SamusPosition = setup.SamusPosition;
@@ -64,7 +64,7 @@ internal sealed class DoorOpeningScrollState
 
         Offset16<BackgroundPixels> backgroundSetup = Ensure.Listed(DoorOpeningScrollDefinitions.SetupBackgroundOffsets, direction);
 
-        return new DoorOpeningScrollState(new DoorOpeningScrollSetup { Direction = direction, SamusScrollStep = GetSamusStep(door), RemainingFrames = MovingScrollUpdates(direction), CameraPosition = GetSetupCamera(door), BackgroundPosition = finalBackground + backgroundSetup, SamusPosition = samus, FinalCameraPosition = finalCamera });
+        return new DoorOpeningScrollState(new DoorOpeningScrollSetup { Direction = direction, SamusScrollStep = GetSamusStep(door), ScrollUpdates = MovingScrollUpdates(direction), CameraPosition = GetSetupCamera(door), BackgroundPosition = finalBackground + backgroundSetup, SamusPosition = samus, FinalCameraPosition = finalCamera });
     }
 
     /// <summary>The scroll updates that remain after setup (<see cref="DoorOpeningScrollDefinitions.MovingScrollUpdates"/>).</summary>

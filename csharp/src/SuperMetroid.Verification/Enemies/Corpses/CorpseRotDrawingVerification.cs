@@ -116,7 +116,7 @@ internal static class CorpseRotDrawingVerification
             "Mother Brain's corpse frame has one finished picture, which no later look changes");
         SpriteSheet sheet = sheets.For(set, EnemyDefinitionId.MotherBrainHead);
         var rotting = new MotherBrainCorpseRottingState();
-        var authored = new AuthoredRot(MotherBrainCorpseRottingState.EntryCount);
+        var authored = new AuthoredRot(MotherBrainCorpseRottingState.RowCount);
         int compared = 0;
         bool still = true;
         for (int call = 0; still; call++)

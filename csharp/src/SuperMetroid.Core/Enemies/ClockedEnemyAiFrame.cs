@@ -32,7 +32,7 @@ internal sealed class ClockedEnemyAiFrame(RoomEnemyFrame frame, FrameCounters cl
     public PseudoScrewCharge PseudoScrew => frame.PseudoScrew;
 
     /// <inheritdoc/>
-    public SamusBombProjectileSystem SharedProjectiles => frame.SharedProjectiles;
+    public SamusBombProjectileSystem SamusBombs => frame.SamusBombs;
 
     /// <inheritdoc/>
     public FrameCounters Clock => clock;

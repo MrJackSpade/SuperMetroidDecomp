@@ -276,7 +276,7 @@ level, samus, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled)
     AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Whole, "crouch clears numeric horizontal velocity");
     AssertEqual(new SamusSpeedBoostCounter(4, 1), samus.HorizontalSpeed.SpeedBoostCounter, "crouch movement preserves boost stage");
     AssertTrue(samus.HorizontalSpeed.HasRunningMomentum, "crouch movement preserves momentum bookkeeping");
-    samus.HorizontalSpeed.ApplyStoppedInputFallback(SamusPoseMetadata.ReadFacingDirection(samus));
+    samus.HorizontalSpeed.StopForNoTransition(SamusPoseMetadata.ReadFacingDirection(samus));
     AssertEqual(new SamusSpeedBoostCounter(0, 0), samus.HorizontalSpeed.SpeedBoostCounter, "crouch input fallback independently cancels boost");
     AssertTrue(!samus.HorizontalSpeed.HasRunningMomentum, "fallback cancels momentum bookkeeping");
 
@@ -325,8 +325,8 @@ level, aimedSamus, unchecked((ushort)index), roomObjects: SamusRoomObjectFixture
         AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(aimedSamus), "aimed crouch FD applies");
         AssertEqual(aimedCrouchTargets[index], aimedSamus.Pose, "aimed crouch FD target");
         AssertEqual(
-            SamusNoInputFallback.ToPose(facesLeft ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose),
-            SamusPoseMetadata.ReadNoInputFallback(aimedSamus),
+            SamusNoInputPose.ToPose(facesLeft ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose),
+            SamusPoseMetadata.ReadNoInputPose(aimedSamus),
             "aimed crouch definition fallback");
         GroundedMovementResult aimedCrouchFrame = SamusPostureMovement.StepCrouching(
 level, aimedSamus, unchecked((ushort)index), roomObjects: SamusRoomObjectFixtures.Uninstalled);

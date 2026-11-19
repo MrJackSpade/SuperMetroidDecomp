@@ -134,7 +134,7 @@ public sealed class SuperMetroidGame
         // The sound queues read whether the door transition has disabled sound effects from the door's phase itself as each
         // request is made (#2499); the phase's audio here chooses only the update's own audio processing.
         GamePhaseAudio phaseAudio = Phases.Of(Session.GameState).Audio;
-        bool pauseInputEpilogue = phaseAudio == GamePhaseAudio.PauseInputEpilogue;
+        bool publishesHeldInputAfterPause = phaseAudio == GamePhaseAudio.PublishesHeldInputAfterPause;
         bool messageWasActive = Session.Runtime?.MessageBox.IsActive == true;
         bool doorAudioUpdate = phaseAudio is GamePhaseAudio.DoorTransition or GamePhaseAudio.DoorTransitionSoundsDisabled;
         // Whether this update continues the door's destination load, and whether it leaves the load running, are read
@@ -197,7 +197,7 @@ public sealed class SuperMetroidGame
         // The pause phases publish held input after they return, even though Samus's
         // drawing step, which ends by publishing it, did not run. Publish only the held input;
         // updating the press edge or auto-jump timer here would invent gameplay.
-        if (pauseInputEpilogue)
+        if (publishesHeldInputAfterPause)
             Session.GameplayRuntime.Player.IntroducedSamus.InputSnapshot.PublishHeldInput(Session.GameplayRuntime.PlayerActions.Current);
         return new(Session.GameState, PhaseName, FrameNumber, audio);
     }
@@ -294,7 +294,7 @@ public sealed class SuperMetroidGame
                 DrainedGetUp = samus.Drained.GetUpCheck,
                 EscapeTimer = runtime.EscapeTimer.Phase,
                 Fx = samus.LiquidPhysics.FxType,
-                Medium = samus.LiquidPhysics.LiquidPhysicsType,
+                Medium = samus.LiquidPhysics.MediumLastEntered,
                 WaterSurfaceY = samus.LiquidPhysics.WaterSurfaceY,
                 LavaAcidSurfaceY = samus.LiquidPhysics.LavaAcidSurfaceY,
             }

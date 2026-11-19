@@ -24,7 +24,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <typeparam name="TReaction">A special block's reaction.</typeparam>
 /// <typeparam name="TChange">What a bomb sets off at the block.</typeparam>
 [CompatibilityService("a normal bomb shows four plain solid special blocks as Speed Booster blocks in every area, as it shows Brinstar's")]
-public sealed class SpecialBlockBombRunOn<TReaction, TChange>
+public sealed class BombRevealedSpeedBlockLookalikes<TReaction, TChange>
     where TReaction : notnull
     where TChange : class
 {
@@ -39,7 +39,7 @@ public sealed class SpecialBlockBombRunOn<TReaction, TChange>
     /// <param name="speedBlockReveal">The Speed Booster block's bomb reveal.</param>
     /// <exception cref="ArgumentNullException">An argument is null.</exception>
     /// <exception cref="ArgumentException">No reaction is named.</exception>
-    public SpecialBlockBombRunOn(IEnumerable<TReaction> shownAsSpeedBlocks, TChange speedBlockReveal)
+    public BombRevealedSpeedBlockLookalikes(IEnumerable<TReaction> shownAsSpeedBlocks, TChange speedBlockReveal)
     {
         this.shownAsSpeedBlocks = [.. Ensure.NotNull(shownAsSpeedBlocks)];
         if (this.shownAsSpeedBlocks.Count == 0)

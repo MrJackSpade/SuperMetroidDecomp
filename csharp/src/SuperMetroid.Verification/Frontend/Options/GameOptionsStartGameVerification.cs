@@ -18,10 +18,10 @@ internal static class GameOptionsStartGameVerification
     /// </summary>
     internal static void VerifyGameOptionsStartGame()
     {
-        foreach ((SaveLoadingGameState route, GameOptionsPhase afterPress) in new[]
+        foreach ((SaveStartupRoute route, GameOptionsPhase afterPress) in new[]
         {
-            new VerifyGameOptionsStartGameCase(SaveLoadingGameState.MainGame, GameOptionsPhase.StartGame),
-            new VerifyGameOptionsStartGameCase(SaveLoadingGameState.OpeningCinematic, GameOptionsPhase.FadeOutToIntro),
+            new VerifyGameOptionsStartGameCase(SaveStartupRoute.MainGame, GameOptionsPhase.StartGame),
+            new VerifyGameOptionsStartGameCase(SaveStartupRoute.OpeningCinematic, GameOptionsPhase.FadeOutToIntro),
         })
         {
             var options = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture()), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false) { StartupRoute = route };
@@ -31,7 +31,7 @@ internal static class GameOptionsStartGameVerification
             AssertEqual<GameOptionsRow>(new GameOptionsRow.OnPrimaryPage(GameOptionsPrimaryRow.StartGame), options.SelectedRow, "the cursor starts on START GAME");
             options.Step(ControllerButton.A);
             AssertEqual(afterPress, options.Phase, $"START GAME with a {route} save");
-            if (route == SaveLoadingGameState.MainGame)
+            if (route == SaveStartupRoute.MainGame)
             {
                 options.Step(ControllerButton.A);
                 AssertTrue((options.Outcome == GameOptionsMenuOutcome.Intro), "a main-game save is dispatched on the next update");

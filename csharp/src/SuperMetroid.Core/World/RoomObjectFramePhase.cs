@@ -68,7 +68,7 @@ internal sealed class RoomObjectFramePhase
         if (samus.Xray.AreObjectsSuspended)
             return;
 
-        RoomObjectStepOutcome step = StepRoomObjects(controllerNewInput: GameplayAction.None, room, samus);
+        RoomObjectStepOutcome step = StepRoomObjects(newlyPressed: GameplayAction.None, room, samus);
 
         // Setup-time room objects do not have Samus contact/input available. If a future
         // change publishes a player-facing event here, fail at the exact ownership
@@ -87,9 +87,9 @@ internal sealed class RoomObjectFramePhase
     /// transition path cannot legitimately collect an item or activate a station.
     /// </summary>
     /// <returns>The step's outcome, which the phase that ran it acts on.</returns>
-    private static RoomObjectStepOutcome StepRoomObjects(GameplayAction controllerNewInput, RoomScope room, SamusState samus)
+    private static RoomObjectStepOutcome StepRoomObjects(GameplayAction newlyPressed, RoomScope room, SamusState samus)
     {
-        RoomObjectStepOutcome step = room.RoomObjects.Step(room.LevelData, new RoomObjectFrameInputs { Scrolls = room.Camera.Scrolls, EnemyDeaths = room.Enemies.RoomStatus.EnemiesKilled, EnemyDeathQuota = room.Enemies.PopulationLoader.DeathQuota, ControllerNewInput = controllerNewInput, CollectedItems = samus.CollectedItems, PowerBombExplosionActive = room.BombProjectiles.PowerBombExplosion.IsActive });
+        RoomObjectStepOutcome step = room.RoomObjects.Step(room.LevelData, new RoomObjectFrameInputs { Scrolls = room.Camera.Scrolls, EnemyDeaths = room.Enemies.RoomStatus.EnemiesKilled, EnemyDeathQuota = room.Enemies.PopulationLoader.DeathQuota, ControllerNewInput = newlyPressed, CollectedItems = samus.CollectedItems, PowerBombExplosionActive = room.BombProjectiles.PowerBombExplosion.IsActive });
         EnemyRoomEffects.ApplyPendingDownwardGateProjectileRequests(EnemyRoomEffectSite.Of(room, samus));
         return step;
     }

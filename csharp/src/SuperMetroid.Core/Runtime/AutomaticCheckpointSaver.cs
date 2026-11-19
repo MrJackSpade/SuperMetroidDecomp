@@ -14,18 +14,18 @@ internal static class AutomaticCheckpointSaver
     /// The Ceres opening publishes its checkpoint game state before saving the initial Ceres checkpoint.
     /// </summary>
     public static void SaveCeresArrival(SaveSlotStore saves, SuperMetroidRuntime runtime, SaveSlot slot) =>
-        SaveCeresCheckpoint(saves, runtime, slot, SaveLoadingGameState.CeresElevatorArrival);
+        SaveCeresCheckpoint(saves, runtime, slot, SaveStartupRoute.CeresElevatorArrival);
 
     /// <summary>
     /// The escape ending publishes its checkpoint game state before saving at the completed escape blackout.
     /// This checkpoint resumes the destruction cinematic, never the escaping room.
     /// </summary>
     public static void SaveCeresDeparture(SaveSlotStore saves, SuperMetroidRuntime runtime, SaveSlot slot) =>
-        SaveCeresCheckpoint(saves, runtime, slot, SaveLoadingGameState.CeresDestruction);
+        SaveCeresCheckpoint(saves, runtime, slot, SaveStartupRoute.CeresDestruction);
 
     /// <summary>Publishes the requested Ceres loading state, then saves Samus, system state, game time, and player options through the ordinary save-file encoder.</summary>
     private static void SaveCeresCheckpoint(
-        SaveSlotStore saves, SuperMetroidRuntime runtime, SaveSlot slot, SaveLoadingGameState route)
+        SaveSlotStore saves, SuperMetroidRuntime runtime, SaveSlot slot, SaveStartupRoute route)
     {
         Ensure.NotNull(saves);
         Ensure.NotNull(runtime);
@@ -50,7 +50,7 @@ internal static class AutomaticCheckpointSaver
         // The gunship sets the ship-landed marker before moving the checkpoint from the Zebes arrival to
         // the gunship and saving the game, all on the update the landing completes, so the saved game shows the ship as its
         // save point when it loads.
-        runtime.System.LoadSavedStartupRoute(SaveLoadingGameState.MainGame);
+        runtime.System.LoadSavedStartupRoute(SaveStartupRoute.MainGame);
         runtime.System.MarkSaveStationUsed(LoadStationDefinitions.Gunship);
         saves.SaveSlot(selectedSaveSlot, runtime.SaveSnapshotAt(LoadStationDefinitions.Gunship));
         return true;

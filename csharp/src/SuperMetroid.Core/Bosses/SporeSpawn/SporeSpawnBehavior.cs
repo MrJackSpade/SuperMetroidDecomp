@@ -322,14 +322,14 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 // His frames' hitboxes meet a shot with his shell's dud or his core's own reaction.
                 if (c.HitboxShot == EnemyReaction.DudShot)
                 {
-                    c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+                    c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
                     _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
                     return true;
                 }
                 if (!SporeSpawnAcceptsProjectile(c.ProjectileType))
                 {
                     // The shot has struck the vulnerable core, whose shot reaction rejects it before common damage.
-                    c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+                    c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
                     return true;
                 }
                 return false;
@@ -350,7 +350,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         // His frames' hitboxes meet a touch with his hardened husk's shell, which does nothing, or his own reaction.
         if (context.HitboxTouch == EnemyReaction.Ignore)
             return;
-        _collision.ResolveNormalEnemyTouch(context, TouchDeathAnimation.Skip);
+        _collision.ResolveOrdinaryTouch(context, TouchDeathAnimation.Skip);
         ResolveSporeSpawnDeathAfterCommon(context.Place, state);
     }
 

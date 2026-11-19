@@ -134,10 +134,10 @@ internal static class EnemyEffectMechanicsVerification
             AssertEqual(call < 118, step.StillRotting, "exact corpse lifetime");
             // Rows fallen by this call, bottom row first: each is marked fallen, except the last
             // row, whose fall ends the rot.
-            int[] finishedRows = Enumerable.Range(0, MotherBrainCorpseRottingState.EntryCount)
+            int[] finishedRows = Enumerable.Range(0, MotherBrainCorpseRottingState.RowCount)
                 .Where(index => !fallenBefore[index] &&
                     (rot.Schedule.Rows[index].HasFallen ||
-                        (!step.StillRotting && index == MotherBrainCorpseRottingState.EntryCount - 1)))
+                        (!step.StillRotting && index == MotherBrainCorpseRottingState.RowCount - 1)))
                 .ToArray();
             AssertEqual(finishedRows.Length, step.DustRequests.Count, "one dust request per completed corpse row");
             for (int request = 0; request < finishedRows.Length; request++)
@@ -151,7 +151,7 @@ internal static class EnemyEffectMechanicsVerification
                 finished++;
             }
         }
-        AssertEqual(MotherBrainCorpseRottingState.EntryCount, finished, "each of the 48 completion callbacks fires exactly once");
+        AssertEqual(MotherBrainCorpseRottingState.RowCount, finished, "each of the 48 completion callbacks fires exactly once");
         Console.WriteLine("  Mother Brain corpse: 118 exact calls, 48 row completions, dust/audio timing pass.");
     }
 

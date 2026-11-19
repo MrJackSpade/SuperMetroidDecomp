@@ -150,7 +150,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         // The walk back is the really-slow backward walk, the painful walk's last animation.
         if (_state.RequestWalkBackward(MotherBrainFightDefinitions.BackOfRoomX, MotherBrainWalkSpeed.ReallySlow))
         {
-            Encounter.DrainedPhase = MotherBrainDrainedPhase.GoIntoLowPowerMode;
+            Encounter.DrainedPhase = MotherBrainDrainedPhase.SlumpOnceNeckIsRaised;
             Encounter.UpperNeckMovement = MotherBrainNeckMovement.None;
             return true;
         }
@@ -172,7 +172,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
             if (Encounter.Pose != MotherBrainBodyPose.Standing)
                 return false;
             _state.SetBodyAnimation(MotherBrainBodySegment.CrouchFast);
-            Encounter.DrainedPhase = MotherBrainDrainedPhase.PrepareTransitionToGrey;
+            Encounter.DrainedPhase = MotherBrainDrainedPhase.WaitBeforeGreying;
             Encounter.PhaseTimer.LastFor(MotherBrainFightDefinitions.BeforeGreyUpdates);
         }
         return false;
@@ -222,8 +222,8 @@ internal sealed class MotherBrainDrainedByBabyPhases
         MotherBrainDrainedPhase.FiringRainbowBeam => StaggerWhileFiringBeam(requests),
         MotherBrainDrainedPhase.RainbowBeamRunOut => FinishStaggering(),
         MotherBrainDrainedPhase.MoveToBackOfRoom => RetreatToBackOfRoom(),
-        MotherBrainDrainedPhase.GoIntoLowPowerMode => SlumpOnceNeckIsRaised(),
-        MotherBrainDrainedPhase.PrepareTransitionToGrey => StartGreying(),
+        MotherBrainDrainedPhase.SlumpOnceNeckIsRaised => SlumpOnceNeckIsRaised(),
+        MotherBrainDrainedPhase.WaitBeforeGreying => StartGreying(),
         MotherBrainDrainedPhase.TransitionToGrey => GreyOut(requests),
         _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainDrainedPhase)} {Encounter.DrainedPhase}."),
     };

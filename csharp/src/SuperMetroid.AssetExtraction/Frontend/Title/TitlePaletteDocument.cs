@@ -17,5 +17,5 @@ public sealed record TitlePaletteDocument
     /// <summary>Nonnull RGB5 copyright highlight restored at CGRAM 201 on fast skip, independently editable from the initial palette's same slot.</summary>
     public required PaletteRgb5 SkipCopyrightWhite { get; init; }
     /// <summary>Nonnull RGB5 copyright tint restored at CGRAM 202 on fast skip, independently editable from the initial palette; Red is a legacy role name rather than a color constraint.</summary>
-    public required PaletteRgb5 SkipCopyrightRed { get; init; }
+    public required PaletteRgb5 SkipCopyrightTint { get; init; }
 }

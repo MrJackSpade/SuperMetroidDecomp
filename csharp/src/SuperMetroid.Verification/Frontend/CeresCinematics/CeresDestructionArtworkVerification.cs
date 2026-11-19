@@ -88,9 +88,9 @@ internal static class CeresDestructionArtworkVerification
             bool firstPhaseFrame = phases.Add(native.Phase);
             if (firstPhaseFrame || frame % 211 == 0)
             {
-                LayeredScene expected = native.CaptureRenderSnapshot();
+                LayeredScene expected = native.ComposeScene();
                 byte[] expectedVram = native.ShownVram();
-                LayeredScene actual = installed.CaptureRenderSnapshot();
+                LayeredScene actual = installed.ComposeScene();
                 byte[] actualVram = installed.ShownVram();
                 AssertTrue(actual.Brightness == expected.Brightness &&
                         actualVram.SequenceEqual(expectedVram) &&

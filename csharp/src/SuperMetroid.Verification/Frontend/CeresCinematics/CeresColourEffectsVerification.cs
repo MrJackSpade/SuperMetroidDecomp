@@ -202,7 +202,7 @@ internal static class CeresColourEffectsVerification
             AssertTrue(update < 6_000, "the Ceres destruction reaches its end");
             scene.Step();
             audio.AdvanceFrame(default);
-            ImageSpriteDraw[] shown = [.. scene.CaptureRenderSnapshot().SpriteDraws.OfType<ImageSpriteDraw>()
+            ImageSpriteDraw[] shown = [.. scene.ComposeScene().SpriteDraws.OfType<ImageSpriteDraw>()
                 .Where(draw => draw.Shading is { } shading && shading.Shades.Contains(drawn))];
             ImageSpriteDraw[] subtitles = [.. shown.Where(draw => ReferenceEquals(draw.Image, subtitleFrame))];
             ImageSpriteDraw[] captions = [.. shown.Where(draw => !ReferenceEquals(draw.Image, subtitleFrame))];
@@ -312,7 +312,7 @@ internal static class CeresColourEffectsVerification
             else
                 AssertEqual(lights.Record, NativeColourEffectRun.RecordOf(shown ?? throw new InvalidOperationException($"Flight update {update} shows no lights.")),
                     $"flight update {update} shows the record the cartridge's lights list shows");
-            foreach (ImageSpriteDraw draw in flight.CaptureRenderSnapshot().SpriteDraws.OfType<ImageSpriteDraw>())
+            foreach (ImageSpriteDraw draw in flight.ComposeScene().SpriteDraws.OfType<ImageSpriteDraw>())
             {
                 PictureShading shading = draw.Shading ?? throw new InvalidOperationException($"Flight update {update} drew {draw} in no shading.");
                 if (shading.Shades.Contains(station) && shade is { } lit)

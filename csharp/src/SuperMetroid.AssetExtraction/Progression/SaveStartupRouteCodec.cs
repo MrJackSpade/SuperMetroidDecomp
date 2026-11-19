@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Progression;
 /// saves by name (#1709). Neither the game nor the installation it loads knows the word.
 /// </summary>
 [EncodingOwner("save slot loading-state word")]
-public static class SaveLoadingGameStateCodec
+public static class SaveStartupRouteCodec
 {
     /// <summary>The saved dispatcher word that selects <paramref name="route"/>.</summary>
     /// <remarks>
@@ -20,16 +20,16 @@ public static class SaveLoadingGameStateCodec
     /// resumes the Ceres-destruction cinematic, not the activated Ceres station; escape blackout publishes it at
     /// $82:83D6-$83D9, $82:EECC-$EED4 selects CeresGoesBoom_Initial and $82:802B later selects Zebes station eighteen.
     /// </remarks>
-    public static int Word(SaveLoadingGameState route) => route switch
+    public static int Word(SaveStartupRoute route) => route switch
     {
-        SaveLoadingGameState.OpeningCinematic => 0x0000,
-        SaveLoadingGameState.MainGame => 0x0005,
-        SaveLoadingGameState.CeresElevatorArrival => 0x001F,
-        SaveLoadingGameState.CeresDestruction => 0x0022,
+        SaveStartupRoute.OpeningCinematic => 0x0000,
+        SaveStartupRoute.MainGame => 0x0005,
+        SaveStartupRoute.CeresElevatorArrival => 0x001F,
+        SaveStartupRoute.CeresDestruction => 0x0022,
         _ => throw new ArgumentOutOfRangeException(nameof(route), route, "Undefined startup route."),
     };
 
     /// <summary>The startup route a saved word selects; any word the dispatcher does not name resumes the main game.</summary>
-    public static SaveLoadingGameState Route(int word) =>
-        Enum.GetValues<SaveLoadingGameState>().SingleOrDefault(route => Word(route) == word, SaveLoadingGameState.MainGame);
+    public static SaveStartupRoute Route(int word) =>
+        Enum.GetValues<SaveStartupRoute>().SingleOrDefault(route => Word(route) == word, SaveStartupRoute.MainGame);
 }

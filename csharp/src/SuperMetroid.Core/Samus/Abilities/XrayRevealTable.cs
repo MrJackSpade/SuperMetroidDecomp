@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>Exposes the two-stage collision-kind and behaviour reveal shape lookup.</summary>
-public static class XrayRevealTable
+public static class XrayReveals
 {
     /// <summary>
     /// The reveal shape for a collision kind and behaviour; null when the game leaves this block's copied foreground art

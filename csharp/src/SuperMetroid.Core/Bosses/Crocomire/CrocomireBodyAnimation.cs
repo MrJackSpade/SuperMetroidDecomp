@@ -20,7 +20,7 @@ public enum CrocomireBodyAnimation
     /// <summary>His step back, then his damage wait.</summary>
     SteppingBack,
     /// <summary>Waiting for a hit: standing, moving his claws, then roaring again and again.</summary>
-    WaitForFirstSecondDamage,
+    AwaitingHit,
     /// <summary>Waiting for a hit, moving his claws, then roaring again and again.</summary>
     MovingClaws,
     /// <summary>Waiting for a hit, roaring again and again.</summary>

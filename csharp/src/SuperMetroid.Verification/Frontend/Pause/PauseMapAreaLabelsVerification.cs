@@ -57,7 +57,7 @@ internal static class PauseMapAreaLabelsVerification
             }
             int labelBytes = native.NextByteOffset;
             native.FinalizeFrame();
-            _ = pause.CaptureRenderSnapshot();
+            _ = pause.ComposeScene();
             var oam = pause.screen.Sprites;
             AssertTrue(oam.LastFinalizedSpriteCount * 4 >= labelBytes, $"{area} pause emits all native destination label parts");
             int start = oam.LastFinalizedSpriteCount * 4 - labelBytes;
@@ -68,19 +68,19 @@ internal static class PauseMapAreaLabelsVerification
             AssertTrue(differs < 0, $"{area} destination spelling, order, coordinates and palette match raw ROM OAM" + (differs < 0 ? "" :
                 $"; object {differs / 4} emitted {Convert.ToHexString(emitted, differs / 4 * 4, 4)}, native {Convert.ToHexString(native.LowTable.Slice(differs / 4 * 4, 4))}"));
             AssertLabels(start, "stable map");
-            pause.AdvanceAnimations(0, PauseAnimationPhase.FadingOut); _ = pause.CaptureRenderSnapshot();
+            pause.AdvanceAnimations(0, PauseAnimationPhase.FadingOut); _ = pause.ComposeScene();
             AssertLabels(0, "outer unpause fade-out");
-            LayeredScene beforeRestore = pause.CaptureRenderSnapshot();
+            LayeredScene beforeRestore = pause.ComposeScene();
             // The capture names the installed content by path, as a host's store does, instead of copying it (#1532).
             pause = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(pause);
             pause.BindFixtureArtwork(RetailPresentationFixture());
-            AssertTrue(ScenePixels.Same(beforeRestore, pause.CaptureRenderSnapshot()), "restoring preserves destination-label fade priority");
-            pause.Step(ControllerButton.R, 0); _ = pause.CaptureRenderSnapshot();
+            AssertTrue(ScenePixels.Same(beforeRestore, pause.ComposeScene()), "restoring preserves destination-label fade priority");
+            pause.Step(ControllerButton.R, 0); _ = pause.ComposeScene();
             AssertLabels(pause.screen.Sprites.LastFinalizedSpriteCount * 4 - labelBytes, "R input stable-map dispatch");
-            pause.Step(0, 0); _ = pause.CaptureRenderSnapshot();
+            pause.Step(0, 0); _ = pause.ComposeScene();
             AssertLabels(0, "map-to-equipment fade-out");
             for (int frame = 0; frame < 29; frame++) pause.Step(0, 0);
-            _ = pause.CaptureRenderSnapshot();
+            _ = pause.ComposeScene();
             AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "equipment page reached");
             AssertTrue(pause.screen.Sprites.LastFinalizedSpriteCount * 4 < labelBytes, "equipment page emits no destination names");
             // Page input is accepted only once the equipment fade-in completes (#1266 cadence).
@@ -91,7 +91,7 @@ internal static class PauseMapAreaLabelsVerification
             }
             pause.Step(ControllerButton.L, 0);
             for (int frame = 0; frame < 16; frame++) pause.Step(0, 0);
-            _ = pause.CaptureRenderSnapshot();
+            _ = pause.ComposeScene();
             AssertEqual(PauseScreenMode.Map, pause.ScreenMode, "map fade-in reached");
             AssertLabels(pause.screen.Sprites.LastFinalizedSpriteCount * 4 - labelBytes, "equipment-to-map fade-in");
             void AssertLabels(int firstByte, string phase)

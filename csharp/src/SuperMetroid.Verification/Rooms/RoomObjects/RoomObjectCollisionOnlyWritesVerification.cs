@@ -44,7 +44,7 @@ internal static class RoomObjectCollisionOnlyWritesVerification
     {
         var kept = new KeptPictures();
         var block = new Position16<RoomBlocks>(6, 6);
-        var door = new LockedDoorArgument(LockedDoorDefinitions.KraidEyeDoorEyeDoorFacingLeft, DoorOpeningPersistence.Persistent);
+        var door = new DoorLock(LockedDoorDefinitions.KraidEyeDoorEyeDoorFacingLeft, DoorOpeningPersistence.Persistent);
         kept.Check("the coloured door's setup", Solid, [block], level =>
             DoorObjects.SetupColoredDoor(level, PlaceAt(RoomObjectFixtures.Unbound(), block),
                 new ColoredDoorVariant(ColoredDoorColor.Red, ColoredDoorOrientation.Left), door));
@@ -52,7 +52,7 @@ internal static class RoomObjectCollisionOnlyWritesVerification
         {
             RoomObjectSystem roomObjects = RoomObjectFixtures.Unbound();
             roomObjects.GreyDoors.SetupGreyDoor(level, PlaceAt(roomObjects, block),
-                new GreyDoorVariant(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.Never, door));
+                new GreyDoorVariant(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorOpening(GreyDoorCondition.Never, door));
         });
         kept.Check("the blue door's opening", Terrain(RoomCollisionType.ShootableBlock), [block], level =>
             AssertTrue(RoomObjectFixtures.Unbound().DoorObjects.TrySpawnBlueDoorOpening(level, block,
@@ -172,7 +172,7 @@ internal static class RoomObjectCollisionOnlyWritesVerification
                 RoomObjectSystem roomObjects = RoomObjectFixtures.Unbound();
                 roomObjects.CollectibleObjects.SetupCollectible(new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Crateria),
                     PlaceAt(roomObjects, item), new PermanentCollectibleObject(InWorldCollectibleKind.EnergyTank, presentation),
-                    new CollectedItemArgument(ItemLocationDefinitions.CrateriaPowerBombsExposedPowerBombTank));
+                    new CollectibleIdentity(ItemLocationDefinitions.CrateriaPowerBombsExposedPowerBombTank));
             });
         }
         var tube = new Position16<RoomBlocks>(7, 7);

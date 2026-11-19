@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// carry it, and a save resumes there.
 /// </summary>
 /// <param name="Station">The load station the save station saves at.</param>
-public sealed record SaveStationArgument(LoadStation Station) : RoomObjectRoomArgument;
+public sealed record SaveStationPlace(LoadStation Station) : RoomObjectRoomArgument;

@@ -71,7 +71,7 @@ internal static class MotherBrainCorpseArtworkVerification
         // The runtime keeps only the final-death corpse's own rot schedule, which starts as the cartridge's $DC40 table
         // does: the bottom row first at the corpse's foot, each row above waiting two calls longer (#1472). The extraction
         // stages the corpse frame the schedule rots (#1392).
-        CorpseRotScheduleChecks.AssertFreshSchedule(MotherBrainCorpseRottingState.EntryCount,
+        CorpseRotScheduleChecks.AssertFreshSchedule(MotherBrainCorpseRottingState.RowCount,
             MotherBrainLateFightFixtures.NewSequence().ThirdPhaseDeath.CorpseRotting.Schedule, "Mother Brain's final-death corpse");
 
         Console.WriteLine("  Mother Brain corpse art: indexed PNG import parity, six RAM-only sprite VRAM pages, independent staging oracle, room/sequence staging pass.");

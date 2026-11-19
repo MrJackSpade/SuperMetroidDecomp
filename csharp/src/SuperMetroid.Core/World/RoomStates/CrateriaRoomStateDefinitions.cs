@@ -63,7 +63,7 @@ public static class CrateriaRoomStateDefinitions
 
     /// <summary>The West Ocean room's state.</summary>
     public static RoomStateSettings WestOcean { get; } =
-        new("WestOcean", RoomLevelDefinitions.WestOcean, RoomGraphicsSet.UpperCrateria, new RoomMusic(MusicDataSet.UpperCrateria, RoomMusicTrack.Plays(MusicTrack.SamusTheme)), SuperMetroid.Core.Fx.RoomFxDefinitions.WestOcean, RoomEnemyPopulationDefinitions.WestOcean, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(1, 2)), BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.WestOcean, null, RoomMainBehavior.ScrollingSkyOcean, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.WestOcean, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.ScrollingSkyWreckedShipEntrance, RoomSetupBehavior.SpawnScrollingSkyBands);
+        new("WestOcean", RoomLevelDefinitions.WestOcean, RoomGraphicsSet.UpperCrateria, new RoomMusic(MusicDataSet.UpperCrateria, RoomMusicTrack.Plays(MusicTrack.SamusTheme)), SuperMetroid.Core.Fx.RoomFxDefinitions.WestOcean, RoomEnemyPopulationDefinitions.WestOcean, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(1, 2)), BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.WestOcean, null, RoomMainBehavior.ScrollingSkyOcean, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.WestOcean, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.ScrollingSkyWestOcean, RoomSetupBehavior.SpawnScrollingSkyBands);
 
 
     /// <summary>The Bowling Alley Path room's state.</summary>
@@ -123,7 +123,7 @@ public static class CrateriaRoomStateDefinitions
 
     /// <summary>The Pre Bowling room's state.</summary>
     public static RoomStateSettings PreBowling { get; } =
-        new("PreBowling", RoomLevelDefinitions.PreBowling, RoomGraphicsSet.UpperCrateria, new RoomMusic(MusicDataSet.UpperCrateria, RoomMusicTrack.Plays(MusicTrack.SamusTheme)), SuperMetroid.Core.Fx.RoomFxDefinitions.PreBowling, RoomEnemyPopulationDefinitions.PreBowling, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(1, 2)), BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.ScrollingSkyOcean, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.PreBowling, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.ScrollingSkyBowlingAlley, RoomSetupBehavior.SpawnScrollingSkyBands);
+        new("PreBowling", RoomLevelDefinitions.PreBowling, RoomGraphicsSet.UpperCrateria, new RoomMusic(MusicDataSet.UpperCrateria, RoomMusicTrack.Plays(MusicTrack.SamusTheme)), SuperMetroid.Core.Fx.RoomFxDefinitions.PreBowling, RoomEnemyPopulationDefinitions.PreBowling, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(1, 2)), BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.ScrollingSkyOcean, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.PreBowling, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.ScrollingSkyPreBowling, RoomSetupBehavior.SpawnScrollingSkyBands);
 
 
     /// <summary>The Climb room's default state.</summary>

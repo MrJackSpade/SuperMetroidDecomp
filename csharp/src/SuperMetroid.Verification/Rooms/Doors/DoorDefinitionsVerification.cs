@@ -53,11 +53,11 @@ internal static class DoorDefinitionsVerification
         contacts.Meet(DoorContact.Of(DoorBlockExit.Physical(TourianDoorDefinitions.MotherBrainToTourianEscape1), pose));
         AssertEqual(CrateriaDoorDefinitions.LandingSiteToParlor, contacts.EnteredDoor,
             "the first door Samus enters is the one she goes through (#2545)");
-        contacts.Meet(DoorContact.Of(DoorBlockExit.ElevatorPseudoDoor, SamusCollisionPose.StandingNormal));
+        contacts.Meet(DoorContact.Of(DoorBlockExit.ElevatorRide, SamusCollisionPose.StandingNormal));
         AssertTrue(contacts.ElevatorStand.Take(),
             "a stand at the elevator's door reaches the elevator on the next update's enemies (#2545)");
         AssertTrue(!contacts.ElevatorStand.Take(), "the stand reaches the elevator once");
-        contacts.Meet(DoorContact.Of(DoorBlockExit.ElevatorPseudoDoor, SamusCollisionPose.RanIntoWallRight));
+        contacts.Meet(DoorContact.Of(DoorBlockExit.ElevatorRide, SamusCollisionPose.RanIntoWallRight));
         AssertTrue(!contacts.ElevatorStand.Take(), "a pose other than standing only brushes the elevator's door");
         contacts.ForgetEnteredDoor();
         AssertTrue(contacts.EnteredDoor is null, "the reserve refill's beginning forgets the entered door");

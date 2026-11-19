@@ -64,7 +64,7 @@ internal static class BeamChargeClearVerification
         ControllerButton shoot = runtime.Options.ControllerBindings.Shoot;
         for (int update = 0; update < ChargingUpdates; update++)
             runtime.StepFrame(shoot);
-        built = samus.BeamCharge.FlareCounter;
+        built = samus.BeamCharge.UpdatesHeld;
 
         samus.Pose = SamusPoseId.GrappleWallContactRightPose;
         SamusAerialPoseTransitions.ApplyGrappleWallJump(samus);
@@ -73,7 +73,7 @@ internal static class BeamChargeClearVerification
             runtime.Projectiles.Firing.CancelCharge();
         }
         runtime.StepFrame(shoot);
-        return samus.BeamCharge.FlareCounter;
+        return samus.BeamCharge.UpdatesHeld;
     }
 
     /// <summary>Runs the grapple wall jump's charge clear check.</summary>

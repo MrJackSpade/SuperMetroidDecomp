@@ -53,7 +53,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     public void BeginAttractSamusInput()
     {
         if (_attractSession.Input is null) return;
-        _player.IntroducedSamus.InputSnapshot.PreviousDrawNewInput = _attractSession.Input.Script.NewlyPressed;
+        _player.IntroducedSamus.InputSnapshot.PressesSeenLastUpdate = _attractSession.Input.Script.NewlyPressed;
         _attractSession.Input.Step();
         _attractSession.InputRestore = _playerActions.UseDemoInput(
             _attractSession.Input.Script.Held, _attractSession.Input.Script.NewlyPressed);

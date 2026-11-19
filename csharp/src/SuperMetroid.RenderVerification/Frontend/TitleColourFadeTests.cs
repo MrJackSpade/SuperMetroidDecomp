@@ -71,7 +71,7 @@ internal static class TitleColourFadeTests
         SpriteSheetFrame faded, PictureShading end, int into, string composition)
     {
         string context = $"{device.Kind}: title {composition} fade, {into} updates in (update {update})";
-        FloorScene scene = title.CaptureRenderSnapshot();
+        FloorScene scene = title.ComposeScene();
         var packet = new DisplayPacket(update, scene);
         RgbaPixel[] shown = renderer.RenderForReadback(packet);
         PixelComparison.Verify(packet, title.Render(), shown, context);

@@ -5,15 +5,15 @@ namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
 /// Verification's view of the cartridge pointers behind compiled doors and door lists: the import pipeline's door
-/// records (<see cref="DoorHeaderSources"/>), the elevator pseudo-door words, and each room's door-list pointer.
+/// records (<see cref="DoorHeaderSources"/>), the elevator ride words, and each room's door-list pointer.
 /// </summary>
 internal static class DoorDefinitionsAccess
 {
-    /// <summary>The shared elevator pseudo-door's door-list word.</summary>
-    internal const ushort SharedElevatorPseudoDoorPointer = 0x88fc;
+    /// <summary>The shared elevator ride's door-list word.</summary>
+    internal const ushort SharedElevatorRidePointer = 0x88fc;
 
-    /// <summary>The Maridia/Tourian elevator pseudo-door's door-list word.</summary>
-    internal const ushort MaridiaTourianElevatorPseudoDoorPointer = 0xa18a;
+    /// <summary>The Maridia/Tourian elevator ride's door-list word.</summary>
+    internal const ushort MaridiaTourianElevatorRidePointer = 0xa18a;
 
     /// <summary>Each room, by the bank-$8F pointer of its door list.</summary>
     private static readonly Dictionary<ushort, RoomDefinition> RoomByListPointer = new()
@@ -325,14 +325,14 @@ internal static class DoorDefinitionsAccess
     /// <summary>The door-list word of an entry.</summary>
     extension(DoorBlockExit self)
     {
-        /// <summary>The word the cartridge's door list stores for this entry's physical door, or null for the elevator pseudo-door.</summary>
+        /// <summary>The word the cartridge's door list stores for this entry's physical door, or null for the elevator ride.</summary>
         internal ushort? Pointer => self.Door is { } door ? DoorHeaderSourcesConstants.PointerOf(door) : null;
     }
 
     /// <summary>
     /// The physical door a cartridge door-list word names, or null for either of the two addresses the cartridge keeps the
-    /// elevator pseudo-door at, which are one entry.
+    /// elevator ride at, which are one entry.
     /// </summary>
     internal static ushort? DoorPointerOf(ushort listWord) =>
-        listWord is SharedElevatorPseudoDoorPointer or MaridiaTourianElevatorPseudoDoorPointer ? null : listWord;
+        listWord is SharedElevatorRidePointer or MaridiaTourianElevatorRidePointer ? null : listWord;
 }

@@ -30,8 +30,8 @@ internal static class EnemyInteractionCallbacks
     private static readonly IReadOnlyDictionary<EnemyReaction, SnesAddress> Addresses =
         new Dictionary<EnemyReaction, SnesAddress>
     {
-        [EnemyReaction.NormalEnemyTouch] = EnemyAiRoutineDefinitions.BankA0.NormalEnemyTouch,
-        [EnemyReaction.NormalEnemyShot] = EnemyAiRoutineDefinitions.BankA0.NormalEnemyShot,
+        [EnemyReaction.OrdinaryTouch] = EnemyAiRoutineDefinitions.BankA0.OrdinaryTouch,
+        [EnemyReaction.OrdinaryShot] = EnemyAiRoutineDefinitions.BankA0.OrdinaryShot,
         [EnemyReaction.DudShot] = EnemyAiRoutineDefinitions.BankA0.DudShot,
         [OumReactions.DamagingTouch] = EnemyAiRoutineDefinitions.BankA2.OumDamagingTouch,
         [OumReactions.NonDamagingTouch] = EnemyAiRoutineDefinitions.BankA2.OumNonDamagingTouch,
@@ -153,7 +153,7 @@ internal static class EnemyInteractionCallbacks
     private static EnemyReaction? TryNameShared(int pointer)
     {
         if (ByAddress.TryGetValue(SnesAddress.InBank(EnemyAiRoutineDefinitions.BankA0.Bank, pointer), out EnemyReaction? common) &&
-            (common == EnemyReaction.NormalEnemyTouch || common == EnemyReaction.NormalEnemyShot || common == EnemyReaction.DudShot))
+            (common == EnemyReaction.OrdinaryTouch || common == EnemyReaction.OrdinaryShot || common == EnemyReaction.DudShot))
             return common;
         return null;
     }

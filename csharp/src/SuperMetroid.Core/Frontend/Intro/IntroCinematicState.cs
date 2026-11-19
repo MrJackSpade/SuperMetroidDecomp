@@ -801,7 +801,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // still decides when a missile may fire.
         flashbackBombProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel, RoomObjects = IntroCollisionRoomObjects.Instance }, FlashbackSamus, FlashbackDemoInput.Held, FlashbackDemoInput.NewlyPressed);
         // A missile's firing sound joins the frontend's queues as the shot fires.
-        flashbackProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel, RoomObjects = IntroCollisionRoomObjects.Instance }, FlashbackSamus, new ProjectileButtonInput { ControllerInput = FlashbackDemoInput.Held, ControllerNewInput = FlashbackDemoInput.NewlyPressed, ControllerPreviousNewInput = FlashbackDemoInput.PublishedPreviousNewlyPressed }, cameraPosition: Position16<RoomPixels>.Zero, sharedProjectiles: flashbackBombProjectiles, progression: FlashbackProgression);
+        flashbackProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel, RoomObjects = IntroCollisionRoomObjects.Instance }, FlashbackSamus, new ProjectileButtonInput { ControllerInput = FlashbackDemoInput.Held, ControllerNewInput = FlashbackDemoInput.NewlyPressed, ControllerPreviousNewInput = FlashbackDemoInput.PublishedPreviousNewlyPressed }, cameraPosition: Position16<RoomPixels>.Zero, samusBombs: flashbackBombProjectiles, progression: FlashbackProgression);
 
         // Both the demo and locked movement modes end by resetting the
         // movement and pose-change state, so a later missile inherits only the
@@ -1109,10 +1109,10 @@ public sealed class IntroCinematicState : IFrontendScreen
             : crossfade.SceneShading;
 
     /// <summary>Prepares the current display once, holding everything the display needs to draw it.</summary>
-    internal LayeredScene CaptureRenderSnapshot()
+    internal LayeredScene ComposeScene()
     {
         if (CurrentCeresFlight is not null && Phase == IntroCinematicPhase.CeresFlight)
-            return CurrentCeresFlight.CaptureRenderSnapshot();
+            return CurrentCeresFlight.ComposeScene();
 
         SpriteFrameBuffer sprites;
         PicturedPlaneLayer room;

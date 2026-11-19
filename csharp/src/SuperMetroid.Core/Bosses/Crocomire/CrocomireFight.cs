@@ -134,7 +134,7 @@ internal sealed class CrocomireFight
         if (leftEdge >= samus.Position.X.Whole)
             return;
 
-        _collision.ResolveNormalEnemyTouch(body, samus, pseudoScrew);
+        _collision.ResolveOrdinaryTouch(body, samus, pseudoScrew);
         samus.Position = samus.Position.WithWholeX(leftEdge);
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(CrocomireFightDefinitions.WallPush);
     }
@@ -339,7 +339,7 @@ internal sealed class CrocomireFight
                 if (Math.Abs(state.Body.Position.X.Whole - samus.Position.X.Whole) < CrocomireFightDefinitions.WakeDistance)
                 {
                     state.Phase = CrocomirePhase.WaitingForFirstDamage;
-                    return CrocomireBodyAnimation.WaitForFirstSecondDamage;
+                    return CrocomireBodyAnimation.AwaitingHit;
                 }
                 return null;
 

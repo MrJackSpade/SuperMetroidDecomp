@@ -31,7 +31,7 @@ internal static class PauseShownColours
     private static int? ShownHighlight(PauseMenuState pause)
     {
         int frame = pause.mapHighlight.Frame.Frame;
-        return pause.CaptureRenderSnapshot().SpriteDraws.OfType<ImageSpriteDraw>()
+        return pause.ComposeScene().SpriteDraws.OfType<ImageSpriteDraw>()
             .Any(draw => Ensure.NotNull(draw.Shading).Shades.Contains(MapSpriteShades.Highlight(pause.mapHighlight.Frame)))
             ? frame : null;
     }

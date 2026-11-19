@@ -29,7 +29,7 @@ internal static class RetailFrontendTests
             if (newPhase || tick % 17 == 0 || title.Phase == TitleSequencePhase.TitleScreenFadeOutToFileSelect)
             {
                 var expected = title.Render();
-                var packet = new DisplayPacket((ushort)tick, title.CaptureRenderSnapshot());
+                var packet = new DisplayPacket((ushort)tick, title.ComposeScene());
                 if (title.Phase == TitleSequencePhase.FinalZoom && ((FloorScene)packet.Scene).Gradient is null)
                     throw new InvalidOperationException("Native scene-three gradient was not spawned.");
                 if (title.Phase == TitleSequencePhase.YearText && ((FloorScene)packet.Scene).Gradient is not null)

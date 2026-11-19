@@ -786,7 +786,7 @@ public sealed class SamusState
     /// lets her fall through the platform. Each probe uses a separate kinematics copy because
     /// the collision check publishes a distance without moving live Samus.
     /// The probe carries the pose being installed: the pose setup writes it to Samus's pose
-    /// before the larger-radius check, so the elevator pseudo-door's standing-pose gate tests it.
+    /// before the larger-radius check, so the elevator ride's standing-pose gate tests it.
     /// </remarks>
     internal BlockMoveResult ProbeChangedPoseVertical(
         RoomLevelData level,

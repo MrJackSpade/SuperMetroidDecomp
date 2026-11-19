@@ -201,13 +201,13 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The follower reads the parent's own state: the flames it placed and where. Its drawing position follows the
         // parent's live position.
-        GerutaSegment followerList = parentState.Flames switch
+        GerutaSegment followerFlames = parentState.Flames switch
         {
             GerutaFlames.Descending => GerutaSegment.FlamesDescending,
             GerutaFlames.Ascending => GerutaSegment.FlamesAscending,
             _ => throw new InvalidOperationException($"Undefined {nameof(GerutaFlames)} {parentState.Flames}."),
         };
-        StartGerutaAnimation(follower, followerState, followerList);
+        StartGerutaAnimation(follower, followerState, followerFlames);
         follower.Presence = follower.Presence.Without(EnemyPresence.Hidden);
         follower.Position = follower.Position.WithWhole(parent.Position.Whole + new Offset16<RoomPixels>(0, parentState.FollowerYOffset));
     }

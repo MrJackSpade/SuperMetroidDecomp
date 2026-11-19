@@ -449,7 +449,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 // Frame-hitbox collision marks the projectile, and nothing more happens: the protected shell
                 // takes no shot damage, makes no impact, plays no shot sound and has no vulnerability.
-                c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+                c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
                 return true;
             }
             if (c.HitboxShot != OumReactions.Shot)
@@ -478,7 +478,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
         // The damaging touch hurts Samus as any enemy does and then shoves her as the harmless touch does. A harmless
         // touch only shoves, which is how the closed shell carries and pushes Samus without its 100 damage.
         if (context.HitboxTouch == OumReactions.DamagingTouch)
-            _collision.ResolveNormalEnemyTouch(context);
+            _collision.ResolveOrdinaryTouch(context);
         ResolveOumTouchAfterCommon(context.Place, context.Samus);
     }
 

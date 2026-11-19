@@ -51,7 +51,7 @@ public static class EndingSequenceDefinitions
         public const int PlanetEscapeMusicWaitFrames = 120;
 
         /// <summary>The waiting backdrop fade's steps: it brightens to its colours in 32 equal steps.</summary>
-        public const int WaitingBackdropFadeFrames = 32;
+        public const int WaitingBackdropFadeSteps = 32;
 
         /// <summary>The waiting backdrop's hold.</summary>
         public const int WaitingBackdropFrames = 180;

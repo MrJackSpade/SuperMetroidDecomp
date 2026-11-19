@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>The room liquid as room objects read and move it (#1395, #1987). The room FX state implements it.</summary>
-public interface IRoomFxMotion
+public interface IRoomLiquid
 {
     /// <summary>The liquid's base surface, or null when it has none (#1546).</summary>
     FixedCoordinate? BaseY { get; }

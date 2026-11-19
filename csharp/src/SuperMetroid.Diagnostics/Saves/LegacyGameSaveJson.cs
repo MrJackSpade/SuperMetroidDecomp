@@ -590,13 +590,13 @@ public static class LegacyGameSaveJson
         {
             if (slots[index] is not JsonObject slot)
                 continue;
-            SaveLoadingGameState route = SaveLoadingGameState.MainGame;
+            SaveStartupRoute route = SaveStartupRoute.MainGame;
             if (slot["loadingGameState"] is JsonNode word)
             {
                 int value = word is JsonValue number && number.TryGetValue(out int parsed) ? parsed
                     : throw new InvalidDataException($"slots[{index}].loadingGameState must be an integer");
                 slot.Remove("loadingGameState");
-                route = SuperMetroid.AssetExtraction.Progression.SaveLoadingGameStateCodec.Route(value);
+                route = SuperMetroid.AssetExtraction.Progression.SaveStartupRouteCodec.Route(value);
             }
             slot["startupRoute"] = JsonNamingPolicy.CamelCase.ConvertName(route.ToString());
         }

@@ -31,7 +31,7 @@ internal static class PauseReserveLabelsVerification
             var pause = new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = samus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 1), ScreenContent = RetailPresentationFixture(), SpriteSheets = MenuSheetFixtures.For(RetailPresentationFixture()), GameplayHud = global::SuperMetroid.Core.Hud.ShownHud.Nothing, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
             EnterPauseEquipment(pause);
             AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "reserve label test reached equipment page");
-            var snapshot = pause.CaptureRenderSnapshot();
+            var snapshot = pause.ComposeScene();
             byte[] snapshotVram = pause.ShownVram(RetailPresentationFixture());
             byte[] expectedVram = snapshotVram.ToArray();
             // Reset the label regions from the cartridge template first. Otherwise

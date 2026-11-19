@@ -12,7 +12,7 @@ internal interface IElevatorJourney
     ElevatorActorStatus ElevatorStatus { get; }
 
     /// <summary>What has armed the elevator's pseudo-door.</summary>
-    ElevatorJourneyFlag ElevatorFlags { get; }
+    ElevatorArming DoorArming { get; }
 
     /// <summary>The way the elevator travels.</summary>
     ElevatorTravelDirection ElevatorTravel { get; }

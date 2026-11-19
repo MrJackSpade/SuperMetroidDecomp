@@ -330,7 +330,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     {
         if (!state.IsDrained)
         {
-            _collision.ResolveNormalEnemyTouch(place, samus, pseudoScrew);
+            _collision.ResolveOrdinaryTouch(place, samus, pseudoScrew);
             return;
         }
         TriggerDeadSidehopperRotting(place, state);
@@ -431,7 +431,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     {
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
             ResolveDeadSidehopperShot(c.Enemy);
             return true;
         },

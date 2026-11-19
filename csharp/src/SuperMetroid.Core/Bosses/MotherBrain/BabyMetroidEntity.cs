@@ -10,7 +10,7 @@ internal sealed class BabyMetroidEntity(BabyMetroidBehavior species, RoomEnemyPl
     : CommonParticipationEnemyEntity(place, common), IEnemySurroundingsInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize(EnemyPopulationSurroundings surroundings) => BabyMetroidBehavior.RunBabyMetroidInitializationAi(Place, surroundings);
+    public void Initialize(EnemyPopulationSurroundings surroundings) => BabyMetroidBehavior.SetUpBabyMetroid(Place, surroundings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunBabyMetroidMainAi(Place, frame);

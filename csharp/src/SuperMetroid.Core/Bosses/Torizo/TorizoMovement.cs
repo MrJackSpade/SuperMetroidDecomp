@@ -69,7 +69,7 @@ internal sealed class TorizoMovement
         state.FallAtRestingSpeed();
 
         // Both statues show the colours they share with their own body colours over them (#1512).
-        TorizoBody.LoadTorizoBodyColours(torizo, state, variant.StatueColouring);
+        TorizoBody.ShowLook(torizo, state, variant.StatueColouring);
         // A Torizo with a secret code grants its loadout as it appears while the player holds its chord.
         if (variant.SecretCode is { } code && controllerInput == code.Chord)
             code.GrantTo(samus);

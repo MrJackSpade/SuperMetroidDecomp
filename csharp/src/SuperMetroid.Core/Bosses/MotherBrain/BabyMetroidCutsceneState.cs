@@ -379,7 +379,7 @@ public sealed class BabyMetroidCutsceneState
                 bool ceilingCollision = CollidesWithRectangle(target, BabyMetroidCutsceneFlightDefinitions.TargetReach);
                 if (ceilingCollision)
                 {
-                    samus.Drained.PutCrouchingOrFalling(samus);
+                    samus.Drained.CrouchDrained(samus);
                     Phase = BabyMetroidCutscenePhase.MoveToSamus;
                     RouteLeg = BabyMetroidRoute.FirstLeg;
                 }

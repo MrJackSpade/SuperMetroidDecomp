@@ -24,7 +24,7 @@ internal sealed class SamusInputSnapshot
     /// exits a non-firing pose to fire on the next frame. The demo's input phase replaces it with
     /// the preceding scripted edge before running the normal HUD step.
     /// </summary>
-    public GameplayAction PreviousDrawNewInput { get; internal set; }
+    public GameplayAction PressesSeenLastUpdate { get; internal set; }
 
     /// <summary>
     /// Consecutive held-Jump history updated by the post-draw input filter: a wrapping count, 0 through
@@ -89,7 +89,7 @@ internal sealed class SamusInputSnapshot
         AutoJumpTimer = (held & PreviousDrawHeldInput & jump) != GameplayAction.None
             ? WrappingCounter.IncrementCount(AutoJumpTimer) : 0;
         PreviousDrawHeldInput = held;
-        PreviousDrawNewInput = newlyPressed;
+        PressesSeenLastUpdate = newlyPressed;
     }
 
     /// <summary>Flashes Samus's hurt colours when she has lost health, after the input filter that follows the draw, whether or not knockback is admitted.</summary>

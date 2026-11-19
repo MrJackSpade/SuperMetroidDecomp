@@ -83,7 +83,7 @@ public sealed class FileSelectRoomMapGraphics
     }
 
     /// <summary>Captures the installed room map/frame and optional marker/arrows without advancing any animation.</summary>
-    public LayeredScene CaptureRenderSnapshot(Offset16<MapPixels> scroll = default,
+    public LayeredScene ComposeScene(Offset16<MapPixels> scroll = default,
         FileSelectStationMarker? marker = null, FileSelectMapAnimations? animations = null, RoomMapContent content = RoomMapContent.Scene)
     {
         var layers = new List<DisplayLayer>();

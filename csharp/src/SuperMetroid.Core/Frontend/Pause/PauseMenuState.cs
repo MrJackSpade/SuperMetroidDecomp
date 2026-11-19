@@ -75,7 +75,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         new PauseInventory(samus.CollectedBeams, samus.EquippedBeams, samus.CollectedItems, samus.EquippedItems, samus.HyperBeamEnabled),
         samus.MaxReserveEnergy == 0 ? null : new ShownReserveDisplay(samus.ReserveTankMode, samus.ReserveEnergy),
         samus.MaxReserveEnergy == 0 ? ShownReserveArrow.NoReserves
-            : ReserveArrow != ReserveArrowState.Hidden ? ShownReserveArrow.Lit : ShownReserveArrow.Dim);
+            : ReserveArrow != ReserveArrowState.Dim ? ShownReserveArrow.Lit : ShownReserveArrow.Dim);
     /// <summary>Which of the frame's button labels are lit (#1467); it survives page transitions and artwork rebinds.</summary>
     internal PauseButtonHighlight ButtonHighlight { get; private set; }
     /// <summary>How the map page shows the area map (#1466, #1467), as last loaded.</summary>
@@ -256,7 +256,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Prepares the sprite list on the simulation owner, then captures without raster work.</summary>
-    public LayeredScene CaptureRenderSnapshot()
+    public LayeredScene ComposeScene()
     {
         PrepareRenderSprites();
         // The map page shows the area map scrolled with the frame it shows through (#2207): its scroll position names the
@@ -696,7 +696,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         {
             return SelectedControl == PauseEquipmentControls.ReserveMode && samus.ReserveTankMode == ReserveTankMode.Auto ? ReserveArrowState.Animated
                 : SelectedControl == PauseEquipmentControls.ReserveTransfer ? ReserveArrowState.Solid
-                : ReserveArrowState.Hidden;
+                : ReserveArrowState.Dim;
         }
     }
 

@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// The room services resident room objects use after load (#633). Every room has each of them; a room without liquid
-/// still has its room FX, whose liquid motion reports the absence (<see cref="IRoomFxMotion.BaseY"/> and
-/// <see cref="IRoomFxMotion.TargetSurface"/>).
+/// still has its room FX, whose liquid motion reports the absence (<see cref="IRoomLiquid.BaseY"/> and
+/// <see cref="IRoomLiquid.TargetSurface"/>).
 /// </summary>
 [RoomLifetime]
 public sealed record RoomObjectServices
@@ -16,10 +16,10 @@ public sealed record RoomObjectServices
     public required IRoomSamusAccess Samus { get; init; }
 
     /// <summary>Which of the area's bosses, mini-bosses and Torizos are defeated.</summary>
-    public required IAreaBossFlagReader Bosses { get; init; }
+    public required IDefeatedBossesReader Bosses { get; init; }
 
     /// <summary>The story events that have happened, which room objects read and mark.</summary>
-    public required IGlobalEventFlags Events { get; init; }
+    public required IStoryEvents Events { get; init; }
 
     /// <summary>
     /// The statue room's statue, whose finished sinking its grey door waits for; null in every other room, which places no

@@ -100,7 +100,7 @@ internal static class RidleyMissedLungeVerification
         AssertEqual(RidleyFightMode.PowerBombDodge, state.FightMode, "dodge suppresses repeated combat interruption");
         AssertTrue((short)state.Flight.Velocity.X.RawValue < 0 && (short)state.Flight.Velocity.Y.RawValue < 0,
             "low right-side bomb immediately accelerates Ridley toward upper-left target");
-        bomb.ReleaseFlag();
+        bomb.ReleasePowerBombLock();
         run(place, state, samus, 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
         AssertEqual(NorfairRidleyPhase.SelectAttack, state.Phase, "ending bomb resumes attack selection");
         AssertEqual(RidleyFightMode.Fighting, state.FightMode, "ending dodge restores ordinary fight mode");

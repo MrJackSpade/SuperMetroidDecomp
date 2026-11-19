@@ -48,7 +48,7 @@ internal static class TourianStatueWaterVerification
         AssertEqual(0xb0, samus.LiquidPhysics.WaterSurfaceY, "Water physics receives the visible surface");
         samus.Position = samus.Position.WithWholeY(190);
         samus.LiquidPhysics.InitializeRememberedMedium(samus);
-        AssertEqual(SamusLiquidMedium.Water, samus.LiquidPhysics.LiquidPhysicsType,
+        AssertEqual(SamusLiquidMedium.Water, samus.LiquidPhysics.MediumLastEntered,
             "Native low-nibble FX dispatch selects water below the statue surface");
         var displayed = runtime.Display.DisplayedRoomFxOverlay ?? throw new InvalidOperationException("No displayed water snapshot");
         AssertEqual(0xb0, displayed.WaterSurfaceScreenY, "Displayed water surface stays at native room height");

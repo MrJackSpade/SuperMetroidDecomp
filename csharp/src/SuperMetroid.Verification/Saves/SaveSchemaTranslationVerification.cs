@@ -87,10 +87,10 @@ internal static class SaveSchemaTranslationVerification
 
         // A schema-three save keeps the cartridge's loading-state word; it upgrades to the startup route that word selects
         // (#1523), and a word the cartridge does not name, or no word at all, resumes the main game.
-        UpgradesSchemaThree(0x0022, SaveLoadingGameState.CeresDestruction);
-        UpgradesSchemaThree(0x0880, SaveLoadingGameState.MainGame);
-        UpgradesSchemaThree(null, SaveLoadingGameState.MainGame);
-        void UpgradesSchemaThree(int? word, SaveLoadingGameState route)
+        UpgradesSchemaThree(0x0022, SaveStartupRoute.CeresDestruction);
+        UpgradesSchemaThree(0x0880, SaveStartupRoute.MainGame);
+        UpgradesSchemaThree(null, SaveStartupRoute.MainGame);
+        void UpgradesSchemaThree(int? word, SaveStartupRoute route)
         {
             JsonObject schemaThree = RequiredJson.Parse(json).AsObject();
             schemaThree["schemaVersion"] = 3;

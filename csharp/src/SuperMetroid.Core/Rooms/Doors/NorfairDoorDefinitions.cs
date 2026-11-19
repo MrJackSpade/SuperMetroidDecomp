@@ -178,7 +178,7 @@ public static class NorfairDoorDefinitions
     public static DoorDefinition GrappleBeamToGrappleTutorial1 { get; } = new("GrappleBeamToGrappleTutorial1", RoomDefinitions.GrappleTutorial1, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The Norfair Reserve Tank room's door.</summary>
-    public static DoorDefinition NorfairReserveTank { get; } = new("NorfairReserveTank", RoomDefinitions.GreenBubblesMissiles, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.GreenBubblesMissilesOpensScreen0x0TopAligned);
+    public static DoorDefinition NorfairReserveTankToGreenBubblesMissiles { get; } = new("NorfairReserveTankToGreenBubblesMissiles", RoomDefinitions.GreenBubblesMissiles, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.GreenBubblesMissilesOpensScreen0x0TopAligned);
 
     /// <summary>The door from the Green Bubbles Missiles room to the Bubble Mountain room.</summary>
     public static DoorDefinition GreenBubblesMissilesToBubbleMountain { get; } = new("GreenBubblesMissilesToBubbleMountain", RoomDefinitions.BubbleMountain, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);

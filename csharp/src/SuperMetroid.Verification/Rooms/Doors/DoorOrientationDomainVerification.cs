@@ -41,9 +41,9 @@ internal static class DoorOrientationDomainVerification
         AssertThrows<ArgumentOutOfRangeException>(() => ((DoorDirection)99).IsVertical(), "undefined direction has no axis");
 
         // The pseudo-doors' overlapped bytes ($91/$93 at offset 3) are not orientations.
-        foreach (ushort pseudo in new[] { DoorDefinitionsAccess.SharedElevatorPseudoDoorPointer, DoorDefinitionsAccess.MaridiaTourianElevatorPseudoDoorPointer })
+        foreach (ushort pseudo in new[] { DoorDefinitionsAccess.SharedElevatorRidePointer, DoorDefinitionsAccess.MaridiaTourianElevatorRidePointer })
             AssertThrows<ArgumentOutOfRangeException>(() => DoorDefinitions.Get(pseudo), $"pseudo-door ${pseudo:X4} is not a header");
-        AssertTrue(DoorBlockExit.ElevatorPseudoDoor.IsElevatorPseudoDoor, "the elevator pseudo-door entry");
+        AssertTrue(DoorBlockExit.ElevatorRide.IsElevatorRide, "the elevator ride entry");
 
         Console.WriteLine("Door orientation domain: decode/encode, rejection and pseudo-door entries agree.");
     }

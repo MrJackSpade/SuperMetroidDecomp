@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>The story events that have happened, which room objects and enemies read and mark.</summary>
-public interface IGlobalEventFlags
+public interface IStoryEvents
 {
     /// <summary>Whether <paramref name="storyEvent"/> has happened.</summary>
     bool Has(StoryEvent storyEvent);

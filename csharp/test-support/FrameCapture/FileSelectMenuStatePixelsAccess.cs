@@ -9,6 +9,6 @@ internal static class FileSelectMenuStatePixelsAccess
     extension(FileSelectMenuState scene)
     {
         /// <summary>Captures the scene and draws its snapshot with the game's renderer.</summary>
-        internal RgbaPixel[] Render() => FrontendScenePixelsAccess.Pixels(scene.CaptureRenderSnapshot());
+        internal RgbaPixel[] Render() => FrontendScenePixelsAccess.Pixels(scene.ComposeScene());
     }
 }

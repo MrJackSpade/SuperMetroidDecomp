@@ -651,7 +651,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (mama.Contact.HasAny(EnemyContact.SolidToSamus))
             return;
-        _collision.ResolveNormalEnemyTouch(mama, samus, pseudoScrew);
+        _collision.ResolveOrdinaryTouch(mama, samus, pseudoScrew);
         state.Action = MamaTurtleAction.Falling;
         state.Velocity = state.Velocity.WithY(state.Velocity.Y.WithWholePixelsOf(MamaTurtleMotionDefinitions.KnockedDownFallSpeed));
     }
@@ -699,7 +699,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!MamaTurtleDamageBox.Touches(mama, samus) || !samus.InvincibilityTimer.IsZero)
             return;
 
-        _collision.ResolveNormalEnemyTouch(mama, samus, pseudoScrew);
+        _collision.ResolveOrdinaryTouch(mama, samus, pseudoScrew);
     }
 
     /// <summary>The state of <paramref name="baby"/>'s Mama, who found it when she was placed.</summary>

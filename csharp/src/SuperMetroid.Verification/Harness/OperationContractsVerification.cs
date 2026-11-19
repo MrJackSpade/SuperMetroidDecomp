@@ -31,7 +31,7 @@ internal static class OperationContractsVerification
         AssertTrue(typeof(IEnemyAiFrame).IsAssignableFrom(typeof(ClockedEnemyAiFrame)), "the pass's clocked frame satisfies main AI's frame");
         AssertTrue(MetadataShape.Properties(typeof(IEnemyAiFrame), BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public).Select(property => property.Name).Order(StringComparer.Ordinal).SequenceEqual(
             ["Camera", "Clock", "ControllerInput", "Level", "NewlyPressedControllerInput", "PseudoScrew", "Samus", "SamusProjectiles",
-             "SharedProjectiles"]),
+             "SamusBombs"]),
             "main AI's frame exposes only the nine values main AI reads");
         AssertEqual(typeof(IEnemyAiFrame), MetadataShape.ParameterTypes(typeof(EnemyLifecycle), nameof(EnemyLifecycle.RunMainAi), shared)[1],
             "main AI accepts its narrow frame, not the enemy pass's whole frame");
@@ -46,7 +46,7 @@ internal static class OperationContractsVerification
         AssertEqual(typeof(VerticalTerrainProbe),
             MetadataShape.ParameterTypes(typeof(SamusBlockCollision), "ScanVerticalTerrain", shared)[4],
             "the vertical terrain scan takes its probe, not the whole vertical move");
-        AssertEqual(typeof(IAreaBossFlagReader),
+        AssertEqual(typeof(IDefeatedBossesReader),
             typeof(RoomObjectSetupContext).GetProperty(nameof(RoomObjectSetupContext.Bosses))?.PropertyType,
             "PLM setup reads boss flags without being able to set them");
 

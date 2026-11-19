@@ -106,9 +106,9 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         PseudoScrewCharge pseudoScrew,
         Position16<RoomPixels> camera,
         SamusProjectileSystem samusProjectiles,
-        SamusBombProjectileSystem sharedProjectiles)
+        SamusBombProjectileSystem samusBombs)
     {
-        IReadOnlyList<KraidPassProjectile> tested = TestedByShotPasses(samusProjectiles, sharedProjectiles);
+        IReadOnlyList<KraidPassProjectile> tested = TestedByShotPasses(samusProjectiles, samusBombs);
         Combat.ResolveKraidMouthProjectileHits(body, state, tested);
         Head.RunKraidHurtColours(body, state);
         Combat.ResolveKraidBodyProjectileHits(body, state, tested);
@@ -119,7 +119,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs Kraid's main AI for his body in <paramref name="place"/>.</summary>
     internal void RunKraidMainAi(RoomEnemyPlace place, KraidEnemyState state, IEnemyAiFrame frame)
     {
-        RunKraidBodyMain(place, state, frame.Samus, frame.PseudoScrew, frame.Camera, frame.SamusProjectiles, frame.SharedProjectiles);
+        RunKraidBodyMain(place, state, frame.Samus, frame.PseudoScrew, frame.Camera, frame.SamusProjectiles, frame.SamusBombs);
     }
 
     /// <summary>

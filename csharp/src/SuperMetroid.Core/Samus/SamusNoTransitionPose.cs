@@ -14,7 +14,7 @@ public readonly record struct SamusNoTransitionPose(SamusPoseId ProspectivePose)
     public static SamusNoTransitionPose Resolve(
         SamusMovementType movementType,
         SamusPoseId currentPose,
-        SamusNoInputFallback definitionFallback,
+        SamusNoInputPose definitionFallback,
         bool hasBaseXSpeed)
     {
         if (hasBaseXSpeed &&

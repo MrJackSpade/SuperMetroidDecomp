@@ -334,7 +334,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         });
         flareBecameVisible |= flareOam.LastFinalizedSpriteCount != 0;
     }
-    AssertEqual(60, chargeProjectiles.Charge.FlareCounter,
+    AssertEqual(60, chargeProjectiles.Charge.UpdatesHeld,
         "charge held frames reach armed threshold");
     AssertTrue(flareBecameVisible, "charge flare becomes visible from ROM spritemap table");
     VerifySpinChargePreservation(bus, air, fixtureFrames);
@@ -492,7 +492,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "charged release starts the charged shot's flash");
     AssertEqual(4, (int)SamusSnapshotWords.EncodeChargedShotGlow(chargeProjectiles.Charge.ChargedShotGlow),
         "charged release starts the flash at its start");
-    AssertEqual(0, chargeProjectiles.Charge.FlareCounter,
+    AssertEqual(0, chargeProjectiles.Charge.UpdatesHeld,
         "charged release clears flare counter");
 
     // `$91:D799-$D7AE` decrements before testing zero. Calls one through three paint only
@@ -560,14 +560,14 @@ internal static void VerifySamusPowerBeamProjectiles()
         "normal-jump initializer hands over the new pose's shot direction");
     bridgeBombs.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, bridgeSamus, 0, 0);
     SamusProjectileSlotObservation beforeBridgeRelease = bridgeProjectiles.ObserveSlots();
-    bridgeProjectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, bridgeSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, cameraPosition: new(0, 0), sharedProjectiles: bridgeBombs, progression: new SharedGameState(new SharedRandom()));
+    bridgeProjectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, bridgeSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, cameraPosition: new(0, 0), samusBombs: bridgeBombs, progression: new SharedGameState(new SharedRandom()));
     int? bridgeReleaseSlot = beforeBridgeRelease.FiredSlot(bridgeProjectiles);
     AssertTrue(bridgeReleaseSlot is not null,
         "pose-direction bridge forces charged release while Shoot remains held");
     AssertEqual(SamusProjectileDirection.Right,
         bridgeProjectiles.Shots[(bridgeReleaseSlot ?? throw new InvalidOperationException("Verification requires bridgeReleaseSlot."))].Direction,
         "pose-direction bridge supplies stored low-byte direction");
-    AssertEqual(0, bridgeProjectiles.Charge.FlareCounter,
+    AssertEqual(0, bridgeProjectiles.Charge.UpdatesHeld,
         "pose-direction bridge consumes charge counter");
     SamusAerialPoseTransitions.DropTransitionShot(bridgeSamus);
     AssertEqual<SamusTransitionShot?>(null, bridgeSamus.TransitionShot.Handed,

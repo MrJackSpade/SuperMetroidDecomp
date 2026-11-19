@@ -14,11 +14,11 @@ namespace SuperMetroid.Core.World;
 internal sealed class RoomObjectFamilySetups(RoomObjectSetupContext context) : IRoomObjectFamilySetups
 {
     /// <inheritdoc/>
-    public void SetUpColoredDoor(ColoredDoorVariant door, LockedDoorArgument lockedBy) =>
+    public void SetUpColoredDoor(ColoredDoorVariant door, DoorLock lockedBy) =>
         DoorObjects.SetupColoredDoor(context.Room.Level, context.Place, door, lockedBy);
 
     /// <inheritdoc/>
-    public void SetUpGreyDoor(GreyDoorVariant door, GreyDoorArgument opening) =>
+    public void SetUpGreyDoor(GreyDoorVariant door, GreyDoorOpening opening) =>
         context.Families.GreyDoors.SetupGreyDoor(context.Room.Level, context.Place, door, opening);
 
     /// <inheritdoc/>
@@ -30,15 +30,15 @@ internal sealed class RoomObjectFamilySetups(RoomObjectSetupContext context) : I
         ScrollObjects.SetupScrollExtension(context.Room.Level, context.Place, extension);
 
     /// <inheritdoc/>
-    public void SetUpCollectible(PermanentCollectibleObject item, CollectedItemArgument collected) =>
+    public void SetUpCollectible(PermanentCollectibleObject item, CollectibleIdentity collected) =>
         context.Families.CollectibleObjects.SetupCollectible(context.Room, context.Place, item, collected);
 
     /// <inheritdoc/>
-    public void SetUpEyeDoorEye(EyeDoorOrientation orientation, LockedDoorArgument lockedBy) =>
+    public void SetUpEyeDoorEye(EyeDoorOrientation orientation, DoorLock lockedBy) =>
         context.Families.EyeDoors.SetupEyeDoorEye(context.Room.Level, context.Place, orientation, lockedBy);
 
     /// <inheritdoc/>
-    public void SetUpEyeDoorPart(EyeDoorPart part, LockedDoorArgument lockedBy) =>
+    public void SetUpEyeDoorPart(EyeDoorPart part, DoorLock lockedBy) =>
         context.Families.EyeDoors.SetupEyeDoorPart(context.Room.Level, context.Place, part, lockedBy);
 
     /// <inheritdoc/>
@@ -46,7 +46,7 @@ internal sealed class RoomObjectFamilySetups(RoomObjectSetupContext context) : I
         context.Families.DraygonCannons.SetupDraygonCannon(context.Room.Level, context.Place, setup);
 
     /// <inheritdoc/>
-    public void SetUpSaveStation(SaveStationArgument savesAt) =>
+    public void SetUpSaveStation(SaveStationPlace savesAt) =>
         StationObjects.SetupSaveStation(context.Room.Level, context.Place, Ensure.NotNull(savesAt).Station);
 
     /// <inheritdoc/>
@@ -63,7 +63,7 @@ internal sealed class RoomObjectFamilySetups(RoomObjectSetupContext context) : I
     public void SetUpBombTorizoHand() => context.Families.BombTorizoHand.SetupBombTorizoHand(context.Place, context.Bosses);
 
     /// <inheritdoc/>
-    public void SetUpMetroidRoomClearance(MetroidRoomArgument watches) => TourianObjects.SetupMetroidsCleared(context.Place, watches);
+    public void SetUpMetroidRoomClearance(WatchedMetroidRoom watches) => TourianObjects.SetupMetroidsCleared(context.Place, watches);
 
     /// <inheritdoc/>
     /// <remarks>The held place's object changes nothing: it only holds its place.</remarks>
@@ -91,6 +91,6 @@ internal sealed class RoomObjectFamilySetups(RoomObjectSetupContext context) : I
     public void SetUpDownwardGate() => context.Families.Gates.SetupDownwardGate(context.Room.Level, context.Place);
 
     /// <inheritdoc/>
-    public void SetUpDownwardGateShotBlock(GateTriggerArgument trigger) =>
+    public void SetUpDownwardGateShotBlock(GateShotTrigger trigger) =>
         GateObjects.SetupDownwardGateShotBlock(context.Room.Level, context.Place, trigger);
 }

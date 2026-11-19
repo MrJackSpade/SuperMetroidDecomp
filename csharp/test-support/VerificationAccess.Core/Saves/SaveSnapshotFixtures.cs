@@ -37,7 +37,7 @@ internal static class SaveSnapshotFixtures
         MaxReserveEnergy = 0,
         ReserveEnergy = 0,
         GameTime = default,
-        StartupRoute = SaveLoadingGameState.MainGame,
+        StartupRoute = SaveStartupRoute.MainGame,
         Checkpoint = LoadStationDefinitions.Gunship,
         Progress = new(),
     };

@@ -88,16 +88,16 @@ internal static class RoomEnemySystemAccess
         /// </summary>
         internal int ResolveKraidProjectileHits(
             SamusProjectileSystem projectiles,
-            SamusBombProjectileSystem sharedProjectiles)
+            SamusBombProjectileSystem samusBombs)
         {
             Ensure.NotNull(projectiles);
-            Ensure.NotNull(sharedProjectiles);
+            Ensure.NotNull(samusBombs);
             var kraid = self.Kraid;
             RoomEnemyPlace body = self.Places.InUpdateOrder[0];
             if (kraid is null || body.DefinitionId != EnemyDefinitionId.Kraid ||
                 body.Presence.HasAny(EnemyPresence.Deleted))
                 return 0;
-            IReadOnlyList<KraidBehavior.KraidPassProjectile> tested = KraidBehavior.TestedByShotPasses(projectiles, sharedProjectiles);
+            IReadOnlyList<KraidBehavior.KraidPassProjectile> tested = KraidBehavior.TestedByShotPasses(projectiles, samusBombs);
             return self.KraidBehavior.Combat.ResolveKraidMouthProjectileHits(body, kraid, tested) +
                 self.KraidBehavior.Combat.ResolveKraidBodyProjectileHits(body, kraid, tested);
         }

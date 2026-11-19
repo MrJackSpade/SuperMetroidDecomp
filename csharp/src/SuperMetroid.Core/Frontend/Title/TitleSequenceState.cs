@@ -427,7 +427,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// No pixels are composed, and the returned value retains no live scene references.
     /// Captured once per shown frame, before the next update changes the state.
     /// </summary>
-    public FloorScene CaptureRenderSnapshot()
+    public FloorScene ComposeScene()
     {
         PrepareRenderSprites();
         bool floorShown = ShowsFloor(Phase);

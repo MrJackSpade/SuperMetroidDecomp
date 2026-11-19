@@ -67,7 +67,7 @@ internal static class RoomObjectTypeAndBehaviorWritesVerification
         Position16<RoomBlocks>[] blocks = [body, eye, eye + new Offset16<RoomBlocks>(0, 1), bottom];
         RoomBlockCell[] shown = Shown(level, blocks);
         RoomObjectSystem roomObjects = BoundRoomObjects(level);
-        var door = new LockedDoorArgument(LockedDoorDefinitions.KraidEyeDoorEyeDoorFacingLeft, DoorOpeningPersistence.Persistent);
+        var door = new DoorLock(LockedDoorDefinitions.KraidEyeDoorEyeDoorFacingLeft, DoorOpeningPersistence.Persistent);
 
         roomObjects.EyeDoors.SetupEyeDoorPart(level, PlaceAt(roomObjects, body), new EyeDoorPart(EyeDoorBodyPart.Middle, EyeDoorOrientation.Left), door);
         roomObjects.EyeDoors.SetupEyeDoorEye(level, PlaceAt(roomObjects, eye), EyeDoorOrientation.Left, door);
@@ -118,7 +118,7 @@ internal static class RoomObjectTypeAndBehaviorWritesVerification
         RoomBlockCell[] shown = Shown(level, blocks);
         RoomObjectSystem roomObjects = RoomObjectFixtures.Unbound();
 
-        GateObjects.SetupDownwardGateShotBlock(level, PlaceAt(roomObjects, gate), new GateTriggerArgument(new DownwardGateTrigger(DownwardGateTriggerColor.Blue, HorizontalDirection.Left)));
+        GateObjects.SetupDownwardGateShotBlock(level, PlaceAt(roomObjects, gate), new GateShotTrigger(new DownwardGateTrigger(DownwardGateTriggerColor.Blue, HorizontalDirection.Left)));
         AssertBlock(level, trigger, DownwardGateDefinitions.TriggerCollision,
             RoomBlockBehavior.Reacting(BlockReactionDefinitions.DownwardGateTriggers.ReactionFor(new DownwardGateTrigger(DownwardGateTriggerColor.Blue, HorizontalDirection.Left))),
             "the gate's trigger block");

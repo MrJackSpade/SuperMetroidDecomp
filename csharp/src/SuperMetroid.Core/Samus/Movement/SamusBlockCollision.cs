@@ -699,7 +699,7 @@ public static class SamusBlockCollision
     /// <param name="state">A collision probe copy; its position receives the accepted distance.</param>
     /// <param name="owner">The Samus whose collision reactions act, or null for an ownerless probe.</param>
     /// <param name="pose">
-    /// The pose being installed, which the elevator pseudo-door's standing-pose gate tests: the game writes it to Samus's
+    /// The pose being installed, which the elevator ride's standing-pose gate tests: the game writes it to Samus's
     /// pose before the larger-radius check.
     /// </param>
     /// <param name="displacement">The distance to test, negative upward; zero tests the current bottom boundary.</param>

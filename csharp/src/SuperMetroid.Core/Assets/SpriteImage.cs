@@ -63,11 +63,11 @@ public sealed class SpriteImage
         // A clear pixel is never keyed: no shade recolours it, and a layer drawn opaque shows its stored colour. Each colour
         // and recolour region found is held as its channels, so a pixel of a key already found costs one look in a set of
         // plain values rather than building and comparing its key: a whole turning floor holds a million pixels.
-        var found = new HashSet<(byte Red, byte Green, byte Blue, int Region)>();
+        var found = new HashSet<FoundColour>();
         for (int pixel = 0; pixel < pixels; pixel++)
         {
             RgbaPixel shown = decoded.Pixels[pixel];
-            if (shown.A != 0 && found.Add((shown.R, shown.G, shown.B, decoded.RecolourRegions?[pixel] ?? 0)))
+            if (shown.A != 0 && found.Add(new FoundColour(shown.R, shown.G, shown.B, decoded.RecolourRegions?[pixel] ?? 0)))
                 Add(KeyAt(decoded, pixel), places, keys);
         }
         if (Backdrop is { } backdrop)
@@ -81,6 +81,13 @@ public sealed class SpriteImage
         RgbaPixel shown = decoded.Pixels[pixel];
         return new ColourKey(new RgbColor(shown.R, shown.G, shown.B), decoded.RecolourRegions?[pixel] ?? 0);
     }
+
+    /// <summary>A visible pixel's colour and recolour region as its plain channels, which tell its key from every other.</summary>
+    /// <param name="Red">The pixel's red channel.</param>
+    /// <param name="Green">The pixel's green channel.</param>
+    /// <param name="Blue">The pixel's blue channel.</param>
+    /// <param name="Region">The pixel's recolour region.</param>
+    private readonly record struct FoundColour(byte Red, byte Green, byte Blue, int Region);
 
     /// <summary>Adds <paramref name="key"/> to the keys found so far where it is new.</summary>
     private static void Add(ColourKey key, Dictionary<ColourKey, int> places, ImmutableArray<ColourKey>.Builder keys)

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Kraid's foot's own state beside what every part holds: the phase it runs and its second-phase think timer.</summary>
+/// <summary>Kraid's foot's own state beside what every part holds: the phase it runs and its second-phase thinking.</summary>
 [ArchitectureReview("back-reference", "A part of Kraid's encounter (#2218): the encounter owns this part's state for the room and the part reads the encounter it joined at setup, so the two share one lifetime.")]
 public sealed class KraidFootState : KraidAnimatedPartState
 {
@@ -15,8 +15,11 @@ public sealed class KraidFootState : KraidAnimatedPartState
     /// <summary>The phase the foot runs; it rests until it is given a phase.</summary>
     public KraidFootPhase Phase { get; internal set; }
 
-    /// <summary>Gets the second-phase foot's think timer, which expires when its decrement reaches zero.</summary>
-    public int ThinkTimer { get; internal set; }
+    /// <summary>
+    /// The grown foot's thinking after a walk (#2538): each walk starts it for the pause its choice gives, the thinking
+    /// steps it once he stands at the walk's end, and he chooses his next walk on its last update.
+    /// </summary>
+    public BossCountdown ThinkWait { get; } = new();
 
     /// <summary>The way the second-phase foot walks the body toward its target (#2165).</summary>
     public HorizontalDirection WalkDirection { get; internal set; }

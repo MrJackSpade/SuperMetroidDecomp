@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>Phantoon's fades, health colors, wave amplitude, animations and phase timer, shared by every phase of the fight.</summary>
+/// <summary>Phantoon's fades, health colors, wave amplitude and animations, shared by every phase of the fight.</summary>
 [RoomLifetime]
 internal sealed class PhantoonPresentation
 {
@@ -54,17 +54,6 @@ internal sealed class PhantoonPresentation
         if (!(wave.Amplitude - maximum).IsNegative)
             wave.Amplitude = maximum;
         return false;
-    }
-
-    /// <summary>
-    /// Steps the phase timer one update and reports whether it has run out (#2253): a timer loaded with N runs out on its
-    /// Nth step, one at zero on its first, and a timer that has run out stays at zero.
-    /// </summary>
-    internal static bool TickPhantoonPhaseTimer(PhantoonEnemyState state)
-    {
-        if (state.PhaseTimer > 0)
-            state.PhaseTimer--;
-        return state.PhaseTimer == 0;
     }
 
     /// <summary>The health band <paramref name="body"/>'s health shows (#2259).</summary>

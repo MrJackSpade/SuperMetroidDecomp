@@ -57,7 +57,7 @@ internal sealed class DraygonDeath
         SpawnDraygonDeathEvirs(state);
         state.Phase = DraygonPhase.DyingWaitForEvirs;
         _parts.RequestDraygonMusic(MusicRequest.SelectTrack(MusicTrack.Elevator));
-        state.BurialWait = DraygonArenaDefinitions.BurialWaitUpdates;
+        state.BurialWait.LastFor(DraygonArenaDefinitions.BurialWaitUpdates);
         state.BodyPart.StartAnimation(DraygonSegment.Rest);
 
         // The tail and arms are deleted (#2298).
@@ -75,13 +75,13 @@ internal sealed class DraygonDeath
     /// </summary>
     private static void DeleteDraygonPart(RoomEnemyPlace part) => part.Presence = part.Presence.With(EnemyPresence.Deleted);
 
-    /// <summary>Advances burial sprite motion while the pre-sink countdown expires.</summary>
+    /// <summary>Moves the burial Evirs through his wait at his burial point, and starts his sinking on its last update.</summary>
     internal void WaitForDraygonBurialEvirs(
         DraygonEnemyState state,
         int frameCounter)
     {
         SpawnDyingDraygonSmoke(frameCounter);
-        if (--state.BurialWait == 0)
+        if (state.BurialWait.StepRunsOut())
         {
             state.Phase = DraygonPhase.DyingFinish;
             return;

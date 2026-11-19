@@ -233,7 +233,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.BodyState.FightPhase)
         {
             case KraidFightPhase.FirstPhaseThinking:
-                if (state.ThinkingTimer != 0 && --state.ThinkingTimer == 0)
+                if (state.ThinkingWait.StepRunsOut())
                 {
                     state.BodyState.FightPhase = KraidFightPhase.MainAttackWithMouthOpen;
                     state.StartHeadAnimation(KraidHeadSegment.Roar);
@@ -261,13 +261,13 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case KraidFightPhase.WaitBeforeEyeGlow:
-                if (state.BodyState.CountPhaseTimerDown())
+                if (state.BodyState.PhaseWait.StepRunsOut())
                     state.BodyState.FightPhase = KraidFightPhase.InitializeEyeGlow;
                 return;
 
             case KraidFightPhase.HeadAnimationBeforeGrowth:
                 _ = Head.AdvanceKraidHeadAnimation(state);
-                if (state.BodyState.CountPhaseTimerDown())
+                if (state.BodyState.PhaseWait.StepRunsOut())
                     state.BodyState.GrowthPhase = KraidGrowthPhase.ReleaseCamera;
                 return;
 

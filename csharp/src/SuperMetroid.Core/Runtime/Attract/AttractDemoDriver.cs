@@ -138,7 +138,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
                 _room.LoadedCamera.Scrolls.SetRoomScreen(AttractDemoDefinitions.ChargeBeamClosedScreen, RoomScrollState.Closed);
                 break;
             case AttractDemoRoomSetup.KraidTimer:
-                enemies.AttractDemoHooks.SetKraidPhaseTimer(AttractDemoDefinitions.KraidPhaseTimer);
+                enemies.AttractDemoHooks.StartKraidPhaseWait(AttractDemoDefinitions.KraidPhaseWaitUpdates);
                 break;
             case AttractDemoRoomSetup.DefeatedKraid:
                 _system.RecordBossesDefeated(AreaId.Brinstar, DefeatedBosses.AreaBoss);

@@ -61,6 +61,9 @@ internal static class PhantoonArenaDefinitions
     /// <summary>The most updates a vulnerable window may have left once a hit has requested his swoop.</summary>
     internal const int SwoopRequestTimerCap = 16;
 
+    /// <summary>The updates his swoop lasts once his round's damage is reached during it: it ends on the next update.</summary>
+    internal const int RoundEndingSwoopUpdates = 1;
+
     /// <summary>The updates his swoop lasts.</summary>
     internal const int SwoopUpdates = 360;
 
@@ -118,8 +121,11 @@ internal static class PhantoonArenaDefinitions
     /// <summary>The updates before his first dying explosion.</summary>
     internal const int FirstDyingExplosionUpdates = 15;
 
-    /// <summary>The updates, once he is gone, before the Wrecked Ship's power starts coming on.</summary>
-    internal const int PowerReturnDelayUpdates = 60;
+    /// <summary>
+    /// The updates of the wait, once he is gone, before the Wrecked Ship's power starts coming on: sixty updates pass, and
+    /// the power may start on the next, which is the wait's last.
+    /// </summary>
+    internal const int PowerReturnDelayUpdates = 61;
 
     /// <summary>The drops his death scatters over the arena.</summary>
     internal const int DeathDropCount = 16;

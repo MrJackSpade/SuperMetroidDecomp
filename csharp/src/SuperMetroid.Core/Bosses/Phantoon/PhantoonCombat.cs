@@ -368,7 +368,7 @@ internal sealed class PhantoonCombat
             if (state.Round.Damage >= PhantoonPatternDefinitions.RoundDamageThreshold)
             {
                 if (swooping)
-                    state.PhaseTimer = 1;
+                    state.PhaseWait.LastFor(PhantoonArenaDefinitions.RoundEndingSwoopUpdates);
                 else
                     ClosePhantoonAfterDamage(body, state, PhantoonPhase.FadeOutWhileSwooping);
                 state.Round.RearmHurtFlash();
@@ -384,8 +384,8 @@ internal sealed class PhantoonCombat
                 if (!state.Swoop.Requested)
                 {
                     state.Swoop.Requested = true;
-                    if (state.PhaseTimer >= PhantoonArenaDefinitions.SwoopRequestTimerCap)
-                        state.PhaseTimer = PhantoonArenaDefinitions.SwoopRequestTimerCap;
+                    if (state.PhaseWait.UpdatesLeft >= PhantoonArenaDefinitions.SwoopRequestTimerCap)
+                        state.PhaseWait.LastFor(PhantoonArenaDefinitions.SwoopRequestTimerCap);
                 }
                 return;
             }
@@ -402,7 +402,6 @@ internal sealed class PhantoonCombat
         PhantoonPhase fadeOut)
     {
         state.Phase = fadeOut;
-        state.PhaseTimer = 0;
         state.Swoop.Requested = false;
         state.Round.Damage = 0;
         state.Translucent = true;

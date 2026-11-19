@@ -148,6 +148,9 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             case DraygonPhase.FlailWithSamus:
                 Grab.CarrySamusInDraygonSpiral(state, samus);
                 break;
+            case DraygonPhase.BeginTailWhipWithSamus:
+                Grab.BeginDraygonTailWhip(state, samus);
+                break;
             case DraygonPhase.TailWhipWithSamus:
                 Grab.RunDraygonTailWhip(state, samus);
                 break;

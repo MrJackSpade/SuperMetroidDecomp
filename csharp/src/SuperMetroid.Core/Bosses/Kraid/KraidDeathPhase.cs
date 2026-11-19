@@ -9,15 +9,14 @@ public enum KraidDeathPhase
     FadeOut,
     /// <summary>Shows his body whole and parks his lints for sinking.</summary>
     ShowBody,
-    /// <summary>Starts the death quake and the sinking sound's countdown, makes his body solid and sets his arm sinking.</summary>
+    /// <summary>Starts the death quake and the wait for the sinking body's first rumble, makes his body solid and sets his arm sinking.</summary>
     StartSinking,
     /// <summary>Sinks Kraid through the floor while processing authored debris, sounds, and drops.</summary>
     Sink,
     /// <summary>Hides his body once he has sunk, before the room's backdrop is restored.</summary>
     HideBody,
     /// <summary>
-    /// Waits the updates his death keeps the room dark before fading it back in (#1888), counted down in the body's phase
-    /// timer.
+    /// Waits the updates his death keeps the room dark before fading it back in (#1888), on the body's phase wait.
     /// </summary>
     WaitBeforeFadeIn,
     /// <summary>Fades the ordinary background in, requests room music, and records Kraid defeated.</summary>

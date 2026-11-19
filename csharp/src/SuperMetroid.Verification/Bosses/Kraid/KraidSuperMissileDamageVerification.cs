@@ -37,7 +37,7 @@ internal static class KraidSuperMissileDamageVerification
         var body=runtime.Enemies.Places.InUpdateOrder[0];
         var state= runtime.Enemies.Kraid ?? throw new InvalidOperationException("Verification requires runtime.Enemies.Kraid.");
         state.BodyState.FightPhase = KraidFightPhase.MainAttackWithMouthOpen;
-        state.HeadPlayback=RoarPastOpenPose;state.BodyState.HeadTimer=64;
+        state.HeadPlayback=RoarPastOpenPose;state.HeadHold.LastFor(64);
         state.DisplayedHeadFrame = FullyOpenRoarFrame();
         var scope = runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.");
         var level = KraidFloorLevel(scope.LevelData);

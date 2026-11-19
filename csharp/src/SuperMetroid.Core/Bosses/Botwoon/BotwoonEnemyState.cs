@@ -32,8 +32,11 @@ public sealed class BotwoonEnemyState
 
     /// <summary>The trail ring's next place, 0 through 255 (<see cref="BotwoonTrailRing"/>); each moving update writes the head's position there and moves on one place.</summary>
     public int RingIndex { get; internal set; }
-    /// <summary>Frames left of the opening delay, seeded from <see cref="BotwoonFightDefinitions.OpeningDelay"/> and counted down to zero before normal traversal begins.</summary>
-    public int InitialDelayTimer { get; internal set; }
+    /// <summary>
+    /// His wait in his hole before his first traversal (#2538): his setup starts it for
+    /// <see cref="BotwoonFightDefinitions.OpeningDelay"/>, and he chooses his first action on the update after it runs out.
+    /// </summary>
+    public BossCountdown OpeningWait { get; } = new();
     /// <summary>
     /// His head's cooldown after a spit volley (#2267): it lasts the volley's <see cref="BotwoonSpitVolley.CooldownUpdates"/>,
     /// and when it runs out his head follows his movement again.

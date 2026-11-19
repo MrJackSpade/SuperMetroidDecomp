@@ -21,7 +21,7 @@ internal static class PhantoonReport1196Verification
         var enemies = CreatePhantoonSystem();
         var state = enemies.BossEncounters.Phantoon;
         enemies.BeginEnemySoundRequestFrame();
-        (state ?? throw new InvalidOperationException("Verification requires state.")).PhaseTimer = 1;
+        (state ?? throw new InvalidOperationException("Verification requires state.")).PhaseWait.LastFor(1);
         enemies.PhantoonBehavior.Opening.RunPhantoonStartingFlameSpawner(state);
         AssertEqual(1, enemies.Projectiles.EnemyProjectiles.Count(projectile =>
                 projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.PhantoonStartingFlame),

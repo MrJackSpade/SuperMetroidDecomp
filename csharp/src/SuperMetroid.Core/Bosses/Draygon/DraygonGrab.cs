@@ -138,11 +138,10 @@ internal sealed class DraygonGrab
         }
 
         // The current random number is read without drawing a new one: turret cadence and other
-        // actors draw them. One roll in 256 inserts a tail whip of 64 updates.
+        // actors draw them. One roll in 256 pauses the spiral for a tail whip from the next update.
         if (DraygonRandomDefinitions.TailWhips.IsTakenBy(_room.Random.Read()))
         {
-            state.TailWhipTimer = DraygonGrabDefinitions.TailWhipUpdates;
-            state.Phase = DraygonPhase.TailWhipWithSamus;
+            state.Phase = DraygonPhase.BeginTailWhipWithSamus;
             return;
         }
 
@@ -183,23 +182,26 @@ internal sealed class DraygonGrab
         MoveSamusWithDraygon(state, samus);
     }
 
-    /// <summary>Runs the incidental 64-frame tail-whip pause.</summary>
+    /// <summary>
+    /// Runs the tail-whip pause's first update (#2538): the pause starts, the update runs as the pause's others do, and
+    /// his tail starts its whip.
+    /// </summary>
+    internal void BeginDraygonTailWhip(DraygonEnemyState state, SamusState samus)
+    {
+        state.TailWhipPause.LastFor(DraygonGrabDefinitions.TailWhipUpdates);
+        state.Phase = DraygonPhase.TailWhipWithSamus;
+        RunDraygonTailWhip(state, samus);
+        state.TailPart.StartAnimation(state.Facing == HorizontalDirection.Right
+                ? DraygonSegment.TailFacingRightWhip
+                : DraygonSegment.TailFacingLeftWhip);
+    }
+
+    /// <summary>Holds the grabbed pair together through the tail-whip pause; the spiral resumes on its last update.</summary>
     internal void RunDraygonTailWhip(DraygonEnemyState state, SamusState samus)
     {
         MoveSamusWithDraygon(state, samus);
-        if (--state.TailWhipTimer == 0)
-        {
+        if (state.TailWhipPause.StepRunsOut())
             state.Phase = DraygonPhase.FlailWithSamus;
-            return;
-        }
-
-        // On the pause's first update his tail starts its whip.
-        if (state.TailWhipTimer == DraygonGrabDefinitions.TailWhipUpdates - 1)
-        {
-            state.TailPart.StartAnimation(state.Facing == HorizontalDirection.Right
-                    ? DraygonSegment.TailFacingRightWhip
-                    : DraygonSegment.TailFacingLeftWhip);
-        }
     }
 
     /// <summary>Starts the four-repeat finishing whip animation.</summary>

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 public enum KraidRisePhase
 {
     /// <summary>
-    /// Restricts Samus to the room's first screen while the body's phase timer runs, then shows his body
+    /// Restricts Samus to the room's first screen while the body's phase wait runs, then shows his body
     /// (<see cref="ShowBody"/>).
     /// </summary>
     RestrictSamusToFirstScreen,

@@ -152,14 +152,17 @@ internal sealed class SamusFramePhases
     /// movement types, vertical velocity, landing-pose gate, and speed divisor to the X-ray
     /// setup logic.
     /// </remarks>
-    private bool TryBeginXrayFromSelectedHudItem(SuperMetroid.Core.Progression.SuperMetroidGameState gameState, SamusState samus, SamusBombProjectileSystem bombProjectiles)
+    private bool TryBeginXrayFromSelectedHudItem(SuperMetroid.Core.Progression.SuperMetroidGameState gameState, SamusState samus, SamusBombProjectileSystem bombProjectiles,
+        out SamusPoseId? activationPose)
     {
+        activationPose = null;
         // The HUD's selection prevents selecting the HUD item without the scope. The lower-level
         // X-ray spawn assumes that selector has already succeeded.
         if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope))
             return false;
 
-        return samus.Xray.TryBegin(samus, _player.PreviousMovementTypeForXray, new XrayBeginConditions { GameState = gameState, PowerBombExplosionActive = bombProjectiles.PowerBombExplosion.IsActive, ProjectileCooldownTimer = bombProjectiles.CooldownTimer, BombCounter = bombProjectiles.BombCounter });
+        return samus.Xray.TryBegin(samus, _player.PreviousMovementTypeForXray, new XrayBeginConditions { GameState = gameState, PowerBombExplosionActive = bombProjectiles.PowerBombExplosion.IsActive, ProjectileCooldownTimer = bombProjectiles.CooldownTimer, BombCounter = bombProjectiles.BombCounter },
+            out activationPose);
     }
 
     /// <summary>
@@ -304,9 +307,9 @@ internal sealed class SamusFramePhases
                 samus.SelectedHudItem == HudItem.XRay &&
                 samus.Grapple.Phase == GrapplePhase.Inactive &&
                 (_playerActions.Current & GameplayAction.Dash) != GameplayAction.None &&
-                TryBeginXrayFromSelectedHudItem(gameState, samus, room.BombProjectiles))
+                TryBeginXrayFromSelectedHudItem(gameState, samus, room.BombProjectiles, out SamusPoseId? xrayActivationPose))
             {
-                frame.MarkXrayActivated();
+                frame.RecordXrayActivation(xrayActivationPose);
                 _player.ClearProspectivePoses();
             }
 

@@ -222,7 +222,7 @@ internal sealed class SamusPoseTransitionPhase
             animationTransitionApplied = true;
         }
 
-        if (samus.Xray.CommitPendingActivation(samus, animationTransitionApplied))
+        if (frame.XrayActivation is { Pose: { } xrayPose } && samus.Xray.CommitActivation(samus, xrayPose, animationTransitionApplied))
         {
             _player.ClearProspectivePoses();
             _player.ProspectiveSamusWallCollisionPose = null;

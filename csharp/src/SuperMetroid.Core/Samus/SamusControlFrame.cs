@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.World;
@@ -29,8 +30,14 @@ internal sealed class SamusControlFrame
     /// <summary>Whether the death sequence owns Samus this frame.</summary>
     internal bool DeathOwnsSamus { get; private set; }
 
+    /// <summary>
+    /// X-ray's setup this frame, which the input phase records as the setup returns it (#2562): the pose its activation
+    /// installs, which the frame's pose update commits; null when X-ray did not take control of Samus this frame.
+    /// </summary>
+    internal XrayActivation? XrayActivation { get; private set; }
+
     /// <summary>Whether X-ray took control of Samus during this frame.</summary>
-    internal bool XrayActivatedThisFrame { get; private set; }
+    internal bool XrayActivatedThisFrame => XrayActivation is not null;
 
     /// <summary>The movement type read before X-ray pose input ran.</summary>
     internal SamusMovementType MovementBeforeXrayAdmission { get; private set; }
@@ -113,7 +120,6 @@ internal sealed class SamusControlFrame
     {
         Mode = mode;
         XrayOwnsPoseInput = xrayOwnsPoseInput;
-        XrayActivatedThisFrame = false;
         MovementBeforeXrayAdmission = movementBeforeXray;
     }
 
@@ -141,8 +147,8 @@ internal sealed class SamusControlFrame
     /// <summary>Samples whether the ordinary input phase's HUD, bomb and projectile owners run.</summary>
     internal void SampleInputHandlingRuns(bool runs) => InputHandlingRuns = runs;
 
-    /// <summary>Records that X-ray took control of Samus during this frame.</summary>
-    internal void MarkXrayActivated() => XrayActivatedThisFrame = true;
+    /// <summary>Records X-ray's setup taking control of Samus this frame, with the pose its activation installs, if any.</summary>
+    internal void RecordXrayActivation(SamusPoseId? activationPose) => XrayActivation = new XrayActivation(activationPose);
 
     /// <summary>Records whether grapple owns movement.</summary>
     internal void SampleGrappleOwnership(bool owns) => GrappleOwnsMovement = owns;

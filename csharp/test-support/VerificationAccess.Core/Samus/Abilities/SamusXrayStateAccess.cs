@@ -16,13 +16,14 @@ internal static class SamusXrayStateAccess
         /// <summary>
         /// Runs X-ray's setup and then its activation as the frame's pose update does when no higher-priority transition
         /// supersedes it: <see cref="SamusXrayState.TryBegin"/> followed by
-        /// <see cref="SamusXrayState.CommitPendingActivation"/>.
+        /// <see cref="SamusXrayState.CommitActivation"/> with the pose it returns.
         /// </summary>
         /// <returns>Whether the setup admitted X-ray.</returns>
         internal bool TryBeginAndActivate(SamusState samus, SamusMovementType previousMovementType, XrayBeginConditions conditions)
         {
-            bool admitted = self.TryBegin(samus, previousMovementType, conditions);
-            self.CommitPendingActivation(samus, superseded: false);
+            bool admitted = self.TryBegin(samus, previousMovementType, conditions, out SamusPoseId? activationPose);
+            if (activationPose is { } pose)
+                self.CommitActivation(samus, pose, superseded: false);
             return admitted;
         }
     }

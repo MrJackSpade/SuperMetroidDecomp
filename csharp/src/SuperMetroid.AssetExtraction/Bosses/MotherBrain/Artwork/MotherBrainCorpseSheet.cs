@@ -21,13 +21,13 @@ public static class MotherBrainCorpseSheet
     public const int PageByteCount = 448;
 
     /// <summary>One 4bpp 8-by-8 tile occupies 32 bytes.</summary>
-    public const int TileBytes = 32;
+    private const int TileBytes = 32;
 
     /// <summary>The column of each corpse page the corpse's right-hand frame, which rots, begins at.</summary>
-    public const int RightFrameColumn = 6;
+    private const int RightFrameColumn = 6;
 
     /// <summary>The corpse's source artwork advances one sixteen-tile (512-byte) page per row.</summary>
-    public const int SourcePageBytes = 16 * TileBytes;
+    private const int SourcePageBytes = 16 * TileBytes;
 
     /// <summary>The sprite character the first corpse page shows from; each later page follows the one before.</summary>
     public const int FirstPageCharacter = 416;

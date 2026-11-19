@@ -13,7 +13,7 @@ public static class PauseEquipmentBaseTiles
     /// and13-16, boots rows19-21. All own nine cells on the cartridge's page, where a nine-cell write dispatched from
     /// the suit or boot column reaches along a beam row; the game shows each label's picture whole (#1515).
     /// </summary>
-    public static bool IsEquipmentLabelCell(int cell)
+    private static bool IsEquipmentLabelCell(int cell)
     {
         if ((uint)cell >= Cells) return false;
         int row = cell / Columns;
@@ -34,7 +34,7 @@ public static class PauseEquipmentBaseTiles
     /// <summary>Returns whether runtime inventory, reserve, or wireframe state owns a tilemap cell.</summary>
     /// <param name="cell">Zero-based cell index in the 32-by-32 equipment tilemap.</param>
     /// <returns><see langword="true"/> when the static base must leave the cell for live menu composition.</returns>
-    public static bool IsLiveOwnedCell(int cell)
+    private static bool IsLiveOwnedCell(int cell)
     {
         if (IsEquipmentLabelCell(cell)) return true;
         if (IsReserveCell(cell)) return true;

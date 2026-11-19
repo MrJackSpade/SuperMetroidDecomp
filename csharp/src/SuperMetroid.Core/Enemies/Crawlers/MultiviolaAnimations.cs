@@ -34,7 +34,7 @@ internal static class MultiviolaAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<MultiviolaSegment, Animation<MultiviolaSegment>> StartingAt { get; } = new Dictionary<MultiviolaSegment, Animation<MultiviolaSegment>>
+    private static IReadOnlyDictionary<MultiviolaSegment, Animation<MultiviolaSegment>> StartingAt { get; } = new Dictionary<MultiviolaSegment, Animation<MultiviolaSegment>>
     {
         [P.Flying] = Animation<MultiviolaSegment>.Looping([Segments.Whole(P.Flying)]),
     };

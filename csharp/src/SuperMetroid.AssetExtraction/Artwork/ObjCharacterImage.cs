@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 internal static class ObjCharacterImage
 {
     /// <summary>The ninth OBJ character-name bit, selecting the second name table.</summary>
-    internal const int NameSelectBit = 1 << 8;
+    private const int NameSelectBit = 1 << 8;
 
     /// <summary>Characters in one OBJ name table.</summary>
     private const int NameTableCharacters = 256;
@@ -29,7 +29,7 @@ internal static class ObjCharacterImage
     /// <summary>Resolves a nine-bit OBJ character name through OBSEL into byte VRAM.</summary>
     /// <param name="tileNumber">The name, 0 through 511.</param>
     /// <param name="obsel">The OBSEL value.</param>
-    public static int ResolveTileByteAddress(int tileNumber, int obsel)
+    private static int ResolveTileByteAddress(int tileNumber, int obsel)
     {
         if ((uint)tileNumber >= 2 * NameTableCharacters)
             throw new ArgumentOutOfRangeException(nameof(tileNumber));

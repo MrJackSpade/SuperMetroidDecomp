@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public sealed class RoomCharacterAtlases
 {
     /// <summary>Copied lookup by character sheet; the RoomCharacterAtlas instances are shared and immutable.</summary>
-    internal readonly Dictionary<RoomCharacterSet, RoomCharacterAtlas> byRoomCharacterSet;
+    private readonly Dictionary<RoomCharacterSet, RoomCharacterAtlas> byRoomCharacterSet;
 
     /// <summary>Copies the lookup and requires an entry for every retail graphics set's character sheet.</summary>
     /// <exception cref="ArgumentNullException">An argument is null.</exception>

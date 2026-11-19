@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectMotherBrainFakeDeathVisualFiles
 {
     /// <summary>The installed file holding the fake-death room frames' pictures.</summary>
-    public const string VisualFileName = "mother-brain-fake-death.json";
+    private const string VisualFileName = "mother-brain-fake-death.json";
 
     /// <summary>The fake-death room changes as the import pictures them: every frame's geometry and published name, by draw.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } = CreateFamily();

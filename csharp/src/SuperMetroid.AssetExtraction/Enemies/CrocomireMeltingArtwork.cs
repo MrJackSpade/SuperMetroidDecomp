@@ -16,13 +16,13 @@ public sealed class CrocomireMeltingArtwork
 {
 
     /// <summary>The import data's planar character data for the first overlapping melt pass.</summary>
-    internal readonly RoomCharacterAtlas first;
+    private readonly RoomCharacterAtlas first;
     /// <summary>The import data's planar character data for the second, eroded melt pass.</summary>
-    internal readonly RoomCharacterAtlas second;
+    private readonly RoomCharacterAtlas second;
     /// <summary>The import data's tile placements for the first illustration.</summary>
-    internal readonly BackgroundTile[] firstTilemap;
+    private readonly BackgroundTile[] firstTilemap;
     /// <summary>The import data's tile placements for the second illustration.</summary>
-    internal readonly BackgroundTile[] secondTilemap;
+    private readonly BackgroundTile[] secondTilemap;
 
     /// <summary>Keeps both character sheets and both complete layouts the import composes the melt pictures from.</summary>
     private CrocomireMeltingArtwork(RoomCharacterAtlas first, RoomCharacterAtlas second,
@@ -137,7 +137,7 @@ public sealed class CrocomireMeltingArtwork
     /// The bytes of <paramref name="illustration"/>'s image the cartridge assembles: a row per band, and the row and word
     /// after the last, which the last band's copy carries past the image.
     /// </summary>
-    internal static int UsedByteCount(CrocomireMeltingIllustration illustration) =>
+    private static int UsedByteCount(CrocomireMeltingIllustration illustration) =>
         (CrocomireMelting.BandCount(illustration) + 1) * RowByteCount + sizeof(ushort);
 
     /// <summary>Rejects a sheet that is not <paramref name="illustration"/>'s installed length.</summary>

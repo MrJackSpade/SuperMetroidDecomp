@@ -37,7 +37,7 @@ internal sealed class TorizoMovement
     /// Sets up Crateria's Bomb Torizo or Norfair's Golden Torizo as he spawns; which Torizo he is, not the room's area,
     /// chooses his values.
     /// </summary>
-    internal void InitializeTorizo(RoomEnemyPlace torizo, TorizoVariant variant, SamusState samus, GameplayAction controllerInput)
+    private void InitializeTorizo(RoomEnemyPlace torizo, TorizoVariant variant, SamusState samus, GameplayAction controllerInput)
     {
         var state = new TorizoEnemyState(variant)
         {

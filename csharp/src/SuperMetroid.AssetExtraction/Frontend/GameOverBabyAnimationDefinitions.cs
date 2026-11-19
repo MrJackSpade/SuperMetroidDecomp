@@ -62,7 +62,7 @@ internal static class GameOverBabyAnimationDefinitions
     /// </summary>
     /// <remarks>Issues #625 and #970: their effect IDs and stream references were checked against pinned NTSC J/U v1.0
     /// ROM.</remarks>
-    internal static readonly NativeWordIdentities<GameOverBabySound> CryCallbacks = new(new Dictionary<GameOverBabySound, ushort>
+    private static readonly NativeWordIdentities<GameOverBabySound> CryCallbacks = new(new Dictionary<GameOverBabySound, ushort>
     {
         [GameOverBabySound.FirstCry] = 0xbc0c,
         [GameOverBabySound.SecondCry] = 0xbc15,

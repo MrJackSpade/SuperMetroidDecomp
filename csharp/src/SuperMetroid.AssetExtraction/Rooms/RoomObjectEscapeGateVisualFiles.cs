@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectEscapeGateVisualFiles
 {
     /// <summary>The installed file holding the gate frames' pictures.</summary>
-    public const string VisualFileName = "escape-gate.json";
+    private const string VisualFileName = "escape-gate.json";
 
     /// <summary>The gate as the import pictures it: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<MotherBrainEscapeGateDraw> Family { get; } =

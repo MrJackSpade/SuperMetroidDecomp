@@ -275,13 +275,13 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>A spore (#1760, #2410): it drifts from its spawn, and a shot one bursts, harmless, then drops and deletes itself.</summary>
-    internal SporeSpawnSporeBehavior Spore => field ??= new SporeSpawnSporeBehavior(_deathsAndDrops);
+    private SporeSpawnSporeBehavior Spore => field ??= new SporeSpawnSporeBehavior(_deathsAndDrops);
 
     /// <summary>A ceiling spore spawner (#1760, #2410): it releases spores on its random cadence, and a shot one restarts closed.</summary>
-    internal SporeSpawnSpawnerBehavior Spawner => field ??= new SporeSpawnSpawnerBehavior(_room, _projectiles, Spore);
+    private SporeSpawnSpawnerBehavior Spawner => field ??= new SporeSpawnSpawnerBehavior(_room, _projectiles, Spore);
 
     /// <summary>A link of Spore Spawn's stalk (#1760): it holds still, and a shot one restarts its pose.</summary>
-    internal EnemyProjectileBehavior Stalk => field ??= new EnemyProjectileBehavior(shot: () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Stalk));
+    private EnemyProjectileBehavior Stalk => field ??= new EnemyProjectileBehavior(shot: () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Stalk));
 
     /// <summary>Runs SporeSpawn's main AI with the encounter his <paramref name="place"/> holds.</summary>
     internal void RunSporeSpawnMainAi(RoomEnemyPlace place, SporeSpawnEnemyState state) => RunSporeSpawnMain(place, state);
@@ -427,7 +427,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Deletes every enemy projectile but his stalk's links, as his death does: the stalk survives for the death animation
     /// (#1932).
     /// </summary>
-    internal void DeleteProjectilesButStalk(SporeSpawnEnemyState state)
+    private void DeleteProjectilesButStalk(SporeSpawnEnemyState state)
     {
         foreach (EnemyProjectile projectile in _projectiles.EnemyProjectiles)
         {
@@ -483,7 +483,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Shows <paramref name="band"/>'s colours of <paramref name="state"/> on his <paramref name="body"/>.</summary>
-    internal static void ShowSporeSpawnHealthShade(RoomEnemyPlace body, SporeSpawnEnemyState state, SporeSpawnHealthBand band)
+    private static void ShowSporeSpawnHealthShade(RoomEnemyPlace body, SporeSpawnEnemyState state, SporeSpawnHealthBand band)
     {
         state.Colours.ShowHealth(band);
         body.Shading = state.Colours.Sprites;
@@ -493,7 +493,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Shows step <paramref name="step"/> of his death fade over his body, the room's level and its background (#1512),
     /// as the import's shades of it.
     /// </summary>
-    internal static void ShowSporeSpawnDeathShade(RoomEnemyPlace body, SporeSpawnEnemyState state, SporeSpawnDeathFadeStep step)
+    private static void ShowSporeSpawnDeathShade(RoomEnemyPlace body, SporeSpawnEnemyState state, SporeSpawnDeathFadeStep step)
     {
         state.Colours.ShowDeath(step);
         body.Shading = state.Colours.Sprites;
@@ -535,7 +535,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             samus: samus);
     /// <summary>Spawns the stalk link at <paramref name="segment"/> from his body and returns it (#1932).</summary>
     /// <exception cref="InvalidOperationException">No projectile place is free: he spawns his stalk into his room's empty places.</exception>
-    internal EnemyProjectile SpawnSporeSpawnStalk(RoomEnemyPlace body, Offset16<RoomPixels> segment)
+    private EnemyProjectile SpawnSporeSpawnStalk(RoomEnemyPlace body, Offset16<RoomPixels> segment)
     {
         EnemyProjectile stalk = _projectiles.AllocateEnemyProjectile() ?? throw new InvalidOperationException(
             "Spore Spawn's stalk found no free projectile place; he spawns it as his room loads, into its empty places.");
@@ -551,7 +551,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Spawns the ceiling spore emitter at <paramref name="emitter"/> for <paramref name="state"/>'s fight and runs its setup.</summary>
-    internal void SpawnSporeSpawnSpawner(RoomEnemyPlace body, SporeSpawnEnemyState state, SporeSpawnEmitter emitter)
+    private void SpawnSporeSpawnSpawner(RoomEnemyPlace body, SporeSpawnEnemyState state, SporeSpawnEmitter emitter)
     {
         EnemyProjectile? spawner = _projectiles.AllocateEnemyProjectile();
         if (spawner is null)

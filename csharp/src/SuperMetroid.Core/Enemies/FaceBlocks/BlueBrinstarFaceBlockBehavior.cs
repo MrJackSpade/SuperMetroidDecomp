@@ -50,7 +50,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     private PictureShading Glow => PictureShading.Shaded(FaceBlockShades.Glow(_glow.Showing));
 
     /// <summary>Initializes the Blue Brinstar face block.</summary>
-    internal void InitializeBlueBrinstarFaceBlock(RoomEnemyPlace place, SamusState samus)
+    private void InitializeBlueBrinstarFaceBlock(RoomEnemyPlace place, SamusState samus)
     {
         var state = new BlueBrinstarFaceBlockEnemyState();
         place.SetSpeciesState(state);
@@ -69,7 +69,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     }
 
     /// <summary>Runs the Blue Brinstar face block's main AI.</summary>
-    internal void RunBlueBrinstarFaceBlockMain(
+    private void RunBlueBrinstarFaceBlockMain(
         RoomEnemyPlace place,
         BlueBrinstarFaceBlockEnemyState state,
         SamusState samus)
@@ -106,7 +106,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     private void RestartGlowStep() => _glow.HoldShownFrameFor(FaceBlockGlowDefinitions.FrameDuration);
 
     /// <summary>The turn a face block wakes into for Samus on <paramref name="side"/>, the side it faces.</summary>
-    internal static BlueBrinstarFaceBlockSegment Wake(HorizontalDirection side) =>
+    private static BlueBrinstarFaceBlockSegment Wake(HorizontalDirection side) =>
         side == HorizontalDirection.Left ? BlueBrinstarFaceBlockSegment.SamusLeft : BlueBrinstarFaceBlockSegment.SamusRight;
 
     /// <summary>Uses the collected items so unequipping Morph Ball does not put active blocks back to rest.</summary>

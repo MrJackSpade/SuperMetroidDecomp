@@ -21,13 +21,13 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
     internal StationAccessRule Rule { get; } = Ensure.NotNull(rule);
 
     /// <summary>Which station it is.</summary>
-    public StationKind Kind => Rule.Kind;
+    private StationKind Kind => Rule.Kind;
 
     /// <summary>Area whose map a map station acquires.</summary>
     public AreaId Area { get; } = area;
 
     /// <summary>Animation the station currently shows.</summary>
-    internal StationAnimation ShownAnimation { get; private set; } = animation;
+    private StationAnimation ShownAnimation { get; set; } = animation;
 
     /// <summary>Animation shown once the station has given its reward: the map station's acquired one, or its ordinary one.</summary>
     internal StationAnimation CompletedAnimation => Rule.AcquiredAnimation ?? Rule.Animation;
@@ -46,7 +46,7 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
     /// The access Samus's touch accepted, which the station's next update starts the arm at, or null while no touch waits
     /// for it (#2545). A later accepted touch before that update replaces it.
     /// </summary>
-    public StationAccessUse? PendingAccess { get; private set; }
+    private StationAccessUse? PendingAccess { get; set; }
 
     /// <summary>Whether the access arm is idle, in use at the access Samus used, or waiting for the map screen to close.</summary>
     public StationOperationPhase OperationPhase { get; private set; } = StationOperationPhase.Idle;

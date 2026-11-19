@@ -59,16 +59,16 @@ internal static class PausePictureSheet
     }
 
     /// <summary>The frame's cells the button rows replace.</summary>
-    internal static IEnumerable<int> ButtonRowCells() =>
+    private static IEnumerable<int> ButtonRowCells() =>
         Enumerable.Range(PauseFrameDefinitions.ButtonRowsFirstRow * Columns, PauseFrameDefinitions.ButtonRowCount * Columns);
 
     /// <summary>The frame's cells <paramref name="label"/> covers.</summary>
-    internal static IEnumerable<int> LabelCells(PauseButtonLabel label) =>
+    private static IEnumerable<int> LabelCells(PauseButtonLabel label) =>
         Enumerable.Range(0, PauseFrameDefinitions.ButtonRowCount).Select(row => PauseMenuButtonLabels.ButtonLabelSpan(label, row))
             .SelectMany(span => Enumerable.Range(span.Word, span.Count));
 
     /// <summary>The button page's two shown rows laid where the frame shows them, on an otherwise empty frame.</summary>
-    internal static BackgroundTile[] ButtonRows(ImportAreaMapPresentation maps)
+    private static BackgroundTile[] ButtonRows(ImportAreaMapPresentation maps)
     {
         BackgroundTile[] page = maps.Pause.Backdrops.CreateButtonTilemap();
         var rows = new BackgroundTile[PauseBackdropDefinitions.Cells];
@@ -78,7 +78,7 @@ internal static class PausePictureSheet
     }
 
     /// <summary>The colour variant of <paramref name="shade"/>.</summary>
-    internal static int PaletteOf(PauseButtonLabelShade shade) => shade switch
+    private static int PaletteOf(PauseButtonLabelShade shade) => shade switch
     {
         PauseButtonLabelShade.Lit => PauseFrameDefinitions.LitPalette,
         PauseButtonLabelShade.Dim => PauseFrameDefinitions.DimPalette,

@@ -73,7 +73,7 @@ public sealed class SamusState
     /// clears every prospective pose and momentum response, so this frame's pending
     /// transition is not committed. The runtime consumes it before the pose update.
     /// </summary>
-    public bool PendingPoseTransitionCancelled { get; private set; }
+    private bool PendingPoseTransitionCancelled { get; set; }
 
     /// <summary>Records the cancellation of the pending pose transition.</summary>
     internal void CancelPendingPoseTransition() => PendingPoseTransitionCancelled = true;
@@ -272,7 +272,7 @@ public sealed class SamusState
     /// of one update is never rounded on its own; how the fraction reaches the whole energy is the compatibility layer's
     /// (<see cref="PeriodicDamageEnergyFraction"/>).
     /// </summary>
-    public PeriodicDamageEnergyFraction EnergyFraction { get; private set; }
+    private PeriodicDamageEnergyFraction EnergyFraction { get; set; }
 
     /// <summary>
     /// Takes periodic damage as the game's periodic damage does: the fraction comes off <see cref="EnergyFraction"/>

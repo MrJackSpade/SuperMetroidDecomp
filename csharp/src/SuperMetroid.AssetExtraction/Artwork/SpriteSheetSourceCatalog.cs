@@ -85,7 +85,7 @@ internal sealed class SpriteSheetSourceCatalog
     /// <exception cref="ArgumentOutOfRangeException">
     /// The sheet is the escape timer, which composes from the cartridge, or the pause HUD, which composes from the HUD's images.
     /// </exception>
-    internal SpriteSheetSources For(SpriteSheetId sheet) => sheet switch
+    private SpriteSheetSources For(SpriteSheetId sheet) => sheet switch
     {
         SpriteSheetId.EscapeTimer => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The escape timer composes from the cartridge."),
         SpriteSheetId.PauseHud => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The pause HUD composes from the HUD's images, not sprite parts."),

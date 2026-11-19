@@ -37,7 +37,7 @@ public sealed record GameplaySceneLayer : DisplayLayer
     /// The bands of the gameplay screen that show their own choice of layers (#1514), top to bottom; the lines no band
     /// covers show <see cref="GameplaySceneView.ShownLayers"/>.
     /// </summary>
-    public ImmutableArray<ShownBand> Bands { get; }
+    private ImmutableArray<ShownBand> Bands { get; }
 
     /// <summary>Captures the frame's view, its background's line scrolls and its bands; this layer is drawn before any blend or overlay.</summary>
     /// <param name="view">How the frame views the gameplay scene.</param>

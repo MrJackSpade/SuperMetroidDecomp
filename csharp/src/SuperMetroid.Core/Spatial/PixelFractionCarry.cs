@@ -13,7 +13,7 @@ public readonly record struct PixelFractionCarry
     private PixelFractionCarry(SignedEightEight part) => Part = part;
 
     /// <summary>The part of a pixel carried: none up to, but not including, one pixel.</summary>
-    public SignedEightEight Part { get; }
+    private SignedEightEight Part { get; }
 
     /// <summary>No travel carried.</summary>
     public static PixelFractionCarry None => default;

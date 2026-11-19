@@ -23,7 +23,7 @@ internal static class EndingScreenImage
     }
 
     /// <summary>Writes one transfer into <paramref name="vram"/>.</summary>
-    internal static void Execute(SnesVram vram, EndingTransfer transfer, EndingTransferArtwork artwork)
+    private static void Execute(SnesVram vram, EndingTransfer transfer, EndingTransferArtwork artwork)
     {
         var ending = new EndingVram(vram);
         switch (transfer.Kind)

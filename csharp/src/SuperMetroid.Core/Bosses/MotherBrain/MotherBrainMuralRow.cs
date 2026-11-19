@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 public readonly record struct MotherBrainMuralRow(int Place)
 {
     /// <summary>The mural's rows, top row first.</summary>
-    internal static IReadOnlyList<MotherBrainMuralRow> All { get; } =
+    private static IReadOnlyList<MotherBrainMuralRow> All { get; } =
         [.. Enumerable.Range(0, MotherBrainMuralDefinitions.RowCount).Select(place => new MotherBrainMuralRow(place))];
 
     /// <summary>The mural's top row, which every reveal starts from.</summary>

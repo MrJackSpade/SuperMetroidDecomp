@@ -40,7 +40,7 @@ public readonly record struct QuadraticCurveSpeed(SignedSixteenSixteen Speed)
     /// The coarse speed in the direction <paramref name="sign"/> names: the speed with its fraction finer than a 256th of a
     /// pixel dropped toward decreasing coordinates.
     /// </summary>
-    internal SignedSixteenSixteen CoarseToward(EnemySpeedSign sign) => Toward(sign).RoundedDownToTwoFiftySixths();
+    private SignedSixteenSixteen CoarseToward(EnemySpeedSign sign) => Toward(sign).RoundedDownToTwoFiftySixths();
 
     /// <summary>
     /// How far the coarse speed toward increasing coordinates carries a mover in one update (#2537): the speed with its

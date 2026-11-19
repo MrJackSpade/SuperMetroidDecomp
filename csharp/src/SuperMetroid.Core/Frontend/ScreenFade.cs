@@ -44,7 +44,7 @@ public sealed class ScreenFade
     public bool IsBlack => Level == 0;
 
     /// <summary>Whether the screen is fully lit.</summary>
-    public bool IsFullyLit => Level == DisplayBrightness.Full;
+    private bool IsFullyLit => Level == DisplayBrightness.Full;
 
     /// <summary>Shows the screen at <paramref name="level"/>, leaving the cadence as it is.</summary>
     /// <param name="level">The brightness, from black through <see cref="DisplayBrightness.Full"/>.</param>

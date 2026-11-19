@@ -42,16 +42,16 @@ public readonly record struct XrayRevealVisualBlocks
     }
 
     /// <summary>The one block a single-block copy shows.</summary>
-    public static XrayRevealVisualBlocks One(int block) => new(block, null, null, null);
+    private static XrayRevealVisualBlocks One(int block) => new(block, null, null, null);
 
     /// <summary>The two blocks side by side a wide copy shows.</summary>
-    public static XrayRevealVisualBlocks Wide(int left, int right) => new(left, right, null, null);
+    private static XrayRevealVisualBlocks Wide(int left, int right) => new(left, right, null, null);
 
     /// <summary>The two blocks one above the other a tall copy shows.</summary>
-    public static XrayRevealVisualBlocks Tall(int top, int bottom) => new(top, null, bottom, null);
+    private static XrayRevealVisualBlocks Tall(int top, int bottom) => new(top, null, bottom, null);
 
     /// <summary>The four blocks a square copy shows.</summary>
-    public static XrayRevealVisualBlocks Square(int topLeft, int topRight, int bottomLeft, int bottomRight) =>
+    private static XrayRevealVisualBlocks Square(int topLeft, int topRight, int bottomLeft, int bottomRight) =>
         new(topLeft, topRight, bottomLeft, bottomRight);
 
     /// <summary>How many blocks a drawable copy shape shows.</summary>

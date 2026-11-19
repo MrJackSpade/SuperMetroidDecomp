@@ -47,7 +47,7 @@ public sealed class SamusParticles
     }
 
     /// <summary>Adds a particle already under way, as a restored game does.</summary>
-    internal void Add(SamusParticle particle) => _particles.Add(Ensure.NotNull(particle));
+    private void Add(SamusParticle particle) => _particles.Add(Ensure.NotNull(particle));
 
     /// <summary>
     /// Runs every particle's update and draws those shown, the newest first, so a newer particle draws in front where

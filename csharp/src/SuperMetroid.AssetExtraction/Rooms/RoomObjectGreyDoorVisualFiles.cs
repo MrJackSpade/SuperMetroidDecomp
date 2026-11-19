@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectGreyDoorVisualFiles
 {
     /// <summary>Family-relative JSON filename for twenty grey-door and shared clear-cap layouts.</summary>
-    public const string VisualFileName = "grey-doors.json";
+    private const string VisualFileName = "grey-doors.json";
 
     /// <summary>The grey-door cap as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
@@ -28,7 +28,7 @@ public static class RoomObjectGreyDoorVisualFiles
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Enumerates all twenty authored cap records for artwork import and export.</summary>
-    internal static IEnumerable<RoomObjectDrawLists.DrawList> All
+    private static IEnumerable<RoomObjectDrawLists.DrawList> All
     {
         get
         {
@@ -41,7 +41,7 @@ public static class RoomObjectGreyDoorVisualFiles
     }
 
     /// <summary>Builds the draw list of a recognized grey or cleared cap from how its cells collide.</summary>
-    internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
+    private static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
         bool found = RoomObjectDrawIdentity.TryFrame<GreyDoorCaps.Draw>(request, out GreyDoorCaps.Draw cap);
         list = found ? RoomObjectShapeRun.DrawList(request, cap.Blocks, RoomObjectShapeRun.Line(cap.Vertical, cap.Blocks)) : default;
@@ -49,7 +49,7 @@ public static class RoomObjectGreyDoorVisualFiles
     }
 
     /// <summary>Names a cleared opening or grey cap by direction and what it shows (#1994).</summary>
-    internal static string VisualId(RoomObjectDraw request)
+    private static string VisualId(RoomObjectDraw request)
     {
         if (!RoomObjectDrawIdentity.TryFrame<GreyDoorCaps.Draw>(request, out var draw))
             throw new InvalidDataException($"Grey-door draw {request} has no visual ID.");

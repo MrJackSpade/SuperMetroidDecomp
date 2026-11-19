@@ -18,7 +18,7 @@ internal static class FloorSheetComposer
     internal const int Side = 128;
 
     /// <summary>Pixels along each side of the floor.</summary>
-    internal const int SidePixels = Side * TilePixels;
+    private const int SidePixels = Side * TilePixels;
 
     /// <summary>Cells in the whole floor.</summary>
     internal const int CellCount = Side * Side;

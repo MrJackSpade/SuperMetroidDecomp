@@ -14,10 +14,10 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal static class CeresSteamAnimations
 {
     /// <summary>How long a vent stays hidden between puffs.</summary>
-    internal const int RestUpdates = 64;
+    private const int RestUpdates = 64;
 
     /// <summary>How long each picture of a puff shows.</summary>
-    internal const int PuffPictureUpdates = 3;
+    private const int PuffPictureUpdates = 3;
 
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<CeresSteamSegment, EnemyFrameId, CeresSteamCueKind> Segments { get; } = new(
@@ -78,7 +78,7 @@ internal static class CeresSteamAnimations
     /// a puffing vent goes on puffing and resting in turn for good. A vent only rests on the way from a puff, so no
     /// animation starts at a rest.
     /// </summary>
-    internal static IReadOnlyDictionary<CeresSteamSegment, Animation<CeresSteamSegment>> StartingAt { get; } = new Dictionary<CeresSteamSegment, Animation<CeresSteamSegment>>
+    private static IReadOnlyDictionary<CeresSteamSegment, Animation<CeresSteamSegment>> StartingAt { get; } = new Dictionary<CeresSteamSegment, Animation<CeresSteamSegment>>
     {
         [P.UpDormant] = new([Segments.Whole(P.UpDormant)], AnimationEnd.Holds),
         [P.UpPuffing] = Animation<CeresSteamSegment>.Looping([Segments.Whole(P.UpPuffing), Segments.Whole(P.UpResting)]),

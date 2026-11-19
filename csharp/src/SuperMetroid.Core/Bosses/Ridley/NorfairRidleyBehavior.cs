@@ -92,7 +92,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
     /// <param name="controllerInput">The actions held this update.</param>
     /// <param name="level">The room's terrain.</param>
     /// <param name="powerBomb">The power bomb explosion of the pass's bombs, which a missed lunge dodges.</param>
-    internal void RunNorfairRidleyPhase(
+    private void RunNorfairRidleyPhase(
         RoomEnemyPlace place,
         NorfairRidleyState state,
         SamusState samus,
@@ -325,7 +325,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
     /// <param name="controllerInput">The actions held this update.</param>
     /// <param name="level">The room's terrain.</param>
     /// <param name="powerBomb">The power bomb explosion of the pass's bombs, which the chosen phase may read at once.</param>
-    internal void SelectNorfairRidleyAttack(
+    private void SelectNorfairRidleyAttack(
         RoomEnemyPlace place,
         NorfairRidleyState state,
         SamusState samus,

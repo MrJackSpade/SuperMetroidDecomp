@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 public sealed class EnemyTileSourceArtwork
 {
     /// <summary>Each enemy's installed characters, by definition.</summary>
-    internal readonly Dictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets;
+    private readonly Dictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets;
 
     /// <summary>Each enemy's installed palette, by definition.</summary>
     private readonly Dictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes;
@@ -49,7 +49,7 @@ public sealed class EnemyTileSourceArtwork
     }
 
     /// <summary>Finds the installed palette of <paramref name="enemy"/>.</summary>
-    internal bool TryGetPalette(EnemyDefinitionId enemy, [NotNullWhen(true)] out EnemyPaletteSheet? palette) =>
+    private bool TryGetPalette(EnemyDefinitionId enemy, [NotNullWhen(true)] out EnemyPaletteSheet? palette) =>
         palettes.TryGetValue(enemy, out palette);
 
     /// <summary>The installed palette of <paramref name="enemy"/>.</summary>

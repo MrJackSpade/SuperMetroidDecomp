@@ -55,7 +55,7 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
     }
 
     /// <summary>Runs the definition's initialization for a place the room's population load has just placed.</summary>
-    internal static void RunInitializationAi(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
+    private static void RunInitializationAi(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
     {
         Ensure.NotNull(surroundings);
         switch (Ensure.NotNull(place).Entity)
@@ -78,7 +78,7 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
     /// <exception cref="InvalidDataException">
     /// The place's enemy initializes from a population load's surroundings, which no such spawn has, or has no initialization.
     /// </exception>
-    internal static void RunSpawnedInitializationAi(RoomEnemyPlace place)
+    private static void RunSpawnedInitializationAi(RoomEnemyPlace place)
     {
         switch (Ensure.NotNull(place).Entity)
         {

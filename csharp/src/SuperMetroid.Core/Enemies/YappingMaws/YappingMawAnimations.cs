@@ -130,7 +130,7 @@ internal static class YappingMawAnimations
     /// cooldown's hold of Samus and then its aim's chewing, looped; no owner starts the chewing itself (#2276). A cooldown
     /// aimed off to one side holds Samus there and then straight up or down, as the straight cooldown does (#2451).
     /// </summary>
-    internal static IReadOnlyDictionary<YappingMawSegment, Animation<YappingMawSegment>> StartingAt { get; } = new Dictionary<YappingMawSegment, Animation<YappingMawSegment>>
+    private static IReadOnlyDictionary<YappingMawSegment, Animation<YappingMawSegment>> StartingAt { get; } = new Dictionary<YappingMawSegment, Animation<YappingMawSegment>>
     {
         [P.AttackingUp] = Animation<YappingMawSegment>.Looping([Segments.Whole(P.AttackingUp)]),
         [P.AttackingUpRight] = Animation<YappingMawSegment>.Looping([Segments.Whole(P.AttackingUpRight)]),

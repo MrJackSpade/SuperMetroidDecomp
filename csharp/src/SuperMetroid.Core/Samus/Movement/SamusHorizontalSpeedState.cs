@@ -69,7 +69,7 @@ public sealed class SamusHorizontalSpeedState
     /// its shown shade: the first boosted running frame moves it on, then each shade holds for its own beat; a Screw
     /// Attack spin moves the shared place on and leaves the hold where it stood.
     /// </summary>
-    internal AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> FullBodyGlow { get; } =
+    private AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> FullBodyGlow { get; } =
         SamusGlowPlay.Starting(FullBodyGlowStart);
 
     /// <summary>The glow the shared place starts in, before its first shade.</summary>
@@ -88,13 +88,13 @@ public sealed class SamusHorizontalSpeedState
     /// Whether cancelling a speed boost asked for the suit's shade back at once. Movement cancels the boost and the
     /// colour step, later in the same frame, shows the suit.
     /// </summary>
-    public bool SuitShadeRestoreRequested { get; private set; }
+    private bool SuitShadeRestoreRequested { get; set; }
 
     /// <summary>
     /// What the speed echoes are doing. Ordinary active Speed Booster captures alternate between the first and second
     /// echoes; cancellation sends them departing while the two stored bodies travel back toward Samus.
     /// </summary>
-    public SpeedEchoPhase SpeedEchoPhase { get; private set; }
+    private SpeedEchoPhase SpeedEchoPhase { get; set; }
 
     /// <summary>Whether the echoes are departing toward Samus, which only cancellation starts.</summary>
     public bool SpeedEchoesDeparting => SpeedEchoPhase == SpeedEchoPhase.Departing;
@@ -109,10 +109,10 @@ public sealed class SamusHorizontalSpeedState
     /// The departing first echo's horizontal speed in whole pixels an update, negative leftward. Cancellation
     /// sets eight leftward while facing left or eight rightward otherwise.
     /// </summary>
-    public int FirstSpeedEchoHorizontalSpeed { get; private set; }
+    private int FirstSpeedEchoHorizontalSpeed { get; set; }
 
     /// <summary>The departing second echo's horizontal speed in whole pixels an update, negative leftward.</summary>
-    public int SecondSpeedEchoHorizontalSpeed { get; private set; }
+    private int SecondSpeedEchoHorizontalSpeed { get; set; }
 
     /// <summary>The total horizontal speed produced by the total-speed calculation.</summary>
     public UnsignedSixteenSixteen TotalSpeed { get; private set; }
@@ -141,10 +141,10 @@ public sealed class SamusHorizontalSpeedState
     /// air, water or lava and acid. Each movement takes its speeds from it (<see cref="Speeds"/>).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The value set is not a medium.</exception>
-    public SamusLiquidMedium SpeedMedium
+    private SamusLiquidMedium SpeedMedium
     {
         get;
-        internal set => field = Enum.IsDefined(value)
+        set => field = Enum.IsDefined(value)
             ? value
             : throw new ArgumentOutOfRangeException(nameof(value), value, "Samus moves by the speeds of air, water or lava and acid.");
     } = SamusLiquidMedium.Air;
@@ -657,7 +657,7 @@ public sealed class SamusHorizontalSpeedState
     /// its whole pixels and its fraction exactly as authored instead of becoming a floating-point value.
     /// </summary>
     /// <param name="movementType">Samus's movement.</param>
-    public SamusHorizontalSpeeds Speeds(SamusMovementType movementType) =>
+    private SamusHorizontalSpeeds Speeds(SamusMovementType movementType) =>
         SpeedMedium == SamusLiquidMedium.Air && _waterSpeedsInAir.TryRead(movementType, out SamusHorizontalSpeeds waterSpeeds)
             ? waterSpeeds
             : Ensure.Listed(Ensure.Listed(SamusHorizontalSpeedDefinitions.ByMedium, SpeedMedium), movementType);
@@ -754,7 +754,7 @@ public sealed class SamusHorizontalSpeedState
     /// <see cref="SamusHorizontalSpeedDefinitions.LargestSpeedHalvings"/>, and publishes the total speed animation and
     /// collision use.
     /// </summary>
-    public UnsignedSixteenSixteen CalculateTotalSpeed(UnsignedSixteenSixteen baseSpeed)
+    private UnsignedSixteenSixteen CalculateTotalSpeed(UnsignedSixteenSixteen baseSpeed)
     {
         TotalSpeed = (baseSpeed + ExtraRunSpeed).Halved(Math.Min(SlowdownLevel, SamusHorizontalSpeedDefinitions.LargestSpeedHalvings));
         return TotalSpeed;

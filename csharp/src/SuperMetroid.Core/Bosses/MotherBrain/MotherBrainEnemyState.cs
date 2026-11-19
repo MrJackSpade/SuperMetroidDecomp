@@ -281,7 +281,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// follows her, so each of her body's pictures lies where its installed frame places it against her; the room's
     /// top-left corner once she is gone, where the escape warning written over the background lies.
     /// </summary>
-    public Position16<RoomPixels>? BodyPlacedAt => BodyPlacement switch
+    private Position16<RoomPixels>? BodyPlacedAt => BodyPlacement switch
     {
         MotherBrainBodyPlacement.FollowsBody => Body.Position.Whole,
         MotherBrainBodyPlacement.AtRoomCorner => Position16<RoomPixels>.Zero,

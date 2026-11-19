@@ -8,11 +8,11 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 internal static class CeresEscapeTileArtworkDefinitions
 {
     /// <summary>The escape warning text's 72 characters: nine rows of eight.</summary>
-    internal static readonly TileSheetDefinition WarningText =
+    private static readonly TileSheetDefinition WarningText =
         new(72 * RoomCharacterAtlasFormat.BytesPerTile, "ceres-escape-warning-tiles.png");
 
     /// <summary>The Ceres escape doors' 48 characters.</summary>
-    internal static readonly TileSheetDefinition Doors =
+    private static readonly TileSheetDefinition Doors =
         new(48 * RoomCharacterAtlasFormat.BytesPerTile, "ceres-escape-door-tiles.png");
 
     /// <summary>The two fixed Ceres escape tile pages in transfer order: the warning text, then the doors.</summary>

@@ -16,7 +16,7 @@ public sealed record PictureShadeFade(PictureShading From, PictureShading To, in
     public int Length { get; } = Ensure.BetweenInclusive(1, int.MaxValue, Length);
 
     /// <summary>How far the fade has come, zero through <see cref="Length"/>.</summary>
-    public int Progress { get; } = Ensure.BetweenInclusive(0, Length, Progress);
+    private int Progress { get; } = Ensure.BetweenInclusive(0, Length, Progress);
 
     /// <summary>The shading the fade starts from.</summary>
     public PictureShading From { get; } = Ensure.NotNull(From);

@@ -30,7 +30,7 @@ public readonly record struct MotherBrainWalkCredit
     internal MotherBrainWalkCredit(int credit) => Credit = Ensure.BetweenInclusive(0, WrappingCounter.LargestCount, credit);
 
     /// <summary>The credit, 0 through <see cref="WrappingCounter.LargestCount"/>, for the snapshot codec and parity checks.</summary>
-    public int Credit { get; }
+    private int Credit { get; }
 
     /// <summary>No credit at all.</summary>
     public static MotherBrainWalkCredit Empty => default;

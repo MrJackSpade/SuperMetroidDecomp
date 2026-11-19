@@ -20,7 +20,7 @@ public readonly record struct NuclearWaffleSweepAngle : IComparable<NuclearWaffl
 
     /// <summary>The angle in 256ths of a step from zero, counted on past each full turn.</summary>
     [IntegerQuantity("sweep angle in 256ths of a step, counted on past each full turn")]
-    public int FractionsOfStep { get; }
+    private int FractionsOfStep { get; }
 
     /// <summary>The angle <paramref name="steps"/> whole steps on from zero, counted on past each full turn, with no fraction.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The angle lies below zero.</exception>

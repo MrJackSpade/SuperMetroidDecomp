@@ -175,7 +175,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the one-frame setup action.</summary>
-    internal static void BeginYappingMawExtension(RoomEnemyPlace place, YappingMawEnemyState state)
+    private static void BeginYappingMawExtension(RoomEnemyPlace place, YappingMawEnemyState state)
     {
         state.Extension = YappingMawCurl.None;
         state.SpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
@@ -200,7 +200,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// extension only runs while the curl is 0 through <see cref="YappingMawAttackDefinitions.LargestCurl"/>: setup starts it at zero, the
     /// clamp caps it, and the update that carries it negative leaves the extension; a curl outside that range is refused.
     /// </summary>
-    internal static int BendStepOf(int curl) => Ensure.BetweenInclusive(0, YappingMawAttackDefinitions.LargestCurl, curl) / YappingMawAttackDefinitions.CurlPerBendStep;
+    private static int BendStepOf(int curl) => Ensure.BetweenInclusive(0, YappingMawAttackDefinitions.LargestCurl, curl) / YappingMawAttackDefinitions.CurlPerBendStep;
 
     /// <summary>Runs the curved four-link solver and state transition.</summary>
     private void AdvanceYappingMawExtension(
@@ -297,7 +297,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Adds the current quadratic speed to the curl, carrying the fraction, then advances its place along the curve.</summary>
-    internal static void AddYappingMawQuadraticSpeed(YappingMawEnemyState state)
+    private static void AddYappingMawQuadraticSpeed(YappingMawEnemyState state)
     {
         state.Extension = state.Extension.MovedBy(state.SpeedCurvePlace.Speed.Toward(state.CurlPhase == YappingMawCurlPhase.Retracting ? EnemySpeedSign.Negative : EnemySpeedSign.Positive));
         state.SpeedCurvePlace += QuadraticSpeedCurvePlace.OneMark;
@@ -431,7 +431,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Holds a grabbed Samus at the mouth offset of <paramref name="aim"/>, as the hold cue asks.</summary>
-    internal static void SetYappingMawHeldOffset(
+    private static void SetYappingMawHeldOffset(
         YappingMawEnemyState state,
         YappingMawAim aim)
     {
@@ -491,11 +491,11 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Which of the eight aims the bearing <paramref name="aim"/> points in: eight equal sectors in the aims' clockwise
     /// order from up, each centred on its direction, so the aim is turned on half a sector before its sector is read.
     /// </summary>
-    internal static YappingMawAim AimOf(TrigonometryAngle aim) => YappingMawAnimationDefinitions.Aims.At(
+    private static YappingMawAim AimOf(TrigonometryAngle aim) => YappingMawAnimationDefinitions.Aims.At(
         Array.IndexOf(TrigonometryAngle.DirectionsClockwise, aim.NearestDirection()));
 
     /// <summary>X is the Y offset a quarter turn behind.</summary>
-    internal static int CalculateYappingMawX(TrigonometryAngle angle, int length) =>
+    private static int CalculateYappingMawX(TrigonometryAngle angle, int length) =>
         CalculateYappingMawY(angle - TrigonometryAngle.QuarterTurn, length);
 
     /// <summary>
@@ -505,7 +505,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// (<see cref="UnitComponent.ReachRoundedDownToPixelPairsOf"/>), so a point on the negative side short of a pair lies a
     /// whole pair further out (#1620, #2453); its consumers wrap it onto the room's axis.
     /// </summary>
-    internal static int CalculateYappingMawY(TrigonometryAngle angle, int length) =>
+    private static int CalculateYappingMawY(TrigonometryAngle angle, int length) =>
         // The game samples the angle reflected below zero, whose sine is this angle's sine reversed.
         UnitComponent.CoarseFineSineOf(angle).Reversed.ReachRoundedDownToPixelPairsOf(ShortCircleProduct.RadiusInUse(length));
 

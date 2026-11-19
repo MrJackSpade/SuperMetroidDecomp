@@ -10,7 +10,7 @@ public sealed record XrayRevealBackground : ShownRoomBackground
     public XrayRevealBackground(XrayRevealPlane reveal) => Reveal = Ensure.NotNull(reveal);
 
     /// <summary>The revealed blocks, drawn from the room's block pictures.</summary>
-    public XrayRevealPlane Reveal { get; }
+    private XrayRevealPlane Reveal { get; }
 
     /// <inheritdoc/>
     public override TResult Map<TResult>(IShownRoomBackgroundMapping<TResult> mapping) => Ensure.NotNull(mapping).XrayReveal(Reveal);

@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 public sealed class MapPaletteCycle
 {
     /// <summary>The installed hold of every frame, in frame order.</summary>
-    internal readonly int[] durations;
+    private readonly int[] durations;
 
     /// <summary>The installed highlight colour of every frame, in frame order.</summary>
     private readonly RgbColor[] highlights;
@@ -35,7 +35,7 @@ public sealed class MapPaletteCycle
     public MapHighlightCycle Timing { get; }
 
     /// <summary>Rejects a frame index outside the selected cycle.</summary>
-    internal void CheckFrame(int frame)
+    private void CheckFrame(int frame)
     {
         if ((uint)frame >= FrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
     }

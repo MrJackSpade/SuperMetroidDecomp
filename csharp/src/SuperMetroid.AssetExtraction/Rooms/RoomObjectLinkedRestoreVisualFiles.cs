@@ -9,17 +9,17 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectLinkedRestoreVisualFiles
 {
     /// <summary>Family-relative JSON filename for the six bomb/contact-crumble horizontal, vertical, and square restoration layouts.</summary>
-    public const string VisualFileName = "linked-restores.json";
+    private const string VisualFileName = "linked-restores.json";
 
     /// <summary>The arrangements of each kind's restorations in the order the import publishes them: side by side, stacked, square.</summary>
     private static readonly BlockArrangement[] ExportOrder = [BlockArrangement.Horizontal, BlockArrangement.Vertical, BlockArrangement.Square];
 
     /// <summary>The bomb blocks' restorations, in the order the import publishes them.</summary>
-    internal static IReadOnlyList<RoomObjectFrameDraw<BombBlockRestoreDraw>> BombBlockRestorations { get; } =
+    private static IReadOnlyList<RoomObjectFrameDraw<BombBlockRestoreDraw>> BombBlockRestorations { get; } =
         [.. ExportOrder.Select(layout => LinkedRestoreObjectFamily.BombBlockDraws.Of(new BombBlockRestoreDraw(layout)))];
 
     /// <summary>The contact crumble blocks' restorations, in the order the import publishes them.</summary>
-    internal static IReadOnlyList<RoomObjectFrameDraw<ContactCrumbleRestoreDraw>> ContactCrumbleRestorations { get; } =
+    private static IReadOnlyList<RoomObjectFrameDraw<ContactCrumbleRestoreDraw>> ContactCrumbleRestorations { get; } =
         [.. ExportOrder.Select(layout => LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(new ContactCrumbleRestoreDraw(layout)))];
 
     /// <summary>
@@ -47,11 +47,11 @@ public static class RoomObjectLinkedRestoreVisualFiles
         BombBlockRestorations.Select(Export).Concat(ContactCrumbleRestorations.Select(Export));
 
     /// <summary>Builds the draw list of the bomb-block restoration <paramref name="draw"/>.</summary>
-    internal static RoomObjectDrawLists.DrawList Export(RoomObjectFrameDraw<BombBlockRestoreDraw> draw) =>
+    private static RoomObjectDrawLists.DrawList Export(RoomObjectFrameDraw<BombBlockRestoreDraw> draw) =>
         RoomObjectShapeRun.DrawList(Ensure.NotNull(draw), draw.Frame.Blocks, RoomObjectShapeRun.Arrangement(draw.Frame.Layout));
 
     /// <summary>Builds the draw list of the contact crumble restoration <paramref name="draw"/>.</summary>
-    internal static RoomObjectDrawLists.DrawList Export(RoomObjectFrameDraw<ContactCrumbleRestoreDraw> draw) =>
+    private static RoomObjectDrawLists.DrawList Export(RoomObjectFrameDraw<ContactCrumbleRestoreDraw> draw) =>
         RoomObjectShapeRun.DrawList(Ensure.NotNull(draw), draw.Frame.Blocks, RoomObjectShapeRun.Arrangement(draw.Frame.Layout));
 
     /// <summary>Maps a restoration draw to its bomb or crumble artwork key and rejects other draws.</summary>

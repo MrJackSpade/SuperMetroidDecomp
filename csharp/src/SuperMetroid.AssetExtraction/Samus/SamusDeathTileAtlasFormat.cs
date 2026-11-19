@@ -18,7 +18,7 @@ public static class SamusDeathTileAtlasFormat
     }
 
     /// <summary>The explosion page that atlas page <paramref name="atlasPage"/> holds: the atlas begins at the explosion's second page.</summary>
-    public static int ExplosionPageOfAtlasPage(int atlasPage)
+    private static int ExplosionPageOfAtlasPage(int atlasPage)
     {
         if ((uint)atlasPage >= SegmentCount) throw new ArgumentOutOfRangeException(nameof(atlasPage));
         return (atlasPage + 1) % SegmentCount;
@@ -33,9 +33,9 @@ public static class SamusDeathTileAtlasFormat
     /// <summary>PNG width in pixels: eight 8-pixel characters per row.</summary>
     public const int Width = 64;
     /// <summary>The explosion's five 32-character pages.</summary>
-    public const int SegmentCount = 5;
+    private const int SegmentCount = 5;
     /// <summary>Encoded bytes of one 32-character page.</summary>
-    public const int PageByteCount = 32 * CharacterByteCount;
+    private const int PageByteCount = 32 * CharacterByteCount;
     /// <summary>Total encoded character bytes, covering all 160 characters.</summary>
     public const int TotalByteCount = SegmentCount * PageByteCount;
     /// <summary>PNG height in pixels, 160: five pages of four eight-pixel tile rows each.</summary>

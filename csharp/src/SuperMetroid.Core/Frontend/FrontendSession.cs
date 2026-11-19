@@ -698,7 +698,7 @@ internal sealed class FrontendSession
     /// Bombs. The frontend cinematic uses isolated actor state, so its gameplay consequence
     /// is made explicit at the shared Ceres handoff.
     /// </summary>
-    internal static void RestoreSpacetimeRestartInventory(
+    private static void RestoreSpacetimeRestartInventory(
         SamusState samus,
         SuperMetroidSaveSlot slot)
     {

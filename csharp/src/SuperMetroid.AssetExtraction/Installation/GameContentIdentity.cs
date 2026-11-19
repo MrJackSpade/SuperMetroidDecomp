@@ -68,7 +68,7 @@ public sealed record GameContentIdentity(
     /// Builds the same identity from validated component digests. This is also the narrow test
     /// seam for proving that each independently replaceable domain invalidates the aggregate.
     /// </summary>
-    public static GameContentIdentity Create(
+    private static GameContentIdentity Create(
         string audioContentSha256,
         string mapContentSha256,
         string projectileContentSha256,

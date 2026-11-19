@@ -22,7 +22,7 @@ internal static class MotherBrainSourceDefinitions
         internal const int InitialColors = 0xa994d4;
 
         /// <summary>$AD:E90C, the first displayed fourteen-colour fade-to-black image; the six images follow in order.</summary>
-        internal const int FirstFadeColors = 0xade90c;
+        private const int FirstFadeColors = 0xade90c;
 
         /// <summary>
         /// The source of displayed fade image <paramref name="paletteIndex"/> (one-based, 1..6), from $AD:E90C through

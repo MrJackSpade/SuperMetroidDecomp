@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomCharacterArtworkFiles
 {
     /// <summary>Stock character manifest filename recording cartridge provenance, page hashes, and required native planar transfer lengths.</summary>
-    public const string ManifestFileName = "room-characters.json";
+    private const string ManifestFileName = "room-characters.json";
     /// <summary>Schema revision required by the room character manifest; 4 installs no character page (#1636), and 5 no manifest (#1693).</summary>
     private const int FormatVersion = 5;
 

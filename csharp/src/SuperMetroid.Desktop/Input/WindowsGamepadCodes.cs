@@ -4,7 +4,7 @@ namespace SuperMetroid.Desktop.Input;
 internal static class WindowsGamepadCodes
 {
     /// <summary>The inexpensive SNES-style adapter whose buttons follow printed labels.</summary>
-    public static readonly UsbGamepadIdentifier SnesUsbAdapter0079_0011 =
+    private static readonly UsbGamepadIdentifier SnesUsbAdapter0079_0011 =
         new(ManufacturerId: 0x0079, ProductId: 0x0011);
 
     /// <summary>WinMM's sentinel device ID for “no joystick selected.”</summary>

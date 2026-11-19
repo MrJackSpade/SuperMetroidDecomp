@@ -35,10 +35,10 @@ public sealed class KraidEnemyState
     internal KraidArmState ArmState { get; }
 
     /// <summary>His top lint's own state.</summary>
-    internal KraidLintState TopLintState { get; }
+    private KraidLintState TopLintState { get; }
 
     /// <summary>His middle lint's own state.</summary>
-    internal KraidLintState MiddleLintState { get; }
+    private KraidLintState MiddleLintState { get; }
 
     /// <summary>His bottom lint's own state.</summary>
     internal KraidLintState BottomLintState { get; }
@@ -47,10 +47,10 @@ public sealed class KraidEnemyState
     internal KraidFootState FootState { get; }
 
     /// <summary>His first fingernail's own state.</summary>
-    internal KraidNailState FirstNailState { get; }
+    private KraidNailState FirstNailState { get; }
 
     /// <summary>His second fingernail's own state.</summary>
-    internal KraidNailState SecondNailState { get; }
+    private KraidNailState SecondNailState { get; }
 
     /// <summary>His lint <paramref name="part"/>'s own state.</summary>
     internal KraidLintState Lint(KraidLintPart part) => part switch
@@ -115,7 +115,7 @@ public sealed class KraidEnemyState
     /// <summary><paramref name="eighths"/> eighths of the health Kraid initialized with, one eighth truncated first (#1890).</summary>
     /// <param name="eighths">How many eighths, one through eight.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="eighths"/> is not one through eight.</exception>
-    public int HealthEighths(int eighths) => KraidHealthThresholds.Eighths(InitialHealth, eighths);
+    private int HealthEighths(int eighths) => KraidHealthThresholds.Eighths(InitialHealth, eighths);
 
     /// <summary>Seven eighths of Kraid's initial health: below it, the small Kraid grows (#1890).</summary>
     internal int SevenEighthsHealth => HealthEighths(7);

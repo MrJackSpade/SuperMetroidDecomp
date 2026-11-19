@@ -292,7 +292,7 @@ internal sealed class EnemyProjectileEngine
     /// Draws the projectiles at <paramref name="depth"/>, the last place first: among projectiles at one depth, one in a
     /// later place is drawn over one in an earlier place.
     /// </summary>
-    internal void DrawEnemyProjectilesAt(
+    private void DrawEnemyProjectilesAt(
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> camera,
         EnemyProjectileDepth depth,
@@ -489,7 +489,7 @@ internal sealed class EnemyProjectileEngine
         level.GetCollisionBlock(pixel.ToRoomBlock()).CollisionType != RoomCollisionType.Air;
 
     /// <summary>Checks radius overlap and publishes touch-animation or damage behavior for a projectile that reaches Samus.</summary>
-    internal static KnockbackHorizontalDirection? ResolveEnemyProjectileSamusCollision(
+    private static KnockbackHorizontalDirection? ResolveEnemyProjectileSamusCollision(
         EnemyProjectile projectile,
         SamusState samus)
     {
@@ -545,7 +545,7 @@ internal sealed class EnemyProjectileEngine
     /// <param name="camera">The camera of the pass, for cues that test the screen.</param>
     /// <param name="shortCounter">The game's short frame counter for the pass, 0 through 255, which cue cadences sample.</param>
     /// <param name="samusBombs">Samus's bombs, whose power bomb explosion a cue may test.</param>
-    internal void AdvanceEnemyProjectileAnimations(
+    private void AdvanceEnemyProjectileAnimations(
         EnemyProjectile projectile,
         SamusState samus,
         Position16<RoomPixels> camera,

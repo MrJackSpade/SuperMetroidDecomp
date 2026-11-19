@@ -85,7 +85,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Main-menu selection: slots A-C, Copy, Clear, or Exit.</summary>
-    public FileSelectItem SelectedItem { get; private set; }
+    private FileSelectItem SelectedItem { get; set; }
 
     /// <summary>Current menu phase.</summary>
     public FileSelectPhase Phase { get; private set; }

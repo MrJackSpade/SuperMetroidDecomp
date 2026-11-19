@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 public static class GoldenTorizoHealthBandDefinitions
 {
     /// <summary>Golden Torizo at 12288 health or more, the band he starts in.</summary>
-    public static GoldenTorizoHealthBand Unhurt { get; } = new(12288, "unhurt");
+    private static GoldenTorizoHealthBand Unhurt { get; } = new(12288, "unhurt");
 
     /// <summary>Golden Torizo from 10240 through 12287 health.</summary>
     public static GoldenTorizoHealthBand Grazed { get; } = new(10240, "grazed");
@@ -22,7 +22,7 @@ public static class GoldenTorizoHealthBandDefinitions
     public static GoldenTorizoHealthBand BadlyWounded { get; } = new(4096, "badly-wounded");
 
     /// <summary>Golden Torizo from 2048 through 4095 health.</summary>
-    public static GoldenTorizoHealthBand GravelyWounded { get; } = new(2048, "gravely-wounded");
+    private static GoldenTorizoHealthBand GravelyWounded { get; } = new(2048, "gravely-wounded");
 
     /// <summary>Golden Torizo below 2048 health, his most hurt colours.</summary>
     public static GoldenTorizoHealthBand NearlyDead { get; } = new(null, "nearly-dead");

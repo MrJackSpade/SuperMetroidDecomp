@@ -12,7 +12,7 @@ public static class OldTourianEscapeAccentPaletteFxColorDefinitions
 {
 
     /// <summary>Each record writes three live BGR555 colors.</summary>
-    public const int ColorsPerFrame = 3;
+    private const int ColorsPerFrame = 3;
 
     /// <summary>The orange-railing and yellow-panel programs in definition order, the railings and panels flashing on separate but rhythm-matched lists.</summary>
     public static IReadOnlyList<OldTourianEscapeAccentPaletteFxColorDefinition> All { get; } =

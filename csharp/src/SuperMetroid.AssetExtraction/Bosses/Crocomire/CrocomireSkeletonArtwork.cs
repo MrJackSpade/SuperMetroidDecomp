@@ -26,7 +26,7 @@ public sealed class CrocomireSkeletonArtwork
     /// which ends the sequence.
     /// </summary>
     /// <exception cref="InvalidDataException"><paramref name="index"/> is outside the sequence and its end entry.</exception>
-    internal static bool IsChunk(int index)
+    private static bool IsChunk(int index)
     {
         if ((uint)index < CrocomireSkeletonCharacterDefinitions.ChunkCount)
             return true;

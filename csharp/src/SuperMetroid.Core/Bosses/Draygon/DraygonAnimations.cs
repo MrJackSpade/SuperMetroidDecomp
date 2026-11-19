@@ -365,7 +365,7 @@ internal static class DraygonAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<DraygonSegment, Animation<DraygonSegment>> StartingAt { get; } = new Dictionary<DraygonSegment, Animation<DraygonSegment>>
+    private static IReadOnlyDictionary<DraygonSegment, Animation<DraygonSegment>> StartingAt { get; } = new Dictionary<DraygonSegment, Animation<DraygonSegment>>
     {
         [P.Rest] = new([], AnimationEnd.Holds),
         [P.BodyFacingLeftReset] = new([Segments.Whole(P.BodyFacingLeftReset)], AnimationEnd.Holds),

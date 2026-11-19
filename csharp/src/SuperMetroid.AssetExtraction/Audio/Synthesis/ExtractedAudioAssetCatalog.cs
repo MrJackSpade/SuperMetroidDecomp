@@ -16,7 +16,7 @@ public sealed class ExtractedAudioAssetCatalog
     /// <summary>Opaque SPC upload bytes indexed by their original cartridge command address.</summary>
     private readonly IReadOnlyDictionary<AudioBank, byte[]> streams;
     /// <summary>Canonical replaceable PCM samples associated with each upload address.</summary>
-    internal readonly IReadOnlyDictionary<AudioBank, ManagedPcmSampleBank> sampleBanks;
+    private readonly IReadOnlyDictionary<AudioBank, ManagedPcmSampleBank> sampleBanks;
     /// <summary>Validated six-byte instrument definitions selected by each music upload.</summary>
     private readonly IReadOnlyDictionary<AudioBank, IReadOnlyList<AudioInstrumentMetadata>>
         instrumentBanks;

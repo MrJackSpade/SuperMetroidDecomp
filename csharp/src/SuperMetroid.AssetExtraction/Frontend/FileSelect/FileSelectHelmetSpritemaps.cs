@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.FileSelect;
 public static class FileSelectHelmetSpritemaps
 {
     /// <summary>The animation's frame list holds eight consecutive IDs and one repeated terminal ID.</summary>
-    public static int EntryCount => FileSelectHelmetAnimation.Turn.Count + 1;
+    private static int EntryCount => FileSelectHelmetAnimation.Turn.Count + 1;
 
     /// <summary>Calculates the complete nine-entry frame list.</summary>
     /// <remarks>
@@ -16,7 +16,7 @@ public static class FileSelectHelmetSpritemaps
     /// The ninth entry remains representable for exact bounded source parity;
     /// other indices reject before arithmetic, without narrowing or wrapping.
     /// </remarks>
-    public static int SpritemapId(int frame)
+    private static int SpritemapId(int frame)
     {
         if ((uint)frame >= EntryCount) throw new ArgumentOutOfRangeException(nameof(frame));
         return 44 + Math.Min(frame, FileSelectHelmetAnimation.Turn.Count - 1);

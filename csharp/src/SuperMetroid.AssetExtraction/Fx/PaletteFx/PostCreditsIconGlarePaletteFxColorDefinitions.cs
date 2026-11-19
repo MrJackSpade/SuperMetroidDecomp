@@ -11,7 +11,7 @@ public static class PostCreditsIconGlarePaletteFxColorDefinitions
 {
 
     /// <summary>Each record writes sixteen live colours.</summary>
-    public const int ColorsPerFrame = 16;
+    private const int ColorsPerFrame = 16;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
     public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(ColourEffectId.PostCreditsSuperMetroidIcon, ColorsPerFrame);

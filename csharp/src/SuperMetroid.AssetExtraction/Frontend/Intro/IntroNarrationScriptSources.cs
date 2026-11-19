@@ -9,7 +9,7 @@ internal static class IntroNarrationScriptSources
     /// <param name="page">One of the six defined English story-page identities.</param>
     /// <returns>The page's script list offset and expected begin/finish callbacks, used by extraction.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="page"/> is not a defined narration page.</exception>
-    internal static IntroNarrationScriptPage Page(IntroNarrationPageId page)
+    private static IntroNarrationScriptPage Page(IntroNarrationPageId page)
     {
         foreach (IntroNarrationScriptPage source in IntroNarrationScriptDefinitions.Pages)
         {

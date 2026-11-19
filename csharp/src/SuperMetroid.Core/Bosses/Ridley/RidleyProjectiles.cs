@@ -155,7 +155,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
     /// Spawns a directional afterburn of <paramref name="kind"/>, horizontal or vertical, at <paramref name="source"/>,
     /// flying at <paramref name="velocity"/>, which holds the way it flies, with the afterburns its source's chain has left.
     /// </summary>
-    internal void SpawnDirectionalAfterburn(
+    private void SpawnDirectionalAfterburn(
         EnemyProjectile source,
         RoomEnemyProjectileKind kind,
         PixelVelocity<RoomPixels> velocity)
@@ -200,7 +200,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
     /// Ridley's fireballs, the afterburn centres they leave and the directional afterburns those spawn (#1760): their
     /// spawners start their animations, and each kind starts its own flight.
     /// </summary>
-    internal EnemyProjectileBehavior Fireballs => this;
+    private EnemyProjectileBehavior Fireballs => this;
 
     /// <summary>A fireball and the directional afterburns fly from their spawn; the afterburn centres hold still.</summary>
     private static readonly Dictionary<RoomEnemyProjectileKind, RidleyFireballMotion?> StartingMotions = new()

@@ -55,7 +55,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The powered robots' glow (#2380): the place its step shows and the updates that step has left. A room starts it on
     /// its last step, stopped.
     /// </summary>
-    internal readonly AnimationPlayer<WorkRobotGlowSegment, WorkRobotGlowPlace, NoAnimationCue> glow =
+    private readonly AnimationPlayer<WorkRobotGlowSegment, WorkRobotGlowPlace, NoAnimationCue> glow =
         AnimationPlayer<WorkRobotGlowSegment, WorkRobotGlowPlace, NoAnimationCue>.StartShowing(
             WorkRobotGlowAnimations.Segments, WorkRobotGlowAnimations.Restarted);
 
@@ -65,10 +65,10 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// The place of the glow every powered robot shows (#2393); after the last step the cycle starts again at the first.
     /// </summary>
-    internal WorkRobotGlowPlace GlowPlace => glow.Showing;
+    private WorkRobotGlowPlace GlowPlace => glow.Showing;
 
     /// <summary>The glow every powered robot in the room shows now (#1512).</summary>
-    internal PictureShading Glow => PictureShading.Shaded(WorkRobotShades.Glow(GlowPlace));
+    private PictureShading Glow => PictureShading.Shaded(WorkRobotShades.Glow(GlowPlace));
 
     /// <summary>Initializes a powered robot.</summary>
     internal void InitializePoweredWorkRobot(RoomEnemyPlace place)
@@ -310,7 +310,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     internal EnemyShotReaction UnpoweredWorkRobotShotReaction { get; } = new();
 
     /// <summary>A Work Robot laser, whichever way it flies (#1760): it flies with room collision.</summary>
-    internal static readonly EnemyProjectileBehavior Laser = new SingleMotionProjectileBehavior(
+    private static readonly EnemyProjectileBehavior Laser = new SingleMotionProjectileBehavior(
         context => FlyWorkRobotLaser(context.Projectile, context.Level));
 
     /// <summary>Runs a powered robot's main AI.</summary>
@@ -348,7 +348,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Allocates a Work Robot laser: it flies ahead of the robot, the way it faces, and up, straight or down as
     /// <paramref name="laser"/> names, its velocity holding its way (#2278).
     /// </summary>
-    internal void SpawnWorkRobotLaser(
+    private void SpawnWorkRobotLaser(
         RoomEnemyPlace robot,
         WorkRobotEnemyState state,
         WorkRobotLaser laser,

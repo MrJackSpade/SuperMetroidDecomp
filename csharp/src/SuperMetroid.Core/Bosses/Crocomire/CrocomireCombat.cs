@@ -266,7 +266,7 @@ internal sealed class CrocomireCombat
     /// Resolves Crocomire's mouth reaction. Whether his body's left edge is on screen reads <paramref name="camera"/>, the
     /// camera as the shot or bomb pass runs, as the game reads the live camera there (#1875).
     /// </summary>
-    internal void ResolveCrocomireMouthShot(
+    private void ResolveCrocomireMouthShot(
         CrocomireEnemyState state,
         RoomEnemyPlace body,
         SamusProjectileType projectileType,
@@ -367,7 +367,7 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>Projects a projectile's direction into its sideways and vertical speeds: its cosine and negative sine at the volley's speed.</summary>
-    internal static PixelVelocity<RoomPixels> CalculateCrocomireProjectileVelocity(TrigonometryAngle aim) => new(
+    private static PixelVelocity<RoomPixels> CalculateCrocomireProjectileVelocity(TrigonometryAngle aim) => new(
         EnemyMath.SineVelocity(aim + TrigonometryAngle.QuarterTurn, CrocomireProjectileDefinitions.VolleySpeed),
         EnemyMath.SineVelocity(aim + TrigonometryAngle.HalfTurn, CrocomireProjectileDefinitions.VolleySpeed));
 

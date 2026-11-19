@@ -129,14 +129,14 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The horizontal displacement each update of a Ripper-family enemy flying <paramref name="speed"/>, the spawn speed
     /// its own main AI reads from its own settings (#2512), toward <paramref name="heading"/> (#2278, #2450).
     /// </summary>
-    internal static SignedSixteenSixteen FlyingVelocity(SignedSixteenSixteen speed, HorizontalDirection heading)
+    private static SignedSixteenSixteen FlyingVelocity(SignedSixteenSixteen speed, HorizontalDirection heading)
     {
         EnemyLinearSpeed linear = new(speed);
         return heading == HorizontalDirection.Right ? linear.Positive : linear.Negative;
     }
 
     /// <summary>Turns a Ripper-family enemy round: it flies its spawn speed the other way (#2278).</summary>
-    internal static void Reverse(RipperEnemyState state) =>
+    private static void Reverse(RipperEnemyState state) =>
         state.Heading = state.Heading == HorizontalDirection.Left ? HorizontalDirection.Right : HorizontalDirection.Left;
 
     /// <summary>
@@ -164,7 +164,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Turns a grapple Ripper or jet Ripper round and restarts the grapple Ripper's flying loop facing its new heading,
     /// which both show (#1842).
     /// </summary>
-    internal static void ReverseRipperVariant(RoomEnemyPlace place)
+    private static void ReverseRipperVariant(RoomEnemyPlace place)
     {
         RipperEnemyState state = place.RequireSpeciesState<RipperEnemyState>();
         Reverse(state);

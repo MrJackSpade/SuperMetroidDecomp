@@ -20,10 +20,10 @@ internal sealed class NoobTubeObject(NoobTubeObjects owner) : SequencedRoomObjec
     private readonly NoobTubeObjects _owner = Ensure.NotNull(owner);
 
     /// <summary>Where the tube is in its course.</summary>
-    internal NoobTubePhase Phase { get; private set; } = NoobTubePhase.Starting;
+    private NoobTubePhase Phase { get; set; } = NoobTubePhase.Starting;
 
     /// <summary>The strike on the tube's block it has not yet read, or null for none.</summary>
-    internal ResidentObjectProjectileHit? PendingHit { get; private set; }
+    private ResidentObjectProjectileHit? PendingHit { get; set; }
 
     /// <inheritdoc/>
     public void Strike(ResidentObjectProjectileHit hit) => PendingHit = hit;

@@ -179,7 +179,7 @@ internal sealed class CrocomireBridgeCollapse
     };
 
     /// <summary>Plays the acid's burning sound each time its wait runs out, every <see cref="CrocomireBridgeCollapseDefinitions.AcidSoundInterval"/> updates.</summary>
-    internal void RunCrocomireAcidSounds(CrocomireDeathState death)
+    private void RunCrocomireAcidSounds(CrocomireDeathState death)
     {
         if (death.AcidSoundWait.StepKeepsRunning())
             return;
@@ -188,7 +188,7 @@ internal sealed class CrocomireBridgeCollapse
     }
 
     /// <summary>Rests his body submerged while the pause's wait runs; he starts to rise on the update it runs out.</summary>
-    internal static void RunCrocomireSubmergedPause(CrocomireEnemyState state)
+    private static void RunCrocomireSubmergedPause(CrocomireEnemyState state)
     {
         if (state.DeathStageWait.StepKeepsRunning())
             return;
@@ -197,7 +197,7 @@ internal sealed class CrocomireBridgeCollapse
     }
 
     /// <summary>Crocomire's sinking fall to a fraction of a pixel, with the camera his main update runs with.</summary>
-    internal void RunCrocomireSink(CrocomireEnemyState state, Position16<RoomPixels> camera)
+    private void RunCrocomireSink(CrocomireEnemyState state, Position16<RoomPixels> camera)
     {
         CrocomireBodyLayer.LevelCrocomireMeltDistortion(state);
         state.DamageReactionPending = false;
@@ -227,7 +227,7 @@ internal sealed class CrocomireBridgeCollapse
     }
 
     /// <summary>Runs Crocomire's rise, to a fraction of a pixel, as the game does.</summary>
-    internal static void RunCrocomireRise(CrocomireEnemyState state)
+    private static void RunCrocomireRise(CrocomireEnemyState state)
     {
         CrocomireBodyLayer.LevelCrocomireMeltDistortion(state);
         RoomEnemyPlace body = state.Body;

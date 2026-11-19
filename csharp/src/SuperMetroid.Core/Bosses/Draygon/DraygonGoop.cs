@@ -148,7 +148,7 @@ internal sealed class DraygonGoop
     }
 
     /// <summary>Applies the goop pass's horizontal motion and one-step Y oscillation.</summary>
-    internal static void MoveDraygonAlongGoopPath(DraygonEnemyState state, HorizontalDirection direction)
+    private static void MoveDraygonAlongGoopPath(DraygonEnemyState state, HorizontalDirection direction)
     {
         state.Body.Position = state.Body.Position.WithWholeY(
             DraygonArenaDefinitions.SwimLineY + EnemyMath.CircleCosinePixels(state.GoopYOscillationAngle.ToTrigonometryAngle(), DraygonArenaDefinitions.GoopSwayRadius));

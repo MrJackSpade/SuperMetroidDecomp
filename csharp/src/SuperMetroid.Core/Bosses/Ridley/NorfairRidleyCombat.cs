@@ -309,7 +309,7 @@ internal sealed class NorfairRidleyCombat
     /// Launches a pogo bounce: one of the health band's four launches, chosen by the current random number. The sign of
     /// the previous horizontal velocity chooses the bounce's direction.
     /// </summary>
-    internal void InitializeNorfairRidleyPogoVelocity(NorfairRidleyState state)
+    private void InitializeNorfairRidleyPogoVelocity(NorfairRidleyState state)
     {
         // The pogo choice samples the current random number; it does not advance shared RNG.
         RidleyPogoDefinition definition = state.HealthBand.PogoLaunch.Choose(_room.Random.Read());
@@ -426,7 +426,7 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>Tests Samus's radius against the facing and foot-frame adjusted claw point.</summary>
-    internal static bool RidleyClawOverlapsSamus(
+    private static bool RidleyClawOverlapsSamus(
         RoomEnemyPlace place,
         NorfairRidleyState state,
         SamusState samus,
@@ -462,7 +462,7 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>The hover acceleration divisor of Ridley's health band.</summary>
-    internal static int ReadRidleyHealthMovementDivisor(NorfairRidleyState state) => state.HealthBand.HoverDivisor;
+    private static int ReadRidleyHealthMovementDivisor(NorfairRidleyState state) => state.HealthBand.HoverDivisor;
 
     /// <summary>Checks the validated pose movement type against Ridley's grabbable states.</summary>
     internal static bool SamusMovementUsesRidleyGrab(SamusState samus)
@@ -571,7 +571,7 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>Chooses the next bounce's direction from position and the current seed.</summary>
-    internal void SetRidleyPogoHorizontalDirection(RoomEnemyPlace place, NorfairRidleyState state, SamusState samus)
+    private void SetRidleyPogoHorizontalDirection(RoomEnemyPlace place, NorfairRidleyState state, SamusState samus)
     {
         if (state.Flight.Velocity.X.IsZero)
             state.Flight.Velocity = state.Flight.Velocity.WithX(place.Position.X.Whole < NorfairRidleyArenaDefinitions.CentreX ? NorfairRidleyMotionDefinitions.PogoRestartSpeed : -NorfairRidleyMotionDefinitions.PogoRestartSpeed);

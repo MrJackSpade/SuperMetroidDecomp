@@ -164,7 +164,7 @@ public static class RoomEnemyDefinitionCatalog
     ];
 
     /// <summary>Number of distinct enemy definitions reachable from room states.</summary>
-    public const int Count = 147;
+    private const int Count = 147;
 
     /// <summary>
     /// Each referenced identity's definition, looked up by identity rather than by ordering the identities (#1452);

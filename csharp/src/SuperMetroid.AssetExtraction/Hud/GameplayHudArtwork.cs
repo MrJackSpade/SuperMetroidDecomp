@@ -36,11 +36,11 @@ public sealed class GameplayHudArtwork
     internal GameplayHudPresentationParts LayoutParts { get; }
 
     /// <summary>Gets the tile used to clear mutable HUD cells.</summary>
-    internal BackgroundTile Blank => parts.Blank;
+    private BackgroundTile Blank => parts.Blank;
     /// <summary>Gets the tile for a filled energy tank.</summary>
-    internal BackgroundTile FilledEnergyTank => parts.FilledEnergyTank;
+    private BackgroundTile FilledEnergyTank => parts.FilledEnergyTank;
     /// <summary>Gets the tile for an empty energy tank.</summary>
-    internal BackgroundTile EmptyEnergyTank => parts.EmptyEnergyTank;
+    private BackgroundTile EmptyEnergyTank => parts.EmptyEnergyTank;
     /// <summary>Gets the colour variant applied to the selected item icon.</summary>
     internal int SelectedPalette => parts.SelectedPalette;
     /// <summary>Gets the colour variant applied to deselected item icons.</summary>

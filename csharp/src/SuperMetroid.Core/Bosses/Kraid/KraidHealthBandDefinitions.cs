@@ -7,10 +7,10 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 public static class KraidHealthBandDefinitions
 {
     /// <summary>Kraid at his whole health: his own colours.</summary>
-    public static KraidHealthBand Unhurt { get; } = new(8, "unhurt");
+    private static KraidHealthBand Unhurt { get; } = new(8, "unhurt");
 
     /// <summary>Kraid from seven eighths of his health up to his whole health.</summary>
-    public static KraidHealthBand BelowWhole { get; } = new(7, "below-whole");
+    private static KraidHealthBand BelowWhole { get; } = new(7, "below-whole");
 
     /// <summary>Kraid from three quarters up to seven eighths of his health.</summary>
     public static KraidHealthBand BelowSevenEighths { get; } = new(6, "below-seven-eighths");

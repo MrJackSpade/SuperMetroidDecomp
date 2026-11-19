@@ -201,7 +201,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Moves the statue through terrain, then places Samus at the authored carry offset from its accepted position.</summary>
-    internal void ProcessChozoStatueMovement(
+    private void ProcessChozoStatueMovement(
         RoomEnemyPlace statue,
         SamusState samus,
         RoomLevelData level,

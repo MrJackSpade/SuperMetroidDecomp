@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 public static class UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions
 {
     /// <summary>Each record writes seven live BGR555 colors.</summary>
-    public const int ColorsPerFrame = 7;
+    private const int ColorsPerFrame = 7;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
     public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(ColourEffectId.UpperCrateriaRedFlashing, ColorsPerFrame);

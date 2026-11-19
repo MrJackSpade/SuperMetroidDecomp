@@ -22,7 +22,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 public readonly record struct MapTileWord(ushort Raw)
 {
     /// <summary>Ten low bits selecting the BG map character independently of its attributes.</summary>
-    internal const ushort CharacterMask = 0x03ff;
+    private const ushort CharacterMask = 0x03ff;
 
     /// <summary>Three BG palette bits, including the explored-cell bit.</summary>
     internal const ushort PaletteMask = 0x1c00;
@@ -40,7 +40,7 @@ public readonly record struct MapTileWord(ushort Raw)
     internal const ushort VerticalFlipMask = 0x8000;
 
     /// <summary>Horizontal and vertical BG flip bits preserved by HUD projection.</summary>
-    internal const ushort FlipMask = HorizontalFlipMask | VerticalFlipMask;
+    private const ushort FlipMask = HorizontalFlipMask | VerticalFlipMask;
 
     /// <summary>Downloaded-map palette bit cleared when a cell has been explored.</summary>
     internal const ushort ExploredPaletteBit = 0x0400;

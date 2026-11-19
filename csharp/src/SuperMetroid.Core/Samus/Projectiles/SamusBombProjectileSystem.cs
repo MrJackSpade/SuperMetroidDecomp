@@ -26,13 +26,13 @@ public sealed class SamusBombProjectileSystem
     private readonly SamusArtworkBinding _artwork;
 
     /// <summary>How many bombs Samus can have out at once.</summary>
-    public const int PlaceCount = MorphBallBombDefinitions.PlaceCount;
+    private const int PlaceCount = MorphBallBombDefinitions.PlaceCount;
 
     /// <summary>A placed Morph Ball bomb.</summary>
     public static SamusProjectileType NormalBombType => SamusProjectileType.Of(SamusProjectileFamily.Bomb);
 
     /// <summary>A placed Power Bomb.</summary>
-    public static SamusProjectileType PowerBombType => SamusProjectileType.Of(SamusProjectileFamily.PowerBomb);
+    private static SamusProjectileType PowerBombType => SamusProjectileType.Of(SamusProjectileFamily.PowerBomb);
 
     /// <summary>Each bomb place's bomb, live or the last one that ended there, in place order.</summary>
     private readonly SamusBomb[] _bombs =
@@ -127,7 +127,7 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>The update's audio requests the bombs' sounds join as they are made.</summary>
-    internal GameplaySoundRequests AudioRequests { get; }
+    private GameplaySoundRequests AudioRequests { get; }
 
     /// <summary>
     /// Advances the Power Bomb explosion's shape independently of Samus's input phase.
@@ -478,7 +478,7 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>Installs five bombs with each place's own launch and clears Samus's stored charge.</summary>
-    internal void SpawnBombSpread(SamusState samus)
+    private void SpawnBombSpread(SamusState samus)
     {
         for (int place = 0; place < PlaceCount; place++)
         {
@@ -540,7 +540,7 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>Starts a bomb: its damage and its animation, from the bomb definitions of its family.</summary>
-    internal static void InitializeBomb(
+    private static void InitializeBomb(
         SamusBomb bomb)
     {
         SamusProjectileKind kind = SamusProjectileSelection.NonBeam(bomb.Type.Family);
@@ -700,7 +700,7 @@ public sealed class SamusBombProjectileSystem
     /// Tests the bomb center against room bounds, the block its cell stands for (<see cref="ContinuedBlocks"/>), solid blocks
     /// and the game's non-square slope heights.
     /// </summary>
-    internal static bool BombSpreadCollides(
+    private static bool BombSpreadCollides(
         RoomLevelData level,
         SamusBomb bomb)
     {
@@ -756,7 +756,7 @@ public sealed class SamusBombProjectileSystem
     /// every corner is reached twice. The edges are those of the blast's reach clipped to the room, fixed before the first
     /// block reacts.
     /// </summary>
-    internal static IReadOnlyList<Position16<RoomBlocks>> PowerBombBoundaryBlocks(
+    private static IReadOnlyList<Position16<RoomBlocks>> PowerBombBoundaryBlocks(
         RoomLevelData level,
         Position16<RoomPixels> explosion,
         PowerBombRadius explosionRadius)
@@ -826,7 +826,7 @@ public sealed class SamusBombProjectileSystem
     /// Reacts to the block a bombed cell stands for (<see cref="ContinuedBlocks"/>): its item, door, special-block or ordinary
     /// reaction, including synchronous room-object changes.
     /// </summary>
-    internal static void ReactToBombedBlock(
+    private static void ReactToBombedBlock(
         RoomLevelData level,
         Position16<RoomBlocks> bombedBlock,
         ISamusRoomObjects roomObjects,
@@ -979,7 +979,7 @@ public sealed class SamusBombProjectileSystem
     /// <returns>Whether the animation ended and deleted the bomb.</returns>
     /// <exception cref="InvalidOperationException">The bomb has ended and has no animation to play.</exception>
     /// <exception cref="InvalidDataException">The animation shows a still picture, which no bomb animation does.</exception>
-    internal bool AdvanceProjectileAnimation(
+    private bool AdvanceProjectileAnimation(
         SamusBomb bomb)
     {
         AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation = bomb.Animation

@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal sealed class IntroCeresFlightState
 {
     /// <summary>Holds the music queue whose drain gates the initial display.</summary>
-    internal readonly AudioQueues audio;
+    private readonly AudioQueues audio;
     /// <summary>The colour the flight shows behind every layer, the installed flight's backdrop (#1512).</summary>
     internal RgbColor Backdrop { get; private set; }
     /// <summary>The front-star or rear-view actors' sprite entries over the flight sprite page (#1358).</summary>
@@ -27,7 +27,7 @@ internal sealed class IntroCeresFlightState
     /// The flight's colour effects (#1733): the scene's setup clears them, and the rear view's setup starts the gunship
     /// engine's flicker and the station's navigation lights.
     /// </summary>
-    internal ColourEffectSystem ColourEffects { get; } = ColourEffectSystem.ForScreen();
+    private ColourEffectSystem ColourEffects { get; } = ColourEffectSystem.ForScreen();
     /// <summary>The rear view's actors' installed starting places (#1596).</summary>
     private CeresFlightActorPlacements actorLayout;
     /// <summary>Front-view star actor, whose rush also drives the diagonal background rush.</summary>
@@ -67,9 +67,9 @@ internal sealed class IntroCeresFlightState
     /// </summary>
     private AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue>? caption;
     /// <summary>How many of the caption's letters are shown, in order; none before the title.</summary>
-    internal int CaptionLettersShown => caption?.Shown?.Letters ?? 0;
+    private int CaptionLettersShown => caption?.Shown?.Letters ?? 0;
     /// <summary>Whether the Japanese text's katakana caption has shown, from the update it shows until the flight ends.</summary>
-    internal bool JapaneseCaptionShown => caption?.Shown?.Shows == SpaceColonyCaptionText.WithKatakana;
+    private bool JapaneseCaptionShown => caption?.Shown?.Shows == SpaceColonyCaptionText.WithKatakana;
     /// <summary>Whether the Japanese text is selected, which shows the katakana caption.</summary>
     private readonly bool japaneseText;
 
@@ -114,7 +114,7 @@ internal sealed class IntroCeresFlightState
     }
 
     /// <summary>Current cinematic phase, including the final handoff to Ceres gameplay.</summary>
-    public IntroCeresFlightPhase Phase { get; private set; }
+    private IntroCeresFlightPhase Phase { get; set; }
 
     /// <summary>True after the SPACE COLONY hold and final fade reach black.</summary>
     public bool Finished => Phase == IntroCeresFlightPhase.Finished;
@@ -233,7 +233,7 @@ internal sealed class IntroCeresFlightState
     /// The shading of the turning floor (#1733): the shade of the frame the gunship engine's flicker shows once the rear
     /// view has started it, or the floor's standard colours before; the floor fades with the display's brightness (#1512).
     /// </summary>
-    internal PictureShading FloorShading => ColourEffects.FrameOf(CeresFlightSceneDefinitions.EngineColours) is { } frame
+    private PictureShading FloorShading => ColourEffects.FrameOf(CeresFlightSceneDefinitions.EngineColours) is { } frame
         ? PictureShading.Standard.With(ColourEffectShades.Of(CeresFlightSceneDefinitions.EngineColours, frame))
         : PictureShading.Standard;
 
@@ -265,7 +265,7 @@ internal sealed class IntroCeresFlightState
     }
 
     /// <summary>Whether the scene shows its rear view: once the rear-view map has been queued.</summary>
-    internal bool ShowsRearView => Phase is not (IntroCeresFlightPhase.Initial or IntroCeresFlightPhase.WaitForMusicQueue or
+    private bool ShowsRearView => Phase is not (IntroCeresFlightPhase.Initial or IntroCeresFlightPhase.WaitForMusicQueue or
         IntroCeresFlightPhase.FlyingIntoCamera);
 
     /// <summary>Loads the rear map, places five actors, and starts the white flash.</summary>

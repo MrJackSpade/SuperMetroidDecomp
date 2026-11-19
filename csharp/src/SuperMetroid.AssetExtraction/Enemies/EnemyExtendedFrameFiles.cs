@@ -46,7 +46,7 @@ internal static class EnemyExtendedFrameFiles
     private const int CeresSteamHeaderHighByte = 16;
 
     /// <summary>Decodes one declared visual root without importing its gameplay-owned hitboxes.</summary>
-    internal static EnemyExtendedVisualComponent[] ExtractComponents(
+    private static EnemyExtendedVisualComponent[] ExtractComponents(
         ISnesAddressSpace bus, EnemyFrameName definition)
     {
         Ensure.NotNull(bus);

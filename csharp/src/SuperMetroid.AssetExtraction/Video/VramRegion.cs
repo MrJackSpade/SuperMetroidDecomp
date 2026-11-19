@@ -33,10 +33,10 @@ internal readonly struct VramRegion
     }
 
     /// <summary>The region's size in words.</summary>
-    public int WordCount { get; }
+    private int WordCount { get; }
 
     /// <summary>The region's size in bytes.</summary>
-    public int ByteCount => WordCount * sizeof(ushort);
+    private int ByteCount => WordCount * sizeof(ushort);
 
     /// <summary>Copies consecutive bytes in, as the VRAM-targeting decompressor or a byte DMA does.</summary>
     public void Load(ReadOnlySpan<byte> bytes, int byteOffset = 0)

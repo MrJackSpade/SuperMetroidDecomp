@@ -61,7 +61,7 @@ internal static class RoomBlockUploads
     /// doors, otherwise the ordinary one.
     /// </summary>
     /// <exception cref="InvalidDataException">A state's background is seen otherwise where nothing else draws what is seen.</exception>
-    internal static IReadOnlyList<string> BackgroundNamesOf(IEnumerable<RoomStateSettings> states)
+    private static IReadOnlyList<string> BackgroundNamesOf(IEnumerable<RoomStateSettings> states)
     {
         var names = new List<string>();
         foreach (RoomStateSettings state in Ensure.NotNull(states))
@@ -297,7 +297,7 @@ internal static class RoomBlockUploads
     /// the turning floor of Ridley's getaway. Both of the arena's states run it, and no other state does; the simulation
     /// runs the arena's setup as the other Ceres rooms' haze, so the import names the arena's states (#2485).
     /// </summary>
-    internal static bool DrawsBlocksOverArenaCharacters(RoomStateSettings state) =>
+    private static bool DrawsBlocksOverArenaCharacters(RoomStateSettings state) =>
         RoomBehaviorPictureDefinitions.CeresRidleyArenaStates.Contains(Ensure.NotNull(state));
 
     /// <summary>

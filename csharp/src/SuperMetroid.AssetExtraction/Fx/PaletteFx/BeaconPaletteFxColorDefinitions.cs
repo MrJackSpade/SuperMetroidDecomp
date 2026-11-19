@@ -20,7 +20,7 @@ public static class BeaconPaletteFxColorDefinitions
 {
 
     /// <summary>Four live BGR555 colors are written by each timed record.</summary>
-    public const int ColorsPerFrame = 4;
+    private const int ColorsPerFrame = 4;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
     public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(ColourEffectId.BeaconFlashing, ColorsPerFrame);

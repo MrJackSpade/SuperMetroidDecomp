@@ -137,7 +137,7 @@ internal static class SporeSpawnAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<SporeSpawnBodySegment, Animation<SporeSpawnBodySegment>> StartingAt { get; } = new Dictionary<SporeSpawnBodySegment, Animation<SporeSpawnBodySegment>>
+    private static IReadOnlyDictionary<SporeSpawnBodySegment, Animation<SporeSpawnBodySegment>> StartingAt { get; } = new Dictionary<SporeSpawnBodySegment, Animation<SporeSpawnBodySegment>>
     {
         [P.Husk] = new([Segments.Whole(P.Husk)], AnimationEnd.Holds),
         [P.AwaitingDescent] = new([Segments.Whole(P.AwaitingDescent)], AnimationEnd.Holds),

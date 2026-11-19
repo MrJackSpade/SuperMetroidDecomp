@@ -22,7 +22,7 @@ public sealed class MotherBrainFadeProgress
     }
 
     /// <summary>The fade playing.</summary>
-    public MotherBrainFade Fade { get; }
+    private MotherBrainFade Fade { get; }
 
     /// <summary>The image the fade shows, or null before its first.</summary>
     public MotherBrainFadeImage? Shown => player.Shown;

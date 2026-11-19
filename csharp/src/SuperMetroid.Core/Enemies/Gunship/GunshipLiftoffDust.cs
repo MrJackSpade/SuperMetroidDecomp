@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 internal static class GunshipLiftoffDust
 {
     /// <summary>The gunship's liftoff dust clouds (#1760): each holds still and leaves when its animation ends.</summary>
-    internal static EnemyProjectileBehavior Behavior { get; } = new GunshipDustBehavior();
+    private static EnemyProjectileBehavior Behavior { get; } = new GunshipDustBehavior();
 
     /// <summary>
     /// Spawns one of the liftoff's six dust clouds, <paramref name="placement"/>, below <paramref name="samus"/> into

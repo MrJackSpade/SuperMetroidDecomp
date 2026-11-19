@@ -538,5 +538,5 @@ public static class SamusGrappleSwing
     /// rounded toward negative values, so an odd negative velocity rebounds one 256th of a step faster than the odd
     /// positive velocity of the same size.
     /// </summary>
-    internal static AngularSpeed ReversedAtHalfSpeed(AngularSpeed velocity) => -velocity.HalvedRoundingDown();
+    private static AngularSpeed ReversedAtHalfSpeed(AngularSpeed velocity) => -velocity.HalvedRoundingDown();
 }

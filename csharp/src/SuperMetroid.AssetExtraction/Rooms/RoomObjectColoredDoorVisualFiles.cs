@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectColoredDoorVisualFiles
 {
     /// <summary>JSON filename for yellow, green, and red door-cap visual frames.</summary>
-    public const string VisualFileName = "colored-doors.json";
+    private const string VisualFileName = "colored-doors.json";
 
     /// <summary>The coloured-door cap as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
@@ -28,7 +28,7 @@ public static class RoomObjectColoredDoorVisualFiles
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Enumerates yellow, green, and red cap frames in their authored order.</summary>
-    internal static IEnumerable<RoomObjectDrawLists.DrawList> All
+    private static IEnumerable<RoomObjectDrawLists.DrawList> All
     {
         get
         {
@@ -41,7 +41,7 @@ public static class RoomObjectColoredDoorVisualFiles
     }
 
     /// <summary>Builds the draw list of a recognized colored cap from how its cells collide.</summary>
-    internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
+    private static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
         bool found = RoomObjectDrawIdentity.TryFrame<ColoredDoorCaps.Draw>(request, out ColoredDoorCaps.Draw cap);
         list = found ? RoomObjectShapeRun.DrawList(request, cap.Blocks, RoomObjectShapeRun.Line(cap.Vertical, cap.Blocks)) : default;
@@ -49,7 +49,7 @@ public static class RoomObjectColoredDoorVisualFiles
     }
 
     /// <summary>Names a compiled cap frame by color, direction, and what it shows for editable artwork (#1994).</summary>
-    internal static string VisualId(RoomObjectDraw request)
+    private static string VisualId(RoomObjectDraw request)
     {
         if (!RoomObjectDrawIdentity.TryFrame<ColoredDoorCaps.Draw>(request, out var draw))
             throw new InvalidDataException($"Colored-door draw {request} has no visual ID.");

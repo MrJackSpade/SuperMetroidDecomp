@@ -15,9 +15,9 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 public static class CeresCinematicLightPaletteFxColorDefinitions
 {
     /// <summary>Each gunship-engine record writes one live BGR555 color.</summary>
-    public const int GunshipEngineColorsPerFrame = 1;
+    private const int GunshipEngineColorsPerFrame = 1;
     /// <summary>Each Ceres navigation-light record writes two live BGR555 colors.</summary>
-    public const int NavigationLightsColorsPerFrame = 2;
+    private const int NavigationLightsColorsPerFrame = 2;
 
     /// <summary>The gunship engine's records and the colour each writes.</summary>
     public static PaletteFxColorFrames GunshipEngineFrames { get; } = PaletteFxColorFrames.Of(ColourEffectId.CutsceneGunshipEngineFlicker, GunshipEngineColorsPerFrame);

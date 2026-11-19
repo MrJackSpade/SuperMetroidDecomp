@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 public sealed class MotherBrainRainbowBeamSamusMovement
 {
     /// <summary>The velocity the beam forces on Samus.</summary>
-    public PixelVelocity<RoomPixels> CustomVelocity { get; private set; }
+    private PixelVelocity<RoomPixels> CustomVelocity { get; set; }
 
     /// <summary>
     /// The beam angle the aim step sets; zero points down and the
@@ -120,7 +120,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     /// <summary>Projects the beam's speed onto the vertical axis using the quarter-turn sine lookup.</summary>
     /// <param name="speed">The beam's speed, whose size the sine scales.</param>
     /// <param name="angle">The live beam angle.</param>
-    internal static SignedEightEight CalculateYVelocity(
+    private static SignedEightEight CalculateYVelocity(
         SignedEightEight speed,
         RotationAngle angle)
     {

@@ -21,24 +21,24 @@ public static class ZebesEscapeDefinitions
         new(EarthquakeStrength.Medium, EarthquakeDirection.Horizontal, EarthquakeReach.ForegroundBackgroundAndEnemies);
 
     /// <summary>The medium diagonal shake, enemies included, a lightly shaking room turns to.</summary>
-    public static readonly EarthquakeShake MediumDiagonal =
+    private static readonly EarthquakeShake MediumDiagonal =
         new(EarthquakeStrength.Medium, EarthquakeDirection.Diagonal, EarthquakeReach.ForegroundBackgroundAndEnemies);
 
     /// <summary>The strong diagonal shake, enemies included, a medium shaking room turns to.</summary>
-    public static readonly EarthquakeShake StrongDiagonal =
+    private static readonly EarthquakeShake StrongDiagonal =
         new(EarthquakeStrength.Strong, EarthquakeDirection.Diagonal, EarthquakeReach.ForegroundBackgroundAndEnemies);
 
     /// <summary>
     /// The chance a lightly shaking room turns diagonal on an update (#1619): the lowest 512 of the 65536 random samples,
     /// one update in 128.
     /// </summary>
-    public static readonly RandomChance LightShakeTurnsDiagonal = RandomChance.Lowest(512, RandomSampleField.Whole);
+    private static readonly RandomChance LightShakeTurnsDiagonal = RandomChance.Lowest(512, RandomSampleField.Whole);
 
     /// <summary>
     /// The chance a medium shaking room turns diagonal on an update (#1619): the lowest 384 of the 65536 random samples,
     /// three updates in 512.
     /// </summary>
-    public static readonly RandomChance MediumShakeTurnsDiagonal = RandomChance.Lowest(384, RandomSampleField.Whole);
+    private static readonly RandomChance MediumShakeTurnsDiagonal = RandomChance.Lowest(384, RandomSampleField.Whole);
 
     /// <summary>
     /// The updates on which an outdoor escape room sets off an explosion (#1619): every second update of the frame clock's

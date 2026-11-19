@@ -180,7 +180,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// <param name="areaMiniBossDefeated">Whether the area's mini-boss is dead.</param>
     /// <param name="suppliedEffect">A room effect to use instead of the door's selection.</param>
     /// <param name="sounds">The update's sound requests of the runtime running the effects.</param>
-    internal static ColourEffectSystem ForEffect(ColourEffectSessionState session, RoomFxSelection? fx, DoorDefinition? door,
+    private static ColourEffectSystem ForEffect(ColourEffectSessionState session, RoomFxSelection? fx, DoorDefinition? door,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated,
         RoomEffectDefinition? suppliedEffect, GameplaySoundRequests sounds)
     {

@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectKraidVisualFiles
 {
     /// <summary>Family-relative installed JSON filename for Kraid's ten ceiling and spike layouts, including the fifteen- and twenty-two-block clears.</summary>
-    public const string VisualFileName = "kraid-room.json";
+    private const string VisualFileName = "kraid-room.json";
 
     /// <summary>The stages of a crumbling block's breakup the room draws, in their published order; the last stage is the picture its draw leaves.</summary>
     private static readonly BlockBreakupStage[] CrumbleStages = [BlockBreakupStage.Rock, BlockBreakupStage.Pieces, BlockBreakupStage.Dust];
@@ -33,7 +33,7 @@ public static class RoomObjectKraidVisualFiles
 
     /// <summary>Gets the stable artwork identifier of a Kraid room draw: a crumble stage's, or a picture or clear's.</summary>
     /// <exception cref="InvalidDataException">The draw is neither a Kraid room crumble nor a Kraid room draw.</exception>
-    internal static string VisualId(RoomObjectDraw request) =>
+    private static string VisualId(RoomObjectDraw request) =>
         RoomObjectDrawIdentity.TryFrame(request, out KraidRoomObjectDraws.CrumbleDraw crumble)
             ? CrumbleVisualId(crumble.Stage)
             : VisualId(RoomObjectDrawIdentity.FrameOf<KraidRoomDraw>(request, "Kraid room draw with a visual ID"));
@@ -66,7 +66,7 @@ public static class RoomObjectKraidVisualFiles
     /// the object's block, each cell colliding as the game's block shape for the frame says (#1608). The run form is the
     /// cartridge's; the game draws the shape.
     /// </summary>
-    internal static IEnumerable<RoomObjectDrawLists.DrawList> All =>
+    private static IEnumerable<RoomObjectDrawLists.DrawList> All =>
         CrumbleStages.Select(stage => SingleRow(KraidRoomObjectDraws.Crumble(stage), KraidRoomObjectDraws.CrumbleFamily))
             .Concat(Enum.GetValues<KraidRoomDraw>().Select(frame => SingleRow(KraidRoomObjectDraws.Family.Of(frame), KraidRoomObjectDraws.Family)));
 

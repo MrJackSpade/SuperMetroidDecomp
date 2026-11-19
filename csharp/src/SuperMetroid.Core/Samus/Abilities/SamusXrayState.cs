@@ -45,14 +45,14 @@ public sealed class SamusXrayState
     /// True when Reserve recovery cleared the shared freeze flag underneath X-Ray's
     /// still-live finishing beam. The effect deliberately cannot clean itself up.
     /// </summary>
-    public bool IsReserveMode => IsActive && !OwnsSamusControl && !TimeIsFrozen;
+    private bool IsReserveMode => IsActive && !OwnsSamusControl && !TimeIsFrozen;
 
     /// <summary>
     /// The four independent subsystems X-Ray setup disables. Unlike shared
     /// time freeze, automatic Reserve completion and a room transition do not restore
     /// these subsystems; that mismatch is the game's direct/indirect G-Mode state.
     /// </summary>
-    public XraySuspendedSubsystems SuspendedSubsystems { get; private set; }
+    private XraySuspendedSubsystems SuspendedSubsystems { get; set; }
 
     /// <summary>Whether X-ray's independent enemy-projectile disable remains set; gates projectile updates and drawing even if Reserve recovery has cleared shared time freeze.</summary>
     public bool AreEnemyProjectilesSuspended =>
@@ -101,7 +101,7 @@ public sealed class SamusXrayState
     /// carry the fraction into whole steps exactly as the game does; the widening step is a whole number of the angle's
     /// finest turns, so no finer fraction ever arises.
     /// </summary>
-    public RotationAngle AngularHalfWidth { get; private set; }
+    private RotationAngle AngularHalfWidth { get; set; }
 
     /// <summary>The whole steps of <see cref="AngularHalfWidth"/>, none through ten, which aim clamps and the cone read.</summary>
     public TrigonometryAngle AngularWidth => AngularHalfWidth.ToTrigonometryAngle();
@@ -110,20 +110,20 @@ public sealed class SamusXrayState
     /// The widening speed, the turn the half-width grows by each update: zero at admission and raised by the fixed
     /// widening step before each widening update adds it to <see cref="AngularHalfWidth"/>.
     /// </summary>
-    public RotationAngle AngularWideningSpeed { get; private set; }
+    private RotationAngle AngularWideningSpeed { get; set; }
 
     /// <summary>
     /// The sequence of colours X-ray's suit colouring shows on the visor: widening at admission, full beam once the colouring
     /// sees the full-beam phase, and a request to restore the normal suit colours after teardown.
     /// </summary>
-    public XrayVisorShadeMode VisorShadeMode { get; private set; }
+    private XrayVisorShadeMode VisorShadeMode { get; set; }
 
     /// <summary>
     /// The visor's shade sequence for <see cref="VisorShadeMode"/> (#2285, #2387), each shade shown for five colouring
     /// updates: widening shows the widening glow's three and rests on its widest, showing it again each time it runs out;
     /// the full beam cycles the steady visor cycle's three. Its first shade shows on the colouring update after it starts.
     /// </summary>
-    internal AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Visor { get; } =
+    private AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Visor { get; } =
         SamusGlowPlay.Starting(SamusGlowSegment.XrayVisorWidening);
 
 /// <summary>
@@ -511,7 +511,7 @@ public sealed class SamusXrayState
     /// </summary>
     /// <param name="center">The beam's centre.</param>
     /// <param name="halfWidth">The whole steps from the centre to each edge, none through ten.</param>
-    internal static RotationAngle AimedUp(RotationAngle center, TrigonometryAngle halfWidth) => center < RotationAngle.HalfTurn
+    private static RotationAngle AimedUp(RotationAngle center, TrigonometryAngle halfWidth) => center < RotationAngle.HalfTurn
         ? TurnedBackToEarlierEdgeLimit(center, halfWidth, RotationAngle.Zero)
         : TurnedOnToLaterEdgeLimit(center, halfWidth, RotationAngle.Zero);
 
@@ -522,7 +522,7 @@ public sealed class SamusXrayState
     /// </summary>
     /// <param name="center">The beam's centre.</param>
     /// <param name="halfWidth">The whole steps from the centre to each edge, none through ten.</param>
-    internal static RotationAngle AimedDown(RotationAngle center, TrigonometryAngle halfWidth) => center < RotationAngle.HalfTurn
+    private static RotationAngle AimedDown(RotationAngle center, TrigonometryAngle halfWidth) => center < RotationAngle.HalfTurn
         ? TurnedOnToLaterEdgeLimit(center, halfWidth, RotationAngle.HalfTurn)
         : TurnedBackToEarlierEdgeLimit(center, halfWidth, RotationAngle.HalfTurn);
 

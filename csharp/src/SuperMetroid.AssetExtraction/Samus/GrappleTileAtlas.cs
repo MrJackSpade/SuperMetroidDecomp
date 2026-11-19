@@ -41,7 +41,7 @@ public sealed class GrappleTileAtlas : IInstalledArtworkContent
     /// The endpoint character for animation <paramref name="pointFrame"/> followed by the four rope characters the
     /// rope <paramref name="orientation"/> selects: OBJ characters $20-$24 as the beam's sprites name them.
     /// </summary>
-    public SpriteArtwork Tiles(int pointFrame, GrappleRopeOrientation orientation)
+    private SpriteArtwork Tiles(int pointFrame, GrappleRopeOrientation orientation)
     {
         InstalledArtworkId point = GrappleTileSelection.PointAssetFor(pointFrame);
         InstalledArtworkId segments = GrappleTileSelection.SegmentAssetFor(orientation);

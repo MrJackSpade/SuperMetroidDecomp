@@ -22,10 +22,10 @@ public readonly record struct BeamChargeLevel
 
     /// <summary>The updates the charge has been held; zero for the Hyper Beam's flare.</summary>
     [IntegerQuantity("updates the charge flare has shown")]
-    public int FlareCounter { get; }
+    private int FlareCounter { get; }
 
     /// <summary>Whether this is the Hyper Beam's flare rather than a held charge.</summary>
-    public bool HyperBeamFlare { get; private init; }
+    private bool HyperBeamFlare { get; init; }
 
     /// <summary>Whether any charge is held: a counted charge or the Hyper Beam's flare.</summary>
     public bool IsCharging => HyperBeamFlare || FlareCounter != 0;

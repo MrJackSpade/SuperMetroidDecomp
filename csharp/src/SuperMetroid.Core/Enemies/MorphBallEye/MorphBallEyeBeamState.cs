@@ -21,7 +21,7 @@ public sealed class MorphBallEyeBeamState
     public RotationAngle AngularHalfWidth { get; internal set; }
 
     /// <summary>The whole steps of <see cref="AngularHalfWidth"/>, none through four, which the beam's window geometry uses.</summary>
-    public TrigonometryAngle AngularWidth => AngularHalfWidth.ToTrigonometryAngle();
+    private TrigonometryAngle AngularWidth => AngularHalfWidth.ToTrigonometryAngle();
 
     /// <summary>The widening speed, the turn the half-width grows by each update: zero when the beam appears and raised by a quarter step before each widening update adds it.</summary>
     public RotationAngle AngularHalfWidthGrowth { get; internal set; }

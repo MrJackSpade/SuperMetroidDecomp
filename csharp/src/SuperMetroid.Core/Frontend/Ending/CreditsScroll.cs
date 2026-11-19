@@ -23,7 +23,7 @@ internal sealed class CreditsScroll
     private SignedSixteenSixteen scrolled;
 
     /// <summary>Whether the roll still scrolls.</summary>
-    public bool Enabled { get; private set; } = true;
+    private bool Enabled { get; set; } = true;
     /// <summary>Set when the roll has scrolled past its end.</summary>
     public bool Finished { get; private set; }
     /// <summary>The whole pixels the roll has scrolled up.</summary>

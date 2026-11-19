@@ -72,7 +72,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     /// Runs the jumping parent's main behaviour: its rising, flipping and falling actions. Main advances the shared
     /// random numbers once each update.
     /// </summary>
-    internal void RunNorfairLavaJumpingEnemyMain(
+    private void RunNorfairLavaJumpingEnemyMain(
         RoomEnemyPlace place,
         NorfairLavaJumpingEnemyState state)
     {

@@ -10,7 +10,7 @@ public static class BoyonBounceCurve
     /// the saturated sample past them.
     /// </summary>
     /// <param name="place">The place along the curve, never past the top.</param>
-    public static UnsignedSixteenSixteen Sample(BoyonCurvePlace place) => place.EntryFromTop < RisingSamples.Length
+    private static UnsignedSixteenSixteen Sample(BoyonCurvePlace place) => place.EntryFromTop < RisingSamples.Length
         ? RisingSamples[place.EntryFromTop]
         : SaturatedSample;
 

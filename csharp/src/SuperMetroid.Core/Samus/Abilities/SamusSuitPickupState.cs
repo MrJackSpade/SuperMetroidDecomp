@@ -46,7 +46,7 @@ public sealed class SamusSuitPickupState
     public SamusSuitPickupKind Kind { get; private set; }
 
     /// <summary>The light-beam stage the next update runs; it returns to the first stage when the transformation finishes.</summary>
-    public SamusSuitPickupStage Stage { get; private set; }
+    private SamusSuitPickupStage Stage { get; set; }
 
     /// <summary>
     /// Screen rows the beam has covered from each screen edge while it appears, or wiped while it shrinks: zero at

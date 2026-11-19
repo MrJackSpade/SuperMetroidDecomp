@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Rooms.Artwork;
 public sealed class RoomCharacterAtlas
 {
     /// <summary>Owned planar 4-bpp transfer bytes for the authored room characters.</summary>
-    internal readonly byte[] planar;
+    private readonly byte[] planar;
 
     /// <summary>Retains newly compiled planar bytes without exposing a mutable document buffer.</summary>
     /// <param name="planar">Whole 4-bpp characters the import pipeline compiled.</param>

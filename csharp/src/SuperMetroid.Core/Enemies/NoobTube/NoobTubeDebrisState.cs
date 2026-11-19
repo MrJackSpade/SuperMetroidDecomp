@@ -19,7 +19,7 @@ internal sealed class NoobTubeDebrisState(int column) : EnemyProjectileState, IF
     /// How far through its sway the falling debris is, as an angle that goes once round a full turn each swing; it starts
     /// on a whole or a half step and moves on by whole steps.
     /// </summary>
-    internal RotationAngle Sway { get; private set; }
+    private RotationAngle Sway { get; set; }
 
     /// <summary>
     /// The angle whose sine is the sway's sideways speed: the sway's whole steps, kept to the turn's second and fourth

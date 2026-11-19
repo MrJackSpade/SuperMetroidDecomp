@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus;
 public static class HudItems
 {
     /// <summary>The selection ring, in the order the select button steps through it; X-ray wraps back to the beam.</summary>
-    internal static readonly HudItem[] SelectionRing =
+    private static readonly HudItem[] SelectionRing =
     [
         HudItem.Beam,
         HudItem.Missile,

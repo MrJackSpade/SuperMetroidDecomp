@@ -14,10 +14,10 @@ public sealed class SkyTilemap
     public const int Columns = 32;
 
     /// <summary>Rows over the 2048-pixel span the chunk positions cover before they repeat.</summary>
-    public const int Rows = 256;
+    private const int Rows = 256;
 
     /// <summary>Rows in one chunk: the 32 rows of one tilemap page.</summary>
-    internal const int RowsPerChunk = 32;
+    private const int RowsPerChunk = 32;
 
     /// <summary>The tiles of every row, row-major.</summary>
     private readonly BackgroundTile[] tiles = new BackgroundTile[Rows * Columns];

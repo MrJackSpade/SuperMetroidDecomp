@@ -24,7 +24,7 @@ public sealed class MaridiaElevatubeRoomMainState
     private readonly ElevatubeInheritedFraction _fraction;
 
     /// <summary>The tube's vertical velocity in room pixels per update, negative upward.</summary>
-    public SignedEightEight Velocity { get; private set; }
+    private SignedEightEight Velocity { get; set; }
 
     /// <summary>The tube's vertical acceleration in room pixels per update per update, negative upward.</summary>
     public SignedEightEight Acceleration { get; private set; }

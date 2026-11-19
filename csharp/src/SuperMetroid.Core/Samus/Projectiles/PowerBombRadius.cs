@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 public readonly record struct PowerBombRadius : IComparable<PowerBombRadius>
 {
     /// <summary>The 256ths of a pixel in one pixel.</summary>
-    public const int FractionsPerPixel = 256;
+    private const int FractionsPerPixel = 256;
 
     /// <summary>The whole pixels no Power Bomb length reaches: those its blast's growth holds short of.</summary>
     public const int UnreachedPixels = PowerBombGrowthHold.HoldingPixels;
@@ -49,7 +49,7 @@ public readonly record struct PowerBombRadius : IComparable<PowerBombRadius>
     /// <param name="wholePixels">The whole pixels, 0 through 255.</param>
     /// <param name="fraction">The 256ths of a pixel, 0 through 255.</param>
     /// <exception cref="ArgumentOutOfRangeException">A part is outside its range.</exception>
-    public static PowerBombRadius FromPixels(int wholePixels, int fraction) =>
+    private static PowerBombRadius FromPixels(int wholePixels, int fraction) =>
         new(Ensure.BetweenInclusive(0, UnreachedPixels - 1, wholePixels), Ensure.BetweenInclusive(0, FractionsPerPixel - 1, fraction));
 
     /// <summary>A whole number of pixels, 0 through 255, with no fraction.</summary>

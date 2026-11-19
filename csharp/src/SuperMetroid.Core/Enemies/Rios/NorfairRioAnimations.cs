@@ -89,7 +89,7 @@ internal static class NorfairRioAnimations
     /// and hold their one pose (#2512): only those placements move the flames, so placing them again each time the pose
     /// showed again would change nothing.
     /// </summary>
-    internal static IReadOnlyDictionary<NorfairRioSegment, Animation<NorfairRioSegment>> StartingAt { get; } = new Dictionary<NorfairRioSegment, Animation<NorfairRioSegment>>
+    private static IReadOnlyDictionary<NorfairRioSegment, Animation<NorfairRioSegment>> StartingAt { get; } = new Dictionary<NorfairRioSegment, Animation<NorfairRioSegment>>
     {
         [P.Idle] = Animation<NorfairRioSegment>.Looping([Segments.Whole(P.Idle)]),
         [P.StartDescending] = new([Segments.Whole(P.StartDescending)], AnimationEnd.Holds),

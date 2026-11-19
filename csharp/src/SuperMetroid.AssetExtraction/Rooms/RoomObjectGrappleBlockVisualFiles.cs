@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectGrappleBlockVisualFiles
 {
     /// <summary>Family-relative installed JSON filename for the five initial, breakup, and blank breakable-Grapple frames.</summary>
-    public const string VisualFileName = "grapple-blocks.json";
+    private const string VisualFileName = "grapple-blocks.json";
     /// <summary>The Grapple-block as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
         RoomObjectFrameImageFiles.DrawFamily(VisualFileName, "Grapple-block", Frames, draw => VisualId(RoomObjectDrawIdentity.FrameOf<GrappleBlockDraw>(draw, "Grapple-block")));
@@ -26,7 +26,7 @@ public static class RoomObjectGrappleBlockVisualFiles
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The published artwork identity of a Grapple-block draw.</summary>
-    internal static string VisualId(GrappleBlockDraw frame) => frame switch
+    private static string VisualId(GrappleBlockDraw frame) => frame switch
     {
         GrappleBlockDraw.Intact => "intact",
         GrappleBlockDraw.Rock => "rock",
@@ -37,7 +37,7 @@ public static class RoomObjectGrappleBlockVisualFiles
     };
 
     /// <summary>Enumerates the intact Grapple block, its rock, pieces and dust, and blank air in authored order.</summary>
-    internal static IEnumerable<RoomObjectGrappleBlockDrawDefinitions.DrawnBlock> All
+    private static IEnumerable<RoomObjectGrappleBlockDrawDefinitions.DrawnBlock> All
     {
         get
         {

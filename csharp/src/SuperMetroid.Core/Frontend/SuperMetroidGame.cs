@@ -129,7 +129,7 @@ public sealed class SuperMetroidGame
 
 
     /// <summary>Runs one update and returns its status.</summary>
-    public FrontendFrame Step(ControllerButton controllerInput)
+    private FrontendFrame Step(ControllerButton controllerInput)
     {
         // The sound queues read whether the door transition has disabled sound effects from the door's phase itself as each
         // request is made (#2499); the phase's audio here chooses only the update's own audio processing.
@@ -318,14 +318,14 @@ public sealed class SuperMetroidGame
     /// True when the current phase's step is waiting out a frame of the display, so the next update finishes it instead
     /// of starting a new update of the phase (<see cref="DisplayFrameWaitContinuation"/>).
     /// </summary>
-    internal bool PhaseIsWaitingOutDisplayFrame => Phases.Of(Session.GameState).IsWaitingOutDisplayFrame;
+    private bool PhaseIsWaitingOutDisplayFrame => Phases.Of(Session.GameState).IsWaitingOutDisplayFrame;
 
     /// <summary>
     /// Advances the random generator once per update through the title, file selection and
     /// loading. These phases run once per update and do not run gameplay, which advances it
     /// itself. Saves keep no copy of the generator.
     /// </summary>
-    internal void AdvanceMenuRandom()
+    private void AdvanceMenuRandom()
     {
         switch (Phases.Of(Session.GameState).RandomStep)
         {

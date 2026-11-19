@@ -28,7 +28,7 @@ internal sealed class CeresFallingTiles
     /// The Ceres falling tiles, light and dark (#1760): each falls under gravity until it strikes the room, where it
     /// raises dust and sounds its fall.
     /// </summary>
-    internal SingleMotionProjectileBehavior Behavior => field ??= new(
+    private SingleMotionProjectileBehavior Behavior => field ??= new(
         context => Drop(context.Projectile, context.Level));
 
     /// <summary>

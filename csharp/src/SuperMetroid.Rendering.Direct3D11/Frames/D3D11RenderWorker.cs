@@ -12,9 +12,9 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 public sealed class D3D11RenderWorker
 {
     /// <summary>Retains only the latest unpublished immutable visual packet.</summary>
-    internal readonly LatestRenderFrameMailbox mailbox;
+    private readonly LatestRenderFrameMailbox mailbox;
     /// <summary>Prevents old-generation presents from crossing a simulation reset.</summary>
-    internal readonly RenderPresentationGate gate;
+    private readonly RenderPresentationGate gate;
     /// <summary>Wakes the owner for new frames, resize, or shutdown.</summary>
     private readonly AutoResetEvent wake = new(false);
     /// <summary>Serializes publication, resize requests, and worker shutdown.</summary>
@@ -32,21 +32,21 @@ public sealed class D3D11RenderWorker
     /// <summary>Counts successful DXGI presents across device recreations.</summary>
     internal long presented;
     /// <summary>Counts presentation attempts rejected by window occlusion.</summary>
-    internal long occluded;
+    private long occluded;
     /// <summary>Counts packets rejected because a load/reset generation advanced.</summary>
     internal long stale;
     /// <summary>Most recent packet sequence submitted for drawing.</summary>
-    internal long lastConsumedSequence;
+    private long lastConsumedSequence;
     /// <summary>Counts redraws using a retained packet after resize or occlusion.</summary>
-    internal long retainedRedraws;
+    private long retainedRedraws;
     /// <summary>Packs the last drawn width and height into one atomically published word.</summary>
-    internal long lastDrawnSize;
+    private long lastDrawnSize;
     /// <summary>Records whether a zero-sized client surface has suspended presentation.</summary>
-    internal bool surfaceSuspended;
+    private bool surfaceSuspended;
     /// <summary>Counts successful GPU resource recreation after device loss.</summary>
     private long deviceRecoveries;
     /// <summary>Latest device-loss details captured before resource teardown.</summary>
-    internal D3D11DeviceLossDiagnostic? lastDeviceLoss;
+    private D3D11DeviceLossDiagnostic? lastDeviceLoss;
     /// <summary>CPU time spent submitting frame composition.</summary>
     private readonly RenderTimingWindow cpuCompositionTiming;
     /// <summary>CPU time spent in display setup and Present.</summary>

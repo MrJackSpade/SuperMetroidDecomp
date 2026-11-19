@@ -15,7 +15,7 @@ public sealed class SamusHealthWarningState
     private static readonly SoundEffectId Stop = RoomSound.Silence;
 
     /// <summary>The latch, not confirmation that the warning sound actually started.</summary>
-    public bool IsActive { get; private set; }
+    private bool IsActive { get; set; }
 
     /// <summary>
     /// Executes one admitted check. Samus's update decides when it runs and in what order;

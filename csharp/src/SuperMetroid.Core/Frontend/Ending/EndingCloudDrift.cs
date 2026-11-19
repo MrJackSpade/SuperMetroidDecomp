@@ -15,7 +15,7 @@ internal sealed class EndingCloudDrift : EndingActorMotion
     private readonly Func<FloorZoom, bool> releases;
 
     /// <summary>Whether the floor's zoom has released the cloud.</summary>
-    internal bool Drifting { get; private set; }
+    private bool Drifting { get; set; }
 
     /// <summary>Creates a waiting cloud that drifts by <paramref name="step"/> once <paramref name="releases"/> says the zoom has released it.</summary>
     private EndingCloudDrift(Offset16<ScreenPixels> step, Func<FloorZoom, bool> releases)

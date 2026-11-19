@@ -79,7 +79,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The Fune's wait between spits, as its spawn settings give it: the cooldown time's updates, the last the one it spits
     /// on; a cooldown of nothing spits on the first waiting update, as a cooldown of one does.
     /// </summary>
-    internal static UpdateCountdown CooldownOf(RoomEnemyPlace place) =>
+    private static UpdateCountdown CooldownOf(RoomEnemyPlace place) =>
         UpdateCountdown.Lasting(Math.Max(1, place.SpawnSettings<FuneSpawnSettings>().CooldownTime));
 
     /// <summary>Starts the Fune's spit after its cooldown; the active animation owns the return to idle.</summary>
@@ -152,7 +152,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio.QueueEnemySound(FuneNamiheDefinitions.SpitSoundEffect, priority: SoundRequestPriority.Normal);
 
     /// <summary>A Fune or Namihe fireball (#1760): it flies horizontally at its speed until it leaves the camera.</summary>
-    internal static readonly EnemyProjectileBehavior Fireball = new SingleMotionProjectileBehavior(
+    private static readonly EnemyProjectileBehavior Fireball = new SingleMotionProjectileBehavior(
         context => FlyFuneNamiheFireball(context.Projectile, context.Camera));
 
     /// <summary>Advances a Fune's or Namihe's typed animation, whose state is a <typeparamref name="TState"/>.</summary>
@@ -167,7 +167,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Runs the shared projectile setup. The fireball flies at the spitter's spawn settings' launch speed in its direction,
     /// from its mouth (<see cref="FuneNamiheEnemyState.MouthDrop"/>).
     /// </summary>
-    internal void SpawnFuneNamiheFireball(
+    private void SpawnFuneNamiheFireball(
         RoomEnemyPlace source,
         FuneNamiheEnemyState state,
         HorizontalDirection direction,

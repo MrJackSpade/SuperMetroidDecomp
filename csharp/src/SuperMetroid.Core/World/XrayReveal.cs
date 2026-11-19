@@ -27,7 +27,7 @@ internal sealed class XrayReveal
     }
 
     /// <summary>The installed reveal pictures (#2290), which a host binding another installation's artwork replaces.</summary>
-    public InstalledXrayReveals XrayRevealVisuals { get; private set; }
+    private InstalledXrayReveals XrayRevealVisuals { get; set; }
 
     /// <summary>Replaces the reveal pictures with <paramref name="visuals"/>, as a host binding another installation's artwork does.</summary>
     internal void Rebind(InstalledXrayReveals visuals) => XrayRevealVisuals = Ensure.NotNull(visuals);

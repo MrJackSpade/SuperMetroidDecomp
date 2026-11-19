@@ -80,7 +80,7 @@ internal static class FuneNamiheAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<FuneNamiheSegment, Animation<FuneNamiheSegment>> StartingAt { get; } = new Dictionary<FuneNamiheSegment, Animation<FuneNamiheSegment>>
+    private static IReadOnlyDictionary<FuneNamiheSegment, Animation<FuneNamiheSegment>> StartingAt { get; } = new Dictionary<FuneNamiheSegment, Animation<FuneNamiheSegment>>
     {
         [P.FuneIdleLeft] = new([Segments.Whole(P.FuneIdleLeft)], AnimationEnd.Holds),
         [P.FuneActiveLeft] = new([Segments.Whole(P.FuneActiveLeft), Segments.Whole(P.FuneIdleLeft)], AnimationEnd.Holds),

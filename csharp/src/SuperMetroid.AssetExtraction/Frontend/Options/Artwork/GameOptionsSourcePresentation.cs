@@ -31,9 +31,9 @@ public sealed class GameOptionsSourcePresentation
     /// <summary>The common backdrop page.</summary>
     private readonly BackgroundTile[] background;
     /// <summary>The installed controller-button glyphs, keyed by every assignable button.</summary>
-    internal readonly Dictionary<ControllerButton, BackgroundTile[]> controllerLabels;
+    private readonly Dictionary<ControllerButton, BackgroundTile[]> controllerLabels;
     /// <summary>The installed controller-label anchors, one per action.</summary>
-    internal readonly Position16<CharacterCells>[] controllerLabelAnchors;
+    private readonly Position16<CharacterCells>[] controllerLabelAnchors;
     /// <summary>The installed primary-language highlight regions.</summary>
     private readonly GameOptionsLanguageRegionDocument[] languageRegions;
     /// <summary>The installed special-setting choice cells, keyed by toggle.</summary>
@@ -74,7 +74,7 @@ public sealed class GameOptionsSourcePresentation
     public int UnselectedPalette { get; }
 
     /// <summary>Returns an independent mutable copy of one compiled foreground page.</summary>
-    internal BackgroundTile[] CreatePage(GameOptionsScreen tilemap) => (BackgroundTile[])pages[tilemap].Clone();
+    private BackgroundTile[] CreatePage(GameOptionsScreen tilemap) => (BackgroundTile[])pages[tilemap].Clone();
 
     /// <summary>Recolors English and Japanese text regions according to the selected language.</summary>
     internal void ApplyLanguage(Span<BackgroundTile> primaryPage, bool japanese)

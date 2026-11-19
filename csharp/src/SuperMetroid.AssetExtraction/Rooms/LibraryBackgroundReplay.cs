@@ -37,7 +37,7 @@ internal static class LibraryBackgroundReplay
     /// The list holds a command the interpreter does not accept, a zero-length transfer, or a transfer from ROM that no
     /// installed artwork owns.
     /// </exception>
-    internal static void Execute(SnesVram vram, string list, IReadOnlyList<LibraryBackgroundInstruction> instructions,
+    private static void Execute(SnesVram vram, string list, IReadOnlyList<LibraryBackgroundInstruction> instructions,
         DoorDefinition activeDoor, LibraryBackgroundArtwork artwork, ReadOnlyMemory<byte> enemyBg2Staging = default)
     {
         Ensure.NotNull(vram);

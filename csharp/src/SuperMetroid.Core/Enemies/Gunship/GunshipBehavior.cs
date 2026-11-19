@@ -290,7 +290,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Applies seventeen authored brake offsets, then opens the pad and aligns Samus.</summary>
-    internal void BouncePostCeresGunship(RoomEnemyPlace top, SamusState samus)
+    private void BouncePostCeresGunship(RoomEnemyPlace top, SamusState samus)
     {
         GunshipLandingBrake brake = State(top).LandingBrake;
         int yDelta = brake.YDelta;
@@ -357,7 +357,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         GunshipPhase.FinishSamusExit or GunshipPhase.WaitForEngines;
 
     /// <summary>Cycles the four idle-bob phases while moving the hull and pad together.</summary>
-    internal static void StepGunshipBob(RoomEnemyPlace top)
+    private static void StepGunshipBob(RoomEnemyPlace top)
     {
         if (!State(top).BobTimer.Step())
             return;
@@ -477,7 +477,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// Waits one update for the engines to fire up: on the wait's last update the gunship shows its takeoff look from this
     /// update's frame on, and the engines fire up.
     /// </summary>
-    internal void WaitForGunshipEngines(RoomEnemyPlace top)
+    private void WaitForGunshipEngines(RoomEnemyPlace top)
     {
         if (!TickGunshipPhaseTimer(top))
             return;

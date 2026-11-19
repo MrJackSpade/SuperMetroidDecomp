@@ -21,7 +21,7 @@ public sealed class RoomFloor
     public RoomFloor(RoomFloorSheet sheet) => Sheet = Ensure.NotNull(sheet);
 
     /// <summary>The tileset's installed floor and the pictures of its parts' frames.</summary>
-    public RoomFloorSheet Sheet { get; }
+    private RoomFloorSheet Sheet { get; }
 
     /// <summary>Shows <paramref name="frame"/> on the part of the floor it animates.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is not a floor animation frame.</exception>

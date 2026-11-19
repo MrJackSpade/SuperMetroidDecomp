@@ -124,7 +124,7 @@ internal static class SamusGroundedPoseTransitions
     /// may be the current running pose after a killed-X-speed collision or the prospective
     /// running pose tested by the one-pixel arm-pump probe.
     /// </summary>
-    public static SamusPoseId SelectRanIntoWallPose(SamusPoseId sourcePose)
+    private static SamusPoseId SelectRanIntoWallPose(SamusPoseId sourcePose)
     {
         return SamusPoseMetadata.ReadAim(sourcePose) is SamusPoseAim.Aiming { Direction: var direction } &&
             SamusAimedPoseChoiceDefinitions.WallStops.TryGetValue(direction, out SamusPoseId wallStop)

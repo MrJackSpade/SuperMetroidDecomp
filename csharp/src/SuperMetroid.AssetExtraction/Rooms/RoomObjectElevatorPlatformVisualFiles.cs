@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectElevatorPlatformVisualFiles
 {
     /// <summary>Family-relative installed JSON filename for the elevator platform's three six-cell artwork frames.</summary>
-    public const string VisualFileName = "elevator-platforms.json";
+    private const string VisualFileName = "elevator-platforms.json";
 
     /// <summary>The elevator-platform as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
@@ -27,7 +27,7 @@ public static class RoomObjectElevatorPlatformVisualFiles
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The draw lists of the three platform frames in order.</summary>
-    internal static IEnumerable<RoomObjectDrawLists.DrawList> DrawLists
+    private static IEnumerable<RoomObjectDrawLists.DrawList> DrawLists
     {
         get
         {
@@ -40,14 +40,14 @@ public static class RoomObjectElevatorPlatformVisualFiles
     }
 
     /// <summary>Maps a platform draw to its stable artwork identifier.</summary>
-    internal static string VisualId(RoomObjectDraw request) =>
+    private static string VisualId(RoomObjectDraw request) =>
         ElevatorPlatformDrawKeys.Installed.Of(RoomObjectDrawIdentity.FrameOf<ElevatorPlatformDraw>(request, "elevator-platform draw list"));
 
     /// <summary>
     /// The draw list of a platform frame (#1862): its block shape written as its two upper edge blocks, the object's and
     /// the one three right of it, then the four-block row below them.
     /// </summary>
-    internal static bool TryGetDraw(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
+    private static bool TryGetDraw(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
         if (!RoomObjectDrawIdentity.TryShape(ElevatorPlatformDraws.Family, request, out RoomBlockShape? shape))
         {

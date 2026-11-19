@@ -26,7 +26,7 @@ public sealed class ManagedSnesDsp
     /// <summary>Shared 64-KiB audio RAM holding BRR directories and the echo ring.</summary>
     private readonly SpcRam apuRam;
     /// <summary>Mirrored DSP registers, including values published by each sample cycle.</summary>
-    internal readonly byte[] registers = new byte[SnesDspRegisterLayout.RegisterFileSize];
+    private readonly byte[] registers = new byte[SnesDspRegisterLayout.RegisterFileSize];
     /// <summary>Eight independent pitch, envelope, and PCM windows mixed each cycle.</summary>
     private readonly Voice[] voices = Enumerable.Range(0, VoiceCount)
         .Select(_ => new Voice())

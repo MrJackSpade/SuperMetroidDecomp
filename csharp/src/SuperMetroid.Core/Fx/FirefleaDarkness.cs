@@ -14,7 +14,7 @@ public readonly record struct FirefleaDarkness
         FirefleasKilled = Ensure.BetweenInclusive(0, FirefleaFxDefinitions.DarknessLevels.Length - 1, firefleasKilled);
 
     /// <summary>The Firefleas killed in the room, none through six.</summary>
-    public int FirefleasKilled { get; }
+    private int FirefleasKilled { get; }
 
     /// <summary>The fade levels of grey the darkness subtracts from the room.</summary>
     public int Level => FirefleaFxDefinitions.DarknessLevels[FirefleasKilled];

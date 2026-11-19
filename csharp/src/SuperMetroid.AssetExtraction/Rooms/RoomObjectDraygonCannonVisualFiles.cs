@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectDraygonCannonVisualFiles
 {
     /// <summary>The installed file holding the right- and left-facing cannon frames' pictures.</summary>
-    public const string VisualFileName = "draygon-cannons.json";
+    private const string VisualFileName = "draygon-cannons.json";
 
     /// <summary>The cannons as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<DraygonCannonDraw> Family { get; } =

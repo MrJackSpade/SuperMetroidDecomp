@@ -10,7 +10,7 @@ public sealed record BossBodyBackground : ShownRoomBackground
     public BossBodyBackground(ShownBossBody body) => Body = Ensure.NotNull(body);
 
     /// <summary>The body's pictures, placed where they show.</summary>
-    public ShownBossBody Body { get; }
+    private ShownBossBody Body { get; }
 
     /// <inheritdoc/>
     public override TResult Map<TResult>(IShownRoomBackgroundMapping<TResult> mapping) => Ensure.NotNull(mapping).BossBody(Body);

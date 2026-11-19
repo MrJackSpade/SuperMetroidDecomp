@@ -21,7 +21,7 @@ internal sealed class SetCharacters
     private readonly byte[] table;
 
     /// <summary>The encounters the set's members play, and what each of their looks copies.</summary>
-    internal IReadOnlyList<EncounterLookSteps> Encounters { get; }
+    private IReadOnlyList<EncounterLookSteps> Encounters { get; }
 
     /// <summary>Each encounter's characters as each of its looks leaves them, from the loaded table.</summary>
     private readonly Dictionary<ComposedEncounter, byte[][]> afterLook = [];
@@ -172,7 +172,7 @@ internal sealed class SetCharacters
     }
 
     /// <summary>The characters with every look of each part up to the one <paramref name="combination"/> names copied in order.</summary>
-    internal SpriteArtwork Page(IReadOnlyList<FrameLookPart> parts, int[] combination)
+    private SpriteArtwork Page(IReadOnlyList<FrameLookPart> parts, int[] combination)
     {
         var key = new EncounterLookCombination(parts, combination);
         if (pages.TryGetValue(key, out SpriteArtwork? page))

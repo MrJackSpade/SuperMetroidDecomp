@@ -114,7 +114,7 @@ internal static class MaridiaLargeSnailAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<MaridiaLargeSnailSegment, Animation<MaridiaLargeSnailSegment>> StartingAt { get; } = new Dictionary<MaridiaLargeSnailSegment, Animation<MaridiaLargeSnailSegment>>
+    private static IReadOnlyDictionary<MaridiaLargeSnailSegment, Animation<MaridiaLargeSnailSegment>> StartingAt { get; } = new Dictionary<MaridiaLargeSnailSegment, Animation<MaridiaLargeSnailSegment>>
     {
         [P.FacingLeftIdle] = new([Segments.Whole(P.FacingLeftIdle)], AnimationEnd.Holds),
         [P.FacingLeftAttacking] = new([Segments.Whole(P.FacingLeftAttacking)], AnimationEnd.Holds),

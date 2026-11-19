@@ -116,7 +116,7 @@ internal static class EnemyMath
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="wholePixels"/> is negative.</exception>
     /// <exception cref="OverflowException">The product is 65536 pixels or more.</exception>
-    internal static UnsignedSixteenSixteen UnsignedSineSpeed(TrigonometryAngle angle, int wholePixels) =>
+    private static UnsignedSixteenSixteen UnsignedSineSpeed(TrigonometryAngle angle, int wholePixels) =>
         UnsignedSixteenSixteen.ShareOfWholePixels(wholePixels, Trigonometry.UnsignedHalfWave(angle.StepsIntoHalfTurn));
 
     /// <summary>

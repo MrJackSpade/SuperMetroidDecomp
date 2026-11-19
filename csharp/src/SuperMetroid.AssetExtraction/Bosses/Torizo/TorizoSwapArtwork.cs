@@ -11,7 +11,7 @@ public sealed class TorizoSwapArtwork
 {
 
     /// <summary>Validated selected character transfers in tile-sheet definition order.</summary>
-    internal readonly RoomCharacterAtlas[] pages;
+    private readonly RoomCharacterAtlas[] pages;
 
     /// <summary>Copies and validates one installed character atlas for every required Torizo upload page.</summary>
     internal TorizoSwapArtwork(RoomCharacterAtlas[] pages)

@@ -44,7 +44,7 @@ internal sealed class SporeSpawnSporeBehavior(EnemyDeathsAndDrops deathsAndDrops
     }
 
     /// <summary>Drifts a spore one step along its path, deleting it once it falls below the room.</summary>
-    internal static void DriftSpore(EnemyProjectile spore)
+    private static void DriftSpore(EnemyProjectile spore)
     {
         SporeSpawnSporeState drift = Ensure.NotNull(spore).StateOf<SporeSpawnSporeState>();
         Offset16<RoomPixels> movement = drift.PathStep.Entry;

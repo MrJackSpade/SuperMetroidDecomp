@@ -10,13 +10,13 @@ internal sealed class D3D11GpuTimer : IDisposable
     /// <summary>Render device and immediate context whose owner thread issues every query.</summary>
     private readonly D3D11RenderDevice owner;
     /// <summary>Reusable disjoint and timestamp query sets for pending frame samples.</summary>
-    internal readonly Slot[] slots;
+    private readonly Slot[] slots;
     /// <summary>Ring insertion, removal, and pending-sample cursors.</summary>
     internal int head, tail, pending;
     /// <summary>Tracks an open interval and final disposal of its query resources.</summary>
     private bool active, disposed;
     /// <summary>Intervals omitted because all query slots were awaiting GPU results.</summary>
-    internal long SkippedSamples { get; private set; }
+    private long SkippedSamples { get; set; }
 
     /// <summary>Creates a fixed number of query slots on the render device's owner thread.</summary>
     internal D3D11GpuTimer(D3D11RenderDevice owner, int capacity = 8)

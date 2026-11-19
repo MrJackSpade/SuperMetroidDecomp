@@ -134,7 +134,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// nowhere is refused, and one that runs off the curve fails when its speed is read.
     /// </summary>
     /// <exception cref="InvalidDataException">The hop's search steps nowhere or runs off the curve.</exception>
-    internal static void CalculateInitialPuyoHopSpeed(PuyoEnemyState state)
+    private static void CalculateInitialPuyoHopSpeed(PuyoEnemyState state)
     {
         PuyoHopDefinition hop = Hop(state);
         if (hop.LaunchSearchStep <= QuadraticSpeedCurvePlace.Start)

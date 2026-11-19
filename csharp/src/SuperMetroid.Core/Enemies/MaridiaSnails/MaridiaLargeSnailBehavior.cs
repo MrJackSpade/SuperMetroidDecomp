@@ -375,7 +375,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     /// still shows its spawn idle it counts as playing the right-facing idle, and its first start of another animation, the
     /// left-facing idle included, starts it afresh (<see cref="MaridiaLargeSnailEnemyState.ShowsSpawnIdle"/>).
     /// </summary>
-    internal static void StartMaridiaLargeSnailAnimation(
+    private static void StartMaridiaLargeSnailAnimation(
         RoomEnemyPlace place,
         MaridiaLargeSnailEnemyState state,
         MaridiaLargeSnailSegment segment)

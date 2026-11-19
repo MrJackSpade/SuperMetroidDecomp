@@ -27,7 +27,7 @@ internal static class DebuggerObjectGraphSerializer
     /// Writes a debugger snapshot as <see cref="Serialize(Stream, object, BoundObjectGraph?)"/> does, naming the objects
     /// the game's static members hold through <paramref name="definitions"/> instead of the process's index.
     /// </summary>
-    internal static void Serialize(Stream destination, object root, BoundObjectGraph? bound, DefinitionObjects definitions)
+    private static void Serialize(Stream destination, object root, BoundObjectGraph? bound, DefinitionObjects definitions)
     {
         Ensure.NotNull(destination);
         Ensure.NotNull(root);

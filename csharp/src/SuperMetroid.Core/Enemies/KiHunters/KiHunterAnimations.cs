@@ -130,7 +130,7 @@ internal static class KiHunterAnimations
     /// cue, which always restarts the flight for the body's direction (#2061). A hop, a landing and a spit end on their
     /// last pose held (#2439): the cue before it hands the body to its next behaviour, which shows its own picture.
     /// </summary>
-    internal static IReadOnlyDictionary<KiHunterSegment, Animation<KiHunterSegment>> StartingAt { get; } = new Dictionary<KiHunterSegment, Animation<KiHunterSegment>>
+    private static IReadOnlyDictionary<KiHunterSegment, Animation<KiHunterSegment>> StartingAt { get; } = new Dictionary<KiHunterSegment, Animation<KiHunterSegment>>
     {
         [P.FlyingLeft] = new([Segments.Whole(P.FlyingLeft)], AnimationEnd.Holds),
         [P.SwoopLeft] = new([Segments.Whole(P.SwoopLeft), Segments.Whole(P.FlyingLeft)], AnimationEnd.Holds),

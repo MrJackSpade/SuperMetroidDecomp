@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Compatibility;
 public static class LeftEdgeBombMissesFrameHitboxes
 {
     /// <summary>The room pixel column whose bombs enemies that collide by their frames' hitboxes pass over.</summary>
-    public const int PassedColumn = 0;
+    private const int PassedColumn = 0;
 
     /// <summary>Whether an enemy that collides by its frames' hitboxes passes over a bomb whose whole X is <paramref name="bombX"/>.</summary>
     /// <param name="bombX">The bomb's whole X position in room pixels.</param>

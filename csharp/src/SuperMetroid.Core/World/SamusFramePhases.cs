@@ -135,7 +135,7 @@ internal sealed class SamusFramePhases
     }
 
     /// <summary>Shows the grapple's firing beam shade and its flare's shade as Samus's colours (#1512).</summary>
-    internal void ShowGrappleShades()
+    private void ShowGrappleShades()
     {
         _player.Colours.ShowBeams(SuperMetroid.Core.Samus.Colours.SamusShades.Beam(GrappleBeamDefinitions.BeamShades.FiringSelection));
         _player.Colours.ShowGrappleFlare(SuperMetroid.Core.Samus.Colours.SamusShades.GrappleFiringFlare);

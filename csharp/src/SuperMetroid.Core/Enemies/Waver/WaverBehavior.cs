@@ -108,7 +108,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Starts a changed facing or spin animation and restarts its frame timer (#2145); the Waver spins while a spin plays
     /// and glides while a steady pose shows (#2450).
     /// </summary>
-    internal static void SetWaverAnimation(RoomEnemyPlace place, WaverEnemyState state, WaverSegment segment)
+    private static void SetWaverAnimation(RoomEnemyPlace place, WaverEnemyState state, WaverSegment segment)
     {
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, WaverAnimations.StartingWith(segment));
         state.Action = WaverAnimationChoices.IsSpin(segment) ? WaverAction.Spinning : WaverAction.Gliding;

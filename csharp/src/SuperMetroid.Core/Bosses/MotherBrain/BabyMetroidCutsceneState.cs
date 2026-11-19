@@ -84,16 +84,16 @@ public sealed class BabyMetroidCutsceneState
     internal Offset16<RoomPixels> SignedPlace => OffRoomPlaces.Signed(Position.Whole);
 
     /// <summary>Velocity in pixels per update.</summary>
-    public PixelVelocity<RoomPixels> Velocity { get; internal set; }
+    private PixelVelocity<RoomPixels> Velocity { get; set; }
 
     /// <summary>The curved entrance's speed, zero through fourteen pixels an update.</summary>
-    public SignedEightEight Speed { get; private set; }
+    private SignedEightEight Speed { get; set; }
 
     /// <summary>Heading of the curved entrance; only its whole step is passed to shared component math.</summary>
-    public RotationAngle Angle { get; private set; }
+    private RotationAngle Angle { get; set; }
 
     /// <summary>Phase timer: each timed phase counts it down and moves on as it runs out (<see cref="BossCountdown"/>).</summary>
-    public BossCountdown PhaseTimer { get; } = new();
+    private BossCountdown PhaseTimer { get; } = new();
 
     /// <summary>
     /// The leg of the ceiling-to-Samus route the Baby steers along once it reaches the ceiling, at its place on the route

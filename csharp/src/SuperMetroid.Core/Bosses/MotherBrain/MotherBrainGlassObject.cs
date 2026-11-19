@@ -21,10 +21,10 @@ internal sealed class MotherBrainGlassObject(MotherBrainGlassObjects owner) : Ro
     private readonly MotherBrainGlassObjects _owner = Ensure.NotNull(owner);
 
     /// <summary>Where the glass is in its course.</summary>
-    internal MotherBrainGlassPhase Phase { get; private set; } = MotherBrainGlassPhase.Starting;
+    private MotherBrainGlassPhase Phase { get; set; } = MotherBrainGlassPhase.Starting;
 
     /// <summary>The stage the glass is at (#2315): its first until it shows it, which its first update does.</summary>
-    internal ListStep<MotherBrainGlassStage> Stage { get; private set; } = ListStep<MotherBrainGlassStage>.FirstOf(MotherBrainGlassStageDefinitions.Stages);
+    private ListStep<MotherBrainGlassStage> Stage { get; set; } = ListStep<MotherBrainGlassStage>.FirstOf(MotherBrainGlassStageDefinitions.Stages);
 
     /// <summary>
     /// The shards the burst under way throws once the next image has shown (#2471): its stage's second group, which the
@@ -33,10 +33,10 @@ internal sealed class MotherBrainGlassObject(MotherBrainGlassObjects owner) : Ro
     private IReadOnlyList<MotherBrainGlassShard> _burstSecondShards = [];
 
     /// <summary>The hits the glass has taken, from missiles on its block and Mother Brain's head shots.</summary>
-    internal int Hits { get; private set; }
+    private int Hits { get; set; }
 
     /// <summary>Whether strikes on the glass's block count hits: from its first update, once it shows its first stage.</summary>
-    internal bool HitCountArmed { get; private set; }
+    private bool HitCountArmed { get; set; }
 
     /// <summary>The strike on the glass's block its hit count has not yet read, or null for none.</summary>
     internal ResidentObjectProjectileHit? PendingHit { get; private set; }

@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 public sealed class PowerBombBlastTimeline
 {
     /// <summary>The pre-explosion flash's radius.</summary>
-    public PowerBombRadius PreExplosionRadius { get; private set; }
+    private PowerBombRadius PreExplosionRadius { get; set; }
 
     /// <summary>The damaging explosion's radius.</summary>
     public PowerBombRadius ExplosionRadius { get; private set; }
@@ -42,7 +42,7 @@ public sealed class PowerBombBlastTimeline
     /// The horizontal radius, in pixels, of the authored oval the current frame shows, or null when the frame shows the
     /// blast's own radius instead (#1927). The afterglow keeps the white explosion's last oval.
     /// </summary>
-    public int? RenderedOvalRadius { get; private set; }
+    private int? RenderedOvalRadius { get; set; }
 
     /// <summary>
     /// The horizontal radius, in whole pixels, of the oval the current frame shows (#1927); zero shows nothing. It is
@@ -73,13 +73,13 @@ public sealed class PowerBombBlastTimeline
     /// An update can advance <see cref="Phase"/> after choosing its oval. Keeping the shown phase separate prevents the
     /// display from showing the next phase one frame early at the yellow/white transition boundaries.
     /// </remarks>
-    public PowerBombExplosionPhase RenderedPhase { get; private set; }
+    private PowerBombExplosionPhase RenderedPhase { get; set; }
 
     /// <summary>Pre-explosion radius consumed before the end-of-frame update.</summary>
-    public PowerBombRadius RenderedPreExplosionRadius { get; private set; }
+    private PowerBombRadius RenderedPreExplosionRadius { get; set; }
 
     /// <summary>Explosion radius consumed before the end-of-frame update.</summary>
-    public PowerBombRadius RenderedExplosionRadius { get; private set; }
+    private PowerBombRadius RenderedExplosionRadius { get; set; }
 
     /// <summary>The blast's glow: the colour it adds to the scene inside its oval.</summary>
     public RgbColor GlowColor { get; private set; }

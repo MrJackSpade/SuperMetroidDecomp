@@ -32,7 +32,7 @@ public sealed class SamusBodySources
     /// <summary>Each lower-body definition group's first record.</summary>
     private readonly int[] bottomSetStarts;
     /// <summary>Each pose's first frame selector.</summary>
-    internal readonly Dictionary<SamusPoseId, int> poseFirstFrames;
+    private readonly Dictionary<SamusPoseId, int> poseFirstFrames;
     /// <summary>The contiguous frame-selector interval.</summary>
     private readonly SamusBodyFrameSelection[] frames;
     /// <summary>Each pose's installed animation frames' half pictures, or none where not installed.</summary>
@@ -100,10 +100,10 @@ public sealed class SamusBodySources
     /// The fatal-damage suit, suitless and whiteout colours her death shades are pre-coloured from (#1512); gameplay
     /// reads only the order of those steps, through <see cref="InstalledSamusBodyArtwork.DeathSteps"/>.
     /// </summary>
-    public SuperMetroid.Core.Samus.Death.SamusDeathSteps DeathSteps { get; }
+    private SuperMetroid.Core.Samus.Death.SamusDeathSteps DeathSteps { get; }
 
     /// <summary>Where each pose with a record places the body: its art origin and, where they differ, each frame's own placement.</summary>
-    public IReadOnlyDictionary<SamusPoseId, SamusBodyPosePlacement> Placements { get; }
+    private IReadOnlyDictionary<SamusPoseId, SamusBodyPosePlacement> Placements { get; }
 
     /// <summary>
     /// SHA-256 of all visual selectors and bundled Samus presentation catalogs the import composes the sheets from. The body
@@ -143,7 +143,7 @@ public sealed class SamusBodySources
     public static int Record(SamusBodyPicture picture) => picture.Ordinal;
 
     /// <summary>The picture that shows definition <paramref name="record"/>.</summary>
-    public static SamusBodyPicture Picture(int record) => new(record);
+    private static SamusBodyPicture Picture(int record) => new(record);
 
     /// <summary>
     /// Adds every pose's placement to <paramref name="content"/> in the cartridge's pose order, which the import keeps

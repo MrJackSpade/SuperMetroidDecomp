@@ -146,7 +146,7 @@ internal sealed class EnemyRoomEffects
     /// owner. The enemy state publishes requests in the order it makes them; consuming them
     /// here keeps the places they take in update order and applies them in the update that makes them.
     /// </summary>
-    internal void ApplyPendingMotherBrainObjects(EnemyRoomEffectRequests requests, EnemyRoomEffectSite site)
+    private void ApplyPendingMotherBrainObjects(EnemyRoomEffectRequests requests, EnemyRoomEffectSite site)
     {
         if (requests.MotherBrainDeathStep is { } death)
         {

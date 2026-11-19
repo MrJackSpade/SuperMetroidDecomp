@@ -32,10 +32,10 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     private static readonly IReadOnlyList<RoomBlockReadings> Kept = KeptInOrder();
 
     /// <summary>The farthest an extension of any kept behaviour reaches backward, in blocks (or rows): a negative offset.</summary>
-    public static int MostBackwardExtension { get; } = Kept.Min(static readings => readings.ExtensionOffset);
+    private static int MostBackwardExtension { get; } = Kept.Min(static readings => readings.ExtensionOffset);
 
     /// <summary>The farthest an extension of any kept behaviour reaches forward, in blocks (or rows).</summary>
-    public static int MostForwardExtension { get; } = Kept.Max(static readings => readings.ExtensionOffset);
+    private static int MostForwardExtension { get; } = Kept.Max(static readings => readings.ExtensionOffset);
 
     /// <summary>The kept behaviour each set of readings is, for <see cref="Holding"/>.</summary>
     private static readonly Dictionary<RoomBlockReadings, RoomBlockReadings> KeptByReadings =
@@ -147,7 +147,7 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     public static RoomBlockBehavior None => new(EmptyReadings);
 
     /// <summary>The kept behaviour this one is.</summary>
-    internal RoomBlockReadings Readings => kept ?? EmptyReadings;
+    private RoomBlockReadings Readings => kept ?? EmptyReadings;
 
     /// <summary>The behaviour holding <paramref name="readings"/>, which must be one of the kept behaviours.</summary>
     /// <exception cref="ArgumentOutOfRangeException">No kept behaviour holds exactly these readings.</exception>
@@ -162,7 +162,7 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
 
     /// <summary>A bombable block's behaviour.</summary>
     /// <param name="reaction">The reaction.</param>
-    public static RoomBlockBehavior Reacting(BombableReaction reaction) => new(BombableWrites.Carrying(reaction));
+    private static RoomBlockBehavior Reacting(BombableReaction reaction) => new(BombableWrites.Carrying(reaction));
 
     /// <summary>A special block's behaviour.</summary>
     /// <param name="reaction">The reaction.</param>

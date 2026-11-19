@@ -26,7 +26,7 @@ public sealed record CpuBusCell(string Name, CpuBusRegion Region, int Address, i
         : throw new ArgumentOutOfRangeException(nameof(Address), Address, "SNES CPU address must fit in 24 bits.");
 
     /// <summary>The cell's size in bytes.</summary>
-    public int ByteCount { get; } = ByteCount > 0
+    private int ByteCount { get; } = ByteCount > 0
         ? ByteCount
         : throw new ArgumentOutOfRangeException(nameof(ByteCount), ByteCount, "A bus cell holds at least one byte.");
 

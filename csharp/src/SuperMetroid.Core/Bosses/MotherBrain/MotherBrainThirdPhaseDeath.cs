@@ -38,7 +38,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// Emits the death-phase explosions at the timer cadence, consuming one global
     /// random value per projectile so later enemy AI sees the same RNG sequence.
     /// </summary>
-    internal void GenerateDeathExplosions(
+    private void GenerateDeathExplosions(
         MotherBrainDeathExplosionStyle style,
         Func<int> nextRandomNumber,
         List<MotherBrainDeathExplosionRequest> requests)

@@ -141,7 +141,7 @@ public sealed class SamusKinematicsState
 
     /// <summary><paramref name="direction"/>, which must be one Samus can meet an enemy moving in.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is not left, right, up or down.</exception>
-    internal static SamusCollisionDirection RequireContactDirection(SamusCollisionDirection direction) => direction switch
+    private static SamusCollisionDirection RequireContactDirection(SamusCollisionDirection direction) => direction switch
     {
         SamusCollisionDirection.Left or SamusCollisionDirection.Right or SamusCollisionDirection.Up or SamusCollisionDirection.Down => direction,
         SamusCollisionDirection.NonDirectionalProbe => throw new ArgumentOutOfRangeException(nameof(direction), direction,

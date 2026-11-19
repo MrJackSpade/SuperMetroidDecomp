@@ -8,7 +8,7 @@ public sealed class GunshipLiftoffArtworkCatalog
 {
 
     /// <summary>Owned five-frame character atlases indexed by the fixed takeoff transfer order.</summary>
-    internal readonly RoomCharacterAtlas[] frames;
+    private readonly RoomCharacterAtlas[] frames;
 
     /// <summary>Validates five complete native-size atlases and copies the caller's frame array.</summary>
     internal GunshipLiftoffArtworkCatalog(RoomCharacterAtlas[] frames) => this.frames = GunshipLiftoffArtwork.Validated(frames);

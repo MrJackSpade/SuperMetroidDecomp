@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectMotherBrainGlassVisualFiles
 {
     /// <summary>The installed file holding the initial, damaged, shifted, shattering and cleared glass frames' pictures.</summary>
-    public const string VisualFileName = "mother-brain-glass.json";
+    private const string VisualFileName = "mother-brain-glass.json";
 
     /// <summary>The glass as the import pictures it: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<MotherBrainGlassDraw> Family { get; } =

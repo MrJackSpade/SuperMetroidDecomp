@@ -19,7 +19,7 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>
     internal RotationAngle(ushort rawValue) => RawValue = rawValue;
 
     /// <summary>The angle in 256ths of a step, 0 through 65535; a full turn wraps to zero.</summary>
-    public ushort RawValue { get; }
+    private ushort RawValue { get; }
 
     /// <summary>The whole steps of the angle, 0 through 255.</summary>
     private int Steps => RawValue / FractionsPerStep;
@@ -55,7 +55,7 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>
     public static RotationAngle FromSteps(int steps) => FromSteps(steps, 0);
 
     /// <summary>The angle of <paramref name="steps"/> whole steps and <paramref name="fraction"/> 256ths of a step, each 0 through 255.</summary>
-    public static RotationAngle FromSteps(int steps, int fraction) =>
+    private static RotationAngle FromSteps(int steps, int fraction) =>
         new(checked((ushort)(Ensure.BetweenInclusive(0, StepsPerTurn - 1, steps) * FractionsPerStep +
             Ensure.BetweenInclusive(0, FractionsPerStep - 1, fraction))));
 
@@ -93,13 +93,13 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>
     public static RotationAngle WrappedSteps(int steps) => NormalizeRaw(steps * FractionsPerStep);
 
     /// <summary>Turns the angle by <paramref name="delta"/> 256ths of a step, continuing around the circle.</summary>
-    public RotationAngle AddRaw(int delta) => NormalizeRaw(RawValue + delta);
+    private RotationAngle AddRaw(int delta) => NormalizeRaw(RawValue + delta);
 
     /// <summary>
     /// Turns the angle by <paramref name="fractionsOfStep"/> 256ths of a step, back when negative, continuing around the
     /// circle: the sub-step precision the game's turn rates are authored in.
     /// </summary>
-    public RotationAngle TurnedByFractionsOfStep(int fractionsOfStep) => NormalizeRaw(RawValue + fractionsOfStep);
+    private RotationAngle TurnedByFractionsOfStep(int fractionsOfStep) => NormalizeRaw(RawValue + fractionsOfStep);
 
     /// <summary>
     /// The angle turned by <paramref name="speed"/>'s whole steps alone (#2555), keeping its own fraction, as a turn that

@@ -758,7 +758,7 @@ internal sealed class EnemyCollision
     /// charged shot taking the charged-beam multiplier unless the beam freezes; missile, Super Missile, bomb and Power
     /// Bomb families take their own responses.
     /// </summary>
-    internal static NormalShotVulnerability ReadNormalShotVulnerability(
+    private static NormalShotVulnerability ReadNormalShotVulnerability(
         RoomEnemyPlace enemy,
         SamusProjectileType projectileType)
     {
@@ -796,7 +796,7 @@ internal sealed class EnemyCollision
     /// </summary>
     /// <param name="enemy">The enemy frozen.</param>
     /// <param name="roomArea">The area of the room the enemy is in.</param>
-    internal void FreezeEnemyFromNormalShot(RoomEnemyPlace enemy, AreaId roomArea)
+    private void FreezeEnemyFromNormalShot(RoomEnemyPlace enemy, AreaId roomArea)
     {
         // The direct-freeze vulnerability refreshes the timer even on an already frozen
         // actor, but only a newly frozen actor queues audio. Lethal-Ice substitution

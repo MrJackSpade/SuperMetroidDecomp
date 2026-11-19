@@ -142,7 +142,7 @@ public static class SaveRamCodec
     /// Ports <c>SaveToSRAM</c>'s payload for the translated state a snapshot holds. The payload is a byte-for-byte
     /// cartridge structure; <see cref="WriteSlot"/> adds its directory words.
     /// </summary>
-    internal static byte[] EncodePayload(SuperMetroidSaveSnapshot snapshot, IAreaMapSource maps)
+    private static byte[] EncodePayload(SuperMetroidSaveSnapshot snapshot, IAreaMapSource maps)
     {
         Ensure.NotNull(snapshot);
         byte[] payload = new byte[SaveRamLayout.SlotByteCount];
@@ -201,7 +201,7 @@ public static class SaveRamCodec
     }
 
     /// <summary>The snapshot that re-encodes <paramref name="slot"/> to its own payload.</summary>
-    internal static SuperMetroidSaveSnapshot ToSnapshot(SuperMetroidSaveSlot slot) => new()
+    private static SuperMetroidSaveSnapshot ToSnapshot(SuperMetroidSaveSlot slot) => new()
     {
         ControllerBindings = slot.ControllerBindings,
         MoonwalkEnabled = slot.MoonwalkEnabled,
@@ -357,7 +357,7 @@ public static class SaveRamCodec
 
     /// <summary>The slot whose save the image keeps at place <paramref name="slot"/> of its directories, A first.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The image keeps no slot at that place.</exception>
-    internal static SaveSlot SlotAt(int slot)
+    private static SaveSlot SlotAt(int slot)
     {
         ValidateSlot(slot);
         return SaveSlots.All[slot];

@@ -75,7 +75,7 @@ public static class MapPresentationFiles
     /// import-data directory beside the pages: the installation never holds them. The manifest lists their hashes beside the
     /// installed documents'.
     /// </summary>
-    internal static readonly string[] ImportDocumentFiles =
+    private static readonly string[] ImportDocumentFiles =
     [
         FileSelectPresentationFormat.ArtworkFileName, PauseBackdropDefinitions.FileName, PauseWireframeDefinitions.FileName,
         PauseEquipmentBaseDefinitions.FileName, PauseEquipmentLabelArtworkDefinitions.FileName, PauseReserveUiDefinitions.FileName,

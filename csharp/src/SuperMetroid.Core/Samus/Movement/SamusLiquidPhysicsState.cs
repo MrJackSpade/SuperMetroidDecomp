@@ -102,7 +102,7 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>
     /// The update's audio requests her liquid, landing and footstep sounds join as they are made: Samus's (#2057).
     /// </summary>
-    internal GameplaySoundRequests AudioRequests { get; }
+    private GameplaySoundRequests AudioRequests { get; }
 
     /// <summary>
     /// The room's effect: lava, acid or water, which Samus moves in, or one of the effects that are no liquid, or none.
@@ -137,7 +137,7 @@ public sealed class SamusLiquidPhysicsState
     /// Samus's copy of <see cref="RoomWater.IgnoresSurfaceUntilEnabled"/>. While set, water does not affect her even when
     /// the geometric surface comparison says she is below it.
     /// </summary>
-    public bool IgnoresWaterSurface { get; private set; }
+    private bool IgnoresWaterSurface { get; set; }
 
     /// <summary>
     /// Remembered medium. This is intentionally stateful:
@@ -149,7 +149,7 @@ public sealed class SamusLiquidPhysicsState
     /// Configures the water surface, or none, and whether Samus ignores it, while preserving the ordinary or statue room's
     /// FX identity; the room has no lava or acid surface.
     /// </summary>
-    public void ConfigureWater(int? surfaceY, bool ignoresSurface, RoomFxType type)
+    private void ConfigureWater(int? surfaceY, bool ignoresSurface, RoomFxType type)
     {
         if (!RoomFxTypes.UsesWater(type))
             throw new ArgumentOutOfRangeException(nameof(type), type, "A water configuration requires a water effect.");
@@ -161,7 +161,7 @@ public sealed class SamusLiquidPhysicsState
 
     /// <summary>Configures a lava or acid surface, or none; the room has no water surface.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="type"/> is neither lava nor acid.</exception>
-    public void ConfigureLavaAcid(int? surfaceY, RoomFxType type = RoomFxType.Lava)
+    private void ConfigureLavaAcid(int? surfaceY, RoomFxType type = RoomFxType.Lava)
     {
         FxType = type is RoomFxType.Lava or RoomFxType.Acid ? type : throw new ArgumentOutOfRangeException(nameof(type), type, "Only lava or acid has a lava/acid surface.");
         WaterSurfaceY = null;
@@ -174,7 +174,7 @@ public sealed class SamusLiquidPhysicsState
     /// Rain and other atmospheric owners still need their FX type,
     /// so clearing the entire state would discard observable animation behavior.
     /// </summary>
-    public void ConfigureNonLiquidRoomFx(RoomFxType type)
+    private void ConfigureNonLiquidRoomFx(RoomFxType type)
     {
         if (type is RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid)
             throw new ArgumentOutOfRangeException(nameof(type), type, "Use the liquid-specific configuration method.");
@@ -500,7 +500,7 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>Creates either the diving surface particle or paired shallow splashes selected by movement type.</summary>
-    internal void SpawnWaterSplash(
+    private void SpawnWaterSplash(
         SamusState samus,
         SamusMovementType movementType,
         int bottom)
@@ -638,7 +638,7 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>Applies whether Samus ignores the water's surface before comparing a boundary with it.</summary>
-    internal bool WaterAffectsBoundary(int boundary) =>
+    private bool WaterAffectsBoundary(int boundary) =>
         !IgnoresWaterSurface &&
         IsBelowSurface(WaterSurfaceY, boundary);
 
@@ -648,7 +648,7 @@ public sealed class SamusLiquidPhysicsState
     /// up-elevator leaves, and her top's line is less than zero where it lies above the room (<see cref="TopLine"/>), so
     /// the two compare plainly.
     /// </summary>
-    internal static bool IsBelowSurface(int? surface, int boundary) =>
+    private static bool IsBelowSurface(int? surface, int boundary) =>
         surface is int y &&
         y < boundary;
 

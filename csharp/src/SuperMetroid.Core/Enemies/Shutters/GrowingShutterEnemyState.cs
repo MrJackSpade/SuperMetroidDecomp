@@ -53,7 +53,7 @@ public sealed class GrowingShutterEnemyState
     /// in the shutter's own column.
     /// </summary>
     /// <param name="level">The growth level, 0 through 3.</param>
-    public int SectionOriginY(int level) =>
+    private int SectionOriginY(int level) =>
         SpawnY + Ensure.BetweenInclusive(0, SectionCount - 1, level) *
             (Growth == VerticalDirection.Up ? -SectionOriginSpacing : SectionOriginSpacing);
 

@@ -26,14 +26,14 @@ internal sealed class MotherBrainDrainedByBabyPhases
     public MotherBrainWalkSpeed PainfulWalkingSpeed { get; internal set; }
 
     /// <summary>Her pause at the end of the current stage's walk (#2469), or null while she walks it.</summary>
-    internal BossCountdown? PainfulWalkingPause { get; private set; }
+    private BossCountdown? PainfulWalkingPause { get; set; }
 
     /// <summary>
     /// Steps her stagger one update: each stage walks her to one end of her stagger and pauses her there, and the pause's
     /// end turns her round into the next stage, whose first update walks her the other way.
     /// </summary>
     /// <returns>Whether this update ended the pause of her last stage, so that she has walked every stage.</returns>
-    internal bool StepPainfulWalking()
+    private bool StepPainfulWalking()
     {
         if (PainfulWalkingPause is { } pause)
         {

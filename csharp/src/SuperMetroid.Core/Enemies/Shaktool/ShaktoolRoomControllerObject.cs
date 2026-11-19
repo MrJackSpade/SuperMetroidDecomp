@@ -21,7 +21,7 @@ internal sealed class ShaktoolRoomControllerObject(IRoomSamusAccess samus, IGlob
     private readonly IGlobalEventFlags _events = events;
 
     /// <summary>Whether the controller has had its first update and now watches the room.</summary>
-    internal bool Watching { get; private set; }
+    private bool Watching { get; set; }
 
     /// <inheritdoc/>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)

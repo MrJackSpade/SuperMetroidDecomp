@@ -47,7 +47,7 @@ internal static class ZoaAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<ZoaSegment, Animation<ZoaSegment>> StartingAt { get; } = new Dictionary<ZoaSegment, Animation<ZoaSegment>>
+    private static IReadOnlyDictionary<ZoaSegment, Animation<ZoaSegment>> StartingAt { get; } = new Dictionary<ZoaSegment, Animation<ZoaSegment>>
     {
         [P.FacingLeftShooting] = Animation<ZoaSegment>.Looping([Segments.Whole(P.FacingLeftShooting)]),
         [P.FacingLeftRising] = Animation<ZoaSegment>.Looping([Segments.Whole(P.FacingLeftRising)]),

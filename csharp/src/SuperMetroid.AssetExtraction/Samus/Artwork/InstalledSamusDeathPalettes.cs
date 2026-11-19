@@ -90,7 +90,7 @@ public sealed class InstalledSamusDeathPalettes
     /// <param name="frame">Explosion drawing index 0..8, selecting one of the nine timing/selector records.</param>
     /// <returns>A death-flash step 0..9 for both foreground palette families, not a RGB5 word or countdown duration.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is outside 0..8.</exception>
-    public int ExplosionPaletteIndex(int frame)
+    private int ExplosionPaletteIndex(int frame)
     {
         if ((uint)frame >= explosionPaletteIndices.Length)
             throw new ArgumentOutOfRangeException(nameof(frame));

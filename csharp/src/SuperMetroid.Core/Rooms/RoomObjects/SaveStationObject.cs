@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal sealed class SaveStationObject(LoadStation savedAt) : RoomObjectBehaviour
 {
     /// <summary>The load station the station saves at, which its activation events carry.</summary>
-    internal LoadStation SavedAt { get; } = Ensure.NotNull(savedAt);
+    private LoadStation SavedAt { get; } = Ensure.NotNull(savedAt);
 
     /// <summary>The pod playing: its first image shows on the station's first update, and the pod stays still after it.</summary>
     private readonly AnimationPlayer<StationAnimation, StationDraw, NoAnimationCue> _pod =

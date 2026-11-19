@@ -16,7 +16,7 @@ public readonly record struct FloorZoom : IComparable<FloorZoom>
 
     /// <summary>The zoom in 256ths of a floor pixel per screen pixel, zero or more.</summary>
     [IntegerQuantity("turning-floor zoom in 256ths of a floor pixel per screen pixel")]
-    public int TwoHundredFiftySixths { get; }
+    private int TwoHundredFiftySixths { get; }
 
     /// <summary>The zoom that shows the floor at its own size: one floor pixel to each screen pixel.</summary>
     public static FloorZoom OwnSize { get; } = new(TwoHundredFiftySixthsPerFloorPixel);

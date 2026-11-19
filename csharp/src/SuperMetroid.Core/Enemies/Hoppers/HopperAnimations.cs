@@ -138,7 +138,7 @@ internal static class HopperAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<HopperSegment, Animation<HopperSegment>> StartingAt { get; } = new Dictionary<HopperSegment, Animation<HopperSegment>>
+    private static IReadOnlyDictionary<HopperSegment, Animation<HopperSegment>> StartingAt { get; } = new Dictionary<HopperSegment, Animation<HopperSegment>>
     {
         [P.SidehopperFloorJumping] = new([Segments.Whole(P.SidehopperFloorJumping)], AnimationEnd.Holds),
         [P.SidehopperFloorLanded] = new([Segments.Whole(P.SidehopperFloorLanded)], AnimationEnd.Holds),

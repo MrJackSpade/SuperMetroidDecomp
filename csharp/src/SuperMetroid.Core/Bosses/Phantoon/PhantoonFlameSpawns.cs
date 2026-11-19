@@ -16,7 +16,7 @@ public static class PhantoonFlameSpawns
     internal static IReadOnlyList<TrigonometryAngle> StartingFlameStarts => PhantoonFlameSpawnDefinitions.StartingFlameStarts;
 
     /// <summary>The rain columns' screen Xs, left to right.</summary>
-    internal static IReadOnlyList<int> RainXs => PhantoonFlameSpawnDefinitions.RainXs;
+    private static IReadOnlyList<int> RainXs => PhantoonFlameSpawnDefinitions.RainXs;
 
     /// <summary>The rain column at <paramref name="place"/> of <see cref="RainXs"/>, counting from the left from zero.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The rain has no such column.</exception>

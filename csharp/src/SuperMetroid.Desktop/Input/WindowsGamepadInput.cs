@@ -31,7 +31,7 @@ internal sealed partial class WindowsGamepadInput
     public string? DeviceName { get; private set; }
 
     /// <summary>Most recent normalized state, exposed for debugger/CLI device diagnostics.</summary>
-    public GenericGamepadSnapshot LastSnapshot { get; private set; }
+    private GenericGamepadSnapshot LastSnapshot { get; set; }
 
     /// <summary>
     /// Polls the active controller and returns the game controller buttons it holds. A disconnected controller
@@ -136,7 +136,7 @@ internal sealed partial class WindowsGamepadInput
             capabilities.ProductId);
 
     /// <summary>Normalizes present axes and ignores a zero-filled POV field when no hat is advertised.</summary>
-    internal static GenericGamepadSnapshot CreateSnapshot(
+    private static GenericGamepadSnapshot CreateSnapshot(
         JoystickPosition position,
         JoystickCapabilities capabilities)
     {

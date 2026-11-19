@@ -51,7 +51,7 @@ public sealed class RoomObjectPlaces
     private readonly bool[] _held = new bool[PlaceCount];
 
     /// <summary>How many places hold a room object.</summary>
-    internal int HeldCount { get; private set; }
+    private int HeldCount { get; set; }
 
     /// <summary>Whether every place holds a room object, so a spawn would take none.</summary>
     internal bool IsFull => HeldCount == PlaceCount;

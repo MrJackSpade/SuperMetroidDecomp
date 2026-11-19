@@ -59,7 +59,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the dead Torizo's main AI.</summary>
-    internal void RunDeadTorizoMain(RoomEnemyPlace place, SamusState samus)
+    private void RunDeadTorizoMain(RoomEnemyPlace place, SamusState samus)
     {
         DeadTorizoEnemyState state = place.RequireSpeciesState<DeadTorizoEnemyState>();
 
@@ -113,7 +113,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The rest of the corpse's shot and touch reactions.</summary>
-    internal static void TriggerDeadTorizoRotting(RoomEnemyPlace place)
+    private static void TriggerDeadTorizoRotting(RoomEnemyPlace place)
     {
         DeadTorizoEnemyState state = place.RequireSpeciesState<DeadTorizoEnemyState>();
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
@@ -121,7 +121,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The corpse's power bomb reaction.</summary>
-    internal static void TriggerDeadTorizoPowerBomb(RoomEnemyPlace place)
+    private static void TriggerDeadTorizoPowerBomb(RoomEnemyPlace place)
     {
         if (!place.Contact.HasAny(EnemyContact.IgnoresSamus))
             TriggerDeadTorizoRotting(place);
@@ -173,7 +173,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// own rot forms it. Every fifteenth rot update one more line of sand falls, from the heap's last row up, until
     /// fifteen have fallen; the intact corpse has none.
     /// </summary>
-    internal static CorpseRotRows ShownSand(DeadTorizoEnemyState state)
+    private static CorpseRotRows ShownSand(DeadTorizoEnemyState state)
     {
         int lines = state.SandForming.Age / DeadTorizoCorpseDefinitions.RotUpdatesPerSandLine;
         return CorpseRotRows.Showing(DeadTorizoCorpseDefinitions.SandRowCount, row => row >= DeadTorizoCorpseDefinitions.SandRowCount - lines);

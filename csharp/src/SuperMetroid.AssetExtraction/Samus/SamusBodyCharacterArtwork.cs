@@ -15,14 +15,14 @@ public sealed class SamusBodyCharacterArtwork
     /// <summary>Maximum planar-byte capacity of one definition slot.</summary>
     public const int BytesPerDefinitionSlot = TilesPerDefinition * 32;
     /// <summary>Characters in Samus's body artwork: two sixteen-wide rows.</summary>
-    public const int BodyCharacterCount = 2 * SpriteArtwork.CharactersPerRow;
+    private const int BodyCharacterCount = 2 * SpriteArtwork.CharactersPerRow;
     /// <summary>Characters in one half row, filled by one transfer.</summary>
     private const int HalfRowCharacters = SpriteArtwork.CharactersPerRow / 2;
 
     /// <summary>Upper-body tile definitions grouped by native pointer-table entry.</summary>
     internal readonly SamusBodyTileTransfer[][] top;
     /// <summary>Lower-body tile definitions grouped by native pointer-table entry.</summary>
-    internal readonly SamusBodyTileTransfer[][] bottom;
+    private readonly SamusBodyTileTransfer[][] bottom;
     /// <summary>Definition lookup by physical record, including cross-group selections.</summary>
     private readonly Dictionary<int, SamusBodyTileTransfer> definitionsByRecord = [];
     /// <summary>Owned ordinal of each definition in authored order (top sets, then bottom sets); the body artwork identity uses it.</summary>
@@ -96,7 +96,7 @@ public sealed class SamusBodyCharacterArtwork
     }
 
     /// <summary>Resolve a saved definition record after a debugger-state rebind.</summary>
-    public SamusBodyTileTransfer DefinitionAt(int record)
+    private SamusBodyTileTransfer DefinitionAt(int record)
     {
         if (!definitionsByRecord.TryGetValue(record, out SamusBodyTileTransfer? definition))
             throw new InvalidDataException($"Samus body definition record {record} is absent from installed art.");

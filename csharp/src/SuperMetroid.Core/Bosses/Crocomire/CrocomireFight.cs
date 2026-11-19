@@ -468,7 +468,7 @@ internal sealed class CrocomireFight
     }
 
     /// <summary>Spawns one of Crocomire's fight projectiles, fired along <paramref name="gradient"/>.</summary>
-    internal void SpawnCrocomireProjectile(RoomEnemyPlace body, int gradient)
+    private void SpawnCrocomireProjectile(RoomEnemyPlace body, int gradient)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)

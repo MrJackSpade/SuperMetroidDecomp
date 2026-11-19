@@ -307,7 +307,7 @@ internal static class KraidAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<KraidPartSegment, Animation<KraidPartSegment>> StartingAt { get; } = new Dictionary<KraidPartSegment, Animation<KraidPartSegment>>
+    private static IReadOnlyDictionary<KraidPartSegment, Animation<KraidPartSegment>> StartingAt { get; } = new Dictionary<KraidPartSegment, Animation<KraidPartSegment>>
     {
         [P.FootInitial] = new([Segments.Whole(P.FootInitial)], AnimationEnd.Holds),
         [P.FootNeutral] = new([Segments.Whole(P.FootNeutral)], AnimationEnd.Holds),

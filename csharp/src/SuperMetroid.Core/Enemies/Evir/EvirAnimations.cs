@@ -84,7 +84,7 @@ internal static class EvirAnimations
     /// and rest folded, the spit is a still picture,
     /// and a regenerating spit starts its own regrowth, sounds, regrows eight steps out from the mouth and is whole again.
     /// </summary>
-    internal static IReadOnlyDictionary<EvirSegment, Animation<EvirSegment>> StartingAt { get; } = new Dictionary<EvirSegment, Animation<EvirSegment>>
+    private static IReadOnlyDictionary<EvirSegment, Animation<EvirSegment>> StartingAt { get; } = new Dictionary<EvirSegment, Animation<EvirSegment>>
     {
         [P.BodyFacingLeft] = Animation<EvirSegment>.Looping([Segments.Whole(P.BodyFacingLeft)]),
         [P.ArmsFacingLeft] = Animation<EvirSegment>.Looping([Segments.Repeated(P.ArmsFacingLeft, ArmWaves), Segments.Whole(P.ArmsFoldedFacingLeft)]),

@@ -49,7 +49,7 @@ public sealed class SamusProjectileSystem
     internal BeamCombos Combos { get; }
 
     /// <summary>Plays the shots' animations and draws their pictures.</summary>
-    internal ProjectileAnimation Animation { get; }
+    private ProjectileAnimation Animation { get; }
 
     /// <summary>Applies HUD, cooldown, equipment, and charge rules when allocating a shot.</summary>
     internal BeamFiring Firing { get; }
@@ -58,13 +58,13 @@ public sealed class SamusProjectileSystem
     internal ProjectileMotion Motion { get; }
 
     /// <summary>Resolves projectile impact with blocks and breakable terrain.</summary>
-    internal ProjectileTerrainCollision TerrainCollision { get; }
+    private ProjectileTerrainCollision TerrainCollision { get; }
 
     /// <summary>Routes ordinary shots into enemy collision and damage reactions.</summary>
     internal ProjectileEnemyImpacts EnemyImpacts { get; }
 
     /// <summary>The trails moving projectiles leave, which run and show until both their sparkles end.</summary>
-    internal ProjectileTrails Trails { get; }
+    private ProjectileTrails Trails { get; }
 
     /// <summary>
     /// Whether the posture-transition admission admits weapons for a pose outside its table, which the beam producer and
@@ -128,7 +128,7 @@ public sealed class SamusProjectileSystem
     public IReadOnlyList<SamusProjectile> Shots => Pool.Shots;
 
     /// <summary>The last input-phase result, whose queued sounds the frontend routes after the frame.</summary>
-    public SamusProjectileFrameResult LastFrameResult { get; private set; }
+    private SamusProjectileFrameResult LastFrameResult { get; set; }
 
     /// <summary>
     /// Shows the equipped beams' colours: the beams show the shade of the combination they select (#1512). No pictures
@@ -143,7 +143,7 @@ public sealed class SamusProjectileSystem
     /// is Plasma and Wave's (#1736), or the Spacetime beam's (#1512).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The combination has no shade the game can show.</exception>
-    public static void ShowBeamShade(SamusColours colours, SamusBeamCombination selection)
+    private static void ShowBeamShade(SamusColours colours, SamusBeamCombination selection)
     {
         Ensure.NotNull(colours);
         switch (selection)

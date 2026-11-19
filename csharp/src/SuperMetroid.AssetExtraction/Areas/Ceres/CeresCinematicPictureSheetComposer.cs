@@ -18,14 +18,14 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 internal static class CeresCinematicPictureSheetComposer
 {
     /// <summary>The katakana caption's width in characters: an eight-by-two block below SPACE COLONY.</summary>
-    internal const int JapaneseWidth = 8;
+    private const int JapaneseWidth = 8;
 
     /// <summary>The name of every picture the sheet holds.</summary>
     internal static IEnumerable<string> FrameNames =>
         [.. Enumerable.Range(0, SpaceColonyCaptionDefinitions.LetterCount).Select(CeresCinematicPictures.CaptionLetter), CeresCinematicPictures.JapaneseCaption, CeresCinematicPictures.ZebesPlanet];
 
     /// <summary>The caption character visible letter <paramref name="index"/> draws.</summary>
-    internal static char CaptionCharacter(int index) => SpaceColonyCaptionDefinitions.Text[SpaceColonyCaption.TextIndex(index)];
+    private static char CaptionCharacter(int index) => SpaceColonyCaptionDefinitions.Text[SpaceColonyCaption.TextIndex(index)];
 
     /// <summary>Pixels along each side of a character.</summary>
     private const int CharacterPixels = RoomTileCanvas.CharacterPixels;
@@ -46,7 +46,7 @@ internal static class CeresCinematicPictureSheetComposer
     /// artwork, as an installation whose flight artwork is replaced composes it.
     /// </summary>
     /// <exception cref="InvalidDataException">A picture's tile names a character the scene never loads.</exception>
-    internal static ComposedSpriteSheet Compose(CeresFlightCharacters ceresFlight, ImportIntroCinematicArtwork intro)
+    private static ComposedSpriteSheet Compose(CeresFlightCharacters ceresFlight, ImportIntroCinematicArtwork intro)
     {
         Ensure.NotNull(ceresFlight);
         Ensure.NotNull(intro);

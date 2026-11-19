@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public static class RoomObjectSamusEaterVisualFiles
 {
     /// <summary>Editable Samus Eater plant visual JSON filename.</summary>
-    public const string VisualFileName = "samus-eater.json";
+    private const string VisualFileName = "samus-eater.json";
 
     /// <summary>The Samus Eater plant as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
@@ -48,7 +48,7 @@ public static class RoomObjectSamusEaterVisualFiles
     /// The draw list of a plant draw (#1862): its block shape written as the right half of the mouth, its left half two
     /// blocks left, and the four-wide foliage below those for a floor plant or above them for a ceiling one.
     /// </summary>
-    internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
+    private static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
         if (!RoomObjectDrawIdentity.TryShape(SamusEaterObjectDraws.Family, request, out RoomBlockShape? shape))
         {
@@ -63,7 +63,7 @@ public static class RoomObjectSamusEaterVisualFiles
     }
 
     /// <summary>Builds the eight plant layouts' draw lists.</summary>
-    internal static IEnumerable<RoomObjectDrawLists.DrawList> All
+    private static IEnumerable<RoomObjectDrawLists.DrawList> All
     {
         get
         {

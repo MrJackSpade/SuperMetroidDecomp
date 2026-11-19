@@ -23,7 +23,7 @@ internal static class DeadTourianCorpses
 
     /// <summary>The corpse variant <paramref name="variantIndex"/> of <paramref name="species"/> lies as: its pose and height.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The species or its variant is not a dead Tourian corpse.</exception>
-    internal static DeadTourianCorpseDefinition For(DeadTourianCorpseSpecies species, int variantIndex)
+    private static DeadTourianCorpseDefinition For(DeadTourianCorpseSpecies species, int variantIndex)
     {
         DeadTourianCorpseDefinition[] variants = Variants(species);
         if ((uint)variantIndex >= variants.Length)
@@ -47,7 +47,7 @@ internal static class DeadTourianCorpses
 
     /// <summary>The variants of <paramref name="species"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The species is not a dead Tourian corpse.</exception>
-    internal static DeadTourianCorpseDefinition[] Variants(DeadTourianCorpseSpecies species) =>
+    private static DeadTourianCorpseDefinition[] Variants(DeadTourianCorpseSpecies species) =>
         CorpseByVariant.TryGetValue(species, out DeadTourianCorpseDefinition[]? variants)
             ? variants
             : throw new ArgumentOutOfRangeException(nameof(species), species, null);

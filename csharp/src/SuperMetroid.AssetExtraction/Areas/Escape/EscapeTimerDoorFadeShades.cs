@@ -17,7 +17,7 @@ internal static class EscapeTimerDoorFadeShades
     private const int RowColours = 16;
 
     /// <summary>The timer's colours a door keeps lit.</summary>
-    internal static readonly ImmutableArray<int> Kept = [1, 2, 4, 13];
+    private static readonly ImmutableArray<int> Kept = [1, 2, 4, 13];
 
     /// <summary>The door fade's dark shade of the timer drawn in sprite row <paramref name="row"/>.</summary>
     /// <param name="row">The sprite row the timer is drawn in.</param>

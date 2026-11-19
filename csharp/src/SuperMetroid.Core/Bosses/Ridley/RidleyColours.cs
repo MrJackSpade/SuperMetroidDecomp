@@ -43,7 +43,7 @@ internal sealed class RidleyColours : IGameplayShadingSource
     private RidleyFadeImage? arenaReveal;
 
     /// <summary>The shading his room's pictures show: the Ceres retreat, or the arena hidden and its reveal.</summary>
-    internal PictureShading RoomShading
+    private PictureShading RoomShading
     {
         get
         {

@@ -66,7 +66,7 @@ internal static class MorphBallEyeAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<MorphBallEyeSegment, Animation<MorphBallEyeSegment>> StartingAt { get; } = new Dictionary<MorphBallEyeSegment, Animation<MorphBallEyeSegment>>
+    private static IReadOnlyDictionary<MorphBallEyeSegment, Animation<MorphBallEyeSegment>> StartingAt { get; } = new Dictionary<MorphBallEyeSegment, Animation<MorphBallEyeSegment>>
     {
         [P.FacingRightDeactivating] = new([Segments.Whole(P.FacingRightDeactivating), Segments.Whole(P.FacingRightClosed)], AnimationEnd.Holds),
         [P.FacingRightClosed] = new([Segments.Whole(P.FacingRightClosed)], AnimationEnd.Holds),

@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Frontend;
 internal sealed class WhiteWash
 {
     /// <summary>The steps of a white wash from full white to none: one a fade level.</summary>
-    internal const int Steps = FadeLevelColour.FullLevel;
+    private const int Steps = FadeLevelColour.FullLevel;
 
     /// <summary>A wash at full white whose fade is paced by <paramref name="fade"/>.</summary>
     private WhiteWash(PacedFadeSteps fade) => this.fade = fade;
@@ -40,5 +40,5 @@ internal sealed class WhiteWash
 
     /// <summary>The colour of a wash with <paramref name="stepsLeft"/> of its <see cref="Steps"/> steps left.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="stepsLeft"/> is outside 0-<see cref="Steps"/>.</exception>
-    internal static RgbColor Colour(int stepsLeft) => new FadeLevelColour(stepsLeft, stepsLeft, stepsLeft).ToColour();
+    private static RgbColor Colour(int stepsLeft) => new FadeLevelColour(stepsLeft, stepsLeft, stepsLeft).ToColour();
 }

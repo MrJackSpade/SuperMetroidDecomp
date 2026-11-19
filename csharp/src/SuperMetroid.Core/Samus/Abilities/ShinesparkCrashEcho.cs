@@ -14,7 +14,7 @@ public sealed class ShinesparkCrashEcho
     private Position16<RoomPixels> _position;
 
     /// <summary>The shot that carries the echo, or none before the echo first departs and after Samus's shots are cleared.</summary>
-    internal SamusProjectile? Shot { get; private set; }
+    private SamusProjectile? Shot { get; set; }
 
     /// <summary>Where the echo is shown, or none once no shot carries it.</summary>
     public Position16<RoomPixels>? ShownPosition =>

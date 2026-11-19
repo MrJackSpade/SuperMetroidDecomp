@@ -80,12 +80,12 @@ internal static class PaletteFxRoomShades
 
     /// <summary>The first ink of a room picture the room's colour group <paramref name="group"/> recolours.</summary>
     /// <exception cref="InvalidDataException">The group recolours no room picture.</exception>
-    internal static int FirstInk(ColourEffectColours group) => FirstInks.TryGetValue(group, out int ink) ? ink
+    private static int FirstInk(ColourEffectColours group) => FirstInks.TryGetValue(group, out int ink) ? ink
         : throw new InvalidDataException($"Palette-FX colours {group} recolour no room picture.");
 
     /// <summary>The shade of the room's <paramref name="group"/> showing <paramref name="frame"/>, coloured from <paramref name="colours"/>.</summary>
     /// <exception cref="InvalidDataException">A colour is not installed, or the frame's record writes past its group's colours.</exception>
-    internal static SheetShade Shade(ColourEffectColours group, ColourEffectFrame frame, IPaletteFxColorSource colours)
+    private static SheetShade Shade(ColourEffectColours group, ColourEffectFrame frame, IPaletteFxColorSource colours)
     {
         int first = FirstInk(group);
         return PaletteFxRecordShades.Shade(group, frame, new InkRange(first, (first / GroupInks + 1) * GroupInks), colours);

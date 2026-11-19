@@ -32,7 +32,7 @@ internal static class NuclearWaffleAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<NuclearWaffleSegment, Animation<NuclearWaffleSegment>> StartingAt { get; } = new Dictionary<NuclearWaffleSegment, Animation<NuclearWaffleSegment>>
+    private static IReadOnlyDictionary<NuclearWaffleSegment, Animation<NuclearWaffleSegment>> StartingAt { get; } = new Dictionary<NuclearWaffleSegment, Animation<NuclearWaffleSegment>>
     {
         [P.BodyLoop] = Animation<NuclearWaffleSegment>.Looping([Segments.Whole(P.BodyLoop)]),
     };

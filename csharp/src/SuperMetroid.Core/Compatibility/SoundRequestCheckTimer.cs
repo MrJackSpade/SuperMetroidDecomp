@@ -24,7 +24,7 @@ public readonly record struct SoundRequestCheckTimer
     internal SoundRequestCheckTimer(int phase) => Phase = phase;
 
     /// <summary>Counts accumulated since the last check, zero through <see cref="Period"/> - 1.</summary>
-    public int Phase { get; }
+    private int Phase { get; }
 
     /// <summary>
     /// Advances the timer by one clock step spanning <paramref name="stepPeriods"/> step periods: it adds that many eighths

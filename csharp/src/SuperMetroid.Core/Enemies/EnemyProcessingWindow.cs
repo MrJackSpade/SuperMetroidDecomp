@@ -54,7 +54,7 @@ internal sealed class EnemyProcessingWindow
     }
 
     /// <summary>Rebuilds active and interactive lists after clearing deleted places and applying off-screen policy.</summary>
-    internal void DetermineWhichEnemiesToProcess(Position16<RoomPixels> camera)
+    private void DetermineWhichEnemiesToProcess(Position16<RoomPixels> camera)
     {
         _activeEnemies.Clear();
         _interactiveEnemies.Clear();

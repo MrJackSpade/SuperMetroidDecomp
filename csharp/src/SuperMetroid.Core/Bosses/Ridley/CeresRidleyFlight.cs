@@ -331,7 +331,7 @@ internal sealed class CeresRidleyFlight
         AccelerateRidleyToward(place, flight, Position16<RoomPixels>.Zero + target, divisor);
 
     /// <summary>Steers both axes of his velocity toward a target, raising a step that divides to zero to one.</summary>
-    internal static void AccelerateRidleyToward(
+    private static void AccelerateRidleyToward(
         RoomEnemyPlace place,
         RidleyFlightState flight,
         Position16<RoomPixels> target,

@@ -91,7 +91,7 @@ internal sealed class DraygonCombat
     /// The vulnerable eye's shot reaction increases future swoop curvature before the shot's common damage; the
     /// curvature never grows past 152.
     /// </summary>
-    internal static void AdvanceDraygonShotAcceleration(DraygonEnemyState state)
+    private static void AdvanceDraygonShotAcceleration(DraygonEnemyState state)
     {
         SignedEightEight candidate = state.SwoopAcceleration + DraygonSwoopDefinitions.ShotAccelerationStep;
         if (candidate < DraygonSwoopDefinitions.AccelerationLimit)
@@ -99,7 +99,7 @@ internal sealed class DraygonCombat
     }
 
     /// <summary>Runs the common post-touch/shot/power-bomb reaction.</summary>
-    internal void ResolveDraygonReaction(RoomEnemyPlace body, SamusState samus)
+    private void ResolveDraygonReaction(RoomEnemyPlace body, SamusState samus)
     {
         DraygonEnemyState state = DraygonEntity.EncounterOf(body);
         if (body.Health != 0)
@@ -137,7 +137,7 @@ internal sealed class DraygonCombat
     }
 
     /// <summary>Changes Draygon's health color band only when the health threshold changes.</summary>
-    internal static void UpdateDraygonHealthBand(DraygonEnemyState state)
+    private static void UpdateDraygonHealthBand(DraygonEnemyState state)
     {
         DraygonHealthBand band = DraygonHealthBand.Of(state.Body.Health);
 
@@ -148,7 +148,7 @@ internal sealed class DraygonCombat
     }
 
     /// <summary>Shows his selected health band's colours.</summary>
-    internal static void ShowDraygonHealthBand(DraygonEnemyState state) => state.Colours.ShowBand(state.HealthBand);
+    private static void ShowDraygonHealthBand(DraygonEnemyState state) => state.Colours.ShowBand(state.HealthBand);
 
     /// <summary>A bomb striking one of Draygon's body dud-shot hitboxes: the dud flash where the bomb lies and the dud sound.</summary>
     internal void CreateBombDudShot(EnemyBombContext context) => _projectiles.CreateBombDudShot(context.Bomb);

@@ -277,7 +277,7 @@ internal sealed class EnemyDeathsAndDrops
     /// </summary>
     /// <param name="projectile">The finished death explosion.</param>
     /// <param name="samus">Samus, whose energy and ammunition the drop's roll reads.</param>
-    internal EnemyDeathAndDropSegment ConvertEnemyDeathExplosionToPickup(EnemyProjectile projectile, SamusState samus)
+    private EnemyDeathAndDropSegment ConvertEnemyDeathExplosionToPickup(EnemyProjectile projectile, SamusState samus)
     {
         EnemyDeathExplosionState explosion = Ensure.NotNull(projectile).StateOf<EnemyDeathExplosionState>();
         EnemyPickupKind kind = SelectRandomEnemyDrop(DropChancesOf(explosion.DropDefinitionId), samus);
@@ -290,7 +290,7 @@ internal sealed class EnemyDeathsAndDrops
     /// Gives the projectile the selected pickup's identity, 400-frame life and collision reaction, keeping
     /// <paramref name="killedEnemy"/>, the enemy its explosion came from, and returns its animation.
     /// </summary>
-    internal static EnemyDeathAndDropSegment ConfigurePickup(EnemyProjectile projectile, EnemyPickupKind kind, KilledEnemy killedEnemy)
+    private static EnemyDeathAndDropSegment ConfigurePickup(EnemyProjectile projectile, EnemyPickupKind kind, KilledEnemy killedEnemy)
     {
         EnemyPickupAnimationDefinition animation = EnemyPickups.Animation(kind);
         projectile.State = new EnemyPickupState(kind, EnemyPickupDefinitions.Lifetime, killedEnemy);
@@ -327,7 +327,7 @@ internal sealed class EnemyDeathsAndDrops
     /// </summary>
     /// <param name="dropChances">The chances rolled; none when the drop's enemy drops nothing.</param>
     /// <param name="samus">Samus, whose energy and ammunition decide which drops are offered.</param>
-    internal EnemyPickupKind SelectRandomEnemyDrop(EnemyDropChances? dropChances, SamusState samus)
+    private EnemyPickupKind SelectRandomEnemyDrop(EnemyDropChances? dropChances, SamusState samus)
     {
         Ensure.NotNull(samus);
         if (dropChances is not { } table)
@@ -428,7 +428,7 @@ internal sealed class EnemyDeathsAndDrops
         definitionId == EnemyDefinitionId.None ? null : _room.Definitions.ReadEnemyDefinition(definitionId).DropChances;
 
     /// <summary>Decrements pickup lifetime, then tests Grapple endpoint and strict Samus body overlap.</summary>
-    internal void TendEnemyPickup(
+    private void TendEnemyPickup(
         EnemyProjectile projectile,
         SamusState samus)
     {
@@ -574,7 +574,7 @@ internal sealed class EnemyDeathsAndDrops
     /// The death explosions and the pickups they and direct drops become (#1760). Each spawner starts the explosion or
     /// pickup animation it chooses.
     /// </summary>
-    internal EnemyProjectileBehavior ExplosionsAndPickups => this;
+    private EnemyProjectileBehavior ExplosionsAndPickups => this;
 
     /// <summary>
     /// Moves a pickup, the one kind here that moves: it counts its lifetime, then tests its grapple endpoint, then Samus's

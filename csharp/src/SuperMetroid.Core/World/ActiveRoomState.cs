@@ -93,7 +93,7 @@ internal sealed class ActiveRoomState
     /// Active room's loaded foreground, block behaviours and background. Rendering and collision must
     /// share this instance; null means no room level data has been loaded yet.
     /// </summary>
-    public RoomLevelData? LevelData => View(c => c.LevelData, s => s.LevelData);
+    private RoomLevelData? LevelData => View(c => c.LevelData, s => s.LevelData);
     /// <summary>The loaded room's level data.</summary>
     public RoomLevelData LoadedLevelData => LevelData ??
         throw new InvalidOperationException("No room level data is loaded.");

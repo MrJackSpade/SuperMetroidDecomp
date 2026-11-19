@@ -116,7 +116,7 @@ public sealed class SamusProjectile
     /// installed (<see cref="Install"/>) and kept through its later behaviours and its explosion; null for a beam, the
     /// Hyper Beam, and before the projectile is set up.
     /// </summary>
-    internal SamusShotKindState? KindState { get; private set; }
+    private SamusShotKindState? KindState { get; set; }
 
     /// <summary>
     /// The Power Bomb fuse a beam carries, in updates (#2468): none for a beam fired into a free place, and for one fired

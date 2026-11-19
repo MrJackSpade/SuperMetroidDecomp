@@ -36,7 +36,7 @@ public sealed class PhantoonPart
     internal AnimationPlayback<PhantoonPartSegment> Playback { get; set; }
 
     /// <summary>The animation starting at <paramref name="segment"/>, before its first play.</summary>
-    internal static AnimationPlayback<PhantoonPartSegment> Starting(PhantoonPartSegment segment) =>
+    private static AnimationPlayback<PhantoonPartSegment> Starting(PhantoonPartSegment segment) =>
         new(PhantoonAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
 
     /// <summary>Restarts the part's animation at <paramref name="segment"/> with a one-update timer.</summary>

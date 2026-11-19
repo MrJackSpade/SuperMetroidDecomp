@@ -144,7 +144,7 @@ internal sealed class DraygonShots
         /// <param name="goop">The goop stuck to Samus.</param>
         /// <param name="samus">Samus, whom the goop follows.</param>
         /// <param name="powerBomb">The power bomb explosion of the pass's bombs, which frees the goop's place.</param>
-        internal static void RunAttachedDraygonGoop(
+        private static void RunAttachedDraygonGoop(
             EnemyProjectile goop,
             SamusState samus,
             SamusPowerBombExplosionState powerBomb)

@@ -31,7 +31,7 @@ public static class RoomObjectRevealAndWallVisualFiles
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Every reveal and wall frame's draw list, built from the geometry and collision the game writes.</summary>
-    internal static IEnumerable<RoomObjectDrawLists.DrawList> All
+    private static IEnumerable<RoomObjectDrawLists.DrawList> All
     {
         get
         {
@@ -62,7 +62,7 @@ public static class RoomObjectRevealAndWallVisualFiles
 
     /// <summary>The installed identity of a reveal or wall frame.</summary>
     /// <exception cref="InvalidDataException">The draw is not a reveal or wall frame.</exception>
-    internal static string VisualId(RoomObjectDraw draw) => draw switch
+    private static string VisualId(RoomObjectDraw draw) => draw switch
     {
         RoomObjectFrameDraw<RoomObjectBombedRevealDraw> { Frame: RoomObjectBombedRevealDraw.CrumbleSingle } => "bombed-reveal-crumble-block",
         RoomObjectFrameDraw<RoomObjectBombedRevealDraw> { Frame: RoomObjectBombedRevealDraw.PowerBomb } => "bombed-reveal-power-bomb-block",

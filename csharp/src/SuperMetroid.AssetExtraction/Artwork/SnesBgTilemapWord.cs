@@ -20,7 +20,7 @@ public readonly record struct SnesBgTilemapWord(ushort Raw)
     /// <summary>Each background tile selects one of eight palette groups.</summary>
     private const ushort PaletteMask = 0x0007;
     /// <summary>Bit 13 raises this tile above the background's lower priority tier.</summary>
-    internal const ushort PriorityMask = 0x2000;
+    private const ushort PriorityMask = 0x2000;
     /// <summary>Bit 14, the horizontal-mirror flag.</summary>
     internal const ushort HorizontalFlipMask = 0x4000;
 
@@ -34,7 +34,7 @@ public readonly record struct SnesBgTilemapWord(ushort Raw)
     /// <summary>Gets whether bit 13 selects this background tile's higher priority tier.</summary>
     public bool HasPriority => (Raw & PriorityMask) != 0;
     /// <summary>Gets the horizontal and vertical reflection bits in their original packed positions.</summary>
-    public PictureFlip FlipFlags =>
+    private PictureFlip FlipFlags =>
         ((Raw & HorizontalFlipMask) != 0 ? PictureFlip.Horizontal : PictureFlip.None) |
         ((Raw & VerticalFlipMask) != 0 ? PictureFlip.Vertical : PictureFlip.None);
     /// <summary>Gets whether pixels are reflected across the tile's horizontal axis of traversal.</summary>

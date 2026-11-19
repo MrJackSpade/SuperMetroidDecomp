@@ -326,7 +326,7 @@ internal sealed class PhantoonCombat
     }
 
     /// <summary>Runs the boss-owned tail of Phantoon's hitbox reaction after common vulnerability damage.</summary>
-    internal void ResolvePhantoonShotReaction(
+    private void ResolvePhantoonShotReaction(
         RoomEnemyPlace body,
         PhantoonEnemyState state,
         SamusProjectileType projectileType,
@@ -512,7 +512,7 @@ internal sealed class PhantoonCombat
     /// </summary>
     /// <param name="angle">The flame's orbit angle.</param>
     /// <param name="radius">The orbit radius, zero or more; the product uses its place within 256 (<see cref="ShortCircleProduct"/>).</param>
-    internal static int ReadPhantoonFlameComponent(TrigonometryAngle angle, int radius) =>
+    private static int ReadPhantoonFlameComponent(TrigonometryAngle angle, int radius) =>
         UnitComponent.SineOf(angle).ReachOf(ShortCircleProduct.RadiusInUse(radius));
 
     /// <summary>

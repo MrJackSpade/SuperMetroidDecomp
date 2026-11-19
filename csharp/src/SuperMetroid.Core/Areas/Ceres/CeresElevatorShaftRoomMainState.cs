@@ -26,19 +26,19 @@ public sealed class CeresElevatorShaftRoomMainState
     /// The further updates the shaft holds its tilt, the update that turned it to the tilt being the first it holds it; the
     /// update after the hold is over turns it.
     /// </summary>
-    public UpdateCountdown Hold { get; } = UpdateCountdown.Lasting(CeresShaftRotationDefinitions.LevelHoldFrames);
+    private UpdateCountdown Hold { get; } = UpdateCountdown.Lasting(CeresShaftRotationDefinitions.LevelHoldFrames);
 
     /// <summary>
     /// The tilt the shaft turns to next (#1895): from the full anticlockwise tilt through the full clockwise one. It selects
     /// how long the shaft holds the tilt.
     /// </summary>
-    public CeresShaftTilt Tilt { get; private set; }
+    private CeresShaftTilt Tilt { get; set; }
 
     /// <summary>
     /// Which way the turn is sweeping: forward, clockwise, from the full anticlockwise tilt to one step short of the full
     /// clockwise one; backward from the full clockwise tilt to one step short of the full anticlockwise one.
     /// </summary>
-    public CeresShaftSweep Sweep { get; private set; }
+    private CeresShaftSweep Sweep { get; set; }
 
     /// <summary>The hand-over the shaft leaves each turn step in for the following room's main.</summary>
     private readonly ShaftTurnSetsDebrisWait _handOver;

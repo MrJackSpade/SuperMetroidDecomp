@@ -62,6 +62,6 @@ public sealed record MessageBoxLayer : DisplayLayer
     /// <param name="radiusPixels">The reveal half-height in pixels.</param>
     /// <param name="sheet">The room's message box images.</param>
     /// <exception cref="InvalidDataException">The sheet pictures no such form.</exception>
-    public static MessageBoxLayer Of(ShownMessage shown, int radiusPixels, MessageBoxSheet sheet) =>
+    private static MessageBoxLayer Of(ShownMessage shown, int radiusPixels, MessageBoxSheet sheet) =>
         new(Ensure.NotNull(sheet).Picture(shown), radiusPixels);
 }

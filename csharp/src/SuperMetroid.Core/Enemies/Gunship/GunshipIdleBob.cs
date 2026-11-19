@@ -13,7 +13,7 @@ public readonly record struct GunshipIdleBob
     private int Step { get; }
 
     /// <summary>Every step of the cycle, in the order the ship takes them.</summary>
-    public static IReadOnlyList<GunshipIdleBob> All { get; } =
+    private static IReadOnlyList<GunshipIdleBob> All { get; } =
         [.. Enumerable.Range(0, GunshipMotionDefinitions.IdleBobs.Length).Select(step => new GunshipIdleBob(step))];
 
     /// <summary>The cycle's first step.</summary>

@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 internal static class CeresFloorDrawings
 {
     /// <summary>The tiles of each cell <paramref name="frame"/>'s runs write, by floor cell.</summary>
-    internal static IReadOnlyDictionary<int, int> Cells(CeresFloorAnimationFrame frame)
+    private static IReadOnlyDictionary<int, int> Cells(CeresFloorAnimationFrame frame)
     {
         if (!CeresFloorDrawingDefinitions.Frames.TryGetValue(frame, out IReadOnlyList<CeresFloorRunDefinition>? rows))
             throw new InvalidDataException($"Unknown Ceres floor animation frame {frame}.");

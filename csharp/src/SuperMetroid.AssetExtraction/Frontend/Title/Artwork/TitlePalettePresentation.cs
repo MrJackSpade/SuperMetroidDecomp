@@ -16,7 +16,7 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
     /// <summary>The selected initial colours: the background colours, then the sprite colours, in the cartridge's order.</summary>
     internal readonly ImmutableArray<RgbColor> colours;
     /// <summary>Every installed ambient-program colour.</summary>
-    internal readonly Dictionary<PaletteFxColorKey, RgbColor> animatedColors;
+    private readonly Dictionary<PaletteFxColorKey, RgbColor> animatedColors;
 
     /// <summary>Holds the installed initial colours, every installed ambient colour and the skip-only inks.</summary>
     /// <param name="colours">The selected initial colours in the cartridge's order, which the import pipeline decoded.</param>

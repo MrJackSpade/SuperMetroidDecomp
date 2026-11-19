@@ -21,12 +21,12 @@ public sealed class AudioQueues
     /// stays first until it has played. No path holds more requests than the game's queue keeps without filling it,
     /// so the queue never refuses or overwrites one (#1692).
     /// </summary>
-    internal readonly Queue<QueuedMusic> Music = new();
+    private readonly Queue<QueuedMusic> Music = new();
     /// <summary>Each sound library's own queue of waiting requests.</summary>
-    internal readonly Dictionary<SoundEffectLibrary, SoundQueue> SoundQueues =
+    private readonly Dictionary<SoundEffectLibrary, SoundQueue> SoundQueues =
         SoundEffectLibraries.InQueueOrder.ToDictionary(library => library, _ => new SoundQueue());
     /// <summary>The request cycle each sound queue runs with its library, injected by the session's composition root.</summary>
-    internal readonly SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId> SoundHandshakes;
+    private readonly SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId> SoundHandshakes;
 
     /// <summary>The sound each of the three sound queues last asked its library for, as an acknowledgement of it, or none.</summary>
     internal SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> SentSoundRequests => SoundHandshakes.Requests;
@@ -37,7 +37,7 @@ public sealed class AudioQueues
     /// The request the music queue fetched and is waiting out the delay of, or none when its next pass fetches the
     /// next request from the queue.
     /// </summary>
-    internal PendingMusicDispatch? PendingMusic { get; private set; }
+    private PendingMusicDispatch? PendingMusic { get; set; }
     /// <summary>
     /// The sound-queue passes, <see cref="AudioQueueDefinitions.MusicChangeSoundDowntimePasses"/> from a music change, for
     /// which the change withdraws every library's sound request: counted once on each pass it withdraws them.
@@ -64,10 +64,10 @@ public sealed class AudioQueues
     }
 
     /// <summary>The music data set most recently loaded by a dispatched request, or null while only the shared sounds are loaded.</summary>
-    public MusicDataSet? DataSet { get; private set; }
+    private MusicDataSet? DataSet { get; set; }
 
     /// <summary>The track most recently played, or null after a stop or a data set change.</summary>
-    public MusicTrack? PlayingTrack { get; private set; }
+    private MusicTrack? PlayingTrack { get; set; }
 
     /// <summary>
     /// What phases waiting for the music to settle read: true while the music queue holds any request, including the one

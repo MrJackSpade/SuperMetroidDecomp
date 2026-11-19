@@ -11,7 +11,7 @@ public static class NoobTubeDebrisDefinitions
     private static readonly Offset16<RoomPixels> CrackOffset = new(96, 48);
 
     /// <summary>The bubbles' initial vertical speed: five pixels upward per update.</summary>
-    public static SignedEightEight BubbleInitialYVelocity { get; } = SignedEightEight.FromPixels(-5);
+    private static SignedEightEight BubbleInitialYVelocity { get; } = SignedEightEight.FromPixels(-5);
 
     /// <summary>The tube's crack, which spreads across the glass where the tube cracks.</summary>
     public static NoobTubePiece Crack { get; } =

@@ -74,7 +74,7 @@ internal sealed class CrocomireMelting
     /// </summary>
     /// <exception cref="InvalidOperationException">No boss body sheets are installed.</exception>
     /// <exception cref="InvalidDataException">His body sheet has no such melt image.</exception>
-    internal BossBodyFrame RequireCrocomireMeltingImage(CrocomireMeltingIllustration illustration) =>
+    private BossBodyFrame RequireCrocomireMeltingImage(CrocomireMeltingIllustration illustration) =>
         _bossArtwork.Body(BossBodyOwner.Crocomire).Frame(CrocomireMeltingFrameNames.Of(illustration));
 
     /// <summary>Starts the selected body melting animation, which the melt image just shown on his body layer goes with.</summary>
@@ -187,7 +187,7 @@ internal sealed class CrocomireMelting
     /// band at the new step, starting the bands over after the last, and his body shows the whole melt image as the step
     /// leaves it (#1513). Once every column is erased it shows nothing more, while the distortion runs on to its end.
     /// </summary>
-    internal void EraseNextCrocomireMeltingColumn(CrocomireDeathState death)
+    private void EraseNextCrocomireMeltingColumn(CrocomireDeathState death)
     {
         Ensure.NotNull(death);
         if (death.MeltColumnsErased == CrocomireMeltingDefinitions.ColumnCount)

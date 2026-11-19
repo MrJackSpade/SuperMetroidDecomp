@@ -69,7 +69,7 @@ internal sealed class KraidParts
     internal RoomEnemyPlace SecondNail => SecondNailReference.Place;
 
     /// <summary>His lint part <paramref name="part"/>.</summary>
-    internal RoomEnemyPlace Lint(KraidLintPart part) => part switch
+    private RoomEnemyPlace Lint(KraidLintPart part) => part switch
     {
         KraidLintPart.Top => TopLint,
         KraidLintPart.Middle => MiddleLint,

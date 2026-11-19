@@ -131,7 +131,7 @@ internal static class CrawlerAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<CrawlerSegment, Animation<CrawlerSegment>> StartingAt { get; } = new Dictionary<CrawlerSegment, Animation<CrawlerSegment>>
+    private static IReadOnlyDictionary<CrawlerSegment, Animation<CrawlerSegment>> StartingAt { get; } = new Dictionary<CrawlerSegment, Animation<CrawlerSegment>>
     {
         [P.SciserUpsideRight] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SciserUpsideRight)]),
         [P.SciserUpsideLeft] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SciserUpsideLeft)]),

@@ -76,7 +76,7 @@ public readonly record struct UnsignedSixteenSixteen
     public static UnsignedSixteenSixteen FromSixteenthsOfPixel(int sixteenths) => FromRaw(checked((uint)sixteenths * 4096u));
 
     /// <summary>A speed of <paramref name="twoHundredFiftySixths"/> 256ths of a pixel, which must not be negative.</summary>
-    public static UnsignedSixteenSixteen FromTwoHundredFiftySixthsOfPixel(int twoHundredFiftySixths) =>
+    private static UnsignedSixteenSixteen FromTwoHundredFiftySixthsOfPixel(int twoHundredFiftySixths) =>
         FromRaw(checked((uint)twoHundredFiftySixths * 256u));
 
     /// <summary>
@@ -165,7 +165,7 @@ public readonly record struct UnsignedSixteenSixteen
         FromTwoHundredFiftySixthsOfPixel(InTwoFiftySixths / Ensure.BetweenInclusive(1, int.MaxValue, divisor));
 
     /// <summary>This speed with its whole part replaced.</summary>
-    public UnsignedSixteenSixteen WithWhole(int whole) => new(whole, Fraction);
+    private UnsignedSixteenSixteen WithWhole(int whole) => new(whole, Fraction);
 
     /// <summary>
     /// This speed scaled by a whole <paramref name="factor"/>, zero or more (#2555): the product must fit the type.

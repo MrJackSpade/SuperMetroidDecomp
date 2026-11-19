@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 public sealed class IntroEyeTilemapPresentation
 {
     /// <summary>Four installed 3-by-2 eye patches in blink selector order, each its six row-major tiles.</summary>
-    internal readonly BackgroundTile[][] frames;
+    private readonly BackgroundTile[][] frames;
 
     /// <summary>Retains the four installed eye rectangles as loaded.</summary>
     private IntroEyeTilemapPresentation(BackgroundTile[][] frames) => this.frames = frames;

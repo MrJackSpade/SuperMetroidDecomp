@@ -46,13 +46,13 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
     private readonly DraygonCannonLook _look;
 
     /// <summary>Where the cannon is in its course.</summary>
-    internal DraygonCannonPhase Phase { get; private set; }
+    private DraygonCannonPhase Phase { get; set; }
 
     /// <summary>
     /// The hits the cannon has survived, 0 to 2; a cannon set up destroyed holds the destroying count. The hit that
     /// destroys a cannon, a third missile or any Super Missile, is not added.
     /// </summary>
-    internal int Hits { get; private set; }
+    private int Hits { get; set; }
 
     /// <summary>Whether a missile strike wakes the cannon: from its first update until a hit destroys it.</summary>
     internal bool WakeArmed { get; private set; }

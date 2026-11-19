@@ -63,7 +63,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
 
 
     /// <summary>The scrolling-sky updater, once the definition step has composed a sky room's main.</summary>
-    public ScrollingSkyState? ScrollingSky { get; private set; }
+    private ScrollingSkyState? ScrollingSky { get; set; }
 
     /// <summary>The turning floor the room shows, or null when it shows none (#1649).</summary>
     public RoomFloor? Floor { get; set; }

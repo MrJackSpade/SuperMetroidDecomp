@@ -16,7 +16,7 @@ internal sealed class EndingPostShot
     /// <summary>Rotation of the shot graphic, turned backward on each active rotation step and wrapping around the full turn.</summary>
     public RotationAngle Angle { get; private set; } = RotationAngle.Zero;
     /// <summary>Indicates that the shot graphic has reached its minimum zoom.</summary>
-    public bool RotationFinished { get; private set; }
+    private bool RotationFinished { get; set; }
     /// <summary>Signals that the ending hands over to the white-flash phase now that the hold has expired.</summary>
     public bool ReadyForWhiteFlash { get; private set; }
 

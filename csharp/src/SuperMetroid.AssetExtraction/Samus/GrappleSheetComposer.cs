@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 internal static class GrappleSheetComposer
 {
     /// <summary>Every rope-direction mirroring a segment is drawn with.</summary>
-    internal static IReadOnlyList<SpriteMirror> RopeMirrors { get; } =
+    private static IReadOnlyList<SpriteMirror> RopeMirrors { get; } =
         [SpriteMirror.None, SpriteMirror.Horizontal, SpriteMirror.Vertical, SpriteMirror.Horizontal | SpriteMirror.Vertical];
 
     /// <summary>Every frame the grapple sheet holds.</summary>

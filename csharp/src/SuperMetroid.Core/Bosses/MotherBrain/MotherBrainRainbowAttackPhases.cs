@@ -52,7 +52,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// <summary>
     /// Starts the beam proper once its charge has run out with no Power Bomb going off: the beam takes hold of Samus.
     /// </summary>
-    public void StartActiveBeam(SamusState samus)
+    private void StartActiveBeam(SamusState samus)
     {
         Ensure.NotNull(samus);
 

@@ -32,17 +32,25 @@ public sealed record RuntimeFramePolicy
     public bool ShowsHeldEscapeTimer { get; init; }
 
     /// <summary>
-    /// Whether the update runs main gameplay's update behind the time-up's white-out (#2509): the time-up, not main
-    /// gameplay, owns it, so the out-of-health check withholds the death of a Samus out of health without reserves, and
-    /// that update does not count the play time. The AUTO reserves' refill still begins. An update the time-up owns does not
-    /// return to it (#2518).
+    /// Whether main gameplay owns the update, rather than a game state that runs main gameplay's update behind its own
+    /// work (#2509, #2517): the fade-in, the pause's darkening and brightening, the time-up's white-out, the Ceres
+    /// departure, the death, leaving Zebes and the attract demo. Only main gameplay's own update admits Samus's pause check
+    /// and begins her death; under any other the out-of-health check withholds the death of a Samus out of health without
+    /// reserves, and that update does not count the play time. The AUTO reserves' refill begins under any of them.
+    /// </summary>
+    public bool MainGameplayOwnsUpdate { get; init; } = true;
+
+    /// <summary>
+    /// Whether the update runs main gameplay's update behind the time-up's white-out (#2509, #2518): an update the time-up
+    /// owns does not return the game to it.
     /// </summary>
     public bool RunsBehindTimeUp { get; init; }
 
     /// <summary>
     /// Whether the update's game state enters the AUTO reserves' refill or Samus's death that its out-of-health check sends
-    /// her to (#2519): main gameplay's update, which the pause's brightening and the time-up's white-out also run. The
-    /// check then freezes gameplay time itself, before the room shakes, so the update that begins either neither shakes
+    /// her to (#2519, #2517): main gameplay's update, which the pause's brightening and the time-up's white-out also run,
+    /// the pause's darkening, which enters the refill, and the refill's own update, whose completion can begin the death.
+    /// The check then freezes gameplay time itself, before the room shakes, so the update that begins either neither shakes
     /// the room nor counts its earthquake down; the game-state loop enters the refill or the death after the update.
     /// </summary>
     public bool EntersOutOfHealthRoute { get; init; }

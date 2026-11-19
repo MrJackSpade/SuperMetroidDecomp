@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Assets;
@@ -119,14 +120,11 @@ internal sealed class AcceptedFrameBoundary
             _backgroundScroll.BackgroundScroll,
             scope.Enemies.Earthquake.LastRoomShake);
         RoomFxOverlayRenderSnapshot? roomFxOverlay = scope.FxOverlay.CaptureForDisplay();
-        // Phantoon's wave and visibility, the statues' descent and the rainbow beam's colour latch with the rest of the
-        // frame, whatever kind of frame the room shows.
-        displays.Phantoon?.BodyWave.LatchDisplay();
-        if (displays.Phantoon is { } phantoonDisplay)
-            phantoonDisplay.BodyVisibility.LatchDisplay(phantoonDisplay.Death.PixelationSize);
-        scope.TourianStatues?.LatchDisplay();
-        displays.MotherBrain?.RainbowBeam.LatchDisplay();
-        MorphBallEyeBeamCone? eyeBeam = displays.MorphBallEyeBeam.LatchDisplay();
+        // Every displayed state the room keeps apart from its live state latches with the rest of the frame, whatever kind
+        // of frame the room shows: the enemies' and the room's own (#2571).
+        foreach (IDisplayLatch latch in scope.DisplayLatches)
+            latch.LatchDisplay();
+        MorphBallEyeBeamCone? eyeBeam = displays.LatchedBeamCone;
         GameplayLatchedScene scene = CaptureScene(scope);
         XrayRevealedBlocks? reveal = CaptureXrayReveal(scope, scene);
         // The room's pictures are named by what gameplay showed over its load, the frames its animations selected and, in
@@ -144,11 +142,11 @@ internal sealed class AcceptedFrameBoundary
         {
             // The floor Ceres Ridley's getaway flies over shows while he flies it (his room main computes it), with the
             // chamber's walls around it and the room's background plane in a band below it (#1545).
-            if (displays.CeresGetawayFloor is { } ridley)
+            if (displays.FlownFloor is { } flown)
             {
                 RoomLevelPlane band = level.BackgroundPlane;
                 return new PerspectiveFloorFrameLatch(hud, picturedHud, scrolls, roomFxOverlay, effectOverlay, eyeBeam, tints,
-                    CeresPerspectiveFloors.RidleyGetaway(ridley, displays.CeresGetawayChamberWalls), floor.Publish(),
+                    CeresPerspectiveFloors.RidleyGetaway(flown, displays.FlownFloorWalls), floor.Publish(),
                     new RoomBackgroundLayer(band.Cells, BlockPictures(scope, appearance, band, reveal)));
             }
             // The elevator shaft's floor shows while the shaft has its transform, which exists exactly while the room was
@@ -172,7 +170,7 @@ internal sealed class AcceptedFrameBoundary
             RoomBackgroundsOf(scope, appearance, new RoomBackgroundLayer(level.ForegroundPlane.Cells, pictures), background, bosses.Body),
             scene,
             bosses,
-            displays.Phantoon is { } phantoon ? PhantoonDisplaySnapshot.Capture(phantoon) : null,
+            displays.WavingBody,
             scope.FxOverlay.Fireflea is { } fireflea ? new LatchedFirefleaDarkness(fireflea.Tint) : null,
             // Only the statue room has statues, so only its frames carry a descent (#2385). The descent stops at its
             // authored distance, which holds the offset between minus that distance and zero (#1627).
@@ -232,8 +230,8 @@ internal sealed class AcceptedFrameBoundary
             : ShownRoomBackground.Nothing;
         // The text an escape shows over a layer, as its sequence describes it (#1555): Zebes's warning over the background, Ceres's
         // over the foreground, each drawn from the written picture sheet's frames for the inputs they depend on (#1466).
-        RoomOverlayPictures? backgroundText = WrittenText(scope, scope.Enemies.DisplaySources.ZebesWarning, appearance);
-        RoomOverlayPictures? foregroundText = WrittenText(scope, scope.Enemies.DisplaySources.CeresWarning, appearance);
+        RoomOverlayPictures? backgroundText = WrittenText(scope, scope.Enemies.DisplaySources.BackgroundWrittenOverlay, appearance);
+        RoomOverlayPictures? foregroundText = WrittenText(scope, scope.Enemies.DisplaySources.ForegroundWrittenOverlay, appearance);
         // The planes are shared until gameplay changes level data.
         return new RoomBackgrounds(foreground, shown, room.DoorSourceBackground, foregroundText, backgroundText, scope.Floor?.Publish());
     }

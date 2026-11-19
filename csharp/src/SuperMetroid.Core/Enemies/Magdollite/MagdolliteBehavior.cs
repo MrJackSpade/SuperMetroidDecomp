@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>The Magdollite species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, IRoomGlow
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Magdollite];
@@ -461,7 +461,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Counts down the room's lava glow once a Magdollite has started it, after the enemies' update; when the frame's
     /// time is up the glow steps to its next frame.
     /// </summary>
-    internal void StepGlow()
+    public void StepGlow()
     {
         if (!GlowRuns || _glow.StepToNewFrame() is null)
             return;

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>The Shutters species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEscapeShutterFlash
 {
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -40,7 +40,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// each frame of the flash replaces the one before it. A destroyed shutter, and any enemy that took its place since,
     /// shows no flash.
     /// </summary>
-    internal void ShowEscapeShutterFlash(ColourEffectFrame frame)
+    public void ShowEscapeShutterFlash(ColourEffectFrame frame)
     {
         PictureShade flash = ColourEffectShades.Of(ColourEffectColours.TourianShutters, frame);
         foreach (DestroyableShutterEntity shutter in _destroyableShutters)

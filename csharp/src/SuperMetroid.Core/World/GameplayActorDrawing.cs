@@ -2,6 +2,7 @@ using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Elevator;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Grapple;
@@ -75,7 +76,8 @@ internal sealed class GameplayActorDrawing
         {
             // The Ceres elevator is drawn in front of Samus, as both its definitions are. Projectiles in front of
             // Samus are drawn here, before Samus.
-            room.CeresElevatorArrival?.Draw(_sprites, room.Enemies.Presentation, room.Camera.PixelPosition);
+            foreach (IActorInFrontOfSamus actor in room.ActorsInFrontOfSamus)
+                actor.DrawInFrontOfSamus(_sprites, room.Enemies.Presentation, room.Camera.PixelPosition);
             // A hit burst among the effect actors is one of Samus's weapon effects: it shows the sheet of the beams she
             // has equipped as it is drawn, as her charge flare does (#1713).
             room.Enemies.Projectiles.DrawEnemyProjectilesInFrontOfSamus(
@@ -354,11 +356,10 @@ internal sealed class GameplayActorDrawing
 
         if (!deathOwnsSamus)
         {
-            // Once his animation starts, Ceres Ridley's scene draws the Baby Metroid (and the arena door's overlay) after
-            // every ordinary enemy layer, so the Baby shows at its own position in front of the frontmost enemies.
-            room.Enemies.Ceres.DrawCeresRidleyBabyAndDoorOverEnemies(
-                _sprites,
-                room.Camera.PixelPosition);
+            // An encounter that draws over every ordinary enemy layer (Ceres Ridley's Baby Metroid and arena door, once his
+            // animation starts) draws now, so it shows in front of the frontmost enemies.
+            foreach (IEnemyPassDraw draw in room.Enemies.PassDraws)
+                draw.DrawOverEnemies(_sprites, room.Camera.PixelPosition);
         }
     }
 }

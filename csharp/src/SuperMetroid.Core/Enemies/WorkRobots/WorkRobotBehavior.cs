@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>The work robot species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IRoomGlow
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.WorkRobot, EnemyDefinitionId.UnpoweredWorkRobot];
@@ -277,7 +277,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Plays the powered robots' glow on after the enemies' update unless it is stopped; when the step's time is up the
     /// glow shows its next step on every powered robot still in the place it set up and holds it for that step's hold.
     /// </summary>
-    internal void StepGlow()
+    public void StepGlow()
     {
         if (!GlowRuns)
             return;

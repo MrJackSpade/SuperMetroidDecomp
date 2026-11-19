@@ -552,9 +552,9 @@ internal sealed class RoomLoader
                     $"The door scroll finished before the loader initialized the arriving elevator in place {placement.Elevator.Ordinal}.");
             }
         }
-        _room.LoadedScope.Enemies.LoaderHooks.CompleteRinkaLoaderTimeCameraReads(loaderProgress.HasInitializedEnemyPlace, camera.PixelPosition);
-        if (completed && _room.LoadedScope.Enemies.LoaderHooks.HasDeferredRinkaLoaderTimeCameraReads)
-            throw new InvalidDataException("The door scroll finished before the loader initialized every special Rinka.");
+        _room.LoadedScope.Enemies.LoaderHooks.CompleteLoaderTimeCameraReads(loaderProgress.HasInitializedEnemyPlace, camera.PixelPosition);
+        if (completed && _room.LoadedScope.Enemies.LoaderHooks.HasDeferredLoaderTimeCameraReads)
+            throw new InvalidDataException("The door scroll finished before the loader initialized every enemy whose setup reads its camera.");
         samus.Position = state.SamusPosition;
         camera.PublishDoorSamusTravelAxis(state.Direction.IsVertical(), samus.Position.Whole);
         return completed;
@@ -958,12 +958,12 @@ internal sealed class RoomLoader
         // A main that acts on one of the room's enemies is composed with it now that the enemies have set up (#2486).
         if (room.State.MainBehavior is IRoomMainOverRoomEnemies overEnemies)
             overEnemies.ComposeOverRoomEnemies(scope, enemies);
-        // A live Ridley's encounter hides the HUD map and marks the map rows of his arena his encounter names explored:
+        // A present boss whose encounter hides the HUD map hides it and marks the map rows its encounter names explored:
         // Norfair's Ridley his arena's, Ceres Ridley none (#2485).
-        if (enemies.Ceres.RidleyPresent)
+        if (enemies.LoaderHooks.BossHidesMinimap)
         {
             _hud.DisableMinimapForBoss();
-            for (int row = 0; row < enemies.Ceres.ExploredArenaMapRows; row++)
+            for (int row = 0; row < enemies.LoaderHooks.BossArenaMapRows; row++)
                 _system.MarkExploredMapTile(room.Area, room.MapPosition + new Offset16<MapTiles>(0, row));
         }
         // The room state's setup starts its earthquake and its projectile once the enemies are loaded. The pre-Phantoon

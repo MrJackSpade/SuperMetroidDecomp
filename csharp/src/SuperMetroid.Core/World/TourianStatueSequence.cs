@@ -9,6 +9,7 @@ using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.World;
 
@@ -18,7 +19,7 @@ namespace SuperMetroid.Core.World;
 /// visiting the room must play each release before opening the elevator route.
 /// </summary>
 [RoomLifetime]
-public sealed class TourianStatueSequence
+public sealed class TourianStatueSequence : IDisplayLatch
 {
 
     /// <summary>The room's earthquake, which the descent shakes.</summary>
@@ -113,7 +114,7 @@ public sealed class TourianStatueSequence
     /// <summary>Background offset latched at the same frame boundary as the displayed sprite frame.</summary>
     public int DisplayedVerticalOffset { get; private set; }
     /// <summary>Captures the current background position for presentation with the corresponding sprite frame.</summary>
-    internal void LatchDisplay() => DisplayedVerticalOffset = VerticalOffset;
+    void IDisplayLatch.LatchDisplay() => DisplayedVerticalOffset = VerticalOffset;
 
     /// <summary>
     /// Restarts the room's statue sequence when the statues newly stand open while Samus is in the room: the statues

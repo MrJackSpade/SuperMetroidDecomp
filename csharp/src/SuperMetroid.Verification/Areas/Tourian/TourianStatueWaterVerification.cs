@@ -66,7 +66,7 @@ internal static class TourianStatueWaterVerification
         AssertTrue(GameplayEffectCapture.BuildWaterBackgroundHorizontalScrolls(displayed, Offset16<BackgroundPixels>.Zero) is null,
             "Special statue FX does not install ordinary-water BG2 X-wave HDMA");
         runtime.TourianStatues.Room.Descent = SignedSixteenSixteen.FromWholePixels(64);
-        runtime.TourianStatues.LatchDisplay();
+        ((SuperMetroid.Core.Enemies.IDisplayLatch)runtime.TourianStatues).LatchDisplay();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var descending = runtime.PublishDisplayFrame().OrdinaryBase.Room;
         // The view shows the background row below the descent's camera row at the screen's top (#1514): with the camera at

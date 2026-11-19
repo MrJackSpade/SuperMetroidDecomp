@@ -102,9 +102,11 @@ internal sealed class EnemyFramePhase
             // no-input fallback kept beside the prospective pose.
             _player.ClearProspectivePoses();
         }
-        if (!_freeze.TimeIsFrozen && room.Enemies.DisplaySources.MotherBrain is { Head: { } rainbowHead } rainbowBrain)
+        // An encounter's work after the pass (Mother Brain's rainbow beam) steps here on an unfrozen update.
+        if (!_freeze.TimeIsFrozen)
         {
-            rainbowBrain.StepRainbowBeam(rainbowHead.Position.Whole, room.Enemies.BossArtworkBinding.MotherBrainRainbowColors);
+            foreach (IStepAfterEnemyPass step in room.Enemies.AfterPass)
+                step.StepAfterEnemyPass();
         }
         if (result.Has<CeresEscapeStarted>())
         {
@@ -131,12 +133,10 @@ internal sealed class EnemyFramePhase
             // cleared as the elevator updated; clearing her bombs and the shared cooldown here completes it.
             room.BombProjectiles.Reset();
         }
-        // Ceres Ridley draws the Baby and door over every enemy only once his animation
-        // starts. Before the reveal he draws them directly
-        // during the enemy pass, so emit the Baby/door sprites now, before queued enemy layers.
-        room.Enemies.Ceres.DrawCeresRidleyImmediateBabyAndDoor(
-            _sprites,
-            room.Camera.PixelPosition);
+        // An encounter that draws during the enemy pass (Ceres Ridley's Baby and door before his reveal) emits its sprites
+        // now, before the queued enemy layers.
+        foreach (IEnemyPassDraw draw in room.Enemies.PassDraws)
+            draw.DrawDuringEnemyPass(_sprites, room.Camera.PixelPosition);
         samus.Kinematics.InteractiveEnemies = room.Enemies.InteractiveCollisionBodies;
         if (result.Reports(GunshipFrameEvent.EntryStarted))
         {

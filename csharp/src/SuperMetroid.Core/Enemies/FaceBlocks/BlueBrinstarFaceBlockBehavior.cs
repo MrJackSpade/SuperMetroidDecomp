@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.FaceBlocks;
 
 /// <summary>The blue Brinstar face block species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntityFactory, IRoomGlow
 {
     /// <summary>The pass-through shot reaction for this species' private shot reaction.</summary>
     internal static EnemyShotReaction PassThroughShot { get; } =
@@ -127,7 +127,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     /// Counts down the room's glow once a block has started it, after the enemies' update; when the step's time is up
     /// the glow steps to its next level on every face block. A door transition pauses it.
     /// </summary>
-    internal void StepGlow()
+    public void StepGlow()
     {
         if (!_glowStarted || _doorPassage.IsUnderWay || _glow.StepToNewFrame() is null)
             return;

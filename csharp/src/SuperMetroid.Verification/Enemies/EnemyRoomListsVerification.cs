@@ -82,7 +82,7 @@ internal static class EnemyRoomListsVerification
                     continue;
                 AssertTrue(index < records.Length, $"graphics set $B4:{pointer:X4} compiles its native record {index}");
                 ushort placementWord = ReadVerificationWord(bus, address + 2);
-                RoomEnemyGraphicsSetMember native = EnemyDefinitionIds.TryFromHeaderPointer(definitionWord, out EnemyDefinitionId enemy)
+                RoomEnemyGraphicsSetMember native = EnemyDefinitionIdsConstants2.TryFromHeaderPointer(definitionWord, out EnemyDefinitionId enemy)
                     ? new RoomEnemyGraphicsSetMember(enemy)
                     : new RoomEnemyGraphicsSetMember(SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWords.UnplacedArtworkHeaders
                         .Decode(definitionWord, "header of unplaced enemy artwork"));

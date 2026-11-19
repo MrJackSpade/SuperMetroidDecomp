@@ -342,6 +342,14 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.KraidNailTurned315,
     ];
 
+    /// <summary>The frames <c>Bosses/MotherBrain/BabyMetroidBehavior.cs</c> shows.</summary>
+    private static readonly EnemyFrameId[] BabyMetroid =
+    [
+        EnemyFrameId.BabyMetroidNucleiBright,
+        EnemyFrameId.BabyMetroidNucleiGlowing,
+        EnemyFrameId.BabyMetroidNucleiDark,
+    ];
+
     /// <summary>The frames <c>Bosses/MotherBrain/BabyMetroidCutsceneBehavior.cs</c> shows.</summary>
     private static readonly EnemyFrameId[] BabyMetroidCutscene =
     [
@@ -409,14 +417,6 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.RinkaOrange,
         EnemyFrameId.RinkaRed,
         EnemyFrameId.RinkaDarkRed,
-    ];
-
-    /// <summary>The frames <c>Bosses/MotherBrain/BabyMetroidBehavior.cs</c> shows.</summary>
-    private static readonly EnemyFrameId[] BabyMetroid =
-    [
-        EnemyFrameId.BabyMetroidNucleiBright,
-        EnemyFrameId.BabyMetroidNucleiGlowing,
-        EnemyFrameId.BabyMetroidNucleiDark,
     ];
 
     /// <summary>The frames <c>Bosses/MotherBrain/ZebetiteBehavior.cs</c> shows.</summary>
@@ -1821,26 +1821,6 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.PuyoAirborneClosing,
     ];
 
-    /// <summary>The frames <c>Enemies/Rios/HoltzBehavior.cs</c> shows.</summary>
-    private static readonly EnemyFrameId[] Holtz =
-    [
-        EnemyFrameId.HoltzWingsRaised,
-        EnemyFrameId.HoltzWingsLevel,
-        EnemyFrameId.HoltzWingsLevelDropped,
-        EnemyFrameId.HoltzWingsLifting,
-        EnemyFrameId.HoltzWingsTilting,
-        EnemyFrameId.HoltzWingsOpening,
-        EnemyFrameId.HoltzWingsSpread,
-        EnemyFrameId.HoltzWingsFullySpread,
-        EnemyFrameId.HoltzWingsClosing,
-        EnemyFrameId.HoltzWingsFolding,
-        EnemyFrameId.HoltzWingsFolded,
-        EnemyFrameId.HoltzWingsSwept,
-        EnemyFrameId.HoltzFlameLarge,
-        EnemyFrameId.HoltzFlameMedium,
-        EnemyFrameId.HoltzFlameSmall,
-    ];
-
     /// <summary>The frames <c>Enemies/Rios/GerutaBehavior.cs</c> shows.</summary>
     private static readonly EnemyFrameId[] Geruta =
     [
@@ -1860,6 +1840,26 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.GerutaFallingFlameLarge,
         EnemyFrameId.GerutaFallingFlameMedium,
         EnemyFrameId.GerutaFallingFlameSmall,
+    ];
+
+    /// <summary>The frames <c>Enemies/Rios/HoltzBehavior.cs</c> shows.</summary>
+    private static readonly EnemyFrameId[] Holtz =
+    [
+        EnemyFrameId.HoltzWingsRaised,
+        EnemyFrameId.HoltzWingsLevel,
+        EnemyFrameId.HoltzWingsLevelDropped,
+        EnemyFrameId.HoltzWingsLifting,
+        EnemyFrameId.HoltzWingsTilting,
+        EnemyFrameId.HoltzWingsOpening,
+        EnemyFrameId.HoltzWingsSpread,
+        EnemyFrameId.HoltzWingsFullySpread,
+        EnemyFrameId.HoltzWingsClosing,
+        EnemyFrameId.HoltzWingsFolding,
+        EnemyFrameId.HoltzWingsFolded,
+        EnemyFrameId.HoltzWingsSwept,
+        EnemyFrameId.HoltzFlameLarge,
+        EnemyFrameId.HoltzFlameMedium,
+        EnemyFrameId.HoltzFlameSmall,
     ];
 
     /// <summary>The frames <c>Enemies/Rios/RioBehavior.cs</c> shows.</summary>
@@ -2399,12 +2399,12 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.KraidLintTop] = KraidLintBottomFrames,
             [EnemyDefinitionId.KraidFirstNail] = KraidFirstNailFrames,
             [EnemyDefinitionId.KraidSecondNail] = KraidFirstNailFrames,
+            [EnemyDefinitionId.BabyMetroid] = BabyMetroid,
             [EnemyDefinitionId.BabyMetroidCutscene] = BabyMetroidCutscene,
             [EnemyDefinitionId.MotherBrainBody] = MotherBrainBodyFrames,
             [EnemyDefinitionId.MotherBrainHead] = MotherBrainHeadFrames,
             [EnemyDefinitionId.MotherBrainTubes] = MotherBrainTubesFrames,
             [EnemyDefinitionId.Rinka] = Rinka,
-            [EnemyDefinitionId.BabyMetroid] = BabyMetroid,
             [EnemyDefinitionId.Zebetite] = Zebetite,
             [EnemyDefinitionId.PhantoonBody] = Phantoon,
             [EnemyDefinitionId.PhantoonEye] = Phantoon,
@@ -2492,8 +2492,8 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.Polyp] = Polyp,
             [EnemyDefinitionId.Powamp] = Powamp,
             [EnemyDefinitionId.Puyo] = Puyo,
-            [EnemyDefinitionId.Holtz] = Holtz,
             [EnemyDefinitionId.Geruta] = Geruta,
+            [EnemyDefinitionId.Holtz] = Holtz,
             [EnemyDefinitionId.Rio] = Rio,
             [EnemyDefinitionId.GrappleRipper] = GrappleRipperFrames,
             [EnemyDefinitionId.Ripper] = RipperFrames,

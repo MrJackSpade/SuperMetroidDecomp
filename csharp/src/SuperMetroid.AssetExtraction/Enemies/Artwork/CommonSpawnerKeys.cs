@@ -29,7 +29,7 @@ internal static class CommonSpawnerKeys
         [CommonSpawner.CeresFallingTiles] = "CeresFallingTiles",
         [CommonSpawner.GunshipLiftoffDust] = "GunshipLiftoffDust",
         [CommonSpawner.SkreeMetareeParticles] = "SkreeMetareeParticles",
-        [CommonSpawner.RoomMains] = "RoomMainRoutines",
+        [CommonSpawner.CeresFallingDebrisMain] = "RoomMainRoutines",
         [CommonSpawner.CeresElevatorArrivalState] = "CeresElevatorArrivalState",
         [CommonSpawner.RidleyProjectiles] = "RidleyProjectiles",
         [CommonSpawner.RidleyTail] = "RidleyTail",

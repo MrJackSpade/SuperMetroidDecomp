@@ -1250,6 +1250,58 @@ internal static class SpawnedObjectFrameDefinitions
         RoomEffectActorKind.Smoke,
     ];
 
+    /// <summary>The projectile frames <c>Bosses/MotherBrain/BabyMetroidBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly EnemyProjectileFrameId[] BabyMetroidSharedProjectiles =
+    [
+        EnemyProjectileFrameId.EnemyDeathFireballSmall,
+        EnemyProjectileFrameId.EnemyDeathFireballLarge,
+        EnemyProjectileFrameId.EnemyDeathFlamingRing,
+        EnemyProjectileFrameId.EnemyDeathFireballHuge,
+        EnemyProjectileFrameId.EnemyDeathWideRing,
+        EnemyProjectileFrameId.EnemyDeathWideRingFading,
+        EnemyProjectileFrameId.EnemyDeathSpark,
+        EnemyProjectileFrameId.EnemyDeathStarburst,
+        EnemyProjectileFrameId.EnemyDeathEmbers,
+        EnemyProjectileFrameId.EnemyPickupEnergySmallDark,
+        EnemyProjectileFrameId.EnemyPickupEnergySmallRinged,
+        EnemyProjectileFrameId.EnemyPickupEnergySmallBright,
+        EnemyProjectileFrameId.EnemyPickupEnergyScattered,
+        EnemyProjectileFrameId.EnemyPickupEnergyBigBright,
+        EnemyProjectileFrameId.EnemyPickupEnergyBigRinged,
+        EnemyProjectileFrameId.EnemyPickupEnergyBigDark,
+        EnemyProjectileFrameId.EnemyPickupMissile,
+        EnemyProjectileFrameId.EnemyPickupMissileFlashing,
+        EnemyProjectileFrameId.EnemyPickupSuperMissile,
+        EnemyProjectileFrameId.EnemyPickupSuperMissileFlashing,
+        EnemyProjectileFrameId.EnemyPickupPowerBombBright,
+        EnemyProjectileFrameId.EnemyPickupPowerBombFading,
+        EnemyProjectileFrameId.EnemyPickupPowerBombDim,
+        EnemyProjectileFrameId.EnemyPickupPowerBombFlashing,
+        EnemyProjectileFrameId.EnemyDeathFireballCluster,
+        EnemyProjectileFrameId.EnemyDeathStarburstCluster,
+        EnemyProjectileFrameId.EnemyDeathEmbersCluster,
+        EnemyProjectileFrameId.EnemyDeathFourFireballsAmidEmbers,
+        EnemyProjectileFrameId.EnemyDeathFourFireballsAmidAsh,
+        EnemyProjectileFrameId.EnemyDeathFourEmbersFlyingApart,
+        EnemyProjectileFrameId.EnemyDeathFourEmbersSpreading,
+        EnemyProjectileFrameId.EnemyDeathFourEmbersCooling,
+        EnemyProjectileFrameId.EnemyDeathFourEmbersDimming,
+        EnemyProjectileFrameId.EnemyDeathFourAshDrifting,
+        EnemyProjectileFrameId.EnemyDeathFourAshSpreading,
+        EnemyProjectileFrameId.EnemyDeathFourAshSinking,
+        EnemyProjectileFrameId.EnemyDeathFourAshFalling,
+        EnemyProjectileFrameId.EnemyDeathFourAshSettling,
+        EnemyProjectileFrameId.EnemyDeathFourAshDispersing,
+    ];
+
+    /// <summary>The room effect actors <c>Bosses/MotherBrain/BabyMetroidBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] BabyMetroidSharedEffectActors =
+    [
+        RoomEffectActorKind.BigDustCloud,
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
+    ];
+
     /// <summary>The projectile frames <c>Bosses/MotherBrain/BabyMetroidCutsceneBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly EnemyProjectileFrameId[] BabyMetroidCutsceneSharedProjectiles =
     [
@@ -1778,58 +1830,6 @@ internal static class SpawnedObjectFrameDefinitions
 
     /// <summary>The room effect actors <c>Bosses/MotherBrain/RinkaBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly RoomEffectActorKind[] RinkaSharedEffectActors =
-    [
-        RoomEffectActorKind.BigDustCloud,
-        RoomEffectActorKind.SmallExplosion,
-        RoomEffectActorKind.Smoke,
-    ];
-
-    /// <summary>The projectile frames <c>Bosses/MotherBrain/BabyMetroidBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly EnemyProjectileFrameId[] BabyMetroidSharedProjectiles =
-    [
-        EnemyProjectileFrameId.EnemyDeathFireballSmall,
-        EnemyProjectileFrameId.EnemyDeathFireballLarge,
-        EnemyProjectileFrameId.EnemyDeathFlamingRing,
-        EnemyProjectileFrameId.EnemyDeathFireballHuge,
-        EnemyProjectileFrameId.EnemyDeathWideRing,
-        EnemyProjectileFrameId.EnemyDeathWideRingFading,
-        EnemyProjectileFrameId.EnemyDeathSpark,
-        EnemyProjectileFrameId.EnemyDeathStarburst,
-        EnemyProjectileFrameId.EnemyDeathEmbers,
-        EnemyProjectileFrameId.EnemyPickupEnergySmallDark,
-        EnemyProjectileFrameId.EnemyPickupEnergySmallRinged,
-        EnemyProjectileFrameId.EnemyPickupEnergySmallBright,
-        EnemyProjectileFrameId.EnemyPickupEnergyScattered,
-        EnemyProjectileFrameId.EnemyPickupEnergyBigBright,
-        EnemyProjectileFrameId.EnemyPickupEnergyBigRinged,
-        EnemyProjectileFrameId.EnemyPickupEnergyBigDark,
-        EnemyProjectileFrameId.EnemyPickupMissile,
-        EnemyProjectileFrameId.EnemyPickupMissileFlashing,
-        EnemyProjectileFrameId.EnemyPickupSuperMissile,
-        EnemyProjectileFrameId.EnemyPickupSuperMissileFlashing,
-        EnemyProjectileFrameId.EnemyPickupPowerBombBright,
-        EnemyProjectileFrameId.EnemyPickupPowerBombFading,
-        EnemyProjectileFrameId.EnemyPickupPowerBombDim,
-        EnemyProjectileFrameId.EnemyPickupPowerBombFlashing,
-        EnemyProjectileFrameId.EnemyDeathFireballCluster,
-        EnemyProjectileFrameId.EnemyDeathStarburstCluster,
-        EnemyProjectileFrameId.EnemyDeathEmbersCluster,
-        EnemyProjectileFrameId.EnemyDeathFourFireballsAmidEmbers,
-        EnemyProjectileFrameId.EnemyDeathFourFireballsAmidAsh,
-        EnemyProjectileFrameId.EnemyDeathFourEmbersFlyingApart,
-        EnemyProjectileFrameId.EnemyDeathFourEmbersSpreading,
-        EnemyProjectileFrameId.EnemyDeathFourEmbersCooling,
-        EnemyProjectileFrameId.EnemyDeathFourEmbersDimming,
-        EnemyProjectileFrameId.EnemyDeathFourAshDrifting,
-        EnemyProjectileFrameId.EnemyDeathFourAshSpreading,
-        EnemyProjectileFrameId.EnemyDeathFourAshSinking,
-        EnemyProjectileFrameId.EnemyDeathFourAshFalling,
-        EnemyProjectileFrameId.EnemyDeathFourAshSettling,
-        EnemyProjectileFrameId.EnemyDeathFourAshDispersing,
-    ];
-
-    /// <summary>The room effect actors <c>Bosses/MotherBrain/BabyMetroidBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomEffectActorKind[] BabyMetroidSharedEffectActors =
     [
         RoomEffectActorKind.BigDustCloud,
         RoomEffectActorKind.SmallExplosion,
@@ -4177,6 +4177,16 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The room effect actors <see cref="SpawnedObjectOwner.MotherBrainTankGlass"/>'s sheet holds.</summary>
     private static readonly RoomEffectActorKind[] MotherBrainTankGlassSheetEffectActors = [];
 
+    /// <summary>The projectile frames <c>CeresFallingDebrisMain</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
+    private static readonly EnemyProjectileFrameId[] CommonCeresFallingDebrisMainProjectiles =
+    [
+        EnemyProjectileFrameId.CeresFallingDebrisLight,
+        EnemyProjectileFrameId.CeresFallingDebrisDark,
+    ];
+
+    /// <summary>The room effect actors <c>CeresFallingDebrisMain</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
+    private static readonly RoomEffectActorKind[] CommonCeresFallingDebrisMainEffectActors = [];
+
     /// <summary>The projectile frames <c>DownwardGateBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
     private static readonly EnemyProjectileFrameId[] CommonDownwardGateBehaviorProjectiles =
     [
@@ -4489,16 +4499,6 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The room effect actors <c>RidleyProjectiles</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
     private static readonly RoomEffectActorKind[] CommonRidleyProjectilesEffectActors = [];
 
-    /// <summary>The projectile frames the rooms' own behaviour spawns onto the shared sheet of the sets whose rooms run it.</summary>
-    private static readonly EnemyProjectileFrameId[] CommonRoomMainProjectiles =
-    [
-        EnemyProjectileFrameId.CeresFallingDebrisLight,
-        EnemyProjectileFrameId.CeresFallingDebrisDark,
-    ];
-
-    /// <summary>The room effect actors the rooms' own behaviour spawns onto the shared sheet of the sets whose rooms run it.</summary>
-    private static readonly RoomEffectActorKind[] CommonRoomMainEffectActors = [];
-
     /// <summary>The projectile frames <c>SaveStationElectricity</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
     private static readonly EnemyProjectileFrameId[] CommonSaveStationElectricityProjectiles =
     [
@@ -4578,12 +4578,12 @@ internal static class SpawnedObjectFrameDefinitions
             [EnemyDefinitionId.KraidLintTop] = new(KraidSharedProjectiles, KraidSharedEffectActors),
             [EnemyDefinitionId.KraidFirstNail] = new(KraidSharedProjectiles, KraidSharedEffectActors),
             [EnemyDefinitionId.KraidSecondNail] = new(KraidSharedProjectiles, KraidSharedEffectActors),
+            [EnemyDefinitionId.BabyMetroid] = new(BabyMetroidSharedProjectiles, BabyMetroidSharedEffectActors),
             [EnemyDefinitionId.BabyMetroidCutscene] = new(BabyMetroidCutsceneSharedProjectiles, BabyMetroidCutsceneSharedEffectActors),
             [EnemyDefinitionId.MotherBrainBody] = new(MotherBrainSharedProjectiles, MotherBrainSharedEffectActors),
             [EnemyDefinitionId.MotherBrainHead] = new(MotherBrainSharedProjectiles, MotherBrainSharedEffectActors),
             [EnemyDefinitionId.MotherBrainTubes] = new(MotherBrainSharedProjectiles, MotherBrainSharedEffectActors),
             [EnemyDefinitionId.Rinka] = new(RinkaSharedProjectiles, RinkaSharedEffectActors),
-            [EnemyDefinitionId.BabyMetroid] = new(BabyMetroidSharedProjectiles, BabyMetroidSharedEffectActors),
             [EnemyDefinitionId.Zebetite] = new(ZebetiteSharedProjectiles, ZebetiteSharedEffectActors),
             [EnemyDefinitionId.PhantoonBody] = new(PhantoonSharedProjectiles, PhantoonSharedEffectActors),
             [EnemyDefinitionId.PhantoonEye] = new(PhantoonSharedProjectiles, PhantoonSharedEffectActors),
@@ -4655,6 +4655,7 @@ internal static class SpawnedObjectFrameDefinitions
     /// </summary>
     internal static IReadOnlyList<CommonSpawnedObjects> Common { get; } =
     [
+        new(CommonSpawner.CeresFallingDebrisMain, new(CommonCeresFallingDebrisMainProjectiles, CommonCeresFallingDebrisMainEffectActors)),
         new(CommonSpawner.DownwardGateBehavior, new(CommonDownwardGateBehaviorProjectiles, CommonDownwardGateBehaviorEffectActors)),
         new(CommonSpawner.EnemyDeathsAndDrops, new(CommonEnemyDeathsAndDropsProjectiles, CommonEnemyDeathsAndDropsEffectActors)),
         new(CommonSpawner.EnemyProjectileEngineCreateBombDudShot, new(CommonEnemyProjectileEngineCreateBombDudShotProjectiles, CommonEnemyProjectileEngineCreateBombDudShotEffectActors)),
@@ -4664,7 +4665,6 @@ internal static class SpawnedObjectFrameDefinitions
         new(CommonSpawner.EyeDoorBehavior, new(CommonEyeDoorBehaviorProjectiles, CommonEyeDoorBehaviorEffectActors)),
         new(CommonSpawner.OldTourianEscapeShaftWallBehavior, new(CommonOldTourianEscapeShaftWallBehaviorProjectiles, CommonOldTourianEscapeShaftWallBehaviorEffectActors)),
         new(CommonSpawner.RidleyProjectiles, new(CommonRidleyProjectilesProjectiles, CommonRidleyProjectilesEffectActors)),
-        new(CommonSpawner.RoomMains, new(CommonRoomMainProjectiles, CommonRoomMainEffectActors)),
         new(CommonSpawner.SaveStationElectricity, new(CommonSaveStationElectricityProjectiles, CommonSaveStationElectricityEffectActors)),
     ];
 }

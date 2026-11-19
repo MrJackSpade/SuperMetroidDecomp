@@ -38,8 +38,15 @@ internal sealed class CeresEncounter(RidleyEncounter encounter, CeresRidleyBehav
         ceresRidley.BabyScene.PublishCeresBaby(sprites, camera);
 
     /// <inheritdoc/>
-    public void PublishRidleyRoomDoorOverlay(SpriteFrameBuffer sprites, Position16<RoomPixels> camera) =>
-        doors.PublishRidleyRoomDoorOverlay(sprites, camera);
+    /// <remarks>
+    /// The overlay is a picture of Ceres Ridley's fight, installed with his room's pictures: a visit to his room after he is
+    /// gone, where the door hides itself as it would for the overlay, shows no door there.
+    /// </remarks>
+    public void PublishRidleyRoomDoorOverlay(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
+    {
+        if (encounter.CeresRidley is not null)
+            doors.PublishRidleyRoomDoorOverlay(sprites, camera);
+    }
 
     /// <inheritdoc/>
     public void RunCeresRidleyGetawayRoomMain(SamusState samus, RoomFloor floor, int frameCounter) =>

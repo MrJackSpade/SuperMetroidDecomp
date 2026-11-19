@@ -80,7 +80,7 @@ public readonly record struct FixedPosition<TSpace>(FixedCoordinate X, FixedCoor
     public FixedPosition<TSpace> AdvanceY(SignedSixteenSixteen delta) => WithY(delta.AddTo(Y.Whole, Y.Fraction));
 
     /// <summary>Moves each axis by its velocity, the fraction's overflow passing on to the whole pixels, which wrap.</summary>
-    public FixedPosition<TSpace> MovedBy(EightEightVector<TSpace> velocity) =>
+    public FixedPosition<TSpace> MovedBy(PixelVelocity<TSpace> velocity) =>
         WithX(X.MovedBy(velocity.X)).WithY(Y.MovedBy(velocity.Y));
 
     /// <summary>Applies a displacement on each axis, the fraction's overflow passing on to the whole pixels, which wrap.</summary>

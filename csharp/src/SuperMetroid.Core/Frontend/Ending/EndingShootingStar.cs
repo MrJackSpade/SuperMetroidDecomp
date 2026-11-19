@@ -20,7 +20,7 @@ internal struct EndingShootingStar
     /// </summary>
     internal FixedVector<ScreenPixels> Position;
     /// <summary>The star's velocity, which its acceleration builds up.</summary>
-    internal EightEightVector<ScreenPixels> Velocity;
+    internal PixelVelocity<ScreenPixels> Velocity;
 
     /// <summary>What the star shows.</summary>
     internal readonly EndingShootingStarLook Look => Flight.Showing;

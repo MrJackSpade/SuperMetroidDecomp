@@ -292,7 +292,7 @@ internal sealed class IntroBabyDiscoveryState
     }
 
     /// <summary>The velocity of the baby's rise and two-axis dance.</summary>
-    private EightEightVector<ScreenPixels> BabyVelocity { get; set; }
+    private PixelVelocity<ScreenPixels> BabyVelocity { get; set; }
 
     /// <summary>Countdown from the apex of the baby's rise to the start of its dance.</summary>
     private int BabyIdleTimer { get; set; }

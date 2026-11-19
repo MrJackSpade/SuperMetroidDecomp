@@ -31,7 +31,7 @@ public sealed class DeadSidehopperEnemyState
     /// The launch of its next hop in its four-hop cycle (<see cref="DeadSidehopperLaunchDefinitions.Launches"/>): each
     /// landing steps it on, the first following the fourth (#2432).
     /// </summary>
-    internal CyclingSequence<EightEightVector<RoomPixels>> NextHop { get; set; } = CyclingSequence<EightEightVector<RoomPixels>>.StartOf(DeadSidehopperLaunchDefinitions.Launches);
+    internal CyclingSequence<PixelVelocity<RoomPixels>> NextHop { get; set; } = CyclingSequence<PixelVelocity<RoomPixels>>.StartOf(DeadSidehopperLaunchDefinitions.Launches);
 
     /// <summary>Draining AI updates since the drain last stepped, 0..7; the eighth steps the drain and restarts the count.</summary>
     public int DrainStepUpdates { get; internal set; }
@@ -67,7 +67,7 @@ public sealed class DeadSidehopperEnemyState
     };
 
     /// <summary>The hop velocity, horizontal and vertical, in pixels per update.</summary>
-    public EightEightVector<RoomPixels> Velocity { get; internal set; }
+    public PixelVelocity<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>
     /// Pre-rot AI updates counted since Samus first stood on the corpse, from zero: the update that counts

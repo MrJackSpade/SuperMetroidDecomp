@@ -170,7 +170,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
     {
         // A splash marks the update the particle crosses the surface in either direction.
         bool submergedBefore = IsBelowWaterSurface(projectile);
-        projectile.Position = projectile.Position.Advance(projectile.Velocity.ToSixteenSixteen());
+        projectile.Position = projectile.Position.Advance(projectile.Velocity.ToDisplacement());
         bool submergedAfter = IsBelowWaterSurface(projectile);
         if (submergedBefore != submergedAfter)
             SpawnTourianSplash(projectile);

@@ -5,4 +5,4 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="BulletVelocity">The bullet's launch velocity.</param>
 internal readonly record struct MotherBrainTurretDirectionDefinition(
     Offset16<RoomPixels> BulletOffset,
-    EightEightVector<RoomPixels> BulletVelocity);
+    PixelVelocity<RoomPixels> BulletVelocity);

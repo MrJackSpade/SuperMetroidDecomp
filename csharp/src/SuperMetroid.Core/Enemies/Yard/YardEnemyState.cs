@@ -15,7 +15,7 @@ public sealed class YardEnemyState
     /// The crawl velocity in pixels per update, each axis used either along the surface or as a probe into it according
     /// to its movement.
     /// </summary>
-    public EightEightVector<RoomPixels> CrawlingVelocity { get; internal set; }
+    public PixelVelocity<RoomPixels> CrawlingVelocity { get; internal set; }
 
     /// <summary>
     /// Airborne animation facing, selected from the eight surface directions.

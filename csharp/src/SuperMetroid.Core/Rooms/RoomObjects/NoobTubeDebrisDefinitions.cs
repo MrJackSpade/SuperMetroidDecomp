@@ -15,23 +15,23 @@ public static class NoobTubeDebrisDefinitions
 
     /// <summary>The tube's crack, which spreads across the glass where the tube cracks.</summary>
     public static NoobTubePiece Crack { get; } =
-        new(NoobTubeProjectileDefinition.Crack, CrackOffset, EightEightVector<RoomPixels>.Zero, new NoobTubePieceStart.AtSegment(P.Crack));
+        new(NoobTubeProjectileDefinition.Crack, CrackOffset, PixelVelocity<RoomPixels>.Zero, new NoobTubePieceStart.AtSegment(P.Crack));
 
     /// <summary>
     /// The ten glass shards in the order they burst, each placed from the crack and flying off at its own speed.
     /// </summary>
     public static ImmutableArray<NoobTubePiece> Shards { get; } =
     [
-        Shard(new(-56, 8), new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-3, 2), SignedEightEight.FromPixelFraction(5, 4)), S.DownOutward),
-        Shard(new(-64, -12), new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-3, 2), SignedEightEight.FromPixels(-1)), S.UpOutward),
-        Shard(new(-20, -26), new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-5, 8), SignedEightEight.FromPixelFraction(-13, 8)), S.UpSteep),
-        Shard(new(-40, -24), new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-9, 8), SignedEightEight.FromPixelFraction(-9, 8)), S.UpDiagonalInner),
-        Shard(new(-64, -32), new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-9, 8), SignedEightEight.FromPixelFraction(-9, 8)), S.UpDiagonalOuter),
-        Shard(new(-48, 28), new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-5, 4), SignedEightEight.FromPixelFraction(7, 4)), S.DownDiagonal),
-        Shard(new(-24, 16), new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-3, 8), SignedEightEight.FromPixelFraction(9, 4)), S.DownOuter),
-        Shard(new(-40, -8), new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-11, 8), SignedEightEight.FromPixelFraction(-3, 8)), S.Outward),
-        Shard(new(0, -24), new EightEightVector<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixelFraction(-9, 8)), S.Up),
-        Shard(new(-8, 16), new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-1, 4), SignedEightEight.FromPixelFraction(3, 2)), S.DownInner),
+        Shard(new(-56, 8), new PixelVelocity<RoomPixels>(SignedEightEight.FromPixelFraction(-3, 2), SignedEightEight.FromPixelFraction(5, 4)), S.DownOutward),
+        Shard(new(-64, -12), new PixelVelocity<RoomPixels>(SignedEightEight.FromPixelFraction(-3, 2), SignedEightEight.FromPixels(-1)), S.UpOutward),
+        Shard(new(-20, -26), new PixelVelocity<RoomPixels>(SignedEightEight.FromPixelFraction(-5, 8), SignedEightEight.FromPixelFraction(-13, 8)), S.UpSteep),
+        Shard(new(-40, -24), new PixelVelocity<RoomPixels>(SignedEightEight.FromPixelFraction(-9, 8), SignedEightEight.FromPixelFraction(-9, 8)), S.UpDiagonalInner),
+        Shard(new(-64, -32), new PixelVelocity<RoomPixels>(SignedEightEight.FromPixelFraction(-9, 8), SignedEightEight.FromPixelFraction(-9, 8)), S.UpDiagonalOuter),
+        Shard(new(-48, 28), new PixelVelocity<RoomPixels>(SignedEightEight.FromPixelFraction(-5, 4), SignedEightEight.FromPixelFraction(7, 4)), S.DownDiagonal),
+        Shard(new(-24, 16), new PixelVelocity<RoomPixels>(SignedEightEight.FromPixelFraction(-3, 8), SignedEightEight.FromPixelFraction(9, 4)), S.DownOuter),
+        Shard(new(-40, -8), new PixelVelocity<RoomPixels>(SignedEightEight.FromPixelFraction(-11, 8), SignedEightEight.FromPixelFraction(-3, 8)), S.Outward),
+        Shard(new(0, -24), new PixelVelocity<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixelFraction(-9, 8)), S.Up),
+        Shard(new(-8, 16), new PixelVelocity<RoomPixels>(SignedEightEight.FromPixelFraction(-1, 4), SignedEightEight.FromPixelFraction(3, 2)), S.DownInner),
     ];
 
     /// <summary>The six released-air bubbles in the order they appear, each placed from the tube's block.</summary>
@@ -63,11 +63,11 @@ public static class NoobTubeDebrisDefinitions
     internal static readonly RandomSampleField FallingSwayStart = new(8, 8);
 
     /// <summary>Shard <paramref name="shard"/>, <paramref name="fromCrack"/> from the crack, flying off at <paramref name="velocity"/>.</summary>
-    private static NoobTubePiece Shard(Offset16<RoomPixels> fromCrack, EightEightVector<RoomPixels> velocity, NoobTubeShard shard) =>
+    private static NoobTubePiece Shard(Offset16<RoomPixels> fromCrack, PixelVelocity<RoomPixels> velocity, NoobTubeShard shard) =>
         new(NoobTubeProjectileDefinition.Shard, CrackOffset + fromCrack, velocity, new NoobTubePieceStart.ShardFlight(shard));
 
     /// <summary>A bubble at <paramref name="offset"/> from the tube's block, rising at the bubbles' initial speed.</summary>
     private static NoobTubePiece Bubble(Offset16<RoomPixels> offset) =>
         new(NoobTubeProjectileDefinition.ReleasedAirBubble, offset,
-            new EightEightVector<RoomPixels>(SignedEightEight.Zero, BubbleInitialYVelocity), new NoobTubePieceStart.AtSegment(P.ReleasedAirBubble));
+            new PixelVelocity<RoomPixels>(SignedEightEight.Zero, BubbleInitialYVelocity), new NoobTubePieceStart.AtSegment(P.ReleasedAirBubble));
 }

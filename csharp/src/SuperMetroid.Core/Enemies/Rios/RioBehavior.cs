@@ -64,7 +64,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
                 }
 
-                state.Velocity = new EightEightVector<RoomPixels>(
+                state.Velocity = new PixelVelocity<RoomPixels>(
                     RioLaunchDefinitions.RioXVelocity,
                     RioLaunchDefinitions.RioYVelocity);
                 if (samus.Position.X.Whole < place.Position.X.Whole)
@@ -112,7 +112,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (state.Velocity.Y.IsNegative)
                 {
                     state.SavedHorizontalVelocity = state.Velocity.X;
-                    state.Velocity = new EightEightVector<RoomPixels>(SignedEightEight.Zero, SignedEightEight.Zero);
+                    state.Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.Zero, SignedEightEight.Zero);
                     state.Action = RioAction.HoveringTowardSamus;
                 }
                 else if (state.AnimationFinished)
@@ -155,7 +155,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 // its climb back to its perch at a 256th of a pixel an update.
                 if (place.Position.Y.Whole >= samus.Position.Y.Whole)
                 {
-                    state.Velocity = new EightEightVector<RoomPixels>(
+                    state.Velocity = new PixelVelocity<RoomPixels>(
                         state.SavedHorizontalVelocity,
                         RioLaunchDefinitions.ReturnYVelocity);
                     state.Action = RioAction.BouncingBackToPerch;

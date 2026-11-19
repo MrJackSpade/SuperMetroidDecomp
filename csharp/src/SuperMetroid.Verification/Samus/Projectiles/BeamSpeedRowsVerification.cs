@@ -44,7 +44,7 @@ internal static class BeamSpeedRowsVerification
             int y = direction is 0 or 1 or 8 or 9 ? -speed : direction is 3 or 4 or 5 or 6 ? speed : 0;
             // The fire frame's beam pre-instruction adds one direction-indexed acceleration
             // word to the speed-row velocity before the slot is observable.
-            EightEightVector<RoomPixels> acceleration = SamusProjectileAccelerations.For(SamusProjectileWordCodec.DecodeDirection(direction)).Beam;
+            PixelVelocity<RoomPixels> acceleration = SamusProjectileAccelerations.For(SamusProjectileWordCodec.DecodeDirection(direction)).Beam;
             int ax = acceleration.X.InTwoHundredFiftySixthsOfPixel;
             int ay = acceleration.Y.InTwoHundredFiftySixthsOfPixel;
             AssertEqual(unchecked((short)(x + ax)), shot.Velocity.X.InTwoHundredFiftySixthsOfPixel, $"beam {combination} direction {direction} native speed-row X");

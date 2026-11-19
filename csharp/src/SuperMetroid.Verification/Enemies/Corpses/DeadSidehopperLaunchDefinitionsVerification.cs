@@ -35,8 +35,8 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
                 state.Action = DeadSidehopperAction.PostLandingDelay;
                 state.StateTimer = raw;
                 state.DrainStage = drainStage;
-                state.NextHop = CyclingSequence<EightEightVector<RoomPixels>>.At(DeadSidehopperLaunchDefinitions.Launches, phase);
-                state.Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(4660, 4660);
+                state.NextHop = CyclingSequence<PixelVelocity<RoomPixels>>.At(DeadSidehopperLaunchDefinitions.Launches, phase);
+                state.Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(4660), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(4660));
                 state.Playback = new(DeadTourianAnimations.StartingWith(DeadTourianSegment.SidehopperCorpse), AnimationPlace.StartOfAnimation);
                 place.AnimationClock.HoldFor(9);
                 dispatch(place, state, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), default);

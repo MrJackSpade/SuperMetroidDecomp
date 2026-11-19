@@ -220,8 +220,7 @@ internal static class TypedSineProductsVerification
         {
             Bearing bearing = Bearing.Up.TurnedBySteps(raw);
             TrigonometryAngle heading = bearing.ToMirroredTrigonometryAngle();
-            var volley = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(
-                Trigonometry.SignedSine(heading) * 4, Trigonometry.SignedSine(heading - TrigonometryAngle.QuarterTurn) * 4);
+            var volley = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(Trigonometry.SignedSine(heading) * 4), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(Trigonometry.SignedSine(heading - TrigonometryAngle.QuarterTurn) * 4));
             AssertEqual(volley, CrocomireCombat.CalculateCrocomireProjectileVelocity(bearing), $"Crocomire's volley velocity at bearing {raw}");
 
             var angle = new TrigonometryAngle(raw);

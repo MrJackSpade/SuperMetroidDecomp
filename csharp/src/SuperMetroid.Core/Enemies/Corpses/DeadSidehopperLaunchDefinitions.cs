@@ -7,7 +7,7 @@ public static class DeadSidehopperLaunchDefinitions
     /// The launches of the corpse's four-hop cycle, in the order it takes them after each landing, the first following the
     /// fourth (#2432): 1.75, 1.125 and 1.125 pixels an update rightward and 2 upward, then 3 rightward and 4 upward.
     /// </summary>
-    public static IReadOnlyList<EightEightVector<RoomPixels>> Launches { get; } =
+    public static IReadOnlyList<PixelVelocity<RoomPixels>> Launches { get; } =
     [
         new(SignedEightEight.FromPixelFraction(7, 4), -SignedEightEight.FromPixels(2)), new(SignedEightEight.FromPixelFraction(9, 8), -SignedEightEight.FromPixels(2)),
         new(SignedEightEight.FromPixelFraction(9, 8), -SignedEightEight.FromPixels(2)), new(SignedEightEight.FromPixels(3), -SignedEightEight.FromPixels(4)),
@@ -17,7 +17,7 @@ public static class DeadSidehopperLaunchDefinitions
     /// The victim's first hop, as its room loads: three eighths of a pixel an update rightward and a pixel an update
     /// downward.
     /// </summary>
-    public static EightEightVector<RoomPixels> FirstHop { get; } = new(SignedEightEight.FromPixelFraction(3, 8), SignedEightEight.FromPixels(1));
+    public static PixelVelocity<RoomPixels> FirstHop { get; } = new(SignedEightEight.FromPixelFraction(3, 8), SignedEightEight.FromPixels(1));
 
     /// <summary>How much a rising hop slows each update: an eighth of a pixel an update.</summary>
     public static SignedEightEight RisingGravity { get; } = SignedEightEight.FromPixelFraction(1, 8);

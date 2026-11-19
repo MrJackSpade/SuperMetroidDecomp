@@ -8,7 +8,7 @@ internal static class FakeKraidProjectiles
     /// <paramref name="direction"/> and the shots' common rise.
     /// </summary>
     /// <exception cref="InvalidDataException"><paramref name="spit"/> is neither of the two shots.</exception>
-    internal static EightEightVector<RoomPixels> SpitLaunch(HorizontalDirection direction, FakeKraidSpit spit)
+    internal static PixelVelocity<RoomPixels> SpitLaunch(HorizontalDirection direction, FakeKraidSpit spit)
     {
         SignedEightEight horizontal = SignedEightEight.FromPixels(
             FakeKraidProjectileDefinitions.SpitSpeedPixels.TryGetValue(spit, out int speed)

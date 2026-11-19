@@ -352,7 +352,7 @@ internal sealed class TorizoAttacks
     /// speed its sine and the vertical speed its negative cosine, the sine a quarter turn back. The samples lie within one
     /// unit either way, so the velocity never exceeds the speed.
     /// </summary>
-    internal static EightEightVector<RoomPixels> VelocityAlong(SignedEightEight speed, TrigonometryAngle heading) =>
+    internal static PixelVelocity<RoomPixels> VelocityAlong(SignedEightEight speed, TrigonometryAngle heading) =>
         new(Trigonometry.MultiplySignedSine(speed, heading),
             Trigonometry.MultiplySignedSine(speed, heading - TrigonometryAngle.QuarterTurn));
 
@@ -571,10 +571,10 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>A randomized launch's velocity jitter (#2335): its X drawn from the room's random numbers before its Y.</summary>
-    private EightEightVector<RoomPixels> DrawVelocityJitter()
+    private PixelVelocity<RoomPixels> DrawVelocityJitter()
     {
         SignedEightEight x = VelocityJitter(_room.Random.Generate());
-        return new EightEightVector<RoomPixels>(x, VelocityJitter(_room.Random.Generate()));
+        return new PixelVelocity<RoomPixels>(x, VelocityJitter(_room.Random.Generate()));
     }
 
     /// <summary>A randomized projectile's jitter on one axis: the random number's lowest 256-value field, less 128, in 256ths of a pixel.</summary>

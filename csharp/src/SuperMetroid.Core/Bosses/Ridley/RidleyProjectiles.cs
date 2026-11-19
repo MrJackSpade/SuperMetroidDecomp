@@ -60,7 +60,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
         // The speed is scaled by the game's sine and cosine of the aim, the cosine being the sine a quarter turn on:
         // each takes the speed by the sine's size in 256ths and keeps the sine's direction, so neither part of the
         // velocity ever exceeds the speed of five pixels an update.
-        state.FireballVelocity = new EightEightVector<RoomPixels>(
+        state.FireballVelocity = new PixelVelocity<RoomPixels>(
             EnemyMath.SineSpeed(RidleyFireballDefinitions.FireballSpeed, angle),
             EnemyMath.SineSpeed(RidleyFireballDefinitions.FireballSpeed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
     }
@@ -132,7 +132,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
             pairAxis == Axis.Horizontal ? RidleyFireballSegment.HorizontalCenter : RidleyFireballSegment.VerticalCenter));
         center.Position = center.Position.WithWhole(position);
         // The afterburn's centre starts at rest; a new projectile otherwise keeps the velocity its place last held.
-        center.Velocity = EightEightVector<RoomPixels>.Zero;
+        center.Velocity = PixelVelocity<RoomPixels>.Zero;
         center.State = new RidleyAfterburnChainState(remaining);
     }
 
@@ -158,7 +158,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
     internal void SpawnDirectionalAfterburn(
         EnemyProjectile source,
         RoomEnemyProjectileKind kind,
-        EightEightVector<RoomPixels> velocity)
+        PixelVelocity<RoomPixels> velocity)
     {
         EnemyProjectile? afterburn = _projectiles.AllocateEnemyProjectile();
         if (afterburn is null)

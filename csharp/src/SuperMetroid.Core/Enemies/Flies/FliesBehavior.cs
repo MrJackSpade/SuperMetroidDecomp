@@ -135,7 +135,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The dive toward Samus along <paramref name="angle"/>, the mirrored trigonometry angle of her bearing: the dive's speed
     /// across along its sine and its speed down along its sine a quarter turn behind (the negative cosine).
     /// </summary>
-    internal static EightEightVector<RoomPixels> DiveVelocity(TrigonometryAngle angle) => new(
+    internal static PixelVelocity<RoomPixels> DiveVelocity(TrigonometryAngle angle) => new(
         EnemyMath.SineVelocity(angle, FlyMotionDefinitions.DiveAcrossSpeed),
         EnemyMath.SineVelocity(angle - TrigonometryAngle.QuarterTurn, FlyMotionDefinitions.DiveDownSpeed));
 
@@ -143,14 +143,14 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     /// One update's step around the circle at <paramref name="angle"/>: one pixel along its sine across and one along its
     /// sine a quarter turn behind (the negative cosine) down.
     /// </summary>
-    internal static EightEightVector<RoomPixels> CircleStep(TrigonometryAngle angle) => new(
+    internal static PixelVelocity<RoomPixels> CircleStep(TrigonometryAngle angle) => new(
         EnemyMath.SineVelocity(angle, 1),
         EnemyMath.SineVelocity(angle - TrigonometryAngle.QuarterTurn, 1));
 
     /// <summary>Steps the fly around its circle at its angle, across before down.</summary>
     private static void MoveFlyAccordingToAngle(RoomEnemyPlace place, FlyEnemyState state)
     {
-        EightEightVector<RoomPixels> step = CircleStep(state.Angle.ToTrigonometryAngle());
+        PixelVelocity<RoomPixels> step = CircleStep(state.Angle.ToTrigonometryAngle());
         place.Position = place.Position.AdvanceX(step.X.ToSixteenSixteenDelta());
         place.Position = place.Position.AdvanceY(step.Y.ToSixteenSixteenDelta());
     }
@@ -158,7 +158,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Moves the fly by its dive or retreat velocity, to a fraction of a pixel.</summary>
     private static void MoveFlyAccordingToVelocities(RoomEnemyPlace place, FlyEnemyState state)
     {
-        place.Position = place.Position.Advance(state.Velocity.ToSixteenSixteen());
+        place.Position = place.Position.Advance(state.Velocity.ToDisplacement());
     }
 
     /// <summary>Advances Flies's typed animation.</summary>

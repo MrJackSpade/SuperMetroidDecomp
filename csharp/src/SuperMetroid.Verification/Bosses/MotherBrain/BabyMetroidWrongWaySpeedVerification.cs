@@ -21,7 +21,7 @@ internal static class BabyMetroidWrongWaySpeedVerification
         baby.Initialize(FixedPosition<RoomPixels>.FromStoredParts(0, 0x1400, 0, 0x3100));
         baby.Phase = BabyMetroidCutscenePhase.MoveToFinalChargeStart;
         baby.Position = FixedPosition<RoomPixels>.FromWhole(new(0x0133, 0x004d)).WithFractionsOf(baby.Position);
-        baby.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0x015f), new SignedEightEight(0x012b));
+        baby.Velocity = new PixelVelocity<RoomPixels>(new SignedEightEight(0x015f), new SignedEightEight(0x012b));
 
         // Layer-1 X zero puts X $133 beyond the $120-wide vaguely-on-screen band.
         baby.Step(samus, HeadOf(motherBrain), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);

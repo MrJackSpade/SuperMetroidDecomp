@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal readonly record struct TorizoRandomizedProjectileDefinition(
     TorizoProjectileSegment Animation,
     Offset16<RoomPixels> Offset,
-    EightEightVector<RoomPixels> BaseVelocity);
+    PixelVelocity<RoomPixels> BaseVelocity);

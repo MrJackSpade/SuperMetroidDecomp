@@ -1039,7 +1039,7 @@ public static class SamusGrappleMovement
         grapple.PoseChangeAutoFireTimer = 0;
         grapple.RopeLength = 0;
         grapple.RopeLengthDelta = 0;
-        grapple.ExtensionVelocity = default(EightEightVector<RoomPixels>);
+        grapple.ExtensionVelocity = default(PixelVelocity<RoomPixels>);
         grapple.EndpointOffset = FixedVector<RoomPixels>.Zero;
         grapple.CancelFromConnectedPose = false;
         SamusGrappleBeamDrawing.ClearFlareAnimation(grapple);

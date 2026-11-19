@@ -78,7 +78,7 @@ public sealed class BabyMetroidCutsceneState
     internal Offset16<RoomPixels> SignedPlace => new(CoordinateAxis.AsSigned(Position.X.Whole), CoordinateAxis.AsSigned(Position.Y.Whole));
 
     /// <summary>Velocity in pixels per update.</summary>
-    public EightEightVector<RoomPixels> Velocity { get; internal set; }
+    public PixelVelocity<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>The curved entrance's speed, zero through fourteen pixels an update.</summary>
     public SignedEightEight Speed { get; private set; }
@@ -800,7 +800,7 @@ public sealed class BabyMetroidCutsceneState
     {
         // The velocity moves the position in 256ths of a pixel: a fraction past a whole pixel
         // carries into the whole pixels, and the position's finer part is unchanged.
-        Position = Position.Advance(Velocity.ToSixteenSixteen());
+        Position = Position.Advance(Velocity.ToDisplacement());
     }
 
     /// <summary>

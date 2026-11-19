@@ -312,7 +312,7 @@ internal sealed class MotherBrainBody
             RoomEnemyProjectileKind.MotherBrainHandBeamCharging,
             _projectileAttacks.Projectile,
             graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading));
-        beam.Velocity = EightEightVector<RoomPixels>.Zero;
+        beam.Velocity = PixelVelocity<RoomPixels>.Zero;
         beam.Position = beam.Position.WithFractionX(0).WithFractionY(0);
         beam.Position = beam.Position.WithWhole(state.Body.Position.Whole + MotherBrainFightDefinitions.HandOffset);
 
@@ -321,7 +321,7 @@ internal sealed class MotherBrainBody
         TrigonometryAngle angle = EnemyMath.CalculateBearing(samus.Position.Whole - beam.Position.Whole)
             .ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
         state.HandBeamNextAngle = angle;
-        state.HandBeamNextVelocity = new EightEightVector<RoomPixels>(
+        state.HandBeamNextVelocity = new PixelVelocity<RoomPixels>(
             EnemyMath.SineSpeed(MotherBrainHandBeamDefinitions.Speed, angle),
             EnemyMath.SineSpeed(MotherBrainHandBeamDefinitions.Speed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
 

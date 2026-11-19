@@ -35,8 +35,8 @@ internal static class TypedTurnsAndZoomVerification
         for (int pixels = sbyte.MinValue; pixels <= sbyte.MaxValue; pixels++)
             AssertEqual(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(pixels * 256), SignedEightEight.FromPixels(pixels), $"{pixels} whole pixels an update");
         AssertThrows<ArgumentOutOfRangeException>(() => SignedEightEight.FromPixels(sbyte.MaxValue + 1), "a whole-pixel speed past the type's range fails");
-        AssertEqual(EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-1472, 40), EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-1472, 40), "a vector in 256ths keeps both words");
-        AssertEqual(default(EightEightVector<RoomPixels>), EightEightVector<RoomPixels>.Zero, "the zero vector is no velocity");
+        AssertEqual(new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1472), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(40)), new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1472), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(40)), "a vector in 256ths keeps both words");
+        AssertEqual(default(PixelVelocity<RoomPixels>), PixelVelocity<RoomPixels>.Zero, "the zero vector is no velocity");
         AssertEqual(SignedSixteenSixteen.FromParts(-4, 32768), KraidPlatformMovement.FiringDisplacement, "Kraid's lint fires three and a half pixels leftward");
     }
 

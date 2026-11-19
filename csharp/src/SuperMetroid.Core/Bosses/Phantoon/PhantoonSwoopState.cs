@@ -10,7 +10,7 @@ public sealed class PhantoonSwoopState
     public bool Requested { get; internal set; }
 
     /// <summary>The swoop's velocity in pixels an update.</summary>
-    public EightEightVector<RoomPixels> Velocity { get; internal set; }
+    public PixelVelocity<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>
     /// The X the swoop chases, which sweeps out by two pixels an update to its turn at

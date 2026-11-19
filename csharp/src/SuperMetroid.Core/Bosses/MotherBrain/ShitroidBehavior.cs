@@ -601,7 +601,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole),
                 CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole)));
             RotationAngle angle = RotationAngle.Zero - sourceAngle;
-            state.Velocity += new EightEightVector<RoomPixels>(
+            state.Velocity += new PixelVelocity<RoomPixels>(
                 EnemyMath.SineSpeed(ShitroidFlightDefinitions.ContactPushSpeed, angle.ToTrigonometryAngle()),
                 EnemyMath.SineSpeed(
                     ShitroidFlightDefinitions.ContactPushSpeed,
@@ -647,7 +647,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         RotationAngle angle = RotationAngle.Zero - sourceAngle;
         // The recoil strength is a multiple of the damage, capped at its limit.
         SignedEightEight magnitude = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(Math.Min(ShitroidFightDefinitions.RecoilPerDamage * collisionDamage, ShitroidFightDefinitions.RecoilLimit));
-        state.Velocity += new EightEightVector<RoomPixels>(
+        state.Velocity += new PixelVelocity<RoomPixels>(
             EnemyMath.SineSpeed(magnitude, angle.ToTrigonometryAngle()),
             EnemyMath.SineSpeed(
                 magnitude,

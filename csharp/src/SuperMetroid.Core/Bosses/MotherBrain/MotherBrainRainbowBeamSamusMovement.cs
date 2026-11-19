@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 public sealed class MotherBrainRainbowBeamSamusMovement
 {
     /// <summary>The velocity the beam forces on Samus.</summary>
-    public EightEightVector<RoomPixels> CustomVelocity { get; private set; }
+    public PixelVelocity<RoomPixels> CustomVelocity { get; private set; }
 
     /// <summary>
     /// The beam angle the aim step sets; zero points down and the

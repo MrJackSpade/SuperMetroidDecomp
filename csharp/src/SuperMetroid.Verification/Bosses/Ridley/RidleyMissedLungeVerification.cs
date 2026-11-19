@@ -45,7 +45,7 @@ internal static class RidleyMissedLungeVerification
             place.Health = 1000;
             state.Phase = NorfairRidleyPhase.GrabApproach;
             state.Flight.FacingDirection = facing;
-            state.Flight.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
+            state.Flight.Velocity = new PixelVelocity<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
             state.Flight.HitRoomBoundary = false;
             state.ZeroHealthLungeCount = 0;
             state.FightMode = RidleyFightMode.Fighting;

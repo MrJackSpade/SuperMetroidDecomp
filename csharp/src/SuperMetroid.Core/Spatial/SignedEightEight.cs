@@ -99,6 +99,13 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>
         Wrapped(velocity.RawValue + acceleration.RawValue);
 
     /// <summary>
+    /// The velocity scaled by a whole <paramref name="factor"/>, as the game's velocity arithmetic multiplies it: a product
+    /// past the largest positive value continues from the most negative one and the reverse (<see cref="Wrapped"/>).
+    /// </summary>
+    public static SignedEightEight operator *(SignedEightEight velocity, int factor) =>
+        Wrapped(velocity.InTwoHundredFiftySixthsOfPixel * factor);
+
+    /// <summary>
     /// The velocity after one update's <paramref name="acceleration"/>, for a velocity whose owner keeps it far inside the
     /// type's range: a sum outside the range fails instead of continuing from the other end.
     /// </summary>

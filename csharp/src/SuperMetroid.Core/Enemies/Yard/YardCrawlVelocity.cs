@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Yard;
 public static class YardCrawlVelocity
 {
     /// <summary>The crawl velocity <paramref name="speed"/> gives on each axis in <paramref name="direction"/>: the speed, or the speed reversed.</summary>
-    public static EightEightVector<RoomPixels> Apply(SignedEightEight speed, YardDirection direction)
+    public static PixelVelocity<RoomPixels> Apply(SignedEightEight speed, YardDirection direction)
     {
         SignedEightEight negative = speed.Negated();
         YardCrawlHeading heading = Ensure.Listed(YardVelocityDefinitions.Headings, direction);

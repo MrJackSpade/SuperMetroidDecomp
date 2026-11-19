@@ -24,7 +24,7 @@ public sealed class ShitroidEnemyState
     public HorizontalDirection DepartureSide { get; internal set; }
 
     /// <summary>Velocity in pixels per update.</summary>
-    public EightEightVector<RoomPixels> Velocity { get; internal set; }
+    public PixelVelocity<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>
     /// The membrane's pulse playing (#2259, #2404): its eight phases looping at its pace

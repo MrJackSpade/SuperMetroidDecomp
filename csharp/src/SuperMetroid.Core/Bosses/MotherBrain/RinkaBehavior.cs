@@ -198,7 +198,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case RinkaAction.Flying:
-                place.Position = place.Position.Advance(state.Velocity.ToSixteenSixteen());
+                place.Position = place.Position.Advance(state.Velocity.ToDisplacement());
                 if (RinkaIsOutsideFlightWindow(place))
                     RecycleRinkaAfterLeavingViewport(place, state);
                 return;

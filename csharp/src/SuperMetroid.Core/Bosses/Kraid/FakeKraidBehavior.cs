@@ -225,7 +225,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void SpawnFakeKraidSpit(
         RoomEnemyPlace source,
         int xOffset,
-        EightEightVector<RoomPixels> velocity)
+        PixelVelocity<RoomPixels> velocity)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)

@@ -26,7 +26,7 @@ public sealed class CrawlerEnemyState
     /// onto meanwhile is read from the zero velocity's signs, which reversing leaves unchanged. Separate directions would
     /// turn where the game does not.
     /// </remarks>
-    public EightEightVector<RoomPixels> Velocity { get; internal set; }
+    public PixelVelocity<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>
     /// The current settling, crawling or falling behaviour; the surface the crawler shows sets which way it crawls.

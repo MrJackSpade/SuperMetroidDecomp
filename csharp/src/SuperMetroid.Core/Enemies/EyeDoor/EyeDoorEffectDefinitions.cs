@@ -18,10 +18,10 @@ internal static class EyeDoorEffectDefinitions
     internal static readonly Offset16<RoomPixels> SweatOrigin = new(-8, 16);
 
     /// <summary>A left-facing eye's sweat drifts left a quarter pixel and falls two pixels per update.</summary>
-    internal static readonly EightEightVector<RoomPixels> LeftSweatLaunch = new(-SignedEightEight.FromPixelFraction(1, 4), SignedEightEight.FromPixels(2));
+    internal static readonly PixelVelocity<RoomPixels> LeftSweatLaunch = new(-SignedEightEight.FromPixelFraction(1, 4), SignedEightEight.FromPixels(2));
 
     /// <summary>A right-facing eye's sweat drifts right a quarter pixel and falls two pixels per update.</summary>
-    internal static readonly EightEightVector<RoomPixels> RightSweatLaunch = new(SignedEightEight.FromPixelFraction(1, 4), SignedEightEight.FromPixels(2));
+    internal static readonly PixelVelocity<RoomPixels> RightSweatLaunch = new(SignedEightEight.FromPixelFraction(1, 4), SignedEightEight.FromPixels(2));
 
     /// <summary>A falling sweat drop's downward acceleration each update.</summary>
     internal static readonly SignedEightEight SweatGravity = SignedEightEight.FromPixelFraction(3, 64);

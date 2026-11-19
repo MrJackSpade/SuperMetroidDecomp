@@ -518,7 +518,7 @@ internal sealed class BeamFiring
     /// pixels per update: the base speed along the direction plus the motion it inherits from Samus. Each axis wraps as
     /// a velocity does, so an unauthored speed that passes the end of the range continues from the other end.
     /// </summary>
-    internal static EightEightVector<RoomPixels> LaunchVelocity(
+    internal static PixelVelocity<RoomPixels> LaunchVelocity(
         ProjectileLaunchInheritance inheritance,
         SamusProjectileDirection direction,
         SignedEightEight baseSpeed)

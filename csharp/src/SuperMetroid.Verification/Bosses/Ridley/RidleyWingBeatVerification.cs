@@ -63,7 +63,7 @@ internal static class RidleyWingBeatVerification
     {
         RidleyFlightState flight = new NorfairRidleyState().Flight;
         flight.Wings.Countdown = RidleyWingDefinitions.TakeOffCountdown;
-        flight.Velocity = new EightEightVector<RoomPixels>(x, y);
+        flight.Velocity = new PixelVelocity<RoomPixels>(x, y);
         return flight;
     }
 

@@ -18,6 +18,6 @@ internal static class CrawlerMotionDefinitions
     /// <summary>
     /// The crawl speed, half a pixel per update on each axis, a crawler placed without one takes after its first landing.
     /// </summary>
-    internal static readonly EightEightVector<RoomPixels> DefaultCrawlSpeed =
+    internal static readonly PixelVelocity<RoomPixels> DefaultCrawlSpeed =
         new(SignedEightEight.FromPixelFraction(1, 2), SignedEightEight.FromPixelFraction(1, 2));
 }

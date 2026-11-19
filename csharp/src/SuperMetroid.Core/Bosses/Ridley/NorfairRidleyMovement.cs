@@ -17,7 +17,7 @@ internal static class NorfairRidleyMovement
 
         Position16<RoomPixels> at = place.Position.Whole;
         Offset16<RoomPixels> fromTarget = at - target;
-        flight.Velocity = new EightEightVector<RoomPixels>(
+        flight.Velocity = new PixelVelocity<RoomPixels>(
             AccelerateNorfairRidleyAxis(
                 new SeekingVelocityRun(flight.Velocity.X, at.X, target.X),
                 fromTarget.X,

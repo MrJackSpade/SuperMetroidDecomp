@@ -369,7 +369,7 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>Projects a projectile angle into its sideways and vertical speeds: its sine and negative cosine at the volley's speed.</summary>
-    internal static EightEightVector<RoomPixels> CalculateCrocomireProjectileVelocity(Bearing bearing)
+    internal static PixelVelocity<RoomPixels> CalculateCrocomireProjectileVelocity(Bearing bearing)
     {
         // The bearing is used as a heading without conversion, so X is its sine and Y its negative cosine.
         TrigonometryAngle heading = bearing.ToMirroredTrigonometryAngle();

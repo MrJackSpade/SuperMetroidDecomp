@@ -335,7 +335,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectile projectile,
         int cameraY)
     {
-        projectile.Position = projectile.Position.Advance(projectile.Velocity.ToSixteenSixteen());
+        projectile.Position = projectile.Position.Advance(projectile.Velocity.ToDisplacement());
 
         if (projectile.Velocity.Y.IsNegative)
         {

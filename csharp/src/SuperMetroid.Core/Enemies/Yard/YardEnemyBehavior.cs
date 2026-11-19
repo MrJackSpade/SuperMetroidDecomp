@@ -436,7 +436,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             : CrawlerSurfaceOrientation.UpsideRight;
         // Surface direction can still describe a wall or ceiling. The landing instead uses
         // the new floor-facing block side for its downward probe and horizontal sign.
-        var landing = new EightEightVector<RoomPixels>(state.CrawlSpeed, state.CrawlSpeed);
+        var landing = new PixelVelocity<RoomPixels>(state.CrawlSpeed, state.CrawlSpeed);
         state.CrawlingVelocity = state.BlockSide == CrawlerSurfaceOrientation.UpsideRight ? landing.ReversedX() : landing;
         place.Frame = EnemyFrameId.Empty;
         state.Movement = YardMovement.HoldingStill;

@@ -50,17 +50,17 @@ internal static class PowampMotionDefinitions
     /// The acceleration of a spike flying in each direction: an eighth of a pixel an update, each update, along each axis
     /// the direction leans along.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<CompassDirection, EightEightVector<RoomPixels>> SpikeAccelerations =
-        new Dictionary<CompassDirection, EightEightVector<RoomPixels>>
+    internal static readonly IReadOnlyDictionary<CompassDirection, PixelVelocity<RoomPixels>> SpikeAccelerations =
+        new Dictionary<CompassDirection, PixelVelocity<RoomPixels>>
         {
-            [CompassDirection.Up] = new EightEightVector<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixelFraction(-1, 8)),
-            [CompassDirection.UpRight] = new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(1, 8), SignedEightEight.FromPixelFraction(-1, 8)),
-            [CompassDirection.Right] = new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(1, 8), SignedEightEight.Zero),
-            [CompassDirection.DownRight] = new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(1, 8), SignedEightEight.FromPixelFraction(1, 8)),
-            [CompassDirection.Down] = new EightEightVector<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixelFraction(1, 8)),
-            [CompassDirection.DownLeft] = new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-1, 8), SignedEightEight.FromPixelFraction(1, 8)),
-            [CompassDirection.Left] = new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-1, 8), SignedEightEight.Zero),
-            [CompassDirection.UpLeft] = new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-1, 8), SignedEightEight.FromPixelFraction(-1, 8)),
+            [CompassDirection.Up] = new PixelVelocity<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixelFraction(-1, 8)),
+            [CompassDirection.UpRight] = new PixelVelocity<RoomPixels>(SignedEightEight.FromPixelFraction(1, 8), SignedEightEight.FromPixelFraction(-1, 8)),
+            [CompassDirection.Right] = new PixelVelocity<RoomPixels>(SignedEightEight.FromPixelFraction(1, 8), SignedEightEight.Zero),
+            [CompassDirection.DownRight] = new PixelVelocity<RoomPixels>(SignedEightEight.FromPixelFraction(1, 8), SignedEightEight.FromPixelFraction(1, 8)),
+            [CompassDirection.Down] = new PixelVelocity<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixelFraction(1, 8)),
+            [CompassDirection.DownLeft] = new PixelVelocity<RoomPixels>(SignedEightEight.FromPixelFraction(-1, 8), SignedEightEight.FromPixelFraction(1, 8)),
+            [CompassDirection.Left] = new PixelVelocity<RoomPixels>(SignedEightEight.FromPixelFraction(-1, 8), SignedEightEight.Zero),
+            [CompassDirection.UpLeft] = new PixelVelocity<RoomPixels>(SignedEightEight.FromPixelFraction(-1, 8), SignedEightEight.FromPixelFraction(-1, 8)),
         };
 
     /// <summary>

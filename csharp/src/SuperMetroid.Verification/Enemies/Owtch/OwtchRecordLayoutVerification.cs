@@ -28,7 +28,7 @@ internal static class OwtchRecordLayoutVerification
                 A: 0x1235, B: 0x0002, C: 0xedcb, D: 0xfffd, E: OwtchNativeWords.Behaviors.Word(OwtchBehaviorState.Underground), F: 0x0010)),
             "variables 0/1 are the speed's fraction and whole, variables 2/3 its negation, and the speed is the placement's");
         AssertEqual(OwtchBehaviorState.Underground, state.Behavior, "variable 4 is the state");
-        AssertEqual(16, state.BurialDepth, "variable 5 is the sink depth");
+        AssertTrue(state.Sink.IsOver && state.Rise.IsOver, "variable 5, the sink depth, is a whole burial while underground");
         Console.WriteLine("Owtch record layout: speed, state and sink import from variables 0-5.");
     }
 

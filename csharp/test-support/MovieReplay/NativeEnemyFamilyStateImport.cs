@@ -158,9 +158,9 @@ internal static class NativeEnemyFamilyStateImport
             // The cartridge keeps the ship's phase timer, bob phase, bob timer, and base Y and landing-brake step in the
             // top hull's variables A and C through E. Variable B counts the records the takeoff has copied while the ship
             // waits for its engines, which the port times on its phase timer from the wait's start (#2469).
-            gunshipRecord.PhaseTimer = unchecked((short)words.A);
+            gunshipRecord.PhaseTimer = UpdateCountdownAccess.Recorded(unchecked((short)words.A));
             gunshipRecord.Bob = GunshipIdleBob.All[words.C];
-            gunshipRecord.BobTimer = unchecked((short)words.D);
+            gunshipRecord.BobTimer = UpdateCountdownAccess.Recorded(unchecked((short)words.D));
             gunshipRecord.BaseY = words.E;
             // E holds the next landing brake only while the ship brakes; otherwise it holds the base Y.
             if (words.E < GunshipLandingBrake.All.Count)
@@ -171,8 +171,9 @@ internal static class NativeEnemyFamilyStateImport
         {
             // The bottom hull, listed right after the top, keeps the ship's engine-sound timer in variable D, its
             // rumble frame in E and its escape speed in F.
-            bottomOfShip.EngineSoundTimer = ZeroOrBelowDuration(words.D);
-            bottomOfShip.RumbleFrame = words.E;
+            bottomOfShip.EngineSoundTimer = UpdateCountdown.For(ZeroOrBelowDuration(words.D));
+            bottomOfShip.Rumble = UpdateCountdownAccess.AtAge(GunshipTakeoffDefinitions.EngineRumbleFrames,
+                Math.Min((int)words.E, GunshipTakeoffDefinitions.EngineRumbleFrames));
             bottomOfShip.EscapeVelocity = new SignedEightEight(words.F);
         }
         if (enemy.SpeciesState<CeresSteamEnemyState>() is { } ceresSteamRecord)
@@ -429,7 +430,7 @@ internal static class NativeEnemyFamilyStateImport
         if (enemy.SpeciesState<SbugEnemyState>() is { } sbugRecord)
         {
             sbugRecord.Action = SbugNativeWords.SbugActions.Decode(words.B, "recorded SbugAction");
-            sbugRecord.MovementTimer = TrueDuration(words.F);
+            sbugRecord.MovementTimer = TrueWait(words.F);
         }
         if (enemy.SpeciesState<KiHunterBodyState>() is { } kiHunterBodyRecord)
         {
@@ -509,7 +510,21 @@ internal static class NativeEnemyFamilyStateImport
             if (owtchSpeed != enemy.SpawnSettings<OwtchSpawnSettings>().Speed)
                 throw new InvalidDataException($"Recorded Owtch speed {owtchSpeed} is not its placement's {enemy.SpawnSettings<OwtchSpawnSettings>().Speed}.");
             owtchRecord.Behavior = OwtchNativeWords.Behaviors.Decode(words.E, "recorded OwtchBehaviorState");
-            owtchRecord.BurialDepth = words.F;
+            // The sink depth is the sink's age while sinking and the rise's updates left while rising; underground the Owtch
+            // is wholly buried, and walking it is not buried at all.
+            switch (owtchRecord.Behavior)
+            {
+                case OwtchBehaviorState.Sinking:
+                    owtchRecord.Sink = UpdateCountdownAccess.AtAge(OwtchMovementDefinitions.MaximumBurialDepth, words.F);
+                    break;
+                case OwtchBehaviorState.Rising:
+                    owtchRecord.Rise = UpdateCountdown.For(words.F);
+                    break;
+                case OwtchBehaviorState.Underground when words.F != OwtchMovementDefinitions.MaximumBurialDepth:
+                    throw new InvalidDataException($"Recorded underground Owtch sink depth {words.F} is not a whole burial.");
+                default:
+                    break;
+            }
         }
         if (enemy.SpeciesState<BullEnemyState>() is { } bullRecord)
         {
@@ -622,7 +637,7 @@ internal static class NativeEnemyFamilyStateImport
         if (enemy.SpeciesState<MetroidEnemyState>() is { } metroidRecord)
         {
             metroidRecord.Velocity = FixedVector<RoomPixels>.FromStoredParts(words.B, words.A, words.D, words.C);
-            metroidRecord.EscapeMovesLeft = words.E;
+            metroidRecord.EscapeMovesLeft = UpdateCountdown.For(words.E);
             metroidRecord.Movement = MetroidsNativeWords.Movements.Decode(words.F, "recorded MetroidMovement");
         }
         if (enemy.SpeciesState<FakeKraidEnemyState>() is { } fakeKraidRecord)
@@ -639,7 +654,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             maridiaLargeSnailRecord.Action = MaridiaSnailsNativeWords.MaridiaLargeSnailActions.Decode(words.A, "recorded MaridiaLargeSnailAction");
             maridiaLargeSnailRecord.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(unchecked((short)words.B));
-            maridiaLargeSnailRecord.AttackCooldown = TrueDuration(words.C);
+            maridiaLargeSnailRecord.AttackCooldown = TrueWait(words.C);
             maridiaLargeSnailRecord.Heading = words.D != 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
             maridiaLargeSnailRecord.RemainingBounces = unchecked((short)words.E);
             maridiaLargeSnailRecord.BouncePhase = MaridiaSnailsNativeWords.MaridiaLargeSnailBouncePhases.Decode(words.F, "recorded MaridiaLargeSnailBouncePhase");
@@ -668,7 +683,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.SpeciesState<SkreeEnemyState>() is { } skreeRecord)
         {
-            skreeRecord.BurrowTimer = unchecked((short)words.A);
+            skreeRecord.BurrowTimer = UpdateCountdownAccess.Recorded(unchecked((short)words.A));
             skreeRecord.Action = SkreeNativeWords.SkreeActions.Decode(words.B, "recorded SkreeAction");
             RequirePlayingSkreeMetareeAnimation(skreeRecord.Playback, SkreeNativeWords.SkreeAnimationPhases, words, "Skree");
             // The game keeps a readied dive as a flag beside its winding-up routine (#2450), set only while it winds up.
@@ -730,7 +745,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             morphBallEyeRecord.IsActivated = words.C != 0;
             morphBallEyeRecord.Angle = RotationAngle.FromSteps(unchecked((byte)words.D));
-            morphBallEyeRecord.ActionTimer = unchecked((short)words.E);
+            morphBallEyeRecord.ActionTimer = UpdateCountdownAccess.Recorded(unchecked((short)words.E));
             morphBallEyeRecord.Action = MorphBallEyeNativeWords.MorphBallEyeActions.Decode(words.F, "recorded MorphBallEyeAction");
         }
         if (enemy.SpeciesState<HopperEnemyState>() is { } hopperRecord)
@@ -897,7 +912,7 @@ internal static class NativeEnemyFamilyStateImport
         if (enemy.DefinitionId == EnemyDefinitionId.NuclearWaffle && enemy.SpeciesState<NuclearWaffleEnemyState>() is { } waffle)
         {
             waffle.Action = NuclearNativeWords.NuclearWaffleActions.Decode(words.A, "recorded NuclearWaffleAction");
-            waffle.WaitingTimer = TrueDuration(words.B);
+            waffle.WaitingTimer = TrueWait(words.B);
         }
         if (enemy.DefinitionId == EnemyDefinitionId.Polyp && enemy.SpeciesState<PolypEnemyState>() is { } polyp)
         {
@@ -942,7 +957,7 @@ internal static class NativeEnemyFamilyStateImport
         if (enemies.HibashiStates[index] is { } hibashi)
         {
             hibashi.Action = HibashiNativeWords.HibashiActions.Decode(words.A, "recorded HibashiAction");
-            hibashi.InactiveTimer = TrueDuration(words.B);
+            hibashi.InactiveTimer = TrueWait(words.B);
             // The game keeps a finished eruption as a flag beside its active routine: an active flame whose flag is set has
             // finished and rests on its next update (#2439). An inactive flame's flag is left over from its last eruption.
             if (hibashi.Action == HibashiAction.Active && words.C != 0)
@@ -1024,10 +1039,10 @@ internal static class NativeEnemyFamilyStateImport
                     fly.DiveUpdates = unchecked((short)words.A);
                     break;
                 case FlyAction.Retreat:
-                    fly.RetreatUpdatesLeft = TrueDuration(words.A);
+                    fly.RetreatUpdatesLeft = TrueWait(words.A);
                     break;
                 case FlyAction.Circling:
-                    fly.CooldownUpdatesLeft = unchecked((short)words.A);
+                    fly.CooldownUpdatesLeft = UpdateCountdownAccess.Recorded(unchecked((short)words.A));
                     break;
                 default:
                     throw new InvalidDataException($"Recorded fly action {fly.Action} has no count.");
@@ -1040,7 +1055,7 @@ internal static class NativeEnemyFamilyStateImport
             // One record word serves the motion timer and the shot counter in turn; whichever phase is current reads it.
             dragon.Action = DragonNativeWords.DragonActions.Decode(words.F, "recorded DragonAction");
             // The wait before sinking runs out at zero in the cartridge too; its other waits run past zero.
-            dragon.ActionTimer = dragon.Action == DragonAction.WaitToSink ? unchecked((short)words.D) : TrueDuration(words.D);
+            dragon.ActionTimer = dragon.Action == DragonAction.WaitToSink ? UpdateCountdownAccess.Recorded(unchecked((short)words.D)) : TrueWait(words.D);
             dragon.AttackCounter = unchecked((short)words.D);
         }
         if (enemies.ElevatorStates[index] is { } elevator)
@@ -1051,7 +1066,8 @@ internal static class NativeEnemyFamilyStateImport
             fune.Action = FuneNamiheNativeWords.FuneActions.Decode(words.B, "recorded FuneAction");
             if (Index(words.D, 15, "Fune/Namihe behaviour") != 0)
                 throw new InvalidDataException($"Recorded Fune/Namihe behaviour ${words.D:X4} names a Namihe.");
-            fune.CooldownTimer = words.E;
+            int cooldownUpdates = FuneNamiheBehavior.CooldownOf(enemy).Length;
+            fune.Cooldown = UpdateCountdownAccess.AtAge(cooldownUpdates, Math.Min(words.E, cooldownUpdates));
             // The Fune waits its placement's cooldown (#2476), which the recording's must be.
             if (Index(words.F, byte.MaxValue, "Fune cooldown time") != enemy.SpawnSettings<FuneSpawnSettings>().CooldownTime)
                 throw new InvalidDataException($"Recorded Fune cooldown {words.F} is not its placement's {enemy.SpawnSettings<FuneSpawnSettings>().CooldownTime}.");
@@ -1105,7 +1121,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemies.MetareeStates[index] is { } metaree)
         {
-            metaree.BurrowTimer = unchecked((short)words.A);
+            metaree.BurrowTimer = UpdateCountdownAccess.Recorded(unchecked((short)words.A));
             metaree.Action = MetareeNativeWords.MetareeActions.Decode(words.B, "recorded MetareeAction");
             RequirePlayingSkreeMetareeAnimation(metaree.Playback, SkreeNativeWords.MetareeAnimationPhases, words, "Metaree");
             // The game keeps a readied attack as a flag beside its preparing routine (#2439), set only while it prepares.

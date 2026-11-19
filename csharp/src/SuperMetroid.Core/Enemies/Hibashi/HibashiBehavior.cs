@@ -63,7 +63,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new HibashiEnemyState(HibashiAction.Inactive);
         place.SetSpeciesState(state);
         _hitboxes.Place(place, _places.ListedAfter(place, 1));
-        state.InactiveTimer = HibashiDefinitions.FirstWait;
+        state.InactiveTimer = UpdateCountdown.For(HibashiDefinitions.FirstWait);
         state.Playback = EnemyAnimationPlayback.Start(place, HibashiAnimations.StartingWith(HibashiSegment.Flame));
         state.SpawnY = place.Position.Y.Whole;
 
@@ -98,7 +98,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunHibashiInactive(RoomEnemyPlace flame, HibashiEnemyState state)
     {
         // The wait lasts its whole duration: the update that takes it to zero erupts (#2340).
-        if (--state.InactiveTimer != 0)
+        if (!state.InactiveTimer.StepEnds())
             return;
 
         RoomEnemyPlace hitbox = GetFollowingHibashiPart(flame);
@@ -117,7 +117,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static void RestHibashi(RoomEnemyPlace flame, HibashiEnemyState state)
     {
-        state.InactiveTimer = flame.SpawnSettings<HibashiSpawnSettings>().InactiveTime + EnemyWaitDefinitions.RunOutUpdate;
+        state.InactiveTimer = UpdateCountdown.For(flame.SpawnSettings<HibashiSpawnSettings>().InactiveTime + EnemyWaitDefinitions.RunOutUpdate);
         state.Action = HibashiAction.Inactive;
     }
 

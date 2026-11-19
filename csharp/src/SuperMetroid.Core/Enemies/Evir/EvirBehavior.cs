@@ -107,7 +107,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The body bobs down at its speed and up at the same speed.
         EvirSpawnSettings settings = place.SpawnSettings<EvirSpawnSettings>();
-        state.MovementTimer = EvirBorrowedFirstHalfCycle.Of(settings.Speed, _places.InUpdateOrder, PlaceLender.Instance) + EnemyWaitDefinitions.RunOutUpdate;
+        state.MovementTimer = UpdateCountdown.For(EvirBorrowedFirstHalfCycle.Of(settings.Speed, _places.InUpdateOrder, PlaceLender.Instance) + EnemyWaitDefinitions.RunOutUpdate);
         state.BobbingDirection = VerticalDirection.Up;
         state.ShowsSpawnAnimation = true;
     }
@@ -172,9 +172,9 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Every later half of the bobbing lasts the body's whole direction-change period and the update it turns on,
         // however long its first half lasted (EvirBorrowedFirstHalfCycle).
-        if (--state.MovementTimer <= 0)
+        if (state.MovementTimer.Step())
         {
-            state.MovementTimer = settings.DirectionChangePeriod + EnemyWaitDefinitions.RunOutUpdate;
+            state.MovementTimer = UpdateCountdown.For(settings.DirectionChangePeriod + EnemyWaitDefinitions.RunOutUpdate);
             state.BobbingDirection = state.BobbingDirection.Reversed();
         }
     }

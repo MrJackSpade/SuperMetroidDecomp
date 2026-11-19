@@ -118,7 +118,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             RunFrames(enemies, body, 90);
             AssertEqual(KiHunterAction.GroundWait, state.Action,
                 $"KiHunter {(movingRight ? "right" : "left")} spit restores ground wait");
-            AssertEqual(24, state.WaitTimer,
+            AssertEqual(24, state.WaitTimer.UpdatesLeft,
                 $"KiHunter {(movingRight ? "right" : "left")} spit wait timer");
             AssertTrue(enemies.Audio.SoundRequests.Any(request => request.SoundEffect == EnemySound.AcidSpit),
                 $"KiHunter {(movingRight ? "right" : "left")} spit sound");

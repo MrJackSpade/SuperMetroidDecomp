@@ -23,7 +23,7 @@ public sealed class NuclearWaffleEnemyState
     /// the update it runs out on (<see cref="EnemyWaitDefinitions.RunOutUpdate"/>), and the update that takes it to zero
     /// starts the sweep and reloads it (#2281).
     /// </summary>
-    public int WaitingTimer { get; internal set; }
+    public UpdateCountdown WaitingTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// The sweep angle: its whole step is the head's angle and its fraction carries between updates. It restarts at the

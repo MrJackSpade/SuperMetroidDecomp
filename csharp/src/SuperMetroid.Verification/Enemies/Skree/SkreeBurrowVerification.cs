@@ -35,11 +35,11 @@ internal static class SkreeBurrowVerification
         {
             if (++diveUpdates > 16)
                 throw new InvalidOperationException("The diving Skree never struck the solid row.");
-            AssertEqual(0, state.BurrowTimer, $"dive update {diveUpdates} leaves the burrow unstarted");
+            AssertEqual(0, state.BurrowTimer.UpdatesLeft, $"dive update {diveUpdates} leaves the burrow unstarted");
             enemies.SkreeBehavior.RunSkreeMain(place, samus, level);
         }
         AssertEqual(SkreeAction.Burrowing, state.Action, "the dive ends in a burrow");
-        AssertEqual(SkreeMotionDefinitions.BurrowDuration, state.BurrowTimer, "the burrow starts its whole countdown as the Skree strikes the ground");
+        AssertEqual(SkreeMotionDefinitions.BurrowDuration, state.BurrowTimer.UpdatesLeft, "the burrow starts its whole countdown as the Skree strikes the ground");
 
         int burrowTop = place.Position.Y.Whole;
         for (int update = 1; update < SkreeMotionDefinitions.BurrowDuration; update++)

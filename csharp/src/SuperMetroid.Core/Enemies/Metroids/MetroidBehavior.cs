@@ -185,11 +185,11 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Makes the escaping Metroid's next move; after its last it chases Samus.</summary>
     internal static void RunMetroidPowerBombEscape(RoomEnemyPlace place, MetroidEnemyState state)
     {
-        place.Position += MetroidReactions.EscapeDisplacement(state.EscapeMovesLeft);
+        place.Position += MetroidReactions.EscapeDisplacement(state.EscapeMovesLeft.UpdatesLeft);
         StoreMetroidXVelocity(state, SignedSixteenSixteen.Zero);
         StoreMetroidYVelocity(state, SignedSixteenSixteen.Zero);
 
-        if (--state.EscapeMovesLeft != 0)
+        if (!state.EscapeMovesLeft.Count())
             return;
 
         state.Movement = MetroidMovement.Homing;
@@ -200,9 +200,9 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void RunMetroidFrozen(RoomEnemyPlace place)
     {
         MetroidEnemyState state = place.RequireSpeciesState<MetroidEnemyState>();
-        if (state.EscapeMovesLeft != 0)
+        if (state.EscapeMovesLeft.IsRunning)
         {
-            state.EscapeMovesLeft--;
+            state.EscapeMovesLeft.Count();
             place.HurtFlash.Restart(MetroidBehaviorDefinitions.EscapeFlashDuration);
         }
 
@@ -343,7 +343,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         MetroidEnemyState state,
         SamusState samus)
     {
-        state.EscapeMovesLeft = MetroidBehaviorDefinitions.EscapeDuration;
+        state.EscapeMovesLeft = UpdateCountdown.For(MetroidBehaviorDefinitions.EscapeDuration);
         state.Movement = MetroidMovement.PowerBombEscape;
         SetMetroidAnimation(place, state, MetroidSegment.ChasingSamus);
         samus.MetroidAttachmentShade = SamusMetroidAttachmentShade.Inactive;

@@ -111,7 +111,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        state.ActionTimer = MorphBallEyeWatchDefinitions.TransitionDuration;
+        state.ActionTimer = UpdateCountdown.For(MorphBallEyeWatchDefinitions.TransitionDuration);
         eye.AnimationClock.StepOnNextUpdate();
         state.Playback = new(MorphBallEyeAnimations.StartingWith(eye.SpawnSettings<MorphBallEyeBodySpawnSettings>().Facing == HorizontalDirection.Right
             ? MorphBallEyeSegment.FacingRightActivating
@@ -126,7 +126,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         // The opening lasts its whole duration: the update that takes the timer to zero opens the eye (#2340).
-        if (--state.ActionTimer != 0)
+        if (!state.ActionTimer.StepEnds())
             return;
 
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.EyeActivationSound, priority: SoundRequestPriority.Normal);
@@ -151,7 +151,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.EyeRaySoundStop, priority: SoundRequestPriority.Normal);
             state.IsActivated = false;
-            state.ActionTimer = MorphBallEyeWatchDefinitions.TransitionDuration;
+            state.ActionTimer = UpdateCountdown.For(MorphBallEyeWatchDefinitions.TransitionDuration);
             state.Aim = null;
             state.Playback = new(MorphBallEyeAnimations.StartingWith(eye.SpawnSettings<MorphBallEyeBodySpawnSettings>().Facing == HorizontalDirection.Right
                 ? MorphBallEyeSegment.FacingRightDeactivating
@@ -172,7 +172,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Returns to waiting on the update the closing's duration runs out (#2340).</summary>
     private static void AdvanceMorphBallEyeDeactivation(MorphBallEyeEnemyState state)
     {
-        if (--state.ActionTimer == 0)
+        if (state.ActionTimer.StepEnds())
             state.Action = MorphBallEyeAction.WaitForSamus;
     }
 

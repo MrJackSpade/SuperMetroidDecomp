@@ -410,7 +410,7 @@ internal static class NativeSnapshotImport
             if (runtime.Enemies.BrinstarPipeBugStates[index] is { } pipe)
             {
                 pipe.SpawnPosition = new(words.B, words.C);
-                pipe.RespawnDelay = unchecked((short)words.D);
+                pipe.RespawnDelay = UpdateCountdownAccess.Recorded(unchecked((short)words.D));
                 SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugKind kind =
                     runtime.Enemies.Places.InUpdateOrder[index].SpawnSettings<SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugSpawnSettings>().Kind;
                 pipe.EmergenceTopY = W(NativeSnapshotMemory.EnemyExtra + index * NativeSnapshotMemory.EnemyExtraBytes);

@@ -9,17 +9,9 @@ internal sealed class KagoBugState(RoomEnemyPlace source) : EnemyProjectileState
     /// <summary>The Kago shell that released the bug: the bug may be shot once it is far enough from it, and hops home to it.</summary>
     internal RoomEnemyPlace Source { get; } = source;
 
-    /// <summary>Updates until the bug's sound plays; it stays at zero once it has played.</summary>
-    internal int SoundDelay
-    {
-        get;
-        set => field = Ensure.AtLeastZero(value);
-    }
+    /// <summary>The wait for the bug's sound, which plays on the update it ends; it stays over once the sound has played.</summary>
+    internal UpdateCountdown SoundDelay { get; set; } = UpdateCountdown.Ended();
 
-    /// <summary>Updates the bug waits on the ground, the one it hops on included.</summary>
-    internal int GroundWait
-    {
-        get;
-        set => field = Ensure.AtLeastZero(value);
-    }
+    /// <summary>The bug's wait on the ground, which ends on the update it hops.</summary>
+    internal UpdateCountdown GroundWait { get; set; } = UpdateCountdown.Ended();
 }

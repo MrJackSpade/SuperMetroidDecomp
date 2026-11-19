@@ -32,20 +32,17 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new OwtchEnemyState
         {
             Behavior = settings.InitialBehavior,
-            UndergroundTimer = settings.UndergroundWait,
+            UndergroundTimer = UpdateCountdown.For(settings.UndergroundWait),
             MinimumX = place.Position.X.Whole - settings.TravelDistance,
             MaximumX = place.Position.X.Whole + settings.TravelDistance,
         };
         place.SetSpeciesState(state);
         SetOwtchAnimation(place, state, InitialAnimation(settings.InitialBehavior));
 
-        // An Owtch placed underground starts buried: it moves down by whole pixels only and records the same
-        // sixteen-pixel depth sinking reaches.
+        // An Owtch placed underground starts buried: it moves down by whole pixels only, to the same sixteen-pixel depth
+        // sinking reaches.
         if (state.Behavior == OwtchBehaviorState.Underground)
-        {
-            state.BurialDepth = OwtchMovementDefinitions.MaximumBurialDepth;
             place.Position = place.Position.WithWholeY(place.Position.Y.Whole + OwtchMovementDefinitions.MaximumBurialDepth);
-        }
     }
 
     /// <summary>Runs the Owtch's current behaviour.</summary>
@@ -64,24 +61,25 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case OwtchBehaviorState.Underground:
-                if (--state.UndergroundTimer == 0)
+                if (state.UndergroundTimer.StepEnds())
+                {
                     state.Behavior = OwtchBehaviorState.Rising;
+                    state.Rise = UpdateCountdown.Lasting(OwtchMovementDefinitions.MaximumBurialDepth);
+                }
                 return;
 
             case OwtchBehaviorState.Sinking:
                 place.Position = place.Position.WithWholeY(place.Position.Y.Whole + OwtchMovementDefinitions.BurrowSpeed);
-                // Sinking starts from zero, so the depth stays within one through sixteen.
-                state.BurialDepth++;
-                if (state.BurialDepth >= OwtchMovementDefinitions.MaximumBurialDepth)
+                if (state.Sink.Count())
                 {
                     state.Behavior = OwtchBehaviorState.Underground;
-                    state.UndergroundTimer = place.SpawnSettings<OwtchSpawnSettings>().UndergroundWait;
+                    state.UndergroundTimer = UpdateCountdown.For(place.SpawnSettings<OwtchSpawnSettings>().UndergroundWait);
                 }
                 return;
 
             case OwtchBehaviorState.Rising:
                 place.Position = place.Position.WithWholeY(place.Position.Y.Whole - OwtchMovementDefinitions.BurrowSpeed);
-                if (state.RiseOnePixel())
+                if (state.Rise.Count())
                 {
                     // Surfacing reads the current random number without advancing it.
                     int random = _room.Random.Read();
@@ -149,7 +147,10 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     private void MaybeMakeOwtchSink(RoomEnemyPlace place, OwtchEnemyState state)
     {
         if (OwtchMovementDefinitions.Sinks.IsTakenBy(_room.Random.Generate(), advancedBy: place.FrameCounter))
+        {
             state.Behavior = OwtchBehaviorState.Sinking;
+            state.Sink = UpdateCountdown.Lasting(OwtchMovementDefinitions.MaximumBurialDepth);
+        }
     }
 
     /// <summary>Animation cues for left and right: set the moving behaviour.</summary>

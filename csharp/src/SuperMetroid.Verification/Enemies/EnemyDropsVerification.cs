@@ -206,7 +206,7 @@ internal static class EnemyDropsVerification
 
         AssertEqual(kind, pickup.StateOf<EnemyPickupState>().Kind,
             $"{kind} pickup restores {kind}");
-        AssertEqual(400, pickup.StateOf<EnemyPickupState>().Lifetime,
+        AssertEqual(400, pickup.StateOf<EnemyPickupState>().Lifetime.UpdatesLeft,
             $"{kind} starts with native 400-frame lifetime");
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
 
@@ -278,9 +278,9 @@ internal static class EnemyDropsVerification
 
         EnemyProjectile expiring =
             (fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(300, 300), NativeDropChances, fixture.Samus) ?? throw new InvalidOperationException("Verification requires fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(300, 300), NativeDropCh...."));
-        expiring.StateOf<EnemyPickupState>().Lifetime = 1;
+        expiring.StateOf<EnemyPickupState>().Lifetime = UpdateCountdown.Lasting(1);
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
-        AssertEqual(0, expiring.StateOf<EnemyPickupState>().Lifetime,
+        AssertEqual(0, expiring.StateOf<EnemyPickupState>().Lifetime.UpdatesLeft,
             "pickup lifetime decrements before its expiry comparison");
         AssertEqual<Enum?>(null, expiring.Motion,
             "expired pickup enters native blank tail");
@@ -320,7 +320,7 @@ internal static class EnemyDropsVerification
             AssertEqual(50, samus.Health,
                 $"grapple cannot collect pickup during protected frame {frame + 1}");
         }
-        AssertEqual(384, pickup.StateOf<EnemyPickupState>().Lifetime,
+        AssertEqual(384, pickup.StateOf<EnemyPickupState>().Lifetime.UpdatesLeft,
             "sixteen protected frames still decrement pickup lifetime");
 
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);

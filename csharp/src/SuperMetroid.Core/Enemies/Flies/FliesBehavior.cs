@@ -56,9 +56,9 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             case FlyAction.Retreat:
                 MoveFlyAccordingToVelocities(place, state);
-                if (--state.RetreatUpdatesLeft == 0)
+                if (state.RetreatUpdatesLeft.Count())
                 {
-                    state.CooldownUpdatesLeft = FlyMotionDefinitions.AttackCooldown;
+                    state.CooldownUpdatesLeft = UpdateCountdown.For(FlyMotionDefinitions.AttackCooldown);
                     state.Action = FlyAction.Circling;
                     state.Rotation = RotationDirection.Clockwise;
                 }
@@ -75,9 +75,9 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         FlyEnemyState state,
         SamusState samus)
     {
-        if (state.CooldownUpdatesLeft != 0)
+        if (state.CooldownUpdatesLeft.IsRunning)
         {
-            state.CooldownUpdatesLeft--;
+            state.CooldownUpdatesLeft.Count();
         }
         else if (Math.Abs(place.Position.X.Whole - samus.Position.X.Whole) <
             FlyMotionDefinitions.AttackHorizontalRange)
@@ -127,7 +127,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.Velocity = state.Velocity.ReversedY();
-        state.RetreatUpdatesLeft = state.DiveUpdates + FlyMotionDefinitions.RetreatBeyondDive;
+        state.RetreatUpdatesLeft = UpdateCountdown.For(state.DiveUpdates + FlyMotionDefinitions.RetreatBeyondDive);
         state.Action = FlyAction.Retreat;
     }
 

@@ -42,7 +42,7 @@ public sealed class BabyTurtleEnemyState
     public Offset16<RoomPixels> Velocity => new(Heading == HorizontalDirection.Right ? HorizontalSpeed : -HorizontalSpeed, SpinFallSpeed);
 
     /// <summary>Gets the phase-specific Baby Turtle countdown.</summary>
-    public int ActionTimer { get; internal set; }
+    public UpdateCountdown ActionTimer { get; internal set; } = UpdateCountdown.Ended();
     /// <summary>Gets the reaction countdown used while the child is not carrying Samus.</summary>
-    public int NotCarryingSamusReactionTimer { get; internal set; }
+    public UpdateCountdown NotCarryingSamusReactionTimer { get; internal set; } = UpdateCountdown.Ended();
 }

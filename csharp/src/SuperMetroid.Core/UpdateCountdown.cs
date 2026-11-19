@@ -61,6 +61,18 @@ public sealed class UpdateCountdown
         UpdatesLeft = updates;
     }
 
+    /// <summary>
+    /// Changes how long the wait lasts to <paramref name="updates"/>, keeping the updates it has counted: a wait that has
+    /// already counted as many is over.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="updates"/> is negative.</exception>
+    internal void LastFor(int updates)
+    {
+        int age = Age;
+        Length = Ensure.BetweenInclusive(0, int.MaxValue, updates);
+        UpdatesLeft = Math.Max(0, updates - age);
+    }
+
     /// <summary>Gives the wait <paramref name="updates"/> more updates than it has left, lengthening it by as many.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="updates"/> is negative.</exception>
     internal void Lengthen(int updates)

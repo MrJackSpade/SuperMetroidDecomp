@@ -43,12 +43,12 @@ internal static class EvirInitTimerVerification
                 _ => throw new InvalidOperationException($"Unexpected aliased Evir byte +{byteOffset:X2}."),
             };
             // The aliased half-cycle runs out on the step below zero, which the port holds as its true duration (#2281).
-            AssertEqual((LittleEndianBytes.HighByte(word) >> 1) + 1, (runtime.Enemies.EvirStates[place.Ordinal] ?? throw new InvalidOperationException("Verification requires runtime.Enemies.EvirStates[place.Ordinal].")).MovementTimer,
+            AssertEqual((LittleEndianBytes.HighByte(word) >> 1) + 1, (runtime.Enemies.EvirStates[place.Ordinal] ?? throw new InvalidOperationException("Verification requires runtime.Enemies.EvirStates[place.Ordinal].")).MovementTimer.UpdatesLeft,
                 $"Evir body in slot {place.Ordinal} takes its first half-cycle from aliased enemy RAM");
             checkedBodies++;
         }
         AssertEqual(3, checkedBodies, "room $D4C2 has three Evir bodies");
-        AssertEqual(1 + 1, (runtime.Enemies.EvirStates[3] ?? throw new InvalidOperationException("Verification requires runtime.Enemies.EvirStates[3].")).MovementTimer,
+        AssertEqual(1 + 1, (runtime.Enemies.EvirStates[3] ?? throw new InvalidOperationException("Verification requires runtime.Enemies.EvirStates[3].")).MovementTimer.UpdatesLeft,
             "the speed-12 body reads slot 2's palette high byte (2) halved");
         Console.WriteLine("Evir init timer: $A8:8811's Y-indexed read takes absolute enemy RAM.");
     }

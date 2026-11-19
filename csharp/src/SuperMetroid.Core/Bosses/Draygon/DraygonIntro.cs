@@ -50,7 +50,9 @@ internal sealed class DraygonIntro
         state.Phase = DraygonPhase.IntroDance;
         state.IntroFrames = 0;
         state.LeftSideReset = state.Body.Position.Whole;
-        state.RightSideResetX = CoordinateAxis.Wrap(state.LeftSideReset.X + DraygonArenaDefinitions.RightSideResetDistance);
+        // The left-side place is where the room places Draygon, left of and above the arena, so the right-side place
+        // counts on from a place before the room.
+        state.RightSideResetX = OffRoomPlaces.Place(state.LeftSideReset.X + DraygonArenaDefinitions.RightSideResetDistance);
         state.Body.Position = state.Body.Position.WithWhole(state.LeftSideReset);
         state.SwoopAcceleration = DraygonSwoopDefinitions.InitialAcceleration;
     }

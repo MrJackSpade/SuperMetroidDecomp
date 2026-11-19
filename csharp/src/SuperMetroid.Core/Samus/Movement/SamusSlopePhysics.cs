@@ -76,7 +76,7 @@ public static class SamusSlopePhysics
 
         // First probes the center-X block containing Samus's bottom pixel. Only
         // slope blocks with a non-square shape that is not flipped vertically participate as floor slopes.
-        int bottomPosition = CoordinateAxis.Wrap(yPosition + yRadius - 1);
+        int bottomPosition = TerrainScanEdges.Edge(yPosition + yRadius - 1);
         if (TryGetBlockAtPixel(level, Position16<RoomPixels>.Of(xPosition, bottomPosition), out RoomCollisionBlock bottom) &&
             bottom.CollisionType == RoomCollisionType.Slope &&
             bottom.Behavior.Slope.IsNonSquare)
@@ -96,7 +96,7 @@ public static class SamusSlopePhysics
 
         // Recompute the top probe after any floor correction. Vertically flipped slopes are ceilings and reverse the same signed
         // correction.
-        int topPosition = CoordinateAxis.Wrap(yPosition - yRadius);
+        int topPosition = TerrainScanEdges.Edge(yPosition - yRadius);
         if (TryGetBlockAtPixel(level, Position16<RoomPixels>.Of(xPosition, topPosition), out RoomCollisionBlock top) &&
             top.CollisionType == RoomCollisionType.Slope &&
             top.Behavior.Slope.IsNonSquare)

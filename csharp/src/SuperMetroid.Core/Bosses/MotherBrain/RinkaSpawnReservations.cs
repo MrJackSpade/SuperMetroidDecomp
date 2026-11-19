@@ -67,7 +67,7 @@ internal sealed class RinkaSpawnReservations
     /// <paramref name="camera"/>; a position above the room's top edge never does.
     /// </summary>
     private static bool IsOnScreen(Position16<RoomPixels> position, Position16<RoomPixels> camera) =>
-        CoordinateAxis.AsSigned(position.Y) >= 0 &&
-        CoordinateAxis.Difference(position.Y, camera.Y) is >= 0 and < ScreenGeometry.ScreenHeightPixels &&
-        CoordinateAxis.Difference(position.X, camera.X) is >= 0 and < ScreenGeometry.ScreenWidthPixels;
+        !OffRoomPlaces.LiesBeforeRoom(position.Y) &&
+        CameraPastRoomEdge.FromCamera(position.Y, camera.Y) is >= 0 and < ScreenGeometry.ScreenHeightPixels &&
+        CameraPastRoomEdge.FromCamera(position.X, camera.X) is >= 0 and < ScreenGeometry.ScreenWidthPixels;
 }

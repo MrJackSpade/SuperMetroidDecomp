@@ -161,7 +161,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.Ridley),
         [
-            new(EnemyDefinitionId.Ridley, new(48, 65520), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+            new(EnemyDefinitionId.Ridley, OffRoomPlaces.Placed(new Offset16<RoomPixels>(48, -16)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.PostCrocomirePowerBombs),
         [

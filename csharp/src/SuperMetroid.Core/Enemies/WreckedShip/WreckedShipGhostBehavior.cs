@@ -233,8 +233,8 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
 
         // The ghost appears 64 pixels above a Samus who has been rising, and Samus can rise to within 70 pixels of the
         // top of the Wrecked Ship's main shaft and save room, so a ghost can bob a few pixels either side of the room's
-        // top edge; it turns back toward where it appeared the short way, as CoordinateAxis.Precedes reads it.
-        SignedSixteenSixteen acceleration = CoordinateAxis.Precedes(place.Position.Y.Whole, state.BobbingOriginY)
+        // top edge; it turns back toward where it appeared the short way, as DistanceAcrossRoomEdge.LiesBefore reads it.
+        SignedSixteenSixteen acceleration = DistanceAcrossRoomEdge.LiesBefore(place.Position.Y.Whole, state.BobbingOriginY)
             ? WreckedShipGhostAppearanceDefinitions.BobAcceleration
             : -WreckedShipGhostAppearanceDefinitions.BobAcceleration;
         state.VerticalVelocity += acceleration;

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <summary>
 /// The state of one walking Space Pirate. The patrol posts are its spawn position plus and less its patrol reach,
 /// unclamped, so a post may lie past the room's edge; the walk compares the Pirate with them as
-/// <see cref="CoordinateAxis.Precedes"/> compares columns.
+/// <see cref="DistanceAcrossRoomEdge.LiesBefore"/> compares columns.
 /// </summary>
 public sealed class WalkingSpacePirateEnemyState
 {

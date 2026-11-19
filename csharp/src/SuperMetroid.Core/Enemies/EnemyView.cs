@@ -20,10 +20,10 @@ internal static class EnemyView
     /// right and bottom edges included.
     /// </summary>
     internal static bool ContainsWithMargin(Position16<RoomPixels> point, Position16<RoomPixels> camera, int margin) =>
-        !CoordinateAxis.Precedes(point.X + margin, camera.X) &&
-        !CoordinateAxis.Precedes(camera.X + Extent + margin, point.X) &&
-        !CoordinateAxis.Precedes(point.Y + margin, camera.Y) &&
-        !CoordinateAxis.Precedes(camera.Y + Extent + margin, point.Y);
+        !CameraPastRoomEdge.LiesBefore(point.X + margin, camera.X) &&
+        !CameraPastRoomEdge.LiesBefore(camera.X + Extent + margin, point.X) &&
+        !CameraPastRoomEdge.LiesBefore(point.Y + margin, camera.Y) &&
+        !CameraPastRoomEdge.LiesBefore(camera.Y + Extent + margin, point.Y);
 
     /// <summary>
     /// Whether <paramref name="point"/> lies in the view, its right and bottom edges excluded: no further left or up than

@@ -240,7 +240,7 @@ internal sealed class TorizoCombat
         reaction = null;
 
         // The body's rectangles lie about Torizo's position; the probe meets their edges as every room position is
-        // compared, by CoordinateAxis.Precedes, also an edge reaching past either end of the room.
+        // compared, by DistanceAcrossRoomEdge.LiesBefore, also an edge reaching past either end of the room.
         Position16<RoomPixels> origin = enemy.Position.Whole;
         IReadOnlyList<EnemyCollisionHitbox> rectangles = TorizoCollision.HitboxesAt(enemy.Frame).Rectangles;
         for (int index = 0; index < rectangles.Count; index++)

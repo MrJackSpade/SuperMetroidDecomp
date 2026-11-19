@@ -128,9 +128,9 @@ public sealed class SamusLiquidPhysicsState
 
     /// <summary>
     /// The water surface as the air-bubble test and the diving splash read it, which do not test whether the room has
-    /// one: an absent surface reads as <see cref="AbsentWaterSurfaceLine"/> says, wrapped to the room's coordinates.
+    /// one: an absent surface reads as <see cref="AbsentWaterSurfaceLine.PlaceOf"/> places it.
     /// </summary>
-    internal int UntestedWaterSurfaceLine => CoordinateAxis.Wrap(AbsentWaterSurfaceLine.Read(WaterSurfaceY));
+    internal int UntestedWaterSurfaceLine => AbsentWaterSurfaceLine.PlaceOf(WaterSurfaceY);
 
     /// <summary>
     /// Whether Samus's movement ignores the room's water surface until a room object enables it (the n00b tube's glass),

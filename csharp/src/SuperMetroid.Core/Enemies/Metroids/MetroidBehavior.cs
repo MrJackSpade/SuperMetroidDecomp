@@ -311,13 +311,13 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // hit it now. It recoils away from that origin at an eighth of its distance from it an update. That
         // projectile need not lie in the room: a shot lives on up to 64 pixels past the view's left and top edges, and
         // a Wave shot passes through the room's walls, so one beyond the room's left or top edge, with the view at
-        // that edge, still pushes the Metroid away from it the short way, as CoordinateAxis.Difference gives it.
+        // that edge, still pushes the Metroid away from it the short way, as DistanceAcrossRoomEdge.Apart gives it.
         StoreMetroidXVelocity(
             state,
-            SignedSixteenSixteen.FromSixteenthsOfPixel(MetroidBehaviorDefinitions.ShotRecoilPerDistance * CoordinateAxis.Difference(place.Position.X.Whole, recoilOrigin.X)));
+            SignedSixteenSixteen.FromSixteenthsOfPixel(MetroidBehaviorDefinitions.ShotRecoilPerDistance * DistanceAcrossRoomEdge.Apart(place.Position.X.Whole, recoilOrigin.X)));
         StoreMetroidYVelocity(
             state,
-            SignedSixteenSixteen.FromSixteenthsOfPixel(MetroidBehaviorDefinitions.ShotRecoilPerDistance * CoordinateAxis.Difference(place.Position.Y.Whole, recoilOrigin.Y)));
+            SignedSixteenSixteen.FromSixteenthsOfPixel(MetroidBehaviorDefinitions.ShotRecoilPerDistance * DistanceAcrossRoomEdge.Apart(place.Position.Y.Whole, recoilOrigin.Y)));
         state.Movement = MetroidMovement.Homing;
         SetMetroidAnimation(place, state, MetroidSegment.ChasingSamus);
 

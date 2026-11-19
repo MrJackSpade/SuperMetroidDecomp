@@ -248,7 +248,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         // The flight runs until the bug leaves the screen sideways. Flying left with the camera at the room's left edge, it
         // crosses the edge and continues from the far end of the room's coordinates, which the despawn test reads as
         // left of the room, so this room wrap is the flight's end (#2373).
-        place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole +
+        place.Position = OffRoomPlaces.WithWholeX(place.Position, place.Position.X.Whole +
             (state.Flight == HorizontalDirection.Left ? -PipeBugDefinitions.BrinstarFlightStep : PipeBugDefinitions.BrinstarFlightStep));
         // The despawn tests only the horizontal screen extent.
         if (!EnemyProcessingWindow.EnemyIsHorizontallyOffScreen(place, cameraX))

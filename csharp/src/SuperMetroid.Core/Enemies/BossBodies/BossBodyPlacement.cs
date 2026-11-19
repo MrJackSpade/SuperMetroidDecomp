@@ -13,5 +13,5 @@ public static class BossBodyPlacement
     /// while the body lies right of or below the camera's corner.
     /// </summary>
     public static Offset16<BackgroundPixels> Shown(Position16<RoomPixels> placement, Position16<RoomPixels> camera) =>
-        new(CoordinateAxis.Difference(camera.X, placement.X), CoordinateAxis.Difference(camera.Y, placement.Y));
+        new(CameraPastRoomEdge.CameraPast(camera.X, placement.X), CameraPastRoomEdge.CameraPast(camera.Y, placement.Y));
 }

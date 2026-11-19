@@ -703,9 +703,9 @@ internal sealed class EnemyCollision
 
             // The blast lies in the room, but an enemy it reaches need not: a fly that has climbed through the ceiling or a
             // Bull braking past Samus can lie above or left of the room's origin, and the blast reaches one the short way,
-            // as CoordinateAxis.Distance gives it.
-            int xDistance = CoordinateAxis.Distance(explosionCenter.X, enemy.Position.X.Whole);
-            int yDistance = CoordinateAxis.Distance(explosionCenter.Y, enemy.Position.Y.Whole);
+            // as DistanceAcrossRoomEdge.Between gives it.
+            int xDistance = DistanceAcrossRoomEdge.Between(explosionCenter.X, enemy.Position.X.Whole);
+            int yDistance = DistanceAcrossRoomEdge.Between(explosionCenter.Y, enemy.Position.Y.Whole);
             if (xDistance >= horizontalRadius || yDistance >= verticalRadius)
                 continue;
 
@@ -1003,7 +1003,7 @@ internal sealed class EnemyCollision
 
     /// <summary>Uses the strict radius test, excluding contact where either axis is only tangent.</summary>
     /// <remarks>
-    /// Each axis's distance is a <see cref="CoordinateAxis.Distance"/>, the short way between the two. The test meets every
+    /// Each axis's distance is a <see cref="DistanceAcrossRoomEdge.Between"/>, the short way between the two. The test meets every
     /// enemy with Samus, her shots and her bombs, and either side can lie past the room's origin: a fly that has climbed
     /// through the ceiling or a Bull braking past Samus lies above or left of it, and a shot lives on up to 64 pixels past
     /// the view's left and top edges, a Wave shot passing through walls.
@@ -1013,8 +1013,8 @@ internal sealed class EnemyCollision
         Extent16<RoomPixels> firstRadius,
         Position16<RoomPixels> secondPosition,
         Extent16<RoomPixels> secondRadius) =>
-        CoordinateAxis.Distance(firstPosition.X, secondPosition.X) < firstRadius.X + secondRadius.X &&
-        CoordinateAxis.Distance(firstPosition.Y, secondPosition.Y) < firstRadius.Y + secondRadius.Y;
+        DistanceAcrossRoomEdge.Between(firstPosition.X, secondPosition.X) < firstRadius.X + secondRadius.X &&
+        DistanceAcrossRoomEdge.Between(firstPosition.Y, secondPosition.Y) < firstRadius.Y + secondRadius.Y;
 
     /// <summary>Applies suit reduction and health loss, then publishes the hurt direction and invincibility window.</summary>
     internal static void ApplyNormalEnemyTouchDamage(

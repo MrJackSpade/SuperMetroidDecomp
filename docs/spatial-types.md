@@ -88,7 +88,13 @@ Integer arithmetic that builds a coordinate wraps explicitly where the game wrap
 coordinates, `CoordinateAxis.AsSigned` for a coordinate read as a signed offset, `Position16.Wrapped`,
 `Offset16.Wrapped` and `FixedPosition.WithWrappedWholeX/Y` for whole positions, or a stepped coordinate decremented or
 incremented through the compatibility counter (`WrappingCounter`). No inline narrowing cast reproduces the wrap
-(SME6453). The result is held as an `int` until it reaches its owner, whose `int` constructors and operations
+(SME6453). Outside the spatial namespace those members are called only by compatibility services (SME6463, #2568),
+each named for the gameplay behaviour its wrap reproduces: `OffRoomPlaces` (an actor placed or moved above or left of
+the room, and the off-room tests that read its place as signed), `DistanceAcrossRoomEdge` (distances and side tests
+taken the short way across the room's coordinates), `CameraPastRoomEdge` (the camera carried before the room's origin,
+and places measured from it), `TerrainScanEdges` (a terrain scan's edges, span and alignment past the room's top or
+left), and the services that own a wrap of their own (`YappingMawBendChain`, `AbsentWaterSurfaceLine`, `KraidPassBounds`
+and the rest). Where no gameplay reaches the wrap, the arithmetic is plain. The result is held as an `int` until it reaches its owner, whose `int` constructors and operations
 (`new Position16(x, y)`, `Offset16`, `Extent16`, `FixedCoordinate`, `SignedEightEight`, `WithX`/`WithY`, `WithWhole`) check that it already fits the word, so a value
 left unwrapped fails where it is stored instead of being truncated there.
 

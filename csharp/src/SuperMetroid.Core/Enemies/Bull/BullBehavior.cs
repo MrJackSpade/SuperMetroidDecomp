@@ -85,13 +85,13 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Converts the signed displacement to Samus into Bull's bearing, a quarter turn behind the game's zero-up angle.</summary>
     /// <remarks>
-    /// The displacement is a <see cref="CoordinateAxis.Difference"/>, the short way to Samus. A Bull flies through terrain and carries its speed past Samus
+    /// The displacement is a <see cref="DistanceAcrossRoomEdge.Apart"/>, the short way to Samus. A Bull flies through terrain and carries its speed past Samus
     /// while it brakes, so one charging at Samus near the room's top or left edge passes above or left of the room's origin
     /// and must still turn back toward her the short way.
     /// </remarks>
     private static RotationAngle CalculateBullAngleToSamus(RoomEnemyPlace place, SamusState samus) =>
         (EnemyMath.CalculateBearing(
-            new(CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole)))
+            new(DistanceAcrossRoomEdge.Apart(samus.Position.X.Whole, place.Position.X.Whole), DistanceAcrossRoomEdge.Apart(samus.Position.Y.Whole, place.Position.Y.Whole)))
             .ToMirroredTrigonometryAngle() - TrigonometryAngle.QuarterTurn).ToAngle();
 
     /// <summary>Increases acceleration and speed only when the configured interval expires.</summary>

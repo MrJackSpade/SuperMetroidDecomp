@@ -24,9 +24,9 @@ internal readonly record struct EnemyProjectileBlockScan(Position16<RoomBlocks> 
     /// <param name="edge">The edge scanned: horizontal for a horizontal move, vertical for a vertical one.</param>
     internal static EnemyProjectileBlockScan Across(int edgePixel, int spanStartPixel, int spanEndPixel, Axis edge)
     {
-        int edgeLine = RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(edgePixel));
-        int spanStart = CoordinateAxis.Wrap(spanStartPixel);
-        int extraBlocks = BlockScanCycle.BlocksAfterFirstAcross(spanStart, CoordinateAxis.Wrap(spanEndPixel));
+        int edgeLine = RoomGridConversions.PixelToBlock(TerrainScanEdges.Edge(edgePixel));
+        int spanStart = TerrainScanEdges.Edge(spanStartPixel);
+        int extraBlocks = BlockScanCycle.BlocksAfterFirstAcross(spanStart, TerrainScanEdges.Edge(spanEndPixel));
         Position16<RoomBlocks> first = edge == Axis.Vertical
             ? Position16<RoomBlocks>.Of(RoomGridConversions.PixelToBlock(spanStart), edgeLine)
             : Position16<RoomBlocks>.Of(edgeLine, RoomGridConversions.PixelToBlock(spanStart));

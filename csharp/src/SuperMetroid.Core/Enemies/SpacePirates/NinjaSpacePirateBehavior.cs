@@ -488,9 +488,9 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         // motion reverses direction and accelerates indefinitely until the claw leaves the view, whose right and
         // bottom edges are already outside. Y advances one pixel on both halves of the flight. A claw flying left with the
         // view at the room's left edge leaves it past the room's origin, continuing from the space's far end as
-        // CoordinateAxis.Wrap gives it, before the view test deletes it; it falls a pixel an update, so it stays below the
+        // OffRoomPlaces places it, before the view test deletes it; it falls a pixel an update, so it stays below the
         // room's top.
-        projectile.Position = projectile.Position.WithWrappedWholeX(projectile.Position.X.Whole +
+        projectile.Position = OffRoomPlaces.WithWholeX(projectile.Position, projectile.Position.X.Whole +
             (thrown == HorizontalDirection.Right ? outbound : -outbound));
         projectile.Position = projectile.Position.WithWholeY(projectile.Position.Y.Whole + 1);
 

@@ -58,8 +58,8 @@ internal sealed class DraygonGrab
 
         int clawOffset = state.Facing == HorizontalDirection.Right ? DraygonArenaDefinitions.ClawReach : -DraygonArenaDefinitions.ClawReach;
         bool insideGrabWindow =
-            CoordinateAxis.Distance(CoordinateAxis.Wrap(body.Position.X.Whole + clawOffset), samus.Position.X.Whole) < DraygonArenaDefinitions.GrabWindow &&
-            CoordinateAxis.Distance(body.Position.Y.Whole, samus.Position.Y.Whole) < DraygonArenaDefinitions.GrabWindow;
+            DistanceAcrossRoomEdge.Between(body.Position.X.Whole + clawOffset, samus.Position.X.Whole) < DraygonArenaDefinitions.GrabWindow &&
+            DistanceAcrossRoomEdge.Between(body.Position.Y.Whole, samus.Position.Y.Whole) < DraygonArenaDefinitions.GrabWindow;
         if (!insideGrabWindow)
         {
             MoveDraygonToward(body, samus.Position.Whole, DraygonGrabDefinitions.ChaseSpeed);
@@ -108,9 +108,10 @@ internal sealed class DraygonGrab
         }
 
         RoomEnemyPlace body = state.Body;
+        // The spiral's target and its tolerance lie inside the arena, so a place within the tolerance is so plainly.
         bool reachedTarget =
-            CoordinateAxis.Distance(body.Position.X.Whole, DraygonGrabDefinitions.SpiralTarget.X) < DraygonArenaDefinitions.SpiralTargetTolerance &&
-            CoordinateAxis.Distance(body.Position.Y.Whole, DraygonGrabDefinitions.SpiralTarget.Y) < DraygonArenaDefinitions.SpiralTargetTolerance;
+            Math.Abs(body.Position.X.Whole - DraygonGrabDefinitions.SpiralTarget.X) < DraygonArenaDefinitions.SpiralTargetTolerance &&
+            Math.Abs(body.Position.Y.Whole - DraygonGrabDefinitions.SpiralTarget.Y) < DraygonArenaDefinitions.SpiralTargetTolerance;
         if (reachedTarget)
         {
             state.Phase = DraygonPhase.FlailWithSamus;
@@ -173,7 +174,9 @@ internal sealed class DraygonGrab
         state.SpiralAngle += state.SpiralAngleDelta.WholeStep;
 
         state.SpiralCenter = state.SpiralCenter.Lifted(DraygonGrabDefinitions.SpiralCenterLift);
-        if (CoordinateAxis.Difference(state.SpiralCenter.Center.Y.Whole, DraygonGrabDefinitions.MinimumSpiralCenterY) < 0)
+        // Every spiral starts at its target, inside the arena, and rises a quarter pixel an update until it passes the
+        // minimum height, so its centre never reaches the room's top.
+        if (state.SpiralCenter.Center.Y.Whole < DraygonGrabDefinitions.MinimumSpiralCenterY)
         {
             state.Phase = DraygonPhase.FinalTailWhips;
             return;

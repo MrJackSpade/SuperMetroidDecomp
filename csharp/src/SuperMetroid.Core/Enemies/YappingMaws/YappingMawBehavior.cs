@@ -218,21 +218,21 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? TrigonometryAngle.HalfTurn.TurnedBySteps(multiple)
                 : TrigonometryAngle.HalfTurn.TurnedBySteps(-multiple);
 
-            int rawX = CoordinateAxis.Wrap(CalculateYappingMawX(linkAngle, state.SegmentRadius) - state.Baseline.X);
-            int rawY = CoordinateAxis.Wrap(CalculateYappingMawY(linkAngle, state.SegmentRadius / 2) - state.Baseline.Y);
+            int rawX = YappingMawBendChain.Held(CalculateYappingMawX(linkAngle, state.SegmentRadius) - state.Baseline.X);
+            int rawY = YappingMawBendChain.Held(CalculateYappingMawY(linkAngle, state.SegmentRadius / 2) - state.Baseline.Y);
 
             // The curl rotates a correction whose length is the link's X offset for both components, which gives the
             // curve its lopsided shape.
-            int correctionX = CoordinateAxis.Wrap(
+            int correctionX = YappingMawBendChain.Held(
                 CalculateYappingMawX(state.CurlAngle.ToTrigonometryAngle(), rawX) -
                 CalculateYappingMawX(RotationAngle.Zero.ToTrigonometryAngle(), rawX));
-            int correctionY = CoordinateAxis.Wrap(
+            int correctionY = YappingMawBendChain.Held(
                 CalculateYappingMawY(state.CurlAngle.ToTrigonometryAngle(), rawX) -
                 CalculateYappingMawY(RotationAngle.Zero.ToTrigonometryAngle(), rawX));
             int segmentX = chain.Corrected(rawX, correctionX);
             int segmentY = chain.Corrected(rawY, correctionY);
             state.Links[segment].Offset = new Offset16<RoomPixels>(
-                CoordinateAxis.AsSigned(segmentX), CoordinateAxis.AsSigned(segmentY));
+                YappingMawBendChain.Offset(segmentX), YappingMawBendChain.Offset(segmentY));
         }
 
         place.Position = place.Position.WithWhole(YappingMawLinkPosition(state, 3));

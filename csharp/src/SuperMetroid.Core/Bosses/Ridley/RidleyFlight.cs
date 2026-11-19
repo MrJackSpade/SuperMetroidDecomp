@@ -71,9 +71,9 @@ internal sealed class RidleyFlight
         FixedCoordinate moved = position.MovedBy(velocity);
 
         if (SignedPlace(moved) < minimum)
-            return new RidleyAxisMotion(moved.WithWrappedWhole(minimum), SignedEightEight.Zero);
+            return new RidleyAxisMotion(OffRoomPlaces.WithWhole(moved, minimum), SignedEightEight.Zero);
         if (SignedPlace(moved) >= maximum)
-            return new RidleyAxisMotion(moved.WithWrappedWhole(maximum), SignedEightEight.Zero);
+            return new RidleyAxisMotion(OffRoomPlaces.WithWhole(moved, maximum), SignedEightEight.Zero);
         return new RidleyAxisMotion(moved, velocity);
     }
 
@@ -85,10 +85,10 @@ internal sealed class RidleyFlight
 
     /// <summary>Where <paramref name="position"/> lies from the room's origin: one above or left of the room lies at a negative height or column.</summary>
     internal static Offset16<RoomPixels> SignedPlace(Position16<RoomPixels> position) =>
-        new(CoordinateAxis.AsSigned(position.X), CoordinateAxis.AsSigned(position.Y));
+        OffRoomPlaces.Signed(position);
 
     /// <summary>Where one axis of a moving place lies from the room's origin, negative above or left of the room.</summary>
-    private static int SignedPlace(FixedCoordinate coordinate) => CoordinateAxis.AsSigned(coordinate.Whole);
+    private static int SignedPlace(FixedCoordinate coordinate) => OffRoomPlaces.Signed(coordinate.Whole);
 
     /// <summary>
     /// Moves Ridley's swoop speed toward <paramref name="targetSpeed"/>, turns his heading by <paramref name="turn"/>

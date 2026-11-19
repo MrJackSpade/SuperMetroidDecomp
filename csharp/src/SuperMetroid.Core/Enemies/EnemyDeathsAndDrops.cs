@@ -444,13 +444,13 @@ internal sealed class EnemyDeathsAndDrops
         // A pickup appears where its enemy died, and an enemy can die above or left of the room's origin: a fly that has
         // climbed through the ceiling, or a Bull braking past Samus, struck by a shot that lives on past the view's edge.
         // The grapple's endpoint and Samus reach such a pickup from the room's top row or left column the short way, as
-        // CoordinateAxis.Distance gives it.
+        // DistanceAcrossRoomEdge.Between gives it.
         // The grapple query reports any grapple phase but inactive. A pickup is immune to its
         // endpoint for the first sixteen decrements, then uses strict 16-pixel axis tests.
         if (samus.Grapple.Phase != GrapplePhase.Inactive &&
             pickup.Lifetime < EnemyPickupDefinitions.Lifetime - EnemyPickupDefinitions.GrappleDelay &&
-            CoordinateAxis.Distance(projectile.Position.X.Whole, samus.Grapple.Anchor.X) < EnemyPickupDefinitions.GrappleReach &&
-            CoordinateAxis.Distance(projectile.Position.Y.Whole, samus.Grapple.Anchor.Y) < EnemyPickupDefinitions.GrappleReach)
+            DistanceAcrossRoomEdge.Between(projectile.Position.X.Whole, samus.Grapple.Anchor.X) < EnemyPickupDefinitions.GrappleReach &&
+            DistanceAcrossRoomEdge.Between(projectile.Position.Y.Whole, samus.Grapple.Anchor.Y) < EnemyPickupDefinitions.GrappleReach)
         {
             CollectEnemyPickup(projectile, samus);
             return;
@@ -458,9 +458,9 @@ internal sealed class EnemyDeathsAndDrops
 
         // The pickup touches Samus only while both axes' distances are strictly less than their
         // radii's sum. Equality is not contact in either axis.
-        if (CoordinateAxis.Distance(samus.Position.X.Whole, projectile.Position.X.Whole) >=
+        if (DistanceAcrossRoomEdge.Between(samus.Position.X.Whole, projectile.Position.X.Whole) >=
                 samus.Kinematics.Radius.X + projectile.Radius.X ||
-            CoordinateAxis.Distance(samus.Position.Y.Whole, projectile.Position.Y.Whole) >=
+            DistanceAcrossRoomEdge.Between(samus.Position.Y.Whole, projectile.Position.Y.Whole) >=
                 samus.Kinematics.Radius.Y + projectile.Radius.Y)
         {
             return;

@@ -189,7 +189,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                 place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
 
                 TrigonometryAngle velocityAngle = EnemyMath.CalculateBearing(
-                    new(CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole))).ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
+                    new(DistanceAcrossRoomEdge.Apart(samus.Position.X.Whole, place.Position.X.Whole), DistanceAcrossRoomEdge.Apart(samus.Position.Y.Whole, place.Position.Y.Whole))).ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
                 state.Velocity = new(
                     EnemyMath.SineSpeed(RinkaLifeDefinitions.Speed, velocityAngle),
                     EnemyMath.SineSpeed(
@@ -327,17 +327,17 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         state.HeldSpawnPoint = null;
     }
 
-    /// <summary>The Rinka's flight rectangle: the screen widened by its flight margin on every side.</summary>
+    /// <summary>The Rinka's flight rectangle: the screen widened by its flight margin on every side. A Rinka flown above or left of the room lies outside it.</summary>
     private bool RinkaIsOutsideFlightWindow(RoomEnemyPlace place)
     {
-        if (CoordinateAxis.AsSigned(place.Position.Y.Whole) < 0)
+        if (OffRoomPlaces.LiesBeforeRoom(place.Position.Y.Whole))
             return true;
-        int relativeY = CoordinateAxis.Difference(place.Position.Y.Whole + RinkaLifeDefinitions.FlightMargin, _rinkaCamera.Y);
+        int relativeY = CameraPastRoomEdge.FromCamera(place.Position.Y.Whole + RinkaLifeDefinitions.FlightMargin, _rinkaCamera.Y);
         if (relativeY is < 0 or >= RinkaLifeDefinitions.FlightWindowHeight)
             return true;
-        if (CoordinateAxis.AsSigned(place.Position.X.Whole) < 0)
+        if (OffRoomPlaces.LiesBeforeRoom(place.Position.X.Whole))
             return true;
-        int relativeX = CoordinateAxis.Difference(place.Position.X.Whole + RinkaLifeDefinitions.FlightMargin, _rinkaCamera.X);
+        int relativeX = CameraPastRoomEdge.FromCamera(place.Position.X.Whole + RinkaLifeDefinitions.FlightMargin, _rinkaCamera.X);
         return relativeX is < 0 or >= RinkaLifeDefinitions.FlightWindowWidth;
     }
 

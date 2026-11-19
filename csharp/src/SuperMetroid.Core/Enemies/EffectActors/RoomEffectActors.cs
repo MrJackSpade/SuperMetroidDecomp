@@ -107,8 +107,8 @@ internal sealed class RoomEffectActors
             // Whether this draw reaches the value a Puyo's ceiling strike reads depends on where the object lies
             // relative to the view, which the service decides.
             _puyoCeilingTurn.EffectActorDrawn(
-                CoordinateAxis.Difference(spawned.Position.Whole.X, camera.X),
-                CoordinateAxis.Difference(spawned.Position.Whole.Y, camera.Y));
+                CameraPastRoomEdge.FromCamera(spawned.Position.Whole.X, camera.X),
+                CameraPastRoomEdge.FromCamera(spawned.Position.Whole.Y, camera.Y));
 
             // A hit burst shows Samus's burst sprites, every other object a frame of its enemy sheet (#1817).
             if (spawned.Frame.HitBurst is { } burst)

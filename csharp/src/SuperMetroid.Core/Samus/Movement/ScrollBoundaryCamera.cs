@@ -148,7 +148,7 @@ public sealed class ScrollBoundaryCamera
     /// vertical axis and the ideal position keep what Samus's tracking left, and her next tracking starts from here.
     /// </summary>
     /// <param name="pixels">How far right the camera moves, in whole pixels.</param>
-    internal void NudgeRight(int pixels) => SetWholeX(CoordinateAxis.Wrap(Position.X.Whole + pixels));
+    internal void NudgeRight(int pixels) => SetWholeX(CameraPastRoomEdge.At(Position.X.Whole + pixels));
 
     /// <summary>
     /// Raises the camera to <paramref name="floor"/>'s lowest Y when it has tracked Samus above it, after both axes have
@@ -197,12 +197,12 @@ public sealed class ScrollBoundaryCamera
             || context.TurningAgainstMomentum;
         HorizontalDirection targetFacing = backwards ^ !context.FacesLeft ? HorizontalDirection.Right : HorizontalDirection.Left;
         int targetOffset = HorizontalCameraTargets.Offset(context.CameraDistance, targetFacing);
-        IdealPosition = IdealPosition.WithX(CoordinateAxis.Wrap(current.X.Whole - targetOffset));
+        IdealPosition = IdealPosition.WithX(CameraPastRoomEdge.At(current.X.Whole - targetOffset));
 
         if (IdealPosition.X == Position.X.Whole)
             return;
 
-        if (CoordinateAxis.Difference(IdealPosition.X, Position.X.Whole) < 0)
+        if (CameraPastRoomEdge.LiesBefore(IdealPosition.X, Position.X.Whole))
         {
             Position = Position.AdvanceX(-Speed.X);
             HandleScrollingLeft();
@@ -221,11 +221,11 @@ public sealed class ScrollBoundaryCamera
     /// </summary>
     public void TrackGrappleSlowScrolling(Position16<RoomPixels> samus, bool timeIsFrozen)
     {
-        if (CoordinateAxis.AsSigned(samus.X) >= 0)
+        if (!CameraPastRoomEdge.LiesBeforeRoom(samus.X))
         {
             SetWholeX(StepTowardDeadZone(Position.X.Whole, samus.X,
                 GrappleSlowScrollDefinitions.LeftEdgeX, GrappleSlowScrollDefinitions.RightEdgeX));
-            if (CoordinateAxis.AsSigned(samus.Y) >= 0)
+            if (!CameraPastRoomEdge.LiesBeforeRoom(samus.Y))
             {
                 SetWholeY(StepTowardDeadZone(Position.Y.Whole, samus.Y,
                     GrappleSlowScrollDefinitions.TopEdgeY, GrappleSlowScrollDefinitions.BottomEdgeY));
@@ -241,12 +241,12 @@ public sealed class ScrollBoundaryCamera
     private static int StepTowardDeadZone(int camera, int samus, int nearEdge, int farEdge)
     {
         if (samus < camera)
-            return CoordinateAxis.Wrap(camera - GrappleSlowScrollDefinitions.Step);
-        int onScreen = CoordinateAxis.Wrap(samus - camera);
+            return CameraPastRoomEdge.At(camera - GrappleSlowScrollDefinitions.Step);
+        int onScreen = CameraPastRoomEdge.At(samus - camera);
         if (onScreen >= farEdge)
-            return CoordinateAxis.Wrap(camera + GrappleSlowScrollDefinitions.Step);
+            return CameraPastRoomEdge.At(camera + GrappleSlowScrollDefinitions.Step);
         if (onScreen < nearEdge)
-            return CoordinateAxis.Wrap(camera - GrappleSlowScrollDefinitions.Step);
+            return CameraPastRoomEdge.At(camera - GrappleSlowScrollDefinitions.Step);
         return camera;
     }
 
@@ -270,12 +270,12 @@ public sealed class ScrollBoundaryCamera
 
         // Moving up aims by the rising offset; moving any other way, by the falling one.
         int targetOffset = context.YDirection == SamusVerticalDirection.Up ? context.RisingCameraOffset : context.FallingCameraOffset;
-        IdealPosition = IdealPosition.WithY(CoordinateAxis.Wrap(current.Y.Whole - targetOffset));
+        IdealPosition = IdealPosition.WithY(CameraPastRoomEdge.At(current.Y.Whole - targetOffset));
 
         if (IdealPosition.Y == Position.Y.Whole)
             return;
 
-        if (CoordinateAxis.Difference(IdealPosition.Y, Position.Y.Whole) < 0)
+        if (CameraPastRoomEdge.LiesBefore(IdealPosition.Y, Position.Y.Whole))
         {
             Position = Position.AdvanceY(-Speed.Y);
             HandleScrollingUp();
@@ -306,7 +306,7 @@ public sealed class ScrollBoundaryCamera
         // this starting position, even if the live position is first clamped to a room edge.
         int proposed = Position.X.Whole;
 
-        if (CoordinateAxis.AsSigned(Position.X.Whole) < 0)
+        if (CameraPastRoomEdge.LiesBeforeRoom(Position.X.Whole))
             SetWholeX(0);
 
         int roomMaximum = RoomGridConversions.ScreenToPixels(Scrolls.Size.X - 1);
@@ -321,7 +321,7 @@ public sealed class ScrollBoundaryCamera
             // If the screen right of the candidate is also closed, discard the fractional screen position and stay
             // on the candidate screen's left edge instead of allowing the viewport to enter it.
             int rightBoundary = NextScreenStart(Position.X.Whole);
-            int candidate = CoordinateAxis.Wrap(proposed + Speed.X.WholePixels + SamusCameraDefinitions.ClosedScreenDrift);
+            int candidate = CameraPastRoomEdge.At(proposed + Speed.X.WholePixels + SamusCameraDefinitions.ClosedScreenDrift);
             if (candidate >= rightBoundary)
             {
                 SetWholeX(rightBoundary);
@@ -343,8 +343,8 @@ public sealed class ScrollBoundaryCamera
         // toward the current screen's left edge. If the candidate itself lands in a closed screen, round
         // up to the next screen boundary. The comparison is signed.
         int leftBoundary = ScreenStart(Position.X.Whole);
-        int leftCandidate = CoordinateAxis.Wrap(proposed - Speed.X.WholePixels - SamusCameraDefinitions.ClosedScreenDrift);
-        if (CoordinateAxis.Difference(leftCandidate, leftBoundary) < 0)
+        int leftCandidate = CameraPastRoomEdge.At(proposed - Speed.X.WholePixels - SamusCameraDefinitions.ClosedScreenDrift);
+        if (CameraPastRoomEdge.LiesBefore(leftCandidate, leftBoundary))
         {
             SetWholeX(leftBoundary);
             return;
@@ -374,7 +374,7 @@ public sealed class ScrollBoundaryCamera
             : SamusCameraDefinitions.LowerAlignment;
         int proposed = Position.Y.Whole;
 
-        if (CoordinateAxis.AsSigned(Position.Y.Whole) < 0)
+        if (CameraPastRoomEdge.LiesBeforeRoom(Position.Y.Whole))
             SetWholeY(0);
 
         int roomMaximum = RoomGridConversions.ScreenToPixels(Scrolls.Size.Y - 1) + verticalAlignment;
@@ -388,7 +388,7 @@ public sealed class ScrollBoundaryCamera
             // A closed current screen pushes downward toward its bottom boundary. As in the X
             // step, a second closed screen beyond the candidate causes screen-edge rounding.
             int bottomBoundary = NextScreenStart(Position.Y.Whole);
-            int candidate = CoordinateAxis.Wrap(proposed + Speed.Y.WholePixels + SamusCameraDefinitions.ClosedScreenDrift);
+            int candidate = CameraPastRoomEdge.At(proposed + Speed.Y.WholePixels + SamusCameraDefinitions.ClosedScreenDrift);
             if (candidate >= bottomBoundary)
             {
                 SetWholeY(bottomBoundary);
@@ -406,15 +406,15 @@ public sealed class ScrollBoundaryCamera
         if (Scrolls.ReadCameraState(Below(current)) != RoomScrollState.Closed)
             return;
 
-        int topBoundary = CoordinateAxis.Wrap(ScreenStart(Position.Y.Whole) + verticalAlignment);
+        int topBoundary = CameraPastRoomEdge.At(ScreenStart(Position.Y.Whole) + verticalAlignment);
 
         // The comparison only pulls the camera upward when it is strictly below the
         // aligned boundary. Equality intentionally does nothing.
         if (topBoundary >= Position.Y.Whole)
             return;
 
-        int upwardCandidate = CoordinateAxis.Wrap(proposed - Speed.Y.WholePixels - SamusCameraDefinitions.ClosedScreenDrift);
-        if (CoordinateAxis.Difference(upwardCandidate, topBoundary) < 0)
+        int upwardCandidate = CameraPastRoomEdge.At(proposed - Speed.Y.WholePixels - SamusCameraDefinitions.ClosedScreenDrift);
+        if (CameraPastRoomEdge.LiesBefore(upwardCandidate, topBoundary))
         {
             SetWholeY(topBoundary);
             return;
@@ -433,7 +433,7 @@ public sealed class ScrollBoundaryCamera
 
         // If the camera has moved past its ideal, which way the distance lies deciding it, it snaps to the ideal and
         // drops its fraction.
-        if (CoordinateAxis.Difference(IdealPosition.X, Position.X.Whole) < 0)
+        if (CameraPastRoomEdge.LiesBefore(IdealPosition.X, Position.X.Whole))
         {
             // Overshoot snaps to the ideal position and discards the fractional camera position.
             Position = Position.WithX(new FixedCoordinate(IdealPosition.X, 0));
@@ -451,8 +451,8 @@ public sealed class ScrollBoundaryCamera
             return;
 
         int boundary = ScreenStart(Position.X.Whole);
-        int candidate = CoordinateAxis.Wrap(proposed - Speed.X.WholePixels - SamusCameraDefinitions.ClosedScreenDrift);
-        if (CoordinateAxis.Difference(candidate, boundary) < 0)
+        int candidate = CameraPastRoomEdge.At(proposed - Speed.X.WholePixels - SamusCameraDefinitions.ClosedScreenDrift);
+        if (CameraPastRoomEdge.LiesBefore(candidate, boundary))
             candidate = boundary;
         SetWholeX(candidate);
     }
@@ -461,13 +461,13 @@ public sealed class ScrollBoundaryCamera
     internal void HandleScrollingLeft()
     {
         int proposed = Position.X.Whole;
-        if (CoordinateAxis.Difference(Position.X.Whole, IdealPosition.X) < 0)
+        if (CameraPastRoomEdge.LiesBefore(Position.X.Whole, IdealPosition.X))
         {
             // Overshoot snaps to the ideal position and discards the fractional camera position.
             Position = Position.WithX(new FixedCoordinate(IdealPosition.X, 0));
         }
 
-        if (CoordinateAxis.AsSigned(Position.X.Whole) < 0)
+        if (CameraPastRoomEdge.LiesBeforeRoom(Position.X.Whole))
         {
             SetWholeX(0);
             return;
@@ -477,7 +477,7 @@ public sealed class ScrollBoundaryCamera
             return;
 
         int boundary = NextScreenStart(Position.X.Whole);
-        int candidate = CoordinateAxis.Wrap(proposed + Speed.X.WholePixels + SamusCameraDefinitions.ClosedScreenDrift);
+        int candidate = CameraPastRoomEdge.At(proposed + Speed.X.WholePixels + SamusCameraDefinitions.ClosedScreenDrift);
         if (candidate >= boundary)
             candidate = boundary;
         SetWholeX(candidate);
@@ -494,7 +494,7 @@ public sealed class ScrollBoundaryCamera
             ? 0
             : SamusCameraDefinitions.LowerAlignment;
 
-        if (CoordinateAxis.Difference(IdealPosition.Y, Position.Y.Whole) < 0)
+        if (CameraPastRoomEdge.LiesBefore(IdealPosition.Y, Position.Y.Whole))
         {
             // Overshoot snaps to the ideal position and discards the fractional camera position.
             Position = Position.WithY(new FixedCoordinate(IdealPosition.Y, 0));
@@ -510,15 +510,15 @@ public sealed class ScrollBoundaryCamera
             blockedBelow = Scrolls.ReadCameraState(Below(current)) == RoomScrollState.Closed;
             if (blockedBelow)
             {
-                boundary = CoordinateAxis.Wrap(ScreenStart(Position.Y.Whole) + verticalAlignment);
+                boundary = CameraPastRoomEdge.At(ScreenStart(Position.Y.Whole) + verticalAlignment);
                 blockedBelow = boundary < Position.Y.Whole;
             }
         }
 
         if (beyondRoomBottom || blockedBelow)
         {
-            int candidate = CoordinateAxis.Wrap(proposed - Speed.Y.WholePixels - SamusCameraDefinitions.ClosedScreenDrift);
-            if (CoordinateAxis.Difference(candidate, boundary) < 0)
+            int candidate = CameraPastRoomEdge.At(proposed - Speed.Y.WholePixels - SamusCameraDefinitions.ClosedScreenDrift);
+            if (CameraPastRoomEdge.LiesBefore(candidate, boundary))
                 candidate = boundary;
             SetWholeY(candidate);
         }
@@ -528,13 +528,13 @@ public sealed class ScrollBoundaryCamera
     internal void HandleScrollingUp()
     {
         int proposed = Position.Y.Whole;
-        if (CoordinateAxis.Difference(Position.Y.Whole, IdealPosition.Y) < 0)
+        if (CameraPastRoomEdge.LiesBefore(Position.Y.Whole, IdealPosition.Y))
         {
             // Overshoot snaps to the ideal position and discards the fractional camera position.
             Position = Position.WithY(new FixedCoordinate(IdealPosition.Y, 0));
         }
 
-        if (CoordinateAxis.AsSigned(Position.Y.Whole) < 0)
+        if (CameraPastRoomEdge.LiesBeforeRoom(Position.Y.Whole))
         {
             SetWholeY(0);
             return;
@@ -544,7 +544,7 @@ public sealed class ScrollBoundaryCamera
             return;
 
         int boundary = NextScreenStart(Position.Y.Whole);
-        int candidate = CoordinateAxis.Wrap(proposed + Speed.Y.WholePixels + SamusCameraDefinitions.ClosedScreenDrift);
+        int candidate = CameraPastRoomEdge.At(proposed + Speed.Y.WholePixels + SamusCameraDefinitions.ClosedScreenDrift);
         if (candidate >= boundary)
             candidate = boundary;
         SetWholeY(candidate);
@@ -556,14 +556,14 @@ public sealed class ScrollBoundaryCamera
     /// </summary>
     private Position16<RoomScreens> HorizontalCheckScreen() => new(
         RoomGridConversions.PixelToScreen(Position.X.Whole),
-        RoomGridConversions.PixelToScreen(CoordinateAxis.Wrap(Position.Y.Whole + SamusCameraDefinitions.HalfScreen)));
+        RoomGridConversions.PixelToScreen(CameraPastRoomEdge.At(Position.Y.Whole + SamusCameraDefinitions.HalfScreen)));
 
     /// <summary>
     /// The screen the vertical checks read: the camera's screen row, in the column through the camera's horizontal
     /// centre (its left edge plus half a screen).
     /// </summary>
     private Position16<RoomScreens> VerticalCheckScreen() => new(
-        RoomGridConversions.PixelToScreen(CoordinateAxis.Wrap(Position.X.Whole + SamusCameraDefinitions.HalfScreen)),
+        RoomGridConversions.PixelToScreen(CameraPastRoomEdge.At(Position.X.Whole + SamusCameraDefinitions.HalfScreen)),
         RoomGridConversions.PixelToScreen(Position.Y.Whole));
 
     /// <summary>
@@ -579,18 +579,18 @@ public sealed class ScrollBoundaryCamera
     private static int ScreenStart(int pixel) => RoomGridConversions.ScreenStart(pixel);
 
     /// <summary>The first pixel of the following scroll screen, wrapping at 65536.</summary>
-    private static int NextScreenStart(int pixel) => CoordinateAxis.Wrap(ScreenStart(pixel) + 2 * SamusCameraDefinitions.HalfScreen);
+    private static int NextScreenStart(int pixel) => CameraPastRoomEdge.At(ScreenStart(pixel) + 2 * SamusCameraDefinitions.HalfScreen);
 
     /// <summary>
     /// The distance the camera moved from <paramref name="previous"/> to <paramref name="current"/>, in whichever
-    /// direction the whole pixels moved (<see cref="CoordinateAxis.Difference"/>), plus one whole pixel. When the whole
+    /// direction the whole pixels moved (<see cref="CameraPastRoomEdge.LiesBefore"/>), plus one whole pixel. When the whole
     /// pixels match and the fraction moved back, the sum is less than one pixel.
     /// </summary>
     private static SignedSixteenSixteen CalculateDistanceMovedPlusOne(
         FixedCoordinate previous,
         FixedCoordinate current)
     {
-        SignedSixteenSixteen distance = CoordinateAxis.Difference(current.Whole, previous.Whole) >= 0
+        SignedSixteenSixteen distance = !CameraPastRoomEdge.LiesBefore(current.Whole, previous.Whole)
             ? current - previous
             : previous - current;
         return distance + OnePixel;

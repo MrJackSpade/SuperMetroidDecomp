@@ -22,4 +22,11 @@ public static class AbsentWaterSurfaceLine
     /// <summary>The surface line the bubble test and the diving splash read: <paramref name="surface"/>, or the line above the room.</summary>
     /// <param name="surface">The room's water surface, or none.</param>
     public static int Read(int? surface) => surface ?? LineAboveRoom;
+
+    /// <summary>
+    /// The surface line as a place in the room, where the diving splash stands: <paramref name="surface"/>, or the line
+    /// above the room counted back from the far end of the room's coordinates (<see cref="OffRoomPlaces"/>), 65535.
+    /// </summary>
+    /// <param name="surface">The room's water surface, or none.</param>
+    public static int PlaceOf(int? surface) => OffRoomPlaces.Place(Read(surface));
 }

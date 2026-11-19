@@ -73,7 +73,7 @@ internal static class ScrollObjectsVerification
         {
             var insideSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(72, centerY)) };
             insideSamus.Kinematics.Radius = insideSamus.Kinematics.Radius.WithY(radius);
-            SamusInsideBlockReactions.PrepareFrame(level, insideSamus, AreaId.Crateria, roomObjects: roomObjects, areaBossDefeated: false);
+            SamusInsideBlockReactions.PrepareFrame(level, insideSamus, roomHasPower: true, roomObjects: roomObjects);
             AssertEqual(shouldWake, roomObjects.ScrollObjectTriggered(origin),
                 "inside scroll reaction admits only a separately visited center, not feet/head");
             roomObjects.Step(level, scrolls);

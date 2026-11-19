@@ -14,6 +14,7 @@ internal static class SamusKinematicsStateAccess2
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is not left, right, up or down.</exception>
         public ISolidEnemy? SolidEnemyContact(SamusCollisionDirection direction) =>
-            self.solidEnemyContacts.GetValueOrDefault(SamusKinematicsState.RequireContactDirection(direction));
+            PrivateState.Field<SamusKinematicsState, Dictionary<SamusCollisionDirection, ISolidEnemy>>(self, "_solidEnemyContacts")
+                .GetValueOrDefault(SamusKinematicsState.RequireContactDirection(direction));
     }
 }

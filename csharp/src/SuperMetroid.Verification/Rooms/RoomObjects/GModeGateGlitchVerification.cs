@@ -199,8 +199,8 @@ internal static class GModeGateGlitchVerification
             SamusInsideBlockReactions.PrepareFrame(
                 level,
                 samus,
-                AreaId.Maridia,
-                roomObjects: roomObjects, areaBossDefeated: false);
+                roomHasPower: true,
+                roomObjects: roomObjects);
             AssertTrue(roomObjects.Places.ActiveCount > before && roomObjects.Places.ActiveCount <= before + 3,
                 $"G-Mode sand contact {contact} consumes its bottom/center/top suspended PLM slots");
             AssertTrue(samus.Kinematics.ExtraDisplacement.Y.RawValue != 0,
@@ -215,8 +215,8 @@ internal static class GModeGateGlitchVerification
         SamusInsideBlockReactions.PrepareFrame(
             level,
             samus,
-            AreaId.Maridia,
-            roomObjects: roomObjects, areaBossDefeated: false);
+            roomHasPower: true,
+            roomObjects: roomObjects);
         AssertEqual(40, roomObjects.Places.ActiveCount,
             "forty-first G-Mode sand contact cannot exceed the cartridge PLM pool");
         AssertEqual(0, samus.Kinematics.ExtraDisplacement.Y.RawValue,

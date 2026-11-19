@@ -99,6 +99,8 @@ internal sealed class BeamCombos
                     shot.Position = shot.Position.WithFractionX(0).WithFractionY(0);
                 if (kind == SamusComboKind.Wave)
                 {
+                    // A Wave particle starts 128 pixels from Samus on each axis, so near the room's top or left edge it
+                    // starts above or left of the room's origin, a place CoordinateAxis.Wrap gives it.
                     shot.Position = shot.Position.WithWhole(new(CoordinateAxis.Wrap(samus.Position.X.Whole + part.WaveStart.X), CoordinateAxis.Wrap(samus.Position.Y.Whole + part.WaveStart.Y)));
                 }
                 if (kind == SamusComboKind.Spazer && part.SpazerTrail) shot.Type = SamusProjectileType.EchoOf(SamusBeamEcho.SpazerComboTrail);
@@ -159,6 +161,9 @@ internal sealed class BeamCombos
         }
         StepTrail(shot);
         Offset16<RoomPixels> orbit = SamusComboMechanics.GetSineOffset(ice.Angle, ice.Radius);
+        // An Ice particle circles Samus 32 pixels out, further than her centre lies from a wall at the room's left edge, so
+        // it passes left of the room's origin there, and above it where the room is open at the top, places
+        // CoordinateAxis.Wrap gives it.
         shot.Position = shot.Position.WithWrappedWholeX(samus.Position.X.Whole + orbit.X);
         shot.Position = shot.Position.WithWrappedWholeY(samus.Position.Y.Whole + orbit.Y);
         ice.Turn();
@@ -190,6 +195,8 @@ internal sealed class BeamCombos
         }
         StepTrail(shot);
         Offset16<RoomPixels> orbit = SamusComboMechanics.GetSineOffset(ice.Angle, ice.Radius);
+        // The spreading circle grows until its particles leave the view, so beside the room's top or left edge they pass
+        // above or left of the room's origin first, places CoordinateAxis.Wrap gives them.
         shot.Position = shot.Position.WithWrappedWholeX(samus.Position.X.Whole + orbit.X);
         if (LeftViewHorizontally(shot, camera))
         {
@@ -247,6 +254,8 @@ internal sealed class BeamCombos
         shared.SetSharedCooldown(SamusProjectileCooldownDefinitions.SpecialAttackHold);
         _charge.ClearCount();
         Offset16<RoomPixels> orbit = SamusComboMechanics.GetSineOffset(ring.Angle, ring.Radius);
+        // A Plasma ring grows as far as 192 pixels round Samus, so near the room's top or left edge it passes above or left
+        // of the room's origin, places CoordinateAxis.Wrap gives it.
         shot.Position = shot.Position.WithWhole(new(CoordinateAxis.Wrap(orbit.X + samus.Position.X.Whole), CoordinateAxis.Wrap(orbit.Y + samus.Position.Y.Whole)));
         ring.Turn();
         switch (ring.Phase)
@@ -386,6 +395,8 @@ internal sealed class BeamCombos
     {
         Offset16<RoomPixels> orbit = SamusComboMechanics.GetSineOffset(spazer.Angle, spazer.Radius);
         int centreHeight = spazer.Phase == SpazerComboPhase.Circling ? 0 : BeamComboDefinitions.SpazerFlightCentreHeight;
+        // A Spazer particle circles Samus 40 pixels out, then as far as 160 round a point 114 above her, so near the room's
+        // top or left edge it passes above or left of the room's origin, places CoordinateAxis.Wrap gives it.
         shot.Position = shot.Position.WithWhole(new(CoordinateAxis.Wrap(samus.Position.X.Whole + orbit.X),
             CoordinateAxis.Wrap(samus.Position.Y.Whole + orbit.Y - centreHeight)));
     }
@@ -393,6 +404,8 @@ internal sealed class BeamCombos
     /// <summary>Moves a circling Spazer particle outward and switches its beam pair to falling echo artwork.</summary>
     private static void BeginSpazerFall(SamusProjectile shot, SpazerParticleState spazer)
     {
+        // The particle can lie left of the room's origin as its flight ends (PlaceSpazerParticle), and the step out moves it
+        // sixteen pixels either way, so its place is one CoordinateAxis.Wrap gives it.
         shot.Position = shot.Position.WithWrappedWholeX(shot.Position.X.Whole +
             (spazer.Part.SpazerTrail ? -BeamComboDefinitions.SpazerFallSideStep : BeamComboDefinitions.SpazerFallSideStep));
         shot.Direction = SamusProjectileDirection.DownFacingLeft;

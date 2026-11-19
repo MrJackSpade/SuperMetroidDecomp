@@ -52,14 +52,15 @@ internal static class PoseProjectileOriginVerification
             for (byte direction = 0; direction < 10; direction++)
             {
                 guardedPose = samus.Pose = SamusPoseNumbering.FromNumber(pose);
-                samus.Position = samus.Position.WithWholeX(unchecked((ushort)(pose * 251 + art)));
+                // Her centre lies at least 21 pixels inside the room's left edge (#2528); her height, ~X, lies above the room.
+                samus.Position = samus.Position.WithWholeX(21 + (pose * 251 + art) % 4096);
                 samus.Position = samus.Position.WithWholeY(unchecked((ushort)~samus.Position.X.Whole));
                 int physicalY = PhysicalOrigin(rom, pose);
                 bool running = rom.ReadCartridgeByte(0x91b629 + pose * 8 + 1) == 1;
                 bool beamRunning = running || pose is 0x75 or 0x76;
                 slot.Direction = SamusProjectileDirectionCodec.FromAimIndex(direction);
                 initialize(samus, slot);
-                AssertEqual(unchecked((ushort)(samus.Position.X.Whole + Word((beamRunning ? SamusSourceDefinitionsConstants.RunningXOrigins : SamusSourceDefinitionsConstants.DefaultXOrigins) + direction * 2))), slot.Position.X.Whole, "Pose art leaves projectile X unchanged");
+                AssertEqual(samus.Position.X.Whole + Word((beamRunning ? SamusSourceDefinitionsConstants.RunningXOrigins : SamusSourceDefinitionsConstants.DefaultXOrigins) + direction * 2), slot.Position.X.Whole, "Pose art leaves projectile X unchanged");
                 AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + Word((beamRunning ? SamusSourceDefinitionsConstants.RunningYOrigins : SamusSourceDefinitionsConstants.DefaultYOrigins) + direction * 2) - physicalY)), slot.Position.Y.Whole, "Pose art leaves projectile collision Y unchanged");
 
                 var g = samus.Grapple;

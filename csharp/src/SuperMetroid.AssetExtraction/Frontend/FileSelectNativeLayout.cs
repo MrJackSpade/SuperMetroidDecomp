@@ -1,4 +1,5 @@
 using SuperMetroid.Core;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
@@ -16,6 +17,12 @@ internal static class FileSelectNativeLayout
     public const ushort CopyBorderSpritemap = 0x49;
     /// <summary>Clear-menu border spritemap.</summary>
     public const ushort ClearBorderSpritemap = 0x4a;
+    /// <summary>Where the main file-select border spritemap draws on the screen.</summary>
+    public static Offset16<ScreenPixels> NormalBorderAnchor { get; } = new(128, 16);
+    /// <summary>Where the copy-menu border spritemap draws on the screen.</summary>
+    public static Offset16<ScreenPixels> CopyBorderAnchor { get; } = new(128, 16);
+    /// <summary>Where the clear-menu border spritemap draws on the screen.</summary>
+    public static Offset16<ScreenPixels> ClearBorderAnchor { get; } = new(124, 16);
     /// <summary>Bytes in one 32-word menu tilemap row.</summary>
     public const int NextTilemapRowByteOffset = 0x40;
 

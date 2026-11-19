@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.AssetExtraction.Frontend.FileSelect;
 
 /// <summary>
@@ -14,12 +16,27 @@ internal static class FileSelectCursorPositions
     /// <summary>Slots A-C followed by Exit.</summary>
     internal const int DataSelectionCount = 4;
 
+    /// <summary>The main-page cursor's X, the same for every choice.</summary>
+    internal const int MainCursorX = 14;
+
+    /// <summary>The copy/clear cursor's X, the same for every choice.</summary>
+    internal const int DataCursorX = 22;
+
+    /// <summary>Each save slot's helmet's X, the same for every slot.</summary>
+    internal const int HelmetX = 100;
+
+    /// <summary>Where the copy/clear confirmation's cursor stands beside Yes.</summary>
+    internal static Offset16<ScreenPixels> ConfirmationYesAnchor { get; } = new(94, 184);
+
+    /// <summary>Where the copy/clear confirmation's cursor stands beside No.</summary>
+    internal static Offset16<ScreenPixels> ConfirmationNoAnchor { get; } = new(94, 208);
+
     /// <summary>Calculates the main-page cursor Y for choices 0..5.</summary>
     /// <remarks>
     /// Independently reviewed for #1165: save rows start at48 with five-tile spacing;
     /// Copy/Clear/Exit start at163 with three-tile spacing. These two role groups
     /// follow the menu's text layout. Bounds are checked before arithmetic and preserve
-    /// ArgumentOutOfRangeException. X is the separate constant14.
+    /// ArgumentOutOfRangeException. X is the separate <see cref="MainCursorX"/>.
     /// </remarks>
     public static int MainSelectionY(int selection)
     {

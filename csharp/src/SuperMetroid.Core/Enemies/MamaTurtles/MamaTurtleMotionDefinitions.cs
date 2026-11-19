@@ -9,6 +9,12 @@ internal static class MamaTurtleMotionDefinitions
     /// <summary>How long the quake lasts when the hovering Mama Turtle strikes a wall, in updates.</summary>
     internal const int WallQuakeDuration = 16;
 
+    /// <summary>The light horizontal foreground shake the hovering Mama Turtle starts as she strikes a wall.</summary>
+    internal static readonly SuperMetroid.Core.Earthquakes.EarthquakeShake WallQuake = new(
+        SuperMetroid.Core.Earthquakes.EarthquakeStrength.Light,
+        SuperMetroid.Core.Earthquakes.EarthquakeDirection.Horizontal,
+        SuperMetroid.Core.Earthquakes.EarthquakeReach.Foreground);
+
     /// <summary>The fastest the hovering Mama Turtle carries a landing Samus leftward: sixteen pixels an update.</summary>
     internal static readonly SignedSixteenSixteen LargestLeftwardCarry = SignedSixteenSixteen.FromWholePixels(16);
 

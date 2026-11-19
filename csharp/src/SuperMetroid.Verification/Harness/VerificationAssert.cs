@@ -170,7 +170,7 @@ using static SuperMetroid.Verification.Areas.Tourian.LookupTourianDescriptorsVer
 using static SuperMetroid.Verification.Areas.Tourian.LookupTourianProgramVerification;
 using static SuperMetroid.Verification.Areas.Tourian.LookupTourianSpawnVerification;
 using static SuperMetroid.Verification.Fx.LookupTreadmillMechanicsVerification;
-using static SuperMetroid.Verification.Enemies.Rios.LowerNorfairRioInstructionProgramDefinitionsVerification;
+using static SuperMetroid.Verification.Enemies.Rios.HoltzInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.MamaTurtles.MamaTurtleInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapArrowCasesVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapIndicatorAnimationVerification;
@@ -1420,7 +1420,7 @@ internal static class VerificationAssert
         Suite(nameof(VerifyRidleyMovementTargets), () => VerifyRidleyMovementTargets(rom));
         Suite(nameof(VerifyRidleyClawOffsets), () => VerifyRidleyClawOffsets(rom));
         Suite(nameof(VerifySaveRamLayout), () => VerifySaveRamLayout());
-        Suite(nameof(VerifyLowerNorfairRioInstructionProgramDefinitions), () => VerifyLowerNorfairRioInstructionProgramDefinitions());
+        Suite(nameof(VerifyHoltzInstructionProgramDefinitions), () => VerifyHoltzInstructionProgramDefinitions());
         Suite(nameof(VerifyDraygonProjectileAnimations), () => VerifyDraygonProjectileAnimations(rom));
         Suite(nameof(VerifyBotwoonHoleRightBounds), () => VerifyBotwoonHoleRightBounds(rom));
         Suite(nameof(VerifyBotwoonHoleBottomBounds), () => VerifyBotwoonHoleBottomBounds(rom));

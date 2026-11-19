@@ -994,7 +994,7 @@ internal static class LookupStream3Verification
     internal static void VerifyStream3DeathSelectors(ISnesAddressSpace rom)
     {
         for (ushort parameter = 0; parameter < 3; parameter++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c929 + 2 * parameter)), MiscDustProjectileNativeListAddresses.Entry(MotherBrainDeathExplosionDefinitions.Animations[MotherBrainDeathExplosionNativeSelectors.Animations[parameter]]),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c929 + 2 * parameter)), DustExplosionProjectileNativeListAddresses.Entry(MotherBrainDeathExplosionDefinitions.Animations[MotherBrainDeathExplosionNativeSelectors.Animations[parameter]]),
                 "stream 3 native death explosion variant");
         // The groups are listed in the order they burst, which steps back through the cartridge's groups.
         for (int index = 0; index < 28; index++)

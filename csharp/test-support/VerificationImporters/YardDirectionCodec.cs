@@ -13,10 +13,10 @@ internal static class YardDirectionCodec
     /// <summary>The directions in the cartridge's numbering.</summary>
     private static readonly YardDirection[] Numbered =
     [
-        YardDirection.UpsideRightMovingUp, YardDirection.UpsideRightMovingDown,
-        YardDirection.UpsideLeftMovingUp, YardDirection.UpsideLeftMovingDown,
-        YardDirection.UpsideDownMovingLeft, YardDirection.UpsideDownMovingRight,
-        YardDirection.UpsideUpMovingLeft, YardDirection.UpsideUpMovingRight,
+        YardDirection.OnLeftWallMovingUp, YardDirection.OnLeftWallMovingDown,
+        YardDirection.OnRightWallMovingUp, YardDirection.OnRightWallMovingDown,
+        YardDirection.OnCeilingMovingLeft, YardDirection.OnCeilingMovingRight,
+        YardDirection.OnFloorMovingLeft, YardDirection.OnFloorMovingRight,
     ];
 
     /// <summary>The number of directions.</summary>

@@ -48,12 +48,12 @@ internal static class EnemyAiRoutineDefinitions
         public static readonly SnesAddress BabyTurtleTouch = new(Bank, 0x929f);
         /// <summary>Baby Turtle shot callback at $A2:930F.</summary>
         public static readonly SnesAddress BabyTurtleShot = new(Bank, 0x930f);
-        /// <summary><c>MaridiaLargeSnailDamagingTouchAI</c> at $A2:D388.</summary>
-        public static readonly SnesAddress MaridiaLargeSnailDamagingTouch = new(Bank, 0xd388);
-        /// <summary><c>MaridiaLargeSnailNonDamagingTouchAI</c> at $A2:D38C.</summary>
-        public static readonly SnesAddress MaridiaLargeSnailNonDamagingTouch = new(Bank, 0xd38c);
-        /// <summary><c>MaridiaLargeSnailShotAI</c> at $A2:D3B4.</summary>
-        public static readonly SnesAddress MaridiaLargeSnailShot = new(Bank, 0xd3b4);
+        /// <summary><c>OumDamagingTouchAI</c> at $A2:D388.</summary>
+        public static readonly SnesAddress OumDamagingTouch = new(Bank, 0xd388);
+        /// <summary><c>OumNonDamagingTouchAI</c> at $A2:D38C.</summary>
+        public static readonly SnesAddress OumNonDamagingTouch = new(Bank, 0xd38c);
+        /// <summary><c>OumShotAI</c> at $A2:D3B4.</summary>
+        public static readonly SnesAddress OumShot = new(Bank, 0xd3b4);
         /// <summary>Rinka touch callback at $A2:B947.</summary>
         public static readonly SnesAddress RinkaTouch = new(Bank, 0xb947);
         /// <summary>Rinka shot callback at $A2:B94D.</summary>

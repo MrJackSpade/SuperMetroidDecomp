@@ -202,8 +202,8 @@ internal static class RoomEnemySystemAccess
             [.. self.Places.InUpdateOrder.Select(place => place.EntityState<FakeKraidEntity, FakeKraidEnemyState>())];
 
         /// <summary>Typed state for every physical slot currently owned by this family.</summary>
-        internal IReadOnlyList<NorfairLavaJumpingEnemyState?> NorfairLavaJumpingEnemyStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<NorfairLavaJumpingEnemyEntity, NorfairLavaJumpingEnemyState>())];
+        internal IReadOnlyList<SqueeptState?> SqueeptStates =>
+            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<SqueeptEntity, SqueeptState>())];
 
         /// <summary>Typed Squeept follower state for every physical slot a follower occupies.</summary>
         internal IReadOnlyList<NorfairLavaJumperFollowerState?> NorfairLavaJumperFollowerStates =>
@@ -349,8 +349,8 @@ internal static class RoomEnemySystemAccess
             [.. self.Places.InUpdateOrder.Select(place => place.EntityState<YappingMawEntity, YappingMawEnemyState>())];
 
         /// <summary>Typed Oum state for all 32 physical enemy slots.</summary>
-        internal IReadOnlyList<MaridiaLargeSnailEnemyState?> MaridiaLargeSnailStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<MaridiaLargeSnailEntity, MaridiaLargeSnailEnemyState>())];
+        internal IReadOnlyList<OumEnemyState?> OumStates =>
+            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<OumEntity, OumEnemyState>())];
 
         /// <summary>Typed Beetom state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<BeetomEnemyState?> BeetomStates =>

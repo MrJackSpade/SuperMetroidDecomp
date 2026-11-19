@@ -26,8 +26,8 @@ internal static class NorfairLavaJumperBehaviorVerification
         parent.Bind(EnemyDefinitionId.Squeept, parent.Definition);
         parent.Bind(parent.DefinitionId, default(RoomEnemyDefinition));
         parent.Position = parent.Position.WithWhole(new(256, 480));
-        NorfairLavaJumpingEnemyBehavior.InitializeNorfairLavaJumpingEnemy(parent);
-        NorfairLavaJumpingEnemyState parentState = enemies.NorfairLavaJumpingEnemyStates[0]
+        SqueeptBehavior.InitializeSqueept(parent);
+        SqueeptState parentState = enemies.SqueeptStates[0]
             ?? throw new InvalidOperationException("Verification requires enemies.NorfairLavaJumpingEnemyStates[0].");
         AssertEqual(new AnimationPlayback<NorfairLavaJumperSegment>(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Hidden), AnimationPlace.StartOfAnimation), parentState.Playback,
             "lava-jumper parent starts hidden");
@@ -38,22 +38,22 @@ internal static class NorfairLavaJumperBehaviorVerification
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([hidden], [1]), EnemyInstructionRunner.ShownFrames(parent, 3),
             "lava-jumper hidden pose");
 
-        enemies.NorfairLavaJumpingEnemyBehavior.RunNorfairLavaJumpingEnemyMain(parent, parentState);
+        enemies.SqueeptBehavior.RunSqueeptMain(parent, parentState);
         parentState.YVelocity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1080); // Past the native switch velocity, still rising.
-        enemies.NorfairLavaJumpingEnemyBehavior.RunNorfairLavaJumpingEnemyMain(parent, parentState);
+        enemies.SqueeptBehavior.RunSqueeptMain(parent, parentState);
         AssertEqual(new AnimationPlayback<NorfairLavaJumperSegment>(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Jump), AnimationPlace.StartOfAnimation), parentState.Playback,
             "real lava-jumper rise handoff starts the jump animation");
         ushort[] jump = NorfairLavaJumperAnimationsConstants.Spritemaps(NorfairLavaJumperSegment.Jump).ToArray();
         int[] holds = [1, 5, 9, 7, 3, 10, 1];
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. jump, jump[^1]], [.. holds, 1]),
             EnemyInstructionRunner.ShownFrames(parent, holds.Sum() + 2), "lava-jumper jump animation");
-        AssertEqual(NorfairLavaJumpingEnemyAction.Flipped, parentState.Action, "jump animation finishes the flip");
+        AssertEqual(SqueeptAction.Flipped, parentState.Action, "jump animation finishes the flip");
 
         RoomEnemyPlace follower = enemies.Places.InUpdateOrder[1];
         follower.SetSpawnParameter1(EnemyDefinitionId.Squeept, 32768);
         follower.Bind(EnemyDefinitionId.Squeept, follower.Definition);
         follower.Bind(follower.DefinitionId, default(RoomEnemyDefinition));
-        enemies.NorfairLavaJumpingEnemyBehavior.InitializeNorfairLavaJumperFollower(follower);
+        enemies.SqueeptBehavior.InitializeNorfairLavaJumperFollower(follower);
         NorfairLavaJumperFollowerState followerState = enemies.NorfairLavaJumperFollowerStates[1]
             ?? throw new InvalidOperationException("Verification requires enemies.NorfairLavaJumperFollowerStates[1].");
         AssertEqual(new AnimationPlayback<NorfairLavaJumperSegment>(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Follower), AnimationPlace.StartOfAnimation), followerState.Playback,

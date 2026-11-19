@@ -1645,13 +1645,13 @@ internal static class LookupStream4Verification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa587e6 + 4 * index)), origin.Y, "Draygon original cannon Y");
         }
         for (ushort index = 0; index < 8; index++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2cb77 + index * 2)), NativeEnemyAnimationOracle.EntryOf(MaridiaLargeSnailNativeListAddresses.Entries, MaridiaSnailsNativeWords.MaridiaLargeSnailAnimations.Decode(index, "Oum animation index")), "Oum native action/facing dispatch");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2cb77 + index * 2)), NativeEnemyAnimationOracle.EntryOf(OumNativeListAddresses.Entries, MaridiaSnailsNativeWords.OumAnimations.Decode(index, "Oum animation index")), "Oum native action/facing dispatch");
         for (int slot = 0; slot < 3; slot++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x81812b + slot * 2)), SaveRamLayout.SlotOffset(slot), "native SRAM slot origins");
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => SaveRamLayout.SlotOffset(invalid), "save slot exact domain");
         foreach (ushort invalid in new ushort[] { 8, 255, ushort.MaxValue })
-            AssertThrows<InvalidDataException>(() => MaridiaSnailsNativeWords.MaridiaLargeSnailAnimations.Decode(invalid, "Oum animation index"), "Oum animation exact domain");
+            AssertThrows<InvalidDataException>(() => MaridiaSnailsNativeWords.OumAnimations.Decode(invalid, "Oum animation index"), "Oum animation exact domain");
     }
 
     /// <summary>Checks Draygon palette and presentation table boundaries against cartridge layout.</summary>
@@ -2103,28 +2103,28 @@ internal static class LookupStream4Verification
         var nativeFrames = new Dictionary<ushort, ushort>();
         for (int frame = 0xcb87; frame <= 0xcca9; frame += 10)
             nativeFrames.Add((ushort)frame, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | (frame + 8))));
-        AssertEqual(nativeFrames.Count, MaridiaLargeSnailCollisionDefinitionsConstants.FramePointers.Length, "Oum calculated frame count follows original extent");
+        AssertEqual(nativeFrames.Count, OumCollisionDefinitionsConstants.FramePointers.Length, "Oum calculated frame count follows original extent");
         int ordinal = 0;
         foreach (ushort expectedFrame in nativeFrames.Keys)
-            AssertEqual(expectedFrame, MaridiaLargeSnailCollisionDefinitionsConstants.FramePointers[ordinal++], "Oum calculated frame indexing preserves native order");
+            AssertEqual(expectedFrame, OumCollisionDefinitionsConstants.FramePointers[ordinal++], "Oum calculated frame indexing preserves native order");
         foreach (int invalid in new[] { int.MinValue, -1, nativeFrames.Count, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = MaridiaLargeSnailCollisionDefinitionsConstants.FramePointers[invalid], "Oum calculated frame view preserves index bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = OumCollisionDefinitionsConstants.FramePointers[invalid], "Oum calculated frame view preserves index bounds");
         var selectedLists = new HashSet<ushort>();
         int rectangles = 0;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             ushort frame = (ushort)raw;
             bool valid = nativeFrames.TryGetValue(frame, out ushort expected);
-            AssertEqual(valid, MaridiaLargeSnailCollisionDefinitions.HasFrame(frame), "Oum frame domain remains exact");
+            AssertEqual(valid, OumCollisionDefinitions.HasFrame(frame), "Oum frame domain remains exact");
             if (!valid)
             {
-                AssertThrows<InvalidDataException>(() => MaridiaLargeSnailCollisionDefinitions.HitboxListAt(frame), "Oum rejects every non-frame pointer");
+                AssertThrows<InvalidDataException>(() => OumCollisionDefinitions.HitboxListAt(frame), "Oum rejects every non-frame pointer");
                 continue;
             }
-            ushort actual = MaridiaLargeSnailCollisionDefinitions.HitboxListAt(frame);
+            ushort actual = OumCollisionDefinitions.HitboxListAt(frame);
             AssertEqual(expected, actual, "Calculated Oum record identity matches original frame operand");
             selectedLists.Add(actual);
-            var boxes = MaridiaLargeSnailCollisionDefinitions.HitboxesAt(actual);
+            var boxes = OumCollisionDefinitions.HitboxesAt(actual);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | expected)), boxes.Length, "Calculated Oum pointer reaches the native rectangle count");
             for (int index = 0; index < boxes.Length; index++)
             {
@@ -2139,8 +2139,8 @@ internal static class LookupStream4Verification
                 rectangles++;
             }
         }
-        AssertTrue(nativeFrames.Keys.SequenceEqual(MaridiaLargeSnailCollisionDefinitionsConstants.FramePointers.ToArray()), "Oum frame enumeration preserves native order");
-        AssertTrue(selectedLists.SetEquals(MaridiaLargeSnailCollisionDefinitions.HitboxPointers), "Oum list calculation covers the original independent payload exactly");
+        AssertTrue(nativeFrames.Keys.SequenceEqual(OumCollisionDefinitionsConstants.FramePointers.ToArray()), "Oum frame enumeration preserves native order");
+        AssertTrue(selectedLists.SetEquals(OumCollisionDefinitions.HitboxPointers), "Oum list calculation covers the original independent payload exactly");
         Console.WriteLine($"Oum calculated list identities: {nativeFrames.Count} frames, {rectangles} native rectangles and complete ushort rejection domain pass.");
     }
 

@@ -130,12 +130,12 @@ internal static class EnemySpritemapArtworkVerification
             EnemySpritemapDefinitionsConstants.PreRioFrameCount,
             "Ceres Baby adds its three authored OAM poses");
         AssertEqual(EnemySpritemapDefinitionsConstants.PreRioFrameCount + 8,
-            EnemySpritemapDefinitionsConstants.PreLowerNorfairRioFrameCount,
+            EnemySpritemapDefinitionsConstants.PreHoltzFrameCount,
             "Rio adds its eight distinct OAM compositions");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreLowerNorfairRioFrameCount + 15,
-            EnemySpritemapDefinitionsConstants.PreNorfairRioFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreHoltzFrameCount + 15,
+            EnemySpritemapDefinitionsConstants.PreGerutaFrameCount,
             "Lower Norfair Rio adds its fifteen parent and flame compositions");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreNorfairRioFrameCount + 16,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreGerutaFrameCount + 16,
             EnemySpritemapDefinitionsConstants.PrePuyoFrameCount,
             "Norfair Rio adds its sixteen parent and flame compositions");
         AssertEqual(EnemySpritemapDefinitionsConstants.PrePuyoFrameCount + 8,
@@ -334,10 +334,10 @@ internal static class EnemySpritemapArtworkVerification
         AssertTrue(RioAnimationsConstants.Spritemaps(Enum.GetValues<RioSegment>()).ToHashSet().SetEquals(
                 EnemySpritemapDefinitions.Frames.Where(frame => frame.LegacyName.StartsWith("rio_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
             "the Rio's programs show exactly its eight installed frames");
-        AssertTrue(LowerNorfairRioAnimationsConstants.Spritemaps(Enum.GetValues<LowerNorfairRioSegment>()).ToHashSet().SetEquals(
+        AssertTrue(HoltzAnimationsConstants.Spritemaps(Enum.GetValues<HoltzSegment>()).ToHashSet().SetEquals(
                 EnemySpritemapDefinitions.Frames.Where(frame => frame.LegacyName.StartsWith("lower_norfair_rio_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
             "the Lower Norfair Rio's programs show exactly its installed frames");
-        AssertTrue(NorfairRioAnimationsConstants.Spritemaps(Enum.GetValues<NorfairRioSegment>()).ToHashSet().SetEquals(
+        AssertTrue(GerutaAnimationsConstants.Spritemaps(Enum.GetValues<GerutaSegment>()).ToHashSet().SetEquals(
                 EnemySpritemapDefinitions.Frames.Where(frame => frame.LegacyName.StartsWith("norfair_rio_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
             "the Norfair Rio's programs show exactly its installed frames");
         Suite(nameof(VerifyInstalledPuyoInstructionFrames), () => VerifyInstalledPuyoInstructionFrames(stock));

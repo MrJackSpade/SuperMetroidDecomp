@@ -289,10 +289,10 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     internal NuclearWaffleBehavior NuclearWaffleBehavior { get; }
 
     /// <summary>Norfair's Rios, which swoop at Samus from the ceiling.</summary>
-    internal NorfairRioBehavior NorfairRioBehavior { get; }
+    internal GerutaBehavior GerutaBehavior { get; }
 
     /// <summary>The enemies that leap out of Norfair's lava and fall back in.</summary>
-    internal NorfairLavaJumpingEnemyBehavior NorfairLavaJumpingEnemyBehavior { get; }
+    internal SqueeptBehavior SqueeptBehavior { get; }
 
     /// <summary>Maridia's glass tube, which a power bomb shatters.</summary>
     internal NoobTubeBehavior NoobTubeBehavior { get; }
@@ -319,7 +319,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     internal MetareeBehavior MetareeBehavior { get; }
 
     /// <summary>Maridia's large snails, which crawl over the room's surfaces.</summary>
-    internal MaridiaLargeSnailBehavior MaridiaLargeSnailBehavior { get; }
+    internal OumBehavior OumBehavior { get; }
 
     /// <summary>Maridia's mama turtle and her babies.</summary>
     internal MamaTurtleBehavior MamaTurtleBehavior { get; }
@@ -328,7 +328,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     internal MagdolliteBehavior MagdolliteBehavior { get; }
 
     /// <summary>Lower Norfair's Rios, which swoop at Samus from the ceiling.</summary>
-    internal LowerNorfairRioBehavior LowerNorfairRioBehavior { get; }
+    internal HoltzBehavior HoltzBehavior { get; }
 
     /// <summary>The Kzans, spiked crushers that drop and rise again, carrying Samus on top.</summary>
     internal KzanBehavior KzanBehavior { get; }
@@ -687,8 +687,8 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         OwtchBehavior = new OwtchBehavior(Room);
         OldTourianEscapeShaftWallBehavior = new OldTourianEscapeShaftWallBehavior(Projectiles, Audio);
         NuclearWaffleBehavior = new NuclearWaffleBehavior(Projectiles, EffectActors, Audio);
-        NorfairRioBehavior = new NorfairRioBehavior(Room, Terrain, Places, Audio);
-        NorfairLavaJumpingEnemyBehavior = new NorfairLavaJumpingEnemyBehavior(Room, Places, Audio);
+        GerutaBehavior = new GerutaBehavior(Room, Terrain, Places, Audio);
+        SqueeptBehavior = new SqueeptBehavior(Room, Places, Audio);
         NoobTubeBehavior = new NoobTubeBehavior(Room, Projectiles);
         NinjaSpacePirateBehavior = new NinjaSpacePirateBehavior(Room, Terrain, Projectiles, EffectActors, WalkingSpacePirateBehavior);
         MultiviolaBehavior = new MultiviolaBehavior(Terrain);
@@ -697,10 +697,10 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         MochtroidBehavior = new MochtroidBehavior(Terrain, Audio, FrameContext, Collision);
         MetroidBehavior = new MetroidBehavior(Room, Terrain, Audio, EffectActors, FrameContext, DeathsAndDrops);
         MetareeBehavior = new MetareeBehavior(Projectiles, Audio);
-        MaridiaLargeSnailBehavior = new MaridiaLargeSnailBehavior(Terrain, Collision, Audio);
+        OumBehavior = new OumBehavior(Terrain, Collision, Audio);
         MamaTurtleBehavior = new MamaTurtleBehavior(Terrain, Earthquake, Places, Collision, Audio);
         MagdolliteBehavior = new MagdolliteBehavior(Room, Projectiles, Places, Collision, DeathsAndDrops, Audio);
-        LowerNorfairRioBehavior = new LowerNorfairRioBehavior(Room, Terrain, Places, Audio);
+        HoltzBehavior = new HoltzBehavior(Room, Terrain, Places, Audio);
         KzanBehavior = new KzanBehavior(Places, Audio);
         KraidBehavior = new KraidBehavior(new KraidBehaviorDependencies { PassEvents = PassEvents, Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, EffectActors = EffectActors, Presentation = BossPresentation, Collision = Collision, DeathsAndDrops = DeathsAndDrops, CameraDistance = CameraDistance  });
         KiHunterBehavior = new KiHunterBehavior(Room, Terrain, Projectiles, Audio, Places);
@@ -781,10 +781,10 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
             SporeSpawnBehavior,
             RinkaBehavior,
             RioBehavior,
-            NorfairLavaJumpingEnemyBehavior,
-            NorfairRioBehavior,
-            LowerNorfairRioBehavior,
-            MaridiaLargeSnailBehavior,
+            SqueeptBehavior,
+            GerutaBehavior,
+            HoltzBehavior,
+            OumBehavior,
             RipperBehavior,
             DragonBehavior,
             KraidBehavior,
@@ -832,7 +832,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
             WallSpacePirateBehavior,
             NinjaSpacePirateBehavior,
         ];
-        Species = EnemySpeciesRegistry.ForRoom(new EnemyCommonParticipation(GetCollision), [BoyonBehavior, BullBehavior, ZoaBehavior, WaverBehavior, ChootBehavior, AtomicBehavior, SkulteraBehavior, PuyoBehavior, RioBehavior, FliesBehavior, SparkBehavior, SbugBehavior, MultiviolaBehavior, CacatacBehavior, AlcoonBehavior, BoulderBehavior, NuclearWaffleBehavior, HibashiBehavior, WreckedShipGhostBehavior, KzanBehavior, RipperBehavior, MochtroidBehavior, SkreeBehavior, OwtchBehavior, BeetomBehavior, KagoBehavior, FirefleaBehavior, MetareeBehavior, PolypBehavior, HoppersBehavior, CrawlersBehavior, PlatformsBehavior, YardBehavior, YappingMawBehavior, EtecoonBehavior, DachoraBehavior, MaridiaLargeSnailBehavior, WorkRobotBehavior, BlueBrinstarFaceBlockBehavior, DragonBehavior, FuneNamiheBehavior, PowampBehavior, NorfairRioBehavior, LowerNorfairRioBehavior, NorfairLavaJumpingEnemyBehavior, ShaktoolBehavior, MetroidBehavior, WalkingSpacePirateBehavior, WallSpacePirateBehavior, NinjaSpacePirateBehavior, ChozoStatueBehavior, DeadSidehopperBehavior, DeadTorizoBehavior, DeadTourianBehavior, BabyMetroidBehavior, FakeKraidBehavior, ElevatorBehavior, MagdolliteBehavior, EscapeAnimalsBehavior, RinkaBehavior, ZebetiteBehavior, ShuttersBehavior, EvirBehavior, KiHunterBehavior, PipeBugsBehavior, MamaTurtleBehavior, MorphBallEyeBehavior, new CeresDoorFactory(CeresDoorBehavior), steamVents, GunshipBehavior, BotwoonBehavior, SporeSpawnBehavior, TorizoBehavior, KraidBehavior, CrocomireBehavior, DraygonBehavior, PhantoonBehavior, MotherBrainBehavior, BabyMetroidCutsceneBehavior, NoobTubeBehavior,
+        Species = EnemySpeciesRegistry.ForRoom(new EnemyCommonParticipation(GetCollision), [BoyonBehavior, BullBehavior, ZoaBehavior, WaverBehavior, ChootBehavior, AtomicBehavior, SkulteraBehavior, PuyoBehavior, RioBehavior, FliesBehavior, SparkBehavior, SbugBehavior, MultiviolaBehavior, CacatacBehavior, AlcoonBehavior, BoulderBehavior, NuclearWaffleBehavior, HibashiBehavior, WreckedShipGhostBehavior, KzanBehavior, RipperBehavior, MochtroidBehavior, SkreeBehavior, OwtchBehavior, BeetomBehavior, KagoBehavior, FirefleaBehavior, MetareeBehavior, PolypBehavior, HoppersBehavior, CrawlersBehavior, PlatformsBehavior, YardBehavior, YappingMawBehavior, EtecoonBehavior, DachoraBehavior, OumBehavior, WorkRobotBehavior, BlueBrinstarFaceBlockBehavior, DragonBehavior, FuneNamiheBehavior, PowampBehavior, GerutaBehavior, HoltzBehavior, SqueeptBehavior, ShaktoolBehavior, MetroidBehavior, WalkingSpacePirateBehavior, WallSpacePirateBehavior, NinjaSpacePirateBehavior, ChozoStatueBehavior, DeadSidehopperBehavior, DeadTorizoBehavior, DeadTourianBehavior, BabyMetroidBehavior, FakeKraidBehavior, ElevatorBehavior, MagdolliteBehavior, EscapeAnimalsBehavior, RinkaBehavior, ZebetiteBehavior, ShuttersBehavior, EvirBehavior, KiHunterBehavior, PipeBugsBehavior, MamaTurtleBehavior, MorphBallEyeBehavior, new CeresDoorFactory(CeresDoorBehavior), steamVents, GunshipBehavior, BotwoonBehavior, SporeSpawnBehavior, TorizoBehavior, KraidBehavior, CrocomireBehavior, DraygonBehavior, PhantoonBehavior, MotherBrainBehavior, BabyMetroidCutsceneBehavior, NoobTubeBehavior,
             new RidleyEntityFactory(NorfairRidleyBehavior, CeresRidleyBehavior, RidleyEncounter),
             .. Present<IEnemyEntityFactory>(TourianEntranceStatueBehavior), .. Present<IEnemyEntityFactory>(elevatorDoors)],
             // What the owners the room's scenery did not let it build would have placed; the registry refuses a room that

@@ -4,11 +4,11 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 internal enum CrawlerSurfaceOrientation
 {
     /// <summary>Clinging to a vertical surface with its top facing right.</summary>
-    UpsideRight,
+    OnLeftWall,
     /// <summary>Clinging to a vertical surface with its top facing left.</summary>
-    UpsideLeft,
+    OnRightWall,
     /// <summary>Clinging to a ceiling.</summary>
-    UpsideDown,
+    OnCeiling,
     /// <summary>Standing on a floor.</summary>
-    UpsideUp,
+    OnFloor,
 }

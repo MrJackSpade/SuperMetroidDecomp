@@ -9,7 +9,7 @@ internal static class SciserVisualDefinitions
     /// <summary>Native Sciser spritemap bank $A3.</summary>
     internal const byte Bank = 0xa3;
 
-    /// <summary>$A3:9703 / Spritemap_Sciser_UpsideUp_0 begins twelve four-object records, each 22 bytes.</summary>
+    /// <summary>$A3:9703 / Spritemap_Sciser_OnFloor_0 begins twelve four-object records, each 22 bytes.</summary>
     private const ushort FirstFrame = 0x9703;
     /// <summary>Maps four surface orientations to native frame groups, returning three named poses per orientation.</summary>
     internal static NativeEnemySpritemapDefinition[] Frames()

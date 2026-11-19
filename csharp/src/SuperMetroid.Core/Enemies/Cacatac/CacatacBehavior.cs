@@ -55,7 +55,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeCacatac(RoomEnemyPlace place)
     {
         CacatacSpawnSettings settings = place.SpawnSettings<CacatacSpawnSettings>();
-        bool upsideUp = settings.Mounting == CacatacMounting.Floor;
+        bool onFloor = settings.Mounting == CacatacMounting.Floor;
         place.Frame = EnemyFrameId.Empty;
 
         int spawnX = place.Position.X.Whole;
@@ -74,7 +74,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
             LeftPatrolX = spawnX - settings.TravelDistance,
         };
         place.SetSpeciesState(state);
-        SetCacatacAnimation(place, state, upsideUp ? CacatacSegment.UpsideUpIdle : CacatacSegment.UpsideDownIdle);
+        SetCacatacAnimation(place, state, onFloor ? CacatacSegment.OnFloorIdle : CacatacSegment.OnCeilingIdle);
     }
 
     /// <summary>Runs a Cacatac for one update through its three actions.</summary>
@@ -122,7 +122,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.Action = CacatacAction.Stopped;
-        SetCacatacAnimation(place, state, place.SpawnSettings<CacatacSpawnSettings>().Mounting == CacatacMounting.Floor ? CacatacSegment.UpsideUpAttack : CacatacSegment.UpsideDownAttack);
+        SetCacatacAnimation(place, state, place.SpawnSettings<CacatacSpawnSettings>().Mounting == CacatacMounting.Floor ? CacatacSegment.OnFloorAttack : CacatacSegment.OnCeilingAttack);
     }
 
     /// <summary>Animation cue: restore patrol the way it last patrolled.</summary>

@@ -244,7 +244,7 @@ using static SuperMetroid.Verification.Audio.ManagedAudioVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
 using static SuperMetroid.Verification.Areas.Maridia.MaridiaElevatubeObjectVerification;
 using static SuperMetroid.Verification.Areas.Maridia.MaridiaElevatubeVisualsVerification;
-using static SuperMetroid.Verification.Enemies.MaridiaSnails.MaridiaLargeSnailCollisionDefinitionsVerification;
+using static SuperMetroid.Verification.Enemies.MaridiaSnails.OumCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Hud.MessageSnapshotTestsVerification;
 using static SuperMetroid.Verification.Enemies.Metroids.MetroidDeathDropsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.MissileEdgeVerification;
@@ -920,8 +920,8 @@ internal static class FullRunSuitesVerification
         new(nameof(MotherBrainRainbowSamusCooldownVerification.VerifyMotherBrainRainbowSamusCooldown), () => MotherBrainRainbowSamusCooldownVerification.VerifyMotherBrainRainbowSamusCooldown()),
         new(nameof(MotherBrainEffectAnimationsVerification.VerifyMotherBrainEffectAnimations), () => MotherBrainEffectAnimationsVerification.VerifyMotherBrainEffectAnimations(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom())),
         new(nameof(MotherBrainEffectBehaviorVerification.VerifyMotherBrainEffectBehavior), () => MotherBrainEffectBehaviorVerification.VerifyMotherBrainEffectBehavior(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom())),
-        new(nameof(MiscDustProjectileAnimationsVerification.VerifyMiscDustProjectileAnimations), () => MiscDustProjectileAnimationsVerification.VerifyMiscDustProjectileAnimations(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom())),
-        new(nameof(MiscDustProjectileBehaviorVerification.VerifyMiscDustProjectileBehavior), () => MiscDustProjectileBehaviorVerification.VerifyMiscDustProjectileBehavior(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom())),
+        new(nameof(DustExplosionProjectileAnimationsVerification.VerifyDustExplosionProjectileAnimations), () => DustExplosionProjectileAnimationsVerification.VerifyDustExplosionProjectileAnimations(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom())),
+        new(nameof(DustExplosionProjectileBehaviorVerification.VerifyDustExplosionProjectileBehavior), () => DustExplosionProjectileBehaviorVerification.VerifyDustExplosionProjectileBehavior(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom())),
         new(nameof(VerifyBabyMetroidCutsceneEntrance), () => VerifyBabyMetroidCutsceneEntrance()),
         new(nameof(VerifySamusSolidEnemyCollision), () => VerifySamusSolidEnemyCollision()),
         new(nameof(VerifySolidEnemyContactRecords), () => VerifySolidEnemyContactRecords()),
@@ -1433,7 +1433,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifySpacePirateCollisionDefinitions), () => VerifySpacePirateCollisionDefinitions()),
         new(nameof(VerifyRidleyCollisionDefinitions), () => VerifyRidleyCollisionDefinitions()),
         new(nameof(VerifyCeresSteamCollisionDefinitions), () => VerifyCeresSteamCollisionDefinitions()),
-        new(nameof(VerifyMaridiaLargeSnailCollisionDefinitions), () => VerifyMaridiaLargeSnailCollisionDefinitions()),
+        new(nameof(VerifyOumCollisionDefinitions), () => VerifyOumCollisionDefinitions()),
         new(nameof(VerifyCrocomireTongueCollisionDefinitions), () => VerifyCrocomireTongueCollisionDefinitions()),
         new(nameof(VerifyCrocomireBodyCollisionDefinitions), () => VerifyCrocomireBodyCollisionDefinitions()),
         new(nameof(VerifyBotwoonObjectIdentity), () => VerifyBotwoonObjectIdentity()),

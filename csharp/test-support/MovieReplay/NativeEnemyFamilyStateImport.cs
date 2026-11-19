@@ -648,14 +648,14 @@ internal static class NativeEnemyFamilyStateImport
             fakeKraidRecord.WalkTurnWait.SetCartridgeCount(words.D - 1);
             fakeKraidRecord.SpitWait.SetUpdatesLeft(words.E);
         }
-        if (enemy.SpeciesState<MaridiaLargeSnailEnemyState>() is { } maridiaLargeSnailRecord)
+        if (enemy.SpeciesState<OumEnemyState>() is { } oumRecord)
         {
-            maridiaLargeSnailRecord.Action = MaridiaSnailsNativeWords.MaridiaLargeSnailActions.Decode(words.A, "recorded MaridiaLargeSnailAction");
-            maridiaLargeSnailRecord.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(unchecked((short)words.B));
-            maridiaLargeSnailRecord.AttackCooldown = TrueWait(words.C);
-            maridiaLargeSnailRecord.Heading = words.D != 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
-            maridiaLargeSnailRecord.RemainingBounces = unchecked((short)words.E);
-            maridiaLargeSnailRecord.BouncePhase = MaridiaSnailsNativeWords.MaridiaLargeSnailBouncePhases.Decode(words.F, "recorded MaridiaLargeSnailBouncePhase");
+            oumRecord.Action = MaridiaSnailsNativeWords.OumActions.Decode(words.A, "recorded MaridiaLargeSnailAction");
+            oumRecord.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(unchecked((short)words.B));
+            oumRecord.AttackCooldown = TrueWait(words.C);
+            oumRecord.Heading = words.D != 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
+            oumRecord.RemainingBounces = unchecked((short)words.E);
+            oumRecord.BouncePhase = MaridiaSnailsNativeWords.OumBouncePhases.Decode(words.F, "recorded MaridiaLargeSnailBouncePhase");
         }
         if (enemy.SpeciesState<WallSpacePirateEnemyState>() is { } wallSpacePirateRecord)
         {
@@ -885,10 +885,10 @@ internal static class NativeEnemyFamilyStateImport
             crawler.Action = (enemy.Entity is OrangeZoomerEntity ? CrawlersNativeWords.OrangeZoomerActions : CrawlersNativeWords.SurfaceCrawlerActions)
                 .Decode(words.F, "recorded CrawlerAction");
         }
-        if (enemy.DefinitionId == EnemyDefinitionId.Holtz && enemy.SpeciesState<LowerNorfairRioEnemyState>() is { } holtz)
+        if (enemy.DefinitionId == EnemyDefinitionId.Holtz && enemy.SpeciesState<HoltzEnemyState>() is { } holtz)
         {
             holtz.Velocity = new(new SignedEightEight(words.D), new SignedEightEight(words.C));
-            holtz.Action = RiosNativeWords.LowerNorfairRioActions.Decode(words.F, "recorded LowerNorfairRioAction");
+            holtz.Action = RiosNativeWords.HoltzActions.Decode(words.F, "recorded LowerNorfairRioAction");
         }
         if (enemy.DefinitionId == EnemyDefinitionId.EtecoonEscape && enemy.SpeciesState<EscapeEtecoonEnemyState>() is { } escape)
         {
@@ -990,10 +990,10 @@ internal static class NativeEnemyFamilyStateImport
             rio.Velocity = new(new SignedEightEight(words.D), new SignedEightEight(words.C));
             if (words.E != 0) rio.Finish.Raise(); else rio.Finish.Forget();
         }
-        if (enemy.EntityState<NorfairRioEntity, NorfairRioEnemyState>() is { } norfairRio)
+        if (enemy.EntityState<GerutaEntity, GerutaEnemyState>() is { } geruta)
         {
-            norfairRio.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.A));
-            norfairRio.Action = RiosNativeWords.NorfairRioActions.Decode(words.F, "recorded NorfairRioAction");
+            geruta.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.A));
+            geruta.Action = RiosNativeWords.GerutaActions.Decode(words.F, "recorded NorfairRioAction");
         }
         if (enemies.WaverStates[index] is { } waver)
         {
@@ -1113,11 +1113,11 @@ internal static class NativeEnemyFamilyStateImport
             if (recordedRipperSpeed != ripperRightward)
                 throw new InvalidDataException($"Recorded Ripper speed {recordedRipperSpeed} is not its placement's {ripperRightward}.");
         }
-        if (enemies.NorfairLavaJumpingEnemyStates[index] is { } lavaJumper)
+        if (enemies.SqueeptStates[index] is { } lavaJumper)
         {
             lavaJumper.YVelocity = new SignedEightEight(words.C);
             lavaJumper.SpawnPosition = new Position16<RoomPixels>(words.D, words.E);
-            lavaJumper.Action = LavaJumpersNativeWords.NorfairLavaJumpingEnemyActions.Decode(words.F, "recorded NorfairLavaJumpingEnemyAction");
+            lavaJumper.Action = LavaJumpersNativeWords.SqueeptActions.Decode(words.F, "recorded NorfairLavaJumpingEnemyAction");
         }
         if (enemies.MetareeStates[index] is { } metaree)
         {

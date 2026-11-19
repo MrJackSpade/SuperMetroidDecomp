@@ -113,7 +113,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             // The population entry selects the initial animations and velocity signs, but
             // does not set the live direction. Only the direction cue does. A
             // first-frame hide can bypass it and keeps the first direction.
-            Direction = YardDirection.UpsideRightMovingUp,
+            Direction = YardDirection.OnLeftWallMovingUp,
             Behavior = YardBehavior.NormalCrawling,
             CrawlSpeed = settings.CrawlSpeed,
         };
@@ -429,12 +429,12 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         // crawler's starting velocity carries over: the live crawl speed on both axes, the horizontal one reversed for
         // a block on Yard's right.
         state.BlockSide = state.AirborneFacingDirection == HorizontalDirection.Right
-            ? CrawlerSurfaceOrientation.UpsideLeft
-            : CrawlerSurfaceOrientation.UpsideRight;
+            ? CrawlerSurfaceOrientation.OnRightWall
+            : CrawlerSurfaceOrientation.OnLeftWall;
         // Surface direction can still describe a wall or ceiling. The landing instead uses
         // the new floor-facing block side for its downward probe and horizontal sign.
         var landing = new PixelVelocity<RoomPixels>(state.CrawlSpeed, state.CrawlSpeed);
-        state.CrawlingVelocity = state.BlockSide == CrawlerSurfaceOrientation.UpsideRight ? landing.ReversedX() : landing;
+        state.CrawlingVelocity = state.BlockSide == CrawlerSurfaceOrientation.OnLeftWall ? landing.ReversedX() : landing;
         place.Frame = EnemyFrameId.Empty;
         state.Movement = YardMovement.HoldingStill;
         state.Playback = EnemyAnimationPlayback.Start(place, YardAnimations.StartingWith(state.HidingAnimation ??

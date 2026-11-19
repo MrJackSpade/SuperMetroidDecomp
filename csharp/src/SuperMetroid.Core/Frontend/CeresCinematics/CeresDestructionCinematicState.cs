@@ -116,7 +116,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>How far the scene has turned its floor clockwise.</summary>
     private RotationAngle angle;
     /// <summary>The screen's brightness, black at first, and its slow fades, one level on every second update.</summary>
-    private readonly ScreenFade fade = new(0, stepDelay: 1, firstWait: 1);
+    private readonly ScreenFade fade = new(0, stepDelay: CeresDestructionSceneDefinitions.Timing.FirstFadeWaitBeforeEachStep,
+        firstWait: CeresDestructionSceneDefinitions.Timing.FirstFadeWaitBeforeEachStep);
     /// <summary>The hold of the phase holding: after the explosion, then on close Zebes.</summary>
     private UpdateCountdown phaseHold = UpdateCountdown.Ended();
     /// <summary>

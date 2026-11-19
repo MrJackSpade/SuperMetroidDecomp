@@ -67,16 +67,16 @@ internal sealed class IntroScientistCutsceneState
             {
                 // The delivery scene moves the camera left while keeping the delivered baby fixed
                 // relative to the laboratory subjects.
-                Background += new Offset16<PlanePixels>(-1, 0);
-                baby.ScreenPlace += new Offset16<ScreenPixels>(1, 0);
+                Background += IntroLaboratoryDefinitions.DeliveryPagePan;
+                baby.ScreenPlace += IntroLaboratoryDefinitions.DeliveredBabyCounterPan;
             }
             else if (Scene == IntroLaboratoryScene.Examination &&
                 Background.Y < IntroLaboratoryDefinitions.ExaminationPageEndY)
             {
                 // The examination scene moves the second laboratory page down to its end scroll while the
                 // examined baby rises by the same distance.
-                Background += new Offset16<PlanePixels>(0, 1);
-                baby.ScreenPlace += new Offset16<ScreenPixels>(0, -1);
+                Background += IntroLaboratoryDefinitions.ExaminationPageScroll;
+                baby.ScreenPlace += IntroLaboratoryDefinitions.ExaminedBabyRise;
             }
         }
 

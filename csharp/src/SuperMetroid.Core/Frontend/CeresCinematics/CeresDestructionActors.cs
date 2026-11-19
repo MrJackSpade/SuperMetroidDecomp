@@ -66,7 +66,7 @@ internal static class CeresDestructionActors
     {
         return new(
             StarSheets[quarter],
-            CeresSpriteColouring.SpaceObjects, SignedSixteenSixteen.Zero, false, SignedEightEight.FromPixelFraction(1, 8),
+            CeresSpriteColouring.SpaceObjects, SignedSixteenSixteen.Zero, false, StarFieldSlideAcceleration,
             quarter == SceneCompletingStars, false);
     }
 }

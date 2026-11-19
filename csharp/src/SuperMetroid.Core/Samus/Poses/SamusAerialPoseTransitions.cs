@@ -482,7 +482,7 @@ internal static class SamusAerialPoseTransitions
         // the result becomes both current and previous Y, so this frame's vertical scroll sees no motion.
         if (previousMovementType == SamusMovementType.NormalJumping)
         {
-            samus.Kinematics.Position -= new Offset16<RoomPixels>(0, 1);
+            samus.Kinematics.Position -= SamusPoseCollisionDefinitions.NormalJumpLift;
             samus.WritePreviousYPosition(samus.Kinematics.Position.Y.Whole);
         }
 

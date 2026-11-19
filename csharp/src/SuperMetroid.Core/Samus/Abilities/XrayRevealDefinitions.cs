@@ -86,4 +86,8 @@ internal static class XrayRevealDefinitions
         [BombableReaction.RespawningBreak2x2] = XrayRevealShape.CopySquare,
         [BombableReaction.PermanentBreak2x2] = XrayRevealShape.CopySquare,
     };
+
+
+    /// <summary>The X-ray reveal grid's columns and rows of blocks: seventeen across and sixteen down.</summary>
+    internal static Extent16<RoomBlocks> GridSize { get; } = new(17, 16);
 }

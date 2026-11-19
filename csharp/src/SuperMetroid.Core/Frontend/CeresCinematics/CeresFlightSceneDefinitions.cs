@@ -56,4 +56,11 @@ internal static class CeresFlightSceneDefinitions
         {
             [CeresSpriteColouring.Station] = ColourEffectColours.CeresNavigationLightsSprite,
         };
+
+
+    /// <summary>The updates each step off the rear view's white flash takes: one, a step every update.</summary>
+    internal const int RearViewFlashUpdatesPerStep = 1;
+
+    /// <summary>The update of the rear view's white flash its first step off white comes on: the first.</summary>
+    internal const int RearViewFlashFirstStepUpdate = 1;
 }

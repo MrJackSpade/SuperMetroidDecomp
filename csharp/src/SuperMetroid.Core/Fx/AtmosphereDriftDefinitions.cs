@@ -21,4 +21,11 @@ public static class AtmosphereDriftDefinitions
     /// </summary>
     internal static WeightedRandomChoice<RainWind> RainWindDraw { get; } = WeightedRandomChoice<RainWind>.InTurn(
         new RandomSampleField(2, 2), RainWind.StrongLeft, RainWind.StrongRight, RainWind.GentleLeft, RainWind.GentleRight);
+
+
+    /// <summary>How fast a strong wind blows the rain sideways, either way: six pixels a frame.</summary>
+    public static SignedEightEight StrongWindSpeed { get; } = SignedEightEight.FromPixels(6);
+
+    /// <summary>How fast a gentle wind blows the rain sideways, either way: four pixels a frame.</summary>
+    public static SignedEightEight GentleWindSpeed { get; } = SignedEightEight.FromPixels(4);
 }

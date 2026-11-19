@@ -95,4 +95,8 @@ internal static class DoorOpeningScrollDefinitions
     /// screen's middle; a camera before it moves back to its own screen's edge.
     /// </summary>
     internal const int CameraAlignmentNextScreenFrom = 128;
+
+
+    /// <summary>The updates of the door's scroll that ran while its destination loaded: one, the loading update's own.</summary>
+    internal const int LoadingScrollUpdates = 1;
 }

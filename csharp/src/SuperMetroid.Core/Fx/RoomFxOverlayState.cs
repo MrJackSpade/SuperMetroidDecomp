@@ -266,10 +266,9 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         }
         else if (Type is RoomFxType.Lava or RoomFxType.Acid)
         {
-            // Lava and acid start their heat haze at its first phase, which the room's load counts as shown for one
-            // update: the game's first haze step set that phase and started its wait, so the first phase moves on one
-            // update sooner than the later ones.
-            lavaAcidHaze = new WaveCycle(Phase: 0, UpdatesShown: 1);
+            // Lava and acid start their heat haze where the room's load leaves it: the game's first haze step set its
+            // first phase and started its wait, so the first phase moves on sooner than the later ones.
+            lavaAcidHaze = LavaAcidWaveDefinitions.HazeStart;
         }
         else if (Type == RoomFxType.Rain)
         {

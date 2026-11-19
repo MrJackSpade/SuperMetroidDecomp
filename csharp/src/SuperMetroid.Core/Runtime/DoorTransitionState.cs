@@ -186,7 +186,7 @@ internal sealed class DoorTransitionState
                     transition.Door,
                     transition.SourceSamus,
                     loaderProgress,
-                    completedLoadingScrollUpdates: 1);
+                    completedLoadingScrollUpdates: DoorOpeningScrollDefinitions.LoadingScrollUpdates);
                 runtime.RoomLoader.StepDoorOpeningScroll(loaderProgress);
                 if (runtime.Options.IconCancelEnabled)
                 {

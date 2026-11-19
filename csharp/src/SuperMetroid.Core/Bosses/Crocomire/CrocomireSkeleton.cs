@@ -292,7 +292,7 @@ internal sealed class CrocomireSkeleton
                 + new Offset16<RoomPixels>(0, piece.Depth));
             projectile.Velocity = PixelVelocity<RoomPixels>.Zero;
             projectile.State = new CrocomireSpikeWallPieceState(piece);
-            projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);
+            projectile.Position = projectile.Position.WithoutFractions();
         }
     }
 }

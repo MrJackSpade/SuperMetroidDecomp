@@ -338,7 +338,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         FixedCoordinate samusY = new FixedCoordinate(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction)
             .MovedBy(delta);
         samus.Position = samus.Position.WithWholeY(samusY.Whole);
-        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(samusY.Fraction);
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(samusY.FractionOfPixel);
 
         foreach (RoomEnemyPlace place in Pieces(top).All)
         {

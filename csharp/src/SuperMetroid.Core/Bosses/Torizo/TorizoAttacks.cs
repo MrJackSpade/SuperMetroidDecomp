@@ -318,9 +318,8 @@ internal sealed class TorizoAttacks
         // (18 pixels) inside either side: the lifted drool lies inside the room and its side offset never leaves it.
         int jitteredY = TorizoRandomDefinitions.InitialDroolYJitter.Of(random) + torizo.Position.Y.Whole;
         projectile.Position = projectile.Position.WithWholeY(jitteredY - TorizoMotionDefinitions.InitialDroolLift);
-        // The jitter is one of thirty-two, so the fall speed lies from 49 through 80, in 256ths of a pixel.
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(
-            TorizoRandomDefinitions.DroolFallJitter.Of(random) + TorizoMotionDefinitions.InitialDroolSlowestFall));
+        // The jitter is one of thirty-two fall speeds from the slowest up.
+        projectile.Velocity = projectile.Velocity.WithY(TorizoRandomDefinitions.InitialDroolFall.Of(random));
         // The drool has no sideways speed.
         int jitteredX = _room.Random.Next(TorizoRandomDefinitions.InitialDroolXJitter) + torizo.Position.X.Whole;
         projectile.Position = projectile.Position.WithWholeX(TorizoFacing.Posture(torizo).IsTurning
@@ -577,9 +576,8 @@ internal sealed class TorizoAttacks
         return new PixelVelocity<RoomPixels>(x, VelocityJitter(_room.Random.Generate()));
     }
 
-    /// <summary>A randomized projectile's jitter on one axis: the random number's lowest 256-value field, less 128, in 256ths of a pixel.</summary>
-    private static SignedEightEight VelocityJitter(int random) =>
-        SignedEightEight.FromTwoHundredFiftySixthsOfPixel(TorizoRandomDefinitions.VelocityJitter.Of(random) - TorizoMotionDefinitions.VelocityJitterCentre);
+    /// <summary>A randomized projectile's jitter on one axis, either side of its base speed.</summary>
+    private static SignedEightEight VelocityJitter(int random) => TorizoRandomDefinitions.VelocityJitter.Of(random);
 
     /// <summary>Places a foot-specific dust effect 48 pixels below the statue after a landing step.</summary>
     internal void SpawnLandingDust(RoomEnemyPlace torizo, HorizontalDirection foot)

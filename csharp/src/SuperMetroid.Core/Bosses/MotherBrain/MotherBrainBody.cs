@@ -313,7 +313,7 @@ internal sealed class MotherBrainBody
             _projectileAttacks.Projectile,
             graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading));
         beam.Velocity = PixelVelocity<RoomPixels>.Zero;
-        beam.Position = beam.Position.WithFractionX(0).WithFractionY(0);
+        beam.Position = beam.Position.WithoutFractions();
         beam.Position = beam.Position.WithWhole(state.Body.Position.Whole + MotherBrainFightDefinitions.HandOffset);
 
         state.HandBeamNextPosition = FixedPosition<RoomPixels>.FromWhole(beam.Position.Whole);

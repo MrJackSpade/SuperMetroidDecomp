@@ -508,7 +508,7 @@ internal sealed class BeamFiring
         SamusProjectile projectile,
         SignedEightEight baseSpeed)
     {
-        projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);
+        projectile.Position = projectile.Position.WithoutFractions();
         projectile.Velocity = LaunchVelocity(inheritance, projectile.Direction, baseSpeed);
     }
 

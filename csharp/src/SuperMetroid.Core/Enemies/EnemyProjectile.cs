@@ -191,7 +191,7 @@ public sealed class EnemyProjectile
     /// </summary>
     internal void Delete()
     {
-        Position = Position.WithFractionX(0).WithFractionY(0);
+        Position = Position.WithoutFractions();
         Vacate();
     }
 

@@ -566,7 +566,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         ActiveCard = null;
         ActiveOrigin = definition.Origin;
         ActiveColouring = definition.Colouring;
-        panPosition = new(panPosition.X.WithFraction(0), panPosition.Y.WithFraction(0));
+        panPosition = new(panPosition.X.WithoutFraction(), panPosition.Y.WithoutFraction());
     }
 
     /// <summary>Installs the logo, gradient, copyright colors, and identity turning-floor scene used after a skip.</summary>

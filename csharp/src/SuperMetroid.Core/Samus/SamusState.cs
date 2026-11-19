@@ -761,7 +761,7 @@ public sealed class SamusState
             probe.Radius = probe.Radius.WithY(radius);
             SolidEnemyCollisionResult result = SamusSolidEnemyCollision.Probe(
                 probe, probe.InteractiveEnemies, direction, UnsignedSixteenSixteen.FromWholePixels(distance));
-            Kinematics.Position = Kinematics.Position.WithFractionY(probe.Position.Y.Fraction);
+            Kinematics.Position = Kinematics.Position.WithFractionY(probe.Position.Y.FractionOfPixel);
             return result;
         }
     }
@@ -815,7 +815,7 @@ public sealed class SamusState
             // changed-pose observation; the probe's whole-pixel movement never
             // becomes hers.
             if (result.Collided)
-                Kinematics.Position = Kinematics.Position.WithFractionY(probe.Position.Y.Fraction);
+                Kinematics.Position = Kinematics.Position.WithFractionY(probe.Position.Y.FractionOfPixel);
             return result;
         }
     }

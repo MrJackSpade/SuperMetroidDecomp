@@ -99,11 +99,11 @@ internal static class TorizoMotionDefinitions
     internal const int InitialDroolLift = 5;
 
     /// <summary>
-    /// The initial drool's slowest fall, in 256ths of a pixel an update, to which its random fall jitter adds: 48, and
-    /// the one 256th the game adds whenever the lifted height lies at or below the room's top, which a Torizo's height
-    /// always keeps it (#1620).
+    /// The initial drool's slowest fall, to which its random fall jitter adds: three sixteenths of a pixel an update, and
+    /// the finest step a speed takes more, which the game adds whenever the lifted height lies at or below the room's
+    /// top, as a Torizo's height always keeps it (#1620).
     /// </summary>
-    internal const int InitialDroolSlowestFall = 49;
+    internal static readonly SignedEightEight InitialDroolSlowestFall = SignedEightEight.FromPixelFraction(49, 256);
 
     /// <summary>The pixels ahead of the jittered spawn position, the way the Torizo faces, the initial drool is placed.</summary>
     internal const int InitialDroolSideOffset = 8;
@@ -139,12 +139,6 @@ internal static class TorizoMotionDefinitions
     /// spread lies either side of the heading.
     /// </summary>
     internal const int EyeBeamSpreadCentre = 8;
-
-    /// <summary>
-    /// The 256ths of a pixel a randomized projectile's jitter (<see cref="TorizoRandomDefinitions.VelocityJitter"/>) is
-    /// taken back by on each axis, so the jitter lies either side of its base speed (#2232).
-    /// </summary>
-    internal const int VelocityJitterCentre = 128;
 
     /// <summary>The eye beam's speed, eight pixels an update along its heading.</summary>
     internal static readonly SignedEightEight EyeBeamSpeed = SignedEightEight.FromPixels(8);

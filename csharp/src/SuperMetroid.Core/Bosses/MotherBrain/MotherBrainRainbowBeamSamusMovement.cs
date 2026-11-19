@@ -138,7 +138,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         FixedCoordinate moved = MoveByPushVelocity(
             new FixedCoordinate(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction),
             velocity);
-        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(moved.Fraction);
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(moved.FractionOfPixel);
         // The push hides the coarse part of its movement within a pixel from the camera, and every
         // exit records the new whole Y as where Samus was: the camera sees no whole-pixel movement.
         cameraCheckpoint.HideCoarseVerticalMovement(moved.Fraction);
@@ -150,7 +150,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         {
             int boundary = aboveCeiling ? MotherBrainRainbowBeamPushDefinitions.Ceiling : MotherBrainRainbowBeamPushDefinitions.Floor;
             samus.Position = samus.Position.WithWholeY(boundary);
-            samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0);
+            samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(PixelFraction.None);
             samus.WritePreviousYPosition(boundary);
             cameraCheckpoint.HideVerticalMovement(0);
             return true;
@@ -167,14 +167,14 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         FixedCoordinate moved = MoveByPushVelocity(
             new FixedCoordinate(samus.Position.X.Whole, samus.Kinematics.Position.X.Fraction),
             velocity);
-        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(moved.Fraction);
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(moved.FractionOfPixel);
         // Every store is hidden from the camera's horizontal record.
         cameraCheckpoint.HideCoarseHorizontalMovement(moved.Fraction);
 
         if (moved.Whole >= MotherBrainRainbowBeamPushDefinitions.WallX)
         {
             samus.Position = samus.Position.WithWholeX(MotherBrainRainbowBeamPushDefinitions.WallX);
-            samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0);
+            samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(PixelFraction.None);
             samus.WritePreviousXPosition(MotherBrainRainbowBeamPushDefinitions.WallX);
             cameraCheckpoint.HideHorizontalMovement(0);
             return true;

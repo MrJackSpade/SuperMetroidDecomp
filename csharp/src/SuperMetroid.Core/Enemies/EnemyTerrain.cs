@@ -106,14 +106,14 @@ internal sealed class EnemyTerrain
             int aligned = CoordinateAxis.Wrap(RoomGridConversions.BlockEnd(targetEdge) + place.Radius.X + 1);
             if (aligned <= place.Position.X.Whole)
                 place.Position = place.Position.WithWholeX(aligned);
-            place.Position = place.Position.WithFractionX(0);
+            place.Position = place.Position.WithFractionX(PixelFraction.None);
         }
         else
         {
             int aligned = CoordinateAxis.Wrap(RoomGridConversions.BlockStart(targetEdge) - place.Radius.X);
             if (aligned >= place.Position.X.Whole)
                 place.Position = place.Position.WithWholeX(aligned);
-            place.Position = place.Position.WithFractionX(FixedCoordinate.LastFraction);
+            place.Position = place.Position.WithFractionX(PixelFraction.Last);
         }
         return true;
     }
@@ -163,14 +163,14 @@ internal sealed class EnemyTerrain
             int aligned = CoordinateAxis.Wrap(RoomGridConversions.BlockEnd(targetEdge) + place.Radius.Y + 1);
             if (aligned <= place.Position.Y.Whole)
                 place.Position = place.Position.WithWholeY(aligned);
-            place.Position = place.Position.WithFractionY(0);
+            place.Position = place.Position.WithFractionY(PixelFraction.None);
         }
         else
         {
             int aligned = CoordinateAxis.Wrap(RoomGridConversions.BlockStart(targetEdge) - place.Radius.Y);
             if (aligned >= place.Position.Y.Whole)
                 place.Position = place.Position.WithWholeY(aligned);
-            place.Position = place.Position.WithFractionY(FixedCoordinate.LastFraction);
+            place.Position = place.Position.WithFractionY(PixelFraction.Last);
         }
         return true;
     }

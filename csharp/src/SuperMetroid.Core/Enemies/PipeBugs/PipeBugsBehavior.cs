@@ -79,7 +79,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new YellowPipeBugState(YellowPipeBugAction.WaitForSamus);
         place.SetSpeciesState(state);
         state.SpawnPosition = place.Position.Whole;
-        place.Position = place.Position.WithFractionX(0).WithFractionY(0);
+        place.Position = place.Position.WithoutFractions();
         state.Playback = EnemyAnimationPlayback.Start(place, PipeBugAnimations.StartingWith(
             place.SpawnSettings<YellowPipeBugSpawnSettings>().Facing == HorizontalDirection.Left
                 ? PipeBugSegment.GeegaFlyingLeft
@@ -254,7 +254,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyProcessingWindow.EnemyIsHorizontallyOffScreen(place, cameraX))
             return;
 
-        place.Position = place.Position.WithWhole(state.SpawnPosition).WithFractionX(0)
+        place.Position = place.Position.WithWhole(state.SpawnPosition).WithFractionX(PixelFraction.None)
             .WithY(PipeBugEmergenceRise.Respawned(state.SpawnPosition.Y));
         SelectBrinstarPipeBugAnimation(place, state, PipeBugAnimationChoices.Rising(KindOf(place), HorizontalDirection.Left));
         place.Presence = place.Presence.With(EnemyPresence.Hidden);

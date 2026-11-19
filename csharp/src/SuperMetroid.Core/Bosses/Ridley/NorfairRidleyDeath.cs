@@ -211,8 +211,7 @@ internal sealed class NorfairRidleyDeath
         fragment.Shading = state.Colours.SpriteShading(flashing: false);
         int random = _room.Random.Generate();
         SignedEightEight horizontalSpeed =
-            SignedEightEight.FromSixteenthsOfPixel(RidleyExplosionDefinitions.FragmentSpeedSixteenths.Of(random)) +
-            SignedEightEight.FromPixels(RidleyExplosionDefinitions.FragmentSpeedWholePixel.Of(random));
+            RidleyExplosionDefinitions.FragmentSpeedFraction.Of(random) + RidleyExplosionDefinitions.FragmentSpeedWholePixel.Of(random);
         // Tail fragments start from their tail link; the body fragments start from the body.
         EnemyFrameId picture;
         if (RidleyBreakup.TailLinkBecoming(part, state.Tail) is { } link)

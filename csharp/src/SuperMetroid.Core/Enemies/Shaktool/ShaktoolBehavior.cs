@@ -153,8 +153,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// (<see cref="ShaktoolOrbitDefinitions.OrbitSine"/>) at the angle across, and at the angle a quarter turn behind down.
     /// </summary>
     internal static FixedVector<RoomPixels> OrbitDisplacement(TrigonometryAngle angle) => new(
-        SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(ShaktoolOrbitDefinitions.OrbitSine.At(angle)),
-        SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(ShaktoolOrbitDefinitions.OrbitSine.At(angle - TrigonometryAngle.QuarterTurn)));
+        ShaktoolOrbitDefinitions.OrbitSine.At(angle), ShaktoolOrbitDefinitions.OrbitSine.At(angle - TrigonometryAngle.QuarterTurn));
 
     /// <summary>
     /// Places the segment on its orbit and turns the orbit on its chain's way round, by the segment's own angular speed, or

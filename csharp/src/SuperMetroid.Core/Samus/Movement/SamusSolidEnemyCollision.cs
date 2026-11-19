@@ -83,7 +83,7 @@ public static class SamusSolidEnemyCollision
             {
                 // Touching clears Samus's Y fraction of a pixel whatever the direction, even for a left or right touch: a quirk of
                 // the game that decides whether repeated presses into a solid or frozen enemy drift her by a pixel.
-                state.Position = state.Position.WithFractionY(0);
+                state.Position = state.Position.WithFractionY(PixelFraction.None);
             }
 
             // Success publishes the whole gap and the enemy met; the move records it for its direction.

@@ -80,8 +80,7 @@ public static class RoomObjectMotherBrainGlassVisualFiles
         foreach (MotherBrainGlassDraw frame in FrameOrder)
         {
             RoomObjectDraw draw = MotherBrainGlassDraws.Family.Of(frame);
-            if (!RoomObjectDrawIdentity.TryShape(MotherBrainGlassDraws.Family, draw, out RoomBlockShape? shape))
-                throw new InvalidOperationException($"Mother Brain glass frame {frame} has no shape.");
+            RoomBlockShape shape = MotherBrainGlassDraws.Family.Shape(frame);
             layouts.Add(new(frame, RoomObjectShapeRun.Layout(draw, shape, runs[frame])));
         }
         return layouts;

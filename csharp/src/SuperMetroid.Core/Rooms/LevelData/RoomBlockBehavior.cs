@@ -267,6 +267,14 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
         _ => throw new InvalidOperationException($"Undefined reaction family {family}."),
     };
 
+    /// <summary>Finds the reaction <paramref name="family"/>'s kinds read, which this behaviour may give them none of.</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="family"/> is undefined.</exception>
+    public bool TryReactionIn(BlockReactionFamily family, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out Enum? reaction)
+    {
+        reaction = ReactionIn(family);
+        return reaction is not null;
+    }
+
     /// <summary>The reaction <paramref name="kind"/> reads, or null for a kind that reads no reaction or has none for this behaviour.</summary>
     public Enum? ReactionUnder(RoomCollisionType kind) =>
         BlockReactionFamilies.Of(kind) is { } family ? ReactionIn(family) : null;

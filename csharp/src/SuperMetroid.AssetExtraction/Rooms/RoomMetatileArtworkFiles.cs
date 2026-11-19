@@ -73,9 +73,17 @@ public static class RoomMetatileArtworkFiles
             sources.Keys.Any(name => !manifest.Entries.ContainsKey(name)))
             throw new InvalidDataException($"Room metatile manifest {manifestPath} does not describe this import.");
 
-        RoomMetatileAtlas? cre = null;
+        // The CRE is its own required entry; every other entry is a tileset's block definitions.
+        RoomMetatileAtlas cre = Load(RoomMetatileFormat.CreFileName);
         var selected = new Dictionary<RoomBlockSet, RoomMetatileAtlas>();
         foreach ((string name, RoomBlockSource source) in sources)
+        {
+            if (source.Set is { } set)
+                selected.Add(set, Load(name));
+        }
+        return new RoomMetatileCatalog(cre, selected);
+
+        RoomMetatileAtlas Load(string name)
         {
             RoomMetatileFileEntry entry = manifest.Entries[name];
             RoomMetatileFormat.ValidateBlockCount(entry.NativeByteCount);
@@ -91,11 +99,8 @@ public static class RoomMetatileArtworkFiles
             {
                 throw new InvalidDataException($"Invalid room metatile JSON {stockPath}: {error.Message}", error);
             }
-            if (source.Set is { } set) selected.Add(set, atlas);
-            else cre = atlas;
+            return atlas;
         }
-        return new RoomMetatileCatalog(
-            cre ?? throw new InvalidDataException("Room metatile manifest has no CRE resource."), selected);
     }
 
     /// <summary>Collects the CRE source and each distinct room tileset block-definition source by asset filename.</summary>

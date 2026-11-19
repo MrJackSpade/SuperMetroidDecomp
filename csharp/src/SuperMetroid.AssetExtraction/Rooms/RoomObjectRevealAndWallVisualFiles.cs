@@ -58,21 +58,20 @@ public static class RoomObjectRevealAndWallVisualFiles
             foreach (RoomObjectBombedRevealDraw reveal in Reveals)
             {
                 RoomObjectDraw draw = BombedRevealObjectDraws.Family.Of(reveal);
-                yield return RoomObjectShapeRun.DrawList(draw, Required(draw, RoomObjectDrawIdentity.TryShape(BombedRevealObjectDraws.Family, draw, out var shape), shape),
+                yield return RoomObjectShapeRun.DrawList(draw, BombedRevealObjectDraws.Family.Shape(reveal),
                     RoomObjectShapeRun.Row(new(0, 0), 1));
             }
-            RoomObjectDraw passage = CrateriaMainstreetEscapePassageObjectDefinitions.ClearPairDraw;
-            yield return RoomObjectShapeRun.DrawList(passage,
-                Required(passage, RoomObjectDrawIdentity.TryShape(CrateriaMainstreetEscapePassageDraws.Family, passage, out var passageShape), passageShape),
+            RoomObjectFrameDraw<CrateriaMainstreetEscapePassageObjectDefinitions.Draw> passage = CrateriaMainstreetEscapePassageObjectDefinitions.ClearPairDraw;
+            yield return RoomObjectShapeRun.DrawList(passage, CrateriaMainstreetEscapePassageDraws.Family.Shape(passage.Frame),
                 RoomObjectShapeRun.Row(new(0, 0), 2));
-            RoomObjectDraw wall = OldTourianEscapeShaftWallObjectDefinitions.OpenWallDraw;
-            yield return RoomObjectShapeRun.DrawList(wall, Required(wall, RoomObjectDrawIdentity.TryShape(OldTourianEscapeShaftWallDraws.Family, wall, out var wallShape), wallShape),
+            RoomObjectFrameDraw<OldTourianEscapeShaftWallObjectDefinitions.Draw> wall = OldTourianEscapeShaftWallObjectDefinitions.OpenWallDraw;
+            yield return RoomObjectShapeRun.DrawList(wall, OldTourianEscapeShaftWallDraws.Family.Shape(wall.Frame),
                 RoomObjectShapeRun.Column(new(0, 0), 3), RoomObjectShapeRun.Column(new(1, 0), 3));
             foreach (EscapeAnimalDraw frame in RescueWallFrames)
             {
                 RoomObjectDraw animalWall = EscapeAnimalWalls.Family.Of(frame);
                 yield return RoomObjectShapeRun.DrawList(animalWall,
-                    Required(animalWall, RoomObjectDrawIdentity.TryShape(EscapeAnimalWalls.Family, animalWall, out var animalShape), animalShape),
+                    EscapeAnimalWalls.Family.Shape(frame),
                     RoomObjectShapeRun.Column(new(0, 0), 3));
             }
         }
@@ -93,10 +92,4 @@ public static class RoomObjectRevealAndWallVisualFiles
         RoomObjectFrameDraw<EscapeAnimalDraw> { Frame: EscapeAnimalDraw.Blank } => "escape-animal-wall-blank",
         _ => throw new InvalidDataException($"Reveal and wall draw {draw} has no visual ID."),
     };
-
-
-    /// <summary>The block shape a frame's own family describes.</summary>
-    /// <exception cref="InvalidOperationException">The family does not describe the frame.</exception>
-    private static RoomBlockShape Required(RoomObjectDraw draw, bool described, RoomBlockShape? shape) =>
-        described && shape is not null ? shape : throw new InvalidOperationException($"Reveal and wall frame {draw} has no block shape.");
 }

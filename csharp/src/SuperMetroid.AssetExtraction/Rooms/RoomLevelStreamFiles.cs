@@ -208,26 +208,25 @@ public static class RoomLevelStreamFiles
         RoomBlockBehavior rebuilt;
         switch (ReadingOf(kind))
         {
-            case BehaviorReading.Reaction:
+            case BehaviorReading.Reaction(BlockReactionFamily family):
             {
-                BlockReactionFamily family = BlockReactionFamilies.Of(kind) ??
-                    throw new InvalidOperationException($"Collision kind {kind} reads no reaction.");
-                Enum reaction = behavior.ReactionIn(family) ?? throw new InvalidDataException(
-                    $"Room level {level} block {index} is {kind} with behaviour {behavior}, which gives its kind no reaction.");
+                if (!behavior.TryReactionIn(family, out Enum? reaction))
+                    throw new InvalidDataException(
+                        $"Room level {level} block {index} is {kind} with behaviour {behavior}, which gives its kind no reaction.");
                 writer.Write(checked((byte)IndexOf(BlockReactionFamilies.Reactions(family), reaction)));
                 rebuilt = RoomBlockBehavior.ReactingAs(reaction);
                 break;
             }
-            case BehaviorReading.Slope:
+            case BehaviorReading.SlopeReading:
                 writer.Write(checked((byte)IndexOf(SlopeShapes, behavior.Slope.Shape)));
                 writer.Write(checked((byte)MirroringCodes.IndexOf(behavior.Slope.Mirroring)));
                 rebuilt = RoomBlockBehavior.Sloping(behavior.Slope);
                 break;
-            case BehaviorReading.Extension:
+            case BehaviorReading.ExtensionReading:
                 writer.Write(checked((sbyte)behavior.ExtensionOffset));
                 rebuilt = RoomBlockBehavior.Extending(behavior.ExtensionOffset);
                 break;
-            case BehaviorReading.Nothing:
+            case BehaviorReading.NothingReading:
                 rebuilt = RoomBlockBehavior.None;
                 break;
             default:
@@ -245,16 +244,15 @@ public static class RoomLevelStreamFiles
     {
         switch (ReadingOf(kind))
         {
-            case BehaviorReading.Reaction:
+            case BehaviorReading.Reaction(BlockReactionFamily family):
             {
-                Enum[] named = reactions[BlockReactionFamilies.Of(kind) ??
-                    throw new InvalidOperationException($"Collision kind {kind} reads no reaction.")];
+                Enum[] named = reactions[family];
                 int reaction = reader.ReadByte();
                 if (reaction >= named.Length)
                     throw new InvalidDataException($"Reaction code {reaction} is not one of the {named.Length} reactions the {kind} family names.");
                 return RoomBlockBehavior.ReactingAs(named[reaction]);
             }
-            case BehaviorReading.Slope:
+            case BehaviorReading.SlopeReading:
             {
                 int shape = reader.ReadByte();
                 if (shape >= shapes.Length)
@@ -264,9 +262,9 @@ public static class RoomLevelStreamFiles
                     throw new InvalidDataException($"Mirroring code {mirroring} is not one of the {MirroringCodes.Length} codes.");
                 return RoomBlockBehavior.Sloping(new SlopeGeometry(shapes[shape], MirroringCodes[mirroring]));
             }
-            case BehaviorReading.Extension:
+            case BehaviorReading.ExtensionReading:
                 return RoomBlockBehavior.Extending(reader.ReadSByte());
-            case BehaviorReading.Nothing:
+            case BehaviorReading.NothingReading:
                 return RoomBlockBehavior.None;
             default:
                 throw new InvalidOperationException($"Undefined behaviour reading for collision kind {kind}.");
@@ -278,10 +276,8 @@ public static class RoomLevelStreamFiles
     {
         RoomCollisionType.Slope => BehaviorReading.Slope,
         RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension => BehaviorReading.Extension,
-        RoomCollisionType.SpikeAir or RoomCollisionType.SpecialAir or RoomCollisionType.ShootableAir or
-            RoomCollisionType.BombableAir or RoomCollisionType.SpikeBlock or RoomCollisionType.SpecialBlock or
-            RoomCollisionType.ShootableBlock or RoomCollisionType.GrappleBlock or RoomCollisionType.BombableBlock =>
-            BehaviorReading.Reaction,
+        // The kinds that read a reaction are those with a reaction family, and the reading carries the family they read.
+        _ when BlockReactionFamilies.Of(kind) is { } family => new BehaviorReading.Reaction(family),
         RoomCollisionType.Air or RoomCollisionType.UnrevealedAir or RoomCollisionType.SolidBlock or RoomCollisionType.DoorBlock =>
             BehaviorReading.Nothing,
         _ => throw new InvalidOperationException($"Undefined collision kind {kind}."),
@@ -457,20 +453,32 @@ public static class RoomLevelStreamFiles
         throw new InvalidOperationException($"{item} is not among the {items.Count} the level files name.");
     }
 
-    /// <summary>The readings a collision kind takes of its block's behaviour, which decide how the level files write it.</summary>
-    private enum BehaviorReading
+    /// <summary>
+    /// The readings a collision kind takes of its block's behaviour, which decide how the level files write it; a reaction
+    /// reading carries the family whose reaction it reads (#2554).
+    /// </summary>
+    private abstract record BehaviorReading
     {
         /// <summary>The kind reads no behaviour; its block holds <see cref="RoomBlockBehavior.None"/>.</summary>
-        Nothing,
-
-        /// <summary>The kind reads its family's reaction.</summary>
-        Reaction,
+        internal static readonly BehaviorReading Nothing = new NothingReading();
 
         /// <summary>The kind reads a slope's shape and mirroring.</summary>
-        Slope,
+        internal static readonly BehaviorReading Slope = new SlopeReading();
 
         /// <summary>The kind reads a signed offset to the block it collides as.</summary>
-        Extension,
+        internal static readonly BehaviorReading Extension = new ExtensionReading();
+
+        /// <summary>The kind reads its <paramref name="Family"/>'s reaction.</summary>
+        internal sealed record Reaction(BlockReactionFamily Family) : BehaviorReading;
+
+        /// <summary>The kind reads no behaviour.</summary>
+        internal sealed record NothingReading : BehaviorReading;
+
+        /// <summary>The kind reads a slope.</summary>
+        internal sealed record SlopeReading : BehaviorReading;
+
+        /// <summary>The kind reads an extension's offset.</summary>
+        internal sealed record ExtensionReading : BehaviorReading;
     }
 
     /// <summary>

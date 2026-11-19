@@ -46,9 +46,7 @@ public static class RoomObjectTourianAccessVisualFiles
     internal static string VisualId(TourianAccessDraw draw) => TourianAccessDrawKeys.Installed.Of(draw);
 
     /// <summary>Names a drawn stage of a row's crumble for visual files (#2291): the crumble's word, then the stage's key.</summary>
-    private static string CrumbleVisualId(BlockBreakupStage stage) =>
-        TourianAccessObjectDrawDefinitions.CrumbleShapes.ContainsKey(stage) ? "crumble-" + BlockBreakupStageKeys.Installed.Of(stage)
-            : throw new InvalidOperationException($"A Tourian access row's crumble draws no stage {stage}.");
+    private static string CrumbleVisualId(BlockBreakupStage stage) => "crumble-" + BlockBreakupStageKeys.Installed.Of(stage);
 
     /// <summary>The draw list of a Tourian access draw: its block shape written one four-block row at a time, top row first (#1862).</summary>
     internal static RoomObjectDrawLists.DrawList Compile(TourianAccessDraw draw) =>
@@ -59,11 +57,9 @@ public static class RoomObjectTourianAccessVisualFiles
         Compile(TourianAccessDraws.Crumble(stage), TourianAccessDraws.CrumbleFamily, 1);
 
     /// <summary>The draw list of a frame of <paramref name="family"/>: its block shape written one four-block row at a time, top row first.</summary>
-    private static RoomObjectDrawLists.DrawList Compile<TFrame>(RoomObjectDraw request, RoomObjectDrawFamily<TFrame> family, int rows) where TFrame : struct
+    private static RoomObjectDrawLists.DrawList Compile<TFrame>(RoomObjectFrameDraw<TFrame> request, RoomObjectDrawFamily<TFrame> family, int rows) where TFrame : struct
     {
-        if (!RoomObjectDrawIdentity.TryShape(family, request, out RoomBlockShape? shape))
-            throw new InvalidOperationException($"Tourian access frame {request} has no shape.");
-        return RoomObjectShapeRun.DrawList(request, shape,
+        return RoomObjectShapeRun.DrawList(request, family.Shape(request.Frame),
             [.. Enumerable.Range(0, rows).Select(row => RoomObjectShapeRun.Row(new(0, row), 4))]);
     }
 }

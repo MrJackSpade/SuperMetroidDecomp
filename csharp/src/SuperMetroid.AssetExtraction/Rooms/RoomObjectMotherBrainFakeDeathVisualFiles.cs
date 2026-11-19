@@ -75,9 +75,7 @@ public static class RoomObjectMotherBrainFakeDeathVisualFiles
         void Add<TFrame>(RoomObjectDrawFamily<TFrame> family, RoomObjectFrameDraw<TFrame> draw, RoomObjectShapeRun[] frameRuns, string id)
             where TFrame : struct
         {
-            if (!RoomObjectDrawIdentity.TryShape(family, draw, out RoomBlockShape? shape))
-                throw new InvalidOperationException($"Mother Brain fake-death frame {draw} has no shape.");
-            layouts.Add(new(draw, RoomObjectShapeRun.Layout(draw, shape, frameRuns)));
+            layouts.Add(new(draw, RoomObjectShapeRun.Layout(draw, family.Shape(draw.Frame), frameRuns)));
             ids.Add(draw, id);
         }
         void AddFrame(MotherBrainFakeDeathDraw frame) =>

@@ -123,16 +123,14 @@ public static class RoomObjectCollectibleVisualFiles
                 throw new InvalidDataException(
                     $"Collectible block pair selector $84:{table + selector * 2:X4} differs from the cartridge.");
         }
-        foreach (RoomObjectCollectibleDrawFrame frame in All.Where(frame => !IsEditable(frame.Draw)))
+        foreach ((CollectibleDraw draw, RoomTerrainBlock terrain) in CollectibleObjectDraws.BlockPairFrames)
         {
-            int address = RoomObjectDrawAddressCodec.Of(CollectibleObjectDraws.Family.Of(frame.Draw));
-            RoomTerrainBlock terrain = CollectibleObjectDraws.BlockPairTerrain(frame.Draw)
-                ?? throw new InvalidOperationException($"Collectible draw {frame.Id} lies under the item's own picture but writes no block pair's terrain.");
+            int address = RoomObjectDrawAddressCodec.Of(CollectibleObjectDraws.Family.Of(draw));
             if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, address)) != 1 ||
                 RoomLevelWordCodec.Decode(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(address + 2)))))) != RoomLevelWordCodec.AsStored(terrain) ||
                 CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(address + 4))))) != 0)
                 throw new InvalidDataException(
-                    $"Collectible draw {frame.Id} at $84:{address:X4} differs from compiled geometry or level word.");
+                    $"Collectible draw {draw} at $84:{address:X4} differs from compiled geometry or level word.");
         }
     }
 }

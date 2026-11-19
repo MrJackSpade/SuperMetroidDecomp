@@ -88,9 +88,17 @@ public static class RoomCharacterArtworkFiles
             sources.Keys.Any(name => !manifest.Entries.ContainsKey(name)))
             throw new InvalidDataException($"Room character manifest {manifestPath} does not describe this installation.");
 
-        RoomCharacterAtlas? cre = null;
+        // The CRE is its own required entry; every other entry is a graphics set's sheet.
+        RoomCharacterAtlas cre = Load(RoomCharacterSheetFiles.CreFileName);
         var sheets = new Dictionary<RoomCharacterSet, RoomCharacterAtlas>();
         foreach ((string name, RoomCharacterSource source) in sources)
+        {
+            if (source.Set is { } set)
+                sheets.Add(set, Load(name));
+        }
+        return new RoomCharacterAtlases(cre, sheets);
+
+        RoomCharacterAtlas Load(string name)
         {
             RoomCharacterFileEntry entry = manifest.Entries[name];
             RoomCharacterAtlasFormat.ValidateTileCount(entry.NativeByteCount);
@@ -109,11 +117,8 @@ public static class RoomCharacterArtworkFiles
             {
                 throw new InvalidDataException($"Invalid room character PNG {path}: {error.Message}", error);
             }
-            if (source.Set is { } set) sheets.Add(set, atlas);
-            else cre = atlas;
+            return atlas;
         }
-        return new RoomCharacterAtlases(
-            cre ?? throw new InvalidDataException("Room character manifest has no CRE sheet."), sheets);
     }
 
     /// <summary>Maps the CRE, each distinct graphics-set sheet and the ghost sheet by file name to their sheet.</summary>

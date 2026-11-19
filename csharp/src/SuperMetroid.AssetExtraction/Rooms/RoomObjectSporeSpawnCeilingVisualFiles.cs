@@ -46,8 +46,7 @@ public static class RoomObjectSporeSpawnCeilingVisualFiles
         {
             foreach (SporeSpawnCeilingDraw frame in FrameOrder)
             {
-                TryGet(SporeSpawnCeilingDraws.Family.Of(frame), out var list);
-                yield return list;
+                yield return DrawList(frame);
             }
         }
     }
@@ -64,19 +63,13 @@ public static class RoomObjectSporeSpawnCeilingVisualFiles
     /// cell colliding as the game's block shape for the frame says (#1608). The run form is the cartridge's; the game
     /// draws the shape.
     /// </summary>
-    internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
+    internal static RoomObjectDrawLists.DrawList DrawList(SporeSpawnCeilingDraw frame)
     {
-        if (!RoomObjectDrawIdentity.TryShape(SporeSpawnCeilingDraws.Family, request, out RoomBlockShape? described))
-        {
-            list = default;
-            return false;
-        }
-        RoomBlockShape shape = described;
+        RoomBlockShape shape = SporeSpawnCeilingDraws.Family.Shape(frame);
         int rows = 2;
         int rowWidth = 2;
-        list = RoomObjectDrawListExport.Runs(request, rows, _ => rowWidth,
+        return RoomObjectDrawListExport.Runs(SporeSpawnCeilingDraws.Family.Of(frame), rows, _ => rowWidth,
             (run, cell) => shape.CollisionAt(RoomObjectDrawListExport.Stacked(run) + new Offset16<RoomBlocks>(cell, 0)),
             RoomObjectDrawListExport.Horizontal, RoomObjectDrawListExport.Stacked);
-        return true;
     }
 }

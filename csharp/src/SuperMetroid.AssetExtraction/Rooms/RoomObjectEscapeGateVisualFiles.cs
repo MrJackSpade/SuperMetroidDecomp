@@ -46,8 +46,7 @@ public static class RoomObjectEscapeGateVisualFiles
         foreach (MotherBrainEscapeGateDraw frame in FrameOrder)
         {
             RoomObjectDraw draw = MotherBrainEscapeGateDraws.Family.Of(frame);
-            if (!RoomObjectDrawIdentity.TryShape(MotherBrainEscapeGateDraws.Family, draw, out RoomBlockShape? shape))
-                throw new InvalidOperationException($"Escape-gate frame {frame} has no shape.");
+            RoomBlockShape shape = MotherBrainEscapeGateDraws.Family.Shape(frame);
             layouts.Add(new(frame, RoomObjectShapeRun.Layout(draw, shape, RoomObjectShapeRun.Column(Offset16<RoomBlocks>.Zero, 4))));
         }
         return layouts;

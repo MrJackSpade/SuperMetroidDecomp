@@ -31,18 +31,21 @@ internal static class CollectibleObjectDraws
     /// </summary>
     internal static RoomTerrainBlock? BlockPairTerrain(CollectibleDraw draw)
     {
-        foreach (CollectibleBlockPairs.Pair pair in CollectibleBlockPairs.InTurn)
+        foreach ((CollectibleDraw frame, RoomTerrainBlock terrain) in BlockPairFrames)
         {
-            CollectibleLookDraws looks = BlockPairLooks[pair];
-            foreach (CollectibleLook look in Looks)
-            {
-                if (looks.Of(look) == draw)
-                    return new RoomTerrainBlock(RoomBlockAppearance.Of(new CollectiblePairBlock(pair, look)),
-                        Collision(DrawGroup.OwnPicture));
-            }
+            if (frame == draw)
+                return terrain;
         }
         return null;
     }
+
+    /// <summary>
+    /// Every block pair's frame, in the pairs' turn and then look order, with the terrain it writes (#2554): the frames
+    /// under the item's own picture, each carrying its pair's block.
+    /// </summary>
+    internal static IEnumerable<(CollectibleDraw Draw, RoomTerrainBlock Terrain)> BlockPairFrames =>
+        CollectibleBlockPairs.InTurn.SelectMany(pair => Looks.Select(look => (BlockPairLooks[pair].Of(look),
+            new RoomTerrainBlock(RoomBlockAppearance.Of(new CollectiblePairBlock(pair, look)), Collision(DrawGroup.OwnPicture)))));
 
     /// <summary>The kind of draw <paramref name="draw"/> is.</summary>
     /// <exception cref="InvalidOperationException">The draw is no collectible's frame.</exception>

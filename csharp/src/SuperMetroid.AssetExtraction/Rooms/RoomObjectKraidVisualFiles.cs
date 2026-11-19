@@ -84,11 +84,9 @@ public static class RoomObjectKraidVisualFiles
             .Concat(RoomFrames.Select(frame => SingleRow(KraidRoomObjectDraws.Family.Of(frame), KraidRoomObjectDraws.Family)));
 
     /// <summary>The draw list of a frame of <paramref name="family"/>: one run along the row its shape covers.</summary>
-    /// <exception cref="InvalidOperationException">The frame has no shape.</exception>
-    private static RoomObjectDrawLists.DrawList SingleRow<TFrame>(RoomObjectDraw draw, RoomObjectDrawFamily<TFrame> family) where TFrame : struct
+    private static RoomObjectDrawLists.DrawList SingleRow<TFrame>(RoomObjectFrameDraw<TFrame> draw, RoomObjectDrawFamily<TFrame> family) where TFrame : struct
     {
-        if (!RoomObjectDrawIdentity.TryShape(family, draw, out RoomBlockShape? shape))
-            throw new InvalidOperationException($"Kraid room frame {draw} has no shape.");
+        RoomBlockShape shape = family.Shape(draw.Frame);
         var collisions = new RoomCollisionType[shape.Cells.Count];
         for (int cell = 0; cell < collisions.Length; cell++) collisions[cell] = shape.CollisionAt(new Offset16<RoomBlocks>(cell, 0));
         return RoomObjectDrawListExport.SingleRun(draw, RoomObjectRunDirection.Horizontal, collisions);

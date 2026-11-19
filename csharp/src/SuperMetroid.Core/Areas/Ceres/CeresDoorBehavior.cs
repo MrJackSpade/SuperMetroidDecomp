@@ -161,13 +161,13 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IGameplayShadingSource
                 place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
                 return null;
             case CeresDoorCueKind.HandDrawingToRidley:
-                place.RequireSpeciesState<CeresRidleyRoomDoorState>().HandsDrawingToRidley = true;
+                place.RequireSpeciesState<CeresRidleyRoomDoorState>().Drawing = CeresRidleyRoomDoorDrawing.ByRidleysScene;
                 return null;
             case CeresDoorCueKind.MakeInvisible:
                 place.Presence = place.Presence.With(EnemyPresence.Hidden);
                 return null;
             case CeresDoorCueKind.MakeVisibleAndTakeDrawingBack:
-                place.RequireSpeciesState<CeresRidleyRoomDoorState>().HandsDrawingToRidley = false;
+                place.RequireSpeciesState<CeresRidleyRoomDoorState>().Drawing = CeresRidleyRoomDoorDrawing.ItsOwn;
                 place.Presence = place.Presence.Without(EnemyPresence.Hidden);
                 return null;
             case CeresDoorCueKind.MakeVisible:

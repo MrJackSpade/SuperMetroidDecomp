@@ -1604,7 +1604,7 @@ internal static class LookupStream5Verification
         var door = enemies.Places.InUpdateOrder[1];
         door.BindCeresDoorOrWall(EnemyDefinitionId.CeresRidleyRoomDoor, EnemySpawnSettings.None);
         ((SuperMetroid.Core.Areas.Ceres.ICeresRidleyScene)enemies.RidleyEncounter).AttachRoomDoor(door);
-        door.SetSpeciesState(new CeresRidleyRoomDoorState { HandsDrawingToRidley = true });
+        door.SetSpeciesState(new CeresRidleyRoomDoorState { Drawing = SuperMetroid.Core.Areas.Ceres.CeresRidleyRoomDoorDrawing.ByRidleysScene });
         door.Position = door.Position.WithWholeY(80);
         foreach (ushort x in new ushort[] { 0, 1, 3, 255, 256, 511, ushort.MaxValue })
         foreach (ushort camera in new ushort[] { 0, ushort.MaxValue })

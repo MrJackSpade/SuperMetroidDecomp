@@ -8,6 +8,6 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// </summary>
 internal interface IDrawnByCeresRidleyScene : IEnemyEntity
 {
-    /// <summary>Whether the occupant has currently handed its drawing to Ceres Ridley's scene.</summary>
-    bool HandsDrawingToRidley { get; }
+    /// <summary>Who draws the occupant now: itself, or Ceres Ridley's scene it has handed its drawing to (#2545).</summary>
+    CeresRidleyRoomDoorDrawing Drawing { get; }
 }

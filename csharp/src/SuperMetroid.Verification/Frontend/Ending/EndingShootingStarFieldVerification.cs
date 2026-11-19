@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Ending;
 
 namespace SuperMetroid.Verification.Frontend.Ending;

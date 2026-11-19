@@ -69,15 +69,14 @@ internal static class Program
     /// <summary>Runs the chosen mode on a compiled solution; returns the exit code.</summary>
     private static int Run(LoadedSolution solution, AuditMode mode)
     {
-        if (mode == AuditMode.TestOnlyMembers)
-            return Report(TestOnlyMembers.Collect(solution), "Test-only member census: no product member is wider than its production use for checks.");
-        var entries = TypeInventory.Collect(solution);
         return mode switch
         {
-            AuditMode.PruneStaleReviews => StaleReviewPruner.Prune(StaleReviews(entries), solution.RepositoryRoot),
-            AuditMode.Findings => CheckFindings(solution, entries),
-            AuditMode.Check => CheckInventories(solution, entries, write: false),
-            AuditMode.Write => CheckInventories(solution, entries, write: true),
+            AuditMode.PruneStaleReviews => StaleReviewPruner.Prune(StaleReviews(TypeInventory.Collect(solution)), solution.RepositoryRoot),
+            AuditMode.Findings => CheckFindings(solution, TypeInventory.Collect(solution)),
+            AuditMode.Check => CheckInventories(solution, TypeInventory.Collect(solution), write: false),
+            AuditMode.Write => CheckInventories(solution, TypeInventory.Collect(solution), write: true),
+            AuditMode.TestOnlyMembers => Report(TestOnlyMembers.Collect(solution),
+                "Test-only member census: no product member is wider than its production use for checks."),
             _ => throw new InvalidOperationException($"Unknown audit mode {mode}."),
         };
     }

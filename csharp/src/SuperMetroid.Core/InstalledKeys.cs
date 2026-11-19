@@ -44,14 +44,6 @@ public sealed class InstalledKeys<TIdentity>
     [InstalledKey]
     public string Of(TIdentity identity) => Ensure.Listed(keys, identity);
 
-    /// <summary>The member an installed key names.</summary>
-    /// <param name="key">The key as an installed document or name spells it.</param>
-    /// <exception cref="InvalidDataException">The key names no member.</exception>
-    public TIdentity Parse(string? key) =>
-        TryParse(key, out TIdentity identity)
-            ? identity
-            : throw new InvalidDataException($"'{key}' names no {typeof(TIdentity).Name}.");
-
     /// <summary>Whether <paramref name="key"/> is the installed key of a member, and that member.</summary>
     public bool TryParse(string? key, out TIdentity identity)
     {

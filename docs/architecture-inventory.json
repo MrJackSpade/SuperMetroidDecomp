@@ -152322,6 +152322,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Areas.Escape.EscapeTimeUpAfterRefillVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Areas/Escape/EscapeTimeUpAfterRefillVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Areas.Escape.EscapeTimeUpOutOfHealthVerification",
       "kind": "static class",
       "scope": "test",
@@ -172968,6 +172981,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Verification.Fx.EarthquakeOutOfHealthVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Fx/EarthquakeOutOfHealthVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Verification.Fx.FxDefinitionMigrationVerification",

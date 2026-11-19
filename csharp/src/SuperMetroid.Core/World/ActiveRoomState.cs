@@ -5,7 +5,6 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Samus.Movement;
@@ -98,9 +97,6 @@ internal sealed class ActiveRoomState
     /// <summary>The loaded room's level data.</summary>
     public RoomLevelData LoadedLevelData => LevelData ??
         throw new InvalidOperationException("No room level data is loaded.");
-
-    /// <summary>The loading or loaded room's effect-overlay FX, for the accepted-frame publication.</summary>
-    internal RoomFxOverlayState? FxOverlay => View(c => c.FxOverlay, s => s.FxOverlay);
 
     /// <summary>The loading or loaded room's bombs, for frame roots such as the accepted-frame publication.</summary>
     internal SamusBombProjectileSystem? BombProjectiles => View(c => c.BombProjectiles, s => s.BombProjectiles);

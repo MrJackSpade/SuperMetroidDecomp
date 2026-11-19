@@ -100,7 +100,7 @@ internal static class TitleSkipFadeVerification
             AssertEqual(brightness == 0 ? TitleSkipStage.Rebuilding : TitleSkipStage.FadingOut, shown.Skip,
                 $"{place} fades out until black and rebuilds only on the next update");
             AssertSameShow(natural[update], shown, $"{place} runs and draws its running step as the unskipped title does");
-            AssertTrue(!shown.Draws.Any(draw => ((ImageSpriteDraw)draw).Image == pictures.Copyright), $"{place} does not draw the copyright");
+            AssertTrue(!shown.Draws.Any(draw => draw.Image == pictures.Copyright), $"{place} does not draw the copyright");
             if (update > press && brightness > 0)
                 coverage.Record(natural[update - 1], shown, pictures);
             if (brightness == 0)
@@ -230,7 +230,7 @@ internal static class TitleSkipFadeVerification
         internal void Record(TitleFrame previous, TitleFrame shown, TitlePictures pictures)
         {
             LogoFadesDuringFadeOut |= shown.Phase == TitleSequencePhase.TitleLogoFade &&
-                shown.Draws.Any(draw => ((ImageSpriteDraw)draw).Image == pictures.Logo);
+                shown.Draws.Any(draw => draw.Image == pictures.Logo);
             FloorMovesDuringFadeOut |= previous.Phase == shown.Phase && previous.Floor is not null && previous.Floor != shown.Floor;
             CardAdvancesDuringFadeOut |= previous.Phase == shown.Phase && previous.Floor is null && !previous.Draws.SequenceEqual(shown.Draws);
             StepChangesDuringFadeOut |= previous.Phase != shown.Phase;

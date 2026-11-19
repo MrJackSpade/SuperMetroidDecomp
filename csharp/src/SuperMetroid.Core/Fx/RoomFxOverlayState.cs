@@ -42,9 +42,6 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>The effect whose pictures the room's effect overlay shows, chosen when the room loaded; null when it shows none.</summary>
     public RoomFxType? OverlayEffect { get; private set; }
 
-    /// <summary>The effect overlay the room shows (#1348, #1466, #1601): its effect's liquid or atmosphere when it has one, otherwise nothing.</summary>
-    public FxOverlayPlane EffectPlane => FxOverlayPlane.Of(OverlayEffect);
-
     /// <summary>
     /// The tint the last effect loaded selected for the effect overlay's blend colours (#1512), or null while no effect
     /// has loaded one and the colours stay the tileset's.

@@ -47,7 +47,7 @@ internal sealed class AcceptedFrameBoundary
     [NonSerialized]
     private HudPictures? _hudPictures;
     /// <summary>Supplies the loaded room, door, and scrolling sky whose scroll and display settings the accepted frame captures.</summary>
-    private readonly ActiveRoomState _room;
+    internal readonly ActiveRoomState room;
 
     /// <summary>Supplies the suit pickup whose colour is latched.</summary>
     private readonly SamusSuitPickupState _suitPickup;
@@ -64,7 +64,7 @@ internal sealed class AcceptedFrameBoundary
         _screenLayers = dependencies.ScreenLayers;
         _sprites = dependencies.Sprites;
         _player = dependencies.Player;
-        _room = dependencies.Room;
+        room = dependencies.Room;
         _hud = dependencies.Hud;
         _suitPickup = dependencies.SuitPickup;
         _xray = dependencies.Xray;
@@ -100,7 +100,7 @@ internal sealed class AcceptedFrameBoundary
         // The HUD's images as gameplay last placed them, which this frame boundary shows.
         ShownHud hud = _hud.Shown();
         // Before the first room no room shows, and no room's effect has a display of its own to latch.
-        _display.Latched = _room.Scope is { } scope ? LatchRoomFrame(scope, hud) : new LatchBeforeFirstRoom(hud);
+        _display.Latched = room.Scope is { } scope ? LatchRoomFrame(scope, hud) : new LatchBeforeFirstRoom(hud);
     }
 
     /// <summary>
@@ -233,7 +233,7 @@ internal sealed class AcceptedFrameBoundary
         RoomOverlayPictures? backgroundText = WrittenText(scope, scope.Enemies.DisplaySources.ZebesWarning, appearance);
         RoomOverlayPictures? foregroundText = WrittenText(scope, scope.Enemies.DisplaySources.CeresWarning, appearance);
         // The planes are shared until gameplay changes level data. A boss body shows each part's whole picture (#1466, #1513).
-        return new RoomBackgrounds(foreground, background, _room.DoorSourceBackground, foregroundText, sky,
+        return new RoomBackgrounds(foreground, background, room.DoorSourceBackground, foregroundText, sky,
             backgroundText, scope.Floor?.Publish(), body?.Show(), BackgroundImage: image);
     }
 
@@ -246,9 +246,6 @@ internal sealed class AcceptedFrameBoundary
         overlay.Pictures.IsEmpty ? null
             : new RoomOverlayPictures((scope.WrittenPictures ?? throw new InvalidDataException(
                 $"{scope.Room.Definition.Name} shows written text with no installed written picture sheet.")).Resolve(overlay, appearance));
-
-    /// <summary>The effect overlay plane this frame boundary displays (#1348): the room effect it shows; the HUD is its own layer (#1466).</summary>
-    internal FxOverlayPlane CaptureFxOverlayPlane() => _room.FxOverlay?.EffectPlane ?? FxOverlayPlane.Cleared;
 
     /// <summary>The pictures of the HUD's images in <paramref name="sheet"/>, the room's HUD picture sheet.</summary>
     private HudPictures HudPicturesIn(SpriteSheet sheet) =>

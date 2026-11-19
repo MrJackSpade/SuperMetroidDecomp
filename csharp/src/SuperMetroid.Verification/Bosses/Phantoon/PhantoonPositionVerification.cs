@@ -4,7 +4,6 @@ using SuperMetroid.Verification.Bosses.MotherBrain;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
-using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Hud;

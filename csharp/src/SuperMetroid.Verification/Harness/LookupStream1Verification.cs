@@ -1172,7 +1172,7 @@ internal static class LookupStream1Verification
         // The cartridge numbers the death pose's frames through its whole animation; the port names a segment's frame (#2530).
         foreach (SamusMovementType movement in movements)
         foreach (SamusPoseId deathPose in new[] { SamusPoseId.DeathSequenceRightPose, SamusPoseId.DeathSequenceLeftPose })
-            AssertEqual((int)LookupStream1DeathDefinitionsRomByte(rom, 0x9bb420 + SamusMovementTypeNativeWords.Byte(movement)),
+            AssertEqual(LookupStream1DeathDefinitionsRomByte(rom, 0x9bb420 + SamusMovementTypeNativeWords.Byte(movement)),
                 SamusAnimationNumbers.Number(deathPose, SamusDeathSequenceFrames.InitialFrame(movement)), $"native movement death phase of {movement} in {deathPose}");
         // The cartridge uploads the explosion as five pages; the atlas keeps them in that upload order.
         for (int page = 0; page < SamusDeathTileAtlasFormat.SegmentCount; page++)

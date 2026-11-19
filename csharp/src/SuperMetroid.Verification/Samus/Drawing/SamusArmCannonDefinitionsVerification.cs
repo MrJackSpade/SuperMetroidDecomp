@@ -31,7 +31,7 @@ internal static class SamusArmCannonDefinitionsVerification
                 SelectedHudItem = selectedHudItem,
             };
             samus.Artwork.ArmCannon = artwork;
-            var guarded = NewArmCannonPolicyReadGuard(rom);
+            _ = NewArmCannonPolicyReadGuard(rom);
 
             // Starting a transition is the only path that rewrites the open flag; it also arms
             // the transition flag and advances the cover frame in the same call. Unchanged

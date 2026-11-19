@@ -36,19 +36,19 @@ public sealed class LeftBeamStartFromLastShot
     private const int FractionSteps = 65536;
 
     /// <summary>What each place keeps for its next projectile, in place order, 0 through 65535.</summary>
-    private readonly int[] _kept;
+    internal readonly int[] kept;
 
     /// <summary>Starts a pool of places that keep nothing.</summary>
     /// <param name="placeCount">The number of shot places, at least one.</param>
     public LeftBeamStartFromLastShot(int placeCount) =>
-        _kept = new int[Ensure.BetweenInclusive(1, int.MaxValue, placeCount)];
+        kept = new int[Ensure.BetweenInclusive(1, int.MaxValue, placeCount)];
 
     /// <summary>Each place keeps what the room this one replaces left in it (<see cref="RoomHandOver"/>).</summary>
     /// <param name="handOver">What the room before left for this one.</param>
     public void TakeOverFrom(RoomHandOver handOver)
     {
         Ensure.NotNull(handOver);
-        for (int place = 0; place < _kept.Length; place++)
+        for (int place = 0; place < kept.Length; place++)
             Keep(place, handOver.ShotHorizontalFraction(place));
     }
 
@@ -65,13 +65,10 @@ public sealed class LeftBeamStartFromLastShot
     {
         Ensure.NotNull(handOver);
         Ensure.NotNull(heldFractions);
-        if (heldFractions.Count != _kept.Length)
-            throw new ArgumentException($"Samus has {_kept.Length} shot places, not {heldFractions.Count}.", nameof(heldFractions));
-        handOver.LeaveShots(Enumerable.Range(0, _kept.Length).Select(place => heldFractions[place] ?? _kept[place]));
+        if (heldFractions.Count != kept.Length)
+            throw new ArgumentException($"Samus has {kept.Length} shot places, not {heldFractions.Count}.", nameof(heldFractions));
+        handOver.LeaveShots(Enumerable.Range(0, kept.Length).Select(place => heldFractions[place] ?? kept[place]));
     }
-
-    /// <summary>What <paramref name="place"/> keeps for its next projectile, 0 through 65535.</summary>
-    public int Kept(int place) => _kept[place];
 
     /// <summary>
     /// <paramref name="place"/> keeps <paramref name="fraction"/> for its next projectile: Samus's shots are being cleared
@@ -80,7 +77,7 @@ public sealed class LeftBeamStartFromLastShot
     /// <param name="place">The zero-based shot place.</param>
     /// <param name="fraction">The horizontal sub-pixel position, 0 through 65535.</param>
     public void Keep(int place, int fraction) =>
-        _kept[place] = Ensure.BetweenInclusive(0, FractionSteps - 1, fraction);
+        kept[place] = Ensure.BetweenInclusive(0, FractionSteps - 1, fraction);
 
     /// <summary>
     /// A projectile takes <paramref name="place"/>: returns what the place kept for it, and the place keeps nothing more.
@@ -88,8 +85,8 @@ public sealed class LeftBeamStartFromLastShot
     /// <param name="place">The zero-based shot place.</param>
     public int Start(int place)
     {
-        int fraction = _kept[place];
-        _kept[place] = 0;
+        int fraction = kept[place];
+        kept[place] = 0;
         return fraction;
     }
 }

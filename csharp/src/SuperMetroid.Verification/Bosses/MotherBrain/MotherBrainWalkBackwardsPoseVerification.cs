@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Bosses;
-using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.MotherBrain;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;

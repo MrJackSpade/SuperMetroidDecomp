@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 

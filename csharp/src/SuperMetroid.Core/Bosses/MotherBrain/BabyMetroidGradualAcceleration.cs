@@ -16,8 +16,8 @@ internal static class BabyMetroidGradualAcceleration
     private static readonly SignedEightEight ReversalStep = SignedEightEight.FromPixelFraction(1, 32);
 
     /// <summary>
-    /// How much more an off-screen reversal raises the velocity than its matching lowering: the finest step a speed takes,
-    /// a 256th of a pixel an update.
+    /// How much more an off-screen reversal raises the velocity than its matching lowering: the finest step a speed
+    /// takes.
     /// </summary>
     private static readonly SignedEightEight OffScreenRaiseExtra = SignedEightEight.FromPixelFraction(1, 256);
     /// <summary>Horizontal signed-velocity clamp applied after the run: eight pixels an update either way.</summary>

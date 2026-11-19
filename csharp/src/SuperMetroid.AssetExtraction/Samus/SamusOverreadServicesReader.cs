@@ -3,6 +3,7 @@ using System.Globalization;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Poses;

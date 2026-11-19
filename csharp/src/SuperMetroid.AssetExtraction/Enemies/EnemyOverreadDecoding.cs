@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Magdollite;
+using SuperMetroid.Core.Spatial;
 using static SuperMetroid.AssetExtraction.Enemies.EnemyOverreadSourceDefinitions;
 
 namespace SuperMetroid.AssetExtraction.Enemies;

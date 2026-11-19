@@ -358,7 +358,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             : distancePastTarget >= 0;
         if (!reached)
             return;
-        place.Position = place.Position.WithY(new(targetY, 0));
+        place.Position = place.Position.WithY(FixedCoordinate.FromWhole(targetY));
         state.Action = NorfairPipeBugAction.WaitForStagger;
     }
 

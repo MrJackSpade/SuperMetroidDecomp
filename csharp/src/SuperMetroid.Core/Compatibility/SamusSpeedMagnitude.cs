@@ -52,14 +52,12 @@ internal static class SamusSpeedMagnitude
     internal static bool WholePixelsReach(UnsignedSixteenSixteen speed, UnsignedSixteenSixteen limit) => IsAtLeast(speed.Whole, limit.Whole);
 
     /// <summary>
-    /// How hard a landing at <paramref name="impactSpeed"/> is (#2555): hard when its whole pixels are not none and read as
-    /// reaching <paramref name="hardLanding"/>'s (<see cref="IsAtLeast"/>); otherwise, a whole speed so large that it reads
-    /// as having passed zero included, silent when its fraction is none and soft when it is not.
+    /// Whether a landing at <paramref name="impactSpeed"/> is a hard one (#2555): its whole pixels are not none and read as
+    /// reaching <paramref name="hardLanding"/>'s (<see cref="IsAtLeast"/>), so a whole speed so large that it reads as
+    /// having passed zero is not.
     /// </summary>
-    internal static LandingImpact LandingImpactOf(UnsignedSixteenSixteen impactSpeed, UnsignedSixteenSixteen hardLanding) =>
-        impactSpeed.Whole != 0 && IsAtLeast(impactSpeed.Whole, hardLanding.Whole)
-            ? LandingImpact.Hard
-            : impactSpeed.Fraction == 0 ? LandingImpact.Silent : LandingImpact.Soft;
+    internal static bool IsHardLanding(UnsignedSixteenSixteen impactSpeed, UnsignedSixteenSixteen hardLanding) =>
+        impactSpeed.Whole != 0 && IsAtLeast(impactSpeed.Whole, hardLanding.Whole);
 
     /// <summary>Whether <paramref name="part"/> reads as above <paramref name="threshold"/>: it reads as reaching it and differs from it.</summary>
     /// <param name="part">The speed part, 0 through 65535; other values are rejected.</param>

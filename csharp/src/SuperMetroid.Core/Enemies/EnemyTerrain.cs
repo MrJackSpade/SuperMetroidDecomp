@@ -518,7 +518,7 @@ internal sealed class EnemyTerrain
             if (adjustment > 0)
                 return false;
             // The vertical mover's centres keep the wrap for the reason the horizontal mover gives (#2532).
-            place.Position = place.Position.WithY(new(CoordinateAxis.Wrap(targetCenter - adjustment), 0));
+            place.Position = place.Position.WithY(FixedCoordinate.FromWhole(CoordinateAxis.Wrap(targetCenter - adjustment)));
             return true;
         }
 
@@ -528,7 +528,7 @@ internal sealed class EnemyTerrain
         int downwardAdjustment = height - bottomWithinBlock - 1;
         if (height - bottomWithinBlock != 1 && downwardAdjustment >= 0)
             return false;
-        place.Position = place.Position.WithY(new(CoordinateAxis.Wrap(targetCenter + downwardAdjustment), FixedCoordinate.LastFraction));
+        place.Position = place.Position.WithY(FixedCoordinate.FromWhole(CoordinateAxis.Wrap(targetCenter + downwardAdjustment)).WithFraction(PixelFraction.Last));
         return true;
     }
 

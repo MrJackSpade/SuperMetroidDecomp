@@ -42,7 +42,7 @@ public readonly record struct FixedCoordinate
     public PixelFraction FractionOfPixel => new(Fraction);
 
     /// <summary>Replaces only the part of a pixel past the whole pixel, keeping the whole pixel (#2555).</summary>
-    public FixedCoordinate WithFraction(PixelFraction fraction) => this with { Fraction = fraction.FinestSteps };
+    public FixedCoordinate WithFraction(PixelFraction fraction) => this with { Fraction = checked((ushort)fraction.FinestSteps) };
 
     /// <summary>The position on its whole pixel: the part of a pixel past it cleared (#2555).</summary>
     public FixedCoordinate WithoutFraction() => WithFraction(PixelFraction.None);

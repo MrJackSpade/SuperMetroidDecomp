@@ -98,7 +98,7 @@ internal static class CrocomireNativeWords
             state.VerticalAcceleration = SignedSixteenSixteen.FromParts(0, wordD);
         }
         state.VerticalSpeed = new SignedEightEight(wordE);
-        state.VerticalFraction = SignedEightEight.FromParts(0, LittleEndianBytes.HighByte(wordF));
+        state.VerticalTravelCarry = PixelFractionCarry.Of(SignedEightEight.FromParts(0, LittleEndianBytes.HighByte(wordF)));
         state.SkeletonVelocity = SignedSixteenSixteen.FromParts(unchecked((short)wordF), wordE);
     }
 

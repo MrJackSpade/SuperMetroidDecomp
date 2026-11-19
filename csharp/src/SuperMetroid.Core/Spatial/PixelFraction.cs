@@ -7,11 +7,12 @@ namespace SuperMetroid.Core.Spatial;
 /// </summary>
 public readonly record struct PixelFraction
 {
-    /// <summary>Keeps the part of a pixel counted in a coordinate's finest steps.</summary>
-    internal PixelFraction(ushort finestSteps) => FinestSteps = finestSteps;
+    /// <summary>Keeps the part of a pixel counted in a coordinate's finest steps, none up to the last.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The part lies outside a pixel.</exception>
+    internal PixelFraction(int finestSteps) => FinestSteps = Ensure.BetweenInclusive(0, FixedCoordinate.LastFraction, finestSteps);
 
     /// <summary>The part of a pixel counted in a coordinate's finest steps, as <see cref="FixedCoordinate"/> holds it.</summary>
-    internal ushort FinestSteps { get; }
+    internal int FinestSteps { get; }
 
     /// <summary>No part of a pixel: the coordinate lies on its whole pixel.</summary>
     public static PixelFraction None => default;

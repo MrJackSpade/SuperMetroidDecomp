@@ -65,7 +65,7 @@ public readonly record struct PowerBombRadius : IComparable<PowerBombRadius>
     /// of two from 1 through 256 so the fraction is kept exactly: half a pixel, or three sixteenths of a pixel.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">
-    /// The denominator is no power of two from 1 through 256, or the length lies outside the type's range.
+    /// The denominator is no power of two from 1 through 256, or the length reaches 256 pixels.
     /// </exception>
     public static PowerBombRadius FromPixelFraction(int numerator, int denominator) =>
         Of(PowerOfTwoFraction.InFinestUnits(numerator, denominator, FractionsPerPixel));

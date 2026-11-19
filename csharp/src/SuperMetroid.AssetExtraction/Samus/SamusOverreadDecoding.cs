@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Progression;
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Progression;

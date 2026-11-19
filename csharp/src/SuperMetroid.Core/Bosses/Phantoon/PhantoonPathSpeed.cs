@@ -7,10 +7,10 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// </summary>
 public readonly record struct PhantoonPathSpeed
 {
-    /// <summary>Keeps the speed in places an update, fraction included, at the game's 16.16 precision.</summary>
+    /// <summary>Keeps the speed in places an update, fraction included, at the precision the game steps it in.</summary>
     internal PhantoonPathSpeed(SignedSixteenSixteen places) => _places = places;
 
-    /// <summary>The speed in places an update, fraction included, kept in the fixed-point form the game steps it in.</summary>
+    /// <summary>The speed in places an update, fraction included.</summary>
     private readonly SignedSixteenSixteen _places;
 
     /// <summary>No movement along the path.</summary>
@@ -34,6 +34,6 @@ public readonly record struct PhantoonPathSpeed
     /// <summary>The speed raised by <paramref name="change"/>, its fraction carrying into the whole places.</summary>
     public static PhantoonPathSpeed operator +(PhantoonPathSpeed speed, PhantoonPathSpeed change) => new(speed._places + change._places);
 
-    /// <summary>The speed lowered by <paramref name="change"/>, its fraction borrowing from the whole places.</summary>
+    /// <summary>The speed lowered by <paramref name="change"/>, a fraction below none taken from the whole places.</summary>
     public static PhantoonPathSpeed operator -(PhantoonPathSpeed speed, PhantoonPathSpeed change) => new(speed._places - change._places);
 }

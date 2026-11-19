@@ -13,7 +13,7 @@ internal sealed class NoobTubeDebrisState(int column) : EnemyProjectileState, IF
     public bool IsHidden { get; internal set; }
 
     /// <summary>The debris's own horizontal position, with its fraction; the drawn position follows it or hides.</summary>
-    internal FixedCoordinate X { get; set; } = new(column, 0);
+    internal FixedCoordinate X { get; set; } = FixedCoordinate.FromWhole(column);
 
     /// <summary>
     /// How far through its sway the falling debris is, as an angle that goes once round a full turn each swing; it starts

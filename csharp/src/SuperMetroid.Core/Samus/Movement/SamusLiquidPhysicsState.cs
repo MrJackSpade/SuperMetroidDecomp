@@ -412,11 +412,11 @@ public sealed class SamusLiquidPhysicsState
                 priority: SoundRequestPriority.Normal);
         }
 
-        // A silent landing returns before both sound and graphics.
-        LandingImpact impact = SamusSpeedMagnitude.LandingImpactOf(impactYSpeed, SamusMovementDefinitions.HardLandingSpeed);
-        if (impact == LandingImpact.Silent)
+        // A landing that is not hard and has no fraction of speed returns before both sound and graphics; otherwise it
+        // is a soft landing.
+        bool hardLanding = SamusSpeedMagnitude.IsHardLanding(impactYSpeed, SamusMovementDefinitions.HardLandingSpeed);
+        if (!hardLanding && impactYSpeed.IsWholePixels)
             return;
-        bool hardLanding = impact == LandingImpact.Hard;
 
         if (!cinematic)
         {

@@ -1,5 +1,7 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using SuperMetroid.EnsureAnalyzer.Modules;
@@ -15,7 +17,7 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// <c>fractionsOfStep</c>, <c>subposition</c>) is reported; so is a power-of-two fraction factory
 /// (<c>FromPixelFraction</c>, <c>FromStepFraction</c>, <c>FromMarkFraction</c>, <c>FromEnergyFraction</c>,
 /// <c>FromPlaceFraction</c>, <c>FromFloorPixelsPerScreenPixel</c>) given a constant fraction not in its lowest terms, and
-/// a shift of a computed value by a constant count. Such an amount is written as zero, whole units or a fraction in its
+/// a shift of a computed value by a literal count. Such an amount is written as zero, whole units or a fraction in its
 /// lowest terms through the measure's domain factory, and a scale is a named size; the encoding owner alone counts the
 /// measure's finest parts.
 /// </summary>
@@ -121,7 +123,7 @@ public sealed class RawFixedPointUnitAnalyzer : DiagnosticAnalyzer
             _ => (BinaryOperatorKind.None, null, null),
         };
         if (kind is not (BinaryOperatorKind.LeftShift or BinaryOperatorKind.RightShift or BinaryOperatorKind.UnsignedRightShift) ||
-            left is null || right is null || left.ConstantValue.HasValue || !right.ConstantValue.HasValue ||
+            left is null || right is null || left.ConstantValue.HasValue || !IsLiteral(right) ||
             IsExempt(context.ContainingSymbol, null, owner))
             return;
         context.ReportDiagnostic(Diagnostic.Create(Rule, context.Operation.Syntax.GetLocation(), context.Operation.Syntax.ToString(),
@@ -142,6 +144,17 @@ public sealed class RawFixedPointUnitAnalyzer : DiagnosticAnalyzer
                 return true;
         }
         return false;
+    }
+
+    /// <summary>Whether an operand is a numeric literal written in the source, beneath any conversions and parentheses.</summary>
+    private static bool IsLiteral(IOperation operand)
+    {
+        while (operand is IConversionOperation conversion)
+            operand = conversion.Operand;
+        SyntaxNode syntax = operand.Syntax;
+        while (syntax is ParenthesizedExpressionSyntax parenthesized)
+            syntax = parenthesized.Expression;
+        return syntax.IsKind(SyntaxKind.NumericLiteralExpression);
     }
 
     /// <summary>Whether a type is a built-in integral type.</summary>

@@ -6,7 +6,14 @@ namespace SuperMetroid.Core.Compatibility;
 /// update's damage, her suit divides it, and the fraction comes off the fraction of an energy she holds before the whole
 /// energy comes off her health (<see cref="PeriodicDamageEnergyFraction"/>).
 /// </summary>
+/// <remarks>
+/// Added to on every update a periodic damage source touches Samus, divided by her suit and applied once an update.
+/// Evidence: the original keeps an update's periodic damage as a whole word and a fraction word that its sources add to
+/// with a carry from the fraction into the whole; the periodic damage and suit damage checks compare every amount with
+/// that arithmetic.
+/// </remarks>
 [EncodingOwner("periodic damage energy amount: whole energy and a sixteen-bit fraction of one energy")]
+[CompatibilityService("periodic damage counts Samus's energy in whole energy and a fraction of one, which fractions together passing a whole energy add to")]
 public readonly record struct EnergyAmount
 {
     /// <summary>Keeps the amount at the precision periodic damage counts it, whole energy above its fraction.</summary>

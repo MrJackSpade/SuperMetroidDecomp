@@ -8,7 +8,7 @@ public static class BoyonSpeedDefinitions
     /// <summary>
     /// The curve's rising speeds from its top (#2369, #2555), before the Boyon's multiplier scales them: at place k the sum
     /// of zero through k, k(k+1)/2, of the finest steps a speed takes, a 256th of a pixel an update each, for the first 23
-    /// places, ending three 256ths short of a pixel.
+    /// places, ending just short of a pixel.
     /// </summary>
     public static ImmutableArray<UnsignedSixteenSixteen> RisingSamples { get; } =
     [

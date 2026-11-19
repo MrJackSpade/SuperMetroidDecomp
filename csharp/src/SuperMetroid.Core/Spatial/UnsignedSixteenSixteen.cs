@@ -24,6 +24,9 @@ public readonly record struct UnsignedSixteenSixteen
     /// <summary>Both parts as one unsigned 32-bit value, the whole part high.</summary>
     public uint RawValue => ((uint)Whole << 16) | (uint)Fraction;
 
+    /// <summary>Whether the speed holds no fraction of a pixel: it is a whole number of pixels (#2555).</summary>
+    public bool IsWholePixels => Fraction == 0;
+
     /// <summary>Whether the speed is no motion at all: zero whole pixels and zero fraction.</summary>
     public bool IsZero => Whole == 0 && Fraction == 0;
 

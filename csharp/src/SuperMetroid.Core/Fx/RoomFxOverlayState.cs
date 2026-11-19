@@ -63,7 +63,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// The surface a room load starts the liquid at on <paramref name="line"/>: half a pixel down it, centring the liquid on
     /// its whole line.
     /// </summary>
-    private static FixedCoordinate LoadedSurfaceAt(int line) => new(line, FixedCoordinate.HalfPixelFraction);
+    private static FixedCoordinate LoadedSurfaceAt(int line) => FixedCoordinate.FromWhole(line).WithFraction(PixelFraction.Half);
     /// <summary>
     /// How far round its rise and fall the liquid's tide is: the surface sits at the negative cosine of this angle's whole
     /// step, and <see cref="AdvanceTidePhase"/> turns it on, continuing round past a full turn.

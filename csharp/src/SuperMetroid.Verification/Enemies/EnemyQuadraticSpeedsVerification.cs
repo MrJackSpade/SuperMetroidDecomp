@@ -116,13 +116,13 @@ internal static class EnemyQuadraticSpeedsVerification
         foreach (EnemySpeedSign sign in signs)
         {
             int speed = EnemySpeedTableCodec.QuadraticSpeedToward(cartridge, EnemySpeedTableCodec.QuadraticTable, row, sign).RawValue;
-            maw.Extension = SixteenSixteenWords.ToDisplacement(unchecked((int)start));
+            maw.Extension = new YappingMawCurl(SixteenSixteenWords.ToDisplacement(unchecked((int)start)));
             maw.SpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(row);
             maw.CurlPhase = sign == EnemySpeedSign.Negative ? YappingMawCurlPhase.Retracting : YappingMawCurlPhase.Extending;
             mawAdditions++;
             uint expected = unchecked(start + (uint)speed);
             addMaw(maw);
-            AssertEqual(expected, unchecked((uint)maw.Extension.RawValue), "Yapping Maw real split-word integration");
+            AssertEqual(expected, unchecked((uint)maw.Extension.InFixedPoint.RawValue), "Yapping Maw real split-word integration");
             AssertEqual(QuadraticSpeedCurvePlace.FromMarks(row + 1), maw.SpeedCurvePlace, "Yapping Maw row advance");
             AssertEqual(sign == EnemySpeedSign.Negative ? YappingMawCurlPhase.Retracting : YappingMawCurlPhase.Extending, maw.CurlPhase,
                 "Yapping Maw curl phase held across the addition");

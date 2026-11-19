@@ -16,7 +16,7 @@ internal static class PowerOfTwoFraction
     /// <param name="denominator">The parts a whole divides into: a power of two no larger than the finest units.</param>
     /// <param name="finestUnitsPerWhole">The measure's finest units in one whole, a power of two.</param>
     /// <exception cref="ArgumentOutOfRangeException">The denominator is no power of two within the measure's precision.</exception>
-    /// <exception cref="OverflowException">The count lies outside 32 bits.</exception>
+    /// <exception cref="OverflowException">The count lies outside an <see cref="int"/>.</exception>
     internal static int InFinestUnits(int numerator, int denominator, int finestUnitsPerWhole)
     {
         int unitsEach = finestUnitsPerWhole / Ensure.BetweenInclusive(1, finestUnitsPerWhole, denominator);

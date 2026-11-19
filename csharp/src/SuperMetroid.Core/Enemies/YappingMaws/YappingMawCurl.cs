@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 /// </summary>
 public readonly record struct YappingMawCurl
 {
-    /// <summary>Keeps the curl in angle units, fraction included, at the 16.16 precision the curve's speeds add in.</summary>
+    /// <summary>Keeps the curl in angle units, fraction included, at the precision the curve's speeds add in.</summary>
     internal YappingMawCurl(SignedSixteenSixteen units) => _units = units;
 
     /// <summary>The curl in angle units, fraction included.</summary>

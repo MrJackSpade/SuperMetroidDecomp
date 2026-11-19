@@ -87,6 +87,7 @@ internal static class RawFixedPointUnitAnalyzerTests
         Expect(Body("return Speed.FromParts(input, input);"), count: 0);
         Expect(Body("_ = new Coordinate(input, input).WithFraction(input);\n        return Speed.FromPixels(1 << 3);"), count: 0);
         Expect(Body("return Speed.FromPixels(input >> input);"), count: 0);
+        Expect(Body("return Speed.FromPixels(input >> Shift);"), count: 0);
         Expect(Body("return Speed.Half;"), count: 0);
         // Outside Core the rule does not apply.
         Expect(Body("return Speed.FromTwoHundredFiftySixthsOfPixel(96);"), count: 0, assemblyName: "SuperMetroid.AssetExtraction");
@@ -101,6 +102,7 @@ internal static class RawFixedPointUnitAnalyzerTests
             internal static class Fixture
             {
                 private const int Step = 48;
+                private const int Shift = 4;
                 internal static Speed Make(int input)
                 {
                     {{statements}}

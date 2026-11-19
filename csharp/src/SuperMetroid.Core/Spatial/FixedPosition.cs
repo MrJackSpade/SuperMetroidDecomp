@@ -22,7 +22,7 @@ public readonly record struct FixedPosition<TSpace>(FixedCoordinate X, FixedCoor
 
     /// <summary>A whole-pixel position with no fraction of a pixel.</summary>
     public static FixedPosition<TSpace> FromWhole(Position16<TSpace> whole) =>
-        new(new FixedCoordinate(whole.X, 0), new FixedCoordinate(whole.Y, 0));
+        new(FixedCoordinate.FromWhole(whole.X), FixedCoordinate.FromWhole(whole.Y));
 
     /// <summary>
     /// Replaces both whole-pixel coordinates and keeps both fractions of a pixel, as game code that

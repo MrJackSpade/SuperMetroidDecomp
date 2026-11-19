@@ -24,7 +24,7 @@ public static class Trigonometry
     /// </remarks>
     public static int FineSignedSine(TrigonometryAngle angle)
     {
-        int magnitude = UnsignedHalfWave(angle.StepsIntoHalfTurn) >> 1;
+        int magnitude = UnsignedHalfWave(angle.StepsIntoHalfTurn) / 2;
         return angle.IsInSecondHalf ? -magnitude : magnitude;
     }
 

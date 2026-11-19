@@ -747,7 +747,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             return false;
         }
 
-        BaseY = new FixedCoordinate(target, 0);
+        BaseY = FixedCoordinate.FromWhole(target);
         return true;
     }
 

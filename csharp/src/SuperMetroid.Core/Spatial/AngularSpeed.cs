@@ -113,7 +113,7 @@ public readonly record struct AngularSpeed : IComparable<AngularSpeed>
         new(FractionsOfStep * Ensure.BetweenInclusive(0, int.MaxValue, share) / Ensure.BetweenInclusive(1, int.MaxValue, parts));
 
     /// <summary>Half the speed, rounded toward decreasing angles to a whole 256th of a step (#2110).</summary>
-    public AngularSpeed HalvedRoundingDown() => new(FractionsOfStep >> 1);
+    public AngularSpeed HalvedRoundingDown() => new((int)Math.Floor(FractionsOfStep / 2.0));
 
     /// <summary>
     /// The speed held within <paramref name="most"/> either way (#2110): a speed faster than it toward either side turns

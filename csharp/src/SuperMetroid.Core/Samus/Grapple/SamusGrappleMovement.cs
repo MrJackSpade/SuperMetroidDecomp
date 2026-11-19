@@ -480,8 +480,7 @@ public static class SamusGrappleMovement
         // The wall-jump probe tests solid/frozen enemies first, then 16 pixels of room blocks toward
         // the wall named by the contact pose's facing. The shared probe preserves
         // square slopes, block behaviour, available distance, and enemy identity.
-        SignedSixteenSixteen signedProbe = SignedSixteenSixteen.FromParts(
-            SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) ? -GrappleBeamDefinitions.WallGrab.WallJumpProbePixels : GrappleBeamDefinitions.WallGrab.WallJumpProbePixels, 0);
+        SignedSixteenSixteen signedProbe = SignedSixteenSixteen.FromWholePixels(SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) ? -GrappleBeamDefinitions.WallGrab.WallJumpProbePixels : GrappleBeamDefinitions.WallGrab.WallJumpProbePixels);
         // A bomb block the probe breaks starts its reaction through the room's objects, as any other contact does (#1582).
         BlockMoveResult wall = SamusBlockCollision.ProbeWallHorizontal(
             terrain.Level,

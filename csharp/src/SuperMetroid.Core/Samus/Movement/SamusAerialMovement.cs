@@ -693,7 +693,7 @@ public static class SamusAerialMovement
         // Test Left first and probe RIGHT; the mirror Right chord probes
         // LEFT. That counter-intuitive direction is deliberate: the button points away from
         // the wall behind the newly facing spin pose.
-        SignedSixteenSixteen requested = SignedSixteenSixteen.FromParts(heldLeft ? SamusMovementDefinitions.WallJumpReachPixels : -SamusMovementDefinitions.WallJumpReachPixels, 0);
+        SignedSixteenSixteen requested = SignedSixteenSixteen.FromWholePixels(heldLeft ? SamusMovementDefinitions.WallJumpReachPixels : -SamusMovementDefinitions.WallJumpReachPixels);
         BlockMoveResult probe = SamusBlockCollision.ProbeWallHorizontal(
             level,
             samus.Kinematics, samus, samus.Pose,

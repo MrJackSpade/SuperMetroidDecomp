@@ -45,7 +45,7 @@ internal static class EscapeRunningFootstepsVerification
             var sequence = MotherBrainLateFightFixtures.NewSequence();
             sequence.Encounter.DeathPhase = MotherBrainDeathPhase.DoorExplodingStartTimer;
             var request = sequence.Step(samus, MotherBrainLateFightFixtures.QuietFrame(0, 0) with { NextRandomNumber = () => 0 });
-            AssertTrue(request.GetUpReleaseRequested && request.MotherBrainEscapeTimerStartRequested,
+            AssertTrue(request.Starts(MotherBrainStepEffect.GetUpRelease) && request.Starts(MotherBrainStepEffect.EscapeTimerStart),
                 "native death phase emits command F and timer start together");
             // The death step's requests are applied in Mother Brain's room, whose PLMs, FX and enemies the room load owns.
             var runtime = CreateRetailRuntimeFixture();
@@ -55,9 +55,9 @@ internal static class EscapeRunningFootstepsVerification
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
             runtime.Player.Samus = samus;
             // Area flags are outside this fixture. Preserve the actual timer requests.
-            runtime.EnemyRoomEffects.ApplyPendingMotherBrainObjects(EnemyRoomEffectRequestsConstants.None with
+            runtime.EnemyRoomEffects.ApplyMotherBrainDeathStep(request with
             {
-                MotherBrainDeathStep = request with { MotherBrainDefeatRecordRequested = false, ZebesTimebombEventRequested = false },
+                Effects = [.. request.Effects.Where(effect => effect is not (MotherBrainStepEffect.DefeatRecord or MotherBrainStepEffect.ZebesTimebombEvent))],
             }, SuperMetroid.Core.World.EnemyRoomEffectSite.Of(runtime.Room.LoadedScope, samus));
 
             samus.Pose = pose;

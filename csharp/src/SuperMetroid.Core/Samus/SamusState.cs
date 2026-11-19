@@ -446,7 +446,7 @@ public sealed class SamusState
     /// recovery sets it at counter forty when a non-spinning Samus is still holding a sufficiently charged beam, and the
     /// post-draw sound check consumes it later in the same gameplay pass; a spin's end sets it for the next pass.
     /// </summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "The charge sound's resumption waits for a post-draw sound pass, the next update's when a spin ends, and is cancelled by firing; the native snapshot import and the showcase comparison read it as the game's resume flag, so it lasts across the update boundary as a state of the charge sound.")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "The charge sound's resumption waits for a post-draw sound pass, the next update's when a spin ends, and is cancelled by firing; a recording's import and the showcase comparison read it as the game's own resumption, so it lasts across the update boundary as a state of the charge sound.")]
     public bool ResumeChargingBeamSoundPending { get; internal set; }
 
     /// <summary>

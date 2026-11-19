@@ -65,7 +65,7 @@ internal static class CinematicCrystalFlashVerification
         {
             MotherBrainRainbowBeamAttackStepResult step = motherRainbow.Step(motherSamus, MotherBrainLateFightFixtures.QuietFrame(frame, frame));
             // `$90:F117` command one clears the input lock as the beam installs LetSamusFall.
-            bool unlockedSamus = !motherSamus.Control.InputLocked && step.BeamEnded;
+            bool unlockedSamus = !motherSamus.Control.InputLocked && step.Starts(MotherBrainStepEffect.BeamEnded);
             motherRuntime.StepFrame(0);
             if (!unlockedSamus)
                 continue;

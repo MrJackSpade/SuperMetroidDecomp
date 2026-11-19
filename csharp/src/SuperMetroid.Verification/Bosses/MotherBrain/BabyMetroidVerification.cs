@@ -170,7 +170,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
         "Baby installs Mother Brain $BE38 for the following actor turn");
 
     MotherBrainRainbowBeamAttackStepResult takenAback = motherBrain.Step(samus, MotherBrainLateFightFixtures.QuietFrame(0, 0));
-    AssertTrue(takenAback.RainbowColours, "the taken-aback setup falls through into regain balance, which runs her rainbow colours");
+    AssertTrue(takenAback.Starts(MotherBrainStepEffect.RainbowColours), "the taken-aback setup falls through into regain balance, which runs her rainbow colours");
     AssertEqual(MotherBrainDrainedPhase.RegainBalance,
         motherBrain.Encounter.DrainedPhase,
         "Mother Brain taken-aback setup falls through into regain balance");

@@ -183,7 +183,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     AssertEqual(0x00eb, samus.Position.X.Whole, "actor sequence moves Samus to hardcoded wall");
     AssertEqual(MotherBrainRainbowPhase.OneFrameDelay, attack.Encounter.RainbowPhase,
         "wall carry installs one-frame-delay function");
-    AssertTrue(wall.SoundQueued && wall.RainbowColours,
+    AssertTrue(wall.Starts(MotherBrainStepEffect.RainbowBeamSound) && wall.Starts(MotherBrainStepEffect.RainbowColours),
         "wall function runs sound and bit-one palette cadence");
     AssertEqual(RotationAngle.FromSteps(3, 128), attack.RainbowAttack.AngularWidth, "wall function widens before aiming");
     AssertTrue(wall.Explosion is { Offset: { X: 6, Y: 2 } },
@@ -196,7 +196,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
         "delay underflow starts the rainbow beam's strong diagonal foreground earthquake for eight frames");
 
     int drainCalls = 0;
-    int queuedBeamSounds = (wall.SoundQueued ? 1 : 0) + (delay.SoundQueued ? 1 : 0);
+    int queuedBeamSounds = (wall.Starts(MotherBrainStepEffect.RainbowBeamSound) ? 1 : 0) + (delay.Starts(MotherBrainStepEffect.RainbowBeamSound) ? 1 : 0);
     // The beam's explosions burst at the cartridge's offsets from its second on, wrapping to its first after its last (#2258).
     Offset16<RoomPixels>[] cartridgeOffsets = [new(-8, -7), new(6, 2), new(-4, 5), new(2, -4), new(3, 6), new(-6, -2), new(8, -6), new(0, 7)];
     var burstOffsets = new List<Offset16<RoomPixels>>();
@@ -208,7 +208,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     {
         MotherBrainRainbowBeamAttackStepResult drain = attack.Step(samus, MotherBrainLateFightFixtures.QuietFrame(unchecked((ushort)drainCalls), unchecked((ushort)drainCalls)));
         drainCalls++;
-        if (drain.SoundQueued)
+        if (drain.Starts(MotherBrainStepEffect.RainbowBeamSound))
             queuedBeamSounds++;
         if (drain.Explosion is { } explosion)
         {

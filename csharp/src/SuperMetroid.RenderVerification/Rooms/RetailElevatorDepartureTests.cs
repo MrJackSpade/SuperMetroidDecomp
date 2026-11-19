@@ -49,7 +49,7 @@ internal static class RetailElevatorDepartureTests
         }
         runtime.StepFrame(ControllerButton.Down);
         Compare("departure start");
-        if (runtime.Enemies.LastEnemyFrame.Elevator != ElevatorFrameEvent.DepartureStarted)
+        if (!runtime.Enemies.LastEnemyFrame.Reports(ElevatorFrameEvent.DepartureStarted))
             throw new InvalidOperationException("Downward elevator did not accept the input edge.");
         while (runtime.EnteredDoor is null && departure < 240)
         {

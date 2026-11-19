@@ -41,7 +41,7 @@ internal sealed class SamusInputSnapshot
     public GameplayAction PreviousDrawHeldInput { get; private set; }
 
     /// <summary>Samus's pose input is currently the one-shot auto-jump.</summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "The auto-jump is the input handler a landing installs for her next update's pose input, which the native snapshot import and the showcase comparison read as the game's input handler; it is the input's own state, which the next input phase's substitution ends.")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "The auto-jump is the pose input a landing installs for her next update, which a recording's import and the showcase comparison read as the game's own; it is the input's own state, which the next input phase's substitution ends.")]
     public bool AutoJumpInputPending { get; internal set; }
 
     /// <summary>
@@ -55,7 +55,7 @@ internal sealed class SamusInputSnapshot
     public bool CrystalFlashPoseInputLocked { get; internal set; }
 
     /// <summary>Local input substitution from the auto-jump; does not alter the controller's real edge.</summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "The next input phase's substitution of the auto-jump handler the landing installed (see AutoJumpInputPending), which ends that handler as the game's input routine does.")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "The next input phase's substitution of the auto-jump the landing installed (see AutoJumpInputPending), which ends it as the game's own input does.")]
     internal GameplayAction ConsumeAutoJumpInput(GameplayAction newlyPressed)
     {
         if (!AutoJumpInputPending) return newlyPressed;

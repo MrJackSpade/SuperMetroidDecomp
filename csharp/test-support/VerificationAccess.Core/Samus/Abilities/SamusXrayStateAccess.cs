@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Poses;
 
 using SuperMetroid.Core.Samus.Movement;
 

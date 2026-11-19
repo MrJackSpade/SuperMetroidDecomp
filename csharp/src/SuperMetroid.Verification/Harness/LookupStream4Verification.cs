@@ -810,7 +810,7 @@ internal static class LookupStream4Verification
                 state.Step();
             }
             AssertTrue(!state.Shown().Contains(subtitle), "Actual ending state clears the subtitle at its hold boundary");
-            AssertTrue(state.RequestedItemPercentageScroll, "Subtitle clear preserves completion and scroll handoff");
+            AssertTrue(state.TypesItemPercentage && state.Completed, "Subtitle clear preserves completion and scroll handoff");
         }
     }
 

@@ -917,6 +917,16 @@ enum member's name made a dictionary's or set's key (`Add`, `TryGetValue`, `Cont
 `Enum.Parse`, `Enum.TryParse`, `Enum.GetNames` and `JsonStringEnumConverter` in any form. Diagnostic text, exception
 messages and an import run's own fingerprints and content identities, which nothing installs, stay free to name members.
 
+SME6463 (#2555) keeps measures in named units. Outside the type that declares the factory and outside an
+`[EncodingOwner]` type, Core passes no constant to a raw-unit factory (`FromTwoHundredFiftySixths…`, `FromSixteenths…`,
+`FromParts`, `FromFractionsOfStep`, `FromEighthsOfStep`, `FromHalfSteps`, `FromFraction`) or to a parameter counting a
+raw fraction (`fraction`, `twoHundredFiftySixths`, `sixteenths`, `fractionsOfStep`, `subposition`), writes no constant
+fraction to a power-of-two fraction factory (`FromPixelFraction`, `FromStepFraction`, `FromMarkFraction`,
+`FromEnergyFraction`, `FromPlaceFraction`, `FromFloorPixelsPerScreenPixel`) outside its lowest terms, and shifts no
+computed value by a literal count. An amount is zero, whole units (`FromPixels`, `FromWholePixels`, `FromSteps`) or a
+fraction in its lowest terms (three eighths of a pixel is `FromPixelFraction(3, 8)`); a position's part of a pixel is a
+`PixelFraction`; an installed speed or step is one amount of pixels through its fixed-point type's codec.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

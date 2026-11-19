@@ -116,14 +116,6 @@ public sealed class SamusKinematicsState
     public bool PositionAdjustedBySlope { get; set; }
 
     /// <summary>
-    /// Top-centre point of the collision box: Samus's whole X and her whole-pixel top
-    /// boundary, wrapping in room space. Liquid code deliberately samples this separately
-    /// from Samus's feet.
-    /// </summary>
-    public Position16<RoomPixels> TopBoundary =>
-        new(Position.X.Whole, CoordinateAxis.Wrap(Position.Y.Whole - Radius.Y));
-
-    /// <summary>
     /// Exclusive bottom collision boundary. Unlike the occupied bottom pixel returned by
     /// the bottom-boundary check, this does not subtract one. It wraps in room space.
     /// </summary>

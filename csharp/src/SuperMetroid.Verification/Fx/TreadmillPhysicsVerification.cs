@@ -4,7 +4,6 @@ using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Progression;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Verification.Fx;

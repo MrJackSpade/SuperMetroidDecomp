@@ -130709,7 +130709,7 @@
     },
     {
       "type": "SuperMetroid.Core.Samus.Poses.SamusFlareAim",
-      "kind": "record struct",
+      "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -130718,7 +130718,33 @@
         "csharp/src/SuperMetroid.Core/Samus/Poses/SamusFlareAim.cs"
       ],
       "partial": "none",
-      "disposition": "value"
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Poses.SamusFlareAim.AtMuzzle",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Poses/SamusFlareAim.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Poses.SamusFlareAim.WhileTurning",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Poses/SamusFlareAim.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Samus.Poses.SamusGroundedPoseTransitions",
@@ -130842,7 +130868,7 @@
     },
     {
       "type": "SuperMetroid.Core.Samus.Poses.SamusPoseAim",
-      "kind": "record struct",
+      "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -130851,20 +130877,59 @@
         "csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseAim.cs"
       ],
       "partial": "none",
-      "disposition": "value"
+      "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Poses.SamusPoseAims",
-      "kind": "static class",
+      "type": "SuperMetroid.Core.Samus.Poses.SamusPoseAim.Aiming",
+      "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseAims.cs"
+        "csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseAim.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Poses.SamusPoseAim.Armed",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseAim.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Poses.SamusPoseAim.ShootingDisabled",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseAim.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Poses.SamusPoseAim.Turning",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseAim.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Samus.Poses.SamusPoseAnimation",
@@ -130930,19 +130995,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Poses.SamusPoseCollisionRadii",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseCollisionRadii.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Samus.Poses.SamusPoseDefinition",
@@ -131231,19 +131283,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Poses.SamusPoseProjectileOrigins",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseProjectileOrigins.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Samus.Poses.SamusPoseRecordCodecTooling",
@@ -132311,6 +132350,32 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Samus.Projectiles.PowerBombOvalAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Projectiles/PowerBombOvalAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Projectiles.PowerBombOvalSegment",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Projectiles/PowerBombOvalSegment.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.Projectiles.PowerBombRadius",
       "kind": "record struct",
       "scope": "product",
@@ -133035,7 +133100,7 @@
     },
     {
       "type": "SuperMetroid.Core.Samus.Projectiles.SamusMissileIgnition",
-      "kind": "enum",
+      "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -133044,7 +133109,46 @@
         "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusMissileIgnition.cs"
       ],
       "partial": "none",
-      "disposition": "value"
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Projectiles.SamusMissileIgnition.Ignited",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusMissileIgnition.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Projectiles.SamusMissileIgnition.Pending",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusMissileIgnition.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Projectiles.SamusMissileIgnition.PendingAfterReflection",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusMissileIgnition.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Samus.Projectiles.SamusMuzzleOriginDefinitions",
@@ -133262,6 +133366,32 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirectionAxes",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileDirectionAxes.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirectionDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileDirectionDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirectionJsonConverter",
@@ -134031,6 +134161,19 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Projectiles.SpecialAttackLifetime",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Projectiles/SpecialAttackLifetime.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Samus.Projectiles.SpecialAttackParticle",
@@ -183560,6 +183703,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Samus/Movement/SamusBreathBubbleSoundVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Samus.Movement.SamusLiquidLinesVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Samus/Movement/SamusLiquidLinesVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

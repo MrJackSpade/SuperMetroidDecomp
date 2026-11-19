@@ -1,5 +1,4 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;

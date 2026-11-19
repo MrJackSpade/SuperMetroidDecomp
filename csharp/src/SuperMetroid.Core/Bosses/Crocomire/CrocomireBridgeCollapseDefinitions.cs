@@ -40,7 +40,7 @@ internal static class CrocomireBridgeCollapseDefinitions
     /// <summary>The most the rise's acceleration grows to (#2299).</summary>
     internal static readonly SignedSixteenSixteen MaximumRiseAcceleration = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(31);
 
-    /// <summary>The speed a rise keeps when its deceleration would take it below zero: one 256th of a pixel short of a whole pixel per frame.</summary>
+    /// <summary>The speed a rise keeps when its deceleration would take it below zero: just short of a whole pixel per frame.</summary>
     internal static readonly SignedEightEight RiseSpeedAfterStalling = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(255);
 
     /// <summary>How far below the top of Crocomire's view, in pixels, the row from which his sinking hides his body lies.</summary>

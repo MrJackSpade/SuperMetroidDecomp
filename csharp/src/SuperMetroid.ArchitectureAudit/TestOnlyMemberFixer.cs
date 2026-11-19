@@ -194,7 +194,8 @@ internal static class TestOnlyMemberFixer
         for (INamedTypeSymbol? container = symbol.ContainingType; container is not null; container = container.ContainingType)
             if (container.IsGenericType || container.DeclaredAccessibility is Accessibility.Private or Accessibility.Protected or Accessibility.ProtectedAndInternal)
                 return new SiteRewrite([], "generic owner, or one test-support cannot see");
-        if (symbol.DeclaringSyntaxReferences.Length != 1 || symbol.DeclaringSyntaxReferences[0].GetSyntax() is not MemberDeclarationSyntax declaration)
+        if (symbol.DeclaringSyntaxReferences.Length != 1 || symbol.DeclaringSyntaxReferences[0].GetSyntax() is not MemberDeclarationSyntax declaration ||
+            constructor && declaration is not ConstructorDeclarationSyntax)
             return new SiteRewrite([], "declared by no single member declaration (a primary constructor or a partial member)");
         string owner = PrivateAccessShims.TypeText(symbol.ContainingType);
         string state = "global::SuperMetroid.Core.PrivateState";
@@ -224,6 +225,20 @@ internal static class TestOnlyMemberFixer
         if (declaration is not PropertyDeclarationSyntax { AccessorList: { } accessors })
             return new SiteRewrite([], "property without accessors to narrow");
         var narrowedWays = ways.Select(way => way.Uses.Way).ToHashSet(StringComparer.Ordinal);
+        // C# allows an accessibility modifier on one accessor only: when the accessor that stays has one, it becomes the
+        // property's own accessibility, which the narrowed accessor's private then narrows.
+        var staying = accessors.Accessors.Where(accessor =>
+            !narrowedWays.Contains(accessor.IsKind(SyntaxKind.GetAccessorDeclaration) ? "read" : "write")).ToList();
+        if (staying.Count == 1 && staying[0].Modifiers.Where(IsAccessibility).ToList() is { Count: > 0 } stayingAccessibility)
+        {
+            var own = declaration.Modifiers.Where(IsAccessibility).ToList();
+            if (own.Count == 0)
+                return new SiteRewrite([], "property without its own accessibility whose other accessor states one");
+            result.Add((declaration.SyntaxTree, new TextChange(TextSpan.FromBounds(own[0].SpanStart, own[^1].Span.End),
+                string.Join(" ", stayingAccessibility.Select(modifier => modifier.Text)))));
+            result.Add((declaration.SyntaxTree, new TextChange(TextSpan.FromBounds(stayingAccessibility[0].SpanStart,
+                stayingAccessibility[^1].GetNextToken().SpanStart), "")));
+        }
         foreach (AccessorDeclarationSyntax accessor in accessors.Accessors)
         {
             bool getter = accessor.IsKind(SyntaxKind.GetAccessorDeclaration);

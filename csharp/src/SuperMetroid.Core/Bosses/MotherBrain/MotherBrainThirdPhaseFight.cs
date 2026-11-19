@@ -43,7 +43,7 @@ internal sealed class MotherBrainThirdPhaseFight
     public int Phase3TargetXPosition { get; private set; }
 
     /// <summary>Mother Brain's phase-three neck movement.</summary>
-    public MotherBrainPhase3NeckPhase Phase3NeckPhase { private get; internal set; } =
+    internal MotherBrainPhase3NeckPhase Phase3NeckPhase { private get; set; } =
         MotherBrainPhase3NeckPhase.Inactive;
 
     /// <summary>The wait of her neck's recoil from a Hyper Beam hit (#2469), which its recoil phase runs out.</summary>

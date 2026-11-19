@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Escape;
 /// <param name="Minutes">Whole minutes remaining, 0 through 99.</param>
 /// <param name="Seconds">Whole seconds past the minutes, 0 through 59.</param>
 /// <param name="Centiseconds">Centiseconds past the seconds, 0 through 99.</param>
-private readonly record struct EscapeTimeReadout(int Minutes, int Seconds, int Centiseconds)
+public readonly record struct EscapeTimeReadout(int Minutes, int Seconds, int Centiseconds)
 {
     /// <summary>The readout of <paramref name="remainingCentiseconds"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The time is negative or longer than the timer shows.</exception>

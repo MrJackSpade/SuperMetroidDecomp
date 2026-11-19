@@ -104,7 +104,7 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     /// How far the tail whip shifts the body's picture against the body, in room pixels, without moving the body or its
     /// parts (#1940): his body is placed this far from his position (#2031).
     /// </summary>
-    public Offset16<RoomPixels> BodyPictureShift { private get; internal set; }
+    internal Offset16<RoomPixels> BodyPictureShift { private get; set; }
 
     /// <summary>Where his body is placed (#2031): his position, shifted by <see cref="BodyPictureShift"/>.</summary>
     public Position16<RoomPixels> BodyPlacement => Body.Position.Whole + BodyPictureShift;

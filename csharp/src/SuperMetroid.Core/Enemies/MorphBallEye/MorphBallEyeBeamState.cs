@@ -35,7 +35,7 @@ public sealed class MorphBallEyeBeamState
     /// (<see cref="FadeLevelColour"/>) a channel an update and is removed on the update its green is found at none, so the
     /// beam's lifetime depends on those levels, as the beam fade tests the colour's green before darkening it.
     /// </summary>
-    public RgbColor Color { private get; internal set; }
+    internal RgbColor Color { private get; set; }
 
     /// <summary>
     /// The cone the frame ending now shows: the beam's phase, width and colour with its eye's position and aim as they

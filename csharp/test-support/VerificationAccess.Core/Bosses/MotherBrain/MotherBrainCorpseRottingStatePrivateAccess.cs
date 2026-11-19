@@ -19,4 +19,11 @@ internal static class MotherBrainCorpseRottingStatePrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainCorpseRottingState, global::SuperMetroid.Core.Enemies.Corpses.CorpseRotSchedule>(self, "Schedule");
         }
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainCorpseRottingState)
+    {
+        /// <summary>The private field <c>RowCount</c>, reached by name.</summary>
+        internal static int RowCount => PrivateState.StaticField<int>(typeof(global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainCorpseRottingState), "RowCount");
+    }
 }

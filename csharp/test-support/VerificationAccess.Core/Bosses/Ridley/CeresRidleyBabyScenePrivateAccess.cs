@@ -17,4 +17,14 @@ internal static class CeresRidleyBabyScenePrivateAccess
         internal void AdvanceCeresBabyAnimation(global::SuperMetroid.Core.Bosses.Ridley.CeresRidleyState ridley) =>
             PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Ridley.CeresRidleyBabyScene>(self, "AdvanceCeresBabyAnimation", [typeof(global::SuperMetroid.Core.Bosses.Ridley.CeresRidleyState)], new object?[] { ridley });
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.Core.Bosses.Ridley.CeresRidleyBabyScene)
+    {
+        /// <summary>The private field <c>MovingAnimation</c>, reached by name.</summary>
+        internal static global::SuperMetroid.Core.Areas.Ceres.CeresBabySegment MovingAnimation => PrivateState.StaticField<global::SuperMetroid.Core.Areas.Ceres.CeresBabySegment>(typeof(global::SuperMetroid.Core.Bosses.Ridley.CeresRidleyBabyScene), "MovingAnimation");
+
+        /// <summary>The private field <c>SilentAnimation</c>, reached by name.</summary>
+        internal static global::SuperMetroid.Core.Areas.Ceres.CeresBabySegment SilentAnimation => PrivateState.StaticField<global::SuperMetroid.Core.Areas.Ceres.CeresBabySegment>(typeof(global::SuperMetroid.Core.Bosses.Ridley.CeresRidleyBabyScene), "SilentAnimation");
+    }
 }

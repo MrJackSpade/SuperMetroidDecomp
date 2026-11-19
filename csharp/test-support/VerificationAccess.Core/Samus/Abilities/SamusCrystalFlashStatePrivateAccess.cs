@@ -37,4 +37,11 @@ internal static class SamusCrystalFlashStatePrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Samus.Abilities.SamusCrystalFlashState, int>(self, "RaisedHeight");
         }
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.Core.Samus.Abilities.SamusCrystalFlashState)
+    {
+        /// <summary>The private field <c>RequiredInput</c>, reached by name.</summary>
+        internal static global::SuperMetroid.Core.Input.GameplayAction RequiredInput => PrivateState.StaticField<global::SuperMetroid.Core.Input.GameplayAction>(typeof(global::SuperMetroid.Core.Samus.Abilities.SamusCrystalFlashState), "RequiredInput");
+    }
 }

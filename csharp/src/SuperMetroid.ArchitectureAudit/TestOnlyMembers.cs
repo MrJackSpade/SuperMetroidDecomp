@@ -152,7 +152,10 @@ internal static class TestOnlyMembers
             switch (node)
             {
                 case SimpleNameSyntax name when names.Contains(name.Identifier.ValueText) && !InNameOf(name):
-                    RecordAll(Info(compilation, tree, name), name, Access(AccessExpression(name)));
+                    SymbolInfo info = Info(compilation, tree, name);
+                    RecordAll(info, name, Access(AccessExpression(name)));
+                    if (check && info.Symbol is null)
+                        RecordUnbound(name, info);
                     break;
                 case BaseObjectCreationExpressionSyntax or ConstructorInitializerSyntax or PrimaryConstructorBaseTypeSyntax or AttributeSyntax:
                     RecordAll(Info(compilation, tree, node), node, Use);
@@ -180,6 +183,34 @@ internal static class TestOnlyMembers
             Record(info.Symbol, site, access, reaches: true);
             foreach (ISymbol candidate in info.CandidateSymbols)
                 Record(candidate, site, access, reaches: info.CandidateReason == CandidateReason.Inaccessible);
+        }
+
+        // A check's member name that binds to nothing of its receiver's type, for want of the private-access member that stood
+        // in for it, names the receiver's members of that name: C# reports the member inaccessible but may keep no
+        // candidate (a static access resolved through extension lookup), or binds the name to an unrelated extension member
+        // of the same name that some other type's generated access declares.
+        void RecordUnbound(SimpleNameSyntax name, SymbolInfo info)
+        {
+            ExpressionSyntax? receiver = name.Parent switch
+            {
+                MemberAccessExpressionSyntax access when access.Name == name => access.Expression,
+                MemberBindingExpressionSyntax binding when binding.Name == name =>
+                    binding.Ancestors().OfType<ConditionalAccessExpressionSyntax>().FirstOrDefault()?.Expression,
+                _ => null,
+            };
+            if (receiver is null)
+                return;
+            SemanticModel model = SemanticModels.At(compilation, tree, receiver);
+            ITypeSymbol? type = model.GetSymbolInfo(receiver).Symbol as INamedTypeSymbol ?? model.GetTypeInfo(receiver).Type;
+            if (type is not INamedTypeSymbol { TypeKind: not TypeKind.Error } named ||
+                info.CandidateSymbols.Any(candidate => SymbolEqualityComparer.Default.Equals(candidate.ContainingType?.OriginalDefinition, named.OriginalDefinition)))
+                return;
+            string access = Access(AccessExpression(name));
+            for (INamedTypeSymbol? owner = named; owner is not null; owner = owner.BaseType)
+            {
+                foreach (ISymbol member in owner.GetMembers(name.Identifier.ValueText))
+                    Record(member, name, access, reaches: true);
+            }
         }
 
         // A site reaches a symbol it binds to, or the inaccessible candidate a check binds to for want of the private-access

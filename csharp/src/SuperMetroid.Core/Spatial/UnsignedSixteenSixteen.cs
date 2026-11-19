@@ -72,9 +72,6 @@ public readonly record struct UnsignedSixteenSixteen
     /// <summary>A distance of <paramref name="wholePixels"/> whole pixels and no fraction, 0 through 65535.</summary>
     public static UnsignedSixteenSixteen FromWholePixels(int wholePixels) => new(wholePixels, 0);
 
-    /// <summary>A speed of <paramref name="sixteenths"/> sixteenths of a pixel, which must not be negative.</summary>
-    public static UnsignedSixteenSixteen FromSixteenthsOfPixel(int sixteenths) => FromRaw(checked((uint)sixteenths * 4096u));
-
     /// <summary>A speed of <paramref name="twoHundredFiftySixths"/> 256ths of a pixel, which must not be negative.</summary>
     public static UnsignedSixteenSixteen FromTwoHundredFiftySixthsOfPixel(int twoHundredFiftySixths) =>
         FromRaw(checked((uint)twoHundredFiftySixths * 256u));

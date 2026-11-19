@@ -22,11 +22,6 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>
     public static SignedEightEight FromTwoHundredFiftySixthsOfPixel(int twoHundredFiftySixths) =>
         new(unchecked((ushort)Ensure.BetweenInclusive(short.MinValue, short.MaxValue, twoHundredFiftySixths)));
 
-    /// <summary>A speed of <paramref name="sixteenths"/> sixteenths of a pixel an update, -2048 through 2047.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The speed lies outside the type's range.</exception>
-    public static SignedEightEight FromSixteenthsOfPixel(int sixteenths) =>
-        FromTwoHundredFiftySixthsOfPixel(Ensure.BetweenInclusive(-2048, 2047, sixteenths) * 16);
-
     /// <summary>
     /// A speed of <paramref name="numerator"/> <paramref name="denominator"/>ths of a pixel an update (#2555), the denominator
     /// a power of two from 1 through 256 so the fraction is kept exactly: three eighths of a pixel, a pixel and a half.

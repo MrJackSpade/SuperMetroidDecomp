@@ -32,7 +32,7 @@ internal static class RetailRidleyCaptureTests
         foreach (short scroll in new short[] { -19, 0, 19 })
         {
             runtime.Enemies.CeresEscape.Floor.Active = true;
-            runtime.Enemies.CeresEscape.Floor.Zoom = FloorZoom.FromTwoHundredFiftySixths(scale);
+            runtime.Enemies.CeresEscape.Floor.Zoom = FloorZoomConstants.FromTwoHundredFiftySixths(scale);
             runtime.Enemies.CeresEscape.Floor.Angle = RotationAngle.WrappedSteps(tilt);
             runtime.Enemies.CeresEscape.Floor.Center = new Offset16<FloorPixels>(128, 120);
             runtime.Enemies.CeresEscape.Floor.Offset = new Offset16<FloorPixels>(7, unchecked(scroll));

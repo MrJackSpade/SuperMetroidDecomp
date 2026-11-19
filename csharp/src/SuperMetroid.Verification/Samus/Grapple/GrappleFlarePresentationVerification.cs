@@ -65,7 +65,7 @@ internal static class GrappleFlarePresentationVerification
                 samus.Grapple.FlareOrigin = samus.Grapple.FlareOrigin.WithX(coordinate); samus.Grapple.FlareOrigin = samus.Grapple.FlareOrigin.WithY(coordinate);
                 samus.Grapple.RopeStart = samus.Grapple.RopeStart.WithX(70); samus.Grapple.RopeStart = samus.Grapple.RopeStart.WithY(80);
                 samus.Grapple.Anchor = samus.Grapple.Anchor.WithX(200); samus.Grapple.Anchor = samus.Grapple.Anchor.WithY(100);
-                samus.Grapple.RopeLength = 40; samus.Grapple.AngularVelocity = AngularSpeed.FromFractionsOfStep(123);
+                samus.Grapple.RopeLength = 40; samus.Grapple.AngularVelocity = AngularSpeedConstants.FromFractionsOfStep(123);
                 return samus;
             }
         }

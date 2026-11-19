@@ -374,9 +374,9 @@ internal static class TitleGradientVerification
         for (ushort zoom = 0; zoom <= FloorZoom.OwnSize.TwoHundredFiftySixths; zoom++)
         {
             ScreenGradient decoded = TitleGradientDecoder.Decode(CartridgeImportSource.Require(bus), zoom);
-            if (!presentation.Resolve(FloorZoom.FromTwoHundredFiftySixths(zoom)).Equals(decoded))
+            if (!presentation.Resolve(FloorZoomConstants.FromTwoHundredFiftySixths(zoom)).Equals(decoded))
                 throw new InvalidDataException($"Extracted title gradient differs at zoom ${zoom:X2}.");
-            if (!installed.Resolve(FloorZoom.FromTwoHundredFiftySixths(zoom)).Equals(decoded))
+            if (!installed.Resolve(FloorZoomConstants.FromTwoHundredFiftySixths(zoom)).Equals(decoded))
                 throw new InvalidDataException($"Installed title gradient differs at zoom ${zoom:X2}.");
         }
         Suite(nameof(VerifyTitleGradientValidation), () => VerifyTitleGradientValidation(extracted));

@@ -547,7 +547,7 @@ internal static class LookupStream4Verification
                 expectedZoom -= fast ? 8 : 2;
                 step();
                 AssertEqual(RotationAngle.FromSteps((byte)expectedAngle), floor.Angle, "rotation context advances independently of selected signs");
-                AssertEqual(FloorZoom.FromTwoHundredFiftySixths(expectedZoom), floor.Zoom, "zoom context advances independently of selected signs");
+                AssertEqual(FloorZoomConstants.FromTwoHundredFiftySixths(expectedZoom), floor.Zoom, "zoom context advances independently of selected signs");
                 AssertEqual((ushort)SixteenSixteenWords.WholeOf(expected), floor.Position.X.UnsignedWholePixels, "production shake whole position follows the authored sequence");
                 AssertEqual((ushort)expected, floor.Position.X.Fraction, "production shake fraction preserves carry/borrow");
                 AssertEqual((frame + 1) % count, state.Flyaway.ShipShake.Place, "production shake moves on after each displacement and starts again after the last");
@@ -2337,7 +2337,7 @@ internal static class LookupStream4Verification
             CeresEscape escape = enemies.CeresEscape;
             var ridley = new CeresRidleyState(Position16<RoomPixels>.Zero);
             IReadOnlyList<SheetShade> zoomRoom = RidleySheetShades.CeresRoom(ceresStock, selected);
-            Action<ushort> apply = appliedZoom => escape.ShowFloorZoom(FloorZoom.FromTwoHundredFiftySixths(appliedZoom));
+            Action<ushort> apply = appliedZoom => escape.ShowFloorZoom(FloorZoomConstants.FromTwoHundredFiftySixths(appliedZoom));
             for (int row = 0; row < 9; row++)
             {
                 apply((ushort)(row * 256 + 255));

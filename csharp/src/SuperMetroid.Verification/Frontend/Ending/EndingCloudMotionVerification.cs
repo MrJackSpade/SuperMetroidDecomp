@@ -33,14 +33,14 @@ internal static class EndingCloudMotionVerification
                 EndingSceneAnimation.TopCloudPattern);
             var wrapper = new EndingPictureSprite(sprite, role);
             EndingCloudDrift drift = AssertIs<EndingCloudDrift>(wrapper.Motion, $"{role} drifts as a cloud");
-            var scene = new CloudScene { FloorZoom = FloorZoom.FromTwoHundredFiftySixths(side ? 95 : 176) };
+            var scene = new CloudScene { FloorZoom = FloorZoomConstants.FromTwoHundredFiftySixths(side ? 95 : 176) };
             drift.Step(sprite, scene);
             AssertTrue(!drift.Drifting, "cloud waits for native zoom threshold");
-            scene.FloorZoom = FloorZoom.FromTwoHundredFiftySixths(side ? 96 : 175);
+            scene.FloorZoom = FloorZoomConstants.FromTwoHundredFiftySixths(side ? 96 : 175);
             drift.Step(sprite, scene);
             AssertTrue(drift.Drifting, "cloud switches pre-instruction at threshold");
             AssertEqual(200, (int)sprite.ScreenPlace.Y, "activation does not run the movement callback early");
-            scene.FloorZoom = FloorZoom.FromTwoHundredFiftySixths(side ? 0 : 200);
+            scene.FloorZoom = FloorZoomConstants.FromTwoHundredFiftySixths(side ? 0 : 200);
             for (int frame = 1; frame <= 12; frame++)
             {
                 drift.Step(sprite, scene);

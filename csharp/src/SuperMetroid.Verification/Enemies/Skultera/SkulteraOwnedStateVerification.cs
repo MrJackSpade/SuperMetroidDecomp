@@ -32,7 +32,7 @@ internal static class SkulteraOwnedStateVerification
         AssertEqual(right, SkulteraBehavior.SwimVelocity(place, HorizontalDirection.Right), "rightward speed");
         AssertEqual(left, SkulteraBehavior.SwimVelocity(place, HorizontalDirection.Left), "leftward speed");
         SkulteraSpawnSettings settings = place.SpawnSettings<SkulteraSpawnSettings>();
-        AssertEqual(new VerifySkulteraOwnedStateCase(20, 10), new VerifySkulteraOwnedStateCase(settings.Radius, settings.AngleDelta), "radius and angle step come from parameter two");
+        AssertEqual(new VerifySkulteraOwnedStateCase(20, 10), new VerifySkulteraOwnedStateCase(settings.Radius, settings.AngleStep.ToTrigonometryAngle().RawValue), "radius and angle step come from parameter two");
 
         // The wave steps forward while the Skultera swims the way it started and backward once a turn has brought it
         // the other way (#2450).

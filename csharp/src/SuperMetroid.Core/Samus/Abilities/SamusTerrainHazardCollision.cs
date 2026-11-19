@@ -73,7 +73,7 @@ public static class SamusTerrainHazardCollision
         Position16<RoomPixels> point)
     {
         RoomCollisionBlock block = level.GetCollisionBlockOrEdgeSolid(point.ToRoomBlock());
-        if (block.Position is null || !SamusBlockCollision.TryResolveExtension(level, ref block))
+        if (block.Position is null || !level.TryReachBlockStoodFor(ref block))
             return;
         if (block.CollisionType != RoomCollisionType.SpikeAir ||
             block.Behavior != SpikeHazardDefinitions.DamagingSpikeAirBehavior)
@@ -96,7 +96,7 @@ public static class SamusTerrainHazardCollision
         SamusState samus,
         int wholeDamage)
     {
-        samus.PeriodicDamage.Accumulate(new UnsignedSixteenSixteen(whole: wholeDamage, fraction: 0));
+        samus.PeriodicDamage.Accumulate(EnergyAmount.FromEnergy(wholeDamage));
         samus.InvincibilityTimer = WrappingCountdown.Start(SpikeHazardDefinitions.InvincibilityFrames);
         samus.KnockbackHold = UpdateCountdown.For(SpikeHazardDefinitions.KnockbackFrames);
 

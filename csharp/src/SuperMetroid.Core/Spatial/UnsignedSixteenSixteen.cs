@@ -24,6 +24,9 @@ public readonly record struct UnsignedSixteenSixteen
     /// <summary>Both parts as one unsigned 32-bit value, the whole part high.</summary>
     public uint RawValue => ((uint)Whole << 16) | (uint)Fraction;
 
+    /// <summary>Whether the speed holds no fraction of a pixel: it is a whole number of pixels (#2555).</summary>
+    public bool IsWholePixels => Fraction == 0;
+
     /// <summary>Whether the speed is no motion at all: zero whole pixels and zero fraction.</summary>
     public bool IsZero => Whole == 0 && Fraction == 0;
 
@@ -63,6 +66,9 @@ public readonly record struct UnsignedSixteenSixteen
         FromRaw(checked((uint)Ensure.BetweenInclusive(0, int.MaxValue, wholePixels) *
             (uint)Ensure.BetweenInclusive(0, int.MaxValue, share)));
 
+    /// <summary>No speed or distance at all.</summary>
+    public static UnsignedSixteenSixteen Zero => default;
+
     /// <summary>A distance of <paramref name="wholePixels"/> whole pixels and no fraction, 0 through 65535.</summary>
     public static UnsignedSixteenSixteen FromWholePixels(int wholePixels) => new(wholePixels, 0);
 
@@ -82,16 +88,17 @@ public readonly record struct UnsignedSixteenSixteen
     /// The numerator is negative, or the denominator is no power of two from 1 through 65536.
     /// </exception>
     /// <exception cref="OverflowException">The speed lies outside the type's range.</exception>
-    public static UnsignedSixteenSixteen FromPixelFraction(int numerator, int denominator)
-    {
-        int fractionsEach = FractionsPerPixel / Ensure.BetweenInclusive(1, FractionsPerPixel, denominator);
-        if (fractionsEach * denominator != FractionsPerPixel)
-            throw new ArgumentOutOfRangeException(nameof(denominator), denominator, "The denominator must be a power of two from 1 through 65536.");
-        return FromRaw(checked((uint)Ensure.AtLeastZero(numerator) * (uint)fractionsEach));
-    }
+    public static UnsignedSixteenSixteen FromPixelFraction(int numerator, int denominator) =>
+        FromRaw((uint)PowerOfTwoFraction.InFinestUnits(Ensure.AtLeastZero(numerator), denominator, FractionsPerPixel));
 
     /// <summary>The fractions of a pixel the speed counts: 65536 to the pixel.</summary>
     private const int FractionsPerPixel = 65536;
+
+    /// <summary>
+    /// Whether this speed is faster than <paramref name="limit"/> when both are read to a 256th of a pixel (#2555), the
+    /// precision the game compares Samus's speed with a quicksand surface's upward cap at: finer fractions take no part.
+    /// </summary>
+    public bool IsFasterInTwoFiftySixthsThan(SignedSixteenSixteen limit) => InTwoFiftySixths > limit.InTwoFiftySixths;
 
     /// <summary>Whether this speed is slower than <paramref name="other"/>, comparing whole pixels and fraction together.</summary>
     public bool IsSlowerThan(UnsignedSixteenSixteen other) => RawValue < other.RawValue;
@@ -159,6 +166,39 @@ public readonly record struct UnsignedSixteenSixteen
 
     /// <summary>This speed with its whole part replaced.</summary>
     public UnsignedSixteenSixteen WithWhole(int whole) => new(whole, Fraction);
+
+    /// <summary>
+    /// This speed scaled by a whole <paramref name="factor"/>, zero or more (#2555): the product must fit the type.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The factor is negative.</exception>
+    /// <exception cref="OverflowException">The product lies outside the type's range.</exception>
+    public UnsignedSixteenSixteen Times(int factor) => FromRaw(checked(RawValue * (uint)Ensure.AtLeastZero(factor)));
+
+    /// <summary>
+    /// This speed with its whole pixels lowered to <paramref name="most"/>'s when they lie above them, its own fraction kept
+    /// (#2555), as the game caps only a speed's whole pixels.
+    /// </summary>
+    public UnsignedSixteenSixteen WithWholePixelsAtMost(UnsignedSixteenSixteen most) => Whole > most.Whole ? WithWhole(most.Whole) : this;
+
+    /// <summary>
+    /// This speed with its whole pixels halved, an odd pixel dropped rather than halved into the fraction, and its fraction
+    /// kept (#2555).
+    /// </summary>
+    public UnsignedSixteenSixteen WithWholePixelsHalved() => new(Whole / 2, Fraction);
+
+    /// <summary>
+    /// This speed and <paramref name="other"/> added part by part (#2555): the whole pixels added, and the fractions added
+    /// with the carry past a whole pixel dropped, so a fraction sum past a pixel keeps only its remainder.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The whole pixels' sum lies outside the type's range.</exception>
+    public UnsignedSixteenSixteen AddedPartwise(UnsignedSixteenSixteen other) =>
+        new(Whole + other.Whole, (Fraction + other.Fraction) % FractionsPerPixel);
+
+    /// <summary>
+    /// This speed with its whole pixels replaced by <paramref name="speed"/>'s and its own fraction kept (#2555), as the
+    /// game sets only a speed's whole pixels.
+    /// </summary>
+    public UnsignedSixteenSixteen WithWholePixelsOf(UnsignedSixteenSixteen speed) => new(speed.Whole, Fraction);
 
     /// <summary>
     /// How many whole steps of this size fit within <paramref name="wholePixels"/> pixels, the part of a step left over

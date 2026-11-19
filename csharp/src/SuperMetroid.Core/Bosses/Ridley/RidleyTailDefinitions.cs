@@ -39,11 +39,11 @@ internal static class RidleyTailDefinitions
     /// The tail's usual extension speed, fifteen sixteenths of a pixel an update: set at initialization and restored by
     /// the ground attack and on carry phase expiry.
     /// </summary>
-    internal static SignedEightEight StandardExtensionSpeed { get; } = SignedEightEight.FromSixteenthsOfPixel(15);
+    internal static SignedEightEight StandardExtensionSpeed { get; } = SignedEightEight.FromPixelFraction(15, 16);
     /// <summary>The tail's extension speed while Ridley pogoes: one and a half pixels an update.</summary>
-    internal static SignedEightEight PogoExtensionSpeed { get; } = SignedEightEight.FromSixteenthsOfPixel(24);
+    internal static SignedEightEight PogoExtensionSpeed { get; } = SignedEightEight.FromPixelFraction(3, 2);
     /// <summary>How far a link longer than its rest length shrinks each update: half a pixel.</summary>
-    internal static SignedEightEight ShrinkStep { get; } = SignedEightEight.FromSixteenthsOfPixel(8);
+    internal static SignedEightEight ShrinkStep { get; } = SignedEightEight.FromPixelFraction(1, 2);
     /// <summary>Straight-down target angle.</summary>
     internal static RidleyTailAngle DownAngle { get; } = RidleyTailAngle.StraightDown;
     /// <summary>Pogo clockwise whip target: straight down a whole turn clockwise, so the whip swings the tail round once.</summary>

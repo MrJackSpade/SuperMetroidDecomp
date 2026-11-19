@@ -36,16 +36,16 @@ public readonly record struct PeriodicDamageEnergyFraction
     public static PeriodicDamageEnergyFraction None => default;
 
 
-    /// <summary>Whether taking <paramref name="fraction"/> borrows a whole energy: whether it is more than the fraction held.</summary>
-    /// <param name="fraction">The fraction of periodic damage, 0 through one part short of an energy.</param>
-    public bool Borrows(int fraction) => _held.TakesEnergy(fraction);
+    /// <summary>Whether taking <paramref name="damage"/>'s fraction borrows a whole energy: whether it is more than the fraction held.</summary>
+    /// <param name="damage">The periodic damage, whose fraction of an energy is taken.</param>
+    public bool Borrows(EnergyAmount damage) => _held.TakesEnergy(damage.FractionParts);
 
     /// <summary>
-    /// The fraction held after <paramref name="fraction"/> is taken: the held fraction less it, or, when that borrows
-    /// (<see cref="Borrows"/>), the rest of the energy borrowed.
+    /// The fraction held after <paramref name="damage"/>'s fraction is taken: the held fraction less it, or, when that
+    /// borrows (<see cref="Borrows"/>), the rest of the energy borrowed.
     /// </summary>
-    /// <param name="fraction">The fraction of periodic damage, 0 through one part short of an energy.</param>
-    public PeriodicDamageEnergyFraction After(int fraction) => new(_held.After(fraction));
+    /// <param name="damage">The periodic damage, whose fraction of an energy is taken.</param>
+    public PeriodicDamageEnergyFraction After(EnergyAmount damage) => new(_held.After(damage.FractionParts));
 
     /// <inheritdoc />
     public override string ToString() => Parts.ToString(System.Globalization.CultureInfo.InvariantCulture);

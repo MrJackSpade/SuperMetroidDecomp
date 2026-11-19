@@ -59,18 +59,18 @@ public static class TitleSequenceDefinitions
     {
         /// <summary>The lower pan: zoom 72/256 at background offset (315, 225).</summary>
         public static readonly TitleFloorSceneDefinition LowerPan =
-            new(TitleSequencePhase.LowerPan, FloorZoom.FromTwoHundredFiftySixths(72), new(315, 225));
+            new(TitleSequencePhase.LowerPan, FloorZoom.FromFloorPixelsPerScreenPixel(9, 32), new(315, 225));
         /// <summary>The upper pan: zoom 96/256 at background offset (44, -155).</summary>
         public static readonly TitleFloorSceneDefinition UpperPan =
-            new(TitleSequencePhase.UpperPan, FloorZoom.FromTwoHundredFiftySixths(96), new(44, -155));
+            new(TitleSequencePhase.UpperPan, FloorZoom.FromFloorPixelsPerScreenPixel(3, 8), new(44, -155));
         /// <summary>The downward pan: zoom 96/256 at background offset (-177, -160).</summary>
         public static readonly TitleFloorSceneDefinition DownwardPan =
-            new(TitleSequencePhase.DownwardPan, FloorZoom.FromTwoHundredFiftySixths(96), new(-177, -160));
+            new(TitleSequencePhase.DownwardPan, FloorZoom.FromFloorPixelsPerScreenPixel(3, 8), new(-177, -160));
         /// <summary>The final zoom: zoom 67/256 with no background offset.</summary>
         public static readonly TitleFloorSceneDefinition FinalZoom =
-            new(TitleSequencePhase.FinalZoom, FloorZoom.FromTwoHundredFiftySixths(67), new(0, 0));
+            new(TitleSequencePhase.FinalZoom, FloorZoom.FromFloorPixelsPerScreenPixel(67, 256), new(0, 0));
         /// <summary>The pan speed, 1.5 pixels per update; the lower and upper pans go left, the downward pan down.</summary>
-        public static SignedSixteenSixteen PanVelocity { get; } = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(384);
+        public static SignedSixteenSixteen PanVelocity { get; } = SignedSixteenSixteen.FromPixelFraction(3, 2);
         /// <summary>The lower pan's X threshold, -7 pixels; passing it starts the Nintendo card.</summary>
         public const int LowerPanEndX = -7;
         /// <summary>The upper pan's X threshold, -176 pixels; passing it starts the Presents card.</summary>
@@ -78,7 +78,7 @@ public static class TitleSequenceDefinitions
         /// <summary>The downward pan's Y threshold, 163 pixels; reaching it starts the Metroid 3 card.</summary>
         public const int DownwardPanEndY = 163;
         /// <summary>The final zoom's step every second update.</summary>
-        public static FloorZoomStep FinalZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(1);
+        public static FloorZoomStep FinalZoomStep { get; } = FloorZoomStep.FromFloorPixelsPerScreenPixel(1, 256);
         /// <summary>
         /// The updates of the final zoom on which the zoom grows one step (#1619): every second update of the phase's own
         /// count, on its even place, from the first.

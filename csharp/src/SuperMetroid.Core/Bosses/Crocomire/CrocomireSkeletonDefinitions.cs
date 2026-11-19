@@ -36,16 +36,16 @@ internal static class CrocomireSkeletonDefinitions
     internal const int ArcEndX = 576;
 
     /// <summary>The skeleton's fixed fall through its arc: seven eighths of a pixel per frame.</summary>
-    internal static readonly SignedSixteenSixteen ArcFallSpeed = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(224);
+    internal static readonly SignedSixteenSixteen ArcFallSpeed = SignedSixteenSixteen.FromPixelFraction(7, 8);
 
     /// <summary>The sideways speed his skeleton gathers as it breaks out: half a pixel an update, up to two pixels.</summary>
-    internal static readonly CrocomireSkeletonAcceleration BreakOut = new(SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(128), 2);
+    internal static readonly CrocomireSkeletonAcceleration BreakOut = new(SignedSixteenSixteen.FromPixelFraction(1, 2), 2);
 
     /// <summary>The sideways speed his skeleton gathers as it arcs: a thirty-second of a pixel an update, up to five pixels.</summary>
-    internal static readonly CrocomireSkeletonAcceleration Arc = new(SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(8), 5);
+    internal static readonly CrocomireSkeletonAcceleration Arc = new(SignedSixteenSixteen.FromPixelFraction(1, 32), 5);
 
     /// <summary>The sideways speed his skeleton gathers as it falls apart: a sixteenth of a pixel an update, up to six pixels.</summary>
-    internal static readonly CrocomireSkeletonAcceleration Collapse = new(SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(16), 6);
+    internal static readonly CrocomireSkeletonAcceleration Collapse = new(SignedSixteenSixteen.FromPixelFraction(1, 16), 6);
 
     /// <summary>How far his dead skeleton lies from where it fell apart.</summary>
     internal static readonly Offset16<RoomPixels> CorpseOffset = new(64, 21);

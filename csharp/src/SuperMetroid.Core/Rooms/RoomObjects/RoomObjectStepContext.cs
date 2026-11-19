@@ -35,9 +35,10 @@ internal readonly record struct RoomObjectStepContext(
         RoomObjects.Sounds.Queue(sound, Priority: priority);
 
     /// <summary>
-    /// Moves the place's origin by whole blocks, as the game's move-room-object cues do: through the room's blocks in
-    /// reading order (<see cref="RoomLevelData.ObjectBlockStep"/>).
+    /// Moves the place's origin by whole blocks in the room's two dimensions, as the game's move-room-object cues do; no
+    /// authored move leaves the room's grid (#2572).
     /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The move leaves the room's grid.</exception>
     internal void MoveOrigin(RoomObjectPlace place, Offset16<RoomBlocks> step) =>
-        place.Block = Level.ObjectBlockStep(place.Block, step);
+        place.Block = Level.GridBlock(place.Block + step);
 }

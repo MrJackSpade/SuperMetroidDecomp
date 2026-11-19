@@ -75,5 +75,5 @@ internal sealed class SamusRoomView(SamusState samus) : IRoomSamus
     public void FaceForward() => SamusPoseMetadata.ApplyForwardFacingPoseSetup(samus);
 
     /// <inheritdoc/>
-    public void TakePeriodicDamage(UnsignedSixteenSixteen damage) => samus.PeriodicDamage.Accumulate(damage);
+    public void TakePeriodicDamage(EnergyAmount damage) => samus.PeriodicDamage.Accumulate(damage);
 }

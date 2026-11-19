@@ -63,7 +63,7 @@ public static class XrayScopeDefinitions
     public static class Cone
     {
         /// <summary>The widening speed's growth each widening update: a thirty-second of a step.</summary>
-        public static readonly RotationAngle WideningStep = RotationAngle.FromSteps(0, 8);
+        public static readonly RotationAngle WideningStep = RotationAngle.FromStepFraction(1, 32);
 
         /// <summary>The half-width a full beam keeps: ten whole steps either side of its centre.</summary>
         public static readonly RotationAngle WidestHalfWidth = RotationAngle.FromSteps(10);

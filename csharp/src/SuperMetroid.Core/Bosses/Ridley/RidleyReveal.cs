@@ -71,7 +71,7 @@ internal sealed class RidleyReveal
                 return;
 
             case RidleyRevealPhase.TakingOff:
-                ridley.Flight.Velocity = EightEightVector<RoomPixels>.Zero;
+                ridley.Flight.Velocity = PixelVelocity<RoomPixels>.Zero;
                 return;
 
             default:

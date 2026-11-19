@@ -440,10 +440,9 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         samus.SlowdownLevel = ShitroidFightDefinitions.DrainXSpeedDivisor;
         // A speed slowed past zero at the apex reads as below four in the clamp's comparison, so it keeps its value
         // (#1562); the Shitroid sits a pixel right while the speed reads four or more (DrainingShitroidFallShift).
-        int ySpeed = samus.Kinematics.YSpeed.Whole;
-        int rightOfShake = DrainingShitroidFallShift.PixelsRightOfShake(ySpeed);
-        if (SamusSpeedMagnitude.IsAtLeast(ySpeed, ShitroidFightDefinitions.DrainFallSpeedLimit))
-            samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(ShitroidFightDefinitions.DrainFallSpeed);
+        int rightOfShake = DrainingShitroidFallShift.PixelsRightOfShake(samus.Kinematics.YSpeed.Whole);
+        if (SamusSpeedMagnitude.WholePixelsReach(samus.Kinematics.YSpeed, ShitroidFightDefinitions.DrainFallSpeedLimit))
+            samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWholePixelsOf(ShitroidFightDefinitions.DrainFallSpeed);
 
         int shakeIndex = MotherBrainCadenceDefinitions.ShitroidShakeStep.Of(place.FrameCounter);
         place.Position = place.Position.WithWhole(
@@ -596,7 +595,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 DistanceAcrossRoomEdge.Apart(samus.Position.X.Whole, place.Position.X.Whole),
                 DistanceAcrossRoomEdge.Apart(samus.Position.Y.Whole, place.Position.Y.Whole)));
             RotationAngle angle = RotationAngle.Zero - sourceAngle;
-            state.Velocity += new EightEightVector<RoomPixels>(
+            state.Velocity += new PixelVelocity<RoomPixels>(
                 EnemyMath.SineSpeed(ShitroidFlightDefinitions.ContactPushSpeed, angle.ToTrigonometryAngle()),
                 EnemyMath.SineSpeed(
                     ShitroidFlightDefinitions.ContactPushSpeed,
@@ -641,8 +640,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             DistanceAcrossRoomEdge.Apart(recoilOrigin.Position.Y.Whole, place.Position.Y.Whole)));
         RotationAngle angle = RotationAngle.Zero - sourceAngle;
         // The recoil strength is a multiple of the damage, capped at its limit.
-        SignedEightEight magnitude = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(Math.Min(ShitroidFightDefinitions.RecoilPerDamage * collisionDamage, ShitroidFightDefinitions.RecoilLimit));
-        state.Velocity += new EightEightVector<RoomPixels>(
+        SignedEightEight magnitude = SignedEightEight.Min(ShitroidFightDefinitions.RecoilPerDamage.Times(collisionDamage), ShitroidFightDefinitions.RecoilLimit);
+        state.Velocity += new PixelVelocity<RoomPixels>(
             EnemyMath.SineSpeed(magnitude, angle.ToTrigonometryAngle()),
             EnemyMath.SineSpeed(
                 magnitude,

@@ -16,5 +16,5 @@ internal static class WorkRobotMotionDefinitions
     internal const int TouchPush = 4;
 
     /// <summary>What gravity adds to a falling powered WorkRobot's speed each airborne update, half a pixel.</summary>
-    internal static SignedSixteenSixteen Gravity { get; } = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(128);
+    internal static SignedSixteenSixteen Gravity { get; } = SignedSixteenSixteen.FromPixelFraction(1, 2);
 }

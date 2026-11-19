@@ -18,9 +18,9 @@ internal static class EndingPostShotDefinitions
     /// <summary>The reward turning floor's starting zoom: nine floor pixels per screen pixel.</summary>
     public static FloorZoom InitialZoom { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(9);
     /// <summary>The zoom narrows by a quarter floor pixel per screen pixel each update.</summary>
-    public static FloorZoomStep ZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(64);
+    public static FloorZoomStep ZoomStep { get; } = FloorZoomStep.FromFloorPixelsPerScreenPixel(1, 4);
     /// <summary>The zoom the completed rotation stops at.</summary>
-    public static FloorZoom MinimumZoom { get; } = FloorZoom.FromTwoHundredFiftySixths(24);
+    public static FloorZoom MinimumZoom { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(3, 32);
     /// <summary>How far the shot's rotation turns backwards each update, in steps of its angle.</summary>
     public const int AngleStep = 8;
     /// <summary>How long the post-shot step delays the Samus fade behind the shot's.</summary>

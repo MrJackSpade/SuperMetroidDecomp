@@ -18,6 +18,6 @@ public static class FollowingExplosionLeftVelocity
 {
     /// <summary>The velocity the explosion leaves in its place: <paramref name="offset"/>'s pixels as 256ths of a pixel an update.</summary>
     /// <param name="offset">The explosion's offset from the actor it follows.</param>
-    public static EightEightVector<RoomPixels> Of(Offset16<RoomPixels> offset) =>
-        EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(offset.X, offset.Y);
+    public static PixelVelocity<RoomPixels> Of(Offset16<RoomPixels> offset) =>
+        new(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(offset.X), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(offset.Y));
 }

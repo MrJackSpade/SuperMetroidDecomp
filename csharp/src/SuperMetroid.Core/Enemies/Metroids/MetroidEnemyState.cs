@@ -47,11 +47,11 @@ public sealed class MetroidEnemyState
     /// Drains one update's <paramref name="fraction"/> of an energy and reports whether it takes a whole energy from
     /// Samus (<see cref="FractionalEnergyDrain.TakesEnergy"/>).
     /// </summary>
-    /// <param name="fraction">The suit-selected fraction of an energy drained each update, in <see cref="FractionalEnergyDrain.PartsPerEnergy"/>ths.</param>
-    internal bool DrainTakesEnergy(int fraction)
+    /// <param name="fraction">The suit-selected fraction of an energy drained each update.</param>
+    internal bool DrainTakesEnergy(EnergyAmount fraction)
     {
-        bool takesEnergy = Drain.TakesEnergy(fraction);
-        Drain = Drain.After(fraction);
+        bool takesEnergy = Drain.TakesEnergy(fraction.FractionParts);
+        Drain = Drain.After(fraction.FractionParts);
         return takesEnergy;
     }
 

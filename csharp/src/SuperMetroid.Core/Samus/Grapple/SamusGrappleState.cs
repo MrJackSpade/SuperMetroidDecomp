@@ -61,7 +61,7 @@ public sealed class SamusGrappleState
     /// <summary>The pose-change auto-fire timer; permits early pose-directed refiring.</summary>
     public UpdateCountdown PoseChangeAutoFireTimer { get; set; } = UpdateCountdown.Ended();
     /// <summary>The velocity the beam's end extends at, either way on each axis.</summary>
-    public EightEightVector<RoomPixels> ExtensionVelocity { get; set; }
+    public PixelVelocity<RoomPixels> ExtensionVelocity { get; set; }
 
     /// <summary>
     /// The substep the extending beam's end moved by, on both axes. Each firing update rebuilds it from the extension

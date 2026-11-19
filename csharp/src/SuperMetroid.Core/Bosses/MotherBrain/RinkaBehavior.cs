@@ -119,7 +119,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     private void InitializeRinkaLife(RoomEnemyPlace place, RinkaEnemyState state)
     {
         state.Action = RinkaAction.WatchForLeavingViewport;
-        state.DelayTimer.LastFor(RinkaLifeDefinitions.AimDelayUpdates);
+        state.AimDelay.LastFor(RinkaLifeDefinitions.AimDelayUpdates);
         state.Velocity = default;
 
         if (IsSpecialRinka(place) && _rinkaTerminationFlag)
@@ -180,7 +180,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case RinkaAction.AimDelay:
-                if (state.DelayTimer.StepKeepsRunning())
+                if (state.AimDelay.StepKeepsRunning())
                     return;
                 state.Action = RinkaAction.Flying;
 
@@ -188,8 +188,8 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                 place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
                 place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
 
-                TrigonometryAngle velocityAngle = EnemyMath.CalculateBearing(
-                    new(DistanceAcrossRoomEdge.Apart(samus.Position.X.Whole, place.Position.X.Whole), DistanceAcrossRoomEdge.Apart(samus.Position.Y.Whole, place.Position.Y.Whole))).ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
+                TrigonometryAngle velocityAngle = EnemyMath.CalculateAimAngle(
+                    new(DistanceAcrossRoomEdge.Apart(samus.Position.X.Whole, place.Position.X.Whole), DistanceAcrossRoomEdge.Apart(samus.Position.Y.Whole, place.Position.Y.Whole))).TurnedBy(TrigonometryAngle.QuarterTurn);
                 state.Velocity = new(
                     EnemyMath.SineSpeed(RinkaLifeDefinitions.Speed, velocityAngle),
                     EnemyMath.SineSpeed(
@@ -198,13 +198,13 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case RinkaAction.Flying:
-                place.Position = place.Position.Advance(state.Velocity.ToSixteenSixteen());
+                place.Position = place.Position.Advance(state.Velocity.ToDisplacement());
                 if (RinkaIsOutsideFlightWindow(place))
                     RecycleRinkaAfterLeavingViewport(place, state);
                 return;
 
             case RinkaAction.DeathRespawnDelay:
-                if (state.DelayTimer.StepKeepsRunning())
+                if (state.RespawnDelay.StepKeepsRunning())
                     return;
                 place.Health = RinkaLifeDefinitions.RespawnHealth;
                 ReinitializeRinka(place, state);
@@ -239,7 +239,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Presence = place.Presence.With(EnemyPresence.Hidden);
         SpawnRinkaDustExplosion(place.Position.Whole);
         state.Action = RinkaAction.DeathRespawnDelay;
-        state.DelayTimer.LastFor(RinkaLifeDefinitions.RespawnDelayUpdates);
+        state.RespawnDelay.LastFor(RinkaLifeDefinitions.RespawnDelayUpdates);
     }
 
     /// <summary>

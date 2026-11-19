@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies;
@@ -33,7 +34,12 @@ internal static class DraygonStateQuantitiesVerification
     private static void VerifyAttachedGoopCountdown()
     {
         (RoomEnemySystem enemies, _) = NewDraygon();
-        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { SlowdownLevel = 1 };
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
+        {
+            SlowdownLevel = 1,
+            // Samus stands inside the arena, where the goop's stack above her stays in the room.
+            Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)),
+        };
         EnemyProjectile goop = AttachedGoop(enemies);
         var powerBomb = InstalledFixtures.CreateBombSystem().PowerBombExplosion;
         AssertEqual(256, DraygonArenaDefinitions.GoopAttachedLifetime, "the goop stays the 256 updates the game counted");
@@ -50,7 +56,7 @@ internal static class DraygonStateQuantitiesVerification
     /// <summary>Puts a blob of Draygon goop that has just stuck to Samus in the last projectile slot.</summary>
     private static EnemyProjectile AttachedGoop(RoomEnemySystem enemies)
     {
-        EnemyProjectile goop = enemies.Projectiles.EnemyProjectiles[^1];
+        EnemyProjectile goop = enemies.Projectiles.ProjectileInPlace(17);
         goop.Kind = RoomEnemyProjectileKind.DraygonGoop;
         goop.StartMotion(DraygonShotMotion.GoopStuckToSamus);
         goop.State = new DraygonGoopAttachedState(stackPosition: 1);

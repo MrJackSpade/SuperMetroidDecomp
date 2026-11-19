@@ -20,13 +20,13 @@ internal static class CrocomireBridgeCollapseDefinitions
     internal const int SinkingReachY = 16;
 
     /// <summary>Starting acceleration of every sink, each update (#2299).</summary>
-    internal static readonly SignedSixteenSixteen SinkStartingAcceleration = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(8);
+    internal static readonly SignedSixteenSixteen SinkStartingAcceleration = SignedSixteenSixteen.FromPixelFraction(1, 32);
 
     /// <summary>Acceleration the sink adds each update (#2299).</summary>
     internal static readonly SignedSixteenSixteen SinkAccelerationIncrement = SignedSixteenSixteen.FromPixelFraction(7, 512);
 
     /// <summary>The most the sink's acceleration grows to (#2299).</summary>
-    internal static readonly SignedSixteenSixteen MaximumSinkAcceleration = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(48);
+    internal static readonly SignedSixteenSixteen MaximumSinkAcceleration = SignedSixteenSixteen.FromPixelFraction(3, 16);
 
     /// <summary>
     /// The sink's fastest whole pixels an update, three (#2299): a speed past them keeps them and its own fraction
@@ -35,13 +35,13 @@ internal static class CrocomireBridgeCollapseDefinitions
     internal static readonly SignedEightEight MaximumSinkSpeed = SignedEightEight.FromPixels(3);
 
     /// <summary>The acceleration the rise adds each update (#2299).</summary>
-    internal static readonly SignedSixteenSixteen RiseAccelerationIncrement = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(1);
+    internal static readonly SignedSixteenSixteen RiseAccelerationIncrement = SignedSixteenSixteen.FromPixelFraction(1, 256);
 
     /// <summary>The most the rise's acceleration grows to (#2299).</summary>
-    internal static readonly SignedSixteenSixteen MaximumRiseAcceleration = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(31);
+    internal static readonly SignedSixteenSixteen MaximumRiseAcceleration = SignedSixteenSixteen.FromPixelFraction(31, 256);
 
     /// <summary>The speed a rise keeps when its deceleration would take it below zero: just short of a whole pixel per frame.</summary>
-    internal static readonly SignedEightEight RiseSpeedAfterStalling = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(255);
+    internal static readonly SignedEightEight RiseSpeedAfterStalling = SignedEightEight.FromPixelFraction(255, 256);
 
     /// <summary>How far below the top of Crocomire's view, in pixels, the row from which his sinking hides his body lies.</summary>
     internal const int SinkHiddenRowDepth = 288;

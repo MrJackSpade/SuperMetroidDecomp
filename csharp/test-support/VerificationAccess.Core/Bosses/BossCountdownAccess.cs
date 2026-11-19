@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses;
 namespace SuperMetroid.Core.Bosses;
 
 /// <summary>Verification access to the boss countdowns' waits, which production starts only with a duration.</summary>

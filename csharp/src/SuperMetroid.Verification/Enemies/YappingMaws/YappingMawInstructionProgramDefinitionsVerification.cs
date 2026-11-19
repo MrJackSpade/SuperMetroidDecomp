@@ -129,7 +129,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
             if (!attacks)
                 continue;
 
-            AssertEqual(default(Bearing), state.AimAngle, $"{context} aims straight along X");
+            AssertEqual(TrigonometryAngle.QuarterTurn, state.AimAngle, $"{context} aims straight along X");
             enemies.YappingMawBehavior.RunYappingMawMainAi(place, Frame(samus));
             AssertEqual(YappingMawAction.ExtendingOrRetracting, state.Action, $"{context} begins extending");
             AssertEqual(32, state.SegmentRadius, $"{context} radius is half the capped distance");
@@ -140,7 +140,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         {
             (_, RoomEnemyPlace place, YappingMawEnemyState state) = NewInitializedYappingMaw(301);
             state.DistanceToSamus = YappingMawAttackGeometry.MaximumTargetDistance;
-            state.AimAngle = new Bearing(checked((byte)aim));
+            state.AimAngle = AimAngleConstants.FromClockwiseSteps(aim);
             YappingMawBehavior.BeginYappingMawExtension(place, state);
             AssertEqual(RotationAngle.FromSteps(checked((byte)curl)), state.CurlAngle, $"Yapping Maw aim {aim} curl wraps around the turn");
             AssertEqual(mirrored, state.MirroredBend, $"Yapping Maw aim {aim} bend");
@@ -149,7 +149,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
 
         // Every aim falls in the sector it lies nearest: the aim turned on half a sector, around the turn, in eighths.
         for (int aim = 0; aim <= byte.MaxValue; aim++)
-            AssertEqual(YappingMawAnimationDefinitions.Aims.At(((aim + 16) & 255) / 32), YappingMawBehavior.AimOf(new Bearing(aim)), $"Yapping Maw aim {aim} sector");
+            AssertEqual(YappingMawAnimationDefinitions.Aims.At(((aim + 16) & 255) / 32), YappingMawBehavior.AimOf(AimAngleConstants.FromClockwiseSteps(aim)), $"Yapping Maw aim {aim} sector");
 
         static ClockedEnemyAiFrame Frame(SamusState samus) => new(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },

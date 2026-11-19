@@ -54,7 +54,7 @@ internal static class BossAndIntroOverreadDecoding
             {
                 if (frame == BossAndIntroOverreadSourceDefinitions.ShellFragmentFrameLimit)
                     throw new InvalidDataException($"Egg-shell fragment {fragment} is still airborne when its fall count wraps.");
-                y = GravityStep(cartridge, frame).AddTo(y.Whole, y.Fraction);
+                y = y.MovedBy(GravityStep(cartridge, frame));
                 frame++;
                 landed = CoordinateAxis.Difference(y.Whole, IntroEggMotionDefinitions.FragmentFloorY) >= 0;
             }
@@ -62,7 +62,7 @@ internal static class BossAndIntroOverreadDecoding
         }
         return [.. Enumerable.Range(IntroEggMotionDefinitions.FragmentCurveFrames, Math.Max(0, framesRead - IntroEggMotionDefinitions.FragmentCurveFrames))
             .Select(frame => GravityStep(cartridge, frame))
-            .Select(step => new BossAndIntroOverreadDocument.FallStep(step.WholePixels, step.Fraction))];
+            .Select(step => new BossAndIntroOverreadDocument.FallStep(step.Pixels))];
     }
 
     /// <summary>The gravity step a fragment falls by on <paramref name="frame"/>, read from the cartridge.</summary>

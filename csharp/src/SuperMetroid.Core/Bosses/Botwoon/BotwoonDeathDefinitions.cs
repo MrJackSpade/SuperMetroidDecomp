@@ -18,7 +18,7 @@ internal static class BotwoonDeathDefinitions
     /// How far along the quadratic speed curve the dying head and each falling body segment move each airborne update:
     /// three quarters of a mark.
     /// </summary>
-    internal static readonly QuadraticSpeedCurvePlace FallAcceleration = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(192);
+    internal static readonly QuadraticSpeedCurvePlace FallAcceleration = QuadraticSpeedCurvePlace.FromMarkFraction(3, 4);
 
     /// <summary>The updates the wall's explosions last before Botwoon is removed.</summary>
     internal const int WallExplosionDuration = 192;

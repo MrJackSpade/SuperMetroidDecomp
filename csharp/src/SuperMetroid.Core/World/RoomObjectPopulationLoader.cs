@@ -35,12 +35,11 @@ internal sealed class RoomObjectPopulationLoader
             try
             {
                 // A placement stands on a block of the grid, or, as the two shipped off-room coloured doors do, on a block
-                // of the terrain beyond the room (#2034); setups that require the grid's terrain validate when they
-                // consume the block.
+                // off it (#2034); setups that require the grid's terrain validate when they consume the block.
                 block = placement.Site switch
                 {
                     RoomObjectSite.RoomGrid => room.Level.GridBlock(placement.Block),
-                    RoomObjectSite.BeyondTheRoom => room.Level.BlockBeyondRoom(placement.Block),
+                    RoomObjectSite.OffTheRoom => room.Level.BlockOffTheGrid(placement.Block),
                     _ => throw new InvalidDataException($"Undefined {nameof(RoomObjectSite)} {placement.Site}."),
                 };
             }
@@ -56,6 +55,19 @@ internal sealed class RoomObjectPopulationLoader
             RoomObjectPlace? place = AllocateRoomPopulationPlace(block);
             if (place is null)
                 continue; // No room object spawns while all forty places are held.
+
+            if (placement.Site == RoomObjectSite.OffTheRoom)
+            {
+                // Nothing in the room reaches a coloured door off its grid: all it does is hold its place (#2572).
+                if (placement.Setup is not ColoredDoorSetup)
+                {
+                    throw new InvalidDataException(
+                        $"Room-object population {population.Name} placement {placementIndex} places {objectKind} off the room; " +
+                        "only a coloured door, whose place is all the room observes, is placed there.");
+                }
+                place.Become(new OffRoomDoorHeldPlaceObject());
+                continue;
+            }
 
             // The placement carries its family's setup, which runs with what the placement gave the object (#2091, #2288, #2383).
             placement.Setup.SetUp(new RoomObjectFamilySetups(new RoomObjectSetupContext

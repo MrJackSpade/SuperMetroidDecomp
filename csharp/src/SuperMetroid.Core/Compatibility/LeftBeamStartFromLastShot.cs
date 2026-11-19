@@ -1,0 +1,89 @@
+namespace SuperMetroid.Core.Compatibility;
+
+/// <summary>
+/// Where a beam fired to the left starts depends on the last shot that held its place (#1590, #2572). The beam first
+/// checks its muzzle a fraction of a pixel to its left, from the fraction of a pixel its projectile starts with, and that
+/// fraction is the one its shot place kept from the projectile holding it when Samus's shots were last cleared: when it is
+/// below the step, the beam starts one pixel further left, which moves its whole flight and the frame it reaches an enemy.
+/// Every other projectile either sets its fraction before reading it or never reads it.
+/// </summary>
+/// <remarks>
+/// <para>
+/// What a place hands on. When Samus's shots are cleared all at once (a room load, an elevator ride, the intro
+/// flashback's reset), each place keeps the sub-pixel position of the projectile holding it, and a place no projectile
+/// holds keeps what it was already keeping. The next projectile to take the place starts from what it kept, and the place
+/// then keeps nothing more: a projectile deleted from its place leaves zero. A projectile that takes over a place another
+/// projectile still holds (a special attack's particles, a crash echo, a beam fired with every place held) continues from that projectile's sub-pixel
+/// position, so a clear while it holds the place keeps the earlier projectile's fraction; the Super Missile's collision
+/// link alone starts from zero.
+/// </para>
+/// <para>
+/// Consulted when a projectile takes a place (<see cref="Start"/>), when Samus's shots are cleared (<see cref="Keep"/>),
+/// and across a room load, where the outgoing room's places leave what they keep (<see cref="HandOverTo"/>) and the next
+/// room's start from it before any shot is fired (<see cref="TakeOverFrom"/>). Lifetime: one room's shot pool, created with it by the room's builder
+/// (the room loader, or the opening cinematic for its flashbacks' shots) and handed to the pool.
+/// </para>
+/// <para>
+/// Evidence: the original fire routines write only the parts of a shot they set, the left muzzle check runs before
+/// the launch velocity clears the sub-pixel positions, deletion clears the sub-pixel position and the all-at-once
+/// clear does not; the 100% movie diverges in enemy damage at update 23200 without the carried fractions.
+/// </para>
+/// </remarks>
+[CompatibilityService("a beam fired to the left starts its muzzle check from the horizontal sub-pixel position its shot place kept from the projectile that held it when Samus's shots were last cleared")]
+public sealed class LeftBeamStartFromLastShot
+{
+    /// <summary>What each place keeps for its next projectile, in place order.</summary>
+    internal readonly PixelFraction[] kept;
+
+    /// <summary>Starts a pool of places that keep nothing.</summary>
+    /// <param name="placeCount">The number of shot places, at least one.</param>
+    public LeftBeamStartFromLastShot(int placeCount) =>
+        kept = new PixelFraction[Ensure.BetweenInclusive(1, int.MaxValue, placeCount)];
+
+    /// <summary>Each place keeps what the room this one replaces left in it (<see cref="RoomHandOver"/>).</summary>
+    /// <param name="handOver">What the room before left for this one.</param>
+    public void TakeOverFrom(RoomHandOver handOver)
+    {
+        Ensure.NotNull(handOver);
+        for (int place = 0; place < kept.Length; place++)
+            Keep(place, handOver.ShotHorizontalFraction(place));
+    }
+
+    /// <summary>
+    /// Leaves for the room that replaces this one what each place keeps as the room's load clears Samus's shots: the
+    /// fraction of the projectile holding it, or what it already keeps while none does.
+    /// </summary>
+    /// <param name="handOver">What this room leaves for the next.</param>
+    /// <param name="heldFractions">
+    /// The horizontal fraction of a pixel of the projectile holding each place, in place order; null for a place no
+    /// projectile holds.
+    /// </param>
+    public void HandOverTo(RoomHandOver handOver, IReadOnlyList<PixelFraction?> heldFractions)
+    {
+        Ensure.NotNull(handOver);
+        Ensure.NotNull(heldFractions);
+        if (heldFractions.Count != kept.Length)
+            throw new ArgumentException($"Samus has {kept.Length} shot places, not {heldFractions.Count}.", nameof(heldFractions));
+        handOver.LeaveShots(Enumerable.Range(0, kept.Length).Select(place => heldFractions[place] ?? kept[place]));
+    }
+
+
+    /// <summary>
+    /// <paramref name="place"/> keeps <paramref name="fraction"/> for its next projectile: Samus's shots are being cleared
+    /// while a projectile with that sub-pixel position holds it, or a room load hands the place's fraction on.
+    /// </summary>
+    /// <param name="place">The zero-based shot place.</param>
+    /// <param name="fraction">The horizontal fraction of a pixel the place keeps.</param>
+    public void Keep(int place, PixelFraction fraction) => kept[place] = fraction;
+
+    /// <summary>
+    /// A projectile takes <paramref name="place"/>: returns what the place kept for it, and the place keeps nothing more.
+    /// </summary>
+    /// <param name="place">The zero-based shot place.</param>
+    public PixelFraction Start(int place)
+    {
+        PixelFraction fraction = kept[place];
+        kept[place] = PixelFraction.None;
+        return fraction;
+    }
+}

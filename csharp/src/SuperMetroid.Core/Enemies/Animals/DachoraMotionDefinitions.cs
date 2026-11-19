@@ -13,22 +13,22 @@ internal static class DachoraMotionDefinitions
     internal const int ActivationYDistance = 64;
 
     /// <summary>The run's speed cap: eight pixels per update.</summary>
-    internal static readonly SignedSixteenSixteen MaximumSpeed = SignedSixteenSixteen.FromParts(8, 0);
+    internal static readonly SignedSixteenSixteen MaximumSpeed = SignedSixteenSixteen.FromWholePixels(8);
 
     /// <summary>The run's acceleration: a sixteenth of a pixel per update, every update.</summary>
-    internal static readonly SignedSixteenSixteen Acceleration = SignedSixteenSixteen.FromParts(0, 4096);
+    internal static readonly SignedSixteenSixteen Acceleration = SignedSixteenSixteen.FromPixelFraction(1, 16);
 
     /// <summary>
     /// The run speed at which the run's animation changes to its fast clone: four pixels per update. At
     /// <see cref="MaximumSpeed"/> it changes to the very fast clone.
     /// </summary>
-    internal static readonly SignedSixteenSixteen FastRunSpeed = SignedSixteenSixteen.FromParts(4, 0);
+    internal static readonly SignedSixteenSixteen FastRunSpeed = SignedSixteenSixteen.FromWholePixels(4);
 
     /// <summary>The shinespark's upward speed cap in whole pixels per update; the fraction is kept.</summary>
     internal const int ShinesparkMaximumWholeSpeed = 15;
 
     /// <summary>The fall's speed cap: ten pixels per update.</summary>
-    internal static readonly SignedSixteenSixteen MaximumFallSpeed = SignedSixteenSixteen.FromParts(10, 0);
+    internal static readonly SignedSixteenSixteen MaximumFallSpeed = SignedSixteenSixteen.FromWholePixels(10);
 
     /// <summary>The room column at which the tutorial Dachora's leftward run turns back to the right.</summary>
     internal const int LeftTurnX = 96;

@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Compatibility;
 public static class BullBackwardStep
 {
     /// <summary>The finest distance a position tells apart: one 65536th of a pixel.</summary>
-    private static readonly SignedSixteenSixteen FinestDistance = SignedSixteenSixteen.FromParts(0, 1);
+    private static readonly SignedSixteenSixteen FinestDistance = SignedSixteenSixteen.FromPixelFraction(1, 65536);
 
     /// <summary>The step up or left for a step down or right of <paramref name="forward"/>, zero or more.</summary>
     public static SignedSixteenSixteen Of(SignedSixteenSixteen forward)

@@ -6,16 +6,23 @@ namespace SuperMetroid.Core.Enemies.Boyon;
 public static class BoyonSpeedDefinitions
 {
     /// <summary>
-    /// The curve's rising samples from its top (#2369): at place k the sum of zero through k, k(k+1)/2, for the first 23
-    /// places, ending at 253.
+    /// The curve's rising speeds from its top (#2369, #2555), before the Boyon's multiplier scales them: at place k the sum
+    /// of zero through k, k(k+1)/2, of the finest steps a speed takes, a 256th of a pixel an update each, for the first 23
+    /// places, ending just short of a pixel.
     /// </summary>
-    public static ImmutableArray<int> RisingSamples { get; } =
-        [0, 1, 3, 6, 10, 15, 21, 28, 36, 45, 55, 66, 78, 91, 105, 120, 136, 153, 171, 190, 210, 231, 253];
+    public static ImmutableArray<UnsignedSixteenSixteen> RisingSamples { get; } =
+    [
+        UnsignedSixteenSixteen.Zero, UnsignedSixteenSixteen.FromPixelFraction(1, 256), UnsignedSixteenSixteen.FromPixelFraction(3, 256), UnsignedSixteenSixteen.FromPixelFraction(3, 128),
+        UnsignedSixteenSixteen.FromPixelFraction(5, 128), UnsignedSixteenSixteen.FromPixelFraction(15, 256), UnsignedSixteenSixteen.FromPixelFraction(21, 256), UnsignedSixteenSixteen.FromPixelFraction(7, 64),
+        UnsignedSixteenSixteen.FromPixelFraction(9, 64), UnsignedSixteenSixteen.FromPixelFraction(45, 256), UnsignedSixteenSixteen.FromPixelFraction(55, 256), UnsignedSixteenSixteen.FromPixelFraction(33, 128),
+        UnsignedSixteenSixteen.FromPixelFraction(39, 128), UnsignedSixteenSixteen.FromPixelFraction(91, 256), UnsignedSixteenSixteen.FromPixelFraction(105, 256), UnsignedSixteenSixteen.FromPixelFraction(15, 32),
+        UnsignedSixteenSixteen.FromPixelFraction(17, 32), UnsignedSixteenSixteen.FromPixelFraction(153, 256), UnsignedSixteenSixteen.FromPixelFraction(171, 256), UnsignedSixteenSixteen.FromPixelFraction(95, 128),
+        UnsignedSixteenSixteen.FromPixelFraction(105, 128), UnsignedSixteenSixteen.FromPixelFraction(231, 256), UnsignedSixteenSixteen.FromPixelFraction(253, 256)];
 
     /// <summary>
-    /// The sample at every place past the <see cref="RisingSamples"/>: the curve's saturated height, which the game
-    /// substitutes from the twenty-fourth place down.
+    /// The speed at every place past the <see cref="RisingSamples"/>: the curve's saturated height, which the game
+    /// substitutes from the twenty-fourth place down: one 256th short of a pixel an update.
     /// </summary>
-    public const int SaturatedSample = 255;
+    public static UnsignedSixteenSixteen SaturatedSample { get; } = UnsignedSixteenSixteen.FromPixelFraction(255, 256);
 
 }

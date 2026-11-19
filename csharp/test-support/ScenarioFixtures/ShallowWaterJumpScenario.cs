@@ -40,7 +40,7 @@ internal sealed class ShallowWaterJumpScenario
         samus.Control.Unlock();
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(104, 427));
-        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0xffff);
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(PixelFraction.Last);
         samus.EquippedItems = 0;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);

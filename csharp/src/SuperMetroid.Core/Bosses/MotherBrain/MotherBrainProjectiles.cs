@@ -354,7 +354,7 @@ internal sealed class MotherBrainProjectiles
             fragment.Velocity = fragment.Velocity.WithX(fragment.Velocity.X.SlowedBy(MotherBrainDeathDefinitions.DoorFragmentDrag));
             // A fragment falls for its lifetime at most, so its gravity adds at most a few pixels an update.
             fragment.Velocity = fragment.Velocity.WithY(fragment.Velocity.Y + MotherBrainDeathDefinitions.DoorFragmentGravity);
-            fragment.Position = fragment.Position.Advance(fragment.Velocity.ToSixteenSixteen());
+            fragment.Position = fragment.Position.Advance(fragment.Velocity.ToDisplacement());
             // The fragment turns to dust as its lifetime runs out.
             MotherBrainDoorFragmentState fragmentState = fragment.StateOf<MotherBrainDoorFragmentState>();
             if (fragmentState.Lifetime.StepKeepsRunning()) return;
@@ -389,7 +389,7 @@ internal sealed class MotherBrainProjectiles
         /// <summary>Moves the glass shard.</summary>
         private void MoveMotherBrainGlassShard(EnemyProjectile shard)
         {
-            shard.Position = shard.Position.Advance(shard.Velocity.ToSixteenSixteen());
+            shard.Position = shard.Position.Advance(shard.Velocity.ToDisplacement());
 
             // A shard is deleted as soon as it falls out of the room's top screen, rather than by camera visibility; X may
             // freely leave the viewport. It flies at most sixty-four pixels above its emitter, far below the room's top.
@@ -450,7 +450,7 @@ internal sealed class MotherBrainProjectiles
             beam.Position = state.HandBeamNextPosition;
             beam.Velocity = state.HandBeamNextVelocity;
 
-            beam.Position = beam.Position.Advance(beam.Velocity.ToSixteenSixteen());
+            beam.Position = beam.Position.Advance(beam.Velocity.ToDisplacement());
             state.HandBeamNextPosition = beam.Position;
 
             int angleRandom = dependencies.Room.Random.Generate();
@@ -461,7 +461,7 @@ internal sealed class MotherBrainProjectiles
             beam.Velocity = beam.Velocity.WithY(EnemyMath.SineSpeed(
                 scatterSpeed,
                 scatterAngle.TurnedBy(TrigonometryAngle.QuarterTurn)));
-            beam.Position = beam.Position.Advance(beam.Velocity.ToSixteenSixteen());
+            beam.Position = beam.Position.Advance(beam.Velocity.ToDisplacement());
 
             if (IsMotherBrainHandBeamOutsideArena(beam))
             {
@@ -475,7 +475,7 @@ internal sealed class MotherBrainProjectiles
                 return;
             }
 
-            beam.Velocity = EightEightVector<RoomPixels>.Zero;
+            beam.Velocity = PixelVelocity<RoomPixels>.Zero;
             beam.State = new MotherBrainProjectileState(state);
             beam.StartAnimation(new MotherBrainHandBeamAnimation());
         }
@@ -489,7 +489,7 @@ internal sealed class MotherBrainProjectiles
             Offset16<RoomPixels> mouth = droolState.MouthPoint;
 
             drool.Position = drool.Position.WithWhole(head.Position.Whole + mouth);
-            drool.Velocity = EightEightVector<RoomPixels>.Zero;
+            drool.Velocity = PixelVelocity<RoomPixels>.Zero;
         }
 
         /// <summary>
@@ -510,11 +510,11 @@ internal sealed class MotherBrainProjectiles
                 return;
             }
 
-            ring.Position = ring.Position.Advance(ring.Velocity.ToSixteenSixteen());
+            ring.Position = ring.Position.Advance(ring.Velocity.ToDisplacement());
 
             // The rings meet the Baby once her late fight's final beam has given it its place in the room, until it deletes
             // itself.
-            if (state.RainbowBeamSequence is { Baby: { Place: { } babyPlace, IsDeleted: false } baby })
+            if (state.RainbowBeamSequence is { Baby: { Place: not null, IsDeleted: false } baby })
             {
                 // The ring deletes every later ring as soon as the still-registered Baby
                 // reaches zero health, without an explosion.
@@ -527,9 +527,8 @@ internal sealed class MotherBrainProjectiles
                 if (MotherBrainOnionRingOverlapsBaby(ring, baby))
                 {
                     state.PendingBabyCryCount++;
+                    // The ring lowers the health the Baby's place holds on this projectile pass.
                     baby.ApplyMotherBrainOnionRingHit(MotherBrainAttackDamage.OnionRing);
-                    // The ring sets the Baby's health on this projectile pass, not on the Baby's next turn.
-                    babyPlace.Health = baby.Health;
                     ExplodeMotherBrainOnionRing(ring, ring.Position.Whole);
                     return;
                 }
@@ -665,7 +664,7 @@ internal sealed class MotherBrainProjectiles
         // Every floor bounce restarts the fall at two pixels an update upward, and between bounces the bomb falls back no
         // further than from the height its launch reaches to its floor, so the speed stays within a few pixels an update.
         bomb.Velocity = bomb.Velocity.WithY(bomb.Velocity.Y + acceleration);
-        bomb.Position = bomb.Position.Advance(bomb.Velocity.ToSixteenSixteen());
+        bomb.Position = bomb.Position.Advance(bomb.Velocity.ToDisplacement());
 
         // A bomb bounces between her and the right wall, well inside the room. X reflects without clamping; the floor
         // clamps Y to its height and resets the two authored bounce velocities.
@@ -686,7 +685,7 @@ internal sealed class MotherBrainProjectiles
         MotherBrainEnemyState state)
     {
         state.RecordBombRemoved();
-        bomb.Velocity = EightEightVector<RoomPixels>.Zero;
+        bomb.Velocity = PixelVelocity<RoomPixels>.Zero;
         bomb.Delete();
     }
 
@@ -704,7 +703,7 @@ internal sealed class MotherBrainProjectiles
     /// <summary>Keeps the escape subtitle projectile fixed to its screen position.</summary>
     internal static void PinMotherBrainEscapeSubtitle(EnemyProjectile subtitle)
     {
-        subtitle.Velocity = EightEightVector<RoomPixels>.Zero;
+        subtitle.Velocity = PixelVelocity<RoomPixels>.Zero;
         subtitle.Position = subtitle.Position.WithWhole(new(MotherBrainDeathDefinitions.SubtitleX, MotherBrainDeathDefinitions.SubtitleY));
     }
 
@@ -849,7 +848,7 @@ internal sealed class MotherBrainProjectiles
     {
         // The bullet blocks Samus's shots on every other update, switching before her shots meet it.
         bullet.BlocksSamusProjectiles = !bullet.BlocksSamusProjectiles;
-        bullet.Position = bullet.Position.Advance(bullet.Velocity.ToSixteenSixteen());
+        bullet.Position = bullet.Position.Advance(bullet.Velocity.ToDisplacement());
 
         if (EnemyProjectileEngine.NonAirBlockAt(level, bullet.Position.Whole))
             bullet.Delete();

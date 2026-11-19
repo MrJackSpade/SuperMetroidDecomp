@@ -40,14 +40,14 @@ internal static class KraidRandomDefinitions
     /// <summary>The fewest walk steps Fake Kraid takes between one spit and the next: three.</summary>
     internal const int FakeKraidSpitDecisionBase = 3;
 
-    /// <summary>
-    /// The random part of a falling ceiling rock's speed in Kraid's room added to <see cref="CeilingRockSlowestFall"/>: 0
-    /// through 63, in 256ths of a pixel an update.
-    /// </summary>
-    internal static readonly RandomSampleField CeilingRockFallSpeedSpread = new(0, 6);
-
     /// <summary>The slowest a ceiling rock falls in Kraid's room: a quarter pixel an update.</summary>
-    internal static readonly SignedEightEight CeilingRockSlowestFall = SignedEightEight.FromSixteenthsOfPixel(4);
+    internal static readonly SignedEightEight CeilingRockSlowestFall = SignedEightEight.FromPixelFraction(1, 4);
+
+    /// <summary>
+    /// A falling ceiling rock's speed in Kraid's room: <see cref="CeilingRockSlowestFall"/>, raised by up to sixty-three of
+    /// the finest steps a speed takes, a 256th of a pixel an update each.
+    /// </summary>
+    internal static readonly RandomSpeed CeilingRockFallSpeed = new(new(0, 6), CeilingRockSlowestFall, SignedEightEight.FromPixelFraction(1, 256));
 
     /// <summary>
     /// Kraid's thinking delay in steps of <see cref="KraidArenaDefinitions.ThinkingDelayStepUpdates"/>, chosen from eight rolls (#2510): a roll of one through seven takes that
@@ -90,7 +90,8 @@ internal static class KraidRandomDefinitions
     internal const int RisingRockLeftExtraPixels = 1;
 
     /// <summary>
-    /// A rising rock's horizontal speed in sixteenths of a pixel an update, 0 through 63.
+    /// A rising rock's horizontal speed: from none up to three pixels and fifteen sixteenths an update, a sixteenth of a
+    /// pixel apart.
     /// </summary>
-    internal static readonly RandomSampleField RisingRockXSpeedSixteenths = new(4, 6);
+    internal static readonly RandomSpeed RisingRockXSpeed = new(new(4, 6), SignedEightEight.Zero, SignedEightEight.FromPixelFraction(1, 16));
 }

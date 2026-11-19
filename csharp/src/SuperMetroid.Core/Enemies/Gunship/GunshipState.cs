@@ -49,14 +49,14 @@ internal sealed class GunshipState
 
     /// <summary>
     /// One update of the escape's acceleration: the speed grows by <see cref="GunshipMotionDefinitions.EscapeAcceleration"/>,
-    /// and an update whose speed's whole pixels reach <see cref="GunshipMotionDefinitions.EscapeVelocityCapTriggerPixels"/>
+    /// and an update whose speed reaches <see cref="GunshipMotionDefinitions.EscapeVelocityCapTrigger"/>
     /// sets it back to <see cref="GunshipMotionDefinitions.EscapeVelocityCap"/>, so once it first gets there the speed
     /// saws between nine pixels an update and nine and three quarters.
     /// </summary>
     internal void AccelerateEscape()
     {
         EscapeVelocity += GunshipMotionDefinitions.EscapeAcceleration;
-        if (EscapeVelocity.WholePixels >= GunshipMotionDefinitions.EscapeVelocityCapTriggerPixels)
+        if (EscapeVelocity >= GunshipMotionDefinitions.EscapeVelocityCapTrigger)
             EscapeVelocity = GunshipMotionDefinitions.EscapeVelocityCap;
     }
 

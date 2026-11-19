@@ -72,10 +72,10 @@ internal static class GrappleConnectionDefinitions
     /// </summary>
     internal static readonly SpecialConnection[] AuthoredStops =
     [
-        new(RotationAngle.FromSteps(214, 128), GrappleCrouchingDownRightPose, new(-30, -24), GrappleConnectionKind.LockedInPlace),
-        new(RotationAngle.FromSteps(179, 128), GrappleCrouchingDownRightPose, new(-28, -8), GrappleConnectionKind.LockedInPlace),
-        new(RotationAngle.FromSteps(106, 128), GrappleWallContactRightPose, new(24, 16), GrappleConnectionKind.WallGrab),
-        new(RotationAngle.FromSteps(115, 128), GrappleWallContactLeftPose, new(-8, 16), GrappleConnectionKind.WallGrab),
+        new(RotationAngle.FromStepFraction(429, 2), GrappleCrouchingDownRightPose, new(-30, -24), GrappleConnectionKind.LockedInPlace),
+        new(RotationAngle.FromStepFraction(359, 2), GrappleCrouchingDownRightPose, new(-28, -8), GrappleConnectionKind.LockedInPlace),
+        new(RotationAngle.FromStepFraction(213, 2), GrappleWallContactRightPose, new(24, 16), GrappleConnectionKind.WallGrab),
+        new(RotationAngle.FromStepFraction(231, 2), GrappleWallContactLeftPose, new(-8, 16), GrappleConnectionKind.WallGrab),
     ];
 
     /// <summary>One rope angle at which the swing stops, with the pose and place Samus stops in.</summary>

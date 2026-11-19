@@ -130,10 +130,10 @@ public sealed class SamusShinesparkState
     public RotationAngle SecondCrashEchoAngle { get; private set; }
 
     /// <summary>
-    /// The steps of a 256-step turn both orbiting copies turn by on each orbiting update: four while Samus faces left and
-    /// minus four otherwise, set at crash entry.
+    /// The turn both orbiting copies take on each orbiting update: toward increasing angles while Samus faces left and
+    /// toward decreasing ones otherwise, set at crash entry.
     /// </summary>
-    private int _crashOrbitTurn;
+    private TurnStep _crashOrbitTurn;
 
     /// <summary>Where the first orbiting copy is shown while the crash runs.</summary>
     public Position16<RoomPixels> FirstOrbitingCopy { get; private set; }
@@ -171,7 +171,7 @@ public sealed class SamusShinesparkState
         SecondReleasedEcho.Forget();
         _orbitTravel.Clear();
         FirstCrashEchoAngle = SecondCrashEchoAngle = RotationAngle.Zero;
-        _crashOrbitTurn = 0;
+        _crashOrbitTurn = TurnStep.None;
         FirstOrbitingCopy = SecondOrbitingCopy = Position16<RoomPixels>.Zero;
         CrashOrbitStage = ShinesparkCrashOrbitStage.Expanding;
         CrashRadius = 0;
@@ -437,7 +437,7 @@ public sealed class SamusShinesparkState
             : ShinesparkEchoDefinitions.CrashOrbitStartFacingRight;
         FirstCrashEchoAngle = orbitStart.First;
         SecondCrashEchoAngle = orbitStart.Second;
-        _crashOrbitTurn = facingLeft ? ShinesparkDefinitions.CrashOrbitTurnSteps : -ShinesparkDefinitions.CrashOrbitTurnSteps;
+        _crashOrbitTurn = new(ShinesparkDefinitions.CrashOrbitTurn, facingLeft ? RotationDirection.Counterclockwise : RotationDirection.Clockwise);
         CrashOrbitStage = ShinesparkCrashOrbitStage.Expanding;
         CrashRadius = 0;
         samus.HorizontalSpeed.ClearSpeedEchoes();
@@ -467,8 +467,8 @@ public sealed class SamusShinesparkState
             }
 
             case ShinesparkCrashOrbitStage.Orbiting:
-                FirstCrashEchoAngle = FirstCrashEchoAngle.TurnedBySteps(_crashOrbitTurn);
-                SecondCrashEchoAngle = SecondCrashEchoAngle.TurnedBySteps(_crashOrbitTurn);
+                FirstCrashEchoAngle = _crashOrbitTurn.Turn(FirstCrashEchoAngle);
+                SecondCrashEchoAngle = _crashOrbitTurn.Turn(SecondCrashEchoAngle);
                 if (_orbitTravel.Advance())
                     CrashOrbitStage = ShinesparkCrashOrbitStage.Contracting;
                 break;
@@ -660,9 +660,9 @@ public sealed class SamusShinesparkState
     {
         ShineTimer = UpdateCountdown.For(ShinesparkDefinitions.SparkShadeFrames);
         samus.HorizontalSpeed.ExtraRunSpeed += samus.Kinematics.YAcceleration;
-        if (samus.HorizontalSpeed.ExtraRunSpeed.Whole >= ShinesparkDefinitions.MostRunSpeed)
+        if (!samus.HorizontalSpeed.ExtraRunSpeed.IsSlowerThan(ShinesparkDefinitions.MostRunSpeed))
         {
-            samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(ShinesparkDefinitions.MostRunSpeed, 0);
+            samus.HorizontalSpeed.ExtraRunSpeed = ShinesparkDefinitions.MostRunSpeed;
         }
 
         var displacement = SamusHorizontalDisplacement.Toward(SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left), samus, baseSpeed: default);
@@ -682,9 +682,7 @@ public sealed class SamusShinesparkState
 
         // The clamp operates on a temporary displacement, not stored velocity.
         // Keep accumulating the speed even after movement reaches its cap.
-        UnsignedSixteenSixteen displacementSpeed = samus.Kinematics.YSpeed.Whole >= ShinesparkDefinitions.MostRiseStep
-            ? samus.Kinematics.YSpeed.WithWhole(ShinesparkDefinitions.MostRiseStep)
-            : samus.Kinematics.YSpeed;
+        UnsignedSixteenSixteen displacementSpeed = samus.Kinematics.YSpeed.WithWholePixelsAtMost(ShinesparkDefinitions.MostRiseStep);
         SignedSixteenSixteen upwardDisplacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
             samus.Kinematics,
             -displacementSpeed.AsDisplacement());
@@ -692,12 +690,8 @@ public sealed class SamusShinesparkState
         // A rise meets the room's blocks over at most 15 whole pixels, keeping its fraction. A move that outside
         // forces reverse downward is not capped. The spark's speed never passes fourteen pixels, so every rise is
         // far short of a distance the cap could misjudge.
-        SignedSixteenSixteen collisionMagnitude = -upwardDisplacement;
-        if (collisionMagnitude.WholePixels >= ShinesparkDefinitions.MostRiseCollisionStep)
-        {
-            collisionMagnitude = SignedSixteenSixteen.FromParts(ShinesparkDefinitions.MostRiseCollisionStep, collisionMagnitude.Fraction);
-            upwardDisplacement = -collisionMagnitude;
-        }
+        SignedSixteenSixteen collisionMagnitude = (-upwardDisplacement).WithWholePixelsAtMost(ShinesparkDefinitions.MostRiseCollisionStep);
+        upwardDisplacement = -collisionMagnitude;
         // A spark striking a solid enemy collides without moving up the distance to it, unlike an ordinary upward move,
         // which reaches the enemy's edge; where the spark crashes and recovers depends on it.
         SolidEnemyCollisionResult enemy = SamusSolidEnemyCollision.Probe(

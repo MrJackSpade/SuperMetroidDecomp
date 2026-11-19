@@ -30,7 +30,7 @@ internal static class PhantoonPathVerification
         for (int index = 0; index < 534; index++)
         {
             figureEight.PathPlace = PhantoonPath.At(index);
-            figureEight.Speed = SignedSixteenSixteen.FromParts(reverse ? -speed : speed, 0x8000);
+            figureEight.Speed = new PhantoonPathSpeed(SignedSixteenSixteen.FromParts(reverse ? -speed : speed, 0x8000));
             figureEight.Stage = PhantoonFigureEightStage.Surging;
             body.Position = new(new(origin, 0x1234), new(origin, 0x5678));
             figureEight.Direction = reverse ? PhantoonPathDirection.Backwards : PhantoonPathDirection.Forwards;

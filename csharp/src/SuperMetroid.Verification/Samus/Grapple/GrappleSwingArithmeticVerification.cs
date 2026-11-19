@@ -126,7 +126,7 @@ internal static class GrappleSwingArithmeticVerification
         };
         foreach ((SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection direction, (int X, int Y) expected) in launches)
         {
-            AssertEqual(EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(expected.X, expected.Y), GrappleFiring.Launch(direction).Velocity,
+            AssertEqual(new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(expected.X), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(expected.Y)), GrappleFiring.Launch(direction).Velocity,
                 $"grapple launch velocity toward {direction}");
             cases++;
         }

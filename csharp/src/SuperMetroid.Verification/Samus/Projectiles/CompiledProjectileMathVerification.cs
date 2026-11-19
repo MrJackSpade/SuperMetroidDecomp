@@ -27,17 +27,17 @@ internal static class CompiledProjectileMathVerification
             native[i] = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         }
         var enemy = new Func<ushort, byte, int>((speed, angle) => EnemyMath.SineSpeed(new SignedEightEight(speed), new TrigonometryAngle(angle)).RawValue);
-        var baby = new Func<ushort, byte, int>((babySpeed, babyAngle) => Trigonometry.MultiplySignedSine(new SignedEightEight(babySpeed), new TrigonometryAngle(babyAngle)).RawValue);
+        var baby = new Func<ushort, byte, int>((babySpeed, babyAngle) => SpeedAlongAngle.Along(new SignedEightEight(babySpeed), new TrigonometryAngle(babyAngle)).RawValue);
         var rainbow = new Func<ushort, RotationAngle, int>((rainbowSpeed, rainbowAngle) => MotherBrainRainbowBeamSamusMovement.CalculateYVelocity(new SignedEightEight(rainbowSpeed), rainbowAngle).RawValue);
-        var flyCircle = new Func<TrigonometryAngle, EightEightVector<RoomPixels>>(FliesBehavior.CircleStep);
-        var flyDive = new Func<TrigonometryAngle, EightEightVector<RoomPixels>>(FliesBehavior.DiveVelocity);
+        var flyCircle = new Func<TrigonometryAngle, PixelVelocity<RoomPixels>>(FliesBehavior.CircleStep);
+        var flyDive = new Func<TrigonometryAngle, PixelVelocity<RoomPixels>>(FliesBehavior.DiveVelocity);
         var eye = new Func<byte, int>(angle => EyeDoorBehavior.ReadEyeDoorAcceleration(new TrigonometryAngle(angle)).InTwoHundredFiftySixthsOfPixel);
         var rio = new Func<byte, int>(angle => RioBehavior.HoverVelocity(new TrigonometryAngle(angle)).RawValue);
         // The native view's index runs a quarter turn ahead of the angle it holds: its first 64 words are the negative cosine.
         var shaktool = new Func<int, int>(index => ShaktoolBehavior.SineVelocity(TrigonometryAngle.Wrapped(index - 64)).RawValue);
         var phantoon = new Func<ushort, ushort, int>((angle, radius) => PhantoonCombat.ReadPhantoonFlameComponent(new TrigonometryAngle(unchecked((byte)angle)), radius));
         var arc = new Action<EnemyProjectile, int>(NoobTubeBehavior.MoveNoobTubeProjectileHorizontallyAlongArc);
-        var crocomire = new Func<byte, EightEightVector<RoomPixels>>(bearing => CrocomireCombat.CalculateCrocomireProjectileVelocity(new Bearing(bearing)));
+        var crocomire = new Func<byte, PixelVelocity<RoomPixels>>(bearing => CrocomireCombat.CalculateCrocomireProjectileVelocity(AimAngleConstants.FromClockwiseSteps(bearing)));
         var echo = new Func<RotationAngle, int, Offset16<RoomPixels>>(SamusShinesparkState.OffsetAlong);
 
         // Every angle high byte (with zero, mid and saturated fractions, which the reader
@@ -67,20 +67,20 @@ internal static class CompiledProjectileMathVerification
             // Subtract a quarter-turn so the rainbow wrapper's explicit cosine
             // offset should select the same sample. Poison the fractional byte.
             var cosineAngle = RotationAngle.FromSteps(unchecked((byte)(angle - 64))).AddRaw(255);
-            if (Trigonometry.MultiplySignedSine(new SignedEightEight(speed), new TrigonometryAngle((byte)angle)).RawValue != expected ||
+            if (SuperMetroid.Core.Compatibility.SpeedAlongAngle.Along(new SignedEightEight(speed), new TrigonometryAngle((byte)angle)).RawValue != expected ||
                 enemy((ushort)speed, (byte)angle) != expected || baby((ushort)speed, (byte)angle) != expected ||
                 rainbow((ushort)speed, cosineAngle) != expected)
                 throw new InvalidDataException($"Signed projectile product differs: angle={angle}, speed={speed}.");
         }
-        // The fly's circle step and dive read the native view at the angle a quarter turn ahead across and at the angle
-        // itself down (the negative cosine), the dive doubling and quadrupling the samples; the eye shot takes a
-        // sixteenth of the sample, shifted toward negative infinity.
+        // The fly's circle step (at a table angle) and dive (at the aim of a clockwise-from-up word) read the native view
+        // at the angle a quarter turn ahead across and at the angle itself down (the negative cosine), the dive doubling
+        // and quadrupling the samples; the eye shot takes a sixteenth of the sample, shifted toward negative infinity.
         for (int angle = 0; angle < 256; angle++)
         {
             var tableAngle = new TrigonometryAngle(angle);
-            AssertEqual(EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(native[angle + 64], native[angle]), flyCircle(tableAngle),
+            AssertEqual(new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(native[angle + 64]), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(native[angle])), flyCircle(tableAngle),
                 "fly circle step: sine across, negative cosine down");
-            AssertEqual(EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(native[angle + 64] * 2, native[angle] * 4), flyDive(tableAngle),
+            AssertEqual(new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(native[angle + 64] * 2), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(native[angle] * 4)), flyDive(AimAngleConstants.FromClockwiseSteps(angle)),
                 "fly dive: doubled sine across, quadrupled negative cosine down");
             AssertEqual((short)(native[angle + 64] >> 4), eye((byte)angle), "eye arithmetic shift");
         }
@@ -90,8 +90,7 @@ internal static class CompiledProjectileMathVerification
         }
         for (int angle = 0; angle < 256; angle++)
         {
-            AssertEqual(EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(unchecked((short)(native[angle + 64] << 2)),
-                    unchecked((short)(native[angle] << 2))), crocomire((byte)angle),
+            AssertEqual(new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(unchecked((short)(native[angle + 64] << 2))), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(unchecked((short)(native[angle] << 2)))), crocomire((byte)angle),
                 "Crocomire projectile signed X/Y shifts and negative-cosine origin");
             AssertEqual(unchecked((ushort)native[angle + 64]), rio((byte)angle), "Rio signed word bits");
             for (int radius = 0; radius < 256; radius++)
@@ -118,11 +117,11 @@ internal static class CompiledProjectileMathVerification
             short velocity = (short)(native[sampleIndex] >> 2);
             uint expected = unchecked(initial + (uint)(velocity * 256));
             var debris = new NoobTubeDebrisState(column: 0) { X = SixteenSixteenWords.ToCoordinate(initial) };
-            debris.StartSway(phase);
+            debris.StartSway(RotationAngle.FromHalfSteps(phase));
             projectile.State = debris;
             arc(projectile, swaySteps);
             var after = new NoobTubeDebrisState(column: 0);
-            after.StartSway((phase + 2 * swaySteps) % 512);
+            after.StartSway(RotationAngle.FromHalfSteps((phase + 2 * swaySteps) % 512));
             if (debris.X.Whole != SixteenSixteenWords.WholeOf(expected) || debris.X.Fraction != SixteenSixteenWords.FractionOf(expected) ||
                 debris.Sway != after.Sway)
                 throw new InvalidDataException($"N00b tube arc differs: phase={phase}, steps={swaySteps}, initial={initial:X8}.");

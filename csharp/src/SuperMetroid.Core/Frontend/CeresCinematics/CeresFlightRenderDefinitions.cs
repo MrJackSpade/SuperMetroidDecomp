@@ -10,7 +10,7 @@ internal static class CeresFlightRenderDefinitions
     internal static FloorZoom FrontInitialZoom { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(2);
 
     /// <summary>The front approach keeps narrowing its zoom while it is at least this: an eighth of a floor pixel per screen pixel.</summary>
-    internal static FloorZoom FrontNarrowingFloor { get; } = FloorZoom.FromTwoHundredFiftySixths(32);
+    internal static FloorZoom FrontNarrowingFloor { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(1, 8);
 
     /// <summary>The rear view widens its zoom by the slow step while below this: twelve floor pixels per screen pixel.</summary>
     internal static FloorZoom RearSlowWideningLimit { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(12);
@@ -19,11 +19,11 @@ internal static class CeresFlightRenderDefinitions
     internal static FloorZoom RearFastWideningLimit { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(32);
 
     /// <summary>The front approach's narrowing and the rear view's slow widening each update.</summary>
-    internal static FloorZoomStep SlowZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(16);
+    internal static FloorZoomStep SlowZoomStep { get; } = FloorZoomStep.FromFloorPixelsPerScreenPixel(1, 16);
 
     /// <summary>How far the rear view's floor drifts left each update: an eighth of a pixel.</summary>
-    internal static SignedSixteenSixteen RearViewDrift { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(2);
+    internal static SignedSixteenSixteen RearViewDrift { get; } = SignedSixteenSixteen.FromPixelFraction(1, 8);
 
     /// <summary>The rear view's fast widening each update.</summary>
-    internal static FloorZoomStep FastZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(32);
+    internal static FloorZoomStep FastZoomStep { get; } = FloorZoomStep.FromFloorPixelsPerScreenPixel(1, 8);
 }

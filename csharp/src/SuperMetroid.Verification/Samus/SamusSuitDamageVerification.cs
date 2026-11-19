@@ -105,7 +105,7 @@ internal static class SamusSuitDamageVerification
                     expectedWhole = EightEightOracle.WholeOf(overlapping);
                 }
 
-                UnsignedSixteenSixteen actual = SamusSuitDamage.ReducePeriodic(new UnsignedSixteenSixteen(whole, fraction), suits);
+                EnergyAmount actual = SamusSuitDamage.ReducePeriodic(EnergyAmount.FromStoredParts(whole, fraction), suits);
                 if (actual.Whole == expectedWhole && actual.Fraction == expectedFraction)
                     continue;
                 caseMismatches++;
@@ -119,9 +119,9 @@ internal static class SamusSuitDamageVerification
         AssertEqual(0, mismatches, $"every periodic damage takes the suit's division of the whole damage ({compared} compared; first mismatch: {firstMismatch})");
         // Past the lowest eight bits the division keeps the whole damage's higher points: the replaced shift took 256
         // whole points to nothing, and the division now leaves a quarter or a half of them.
-        AssertEqual(new UnsignedSixteenSixteen(64, 0), SamusSuitDamage.ReducePeriodic(new UnsignedSixteenSixteen(256, 0), SamusEquipmentFlags.GravitySuit),
+        AssertEqual(EnergyAmount.FromEnergy(64), SamusSuitDamage.ReducePeriodic(EnergyAmount.FromEnergy(256), SamusEquipmentFlags.GravitySuit),
             "Gravity quarters 256 whole points of periodic damage");
-        AssertEqual(new UnsignedSixteenSixteen(128, 0x8000), SamusSuitDamage.ReducePeriodic(new UnsignedSixteenSixteen(257, 0), SamusEquipmentFlags.VariaSuit),
+        AssertEqual(EnergyAmount.FromStoredParts(128, 0x8000), SamusSuitDamage.ReducePeriodic(EnergyAmount.FromEnergy(257), SamusEquipmentFlags.VariaSuit),
             "Varia halves 257 whole points of periodic damage, keeping the half point");
         Console.WriteLine($"Samus periodic suit damage: {compared} damages take the suit's division of the whole damage, which no longer drops points past 255.");
     }

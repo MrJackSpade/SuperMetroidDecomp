@@ -12,5 +12,5 @@ internal static class EscapeAnimalMotionDefinitions
     internal static readonly SignedSixteenSixteen EtecoonGravity = SignedSixteenSixteen.FromWholePixels(1);
 
     /// <summary>The horizontal speed, 3.5 pixels per update, at which an escaping Etecoon leaves the room.</summary>
-    internal static readonly SignedSixteenSixteen EtecoonExitSpeed = SignedSixteenSixteen.FromSixteenthsOfPixel(56);
+    internal static readonly SignedSixteenSixteen EtecoonExitSpeed = SignedSixteenSixteen.FromPixelFraction(7, 2);
 }

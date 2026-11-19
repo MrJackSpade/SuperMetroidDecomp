@@ -23,7 +23,7 @@ namespace SuperMetroid.Core.Compatibility;
 internal static class YardFallAcceleration
 {
     /// <summary>The downward speed each update adds: an eighth of a pixel an update.</summary>
-    private static readonly SignedSixteenSixteen Gravity = SignedSixteenSixteen.FromSixteenthsOfPixel(2);
+    private static readonly SignedSixteenSixteen Gravity = SignedSixteenSixteen.FromPixelFraction(1, 8);
 
     /// <summary>The whole pixels an update of downward speed an addition may not reach.</summary>
     private const int HeldWholePixels = 4;

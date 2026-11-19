@@ -12,4 +12,11 @@ internal static class FixedVectorAccess
             new(SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(Ensure.BetweenInclusive(0, ushort.MaxValue, xWhole)), xFraction),
                 SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(Ensure.BetweenInclusive(0, ushort.MaxValue, yWhole)), yFraction));
     }
+
+    /// <summary>Sets the Y axis's stored fraction word, as verifier fixtures state a displacement's state.</summary>
+    extension<TSpace>(SuperMetroid.Core.Spatial.FixedVector<TSpace> vector) where TSpace : SuperMetroid.Core.Spatial.ISpatialSpace
+    {
+        /// <summary>Replaces only the Y fraction with the stored word <paramref name="fraction"/>, 0 through 65535.</summary>
+        internal SuperMetroid.Core.Spatial.FixedVector<TSpace> WithFractionY(int fraction) => vector.WithY(vector.Y.WithFraction(fraction));
+    }
 }

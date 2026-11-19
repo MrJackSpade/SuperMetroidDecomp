@@ -16,11 +16,11 @@ internal static class FakeKraidProjectileDefinitions
         [FakeKraidSpit.Far] = 4,
     };
 
-    /// <summary>
-    /// How far Fake Kraid steps each walk cue, in pixels, toward the side he walks; his spit launches the same distance
-    /// ahead of his body.
-    /// </summary>
+    /// <summary>How far Fake Kraid steps each walk cue, in pixels, toward the side he walks.</summary>
     internal const int StepPixels = 4;
+
+    /// <summary>How far ahead of his body, in pixels toward the side he spits, Fake Kraid's spit leaves it.</summary>
+    internal const int SpitAheadPixels = 4;
 
     /// <summary>How far above his body, in pixels, Fake Kraid's spit leaves it.</summary>
     internal const int SpitYOffset = -16;
@@ -32,7 +32,7 @@ internal static class FakeKraidProjectileDefinitions
     internal static readonly SignedEightEight SpitRise = SignedEightEight.FromPixels(-5);
 
     /// <summary>The gravity Fake Kraid's spit gains each update: a quarter of a pixel an update.</summary>
-    internal static readonly SignedEightEight SpitGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(64);
+    internal static readonly SignedEightEight SpitGravity = SignedEightEight.FromPixelFraction(1, 4);
 
     /// <summary>The fastest Fake Kraid's spit falls: four pixels an update.</summary>
     internal static readonly SignedEightEight SpitMaximumFallSpeed = SignedEightEight.FromPixels(4);

@@ -7,19 +7,17 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 public readonly record struct RainbowFramePart
 {
-    /// <summary>The parts one whole rainbow frame is counted in: 256ths of a frame.</summary>
+    /// <summary>The parts one whole rainbow frame is counted in.</summary>
     private const int PartsPerFrame = 256;
 
     /// <summary>The parts one update of the slowing adds: three.</summary>
     private const int PartsPerUpdate = 3;
 
-    /// <summary>Holds <paramref name="twoHundredFiftySixths"/> 256ths of a frame, 0 through 255.</summary>
-    internal RainbowFramePart(int twoHundredFiftySixths) =>
-        TwoHundredFiftySixthsOfFrame = Ensure.BetweenInclusive(0, PartsPerFrame - 1, twoHundredFiftySixths);
+    /// <summary>Holds <paramref name="parts"/> of a frame's parts, from none up to one short of a whole frame.</summary>
+    internal RainbowFramePart(int parts) => Parts = Ensure.BetweenInclusive(0, PartsPerFrame - 1, parts);
 
-    /// <summary>The part of a frame, in 256ths of a frame, 0 through 255.</summary>
-    [IntegerQuantity("256ths of a rainbow colour frame accumulated toward the next held glow")]
-    public int TwoHundredFiftySixthsOfFrame { get; }
+    /// <summary>The frame's parts accumulated, from none up to one short of a whole frame, which the type carries into frames.</summary>
+    private int Parts { get; }
 
     /// <summary>No part of a frame.</summary>
     public static RainbowFramePart None => default;
@@ -29,7 +27,7 @@ public readonly record struct RainbowFramePart
     /// </summary>
     public SamusRainbowFractionStep AdvancedByOneUpdate()
     {
-        int sum = TwoHundredFiftySixthsOfFrame + PartsPerUpdate;
+        int sum = Parts + PartsPerUpdate;
         return sum >= PartsPerFrame
             ? new SamusRainbowFractionStep(new RainbowFramePart(sum - PartsPerFrame), true)
             : new SamusRainbowFractionStep(new RainbowFramePart(sum), false);

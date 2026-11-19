@@ -98,23 +98,23 @@ internal static class CeresDestructionSceneDefinitions
     internal static class Motion
     {
         /// <summary>The zoom that ends the initial Ceres zoom: two and a half floor pixels per screen pixel.</summary>
-        internal static FloorZoom CeresZoomLimit { get; } = FloorZoom.FromTwoHundredFiftySixths(640);
+        internal static FloorZoom CeresZoomLimit { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(5, 2);
         /// <summary>The zoom the Ceres explosion's composition begins at: three floor pixels per screen pixel.</summary>
         internal static FloorZoom CeresExplosionZoom { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(3);
         /// <summary>The smallest zoom the sequence keeps: a sixteenth of a floor pixel per screen pixel.</summary>
-        internal static FloorZoom MinimumZoom { get; } = FloorZoom.FromTwoHundredFiftySixths(16);
+        internal static FloorZoom MinimumZoom { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(1, 16);
         /// <summary>The zoom that ends the near Zebes approach: four and a half floor pixels per screen pixel.</summary>
-        internal static FloorZoom ZebesApproachZoomLimit { get; } = FloorZoom.FromTwoHundredFiftySixths(1152);
+        internal static FloorZoom ZebesApproachZoomLimit { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(9, 2);
         /// <summary>The zoom that separates the far Zebes approach: thirty-two floor pixels per screen pixel.</summary>
         internal static FloorZoom FarZebesZoomLimit { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(32);
         /// <summary>The initial Ceres zoom's change each update.</summary>
-        internal static FloorZoomStep CeresZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(1);
+        internal static FloorZoomStep CeresZoomStep { get; } = FloorZoomStep.FromFloorPixelsPerScreenPixel(1, 256);
         /// <summary>The near Zebes approach's zoom change each update.</summary>
-        internal static FloorZoomStep NearZebesZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(4);
+        internal static FloorZoomStep NearZebesZoomStep { get; } = FloorZoomStep.FromFloorPixelsPerScreenPixel(1, 64);
         /// <summary>The slow zoom change each update.</summary>
-        internal static FloorZoomStep SlowZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(16);
+        internal static FloorZoomStep SlowZoomStep { get; } = FloorZoomStep.FromFloorPixelsPerScreenPixel(1, 16);
         /// <summary>The fast zoom change each update.</summary>
-        internal static FloorZoomStep FastZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(32);
+        internal static FloorZoomStep FastZoomStep { get; } = FloorZoomStep.FromFloorPixelsPerScreenPixel(1, 8);
         /// <summary>How far the floor scrolls right each update as the gunship flies away from the exploding station.</summary>
         internal static SignedSixteenSixteen FlyAwayScroll { get; } = SignedSixteenSixteen.FromWholePixels(2);
         /// <summary>How far the floor turns each update as the gunship flies away from the station, in steps: one step clockwise.</summary>
@@ -122,17 +122,17 @@ internal static class CeresDestructionSceneDefinitions
         /// <summary>How far the floor turns each update as the gunship turns toward Zebes, in steps: one step clockwise.</summary>
         internal const int TowardZebesTurnSteps = -1;
         /// <summary>One eighth of a pixel per update.</summary>
-        internal static SignedSixteenSixteen EighthPixel { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(2);
+        internal static SignedSixteenSixteen EighthPixel { get; } = SignedSixteenSixteen.FromPixelFraction(1, 8);
         /// <summary>Minus one half pixel per update.</summary>
-        internal static SignedSixteenSixteen NegativeHalfPixel { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(-8);
+        internal static SignedSixteenSixteen NegativeHalfPixel { get; } = SignedSixteenSixteen.FromPixelFraction(-1, 2);
         /// <summary>One sixteenth of a pixel per update.</summary>
-        internal static SignedSixteenSixteen SixteenthPixel { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(1);
+        internal static SignedSixteenSixteen SixteenthPixel { get; } = SignedSixteenSixteen.FromPixelFraction(1, 16);
         /// <summary>Minus one quarter pixel per update.</summary>
-        internal static SignedSixteenSixteen NegativeQuarterPixel { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(-4);
+        internal static SignedSixteenSixteen NegativeQuarterPixel { get; } = SignedSixteenSixteen.FromPixelFraction(-1, 4);
         /// <summary>The fleeing gunship's horizontal velocity: a quarter pixel rightward per update.</summary>
-        internal static SignedSixteenSixteen GunshipXVelocity { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(4);
+        internal static SignedSixteenSixteen GunshipXVelocity { get; } = SignedSixteenSixteen.FromPixelFraction(1, 4);
         /// <summary>The fleeing gunship's vertical velocity: one sixteenth of a pixel upward per update.</summary>
-        internal static SignedSixteenSixteen GunshipYVelocity { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(-1);
+        internal static SignedSixteenSixteen GunshipYVelocity { get; } = SignedSixteenSixteen.FromPixelFraction(-1, 16);
         /// <summary>The floor position, in pixels, that completes the gunship's exit.</summary>
         internal const int FloorExitX = 62;
         /// <summary>The floor's rotation during the Zebes approach: an eighth of a turn.</summary>

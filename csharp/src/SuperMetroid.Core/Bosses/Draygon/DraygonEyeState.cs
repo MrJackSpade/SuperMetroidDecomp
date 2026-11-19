@@ -12,6 +12,6 @@ internal sealed class DraygonEyeState
     /// <summary>The way the tracking eye faces, Draygon's (#2165).</summary>
     public HorizontalDirection Facing { get; internal set; }
 
-    /// <summary>The bearing toward Samus the eye last looked along.</summary>
-    public Bearing LookAngle { get; internal set; }
+    /// <summary>The direction toward Samus the eye last looked along: straight up before its first look.</summary>
+    public TrigonometryAngle LookAngle { get; internal set; } = TrigonometryAngle.QuarterTurn;
 }

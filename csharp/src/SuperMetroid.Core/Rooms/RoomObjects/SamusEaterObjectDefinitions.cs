@@ -62,5 +62,5 @@ internal static class SamusEaterObjectDefinitions
     public const int ReleaseInvincibilityFrames = 48;
 
     /// <summary>The periodic damage each chew deals: two whole energy.</summary>
-    public static readonly UnsignedSixteenSixteen ChewDamage = new(whole: 2, fraction: 0);
+    public static readonly EnergyAmount ChewDamage = EnergyAmount.FromEnergy(2);
 }

@@ -17,7 +17,7 @@ public sealed class RioEnemyState
     public RioAction Action { get; internal set; }
 
     /// <summary>The Rio's velocity each update, positive right and down.</summary>
-    public EightEightVector<RoomPixels> Velocity { get; internal set; }
+    public PixelVelocity<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>
     /// Whether its swoop's opening or its cooldown animation has finished: set by the animation's finishing cue and cleared

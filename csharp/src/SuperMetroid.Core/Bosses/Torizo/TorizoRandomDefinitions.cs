@@ -24,8 +24,12 @@ internal static class TorizoRandomDefinitions
     internal static readonly RandomClearBitsChance ForwardLeap = RandomClearBitsChance.WhenAllClear(
         new RandomSampleField(0, 1), new RandomSampleField(8, 1));
 
-    /// <summary>The initial drool's added fall speed: 0 through 31, in 256ths of a pixel an update.</summary>
-    internal static readonly RandomSampleField DroolFallJitter = new(0, 5);
+    /// <summary>
+    /// The initial drool's fall speed: its slowest (<see cref="TorizoMotionDefinitions.InitialDroolSlowestFall"/>), raised
+    /// by up to thirty-one of the finest steps a speed takes, a 256th of a pixel an update each.
+    /// </summary>
+    internal static readonly RandomSpeed InitialDroolFall =
+        new(new(0, 5), TorizoMotionDefinitions.InitialDroolSlowestFall, SignedEightEight.FromPixelFraction(1, 256));
 
     /// <summary>
     /// A turning Torizo's drool angle, any of the 256 steps of a turn, as the selection chooses it.
@@ -61,6 +65,10 @@ internal static class TorizoRandomDefinitions
     /// </summary>
     internal static readonly RandomChance SonicBoomFliesHigh = RandomChance.Highest(1, new RandomSampleField(0, 1));
 
-    /// <summary>A randomized projectile's jitter on one axis, less 128, in 256ths of a pixel: 0 through 255 from the sample.</summary>
-    internal static readonly RandomSampleField VelocityJitter = new(0, 8);
+    /// <summary>
+    /// A randomized projectile's jitter on one axis (#2232): from half a pixel an update back up to one 256th short of half a
+    /// pixel on, in 256 of the finest steps a speed takes, so the jitter lies either side of its base speed.
+    /// </summary>
+    internal static readonly RandomSpeed VelocityJitter =
+        new(new(0, 8), SignedEightEight.FromPixelFraction(-1, 2), SignedEightEight.FromPixelFraction(1, 256));
 }

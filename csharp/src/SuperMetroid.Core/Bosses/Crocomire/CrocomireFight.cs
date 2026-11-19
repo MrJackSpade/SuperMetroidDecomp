@@ -482,7 +482,7 @@ internal sealed class CrocomireFight
         projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileSegment.Mouth));
         projectile.Velocity = CrocomireFightDefinitions.SpitVelocity;
         projectile.Position = projectile.Position.WithWhole(body.Position.Whole + CrocomireFightDefinitions.SpitOffset);
-        projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);
+        projectile.Position = projectile.Position.WithoutFractions();
         projectile.State = new CrocomireProjectileState(gradient);
     }
 }

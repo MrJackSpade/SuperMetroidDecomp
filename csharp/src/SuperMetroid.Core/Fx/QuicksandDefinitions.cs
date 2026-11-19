@@ -29,28 +29,25 @@ public static class QuicksandDefinitions
 
     /// <summary>Without Gravity: 2-pixel moving and 1.125-pixel stationary displacement, 2.5-pixel upward speed cap.</summary>
     internal static readonly QuicksandSurfacePhysics WithoutGravitySuit =
-        new(SignedSixteenSixteen.FromSixteenthsOfPixel(32),
-            SignedSixteenSixteen.FromSixteenthsOfPixel(18),
-            SignedSixteenSixteen.FromSixteenthsOfPixel(40));
+        new(SignedSixteenSixteen.FromWholePixels(2),
+            SignedSixteenSixteen.FromPixelFraction(9, 8),
+            SignedSixteenSixteen.FromPixelFraction(5, 2));
 
     /// <summary>With Gravity: 2-pixel moving and 1-pixel stationary displacement, 3.5-pixel upward speed cap.</summary>
     internal static readonly QuicksandSurfacePhysics WithGravitySuit =
-        new(SignedSixteenSixteen.FromSixteenthsOfPixel(32),
-            SignedSixteenSixteen.FromSixteenthsOfPixel(16),
-            SignedSixteenSixteen.FromSixteenthsOfPixel(56));
+        new(SignedSixteenSixteen.FromWholePixels(2),
+            SignedSixteenSixteen.FromWholePixels(1),
+            SignedSixteenSixteen.FromPixelFraction(7, 2));
 
     /// <summary>How far submerging quicksand pulls Samus down each frame she is inside it: 1.125 pixels.</summary>
-    internal static readonly SignedSixteenSixteen SubmergingSinkDisplacement = SignedSixteenSixteen.FromSixteenthsOfPixel(18);
+    internal static readonly SignedSixteenSixteen SubmergingSinkDisplacement = SignedSixteenSixteen.FromPixelFraction(9, 8);
 
     /// <summary>How far a slow sandfall carries Samus down each frame she is inside it: 1.25 pixels.</summary>
-    internal static readonly SignedSixteenSixteen SlowSandfallDisplacement = SignedSixteenSixteen.FromSixteenthsOfPixel(20);
+    internal static readonly SignedSixteenSixteen SlowSandfallDisplacement = SignedSixteenSixteen.FromPixelFraction(5, 4);
 
     /// <summary>How far a fast sandfall carries Samus down each frame she is inside it: 1.75 pixels.</summary>
-    internal static readonly SignedSixteenSixteen FastSandfallDisplacement = SignedSixteenSixteen.FromSixteenthsOfPixel(28);
+    internal static readonly SignedSixteenSixteen FastSandfallDisplacement = SignedSixteenSixteen.FromPixelFraction(7, 4);
 
-    /// <summary>
-    /// The most a stationary Samus's downward probe may sink into a quicksand surface: three sixteenths of a pixel. The
-    /// surface limits the probe at a speed's precision, so any finer part of the probe is kept as it was.
-    /// </summary>
-    internal static readonly SignedSixteenSixteen StationarySurfaceProbeLimit = SignedSixteenSixteen.FromSixteenthsOfPixel(3);
+    /// <summary>The most a stationary Samus's downward probe may sink into a quicksand surface: three sixteenths of a pixel.</summary>
+    internal static readonly SignedSixteenSixteen StationarySurfaceProbeLimit = SignedSixteenSixteen.FromPixelFraction(3, 16);
 }

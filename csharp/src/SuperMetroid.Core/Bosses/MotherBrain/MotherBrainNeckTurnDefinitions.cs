@@ -10,13 +10,13 @@ internal static class MotherBrainNeckTurnDefinitions
     /// A quarter of a step an update: the slow sway of her stretching, her rainbow beam's aim, her lowering after the
     /// Baby's drain and her revival.
     /// </summary>
-    internal static readonly RotationAngle Slow = RotationAngle.FromSteps(0, 64);
+    internal static readonly RotationAngle Slow = RotationAngle.FromStepFraction(1, 4);
 
     /// <summary>Five sixteenths of a step an update: her neck as she rises from the fake death and as her late fight starts.</summary>
-    internal static readonly RotationAngle Rising = RotationAngle.FromSteps(0, 80);
+    internal static readonly RotationAngle Rising = RotationAngle.FromStepFraction(5, 16);
 
     /// <summary>Half a step an update: her ordinary bob in the third phase, between its recoils.</summary>
-    internal static readonly RotationAngle Bobbing = RotationAngle.FromSteps(0, 128);
+    internal static readonly RotationAngle Bobbing = RotationAngle.FromStepFraction(1, 2);
 
     /// <summary>A step an update: her neck once the fake death lands her, and as she fires her mouth laser.</summary>
     internal static readonly RotationAngle Steady = RotationAngle.FromSteps(1);
@@ -40,5 +40,5 @@ internal static class MotherBrainNeckTurnDefinitions
     /// The neck turn from which her drool is the dying drool: a neck turning half a step an update or faster drools it, a
     /// slower one drools the ordinary drool.
     /// </summary>
-    internal static readonly RotationAngle DyingDrool = RotationAngle.FromSteps(0, 128);
+    internal static readonly RotationAngle DyingDrool = RotationAngle.FromStepFraction(1, 2);
 }

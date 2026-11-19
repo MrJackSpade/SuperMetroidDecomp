@@ -56,11 +56,9 @@ public static class EnemyOverreadFiles
             throw new InvalidDataException(
                 $"Enemy overread file holds Magdollite apex growth for {apexGrowth.Count} places, not {EnemyPlaceOrder.Capacity}.");
         EnemyOverreadDocument.Drift drift = Require(document.FallingSparkUnauthoredLaunch, nameof(document.FallingSparkUnauthoredLaunch));
-        if (drift.WholePixels is < short.MinValue or > short.MaxValue || drift.Fraction is < 0 or > ushort.MaxValue)
-            throw new InvalidDataException("Enemy overread file's falling-spark unauthored launch is out of range.");
         return new EnemyOverreadServices(
             new MagdolliteApexGrowth([.. apexGrowth]),
-            new FallingSparkUnauthoredLaunch(SignedSixteenSixteen.FromParts(drift.WholePixels, drift.Fraction)));
+            new FallingSparkUnauthoredLaunch(SignedSixteenSixteen.FromPixels(drift.Pixels)));
     }
 
     /// <summary>Requires a document member.</summary>

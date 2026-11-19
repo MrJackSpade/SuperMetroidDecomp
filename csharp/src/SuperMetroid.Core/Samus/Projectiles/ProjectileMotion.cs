@@ -241,7 +241,7 @@ internal sealed class ProjectileMotion
     /// Adds one update's acceleration to the shot's velocity, the direction's entry for the shot's kind. The velocity
     /// stays far inside its range, since a shot accelerating that long has left the movement window.
     /// </summary>
-    private static void Accelerate(SamusProjectile shot, EightEightVector<RoomPixels> acceleration) =>
+    private static void Accelerate(SamusProjectile shot, PixelVelocity<RoomPixels> acceleration) =>
         shot.Velocity += acceleration;
 
     /// <summary>
@@ -438,7 +438,7 @@ internal sealed class ProjectileMotion
         RoomCollisionBlock block = level.GetCollisionBlock(new(blockX, blockY));
 
         // An extension block reacts as the block it leads to, as it does for Samus's body; one that leads nowhere is air.
-        if (!SamusBlockCollision.TryResolveExtension(level, ref block))
+        if (!level.TryReachBlockStoodFor(ref block))
             return false;
         return block.CollisionType switch
         {

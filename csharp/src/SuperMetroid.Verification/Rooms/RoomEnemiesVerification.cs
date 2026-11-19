@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Bosses;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -320,7 +321,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0));
     enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(populationPointer), BgArtworkFixtures.For(new SnesVram()), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
 
-    EnemyProjectile eyeShot = enemies.Projectiles.EnemyProjectiles[17];
+    EnemyProjectile eyeShot = enemies.Projectiles.ProjectileInPlace(17);
     eyeShot.Kind = RoomEnemyProjectileKind.EyeDoorProjectile;
     eyeShot.Behavior = SuperMetroid.Core.Enemies.Projectiles.FamilyProjectileStarts.BehaviorOf(enemies, eyeShot.Kind);
     eyeShot.Position = eyeShot.Position.WithWhole(new(0x01b5, 0x0180));
@@ -329,7 +330,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     SeedEnemyProjectileDefinitionWord(bus, eyeShot.Kind, 12, 0xb5fb);
 
     var shotsEarthquake = new RoomEarthquake();
-    var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), shotsEarthquake);
+    var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), shotsEarthquake);
     SamusProjectile owner = shots.Shots[0];
     owner.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile);
     owner.Damage = 0x012c;
@@ -630,7 +631,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     AssertEqual(0, ripper.Health, "Ripper Super Missile vulnerability reaches zero health");
     AssertEqual(EnemyDefinitionId.None, ripper.DefinitionId,
         "Ripper generic death clears its common enemy record immediately");
-    EnemyProjectile ripperDeath = enemies.Projectiles.EnemyProjectiles[17];
+    EnemyProjectile ripperDeath = enemies.Projectiles.ProjectileInPlace(17);
     AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, ripperDeath.Kind,
         "Ripper zero health allocates the shared F345 death actor");
     AssertEqual(definitionPointer, ripperDeath.StateOf<EnemyDeathExplosionState>().DropDefinitionId,
@@ -1173,7 +1174,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     var escapeResolver = new SuperMetroid.TestSupport.VerificationOracles.EnemyTileTransfers(InstalledFixtures.EnemyArtwork,
         timer: InstalledFixtures.ImportMaps.EscapeTimerTiles);
     IReadOnlyList<EncounterArtworkUpload> warningPages = EncounterLookUploads.Uploads(SuperMetroid.AssetExtraction.Enemies.ComposedEncounter.CeresEscape,
-        EncounterLookUploads.IndexOf(SuperMetroid.AssetExtraction.Enemies.ComposedEncounter.CeresEscape, CeresEscapeWarningLookDefinitions.WarningLook), escapeResolver);
+        EncounterLookUploadsConstants.IndexOf(SuperMetroid.AssetExtraction.Enemies.ComposedEncounter.CeresEscape, CeresEscapeWarningLookDefinitions.WarningLook), escapeResolver);
     AssertEqual(spriteTransfers.Count, warningPages.Count, "the warning look copies one page a native sprite transfer");
     for (int index = 0; index < spriteTransfers.Count; index++)
     {

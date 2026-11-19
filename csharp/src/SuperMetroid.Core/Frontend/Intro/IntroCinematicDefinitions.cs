@@ -11,8 +11,6 @@ public static class IntroCinematicDefinitions
     {
         /// <summary>The updates a crossfade lasts, its last included.</summary>
         public const int Updates = 128;
-        /// <summary>Updates per crossfade step: a step shows on every fourth update counted down to the last.</summary>
-        public const int StepFrames = 4;
     }
 
     /// <summary>

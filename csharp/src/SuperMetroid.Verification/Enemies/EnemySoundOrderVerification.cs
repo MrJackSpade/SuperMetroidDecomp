@@ -68,12 +68,12 @@ internal static class EnemySoundOrderVerification
             definitions: bus, services: new StandaloneRoomEnemyServices(() => 0));
         enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(populationPointer), BgArtworkFixtures.For(new SnesVram()), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
 
-        EnemyProjectile link = enemies.Projectiles.EnemyProjectiles[^1];
+        EnemyProjectile link = enemies.Projectiles.ProjectileInPlace(17);
         FamilyProjectileStarts.Initialize(enemies, link, RoomEnemyProjectileKind.NuclearWaffleBody, SpriteGraphics.SharedStandard);
         link.Position = link.Position.WithWhole(new(0x0100, 0x0100));
         link.BlocksSamusProjectiles = true;
         link.CollisionOption = EnemyProjectileCollisionOption.IndestructibleDud;
-        var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
+        var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         SamusProjectile shot = shots.Shots[0];
         shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false);
         shot.Damage = 1;

@@ -1,21 +1,21 @@
 namespace SuperMetroid.Core.Enemies.Yard;
 
-/// <summary>Chooses the turn a crawling Yard uses.</summary>
+/// <summary>Chooses how a crawling Yard's step goes on at the end of its surface or against another.</summary>
 internal static class YardTurns
 {
     /// <summary>
-    /// The turn of a crawl <paramref name="crawl"/>, or, while the Yard's turns are suppressed
-    /// (<paramref name="turnsSuppressed"/>), its suppressed turn when it has one.
+    /// The step of a crawl <paramref name="crawl"/>: its turn, or, while the Yard's turns are suppressed
+    /// (<paramref name="turnsSuppressed"/>), its suppressed crawl when it has one.
     /// </summary>
     /// <exception cref="InvalidDataException"><paramref name="crawl"/> is not one of the eight ways a Yard crawls.</exception>
-    internal static YardTurnDefinition ForCrawl(
+    internal static YardCrawlStep ForCrawl(
         YardDirection crawl,
         bool turnsSuppressed)
     {
-        if (turnsSuppressed && YardTurnDefinitions.SuppressedTurns.TryGetValue(crawl, out YardTurnDefinition suppressed))
-            return suppressed;
+        if (turnsSuppressed && YardTurnDefinitions.SuppressedCrawls.TryGetValue(crawl, out YardSuppressedCrawl suppressed))
+            return new(Offset16<RoomPixels>.Zero, suppressed.WhenSurfaceEnds, suppressed.WhenSurfaceMet);
         return YardTurnDefinitions.Turns.TryGetValue(crawl, out YardTurnDefinition turn)
-            ? turn
+            ? new(turn.Lookahead, turn.OutsideTurnAnimation, turn.InsideTurnAnimation)
             : throw new InvalidDataException(
                 $"Yard crawl {crawl} has no turn definition.");
     }

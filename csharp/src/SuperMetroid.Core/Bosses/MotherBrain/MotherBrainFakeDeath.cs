@@ -114,7 +114,7 @@ internal sealed class MotherBrainFakeDeath
         if (progress.Stage == MotherBrainTubeDropStage.Standing)
         {
             bool falls = tube == MotherBrainTubeCollapseProgress.FirstTube
-                ? _projectiles.EnemyProjectiles.Count(projectile => !projectile.IsActive) >= MotherBrainTubeCollapseDefinitions.FreeProjectilesNeeded
+                ? _projectiles.FreePlaceCount >= MotherBrainTubeCollapseDefinitions.FreeProjectilesNeeded
                 : state.TubeCollapseTimer.StepRunsOut();
             if (!falls)
                 return;
@@ -152,7 +152,7 @@ internal sealed class MotherBrainFakeDeath
             graphics: SpriteGraphics.SharedIn(MotherBrainColours.GlassAndTubes));
         projectile.StartAnimation(new MotherBrainTopTubeAnimation(tube));
         projectile.Position = projectile.Position.WithWhole(position);
-        projectile.Velocity = EightEightVector<RoomPixels>.Zero;
+        projectile.Velocity = PixelVelocity<RoomPixels>.Zero;
         projectile.State = new MotherBrainTopTubeState();
     }
 

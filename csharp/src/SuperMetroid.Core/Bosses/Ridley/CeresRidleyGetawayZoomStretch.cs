@@ -17,6 +17,6 @@ internal readonly record struct CeresRidleyGetawayZoomStretch(FloorZoom From, Fl
 
     /// <summary>The zoom <paramref name="updatesIn"/> updates into the stretch.</summary>
     internal FloorZoom ZoomAfter(int updatesIn) => NarrowedEachUpdate is { } step
-        ? FloorZoom.FromTwoHundredFiftySixths(From.TwoHundredFiftySixths - updatesIn * step.TwoHundredFiftySixths)
+        ? From.Narrowed(step, updatesIn)
         : From;
 }

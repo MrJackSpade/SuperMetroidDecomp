@@ -11,7 +11,7 @@ internal static class BombTorizoStatueFragmentDefinitions
     internal static readonly SignedEightEight InitialFallSpeed = SignedEightEight.FromPixels(1);
 
     /// <summary>Every piece's downward acceleration.</summary>
-    internal static readonly SignedEightEight Acceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(16);
+    internal static readonly SignedEightEight Acceleration = SignedEightEight.FromPixelFraction(1, 16);
 
     /// <summary>The updates every piece falls once it cracks off, after which it is deleted.</summary>
     internal const int FallUpdates = 112;

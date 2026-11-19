@@ -98,7 +98,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     // A Super Missile impact starts the room's earthquake, which the room composes with its shots (#1594).
     SamusProjectileSystem CreateSyntheticProjectilesShaking(RoomEarthquake earthquake)
     {
-        SamusProjectileSystem created = new(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), InstalledFixtures.SamusArtwork(projectileFrames: fixtureFrames), earthquake);
+        SamusProjectileSystem created = new(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), InstalledFixtures.SamusArtwork(projectileFrames: fixtureFrames), earthquake);
         return created;
     }
     SamusBombProjectileSystem CreateSyntheticBombs() => new(GameplayAudioRequests.Standalone(), InstalledFixtures.SamusArtwork(projectileFrames: fixtureFrames));
@@ -247,7 +247,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     var spazerFlickerBombs = CreateSyntheticBombs();
     // The shot shows the installed Spazer compositions, which the Spazer sheet holds (#1513): the synthetic bindings give
     // the Spazer shot's first frame the power beam's composition, which the Spazer sheet does not hold (#1534).
-    var spazerFlickerProjectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
+    var spazerFlickerProjectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
     spazerFlickerBombs.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, spazerFlickerSamus, 0, 0);
     spazerFlickerProjectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, spazerFlickerSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), spazerFlickerBombs, new SharedGameState(new SharedRandom()));
     ProjectileDrawArtwork spazerArtwork = InstalledFixtures.ProjectileArtwork();

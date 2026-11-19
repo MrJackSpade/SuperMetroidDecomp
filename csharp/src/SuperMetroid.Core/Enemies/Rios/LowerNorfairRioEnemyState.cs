@@ -29,7 +29,7 @@ public sealed class LowerNorfairRioEnemyState
     public bool FollowerVisible { get; internal set; }
 
     /// <summary>Velocity in room pixels per update.</summary>
-    public EightEightVector<RoomPixels> Velocity { get; internal set; }
+    public PixelVelocity<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>The parent's current behaviour.</summary>
     public LowerNorfairRioAction Action { get; internal set; }

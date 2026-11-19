@@ -435,61 +435,57 @@ public static class SamusGrappleSwing
         if (block.Position is null)
             return true;
 
-        // Each extension link leads on in the room's reading order; one that leads outside the grid reads the edge-solid block.
-        for (int extensionDepth = 0; extensionDepth <= GrappleBeamDefinitions.Blocks.LongestExtensionChain; extensionDepth++)
+        // The block an extension stands for collides in its stead, and one that leads outside the grid reads the
+        // edge-solid block (ContinuedBlocks); an extension that ends its chain behaves as air.
+        if (level.GrappleBlockStoodFor(block) is not { } stoodFor)
+            return false;
+        block = stoodFor;
+        switch (block.CollisionType)
         {
-            switch (block.CollisionType)
-            {
-                // The swing step intentionally treats shootable/bombable air as air;
-                // unlike a firing endpoint, body contact does not spawn their room objects.
-                case RoomCollisionType.Air:
-                case RoomCollisionType.SpecialAir:
-                case RoomCollisionType.ShootableAir:
-                case RoomCollisionType.UnrevealedAir:
-                case RoomCollisionType.BombableAir:
-                    return false;
+            // The swing step intentionally treats shootable/bombable air as air;
+            // unlike a firing endpoint, body contact does not spawn their room objects.
+            case RoomCollisionType.Air:
+            case RoomCollisionType.SpecialAir:
+            case RoomCollisionType.ShootableAir:
+            case RoomCollisionType.UnrevealedAir:
+            case RoomCollisionType.BombableAir:
+                return false;
 
-                case RoomCollisionType.SpikeAir:
-                    // Spike air is harmless to the swing except damaging spike air, which queues
-                    // 16 damage. It never collides, but it still starts the common
-                    // spike invulnerability and knockback (SpikeHazardDefinitions.InvincibilityFrames,
-                    // SpikeHazardDefinitions.KnockbackFrames). The timer
-                    // check must precede the behaviour lookup so a second radial probe in this
-                    // same six-point sweep cannot queue damage again.
-                    ApplySwingSpikeDamage(samus, block.Behavior.Spike, block: SwingSpikeBlock.Plain);
-                    return false;
+            case RoomCollisionType.SpikeAir:
+                // Spike air is harmless to the swing except damaging spike air, which queues
+                // 16 damage. It never collides, but it still starts the common
+                // spike invulnerability and knockback (SpikeHazardDefinitions.InvincibilityFrames,
+                // SpikeHazardDefinitions.KnockbackFrames). The timer
+                // check must precede the behaviour lookup so a second radial probe in this
+                // same six-point sweep cannot queue damage again.
+                ApplySwingSpikeDamage(samus, block.Behavior.Spike, block: SwingSpikeBlock.Plain);
+                return false;
 
-                // Slopes are unconditional collision in this grapple-specific step.
-                case RoomCollisionType.Slope:
-                case RoomCollisionType.SolidBlock:
-                case RoomCollisionType.DoorBlock:
-                case RoomCollisionType.SpecialBlock:
-                case RoomCollisionType.ShootableBlock:
-                case RoomCollisionType.GrappleBlock:
-                case RoomCollisionType.BombableBlock:
-                    return true;
+            // Slopes are unconditional collision in this grapple-specific step.
+            case RoomCollisionType.Slope:
+            case RoomCollisionType.SolidBlock:
+            case RoomCollisionType.DoorBlock:
+            case RoomCollisionType.SpecialBlock:
+            case RoomCollisionType.ShootableBlock:
+            case RoomCollisionType.GrappleBlock:
+            case RoomCollisionType.BombableBlock:
+                return true;
 
-                case RoomCollisionType.SpikeBlock:
-                    // The solid spike reaction always reports collision. Before reporting it, it applies
-                    // 60 damage for the heavy spike or 16 for the light spike; every other spike deals
-                    // none.
-                    ApplySwingSpikeDamage(samus, block.Behavior.Spike, block: SwingSpikeBlock.Solid);
-                    return true;
+            case RoomCollisionType.SpikeBlock:
+                // The solid spike reaction always reports collision. Before reporting it, it applies
+                // 60 damage for the heavy spike or 16 for the light spike; every other spike deals
+                // none.
+                ApplySwingSpikeDamage(samus, block.Behavior.Spike, block: SwingSpikeBlock.Solid);
+                return true;
 
-                case RoomCollisionType.HorizontalExtension:
-                case RoomCollisionType.VerticalExtension:
-                    if (block.Behavior.EndsExtension)
-                        return false;
-                    block = level.LinkedBlockOrEdgeSolid(block);
-                    continue;
+            case RoomCollisionType.HorizontalExtension:
+            case RoomCollisionType.VerticalExtension:
+                throw new InvalidOperationException($"Continuing block {block.Position} reached the grapple's swing in place of the block it stands for.");
 
-                default:
-                    throw new InvalidDataException(
-                        $"Invalid grapple swing collision type {block.CollisionType}.");
-            }
+            default:
+                throw new InvalidDataException(
+                    $"Invalid grapple swing collision type {block.CollisionType}.");
         }
-
-        throw new InvalidDataException("Grapple swing extension chain exceeded sixteen blocks.");
     }
 
 /// <summary>Rechecks the stored endpoint through the firing step and retains the connection while the block there stops the beam.</summary>
@@ -532,7 +528,7 @@ public static class SamusGrappleSwing
         if (damage == 0)
             return;
 
-        samus.PeriodicDamage.Accumulate(new UnsignedSixteenSixteen(whole: damage, fraction: 0));
+        samus.PeriodicDamage.Accumulate(EnergyAmount.FromEnergy(damage));
         samus.InvincibilityTimer = WrappingCountdown.Start(SpikeHazardDefinitions.InvincibilityFrames);
         samus.KnockbackHold = UpdateCountdown.For(SpikeHazardDefinitions.KnockbackFrames);
     }

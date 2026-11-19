@@ -145,10 +145,10 @@ internal sealed record SamusOverreadDocument(
     /// <param name="Position">The step's position in the animation.</param>
     internal sealed record Cursor([InstalledKey] string Animation, int Position);
 
-    /// <summary>The speeds a beam launches at, each a signed count of 256ths of a pixel per update.</summary>
+    /// <summary>The speeds a beam launches at, each in pixels per update with its fraction of a pixel kept exactly.</summary>
     /// <param name="Cardinal">The horizontal and vertical speed.</param>
     /// <param name="Diagonal">The diagonal speed.</param>
-    internal sealed record LaunchSpeeds(int Cardinal, int Diagonal);
+    internal sealed record LaunchSpeeds(decimal Cardinal, decimal Diagonal);
 
     /// <summary>The cooldowns a beam's shots wait, each 0 through 255 updates.</summary>
     /// <param name="Uncharged">After an uncharged shot fired with Charge equipped or on a fresh press.</param>

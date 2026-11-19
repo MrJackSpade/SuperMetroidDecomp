@@ -17,7 +17,7 @@ internal static class DownwardGateProjectileAnimations
     {
         [P.Moving] =
         [
-            Cue(new DownwardGateProjectileCue.SetYVelocity(YVelocity: SignedEightEight.FromParts(1, 0))),
+            Cue(new DownwardGateProjectileCue.SetYVelocity(YVelocity: SignedEightEight.FromPixels(1))),
             Cue(new DownwardGateProjectileCue.Signal(K.StartSliding)),
             Hold(EnemyProjectileFrameId.DownwardGateOneBlockTall),
         ],
@@ -39,7 +39,7 @@ internal static class DownwardGateProjectileAnimations
         ],
         [P.Closed] =
         [
-            Cue(new DownwardGateProjectileCue.SetYVelocity(YVelocity: -SignedEightEight.FromParts(1, 0))),
+            Cue(new DownwardGateProjectileCue.SetYVelocity(YVelocity: -SignedEightEight.FromPixels(1))),
             Hold(EnemyProjectileFrameId.DownwardGateFourBlocksTall),
         ],
         [P.Rising] =

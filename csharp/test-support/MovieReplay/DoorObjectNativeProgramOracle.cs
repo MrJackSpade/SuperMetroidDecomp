@@ -24,6 +24,9 @@ internal static class DoorObjectNativeProgramOracle
     /// <summary>The bytes of the queue-sound instruction: its word and the sound's byte.</summary>
     private const int QueueSoundLength = 3;
 
+    /// <summary>How many times the cartridge's unlocked grey cap list writes its flash out before it repeats.</summary>
+    private const int CartridgeGreyFlashesBeforeRepeat = 3;
+
     /// <summary>The bytes of an open native list, from its sound to its delete: one sound, four images and the delete.</summary>
     private const int OpenListLength = 21;
 
@@ -122,7 +125,11 @@ internal static class DoorObjectNativeProgramOracle
             cursor = ExpectGoto(cartridge, lists.Activate, RoomObjectInstruction.LinkInstruction, lists.Hit, $"{at} unlocked wakes at its hit");
             cursor = ExpectGoto(cartridge, cursor, RoomObjectInstruction.InstallFrameBehavior, DoorsNativeWords.GreyDoorShotWake, $"{at} unlocked takes any shot");
             VerificationAssertions.AssertEqual(lists.Flash, cursor, $"{at} unlocked falls into its flash");
-            cursor = CompareSteps(cartridge, lists.Flash, GreyDoorDefinitions.Flash, DoorCapPaint.Grey, facing, $"{at} flash", ref images);
+            // The cartridge's list writes the flash out three times before it repeats, which plays exactly as the port's one
+            // flash repeated (#2572).
+            cursor = lists.Flash;
+            for (int flash = 0; flash < CartridgeGreyFlashesBeforeRepeat; flash++)
+                cursor = CompareSteps(cartridge, cursor, GreyDoorDefinitions.Flash, DoorCapPaint.Grey, facing, $"{at} flash {flash}", ref images);
             _ = ExpectGoto(cartridge, cursor, RoomObjectInstruction.Goto, lists.Flash, $"{at} flash repeats");
 
             VerificationAssertions.AssertEqual(RoomObjectInstruction.IncrementDoorHitCounterAndGoto, InstructionAt<RoomObjectInstruction>(cartridge, lists.Hit),

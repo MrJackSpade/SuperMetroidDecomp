@@ -32,7 +32,8 @@ internal static class OwtchMovementDefinitionsVerification
             {
                 for (byte distanceIndex = 0; distanceIndex < 8; distanceIndex++)
                 {
-                    byte initialState = (byte)((timerIndex + distanceIndex) % 5);
+                    // A placement starts an Owtch walking either way, buried or sinking, never rising (#2474).
+                    byte initialState = (byte)((timerIndex + distanceIndex) % 4);
                     place.SetSpawnParameter1(EnemyDefinitionId.Owtch, LittleEndianBytes.Word(initialState, timerIndex));
                     place.SetSpawnParameter2(EnemyDefinitionId.Owtch, (ushort)(distanceIndex << 8));
                     place.Position = place.Position.WithWhole(new(spawnX, 0x0100));

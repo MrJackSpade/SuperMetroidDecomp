@@ -35,8 +35,8 @@ internal static class TypedTurnsAndZoomVerification
         for (int pixels = sbyte.MinValue; pixels <= sbyte.MaxValue; pixels++)
             AssertEqual(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(pixels * 256), SignedEightEight.FromPixels(pixels), $"{pixels} whole pixels an update");
         AssertThrows<ArgumentOutOfRangeException>(() => SignedEightEight.FromPixels(sbyte.MaxValue + 1), "a whole-pixel speed past the type's range fails");
-        AssertEqual(EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-1472, 40), EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-1472, 40), "a vector in 256ths keeps both words");
-        AssertEqual(default(EightEightVector<RoomPixels>), EightEightVector<RoomPixels>.Zero, "the zero vector is no velocity");
+        AssertEqual(new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1472), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(40)), new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1472), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(40)), "a vector in 256ths keeps both words");
+        AssertEqual(default(PixelVelocity<RoomPixels>), PixelVelocity<RoomPixels>.Zero, "the zero vector is no velocity");
         AssertEqual(SignedSixteenSixteen.FromParts(-4, 32768), KraidPlatformMovement.FiringDisplacement, "Kraid's lint fires three and a half pixels leftward");
     }
 
@@ -59,11 +59,11 @@ internal static class TypedTurnsAndZoomVerification
     {
         for (int units = 0; units < RotationAngle.StepsPerTurn; units++)
         {
-            var bearing = new Bearing(units);
-            AssertEqual(units >> 5, bearing.Sector(8), $"bearing {units} octant");
-            AssertEqual(((units + 16) & 255) >> 5, bearing.TurnedBySteps(16).Sector(8), $"bearing {units} half-octant-biased octant");
+            TrigonometryAngle bearing = AimAngleConstants.FromClockwiseSteps(units);
+            AssertEqual(TrigonometryAngle.DirectionsClockwise[units >> 5], bearing.DirectionOfEighth(), $"bearing {units} octant");
+            AssertEqual(TrigonometryAngle.DirectionsClockwise[((units + 16) & 255) >> 5], bearing.NearestDirection(), $"bearing {units} half-octant-biased octant");
             int quarter = units switch { < 32 => 0, < 96 => 1, < 160 => 2, < 224 => 3, _ => 0 };
-            AssertEqual(quarter, bearing.TurnedBySteps(32).Sector(4), $"bearing {units} look quarter");
+            AssertEqual(TrigonometryAngle.DirectionsClockwise[2 * quarter], bearing.NearestStraightDirection(), $"bearing {units} look quarter");
 
             var angle = new TrigonometryAngle(units);
             AssertEqual(units >> 4, angle.ToAngle().Sector(16), $"angle {units} sixteenth");

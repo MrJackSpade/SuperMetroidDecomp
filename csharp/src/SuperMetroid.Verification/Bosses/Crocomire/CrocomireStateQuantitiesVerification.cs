@@ -92,7 +92,7 @@ internal static class CrocomireStateQuantitiesVerification
         // Every sink starts from rest at the cartridge's starting acceleration word, whatever motion preceded it.
         (_, CrocomireEnemyState started) = NewCrocomire();
         started.VerticalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(300);
-        started.VerticalFraction = SignedEightEight.FromParts(0, 77);
+        started.VerticalTravelCarry = PixelFractionCarry.Of(SignedEightEight.FromParts(0, 77));
         started.StartVerticalMotion(CrocomireBridgeCollapseDefinitions.SinkStartingAcceleration);
         AssertMotionWords(started, LittleEndianBytes.Word(0, 8), 0, 0, started.Body.Position.Y.Whole, "a started sink");
         CompareSink(LittleEndianBytes.Word(0, 8), 0, 0, 144, "resting sink");
@@ -126,7 +126,7 @@ internal static class CrocomireStateQuantitiesVerification
         state.VerticalAcceleration = SignedSixteenSixteen.FromParts(0, acceleration);
         state.VerticalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(speed);
         // The subposition word's high byte is the carried vertical fraction; the low byte is the cartridge's alone.
-        state.VerticalFraction = SignedEightEight.FromParts(0, LittleEndianBytes.HighByte(subposition));
+        state.VerticalTravelCarry = PixelFractionCarry.Of(SignedEightEight.FromParts(0, LittleEndianBytes.HighByte(subposition)));
         body.Position = body.Position.WithWholeY(y);
         for (int frame = 0; frame < 400; frame++)
         {
@@ -164,7 +164,7 @@ internal static class CrocomireStateQuantitiesVerification
         state.VerticalAcceleration = SignedSixteenSixteen.FromParts(0, acceleration);
         state.VerticalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(speed);
         // The subposition word's high byte is the carried vertical fraction; the low byte is the cartridge's alone.
-        state.VerticalFraction = SignedEightEight.FromParts(0, LittleEndianBytes.HighByte(subposition));
+        state.VerticalTravelCarry = PixelFractionCarry.Of(SignedEightEight.FromParts(0, LittleEndianBytes.HighByte(subposition)));
         body.Position = body.Position.WithWholeY(y);
         for (int frame = 0; frame < 400; frame++)
         {
@@ -186,7 +186,7 @@ internal static class CrocomireStateQuantitiesVerification
     {
         AssertEqual(acceleration, state.VerticalAcceleration.RawValue, $"{at}: acceleration in 65536ths of a pixel an update an update");
         AssertEqual(speed, state.VerticalSpeed.InTwoHundredFiftySixthsOfPixel, $"{at}: speed in 256ths");
-        AssertEqual(SignedEightEight.FromParts(0, LittleEndianBytes.HighByte(subposition)), state.VerticalFraction, $"{at}: carried fraction");
+        AssertEqual(SignedEightEight.FromParts(0, LittleEndianBytes.HighByte(subposition)), state.VerticalTravelCarry.Part, $"{at}: carried fraction");
         AssertEqual(y, state.Body.Position.Y.Whole, $"{at}: Y");
     }
 

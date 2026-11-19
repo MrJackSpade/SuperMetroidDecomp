@@ -39,10 +39,7 @@ public sealed class SamusArmCannonState
     /// The HUD selection's stability wait, lasting <see cref="SamusArmCannonDefinitions.StableSelectionUpdates"/>: a
     /// change starts it again, counting the changing update as its first, and a transition may begin once it is over.
     /// </summary>
-    private readonly UpdateCountdown stability = UpdateCountdown.Lasting(SamusArmCannonDefinitions.StableSelectionUpdates);
-
-    /// <summary>The updates the HUD selection has held still, 0 through 2: its stability wait's age.</summary>
-    public int StableSelectionUpdates => stability.Age;
+    internal readonly UpdateCountdown stability = UpdateCountdown.Lasting(SamusArmCannonDefinitions.StableSelectionUpdates);
 
     /// <summary>Where this frame's cover is drawn relative to the body, from the pose's drawing mode.</summary>
     public SamusArmCannonDrawOrder DrawOrder { get; private set; }

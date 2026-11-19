@@ -18,34 +18,34 @@ internal static class CeresCountdownVerification
     internal static void VerifyCeresFallingDebrisInterval()
     {
         // An inherited count of three drops the first tile on the fourth update.
-        var carryover = new RoomMainCarryover();
-        carryover.LeaveCountdown(WrappingCountdown.Start(3));
+        var carryover = new RoomMainHandOvers().ShaftTurnToDebris;
+        carryover.LeaveDebrisWait(WrappingCountdown.Start(3));
         var hall = new CeresFallingDebrisRoomMainState(carryover);
         AssertEqual(4, UpdatesToTile(hall), "the hall's first tile falls on the update after the inherited count of three runs out");
-        AssertEqual(8, carryover.Countdown.RemainingFrames, "the hall leaves the eight updates before its next tile as the tile falls");
+        AssertEqual(8, carryover.FirstDebrisWait.RemainingFrames, "the hall leaves the eight updates before its next tile as the tile falls");
         for (int tile = 0; tile < 3; tile++)
             AssertEqual(9, UpdatesToTile(hall), $"later tile {tile} falls nine updates after the one before it");
 
         // A hall entered again mid-interval drops its next tile on the update the interval left would have.
         for (int update = 0; update < 4; update++)
             AssertTrue(!hall.Step(), "four updates into an interval no tile falls");
-        AssertEqual(4, carryover.Countdown.RemainingFrames, "four updates into an interval the hall leaves the four updates before its next tile");
+        AssertEqual(4, carryover.FirstDebrisWait.RemainingFrames, "four updates into an interval the hall leaves the four updates before its next tile");
         var reentered = new CeresFallingDebrisRoomMainState(carryover);
         AssertEqual(5, UpdatesToTile(reentered), "a hall entered again drops the tile the interval had left after five updates");
 
         // The shaft's backward sweep leaves its steps reading as run past zero, so the first tile falls at once.
-        var backward = new RoomMainCarryover();
+        var backward = new RoomMainHandOvers().ShaftTurnToDebris;
         backward.LeaveTurnStep(68, backward: true);
         AssertEqual(1, UpdatesToTile(new CeresFallingDebrisRoomMainState(backward)),
             "a count the shaft's backward sweep left drops the first tile on the first update");
 
         // A count of zero wraps on its first step and drops the first tile at once; a count at the turn of the sign waits
         // its whole length.
-        var zero = new RoomMainCarryover();
-        zero.LeaveCountdown(WrappingCountdown.Start(0));
+        var zero = new RoomMainHandOvers().ShaftTurnToDebris;
+        zero.LeaveDebrisWait(WrappingCountdown.Start(0));
         AssertEqual(1, UpdatesToTile(new CeresFallingDebrisRoomMainState(zero)), "an inherited count of zero drops the first tile at once");
-        var longest = new RoomMainCarryover();
-        longest.LeaveCountdown(WrappingCountdown.Start(32768));
+        var longest = new RoomMainHandOvers().ShaftTurnToDebris;
+        longest.LeaveDebrisWait(WrappingCountdown.Start(32768));
         AssertEqual(32769, UpdatesToTile(new CeresFallingDebrisRoomMainState(longest)),
             "an inherited count whose first step reads as not yet run past zero waits for its whole length");
     }

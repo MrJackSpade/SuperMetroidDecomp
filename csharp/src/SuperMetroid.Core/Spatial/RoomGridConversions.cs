@@ -10,6 +10,9 @@ public static class RoomGridConversions
     /// <summary>The bits of a pixel's offset within its room screen, below the screen index.</summary>
     private const int ScreenPixelBits = 8;
 
+    /// <summary>Pixels along a room screen's side.</summary>
+    private const int ScreenPixels = 1 << ScreenPixelBits;
+
     /// <summary>Pixels along a block's side.</summary>
     public const int BlockPixels = 16;
 
@@ -24,23 +27,23 @@ public static class RoomGridConversions
     /// paths derive it from each coordinate: the coordinate divided by 16.
     /// </summary>
     public static Position16<RoomBlocks> ToRoomBlock(this Position16<RoomPixels> position) =>
-        new((ushort)(position.X >> 4), (ushort)(position.Y >> 4));
+        new((ushort)(position.X / BlockPixels), (ushort)(position.Y / BlockPixels));
 
     /// <summary>
     /// The room-pixel top-left corner of a block: each axis multiplied by 16, wrapping at
     /// sixteen bits, as the game's block-to-pixel paths do.
     /// </summary>
     public static Position16<RoomPixels> ToRoomPixels(this Position16<RoomBlocks> block) =>
-        new(unchecked((ushort)(block.X << 4)), unchecked((ushort)(block.Y << 4)));
+        new(unchecked((ushort)(block.X * BlockPixels)), unchecked((ushort)(block.Y * BlockPixels)));
 
     /// <summary>
     /// The room-pixel origin of a screen cell: 256 pixels a screen along each axis, wrapping as room positions do.
     /// </summary>
     public static Position16<RoomPixels> ToRoomPixels(this Position16<RoomScreens> screen) =>
-        new(unchecked((ushort)(screen.X << 8)), unchecked((ushort)(screen.Y << 8)));
+        new(unchecked((ushort)(screen.X * ScreenPixels)), unchecked((ushort)(screen.Y * ScreenPixels)));
 
     /// <summary>The room-pixel offset of a screen index along one axis: a room screen is 256 pixels.</summary>
-    public static int ScreenToPixels(int screen) => screen << 8;
+    public static int ScreenToPixels(int screen) => screen * ScreenPixels;
 
     /// <summary>
     /// The room screen holding an unsigned room pixel coordinate, 0 through 65535: the index of its 256-pixel screen

@@ -22,13 +22,13 @@ internal static class CrocomireMeltingDefinitions
     public const int SecondPassBandCount = 7;
 
     /// <summary>The slope each pass's distortion starts at: a 256th of a row further behind each line.</summary>
-    public static readonly UnsignedSixteenSixteen FirstDistortionSlope = UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(1);
+    public static readonly UnsignedSixteenSixteen FirstDistortionSlope = UnsignedSixteenSixteen.FromPixelFraction(1, 256);
 
     /// <summary>How much steeper the distortion's slope grows each update it stretches: one and a half 256ths of a row a line.</summary>
     public static readonly UnsignedSixteenSixteen DistortionSlopeGrowth = UnsignedSixteenSixteen.FromPixelFraction(3, 512);
 
     /// <summary>The steepest the distortion's slope grows: five sixteenths of a row a line, which ends the dissolve once its band is stretched.</summary>
-    public static readonly UnsignedSixteenSixteen SteepestDistortionSlope = UnsignedSixteenSixteen.FromSixteenthsOfPixel(5);
+    public static readonly UnsignedSixteenSixteen SteepestDistortionSlope = UnsignedSixteenSixteen.FromPixelFraction(5, 16);
 
     /// <summary>Lowest background source row the distortion stretches back to, in both passes.</summary>
     public const int LowestDistortionSourceRow = 88;

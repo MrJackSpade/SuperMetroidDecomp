@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// fresh when it takes its place in Samus's shot pool (<see cref="SamusShotPool.Occupy"/>), keeps its own state,
 /// and ends when it is deleted, replaced, or Samus's shots are cleared. Nothing it holds reaches the next projectile in
 /// its place but two values gameplay carries over: its horizontal position's fraction of a pixel, which is
-/// <see cref="LeftMuzzleSubpixelCarry"/>'s, and, for a beam fired with every place held over the shot in the last place,
+/// <see cref="LeftBeamStartFromLastShot"/>'s, and, for a beam fired with every place held over the shot in the last place,
 /// the count that shot leaves (<see cref="BeamFiredOverLastShot"/>). A place no projectile holds reads as the projectile
 /// that last ended there, or one never fired: no type, no damage, at rest at the room's origin.
 /// </summary>
@@ -72,7 +72,7 @@ public sealed class SamusProjectile
     /// <summary>Room position, to a fraction of a pixel.</summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
     /// <summary>Velocity in pixels per update.</summary>
-    public EightEightVector<RoomPixels> Velocity { get; internal set; }
+    public PixelVelocity<RoomPixels> Velocity { get; internal set; }
     /// <summary>Collision half-extents in pixels.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }
     /// <summary>
@@ -197,7 +197,7 @@ public sealed class SamusProjectile
         Direction = default;
         IsSpent = false;
         Position = FixedPosition<RoomPixels>.Zero;
-        Velocity = default(EightEightVector<RoomPixels>);
+        Velocity = default(PixelVelocity<RoomPixels>);
         Radius = Extent16<RoomPixels>.Zero;
         Animation = null;
         Sprite = null;

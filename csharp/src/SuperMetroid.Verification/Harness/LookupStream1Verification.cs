@@ -896,7 +896,7 @@ internal static class LookupStream1Verification
         }
         var compositions = ChargeFlareSprites.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(rom)));
         var body = CreateSamusIdentityFixture();
-        var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
+        var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         var draw = new Action<SpriteFrameBuffer, SamusState, Position16<RoomPixels>, ChargeFlareComponent, TurningFloorTransform?, ChargeFlareArtwork>(system.Animation.DrawFlareComponent);
         ProjectileDrawArtwork flareSheets = InstalledFixtures.ProjectileArtwork();
         foreach (SamusPoseId pose in new[]
@@ -1169,8 +1169,11 @@ internal static class LookupStream1Verification
         ushort Word(int address) => LittleEndianBytes.Word(LookupStream1DeathDefinitionsRomByte(rom, address), LookupStream1DeathDefinitionsRomByte(rom, address + 1));
         SamusMovementType[] movements = Enum.GetValues<SamusMovementType>();
         AssertEqual(SamusMovementTypeNumbers.Named.Count(), movements.Length, "death retail movement domain: every movement type a pose selects");
+        // The cartridge numbers the death pose's frames through its whole animation; the port names a segment's frame (#2530).
         foreach (SamusMovementType movement in movements)
-            AssertEqual(LookupStream1DeathDefinitionsRomByte(rom, 0x9bb420 + SamusMovementTypeNativeWords.Byte(movement)), SamusDeathSequenceFrames.InitialFrame(movement).Frame, "native movement death phase");
+        foreach (SamusPoseId deathPose in new[] { SamusPoseId.DeathSequenceRightPose, SamusPoseId.DeathSequenceLeftPose })
+            AssertEqual(LookupStream1DeathDefinitionsRomByte(rom, 0x9bb420 + SamusMovementTypeNativeWords.Byte(movement)),
+                SamusAnimationNumbers.Number(deathPose, SamusDeathSequenceFrames.InitialFrame(movement)), $"native movement death phase of {movement} in {deathPose}");
         // The cartridge uploads the explosion as five pages; the atlas keeps them in that upload order.
         for (int page = 0; page < SamusDeathTileAtlasFormat.SegmentCount; page++)
         {
@@ -1643,7 +1646,7 @@ internal static class LookupStream1Verification
         var guard = NewLookupFlareForbiddenBus();
         int interpreted = 0, bombInterpreted = 0;
         var bindings = ProjectileFrameBindingFile.Load(new MemoryStream(ProjectileFrameBindingFile.Write(document)));
-        var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: bindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
+        var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: bindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: bindings));
         foreach (ushort pointer in expected)
         {
@@ -1751,7 +1754,7 @@ internal static class LookupStream1Verification
         int actualTicks = 0, loops = 0, deletions = 0;
         foreach (var program in programs)
         {
-            var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: bindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
+            var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: bindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: bindings));
             var slot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(program.Start), Damage = 30 };
             var bomb = new SamusBomb(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(program.Start), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };

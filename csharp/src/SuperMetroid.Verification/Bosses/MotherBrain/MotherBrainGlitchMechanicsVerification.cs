@@ -51,11 +51,11 @@ internal static class MotherBrainGlitchMechanicsVerification
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             var motherBrain = MotherBrainLateFightFixtures.NewSequence();
             var baby = motherBrain.Baby;
-            baby.Initialize(FixedPosition<RoomPixels>.Zero);
+            MotherBrainLateFightFixtures.Arrive(baby, FixedPosition<RoomPixels>.Zero);
             baby.Phase = BabyMetroidCutscenePhase.LatchOntoSamus;
             baby.Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)(0x0080 + startDx), 0x008c)).WithFractionsOf(baby.Position);
             // Moving left a whole pixel per frame: after this frame's mover the gap shrinks by one.
-            baby.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0xff00), new SignedEightEight(0));
+            baby.Velocity = new PixelVelocity<RoomPixels>(new SignedEightEight(0xff00), new SignedEightEight(0));
             baby.Step(samus, HeadOf(motherBrain), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
             return baby.Velocity.X.RawValue;
         }

@@ -54,14 +54,14 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// Rain's sideways texture drift each frame, the wind chosen from the random number when the room loads; it only
     /// blows across. The fall is <see cref="RainFall"/>.
     /// </summary>
-    private EightEightVector<OverlayPixels> rainWind;
+    private PixelVelocity<OverlayPixels> rainWind;
     /// <summary>Previous camera point, used to make rain follow camera movement.</summary>
     private Position16<RoomPixels> previousCamera;
     /// <summary>
     /// The surface a room load starts the liquid at on <paramref name="line"/>: half a pixel down it, centring the liquid on
     /// its whole line.
     /// </summary>
-    private static FixedCoordinate LoadedSurfaceAt(int line) => new(line, FixedCoordinate.HalfPixelFraction);
+    private static FixedCoordinate LoadedSurfaceAt(int line) => FixedCoordinate.FromWhole(line).WithFraction(PixelFraction.Half);
     /// <summary>
     /// How far round its rise and fall the liquid's tide is: the surface sits at the negative cosine of this angle's whole
     /// step, and <see cref="AdvanceTidePhase"/> turns it on, continuing round past a full turn.
@@ -742,7 +742,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             return false;
         }
 
-        BaseY = new FixedCoordinate(target, 0);
+        BaseY = FixedCoordinate.FromWhole(target);
         return true;
     }
 
@@ -809,7 +809,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         overlayLook = null;
         Scroll = Position16<OverlayPixels>.Zero;
         drift = TextureDrift.None;
-        rainWind = EightEightVector<OverlayPixels>.Zero;
+        rainWind = PixelVelocity<OverlayPixels>.Zero;
         previousCamera = Position16<RoomPixels>.Zero;
         BaseY = null;
         TidePhase = RotationAngle.Zero;
@@ -840,22 +840,22 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     public void StopLiquidMotion() => LiquidMotionStopped = true;
 
     /// <summary>Rain's texture fall each frame (<see cref="AtmosphereDriftDefinitions.RainFallSpeed"/>).</summary>
-    private static readonly EightEightVector<OverlayPixels> RainFall =
+    private static readonly PixelVelocity<OverlayPixels> RainFall =
         new(SignedEightEight.Zero, -AtmosphereDriftDefinitions.RainFallSpeed);
 
     /// <summary>The spores' texture rise each frame (<see cref="AtmosphereDriftDefinitions.SporesRiseSpeed"/>).</summary>
-    private static readonly EightEightVector<OverlayPixels> SporesRise =
+    private static readonly PixelVelocity<OverlayPixels> SporesRise =
         new(SignedEightEight.Zero, -AtmosphereDriftDefinitions.SporesRiseSpeed);
 
     /// <summary>
     /// The fog's texture drift each frame: right by <see cref="AtmosphereDriftDefinitions.FogDriftSpeed"/> as it rises by
     /// <see cref="AtmosphereDriftDefinitions.FogRiseSpeed"/>.
     /// </summary>
-    private static readonly EightEightVector<OverlayPixels> FogDrift =
+    private static readonly PixelVelocity<OverlayPixels> FogDrift =
         new(AtmosphereDriftDefinitions.FogDriftSpeed, -AtmosphereDriftDefinitions.FogRiseSpeed);
 
     /// <summary>Water's surface drift each frame while its water's <see cref="RoomWater.SurfaceDrift"/> is set.</summary>
-    private static readonly EightEightVector<OverlayPixels> WaterSurfaceDrift =
+    private static readonly PixelVelocity<OverlayPixels> WaterSurfaceDrift =
         new(WaterWaveDefinitions.SurfaceDriftSpeed, SignedEightEight.Zero);
 
     /// <summary>The mutually exclusive phases of the liquid's rise.</summary>

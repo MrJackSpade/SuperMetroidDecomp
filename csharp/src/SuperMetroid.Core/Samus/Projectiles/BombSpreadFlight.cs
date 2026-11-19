@@ -41,5 +41,5 @@ public sealed class BombSpreadFlight
     /// now falls (#2459): the game clears only the velocity's whole pixels. A rise of 1.25 pixels per update, -2 whole
     /// pixels and 0.75 above them, leaves a fall of 0.75 pixels per update; a rise of whole pixels leaves the bomb at rest.
     /// </summary>
-    internal void StopRiseAtCeiling() => VerticalVelocity = SignedSixteenSixteen.FromParts(0, VerticalVelocity.Fraction);
+    internal void StopRiseAtCeiling() => VerticalVelocity = VerticalVelocity.WithoutWholePixels();
 }

@@ -13,14 +13,14 @@ internal static class MotherBrainDoorFragmentDefinitions
         Fragment(-32, SignedEightEight.FromPixels(-2)),
         Fragment(-24, SignedEightEight.FromPixels(-1)),
         Fragment(-16, SignedEightEight.FromPixels(-1)),
-        Fragment(-8, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-128)),
-        Fragment(0, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-128)),
-        Fragment(8, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(128)),
+        Fragment(-8, SignedEightEight.FromPixelFraction(-1, 2)),
+        Fragment(0, SignedEightEight.FromPixelFraction(-1, 2)),
+        Fragment(8, SignedEightEight.FromPixelFraction(1, 2)),
         Fragment(16, SignedEightEight.FromPixels(-1)),
         Fragment(24, SignedEightEight.FromPixels(2)),
     ];
 
     /// <summary>A fragment starting <paramref name="y"/> pixels below the door that flies right at <paramref name="ySpeed"/>.</summary>
     private static MotherBrainDoorFragmentDefinition Fragment(int y, SignedEightEight ySpeed) =>
-        new(new Offset16<RoomPixels>(0, y), new EightEightVector<RoomPixels>(SignedEightEight.FromPixels(5), ySpeed));
+        new(new Offset16<RoomPixels>(0, y), new PixelVelocity<RoomPixels>(SignedEightEight.FromPixels(5), ySpeed));
 }

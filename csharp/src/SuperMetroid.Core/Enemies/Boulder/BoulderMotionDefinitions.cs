@@ -23,10 +23,10 @@ internal static class BoulderMotionDefinitions
     internal static readonly QuadraticSpeedCurvePlace MaximumBouncingSpeed = QuadraticSpeedCurvePlace.FromMarks(80);
 
     /// <summary>The change in the travel clock per bouncing update, an eighth of a mark.</summary>
-    internal static readonly QuadraticSpeedCurvePlace BouncingTravelSpeedStep = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(32);
+    internal static readonly QuadraticSpeedCurvePlace BouncingTravelSpeedStep = QuadraticSpeedCurvePlace.FromMarkFraction(1, 8);
 
     /// <summary>The change in the travel clock per rolling update, a quarter of a mark.</summary>
-    internal static readonly QuadraticSpeedCurvePlace RollingTravelSpeedStep = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(64);
+    internal static readonly QuadraticSpeedCurvePlace RollingTravelSpeedStep = QuadraticSpeedCurvePlace.FromMarkFraction(1, 4);
 
     /// <summary>The largest travel clock while rolling: mark 64 of the curve.</summary>
     internal static readonly QuadraticSpeedCurvePlace MaximumRollingTravelSpeed = QuadraticSpeedCurvePlace.FromMarks(64);

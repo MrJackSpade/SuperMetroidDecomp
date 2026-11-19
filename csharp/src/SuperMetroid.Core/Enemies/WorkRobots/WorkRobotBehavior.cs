@@ -187,13 +187,12 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         if (step.Ledge is not { } ledge)
             return null;
 
-        // The game moves only whole X/Y pixels for this temporary foot probe. In particular,
-        // where the downward move's collision left it within a pixel vertically stays after Y is restored.
-        Position16<RoomPixels> walkingPosition = place.Position.Whole;
-        place.Position = place.Position.WithWholeX(
-            place.Position.X.Whole + (ledge.ProbeSide == HorizontalDirection.Left ? -WorkRobotMotionDefinitions.LedgeProbeRadii : WorkRobotMotionDefinitions.LedgeProbeRadii) * place.Radius.X);
-        bool floorFound = _terrain.MoveEnemyVertically(level, place, WorkRobotMotionDefinitions.LedgeProbeDepth);
-        place.Position = place.Position.WithWhole(walkingPosition);
+        // The foot probe stands beside the robot and falls; the robot keeps the fractions its fall left
+        // (ProbeMovementKept).
+        int probeX = (ledge.ProbeSide == HorizontalDirection.Left ? -WorkRobotMotionDefinitions.LedgeProbeRadii : WorkRobotMotionDefinitions.LedgeProbeRadii) * place.Radius.X;
+        var probe = new EnemyTerrainProbe(place, new Offset16<RoomPixels>(probeX, 0));
+        bool floorFound = _terrain.MoveEnemyVertically(level, probe, WorkRobotMotionDefinitions.LedgeProbeDepth);
+        place.Position = ProbeMovementKept.AfterLedgeProbe(place.Position, probe.Position);
         if (floorFound)
             return null;
 
@@ -242,8 +241,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private static void ResolveWorkRobotTouch(RoomEnemyPlace robot, SamusState samus)
     {
-        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(SignedSixteenSixteen.FromParts(
-            robot.Position.X.Whole < samus.Position.X.Whole ? WorkRobotMotionDefinitions.TouchPush : -WorkRobotMotionDefinitions.TouchPush, 0));
+        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(SignedSixteenSixteen.FromWholePixels(
+            robot.Position.X.Whole < samus.Position.X.Whole ? WorkRobotMotionDefinitions.TouchPush : -WorkRobotMotionDefinitions.TouchPush));
     }
 
     /// <summary>
@@ -382,9 +381,9 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Every laser starts at the muzzle ahead of the robot, the way it faces, and above it.
         int ahead = WorkRobotLaserDefinitions.MuzzleAhead;
-        projectile.Position = new(new(robot.Position.X.Whole +
-            (state.Facing == HorizontalDirection.Left ? -ahead : ahead), 0),
-            new(robot.Position.Y.Whole - WorkRobotLaserDefinitions.MuzzleAbove, 0));
+        projectile.Position = new(FixedCoordinate.FromWhole(robot.Position.X.Whole +
+            (state.Facing == HorizontalDirection.Left ? -ahead : ahead)),
+            FixedCoordinate.FromWhole(robot.Position.Y.Whole - WorkRobotLaserDefinitions.MuzzleAbove));
 
         if (WorkRobotLaserSoundRange.RequestsSound(robot.Position.Whole, robot.Radius, camera))
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.WorkRobotLaserSound, priority: SoundRequestPriority.Normal);

@@ -7,18 +7,11 @@ namespace SuperMetroid.Core.Enemies;
 internal static class EnemyMath
 {
     /// <summary>
-    /// Clamps a velocity to plus or minus <paramref name="maximum"/> whole pixels: a whole part at or past
-    /// the maximum becomes exactly the maximum, one below its negation exactly the negation.
+    /// Holds a velocity within <paramref name="fastest"/>, a whole-pixel speed, either way (#2555): a velocity at or past
+    /// it becomes exactly it, one below its reversal exactly the reversal, and any other keeps its fraction.
     /// </summary>
-    internal static SignedSixteenSixteen ClampWholeVelocity(SignedSixteenSixteen velocity, int maximum)
-    {
-        int whole = velocity.WholePixels;
-        if (whole >= maximum)
-            return SignedSixteenSixteen.FromWholePixels(maximum);
-        if (whole < -maximum)
-            return SignedSixteenSixteen.FromWholePixels(-maximum);
-        return velocity;
-    }
+    internal static SignedSixteenSixteen LimitedEitherWay(SignedSixteenSixteen velocity, SignedSixteenSixteen fastest) =>
+        velocity >= fastest ? fastest : velocity < -fastest ? -fastest : velocity;
 
     /// <summary>The share of its distance from its target a homing Metroid or Mochtroid pulls by each update: a 1024th.</summary>
     private const int HomingPullShare = 1024;
@@ -33,10 +26,10 @@ internal static class EnemyMath
         SignedSixteenSixteen.FromWholePixels(distance).DividedInTwoFiftySixths(HomingPullShare);
 
     /// <summary>
-    /// Calculates the bearing of an offset. Zero points upward and the
-    /// result turns clockwise, as every enemy's aim reads it.
+    /// The direction of an offset, as every enemy aims along one (#2555): zero points right and a quarter turn up, the
+    /// angle the game's sine and cosine take.
     /// </summary>
-    internal static Bearing CalculateBearing(Offset16<RoomPixels> delta)
+    internal static TrigonometryAngle CalculateAimAngle(Offset16<RoomPixels> delta)
     {
         // The distances are taken as whole numbers, so the farthest offset either way keeps its full size.
         int absoluteX = Math.Abs((int)delta.X);
@@ -45,18 +38,20 @@ internal static class EnemyMath
         bool up = delta.Y < 0;
 
         // Each octant turns from its nearer compass direction toward the other axis's direction by the slope's eighth:
-        // clockwise from right toward down and from left toward up, so from up or down the other way round.
+        // clockwise, toward decreasing angles, from right toward down and from left toward up, so from up or down the
+        // other way round.
         bool turnsClockwiseFromSide = left == up;
         if (absoluteY < absoluteX)
         {
             // The octant is chosen from the full distances; the slope keeps the game's limits, so offsets
             // beyond 255 pixels bend the angle (AimAngleSlope).
             int turn = AimAngleSlope.TurnSteps(absoluteY, absoluteX);
-            return (left ? Bearing.Left : Bearing.Right).TurnedBySteps(turnsClockwiseFromSide ? turn : -turn);
+            return (left ? TrigonometryAngle.HalfTurn : TrigonometryAngle.Zero).TurnedBySteps(turnsClockwiseFromSide ? -turn : turn);
         }
 
         int inverseTurn = AimAngleSlope.TurnSteps(absoluteX, absoluteY);
-        return (up ? Bearing.Up : Bearing.Down).TurnedBySteps(turnsClockwiseFromSide ? -inverseTurn : inverseTurn);
+        return (up ? TrigonometryAngle.QuarterTurn : TrigonometryAngle.Zero - TrigonometryAngle.QuarterTurn)
+            .TurnedBySteps(turnsClockwiseFromSide ? inverseTurn : -inverseTurn);
     }
 
     /// <summary>
@@ -166,14 +161,14 @@ internal static class EnemyMath
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="wholePixels"/> is negative.</exception>
     internal static SignedEightEight SineVelocity(TrigonometryAngle angle, int wholePixels) =>
-        Trigonometry.MultiplySignedSine(SignedEightEight.FromPixels(wholePixels >= 0
+        SpeedAlongAngle.Along(SignedEightEight.FromPixels(wholePixels >= 0
             ? wholePixels
             : throw new ArgumentOutOfRangeException(nameof(wholePixels), wholePixels, "A sine velocity's speed is none or more.")), angle);
 
     /// <summary>
     /// The part of <paramref name="speed"/> along <paramref name="angle"/>'s sine, rounding toward zero as the game does
-    /// (<see cref="Trigonometry.MultiplySignedSine"/>); a quarter turn ahead gives the cosine part.
+    /// (<see cref="SpeedAlongAngle.Along"/>); a quarter turn ahead gives the cosine part.
     /// </summary>
     internal static SignedEightEight SineSpeed(SignedEightEight speed, TrigonometryAngle angle) =>
-        Trigonometry.MultiplySignedSine(speed, angle);
+        SpeedAlongAngle.Along(speed, angle);
 }

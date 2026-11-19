@@ -44,7 +44,7 @@ internal static class BeamSpeedRowsVerification
             int y = direction is 0 or 1 or 8 or 9 ? -speed : direction is 3 or 4 or 5 or 6 ? speed : 0;
             // The fire frame's beam pre-instruction adds one direction-indexed acceleration
             // word to the speed-row velocity before the slot is observable.
-            EightEightVector<RoomPixels> acceleration = SamusProjectileAccelerations.For(SamusProjectileWordCodec.DecodeDirection(direction)).Beam;
+            PixelVelocity<RoomPixels> acceleration = SamusProjectileAccelerations.For(SamusProjectileWordCodec.DecodeDirection(direction)).Beam;
             int ax = acceleration.X.InTwoHundredFiftySixthsOfPixel;
             int ay = acceleration.Y.InTwoHundredFiftySixthsOfPixel;
             AssertEqual(unchecked((short)(x + ax)), shot.Velocity.X.InTwoHundredFiftySixthsOfPixel, $"beam {combination} direction {direction} native speed-row X");
@@ -61,8 +61,8 @@ internal static class BeamSpeedRowsVerification
                 AssertThrows<ArgumentOutOfRangeException>(() => unauthored.Speed(beams, diagonal: false), $"{beams}'s authored speeds are not read past the table");
                 continue;
             }
-            AssertEqual(unchecked((short)retail.ReadCartridgeWord(row)), unauthored.Speed(beams, diagonal: false), $"{beams} cardinal speed read past the table");
-            AssertEqual(unchecked((short)retail.ReadCartridgeWord(row + 2)), unauthored.Speed(beams, diagonal: true), $"{beams} diagonal speed read past the table");
+            AssertEqual(new SignedEightEight(retail.ReadCartridgeWord(row)), unauthored.Speed(beams, diagonal: false), $"{beams} cardinal speed read past the table");
+            AssertEqual(new SignedEightEight(retail.ReadCartridgeWord(row + 2)), unauthored.Speed(beams, diagonal: true), $"{beams} diagonal speed read past the table");
         }
         // Exercise the actual initializer to detect a dropped combination index.
         var initialize = new Action<ProjectileLaunchInheritance, SamusProjectile>((records, launched) =>

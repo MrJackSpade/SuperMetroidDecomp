@@ -11,6 +11,12 @@ public static class IntroCinematicDefinitions
     {
         /// <summary>The updates a crossfade lasts, its last included.</summary>
         public const int Updates = 128;
+        /// <summary>
+        /// The crossfaded scenes in the order their shades are listed and laid over each other (#2567): the narration's, the
+        /// flashback's, then the laboratory's.
+        /// </summary>
+        internal static IReadOnlyList<IntroCrossfadeScene> ShadedScenes { get; } =
+            [IntroCrossfadeScene.Narration, IntroCrossfadeScene.Flashback, IntroCrossfadeScene.Laboratory];
     }
 
     /// <summary>

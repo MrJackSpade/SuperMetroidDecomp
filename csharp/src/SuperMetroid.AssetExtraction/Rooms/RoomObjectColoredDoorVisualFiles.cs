@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -9,6 +10,14 @@ public static class RoomObjectColoredDoorVisualFiles
 {
     /// <summary>JSON filename for yellow, green, and red door-cap visual frames.</summary>
     public const string VisualFileName = "colored-doors.json";
+
+    /// <summary>The cap colours in the installed file's order (#2567): yellow, green, red.</summary>
+    private static readonly IReadOnlyList<ColoredDoorColor> Colors = Ensure.EveryMemberOnce<ColoredDoorColor>(
+    [
+        ColoredDoorColor.Yellow,
+        ColoredDoorColor.Green,
+        ColoredDoorColor.Red,
+    ]);
 
     /// <summary>The coloured-door cap as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
@@ -67,7 +76,7 @@ public static class RoomObjectColoredDoorVisualFiles
     /// <summary>Every colour's caps, each facing's cap closed and sliding aside in turn.</summary>
     private static IEnumerable<RoomObjectDraw> Draws()
     {
-        foreach (ColoredDoorColor color in Enum.GetValues<ColoredDoorColor>())
+        foreach (ColoredDoorColor color in Colors)
             for (int orientation = 0; orientation < 4; orientation++)
                 foreach (DoorCapLook look in DoorCaps.OpeningLooks)
                     yield return ColoredDoorCaps.Family.Of(new ColoredDoorCaps.Draw(color, DoorCapOrientations.FromTableIndex(orientation), look));

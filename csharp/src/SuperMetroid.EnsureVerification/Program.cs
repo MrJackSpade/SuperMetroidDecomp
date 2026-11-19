@@ -88,6 +88,7 @@ internal static class Program
                 new AnalyzerSuite(nameof(AnimationSegmentSummaryAnalyzerTests.VerifyAnimationSegmentSummaryAnalyzer), AnimationSegmentSummaryAnalyzerTests.VerifyAnimationSegmentSummaryAnalyzer),
                 new AnalyzerSuite(nameof(InstalledKeyAnalyzerTests.VerifyInstalledKeyAnalyzer), InstalledKeyAnalyzerTests.VerifyInstalledKeyAnalyzer),
                 new AnalyzerSuite(nameof(RandomSampleSelectionAnalyzerTests.VerifyRandomSampleSelectionAnalyzer), RandomSampleSelectionAnalyzerTests.VerifyRandomSampleSelectionAnalyzer),
+                new AnalyzerSuite(nameof(EnumerationOrderAnalyzerTests.VerifyEnumerationOrderAnalyzer), EnumerationOrderAnalyzerTests.VerifyEnumerationOrderAnalyzer),
                 new AnalyzerSuite(nameof(HandRunCountdownAnalyzerTests.VerifyHandRunCountdownAnalyzer), HandRunCountdownAnalyzerTests.VerifyHandRunCountdownAnalyzer),
                 new AnalyzerSuite(nameof(RawFixedPointUnitAnalyzerTests.VerifyRawFixedPointUnitAnalyzer), RawFixedPointUnitAnalyzerTests.VerifyRawFixedPointUnitAnalyzer),
                 new AnalyzerSuite(nameof(MagnitudeAndSignAnalyzerTests.VerifyMagnitudeAndSignAnalyzer), MagnitudeAndSignAnalyzerTests.VerifyMagnitudeAndSignAnalyzer),

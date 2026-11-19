@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -8,6 +9,14 @@ public static class RoomObjectElevatorPlatformVisualFiles
 {
     /// <summary>Family-relative installed JSON filename for the elevator platform's three six-cell artwork frames.</summary>
     public const string VisualFileName = "elevator-platforms.json";
+
+    /// <summary>The platform's frames in the installed file's order (#2567): dim, glowing, bright.</summary>
+    private static readonly IReadOnlyList<ElevatorPlatformDraw> FrameOrder = Ensure.EveryMemberOnce<ElevatorPlatformDraw>(
+    [
+        ElevatorPlatformDraw.Dim,
+        ElevatorPlatformDraw.Glowing,
+        ElevatorPlatformDraw.Bright,
+    ]);
 
     /// <summary>The elevator-platform as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
@@ -31,7 +40,7 @@ public static class RoomObjectElevatorPlatformVisualFiles
     {
         get
         {
-            foreach (ElevatorPlatformDraw platform in Enum.GetValues<ElevatorPlatformDraw>())
+            foreach (ElevatorPlatformDraw platform in FrameOrder)
             {
                 TryGetDraw(ElevatorPlatformDraws.Family.Of(platform), out var list);
                 yield return list;

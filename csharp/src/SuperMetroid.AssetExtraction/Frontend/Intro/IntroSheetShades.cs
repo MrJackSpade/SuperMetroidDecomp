@@ -13,13 +13,25 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 /// </summary>
 internal static class IntroSheetShades
 {
+    /// <summary>The crossfaded scenes in the order the sheets list their shades, each listed once (#2567).</summary>
+    private static readonly IReadOnlyList<IntroCrossfadeScene> ShadedScenes = Ensure.EveryMemberOnce(IntroCinematicDefinitions.Crossfade.ShadedScenes);
+
+    /// <summary>The sprite colourings in the order the intro sprite sheet lists their shades (#2567).</summary>
+    private static readonly IReadOnlyList<IntroSpriteColouring> Colourings = Ensure.EveryMemberOnce<IntroSpriteColouring>(
+    [
+        IntroSpriteColouring.MotherBrain,
+        IntroSpriteColouring.CrossFadeActors,
+        IntroSpriteColouring.DiscoveryActors,
+        IntroSpriteColouring.Explosions,
+    ]);
+
     /// <summary>The shades of every crossfaded scene at every level below full, over <paramref name="backgrounds"/>.</summary>
     /// <param name="backgrounds">The opening's installed background colours, at the inks the scene pictures colour them at.</param>
     internal static IReadOnlyList<SheetShade> Scene(IReadOnlyList<RgbColor> backgrounds)
     {
         Ensure.NotNull(backgrounds);
         var shades = new List<SheetShade>();
-        foreach (IntroCrossfadeScene scene in Enum.GetValues<IntroCrossfadeScene>())
+        foreach (IntroCrossfadeScene scene in ShadedScenes)
         {
             int[] inks = [.. IntroSheetInks.Background(scene)];
             for (int level = 0; level < IntroCrossfade.Levels; level++)
@@ -38,20 +50,19 @@ internal static class IntroSheetShades
     {
         Ensure.NotNull(sprites);
         var shades = new List<SheetShade>();
-        IntroSpriteColouring[] colourings = Enum.GetValues<IntroSpriteColouring>();
-        foreach (IntroSpriteColouring colouring in colourings)
+        foreach (IntroSpriteColouring colouring in Colourings)
         {
             int set = IntroSheetInks.SpriteSet(colouring);
             shades.Add(SheetShade.DrawnRun(IntroShades.Drawn(colouring), set * IntroSheetInks.SetColours,
                 [.. sprites.Skip(set * IntroSheetInks.SetColours).Take(IntroSheetInks.SetColours)], set));
         }
-        foreach (IntroCrossfadeScene scene in Enum.GetValues<IntroCrossfadeScene>())
+        foreach (IntroCrossfadeScene scene in ShadedScenes)
         {
             int[] colours = [.. IntroSheetInks.Sprite(scene)];
             for (int level = 0; level < IntroCrossfade.Levels; level++)
             {
                 shades.Add(new SheetShade(IntroShades.Faded(scene, level), colours, Faded(colours.Select(colour => sprites[colour]), level)));
-                foreach (IntroSpriteColouring colouring in colourings)
+                foreach (IntroSpriteColouring colouring in Colourings)
                 {
                     int set = IntroSheetInks.SpriteSet(colouring);
                     int[] drawn = [.. colours.Where(colour => colour / IntroSheetInks.SetColours == set)];

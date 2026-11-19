@@ -26,6 +26,26 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 internal static class EncounterLookUploads
 {
+    /// <summary>The composed encounters in the order a graphics set's looks are listed (#2567).</summary>
+    private static readonly IReadOnlyList<ComposedEncounter> EncounterOrder = Ensure.EveryMemberOnce<ComposedEncounter>(
+    [
+        ComposedEncounter.DraygonEvirs,
+        ComposedEncounter.Gunship,
+        ComposedEncounter.Crocomire,
+        ComposedEncounter.BombTorizo,
+        ComposedEncounter.GoldenTorizo,
+        ComposedEncounter.CeresEscape,
+        ComposedEncounter.CeresElevatorDoor,
+        ComposedEncounter.MotherBrain,
+    ]);
+
+    /// <summary>The escape timer's tile pages in the order their copies are uploaded (#2567): the first, then the second.</summary>
+    private static readonly IReadOnlyList<EscapeTimerTilePage> TimerPages = Ensure.EveryMemberOnce<EscapeTimerTilePage>(
+    [
+        EscapeTimerTilePage.First,
+        EscapeTimerTilePage.Second,
+    ]);
+
     /// <summary>The encounter each enemy whose graphics set loads it plays, and which a room placing it shows.</summary>
     private static readonly Dictionary<EnemyDefinitionId, ComposedEncounter> ByEncounter = new()
     {
@@ -112,7 +132,8 @@ internal static class EncounterLookUploads
             .Where(ByEncounter.ContainsKey).Select(enemy => ByEncounter[enemy]);
         IEnumerable<ComposedEncounter> artwork = records.Select(record => record.Unplaced).OfType<UnplacedEnemyArtwork>()
             .Where(ByArtwork.ContainsKey).Select(unplaced => ByArtwork[unplaced]);
-        return [.. members.Concat(artwork).Distinct().Order()];
+        HashSet<ComposedEncounter> played = [.. members.Concat(artwork)];
+        return [.. EncounterOrder.Where(played.Contains)];
     }
 
     /// <summary>
@@ -205,7 +226,7 @@ internal static class EncounterLookUploads
                         $"Crocomire skeleton chunk {chunk}")))],
             ComposedEncounter.BombTorizo => Torizo(TorizoLookUploadDefinitions.BombSequence[look - 1], installed),
             ComposedEncounter.GoldenTorizo => Torizo(TorizoLookUploadDefinitions.GoldenSequence[look - 1], installed),
-            ComposedEncounter.CeresEscape => [.. Enum.GetValues<EscapeTimerTilePage>().Select(page => Timer(page, installed)),
+            ComposedEncounter.CeresEscape => [.. TimerPages.Select(page => Timer(page, installed)),
                 .. Enumerable.Range(0, CeresWarningTextPageDefinitions.PageCount).Select(page => Warning(page, installed))],
             ComposedEncounter.CeresElevatorDoor => [new(EncounterCharacterPlacementDefinitions.CeresDoorFirstCharacter,
                 Whole((Areas(installed).CeresDoor ?? throw new InvalidDataException("Installed area artwork has no Ceres door visuals.")).Characters,
@@ -249,7 +270,7 @@ internal static class EncounterLookUploads
                 return [.. Enumerable.Range(0, MotherBrainCorpseSheet.RowCount).Select(page => new EncounterArtworkUpload(
                     MotherBrainCorpseSheet.PageFirstCharacter(page), corpse.Characters.Slice(MotherBrainCorpseSheet.PageOffset(page), MotherBrainCorpseSheet.PageByteCount)))];
             case MotherBrainSpriteSheet.EscapeTimer:
-                return [.. Enum.GetValues<EscapeTimerTilePage>().Select(page => Timer(page, installed))];
+                return [.. TimerPages.Select(page => Timer(page, installed))];
             case MotherBrainSpriteSheet.EscapeText:
                 RoomCharacterAtlas text = Bosses(installed).MotherBrainEscapeText ?? throw new InvalidDataException(
                     "Installed enemy artwork is missing mother-brain-escape-text-tiles.png.");

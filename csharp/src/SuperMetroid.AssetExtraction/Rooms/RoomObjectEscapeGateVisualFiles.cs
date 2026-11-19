@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Spatial;
 
@@ -9,6 +10,14 @@ public static class RoomObjectEscapeGateVisualFiles
 {
     /// <summary>The installed file holding the gate frames' pictures.</summary>
     public const string VisualFileName = "escape-gate.json";
+
+    /// <summary>The gate frames in the installed file's order (#2567): open, half closed, closed.</summary>
+    private static readonly IReadOnlyList<MotherBrainEscapeGateDraw> FrameOrder = Ensure.EveryMemberOnce<MotherBrainEscapeGateDraw>(
+    [
+        MotherBrainEscapeGateDraw.Open,
+        MotherBrainEscapeGateDraw.HalfClosed,
+        MotherBrainEscapeGateDraw.Closed,
+    ]);
 
     /// <summary>The gate as the import pictures it: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<MotherBrainEscapeGateDraw> Family { get; } =
@@ -31,15 +40,15 @@ public static class RoomObjectEscapeGateVisualFiles
     /// Every gate frame's geometry as the cartridge writes it: one four-cell column from the origin, each cell colliding
     /// as the game's block shape for the frame says (#1608).
     /// </summary>
-    private static Dictionary<MotherBrainEscapeGateDraw, RoomObjectFrameLayout> Layouts()
+    private static List<RoomObjectFamilyFrame<MotherBrainEscapeGateDraw>> Layouts()
     {
-        var layouts = new Dictionary<MotherBrainEscapeGateDraw, RoomObjectFrameLayout>();
-        foreach (MotherBrainEscapeGateDraw frame in Enum.GetValues<MotherBrainEscapeGateDraw>())
+        var layouts = new List<RoomObjectFamilyFrame<MotherBrainEscapeGateDraw>>();
+        foreach (MotherBrainEscapeGateDraw frame in FrameOrder)
         {
             RoomObjectDraw draw = MotherBrainEscapeGateDraws.Family.Of(frame);
             if (!RoomObjectDrawIdentity.TryShape(MotherBrainEscapeGateDraws.Family, draw, out RoomBlockShape? shape))
                 throw new InvalidOperationException($"Escape-gate frame {frame} has no shape.");
-            layouts.Add(frame, RoomObjectShapeRun.Layout(draw, shape, RoomObjectShapeRun.Column(Offset16<RoomBlocks>.Zero, 4)));
+            layouts.Add(new(frame, RoomObjectShapeRun.Layout(draw, shape, RoomObjectShapeRun.Column(Offset16<RoomBlocks>.Zero, 4))));
         }
         return layouts;
     }

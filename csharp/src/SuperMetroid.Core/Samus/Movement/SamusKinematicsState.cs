@@ -147,12 +147,7 @@ public sealed class SamusKinematicsState
     internal bool DidCollideWithSolidEnemy(ISolidEnemy enemy)
     {
         Ensure.NotNull(enemy);
-        foreach (ISolidEnemy contact in _solidEnemyContacts.Values)
-        {
-            if (ReferenceEquals(contact, enemy))
-                return true;
-        }
-        return false;
+        return _solidEnemyContacts.Values.Any(contact => ReferenceEquals(contact, enemy));
     }
 
     /// <summary>Forgets every direction's contact, as the end of the enemy pass does.</summary>

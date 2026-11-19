@@ -20,6 +20,9 @@ internal sealed class EndingSheetDraws
     /// <summary>The texts the scene types, with their colourings in the order first drawn (#2195).</summary>
     private readonly Dictionary<EndingTypedText, List<EndingSpriteColouring>> texts = [];
 
+    /// <summary>The texts the scene types, in the order first typed (#2567).</summary>
+    private readonly List<EndingTypedText> textOrder = [];
+
     /// <summary>Whether the shooting stars cross the scene, drawn from its sheet.</summary>
     internal bool Stars { get; private set; }
 
@@ -47,13 +50,15 @@ internal sealed class EndingSheetDraws
         {
             colourings = [];
             texts.Add(text, colourings);
+            textOrder.Add(text);
         }
         if (!colourings.Contains(colouring))
             colourings.Add(colouring);
     }
 
     /// <summary>The texts the scene types, each with its colourings in the order first drawn, in the order first typed.</summary>
-    internal IReadOnlyDictionary<EndingTypedText, List<EndingSpriteColouring>> Texts => texts;
+    internal IReadOnlyList<KeyValuePair<EndingTypedText, List<EndingSpriteColouring>>> Texts =>
+        [.. textOrder.Select(text => KeyValuePair.Create(text, texts[text]))];
 
     /// <summary>Records <paramref name="pose"/> as drawn in <paramref name="colouring"/>; the blank pose draws nothing.</summary>
     internal void AddPose(CinematicSpriteFamily family, CinematicSpritePose pose, EndingSpriteColouring colouring)

@@ -12,7 +12,7 @@ internal static class PauseMenuButtonLabels
     {
         get
         {
-            foreach (PauseButtonLabel label in Enum.GetValues<PauseButtonLabel>())
+            foreach (PauseButtonLabel label in PauseSheetFrameOrder.ButtonLabels)
             for (int row = 0; row < 2; row++)
                 yield return ButtonLabelSpan(label, row);
         }

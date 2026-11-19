@@ -57,7 +57,7 @@ internal static class RoomSheetShades
     internal static IReadOnlyList<SheetShade> Written(RoomBlockSheetInputs inputs, IEnumerable<TileWordWriter> writers)
     {
         Ensure.NotNull(inputs);
-        return [.. Ensure.NotNull(writers).Order().SelectMany(writer => WrittenBy(inputs, writer))];
+        return [.. Ensure.NotNull(writers).OrderBy(WrittenPictureSheetComposer.WriterOrder.PlaceOf).SelectMany(writer => WrittenBy(inputs, writer))];
     }
 
     /// <summary>The shades of the pictures <paramref name="writer"/> writes.</summary>

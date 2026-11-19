@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -11,6 +12,13 @@ public static class RoomObjectPhantoonDoorVisualFiles
 {
     /// <summary>The installed file holding the door frames' pictures.</summary>
     public const string VisualFileName = "phantoon-door.json";
+
+    /// <summary>The door frames in the installed file's order (#2567): the fight's door, then the restored door.</summary>
+    private static readonly IReadOnlyList<PhantoonDoorDraw> FrameOrder = Ensure.EveryMemberOnce<PhantoonDoorDraw>(
+    [
+        PhantoonDoorDraw.FightDoor,
+        PhantoonDoorDraw.RestoredDoor,
+    ]);
 
     /// <summary>The door as the import pictures it: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<PhantoonDoorDraw> Family { get; } =
@@ -34,10 +42,10 @@ public static class RoomObjectPhantoonDoorVisualFiles
     /// door's transition column first, each cell colliding as the shape says. The run form is the cartridge's; the game
     /// draws the shape.
     /// </summary>
-    private static Dictionary<PhantoonDoorDraw, RoomObjectFrameLayout> Layouts()
+    private static List<RoomObjectFamilyFrame<PhantoonDoorDraw>> Layouts()
     {
-        var layouts = new Dictionary<PhantoonDoorDraw, RoomObjectFrameLayout>();
-        foreach (PhantoonDoorDraw frame in Enum.GetValues<PhantoonDoorDraw>())
+        var layouts = new List<RoomObjectFamilyFrame<PhantoonDoorDraw>>();
+        foreach (PhantoonDoorDraw frame in FrameOrder)
         {
             RoomObjectDraw draw = PhantoonDoorDraws.Family.Of(frame);
             if (!RoomObjectDrawIdentity.TryShape(PhantoonDoorDraws.Family, draw, out RoomBlockShape? described))
@@ -45,9 +53,9 @@ public static class RoomObjectPhantoonDoorVisualFiles
             RoomBlockShape shape = described;
             int[] columns = [.. shape.Cells.Select(cell => cell.Cell.X).Distinct().Order()];
             int Height(int column) => shape.Cells.Count(cell => cell.Cell.X == columns[column]);
-            layouts.Add(frame, RoomObjectFrameLayout.Of(draw, columns.Length, Height,
+            layouts.Add(new(frame, RoomObjectFrameLayout.Of(draw, columns.Length, Height,
                 (run, cell) => shape.CollisionAt(new Offset16<RoomBlocks>(columns[run], cell)),
-                _ => RoomObjectRunDirection.Vertical, run => new Offset16<RoomBlocks>(columns[run], 0)));
+                _ => RoomObjectRunDirection.Vertical, run => new Offset16<RoomBlocks>(columns[run], 0))));
         }
         return layouts;
     }

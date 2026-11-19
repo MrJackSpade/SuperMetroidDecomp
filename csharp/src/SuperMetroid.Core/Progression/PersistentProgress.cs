@@ -22,7 +22,7 @@ public sealed class PersistentProgress
     private readonly Dictionary<AreaId, ExploredMapCells> _explored = AreaIds.All.ToDictionary(area => area, _ => new ExploredMapCells());
 
     /// <summary>Every story event; a save lists them in its own written-out order (<see cref="StoryEventKeys.SavedOrder"/>).</summary>
-    private static readonly StoryEvent[] StoryEvents = Enum.GetValues<StoryEvent>();
+    private static readonly StoryEvent[] StoryEvents = [.. Ensure.EveryMemberOnce(StoryEventKeys.SavedOrder)];
 
     /// <summary>The story events that have happened.</summary>
     public ProgressSet<StoryEvent> Events { get; } = new(StoryEvents);

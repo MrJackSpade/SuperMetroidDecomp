@@ -251,7 +251,7 @@ internal sealed class EnemyTileArtworkReader
             unplacedSheets.Add(unplaced, TilePage(importData, stem, entry.NativeByteCount));
             unplacedPalettes.Add(unplaced, Colours(importData, stem));
         }
-        if (!unplacedSheets.Keys.Order().SequenceEqual(EnemyTileSourceDefinitions.Unplaced))
+        if (!unplacedSheets.Keys.ToHashSet().SetEquals(EnemyTileSourceDefinitions.Unplaced) || unplacedSheets.Count != EnemyTileSourceDefinitions.Unplaced.Count)
             throw new InvalidDataException("Enemy tile manifest omits or substitutes artwork a graphics set loads for no enemy.");
         return new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes, UnplacedSheets = unplacedSheets, UnplacedPalettes = unplacedPalettes };
     }

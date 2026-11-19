@@ -20,12 +20,5 @@ internal static class IntroNarrationScriptSources
     }
 
     /// <summary>The six stock page scripts in narrative order, page one through page six.</summary>
-    internal static IEnumerable<IntroNarrationScriptPage> Pages
-    {
-        get
-        {
-            foreach (IntroNarrationPageId page in Enum.GetValues<IntroNarrationPageId>())
-                yield return Page(page);
-        }
-    }
+    internal static IEnumerable<IntroNarrationScriptPage> Pages => IntroNarrationScriptDefinitions.Pages;
 }

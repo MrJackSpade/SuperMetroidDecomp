@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
@@ -11,6 +12,18 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 /// </summary>
 internal static class CeresFloorDrawings
 {
+    /// <summary>The floor's animation frames in the order the floor sheet holds their pictures (#2567).</summary>
+    private static readonly IReadOnlyList<CeresFloorAnimationFrame> FrameOrder = Ensure.EveryMemberOnce<CeresFloorAnimationFrame>(
+    [
+        CeresFloorAnimationFrame.ElevatorLight,
+        CeresFloorAnimationFrame.ElevatorDark,
+        CeresFloorAnimationFrame.BabyVertical,
+        CeresFloorAnimationFrame.BabyRound,
+        CeresFloorAnimationFrame.BabyHorizontal,
+        CeresFloorAnimationFrame.WingsRaised,
+        CeresFloorAnimationFrame.WingsLowered,
+    ]);
+
     /// <summary>The tiles of each cell <paramref name="frame"/>'s runs write, by floor cell.</summary>
     internal static IReadOnlyDictionary<int, int> Cells(CeresFloorAnimationFrame frame)
     {
@@ -38,12 +51,12 @@ internal static class CeresFloorDrawings
     internal static IReadOnlyList<FloorSheetComposer.FloorPicture> Pictures(ReadOnlySpan<byte> map, byte[] tilePixels)
     {
         var pictures = new List<FloorSheetComposer.FloorPicture>();
-        foreach (CeresFloorAnimationFrame frame in Enum.GetValues<CeresFloorAnimationFrame>())
+        foreach (CeresFloorAnimationFrame frame in FrameOrder)
             pictures.Add(Picture(frame, map, tilePixels));
         FloorSheetComposer.RequireSeparateParts(pictures);
-        foreach (CeresFloorAnimationFrame first in Enum.GetValues<CeresFloorAnimationFrame>())
+        foreach (CeresFloorAnimationFrame first in FrameOrder)
         {
-            foreach (CeresFloorAnimationFrame second in Enum.GetValues<CeresFloorAnimationFrame>())
+            foreach (CeresFloorAnimationFrame second in FrameOrder)
             {
                 FloorSheetComposer.FloorPicture one = pictures.Single(picture => picture.Name == RoomFloorSheet.PictureNameOf(first));
                 FloorSheetComposer.FloorPicture other = pictures.Single(picture => picture.Name == RoomFloorSheet.PictureNameOf(second));

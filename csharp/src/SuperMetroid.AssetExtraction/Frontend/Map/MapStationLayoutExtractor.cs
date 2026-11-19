@@ -20,7 +20,7 @@ public static class MapStationLayoutExtractor
     {
         var markers = new Dictionary<string, Position16<MapPixels>>();
         foreach (AreaId area in AreaIds.All)
-        foreach (MapStationKind kind in Enum.GetValues<MapStationKind>())
+        foreach (MapStationKind kind in MapStationLayoutFile.KindOrder)
         {
             int table = kind switch
             {

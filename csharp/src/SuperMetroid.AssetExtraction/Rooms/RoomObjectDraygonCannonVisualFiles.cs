@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -11,6 +12,23 @@ public static class RoomObjectDraygonCannonVisualFiles
 {
     /// <summary>The installed file holding the right- and left-facing cannon frames' pictures.</summary>
     public const string VisualFileName = "draygon-cannons.json";
+
+    /// <summary>The cannon frames in the installed file's order (#2567): the right-facing frames, then the left-facing.</summary>
+    private static readonly IReadOnlyList<DraygonCannonDraw> FrameOrder = Ensure.EveryMemberOnce<DraygonCannonDraw>(
+    [
+        DraygonCannonDraw.RightShield,
+        DraygonCannonDraw.RightShieldFlash,
+        DraygonCannonDraw.RightSparksFlaring,
+        DraygonCannonDraw.RightSparksSpreading,
+        DraygonCannonDraw.RightSparksReceding,
+        DraygonCannonDraw.RightSparksFlat,
+        DraygonCannonDraw.LeftShield,
+        DraygonCannonDraw.LeftShieldFlash,
+        DraygonCannonDraw.LeftSparksFlaring,
+        DraygonCannonDraw.LeftSparksSpreading,
+        DraygonCannonDraw.LeftSparksReceding,
+        DraygonCannonDraw.LeftSparksFlat,
+    ]);
 
     /// <summary>The cannons as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<DraygonCannonDraw> Family { get; } =
@@ -33,7 +51,7 @@ public static class RoomObjectDraygonCannonVisualFiles
     /// Every cannon frame's geometry as the cartridge writes it: the runs of its draw list, each cell colliding as the
     /// game's block shape for the frame says (#1608). The run form is the cartridge's; the game draws the shape.
     /// </summary>
-    private static Dictionary<DraygonCannonDraw, RoomObjectFrameLayout> Layouts()
+    private static List<RoomObjectFamilyFrame<DraygonCannonDraw>> Layouts()
     {
         // A frame reaching right of the cannon's core is written as its two rows, core row first. A frame reaching left
         // splits its top row into the core and the cell to its left, then writes the lower row from its left end.
@@ -43,8 +61,8 @@ public static class RoomObjectDraygonCannonVisualFiles
         Offset16<RoomBlocks>[] leftStarts = [new(0, 0), new(-1, 0), new(-1, 1)];
         int[] leftCounts = [1, 1, 2];
 
-        var layouts = new Dictionary<DraygonCannonDraw, RoomObjectFrameLayout>();
-        foreach (DraygonCannonDraw frame in Enum.GetValues<DraygonCannonDraw>())
+        var layouts = new List<RoomObjectFamilyFrame<DraygonCannonDraw>>();
+        foreach (DraygonCannonDraw frame in FrameOrder)
         {
             RoomObjectDraw draw = DraygonCannonDraws.Family.Of(frame);
             if (!RoomObjectDrawIdentity.TryShape(DraygonCannonDraws.Family, draw, out RoomBlockShape? described))
@@ -53,9 +71,9 @@ public static class RoomObjectDraygonCannonVisualFiles
             bool right = shape.Covers(rightOfCore);
             Offset16<RoomBlocks>[] starts = right ? rightStarts : leftStarts;
             int[] counts = right ? rightCounts : leftCounts;
-            layouts.Add(frame, RoomObjectFrameLayout.Of(draw, starts.Length, run => counts[run],
+            layouts.Add(new(frame, RoomObjectFrameLayout.Of(draw, starts.Length, run => counts[run],
                 (run, cell) => shape.CollisionAt(starts[run] + new Offset16<RoomBlocks>(cell, 0)),
-                RoomObjectDrawListExport.Horizontal, run => starts[run]));
+                RoomObjectDrawListExport.Horizontal, run => starts[run])));
         }
         return layouts;
     }

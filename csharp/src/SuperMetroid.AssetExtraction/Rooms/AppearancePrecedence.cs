@@ -4,7 +4,8 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// Which appearance input's artwork shows where several reach the same characters (#1406, #1466), first to last: an
 /// animation's selected frame shows over anything bound there; Kraid's backdrop, bound as he rises, over the room's load;
 /// an encounter's look, Ceres Ridley's in his arena, over what the arena loaded. A collectible is pictured as its kind alone (#1538), by
-/// no input.
+/// no input. The order is written out where the composition reads it (<see cref="RoomAppearanceComposition"/>, #2567), so the
+/// members' declaration order carries nothing.
 /// </summary>
 internal enum AppearancePrecedence
 {

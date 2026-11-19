@@ -77,7 +77,8 @@ internal sealed class SamusAnimationLayout
             documentSteps.Add(animation, named.ToDictionary(pair => animation.NameOf(FrameAt(animation, pair.Key)), pair => pair.Value, StringComparer.Ordinal));
             steps.Add(animation, named.ToDictionary(pair => pair.Key, pair => SamusOverreadServicesReader.CueValueStep(animation, pair.Value)));
         }
-        SamusPoseAnimation[] programs = [.. laidOut.Select(program => program.Program).OrderBy(animation => animation.Name)];
+        var names = new WrittenOrder<SamusAnimationName>(Ensure.EveryMemberOnce(SamusAnimationNameKeys.ListedOrder));
+        SamusPoseAnimation[] programs = [.. laidOut.Select(program => program.Program).OrderBy(animation => names.PlaceOf(animation.Name))];
         return new SamusAnimationLayout(programs, successors, steps, documentSteps);
     }
 

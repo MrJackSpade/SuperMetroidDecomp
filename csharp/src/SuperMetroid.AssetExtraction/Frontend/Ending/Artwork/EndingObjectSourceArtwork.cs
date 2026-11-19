@@ -31,7 +31,8 @@ public class EndingObjectSourceArtwork
             parts.Fragments.Any(fragment => fragment is null || !IsWholeMap(fragment)))
             throw new InvalidDataException("Ending OBJ catalog has an incorrect native transfer length.");
         fragments = [.. parts.Fragments];
-        fragmentsById = Enum.GetValues<EndingExplosionPicture>().Zip(fragments, (id, fragment) => KeyValuePair.Create(id, fragment)).ToDictionary();
+        fragmentsById = EndingObjectArtworkFormat.ExplosionPictures.ToDictionary(picture => picture,
+            picture => fragments[Ensure.Listed(EndingObjectArtworkFormat.FragmentNumbers, picture)]);
         CloudSprites = Ensure.NotNull(parts.CloudSprites);
         ExplosionSprites = Ensure.NotNull(parts.ExplosionSprites);
         CompletionTextSprites = Ensure.NotNull(parts.CompletionTextSprites);
@@ -39,7 +40,7 @@ public class EndingObjectSourceArtwork
         LogoSprites = Ensure.NotNull(parts.LogoSprites);
     }
 
-    /// <summary>The four explosion maps in <see cref="EndingExplosionPicture"/> order.</summary>
+    /// <summary>The four explosion maps in their installed fragments' order (<see cref="EndingObjectArtworkFormat.FragmentNumbers"/>).</summary>
     internal readonly RoomBackgroundTilemapAtlas[] fragments;
 
     /// <summary>The same maps keyed by the explosion map each one holds.</summary>

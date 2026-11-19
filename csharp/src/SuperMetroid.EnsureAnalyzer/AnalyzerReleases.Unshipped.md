@@ -68,4 +68,5 @@ SME6463 | Design | Error | CoordinateWrapAnalyzer
 SME6464 | Design | Error | HandRunCountdownAnalyzer
 SME6465 | Design | Error | RawFixedPointUnitAnalyzer
 SME6466 | Design | Error | CarriedValueAnalyzer
+SME6469 | Design | Error | EnumerationOrderAnalyzer
 SME6471 | Design | Error | MagnitudeAndSignAnalyzer

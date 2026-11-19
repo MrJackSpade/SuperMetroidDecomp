@@ -13,4 +13,12 @@ internal static class CeresElevatorArrivalPoseKeys
         [CeresElevatorArrivalPose.PadLit] = "PadLit",
         [CeresElevatorArrivalPose.Platform] = "Platform",
     });
+
+    /// <summary>The CeresElevatorArrivalPose members in the order the installation lists them (#2567), written out beside the keys so reordering the members never reorders an installed sheet or document.</summary>
+    internal static IReadOnlyList<CeresElevatorArrivalPose> ListedOrder { get; } =
+    [
+        CeresElevatorArrivalPose.PadUnlit,
+        CeresElevatorArrivalPose.PadLit,
+        CeresElevatorArrivalPose.Platform,
+    ];
 }

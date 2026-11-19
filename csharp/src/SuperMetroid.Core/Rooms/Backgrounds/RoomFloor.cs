@@ -35,5 +35,5 @@ public sealed class RoomFloor
 
     /// <summary>The floor the next frame shows, its parts' frames over the installed floor; shared until a part changes.</summary>
     public AffineFloor Publish() => published ??= new AffineFloor(Sheet.Floor.Image,
-        [.. Enum.GetValues<CeresFloorPart>().Where(shown.ContainsKey).Select(part => Sheet.Picture(shown[part]))]);
+        [.. CeresFloorParts.DrawingOrder.Where(shown.ContainsKey).Select(part => Sheet.Picture(shown[part]))]);
 }

@@ -22,6 +22,53 @@ namespace SuperMetroid.AssetExtraction.Hud;
 /// </summary>
 internal static class HudImageSheet
 {
+    /// <summary>The energy tank looks in the order the HUD sheet holds them (#2567).</summary>
+    private static readonly IReadOnlyList<HudEnergyTank> EnergyTankOrder = Ensure.EveryMemberOnce<HudEnergyTank>(
+    [
+        HudEnergyTank.Full,
+        HudEnergyTank.Empty,
+    ]);
+
+    /// <summary>The icon shades in the order the HUD sheet holds each icon's pictures in (#2567).</summary>
+    private static readonly IReadOnlyList<HudIconShade> IconShadeOrder = Ensure.EveryMemberOnce<HudIconShade>(
+    [
+        HudIconShade.Selected,
+        HudIconShade.Deselected,
+    ]);
+
+    /// <summary>The HUD's icons in the order its sheet holds them (#2567).</summary>
+    private static readonly IReadOnlyList<HudIcon> IconOrder = Ensure.EveryMemberOnce<HudIcon>(
+    [
+        HudIcon.Missile,
+        HudIcon.SuperMissile,
+        HudIcon.PowerBomb,
+        HudIcon.Grapple,
+        HudIcon.XRay,
+    ]);
+
+    /// <summary>What an icon picture covers, in the order the HUD sheet holds each icon's pictures (#2567).</summary>
+    private static readonly IReadOnlyList<HudIconCover> IconCoverOrder = Ensure.EveryMemberOnce<HudIconCover>(
+    [
+        HudIconCover.Template,
+        HudIconCover.Icon,
+    ]);
+
+    /// <summary>The reserve indicator looks in the order the HUD sheet holds them (#2567).</summary>
+    private static readonly IReadOnlyList<HudReserveIndicator> ReserveIndicatorOrder = Ensure.EveryMemberOnce<HudReserveIndicator>(
+    [
+        HudReserveIndicator.Filled,
+        HudReserveIndicator.Empty,
+        HudReserveIndicator.Cleared,
+    ]);
+
+    /// <summary>The minimap's shades in the order the HUD sheet holds each cell's pictures (#2567).</summary>
+    private static readonly IReadOnlyList<MinimapShade> MinimapShadeOrder = Ensure.EveryMemberOnce<MinimapShade>(
+    [
+        MinimapShade.Unexplored,
+        MinimapShade.Explored,
+        MinimapShade.SamusLocation,
+    ]);
+
     /// <summary>Cells across a sheet's shelves: the HUD's width.</summary>
     private const int ShelfCells = GameplayHudDocumentDefinitions.Columns;
 
@@ -33,22 +80,22 @@ internal static class HudImageSheet
     internal static IReadOnlyList<HudImage> Images(IEnumerable<IAreaMapView> maps)
     {
         var images = new List<HudImage> { HudTopRowImage.Instance, HudTemplateImage.Instance };
-        images.AddRange(Enum.GetValues<HudEnergyTank>().Select(tank => new HudEnergyTankImage(tank)));
+        images.AddRange(EnergyTankOrder.Select(tank => new HudEnergyTankImage(tank)));
         for (int numeral = 0; numeral < GameplayHudDefinitions.Numerals; numeral++)
             images.Add(new HudEnergyDigitImage(numeral));
         for (int numeral = 0; numeral < GameplayHudDefinitions.Numerals; numeral++)
             images.Add(new HudAmmoDigitImage(numeral));
-        HudIconShade?[] shades = [null, .. Enum.GetValues<HudIconShade>().Select(shade => (HudIconShade?)shade)];
-        foreach (HudIcon item in Enum.GetValues<HudIcon>())
+        HudIconShade?[] shades = [null, .. IconShadeOrder.Select(shade => (HudIconShade?)shade)];
+        foreach (HudIcon item in IconOrder)
         {
-            foreach (HudIconCover cover in Enum.GetValues<HudIconCover>())
+            foreach (HudIconCover cover in IconCoverOrder)
             {
                 // The template unshaded is the template itself, which the HUD never places over its own cells.
                 foreach (HudIconShade? shade in shades.Where(shade => cover == HudIconCover.Icon || shade is not null))
                     images.Add(new HudIconImage(item, cover, shade));
             }
         }
-        foreach (HudReserveIndicator indicator in Enum.GetValues<HudReserveIndicator>())
+        foreach (HudReserveIndicator indicator in ReserveIndicatorOrder)
             images.Add(new HudReserveIndicatorImage(indicator));
         images.Add(HudMinimapHiddenImage.Instance);
         var minimap = new HashSet<HudMinimapCellImage>();
@@ -58,7 +105,7 @@ internal static class HudImageSheet
             for (int x = 0; x < AreaMapSize.WidthInMapTiles; x++)
             {
                 MapCell cell = map.Cell(new Position16<MapTiles>((ushort)x, (ushort)y));
-                foreach (MinimapShade shade in Enum.GetValues<MinimapShade>())
+                foreach (MinimapShade shade in MinimapShadeOrder)
                 {
                     var image = new HudMinimapCellImage(cell, shade);
                     if (minimap.Add(image))

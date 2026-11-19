@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
@@ -20,9 +21,27 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 /// </summary>
 internal static class IntroScenePictureSheetComposer
 {
+    /// <summary>The scene pages in the sheet's order (#2567), top to bottom.</summary>
+    private static readonly IReadOnlyList<IntroScenePage> Pages = Ensure.EveryMemberOnce<IntroScenePage>(
+    [
+        IntroScenePage.MotherBrainRoom,
+        IntroScenePage.BabyDiscoveryRoom,
+        IntroScenePage.ScientistDelivery,
+        IntroScenePage.ScientistExamination,
+    ]);
+
+    /// <summary>The eye frames in the sheet's order (#2567), left to right: open, half open, closed, deadpan.</summary>
+    private static readonly IReadOnlyList<IntroEyeFrame> Eyes = Ensure.EveryMemberOnce<IntroEyeFrame>(
+    [
+        IntroEyeFrame.Open,
+        IntroEyeFrame.HalfOpen,
+        IntroEyeFrame.Closed,
+        IntroEyeFrame.Deadpan,
+    ]);
+
     /// <summary>The name of every picture the sheet holds.</summary>
     internal static IEnumerable<string> FrameNames =>
-        [.. Enum.GetValues<IntroScenePage>().Select(IntroScenePictures.Page), IntroScenePictures.Portrait, .. Enum.GetValues<IntroEyeFrame>().Select(IntroScenePictures.Eye)];
+        [.. Pages.Select(IntroScenePictures.Page), IntroScenePictures.Portrait, .. Eyes.Select(IntroScenePictures.Eye)];
 
     /// <summary>Pixels along each side of a character.</summary>
     private const int CharacterPixels = RoomTileCanvas.CharacterPixels;
@@ -37,23 +56,27 @@ internal static class IntroScenePictureSheetComposer
         RgbColor[] colours = [.. intro.Palette.BackgroundColours];
         int cells = IntroArtworkExtentDefinitions.PlaneCells;
         int planeCells = cells * cells;
-        IntroScenePage[] pages = Enum.GetValues<IntroScenePage>();
-        IntroEyeFrame[] eyes = Enum.GetValues<IntroEyeFrame>();
         Extent16<CharacterCells> eye = IntroArtworkExtentDefinitions.EyeFrameSize;
-        int width = Math.Max(cells, eyes.Length * eye.X) * CharacterPixels;
-        int height = ((pages.Length + 1) * cells + eye.Y) * CharacterPixels;
+        int width = Math.Max(cells, Eyes.Count * eye.X) * CharacterPixels;
+        int height = ((Pages.Count + 1) * cells + eye.Y) * CharacterPixels;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)width), checked((ushort)height)));
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         ImportIntroCinematicArtwork sources = intro;
         ReadOnlySpan<BackgroundTile> pageTiles = sources.BackgroundPages.Span;
-        for (int page = 0; page < pages.Length; page++)
-            frames.Add(IntroScenePictures.Page(pages[page]),
-                PaintRect(canvas, 0, page * cells, cells, pageTiles.Slice(page * planeCells, planeCells), characters, colours));
+        for (int place = 0; place < Pages.Count; place++)
+        {
+            int stored = Ensure.Listed(IntroCinematicArtworkFormat.BackgroundPageOf, Pages[place]);
+            frames.Add(IntroScenePictures.Page(Pages[place]),
+                PaintRect(canvas, 0, place * cells, cells, pageTiles.Slice(stored * planeCells, planeCells), characters, colours));
+        }
         frames.Add(IntroScenePictures.Portrait,
-            PaintRect(canvas, 0, pages.Length * cells, cells, sources.PortraitTilemap.Span[..planeCells], characters, colours));
-        for (int frame = 0; frame < eyes.Length; frame++)
-            frames.Add(IntroScenePictures.Eye(eyes[frame]),
-                PaintRect(canvas, frame * eye.X, (pages.Length + 1) * cells, eye.X, sources.EyeFrames.FrameTiles(frame), characters, colours));
+            PaintRect(canvas, 0, Pages.Count * cells, cells, sources.PortraitTilemap.Span[..planeCells], characters, colours));
+        for (int place = 0; place < Eyes.Count; place++)
+        {
+            int record = Ensure.Listed(FrontendSourceDefinitions.IntroEyeFrameRecordOf, Eyes[place]);
+            frames.Add(IntroScenePictures.Eye(Eyes[place]),
+                PaintRect(canvas, place * eye.X, (Pages.Count + 1) * cells, eye.X, sources.EyeFrames.FrameTiles(record), characters, colours));
+        }
         ComposedSpriteSheet sheet = canvas.ToSheet(colours, frames, SpriteImageColours.Background);
         // The scene pictures show every cross-fade level of the colour groups the opening fades (#1512), and the Mother Brain
         // room each record its fight's background lights show over the colours they recolour (#1733).

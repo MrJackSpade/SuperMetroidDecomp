@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -8,6 +9,16 @@ public static class RoomObjectGrappleBlockVisualFiles
 {
     /// <summary>Family-relative installed JSON filename for the five initial, breakup, and blank breakable-Grapple frames.</summary>
     public const string VisualFileName = "grapple-blocks.json";
+
+    /// <summary>The Grapple block's frames in their authored order (#2567): intact, its rock, pieces and dust, then blank air.</summary>
+    private static readonly IReadOnlyList<GrappleBlockDraw> FrameOrder = Ensure.EveryMemberOnce<GrappleBlockDraw>(
+    [
+        GrappleBlockDraw.Intact,
+        GrappleBlockDraw.Rock,
+        GrappleBlockDraw.Pieces,
+        GrappleBlockDraw.Dust,
+        GrappleBlockDraw.Blank,
+    ]);
     /// <summary>The Grapple-block as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
         RoomObjectFrameImageFiles.DrawFamily(VisualFileName, "Grapple-block", Frames, draw => VisualId(RoomObjectDrawIdentity.FrameOf<GrappleBlockDraw>(draw, "Grapple-block")));
@@ -41,7 +52,7 @@ public static class RoomObjectGrappleBlockVisualFiles
     {
         get
         {
-            foreach (GrappleBlockDraw frame in Enum.GetValues<GrappleBlockDraw>())
+            foreach (GrappleBlockDraw frame in FrameOrder)
                 yield return GrappleBlockObjectDraws.Drawn(frame);
         }
     }

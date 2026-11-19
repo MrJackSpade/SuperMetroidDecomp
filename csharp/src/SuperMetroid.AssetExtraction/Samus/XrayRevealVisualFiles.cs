@@ -51,6 +51,12 @@ public static class XrayRevealVisualFiles
     /// </summary>
     private const int FormatVersion = 12;
 
+    /// <summary>
+    /// The collision types in the written-out order the installed entries follow (#2567), so reordering the type's members
+    /// never reorders the file.
+    /// </summary>
+    internal static WrittenOrder<RoomCollisionType> CollisionOrder { get; } = new(Ensure.EveryMemberOnce(RoomCollisionTypeKeys.ListedOrder));
+
     /// <summary>Uses camel-case enum names and strict constructor/property admission for the installed reveal JSON.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -119,7 +125,7 @@ public static class XrayRevealVisualFiles
                 NameOf(pair.Key.Definition.Shape),
                 [.. (pair.Key.Definition.Blocks ?? throw new InvalidOperationException(
                     $"Drawable X-ray reveal {pair.Key.Type} shows no blocks.")).InReadingOrder]))
-            .OrderBy(entry => entry.CollisionType)
+            .OrderBy(entry => CollisionOrder.PlaceOf(entry.CollisionType))
             .ThenBy(entry => entry.Reactions.Length == 0 ? -1 : ReactionsOf(entry.CollisionType).Select(BlockReactionFamilies.KeyOf).ToList().IndexOf(entry.Reactions[0]))
             .ToArray();
         // The first draws reveal the item set up in each block pair as that pair's first frame, which shows the item's own

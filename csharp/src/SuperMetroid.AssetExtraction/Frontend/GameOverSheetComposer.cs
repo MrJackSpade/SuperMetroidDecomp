@@ -17,6 +17,23 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// </summary>
 internal static class GameOverSheetComposer
 {
+    /// <summary>The Baby's frames in the sheet's order (#2567): closed, middle, open.</summary>
+    private static readonly IReadOnlyList<GameOverBabyFrame> BabyFrames = Ensure.EveryMemberOnce<GameOverBabyFrame>(
+    [
+        GameOverBabyFrame.Closed,
+        GameOverBabyFrame.Middle,
+        GameOverBabyFrame.Open,
+    ]);
+
+    /// <summary>The Baby's colourings in the order the sheet lists their shades (#2567): idle, then each cry's.</summary>
+    private static readonly IReadOnlyList<GameOverBabyColouring> BabyColourings = Ensure.EveryMemberOnce<GameOverBabyColouring>(
+    [
+        GameOverBabyColouring.Idle,
+        GameOverBabyColouring.ClosedCry,
+        GameOverBabyColouring.MiddleCry,
+        GameOverBabyColouring.OpenCry,
+    ]);
+
     /// <summary>The first sprite colour of a whole-screen colour image.</summary>
     private const int SpriteColours = 128;
     /// <summary>The colours of one sprite colour group.</summary>
@@ -29,7 +46,7 @@ internal static class GameOverSheetComposer
         GameOverSourcePresentation gameOver = maps.GameOverSource;
         SpriteArtwork page = MapSpriteArtwork.Of(maps.Sprites).Page;
         var frames = new List<SheetFrameSource>();
-        foreach (GameOverBabyFrame frame in Enum.GetValues<GameOverBabyFrame>())
+        foreach (GameOverBabyFrame frame in BabyFrames)
             frames.Add(Frame(GameOverPresentationNames.BabyFrameName(frame), gameOver.babySprites[frame], page, gameOver.BabyPaletteIndex));
         frames.Add(Frame(GameOverPresentationDefinitions.EggFrame, gameOver.eggSprite, page, gameOver.EggPaletteIndex));
         foreach (MenuMissileFrame frame in MenuMissileAnimationDefinitions.Roll)
@@ -39,7 +56,7 @@ internal static class GameOverSheetComposer
         gameOver.BabyPaint.Colours(GameOverBabyColouring.Idle).CopyTo(colours.AsSpan(babyInk, GroupColours));
         return new SpriteSheetSources(frames, colours, ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection), PartsKeepOwnRows: true)
         {
-            Shades = [.. Enum.GetValues<GameOverBabyColouring>().Select(palette =>
+            Shades = [.. BabyColourings.Select(palette =>
                 SheetShade.Run(GameOverBabyShades.Colours(palette), babyInk, gameOver.BabyPaint.Colours(palette)))],
         };
     }

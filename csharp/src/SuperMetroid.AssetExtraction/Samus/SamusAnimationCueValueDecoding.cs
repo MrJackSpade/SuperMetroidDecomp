@@ -109,5 +109,5 @@ internal static class SamusAnimationCueValueDecoding
     /// <summary>The names of every item in <paramref name="items"/>.</summary>
     [InstalledKey]
     private static string[] ItemNames(SamusEquipmentFlags items) =>
-        [.. Enum.GetValues<SamusEquipmentFlags>().Where(item => item != SamusEquipmentFlags.None && items.HasFlag(item)).Select(SamusEquipmentFlagsKeys.Installed.Of)];
+        [.. SamusEquipmentFlagsKeys.ListedOrder.Where(item => items.HasFlag(item)).Select(SamusEquipmentFlagsKeys.Installed.Of)];
 }

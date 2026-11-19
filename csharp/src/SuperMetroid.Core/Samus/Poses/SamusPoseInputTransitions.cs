@@ -13,6 +13,24 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// </remarks>
 public static class SamusPoseInputTransitions
 {
+    /// <summary>The gameplay actions in the order a transition lists those it reads (#2567).</summary>
+    private static readonly IReadOnlyList<GameplayAction> ActionOrder = Ensure.EveryMemberOnce<GameplayAction>(
+    [
+        GameplayAction.None,
+        GameplayAction.Up,
+        GameplayAction.Down,
+        GameplayAction.Left,
+        GameplayAction.Right,
+        GameplayAction.Start,
+        GameplayAction.Shoot,
+        GameplayAction.Jump,
+        GameplayAction.Dash,
+        GameplayAction.ItemSelect,
+        GameplayAction.ItemCancel,
+        GameplayAction.AimUp,
+        GameplayAction.AimDown,
+    ]);
+
     /// <summary>Held Start and item selection, which the pose's input transitions do not read.</summary>
     private const GameplayAction StartAndItemSelect = GameplayAction.Start | GameplayAction.ItemSelect;
 
@@ -75,7 +93,7 @@ public static class SamusPoseInputTransitions
     /// </summary>
     private static FrozenSet<SamusPoseId> Selectable(SamusPoseInputList inputList)
     {
-        GameplayAction[] read = [.. Enum.GetValues<GameplayAction>().Where(action =>
+        GameplayAction[] read = [.. ActionOrder.Where(action =>
             action != GameplayAction.None && (action & StartAndItemSelect) == GameplayAction.None)];
         var targets = new HashSet<SamusPoseId>();
         foreach (GameplayAction[] heldActions in Subsets(read).Where(actions => actions.Length > 0))

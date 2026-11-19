@@ -24,6 +24,12 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 internal static class SpawnedObjectSheetComposer
 {
+    /// <summary>The elevator arrival's poses in the order the shared sheet holds them (#2567), each listed once.</summary>
+    private static readonly IReadOnlyList<CeresElevatorArrivalPose> ArrivalPoseOrder = Ensure.EveryMemberOnce(CeresElevatorArrivalPoseKeys.ListedOrder);
+
+    /// <summary>The room effect actors in the order a sheet lists them (#2567), each listed once.</summary>
+    private static readonly IReadOnlyList<RoomEffectActorKind> EffectActorOrder = Ensure.EveryMemberOnce(RoomEffectActorSegment.Kinds);
+
     /// <summary>
     /// The characters one projectile page holds: a projectile's drawing reads only the part of its spawner's character
     /// index within its page, so its parts count from there.
@@ -175,23 +181,30 @@ internal static class SpawnedObjectSheetComposer
         return spawned.Projectiles.Select(EnemySheetDefinitions.ProjectileFrameName)
             .Concat(EffectActorFrames(spawned.EffectActors).Select(EnemySheetDefinitions.EffectActorFrameName))
             .Concat(EncounterFrames(spawners, owner == SpawnedObjectOwner.Shared).Select(EnemySheetDefinitions.EncounterFrameName))
-            .Concat(common.SelectMany(spawner => spawner.ArrivalPoses).Distinct().Order().Select(CeresElevatorArrivalPictures.SheetName));
+            .Concat(InListedOrder(common.SelectMany(spawner => spawner.ArrivalPoses), ArrivalPoseOrder).Select(CeresElevatorArrivalPictures.SheetName));
     }
 
     /// <summary>
-    /// The Ceres elevator arrival's poses whose pictures <paramref name="plan"/>'s sheet holds, each once in a stable order:
-    /// those of its common spawners, which only the shared sheet has (#2425).
+    /// The Ceres elevator arrival's poses whose pictures <paramref name="plan"/>'s sheet holds, each once in their written-out
+    /// order: those of its common spawners, which only the shared sheet has (#2425).
     /// </summary>
     private static IEnumerable<CeresElevatorArrivalPose> ElevatorArrivalPoses(SpawnedObjectSheetPlan plan) =>
-        plan.Common.SelectMany(spawner => spawner.ArrivalPoses).Distinct().Order();
+        InListedOrder(plan.Common.SelectMany(spawner => spawner.ArrivalPoses), ArrivalPoseOrder);
+
+    /// <summary>Each of <paramref name="items"/> once, in <paramref name="order"/>.</summary>
+    private static IEnumerable<T> InListedOrder<T>(IEnumerable<T> items, IReadOnlyList<T> order)
+    {
+        HashSet<T> held = [.. items];
+        return order.Where(held.Contains);
+    }
 
     /// <summary>
     /// The frames the encounters of <paramref name="spawners"/> draw themselves at character zero, which the character-zero
-    /// shared sheet holds, each once in a stable order.
+    /// shared sheet holds, each once in the order of their installed names (#2567).
     /// </summary>
     private static IEnumerable<EnemyFrameId> EncounterFrames(IEnumerable<EnemyDefinitionId> spawners, bool shared) =>
         shared ? spawners.Where(EncounterFrameDefinitions.ByEnemy.ContainsKey).SelectMany(enemy => EncounterFrameDefinitions.ByEnemy[enemy])
-            .Distinct().Order() : [];
+            .Distinct().OrderBy(EnemySheetDefinitions.EncounterFrameName, StringComparer.Ordinal) : [];
 
     /// <summary>
     /// The row the encounter drawing <paramref name="frame"/> draws it in, for a frame its encounter draws in its own row: its
@@ -207,7 +220,8 @@ internal static class SpawnedObjectSheetComposer
     }
 
     /// <summary>
-    /// Every object that draws from a plan's sheet, each once in a stable order: a sheet-specific owner's own objects; a
+    /// Every object that draws from a plan's sheet, each once: the projectiles in the order of their installed names and the
+    /// effect actors in their written-out order (#2567): a sheet-specific owner's own objects; a
     /// spawner's own-graphics spawns; on the shared sheet, the room-graphics spawns of the set's enemies and the objects of
     /// the common spawners its rooms run.
     /// </summary>
@@ -218,8 +232,8 @@ internal static class SpawnedObjectSheetComposer
             : plan.Spawners.Where(SpawnedObjectFrameDefinitions.ByEnemy.ContainsKey).Select(enemy => SpawnedObjectFrameDefinitions.ByEnemy[enemy])
                 .Concat(plan.SharedSpawners.Select(enemy => SpawnedObjectFrameDefinitions.SharedByEnemy[enemy]));
         sources = plan.Common.Select(common => common.Objects).Concat(sources);
-        return new SpawnedObjects([.. sources.SelectMany(spawned => spawned.Projectiles).Distinct().Order()],
-            [.. sources.SelectMany(spawned => spawned.EffectActors).Distinct().Order()]);
+        return new SpawnedObjects([.. sources.SelectMany(spawned => spawned.Projectiles).Distinct().OrderBy(EnemySheetDefinitions.ProjectileFrameName, StringComparer.Ordinal)],
+            [.. InListedOrder(sources.SelectMany(spawned => spawned.EffectActors), EffectActorOrder)]);
     }
 
     /// <summary>
@@ -246,8 +260,12 @@ internal static class SpawnedObjectSheetComposer
         return new SharedSpawnerFrames(spawnersOf);
     }
 
-    /// <summary>The enemy frames the room effect actors of <paramref name="kinds"/> show, each once; the empty frame draws nothing.</summary>
+    /// <summary>
+    /// The enemy frames the room effect actors of <paramref name="kinds"/> show, each once in the order of their installed names
+    /// (#2567); the empty frame draws nothing.
+    /// </summary>
     private static IEnumerable<EnemyFrameId> EffectActorFrames(IEnumerable<RoomEffectActorKind> kinds) =>
         kinds.SelectMany(kind => RoomEffectActorAnimations.Segments.FramesOf(RoomEffectActorAnimations.StartingWith(kind)))
-            .Select(picture => picture.RequireEnemyFrame()).Where(frame => !CommonEnemyEmptyFrames.DrawsNothing(frame)).Distinct().Order();
+            .Select(picture => picture.RequireEnemyFrame()).Where(frame => !CommonEnemyEmptyFrames.DrawsNothing(frame)).Distinct()
+            .OrderBy(EnemySheetDefinitions.EffectActorFrameName, StringComparer.Ordinal);
 }

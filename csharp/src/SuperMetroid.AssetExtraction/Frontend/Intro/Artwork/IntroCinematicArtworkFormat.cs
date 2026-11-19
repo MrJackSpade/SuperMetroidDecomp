@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Frontend.Intro;
+
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>File identities and physical 4-bpp transfer lengths for the opening scene.</summary>
@@ -17,6 +19,17 @@ public static class IntroCinematicArtworkFormat
     public const string InitialNarrationTilemapFileName = "intro-initial-narration-tilemap.json";
     /// <summary>Four ordered BG tilemap pages in the opening illustrated-page transfer.</summary>
     public const int BackgroundPageCount = 4;
+    /// <summary>
+    /// The installed background page each scene page is (#2567): the pages are stored in the transfer's order, so each scene
+    /// page names its own and the scene pages' declaration order carries nothing.
+    /// </summary>
+    internal static IReadOnlyDictionary<IntroScenePage, int> BackgroundPageOf { get; } = new Dictionary<IntroScenePage, int>
+    {
+        [IntroScenePage.MotherBrainRoom] = 0,
+        [IntroScenePage.BabyDiscoveryRoom] = 1,
+        [IntroScenePage.ScientistDelivery] = 2,
+        [IntroScenePage.ScientistExamination] = 3,
+    };
     /// <summary>$0800 transfer bytes per 32x32 BG page: 1024 little-endian, two-byte tile-reference words.</summary>
     public const int BackgroundPageByteCount = 1024 * sizeof(ushort);
     /// <summary>Formats the installed JSON resource name for one ordered background page without validating its index.</summary>

@@ -142,8 +142,9 @@ internal sealed class EnemyPresentation
     /// <exception cref="InvalidDataException">
     /// The room draws no pictures for that owner, or none of its variant's sheets holds the picture.
     /// </exception>
+    /// <param name="layering">Where the frame shows among the actors drawn so far: in draw order, or in front of them all.</param>
     internal void PublishSpawnedFrame(SpriteFrameBuffer sprites, SpriteSource source, string frame, Offset16<ScreenPixels> origin,
-        SpriteGraphics graphics, CorpseRotRows? rows = null)
+        SpriteGraphics graphics, CorpseRotRows? rows = null, ActorLayering layering = ActorLayering.InDrawOrder)
     {
         EnemyArtworkVariant<SpawnedObjectSheet> variant = Artwork.Spawned(graphics.Owner);
         SpawnedObjectSheet sheet = variant.Sheet;
@@ -156,7 +157,7 @@ internal sealed class EnemyPresentation
         {
             Shading = graphics.Shading,
             CorpseRot = CorpseRot(variant.CorpsePlacement(picture), rows, image),
-        });
+        }, layering);
     }
 
     /// <summary>
@@ -185,9 +186,10 @@ internal sealed class EnemyPresentation
     /// <param name="origin">The frame origin on screen.</param>
     /// <param name="shading">The shades and colour effects the frame shows.</param>
     /// <param name="rows">The rows of the rotting corpse the frame shows, as its rot has left them; none for one that shows none.</param>
+    /// <param name="layering">Where the frame shows among the actors drawn so far: in draw order, or in front of them all.</param>
     internal void PublishEncounterFrame(SpriteFrameBuffer sprites, SpriteSource source, EnemyFrameId frame,
-        Offset16<ScreenPixels> origin, PictureShading shading, CorpseRotRows? rows = null) =>
-        PublishSpawnedFrame(sprites, source, EnemySheetDefinitions.EncounterFrameName(frame), origin, SpriteGraphics.SharedIn(shading), rows);
+        Offset16<ScreenPixels> origin, PictureShading shading, CorpseRotRows? rows = null, ActorLayering layering = ActorLayering.InDrawOrder) =>
+        PublishSpawnedFrame(sprites, source, EnemySheetDefinitions.EncounterFrameName(frame), origin, SpriteGraphics.SharedIn(shading), rows, layering);
 
     /// <summary>
     /// The installed picture of <paramref name="enemy"/>'s <paramref name="frame"/> in the sheet of the variant the room's

@@ -106,8 +106,9 @@ internal sealed class CeresRidleyBabyScene
     }
 
     /// <summary>
-    /// Shows the Baby's current frame where it is, at its picture's own depth among the actors (#2573), while Ridley has
-    /// not escaped with it and once its animation has shown a pose. The Baby shows its own look of the hurt flash.
+    /// Shows the Baby's current frame where it is, at its picture's own depth among the actors and in the layering its phase
+    /// gives it (<see cref="LayeringOf"/>, #2573), while Ridley has not escaped with it and once its animation has shown a
+    /// pose. The Baby shows its own look of the hurt flash.
     /// </summary>
     public void PublishCeresBaby(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
     {
@@ -116,8 +117,16 @@ internal sealed class CeresRidleyBabyScene
             || CeresBabyFrame(ceres.Ridley.Baby.ShownPose) is not { } babyFrame)
             return;
         _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.CeresBaby), babyFrame,
-            ceres.Ridley.Baby.Position.Whole.RelativeToCamera(camera), EnemyShades.HurtFlashLook);
+            ceres.Ridley.Baby.Position.Whole.RelativeToCamera(camera), EnemyShades.HurtFlashLook, layering: LayeringOf(ceres.Ridley));
     }
+
+    /// <summary>
+    /// How the Baby shows among the other actors (#2573): in front of them all, Ridley's dark shape among them, while
+    /// Ridley's movement and animation are off before his reveal, and in its place among them once his reveal has started
+    /// his animation.
+    /// </summary>
+    private static ActorLayering LayeringOf(CeresRidleyState ridley) =>
+        ridley.MovementAnimationEnabled ? ActorLayering.InDrawOrder : ActorLayering.InFrontOfActors;
 
     /// <summary>
     /// Runs the Baby's typed cutscene animation one update on the Baby's own clock (#2228): the pose it shows holds for its

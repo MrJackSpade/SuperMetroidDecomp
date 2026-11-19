@@ -110,26 +110,26 @@ public readonly record struct TrigonometryAngle : IComparable<TrigonometryAngle>
     public TrigonometryAngle InSecondHalfTurn() => new(RawValue % HalfTurn.RawValue + HalfTurn.RawValue);
 
     /// <summary>
-    /// This angle carried into the half turn on the right, from just past straight down up to straight up (#2555),
-    /// keeping its direction's height: an angle on the left is reflected across the vertical, as an aim turned toward the
-    /// right is.
+    /// This angle carried into the half turn on <paramref name="side"/> (#2555): on the right from just past straight down
+    /// up to straight up, on the left from just past straight up down to straight down. An angle on the other side turns
+    /// a half turn, as an aim turned toward one side is.
     /// </summary>
-    public TrigonometryAngle InRightHalfTurn() => QuarterTurn - (QuarterTurn - this).InFirstHalfTurn();
-
-    /// <summary>
-    /// This angle carried into the half turn on the left, from just past straight up down to straight down (#2555),
-    /// keeping its direction's height: an angle on the right is reflected across the vertical.
-    /// </summary>
-    public TrigonometryAngle InLeftHalfTurn() => QuarterTurn - (QuarterTurn - this).InSecondHalfTurn();
+    public TrigonometryAngle InHalfTurnToward(HorizontalDirection side)
+    {
+        TrigonometryAngle fromUp = QuarterTurn - this;
+        return QuarterTurn - side switch
+        {
+            HorizontalDirection.Right => fromUp.InFirstHalfTurn(),
+            HorizontalDirection.Left => fromUp.InSecondHalfTurn(),
+            _ => throw new ArgumentOutOfRangeException(nameof(side), side, $"Undefined {nameof(HorizontalDirection)}."),
+        };
+    }
 
     /// <summary>
     /// The steps from straight up round to this angle, turning clockwise as the screen shows it (#2555): the order the
     /// compass directions an aim picks are counted in, up first.
     /// </summary>
     private int StepsClockwiseFromUp => (QuarterTurn.RawValue - RawValue + StepsPerTurn) % StepsPerTurn;
-
-    /// <summary>The steps of a whole turn.</summary>
-    private const int StepsPerTurn = 256;
 
     /// <summary>The eight compass directions in clockwise order from up, each an eighth of the turn on from the last.</summary>
     internal static readonly CompassDirection[] DirectionsClockwise =

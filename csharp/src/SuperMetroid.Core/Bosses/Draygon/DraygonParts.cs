@@ -267,8 +267,8 @@ internal sealed class DraygonParts
                 ? DraygonSegment.EyeFacingRightLookingLeft
                 : DraygonSegment.EyeFacingLeftLookingLeft,
             CompassDirection.UpRight or CompassDirection.DownRight or CompassDirection.DownLeft or CompassDirection.UpLeft =>
-                throw new InvalidOperationException($"Draygon's eye bearing {bearing} is nearest the diagonal {direction}."),
-            _ => throw new InvalidOperationException($"Draygon's eye bearing {bearing} is nearest no straight direction."),
+                throw new InvalidOperationException($"Draygon's eye aim {aim} is nearest the diagonal {direction}."),
+            _ => throw new InvalidOperationException($"Draygon's eye aim {aim} is nearest no straight direction."),
         };
         state.EyePart.StartAnimation(look);
     }

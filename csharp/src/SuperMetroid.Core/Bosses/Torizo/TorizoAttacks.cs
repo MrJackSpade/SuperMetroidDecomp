@@ -801,7 +801,7 @@ internal sealed class TorizoAttacks
         bool awayFromSamus)
     {
         TrigonometryAngle aim = EnemyMath.CalculateAimAngle(samus.Position.Whole - projectile.Position.Whole);
-        TrigonometryAngle angle = awayFromSamus ? aim.InLeftHalfTurn() : aim.InRightHalfTurn();
+        TrigonometryAngle angle = aim.InHalfTurnToward(awayFromSamus ? HorizontalDirection.Left : HorizontalDirection.Right);
 
         // The missile's X speed follows the angle's cosine and its Y speed its negative sine.
         projectile.Velocity = new(

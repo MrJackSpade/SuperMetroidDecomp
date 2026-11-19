@@ -72,7 +72,8 @@ internal static class AimAngleConventionVerification
             AssertEqual(RioBehavior.HoverVelocity(unconverted), RioBehavior.HoverVelocity(aim + quarter), $"{context} Rio hover down");
             foreach ((TrigonometryAngle folded, TrigonometryAngle foldedAim, string way) in new[]
                 {
-                    (unconverted.InFirstHalfTurn(), aim.InRightHalfTurn(), "toward"), (unconverted.InSecondHalfTurn(), aim.InLeftHalfTurn(), "away"),
+                    (unconverted.InFirstHalfTurn(), aim.InHalfTurnToward(HorizontalDirection.Right), "toward"),
+                    (unconverted.InSecondHalfTurn(), aim.InHalfTurnToward(HorizontalDirection.Left), "away"),
                 })
             {
                 SignedEightEight speed = TorizoMotionDefinitions.ThrownSuperMissileSpeed;

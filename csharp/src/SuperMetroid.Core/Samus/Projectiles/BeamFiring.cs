@@ -123,7 +123,7 @@ internal sealed class BeamFiring
             // than suppressing the familiar initial power shot.
             if (!_charge.HasCharged(BeamChargeDefinitions.SpecialAttackCounter))
             {
-                _charge.FlareCounter++;
+                _charge.CountChargeUpdate();
                 if (_charge.FlareCounter == 1)
                 {
                     _charge.ClearFlare();

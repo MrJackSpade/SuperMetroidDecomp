@@ -20,20 +20,17 @@ internal sealed class SamusFrameState : IRoomSamusAccess
     /// <summary>Samus's frame state, her colours in their starting shades.</summary>
     internal SamusFrameState() => Colours = new SamusColours();
 
-    /// <summary>Remaining load-appearance updates before ordinary Samus drawing resumes.</summary>
-    internal int LoadAppearanceFramesRemaining { get; private set; }
+    /// <summary>The saved-game load appearance, before ordinary Samus drawing resumes.</summary>
+    internal UpdateCountdown LoadAppearance { get; private set; } = UpdateCountdown.Ended();
 
     /// <summary>Whether Samus's saved-game load appearance is still running.</summary>
-    internal bool LoadAppearanceActive => LoadAppearanceFramesRemaining != 0;
+    internal bool LoadAppearanceActive => LoadAppearance.IsRunning;
 
     /// <summary>Starts the saved-game load appearance with its length.</summary>
-    internal void BeginLoadAppearance(int frames) => LoadAppearanceFramesRemaining = frames;
+    internal void BeginLoadAppearance(int frames) => LoadAppearance = UpdateCountdown.For(frames);
 
     /// <summary>Counts one load-appearance update; returns whether that was its last.</summary>
-    internal bool AdvanceLoadAppearance()
-    {
-        return --LoadAppearanceFramesRemaining == 0;
-    }
+    internal bool AdvanceLoadAppearance() => LoadAppearance.StepEnds();
 
     /// <summary>
     /// Normal-gameplay Samus rendering state. Null means the current scenario has not

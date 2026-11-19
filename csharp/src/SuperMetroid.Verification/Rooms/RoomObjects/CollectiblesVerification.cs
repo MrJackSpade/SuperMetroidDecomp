@@ -88,7 +88,7 @@ internal static class CollectiblesVerification
             AssertEqual(item.Presentation, fixture.RoomObjects.CollectiblePresentations[0],
                 $"{kind} presentation");
             if (kind is InWorldCollectibleKind.VariaSuit or InWorldCollectibleKind.GravitySuit)
-                fixture.Samus.BeamCharge.FlareCounter = 60;
+                fixture.Samus.BeamCharge.SetFlareCount(60);
 
             fixture.RoomObjects.Step(fixture.Level);
             if (item.Presentation == CollectiblePresentation.ChozoOrb)

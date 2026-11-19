@@ -168,7 +168,7 @@ internal sealed class BeamCombos
         shot.Position = shot.Position.WithWrappedWholeY(samus.Position.Y.Whole + orbit.Y);
         ice.Turn();
         SoundEffectId? sound = null;
-        if (ice.Lifetime.CountsDownToEnd())
+        if (ice.Lifetime.Count())
         {
             shot.Behavior = SamusShotBehaviors.IceSpecialAttackOutward;
             ice.Radius = BeamComboDefinitions.IceSpreadStartRadius;
@@ -432,7 +432,7 @@ internal sealed class BeamCombos
             _animation.ClearProjectile(shot);
             return BeamComboDefinitions.WaveRemovalSound;
         }
-        if (wave.Lifetime.CountsDownToEnd())
+        if (wave.Lifetime.Count())
         {
             _animation.ClearProjectile(shot);
             return BeamComboDefinitions.WaveRemovalSound;

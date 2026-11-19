@@ -407,7 +407,7 @@ level, heldOnly, (GameplayAction.Left | GameplayAction.Jump), 0, 0, roomObjects:
     }
     AssertEqual(3, eligible.AnimationNumber, "ordinary dry wall animation selects frame three");
 
-    eligible.BeamCharge.FlareCounter = 0x003c;
+    eligible.BeamCharge.SetFlareCount(0x003c);
     ushort wallStartY = eligible.Position.Y.Whole;
     AerialMovementResult wallFrame = SamusAerialMovement.StepWallJump(
 

@@ -157,7 +157,7 @@ internal static class ChargeFlarePlacementVerification
         foreach (bool hyper in new[] { false, true })
         {
             var hyperSystem = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-            hyperSystem.Charge.FlareCounter = 30;
+            hyperSystem.Charge.SetFlareCount(30);
             foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
                 hyperSystem.Charge.Flare(component).ShowNative(2, hyperSystem.Charge.Flare(component).NativeWait);
             subject.HyperBeamEnabled = hyper;
@@ -195,7 +195,7 @@ internal static class ChargeFlarePlacementVerification
         runtime.Player.IntroducedSamus.Pose = SamusPoseId.FacingRightNormalPose;
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
         SamusPresentation.InitializeAnimation(runtime.Player.IntroducedSamus);
-        runtime.Projectiles.Charge.FlareCounter = 30;
+        runtime.Projectiles.Charge.SetFlareCount(30);
         foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
             runtime.Projectiles.Charge.Flare(component).ShowNative(0, WrappingCountdown.Start(100));
         game.AdoptRuntime(runtime);

@@ -93,8 +93,7 @@ public sealed class PowerBombBlastTimeline
     /// for the band it reached (<see cref="PowerBombExplosionAfterglow.CrystalFlashAfterglowSteps"/>). The update after the
     /// last fade ends the blast. The count is kept apart from the installed colours, so rebinding them never moves that end.
     /// </summary>
-    [IntegerQuantity("afterglow fade steps left")]
-    private int _afterglowFadesLeft;
+    private readonly UpdateCountdown _afterglowFades = UpdateCountdown.Ended();
 
     /// <summary>Starts the blast: its first update runs the pre-explosion's setup.</summary>
     public void Start()
@@ -131,7 +130,7 @@ public sealed class PowerBombBlastTimeline
         RenderedPhase = PowerBombExplosionPhase.Inactive;
         RenderedPreExplosionRadius = PowerBombRadius.Zero;
         RenderedExplosionRadius = PowerBombRadius.Zero;
-        _afterglowFadesLeft = 0;
+        _afterglowFades.End();
     }
 
     /// <summary>
@@ -328,7 +327,7 @@ public sealed class PowerBombBlastTimeline
 
         // The white explosion primes the afterglow's fades. The afterglow then takes its first fade on the following
         // frame.
-        _afterglowFadesLeft = PowerBombExplosionDefinitions.AfterglowFades;
+        _afterglowFades.Restart(PowerBombExplosionDefinitions.AfterglowFades);
         Phase = PowerBombExplosionPhase.Afterglow;
     }
 
@@ -362,7 +361,7 @@ public sealed class PowerBombBlastTimeline
         }
 
         // As with the ordinary afterglow, the Crystal Flash afterglow fades a step on every update.
-        _afterglowFadesLeft = PowerBombExplosionAfterglow.CrystalFlashAfterglowSteps(RenderedExplosionRadius);
+        _afterglowFades.Restart(PowerBombExplosionAfterglow.CrystalFlashAfterglowSteps(RenderedExplosionRadius));
         Phase = PowerBombExplosionPhase.CrystalFlashAfterglow;
     }
 
@@ -388,9 +387,9 @@ public sealed class PowerBombBlastTimeline
     /// <returns>Whether the update took a fade step; once none is left, the update ends the blast instead.</returns>
     private bool TakeAfterglowFade()
     {
-        if (_afterglowFadesLeft == 0)
+        if (_afterglowFades.IsOver)
             return false;
-        _afterglowFadesLeft--;
+        _afterglowFades.Count();
         GlowColor = GlowColor.FadeLevels.Map((_, channel) => channel == 0 ? 0 : channel - 1).ToColour();
         return true;
     }

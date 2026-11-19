@@ -38,7 +38,7 @@ internal static class RoomScopeVerification
         PrivateState.Set(previous, nameof(ScrollBoundaryCamera.IdealPosition), new Position16<RoomPixels>(0x0123, 0x0456));
         previous.Speed = FixedVector<RoomPixels>.FromStoredParts(2, 0x8000, 0xFFFF, 0x4000);
         previous.FinishSamusScrolling(FixedPosition<RoomPixels>.FromStoredParts(0x0300, 0x1111, 0x0400, 0x2222));
-        source.Projectiles.Charge.FlareCounter = 30;
+        source.Projectiles.Charge.SetFlareCount(30);
         var heatPhase = SuperMetroid.Core.Fx.ColourEffects.HeatPhase.InOrder[3];
         runtime.ColourEffectSession.PublishedHeatPhase = heatPhase;
         source.Enemies.Earthquake.Start(NativeEarthquakeTypes.Shake(5), 4);

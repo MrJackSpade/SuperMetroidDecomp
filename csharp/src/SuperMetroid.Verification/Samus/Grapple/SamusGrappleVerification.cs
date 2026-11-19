@@ -1017,7 +1017,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
     // assertion isolates the launch function itself from earlier grapple-swing behavior.
     wallGrabSamus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(1, 0x7000);
     wallGrabSamus.HorizontalSpeed.HasRunningMomentum = true;
-    wallGrabSamus.BeamCharge.FlareCounter = 0x003c;
+    wallGrabSamus.BeamCharge.SetFlareCount(0x003c);
     wallGrabSamus.LiquidPhysics.BeginFrameSoundRequests();
     GrappleMovementResult wallJumpStarted = SamusGrappleMovement.StepAndCommit(new SamusTerrain { Level = specialLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, wallGrabSamus, controllerInput: 0, newlyPressedInput: 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
     AssertTrue(wallJumpStarted.WallJumpStarted,

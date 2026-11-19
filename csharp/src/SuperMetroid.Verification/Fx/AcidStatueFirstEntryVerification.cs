@@ -44,7 +44,7 @@ internal static class AcidStatueFirstEntryVerification
             RoomCollisionBlock block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock)
                 continue;
-            DoorDefinition? candidate = level.ResolveDoorCollision(block, SamusPoseId.FacingRightNormalPose.ForRoomCollision(), false).Door;
+            DoorDefinition? candidate = level.DoorExitAt(block).Door;
             if (candidate?.DestinationRoom != destinationRoom)
                 continue;
             doorX = x;
@@ -63,7 +63,7 @@ internal static class AcidStatueFirstEntryVerification
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        runtime.Room.LoadedLevelData.ResolveDoorCollision(runtime.Room.LoadedLevelData.GetCollisionBlock(new(doorX, doorY)), samus.Pose.ForRoomCollision(), true);
+        runtime.MeetDoorBlock(runtime.Room.LoadedLevelData.GetCollisionBlock(new(doorX, doorY)), samus.Pose.ForRoomCollision());
 
         var transition = new DoorTransitionState();
         var audio = AudioQueues.Standalone();

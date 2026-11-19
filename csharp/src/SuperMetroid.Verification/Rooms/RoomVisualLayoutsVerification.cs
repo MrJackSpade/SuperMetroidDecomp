@@ -218,11 +218,11 @@ internal static class RoomVisualLayoutsVerification
         IReadOnlyList<Core.Rooms.Doors.DoorBlockExit> list = RoomDoorListDefinitions.ByRoom[room];
         int link = RoomBlockBehaviorCodec.DoorLinkOf(nativeBts);
         if (link < list.Count)
-            AssertBlockEqual(list[link], loaded.ResolveDoorCollision(block, SamusCollisionPose.StandingNormal, publishDoorSideEffects: false),
+            AssertBlockEqual(list[link], loaded.DoorExitAt(block),
                 where, "door exit", index);
         else
             AssertThrows<InvalidDataException>(
-                () => loaded.ResolveDoorCollision(block, SamusCollisionPose.StandingNormal, publishDoorSideEffects: false),
+                () => loaded.DoorExitAt(block),
                 $"{where} door block {index} past its room's door list leads nowhere");
     }
 

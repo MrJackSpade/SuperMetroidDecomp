@@ -48,7 +48,7 @@ internal static class MotherBrainDeathHandoffVerification
         // room's list.
         AssertEqual(RoomBlockBehavior.None, level.GetCollisionBlock(new(0, 6)).Behavior, "door setup writes a door block holding no behaviour");
         AssertEqual(SuperMetroid.Core.Rooms.Doors.TourianDoorDefinitions.MotherBrainToTourianEscape1,
-            level.ResolveDoorCollision(level.GetCollisionBlock(new(0, 6)), SamusCollisionPose.StandingNormal, publishDoorSideEffects: false).Door,
+            level.DoorExitAt(level.GetCollisionBlock(new(0, 6))).Door,
             "door setup leads into the escape's first room");
         for (int row = 7; row < 10; row++)
         {

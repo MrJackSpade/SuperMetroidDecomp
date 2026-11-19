@@ -108,10 +108,7 @@ internal static class DoorAlignmentVerification
             RoomCollisionBlock block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock)
                 continue;
-            DoorDefinition? candidate = level.ResolveDoorCollision(
-                block,
-                SamusPoseId.MovingRightNormalPose.ForRoomCollision(),
-                publishDoorSideEffects: false).Door;
+            DoorDefinition? candidate = level.DoorExitAt(block).Door;
             if (candidate?.DestinationRoom != destinationRoom)
                 continue;
             doorX = x;
@@ -131,7 +128,7 @@ internal static class DoorAlignmentVerification
         samus.HorizontalSpeed.HasRunningMomentum = true;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        runtime.Room.LoadedLevelData.ResolveDoorCollision(runtime.Room.LoadedLevelData.GetCollisionBlock(new(doorX, doorY)), samus.Pose.ForRoomCollision(), true);
+        runtime.MeetDoorBlock(runtime.Room.LoadedLevelData.GetCollisionBlock(new(doorX, doorY)), samus.Pose.ForRoomCollision());
         runtime.Room.LoadedCamera.SetPosition(
             new Position16<RoomPixels>(runtime.Room.LoadedCamera.PixelPosition.X, unchecked((ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 2))));
         runtime.GameTime.Load(new SuperMetroid.Core.Progression.GameClockReading(frames: 58, seconds: 56, minutes: 34, hours: 12));

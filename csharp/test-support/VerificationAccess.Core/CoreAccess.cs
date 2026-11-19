@@ -239,9 +239,9 @@ internal static class CoreAccess
                     .SelectMany(entry => entry.Place.Behaviour switch
                     {
                         SaveStationObject save => [new StationObjectSnapshot(entry.Index, entry.Place.Block, entry.Place.NativeRoomArgument,
-                            Kind: null, save.Triggered, save.SavePhase, lockedOut)],
+                            Kind: null, save.SavePhase == SaveStationPhase.Touched, save.SavePhase, lockedOut)],
                         AccessStationObject station => [new StationObjectSnapshot(entry.Index, entry.Place.Block, entry.Place.NativeRoomArgument,
-                            station.Kind, station.Triggered, SaveStationPhase.Idle, lockedOut)],
+                            station.Kind, station.PendingAccess is not null, SaveStationPhase.Idle, lockedOut)],
                         _ => Array.Empty<StationObjectSnapshot>(),
                     })
                     .ToArray();

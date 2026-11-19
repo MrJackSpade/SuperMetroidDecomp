@@ -30,8 +30,9 @@ internal sealed class CeresRidleyRoomDoorEntity(CeresDoorBehavior doors, RoomEne
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, context.Samus);
 
     /// <summary>
-    /// Whether the door's animation has handed its drawing to Ridley's scene (<see cref="CeresDoorCueKind.HandDrawingToRidley"/>)
-    /// and not yet taken it back (<see cref="CeresDoorCueKind.MakeVisibleAndTakeDrawingBack"/>).
+    /// Who draws the door: Ridley's scene from the door's animation handing its drawing over
+    /// (<see cref="CeresDoorCueKind.HandDrawingToRidley"/>) until it takes it back
+    /// (<see cref="CeresDoorCueKind.MakeVisibleAndTakeDrawingBack"/>), otherwise the door itself.
     /// </summary>
-    public bool HandsDrawingToRidley => Place.RequireSpeciesState<CeresRidleyRoomDoorState>().HandsDrawingToRidley;
+    public CeresRidleyRoomDoorDrawing Drawing => Place.RequireSpeciesState<CeresRidleyRoomDoorState>().Drawing;
 }

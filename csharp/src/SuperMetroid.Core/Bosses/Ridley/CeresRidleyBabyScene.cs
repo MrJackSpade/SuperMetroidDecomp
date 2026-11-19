@@ -129,7 +129,7 @@ internal sealed class CeresRidleyBabyScene
         // The room's door hands its drawing to Ridley's scene in its hiding step, when the common
         // enemy pass intentionally hides the actor; the Baby and door draw then draws this fixed overlay
         // after the Baby. This draws the door for it; it does not replace the door actor's own animation.
-        if (_ridleyEncounter.CeresRoomDoor is { Entity: IDrawnByCeresRidleyScene { HandsDrawingToRidley: true } } door)
+        if (_ridleyEncounter.CeresRoomDoor is { Entity: IDrawnByCeresRidleyScene { Drawing: CeresRidleyRoomDoorDrawing.ByRidleysScene } } door)
         {
             // The scene draws the door itself rather than through the common enemy drawing, so it applies the door's
             // own earthquake shake, which moves only the drawn door.

@@ -196,19 +196,19 @@ public sealed class TourianStatueSequence
             switch (cue.Kind)
             {
                 case TourianStatueBlockCueKind.MarkAnimating:
-                    statue.Animation.Animating |= TourianGreyStatueSets.Alone[definition.Statue];
+                    statue.Animation.MarkAnimating(TourianGreyStatueSets.Alone[definition.Statue]);
                     return null;
                 case TourianStatueBlockCueKind.MayAlreadyBeGrey:
                     return _system.HasEvent(definition.GreyEvent) ? Start(animations, AlreadyGreyAnimation) : null;
                 case TourianStatueBlockCueKind.MayBeReleased:
                     return _system.HasDefeatedAnyOf(definition.BossArea, definition.DefeatedBosses) ? Start(animations, ReleaseAnimation) : null;
                 case TourianStatueBlockCueKind.ClearAnimating:
-                    statue.Animation.Animating &= ~TourianGreyStatueSets.Alone[definition.Statue];
+                    statue.Animation.StopAnimating(TourianGreyStatueSets.Alone[definition.Statue]);
                     return null;
                 case TourianStatueBlockCueKind.MayWaitItsTurn:
                     return statue.Animation.ReleaseInProgress ? Start(animations, WaitingAnimation) : null;
                 case TourianStatueBlockCueKind.ClaimRelease:
-                    statue.Animation.ReleaseInProgress = true;
+                    statue.Animation.ClaimRelease();
                     return null;
                 case TourianStatueBlockCueKind.BlackOutEyes:
                     // The statue shows its eye colours blacked out, then its grey, as the shades the import pre-colours (#1512).
@@ -227,8 +227,7 @@ public sealed class TourianStatueSequence
                     _system.SetEvent(definition.GreyEvent);
                     return null;
                 case TourianStatueBlockCueKind.FinishRelease:
-                    statue.Animation.ReleaseInProgress = false;
-                    statue.Animation.Animating &= ~TourianGreyStatueSets.Alone[definition.Statue];
+                    statue.Animation.FinishRelease(TourianGreyStatueSets.Alone[definition.Statue]);
                     return null;
                 case TourianStatueBlockCueKind.TurnGrey:
                     _statue.ShowStatueLook(definition.GreyShade);
@@ -273,7 +272,7 @@ public sealed class TourianStatueSequence
         {
             if (!_system.HasEvent(StoryEvent.PhantoonStatueGrey) || !_system.HasEvent(StoryEvent.RidleyStatueGrey)
                 || !_system.HasEvent(StoryEvent.DraygonStatueGrey) || !_system.HasEvent(StoryEvent.KraidStatueGrey)) return;
-            _statue.Animation.AllReleased = true;
+            _statue.Animation.LatchAllReleased();
             if (_statue.Animation.ReleaseInProgress) return;
             _descentPhase = TourianStatueDescentPhase.Holding;
             _holdUpdatesLeft = TourianStatueSequenceDefinitions.DescentDelay;
@@ -305,7 +304,7 @@ public sealed class TourianStatueSequence
     /// <summary>Marks the entrance statue finished and makes both access-room scroll cells freely traversable.</summary>
     private void EnableScrolling()
     {
-        _statue.Finished = true;
+        _statue.Animation.FinishSinking();
         _scrolls.SetRoomScreen(TourianStatueSequenceDefinitions.UpperScrollCell, RoomScrollState.Open);
         _scrolls.SetRoomScreen(TourianStatueSequenceDefinitions.LowerScrollCell, RoomScrollState.Open);
     }

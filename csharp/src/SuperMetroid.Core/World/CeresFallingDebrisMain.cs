@@ -9,5 +9,9 @@ namespace SuperMetroid.Core.World;
 internal sealed class CeresFallingDebrisMain(CeresFallingDebrisRoomMainState debris) : IRoomMain
 {
     /// <inheritdoc/>
-    public void Run(RoomMainUpdate update) => update.Mains.RunCeresFallingDebrisRoomMain(update.Room, debris);
+    public RoomMainOutcome Run(RoomMainUpdate update)
+    {
+        update.Mains.RunCeresFallingDebrisRoomMain(update.Room, debris);
+        return RoomMainOutcome.None;
+    }
 }

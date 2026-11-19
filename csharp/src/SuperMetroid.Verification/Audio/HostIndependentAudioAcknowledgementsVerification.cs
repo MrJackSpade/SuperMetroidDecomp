@@ -117,7 +117,7 @@ internal static class HostIndependentAudioAcknowledgementsVerification
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            level.ResolveDoorCollision(block, runtime.Player.IntroducedSamus.Pose.ForRoomCollision(), true);
+            runtime.MeetDoorBlock(block, runtime.Player.IntroducedSamus.Pose.ForRoomCollision());
             game.Session.Enter(DoorTransitionStep.EnteringDoor);
             return;
         }

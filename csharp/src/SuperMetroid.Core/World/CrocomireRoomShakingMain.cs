@@ -10,5 +10,9 @@ internal sealed class CrocomireRoomShakingMain(CrocomireEnemyState crocomire) : 
     private readonly CrocomireEnemyState _crocomire = Ensure.NotNull(crocomire);
 
     /// <inheritdoc/>
-    public void Run(RoomMainUpdate update) => Ensure.NotNull(update).Mains.RunCrocomireComebackRoomMain(_crocomire);
+    public RoomMainOutcome Run(RoomMainUpdate update)
+    {
+        Ensure.NotNull(update).Mains.RunCrocomireComebackRoomMain(_crocomire);
+        return RoomMainOutcome.None;
+    }
 }

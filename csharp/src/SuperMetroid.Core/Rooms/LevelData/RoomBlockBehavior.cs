@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// slope reads its <see cref="Slope"/>, an extension its <see cref="ExtensionOffset"/>, and each reacting kind its family's
 /// reaction (<see cref="Shootable"/>, <see cref="Bombable"/>, <see cref="Special"/>,
 /// <see cref="SpecialAir"/>, <see cref="Spike"/>, <see cref="Grapple"/>). Where a door block leads is its room's own
-/// (<see cref="RoomLevelData.ResolveDoorCollision"/>, #2090), not a reading of its behaviour.
+/// (<see cref="RoomLevelData.DoorExitAt"/>, #2090), not a reading of its behaviour.
 /// </summary>
 /// <remarks>
 /// A block whose collision kind changes keeps its behaviour, and the new kind reads it through its own reading, so every

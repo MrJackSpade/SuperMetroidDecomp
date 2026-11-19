@@ -141,15 +141,6 @@ public sealed class RoomLevelData
     /// </summary>
     public Extent16<RoomBlocks> Size { get; }
 
-    /// <summary>The door definition selected by the most recent door-block collision, until the transition consumes it.</summary>
-    public DoorDefinition? PendingDoorTransition { get; private set; }
-
-    /// <summary>
-    /// Set when a door block resolves to the elevator's pseudo door for a standing pose. Enemies update before Samus's
-    /// collision, so the elevator consumes this publication at the beginning of the following gameplay frame.
-    /// </summary>
-    public bool ElevatorDoorContactPending { get; private set; }
-
     /// <summary>
     /// Whether the room's heavy spike blocks damage Samus (#2397): Wrecked Ship's are harmless until Phantoon is defeated,
     /// every other area's always damage. Samus's input phase samples it from the room's area and its boss before her
@@ -363,58 +354,18 @@ public sealed class RoomLevelData
         GetCollisionBlock(position.ToRoomBlock());
 
     /// <summary>
-    /// Finds where a door block of the grid Samus's collision met leads, then publishes the normal-door transition request
-    /// for the top-level game-state loop.
+    /// Where a door block of the grid leads: through a door, or to the elevator's door. Elevator and physical door blocks
+    /// are found alike; what Samus's collision with the block does is the contact she makes with it
+    /// (<see cref="DoorContact"/>, #2545).
     /// </summary>
     /// <param name="doorBlock">The door block collision found in the grid.</param>
-    /// <param name="samusPose">Samus's collision pose, which decides whether the elevator pseudo-door arms the elevator.</param>
-    /// <param name="publishDoorSideEffects">Whether the transition request or elevator contact is published.</param>
     /// <exception cref="InvalidDataException">
     /// The block leads nowhere: neither the installed level nor a room object's write made it lead through a door.
     /// </exception>
-    public DoorBlockExit ResolveDoorCollision(
-        RoomCollisionBlock doorBlock,
-        SamusCollisionPose samusPose,
-        bool publishDoorSideEffects)
+    public DoorBlockExit DoorExitAt(RoomCollisionBlock doorBlock)
     {
-        // Elevator and physical door blocks are found alike before the destination decides whether collision is solid or
-        // starts the door transition.
         Position16<RoomBlocks> block = doorBlock.At;
-        DoorBlockExit entry = exits[GridPlace(block)] ?? throw new InvalidDataException($"Door block {block} leads nowhere.");
-        // The door reaction normally publishes either a real transition or the elevator-contact flag. The runtime
-        // collapses the outer transition states into one room-load update, however, so destination-side elevator return
-        // scans must inspect the same door block without republishing either side effect. Keep the door lookup and
-        // solid/passable classification intact while gating only the writes.
-        if (publishDoorSideEffects && entry.Door is { } door)
-            PendingDoorTransition ??= door;
-        // The pseudo destination is solid for every pose, but publishes the elevator contact only for standing poses.
-        // This prevents running, aerial, morph, and damage poses that merely brush the block from arming the actor.
-        else if (publishDoorSideEffects && entry.IsElevatorPseudoDoor &&
-                 samusPose is SamusCollisionPose.StandingNormal or SamusCollisionPose.StandingOther)
-            ElevatorDoorContactPending = true;
-        return entry;
-    }
-
-    /// <summary>
-    /// Forgets the pending door transition without going through it (#2534): the AUTO reserves' refill beginning later in
-    /// the update replaces the door's game state, so only a later touch of a door makes one pending again.
-    /// </summary>
-    internal void AbandonPendingDoorTransition() => PendingDoorTransition = null;
-
-    /// <summary>Consumes the pending door transition once.</summary>
-    public DoorDefinition? ConsumePendingDoorTransition()
-    {
-        DoorDefinition? pending = PendingDoorTransition;
-        PendingDoorTransition = null;
-        return pending;
-    }
-
-    /// <summary>Consumes the one-frame elevator pseudo-door collision publication.</summary>
-    public bool ConsumeElevatorDoorContact()
-    {
-        bool pending = ElevatorDoorContactPending;
-        ElevatorDoorContactPending = false;
-        return pending;
+        return exits[GridPlace(block)] ?? throw new InvalidDataException($"Door block {block} leads nowhere.");
     }
 
     /// <summary>

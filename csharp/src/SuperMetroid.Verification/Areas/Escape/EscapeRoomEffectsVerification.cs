@@ -14,6 +14,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.Verification.Areas.Escape;
 
 /// <summary>Checks escape-room explosion sprites, earthquake offsets, and rescue exit behavior.</summary>
@@ -98,9 +99,9 @@ internal static class EscapeRoomEffectsVerification
             var samus = runtime.Player.IntroducedSamus;
             samus.Kinematics.Position = samus.Kinematics.Position.WithWhole(new(48, 112));
             samus.Kinematics.Radius = new(5, 16);
-            for (int frame = 0; frame < 32 && !runtime.RoomLoader.HasPendingDoorTransition; frame++)
+            for (int frame = 0; frame < 32 && runtime.EnteredDoor is null; frame++)
                 SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = runtime.RoomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SixteenSixteenWords.ToDisplacement(-(1 << 16)) });
-            AssertTrue(runtime.RoomLoader.HasPendingDoorTransition, "Samus can cross opened rescue exit and trigger room transition");
+            AssertTrue(runtime.EnteredDoor is not null, "Samus can cross opened rescue exit and trigger room transition");
             AssertEqual(184, runtime.RoomFxOverlay.NamedTargetSurface, "rescue liquid target matches retail FX header");
         }
         Console.WriteLine($"Escape {room:X4}: {explosionFrames} explosion frames, {offsets.Count} shake offsets.");

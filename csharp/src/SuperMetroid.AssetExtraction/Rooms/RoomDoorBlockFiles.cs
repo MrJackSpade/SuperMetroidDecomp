@@ -19,7 +19,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// A level is the room's own, but a save or map room's level is shared by several rooms, each leading the same door
 /// blocks through its own doors, so the document names each room's door blocks in each of its levels. A door block whose
 /// position lies past its room's list leads nowhere and is not named, as no door of the room is at that position; Samus
-/// meeting one fails loudly (<see cref="RoomLevelData.ResolveDoorCollision"/>).
+/// meeting one fails loudly (<see cref="RoomLevelData.DoorExitAt"/>).
 /// </remarks>
 internal static class RoomDoorBlockFiles
 {

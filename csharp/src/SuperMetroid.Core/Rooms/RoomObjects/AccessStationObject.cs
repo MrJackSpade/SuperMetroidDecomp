@@ -42,25 +42,18 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
         AnimationPlayer<StationAccessSegment, StationAccessPose, StationAccessCue>.Starting(
             StationAccessTimingDefinitions.Segments, StationAccessTimingDefinitions.Use);
 
-    /// <summary>Records an accepted access for the station's next update.</summary>
-    public bool Triggered { get; private set; }
+    /// <summary>
+    /// The access Samus's touch accepted, which the station's next update starts the arm at, or null while no touch waits
+    /// for it (#2545). A later accepted touch before that update replaces it.
+    /// </summary>
+    public StationAccessUse? PendingAccess { get; private set; }
 
-    /// <summary>Whether the access arm is in use, idle, or waiting for the map screen to close.</summary>
-    public StationOperationPhase OperationPhase { get; private set; }
-
-    /// <summary>The access block where the activated access arm is drawn, or null when no access is active.</summary>
-    public Position16<RoomBlocks>? AccessBlock { get; private set; }
-
-    /// <summary>The access Samus used, which selects the arm's draws; null when no access is active.</summary>
-    public StationAccess? Access { get; private set; }
+    /// <summary>Whether the access arm is idle, in use at the access Samus used, or waiting for the map screen to close.</summary>
+    public StationOperationPhase OperationPhase { get; private set; } = StationOperationPhase.Idle;
 
     /// <summary>Samus's accepted <paramref name="access"/> at <paramref name="accessBlock"/>, which the station's next update takes.</summary>
-    internal void Trigger(Position16<RoomBlocks> accessBlock, StationAccess access)
-    {
-        Triggered = true;
-        AccessBlock = accessBlock;
-        Access = access;
-    }
+    internal void Trigger(Position16<RoomBlocks> accessBlock, StationAccess access) =>
+        PendingAccess = new StationAccessUse(accessBlock, access);
 
     /// <summary>
     /// Leaving the map screen returns a map station waiting for it to idle. Unpause can arrive before the final access-art
@@ -83,16 +76,14 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
         // triggering update itself; the countdown only
         // runs on later updates.
         bool operationStartedThisUpdate = false;
-        if (Triggered)
+        if (PendingAccess is { } pending)
         {
-            Triggered = false;
+            PendingAccess = null;
             if (Rule.Refill is { } refill && refill.IsFull(samus))
             {
                 // The full-resource branch releases Samus before the access ends. A refill between the touch and this
                 // update must release her too.
                 samus.Control.Unlock();
-                AccessBlock = null;
-                Access = null;
             }
             else
             {
@@ -100,17 +91,16 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
                 // the station. The touch locked Samus; this update does not lock her again, so one an intervening
                 // unpause freed stays free. A map station's access never reads the map: a station whose map is held
                 // has no access blocks (#2508), and the arm's draws leave a used station's access cells solid.
-                OperationPhase = StationOperationPhase.InUse;
+                OperationPhase = new StationOperationPhase.InUse(pending);
                 operationStartedThisUpdate = true;
                 context.QueueSound(EnemySound.StationEngaged, SoundRequestPriority.Normal);
                 _arm.Show(StationAccessTimingDefinitions.Use);
-                DrawAccess(context, _arm.Showing);
+                DrawAccess(context, pending, _arm.Showing);
             }
         }
 
-        if (!operationStartedThisUpdate &&
-            OperationPhase is not (StationOperationPhase.Idle or StationOperationPhase.AwaitingMapUnpause))
-            StepAccess(context, stations, samus);
+        if (!operationStartedThisUpdate && OperationPhase is StationOperationPhase.InUse { Use: var use })
+            StepAccess(context, stations, samus, use);
 
         // A looping animation of images always shows its next image once the shown one's updates run out (#1627).
         StationDraw? shown = _animation.StepToNewFrame();
@@ -124,11 +114,11 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
     /// Plays the arm's use one update on: it draws the pose the update shows anew, carries out the moments it passes, and
     /// ends the access once it is over.
     /// </summary>
-    private void StepAccess(RoomObjectStepContext context, StationObjects stations, IRoomSamus samus)
+    private void StepAccess(RoomObjectStepContext context, StationObjects stations, IRoomSamus samus, StationAccessUse use)
     {
         if (_arm.StepToNewFrame(cue => ReachAccessMoment(cue, context, stations, samus)) is { } pose)
         {
-            DrawAccess(context, pose);
+            DrawAccess(context, use, pose);
             return;
         }
         if (!_arm.HasStopped)
@@ -136,8 +126,6 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
         OperationPhase = Rule.Refill is null && samus.Control.InputLocked
             ? StationOperationPhase.AwaitingMapUnpause
             : StationOperationPhase.Idle;
-        AccessBlock = null;
-        Access = null;
         // The access only ends here. Recharges released Samus at activation; leaving the map screen releases her after
         // the map.
     }
@@ -177,12 +165,11 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
         outcome.StationActed(new StationCompleted(Rule.CompletedMessage));
     }
 
-    /// <summary>Draws the access arm at the access Samus used, in <paramref name="pose"/>.</summary>
-    private void DrawAccess(RoomObjectStepContext context, StationAccessPose pose)
+    /// <summary>Draws the access arm at <paramref name="use"/>, the access Samus used, in <paramref name="pose"/>.</summary>
+    private static void DrawAccess(RoomObjectStepContext context, StationAccessUse use, StationAccessPose pose)
     {
-        StationAccessObjectDefinition arm = StationAccessObjectDefinitions.Arms[Access
-            ?? throw new InvalidOperationException("A station drew its access arm with no access active.")];
-        StationObjectDraws.Family.Draw(context.Level, AccessBlock ?? throw new InvalidOperationException("A station drew its access arm with no access active."),
-            context.RoomObjects.Drawing, pose == StationAccessPose.Extended ? arm.Extended : arm.Retracted);
+        StationAccessObjectDefinition arm = StationAccessObjectDefinitions.Arms[use.Access];
+        StationObjectDraws.Family.Draw(context.Level, use.Block, context.RoomObjects.Drawing,
+            pose == StationAccessPose.Extended ? arm.Extended : arm.Retracted);
     }
 }

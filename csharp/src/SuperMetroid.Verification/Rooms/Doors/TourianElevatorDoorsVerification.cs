@@ -68,15 +68,16 @@ internal static class TourianElevatorDoorsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(24, 24)), Radius = new(7, 7),
             };
             var bus = NewDoorNoReadAddressSpace();
+            ISamusRoomObjects roomObjects = SamusRoomObjectFixtures.Uninstalled;
             BlockMoveResult result = horizontal
-                ? SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, state, null, pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4) })
-                : SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, state, null, pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4), ScanLeftToRight = true });
+                ? SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, state, null, pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4) })
+                : SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, state, null, pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4), ScanLeftToRight = true });
             AssertEqual(elevator, result.Collided, "native solid elevator / passable physical door");
-            AssertEqual(elevator && SamusPoseNumbers.Number(pose) < 9, level.ConsumeElevatorDoorContact(), "native elevator pose gating");
+            AssertEqual(elevator && SamusPoseNumbers.Number(pose) < 9, roomObjects.DoorContacts.HandOverElevatorStandFromLastUpdate(), "native elevator pose gating");
             if (elevator)
-                AssertTrue(level.PendingDoorTransition is null, "sentinel must not start a room transition");
+                AssertTrue(roomObjects.DoorContacts.EnteredDoor is null, "sentinel must not start a room transition");
             else
-                AssertEqual((ushort)0xa99c, (level.PendingDoorTransition ?? throw new InvalidOperationException("Verification requires level.PendingDoorTransition.")).Pointer, "correct Tourian save-room door");
+                AssertEqual((ushort)0xa99c, (roomObjects.DoorContacts.EnteredDoor ?? throw new InvalidOperationException("Verification requires an entered door.")).Pointer, "correct Tourian save-room door");
         }
     }
 

@@ -70,7 +70,7 @@ internal static class DoorEntryRoomFxSoundVerification
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            level.ResolveDoorCollision(block, samus.Pose.ForRoomCollision(), true);
+            runtime.MeetDoorBlock(block, samus.Pose.ForRoomCollision());
             selected = true;
         }
         AssertTrue(selected, "Rising Tide has an exit");

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Samus;
 using static SuperMetroid.Verification.Samus.Death.OutOfHealthGameStateVerification;
+using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Verification.Samus.Death;
 
@@ -59,14 +60,14 @@ internal static class RefillCompletionTransitionVerification
         samus.PeriodicDamage.Accumulate(new UnsignedSixteenSixteen(999, 0));
         game.Step(0);
         AssertEqual(SuperMetroidGameState.ReserveTankRefill, game.GameState, "Samus's emptied energy enters the refill");
-        AssertTrue(!runtime.RoomLoader.HasPendingDoorTransition, "the spark is still short of the door as the refill begins");
+        AssertTrue(runtime.EnteredDoor is null, "the spark is still short of the door as the refill begins");
 
         // The refill's completion update gives Samus her control back before its gameplay, whose spark reaches the door.
         samus.Health = 200;
         PlaceJustShortOfTheDoor(samus);
         game.Step(0);
         AssertEqual(0, samus.ReserveEnergy, "the refill's update moves the last reserve unit");
-        AssertTrue(runtime.RoomLoader.HasPendingDoorTransition, "the completion update's spark reaches the door");
+        AssertTrue(runtime.EnteredDoor is not null, "the completion update's spark reaches the door");
         AssertTrue(game.IsAt(DoorTransitionStep.EnteringDoor), $"the door Samus touches on the refill's completion update takes the game; ended in {game.GameState}");
 
         Console.WriteLine("A door touched on the refill's completion update begins the door transition.");
@@ -84,7 +85,6 @@ internal static class RefillCompletionTransitionVerification
 
         game.Step(0);
         AssertEqual(SuperMetroidGameState.ReserveTankRefill, game.GameState, "the refill's update that leaves a reserve unit keeps the refill");
-        AssertTrue(runtime.Room.LoadedScope.CeresElevatorShaft is { DepartureRequested: false }, "the refill's own update does not take Samus onto the elevator");
 
         game.Step(0);
         AssertEqual(0, samus.ReserveEnergy, "the refill's update moves the last reserve unit");

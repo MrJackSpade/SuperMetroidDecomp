@@ -12,7 +12,11 @@ namespace SuperMetroid.Core.World;
 internal sealed class DachoraShaftCameraMain : IRoomMain
 {
     /// <inheritdoc/>
-    public void Run(RoomMainUpdate update) => NudgeTowardShaft(Ensure.NotNull(update).Room.Camera);
+    public RoomMainOutcome Run(RoomMainUpdate update)
+    {
+        NudgeTowardShaft(Ensure.NotNull(update).Room.Camera);
+        return RoomMainOutcome.None;
+    }
 
     /// <summary>Moves <paramref name="camera"/> toward the shaft once, when the shaft is open and the camera within its bounds.</summary>
     /// <param name="camera">The room's camera.</param>

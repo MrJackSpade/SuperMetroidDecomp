@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.World;
 
@@ -42,15 +43,15 @@ internal sealed class RoomMainRoutines
     }
 
     /// <summary>
-    /// Reconstructs the one side effect the door transition still owns.
-    /// Gameplay resumes immediately after loading the destination, so the arriving
-    /// downward actor can cross its pseudo-door while the arrival statuses are visible to
-    /// main gameplay. Retain its moving movement mode, but permit its door block's reaction to
-    /// publish a real transition or elevator flag only while departing; otherwise a
-    /// collapsed transition can immediately depart again.
+    /// What the door blocks a front-facing Samus meets do to her while the elevator in <paramref name="status"/> carries
+    /// her (#2545). Gameplay resumes as soon as the destination loads, so an arriving elevator carries her past its
+    /// shaft's door blocks while main gameplay runs. Her movement keeps scanning them, but only a departing elevator's
+    /// ride contacts them, entering a door or standing at the elevator's door; otherwise the arrival would depart again at
+    /// once.
     /// </summary>
-    internal static bool ShouldPublishFacingForwardElevatorDoorSideEffects(
-        ElevatorActorStatus status) => status == ElevatorActorStatus.Departing;
+    /// <param name="status">The room's elevator's status.</param>
+    internal static DoorBlockMeeting FacingForwardDoorBlocks(ElevatorActorStatus status) =>
+        status == ElevatorActorStatus.Departing ? DoorBlockMeeting.Contacts : DoorBlockMeeting.CarriedPastByElevator;
 
     /// <summary>
     /// The block animations' step: gameplay, the door

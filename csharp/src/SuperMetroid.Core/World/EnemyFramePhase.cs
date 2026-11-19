@@ -46,10 +46,9 @@ internal sealed class EnemyFramePhase
     /// <summary>Publishes prior-frame elevator contact and clears Samus's external displacement before enemies add platform motion.</summary>
     internal static void PrepareEnemyFrame(RoomScope room, SamusState samus)
     {
-        // Samus's collision phase follows the enemy pass. A pseudo-door contact
-        // published last frame therefore arms the elevator immediately before this
-        // frame's elevator actor step, preserving the producer order.
-        if (room.LevelData.ConsumeElevatorDoorContact())
+        // Samus's collision follows the enemies' update, so her stand at the elevator's door on the update before reaches
+        // the elevator here, immediately before this update's elevator step (#2545).
+        if (room.RoomObjects.DoorContacts.HandOverElevatorStandFromLastUpdate())
             room.Enemies.Elevator.PublishElevatorDoorContact();
         // The frame start clears all four external-displacement values before
         // the enemy pass. Rideable enemies then accumulate accepted platform deltas and

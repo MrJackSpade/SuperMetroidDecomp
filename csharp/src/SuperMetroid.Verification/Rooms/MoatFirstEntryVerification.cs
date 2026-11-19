@@ -18,6 +18,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks first-entry Moat water pixels through both reciprocal doors and pause history.</summary>
 internal static class MoatFirstEntryVerification
@@ -45,7 +46,7 @@ internal static class MoatFirstEntryVerification
             {
                 var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
                 if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-                var door = level.ResolveDoorCollision(block, SamusPoseId.FacingRightNormalPose.ForRoomCollision(), false);
+                var door = level.DoorExitAt(block);
                 if (door.Door?.DestinationRoom != RoomDefinitions.Moat) continue;
                 doorX = x; doorY = y;
                 break;
@@ -78,7 +79,7 @@ internal static class MoatFirstEntryVerification
                 runtime.SamusPhases.ShowEquippedBeamColours(samus.EquippedBeams);
                 runtime.FrameBoundary.BeginAcceptedFrame(0);
             }
-            runtime.Room.LoadedLevelData.ResolveDoorCollision(runtime.Room.LoadedLevelData.GetCollisionBlock(new(doorX, doorY)), samus.Pose.ForRoomCollision(), true);
+            runtime.MeetDoorBlock(runtime.Room.LoadedLevelData.GetCollisionBlock(new(doorX, doorY)), samus.Pose.ForRoomCollision());
             var transition = new DoorTransitionState();
             var audio = AudioQueues.Standalone();
             transition.Begin(runtime);

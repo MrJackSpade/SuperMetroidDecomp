@@ -37,7 +37,7 @@ internal static class DoorMusicTimingVerification
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            var door = level.ResolveDoorCollision(block, SamusPoseId.FacingRightNormalPose.ForRoomCollision(), false);
+            var door = level.DoorExitAt(block);
             if (door.Door?.DestinationRoom != RoomDefinitions.LandingSite) continue;
             doorX = x; doorY = y; break;
         }
@@ -50,7 +50,7 @@ internal static class DoorMusicTimingVerification
         samus.Position = samus.Position.WithWhole(new((ushort)(doorX * 16 + 8), (ushort)(doorY * 16 + 8)));
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        runtime.Room.LoadedLevelData.ResolveDoorCollision(runtime.Room.LoadedLevelData.GetCollisionBlock(new(doorX, doorY)), samus.Pose.ForRoomCollision(), true);
+        runtime.MeetDoorBlock(runtime.Room.LoadedLevelData.GetCollisionBlock(new(doorX, doorY)), samus.Pose.ForRoomCollision());
         game.AdoptRuntime(runtime);
         game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
         game.Session.Enter(DoorTransitionStep.EnteringDoor);

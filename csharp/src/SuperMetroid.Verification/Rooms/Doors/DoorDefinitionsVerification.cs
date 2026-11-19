@@ -43,19 +43,33 @@ internal static class DoorDefinitionsVerification
             new RoomLevelPlanes([RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.DoorBlock)], [RoomBlockBehavior.None], [RoomBlockAppearance.Of(0)]),
             RoomLevelData.NothingBeyondGrid(), [new RoomDoorBlock(at, DoorBlockExit.Physical(CrateriaDoorDefinitions.LandingSiteToParlor))]);
         SamusCollisionPose pose = SamusPoseId.ForwardFacingPowerSuitPose.ForRoomCollision();
-        AssertEqual(CrateriaDoorDefinitions.LandingSiteToParlor, level.ResolveDoorCollision(level.GetCollisionBlock(at), pose, publishDoorSideEffects: true).Door,
+        DoorBlockExit exit = level.DoorExitAt(level.GetCollisionBlock(at));
+        AssertEqual(CrateriaDoorDefinitions.LandingSiteToParlor, exit.Door,
             "the door block leads through the door its room names");
-        AssertEqual(CrateriaDoorDefinitions.LandingSiteToParlor, level.PendingDoorTransition,
-            "the collision publishes the door's transition");
+        var contacts = new RoomDoorContacts();
+        contacts.Meet(DoorContact.Of(exit, pose));
+        AssertEqual(CrateriaDoorDefinitions.LandingSiteToParlor, contacts.EnteredDoor,
+            "Samus's collision with the block enters the door");
+        contacts.Meet(DoorContact.Of(DoorBlockExit.Physical(TourianDoorDefinitions.MotherBrainToTourianEscape1), pose));
+        AssertEqual(CrateriaDoorDefinitions.LandingSiteToParlor, contacts.EnteredDoor,
+            "the first door Samus enters is the one she goes through (#2545)");
+        contacts.Meet(DoorContact.Of(DoorBlockExit.ElevatorPseudoDoor, SamusCollisionPose.StandingNormal));
+        AssertTrue(contacts.HandOverElevatorStandFromLastUpdate(),
+            "a stand at the elevator's door reaches the elevator on the next update's enemies (#2545)");
+        AssertTrue(!contacts.HandOverElevatorStandFromLastUpdate(), "the stand reaches the elevator once");
+        contacts.Meet(DoorContact.Of(DoorBlockExit.ElevatorPseudoDoor, SamusCollisionPose.RanIntoWallRight));
+        AssertTrue(!contacts.HandOverElevatorStandFromLastUpdate(), "a pose other than standing only brushes the elevator's door");
+        contacts.ForgetEnteredDoor();
+        AssertTrue(contacts.EnteredDoor is null, "the reserve refill's beginning forgets the entered door");
 
         level.SetBehavior(at, RoomBlockBehavior.None);
-        AssertThrows<InvalidDataException>(() => level.ResolveDoorCollision(level.GetCollisionBlock(at), pose, publishDoorSideEffects: false),
+        AssertThrows<InvalidDataException>(() => level.DoorExitAt(level.GetCollisionBlock(at)),
             "a behaviour write takes the block's door away");
 
         RoomObjectLevelWrites.WriteDoorBlock(level, at, MotherBrainDeathDefinitions.EscapeDoor);
         AssertEqual(RoomCollisionType.DoorBlock, level.GetCollisionBlock(at).CollisionType, "the escape door's write makes a door block");
         AssertEqual(TourianDoorDefinitions.MotherBrainToTourianEscape1,
-            level.ResolveDoorCollision(level.GetCollisionBlock(at), pose, publishDoorSideEffects: false).Door,
+            level.DoorExitAt(level.GetCollisionBlock(at)).Door,
             "Mother Brain's escape door block leads into the escape's first room");
     }
 

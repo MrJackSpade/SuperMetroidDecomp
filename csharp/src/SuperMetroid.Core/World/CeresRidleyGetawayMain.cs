@@ -7,6 +7,9 @@ namespace SuperMetroid.Core.World;
 internal sealed class CeresRidleyGetawayMain(RoomFloor floor) : IRoomMain
 {
     /// <inheritdoc/>
-    public void Run(RoomMainUpdate update) =>
+    public RoomMainOutcome Run(RoomMainUpdate update)
+    {
         update.Room.Enemies.Ceres.RunCeresRidleyGetawayRoomMain(update.Player.IntroducedSamus, floor, update.FrameCounter);
+        return RoomMainOutcome.None;
+    }
 }

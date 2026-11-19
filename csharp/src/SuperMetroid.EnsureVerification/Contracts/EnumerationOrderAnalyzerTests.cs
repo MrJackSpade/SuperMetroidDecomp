@@ -64,6 +64,15 @@ internal static class EnumerationOrderAnalyzerTests
             "the declaration of 'Frame'");
         Expect(Body("var names = new List<string> { \"open\" };\n        foreach (Frame frame in Enum.GetValues<Frame>())\n            if (names.Contains(Name(frame)))\n                throw new InvalidOperationException(Name(frame));\n        return names;"),
             count: 0);
+        // Followed across members: entries a function of the assembly only files into a lookup, a result its caller only
+        // unions into a sorted set, and a registry's list read only to file each entry by key feed no order; the same
+        // sequences listed in order by the callee, the caller or the registry's reader do.
+        Expect(Member(Filing("if (!filed.TryAdd(Name(frame), frame))\n                throw new InvalidOperationException(Name(frame));")), count: 0);
+        Expect(Member(Filing("listed.Add(frame);")), "a dictionary's enumeration");
+        Expect(Member(Unioned("all.Add(name);")), count: 0);
+        Expect(Member(Unioned("listed.Add(name);")), "the declaration of 'Frame'");
+        Expect(Member(Registered("filed.TryAdd(frame, species);")), count: 0);
+        Expect(Member(Registered("listed.Add(frame);")), "a dictionary's enumeration");
         // A written-out list is data, and outside Core and the import the rule does not apply.
         Expect(Body("return [.. Written.Select(Name)];"), count: 0);
         Expect(Member("internal static IReadOnlyList<Frame> Frames { get; } = Enum.GetValues<Frame>();"), count: 0, assemblyName: "SuperMetroid.Desktop");
@@ -107,6 +116,58 @@ internal static class EnumerationOrderAnalyzerTests
                 {{member}}
             }
         }
+        """;
+
+    /// <summary>
+    /// Members handing a dictionary's keys to a private function that runs <paramref name="filing"/> on each, with a lookup
+    /// <c>filed</c> and a list <c>listed</c> to put them in.
+    /// </summary>
+    private static string Filing(string filing) => $$"""
+        internal static IReadOnlyDictionary<string, Frame> Filed { get; } = File(Names.Select(pair => pair.Key));
+                private static Dictionary<string, Frame> File(IEnumerable<Frame> frames)
+                {
+                    var filed = new Dictionary<string, Frame>();
+                    var listed = new List<Frame>();
+                    foreach (Frame frame in frames)
+                        {{filing}}
+                    filed.Add(listed.Count.ToString(), Frame.Open);
+                    return filed;
+                }
+        """;
+
+    /// <summary>
+    /// Members returning an enum's members' names from a private method whose one caller runs <paramref name="adding"/> on
+    /// each, with a sorted set <c>all</c> and a list <c>listed</c> to put them in.
+    /// </summary>
+    private static string Unioned(string adding) => $$"""
+        private static IEnumerable<string> Written() => Enum.GetValues<Frame>().Select(Name);
+                internal static SortedSet<string> Union()
+                {
+                    var all = new SortedSet<string>(StringComparer.Ordinal);
+                    var listed = new List<string>();
+                    foreach (string name in Written())
+                        {{adding}}
+                    all.Add(listed.Count.ToString());
+                    return all;
+                }
+        """;
+
+    /// <summary>
+    /// A registry whose one species lists a dictionary's keys, read through the species' interface by a function that runs
+    /// <paramref name="registering"/> on each, with a lookup <c>filed</c> and a list <c>listed</c> to put them in.
+    /// </summary>
+    private static string Registered(string registering) => $$"""
+        internal interface ISpecies { IReadOnlyList<Frame> Frames { get; } }
+                internal sealed class Species : ISpecies { public IReadOnlyList<Frame> Frames { get; } = [.. Names.Keys]; }
+                internal static Dictionary<Frame, ISpecies> Register(ISpecies species)
+                {
+                    var filed = new Dictionary<Frame, ISpecies>();
+                    var listed = new List<Frame>();
+                    foreach (Frame frame in species.Frames)
+                        {{registering}}
+                    filed.Add(listed.Count == 0 ? Frame.Open : Frame.Closed, species);
+                    return filed;
+                }
         """;
 
     /// <summary>The fixture with a method returning names that runs <paramref name="statements"/>.</summary>

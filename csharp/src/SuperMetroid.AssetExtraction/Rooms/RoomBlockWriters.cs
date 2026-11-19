@@ -26,8 +26,6 @@ internal static class RoomBlockWriters
 {
     /// <summary>The writers the installed <paramref name="catalogs"/> and <paramref name="xray"/> reveal hold the blocks of.</summary>
     /// <exception cref="InvalidDataException">An installed frame or X-ray reveal has no rule that draws it.</exception>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6469:An order is taken from a declaration or a dictionary's enumeration",
-        Justification = "The inventory unions every writer that runs in a state into the state's sorted block set (RoomBlockInventory.Of); the writers' order is never read.")]
     internal static IReadOnlyList<RoomBlockWriter> Of(RoomObjectVisualCatalogSet catalogs, InstalledXrayReveals xray)
     {
         Ensure.NotNull(catalogs);
@@ -260,8 +258,6 @@ internal static class RoomBlockWriters
     }
 
     /// <summary>One writer for each of a room object's installed frames, written where <paramref name="writtenIn"/> says of the frame.</summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6469:An order is taken from a declaration or a dictionary's enumeration",
-        Justification = "The inventory unions every writer that runs in a state into the state's sorted block set (RoomBlockInventory.Of); the writers' order is never read.")]
     private static IEnumerable<RoomBlockWriter> PerFrame<TFrame>(RoomObjectFrameImages<TFrame> images,
         Func<TFrame, Func<InventoriedRoomState, bool>> writtenIn) where TFrame : notnull =>
         images.All.Select(frame => new RoomBlockWriter(BlocksOf(frame.Value), writtenIn(frame.Key)));

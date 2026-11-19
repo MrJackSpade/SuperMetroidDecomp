@@ -16,8 +16,6 @@ internal sealed class NativeWordIdentities<TIdentity>
     private readonly Dictionary<int, TIdentity> _identities;
 
     /// <summary>Keeps <paramref name="words"/>, requiring one distinct word per identity.</summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6469:An order is taken from a declaration or a dictionary's enumeration",
-        Justification = "The entries are filed in a lookup by word and each identity's words are sorted by value; the order they are handed over in is never read.")]
     internal NativeWordIdentities(IReadOnlyDictionary<TIdentity, ushort> words)
         : this(words.Select(entry => KeyValuePair.Create(entry.Value, entry.Key)))
     {

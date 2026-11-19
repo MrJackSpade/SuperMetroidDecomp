@@ -32,6 +32,15 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// callee's to enumerate and is not followed.
 /// </para>
 /// <para>
+/// A sequence handed to a parameter, stored in a field or property, or returned from a method or property of the same
+/// assembly is followed into every read of that symbol across the compilation, through the interface members it
+/// implements and the members it overrides: entries filed only into a lookup by the function that receives them, writers
+/// a caller only unions into sorted sets, and a registry's list read only to file each entry by key are order-free. A
+/// call that only checks its argument (<c>Ensure.NotNull</c>) hands it on, and a value whose result is discarded feeds
+/// nothing. A parameter of a function the compilation does not read, and a member or method the assembly never reads,
+/// are taken to feed an order, as another assembly may read them.
+/// </para>
+/// <para>
 /// Everything else feeds an order and is reported: an array or list built from it, a member or method result exposing
 /// it, an element read by position, a <c>First</c>, a <c>SequenceEqual</c>, a call handed it. Reordering an enum's
 /// members, or the inserts into a dictionary, then silently reorders an installed file, a sheet, a document or a
@@ -91,7 +100,8 @@ public sealed class EnumerationOrderAnalyzer : DiagnosticAnalyzer
             "carries nothing. A sequence of an enum's members from Enum.GetValues, a sort by an enum's values, or a " +
             "dictionary enumerated as a sequence that feeds an installed file's, a sheet's, a document's or a behaviour's " +
             "order makes reordering the members or the inserts silently change it. Where order matters it is written out " +
-            "as an explicit list; elsewhere the sequence is used only as a set, a lookup or a count (#2567).");
+            "as an explicit list; elsewhere the sequence is used only as a set, a lookup or a count (#2567).",
+        customTags: [WellKnownDiagnosticTags.CompilationEnd]);
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Rule];
@@ -106,22 +116,68 @@ public sealed class EnumerationOrderAnalyzer : DiagnosticAnalyzer
             if (start.Compilation.AssemblyName is not (CoreLayerAnalyzer.CoreAssembly or ExtractionAssembly))
                 return;
             INamedTypeSymbol? enumType = start.Compilation.GetSpecialType(SpecialType.System_Enum);
-            start.RegisterOperationBlockAction(block => AnalyzeBlock(block, enumType));
+            IAssemblySymbol assembly = start.Compilation.Assembly;
+            var flows = new OrderFlows();
+            start.RegisterOperationBlockAction(block => AnalyzeBlock(block, enumType, assembly, flows));
+            start.RegisterCompilationEndAction(end => flows.Report(end.ReportDiagnostic));
         });
     }
 
-    /// <summary>Reports every source in a block whose sequence feeds an order.</summary>
-    private static void AnalyzeBlock(OperationBlockAnalysisContext context, INamedTypeSymbol? enumType)
+    /// <summary>
+    /// Records every source in a block with what its sequence feeds, and how each read of a parameter, member or method
+    /// result of <paramref name="assembly"/> in the block uses the sequence it holds.
+    /// </summary>
+    private static void AnalyzeBlock(OperationBlockAnalysisContext context, INamedTypeSymbol? enumType, IAssemblySymbol assembly, OrderFlows flows)
     {
         IOperation[] operations = [.. context.OperationBlocks.SelectMany(block => block.DescendantsAndSelf())];
         foreach (IOperation operation in operations)
         {
             if (SourceOf(operation, enumType) is not { } source)
                 continue;
-            if (FeedsOrder(operation, operations, isSource: true, depth: 0))
-                context.ReportDiagnostic(Diagnostic.Create(Rule, operation.Syntax.GetLocation(), Shown(operation.Syntax), source));
+            // A list sorted in place by an enum's values is sorted only for its order.
+            OrderVerdict verdict = operation is IInvocationOperation { TargetMethod.Name: "Sort" }
+                ? OrderVerdict.Feeds
+                : FeedsOrder(operation, operations, isSource: true, depth: 0, assembly);
+            if (verdict.FeedsAtOnce || verdict.Conditions.Count != 0)
+                flows.Pending(Diagnostic.Create(Rule, operation.Syntax.GetLocation(), Shown(operation.Syntax), source), verdict);
+        }
+        IEnumerable<IParameterSymbol> parameters = context.OwningSymbol is IMethodSymbol owner ? owner.Parameters : [];
+        parameters = parameters.Concat(operations.OfType<ILocalFunctionOperation>().SelectMany(function => function.Symbol.Parameters));
+        foreach (IParameterSymbol parameter in parameters)
+        {
+            if (IsTracked(parameter.Type))
+                flows.Body((IParameterSymbol)parameter.OriginalDefinition);
+        }
+        foreach (IOperation operation in operations)
+        {
+            ISymbol? read = operation switch
+            {
+                IInvocationOperation invocation when IsTracked(invocation.Type) => Normalized(invocation.TargetMethod),
+                IPropertyReferenceOperation { Property.IsIndexer: false } property when IsTracked(property.Type) => Normalized(property.Property),
+                IFieldReferenceOperation field when IsTracked(field.Type) => field.Field.OriginalDefinition,
+                IParameterReferenceOperation parameter when IsTracked(parameter.Type) &&
+                    parameter.Parameter.ContainingSymbol is not IMethodSymbol { MethodKind: MethodKind.AnonymousFunction } => parameter.Parameter.OriginalDefinition,
+                _ => null,
+            };
+            if (read is null || !InAssembly(read, assembly) || operation.Parent is ISimpleAssignmentOperation assignment && assignment.Target == operation)
+                continue;
+            flows.Use(read, FeedsOrder(operation, operations, isSource: true, depth: 0, assembly));
         }
     }
+
+    /// <summary>Whether a symbol is declared in source of <paramref name="assembly"/>.</summary>
+    private static bool InAssembly(ISymbol symbol, IAssemblySymbol assembly) =>
+        SymbolEqualityComparer.Default.Equals(symbol.ContainingAssembly, assembly) && symbol.Locations.Any(location => location.IsInSource);
+
+    /// <summary>The symbol a read is recorded under: a property's accessor as its property, a generic as its definition.</summary>
+    private static ISymbol Normalized(ISymbol symbol) =>
+        symbol is IMethodSymbol { AssociatedSymbol: IPropertySymbol property } ? property.OriginalDefinition : symbol.OriginalDefinition;
+
+    /// <summary>Whether a value of a type carries an order the rule follows: a sequence that is not a set, a dictionary or text.</summary>
+    private static bool IsTracked(ITypeSymbol? type) =>
+        type is not null && type.SpecialType != SpecialType.System_String && !IsSetOrDictionary(type) &&
+        (type is IArrayTypeSymbol || Implements(type, "System.Collections.Generic.IEnumerable<T>") ||
+            type.AllInterfaces.Any(face => face.SpecialType == SpecialType.System_Collections_IEnumerable));
 
     /// <summary>The source an operation spans as the message shows it: its first line, at most eighty characters.</summary>
     private static string Shown(SyntaxNode syntax)
@@ -194,17 +250,17 @@ public sealed class EnumerationOrderAnalyzer : DiagnosticAnalyzer
     /// Whether the sequence an operation produces feeds an order, following it up through the operations that keep its
     /// order and the locals it is stored in.
     /// </summary>
-    private static bool FeedsOrder(IOperation operation, IOperation[] block, bool isSource, int depth)
+    private static OrderVerdict FeedsOrder(IOperation operation, IOperation[] block, bool isSource, int depth, IAssemblySymbol assembly)
     {
         if (depth > 16)
-            return true;
+            return OrderVerdict.Feeds;
         if (InsideThrow(operation))
-            return false;
+            return OrderVerdict.Free;
         IOperation current = operation;
         while (true)
         {
             if (!isSource && IsSetOrDictionary(current.Type))
-                return false;
+                return OrderVerdict.Free;
             isSource = false;
             IOperation? parent = current.Parent;
             switch (parent)
@@ -216,38 +272,82 @@ public sealed class EnumerationOrderAnalyzer : DiagnosticAnalyzer
                     current = parenthesized;
                     continue;
                 case IArgumentOperation { Parent: IInvocationOperation invocation } argument:
-                    if (Consumes(invocation, argument) is { } feeds)
+                    if (Consumes(invocation, argument, assembly) is { } feeds)
                         return feeds;
                     current = invocation;
                     continue;
-                case IArgumentOperation { Parent: IObjectCreationOperation creation }:
-                    return !IsSetOrDictionary(creation.Type);
+                case IArgumentOperation { Parent: IObjectCreationOperation creation } argument:
+                    if (IsSetOrDictionary(creation.Type))
+                        return OrderVerdict.Free;
+                    return creation.Constructor is { } constructor && InAssembly(constructor.OriginalDefinition, assembly) && argument.Parameter is { } parameter
+                        ? OrderVerdict.DependsOn(parameter.OriginalDefinition)
+                        : OrderVerdict.Feeds;
                 case IInvocationOperation { Instance: var instance } instanceCall when instance == current:
                     return !OrderFree.Contains(instanceCall.TargetMethod.Name) && instanceCall.TargetMethod.Name is not
-                        ("ContainsKey" or "ContainsValue" or "TryGetValue" or "Remove");
+                        ("ContainsKey" or "ContainsValue" or "TryGetValue" or "Remove") ? OrderVerdict.Feeds : OrderVerdict.Free;
                 case IPropertyReferenceOperation { Property: var property, Instance: var instance } when instance == current:
-                    return !Sizes.Contains(property.Name);
+                    return Sizes.Contains(property.Name) ? OrderVerdict.Free : OrderVerdict.Feeds;
                 case ISpreadOperation spread when spread.Parent is ICollectionExpressionOperation collection:
                     current = collection;
                     continue;
                 case IForEachLoopOperation loop when loop.Collection == current:
-                    return HasOrderedEffect(loop);
+                    return HasOrderedEffect(loop) ? OrderVerdict.Feeds : OrderVerdict.Free;
                 case IVariableInitializerOperation { Parent: IVariableDeclaratorOperation { Symbol: var local } }:
-                    return LocalFeedsOrder(local, block, depth);
+                    return LocalFeedsOrder(local, block, depth, assembly);
                 case ISimpleAssignmentOperation { Target: ILocalReferenceOperation { Local: var local } } assignment
                     when assignment.Value == current:
-                    return LocalFeedsOrder(local, block, depth);
+                    return LocalFeedsOrder(local, block, depth, assembly);
                 case ISimpleAssignmentOperation { Target: var target } assignment when assignment.Value == current:
-                    return !IsSetOrDictionary(target.Type);
+                    return Stored(Referenced(target), target.Type, assembly);
+                case IFieldInitializerOperation fieldInitializer when fieldInitializer.InitializedFields.Length != 0:
+                    return Stored(fieldInitializer.InitializedFields[0], fieldInitializer.InitializedFields[0].Type, assembly);
+                case IPropertyInitializerOperation propertyInitializer when propertyInitializer.InitializedProperties.Length != 0:
+                    return Stored(propertyInitializer.InitializedProperties[0], propertyInitializer.InitializedProperties[0].Type, assembly);
+                case IExpressionStatementOperation:
+                    return OrderVerdict.Free;
                 case IReturnOperation returned when IsSelectManySelectorResult(returned) is { } selectMany:
                     current = selectMany;
                     continue;
-                case IReturnOperation:
-                    return !IsSetOrDictionary(ReturnedType(parent));
+                case IReturnOperation returned:
+                    return Returned(returned, assembly);
                 default:
-                    return true;
+                    return OrderVerdict.Feeds;
             }
         }
+    }
+
+    /// <summary>
+    /// What a sequence stored in <paramref name="member"/> feeds: nothing in a set or a dictionary, what the member's reads
+    /// do with it for a field or property of the assembly, and otherwise an order.
+    /// </summary>
+    private static OrderVerdict Stored(ISymbol? member, ITypeSymbol? type, IAssemblySymbol assembly)
+    {
+        if (IsSetOrDictionary(type))
+            return OrderVerdict.Free;
+        return member is IFieldSymbol or IPropertySymbol && InAssembly(member.OriginalDefinition, assembly)
+            ? OrderVerdict.DependsOn(Normalized(member))
+            : OrderVerdict.Feeds;
+    }
+
+    /// <summary>
+    /// What a sequence a <c>return</c> hands back feeds: nothing as a set or a dictionary, an order out of a lambda, and
+    /// otherwise what the calls of its local function, method or property do with it.
+    /// </summary>
+    private static OrderVerdict Returned(IReturnOperation returned, IAssemblySymbol assembly)
+    {
+        if (IsSetOrDictionary(ReturnedType(returned)))
+            return OrderVerdict.Free;
+        for (IOperation? scope = returned.Parent; scope is not null; scope = scope.Parent)
+        {
+            if (scope is IAnonymousFunctionOperation)
+                return OrderVerdict.Feeds;
+            if (scope is ILocalFunctionOperation local)
+                return OrderVerdict.DependsOn(local.Symbol.OriginalDefinition);
+        }
+        return returned.SemanticModel?.GetEnclosingSymbol(returned.Syntax.SpanStart) is { } enclosing &&
+            enclosing is IMethodSymbol or IPropertySymbol && InAssembly(enclosing, assembly)
+            ? OrderVerdict.DependsOn(Normalized(enclosing))
+            : OrderVerdict.Feeds;
     }
 
     /// <summary>
@@ -265,22 +365,28 @@ public sealed class EnumerationOrderAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>
-    /// What a call does with the sequence one of its arguments carries: null when its result keeps the order and is
-    /// followed further, false when the call is order-free, true when it feeds an order.
+    /// What a call does with the sequence one of its arguments carries: null when its result keeps the order, or is the
+    /// argument handed back by a check, and is followed further; order-free for a count, a membership, a set, a lookup or a
+    /// resort; what the parameter's reads do for a function of the assembly; and otherwise an order.
     /// </summary>
-    private static bool? Consumes(IInvocationOperation invocation, IArgumentOperation argument)
+    private static OrderVerdict? Consumes(IInvocationOperation invocation, IArgumentOperation argument, IAssemblySymbol assembly)
     {
         IMethodSymbol method = invocation.TargetMethod;
         string name = method.Name;
-        if (!IsSequenceInterface(argument.Parameter?.Type) && !IsLinq(method))
-            return true;
+        if (name == "NotNull" && method.ContainingType?.Name == "Ensure")
+            return null;
         if (IsLinq(method) && OrderKeeping.Contains(name))
             return null;
-        if (OrderFree.Contains(name) || Sorts.Contains(name))
-            return false;
-        if (name == "Aggregate" && IsBitwiseCombination(invocation))
-            return false;
-        return true;
+        if (IsLinq(method) || IsSequenceInterface(argument.Parameter?.Type))
+        {
+            if (OrderFree.Contains(name) || Sorts.Contains(name))
+                return OrderVerdict.Free;
+            if (name == "Aggregate" && IsBitwiseCombination(invocation))
+                return OrderVerdict.Free;
+        }
+        return InAssembly(method.OriginalDefinition, assembly) && argument.Parameter is { } parameter
+            ? OrderVerdict.DependsOn(parameter.OriginalDefinition)
+            : OrderVerdict.Feeds;
     }
 
     /// <summary>Whether an <c>Aggregate</c>'s combining lambda is a bitwise or, and or exclusive or of its two parameters.</summary>
@@ -329,20 +435,24 @@ public sealed class EnumerationOrderAnalyzer : DiagnosticAnalyzer
         };
     }
 
-    /// <summary>Whether any read of a local holding the sequence feeds an order.</summary>
-    private static bool LocalFeedsOrder(ILocalSymbol local, IOperation[] block, int depth)
+    /// <summary>What the reads of a local holding the sequence feed, together.</summary>
+    private static OrderVerdict LocalFeedsOrder(ILocalSymbol local, IOperation[] block, int depth, IAssemblySymbol assembly)
     {
         if (IsSetOrDictionary(local.Type))
-            return false;
+            return OrderVerdict.Free;
+        OrderVerdict verdict = OrderVerdict.Free;
         foreach (IOperation operation in block)
         {
             if (operation is ILocalReferenceOperation { IsDeclaration: false } read &&
                 SymbolEqualityComparer.Default.Equals(read.Local, local) &&
-                !(read.Parent is ISimpleAssignmentOperation assignment && assignment.Target == read) &&
-                FeedsOrder(read, block, isSource: true, depth + 1))
-                return true;
+                !(read.Parent is ISimpleAssignmentOperation assignment && assignment.Target == read))
+            {
+                verdict = verdict.With(FeedsOrder(read, block, isSource: true, depth + 1, assembly));
+                if (verdict.FeedsAtOnce)
+                    return verdict;
+            }
         }
-        return false;
+        return verdict;
     }
 
     /// <summary>

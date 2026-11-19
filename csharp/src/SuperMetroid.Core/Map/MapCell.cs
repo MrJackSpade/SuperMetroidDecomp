@@ -17,5 +17,7 @@ public readonly record struct MapCell(MapCellKind Kind, MapCellEdges Edges, MapC
     /// The cell as its pictures' names spell it: its kind, then its slope piece if it shows one, then each edge that is not
     /// open (<see cref="MapCellEdges.Name"/>), each segment a name.
     /// </summary>
-    public string Name => string.Concat(Kind.ToString(), Slope == MapCellSlope.None ? "" : $".{Slope}", Edges.Name);
+    [InstalledKey]
+    public string Name => string.Concat(MapCellKindKeys.Installed.Of(Kind),
+        Slope == MapCellSlope.None ? "" : "." + MapCellSlopeKeys.Installed.Of(Slope), Edges.Name);
 }

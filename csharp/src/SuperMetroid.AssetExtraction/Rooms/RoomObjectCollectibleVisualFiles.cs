@@ -48,8 +48,9 @@ public static class RoomObjectCollectibleVisualFiles
     /// the file does not hold, the name its native checks report.
     /// </summary>
     /// <exception cref="InvalidOperationException">The draw is no collectible's frame.</exception>
+    [InstalledKey]
     internal static string VisualId(CollectibleDraw draw) => Enum.IsDefined(draw)
-        ? JsonNamingPolicy.KebabCaseLower.ConvertName(draw.ToString())
+        ? JsonNamingPolicy.KebabCaseLower.ConvertName(CollectibleDrawKeys.Installed.Of(draw))
         : throw new InvalidOperationException($"Undefined {nameof(CollectibleDraw)} {draw}.");
 
     /// <summary>Whether the installed file holds <paramref name="draw"/>: every frame but a block pair's, which lies under the item's own picture (#1538).</summary>

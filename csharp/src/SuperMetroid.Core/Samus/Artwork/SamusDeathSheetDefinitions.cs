@@ -19,5 +19,7 @@ public static class SamusDeathSheetDefinitions
     ];
 
     /// <summary>The explosion's picture <paramref name="frame"/>, facing <paramref name="facing"/>.</summary>
-    public static string ExplosionFrame(HorizontalDirection facing, F frame) => $"Explosion.{facing}.{frame}";
+    [InstalledKey]
+    public static string ExplosionFrame(HorizontalDirection facing, F frame) =>
+        $"Explosion.{HorizontalDirectionKeys.Installed.Of(facing)}.{SamusDeathExplosionFrameKeys.Installed.Of(frame)}";
 }

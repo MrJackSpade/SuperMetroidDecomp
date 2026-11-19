@@ -8,14 +8,25 @@ using SuperMetroid.EnsureAnalyzer.Modules;
 namespace SuperMetroid.EnsureAnalyzer.Contracts;
 
 /// <summary>
-/// An installed key is written out (SME6460, #2511): in <c>SuperMetroid.Core</c> and <c>SuperMetroid.AssetExtraction</c>,
-/// no enum member's name is written into text that becomes an installed key, a parameter, property, field or method result
-/// marked <c>[InstalledKey]</c> (<c>PictureShade.Effect</c>, <c>ArtworkFrame.Name</c>). An interpolation hole, a
-/// <c>ToString()</c>, a concatenation, a <c>string.Concat</c>, <c>Format</c> or <c>Join</c> argument, an
-/// <c>Enum.GetName</c> or a <c>nameof</c> of an enum member spells the key by the identity's source name, so renaming the
-/// member silently changes a name on disk and every installation stops matching. The text is followed through
-/// interpolation, concatenation, string transforms such as <c>ToLowerInvariant()</c>, conditional branches, switch-expression
-/// arms and one local variable. A numeric format (<c>{kind:D}</c>) writes the value, not the name, and is SME6450's read.
+/// An installed key is written out (SME6460, #2511, #2520): in <c>SuperMetroid.Core</c> and
+/// <c>SuperMetroid.AssetExtraction</c>, no enum member's name is written into text that becomes an installed key, a
+/// parameter, property, field or method result marked <c>[InstalledKey]</c> (<c>PictureShade.Effect</c>,
+/// <c>ArtworkFrame.Name</c>, <c>SpriteSheet.Frame</c>'s name) or overriding a marked member, nor into a JSON document a
+/// <c>Utf8JsonWriter</c> writes. An interpolation hole, a <c>ToString()</c>, a
+/// concatenation, a <c>string.Concat</c>, <c>Format</c> or <c>Join</c> argument, an <c>Enum.GetName</c> or a
+/// <c>nameof</c> of an enum member, or of a value typed <c>System.Enum</c>, spells the key by the identity's source name, so
+/// renaming the member silently changes a
+/// name on disk and every installation stops matching. The text is followed through interpolation, concatenation, string
+/// transforms such as <c>ToLowerInvariant()</c>, conditional branches, switch-expression arms, a LINQ selector's result
+/// and the collections built from it, and one local variable. A numeric format (<c>{kind:D}</c>) writes the value, not
+/// the name, and is SME6450's read.
+/// <para>
+/// Its sibling SME6462 reports an identity keyed or read by its members' names: an enum member's name made a
+/// dictionary's or set's key (an <c>Add</c>, <c>TryGetValue</c>, <c>ContainsKey</c> or indexer key, or a
+/// <c>ToDictionary</c> key selector), <c>Enum.Parse</c>, <c>Enum.TryParse</c> and <c>Enum.GetNames</c>, and
+/// <c>JsonStringEnumConverter</c> in any form. Each spells documents by the identity's source names; the identity's
+/// written-out key table (<c>InstalledKeys</c>, its JSON converter) is the one codec that reads and writes them.
+/// </para>
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class InstalledKeyAnalyzer : DiagnosticAnalyzer
@@ -23,11 +34,17 @@ public sealed class InstalledKeyAnalyzer : DiagnosticAnalyzer
     /// <summary>An enum member's name is written into an installed key.</summary>
     public const string EnumNameInKeyId = "SME6460";
 
+    /// <summary>An identity is keyed or read by its members' names.</summary>
+    public const string EnumNameKeyedId = "SME6462";
+
     /// <summary>The attribute that marks installed-key text.</summary>
     public const string MarkerName = "SuperMetroid.Core.InstalledKeyAttribute";
 
     /// <summary>The import pipeline, which writes the installed keys the game reads.</summary>
     public const string ExtractionAssembly = "SuperMetroid.AssetExtraction";
+
+    /// <summary>The converter that spells every member of an enum by its source name.</summary>
+    private const string NameConverter = "JsonStringEnumConverter";
 
     private static readonly DiagnosticDescriptor Rule = new(
         EnumNameInKeyId,
@@ -40,10 +57,23 @@ public sealed class InstalledKeyAnalyzer : DiagnosticAnalyzer
         description: "An installed key is the name the import writes into the installation and the game looks content up by. " +
             "Spelling it from an enum member's source name ties the installation to an identifier: renaming the member " +
             "changes the key without a format change, and installed content stops matching. Each key is written out, as " +
-            "RidleyShades.BabyKeys and TorizoLook's key table do (#2409, #2472, #2511).");
+            "RidleyShades.BabyKeys, TorizoLook's key table and the identities' InstalledKeys tables do (#2409, #2472, #2511, #2520).");
+
+    private static readonly DiagnosticDescriptor KeyedRule = new(
+        EnumNameKeyedId,
+        "An identity is keyed or read by its members' names",
+        "'{0}' {1}: it spells a '{2}' by its members' names; key and read the identity through its written-out key table " +
+            "(InstalledKeys and its JSON converter), so renaming a member never changes a document",
+        "Design",
+        DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "A dictionary keyed by an enum's member names, Enum.Parse, Enum.TryParse, Enum.GetNames and " +
+            "JsonStringEnumConverter read and write an identity by its source names, so renaming a member silently changes " +
+            "the documents the import installs and the saves the game writes, or stops reading them. The identity's " +
+            "InstalledKeys table is its one codec at the import and export boundary (#2520).");
 
     /// <inheritdoc/>
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Rule];
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Rule, KeyedRule];
 
     /// <inheritdoc/>
     public override void Initialize(AnalysisContext context)
@@ -52,30 +82,29 @@ public sealed class InstalledKeyAnalyzer : DiagnosticAnalyzer
         context.EnableConcurrentExecution();
         context.RegisterCompilationStartAction(start =>
         {
-            if (start.Compilation.AssemblyName is not (CoreLayerAnalyzer.CoreAssembly or ExtractionAssembly) ||
-                start.Compilation.GetTypeByMetadataName(MarkerName) is not { } marker)
-            {
+            if (start.Compilation.AssemblyName is not (CoreLayerAnalyzer.CoreAssembly or ExtractionAssembly))
                 return;
-            }
+            INamedTypeSymbol? marker = start.Compilation.GetTypeByMetadataName(MarkerName);
             start.RegisterOperationBlockStartAction(block => AnalyzeBlock(block, marker));
+            start.RegisterOperationAction(AnalyzeNameRead, OperationKind.Invocation, OperationKind.ObjectCreation, OperationKind.TypeOf);
         });
     }
 
     /// <summary>
-    /// Reports each enum name a block writes into an installed key, directly or through a local the block then hands to
-    /// one.
+    /// Reports each enum name a block writes into an installed key or a collection's keys, directly or through a local the
+    /// block then hands to one.
     /// </summary>
-    private static void AnalyzeBlock(OperationBlockStartAnalysisContext block, INamedTypeSymbol marker)
+    private static void AnalyzeBlock(OperationBlockStartAnalysisContext block, INamedTypeSymbol? marker)
     {
         var written = new ConcurrentDictionary<ILocalSymbol, ConcurrentBag<EnumNameWrite>>(SymbolEqualityComparer.Default);
-        var keyed = new ConcurrentDictionary<ILocalSymbol, string>(SymbolEqualityComparer.Default);
+        var keyed = new ConcurrentDictionary<ILocalSymbol, KeyDestination>(SymbolEqualityComparer.Default);
         block.RegisterOperationAction(operation =>
         {
             if (NameWrite(operation.Operation) is not { } write)
                 return;
-            string? key = Destination(write.Text, operation.ContainingSymbol, marker, out ILocalSymbol? local);
-            if (key is not null)
-                Report(operation.ReportDiagnostic, write, key);
+            KeyDestination? key = Destination(write.Text, operation.ContainingSymbol, marker, out ILocalSymbol? local);
+            if (key is { } destination)
+                Report(operation.ReportDiagnostic, write, destination);
             else if (local is not null)
                 written.GetOrAdd(local, _ => []).Add(write);
         }, OperationKind.Interpolation, OperationKind.InterpolatedStringAppendFormatted, OperationKind.Invocation,
@@ -88,7 +117,7 @@ public sealed class InstalledKeyAnalyzer : DiagnosticAnalyzer
         }, OperationKind.LocalReference);
         block.RegisterOperationBlockEndAction(end =>
         {
-            foreach (KeyValuePair<ILocalSymbol, string> entry in keyed)
+            foreach (KeyValuePair<ILocalSymbol, KeyDestination> entry in keyed)
             {
                 if (!written.TryGetValue(entry.Key, out ConcurrentBag<EnumNameWrite>? writes))
                     continue;
@@ -98,9 +127,55 @@ public sealed class InstalledKeyAnalyzer : DiagnosticAnalyzer
         });
     }
 
-    /// <summary>Reports one enum name written into the installed key <paramref name="key"/>.</summary>
-    private static void Report(Action<Diagnostic> report, EnumNameWrite write, string key) =>
-        report(Diagnostic.Create(Rule, write.Text.Syntax.GetLocation(), write.Text.Syntax.ToString(), write.Enum.Name, key));
+    /// <summary>Reports one enum name written into the installed key or collection keys <paramref name="key"/>.</summary>
+    private static void Report(Action<Diagnostic> report, EnumNameWrite write, KeyDestination key) =>
+        report(key.IsCollection
+            ? Diagnostic.Create(KeyedRule, write.Text.Syntax.GetLocation(), write.Text.Syntax.ToString(), "keys the collection " + key.Name, write.Enum.Name)
+            : Diagnostic.Create(Rule, write.Text.Syntax.GetLocation(), write.Text.Syntax.ToString(), write.Enum.Name, key.Name));
+
+    /// <summary>
+    /// Reports <c>Enum.Parse</c>, <c>Enum.TryParse</c>, <c>Enum.GetNames</c> and each construction or <c>typeof</c> of a
+    /// <c>JsonStringEnumConverter</c>, an attribute's <c>typeof</c> among them.
+    /// </summary>
+    private static void AnalyzeNameRead(OperationAnalysisContext context)
+    {
+        IOperation operation = context.Operation;
+        (string Verb, string Enum)? read = operation switch
+        {
+            IInvocationOperation invocation when invocation.TargetMethod.ContainingType.SpecialType == SpecialType.System_Enum &&
+                invocation.TargetMethod.Name is "Parse" or "TryParse" or "GetNames" =>
+                (invocation.TargetMethod.Name == "GetNames" ? "lists an identity's names" : "reads text", ParsedName(invocation)),
+            IObjectCreationOperation creation when IsNameConverter(creation.Type) => ("converts JSON", ConvertedName(creation.Type)),
+            ITypeOfOperation typeOf when IsNameConverter(typeOf.TypeOperand) => ("converts JSON", ConvertedName(typeOf.TypeOperand)),
+            _ => null,
+        };
+        if (read is { } found)
+        {
+            context.ReportDiagnostic(Diagnostic.Create(KeyedRule, operation.Syntax.GetLocation(), operation.Syntax.ToString(),
+                found.Verb, found.Enum));
+        }
+    }
+
+    /// <summary>The enum an <c>Enum</c> name call reads or lists, or "enum" when the call does not say.</summary>
+    private static string ParsedName(IInvocationOperation invocation) =>
+        (invocation.TargetMethod.TypeArguments.FirstOrDefault() ??
+            invocation.Arguments.Select(argument => EnumOf(Unconverted(argument.Value).Type)).FirstOrDefault(type => type is not null))?.Name
+        ?? "enum";
+
+    /// <summary>Whether a type is <c>JsonStringEnumConverter</c>, its generic form or a type derived from either.</summary>
+    private static bool IsNameConverter(ITypeSymbol? type)
+    {
+        for (ITypeSymbol? current = type; current is not null; current = current.BaseType)
+        {
+            if (current.Name == NameConverter && current.ContainingNamespace?.ToDisplayString() == "System.Text.Json.Serialization")
+                return true;
+        }
+        return false;
+    }
+
+    /// <summary>The enum a name converter converts, or "enum" for the converter of every enum.</summary>
+    private static string ConvertedName(ITypeSymbol? converter) =>
+        converter is INamedTypeSymbol { TypeArguments.Length: > 0 } generic ? generic.TypeArguments[0].Name : "enum";
 
     /// <summary>The enum name an operation writes into text, or null when it writes none.</summary>
     private static EnumNameWrite? NameWrite(IOperation operation) => operation switch
@@ -165,30 +240,55 @@ public sealed class InstalledKeyAnalyzer : DiagnosticAnalyzer
         format?.ConstantValue is { HasValue: true, Value: string text } && text.Length > 0 && text[0] is 'D' or 'd' or 'X' or 'x';
 
     /// <summary>
-    /// The installed key <paramref name="text"/> becomes part of, or null when it reaches none; a text first held in a
-    /// local is given as <paramref name="local"/>.
+    /// The installed key or collection keys <paramref name="text"/> becomes part of, or null when it reaches none; a text
+    /// first held in a local is given as <paramref name="local"/>.
     /// </summary>
-    private static string? Destination(IOperation text, ISymbol owner, INamedTypeSymbol marker, out ILocalSymbol? local)
+    private static KeyDestination? Destination(IOperation text, ISymbol owner, INamedTypeSymbol? marker, out ILocalSymbol? local)
     {
         local = null;
         IOperation current = text;
-        for (IOperation? parent = current.Parent; parent is not null; current = parent, parent = parent.Parent)
+        IOperation? parent = current.Parent;
+        while (parent is not null)
         {
             switch (parent)
             {
                 case IConversionOperation or IParenthesizedOperation or IInterpolationOperation or IInterpolatedStringOperation or
-                    IInterpolatedStringAppendOperation or IInterpolatedStringHandlerCreationOperation or ICoalesceOperation:
+                    IInterpolatedStringAppendOperation or IInterpolatedStringHandlerCreationOperation or ICoalesceOperation or
+                    ISpreadOperation or ICollectionExpressionOperation or IArrayInitializerOperation or IArrayCreationOperation:
                 case IBinaryOperation { OperatorKind: BinaryOperatorKind.Add, Type.SpecialType: SpecialType.System_String }:
                 case IConditionalOperation conditional when !ReferenceEquals(conditional.Condition, current):
                 case ISwitchExpressionArmOperation arm when ReferenceEquals(arm.Value, current):
                 case ISwitchExpressionOperation switched when !ReferenceEquals(switched.Value, current):
                 case IArgumentOperation { Parent: IInvocationOperation { TargetMethod: var building } } when IsStringBuilding(building):
-                case IInvocationOperation invocation when IsStringBuilding(invocation.TargetMethod) || IsStringTransform(invocation, current):
+                case IInvocationOperation invocation when IsStringBuilding(invocation.TargetMethod) || IsStringTransform(invocation, current) ||
+                    (ReferenceEquals(invocation.Instance, current) && IsGathering(invocation.TargetMethod)):
+                    break;
+                case IArgumentOperation { Parent: IInvocationOperation gathering } argument when
+                    argument.Parameter is { Name: "source" or "first" or "second" or "span" } && IsGathering(gathering.TargetMethod):
+                    current = gathering;
+                    parent = gathering.Parent;
                     continue;
-                case IArgumentOperation { Parameter: { } parameter }:
-                    return IsKey(parameter, marker) ? parameter.Name : null;
+                case IArgumentOperation argument when IsCollectionKey(argument):
+                    return ReceiverKey(argument.Parent switch
+                    {
+                        IInvocationOperation call => call.Instance,
+                        IPropertyReferenceOperation indexer => indexer.Instance,
+                        _ => null,
+                    }, marker);
+                case IArgumentOperation { Parameter: { } parameter } argument:
+                    return Writes(argument) ? new KeyDestination(((IInvocationOperation)argument.Parent!).TargetMethod.Name, false)
+                        : IsKey(parameter, marker) ? new KeyDestination(parameter.Name, false)
+                        : null;
                 case IReturnOperation:
-                    return ReturningMember(parent, owner) is { } member && IsKey(member, marker) ? member.Name : null;
+                    if (SelectorOf(parent) is { } selector)
+                    {
+                        if (selector.MakesKeys)
+                            return new KeyDestination("of '" + selector.Invocation.Syntax + "'", true);
+                        current = selector.Invocation;
+                        parent = selector.Invocation.Parent;
+                        continue;
+                    }
+                    return ReturningMember(parent, owner) is { } member && IsKey(member, marker) ? new KeyDestination(member.Name, false) : null;
                 case ISimpleAssignmentOperation assignment when ReferenceEquals(assignment.Value, current):
                     return Assigned(assignment.Target, marker, out local);
                 case IVariableInitializerOperation { Parent: IVariableDeclaratorOperation declarator }:
@@ -199,25 +299,111 @@ public sealed class InstalledKeyAnalyzer : DiagnosticAnalyzer
                 default:
                     return null;
             }
+            current = parent;
+            parent = current.Parent;
         }
         return null;
     }
 
+    /// <summary>
+    /// The call a return of a selector lambda hands its result to, and whether the call makes the results keys (a key
+    /// selector) rather than elements (a selector): LINQ's, the immutable and frozen collections' and the repository's own
+    /// span queries alike, each of which names its selectors so.
+    /// </summary>
+    private static (IInvocationOperation Invocation, bool MakesKeys)? SelectorOf(IOperation returned)
+    {
+        IOperation? ancestor = returned.Parent;
+        while (ancestor is IBlockOperation)
+            ancestor = ancestor.Parent;
+        if (ancestor is not IAnonymousFunctionOperation lambda || lambda.Parent is not IDelegateCreationOperation creation ||
+            creation.Parent is not IArgumentOperation { Parameter: { } parameter, Parent: IInvocationOperation call })
+            return null;
+        return parameter.Name switch
+        {
+            "keySelector" => (call, true),
+            "selector" => (call, false),
+            _ => null,
+        };
+    }
+
+    /// <summary>
+    /// Whether a call gathers the elements of the collection it is handed into another collection or keeps them, such as
+    /// <c>ToArray</c>, <c>ToHashSet</c>, <c>Prepend</c> or <c>Concat</c>.
+    /// </summary>
+    private static bool IsGathering(IMethodSymbol method) =>
+        IsCollectionApi(method) && method.Name is "ToArray" or "ToList" or "ToHashSet" or "ToFrozenSet" or "ToImmutableArray" or "ToImmutableHashSet" or
+            "Prepend" or "Append" or "Concat" or "Distinct" or "Order" or "OrderBy" or "Where" or "WhereToArray" or "ConcatToArray";
+
+    /// <summary>Whether a method is a LINQ, immutable or frozen collection extension, or one of the repository's span queries.</summary>
+    private static bool IsCollectionApi(IMethodSymbol method)
+    {
+        string space = method.ContainingNamespace?.ToDisplayString() ?? "";
+        return space is "System.Linq" or "System.Collections.Immutable" or "System.Collections.Frozen" ||
+            method.ContainingType.Name is "ReadOnlySpanQueries" or "ImportSpanQueries";
+    }
+
+    /// <summary>
+    /// Whether an argument is a key or element of the collection the call or indexer reads or writes: a <c>key</c> or
+    /// <c>item</c> of an instance member of a collection.
+    /// </summary>
+    private static bool IsCollectionKey(IArgumentOperation argument)
+    {
+        if (argument.Parameter is not { Name: "key" or "item" } parameter)
+            return false;
+        ISymbol? member = argument.Parent switch
+        {
+            IInvocationOperation call => call.TargetMethod,
+            IPropertyReferenceOperation indexer => indexer.Property,
+            _ => null,
+        };
+        return member is { IsStatic: false } && member.ContainingType is { } type && IsCollection(type) && parameter.Type.SpecialType == SpecialType.System_String;
+    }
+
+    /// <summary>Whether a type is a collection: it, or an interface it implements, is an enumerable of something.</summary>
+    private static bool IsCollection(INamedTypeSymbol type) =>
+        type.AllInterfaces.Prepend(type).Any(contract => contract.OriginalDefinition.SpecialType == SpecialType.System_Collections_Generic_IEnumerable_T);
+
+    /// <summary>The keys a collection key reaches: the marked member the collection is, else the collection's own keys.</summary>
+    private static KeyDestination ReceiverKey(IOperation? receiver, INamedTypeSymbol? marker)
+    {
+        IOperation? collection = receiver is null ? null : Unconverted(receiver);
+        ISymbol? member = collection switch
+        {
+            IFieldReferenceOperation field => field.Field,
+            IPropertyReferenceOperation property => property.Property,
+            ILocalReferenceOperation reference => reference.Local,
+            IParameterReferenceOperation reference => reference.Parameter,
+            _ => null,
+        };
+        if (member is not null && IsKey(member, marker))
+            return new KeyDestination(member.Name, false);
+        return new KeyDestination("of '" + (collection?.Syntax.ToString() ?? "the collection") + "'", true);
+    }
+
+    /// <summary>
+    /// Whether an argument is text a JSON document writer writes into the document it writes. A binary writer is not one:
+    /// the import spells contents with it to tell pictures apart within one run, and installs none of it.
+    /// </summary>
+    private static bool Writes(IArgumentOperation argument) =>
+        argument.Parent is IInvocationOperation { TargetMethod: { } method } &&
+        method.ContainingNamespace?.ToDisplayString() == "System.Text.Json" && method.ContainingType.Name == "Utf8JsonWriter" &&
+        argument.Parameter?.Type.SpecialType == SpecialType.System_String;
+
     /// <summary>The installed key an assignment writes, or null; a local it writes is given as <paramref name="local"/>.</summary>
-    private static string? Assigned(IOperation target, INamedTypeSymbol marker, out ILocalSymbol? local)
+    private static KeyDestination? Assigned(IOperation target, INamedTypeSymbol? marker, out ILocalSymbol? local)
     {
         local = (target as ILocalReferenceOperation)?.Local;
         ISymbol? member = target switch
         {
-            IPropertyReferenceOperation property => property.Property,
+            IPropertyReferenceOperation { Arguments.Length: 0 } property => property.Property,
             IFieldReferenceOperation field => field.Field,
             _ => null,
         };
-        return member is not null && IsKey(member, marker) ? member.Name : null;
+        return member is not null && IsKey(member, marker) ? new KeyDestination(member.Name, false) : null;
     }
 
     /// <summary>The installed key a field or property initializer writes, or null.</summary>
-    private static string? InitializedKey(ISymbolInitializerOperation initializer, INamedTypeSymbol marker)
+    private static KeyDestination? InitializedKey(ISymbolInitializerOperation initializer, INamedTypeSymbol? marker)
     {
         IEnumerable<ISymbol> members = initializer switch
         {
@@ -225,7 +411,7 @@ public sealed class InstalledKeyAnalyzer : DiagnosticAnalyzer
             IPropertyInitializerOperation property => property.InitializedProperties,
             _ => [],
         };
-        return members.FirstOrDefault(member => IsKey(member, marker))?.Name;
+        return members.FirstOrDefault(member => IsKey(member, marker)) is { } key ? new KeyDestination(key.Name, false) : null;
     }
 
     /// <summary>
@@ -244,9 +430,26 @@ public sealed class InstalledKeyAnalyzer : DiagnosticAnalyzer
         return owner is IMethodSymbol { AssociatedSymbol: IPropertySymbol property } ? property : owner;
     }
 
-    /// <summary>Whether a symbol is marked as installed-key text.</summary>
-    private static bool IsKey(ISymbol symbol, INamedTypeSymbol marker) =>
-        symbol.GetAttributes().Any(attribute => SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, marker));
+    /// <summary>Whether a symbol is marked as installed-key text, or overrides a member that is.</summary>
+    private static bool IsKey(ISymbol symbol, INamedTypeSymbol? marker)
+    {
+        if (marker is null)
+            return false;
+        for (ISymbol? current = symbol; current is not null; current = Overridden(current))
+        {
+            if (current.GetAttributes().Any(attribute => SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, marker)))
+                return true;
+        }
+        return false;
+    }
+
+    /// <summary>The member a member overrides, or null.</summary>
+    private static ISymbol? Overridden(ISymbol symbol) => symbol switch
+    {
+        IPropertySymbol property => property.OverriddenProperty,
+        IMethodSymbol method => method.OverriddenMethod,
+        _ => null,
+    };
 
     /// <summary>Whether a method joins the values it is handed into a string: <c>string.Concat</c>, <c>Format</c> or <c>Join</c>.</summary>
     private static bool IsStringJoining(IMethodSymbol method) =>
@@ -273,10 +476,13 @@ public sealed class InstalledKeyAnalyzer : DiagnosticAnalyzer
         return operand;
     }
 
-    /// <summary>The enum a type is, or the enum a nullable type wraps, or null.</summary>
+    /// <summary>
+    /// The enum a type is, or the enum a nullable type wraps, or <c>System.Enum</c> itself, whose value is some enum's
+    /// member and whose text is that member's name; null for any other type.
+    /// </summary>
     private static ITypeSymbol? EnumOf(ITypeSymbol? type) =>
         type is null ? null :
-        type.TypeKind == TypeKind.Enum ? type :
+        type.TypeKind == TypeKind.Enum || type.SpecialType == SpecialType.System_Enum ? type :
         type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T } nullable &&
             nullable.TypeArguments[0] is { TypeKind: TypeKind.Enum } wrapped ? wrapped :
         null;

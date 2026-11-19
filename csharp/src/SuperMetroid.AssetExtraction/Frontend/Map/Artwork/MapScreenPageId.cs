@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
@@ -11,6 +12,7 @@ public abstract record MapScreenPageId
     }
 
     /// <summary>The page's key in the map-screen document.</summary>
+    [InstalledKey]
     public abstract string Name { get; }
 
     /// <summary>The world map's foreground, shared by every area.</summary>
@@ -39,7 +41,7 @@ public abstract record MapScreenPageId
         public AreaId Area { get; }
 
         /// <inheritdoc/>
-        public override string Name => "World." + Area;
+        public override string Name => "World." + AreaIdKeys.Installed.Of(Area);
     }
 
     /// <summary>A playable area's room-map frame.</summary>
@@ -53,6 +55,6 @@ public abstract record MapScreenPageId
         public AreaId Area { get; }
 
         /// <inheritdoc/>
-        public override string Name => "Room." + Area;
+        public override string Name => "Room." + AreaIdKeys.Installed.Of(Area);
     }
 }

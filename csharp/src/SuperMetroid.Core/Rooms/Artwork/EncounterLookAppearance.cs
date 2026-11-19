@@ -14,7 +14,8 @@ public sealed record EncounterLookAppearance(EncounterLook Look) : AppearanceInp
     public EncounterLook Look { get; } = Look;
 
     /// <inheritdoc />
-    public override string Token { get; } = $"{AppearanceInputTokens.EncounterLookPrefix}{Look.Encounter} {Look.Name}";
+    public override string Token { get; } =
+        $"{AppearanceInputTokens.EncounterLookPrefix}{EncounterArtworkKeys.Installed.Of(Look.Encounter)} {Look.Name}";
 
     /// <inheritdoc />
     internal override string ValueIn(RoomAppearanceView appearance) =>

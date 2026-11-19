@@ -165,7 +165,7 @@ public static class EnemySheetFiles
     /// <summary>The enemy definition <paramref name="name"/> names, in the manifest's <paramref name="entry"/>.</summary>
     /// <exception cref="InvalidDataException">The name is no enemy definition.</exception>
     private static EnemyDefinitionId Enemy(string name, string entry) =>
-        Enum.TryParse(name, out EnemyDefinitionId enemy) && Enum.IsDefined(enemy)
+        EnemyDefinitionIdKeys.Installed.TryParse(name, out EnemyDefinitionId enemy)
             ? enemy : throw new InvalidDataException($"Enemy sheet manifest {entry} names unknown enemy {name}.");
 
     /// <summary>
@@ -259,7 +259,7 @@ public static class EnemySheetFiles
                 throw new InvalidDataException($"Enemy sheet manifest changes variant {variant}'s frame {frame} by no encounter's looks.");
             changes.Add(frame, [.. encounters.Select(entry =>
             {
-                if (!Enum.TryParse(entry.Key, out EncounterArtwork encounter) || !Enum.IsDefined(encounter))
+                if (!EncounterArtworkKeys.Installed.TryParse(entry.Key, out EncounterArtwork encounter))
                     throw new InvalidDataException($"Enemy sheet manifest changes variant {variant}'s frame {frame} by the looks of unknown encounter {entry.Key}.");
                 if (entry.Value is not { Length: > 0 } looks)
                     throw new InvalidDataException($"Enemy sheet manifest draws variant {variant}'s frame {frame} in no look of {entry.Key}.");

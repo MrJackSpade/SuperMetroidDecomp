@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Poses;
 using Kind = SuperMetroid.AssetExtraction.Samus.SamusOverreadDocument.CueValueStepKind;
@@ -64,7 +65,7 @@ internal static class SamusAnimationCueValueDecoding
             return new(Kind.Delay, value, null, null, null);
         string[]? Poses(params int[] offsets) =>
             offsets.All(offset => SamusPoseNumbering.NamesPose(Byte(offset)))
-                ? [.. offsets.Select(offset => SamusPoseNumbering.FromNumber(Byte(offset)).ToString())]
+                ? [.. offsets.Select(offset => SamusPoseIdKeys.Installed.Of(SamusPoseNumbering.FromNumber(Byte(offset))))]
                 : null;
         string[] Items() => ItemNames(SamusEquipmentWordCodec.FromSavedEquipmentWord(
             cartridge.ReadCartridgeWord(SnesAddressMath.AddWithinBank(SamusOverreadSourceDefinitions.SamusAnimationProgramBank, place + 1))));
@@ -106,6 +107,7 @@ internal static class SamusAnimationCueValueDecoding
     };
 
     /// <summary>The names of every item in <paramref name="items"/>.</summary>
+    [InstalledKey]
     private static string[] ItemNames(SamusEquipmentFlags items) =>
-        [.. Enum.GetValues<SamusEquipmentFlags>().Where(item => item != SamusEquipmentFlags.None && items.HasFlag(item)).Select(item => item.ToString())];
+        [.. Enum.GetValues<SamusEquipmentFlags>().Where(item => item != SamusEquipmentFlags.None && items.HasFlag(item)).Select(SamusEquipmentFlagsKeys.Installed.Of)];
 }

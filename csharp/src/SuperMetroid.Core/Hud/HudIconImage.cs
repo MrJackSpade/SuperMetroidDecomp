@@ -14,5 +14,5 @@ public sealed record HudIconImage(HudIcon Item, HudIconCover Cover, HudIconShade
 
     /// <inheritdoc/>
     public override string FrameName =>
-        $"Hud.{Item}.{Cover}.{Shade?.ToString() ?? "Unshaded"}";
+        $"Hud.{HudIconKeys.Installed.Of(Item)}.{HudIconCoverKeys.Installed.Of(Cover)}.{(Shade is { } shade ? HudIconShadeKeys.Installed.Of(shade) : "Unshaded")}";
 }

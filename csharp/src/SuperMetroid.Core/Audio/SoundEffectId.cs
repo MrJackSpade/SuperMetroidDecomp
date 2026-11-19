@@ -44,10 +44,18 @@ public readonly record struct SoundEffectId
     /// <summary>A sound of the room's library.</summary>
     public static implicit operator SoundEffectId(RoomSound sound) => new(null, null, sound);
 
-    /// <inheritdoc />
-    public override string ToString() =>
-        samus is { } samusSound ? $"{nameof(SamusSound)}.{samusSound}"
-        : enemies is { } enemySound ? $"{nameof(EnemySound)}.{enemySound}"
-        : room is { } roomSound ? $"{nameof(RoomSound)}.{roomSound}"
+    /// <summary>
+    /// The sound's installed key (#2520): its library's name, a dot and the sound's own key, as the clip index keys each
+    /// sound.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">This is the default identity, which holds no sound.</exception>
+    [InstalledKey]
+    internal string Key =>
+        samus is { } samusSound ? "SamusSound." + SamusSoundKeys.Installed.Of(samusSound)
+        : enemies is { } enemySound ? "EnemySound." + EnemySoundKeys.Installed.Of(enemySound)
+        : room is { } roomSound ? "RoomSound." + RoomSoundKeys.Installed.Of(roomSound)
         : throw new InvalidOperationException("The default sound identity names no sound.");
+
+    /// <inheritdoc />
+    public override string ToString() => Key;
 }

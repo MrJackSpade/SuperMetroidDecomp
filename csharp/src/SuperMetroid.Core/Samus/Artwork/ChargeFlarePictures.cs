@@ -33,5 +33,5 @@ public static class ChargeFlarePictures
     private static readonly Dictionary<ProjectileSpriteGroup, Dictionary<ChargeFlarePicture, ProjectileSpriteId>> Compositions =
         SparkFamilies.Prepend(ProjectileSpriteGroup.FlareMain).ToDictionary(family => family, family =>
             (family == ProjectileSpriteGroup.FlareMain ? MainPictures : SparkPictures).ToDictionary(picture => picture,
-                picture => All.Single(composition => composition.Group == family && composition.Pose == picture.ToString())));
+                picture => All.Single(composition => composition.Group == family && composition.Pose == ChargeFlarePictureKeys.Installed.Of(picture))));
 }

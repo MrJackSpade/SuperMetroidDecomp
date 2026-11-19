@@ -1,6 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Samus;
@@ -20,11 +23,12 @@ public static class ChargeFlarePlacementFile
     /// <param name="placement">The movement mode, and the direction whose muzzle or the turn whose placement the flare takes.</param>
     /// <returns>A key such as <c>standing-UpFacingRight</c>, <c>running-UpFacingLeft</c> or <c>standing-turning-Down</c>.</returns>
     /// <exception cref="ArgumentException">The placement names neither a muzzle nor a turn.</exception>
+    [InstalledKey]
     internal static string Key(ChargeFlarePlacement placement)
     {
         string mode = placement.Running ? "running" : "standing";
-        return placement.Aim.Muzzle is { } direction ? $"{mode}-{direction}"
-            : placement.Aim.Turning is { } turning ? $"{mode}-turning-{turning}"
+        return placement.Aim.Muzzle is { } direction ? $"{mode}-{SamusProjectileDirectionKeys.Installed.Of(direction)}"
+            : placement.Aim.Turning is { } turning ? $"{mode}-turning-{SamusTurningAimKeys.Installed.Of(turning)}"
             : throw new ArgumentException("A flare is placed at a muzzle or while turning.", nameof(placement));
     }
 

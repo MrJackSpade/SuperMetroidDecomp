@@ -86,7 +86,7 @@ internal static class EnemySheetComposer
             var enemies = new Dictionary<string, string>(StringComparer.Ordinal);
             foreach (LaidEnemySheet sheet in set.Enemies)
             {
-                string enemy = sheet.Enemy.ToString();
+                string enemy = EnemyDefinitionIdKeys.Installed.Of(sheet.Enemy);
                 string variant = variants.Of(enemy, new EnemyVariantDocument
                 {
                     Enemy = enemy,
@@ -120,8 +120,8 @@ internal static class EnemySheetComposer
                     Sheet = own,
                     CommonPictures = commonPictures,
                     Owner = SpawnedObjectOwnerNames.Name(plan.Owner),
-                    Spawners = [.. plan.Spawners.Select(enemy => enemy.ToString())],
-                    SharedSpawners = [.. plan.SharedSpawners.Select(enemy => enemy.ToString())],
+                    Spawners = [.. plan.Spawners.Select(EnemyDefinitionIdKeys.Installed.Of)],
+                    SharedSpawners = [.. plan.SharedSpawners.Select(EnemyDefinitionIdKeys.Installed.Of)],
                     Common = [.. plan.Common.Select(common => common.Spawner)],
                     Empty = [.. sheet.Empty.Order(StringComparer.Ordinal)],
                     LookChanges = sheet.LookChanges.Count > 0 ? Document(sheet.LookChanges) : null,
@@ -153,7 +153,7 @@ internal static class EnemySheetComposer
     /// order, the names of the looks the frame is drawn in.
     /// </summary>
     private static Dictionary<string, Dictionary<string, string[]>> Document(IReadOnlyDictionary<string, IReadOnlyList<FrameLookChange>> frames) =>
-        frames.ToDictionary(frame => frame.Key, frame => frame.Value.OrderBy(change => change.Encounter).ToDictionary(change => change.Encounter.ToString(),
+        frames.ToDictionary(frame => frame.Key, frame => frame.Value.OrderBy(change => change.Encounter).ToDictionary(change => EncounterArtworkKeys.Installed.Of(change.Encounter),
             change => change.Looks.ToArray(), StringComparer.Ordinal), StringComparer.Ordinal);
 
     /// <summary>

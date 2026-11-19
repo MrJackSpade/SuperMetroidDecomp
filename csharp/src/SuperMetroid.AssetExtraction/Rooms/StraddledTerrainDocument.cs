@@ -1,3 +1,5 @@
+using SuperMetroid.Core;
+
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
@@ -45,13 +47,13 @@ internal sealed record StraddledTerrainDocument(
     /// The terrain a read starting in a block of this class and ending in a block of each tail class finds, in the order
     /// the tail classes are listed.
     /// </param>
-    internal sealed record Lead(string Collision, string Mirroring, IReadOnlyList<BlockRun> Blocks, IReadOnlyList<Outcome> Straddles);
+    internal sealed record Lead([InstalledKey] string Collision, [InstalledKey] string Mirroring, IReadOnlyList<BlockRun> Blocks, IReadOnlyList<Outcome> Straddles);
 
     /// <summary>One straddled terrain block.</summary>
     /// <param name="Block">The block shown, 0 through 1023.</param>
     /// <param name="Mirroring">The name of how the block is mirrored.</param>
     /// <param name="Collision">The name of the kind the block collides as.</param>
-    internal sealed record Outcome(int Block, string Mirroring, string Collision);
+    internal sealed record Outcome(int Block, [InstalledKey] string Mirroring, [InstalledKey] string Collision);
 
     /// <summary>
     /// One block a collectible that shows its own picture writes under it (#2354): its end and start contribute to a
@@ -60,5 +62,5 @@ internal sealed record StraddledTerrainDocument(
     /// <param name="Pair">The name of the block pair.</param>
     /// <param name="Look">The name of the look of the collectible's picture the block lies under.</param>
     /// <param name="StraddlesAs">The block number, 0 through 1023, the block straddles as.</param>
-    internal sealed record CollectibleBlock(string Pair, string Look, int StraddlesAs);
+    internal sealed record CollectibleBlock([InstalledKey] string Pair, [InstalledKey] string Look, int StraddlesAs);
 }

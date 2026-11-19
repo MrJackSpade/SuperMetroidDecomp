@@ -11,13 +11,16 @@ namespace SuperMetroid.Core.Fx.Artwork;
 public static class RoomEffectPictures
 {
     /// <summary>The name, in a room's effect overlay picture sheet, of the surface strip of liquid effect <paramref name="type"/>.</summary>
-    public static string SurfaceName(RoomFxType type) => $"Fx{type}.Surface";
+    [InstalledKey]
+    public static string SurfaceName(RoomFxType type) => $"Fx{RoomFxTypeKeys.Installed.Of(type)}.Surface";
 
     /// <summary>The name, in a room's effect overlay picture sheet, of the body of liquid effect <paramref name="type"/>.</summary>
-    public static string BodyName(RoomFxType type) => $"Fx{type}.Body";
+    [InstalledKey]
+    public static string BodyName(RoomFxType type) => $"Fx{RoomFxTypeKeys.Installed.Of(type)}.Body";
 
     /// <summary>The name, in a room's effect overlay picture sheet, of the picture of atmosphere effect <paramref name="type"/>.</summary>
-    public static string AtmosphereName(RoomFxType type) => $"Fx{type}";
+    [InstalledKey]
+    public static string AtmosphereName(RoomFxType type) => $"Fx{RoomFxTypeKeys.Installed.Of(type)}";
 
     /// <summary>The names of the pictures effect <paramref name="type"/> shows: a liquid's strip and body, or an atmosphere's picture.</summary>
     public static IEnumerable<string> NamesOf(RoomFxType type) =>

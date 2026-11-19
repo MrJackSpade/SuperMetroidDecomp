@@ -50,11 +50,13 @@ public sealed class RoomFloorSheet
             : throw new InvalidDataException($"Unknown Ceres floor animation frame {frame}.");
 
     /// <summary>The installed name of <paramref name="tileset"/>'s floor.</summary>
+    [InstalledKey]
     public static string NameOf(TilesetDefinition tileset) => $"Floor.{RoomBlockSheet.NameOf(tileset)}";
 
     /// <summary>The name <paramref name="frame"/>'s picture is installed under in a floor's sheet.</summary>
     /// <exception cref="InvalidDataException"><paramref name="frame"/> is not a floor animation frame.</exception>
+    [InstalledKey]
     public static string PictureNameOf(CeresFloorAnimationFrame frame) => Enum.IsDefined(frame)
-        ? $"Ceres.{frame}"
+        ? $"Ceres.{CeresFloorAnimationFrameKeys.Installed.Of(frame)}"
         : throw new InvalidDataException($"Unknown Ceres floor animation frame {frame}.");
 }

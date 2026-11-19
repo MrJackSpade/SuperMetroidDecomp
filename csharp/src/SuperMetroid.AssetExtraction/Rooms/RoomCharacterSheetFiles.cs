@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Assets;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -9,5 +10,7 @@ public static class RoomCharacterSheetFiles
     public const string CreFileName = "room-characters-cre.png";
 
     /// <summary>The editable PNG file name of a character sheet; graphics sets that share a sheet share one PNG.</summary>
-    public static string FileName(RoomCharacterSet set) => $"room-characters-{InstalledArtworkNames.Hyphenated(set.ToString())}.png";
+    [InstalledKey]
+    public static string FileName(RoomCharacterSet set) =>
+        $"room-characters-{InstalledArtworkNames.Hyphenated(RoomCharacterSetKeys.Installed.Of(set))}.png";
 }

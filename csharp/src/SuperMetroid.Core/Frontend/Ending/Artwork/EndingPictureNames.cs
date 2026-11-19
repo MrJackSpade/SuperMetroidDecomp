@@ -28,14 +28,18 @@ public static class EndingPictureNames
     public const string PercentSign = "PercentSign";
 
     /// <summary>The explosion's map <paramref name="map"/>, a whole screen.</summary>
-    public static string ExplosionMap(EndingExplosionPicture map) => "ExplosionMap" + map;
+    [InstalledKey]
+    public static string ExplosionMap(EndingExplosionPicture map) => "ExplosionMap" + EndingExplosionPictureKeys.Installed.Of(map);
 
     /// <summary>The credits roll's line of <paramref name="role"/>, the whole line however high.</summary>
-    public static string CreditsLine(string role) => "CreditsLine." + role;
+    [InstalledKey]
+    public static string CreditsLine([InstalledKey] string role) => "CreditsLine." + role;
 
     /// <summary>The letter <paramref name="character"/> of the typed text style <paramref name="style"/>.</summary>
-    public static string Glyph(EndingTextStyle style, char character) => style + "Glyph" + character;
+    [InstalledKey]
+    public static string Glyph(EndingTextStyle style, char character) => EndingTextStyleKeys.Installed.Of(style) + "Glyph" + character;
 
     /// <summary>The item percentage's digit <paramref name="digit"/>, two rows.</summary>
+    [InstalledKey]
     public static string PercentDigit(int digit) => "PercentDigit" + digit.ToString(System.Globalization.CultureInfo.InvariantCulture);
 }

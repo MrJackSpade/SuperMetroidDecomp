@@ -104,8 +104,9 @@ public sealed class SamusArmCannonLayout
         WriteIndented = true,
         Converters =
         {
-            new JsonStringEnumConverter<SamusArmCannonDrawOrder>(allowIntegerValues: false),
-            new JsonStringEnumConverter<SamusProjectileDirection>(allowIntegerValues: false),
+            new SamusArmCannonDrawOrderJsonConverter(),
+            new SamusProjectileDirectionJsonConverter(),
+            new SamusPoseIdJsonConverter(),
         },
     };
 }

@@ -64,12 +64,12 @@ public static class GameplayHudPresentationFile
     {
         HudIcon[] named = Enum.GetValues<HudIcon>();
         if (document.Icons is null || document.Icons.Count != named.Length ||
-            named.Any(item => !document.Icons.ContainsKey(item.ToString())))
+            named.Any(item => !document.Icons.ContainsKey(HudIconKeys.Installed.Of(item))))
             throw new InvalidDataException("Gameplay HUD requires exactly the five named item icons.");
         var icons = ImmutableDictionary.CreateBuilder<HudIcon, GameplayHudIcon>();
         foreach (HudIcon item in named)
         {
-            string name = item.ToString();
+            string name = HudIconKeys.Installed.Of(item);
             GameplayHudIconDocument icon = document.Icons[name] ?? throw new InvalidDataException($"Gameplay HUD icon {name} is null.");
             int width = GameplayHudStockDefinitions.IconWidths[item];
             Position16<CharacterCells> anchor = ValidateAnchor(icon.Anchor, new(checked((ushort)width), GameplayHudIcon.Height), $"{name} icon");

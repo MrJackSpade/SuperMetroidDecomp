@@ -50,7 +50,7 @@ public sealed class PauseBackdropPresentation
         var areas = new Dictionary<AreaId, BackgroundTile[]>();
         foreach (AreaId area in AreaIds.All)
         {
-            if (!document.Areas.TryGetValue(area.ToString(), out var cells) || cells is null || cells.Length != PauseBackdropDefinitions.Cells)
+            if (!document.Areas.TryGetValue(AreaIdKeys.Installed.Of(area), out var cells) || cells is null || cells.Length != PauseBackdropDefinitions.Cells)
                 throw new InvalidDataException($"Pause backdrop {area} requires 1024 cells in 32-column row order.");
             areas.Add(area, PauseTileGrid.Compile(cells, area.ToString()));
         }

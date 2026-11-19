@@ -41,6 +41,6 @@ public sealed class BossBodySheet
 
     /// <summary>The frame named <paramref name="name"/>.</summary>
     /// <exception cref="InvalidDataException">The sheet has no such frame.</exception>
-    public BossBodyFrame Frame(string name) =>
+    public BossBodyFrame Frame([InstalledKey] string name) =>
         frames.TryGetValue(name, out BossBodyFrame? frame) ? frame : throw new InvalidDataException($"{Owner}'s body sheet has no frame {name}.");
 }

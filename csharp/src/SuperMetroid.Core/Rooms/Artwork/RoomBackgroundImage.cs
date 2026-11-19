@@ -75,13 +75,16 @@ public sealed class RoomBackgroundImage
     public IReadOnlyList<RoomBackgroundCell> Cells { get; }
 
     /// <summary>The installed name of the sky <paramref name="sky"/>'s rows in a room of <paramref name="tileset"/>.</summary>
-    public static string SkyNameOf(ScrollingSky sky, TilesetDefinition tileset) => $"Sky{sky}.{RoomBlockSheet.NameOf(tileset)}";
+    [InstalledKey]
+    public static string SkyNameOf(ScrollingSky sky, TilesetDefinition tileset) =>
+        $"Sky{ScrollingSkyKeys.Installed.Of(sky)}.{RoomBlockSheet.NameOf(tileset)}";
 
     /// <summary>
     /// The installed name of <paramref name="background"/>'s picture in a room of <paramref name="tileset"/>: the picture a
     /// room entered through <paramref name="door"/> shows when that door shows its own picture, otherwise, for no door,
     /// the ordinary one.
     /// </summary>
+    [InstalledKey]
     public static string NameOf(LibraryBackground background, DoorDefinition? door, TilesetDefinition tileset) =>
         $"{Ensure.NotNull(background).Name}{(door is null ? "" : "." + door.Name)}.{RoomBlockSheet.NameOf(tileset)}";
 }

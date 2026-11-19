@@ -18,7 +18,8 @@ public static class TitleFloors
     private static readonly ConditionalWeakTable<SpriteSheetFrame, AffineFloor> floors = new();
 
     /// <summary>The name of the picture of the Baby in <paramref name="pose"/>.</summary>
-    public static string BabyFrameName(TitleBabyPose pose) => $"baby-{pose}";
+    [InstalledKey]
+    public static string BabyFrameName(TitleBabyPose pose) => $"baby-{TitleBabyPoseKeys.Installed.Of(pose)}";
 
     /// <summary>The floor with the Baby in <paramref name="pose"/> drawn over it.</summary>
     /// <exception cref="InvalidDataException">The installed title floor has no picture of the floor or of the pose.</exception>

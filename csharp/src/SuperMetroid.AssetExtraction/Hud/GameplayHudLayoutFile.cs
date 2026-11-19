@@ -23,8 +23,8 @@ public static class GameplayHudLayoutFile
         var showsOverTemplate = new Dictionary<string, bool>(StringComparer.Ordinal);
         foreach (HudIcon icon in Enum.GetValues<HudIcon>())
         {
-            anchors.Add(icon.ToString(), parts.Icons[icon].Anchor);
-            showsOverTemplate.Add(icon.ToString(), parts.Icons[icon].ShowsOverTemplate);
+            anchors.Add(HudIconKeys.Installed.Of(icon), parts.Icons[icon].Anchor);
+            showsOverTemplate.Add(HudIconKeys.Installed.Of(icon), parts.Icons[icon].ShowsOverTemplate);
         }
         return JsonSerializer.SerializeToUtf8Bytes(new GameplayHudLayoutDocument
         {
@@ -71,7 +71,7 @@ public static class GameplayHudLayoutFile
         HudIcon[] icons = Enum.GetValues<HudIcon>();
         if (document.IconAnchors is null || document.IconsShowOverTemplate is null ||
             document.IconAnchors.Count != icons.Length || document.IconsShowOverTemplate.Count != icons.Length ||
-            icons.Any(icon => !document.IconAnchors.ContainsKey(icon.ToString()) || !document.IconsShowOverTemplate.ContainsKey(icon.ToString())))
+            icons.Any(icon => !document.IconAnchors.ContainsKey(HudIconKeys.Installed.Of(icon)) || !document.IconsShowOverTemplate.ContainsKey(HudIconKeys.Installed.Of(icon))))
             throw new InvalidDataException("Gameplay HUD layout requires exactly the five named item icons.");
         return new GameplayHudPresentation(new GameplayHudPresentationParts
         {
@@ -82,7 +82,7 @@ public static class GameplayHudLayoutFile
             PowerBombAmmoAnchor = InBand(document.PowerBombAmmoAnchor, "Power Bomb digits"),
             AutoReserveCorner = InBand(document.AutoReserveCorner, "AUTO indicator"),
             Icons = icons.ToImmutableDictionary(icon => icon, icon => new HudIconPlacement(
-                InBand(document.IconAnchors[icon.ToString()], $"{icon} icon"), document.IconsShowOverTemplate[icon.ToString()])),
+                InBand(document.IconAnchors[HudIconKeys.Installed.Of(icon)], $"{icon} icon"), document.IconsShowOverTemplate[HudIconKeys.Installed.Of(icon)])),
             MinimapAnchor = InBand(document.MinimapAnchor, "minimap"),
         });
     }

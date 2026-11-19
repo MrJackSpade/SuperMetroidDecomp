@@ -106,6 +106,6 @@ public static class EnemyAuxiliaryColorFiles
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         WriteIndented = true,
-        Converters = { new JsonStringEnumConverter<EnemyAuxiliaryPalette>(allowIntegerValues: false) },
+        Converters = { new EnemyAuxiliaryPaletteJsonConverter() },
     };
 }

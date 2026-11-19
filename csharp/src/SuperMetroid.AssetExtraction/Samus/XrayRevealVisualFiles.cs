@@ -59,7 +59,7 @@ public static class XrayRevealVisualFiles
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         RespectRequiredConstructorParameters = true,
         WriteIndented = true,
-        Converters = { new JsonStringEnumConverter() },
+        Converters = { new RoomCollisionTypeJsonConverter(), new BlockMirroringJsonConverter(), new InWorldCollectibleKindJsonConverter() },
     };
 
     /// <summary>

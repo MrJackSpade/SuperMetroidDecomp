@@ -26,7 +26,7 @@ public static class EscapeTypewriterExtractor
         Ensure.NotNull(bus);
         var messages = new Dictionary<string, EscapeTypewriterMessageDocument>(StringComparer.Ordinal);
         foreach (EscapeTypewriterMessageId id in Enum.GetValues<EscapeTypewriterMessageId>())
-            messages.Add(id.ToString(), new() { Lines = ReadProgram(bus, id) });
+            messages.Add(EscapeTypewriterMessageIdKeys.Installed.Of(id), new() { Lines = ReadProgram(bus, id) });
         using var output = new MemoryStream();
         Write(output, new()
         {

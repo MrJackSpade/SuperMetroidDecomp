@@ -7,9 +7,9 @@ using SuperMetroid.Core.Audio;
 namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>
-/// Reads and writes a sound in the clip index by its name, its library's sound type and member as
-/// <see cref="SoundEffectId.ToString"/> spells them (for example <c>SamusSound.UnchargedPowerBeam</c>), so the index keys
-/// each sound by the game's identity rather than the library's request number (#1693).
+/// Reads and writes a sound in the clip index by its installed key, its library's name and the sound's own key as
+/// <see cref="SoundEffectId.Key"/> spells them (for example <c>SamusSound.UnchargedPowerBeam</c>), so the index keys each
+/// sound by the game's identity rather than the library's request number (#1693, #2520).
 /// </summary>
 internal sealed class SoundEffectIdJsonConverter : JsonConverter<SoundEffectId>
 {
@@ -18,7 +18,7 @@ internal sealed class SoundEffectIdJsonConverter : JsonConverter<SoundEffectId>
         Enum.GetValues<SamusSound>().Select(sound => (SoundEffectId)sound)
             .Concat(Enum.GetValues<EnemySound>().Select(sound => (SoundEffectId)sound))
             .Concat(Enum.GetValues<RoomSound>().Select(sound => (SoundEffectId)sound))
-            .ToFrozenDictionary(sound => sound.ToString(), StringComparer.Ordinal);
+            .ToFrozenDictionary(sound => sound.Key, StringComparer.Ordinal);
 
     /// <inheritdoc />
     /// <exception cref="InvalidDataException">The value is not a string naming a sound.</exception>
@@ -36,6 +36,6 @@ internal sealed class SoundEffectIdJsonConverter : JsonConverter<SoundEffectId>
     public override void Write(Utf8JsonWriter writer, SoundEffectId value, JsonSerializerOptions options)
     {
         Ensure.NotNull(writer);
-        writer.WriteStringValue(value.ToString());
+        writer.WriteStringValue(value.Key);
     }
 }

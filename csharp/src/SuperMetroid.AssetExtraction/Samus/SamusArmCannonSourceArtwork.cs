@@ -145,5 +145,6 @@ public sealed class SamusArmCannonSourceArtwork
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         WriteIndented = true,
+        Converters = { new SamusPoseIdJsonConverter() },
     };
 }

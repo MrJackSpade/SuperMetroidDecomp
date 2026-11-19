@@ -56,7 +56,7 @@ public sealed class WrittenPictureSheet
     /// <paramref name="appearance"/> reads, as its part behind and its part in front (#1634).
     /// </summary>
     /// <exception cref="InvalidDataException">The sheet pictures nothing by that name, or nothing for those values.</exception>
-    public LayeredPicture Picture(string picture, RoomAppearanceView appearance)
+    public LayeredPicture Picture([InstalledKey] string picture, RoomAppearanceView appearance)
     {
         if (!inputs.TryGetValue(Ensure.NotNull(picture), out ImmutableArray<AppearanceInput> depends))
             throw new InvalidDataException($"{Name} pictures nothing named {picture}.");

@@ -7,5 +7,7 @@ namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 internal static class CeresElevatorArrivalPictures
 {
     /// <summary>The name the spawned-object sheet holds the picture of <paramref name="pose"/> under.</summary>
-    internal static string SheetName(CeresElevatorArrivalPose pose) => $"CeresElevatorArrival.{pose}";
+    [InstalledKey]
+    internal static string SheetName(CeresElevatorArrivalPose pose) =>
+        $"CeresElevatorArrival.{CeresElevatorArrivalPoseKeys.Installed.Of(pose)}";
 }

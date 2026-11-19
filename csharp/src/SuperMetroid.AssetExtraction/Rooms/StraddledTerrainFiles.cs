@@ -35,19 +35,19 @@ public static class StraddledTerrainFiles
 
     /// <summary>Every mirroring by its name.</summary>
     private static readonly Dictionary<string, BlockMirroring> MirroringsByName =
-        Mirrorings.ToDictionary(mirroring => mirroring.ToString(), StringComparer.Ordinal);
+        Mirrorings.ToDictionary(mirroring => BlockMirroringKeys.Installed.Of(mirroring), StringComparer.Ordinal);
 
     /// <summary>Every collision kind by its name.</summary>
     private static readonly Dictionary<string, RoomCollisionType> KindsByName =
-        Kinds.ToDictionary(kind => kind.ToString(), StringComparer.Ordinal);
+        Kinds.ToDictionary(kind => RoomCollisionTypeKeys.Installed.Of(kind), StringComparer.Ordinal);
 
     /// <summary>Every block pair by its name.</summary>
     private static readonly Dictionary<string, CollectibleBlockPairs.Pair> PairsByName =
-        Enum.GetValues<CollectibleBlockPairs.Pair>().ToDictionary(pair => pair.ToString(), StringComparer.Ordinal);
+        Enum.GetValues<CollectibleBlockPairs.Pair>().ToDictionary(pair => CollectibleBlockPairKeys.Installed.Of(pair), StringComparer.Ordinal);
 
     /// <summary>Every collectible look by its name.</summary>
     private static readonly Dictionary<string, CollectibleLook> LooksByName =
-        Enum.GetValues<CollectibleLook>().ToDictionary(look => look.ToString(), StringComparer.Ordinal);
+        Enum.GetValues<CollectibleLook>().ToDictionary(look => CollectibleLookKeys.Installed.Of(look), StringComparer.Ordinal);
 
     /// <summary>
     /// Decodes the straddled terrain and writes it as JSON. No manifest is written (#1693): the document names its own
@@ -119,8 +119,8 @@ public static class StraddledTerrainFiles
             if (leadClass.Any(terrain => terrain.Collision != first.Collision || terrain.Appearance.Mirroring != first.Appearance.Mirroring))
                 throw new InvalidOperationException($"Blocks of more than one collision kind or mirroring share the lead of {first}.");
             leads.Add(new StraddledTerrainDocument.Lead(
-                first.Collision.ToString(),
-                first.Appearance.Mirroring.ToString(),
+                RoomCollisionTypeKeys.Installed.Of(first.Collision),
+                BlockMirroringKeys.Installed.Of(first.Appearance.Mirroring),
                 Runs(leadClass.Select(terrain => RoomLevelWordCodec.BlockNumberOf(terrain.Appearance))),
                 [.. tailHalves.Select(tail => Outcome(RoomLevelWordCodec.Decode(RoomLevelWordCodec.OfStoredHalves(leadClass.Key, tail))))]));
         }
@@ -129,7 +129,7 @@ public static class StraddledTerrainFiles
             [.. tailClasses.Select(blocks => new StraddledTerrainDocument.Tail(Runs(blocks)))],
             leads,
             [.. CollectiblePairBlock.All.Select(block => new StraddledTerrainDocument.CollectibleBlock(
-                block.Pair.ToString(), block.Look.ToString(), CollectiblePairBlockNumbers.Of(block)))]);
+                CollectibleBlockPairKeys.Installed.Of(block.Pair), CollectibleLookKeys.Installed.Of(block.Look), CollectiblePairBlockNumbers.Of(block)))]);
     }
 
     /// <summary>
@@ -261,7 +261,8 @@ public static class StraddledTerrainFiles
 
     /// <summary>How the file names a straddled terrain block.</summary>
     private static StraddledTerrainDocument.Outcome Outcome(RoomTerrainBlock terrain) =>
-        new(RoomLevelWordCodec.BlockNumberOf(terrain.Appearance), terrain.Appearance.Mirroring.ToString(), terrain.Collision.ToString());
+        new(RoomLevelWordCodec.BlockNumberOf(terrain.Appearance), BlockMirroringKeys.Installed.Of(terrain.Appearance.Mirroring),
+            RoomCollisionTypeKeys.Installed.Of(terrain.Collision));
 
     /// <summary>The terrain block an outcome names.</summary>
     /// <exception cref="InvalidDataException">The outcome names a block, mirroring or collision kind the game does not have.</exception>

@@ -28,7 +28,8 @@ public static class ChargeFlareSpriteDefinitions
     /// <summary>The twenty-eight distinct flare and spark compositions: the main flare's, then each spark family's.</summary>
     public static IReadOnlyList<ProjectileSpriteId> All { get; } =
     [
-        .. MainPictures.Select(picture => new ProjectileSpriteId(ProjectileSpriteGroup.FlareMain, picture.ToString())),
-        .. SparkFamilies.SelectMany(family => SparkPictures.Select(picture => new ProjectileSpriteId(family, picture.ToString()))),
+        .. MainPictures.Select(picture => new ProjectileSpriteId(ProjectileSpriteGroup.FlareMain, ChargeFlarePictureKeys.Installed.Of(picture))),
+        .. SparkFamilies.SelectMany(family =>
+            SparkPictures.Select(picture => new ProjectileSpriteId(family, ChargeFlarePictureKeys.Installed.Of(picture)))),
     ];
 }

@@ -26,5 +26,6 @@ public static class FileCopyArrowDefinitions
         [FileCopyArrowShape.ShortDown, FileCopyArrowShape.ShortUp, FileCopyArrowShape.LongDown, FileCopyArrowShape.LongUp];
 
     /// <summary>The sheet frame showing arrow shape <paramref name="shape"/>.</summary>
-    public static string FrameName(FileCopyArrowShape shape) => $"CopyArrow.{shape}";
+    [InstalledKey]
+    public static string FrameName(FileCopyArrowShape shape) => $"CopyArrow.{FileCopyArrowShapeKeys.Installed.Of(shape)}";
 }

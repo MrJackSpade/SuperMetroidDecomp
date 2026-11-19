@@ -10,5 +10,5 @@ public sealed record HudReserveIndicatorImage(HudReserveIndicator Indicator) : H
         : throw new ArgumentOutOfRangeException(nameof(Indicator), Indicator, "Undefined reserve indicator.");
 
     /// <inheritdoc/>
-    public override string FrameName => $"Hud.Auto.{Indicator}";
+    public override string FrameName => $"Hud.Auto.{HudReserveIndicatorKeys.Installed.Of(Indicator)}";
 }

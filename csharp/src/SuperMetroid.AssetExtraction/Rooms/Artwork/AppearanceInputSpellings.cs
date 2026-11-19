@@ -23,7 +23,7 @@ internal static class AppearanceInputSpellings
             return new AnimationAppearance(new ArtworkAnimation(token[AppearanceInputTokens.AnimationPrefix.Length..]));
         if (token.StartsWith(AppearanceInputTokens.EncounterLookPrefix, StringComparison.Ordinal)
             && token[AppearanceInputTokens.EncounterLookPrefix.Length..].Split(' ') is [string encounterName, string lookName]
-            && Enum.TryParse(encounterName, out EncounterArtwork encounter) && Enum.IsDefined(encounter) && lookName.Length > 0)
+            && EncounterArtworkKeys.Installed.TryParse(encounterName, out EncounterArtwork encounter) && lookName.Length > 0)
             return new EncounterLookAppearance(new EncounterLook(encounter, lookName));
         throw new InvalidDataException($"No appearance input is spelled \"{token}\".");
     }

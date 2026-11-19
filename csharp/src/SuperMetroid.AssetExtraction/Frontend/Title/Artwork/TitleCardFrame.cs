@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 public sealed record TitleCardFrame
 {
     /// <summary>Gets the phase whose card the frame shows, stored in the document by its name.</summary>
-    [JsonConverter(typeof(JsonStringEnumConverter<TitleSequencePhase>))]
+    [JsonConverter(typeof(TitleSequencePhaseJsonConverter))]
     public required TitleSequencePhase Card { get; init; }
     /// <summary>Gets how many of the card's letters the frame shows typed.</summary>
     public required int Letters { get; init; }

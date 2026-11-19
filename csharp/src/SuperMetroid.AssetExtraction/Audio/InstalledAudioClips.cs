@@ -25,7 +25,13 @@ public static class InstalledAudioClips
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         WriteIndented = true,
-        Converters = { new JsonStringEnumConverter() },
+        Converters =
+        {
+            new MusicDataSetJsonConverter(),
+            new MusicTrackJsonConverter(),
+            new LowHealthModeEffectJsonConverter(),
+            new SoundEffectPriorityEffectJsonConverter(),
+        },
     };
 
     /// <summary>

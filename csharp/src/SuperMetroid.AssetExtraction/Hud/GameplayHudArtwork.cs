@@ -48,7 +48,7 @@ public sealed class GameplayHudArtwork
 
     /// <summary>Writes the complete editable HUD template into a mutable tilemap.</summary>
     /// <param name="tiles">The 32-by-3 HUD tilemap to populate.</param>
-    internal void ApplyTemplate(Span<BackgroundTile> tiles)
+    private void ApplyTemplate(Span<BackgroundTile> tiles)
     {
         ValidateTilemap(tiles);
         parts.Template.AsSpan().CopyTo(tiles);
@@ -57,7 +57,7 @@ public sealed class GameplayHudArtwork
     /// <summary>Draws an item icon when its anchor cell is currently blank.</summary>
     /// <param name="tiles">The mutable 32-by-3 HUD tilemap.</param>
     /// <param name="item">The item icon.</param>
-    internal void TryApplyIcon(Span<BackgroundTile> tiles, HudIcon item)
+    private void TryApplyIcon(Span<BackgroundTile> tiles, HudIcon item)
     {
         ValidateTilemap(tiles);
         GameplayHudIcon icon = Icon(item);
@@ -71,7 +71,7 @@ public sealed class GameplayHudArtwork
     /// <param name="tiles">The mutable 32-by-3 HUD tilemap.</param>
     /// <param name="selectedItem">The selected item.</param>
     /// <param name="palette">The colour variant to apply.</param>
-    internal void ToggleItemHighlight(Span<BackgroundTile> tiles, HudItem selectedItem, int palette)
+    private void ToggleItemHighlight(Span<BackgroundTile> tiles, HudItem selectedItem, int palette)
     {
         ValidateTilemap(tiles);
         if ((uint)palette >= BackgroundTile.ColourVariants) throw new ArgumentOutOfRangeException(nameof(palette));

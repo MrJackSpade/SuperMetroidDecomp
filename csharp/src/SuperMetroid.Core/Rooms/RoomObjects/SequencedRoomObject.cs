@@ -33,7 +33,7 @@ internal abstract class SequencedRoomObject<TSegment, TFrame, TEvent> : RoomObje
         _player = AnimationPlayer<TSegment, TFrame, TEvent>.Starting(segments, PlaysNothing);
 
     /// <summary>Whether the object rests: its animation has ended with nothing to follow, until what it waits for wakes it.</summary>
-    internal bool Resting => _player.HasStopped;
+    private bool Resting => _player.HasStopped;
 
     /// <inheritdoc/>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)

@@ -17,4 +17,13 @@ internal static class DebuggerObjectGraphSerializerPrivateAccess
         internal static void Serialize(global::System.IO.Stream destination, object root, global::SuperMetroid.Diagnostics.SaveStates.BoundObjectGraph? bound, global::SuperMetroid.Diagnostics.SaveStates.DefinitionObjects definitions) =>
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer), "Serialize", [typeof(global::System.IO.Stream), typeof(object), typeof(global::SuperMetroid.Diagnostics.SaveStates.BoundObjectGraph), typeof(global::SuperMetroid.Diagnostics.SaveStates.DefinitionObjects)], new object?[] { destination, root, bound, definitions });
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer)
+    {
+        /// <summary>The private method <c>Deserialize</c>, invoked by name.</summary>
+        internal static T Deserialize<T>(global::System.IO.Stream source, global::SuperMetroid.Diagnostics.SaveStates.BoundObjectGraph? bound, global::SuperMetroid.Diagnostics.SaveStates.DefinitionObjects definitions)
+            where T : class =>
+            PrivateState.InvokeStaticGeneric<T>(typeof(global::SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer), "Deserialize", [typeof(T)], new object?[] { source, bound, definitions });
+    }
 }

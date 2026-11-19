@@ -117,7 +117,7 @@ public sealed class SamusSpritemapSources
     });
 
     /// <summary>The complete table in native order, preserving repeated compositions and entries with none.</summary>
-    public ReadOnlySpan<SamusSpritemapId?> Entries => entries;
+    private ReadOnlySpan<SamusSpritemapId?> Entries => entries;
 
     /// <summary>The table entry at which <paramref name="pose"/>'s upper half begins (native $92:9263).</summary>
     /// <exception cref="ArgumentOutOfRangeException">The pose has no record in the pose tables.</exception>

@@ -36,4 +36,14 @@ internal static class SamusBodySourcesPrivateAccess
         internal static global::SuperMetroid.AssetExtraction.Samus.SamusBodyPicture Picture(int record) =>
             PrivateState.InvokeStatic<global::SuperMetroid.AssetExtraction.Samus.SamusBodyPicture>(typeof(global::SuperMetroid.AssetExtraction.Samus.SamusBodySources), "Picture", [typeof(int)], new object?[] { record });
     }
+
+    /// <summary>The getter of <c>Frames</c>, called directly: reflection cannot return a ref struct.</summary>
+    private delegate global::System.ReadOnlySpan<global::SuperMetroid.AssetExtraction.Samus.SamusBodyFrameSelection> FramesRead(global::SuperMetroid.AssetExtraction.Samus.SamusBodySources self);
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Samus.SamusBodySources self)
+    {
+        /// <summary>The private property <c>Frames</c>, reached by name.</summary>
+        internal global::System.ReadOnlySpan<global::SuperMetroid.AssetExtraction.Samus.SamusBodyFrameSelection> Frames => PrivateState.GetterDelegate<FramesRead>(typeof(global::SuperMetroid.AssetExtraction.Samus.SamusBodySources), "Frames")(self);
+    }
 }

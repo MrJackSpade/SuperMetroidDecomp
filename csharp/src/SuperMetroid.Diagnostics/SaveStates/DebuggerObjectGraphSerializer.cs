@@ -51,7 +51,7 @@ internal static class DebuggerObjectGraphSerializer
     /// Restores a snapshot as <see cref="Deserialize{T}(Stream, BoundObjectGraph?)"/> does, resolving each static member's
     /// object's path through <paramref name="definitions"/> instead of the process's index.
     /// </summary>
-    internal static T Deserialize<T>(Stream source, BoundObjectGraph? bound, DefinitionObjects definitions) where T : class
+    private static T Deserialize<T>(Stream source, BoundObjectGraph? bound, DefinitionObjects definitions) where T : class
     {
         Ensure.NotNull(source);
         Ensure.NotNull(definitions);

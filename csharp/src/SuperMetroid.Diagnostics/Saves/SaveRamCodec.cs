@@ -260,7 +260,7 @@ public static class SaveRamCodec
     }
 
     /// <summary>Writes <paramref name="payload"/> into <paramref name="slot"/> with both redundant checksum pairs.</summary>
-    internal static void WriteSlot(Span<byte> image, int slot, ReadOnlySpan<byte> payload)
+    private static void WriteSlot(Span<byte> image, int slot, ReadOnlySpan<byte> payload)
     {
         Ensure.LengthEqual(payload, SaveRamLayout.SlotByteCount);
         payload.CopyTo(image.Slice(SaveRamLayout.SlotOffset(slot), SaveRamLayout.SlotByteCount));

@@ -58,7 +58,7 @@ internal sealed class ActiveRoomState
     }
 
     /// <summary>The value one room view reads: the part under construction during a load, otherwise the loaded scope's.</summary>
-    internal T? View<T>(Func<RoomScopeConstruction, T?> building, Func<RoomScope, T?> loaded) where T : class =>
+    private T? View<T>(Func<RoomScopeConstruction, T?> building, Func<RoomScope, T?> loaded) where T : class =>
         _construction is { } construction ? building(construction) : Scope is { } scope ? loaded(scope) : null;
 
     /// <summary>The selected room/state definition for a generic backed room.</summary>

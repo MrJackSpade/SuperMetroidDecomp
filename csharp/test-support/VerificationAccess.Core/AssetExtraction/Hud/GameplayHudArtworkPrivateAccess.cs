@@ -31,4 +31,29 @@ internal static class GameplayHudArtworkPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.AssetExtraction.Hud.GameplayHudArtwork, global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile>(self, "FilledEnergyTank");
         }
     }
+
+    /// <summary>The signature of <c>ApplyTemplate</c>, called directly: reflection cannot pass a ref struct.</summary>
+    private delegate void ApplyTemplateCall(global::SuperMetroid.AssetExtraction.Hud.GameplayHudArtwork self, global::System.Span<global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile> tiles);
+
+    /// <summary>The signature of <c>ToggleItemHighlight</c>, called directly: reflection cannot pass a ref struct.</summary>
+    private delegate void ToggleItemHighlightCall(global::SuperMetroid.AssetExtraction.Hud.GameplayHudArtwork self, global::System.Span<global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile> tiles, global::SuperMetroid.Core.Samus.HudItem selectedItem, int palette);
+
+    /// <summary>The signature of <c>TryApplyIcon</c>, called directly: reflection cannot pass a ref struct.</summary>
+    private delegate void TryApplyIconCall(global::SuperMetroid.AssetExtraction.Hud.GameplayHudArtwork self, global::System.Span<global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile> tiles, global::SuperMetroid.Core.Hud.HudIcon item);
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Hud.GameplayHudArtwork self)
+    {
+        /// <summary>The private method <c>ApplyTemplate</c>, invoked by name.</summary>
+        internal void ApplyTemplate(global::System.Span<global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile> tiles) =>
+            PrivateState.MethodDelegate<ApplyTemplateCall>(typeof(global::SuperMetroid.AssetExtraction.Hud.GameplayHudArtwork), "ApplyTemplate", [typeof(global::System.Span<global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile>)])(self, tiles);
+
+        /// <summary>The private method <c>ToggleItemHighlight</c>, invoked by name.</summary>
+        internal void ToggleItemHighlight(global::System.Span<global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile> tiles, global::SuperMetroid.Core.Samus.HudItem selectedItem, int palette) =>
+            PrivateState.MethodDelegate<ToggleItemHighlightCall>(typeof(global::SuperMetroid.AssetExtraction.Hud.GameplayHudArtwork), "ToggleItemHighlight", [typeof(global::System.Span<global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile>), typeof(global::SuperMetroid.Core.Samus.HudItem), typeof(int)])(self, tiles, selectedItem, palette);
+
+        /// <summary>The private method <c>TryApplyIcon</c>, invoked by name.</summary>
+        internal void TryApplyIcon(global::System.Span<global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile> tiles, global::SuperMetroid.Core.Hud.HudIcon item) =>
+            PrivateState.MethodDelegate<TryApplyIconCall>(typeof(global::SuperMetroid.AssetExtraction.Hud.GameplayHudArtwork), "TryApplyIcon", [typeof(global::System.Span<global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile>), typeof(global::SuperMetroid.Core.Hud.HudIcon)])(self, tiles, item);
+    }
 }

@@ -43,4 +43,14 @@ internal static class SamusSpritemapSourcesPrivateAccess
             return result;
         }
     }
+
+    /// <summary>The getter of <c>Entries</c>, called directly: reflection cannot return a ref struct.</summary>
+    private delegate global::System.ReadOnlySpan<global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapId?> EntriesRead(global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapSources self);
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapSources self)
+    {
+        /// <summary>The private property <c>Entries</c>, reached by name.</summary>
+        internal global::System.ReadOnlySpan<global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapId?> Entries => PrivateState.GetterDelegate<EntriesRead>(typeof(global::SuperMetroid.AssetExtraction.Samus.SamusSpritemapSources), "Entries")(self);
+    }
 }

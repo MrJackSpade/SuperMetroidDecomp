@@ -137,7 +137,7 @@ public sealed class SamusBodySources
     public ReadOnlySpan<int> BottomSetStarts => bottomSetStarts;
 
     /// <summary>The contiguous frame-selector interval.</summary>
-    public ReadOnlySpan<SamusBodyFrameSelection> Frames => frames;
+    private ReadOnlySpan<SamusBodyFrameSelection> Frames => frames;
 
     /// <summary>The definition record <paramref name="picture"/> shows: the import numbers the pictures by their records.</summary>
     public static int Record(SamusBodyPicture picture) => picture.Ordinal;

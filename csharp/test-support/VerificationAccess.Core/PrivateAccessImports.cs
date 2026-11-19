@@ -117,6 +117,7 @@ global using static SuperMetroid.AssetExtraction.Frontend.Pause.PauseEquipmentPa
 global using static SuperMetroid.AssetExtraction.Frontend.Pause.PausePictureSheetPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Frontend.PauseSheetComposerPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Frontend.ScreenCharactersPrivateAccess;
+global using static SuperMetroid.AssetExtraction.Frontend.ScreenPictureSheetComposerPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitlePalettePresentationPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractorPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Frontend.TitleSheetComposerPrivateAccess;
@@ -172,6 +173,7 @@ global using static SuperMetroid.AssetExtraction.Rooms.RoomBlockUploadsPrivateAc
 global using static SuperMetroid.AssetExtraction.Rooms.RoomCharacterArtworkFilesPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Rooms.RoomCharacterAtlasesPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Rooms.RoomDoorBlockFilesPrivateAccess;
+global using static SuperMetroid.AssetExtraction.Rooms.RoomFloorSheetComposerPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Rooms.RoomGraphicsSetCodecPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Rooms.RoomLevelStreamFilesPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Rooms.RoomMetatileArtworkFilesPrivateAccess;
@@ -407,15 +409,19 @@ global using static SuperMetroid.Core.Compatibility.ProjectileLaunchInheritanceP
 global using static SuperMetroid.Core.Compatibility.RandomChancePrivateAccess;
 global using static SuperMetroid.Core.Compatibility.RoomObjectPlacesPrivateAccess;
 global using static SuperMetroid.Core.Compatibility.SaveChoiceInputCadencePrivateAccess;
+global using static SuperMetroid.Core.Compatibility.SharedEscapeAndDrainCountPrivateAccess;
 global using static SuperMetroid.Core.Compatibility.ShortCircleProductPrivateAccess;
 global using static SuperMetroid.Core.Compatibility.ShotAndProjectileSquaresPrivateAccess;
+global using static SuperMetroid.Core.Compatibility.SoundAcknowledgementPrivateAccess;
 global using static SuperMetroid.Core.Compatibility.SoundQueueAdmissionPrivateAccess;
 global using static SuperMetroid.Core.Compatibility.SoundRequestCheckTimerPrivateAccess;
 global using static SuperMetroid.Core.Compatibility.SuitPickupClosingLineWrapPrivateAccess;
 global using static SuperMetroid.Core.Compatibility.UpdateCounterFieldPrivateAccess;
+global using static SuperMetroid.Core.Compatibility.WeightedRandomChoicePrivateAccess;
 global using static SuperMetroid.Core.Compatibility.WreckedShipGhostFadePrivateAccess;
 global using static SuperMetroid.Core.Compatibility.XrayClosingPrivateAccess;
 global using static SuperMetroid.Core.Compatibility.XrayWarmUpPrivateAccess;
+global using static SuperMetroid.Core.CyclingSequencePrivateAccess;
 global using static SuperMetroid.Core.Enemies.Alcoon.AlcoonAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Alcoon.AlcoonBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Animals.DachoraAnimationsPrivateAccess;
@@ -599,6 +605,7 @@ global using static SuperMetroid.Core.Frontend.FileSelect.FileSelectStationMarke
 global using static SuperMetroid.Core.Frontend.FrontendSessionPrivateAccess;
 global using static SuperMetroid.Core.Frontend.GameOver.GameOverMenuStatePrivateAccess;
 global using static SuperMetroid.Core.Frontend.Intro.Artwork.IntroNarrationPresentationPrivateAccess;
+global using static SuperMetroid.Core.Frontend.Intro.CinematicActorPrivateAccess;
 global using static SuperMetroid.Core.Frontend.Intro.IntroBabyDiscoveryStatePrivateAccess;
 global using static SuperMetroid.Core.Frontend.Intro.IntroCeresFlightStatePrivateAccess;
 global using static SuperMetroid.Core.Frontend.Intro.IntroCinematicStatePrivateAccess;
@@ -680,6 +687,7 @@ global using static SuperMetroid.Core.Rooms.RoomObjects.RoomObjectSoundQueuePriv
 global using static SuperMetroid.Core.Rooms.RoomObjects.SamusEaterObjectPrivateAccess;
 global using static SuperMetroid.Core.Rooms.RoomObjects.SamusTriggerPointPrivateAccess;
 global using static SuperMetroid.Core.Rooms.RoomObjects.SaveStationObjectPrivateAccess;
+global using static SuperMetroid.Core.Rooms.RoomObjects.SequencedRoomObjectPrivateAccess;
 global using static SuperMetroid.Core.Rooms.RoomObjects.SpeedBoosterBlockObjectDefinitionsPrivateAccess;
 global using static SuperMetroid.Core.Rooms.RoomObjects.StationObjectsPrivateAccess;
 global using static SuperMetroid.Core.Rooms.Scrolling.RoomScrollGridPrivateAccess;

@@ -45,7 +45,7 @@ internal static class RoomFloorSheetComposer
     /// 16384 words holds a floor cell in its low byte and a tile pixel in its high byte.
     /// </summary>
     /// <exception cref="InvalidDataException">The memory holds less than the whole floor, no cell of it shows anything, or the floor's pictures overlap.</exception>
-    internal static ComposedSpriteSheet ComposeFloor(ReadOnlySpan<byte> words, ReadOnlySpan<RgbColor> colours)
+    private static ComposedSpriteSheet ComposeFloor(ReadOnlySpan<byte> words, ReadOnlySpan<RgbColor> colours)
     {
         if (words.Length < FloorSheetComposer.CellCount * sizeof(ushort))
             throw new InvalidDataException($"Floor memory holds {words.Length} bytes, less than the {FloorSheetComposer.CellCount * sizeof(ushort)} of a whole floor.");

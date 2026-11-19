@@ -182512,6 +182512,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Samus.Death.RefillCompletionTransitionVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Samus/Death/RefillCompletionTransitionVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Samus.Death.SamusDeathExplosionTimingDefinitionsVerification",
       "kind": "static class",
       "scope": "test",

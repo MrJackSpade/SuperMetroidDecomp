@@ -4,7 +4,6 @@ using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Samus;
 using static SuperMetroid.Verification.Samus.Death.OutOfHealthGameStateVerification;

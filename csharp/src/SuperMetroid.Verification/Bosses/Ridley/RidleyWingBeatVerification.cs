@@ -48,7 +48,7 @@ internal static class RidleyWingBeatVerification
         }
 
         // Descending at a quarter pixel an update, half the slowest-but-one pace of 14, 7: 8 counts down to 1, then below zero.
-        RidleyFlightState descending = TakenOff(SignedEightEight.Zero, SignedEightEight.FromSixteenthsOfPixel(4));
+        RidleyFlightState descending = TakenOff(SignedEightEight.Zero, SignedEightEightConstants.FromSixteenthsOfPixel(4));
         (int Place, int Countdown)[] descendingBeat = [(0, 1), (1, 32), (1, 25), (1, 18), (1, 11), (1, 4), (2, 32)];
         foreach ((int place, int countdown) in descendingBeat)
         {

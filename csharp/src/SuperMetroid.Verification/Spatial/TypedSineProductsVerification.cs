@@ -129,7 +129,7 @@ internal static class TypedSineProductsVerification
         AssertThrows<ArgumentOutOfRangeException>(
             () => QuadraticSpeedCurvePlace.OneMark.StepsOf(QuadraticSpeedCurvePlace.Start), "a step that does not move is refused");
         return compared;
-
+    }
 
     /// <summary>The slowest speed compared along an angle: none.</summary>
     private const int SlowestAngledSpeed = 0;

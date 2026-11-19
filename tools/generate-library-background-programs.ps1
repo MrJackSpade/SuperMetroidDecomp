@@ -238,7 +238,8 @@ try {
             throw ('Library list ${0:X4} shows {1} but gives entry doors pictures of their own.' -f $pointer, $view)
         }
         $lines.Add(('    /// <summary>The {0} library-background program.</summary>' -f $programName))
-        $lines.Add(('    public static LibraryBackgroundProgram {0} {{ get; }} = new(LibraryBackgroundDefinitions.{1}, [' -f
+        # Each program is reached through All; checks name one through its generated private access (#2570).
+$lines.Add(('    private static LibraryBackgroundProgram {0} {{ get; }} = new(LibraryBackgroundDefinitions.{1}, [' -f
             $programName, $backgroundName))
         $lines.AddRange($instructionLines)
         $lines.Add('    ]);')

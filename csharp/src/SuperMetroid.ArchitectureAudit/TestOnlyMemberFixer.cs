@@ -41,7 +41,7 @@ internal static class TestOnlyMemberFixer
             var ways = member.ToList();
             if (ThroughPrivateState(symbol, ways) is { } rewrite)
             {
-                if (rewrite.Refusal is null && rewrite.Edits.All(edit => Fits(edits, edit.Tree, edit.Change)))
+                if (rewrite.Refusal is null && rewrite.Edits.All(edit => Fits(edits, edit.Tree, edit.Change)) && Parses(rewrite.Edits))
                 {
                     foreach (var (tree, change) in rewrite.Edits)
                         Add(edits, tree, change);
@@ -76,10 +76,11 @@ internal static class TestOnlyMemberFixer
             SourceText before = tree.GetText();
             SourceText after = before.WithChanges(changes.OrderBy(change => change.Span.Start));
             int errorsBefore = tree.GetDiagnostics().Count(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error);
-            int errorsAfter = CSharpSyntaxTree.ParseText(after, (CSharpParseOptions)tree.Options).GetDiagnostics()
-                .Count(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error);
-            if (errorsAfter != errorsBefore)
-                throw new InvalidOperationException($"{tree.FilePath}: narrowing leaves {errorsAfter - errorsBefore} new syntax errors.");
+            var errorsAfter = CSharpSyntaxTree.ParseText(after, (CSharpParseOptions)tree.Options).GetDiagnostics()
+                .Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error).ToList();
+            if (errorsAfter.Count != errorsBefore)
+                throw new InvalidOperationException($"{tree.FilePath}: narrowing leaves {errorsAfter.Count - errorsBefore} new syntax errors:\n" +
+                    string.Join("\n", errorsAfter.Select(error => $"{error} in: {after.Lines.GetLineFromPosition(error.Location.SourceSpan.Start)}")));
             files.Add((tree.FilePath, after.ToString()));
         }
         foreach (PrivateAccessShims owner in shims.Values)
@@ -265,6 +266,16 @@ internal static class TestOnlyMemberFixer
         }
         return new SiteRewrite(result, null);
     }
+
+    /// <summary>Whether a member's edits, applied alone, leave every tree they touch parsing as it did.</summary>
+    private static bool Parses(List<(SyntaxTree Tree, TextChange Change)> edits) =>
+        edits.GroupBy(edit => edit.Tree).All(tree =>
+        {
+            SourceText after = tree.Key.GetText().WithChanges(tree.Select(edit => edit.Change).OrderBy(change => change.Span.Start));
+            return CSharpSyntaxTree.ParseText(after, (CSharpParseOptions)tree.Key.Options).GetDiagnostics()
+                       .Count(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error) ==
+                   tree.Key.GetDiagnostics().Count(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error);
+        });
 
     /// <summary>Whether a change overlaps none of a tree's edits so far.</summary>
     private static bool Fits(Dictionary<SyntaxTree, List<TextChange>> edits, SyntaxTree tree, TextChange change) =>

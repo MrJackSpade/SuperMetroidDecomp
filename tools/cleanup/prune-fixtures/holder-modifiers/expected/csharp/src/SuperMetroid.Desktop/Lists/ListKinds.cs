@@ -35,10 +35,13 @@ internal struct ListSpan
 internal sealed class ListCursor
 {
     /// <summary>The entry the cursor stands on.</summary>
-    internal int Index { get; set; }
+    internal int Index { get; private set; }
 
     /// <summary>Moves to the next entry.</summary>
     internal void Advance() => Index++;
+
+    /// <summary>Moves back to the first entry, which only checks do.</summary>
+    internal void Rewind() => Index = 0;
 }
 
 /// <summary>Entry arithmetic.</summary>
@@ -48,8 +51,8 @@ internal static partial class ListArithmetic
     internal static int Double(int value) => Twice(value);
 
     /// <summary>Twice <paramref name="value"/>.</summary>
-    internal static partial int Twice(int value);
+    private static partial int Twice(int value);
 
     /// <summary>Twice <paramref name="value"/>.</summary>
-    internal static partial int Twice(int value) => value * 2;
+    private static partial int Twice(int value) => value * 2;
 }

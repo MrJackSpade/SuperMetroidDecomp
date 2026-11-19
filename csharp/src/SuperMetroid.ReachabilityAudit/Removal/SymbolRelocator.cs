@@ -98,7 +98,7 @@ internal static class SymbolRelocator
                 continue;
             }
             var placed = RelocationOutput.Place(moves, decision.Collected, holders, trees, style, targetDirectory, identity);
-            int shims = shimmed ? WriteShims(decision.Collected, solution.RepositoryRoot) : 0;
+            int shims = shimmed ? WriteShims(decision.Collected, solution.RepositoryRoot, targetDirectory) : 0;
             int promoted = decision.Collected.Promotions.Count - shims;
             foreach (string line in selection.Manual) Console.WriteLine(line);
             Console.WriteLine($"Relocated {moves.All.Count} declarations into {placed.Written} files; deleted {placed.Deleted} emptied files; " +
@@ -169,13 +169,13 @@ internal static class SymbolRelocator
     }
 
     /// <summary>Writes the private-access member of every staying member moved code reaches; returns how many it wrote.</summary>
-    private static int WriteShims(ReferenceEdits collected, string repositoryRoot)
+    private static int WriteShims(ReferenceEdits collected, string repositoryRoot, string targetDirectory)
     {
         int written = 0;
         foreach (var owner in collected.Promotions.Where(symbol => symbol is not INamedTypeSymbol)
                      .GroupBy(PrivateAccessShims.OwnerOf, SymbolEqualityComparer.Default))
         {
-            var shims = PrivateAccessShims.For(repositoryRoot, (INamedTypeSymbol)owner.Key!);
+            var shims = PrivateAccessShims.For(repositoryRoot, (INamedTypeSymbol)owner.Key!, targetDirectory);
             foreach (var member in owner)
             {
                 shims.Add(member, member is IFieldSymbol { IsReadOnly: false } or IPropertySymbol { SetMethod: not null });

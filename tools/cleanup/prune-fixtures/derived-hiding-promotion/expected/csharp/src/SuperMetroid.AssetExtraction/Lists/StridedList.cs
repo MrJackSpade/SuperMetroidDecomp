@@ -15,9 +15,6 @@ internal class StridedList
 
     /// <summary>The entry the list's second item is at, which production reads.</summary>
     internal int Second => stride;
-
-    /// <summary>The entry the list's third item is at, which only checks read.</summary>
-    internal int Third => stride * 2;
 }
 
 /// <summary>A list whose items lie four entries apart.</summary>

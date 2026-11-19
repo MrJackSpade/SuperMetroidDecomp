@@ -12,11 +12,11 @@ The audit has five modes, all taking `--solution <SuperMetroid.Full.slnx>`:
 
 | Mode | Does |
 | --- | --- |
-| (none) | The full check: fails on a stale inventory, a stale review, an unjustified finding, a review without a reason or a Core module cycle. |
+| (none) | The full check: fails on a stale inventory, a stale review, an unjustified finding, a review without a reason, a Core module cycle or a test-only member. |
 | `--write` | Regenerates both inventories, then fails on every other problem the full check reports, stale reviews included. |
-| `--findings` | Fails only on what needs judgment: an unjustified finding, a review without a reason, a Core module cycle. CI runs this mode. |
+| `--findings` | Fails only on what needs judgment: an unjustified finding, a review without a reason, a Core module cycle, a test-only member. CI runs this mode. |
 | `--prune-stale-reviews` | Deletes every `[ArchitectureReview]` whose finding its type no longer has, writing nothing if any edit fails. |
-| `--test-only-members` | The test-only-member census (#2570): lists every product member or accessor that is not private, that a check reaches, and that no shipped or tool code outside its own type reaches the same way, and fails when there is any. Not part of the push gate until the sites it lists are fixed. |
+| `--test-only-members` | The test-only-member census (#2570): lists every product member or accessor that is not private, that a check reaches, and that no shipped or tool code outside its own type reaches the same way, and fails when there is any; the full check and `--findings` fail on each too. |
 
 A stale inventory and a stale review are deterministic, so they never block a push: the asynchronous cleanup
 (`tools/cleanup/README.md`) prunes stale reviews and regenerates the inventories after each push.

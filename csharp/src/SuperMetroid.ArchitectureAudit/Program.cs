@@ -91,6 +91,7 @@ internal static class Program
     {
         string inventoryPath = Path.Combine(solution.RepositoryRoot, "docs", "architecture-inventory.json");
         var problems = JudgmentProblems(entries);
+        problems.AddRange(TestOnlyMembers.Census(solution));
         problems.AddRange(StaleReviews(entries).Select(stale =>
             $"Stale review: {stale.Type} justifies \"{stale.Review.Finding}\" but has no such finding; remove the attribute " +
             "(--prune-stale-reviews does)."));
@@ -119,13 +120,15 @@ internal static class Program
     }
 
     /// <summary>
-    /// The push gate: fails only on what needs judgment. The module inventory is generated for its Core cycles but not
-    /// compared, and stale reviews are not reported; the asynchronous cleanup regenerates and prunes both.
+    /// The push gate: fails only on what needs judgment, every test-only member (#2570) among it. The module inventory is
+    /// generated for its Core cycles but not compared, and stale reviews are not reported; the asynchronous cleanup
+    /// regenerates and prunes both.
     /// </summary>
     private static int CheckFindings(LoadedSolution solution, IReadOnlyList<TypeEntry> entries)
     {
         var problems = JudgmentProblems(entries);
         _ = ModuleInventory.Collect(solution, problems);
+        problems.AddRange(TestOnlyMembers.Census(solution));
         return Report(problems, $"Architecture findings passed: {entries.Count} types, " +
             $"{entries.Count(entry => entry.Flags.Count != 0)} findings justified at their sites, no Core module cycle.");
     }

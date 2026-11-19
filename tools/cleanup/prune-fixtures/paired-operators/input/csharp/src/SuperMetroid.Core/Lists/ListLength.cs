@@ -12,10 +12,10 @@ public readonly record struct ListLength : IComparable<ListLength>
     /// <summary>Whether <paramref name="left"/> is the shorter length, which production tests.</summary>
     public static bool operator <(ListLength left, ListLength right) => left.CompareTo(right) < 0;
 
-    /// <summary>Whether <paramref name="left"/> is the longer length, which nothing tests: the compiler requires it beside <c>&lt;</c>.</summary>
+    /// <summary>Whether <paramref name="left"/> is the longer length, which nothing tests: C# requires it beside <c>&lt;</c>.</summary>
     public static bool operator >(ListLength left, ListLength right) => left.CompareTo(right) > 0;
 
-    /// <summary>Whether <paramref name="left"/> is no longer, which nothing tests: the compiler requires it beside <c>&gt;=</c>.</summary>
+    /// <summary>Whether <paramref name="left"/> is no longer, which nothing tests: C# requires it beside <c>&gt;=</c>.</summary>
     public static bool operator <=(ListLength left, ListLength right) => left.CompareTo(right) <= 0;
 
     /// <summary>Whether <paramref name="left"/> is no shorter, which only checks test.</summary>
@@ -30,7 +30,7 @@ public readonly record struct ListLength : IComparable<ListLength>
     /// <summary>Whether two lengths are equal, which production asks.</summary>
     public bool Equals(ListLength other) => Entries == other.Entries;
 
-    /// <summary>The length's hash, which nothing asks for directly: the compiler expects it beside <see cref="Equals(ListLength)"/>.</summary>
+    /// <summary>The length's hash, which nothing asks for directly: C# expects it beside <see cref="Equals(ListLength)"/>.</summary>
     public override int GetHashCode() => Entries;
 
     /// <inheritdoc />

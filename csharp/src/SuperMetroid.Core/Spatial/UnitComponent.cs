@@ -28,13 +28,10 @@ public readonly record struct UnitComponent
 
     /// <summary>
     /// The fine sine (<see cref="Trigonometry.FineSignedSine"/>) of <paramref name="angle"/> read coarsely (#2453): its size
-    /// as <see cref="Trigonometry.CoarseSizeOfFineSine"/> reads it, 128ths of the whole, with the fine sine's sign.
+    /// as <see cref="Trigonometry.CoarseSizeOfFineSine"/> reads it, 128ths of the whole, with the sine's sign at the angle.
     /// </summary>
-    public static UnitComponent CoarseFineSineOf(TrigonometryAngle angle)
-    {
-        int size = Trigonometry.CoarseSizeOfFineSine(angle) * TwoFiftySixthsPerCoarseStep;
-        return new(Trigonometry.FineSignedSine(angle) < 0 ? -size : size);
-    }
+    public static UnitComponent CoarseFineSineOf(TrigonometryAngle angle) =>
+        new(angle.WithSineSign(Trigonometry.CoarseSizeOfFineSine(angle) * TwoFiftySixthsPerCoarseStep));
 
     /// <summary>
     /// The size of the game's sine of <paramref name="angle"/> as its coarse half-wave reads it (#2537,

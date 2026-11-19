@@ -101,7 +101,7 @@ public readonly record struct AngularSpeed : IComparable<AngularSpeed>, System.N
 
     /// <summary>How fast the speed turns, whichever way: the speed itself, or the same speed turning the other way.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The speed is the most negative one, which has no reversal within the range.</exception>
-    public AngularSpeed Magnitude => IsNegative ? -this : this;
+    public AngularSpeed Magnitude => new(Math.Abs(FractionsOfStep));
 
     /// <summary>
     /// The speed scaled by <paramref name="share"/> parts of <paramref name="parts"/> (#2110), rounded toward no turning

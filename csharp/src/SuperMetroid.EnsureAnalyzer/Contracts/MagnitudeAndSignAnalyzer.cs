@@ -12,8 +12,9 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// <c>[EncodingOwner]</c> type, which implements its own signed arithmetic, and outside a <c>[CompatibilityService]</c>
 /// type, which reproduces the original's unsigned-magnitude arithmetic where it is observable, a condition does not choose
 /// between a value and its reversal (<c>left ? -speed : speed</c>, <c>v.IsNegative ? -offset : offset</c>,
-/// <c>facing == Right ? speed : speed.Negated()</c>), nor between adding and subtracting the same change
-/// (<c>v.IsNegative ? v - a : v + a</c>), and no enum names a sign (members <c>Positive</c> and <c>Negative</c>). A
+/// <c>facing == Right ? speed : speed.Negated()</c>), nor between adding and subtracting the same change by the sign of
+/// the value it changes (<c>v.IsNegative ? v - a : v + a</c>, <c>v &lt; 0 ? v + a : v - a</c>), and no enum names a sign
+/// (members <c>Positive</c> and <c>Negative</c>). A
 /// quantity is taken toward a direction by the one direction-aware operation (<c>speed.Toward(direction)</c>), a velocity
 /// carries its own direction in its sign, and the speed types own the operations that act on a speed away from or toward
 /// rest.
@@ -72,10 +73,10 @@ public sealed class MagnitudeAndSignAnalyzer : DiagnosticAnalyzer
         ExpressionSyntax whenFalse = Unwrapped(conditional.WhenFalse);
         string? finding = IsReversalOf(whenTrue, whenFalse) || IsReversalOf(whenFalse, whenTrue)
             ? "chooses a value or its reversal by a condition; take the value toward its direction (Toward), or let a velocity's sign carry it"
-            : IsSumAndDifference(whenTrue, whenFalse)
+            : IsSumAndDifference(whenTrue, whenFalse) && TestsSignOf(Unwrapped(conditional.Condition), ((BinaryExpressionSyntax)whenTrue).Left)
                 ? "chooses between adding and subtracting the same change by a condition; use the speed type's operation that speeds a velocity up or drags it toward rest, or pass a signed change"
                 : null;
-        if (finding is null || IsExempt(context.ContainingSymbol))
+        if (finding is null || (context.ContainingSymbol is { } symbol && IsExempt(symbol)))
             return;
         context.ReportDiagnostic(Diagnostic.Create(Rule, conditional.GetLocation(), conditional.ToString(), finding));
     }
@@ -114,6 +115,34 @@ public sealed class MagnitudeAndSignAnalyzer : DiagnosticAnalyzer
          (left.IsKind(SyntaxKind.SubtractExpression) && right.IsKind(SyntaxKind.AddExpression))) &&
         SyntaxFactory.AreEquivalent(Unwrapped(left.Left), Unwrapped(right.Left)) &&
         SyntaxFactory.AreEquivalent(Unwrapped(left.Right), Unwrapped(right.Right));
+
+    /// <summary>The names of the properties that test a value's sign.</summary>
+    private static readonly ImmutableHashSet<string> SignTests = ["IsNegative", "IsPositive"];
+
+    /// <summary>
+    /// Whether <paramref name="condition"/> tests the sign of <paramref name="value"/>: its sign property, perhaps negated,
+    /// or a comparison of it with zero.
+    /// </summary>
+    private static bool TestsSignOf(ExpressionSyntax condition, ExpressionSyntax value)
+    {
+        ExpressionSyntax operand = Unwrapped(value);
+        if (condition is PrefixUnaryExpressionSyntax { RawKind: (int)SyntaxKind.LogicalNotExpression } not)
+            condition = Unwrapped(not.Operand);
+        return condition switch
+        {
+            MemberAccessExpressionSyntax access => SignTests.Contains(access.Name.Identifier.ValueText) &&
+                SyntaxFactory.AreEquivalent(Unwrapped(access.Expression), operand),
+            BinaryExpressionSyntax comparison when comparison.Kind() is SyntaxKind.LessThanExpression or
+                SyntaxKind.LessThanOrEqualExpression or SyntaxKind.GreaterThanExpression or SyntaxKind.GreaterThanOrEqualExpression =>
+                (SyntaxFactory.AreEquivalent(Unwrapped(comparison.Left), operand) && IsZero(comparison.Right)) ||
+                (SyntaxFactory.AreEquivalent(Unwrapped(comparison.Right), operand) && IsZero(comparison.Left)),
+            _ => false,
+        };
+    }
+
+    /// <summary>Whether an expression is the literal zero.</summary>
+    private static bool IsZero(ExpressionSyntax expression) =>
+        Unwrapped(expression) is LiteralExpressionSyntax { Token.ValueText: "0" };
 
     /// <summary>The expression beneath any parentheses.</summary>
     private static ExpressionSyntax Unwrapped(ExpressionSyntax expression)

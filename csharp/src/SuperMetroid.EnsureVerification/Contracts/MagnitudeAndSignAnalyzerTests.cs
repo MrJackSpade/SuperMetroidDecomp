@@ -66,6 +66,8 @@ internal static class MagnitudeAndSignAnalyzerTests
         Expect(Body("int pixels = left ? -4 : 4;\n        return speed;"), ReversalAdvice);
         // A sum or a difference of the same operands chosen by a condition.
         Expect(Body("return speed.IsNegative ? speed - change : speed + change;"), "'speed.IsNegative ? speed - change : speed + change' " + SumAdvice);
+        Expect(Body("return !speed.IsNegative ? (speed + change) : (speed - change);"), SumAdvice);
+        Expect(Body("int raw = speed.Raw < 0 ? speed.Raw + 4 : speed.Raw - 4;\n        return speed;"), SumAdvice);
         // An enum of signs.
         Expect(Body("return speed;") + "\nnamespace SuperMetroid.Core.Enemies { internal enum SpeedSign { Positive, Negative } }", SignAdvice);
 
@@ -74,6 +76,9 @@ internal static class MagnitudeAndSignAnalyzerTests
         Expect(Body("return left ? speed : change;"), count: 0);
         Expect(Body("HorizontalDirection side = left ? HorizontalDirection.Left : HorizontalDirection.Right;\n        return -speed;"), count: 0);
         Expect(Body("return left ? speed - change : speed + speed;"), count: 0);
+        // A place moved one way or the other by a condition that is not the sign of the value moved.
+        Expect(Body("return left ? speed - change : speed + change;"), count: 0);
+        Expect(Body("return change.IsNegative ? speed - change : speed + change;"), count: 0);
         Expect(Body("return speed;") + """
 
             namespace SuperMetroid.Core.Compatibility

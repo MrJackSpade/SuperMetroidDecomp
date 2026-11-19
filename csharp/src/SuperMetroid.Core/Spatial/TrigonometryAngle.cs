@@ -48,6 +48,13 @@ public readonly record struct TrigonometryAngle : IComparable<TrigonometryAngle>
     /// <summary>Whether this angle lies in the second half of the turn, where the sine wave is negative.</summary>
     public bool IsInSecondHalf => RawValue >= HalfTurn.RawValue;
 
+    /// <summary>
+    /// <paramref name="halfWave"/>, a size the game's sine folded onto the first half of the turn gives this angle, with the
+    /// sign the sine takes here (#2569): as it is in the turn's first half and reversed in its second, as the game's sine
+    /// restores the half of the turn after reading its half-wave.
+    /// </summary>
+    public T WithSineSign<T>(T halfWave) where T : System.Numerics.IUnaryNegationOperators<T, T> => IsInSecondHalf ? -halfWave : halfWave;
+
     /// <summary>Turns the angle by <paramref name="delta"/> signed steps, continuing around the turn.</summary>
     public TrigonometryAngle TurnedBySteps(int delta) => Wrapped(RawValue + delta);
 

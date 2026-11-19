@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Samus.Movement;
+
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>What one update of the drained falling movement did.</summary>

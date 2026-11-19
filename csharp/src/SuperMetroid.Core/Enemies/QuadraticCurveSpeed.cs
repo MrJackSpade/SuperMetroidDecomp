@@ -48,10 +48,14 @@ public readonly record struct QuadraticCurveSpeed(SignedSixteenSixteen Speed)
     /// decreasing ones, the speed's fraction finer than a 256th dropped after it is turned that way.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is neither clockwise nor counterclockwise.</exception>
-    internal AngularSpeed TurnOfAStepAPixelToward(RotationDirection direction) => AngularSpeed.StepPerPixelOf(direction switch
+    internal AngularSpeed TurnOfAStepAPixelToward(RotationDirection direction)
     {
-        RotationDirection.Counterclockwise => Speed,
-        RotationDirection.Clockwise => -Speed,
-        _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Not a rotation direction."),
-    }.RoundedDownToTwoFiftySixths());
+        SignedSixteenSixteen speed = direction switch
+        {
+            RotationDirection.Counterclockwise => Speed,
+            RotationDirection.Clockwise => -Speed,
+            _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Not a rotation direction."),
+        };
+        return AngularSpeed.StepPerPixelOf(speed.RoundedDownToTwoFiftySixths());
+    }
 }

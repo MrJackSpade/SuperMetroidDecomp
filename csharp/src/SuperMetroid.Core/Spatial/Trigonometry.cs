@@ -22,8 +22,7 @@ public static class Trigonometry
     /// </remarks>
     public static int FineSignedSine(TrigonometryAngle angle)
     {
-        int magnitude = UnsignedHalfWave(angle.StepsIntoHalfTurn) / 2;
-        return angle.IsInSecondHalf ? -magnitude : magnitude;
+        return angle.WithSineSign(UnsignedHalfWave(angle.StepsIntoHalfTurn) / 2);
     }
 
     /// <summary>
@@ -63,8 +62,7 @@ public static class Trigonometry
     public static int SignedSine(TrigonometryAngle angle)
     {
         int steps = angle.StepsIntoHalfTurn;
-        int magnitude = steps == 64 ? 256 : CoarseHalfWave(steps);
-        return angle.IsInSecondHalf ? -magnitude : magnitude;
+        return angle.WithSineSign(steps == 64 ? 256 : CoarseHalfWave(steps));
     }
 
     /// <summary>The game's coarse half-wave, the sine in 256ths of its peak over the first half turn:

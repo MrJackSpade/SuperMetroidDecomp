@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>
-/// Constants of the camera's fast-swing branch, taken while the grapple's
-/// slow-scrolling flag is set.
+/// Constants of the camera's slow scroll, which it follows while the grapple
+/// swings fast.
 /// </summary>
 internal static class GrappleSlowScrollDefinitions
 {

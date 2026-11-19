@@ -280,7 +280,7 @@ public sealed class SamusSuitPickupState
         if (new SuitPickupBeamEdges(left, right) == SuitPickupBeamDefinitions.FullScreenEdges)
         {
             Stage = SamusSuitPickupStage.RevealSuit;
-            // The speed halves, truncating its lowest fraction bit.
+            // The speed halves, rounding down.
             _lightBeamSpeed = _lightBeamSpeed.Halved();
             _lightBeamLines = 0;
         }

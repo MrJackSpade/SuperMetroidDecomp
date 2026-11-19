@@ -180,6 +180,10 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// prose tells them, read across a documentation comment's line breaks: an AI entry, an enemy's shot AI split over two
 /// lines, a flip, curling or mirror flag, a bit by its ordinal, what the port avoided teaching or inventing, a value told
 /// against a representation it no longer has and the camera's scroller distances.
+/// #2522 adds, outside hardware owners, the original's storage of Samus's speeds, timers, positions and flags, read across a
+/// documentation comment's line breaks: a value's two halves, fraction bits, a negative test, a wrap to 65535, a position
+/// told by its range, a wrapping comparison, a value negated back, an expired timer that wraps, a flag named for a
+/// condition or read as this flag, a list scanned last to first, a value stored as a whole and a one-shot index.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -2300,8 +2304,46 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The original's storage of Samus's speeds, timers, positions and flags told in prose (#2522), outside hardware owners
+    /// and markup, read across a documentation comment's line breaks: a value's two halves (clears both velocity halves,
+    /// both base-speed halves, both halves of vertical speed, clears both halves); a fraction bit or fractional bits (its
+    /// lowest fraction bit, the lower fractional bits); a negative test; a value that wraps to 65535 or 255 (its next
+    /// decrement wraps to 65535, a wrap below zero to 65535); a position or a coordinate told by its range (whole-pixel Y,
+    /// 0 through 65535); a wrapping comparison; a value negated back or temporarily negated; an expired timer or count that
+    /// wraps; a slow-scroll, water, liquid or submersion flag and a response or reaction flag (the slow-scrolling flag, the
+    /// common grapple-response flag); this or that flag read, tested, checked or rewritten; a list scanned, searched or
+    /// walked last to first; a value stored, kept or held as a whole; and a one-shot index. The original kept a speed as a
+    /// whole and a fraction word, counted its waits in words that wrapped and read their sign, kept a position in sixteen
+    /// bits, kept its conditions in flags and walked its lists backward; Core says what the game does: the speed is
+    /// cleared, a held frame lasts one more update, a rise is capped unless outside forces reverse it, the camera scrolls
+    /// slowly while the swing is fast. English stays legal: halves of a picture or a body (both halves of the neck), a
+    /// fraction of a pixel, a random sample or frame counter of 0 through 65535, a count that wraps, a flag alone, an
+    /// animation played last to first, a whole step of the turn and a hardware owner, which describes the storage it keeps.
+    /// </summary>
+    private static readonly Regex SamusStorageHalfWrapAndFlagProse = new(
+        @"\bboth\s+(?:[\w'’-]+\s+)?(?:speed|velocity|base-speed|position|value|word|coordinate|count|timer|displacement)\s+halves\b" +
+        @"|\bboth\s+halves\s+of\s+(?:(?:the|its|a|their|her|his)\s+)?(?:[\w'’-]+\s+){0,2}?(?:speeds?|velocit(?:y|ies)|positions?" +
+        @"|values?|words?|coordinates?|displacements?|counts?|timers?)\b" +
+        @"|\b(?:clears?|cleared|clearing|zero(?:e?s|ed|ing)?|erases?|erased|erasing|resets?|resetting)\s+both\s+halves\b" +
+        @"|\bfraction(?:al)?\s+bits?\b" +
+        @"|\bnegative\s+tests?\b" +
+        @"|\bwrap(?:s|ped|ping)?\s+(?:(?:round|around|back|below\s+zero)\s+)?to\s+(?:65,?535|255)\b" +
+        @"|\b(?:positions?|coordinates?|(?-i:[XY]))\b,?\s+(?:from\s+)?(?:0|zero)\s+(?:through|to)\s+65,?535\b" +
+        @"|\bwrapping\s+comparisons?\b" +
+        @"|\bnegat(?:e|es|ed|ing)\s+(?:it|them)\s+back\b|\btemporarily\s+negat\w*" +
+        @"|\b(?:expired|spent|empty)\s+(?:[\w-]+\s+)?(?:timers?|counts?|counters?|countdowns?)\s+wraps?\b" +
+        @"|\bslow[-\s]+scroll(?:ing)?\s+flags?\b|\b(?:water|liquid|submersion|submerged)\s+flags?\b" +
+        @"|\b(?:\w+-)?(?:response|reaction)\s+flags?\b" +
+        @"|\b(?:reads?|tests?|tested|checks?|checked|rewrites?)\s+(?:this|that)\s+flag\b" +
+        @"|\b(?:scann?(?:ed|s|ing)?|search(?:ed|es|ing)?|walk(?:ed|s|ing)?)\s+(?:from\s+)?(?:the\s+)?last\s+to\s+(?:the\s+)?first\b" +
+        @"|\b(?:stored|kept|held)\s+as\s+(?:an?\s+)?whole\b" +
+        @"|\bone-shot\s+(?:[\w-]+\s+){0,2}?ind(?:ex|exes|ices)\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A documentation comment's line break with the next line's comment prefix (#2515), which
-    /// <see cref="EnemyAndWorldRoutineBitAndReasoningProse"/> reads as a space so a phrase runs on across it.
+    /// <see cref="EnemyAndWorldRoutineBitAndReasoningProse"/> and <see cref="SamusStorageHalfWrapAndFlagProse"/> read as a
+    /// space so a phrase runs on across it.
     /// </summary>
     private static readonly Regex CommentLineBreak = new(@"\s*\r?\n\s*(?:///?|\*+)?\s*", RegexOptions.CultureInvariant);
 
@@ -2868,6 +2910,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : typedMeasure && TypedMeasureUnitProse.Match(Markup.Replace(text, " ")) is { Success: true } typedUnit ? typedUnit.Value
             : RuntimeLoaderAndLayerNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } loaderNarration ? loaderNarration.Value
             : EnemyAndWorldRoutineBitAndReasoningProse.Match(CommentLineBreak.Replace(Markup.Replace(text, " "), " ")) is { Success: true } enemyAndWorld ? enemyAndWorld.Value
+            : SamusStorageHalfWrapAndFlagProse.Match(CommentLineBreak.Replace(Markup.Replace(text, " "), " ")) is { Success: true } samusStorage ? samusStorage.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

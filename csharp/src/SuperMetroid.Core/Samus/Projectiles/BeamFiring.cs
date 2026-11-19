@@ -446,8 +446,8 @@ internal sealed class BeamFiring
             projectile.Install(SamusShotBehaviors.Missile, new MissileShotState(SamusMissileIgnition.Pending));
 
         // The missile sound and the missile's shared cooldown. An item-selection press made while item cancel
-        // is held records a one-shot auto-cancel index; a successful missile consumes that
-        // request before the ordinary empty-ammo fallback. Murder Beam uses this exact path
+        // is held asks for the selection to return to the beam after one shot; a successful
+        // missile returns it, ending that request, before the ordinary empty-ammo fallback. Murder Beam uses this exact path
         // to begin charging safely while the missile cooldown suppresses its unsafe initial
         // uncharged shot.
         sharedProjectiles.SetSharedCooldown(isSuperMissile

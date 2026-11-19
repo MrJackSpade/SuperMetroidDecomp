@@ -690,8 +690,8 @@ public sealed class SamusHorizontalSpeedState
         {
             BaseSpeed -= entry.Deceleration;
 
-            // The test reads only the whole pixels. Once deceleration crosses
-            // below zero it clears both halves and returns to SamusAccelerationMode.Accelerating.
+            // The test reads only the whole pixels. Once deceleration takes the speed
+            // below zero, the speed stops and the mode returns to SamusAccelerationMode.Accelerating.
             if (SamusSpeedMagnitude.HasPassedZero(BaseSpeed.Whole))
             {
                 BaseSpeed = default;

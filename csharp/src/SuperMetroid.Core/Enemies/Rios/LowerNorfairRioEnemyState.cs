@@ -23,8 +23,8 @@ public sealed class LowerNorfairRioEnemyState
     public bool AnimationSignal { get; internal set; }
 
     /// <summary>
-    /// Cleared and set by its hide and show cues. The enemy listed after it reads this
-    /// flag from its parent and shows its lower sprite only while it is set.
+    /// Whether the enemy listed after it, its follower, shows its lower sprite; the hide
+    /// and show cues clear and set it.
     /// </summary>
     public bool FollowerVisible { get; internal set; }
 

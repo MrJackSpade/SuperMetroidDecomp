@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainNeckSineVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Torizo;
@@ -76,7 +77,7 @@ internal static class BombTorizoDroolSineVerification
 
         spawn(enemies, torizo);
 
-        EnemyProjectile projectile = enemies.Projectiles.InPlace(17);
+        EnemyProjectile projectile = enemies.Projectiles.ProjectileInPlace(17);
         AssertTrue(projectile.IsActive,
             $"Bomb Torizo {scenario} random {random:X2} allocation");
         // $86:A621/$A628 index the sign-extended sine and negative-cosine tables with the

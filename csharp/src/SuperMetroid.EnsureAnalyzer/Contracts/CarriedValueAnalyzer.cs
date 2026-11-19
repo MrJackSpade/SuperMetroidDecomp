@@ -7,7 +7,7 @@ using SuperMetroid.EnsureAnalyzer.Modules;
 namespace SuperMetroid.EnsureAnalyzer.Contracts;
 
 /// <summary>
-/// Reports a value carried across rooms or pool places read or left outside a compatibility service (SME6464, #2572).
+/// Reports a value carried across rooms or pool places read or left outside a compatibility service (SME6466, #2572).
 /// What one room's main leaves the next (the room mains' one shared value, <c>RoomMainCarryover</c>) and what a room's
 /// shot and enemy-projectile places leave the next room's (<c>RoomHandOver</c>) are working storage the original shared
 /// under several meanings. Each meaning is a compatibility service named for the behaviour it carries (the shaft's turn
@@ -25,7 +25,7 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 public sealed class CarriedValueAnalyzer : DiagnosticAnalyzer
 {
     /// <summary>A value carried across rooms or pool places read or left outside a compatibility service.</summary>
-    public const string CarriedValueId = "SME6464";
+    public const string CarriedValueId = "SME6466";
 
     /// <summary>The namespace of Core's compatibility module, which declares the carried storage.</summary>
     private const string CompatibilityNamespace = "SuperMetroid.Core.Compatibility";

@@ -88,12 +88,6 @@ internal sealed class EnemyProjectileEngine
     /// <param name="place">The zero-based enemy-projectile place, zero for the last place spawns search.</param>
     public EnemyProjectile? LatestInPlace(int place) => _places[Ensure.BetweenInclusive(0, PlaceCount - 1, place)];
 
-    /// <summary>The latest projectile of <paramref name="place"/>, live or gone.</summary>
-    /// <param name="place">The zero-based enemy-projectile place, zero for the last place spawns search.</param>
-    /// <exception cref="InvalidOperationException">The room has spawned no projectile into the place.</exception>
-    public EnemyProjectile InPlace(int place) => LatestInPlace(place) ??
-        throw new InvalidOperationException($"The room has spawned no enemy projectile into place {place}.");
-
     /// <summary>
     /// Starts each place from what the room this one replaces left in it (<see cref="EnemyProjectilePlaceLeftovers"/>), which
     /// the room's first spawn there starts from. Called before the room's population loads.

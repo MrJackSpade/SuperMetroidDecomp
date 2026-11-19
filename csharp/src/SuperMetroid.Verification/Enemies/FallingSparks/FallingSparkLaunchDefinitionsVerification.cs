@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.FallingSparks;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -24,7 +25,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
         Action<RoomEnemyPlace> spawn = enemies.FallingSparksBehavior.SpawnFallingSpark;
         Action<EnemyProjectile> move = FallingSparksBehavior.AddFallingSparkHorizontalVelocity;
         var source = enemies.Places.InUpdateOrder[0];
-        var projectile = enemies.Projectiles.InPlace(17);
+        var projectile = enemies.Projectiles.ProjectileInPlace(17);
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             random = (ushort)raw;
@@ -40,7 +41,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
             advances = 0;
             spawn(source);
             // A spawn creates a new projectile in the place, which the place now holds (#1590).
-            projectile = enemies.Projectiles.InPlace(17);
+            projectile = enemies.Projectiles.ProjectileInPlace(17);
             AssertEqual(1, advances, "Successful spark spawn advances RNG once");
             AssertEqual(RoomEnemyProjectileKind.FallingSpark, projectile.Kind, "Reverse allocator owns last free slot");
             AssertEqual(source.Position.X.Whole, projectile.Position.X.Whole, "Spark copies source X");
@@ -57,7 +58,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
             AssertEqual((ushort)SixteenSixteenWords.WholeOf(expected), projectile.Position.X.Whole, "Native signed launch reaches actual wrapped movement");
             AssertEqual((ushort)expected, projectile.Position.X.Fraction, "Native fractional launch reaches actual movement");
         }
-        foreach (var occupied in enemies.Projectiles.EnemyProjectiles) occupied.Kind = RoomEnemyProjectileKind.FallingSpark;
+        foreach (var occupied in enemies.Projectiles.EveryPlace()) occupied.Kind = RoomEnemyProjectileKind.FallingSpark;
         advances = 0;
         ushort previousX = projectile.Position.X.Whole;
         spawn(source);

@@ -37,7 +37,7 @@ internal static class ProjectileContactPhaseVerification
         samus.Control.Unlock();
         samus.Health = 99;
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
-        var projectile = runtime.Enemies.Projectiles.InPlace(17);
+        var projectile = runtime.Enemies.Projectiles.ProjectileInPlace(17);
         projectile.Kind = RoomEnemyProjectileKind.RidleyFireball;
         projectile.Behavior = FamilyProjectileStarts.BehaviorOf(runtime.Enemies, projectile.Kind);
         projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.Fireball));
@@ -85,7 +85,7 @@ internal static class ProjectileContactPhaseVerification
             samus.Health = 99;
             samus.EquippedItems = suit;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            var projectile = runtime.Enemies.Projectiles.InPlace(17);
+            var projectile = runtime.Enemies.Projectiles.ProjectileInPlace(17);
             projectile.Kind = RoomEnemyProjectileKind.RidleyFireball;
             projectile.Behavior = FamilyProjectileStarts.BehaviorOf(runtime.Enemies, projectile.Kind);
             projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.Fireball));

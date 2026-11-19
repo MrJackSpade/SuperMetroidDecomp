@@ -5,7 +5,7 @@ using static SuperMetroid.EnsureVerification.Harness.AnalyzerTests;
 namespace SuperMetroid.EnsureVerification.Contracts;
 
 /// <summary>
-/// Checks SME6464: a value carried across rooms or pool places is read and left in Core only by a compatibility service
+/// Checks SME6466: a value carried across rooms or pool places is read and left in Core only by a compatibility service
 /// (#2572).
 /// </summary>
 internal static class CarriedValueAnalyzerTests

@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// an escape room whose setup does not clear its quake carries on the elevatube's last fraction as its countdown.
 /// </summary>
 /// <remarks>
-/// Read and left only by the hand-overs above (SME6464), when a room main is set up for a room and whenever a main
+/// Read and left only by the hand-overs above (SME6466), when a room main is set up for a room and whenever a main
 /// changes what it carries. Lifetime: the session's, held by the active room for every room it loads. Evidence: the
 /// original game's room mains share one working word that room loading never clears; the Ceres pre-elevator hall's debris
 /// timer (<c>$8F:E525</c>) starts from the shaft's turn index (<c>$89:AD41</c>), the escape rooms' diagonal quake timer

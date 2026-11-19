@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.Kraid;
@@ -56,7 +57,7 @@ internal static class KraidCeilingRockPositionsVerification
             AssertEqual(index + (spawn ? 1 : 0), state.BodyState.NextCeilingRock?.Place ?? KraidCeilingRockDefinitions.Rocks.Count,
                 "Ceiling rock advances only on emission");
             if (!spawn) continue;
-            var rock = enemies.Projectiles.InPlace(17);
+            var rock = enemies.Projectiles.ProjectileInPlace(17);
             AssertEqual(Word(EnemyRomTablePointers.Kraid.CeilingRockXWords + index * 2), rock.Position.X.Whole, "Native ceiling X reaches actual projectile");
             AssertEqual((ushort)312, rock.Position.Y.Whole, "Ceiling projectile origin Y");
             AssertEqual((ushort)127, rock.Velocity.Y.RawValue, "Ceiling projectile retains current RNG velocity");

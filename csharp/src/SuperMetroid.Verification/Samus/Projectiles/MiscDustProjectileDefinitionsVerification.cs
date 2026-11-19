@@ -74,7 +74,7 @@ internal static class MiscDustProjectileDefinitionsVerification
             enemies.VerificationServices().ReadRandom = () => random;
             enemies.VerificationServices().NextRandom = () => { advances++; return 0xbeef; };
             Action<EnemyProjectile, DustExplosionAnimation, DustExplosionPlacement, Position16<RoomBlocks>> initialize = enemies.EyeDoorBehavior.InitializeEyeDoorSmoke;
-            EnemyProjectile smoke = enemies.Projectiles.InPlace(0);
+            EnemyProjectile smoke = enemies.Projectiles.ProjectileInPlace(0);
             initialize(smoke, DustExplosionAnimation.CorpseDustCloud, definition, new(7, 9));
             AssertTrue(smoke.Animation is DustExplosionProjectileAnimation { PlayingSegment: DustExplosionAnimation.CorpseDustCloud },
                 $"eye-door smoke production instruction {index}");

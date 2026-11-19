@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 using static SuperMetroid.Verification.Areas.Ceres.CeresFallingDebrisNativeListAddresses;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
@@ -31,7 +32,7 @@ internal static class CeresFallingDebrisAnimationsVerification
             var guard = new MutableCartridgeReadGuard(rom);
             guard.Forbid(address => address is >= ListsStart and < ListsEnd,
                 address => $"Production read a native Ceres falling tile list at ${address:X6}.");
-            EnemyProjectile tile = enemies.Projectiles.InPlace(17);
+            EnemyProjectile tile = enemies.Projectiles.ProjectileInPlace(17);
             tile.Kind = kind;
             tile.StartAnimation(new CeresFallingDebrisAnimation(program));
             (bool deleted, int compared) = NativeEnemyProjectileParity.Compare(cartridge, enemies, tile, entry, 16, $"Ceres falling tile {program}");

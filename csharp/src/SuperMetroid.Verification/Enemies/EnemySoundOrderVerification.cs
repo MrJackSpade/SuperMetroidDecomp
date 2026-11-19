@@ -68,7 +68,7 @@ internal static class EnemySoundOrderVerification
             definitions: bus, services: new StandaloneRoomEnemyServices(() => 0));
         enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(populationPointer), BgArtworkFixtures.For(new SnesVram()), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
 
-        EnemyProjectile link = enemies.Projectiles.InPlace(17);
+        EnemyProjectile link = enemies.Projectiles.ProjectileInPlace(17);
         FamilyProjectileStarts.Initialize(enemies, link, RoomEnemyProjectileKind.NuclearWaffleBody, SpriteGraphics.SharedStandard);
         link.Position = link.Position.WithWhole(new(0x0100, 0x0100));
         link.BlocksSamusProjectiles = true;

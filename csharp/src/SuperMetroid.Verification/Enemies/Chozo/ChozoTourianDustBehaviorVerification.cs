@@ -36,7 +36,7 @@ internal static class ChozoTourianDustBehaviorVerification
                          ChozoTourianDustNativeListAddresses.DescentDustStart),
                  })
         {
-            EnemyProjectile dust = enemies.Projectiles.InPlace(0);
+            EnemyProjectile dust = enemies.Projectiles.ProjectileInPlace(0);
             dust.Delete();
             FamilyProjectileStarts.Initialize(enemies, dust, kind, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard);
             dust.State = new AnchoredProjectileState(new(128, 96));

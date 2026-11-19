@@ -123,12 +123,12 @@ internal static class RoomTerrainBlockAddressingVerification
                     continue;
                 }
 
+                // A chain that ends behaves as air, and the read keeps the block it found (#2572); one that reaches a block
+                // stands for the block the walk reaches.
                 bool resolved = room.Level.TryReachBlockStoodFor(ref block);
-                if (resolved != collides || block != room.Read(place))
-                {
-                    AssertEqual(collides, resolved, $"{context}: whether it collides");
+                AssertEqual(collides, resolved, $"{context}: whether it collides");
+                if (collides && block != room.Read(place))
                     AssertEqual(room.Read(place), block, $"{context}: the block reached");
-                }
             }
         }
 

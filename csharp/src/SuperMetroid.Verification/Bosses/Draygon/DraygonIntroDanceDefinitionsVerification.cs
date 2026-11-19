@@ -73,31 +73,27 @@ internal static class DraygonIntroDanceDefinitionsVerification
     /// </summary>
     internal static void VerifyDraygonIntroMovementDefinitions(CartridgeImportAddressSpace rom)
     {
-        int deletes = 0;
-        for (int step = 0; step < DraygonIntroDanceDefinitions.TracedPath.Length; step++)
+        // The original's path holds each move, then the record that deletes the Evir; the traced path holds the moves, and
+        // the update after the last ends the Evir's dance.
+        for (int step = 0; step <= DraygonIntroDanceDefinitions.TracedPath.Length; step++)
         {
             NativeIntroRecord native = ReadRecord(rom, step);
-            DraygonIntroMovement actual = DraygonIntroDance.Movement(step);
             bool expectedDelete = native.X == DraygonIntroDanceDefinitionsConstants.NativeDeleteByte &&
                 native.Y == DraygonIntroDanceDefinitionsConstants.NativeDeleteByte;
-            AssertEqual(expectedDelete, actual.DeletesSprite, $"Draygon intro step {step} delete");
-            AssertEqual(expectedDelete ? (short)0 : unchecked((sbyte)native.X), actual.Delta.X,
-                $"Draygon intro step {step} X delta");
-            AssertEqual(expectedDelete ? (short)0 : unchecked((sbyte)native.Y), actual.Delta.Y,
-                $"Draygon intro step {step} Y delta");
+            AssertEqual(expectedDelete, DraygonIntroDance.HasDanced(step), $"Draygon intro step {step} delete");
             if (expectedDelete)
-                deletes++;
+                continue;
+            Offset16<RoomPixels> actual = DraygonIntroDance.Move(step);
+            AssertEqual(unchecked((sbyte)native.X), actual.X, $"Draygon intro step {step} X delta");
+            AssertEqual(unchecked((sbyte)native.Y), actual.Y, $"Draygon intro step {step} Y delta");
         }
-        AssertEqual(1, deletes, "Draygon intro path has one delete step");
-        AssertEqual(true, DraygonIntroDance.Movement(DraygonIntroDanceDefinitions.TracedPath.Length - 1).DeletesSprite,
-            "Draygon intro path ends at its delete step");
 
         // The Evir that waits longest still takes the path's last step, its delete, before the dance ends.
         int longestDelay = LongestEvirStartDelay();
-        AssertEqual(true, DraygonIntroDanceDefinitions.DurationFrames - 1 - longestDelay >= DraygonIntroDanceDefinitions.TracedPath.Length - 1,
-            "Every Draygon intro Evir reaches the path's delete step");
+        AssertEqual(true, DraygonIntroDanceDefinitions.DurationFrames - 1 - longestDelay >= DraygonIntroDanceDefinitions.TracedPath.Length,
+            "Every Draygon intro Evir reaches the end of its dance");
         foreach (int step in new[] { -1, DraygonIntroDanceDefinitions.TracedPath.Length, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => DraygonIntroDance.Movement(step),
+            AssertThrows<InvalidDataException>(() => DraygonIntroDance.Move(step),
                 "Draygon intro rejects a step outside the traced path");
     }
 

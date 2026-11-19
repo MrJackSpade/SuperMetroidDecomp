@@ -1634,11 +1634,12 @@ internal static class LookupStream4Verification
         // The fourth choice names the bottom cannon's word, $880A, which no room places and Draygon's setup disables: it fires
         // from none (#1686).
         AssertEqual(4, DraygonCannonData.FiringCannon.Field.Outcomes, "Draygon firing choices");
-        AssertTrue(DraygonCannonData.FiringCannon.Choose(3) is null, "Draygon's fourth firing choice fires from no cannon");
+        AssertTrue(DraygonCannonData.FiringCannon.Choose(3) == DraygonTurretTurn.HoldsFire, "Draygon's fourth firing choice holds fire");
         AssertEqual(3, DraygonCannonData.FiringOrigins.Count, "Draygon fires from three cannons");
         for (int index = 0; index < 3; index++)
         {
-            DraygonWallCannon cannon = DraygonCannonData.FiringCannon.Choose(index) ?? throw new InvalidOperationException("Verification requires a firing cannon.");
+            DraygonWallCannon cannon = DraygonCannonData.FiringCannon.Choose(index) is DraygonTurretTurn.FiresFrom { Cannon: var firing } ? firing
+                : throw new InvalidOperationException("Verification requires a firing cannon.");
             Position16<RoomPixels> origin = DraygonCannonData.FiringOrigins[cannon];
             AssertEqual(DraygonWallCannonAddresses.Decode((ushort)(0x8804 + 2 * index)), cannon, "Draygon original control-word selection");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa587e4 + 4 * index)), origin.X, "Draygon original cannon X");

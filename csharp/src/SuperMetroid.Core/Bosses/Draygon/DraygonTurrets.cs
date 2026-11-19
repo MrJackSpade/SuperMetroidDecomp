@@ -54,7 +54,8 @@ internal sealed class DraygonTurrets
         SamusState samus,
         int random)
     {
-        if (DraygonCannonData.FiringCannon.Choose(random) is not { } cannon || _disabledCannons.Contains(cannon))
+        if (DraygonCannonData.FiringCannon.Choose(random) is not DraygonTurretTurn.FiresFrom { Cannon: var cannon } ||
+            _disabledCannons.Contains(cannon))
             return;
 
         EnemyProjectile? turret = _projectiles.AllocateEnemyProjectile();

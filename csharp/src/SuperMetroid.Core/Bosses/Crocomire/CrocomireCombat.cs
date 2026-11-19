@@ -279,33 +279,26 @@ internal sealed class CrocomireCombat
         // pending hit. The body is on screen while its left edge lies left of the camera's right edge, 256 pixels past
         // the camera.
         bool bodyLeftEdgeIsOnScreen = body.Position.X.Whole - body.Radius.X - CrocomireFightDefinitions.MouthShotScreenReach < camera.X;
-        int stepCount = 0;
+        // The steps the hit pushes him back by, a hit off screen none, or null for a weapon on screen that pushes nothing.
+        int? pushedSteps = 0;
         SamusProjectileFamily family = projectileType.Family;
         if (bodyLeftEdgeIsOnScreen)
         {
-            if (family == SamusProjectileFamily.Beam)
+            if (family == SamusProjectileFamily.Beam && !projectileType.IsChargedBeam)
             {
-                if (!projectileType.IsChargedBeam)
-                {
-                    body.AnimationClock.HoldFor(CrocomireFightDefinitions.MouthShotReactionHoldFrames);
-                    SpawnCrocomireShotDust(projectileType, projectile);
-                    return;
-                }
-                stepCount = CrocomireFightDefinitions.ChargedBeamSteps;
+                body.AnimationClock.HoldFor(CrocomireFightDefinitions.MouthShotReactionHoldFrames);
+                SpawnCrocomireShotDust(projectileType, projectile);
+                return;
             }
-            else if (family == SamusProjectileFamily.Missile)
-            {
-                stepCount = CrocomireFightDefinitions.MissileSteps;
-            }
-            else if (family == SamusProjectileFamily.SuperMissile)
-            {
-                stepCount = CrocomireFightDefinitions.SuperMissileSteps;
-            }
+            pushedSteps = family == SamusProjectileFamily.Beam ? CrocomireFightDefinitions.ChargedBeamSteps
+                : family == SamusProjectileFamily.Missile ? CrocomireFightDefinitions.MissileSteps
+                : family == SamusProjectileFamily.SuperMissile ? CrocomireFightDefinitions.SuperMissileSteps
+                : null;
         }
 
-        if (!bodyLeftEdgeIsOnScreen || stepCount != 0)
+        if (pushedSteps is int steps)
         {
-            state.StepCounter += stepCount;
+            state.StepCounter += steps;
             if (state.StepBack.Ask())
                 body.AnimationClock.Extend(CrocomireFightDefinitions.MouthShotReactionHoldFrames);
         }

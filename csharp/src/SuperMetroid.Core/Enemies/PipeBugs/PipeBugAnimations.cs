@@ -153,7 +153,7 @@ internal static class PipeBugAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static IReadOnlyDictionary<PipeBugSegment, Animation<PipeBugSegment>> StartingAt { get; } = new Dictionary<PipeBugSegment, Animation<PipeBugSegment>>
+    private static Dictionary<PipeBugSegment, Animation<PipeBugSegment>> StartingAt { get; } = new Dictionary<PipeBugSegment, Animation<PipeBugSegment>>
     {
         [P.ZebRisingLeft] = Animation<PipeBugSegment>.Looping([Segments.Whole(P.ZebRisingLeft)]),
         [P.ZebShootingLeft] = Animation<PipeBugSegment>.Looping([Segments.Whole(P.ZebShootingLeft)]),

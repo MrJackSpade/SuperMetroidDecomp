@@ -1299,7 +1299,7 @@ static void WriteZebesEscapeWarning(TestAddressSpace bus)
             WriteTestByte(bus, cursor++, checked((byte)character));
     }
 
-    Word(EscapeTypewriterExtractor.DelayCommand);
+    Word(checked((ushort)EscapeTypewriterExtractor.DelayCommand));
     Word(EscapeTypewriterDefinitions.CharacterDelayFrames);
     Word((ushort)EscapeTypewriterCommand.LineStart);
     Word(0x4905);

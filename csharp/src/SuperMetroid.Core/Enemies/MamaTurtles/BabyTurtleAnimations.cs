@@ -108,7 +108,7 @@ internal static class BabyTurtleAnimations
     /// <see cref="PushingStrides"/> times with its legs planting and pushing, then with them trailing, and ends at the check
     /// that crawls on or turns the baby round.
     /// </summary>
-    private static IReadOnlyDictionary<BabyTurtleSegment, Animation<BabyTurtleSegment>> StartingAt { get; } = new Dictionary<BabyTurtleSegment, Animation<BabyTurtleSegment>>
+    private static Dictionary<BabyTurtleSegment, Animation<BabyTurtleSegment>> StartingAt { get; } = new Dictionary<BabyTurtleSegment, Animation<BabyTurtleSegment>>
     {
         [P.CrawlingLeft] = new([Segments.Repeated(P.CrawlingLeft, PushingStrides), Segments.Whole(P.CrawlingLeftLegsTrailing)], AnimationEnd.Holds),
         [P.Spinning] = Animation<BabyTurtleSegment>.Looping([Segments.Whole(P.Spinning)]),

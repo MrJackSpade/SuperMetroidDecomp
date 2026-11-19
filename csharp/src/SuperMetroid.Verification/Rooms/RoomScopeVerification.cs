@@ -35,7 +35,7 @@ internal static class RoomScopeVerification
             "the Landing Site composes the land sky with the bands its setup spawns");
         ScrollBoundaryCamera previous = source.Camera;
         previous.Position = previous.Position.WithFractionsOf(FixedPosition<RoomPixels>.FromStoredParts(0, 0x1234, 0, 0x5678));
-        PrivateState.Set(previous, nameof(ScrollBoundaryCamera.IdealPosition), new Position16<RoomPixels>(0x0123, 0x0456));
+        PrivateState.Set(previous, "IdealPosition", new Position16<RoomPixels>(0x0123, 0x0456));
         previous.Speed = FixedVector<RoomPixels>.FromStoredParts(2, 0x8000, 0xFFFF, 0x4000);
         previous.FinishSamusScrolling(FixedPosition<RoomPixels>.FromStoredParts(0x0300, 0x1111, 0x0400, 0x2222));
         source.Projectiles.Charge.SetFlareCount(30);

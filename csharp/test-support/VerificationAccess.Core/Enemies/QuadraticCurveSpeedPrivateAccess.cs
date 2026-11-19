@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 internal static class QuadraticCurveSpeedPrivateAccess
 {
-    /// <summary>The private instance members checks write, on the value itself.</summary>
-    extension(ref global::SuperMetroid.Core.Enemies.QuadraticCurveSpeed self)
+    /// <summary>The private instance members checks call on the value.</summary>
+    extension(global::SuperMetroid.Core.Enemies.QuadraticCurveSpeed self)
     {
         /// <summary>The private method <c>CoarseToward</c>, invoked by name.</summary>
         internal global::SuperMetroid.Core.Spatial.SignedSixteenSixteen CoarseToward(global::SuperMetroid.Core.Enemies.EnemySpeedSign sign) =>

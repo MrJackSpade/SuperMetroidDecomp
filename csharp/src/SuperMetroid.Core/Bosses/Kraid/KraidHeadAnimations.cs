@@ -68,7 +68,7 @@ internal static class KraidHeadAnimations
     });
 
     /// <summary>Each head animation, by the segment it starts at: its segments played once each, then a hold on its last pose.</summary>
-    private static IReadOnlyDictionary<KraidHeadSegment, Animation<KraidHeadSegment>> StartingAt { get; } = new Dictionary<KraidHeadSegment, Animation<KraidHeadSegment>>
+    private static Dictionary<KraidHeadSegment, Animation<KraidHeadSegment>> StartingAt { get; } = new Dictionary<KraidHeadSegment, Animation<KraidHeadSegment>>
     {
         [P.Roar] = new([Segments.Whole(P.Roar), Segments.Whole(P.RoarOpenHold), Segments.Whole(P.RoarClosing)], AnimationEnd.Holds),
         [P.EyeGlow] = new([Segments.Whole(P.EyeGlow)], AnimationEnd.Holds),

@@ -48,7 +48,7 @@ public readonly record struct XrayRevealVisualBlocks
     private static XrayRevealVisualBlocks Wide(int left, int right) => new(left, right, null, null);
 
     /// <summary>The two blocks one above the other a tall copy shows.</summary>
-    private static XrayRevealVisualBlocks Tall(int top, int bottom) => new(top, null, bottom, null);
+    public static XrayRevealVisualBlocks Tall(int top, int bottom) => new(top, null, bottom, null);
 
     /// <summary>The four blocks a square copy shows.</summary>
     private static XrayRevealVisualBlocks Square(int topLeft, int topRight, int bottomLeft, int bottomRight) =>

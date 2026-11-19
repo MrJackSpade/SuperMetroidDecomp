@@ -102,7 +102,7 @@ internal static class SpecialAttackParticlesVerification
             spazer.LeavesTrails),
         WaveParticleState wave => (wave.Part, wave.Lifetime.UpdatesLeft),
         ShinesparkEchoShotState echo => (echo.Angle, echo.Radius),
-        _ => throw new InvalidOperationException($"Undefined shot kind state {shot.KindState.GetType().Name}."),
+        _ => throw new InvalidOperationException($"Undefined shot kind state {shot.KindState}."),
     };
 
     /// <summary>

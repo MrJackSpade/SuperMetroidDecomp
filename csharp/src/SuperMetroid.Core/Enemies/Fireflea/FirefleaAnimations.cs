@@ -32,7 +32,7 @@ internal static class FirefleaAnimations
     /// The animation that starts at each segment an owner can start or restart at (#2369, #2477): its wings beat twice at its
     /// brightest glow, once at each glow as it dims to its dimmest and once at each as it brightens back, repeating.
     /// </summary>
-    private static IReadOnlyDictionary<FirefleaSegment, Animation<FirefleaSegment>> StartingAt { get; } = new Dictionary<FirefleaSegment, Animation<FirefleaSegment>>
+    private static Dictionary<FirefleaSegment, Animation<FirefleaSegment>> StartingAt { get; } = new Dictionary<FirefleaSegment, Animation<FirefleaSegment>>
     {
         [P.BrightestWingbeat] = Animation<FirefleaSegment>.Looping(
         [

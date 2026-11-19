@@ -22,15 +22,15 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 public sealed class D3D11FrameRenderer : IDisposable
 {
     /// <summary>Thread-affine device shared with the output presenter and child scenes.</summary>
-    private readonly D3D11RenderDevice owner;
+    internal readonly D3D11RenderDevice owner;
     /// <summary>Loads embedded shader bytecode and supports missing-resource verification.</summary>
     private readonly Func<string, Stream?> openShaderResource;
     /// <summary>Solid-color compute path used when no layer snapshot is supplied.</summary>
     private readonly ID3D11ComputeShader shader;
     /// <summary>Integer RGBA output texture consumed directly by the display pass.</summary>
-    private readonly ID3D11Texture2D output;
+    internal readonly ID3D11Texture2D output;
     /// <summary>The display set only after it finishes GPU submission.</summary>
-    private DisplayPacket? renderedDisplay;
+    internal DisplayPacket? renderedDisplay;
     /// <summary>The last successfully submitted display.</summary>
     internal DisplayPacket? SubmittedDisplay => renderedDisplay;
     /// <summary>Owner device used by a presenter sharing this frame texture.</summary>
@@ -78,7 +78,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     /// <summary>Owned GPU resources released in reverse creation order.</summary>
     private readonly List<IDisposable> resources = [];
     /// <summary>Guards later render calls after owner-thread disposal.</summary>
-    private bool disposed;
+    internal bool disposed;
     /// <summary>Reusable constant-buffer source cleared before each compute pass.</summary>
     private readonly uint[] constantUpload = new uint[D3D11ShaderLayout.ConstantWords];
 

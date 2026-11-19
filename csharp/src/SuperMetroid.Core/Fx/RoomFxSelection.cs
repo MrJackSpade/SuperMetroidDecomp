@@ -28,7 +28,7 @@ public sealed class RoomFxSelection
     public string Name { get; }
 
     /// <summary>The effects entry doors select, in the game's order: the first naming the entry door is shown.</summary>
-    private IReadOnlyList<DoorRoomEffect> DoorEffects { get; }
+    private System.Collections.ObjectModel.ReadOnlyCollection<DoorRoomEffect> DoorEffects { get; }
 
     /// <summary>The effect a room entered through a door no door effect names shows, or null for no effect.</summary>
     private RoomEffectDefinition? Default { get; }

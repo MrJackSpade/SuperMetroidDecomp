@@ -146,7 +146,7 @@ internal static class MotherBrainSheetShades
     }
 
     /// <summary>The sprite shades of her health bands: her brain's and rear legs' colours in each.</summary>
-    private static IReadOnlyList<SheetShade> HealthSprites(MotherBrainHealthPalettePresentation health)
+    private static List<SheetShade> HealthSprites(MotherBrainHealthPalettePresentation health)
     {
         Ensure.NotNull(health);
         var shades = new List<SheetShade>();
@@ -164,7 +164,7 @@ internal static class MotherBrainSheetShades
     /// The sprite shades of her rainbow colours: her brain's and rear legs' colours in each rainbow phase, restored, in
     /// each step of the drain to grey and the revival from it, and her brain's in each step of the fake death's fades.
     /// </summary>
-    private static IReadOnlyList<SheetShade> RainbowSprites(InstalledMotherBrainRainbowPalette rainbow)
+    private static List<SheetShade> RainbowSprites(InstalledMotherBrainRainbowPalette rainbow)
     {
         Ensure.NotNull(rainbow);
         var shades = new List<SheetShade>();
@@ -201,7 +201,7 @@ internal static class MotherBrainSheetShades
     }
 
     /// <summary>The background shades of her health bands: her body's colours in each.</summary>
-    private static IReadOnlyList<SheetShade> HealthBackground(MotherBrainHealthPalettePresentation health)
+    private static List<SheetShade> HealthBackground(MotherBrainHealthPalettePresentation health)
     {
         Ensure.NotNull(health);
         var shades = new List<SheetShade>();
@@ -214,7 +214,7 @@ internal static class MotherBrainSheetShades
     }
 
     /// <summary>The background shades of her rainbow colours: her body's colours in each rainbow phase, restored, and in each step of the drain and revival.</summary>
-    private static IReadOnlyList<SheetShade> RainbowBackground(InstalledMotherBrainRainbowPalette rainbow)
+    private static List<SheetShade> RainbowBackground(InstalledMotherBrainRainbowPalette rainbow)
     {
         Ensure.NotNull(rainbow);
         var shades = new List<SheetShade>();
@@ -247,7 +247,7 @@ internal static class MotherBrainSheetShades
     }
 
     /// <summary>The background shades of her room's colours: each step of its flash, its steady grey, and its lights going out and recovering.</summary>
-    private static IReadOnlyList<SheetShade> RoomBackground(MotherBrainRoomColorPresentation room)
+    private static List<SheetShade> RoomBackground(MotherBrainRoomColorPresentation room)
     {
         Ensure.NotNull(room);
         var shades = new List<SheetShade>();

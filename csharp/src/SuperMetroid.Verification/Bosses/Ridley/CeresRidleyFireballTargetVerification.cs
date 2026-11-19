@@ -24,7 +24,7 @@ internal static class CeresRidleyFireballTargetVerification
             int x = baseX + jitterWord;
             int carry = x > ushort.MaxValue ? 1 : 0;
             var expected = new Position16<RoomPixels>(x & ushort.MaxValue, (baseY + jitterWord + carry) & ushort.MaxValue);
-            bool reachable = baseX is >= CeresRidleyFireballTarget.LargestJitter and <= ushort.MaxValue - CeresRidleyFireballTarget.LargestJitter;
+            bool reachable = baseX >= CeresRidleyFireballTarget.LargestJitter && baseX <= ushort.MaxValue - CeresRidleyFireballTarget.LargestJitter;
             if (!reachable)
             {
                 AssertThrows<ArgumentOutOfRangeException>(() => CeresRidleyFireballTarget.Around(basePosition, jitter),

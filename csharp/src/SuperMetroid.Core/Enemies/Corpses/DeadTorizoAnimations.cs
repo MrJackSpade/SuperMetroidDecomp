@@ -18,7 +18,7 @@ internal static class DeadTorizoAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static IReadOnlyDictionary<DeadTorizoSegment, Animation<DeadTorizoSegment>> StartingAt { get; } = new Dictionary<DeadTorizoSegment, Animation<DeadTorizoSegment>>
+    private static Dictionary<DeadTorizoSegment, Animation<DeadTorizoSegment>> StartingAt { get; } = new Dictionary<DeadTorizoSegment, Animation<DeadTorizoSegment>>
     {
         [P.Stationary] = new([Segments.Whole(P.Stationary)], AnimationEnd.Holds),
     };

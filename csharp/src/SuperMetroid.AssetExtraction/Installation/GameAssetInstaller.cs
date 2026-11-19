@@ -44,7 +44,7 @@ public static class GameAssetInstaller
     /// it is current; only recovery and extraction write it, and those hold the setup lock. A damaged file is not looked
     /// for: it fails loudly where it is loaded.
     /// </summary>
-    private static GameInstallation? EnsureInstalled(string root,
+    public static GameInstallation? EnsureInstalled(string root,
         CancellationToken cancellationToken = default, IProgress<string>? progress = null) =>
         EnsureInstalled(root, Components, cancellationToken, progress);
 
@@ -53,7 +53,7 @@ public static class GameAssetInstaller
     /// when the installation is not current: the installer's transaction is the same whatever components it extracts, and
     /// the game's installation extracts every one of <see cref="Components"/>.
     /// </summary>
-    private static GameInstallation? EnsureInstalled(string root, IReadOnlyList<InstallerComponent> components,
+    internal static GameInstallation? EnsureInstalled(string root, IReadOnlyList<InstallerComponent> components,
         CancellationToken cancellationToken, IProgress<string>? progress)
     {
         var installation = new GameInstallation(Path.GetFullPath(root));

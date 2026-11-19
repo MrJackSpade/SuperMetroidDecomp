@@ -56,7 +56,7 @@ internal static class SparkAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static IReadOnlyDictionary<SparkSegment, Animation<SparkSegment>> StartingAt { get; } = new Dictionary<SparkSegment, Animation<SparkSegment>>
+    private static Dictionary<SparkSegment, Animation<SparkSegment>> StartingAt { get; } = new Dictionary<SparkSegment, Animation<SparkSegment>>
     {
         [P.FlickerOn] = Animation<SparkSegment>.LeadingInto([Segments.Whole(P.FlickerOn)], [Segments.Whole(P.Active)]),
         [P.Active] = Animation<SparkSegment>.Looping([Segments.Whole(P.Active)]),

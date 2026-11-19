@@ -100,16 +100,22 @@ internal static class TestOnlyMembers
     /// </summary>
     private static List<(Compilation Compilation, SyntaxTree Tree, string File, bool Check)> FirstCompilations(LoadedSolution solution)
     {
+        // A file is a check only when every project compiling it is one: test-support a tool also compiles reaches the
+        // members it names directly, without the access a verification project compiles.
+        var shipped = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var (project, compilation) in solution.Projects.Where(project => !ProjectScope.IsCheck(project.Project.AssemblyName)))
+            foreach (SyntaxTree tree in compilation.SyntaxTrees)
+                shipped.Add(Path.GetFullPath(tree.FilePath));
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var trees = new List<(Compilation, SyntaxTree, string, bool)>();
         foreach (var (project, compilation) in solution.Projects)
         {
             foreach (SyntaxTree tree in compilation.SyntaxTrees)
             {
-                if (!IsRepositoryFile(solution.RepositoryRoot, tree.FilePath) || !seen.Add(Path.GetFullPath(tree.FilePath)))
+                string path = Path.GetFullPath(tree.FilePath);
+                if (!IsRepositoryFile(solution.RepositoryRoot, tree.FilePath) || !seen.Add(path))
                     continue;
-                string file = Relative(solution.RepositoryRoot, tree.FilePath);
-                trees.Add((compilation, tree, file, ProjectScope.IsTestSupport(file) || ProjectScope.IsCheck(project.AssemblyName)));
+                trees.Add((compilation, tree, Relative(solution.RepositoryRoot, tree.FilePath), !shipped.Contains(path)));
             }
         }
         return trees;

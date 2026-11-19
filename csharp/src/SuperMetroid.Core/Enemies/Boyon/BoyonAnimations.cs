@@ -46,7 +46,7 @@ internal static class BoyonAnimations
     /// The animation that starts at each segment an owner can start or restart at (#2275): each raises its own entry cues
     /// once, then rests or bounces for good.
     /// </summary>
-    private static IReadOnlyDictionary<BoyonSegment, Animation<BoyonSegment>> StartingAt { get; } = new Dictionary<BoyonSegment, Animation<BoyonSegment>>
+    private static Dictionary<BoyonSegment, Animation<BoyonSegment>> StartingAt { get; } = new Dictionary<BoyonSegment, Animation<BoyonSegment>>
     {
         [P.Idle] = Animation<BoyonSegment>.LeadingInto([Segments.Whole(P.Idle)], [Segments.Whole(P.IdleRest)]),
         [P.Bouncing] = Animation<BoyonSegment>.LeadingInto([Segments.Whole(P.Bouncing)], [Segments.Whole(P.BouncingStar)]),

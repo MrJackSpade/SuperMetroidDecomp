@@ -26,7 +26,7 @@ internal static class ShuttersNativeWords
     /// <summary>
     /// The routine word of the vertical shutter's initial dispatch, which calls its trigger mode's entry every update
     /// until activation replaces it. Core installs that entry's action at initialization instead (#2075), so a recorded
-    /// dispatch decodes to <see cref="ShuttersBehavior.InitialAction"/> of the shutter's trigger.
+    /// dispatch decodes to <c>InitialAction</c> of the shutter's trigger.
     /// </summary>
     internal const ushort VerticalShutterTriggerDispatch = 0xef09;
 

@@ -34,14 +34,14 @@ internal static class HudNativeState
             hud.Initialize(new HudSnapshot(samus.Health, samus.MaxHealth, samus.Missiles, samus.MaxMissiles, samus.SuperMissiles,
                 samus.MaxSuperMissiles, samus.PowerBombs, samus.MaxPowerBombs, samus.EquippedItems, highlighted, samus.ReserveEnergy,
                 samus.ReserveTankMode));
-            SetPrivate(hud, nameof(HudState.PreviousSelectedItem), highlighted);
+            SetPrivate(hud, "PreviousSelectedItem", highlighted);
             ushort[] rows = words.ToArray();
-            SetPrivate(hud, nameof(HudState.Minimap), MinimapGrid.Read(place => Decode(new MapTileWord(rows[artwork.MinimapCellIndex(MinimapGrid.Square(place))]))));
+            SetPrivate(hud, "Minimap", MinimapGrid.Read(place => Decode(new MapTileWord(rows[artwork.MinimapCellIndex(MinimapGrid.Square(place))]))));
         }
 
         /// <summary>Takes whether a boss has turned the minimap off from a native snapshot, which recorded it mid-room.</summary>
         /// <param name="disabled">Whether the snapshot's minimap is off.</param>
-        internal void ImportMinimapDisabled(bool disabled) => SetPrivate(hud, nameof(HudState.MinimapDisabled), disabled);
+        internal void ImportMinimapDisabled(bool disabled) => SetPrivate(hud, "MinimapDisabled", disabled);
     }
 
     /// <summary>Writes a HUD property through its private setter: an imported snapshot sets what only the HUD's own updates write.</summary>

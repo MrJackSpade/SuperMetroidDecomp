@@ -52,7 +52,7 @@ internal static class ProjectileTrailSparkleAnimations
         });
 
     /// <summary>The animation of each sparkle: its runs played once, after which the sparkle is gone.</summary>
-    private static IReadOnlyDictionary<ProjectileTrailSegment, Animation<R>> StartingAt { get; } = new Dictionary<ProjectileTrailSegment, Animation<R>>
+    private static Dictionary<ProjectileTrailSegment, Animation<R>> StartingAt { get; } = new Dictionary<ProjectileTrailSegment, Animation<R>>
     {
         [ProjectileTrailSegment.Empty] = new([], AnimationEnd.Stops),
         [ProjectileTrailSegment.LeftIce] = IceSparkle(R.LeftIceFall, R.LeftIceScatteredFall),

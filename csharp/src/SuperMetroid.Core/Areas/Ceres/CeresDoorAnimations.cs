@@ -141,7 +141,7 @@ internal static class CeresDoorAnimations
     /// for good once their setup has run, and the elevator room's wall, once Ridley has escaped, stands unseen for good.
     /// Each phase plays every beat of its segment (#2424).
     /// </summary>
-    private static IReadOnlyDictionary<CeresDoorSegment, Animation<CeresDoorSegment>> StartingAt { get; } = new Dictionary<CeresDoorSegment, Animation<CeresDoorSegment>>
+    private static Dictionary<CeresDoorSegment, Animation<CeresDoorSegment>> StartingAt { get; } = new Dictionary<CeresDoorSegment, Animation<CeresDoorSegment>>
     {
         [P.RidleyRoomDoor] = Animation<CeresDoorSegment>.LeadingInto([Segments.Whole(P.RidleyRoomDoor), Segments.Whole(P.RidleyRoomDoorWait), Segments.Whole(P.ClosedFacingRight), Segments.Whole(P.ClosedFacingRightWait)], [Segments.Whole(P.OpenFacingRight)]),
         [P.RidleyRoomDoorWait] = Animation<CeresDoorSegment>.LeadingInto([Segments.Whole(P.RidleyRoomDoorWait), Segments.Whole(P.ClosedFacingRight), Segments.Whole(P.ClosedFacingRightWait)], [Segments.Whole(P.OpenFacingRight)]),

@@ -78,7 +78,7 @@ internal static class CeresSteamAnimations
     /// a puffing vent goes on puffing and resting in turn for good. A vent only rests on the way from a puff, so no
     /// animation starts at a rest.
     /// </summary>
-    private static IReadOnlyDictionary<CeresSteamSegment, Animation<CeresSteamSegment>> StartingAt { get; } = new Dictionary<CeresSteamSegment, Animation<CeresSteamSegment>>
+    private static Dictionary<CeresSteamSegment, Animation<CeresSteamSegment>> StartingAt { get; } = new Dictionary<CeresSteamSegment, Animation<CeresSteamSegment>>
     {
         [P.UpDormant] = new([Segments.Whole(P.UpDormant)], AnimationEnd.Holds),
         [P.UpPuffing] = Animation<CeresSteamSegment>.Looping([Segments.Whole(P.UpPuffing), Segments.Whole(P.UpResting)]),

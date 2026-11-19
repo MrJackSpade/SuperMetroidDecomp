@@ -39,7 +39,7 @@ internal static class CeresBabyAnimations
     /// The animation that starts at each segment: the resting loop runs on into the expressive loop, which goes back to the
     /// resting loop.
     /// </summary>
-    private static IReadOnlyDictionary<P, Animation<P>> StartingAt { get; } = new Dictionary<P, Animation<P>>
+    private static Dictionary<P, Animation<P>> StartingAt { get; } = new Dictionary<P, Animation<P>>
     {
         [P.IdleSquish] = Animation<P>.Looping([Segments.Whole(P.IdleSquish), Segments.Whole(P.ExpressiveLoop)]),
         [P.ExpressiveLoop] = Animation<P>.Looping([Segments.Whole(P.ExpressiveLoop), Segments.Whole(P.IdleSquish)]),

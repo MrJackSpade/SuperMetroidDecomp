@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 internal static class SamusTriggerPointPrivateAccess
 {
-    /// <summary>The private instance members checks write, on the value itself.</summary>
-    extension(ref global::SuperMetroid.Core.Rooms.RoomObjects.SamusTriggerPoint self)
+    /// <summary>The private instance members checks call on the value.</summary>
+    extension(global::SuperMetroid.Core.Rooms.RoomObjects.SamusTriggerPoint self)
     {
         /// <summary>The private method <c>IsPassedAt</c>, invoked by name.</summary>
         internal bool IsPassedAt(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels> position) =>

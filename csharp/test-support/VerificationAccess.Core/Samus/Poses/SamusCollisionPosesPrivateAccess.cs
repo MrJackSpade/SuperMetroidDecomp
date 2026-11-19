@@ -10,19 +10,11 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// </summary>
 internal static class SamusCollisionPosesPrivateAccess
 {
-    /// <summary>The private static members checks name.</summary>
-    extension(global::SuperMetroid.Core.Samus.Poses.SamusCollisionPoses)
-    {
-        /// <summary>The private method <c>ForRoomCollision</c>, invoked by name.</summary>
-        internal static global::SuperMetroid.Core.Rooms.LevelData.SamusCollisionPose ForRoomCollision(global::SuperMetroid.Core.Samus.Poses.SamusPoseId pose) =>
-            PrivateState.InvokeStatic<global::SuperMetroid.Core.Rooms.LevelData.SamusCollisionPose>(typeof(global::SuperMetroid.Core.Samus.Poses.SamusCollisionPoses), "ForRoomCollision", [typeof(global::SuperMetroid.Core.Samus.Poses.SamusPoseId)], new object?[] { pose });
-    }
-
     /// <summary>The private extension methods checks call on their receiver.</summary>
     extension(global::SuperMetroid.Core.Samus.Poses.SamusPoseId self)
     {
         /// <summary>The private method <c>ForRoomCollision</c>, invoked by name.</summary>
         internal global::SuperMetroid.Core.Rooms.LevelData.SamusCollisionPose ForRoomCollision() =>
-            global::SuperMetroid.Core.Samus.Poses.SamusCollisionPoses.ForRoomCollision(self);
+            PrivateState.InvokeStatic<global::SuperMetroid.Core.Rooms.LevelData.SamusCollisionPose>(typeof(global::SuperMetroid.Core.Samus.Poses.SamusCollisionPoses), "ForRoomCollision", [typeof(global::SuperMetroid.Core.Samus.Poses.SamusPoseId)], new object?[] { self });
     }
 }

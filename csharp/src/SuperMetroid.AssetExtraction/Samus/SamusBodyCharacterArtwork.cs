@@ -96,7 +96,7 @@ public sealed class SamusBodyCharacterArtwork
     }
 
     /// <summary>Resolve a saved definition record after a debugger-state rebind.</summary>
-    private SamusBodyTileTransfer DefinitionAt(int record)
+    public SamusBodyTileTransfer DefinitionAt(int record)
     {
         if (!definitionsByRecord.TryGetValue(record, out SamusBodyTileTransfer? definition))
             throw new InvalidDataException($"Samus body definition record {record} is absent from installed art.");

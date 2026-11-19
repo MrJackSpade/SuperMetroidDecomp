@@ -38,7 +38,7 @@ internal static class DeadTourianAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static IReadOnlyDictionary<DeadTourianSegment, Animation<DeadTourianSegment>> StartingAt { get; } = new Dictionary<DeadTourianSegment, Animation<DeadTourianSegment>>
+    private static Dictionary<DeadTourianSegment, Animation<DeadTourianSegment>> StartingAt { get; } = new Dictionary<DeadTourianSegment, Animation<DeadTourianSegment>>
     {
         [P.SidehopperHopping] = new([Segments.Whole(P.SidehopperHopping)], AnimationEnd.Holds),
         [P.SidehopperIdle] = new([Segments.Whole(P.SidehopperIdle)], AnimationEnd.Holds),

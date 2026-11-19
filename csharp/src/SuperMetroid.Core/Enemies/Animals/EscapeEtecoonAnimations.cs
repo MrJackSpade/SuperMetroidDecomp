@@ -62,7 +62,7 @@ internal static class EscapeEtecoonAnimations
     /// its own entry cue and then strides for good; a thanking Etecoon thanks Samus, steps left eight times, looks, and runs
     /// for the escape.
     /// </summary>
-    private static IReadOnlyDictionary<EscapeEtecoonSegment, Animation<EscapeEtecoonSegment>> StartingAt { get; } = new Dictionary<EscapeEtecoonSegment, Animation<EscapeEtecoonSegment>>
+    private static Dictionary<EscapeEtecoonSegment, Animation<EscapeEtecoonSegment>> StartingAt { get; } = new Dictionary<EscapeEtecoonSegment, Animation<EscapeEtecoonSegment>>
     {
         [P.RunningLeftLowTide] = Animation<EscapeEtecoonSegment>.LeadingInto([Segments.Whole(P.RunningLeftLowTide)], [Segments.Whole(P.RunningLeftLowTideStride)]),
         [P.RunningLeftHighTide] = Animation<EscapeEtecoonSegment>.Looping([Segments.Whole(P.RunningLeftHighTide)]),

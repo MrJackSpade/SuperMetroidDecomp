@@ -20,7 +20,7 @@ public readonly record struct SamusBodyFrameSelection(
     /// The lower group index with which a frame names no lower half: the import composes the frame's whole picture with
     /// no lower half's characters (#1585). It is the largest index a selector component can hold, which no lower group uses.
     /// </summary>
-    private const int NoBottomSet = byte.MaxValue;
+    public const int NoBottomSet = byte.MaxValue;
 
     /// <summary>Whether this frame names a lower half.</summary>
     [JsonIgnore]

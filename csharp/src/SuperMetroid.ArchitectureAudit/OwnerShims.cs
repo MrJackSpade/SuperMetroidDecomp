@@ -127,16 +127,18 @@ internal sealed class OwnerShims(INamedTypeSymbol owner, string path)
         if (method.IsStatic)
         {
             string invoker = returns ? $"PrivateState.InvokeStatic<{result}>" : "PrivateState.InvokeStatic";
-            _static.Add($"{doc}internal static {result} {Name(method.Name)}({ParameterList(parameters)}){Call(invoker, $"typeof({Owner})", parameters)}");
+            // A classic extension method keeps its receiver form only: both forms lower to one static method, which a
+            // class cannot declare twice.
             if (method.IsExtensionMethod && parameters.Length > 0 && parameters[0].RefKind == RefKind.None)
             {
                 string receiverType = TestOnlyMemberFixer.TypeText(parameters[0].Type);
                 if (!_receivers.TryGetValue(receiverType, out var members))
                     _receivers[receiverType] = members = [];
-                string arguments = string.Join(", ", parameters.Skip(1).Select(parameter => Argument(parameter)).Prepend("self"));
-                members.Add($"{doc}internal {result} {Name(method.Name)}({ParameterList(parameters.Skip(1))}) =>\n    " +
-                    $"{Owner}.{Name(method.Name)}({arguments});");
+                members.Add($"{doc}internal {result} {Name(method.Name)}({ParameterList(parameters.Skip(1))})" +
+                    Body(invoker, $"typeof({Owner})", types, method.Name, returns ? result : null, [.. parameters], selfArgument: "self"));
+                return;
             }
+            _static.Add($"{doc}internal static {result} {Name(method.Name)}({ParameterList(parameters)}){Call(invoker, $"typeof({Owner})", parameters)}");
             return;
         }
         if (IsValue)
@@ -154,9 +156,11 @@ internal sealed class OwnerShims(INamedTypeSymbol owner, string path)
     /// A method body invoking the private method: an expression body, or, when a parameter is passed by reference, a block
     /// that passes the arguments in an array and writes each by-reference one back from it.
     /// </summary>
-    private static string Body(string invoker, string receiver, string types, string name, string? result, IReadOnlyList<IParameterSymbol> parameters)
+    private static string Body(string invoker, string receiver, string types, string name, string? result, IReadOnlyList<IParameterSymbol> parameters,
+        string? selfArgument = null)
     {
-        string arguments = "new object?[] { " + string.Join(", ", parameters.Select(parameter => parameter.RefKind == RefKind.Out ? "null" : Name(parameter.Name))) + " }";
+        string arguments = "new object?[] { " + string.Join(", ", parameters.Select((parameter, index) =>
+            index == 0 && selfArgument is not null ? selfArgument : parameter.RefKind == RefKind.Out ? "null" : Name(parameter.Name))) + " }";
         if (parameters.All(parameter => parameter.RefKind is RefKind.None or RefKind.In))
             return $" =>\n    {invoker}({receiver}, \"{name}\", {types}, {arguments});";
         var body = new StringBuilder("\n{\n");

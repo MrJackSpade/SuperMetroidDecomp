@@ -260,7 +260,7 @@ internal static class NinjaSpacePirateAnimations
     /// The animation that starts at each segment an owner can start or restart at, each segment played whole; a loop plays on
     /// from the entry before it (#2276).
     /// </summary>
-    private static IReadOnlyDictionary<NinjaSpacePirateSegment, Animation<NinjaSpacePirateSegment>> StartingAt { get; } = new Dictionary<NinjaSpacePirateSegment, Animation<NinjaSpacePirateSegment>>
+    private static Dictionary<NinjaSpacePirateSegment, Animation<NinjaSpacePirateSegment>> StartingAt { get; } = new Dictionary<NinjaSpacePirateSegment, Animation<NinjaSpacePirateSegment>>
     {
         [P.ClawAttackLeft] = Active([P.ClawAttackLeft], P.ActiveFacingLeft, P.ActiveFacingLeftStance),
         [P.SpinJumpLeft] = Animation<NinjaSpacePirateSegment>.LeadingInto([Segments.Whole(P.SpinJumpLeft)], [Segments.Whole(P.SpinJumpLeftSpinning)]),

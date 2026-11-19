@@ -28,10 +28,10 @@ internal static class SamusGrappleMovementPrivateAccess
         /// <summary>The private method <c>TryHandleSpecialAngle</c>, invoked by name.</summary>
         internal static bool TryHandleSpecialAngle(global::SuperMetroid.Core.Samus.SamusState samus, global::SuperMetroid.Core.Samus.Grapple.SamusGrappleState grapple, global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels> previousPosition, out global::SuperMetroid.Core.Samus.Grapple.GrappleMovementResult result)
         {
-            object?[] arguments = new object?[] { samus, grapple, previousPosition, null };
-            bool result = PrivateState.InvokeStatic<bool>(typeof(global::SuperMetroid.Core.Samus.Grapple.SamusGrappleMovement), "TryHandleSpecialAngle", [typeof(global::SuperMetroid.Core.Samus.SamusState), typeof(global::SuperMetroid.Core.Samus.Grapple.SamusGrappleState), typeof(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels>), typeof(global::SuperMetroid.Core.Samus.Grapple.GrappleMovementResult).MakeByRefType()], arguments);
-            result = (global::SuperMetroid.Core.Samus.Grapple.GrappleMovementResult)arguments[3]!;
-            return result;
+            object?[] invocationArguments = new object?[] { samus, grapple, previousPosition, null };
+            bool invocationResult = PrivateState.InvokeStatic<bool>(typeof(global::SuperMetroid.Core.Samus.Grapple.SamusGrappleMovement), "TryHandleSpecialAngle", [typeof(global::SuperMetroid.Core.Samus.SamusState), typeof(global::SuperMetroid.Core.Samus.Grapple.SamusGrappleState), typeof(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels>), typeof(global::SuperMetroid.Core.Samus.Grapple.GrappleMovementResult).MakeByRefType()], invocationArguments);
+            result = (global::SuperMetroid.Core.Samus.Grapple.GrappleMovementResult)invocationArguments[3]!;
+            return invocationResult;
         }
     }
 }

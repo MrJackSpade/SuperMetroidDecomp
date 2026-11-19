@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Spatial;
 /// </summary>
 internal static class TrigonometryAnglePrivateAccess
 {
-    /// <summary>The private instance members checks write, on the value itself.</summary>
-    extension(ref global::SuperMetroid.Core.Spatial.TrigonometryAngle self)
+    /// <summary>The private instance members checks call on the value.</summary>
+    extension(global::SuperMetroid.Core.Spatial.TrigonometryAngle self)
     {
         /// <summary>The private method <c>InSecondHalfTurn</c>, invoked by name.</summary>
         internal global::SuperMetroid.Core.Spatial.TrigonometryAngle InSecondHalfTurn() =>

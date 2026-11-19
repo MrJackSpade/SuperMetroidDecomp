@@ -73,7 +73,7 @@ internal static class SbugAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static IReadOnlyDictionary<SbugSegment, Animation<SbugSegment>> StartingAt { get; } = new Dictionary<SbugSegment, Animation<SbugSegment>>
+    private static Dictionary<SbugSegment, Animation<SbugSegment>> StartingAt { get; } = new Dictionary<SbugSegment, Animation<SbugSegment>>
     {
         [P.Right] = Animation<SbugSegment>.Looping([Segments.Whole(P.Right)]),
         [P.UpRight] = Animation<SbugSegment>.Looping([Segments.Whole(P.UpRight)]),

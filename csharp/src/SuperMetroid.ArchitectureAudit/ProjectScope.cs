@@ -16,9 +16,11 @@ internal static class ProjectScope
         "SuperMetroid.EnsureAnalyzer", "SuperMetroid.EnsureAnalyzer.CodeFixes",
     };
 
-    /// <summary>Whether <paramref name="assembly"/> is a check: a verification project, or an audit.</summary>
-    internal static bool IsCheck(string assembly) =>
-        assembly.EndsWith("Verification", StringComparison.Ordinal) || assembly.EndsWith("Audit", StringComparison.Ordinal);
+    /// <summary>
+    /// Whether <paramref name="assembly"/> is a check: a verification project, which compiles the test-support access a
+    /// private member is reached through. An audit is a developer tool that reaches members directly.
+    /// </summary>
+    internal static bool IsCheck(string assembly) => assembly.EndsWith("Verification", StringComparison.Ordinal);
 
     /// <summary>Whether <paramref name="assembly"/> is a developer tool: an audit, or one of the named tools.</summary>
     internal static bool IsTool(string assembly) =>

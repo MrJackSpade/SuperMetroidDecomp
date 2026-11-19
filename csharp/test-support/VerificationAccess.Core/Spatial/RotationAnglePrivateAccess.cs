@@ -20,8 +20,8 @@ internal static class RotationAnglePrivateAccess
         }
     }
 
-    /// <summary>The private instance members checks write, on the value itself.</summary>
-    extension(ref global::SuperMetroid.Core.Spatial.RotationAngle self)
+    /// <summary>The private instance members checks call on the value.</summary>
+    extension(global::SuperMetroid.Core.Spatial.RotationAngle self)
     {
         /// <summary>The private method <c>AddRaw</c>, invoked by name.</summary>
         internal global::SuperMetroid.Core.Spatial.RotationAngle AddRaw(int delta) =>

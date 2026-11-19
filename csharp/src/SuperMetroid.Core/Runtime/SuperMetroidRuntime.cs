@@ -277,7 +277,7 @@ internal sealed class SuperMetroidRuntime
     /// <paramref name="artwork"/> names enemy sheets or enemy frame displays other than those the runtime was built with.
     /// </exception>
     [System.Diagnostics.CodeAnalysis.MemberNotNull(nameof(_boundArtwork))]
-    private void BindArtwork(GameplayArtwork artwork, GameplayArtwork? previous)
+    internal void BindArtwork(GameplayArtwork artwork, GameplayArtwork? previous)
     {
         Ensure.NotNull(artwork);
         // The enemy session holds the sheets and frame displays it was built with for the runtime's lifetime (#1616).

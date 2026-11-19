@@ -85,7 +85,7 @@ internal static class LowerNorfairRioAnimations
     /// wingbeat loops on from the entry cue before it (#2061, #2276), and the climb shows its flames and holds its swept
     /// wings (#2512).
     /// </summary>
-    private static IReadOnlyDictionary<LowerNorfairRioSegment, Animation<LowerNorfairRioSegment>> StartingAt { get; } = new Dictionary<LowerNorfairRioSegment, Animation<LowerNorfairRioSegment>>
+    private static Dictionary<LowerNorfairRioSegment, Animation<LowerNorfairRioSegment>> StartingAt { get; } = new Dictionary<LowerNorfairRioSegment, Animation<LowerNorfairRioSegment>>
     {
         [P.Idle] = Animation<LowerNorfairRioSegment>.LeadingInto([Segments.Whole(P.Idle)], [Segments.Whole(P.IdleWingbeat)]),
         [P.PrepareToSwoop] = new([Segments.Whole(P.PrepareToSwoop)], AnimationEnd.Holds),

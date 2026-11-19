@@ -33,7 +33,7 @@ internal static class MotherBrainDeathExplosionStartVerification
         MotherBrainEnemyState state = runtime.Enemies.BossEncounters.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
 
-        PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Place), 2);
+        PrivateState.Set(state.Bursts, "Place", 2);
         MotherBrainAttacks.StartLiveMotherBrainRainbowBeam(state);
         MotherBrainRainbowBeamAttackSequence sequence = state.RainbowBeamSequence
             ?? throw new InvalidOperationException("Verification requires state.RainbowBeamSequence.");
@@ -48,7 +48,7 @@ internal static class MotherBrainDeathExplosionStartVerification
         // The door's dust continues the place and the interval the last death burst left.
         sequence.Encounter.DeathPhase = MotherBrainDeathPhase.DoorExplodingStartTimer;
         sequence.Encounter.PhaseTimer.LastFor(33);
-        PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Place), 2);
+        PrivateState.Set(state.Bursts, "Place", 2);
         PrivateState.SetField(state.Bursts, "burstWait", UpdateCountdown.For(0 + 1));
         var frame = MotherBrainLateFightFixtures.QuietFrame(new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint(), 0, 0) with { NextRandomNumber = () => 0 };
         MotherBrainRainbowBeamAttackStepResult first = sequence.Step(runtime.Player.IntroducedSamus, frame);
@@ -65,7 +65,7 @@ internal static class MotherBrainDeathExplosionStartVerification
         foreach (MotherBrainDeathExplosionStyle style in Enum.GetValues<MotherBrainDeathExplosionStyle>())
         {
             PrivateState.SetField(state.Bursts, "burstWait", UpdateCountdown.For(0 + 1));
-            PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Place), place);
+            PrivateState.Set(state.Bursts, "Place", place);
             int draws = 0;
             var burst = new List<MotherBrainDeathExplosionRequest>();
             sequence.ThirdPhaseDeath.GenerateDeathExplosions(style, () => { draws++; return 0; }, burst);

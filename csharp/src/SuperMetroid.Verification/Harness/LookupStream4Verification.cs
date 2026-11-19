@@ -535,7 +535,7 @@ internal static class LookupStream4Verification
             PrivateState.Set(floor, nameof(EndingTurningFloor.Position), floor.Position.WithX(SignedSixteenSixteen.FromParts(100, 0xC000)));
             PrivateState.Set(floor, nameof(EndingTurningFloor.Zoom), FloorZoom.FromFloorPixelsPerScreenPixel(12));
             PrivateState.Set(state, nameof(EndingCreditsState.Phase), fast ? EndingCreditsPhase.PlanetEscapeFast : EndingCreditsPhase.PlanetEscapeSlow);
-            PrivateState.Set(state.Flyaway, nameof(EndingFlyaway.ShipShake), EndingShipShakeCursor.StartOf(sequence));
+            PrivateState.Set(state.Flyaway, "ShipShake", EndingShipShakeCursor.StartOf(sequence));
             // The ending's own update runs the leg and makes its handoff.
             Action step = state.Step;
             uint expected = 100u << 16 | 0xC000;
@@ -556,7 +556,7 @@ internal static class LookupStream4Verification
             for (int place = 0; place < count - 1; place++)
                 last = last.Advanced();
             PrivateState.Set(floor, nameof(EndingTurningFloor.Zoom), fast ? EndingMotionDefinitions.PlanetFastEndZoom : EndingMotionDefinitions.PlanetSlowEndZoom);
-            PrivateState.Set(state.Flyaway, nameof(EndingFlyaway.ShipShake), last);
+            PrivateState.Set(state.Flyaway, "ShipShake", last);
             PrivateState.Set(floor, nameof(EndingTurningFloor.Position), floor.Position.WithX(SignedSixteenSixteen.FromParts(0, 0x4000)));
             step();
             uint finalPosition = unchecked(0x4000u + (uint)Native(address + (count - 1) * 4));

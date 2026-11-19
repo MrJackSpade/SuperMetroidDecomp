@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 internal static class MotherBrainRoomColorExtractor
 {
     /// <summary>Locates the palette operand of room-flash frame <paramref name="index"/> in the cartridge's flash list.</summary>
-    private static ushort FlashPaletteOperandAddress(int index) =>
+    internal static ushort FlashPaletteOperandAddress(int index) =>
         (uint)index < MotherBrainRoomFlashDefinitions.FlashFrameCount
             ? checked((ushort)(MotherBrainRoomFlashSourceDefinitions.FlashList +
                 index * MotherBrainRoomFlashSourceDefinitions.FlashEntryBytes +

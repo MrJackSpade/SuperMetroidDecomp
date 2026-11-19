@@ -31,7 +31,7 @@ internal static class KagoAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static IReadOnlyDictionary<KagoSegment, Animation<KagoSegment>> StartingAt { get; } = new Dictionary<KagoSegment, Animation<KagoSegment>>
+    private static Dictionary<KagoSegment, Animation<KagoSegment>> StartingAt { get; } = new Dictionary<KagoSegment, Animation<KagoSegment>>
     {
         [P.Slow] = Animation<KagoSegment>.Looping([Segments.Whole(P.Slow)]),
         [P.Fast] = Animation<KagoSegment>.Looping([Segments.Whole(P.Fast)]),

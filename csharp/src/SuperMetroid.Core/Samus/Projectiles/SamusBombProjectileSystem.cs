@@ -26,7 +26,7 @@ public sealed class SamusBombProjectileSystem
     private readonly SamusArtworkBinding _artwork;
 
     /// <summary>How many bombs Samus can have out at once.</summary>
-    private const int PlaceCount = MorphBallBombDefinitions.PlaceCount;
+    public const int PlaceCount = MorphBallBombDefinitions.PlaceCount;
 
     /// <summary>A placed Morph Ball bomb.</summary>
     public static SamusProjectileType NormalBombType => SamusProjectileType.Of(SamusProjectileFamily.Bomb);
@@ -756,7 +756,7 @@ public sealed class SamusBombProjectileSystem
     /// every corner is reached twice. The edges are those of the blast's reach clipped to the room, fixed before the first
     /// block reacts.
     /// </summary>
-    private static IReadOnlyList<Position16<RoomBlocks>> PowerBombBoundaryBlocks(
+    private static List<Position16<RoomBlocks>> PowerBombBoundaryBlocks(
         RoomLevelData level,
         Position16<RoomPixels> explosion,
         PowerBombRadius explosionRadius)

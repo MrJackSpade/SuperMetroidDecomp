@@ -38,7 +38,7 @@ internal static class ChootAnimations
     /// The animation that starts at each segment an owner can start or restart at: each switches off-screen processing and
     /// ends on a still picture (#2275).
     /// </summary>
-    private static IReadOnlyDictionary<ChootSegment, Animation<ChootSegment>> StartingAt { get; } = new Dictionary<ChootSegment, Animation<ChootSegment>>
+    private static Dictionary<ChootSegment, Animation<ChootSegment>> StartingAt { get; } = new Dictionary<ChootSegment, Animation<ChootSegment>>
     {
         [P.Idle] = new([Segments.Whole(P.Idle)], AnimationEnd.Holds),
         [P.Jumping] = new([Segments.Whole(P.Jumping)], AnimationEnd.Holds),

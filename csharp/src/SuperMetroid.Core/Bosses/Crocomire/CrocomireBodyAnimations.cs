@@ -409,7 +409,7 @@ internal static class CrocomireBodyAnimations
     /// Each animation his fight and death can start or restart, each listing only its own segments (#1938, #2399). The step
     /// back and the damage wait lead into his roar, which plays again and again until he is hit.
     /// </summary>
-    private static IReadOnlyDictionary<CrocomireBodyAnimation, Animation<CrocomireBodySegment>> StartingAt { get; } = new Dictionary<CrocomireBodyAnimation, Animation<CrocomireBodySegment>>
+    private static Dictionary<CrocomireBodyAnimation, Animation<CrocomireBodySegment>> StartingAt { get; } = new Dictionary<CrocomireBodyAnimation, Animation<CrocomireBodySegment>>
     {
         [A.IdleSway] = Animation<CrocomireBodySegment>.Looping([Segments.Whole(P.IdleSway)]),
         [A.ProjectileAttack] = Animation<CrocomireBodySegment>.LeadingInto(

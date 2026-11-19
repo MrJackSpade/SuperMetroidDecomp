@@ -76,7 +76,7 @@ internal static class PlatformAnimations
     /// thrust it loops, which only run on from the animations that start them (#2061, #2276). A hover flickers its jet
     /// <see cref="HoverFlickers"/> times a loop (#2439).
     /// </summary>
-    private static IReadOnlyDictionary<PlatformSegment, Animation<PlatformSegment>> StartingAt { get; } = new Dictionary<PlatformSegment, Animation<PlatformSegment>>
+    private static Dictionary<PlatformSegment, Animation<PlatformSegment>> StartingAt { get; } = new Dictionary<PlatformSegment, Animation<PlatformSegment>>
     {
         [P.SuspensorPlatformHeadingLeft] = Animation<PlatformSegment>.LeadingInto([Segments.Whole(P.SuspensorPlatformHeadingLeft)], [Segments.Whole(P.SuspensorPlatformLights)]),
         [P.SuspensorPlatformHeadingRight] = Animation<PlatformSegment>.LeadingInto([Segments.Whole(P.SuspensorPlatformHeadingRight)], [Segments.Whole(P.SuspensorPlatformLights)]),

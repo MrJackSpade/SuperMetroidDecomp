@@ -106,7 +106,7 @@ internal static class RidleySheetShades
     /// The shades of Ceres Ridley's sprites: the door's, container's and Baby's start colours, his cleared own row, his
     /// eye and body fades, his health bands, and the Baby's shades.
     /// </summary>
-    private static IReadOnlyList<SheetShade> CeresSprites(CeresRidleyColorCatalog ceres)
+    private static List<SheetShade> CeresSprites(CeresRidleyColorCatalog ceres)
     {
         Ensure.NotNull(ceres);
         var shades = new List<SheetShade>
@@ -149,7 +149,7 @@ internal static class RidleySheetShades
     }
 
     /// <summary>The shades of Ceres Ridley's room: his retreat and the getaway floor's zoom.</summary>
-    private static IReadOnlyList<SheetShade> CeresRoom(CeresRidleyColorCatalog ceres, CeresRidleyFloorColorCatalog floor)
+    private static List<SheetShade> CeresRoom(CeresRidleyColorCatalog ceres, CeresRidleyFloorColorCatalog floor)
     {
         Ensure.NotNull(ceres);
         Ensure.NotNull(floor);
@@ -167,7 +167,7 @@ internal static class RidleySheetShades
     }
 
     /// <summary>The shades of Norfair Ridley's arena: its sixth tile group cleared as he arrives, and each step of its reveal.</summary>
-    private static IReadOnlyList<SheetShade> NorfairRoom(NorfairRidleyColorCatalog norfair)
+    private static List<SheetShade> NorfairRoom(NorfairRidleyColorCatalog norfair)
     {
         Ensure.NotNull(norfair);
         var shades = new List<SheetShade> { SheetShade.Run(RidleyShades.NorfairHidden, OwnRow + 1, new RgbColor[Group - 1]) };

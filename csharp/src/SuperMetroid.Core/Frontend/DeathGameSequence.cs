@@ -142,7 +142,7 @@ internal sealed class DeathGameSequence(FrontendSession session) : IGamePhase
             // soft resets. Releasing the runtime leaves the frame clock with the
             // frontend, which keeps counting it, and the session's random generator, through the menu.
             session.ReleaseRuntime();
-            session.Enter(SuperMetroidGameState.GameOverMenu);
+            session.Enter(session.Phases.GameOverMenu);
         }
     }
 

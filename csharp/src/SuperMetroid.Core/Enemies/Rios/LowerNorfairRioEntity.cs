@@ -17,5 +17,5 @@ internal sealed class LowerNorfairRioEntity(LowerNorfairRioBehavior species, Roo
     public void RunMainAi(IEnemyAiFrame frame) => species.RunLowerNorfairRioMainAi(Place, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => LowerNorfairRioBehavior.AdvanceLowerNorfairRioTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => LowerNorfairRioBehavior.AdvanceLowerNorfairRioTypedAnimation(Place);
 }

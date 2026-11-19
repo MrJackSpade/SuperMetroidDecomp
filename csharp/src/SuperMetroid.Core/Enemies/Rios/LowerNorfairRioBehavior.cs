@@ -293,7 +293,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
             static (_, cue) => throw new InvalidOperationException($"A Lower Norfair Rio flame follower's cue-free animation raised {cue}."));
 
     /// <summary>Advances a Lower Norfair Rio parent's typed animation, whose cues it carries out.</summary>
-    internal static void AdvanceLowerNorfairRioTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+    internal static void AdvanceLowerNorfairRioTypedAnimation(RoomEnemyPlace place) =>
         EnemyAnimationPlayback.Advance(place, LowerNorfairRioAnimations.Segments,
             static (LowerNorfairRioEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (state, cue) =>

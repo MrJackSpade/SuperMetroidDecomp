@@ -165,7 +165,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     private RoomEnemyPlace GetFollowingHibashiPart(RoomEnemyPlace flame) => _hitboxes.Of(flame);
 
     /// <summary>Runs the flame's main AI.</summary>
-    internal void RunHibashiMainAi(RoomEnemyPlace place, IEnemyAiFrame _) =>
+    internal void RunHibashiMainAi(RoomEnemyPlace place) =>
         RunHibashiMain(place, place.RequireSpeciesState<HibashiEnemyState>());
 
     /// <summary>Advances the collision part's hitbox hold.</summary>
@@ -175,7 +175,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
             static (_, cue) => throw new InvalidOperationException($"The Hibashi collision part's animation raised {cue}."));
 
     /// <summary>Advances the flame's eruption animation.</summary>
-    internal void AdvanceHibashiTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+    internal void AdvanceHibashiTypedAnimation(RoomEnemyPlace place) =>
         EnemyAnimationPlayback.Advance(place, HibashiAnimations.Segments,
             static (HibashiEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>

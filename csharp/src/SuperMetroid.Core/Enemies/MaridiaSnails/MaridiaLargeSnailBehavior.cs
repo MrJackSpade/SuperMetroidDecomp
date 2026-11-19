@@ -429,7 +429,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     }
 
     /// <summary>Advances the Maridia large snail's typed animation.</summary>
-    internal void AdvanceMaridiaLargeSnailTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+    internal void AdvanceMaridiaLargeSnailTypedAnimation(RoomEnemyPlace place) =>
         EnemyAnimationPlayback.Advance(place, MaridiaLargeSnailAnimations.Segments,
             static (MaridiaLargeSnailEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>

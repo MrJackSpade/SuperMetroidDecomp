@@ -14,7 +14,7 @@ internal sealed class ShaktoolEntity(ShaktoolBehavior species, RoomEnemyPlace pl
     public void RunMainAi(IEnemyAiFrame frame) => species.RunShaktoolMainAi(Place, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceShaktoolTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceShaktoolTypedAnimation(Place);
 
     /// <summary>Whether Shaktool's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;

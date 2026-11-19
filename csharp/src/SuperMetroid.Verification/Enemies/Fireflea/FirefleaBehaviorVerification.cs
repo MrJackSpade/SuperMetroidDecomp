@@ -57,7 +57,7 @@ internal static class FirefleaBehaviorVerification
             AssertEqual(108, state.MaximumY, "the lower extent is the spawn Y plus the radius");
             place.Position = place.Position.WithWholeY(y);
 
-            FirefleaBehavior.RunFirefleaMainAi(place, frame);
+            FirefleaBehavior.RunFirefleaMainAi(place);
 
             AssertEqual(expectedDirection, state.Direction, $"Fireflea at Y {y} keeps or reverses its way");
         }

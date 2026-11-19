@@ -157,7 +157,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Choot's typed animation.</summary>
-    internal static void AdvanceChootTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
+    internal static void AdvanceChootTypedAnimation(RoomEnemyPlace place) =>
         EnemyAnimationPlayback.Advance(place, ChootAnimations.Segments,
             static (ChootEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyChootCue(place, cue) is { } target

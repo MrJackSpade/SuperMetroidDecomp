@@ -21,5 +21,5 @@ internal abstract class VerticalShutterEntity(ShuttersBehavior species, RoomEnem
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunVerticalShutterMainAi(Place, frame);
 
     /// <inheritdoc/>
-    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ShuttersBehavior.AdvanceVerticalShutterTypedAnimation(Place, context);
+    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ShuttersBehavior.AdvanceVerticalShutterTypedAnimation(Place);
 }

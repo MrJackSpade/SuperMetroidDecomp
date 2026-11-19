@@ -467,7 +467,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Advances Shaktool's typed animation. The head's clock stays stopped while its chain orients it, so its animation
     /// takes no step and the picture its facing chose stays shown.
     /// </summary>
-    internal void AdvanceShaktoolTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
+    internal void AdvanceShaktoolTypedAnimation(RoomEnemyPlace place)
     {
         if (!place.AnimationClock.Expire())
             return;

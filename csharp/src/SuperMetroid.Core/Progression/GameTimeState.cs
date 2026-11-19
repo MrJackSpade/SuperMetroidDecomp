@@ -23,9 +23,6 @@ public sealed class GameTimeState
     /// <summary>The sub-second counter, advanced once per accepted gameplay update: 0 through 59.</summary>
     public int Frames => Reading.Frames;
 
-    /// <summary>The seconds component: 0 through 59.</summary>
-    public int Seconds => Reading.Seconds;
-
     /// <summary>The minutes component: 0 through 59.</summary>
     public int Minutes => Reading.Minutes;
 

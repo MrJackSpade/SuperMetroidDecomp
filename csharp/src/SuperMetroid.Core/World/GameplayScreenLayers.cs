@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.World;
 internal sealed class GameplayScreenLayers
 {
     /// <summary>The layers an ordinary room shows: both backgrounds and the sprites.</summary>
-    private const ScreenLayers OrdinaryLayers = ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites;
+    private const ScreenLayers OrdinaryLayers = ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.BossBody | ScreenLayers.Sprites;
 
     /// <summary>Supplies door-transition screen-layer overrides.</summary>
     private readonly ActiveRoomState _room;
@@ -29,8 +29,8 @@ internal sealed class GameplayScreenLayers
 
     /// <summary>
     /// Chooses the layers before the projectiles move: a door transition's own layers, foreground and the sprites alone
-    /// while the room's boss body hides the background (#2571), and the waterfall rooms' layers when their effect's blend
-    /// lays the background behind the room (#1545).
+    /// while the room's boss body hides its own layer and the background behind it (#2571), and the waterfall rooms' layers
+    /// when their effect's blend lays the background behind the room (#1545).
     /// </summary>
     internal void Choose(RoomScope room)
     {
@@ -38,7 +38,7 @@ internal sealed class GameplayScreenLayers
             (ScreenLayers.Foreground | ScreenLayers.Sprites |
                 (room.Enemies.DisplaySources.BossBody?.HidesBackgroundLayer == true
                     ? ScreenLayers.None
-                    : ScreenLayers.Background));
+                    : ScreenLayers.Background | ScreenLayers.BossBody));
         if (_room.DoorTransitionShownLayers is null &&
             room.FxOverlay.Blend is OverlayBehindRoomBlend { BackgroundBehind: true })
         {

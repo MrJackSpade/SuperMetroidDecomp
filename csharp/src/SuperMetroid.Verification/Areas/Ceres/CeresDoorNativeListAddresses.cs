@@ -64,9 +64,9 @@ internal static class CeresDoorNativeListAddresses
         [0xf678] = new CeresDoorNativeListAddressesInstruction([CeresDoorCueKind.ElevatorRoomWallAppears], "T"),
         [0xf68b] = new CeresDoorNativeListAddressesInstruction([CeresDoorCueKind.MakeIntangible], ""),
         [0xf695] = new CeresDoorNativeListAddressesInstruction([CeresDoorCueKind.MakeTangible], ""),
-        [0xf69f] = new CeresDoorNativeListAddressesInstruction([CeresDoorCueKind.HandDrawingToRidley], ""),
+        [0xf69f] = new CeresDoorNativeListAddressesInstruction([CeresDoorCueKind.ShowOverlay], ""),
         [0xf6a6] = new CeresDoorNativeListAddressesInstruction([CeresDoorCueKind.MakeInvisible], ""),
-        [0xf6b0] = new CeresDoorNativeListAddressesInstruction([CeresDoorCueKind.MakeVisibleAndTakeDrawingBack], ""),
+        [0xf6b0] = new CeresDoorNativeListAddressesInstruction([CeresDoorCueKind.MakeVisibleAndShowActor], ""),
         [0xf6b3] = new CeresDoorNativeListAddressesInstruction([CeresDoorCueKind.MakeVisible], ""),
         [0xf6bd] = new CeresDoorNativeListAddressesInstruction([CeresDoorCueKind.PlayOpeningSound], ""),
     };

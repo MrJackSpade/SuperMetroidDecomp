@@ -220,7 +220,7 @@ internal sealed class RoomEnemySpecies
             : CeresSteamVentsHoldingPlace.Instance);
         CeresFallingTiles = new CeresFallingTiles(enemies.Projectiles, enemies.Audio);
         SaveStationElectricity = new SaveStationElectricity(enemies.Projectiles);
-        var ceresDoorBehavior = new CeresDoorBehavior(new CeresDoorBehaviorDependencies { Room = enemies.Room, Earthquake = enemies.Earthquake, Audio = enemies.Audio, Presentation = enemies.Presentation, Projectiles = enemies.Projectiles, CeresEscape = RidleyEncounter, RidleyScene = RidleyEncounter });
+        var ceresDoorBehavior = new CeresDoorBehavior(new CeresDoorBehaviorDependencies { Room = enemies.Room, Earthquake = enemies.Earthquake, Audio = enemies.Audio, Presentation = enemies.Presentation, Projectiles = enemies.Projectiles, CeresEscape = RidleyEncounter });
         // A room with a turning floor alone places the elevator room's blocked door, which cycles the floor's platform (#2426).
         CeresElevatorDoorFactory? elevatorDoors = dependencies.Scenery.Floor is { } floor ? new CeresElevatorDoorFactory(ceresDoorBehavior, floor) : null;
         var cacatacBehavior = new CacatacBehavior(enemies.Room, enemies.Projectiles, enemies.Audio);
@@ -330,9 +330,9 @@ internal sealed class RoomEnemySpecies
         AfterPass = [new MotherBrainRainbowBeamStep(enemies.BossEncounters, enemies.BossArtworkBinding)];
         // Mother Brain's late parts draw before the dead Torizo's sand heap.
         LateDraws = [new MotherBrainLateParts(motherBrainBehavior, enemies.BossEncounters), new DeadTorizoSandHeap(deadTorizoBehavior)];
-        var ceres = new CeresEncounter(RidleyEncounter, ceresRidleyBehavior, CeresEscape);
+        var ceres = new CeresEncounter(RidleyEncounter, ceresRidleyBehavior, CeresEscape, ceresDoorBehavior);
         Ceres = ceres;
-        PassDraws = [new CeresRidleySceneDraw(ceres)];
+        PassScenes = [new CeresBabyPassScene(ceres)];
         DisplayLatches = [new BossBodyDisplayLatch(enemies.BossEncounters), morphBallEyeBehavior.MorphBallEyeBeam];
         RoomEffectSteps = [new PhantoonBodyDisplaySteps(enemies.BossEncounters)];
         Shadings = [ceresDoorBehavior, .. Present<IGameplayShadingSource>(tourianEntranceStatueBehavior)];
@@ -390,8 +390,8 @@ internal sealed class RoomEnemySpecies
     /// <summary>The encounters' sprites drawn after every queued enemy, in their order.</summary>
     internal IReadOnlyList<IEnemyLateDraw> LateDraws { get; }
 
-    /// <summary>The encounters' sprites drawn during the enemy pass and over every ordinary enemy layer.</summary>
-    internal IReadOnlyList<IEnemyPassDraw> PassDraws { get; }
+    /// <summary>The encounters' scenes that step beside the enemy pass and show among the actors, in their order.</summary>
+    internal IReadOnlyList<IEnemyPassScene> PassScenes { get; }
 
     /// <summary>The enemies' displayed states, which the accepted frame's boundary latches.</summary>
     internal IReadOnlyList<IDisplayLatch> DisplayLatches { get; }
@@ -476,17 +476,25 @@ internal sealed class RoomEnemySpecies
             deadTorizo.DrawDeadTorizoSandHeap(sprites, camera);
     }
 
-    /// <summary>Ceres Ridley's scene: the Baby Metroid and the arena door, drawn during the pass or over the enemies.</summary>
+    /// <summary>
+    /// Ceres Ridley's scene: the Baby Metroid's animation, which runs as the enemy pass ends until his animation starts and
+    /// after the actors' drawing steps once it has (#2573), and the Baby and his room's door overlay, each shown once.
+    /// </summary>
     /// <param name="ceres">The Ceres encounter.</param>
-    private sealed class CeresRidleySceneDraw(ICeresEncounter ceres) : IEnemyPassDraw
+    private sealed class CeresBabyPassScene(ICeresEncounter ceres) : IEnemyPassScene
     {
         /// <inheritdoc/>
-        public void DrawDuringEnemyPass(SpriteFrameBuffer sprites, Position16<RoomPixels> camera) =>
-            ceres.DrawCeresRidleyImmediateBabyAndDoor(sprites, camera);
+        public void StepWithEnemyPass() => ceres.StepCeresBabyWithEnemyPass();
 
         /// <inheritdoc/>
-        public void DrawOverEnemies(SpriteFrameBuffer sprites, Position16<RoomPixels> camera) =>
-            ceres.DrawCeresRidleyBabyAndDoorOverEnemies(sprites, camera);
+        public void StepAfterActors() => ceres.StepCeresBabyAfterActors();
+
+        /// <inheritdoc/>
+        public void Publish(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
+        {
+            ceres.PublishCeresBaby(sprites, camera);
+            ceres.PublishRidleyRoomDoorOverlay(sprites, camera);
+        }
     }
 
     /// <summary>The loaded bosses' displayed body wave, visibility and rainbow beam colour.</summary>
@@ -644,13 +652,13 @@ internal sealed class RoomEnemySpecies
         public ImmutableArray<PerspectiveFloorScenery> FlownFloorWalls => CeresEscape.ChamberWalls();
 
         /// <inheritdoc/>
-        public RoomWrittenOverlay ForegroundWrittenOverlay => CeresEscape.Warning.Overlay;
+        public RoomWarningText ForegroundWarning => CeresEscape.Warning.Overlay;
 
         /// <inheritdoc/>
         public EscapeTypewriterState? ForegroundTypewriter => CeresEscape.Warning.Typewriter;
 
         /// <inheritdoc/>
-        public RoomWrittenOverlay BackgroundWrittenOverlay => motherBrain.ZebesWarning;
+        public RoomWarningText BackgroundWarning => motherBrain.ZebesWarning;
 
         /// <inheritdoc/>
         public MorphBallEyeBeamCone? LatchedBeamCone => beam.Latched;

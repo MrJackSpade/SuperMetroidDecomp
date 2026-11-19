@@ -50,6 +50,9 @@ internal static class FloorSheetComposer
     {
         /// <summary>Its height in cells.</summary>
         internal int Rows => Cells.Length / Columns;
+
+        /// <summary>The places of its cells that show nothing (#2573), as the floor shows nothing where its actors stand.</summary>
+        internal IReadOnlySet<int> Cleared { get; init; } = new HashSet<int>();
     }
 
     /// <summary>The picture of the whole floor whose cells, row by row, are <paramref name="map"/>, showing <paramref name="tilePixels"/>' tiles.</summary>
@@ -168,7 +171,10 @@ internal static class FloorSheetComposer
             for (int cell = 0; cell < picture.Cells.Length; cell++)
             {
                 int cellLeft = corner.X + cell % picture.Columns * TilePixels, cellTop = corner.Y + cell / picture.Columns * TilePixels;
-                // A picture held where an earlier one is paints the same pixels; painting them again changes nothing.
+                // A cleared cell shows nothing (#2573). A picture held where an earlier one is paints the same pixels; painting
+                // them again changes nothing.
+                if (picture.Cleared.Contains(cell))
+                    continue;
                 if (firstOf[index] == index)
                     coloured = coloured.Union(PaintTile(canvas, cellLeft, cellTop, picture.Cells[cell], picture.TilePixels, colours));
                 else
@@ -223,7 +229,7 @@ internal static class FloorSheetComposer
     /// <summary>What <paramref name="picture"/> shows, spelled for telling pictures apart: its width and each cell's tile's pixels.</summary>
     private static string Shown(FloorPicture picture)
     {
-        var shown = new System.Text.StringBuilder().Append(picture.Columns).Append(':');
+        var shown = new System.Text.StringBuilder().Append(picture.Columns).Append(':').AppendJoin(',', picture.Cleared.Order()).Append(':');
         foreach (int tile in picture.Cells)
         {
             for (int pixel = 0; pixel < TileBytes; pixel++)

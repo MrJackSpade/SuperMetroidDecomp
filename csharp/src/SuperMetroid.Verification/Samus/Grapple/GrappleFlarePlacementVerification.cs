@@ -40,7 +40,7 @@ internal static class GrappleFlarePlacementVerification
             AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), x + direction.ToAimIndex() * 2)), offset.X, "Extracted Grapple flare X including adjacent rows");
             AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), y + direction.ToAimIndex() * 2)), offset.Y, "Extracted Grapple flare Y including adjacent rows");
         }
-        var refresh = new Action<SamusState, SamusGrappleState>(SamusGrappleBeamDrawing.RefreshFiringDrawOrigins);
+        var refresh = new Action<SamusState, SamusGrappleState>(SamusGrappleMovement.RefreshFiringOrigins);
         Func<SamusState, SamusGrappleState, Position16<RoomPixels>, GrappleAnchorKind, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
         var empty = CreateRoom(new(64, 64), new RoomTerrainBlock[4096], new RoomBlockBehavior[4096]);
         int locked = 0;

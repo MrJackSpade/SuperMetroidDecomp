@@ -44,7 +44,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
 
         // The cartridge's own transfers, read from its descriptors and source bytes, written over BG1. The getaway writes
         // each page's picture by name (#1466); its words are the installed page's.
-        int[] native = [.. Enumerable.Repeat(RoomWrittenOverlay.Unwritten, TwoScreenTilemapCells.Count)];
+        int[] native = [.. Enumerable.Repeat(RoomWarningText.Unwritten, TwoScreenTilemapCells.Count)];
         CeresEscapeWarningPicture title =
             CeresEscapeWarningPictures.Emergency;
         // $A6:C136 writes the title at BG1 tilemap word $50CB.

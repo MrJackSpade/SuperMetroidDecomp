@@ -93,7 +93,7 @@ internal sealed class IntroBabyDiscoveryState
     /// How this scene shows Samus. Scene setup shows her under the cinematic actors; the egg's and the dancing
     /// baby's behaviours later reorder or clear it.
     /// </summary>
-    public IntroSamusDisplay SamusDisplay { get; private set; } = IntroSamusDisplay.ActorsFirst;
+    public IntroSamusDisplay SamusDisplay { get; private set; } = IntroSamusDisplay.BehindActors;
 
     /// <summary>True once the scene's end has stopped both phases of Samus's update.</summary>
     private bool samusUpdateStopped;
@@ -369,8 +369,8 @@ internal sealed class IntroBabyDiscoveryState
             limit: HorizontalSpeedLimit));
         // A baby moving left draws over Samus; otherwise Samus draws first.
         SamusDisplay = BabyVelocity.X.IsNegative
-            ? IntroSamusDisplay.ActorsFirst
-            : IntroSamusDisplay.SamusFirst;
+            ? IntroSamusDisplay.BehindActors
+            : IntroSamusDisplay.InFrontOfActors;
         confusedBaby.Position = WithEightEightVelocity(confusedBaby.Position, Axis.Horizontal, BabyVelocity.X);
 
         int targetY = Samus.Position.Y.Whole - IntroBabyDiscoveryDefinitions.DanceHeightAboveSamus;

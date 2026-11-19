@@ -55,15 +55,15 @@ internal static class CeresNativeWords
     /// <summary>The routine word of a vent's steam action.</summary>
     internal static ushort SteamActionWord(CeresSteamAction action) => SteamActions.Word(action);
 
-    /// <summary>The bank-$A6 floor update list naming each <see cref="CeresFloorAnimationFrame"/>.</summary>
-    internal static readonly NativeWordIdentities<CeresFloorAnimationFrame> FloorAnimationFrames = new(new Dictionary<CeresFloorAnimationFrame, ushort>
+    /// <summary>The bank-$A6 floor update list naming each <see cref="CeresFloorActorPicture"/>.</summary>
+    internal static readonly NativeWordIdentities<CeresFloorActorPicture> FloorAnimationFrames = new(new Dictionary<CeresFloorActorPicture, ushort>
     {
-        [CeresFloorAnimationFrame.ElevatorLight] = 0xf904,
-        [CeresFloorAnimationFrame.ElevatorDark] = 0xf90e,
-        [CeresFloorAnimationFrame.BabyVertical] = 0xace2,
-        [CeresFloorAnimationFrame.BabyRound] = 0xacf5,
-        [CeresFloorAnimationFrame.BabyHorizontal] = 0xad08,
-        [CeresFloorAnimationFrame.WingsRaised] = 0xad49,
-        [CeresFloorAnimationFrame.WingsLowered] = 0xad80,
+        [CeresFloorActorPicture.ElevatorLight] = 0xf904,
+        [CeresFloorActorPicture.ElevatorDark] = 0xf90e,
+        [CeresFloorActorPicture.BabyVertical] = 0xace2,
+        [CeresFloorActorPicture.BabyRound] = 0xacf5,
+        [CeresFloorActorPicture.BabyHorizontal] = 0xad08,
+        [CeresFloorActorPicture.WingsRaised] = 0xad49,
+        [CeresFloorActorPicture.WingsLowered] = 0xad80,
     });
 }

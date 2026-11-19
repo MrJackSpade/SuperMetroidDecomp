@@ -14,13 +14,13 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// them with the words the cartridge writes: each Ceres warning page as its installed words, each typed glyph as the tile
 /// its typewriter types. The overlay itself names only its pictures; the words are the import's knowledge.
 /// </summary>
-internal static class RoomWrittenOverlayAccess
+internal static class RoomWarningTextAccess
 {
     /// <summary>The value a position the overlay leaves to the level data reads as.</summary>
     private const int UnwrittenWord = -1;
 
     /// <summary>The packed words of an overlay's pictures.</summary>
-    extension(RoomWrittenOverlay overlay)
+    extension(RoomWarningText overlay)
     {
         /// <summary>
         /// Each position's packed tilemap word, or -1 where nothing was written, the Ceres warning pages' words read from
@@ -44,7 +44,7 @@ internal static class RoomWrittenOverlayAccess
     }
 
     /// <summary>The marker for a position an overlay leaves to the level data.</summary>
-    extension(RoomWrittenOverlay)
+    extension(RoomWarningText)
     {
         /// <summary>Marks a tilemap word the overlay leaves to the level data.</summary>
         internal static int Unwritten => UnwrittenWord;

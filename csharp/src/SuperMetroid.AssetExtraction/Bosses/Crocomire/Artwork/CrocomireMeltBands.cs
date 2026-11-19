@@ -27,7 +27,7 @@ internal static class CrocomireMeltBands
     /// <summary>The animation band <paramref name="band"/> of the melt images is.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="band"/> is not a band of either melt image.</exception>
     internal static ArtworkAnimation Animation(int band) =>
-        (uint)band < CrocomireMeltingDefinitions.SecondPassBandCount ? new($"Crocomire melt band {band}")
+        (uint)band < CrocomireMeltingDefinitions.MeltImageBandCount ? new($"Crocomire melt band {band}")
             : throw new ArgumentOutOfRangeException(nameof(band), band, "Crocomire's melt images have no such band.");
 
     /// <summary>

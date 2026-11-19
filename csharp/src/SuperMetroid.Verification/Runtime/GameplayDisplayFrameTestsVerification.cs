@@ -98,11 +98,16 @@ internal static class GameplayDisplayFrameTestsVerification
         RoomEnemyPlace kraidBody = runtime.Enemies.KraidBehavior.Parts.Body;
         kraidBody.Position = kraidBody.Position.WithWhole(new(320, 88));
         KraidEnemyState kraid = runtime.Enemies.Kraid ?? throw new InvalidOperationException("Kraid's room loads Kraid.");
+        Offset16<BackgroundPixels>? bodyBefore = runtime.PublishDisplayFrame().OrdinaryBase.Room.BossBody?.Scroll;
         kraid.ShowsBodyLayer = true;
-        AssertPending(runtime, registers => registers.BackgroundScroll == before.BackgroundScroll, "Kraid's body on the background");
-        // The view shows the body row below where his body lies against the frame's camera at the screen's top (#1514, #1617).
-        AssertPublished(runtime, registers => registers.BackgroundScroll == GameplaySceneView.LayerPixelAtScreenTop(
-            BossBodyPlacement.Shown(kraidBody.Position.Whole, runtime.Display.LatchedRoomFrame.Scrolls.ForegroundPosition)), "Kraid's body on the background");
+        AssertEqual(bodyBefore, runtime.PublishDisplayFrame().OrdinaryBase.Room.BossBody?.Scroll,
+            "Kraid's body layer written by the main loop waits for the NMI");
+        // His body's layer shows the body row below where his body lies against the frame's camera at the screen's top
+        // (#1514, #1617, #2573).
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
+        AssertEqual<Offset16<BackgroundPixels>?>(RoomView.Shown(BossBodyPlacement.Shown(kraidBody.Position.Whole,
+            runtime.Display.LatchedRoomFrame.Scrolls.ForegroundPosition)), runtime.PublishDisplayFrame().OrdinaryBase.Room.BossBody?.Scroll,
+            "the accepted NMI publishes Kraid's body layer");
         kraid.ShowsBodyLayer = false;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
 
@@ -114,8 +119,8 @@ internal static class GameplayDisplayFrameTestsVerification
         // The room's display reads the body the encounter attached as it set up (#2194): this one's.
         runtime.Enemies.Presentation.AttachBossBody(BossBodyParts.Hidden(BossBodyOwner.MotherBrain, motherBrain));
         AssertPending(runtime, registers => registers.ShownLayers == before.ShownLayers, "Mother Brain's hidden background");
-        AssertPublished(runtime, registers => registers.ShownLayers == (ScreenLayers.Foreground | ScreenLayers.Sprites),
-            "Mother Brain's hidden background");
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
+        AssertTrue(!Registers(runtime).ShownLayers.HasFlag(ScreenLayers.BossBody), "the accepted NMI publishes Mother Brain's hidden body");
         AssertEqual(motherBrain.RainbowBeam.Color, motherBrain.RainbowBeam.DisplayedColor,
             "the rainbow beam's colour is latched with Mother Brain's registers");
         motherBrain.DeathHidesBodyLayer = false;
@@ -140,7 +145,7 @@ internal static class GameplayDisplayFrameTestsVerification
             "sky bands are read live during display");
         AssertPending(runtime, registers => registers.BackgroundScroll.Y == before.BackgroundScroll.Y, "the sky's vertical scroll");
         // The view shows the sky row below the published scroll at the screen's top (#1514).
-        AssertPublished(runtime, registers => registers.BackgroundScroll.Y == GameplaySceneView.LayerRowAtScreenTop(SkyLayer1Y), "the sky's vertical scroll");
+        AssertPublished(runtime, registers => registers.BackgroundScroll.Y == RoomView.ShownRow(SkyLayer1Y), "the sky's vertical scroll");
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
     }

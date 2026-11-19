@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.BossBodies;
 
@@ -21,6 +22,12 @@ internal sealed class BossBodyParts : IBossBodyDisplay
 
     /// <summary>The frame each part shows, by its place in <see cref="parts"/>, or null before it shows one.</summary>
     private readonly BossBodyFrame?[] frames;
+
+    /// <summary>
+    /// The frame each part's animation last showed on the body, by its place in <see cref="parts"/>, or null before its
+    /// animation shows one there (#2573). Clearing the body, or a part showing a picture of its own, leaves it as it was.
+    /// </summary>
+    private readonly EnemyFrameId?[] selections;
 
     /// <summary>The row, reckoned from the body's placement, above which alone the body shows, or null when the whole body shows.</summary>
     private int? shownAbove;
@@ -46,6 +53,7 @@ internal sealed class BossBodyParts : IBossBodyDisplay
         parts = BossBodyPartDefinitions.DrawOrders.TryGetValue(owner, out ImmutableArray<EnemyDefinitionId> order) ? order
             : throw new InvalidOperationException($"{owner} draws its own body; it shows no parts' frames.");
         frames = new BossBodyFrame?[parts.Length];
+        selections = new EnemyFrameId?[parts.Length];
         this.owner = owner;
         IsShown = true;
     }
@@ -69,12 +77,32 @@ internal sealed class BossBodyParts : IBossBodyDisplay
     /// <exception cref="InvalidOperationException"><paramref name="part"/> is not one of the parts the boss draws on its body.</exception>
     public void Show(EnemyDefinitionId part, BossBodyFrame frame)
     {
-        int place = parts.IndexOf(part);
-        if (place < 0)
-            throw new InvalidOperationException($"{part} is not a part {owner} draws on its body.");
-        frames[place] = Ensure.NotNull(frame);
+        frames[PlaceOf(part)] = Ensure.NotNull(frame);
         shownAbove = null;
         published = null;
+    }
+
+    /// <summary>
+    /// Part <paramref name="part"/>'s animation shows <paramref name="selected"/>, whose body frame is
+    /// <paramref name="frame"/>, on the body from now on (#2573), as <see cref="Show"/> does.
+    /// </summary>
+    /// <exception cref="InvalidOperationException"><paramref name="part"/> is not one of the parts the boss draws on its body.</exception>
+    public void ShowSelected(EnemyDefinitionId part, EnemyFrameId selected, BossBodyFrame frame)
+    {
+        Show(part, frame);
+        selections[PlaceOf(part)] = selected;
+    }
+
+    /// <summary>Whether the frame part <paramref name="part"/>'s animation last showed on the body is <paramref name="selected"/> (#2573).</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="part"/> is not one of the parts the boss draws on its body.</exception>
+    public bool ShowsSelected(EnemyDefinitionId part, EnemyFrameId selected) => selections[PlaceOf(part)] == selected;
+
+    /// <summary>The place of <paramref name="part"/> among the parts the boss draws on its body.</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="part"/> is not one of the parts the boss draws on its body.</exception>
+    private int PlaceOf(EnemyDefinitionId part)
+    {
+        int place = parts.IndexOf(part);
+        return place >= 0 ? place : throw new InvalidOperationException($"{part} is not a part {owner} draws on its body.");
     }
 
     /// <summary>No part shows anything on the body, as a boss's death clears it.</summary>

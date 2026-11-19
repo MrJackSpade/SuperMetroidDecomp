@@ -68,14 +68,14 @@ internal static class EnemyEffectMechanicsVerification
         {
             fixture.InitializeMap(pass);
             fixture.Call(c => state => c.Melting.BeginCrocomireMeltPass(state, pass));
-            int bands = CrocomireMelting.BandCount(pass);
+            int bands = CrocomireMelting.BandRound(pass);
             ListStep<CrocomireDeathStage> phase = fixture.Actor.DeathStage;
             for (int band = 0; band <= bands; band++)
             {
                 fixture.Call(_ => CrocomireMelting.ShowNextCrocomireMeltBand);
                 AssertEqual(band == bands ? phase.Following : phase, fixture.Actor.DeathStage,
                     "only the update after the last band advances the phase");
-                if (band < bands)
+                if (band < CrocomireMeltingDefinitions.MeltImageBandCount)
                     AssertEqual(0, fixture.MeltBandStep(band), "each band shows the unerased image on its own update");
             }
 
@@ -100,14 +100,15 @@ internal static class EnemyEffectMechanicsVerification
                     // cartridge's table gives it (#1468, #1514), his body's rows reckoned from his position (#2031).
                     BuildNativeMeltScrolls(nativeScrolls, fixture);
                     for (int line = 0; line < BackgroundLineScrolls.GameplayLines; line++)
-                        AssertEqual(unchecked((ushort)GameplaySceneView.LayerRowAtScreenTop(unchecked((ushort)(nativeScrolls[line] + AreaTop)))), ScrollShapeLines.StretchScroll(BossLineScrolls.Of(fixture.Effect.MeltDistortion, RoomCamera), line + ScreenGeometry.GameplayHudHeightPixels),
+                        AssertEqual(unchecked((ushort)RoomView.ShownRow(unchecked((ushort)(nativeScrolls[line] + AreaTop)))), ScrollShapeLines.StretchScroll(BossLineScrolls.Of(fixture.Effect.MeltDistortion, RoomCamera), line + ScreenGeometry.GameplayHudHeightPixels),
                             $"melt dissolve call {call} stretch at gameplay line {line}");
                 }
                 AssertEqual(call == calls ? phase.Following : phase, fixture.Actor.DeathStage, "exact dissolve phase handoff");
                 AssertEqual(Math.Min(call, CrocomireMeltingDefinitions.ColumnCount), fixture.Effect.MeltColumnsErased, "fixed erase-column cadence");
                 AssertEqual(initialSmokeObjects + (call + 5) / 6,
                     fixture.Enemies.RoomEffectActors.Count(slot => slot.IsActive), "fixed acid-smoke cadence");
-                if (call <= CrocomireMeltingDefinitions.ColumnCount)
+                // A step on the round's place past the image's six bands shows none (#2573).
+                if (call <= CrocomireMeltingDefinitions.ColumnCount && (call - 1) % bands < CrocomireMeltingDefinitions.MeltImageBandCount)
                     AssertEqual(call, fixture.MeltBandStep((call - 1) % bands), "each step shows the next band");
                 // His body shows the melt image, stored once, hiding what the steps its bands last showed have erased (#1652).
                 string meltImage = CrocomireMeltingFrameNames.Of(pass);

@@ -172,6 +172,8 @@ internal sealed class GameplayActorDrawing
             // pose-authored before/after-body mode must therefore settle before charge
             // flare, atmospheric, or body sprites are appended.
             samus.ArmCannon.Update(samus);
+            // The departing speed echoes close on Samus every update she is shown, whichever way she is drawn (#2573).
+            samus.HorizontalSpeed.AdvanceDepartingSpeedEchoes(samus.Position.Whole);
 
             // The elevator's drawing replaces Samus's ordinary drawing while an
             // elevator owns a front-facing body. It still arrives after the cover update, so
@@ -218,9 +220,11 @@ internal sealed class GameplayActorDrawing
 
                 if (grappleDrawing == SamusGrappleDrawing.Beam)
                 {
-                    // The active grapple's drawing begins with the grapple flare. Firing also refreshes
-                    // its hand origins here from Samus's post-movement position. This
-                    // flare is a different animation owner from the charge flare below.
+                    // A firing beam's rope start and flare follow Samus's final position, after every move this update
+                    // made, while its flare shows (#2573).
+                    SamusGrappleMovement.SettleFiringOrigins(samus);
+                    // The active grapple's drawing begins with the grapple flare. This flare is a different animation
+                    // owner from the charge flare below.
                     SamusGrappleBeamDrawing.DrawFlareBeforeSamus(
                         samus,
                         _sprites,
@@ -356,10 +360,13 @@ internal sealed class GameplayActorDrawing
 
         if (!deathOwnsSamus)
         {
-            // An encounter that draws over every ordinary enemy layer (Ceres Ridley's Baby Metroid and arena door, once his
-            // animation starts) draws now, so it shows in front of the frontmost enemies.
-            foreach (IEnemyPassDraw draw in room.Enemies.PassDraws)
-                draw.DrawOverEnemies(_sprites, room.Camera.PixelPosition);
+            // An encounter's scene whose animation runs after the actors' drawing steps (Ceres Ridley's Baby, once his
+            // animation starts) steps now, then shows its pictures once, each at its own place (#2573).
+            foreach (IEnemyPassScene scene in room.Enemies.PassScenes)
+            {
+                scene.StepAfterActors();
+                scene.Publish(_sprites, room.Camera.PixelPosition);
+            }
         }
     }
 }

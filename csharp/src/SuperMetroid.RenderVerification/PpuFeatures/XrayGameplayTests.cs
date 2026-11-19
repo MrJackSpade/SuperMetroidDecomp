@@ -94,13 +94,17 @@ internal static class XrayGameplayTests
                     var bodyColors = cgram.Colors.ToArray();
                     if (blackBody) bodyColors[2] = RgbColor.Black;
                     var bodyBackgrounds = RoomBackgroundsFixtures.Uniform(vram.Bytes, bodyColors, new(1));
+                    // A boss's body is its own layer, with nothing of the room's background behind it (#2573).
                     var bodyRooms = bossImage
-                        ? bodyBackgrounds with { Background = new SuperMetroid.Core.Gameplay.BossBodyBackground(RoomBackgroundsFixtures.UniformBody(new(2), new(512, 256), vram.Bytes, bodyColors)) }
+                        ? bodyBackgrounds with { Background = SuperMetroid.Core.Gameplay.ShownRoomBackground.Nothing }
                         : bodyBackgrounds;
-                    var additive = new GameplayBlendLayer(new(registers with
+                    var bodyRegisters = registers with { ShownLayers = ScreenLayers.Foreground | ScreenLayers.Sprites };
+                    var additive = new GameplayBlendLayer(new GameplaySceneLayer(bodyRegisters, bodyRooms)
                     {
-                        ShownLayers = ScreenLayers.Foreground | ScreenLayers.Sprites,
-                    }, bodyRooms), ScreenWindow.Closed, false, new GameplayBlend
+                        BossBody = bossImage
+                            ? new BossBodyView(RoomBackgroundsFixtures.UniformBody(new(2), new(512, 256), vram.Bytes, bodyColors), bodyRegisters.BackgroundScroll)
+                            : null,
+                    }, ScreenWindow.Closed, false, new GameplayBlend
                     {
                         Blended = BlendedLayers.Foreground | BlendedLayers.Actors | BlendedLayers.Backdrop,
                         Operation = BlendOperation.Add,

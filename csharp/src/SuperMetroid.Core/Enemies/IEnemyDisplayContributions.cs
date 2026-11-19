@@ -22,14 +22,14 @@ internal interface IEnemyDisplayContributions
     /// <summary>The walls the flight shows around its turning floor (#1545), in the room's loaded artwork.</summary>
     ImmutableArray<PerspectiveFloorScenery> FlownFloorWalls { get; }
 
-    /// <summary>The warning written over the foreground (#1555), empty before it shows any.</summary>
-    RoomWrittenOverlay ForegroundWrittenOverlay { get; }
+    /// <summary>The warning shown at the foreground's depth (#1555, #2573), empty before it shows any.</summary>
+    RoomWarningText ForegroundWarning { get; }
 
     /// <summary>The typewriter writing the foreground's warning, or none while it writes nothing.</summary>
     EscapeTypewriterState? ForegroundTypewriter { get; }
 
-    /// <summary>The warning written over the background (#1555), empty before it shows any.</summary>
-    RoomWrittenOverlay BackgroundWrittenOverlay { get; }
+    /// <summary>The warning shown at the background's depth (#1555, #2573), empty before it shows any.</summary>
+    RoomWarningText BackgroundWarning { get; }
 
     /// <summary>The beam cone the last frame boundary latched, or none while no beam shows.</summary>
     MorphBallEyeBeamCone? LatchedBeamCone { get; }

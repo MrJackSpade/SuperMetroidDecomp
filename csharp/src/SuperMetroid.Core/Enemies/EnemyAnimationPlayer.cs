@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
@@ -21,9 +22,10 @@ internal sealed class EnemyAnimationPlayer
 
     /// <summary>
     /// Shows the body frame the already resolved visual frame shows on its boss's body (#1466, #1515, #1540), on the update its
-    /// cue selects a new frame: from then on it is the frame the place's part of the boss shows. The common enemy drawing draws
-    /// its sprite half, which may be empty for a pose shown only on the body. Selecting a pose with no body frame leaves
-    /// the part's frame as it was.
+    /// cue selects a new frame, and on any later update the body still shows another of the part's frames (#2573): from
+    /// then on it is the frame the place's part of the boss shows, so the body always shows the part's current picture.
+    /// The common enemy drawing draws its sprite half, which may be empty for a pose shown only on the body. Selecting a
+    /// pose with no body frame leaves the part's frame as it was.
     /// </summary>
     /// <exception cref="InvalidDataException">The installed body sheet lacks the frame.</exception>
     /// <exception cref="InvalidOperationException">
@@ -33,11 +35,12 @@ internal sealed class EnemyAnimationPlayer
     {
         if ((place.Entity as IBossBodyFrames)?.FindBodyFrame(selected) is not { } frame)
             return;
-        if (!place.AnimationClock.ShowsNewFrame)
-            return;
         // Every boss that shows a body attaches it at initialization; Mother Brain's shows only once her second phase begins.
-        (_presentation.BossBody ?? throw new InvalidOperationException("A boss body frame was shown before its owner attached the body it shows on."))
-            .Show(place.DefinitionId, frame);
+        BossBodyParts body = _presentation.BossBody
+            ?? throw new InvalidOperationException("A boss body frame was shown before its owner attached the body it shows on.");
+        if (!place.AnimationClock.ShowsNewFrame && body.ShowsSelected(place.DefinitionId, selected))
+            return;
+        body.ShowSelected(place.DefinitionId, selected, frame);
     }
 
     /// <summary>

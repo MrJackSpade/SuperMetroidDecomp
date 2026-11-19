@@ -22,15 +22,15 @@ internal static class MotherBrainAscentCaptureVerification
         var captured = Layer();
         AssertEqual(3, captured.Bands.Length, "The rise shows three bands below the HUD");
         for (int y = 32; y < 224; y++)
-            AssertEqual(y < 56 ? ScreenLayers.Foreground | ScreenLayers.Sprites
-                    : y < 216 ? ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites
-                    : ScreenLayers.Foreground,
+            AssertEqual(y < 56 ? ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites
+                    : y < 216 ? ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.BossBody | ScreenLayers.Sprites
+                    : ScreenLayers.Foreground | ScreenLayers.Background,
                 captured.ShownLayersAt(y), $"What line {y} shows while Mother Brain rises");
         state.Body.Position = state.Body.Position.WithWholeY(0xbd);
         runtime.Enemies.MotherBrainBehavior.Ascent.RaiseMotherBrain(state);
         AssertTrue(!state.RisingFloorClipActive, "Production ascent completion removes the floor's clip");
         AssertTrue(Layer().Bands.IsEmpty, "Completed ascent shows the same layers on every line");
-        AssertEqual(ScreenLayers.Foreground, captured.ShownLayersAt(223), "Captured frame retains its own bands after the state changes");
+        AssertEqual(ScreenLayers.Foreground | ScreenLayers.Background, captured.ShownLayersAt(223), "Captured frame retains its own bands after the state changes");
         Console.WriteLine("Mother Brain ascent capture: actual room, production start/end and every line's shown layers passed.");
         return 0;
         GameplaySceneLayer Layer() => runtime.PublishDisplayFrame().OrdinaryBase.Room;

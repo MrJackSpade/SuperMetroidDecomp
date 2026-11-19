@@ -87,7 +87,7 @@ internal static class ClosedPresentationIdentityDefinitions
         ("EnemyProjectileSpritemapCatalog", "GetElevatorArrival", "pose") => EnemyProjectileSpritemapDefinitions.ElevatorArrivalFrameNames.Keys
             .Select(pose => (int)pose).ToArray(),
         // The import pictures every floor animation frame in every Ceres floor (#1536).
-        ("RoomFloorSheet", "Picture", "frame") => Enum.GetValues<CeresFloorAnimationFrame>().SelectToArray(frame => (int)frame),
+        ("RoomFloorSheet", "Picture", "frame") => Enum.GetValues<CeresFloorActorPicture>().SelectToArray(frame => (int)frame),
         // A form's message is one the message box shows, which the import pictures in every form it takes (#1536).
         ("MessageBoxSheet", "Picture", "shown.Message") => GameplayMessageArtwork.Forms().Select(form => (int)form.Message).Distinct().ToArray(),
         // Only the effects that show artwork are pictured (#1536, #1706): a liquid's surface and body, an atmosphere's

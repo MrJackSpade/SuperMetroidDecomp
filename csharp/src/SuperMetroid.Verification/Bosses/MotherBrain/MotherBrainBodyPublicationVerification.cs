@@ -57,8 +57,9 @@ internal static class MotherBrainBodyPublicationVerification
         AssertEqual(roomScroll, runtime.BackgroundScroll.BackgroundScroll, "Mother Brain leaves the room's BG2 scroll alone");
         var drawn = (GameplaySceneLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         // The view shows her body's area where it lies against the frame's camera, one row below at the screen's top (#1514, #1802).
-        AssertEqual(GameplaySceneView.LayerPixelAtScreenTop(BossBodyPlacement.Shown(bodyPlacement, runtime.Display.LatchedRoomFrame.Scrolls.ForegroundPosition)
-            + runtime.Display.LatchedRoomFrame.Scrolls.RoomShake.Background), drawn.View.BackgroundScroll, "her body shows where it lies in the room");
+        AssertEqual(RoomView.Shown(BossBodyPlacement.Shown(bodyPlacement, runtime.Display.LatchedRoomFrame.Scrolls.ForegroundPosition)
+            + runtime.Display.LatchedRoomFrame.Scrolls.RoomShake.Background), (drawn.BossBody ?? throw new InvalidOperationException("Her room shows her body.")).Scroll,
+            "her body shows where it lies in the room");
         AssertTrue(BossBodyDisplay.ShowsLatchedBody(drawn, runtime), "the capture draws her body image");
         AssertTrue(drawn.View.ShownLayers.HasFlag(ScreenLayers.Background), "her shown body keeps BG2 on the main screen");
 
@@ -68,7 +69,7 @@ internal static class MotherBrainBodyPublicationVerification
         AssertTrue(runtime.Display.LatchedOrdinaryRoom.Bosses is { Hidden: true } hiddenBody && hiddenBody.Placement == bodyPlacement,
             "the death flicker publishes her body hidden");
         var hidden = (GameplaySceneLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-        AssertTrue(!hidden.View.ShownLayers.HasFlag(ScreenLayers.Background), "a hidden body leaves BG2 off the main screen");
+        AssertTrue(!hidden.View.ShownLayers.HasFlag(ScreenLayers.BossBody), "a hidden body leaves her body's layer off the screen");
         Console.WriteLine("  Mother Brain body: phase one shows the pipes; phase two publishes her placed body; death hides it.");
     }
 

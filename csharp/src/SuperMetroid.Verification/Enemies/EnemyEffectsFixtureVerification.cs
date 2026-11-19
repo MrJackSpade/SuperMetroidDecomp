@@ -98,7 +98,7 @@ internal static class EnemyEffectsFixtureVerification
         AssertEqual(expected.Enemies.RoomEffectActors.Count, actual.Enemies.RoomEffectActors.Count, context + " live sprite objects");
         for (int spawned = 0; spawned < expected.Enemies.RoomEffectActors.Count; spawned++)
             AssertAnimationValues(expected.Enemies.RoomEffectActors[spawned], actual.Enemies.RoomEffectActors[spawned], context);
-        for (int band = 0; band < CrocomireMeltingDefinitions.SecondPassBandCount; band++)
+        for (int band = 0; band < CrocomireMeltingDefinitions.MeltImageBandCount; band++)
             AssertEqual(expected.MeltBandStep(band), actual.MeltBandStep(band), context + " band " + band + " step");
         AssertEqual(expected.Effect.MeltDistortion, actual.Effect.MeltDistortion, context + " melt stretch");
         AssertTrue(expected.Enemies.Audio.SoundRequests.SequenceEqual(actual.Enemies.Audio.SoundRequests), context + " audio");

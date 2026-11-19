@@ -496,7 +496,7 @@ public static class EnemyTileArtworkFiles
     {
         var planar = new byte[encodedByteCount];
         int bank = CrocomireMeltingSources.Graphics(illustration).Bank;
-        for (int band = 0; band < CrocomireMelting.BandCount(illustration); band++)
+        for (int band = 0; band < CrocomireMeltingDefinitions.MeltImageBandCount; band++)
         {
             int imageByte = CrocomireMeltingSources.ImageByte(band);
             int source = CrocomireMeltingSources.SourceWord(illustration, band);

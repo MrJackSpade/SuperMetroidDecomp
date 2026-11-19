@@ -165,7 +165,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
         if (RidleyCadenceDefinitions.GetawayWingStepEveryEighthUpdate.IsDue(frameCounter))
         {
             Floor.Wings = Floor.Wings.NextInCycle;
-            CeresFloorAnimationFrame wing = Floor.Wings.Entry;
+            CeresFloorActorPicture wing = Floor.Wings.Entry;
             floor.Show(wing);
             _unauthoredBoostCadence.TakeDelaysLeftByWings(_bossArtwork.CeresRidleyGetawayBoostDelays.LeftBy(wing));
         }

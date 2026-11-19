@@ -100,8 +100,6 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     internal Offset16<MapPixels> MapScrollPosition => ActiveMapScroll.Scroll;
     /// <summary>Animated map arrows and their current visibility state.</summary>
     internal FileSelectMapAnimations MapArrows { get; }
-    /// <summary>Whether elevator labels draw before map icons during a fade-out.</summary>
-    private bool mapLabelsBeforeIcons;
     /// <summary>The map-position marker's pulse.</summary>
     internal readonly MapIndicatorPulse mapIndicator = new();
     /// <summary>The equipment selector's installed animation, which restarts on each equipment-page entry.</summary>
@@ -240,8 +238,6 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// </remarks>
     public void AdvanceAnimations(int frameCycle, PauseAnimationPhase phase)
     {
-        // The fade-out paths emit destination labels before map icons.
-        mapLabelsBeforeIcons = phase == PauseAnimationPhase.FadingOut || Transition == PauseMenuTransition.MapToEquipmentFadeOut;
         // Only the stable map update moves the scroll arrows. Fade paths retain counters but hide arrows.
         MapArrows.StepArrows(_ => false);
         pauseFrameCycle = frameCycle;
@@ -289,13 +285,12 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         if (ScreenMode == PauseScreenMode.Map)
         {
             var icons = new FileSelectMapIcons(system, area, screenContent.Maps.Stations, screenContent.Maps.Landmarks, MapSheet);
-            if (mapLabelsBeforeIcons) icons.DrawElevatorLabels(screen.Sprites, MapScrollPosition);
             MapArrows.DrawArrows(screen.Sprites, mapHighlight.Shading, MapSheet, MapFramingDefinitions.Pause.ArrowDrop);
             DrawMapPositionIndicator();
-            // Pause shares the boss lists, defeated overlays and downloaded
-            // destination lettering with file select. Preserve their per-phase drawing order.
+            // Pause shares the boss lists, defeated overlays and downloaded destination lettering with file select. The
+            // map's icons and its elevator labels keep one layering in every phase (#2573).
             icons.DrawBossMarkers(screen.Sprites, MapScrollPosition);
-            if (!mapLabelsBeforeIcons) icons.DrawElevatorLabels(screen.Sprites, MapScrollPosition);
+            icons.DrawElevatorLabels(screen.Sprites, MapScrollPosition);
         }
         else
         {

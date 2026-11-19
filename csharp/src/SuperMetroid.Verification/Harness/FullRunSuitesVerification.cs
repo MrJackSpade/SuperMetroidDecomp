@@ -3,6 +3,7 @@ using SuperMetroid.Verification.Enemies.Projectiles;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using static SuperMetroid.Verification.Runtime.GameplayDisplayFrameTestsVerification;
 using static SuperMetroid.Verification.Rendering.SignedBackgroundScrollVerification;
+using static SuperMetroid.Verification.Rendering.PresentationQuirkInventoryVerification;
 using static SuperMetroid.Verification.Rendering.SignedLineScrollRowsVerification;
 using static SuperMetroid.Verification.Harness.FullMovieReplayVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.RidleyFullMovieVerification;
@@ -980,6 +981,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyDraygonPrebattleXray), () => VerifyDraygonPrebattleXray()),
         new(nameof(VerifyXraySetupBuffers), () => VerifyXraySetupBuffers()),
         new(nameof(VerifyFirefleaFx), () => VerifyFirefleaFx()),
+        new(nameof(VerifyPresentationQuirkInventory), () => VerifyPresentationQuirkInventory()),
         new(nameof(VerifyBombJumpWallContact), () => VerifyBombJumpWallContact()),
         new(nameof(VerifyXrayRoomDisplayRules), () => VerifyXrayRoomDisplayRules()),
         new(nameof(VerifyXrayRevealTable), () => VerifyXrayRevealTable()),

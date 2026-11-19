@@ -207,7 +207,7 @@ internal sealed class AcceptedFrameBoundary
     /// <param name="appearance">The values the room's appearance inputs take now.</param>
     /// <param name="foreground">The foreground's level plane with its pictures.</param>
     /// <param name="background">The background's level plane with its pictures, or null when the background shows a loaded picture.</param>
-    /// <param name="body">The body the room's boss shows, or null.</param>
+    /// <param name="body">The body the room's boss shows, or null; the background shows nothing behind it.</param>
     private RoomBackgrounds RoomBackgroundsOf(RoomScope scope, RoomAppearanceView appearance, RoomBackgroundLayer foreground,
         RoomBackgroundLayer? background, BossBodyLayer? body)
     {
@@ -216,35 +216,38 @@ internal sealed class AcceptedFrameBoundary
         SkyPictures? sky = scope.Sky is { State.HasBands: true, Image: var skyImage }
             ? new SkyPictures(skyImage.Resolve(appearance, RoomBackgroundImagePlacement.Whole(skyImage.Image)))
             : null;
-        // The background shows one thing (#2544): a boss body that owns the background shows over whatever the room would show
-        // there, each part's whole picture (#1466, #1513); otherwise the room's background plane where the room shows its level
-        // background, else the sky's rows. Where the background shows the room's library background as its own picture, it
+        // The background shows one thing (#2544): nothing behind a boss's body, which is its own layer where the background
+        // would show (#2573); otherwise the room's background plane where the room shows its level background, else the sky's
+        // rows. Where the background shows the room's library background as its own picture, it
         // draws the background's image (#1392, #1649), one period of what the background shows, as its room shows it, repeated
         // across and down (#1651, #1617). A library background the player sees as something else draws no picture, and the
         // background shows nothing.
-        ShownRoomBackground shown = body is not null ? new BossBodyBackground(body.Show())
+        ShownRoomBackground shown = body is not null ? ShownRoomBackground.Nothing
             : background is not null ? new RoomPlaneBackground(background)
             : sky is not null ? new SkyBackground(sky)
             : scope.BackgroundImage is RoomLibraryBackgroundPicture.Drawn { Image: var backgroundImage }
                 ? new LibraryImageBackground(backgroundImage.Resolve(appearance, RoomBackgroundImagePlacement.Whole(backgroundImage.Image)))
             : ShownRoomBackground.Nothing;
-        // The text an escape shows over a layer, as its sequence describes it (#1555): Zebes's warning over the background, Ceres's
-        // over the foreground, each drawn from the written picture sheet's frames for the inputs they depend on (#1466).
-        RoomOverlayPictures? backgroundText = WrittenText(scope, scope.Enemies.DisplaySources.BackgroundWrittenOverlay, appearance);
-        RoomOverlayPictures? foregroundText = WrittenText(scope, scope.Enemies.DisplaySources.ForegroundWrittenOverlay, appearance);
+        // The warning an escape shows in the room, as its sequence describes it (#1555, #2573): one at the background's depth,
+        // one at the foreground's, each drawn from the warning picture sheet's frames for the inputs they depend on (#1466).
+        // A room shows one escape's warning at most.
+        ShownRoomWarning? backgroundWarning = WarningOf(scope, scope.Enemies.DisplaySources.BackgroundWarning, appearance, RoomWarningDepth.WithBackground);
+        ShownRoomWarning? foregroundWarning = WarningOf(scope, scope.Enemies.DisplaySources.ForegroundWarning, appearance, RoomWarningDepth.WithForeground);
+        if (backgroundWarning is not null && foregroundWarning is not null)
+            throw new InvalidOperationException($"{scope.Room.Definition.Name} shows warnings at both the background's and the foreground's depths.");
         // The planes are shared until gameplay changes level data.
-        return new RoomBackgrounds(foreground, shown, room.DoorSourceBackground, foregroundText, backgroundText, scope.Floor?.Publish());
+        return new RoomBackgrounds(foreground, shown, room.DoorSourceBackground, backgroundWarning ?? foregroundWarning, scope.Floor?.Publish());
     }
 
     /// <summary>
-    /// The pictures <paramref name="overlay"/> shows, drawn from the room's written picture sheet's frames for the inputs they
-    /// depend on (#1466), or null while nothing is written in it.
+    /// The warning <paramref name="text"/> shows at <paramref name="depth"/>, drawn from the room's warning picture sheet's
+    /// frames for the inputs they depend on (#1466), or null while it shows nothing.
     /// </summary>
-    /// <exception cref="InvalidDataException">Text is written in a room whose tileset has no installed written picture sheet.</exception>
-    private static RoomOverlayPictures? WrittenText(RoomScope scope, RoomWrittenOverlay overlay, RoomAppearanceView appearance) =>
-        overlay.Pictures.IsEmpty ? null
-            : new RoomOverlayPictures((scope.WrittenPictures ?? throw new InvalidDataException(
-                $"{scope.Room.Definition.Name} shows written text with no installed written picture sheet.")).Resolve(overlay, appearance));
+    /// <exception cref="InvalidDataException">A warning shows in a room whose tileset has no installed warning picture sheet.</exception>
+    private static ShownRoomWarning? WarningOf(RoomScope scope, RoomWarningText text, RoomAppearanceView appearance, RoomWarningDepth depth) =>
+        text.Pictures.IsEmpty ? null
+            : new ShownRoomWarning((scope.WrittenPictures ?? throw new InvalidDataException(
+                $"{scope.Room.Definition.Name} shows a warning with no installed warning picture sheet.")).Resolve(text, appearance), depth);
 
     /// <summary>The pictures of the HUD's images in <paramref name="sheet"/>, the room's HUD picture sheet.</summary>
     private HudPictures HudPicturesIn(SpriteSheet sheet) =>

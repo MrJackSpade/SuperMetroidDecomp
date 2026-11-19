@@ -33,7 +33,7 @@ internal static class RoomPicturePresentationContractChecks
             class RoomPictureConsumer {
                 void Inspect(InstalledRoomArtwork artwork, RoomFloorSheet floor, MessageBoxSheet messages, WrittenPictureSheet overlay,
                     RoomAppearanceView appearance, TilesetDefinition tileset, LibraryBackground background, DoorDefinition? door,
-                    CeresFloorAnimationFrame frame, ShownMessage shown, RoomFxType effect) {
+                    CeresFloorActorPicture frame, ShownMessage shown, RoomFxType effect) {
                     artwork.Get(tileset);
                     artwork.FloorOf(tileset);
                     artwork.MessageBox(tileset);
@@ -42,8 +42,8 @@ internal static class RoomPicturePresentationContractChecks
                     artwork.Sky(ScrollingSky.Land, tileset);
                     artwork.Sky((ScrollingSky)99, tileset);
                     floor.Picture(frame);
-                    floor.Picture(CeresFloorAnimationFrame.WingsLowered);
-                    floor.Picture((CeresFloorAnimationFrame)99);
+                    floor.Picture(CeresFloorActorPicture.WingsLowered);
+                    floor.Picture((CeresFloorActorPicture)99);
                     messages.Picture(shown);
                     messages.Picture(new ShownMessage(GameplayMessageId.EnergyTank, null, null));
                     messages.Picture(new ShownMessage((GameplayMessageId)999, null, null));

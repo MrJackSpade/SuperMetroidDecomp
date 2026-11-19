@@ -31,8 +31,8 @@ public static class TitleSpriteDrawing
         Ensure.NotNull(shading);
         Ensure.NotNull(sheet);
         Ensure.NotNull(sprites);
-        // The newest letter is placed first and the first letter last, as each typing step lists its letters.
-        for (int letter = typed.Letters; letter >= 1; letter--)
+        // No two of the card's letters overlap, so they are placed in the order they are typed (#2573).
+        for (int letter = 1; letter <= typed.Letters; letter++)
         {
             string name = TitleSpriteDefinitions.LetterFrameName(typed with { Letters = letter });
             if (sheet.ShowsNothing(name))

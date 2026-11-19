@@ -133,10 +133,10 @@ internal sealed class EnemyFramePhase
             // cleared as the elevator updated; clearing her bombs and the shared cooldown here completes it.
             room.BombProjectiles.Reset();
         }
-        // An encounter that draws during the enemy pass (Ceres Ridley's Baby and door before his reveal) emits its sprites
-        // now, before the queued enemy layers.
-        foreach (IEnemyPassDraw draw in room.Enemies.PassDraws)
-            draw.DrawDuringEnemyPass(_sprites, room.Camera.PixelPosition);
+        // An encounter's scene whose animation runs as the enemy pass ends (Ceres Ridley's Baby, until his animation starts)
+        // steps now.
+        foreach (IEnemyPassScene scene in room.Enemies.PassScenes)
+            scene.StepWithEnemyPass();
         samus.Kinematics.InteractiveEnemies = room.Enemies.InteractiveCollisionBodies;
         if (result.Reports(new GunshipEvent(GunshipFrameEvent.EntryStarted)))
         {

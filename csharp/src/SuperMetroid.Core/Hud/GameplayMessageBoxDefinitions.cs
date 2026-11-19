@@ -20,7 +20,7 @@ public static class GameplayMessageBoxDefinitions
     /// <summary>Authored waits, window-animation steps, and minimum display durations.</summary>
     public static class Timing
     {
-        /// <summary>The gunship's saving sound waits 160 updates.</summary>
+        /// <summary>The wait the gunship's saving sound plays for.</summary>
         public const int GunshipSavingSoundFrames = 160;
         /// <summary>Maximum half-height reached by the expanding message window.</summary>
         public const int MaximumRadiusPixels = 24;

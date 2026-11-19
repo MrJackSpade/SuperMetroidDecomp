@@ -29,4 +29,31 @@ internal static class StoryEventKeys
         [StoryEvent.ShitroidEncounterMusicSkipped] = "ShitroidEncounterMusicSkipped",
         [StoryEvent.OutranSpeedBoosterLavaquake] = "OutranSpeedBoosterLavaquake",
     });
+
+    /// <summary>
+    /// The order a save lists the story events that have happened (#2543), written out beside the keys so reordering
+    /// StoryEvent's members never changes the bytes of a save the game writes. A save is read in any order.
+    /// </summary>
+    internal static IReadOnlyList<StoryEvent> SavedOrder { get; } =
+    [
+        StoryEvent.ZebesAwake,
+        StoryEvent.ShitroidAteSidehopper,
+        StoryEvent.MotherBrainGlassDestroyed,
+        StoryEvent.PhantoonStatueGrey,
+        StoryEvent.RidleyStatueGrey,
+        StoryEvent.DraygonStatueGrey,
+        StoryEvent.KraidStatueGrey,
+        StoryEvent.TourianUnlocked,
+        StoryEvent.MaridiaNoobTubeBroken,
+        StoryEvent.LowerNorfairChozoLoweredAcid,
+        StoryEvent.ShaktoolClearedPath,
+        StoryEvent.ZebesTimebombSet,
+        StoryEvent.CrittersEscaped,
+        StoryEvent.FirstMetroidHallCleared,
+        StoryEvent.FirstMetroidShaftCleared,
+        StoryEvent.SecondMetroidHallCleared,
+        StoryEvent.SecondMetroidShaftCleared,
+        StoryEvent.ShitroidEncounterMusicSkipped,
+        StoryEvent.OutranSpeedBoosterLavaquake,
+    ];
 }

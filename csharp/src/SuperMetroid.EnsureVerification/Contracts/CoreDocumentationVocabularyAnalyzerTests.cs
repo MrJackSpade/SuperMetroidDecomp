@@ -249,7 +249,7 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { // fills the scanline table\n }", "('scanline table')");
         // Text characters, a type of text, people, markup, a per-line window or scroll and other memory are not the display's.
         Expect("class P { /// <summary>Types the warning one character at a time; the typed characters and the message's characters wait.</summary>\nint F => 0; }");
-        Expect("class P { // a character delay of two updates, the character cadence and the next character\n }");
+        Expect("class P { // a character delay of one update, the character cadence and the next character\n }");
         Expect("class P { /// <summary>Width of one text character; the letters' characters and the narration characters.</summary>\nint F => 0; }");
         Expect("class P { /// <summary>Shows <paramref name=\"character\"/> at its place.</summary>\nvoid Show(int character) { } }");
         Expect("class EndingTypewriter { /// <summary>The installed characters.</summary>\nint F => 0; }");
@@ -2090,10 +2090,43 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { /// <summary>Waits the ordinary 15-update delay.</summary>\nvoid Run() { } }", "('15-update delay')");
         Expect("class P { /// <summary>Starts a sixteen-update wait.</summary>\nvoid Run() { } }", "('sixteen-update wait')");
         Expect("class P { /// <summary>The leftward calculator writes the direction.</summary>\nvoid Run() { } }", "('calculator')");
-        // A timer, cooldown or countdown alone, a one-update wait, timer or delay, a wait counted in prose, a calculation
-        // and a hardware owner are English.
-        Expect("class P { /// <summary>The timer; the cooldown; the countdown; a one-update wait; a one-frame timer; a one-update\n/// delay; a wait of sixteen updates; the calculation; <see cref=\"Run\"/>.</summary>\nvoid Run() { } }");
+        // A timer, cooldown or countdown alone, a one-update wait, timer or delay, a calculation and a hardware owner are
+        // English.
+        Expect("class P { /// <summary>The timer; the cooldown; the countdown; a one-update wait; a one-frame timer; a one-update\n/// delay; the calculation; <see cref=\"Run\"/>.</summary>\nvoid Run() { } }");
         Expect(CompatibilityService + "/// <summary>Evidence: the leftward calculator holds its 21-frame cooldown.</summary>\n[CompatibilityService(\"waits\")] class Waits { }");
+        // #2543 widens it to the waits the frontend restates, read across a run of line comments too: a hold, fanfare,
+        // pause, wait, blank or delay counted by number, a thing that waits, holds, delays, pauses or lasts a number of
+        // updates, an animation frame's duration by number, a duration's value restated after its meaning and a count
+        // seeded with a number.
+        Expect("class P { void Run() { // The following update owns the 60-frame hold.\n } }", "('60-frame hold')");
+        Expect("class P { void Run() { // No script advances during the ninety-frame final-image hold.\n } }", "('ninety-frame final-image hold')");
+        Expect("class P { void Run() { // Holding a button during the mandatory 360-frame item fanfare.\n } }", "('360-frame item fanfare')");
+        Expect("enum P { /// <summary>Then the 60-update hold decrements after each update.</summary>\nA }", "('60-update hold')");
+        Expect("class P { /// <summary>The title's 60-update blank.</summary>\nint Blank => 0; }", "('60-update blank')");
+        Expect("class P { void Run() { // The cinematic first waits nine updates with the screen black.\n } }", "('waits nine updates')");
+        Expect("class P { /// <summary>Shows the colours and holds a blank screen for sixty updates.</summary>\nvoid Run() { } }",
+            "('holds a blank screen for sixty updates')");
+        Expect("enum P { /// <summary>Holds the explosion for sixteen\n/// updates with the backdrop off.</summary>\nA }", "('Holds the explosion for sixteen updates')");
+        Expect("class P { /// <summary>The post-shot step delays the Samus fade by sixteen updates.</summary>\nint Delay => 16; }",
+            "('delays the Samus fade by sixteen updates')");
+        Expect("class P { /// <summary>The repeating blasts start after a wait of 80 updates.</summary>\nvoid Run() { } }", "('wait of 80 updates')");
+        Expect("class P { /// <summary>Its flight lasts eight more updates.</summary>\nvoid Run() { } }", "('lasts eight more updates')");
+        Expect("class P { /// <summary>Its animation displays six duration-3 small-explosion frames.</summary>\nint A => 0; }", "('duration-3')");
+        Expect("class P { /// <summary>The updates each letter shows before the next is typed, eight.</summary>\nconst int L = 8; }",
+            "('updates each letter shows before the next is typed, eight.')");
+        Expect("class P { /// <summary>The updates the last letter shows before the text types on, fifteen: the pause.</summary>\nconst int L = 15; }",
+            "('updates the last letter shows before the text types on, fifteen:')");
+        Expect("class P { void Run() { // Begin() always seeds 60 and the hold ends on its expiry.\n } }", "('seeds 60')");
+        Expect("class P { void Run() {\n// The following update owns the\n// 60-frame hold.\n } }", "('60-frame hold')");
+        Expect("class P { void Run() {\n    // The fade-out holds the screen for\n    // sixteen updates before it brightens.\n } }", "('holds the screen for sixteen updates')");
+        // A wait for one update, a wait whose length is a named duration, a thing held to a bound, a held of frames, line
+        // comments a blank line or code apart, a phrase within one line comment of a run, reported once, and a hardware
+        // owner are English.
+        Expect("class P { /// <summary>Waits one update; holds for <see cref=\"Run\"/> updates; its steps are held to two steps an\n/// update; its held of four frames; the six frames it shows; <see cref=\"Run\"/>.</summary>\nvoid Run() { } }");
+        Expect("class P { void Run() {\n// The fade waits for\n\n// sixteen updates.\n } }");
+        Expect("class P { void Run() {\n// The fade holds for\nint x = 0;\n// sixteen updates.\n } }");
+        Expect("class P { void Run() {\n// The hold lasts the\n// title's own blank.\n } }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the elevator's 60-frame hold waits nine updates; six duration-3 frames.</summary>\n[CompatibilityService(\"holds\")] class Holds {\n// The hold seeds 60 and waits\n// for sixty updates.\n }");
         // The original's storage units, random bits and program bytes, outside hardware owners and markup, read across a
         // documentation comment's line breaks (#2533): a value counted as a number of 256ths, a random number told by its
         // oddness or parity, code or data stored after another thing, a definition pointing a thing at a routine, and, on a

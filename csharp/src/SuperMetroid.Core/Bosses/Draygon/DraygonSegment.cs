@@ -16,7 +16,7 @@ public enum DraygonSegment
     BodyFacingRightReset,
     /// <summary>One stroke of his arms facing left: forward, lowering, down, stretched down, raising and reaching, five updates each.</summary>
     ArmsFacingLeftIdle,
-    /// <summary>His arms facing left spreading wide and closing into a tuck, which they hold for 64 updates near the top of his swoop.</summary>
+    /// <summary>His arms facing left spreading wide and closing into a tuck, which they hold through the top of his swoop.</summary>
     ArmsFacingLeftNearSwoopApex,
     /// <summary>His arms facing left spreading wide and closing round Samus, tucked for eight updates, then opening and closing again.</summary>
     ArmsFacingLeftGrab,
@@ -29,7 +29,7 @@ public enum DraygonSegment
     BodyFacingLeftIdle,
     /// <summary>His dying cry, as his body stops touching Samus.</summary>
     BodyDyingCry,
-    /// <summary>One of the eight bursts of his dying: a wait of twelve updates, then explosions, a dust cloud and breath bubbles with their sound.</summary>
+    /// <summary>One of the eight bursts of his dying: a short wait, then explosions, a dust cloud and breath bubbles with their sound.</summary>
     BodyDyingExplosions,
     /// <summary>The pause after his dying's eight bursts, which stills his tail and arms.</summary>
     BodyDyingParalysis,
@@ -75,7 +75,7 @@ public enum DraygonSegment
     TailFacingLeftFlail,
     /// <summary>One stroke of his arms facing right: forward, lowering, down, stretched down, raising and reaching, five updates each.</summary>
     ArmsFacingRightIdle,
-    /// <summary>His arms facing right spreading wide and closing into a tuck, which they hold for 64 updates near the top of his swoop.</summary>
+    /// <summary>His arms facing right spreading wide and closing into a tuck, which they hold through the top of his swoop.</summary>
     ArmsFacingRightNearSwoopApex,
     /// <summary>His arms facing right spreading wide and closing round Samus, tucked for eight updates, then opening and closing again.</summary>
     ArmsFacingRightGrab,

@@ -111,7 +111,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
 
     /// <summary>Advances one menu update, latching input edges, animating the cursor and Baby, and progressing the music wait and one-level-per-update brightness fades.</summary>
     /// <param name="controllerInput">Currently held buttons; only newly pressed buttons affect the interactive menu.</param>
-    /// <remarks>Select, Up, or Down toggles the answer and takes priority over A confirmation in the same update. Accepting either answer holds the current Baby frame for 180 updates while fading out.</remarks>
+    /// <remarks>Select, Up, or Down toggles the answer and takes priority over A confirmation in the same update. Accepting either answer holds the current Baby frame (<see cref="GameOverMenuDefinitions.AcceptedAnswerHoldDuration"/>) while fading out.</remarks>
     public void Step(ControllerButton controllerInput)
     {
         controller.Latch(controllerInput);
@@ -190,8 +190,8 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 }
                 else if ((pressed & ControllerButton.A) != ControllerButton.None)
                 {
-                    // The game holds the current Baby look for 180 updates once either
-                    // answer is accepted, while the selected fade owner continues drawing.
+                    // The game holds the current Baby look once either answer is accepted, while the selected
+                    // fade owner continues drawing.
                     baby.HoldShownFrameFor(GameOverMenuDefinitions.AcceptedAnswerHoldDuration);
                     if (SelectedItem == YesNoChoice.Yes && continueLoadsCeresArrival)
                         CeresArrivalRequested = true;

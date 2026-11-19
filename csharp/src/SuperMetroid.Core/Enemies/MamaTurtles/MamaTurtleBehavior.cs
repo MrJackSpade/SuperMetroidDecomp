@@ -416,7 +416,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Velocity = state.Velocity.WithY(SignedSixteenSixteen.Zero);
     }
 
-    /// <summary>Runs the 30-frame peak delay.</summary>
+    /// <summary>Runs the peak pause (<see cref="MamaTurtleMotionDefinitions.PeakPause"/>).</summary>
     private void RunMamaTurtleHoveringAtPeak(
         RoomEnemyPlace mama,
         MamaTurtleEnemyState state,

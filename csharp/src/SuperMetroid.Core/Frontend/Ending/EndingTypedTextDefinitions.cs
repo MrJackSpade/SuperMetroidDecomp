@@ -11,18 +11,18 @@ internal static class EndingTypedTextDefinitions
         [EndingTypedText.ClearTime] = "CLEAR TIME",
     };
 
-    /// <summary>The updates each letter shows before the next is typed, eight.</summary>
+    /// <summary>The updates each letter shows before the next is typed.</summary>
     internal const int LetterUpdates = 8;
 
     /// <summary>
-    /// The updates the last letter before a space or the text's end shows before the text types on, fifteen: the pause the
-    /// space is typed in.
+    /// The updates the last letter before a space or the text's end shows before the text types on: the pause the space
+    /// is typed in.
     /// </summary>
     internal const int LastLetterUpdates = 15;
 
-    /// <summary>The updates CLEAR TIME shows between spawning each column of the clear time, eight.</summary>
+    /// <summary>The updates CLEAR TIME shows between spawning each column of the clear time.</summary>
     internal const int ClearTimeColumnUpdates = 8;
 
-    /// <summary>The updates the whole clear time shows before the ending moves on to the credits, 128.</summary>
+    /// <summary>The updates the whole clear time shows before the ending moves on to the credits.</summary>
     internal const int ClearTimeShownUpdates = 128;
 }

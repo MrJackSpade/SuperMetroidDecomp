@@ -298,7 +298,7 @@ public sealed class TitleSequenceState : IFrontendScreen
             case TitleSequencePhase.FinalZoom:
                 // The zoom acts only on every second update: it grows one step while the floor is smaller than its own
                 // size, and the first such update that finds it at its own size completes the zoom (#1715), so the zoom
-                // holds the floor's own size for two updates before the logo shows.
+                // holds the floor's own size for one of its steps before the logo shows.
                 if (!TitleSequenceDefinitions.Scenes.FinalZoomStepEverySecondUpdate.IsDue(PhaseTimer++))
                     break;
                 if (Zoom < FloorZoom.OwnSize)
@@ -319,8 +319,9 @@ public sealed class TitleSequenceState : IFrontendScreen
             case TitleSequencePhase.TitleLogoFade:
                 if (--PhaseTimer <= 0)
                 {
-                    // The copyright first shows, and starts its fade, as the logo's hold ends; it holds for 32 updates
-                    // before arming the demo countdown (TitleSequenceDefinitions.Timing.TitleScreenIdleTimeoutFrames).
+                    // The copyright first shows, and starts its fade, as the logo's hold ends; it holds for its own hold
+                    // (TitleSequenceDefinitions.Timing.CopyrightHoldFrames) before arming the demo countdown
+                    // (TitleSequenceDefinitions.Timing.TitleScreenIdleTimeoutFrames).
                     Phase = TitleSequencePhase.CopyrightFade;
                     PhaseTimer = TitleSequenceDefinitions.Timing.CopyrightHoldFrames;
                     colourEffects.StartScreen(TitleSequenceDefinitions.Fades.Copyright);

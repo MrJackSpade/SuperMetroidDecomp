@@ -59,11 +59,12 @@ internal static class GameTimeVerification
             readings++;
             OriginalClock expected = OriginalClock.Step(original);
             time.Step();
-            if (time.Frames != expected.Frames || time.Seconds != expected.Seconds ||
-                time.Minutes != expected.Minutes || time.Hours != expected.Hours)
+            GameClockReading reading = time.Reading;
+            if (reading.Frames != expected.Frames || reading.Seconds != expected.Seconds ||
+                reading.Minutes != expected.Minutes || reading.Hours != expected.Hours)
             {
                 throw new InvalidOperationException(
-                    $"{original} steps to {time.Hours}:{time.Minutes}:{time.Seconds}.{time.Frames}; the original's clock steps it to {expected}.");
+                    $"{original} steps to {reading}; the original's clock steps it to {expected}.");
             }
             saturated = expected.Frames == original.Frames && expected.Hours == original.Hours &&
                 expected.Seconds == original.Seconds && expected.Minutes == original.Minutes;
@@ -72,6 +73,10 @@ internal static class GameTimeVerification
         AssertTrue(GameClockReading.IsReading(original.Frames, original.Seconds, original.Minutes, original.Hours),
             "the clock saturates at a reading of its domain");
         AssertEqual(100 * 60 * 60 * 60, readings, "every reading of the clock was stepped");
+        // The clock is one saturating count of accepted updates (#2543): the step that finds it saturated counts nothing.
+        AssertEqual(readings - 1, time.Reading.Updates, "the clock counts every accepted update up to its saturation");
+        AssertEqual(time.Reading, new GameClockReading(original.Frames, original.Seconds, original.Minutes, original.Hours),
+            "a reading made from the saved components is the counted reading");
 
         Console.WriteLine("  Game time: 60-Hz rollover, 99:59 saturation, domain rejection, every reading against the original's clock, and SRAM capture agree.");
     }

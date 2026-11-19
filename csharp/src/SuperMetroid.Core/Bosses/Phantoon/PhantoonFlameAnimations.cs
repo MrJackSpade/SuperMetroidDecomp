@@ -14,8 +14,8 @@ internal static class PhantoonFlameAnimations
     private const int FallingRepeatCount = 4;
 
     /// <summary>
-    /// Every flame segment's steps (#1788): a flame pose lasts five updates, a landing casual flame shows one pose for one
-    /// update and a rain flame's impact one for eight; a falling flame flickers between each of its three poses and nothing,
+    /// Every flame segment's steps (#1788): a flame pose lasts its beat, a landing casual flame shows one pose for one
+    /// update and a rain flame's impact one for a longer beat; a falling flame flickers between each of its three poses and nothing,
     /// one update each, in three runs (#2250).
     /// </summary>
     internal static AnimationSegments<PhantoonFlameSegment, EnemyProjectileFrameId, PhantoonFlameCue> Segments { get; } = new(

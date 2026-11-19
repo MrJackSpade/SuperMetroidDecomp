@@ -303,7 +303,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 break;
 
             case IntroCinematicPhase.WaitForInitialMusicQueue:
-                // A request queued with the shortest delay waits eight updates before HasQueuedMusic clears.
+                // A request queued with the shortest delay waits out that delay before HasQueuedMusic clears.
                 if (MusicQueueFinished())
                 {
                     Phase = IntroCinematicPhase.FadeInFirstNarration;

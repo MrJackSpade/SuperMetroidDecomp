@@ -10,7 +10,7 @@ public enum MotherBrainHandBeamPhase
     BackUp,
     /// <summary>Waits for every active Mother Brain bomb to leave the shared projectile pool before starting the hand-beam body animation.</summary>
     WaitForBombs,
-    /// <summary>An inert body-AI wait; the body animation owns charging, recursive projectile emission, the 240-update hold, and phase advance.</summary>
+    /// <summary>An inert body-AI wait; the body animation owns charging, recursive projectile emission, the beam's hold, and phase advance.</summary>
     Firing,
     /// <summary>Restores the neutral head animation and neck targets, resets the attack, and returns to thinking.</summary>
     Finish,

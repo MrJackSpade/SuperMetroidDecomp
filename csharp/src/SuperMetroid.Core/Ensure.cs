@@ -52,6 +52,22 @@ public static class Ensure
             ? items[index]
             : throw new ArgumentOutOfRangeException(parameterName, index, $"Index must be below {items.Count}.");
 
+    /// <summary>
+    /// Requires a written-out order of an identity's members that lists every member once (#2543): the order a save or a
+    /// layering follows instead of the members' declaration order, so reordering the declaration changes neither.
+    /// </summary>
+    /// <exception cref="ArgumentException">The order misses a member, lists one twice or lists a value that is no member.</exception>
+    public static IReadOnlyList<TIdentity> EveryMemberOnce<TIdentity>(IReadOnlyList<TIdentity> order,
+        [CallerArgumentExpression(nameof(order))] string? parameterName = null)
+        where TIdentity : struct, Enum
+    {
+        NotNull(order, parameterName);
+        TIdentity[] members = Enum.GetValues<TIdentity>();
+        if (order.Count != members.Length || order.Distinct().Count() != order.Count || !members.All(order.Contains))
+            throw new ArgumentException($"The order must list each of the {members.Length} {typeof(TIdentity).Name} members once.", parameterName);
+        return order;
+    }
+
     /// <summary>Requires a value between the two bounds, inclusive.</summary>
     public static int BetweenInclusive(int minimum, int maximum, int value,
         [CallerArgumentExpression(nameof(value))] string? parameterName = null)

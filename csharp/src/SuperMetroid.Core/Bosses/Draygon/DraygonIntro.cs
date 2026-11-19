@@ -21,7 +21,7 @@ internal sealed class DraygonIntro
         _turrets = turrets;
     }
 
-    /// <summary>Waits out the opening 256 updates.</summary>
+    /// <summary>Waits out the opening (<see cref="DraygonArenaDefinitions.IntroUpdates"/>).</summary>
     internal void RunDraygonIntroInitialDelay(
         DraygonEnemyState state,
         SamusState samus,

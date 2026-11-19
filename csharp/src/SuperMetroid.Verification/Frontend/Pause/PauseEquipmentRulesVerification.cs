@@ -174,9 +174,9 @@ internal static class PauseEquipmentRulesVerification
 
     /// <summary>
     /// Native page-change length since #1266: fifteen fade-out steps, one load step, then
-    /// fifteen brightness writes each spending CounterReload counter-only updates first.
+    /// fifteen brightness steps each waiting the pause fades' wait before each step first.
     /// </summary>
-    internal static int PausePageTransitionNativeLength => 15 + 1 + 15 * (PauseFadeTiming.CounterReload + 1);
+    internal static int PausePageTransitionNativeLength => 15 + 1 + 15 * (PauseFadeTiming.WaitBeforeEachStep + 1);
 
     /// <summary>
     /// Presses a page button, then steps until the page change completes, advancing through

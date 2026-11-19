@@ -29,17 +29,17 @@ internal static class ChootFallingPathDefinitions
     ];
 
     /// <summary>
-    /// The normal falling pattern: a swing out to the right, back across to the left and a drop, holding its rightmost sample
-    /// 2 updates and its leftmost 3. The loop's Y distance is separate from the path.
+    /// The normal falling pattern: a swing out to the right, back across to the left and a drop, holding its rightmost and
+    /// leftmost samples for the updates each lists. The loop's Y distance is separate from the path.
     /// </summary>
     private static readonly ChootFallSample[] Normal =
         [.. NormalSwingOut, At(new(17, 3), updates: 2), .. NormalSwingBack, At(new(-13, 18), updates: 3), .. NormalDrop];
 
-    /// <summary>The normal path holding its rightmost and leftmost samples ten updates longer each.</summary>
+    /// <summary>The normal path holding its rightmost and leftmost samples longer.</summary>
     private static readonly ChootFallSample[] Slow =
         [.. NormalSwingOut, At(new(17, 3), updates: 12), .. NormalSwingBack, At(new(-13, 18), updates: 13), .. NormalDrop];
 
-    /// <summary>The normal path holding its rightmost and leftmost samples thirty updates longer each.</summary>
+    /// <summary>The normal path holding its rightmost and leftmost samples longer still.</summary>
     private static readonly ChootFallSample[] VerySlow =
         [.. NormalSwingOut, At(new(17, 3), updates: 32), .. NormalSwingBack, At(new(-13, 18), updates: 33), .. NormalDrop];
 

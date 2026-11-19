@@ -17,13 +17,23 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// </summary>
 /// <remarks>
 /// The shades lie in a fixed order, the order the ending's scenes bring them in: the scene's colours, the loads that
-/// restore some of them, the fades, the flashes, the logo crossfade and the colour effects. A load that restores colours
+/// restore some of them, the fades, the flashes, the logo crossfade and the colour effects; within the loads, the fades
+/// and the flashes, in the order <see cref="EndingShadeLayeringDefinitions"/> writes out. A load that restores colours
 /// ends the effects whose colours it restores (<see cref="EndingColourOwnerDefinitions.Restores"/>), so no shade depends
 /// on which was shown last.
 /// </remarks>
 [RoomScopeBoundary("The ending's colours own the ending's colour effects for the cinematic's lifetime; no gameplay room is loaded during it.")]
 internal sealed class EndingColours
 {
+    /// <summary>The order the restoring loads' shades lie in, which lists every load once (#2543).</summary>
+    private static readonly IReadOnlyList<EndingColourLoad> LoadLayers = Ensure.EveryMemberOnce(EndingShadeLayeringDefinitions.Loads);
+
+    /// <summary>The order the fades' shades lie in, which lists every fade once (#2543).</summary>
+    private static readonly IReadOnlyList<EndingFade> FadeLayers = Ensure.EveryMemberOnce(EndingShadeLayeringDefinitions.Fades);
+
+    /// <summary>The order the flashes' shades lie in, which lists every flash once (#2543).</summary>
+    private static readonly IReadOnlyList<EndingFlash> FlashLayers = Ensure.EveryMemberOnce(EndingShadeLayeringDefinitions.Flashes);
+
     /// <summary>The running scene's whole screen of colours, or none before the first scene.</summary>
     private EndingColourLoad? scene;
 
@@ -132,17 +142,17 @@ internal sealed class EndingColours
             var shades = new List<PictureShade>();
             if (scene is { } own)
                 shades.Add(EndingShades.Loaded(own));
-            foreach (EndingColourLoad load in Enum.GetValues<EndingColourLoad>())
+            foreach (EndingColourLoad load in LoadLayers)
             {
                 if (restored.Contains(load))
                     shades.Add(EndingShades.Loaded(load));
             }
-            foreach (EndingFade fade in Enum.GetValues<EndingFade>())
+            foreach (EndingFade fade in FadeLayers)
             {
                 if (fades.TryGetValue(fade, out int level))
                     shades.Add(EndingShades.Faded(fade, level));
             }
-            foreach (EndingFlash flash in Enum.GetValues<EndingFlash>())
+            foreach (EndingFlash flash in FlashLayers)
             {
                 if (flashes.ContainsKey(flash))
                     shades.Add(EndingShades.Flashed(flash));

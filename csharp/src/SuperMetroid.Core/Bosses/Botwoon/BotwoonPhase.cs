@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// </summary>
 public enum BotwoonPhase
 {
-    /// <summary>Waits out the opening delay of 256 updates, then starts Botwoon moving between his holes.</summary>
+    /// <summary>Waits out the opening delay (<see cref="BotwoonFightDefinitions.OpeningDelay"/>), then starts Botwoon moving between his holes.</summary>
     InitialDelay,
     /// <summary>Moves toward the target hole, detects crossing, and chooses an authored path or stationary spit action.</summary>
     ChooseNextAction,

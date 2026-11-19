@@ -200,6 +200,10 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// #2546 adds, outside hardware owners, the original's storage units and the original program as room, area and effects
 /// prose tells them, read across a documentation comment's line breaks: an amount of a pixel written over 256, a count of
 /// 65536ths, a value in 1/65536 pixels, subpixels in any spelling, and anything the original's.
+/// #2543 widens #2530's waits to those the frontend restates, read across a run of line comments' lines too: a hold,
+/// fanfare, pause, wait, blank or delay counted by number, a thing that waits, holds, delays, pauses or lasts a number of
+/// updates, an animation frame's duration by number, a duration's value restated after its meaning and a count seeded
+/// with a number.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -2362,22 +2366,44 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// afterglow counted in frames, updates, ticks or steps by number, with up to two words between (a 21-frame cooldown,
     /// the five-frame knockback timer, a 180-update shinespark charge, the 32-step afterglow); a delay or wait counted in
     /// updates, ticks or steps by number (a 15-update delay, a sixteen-update wait), as #2472 reads one counted in frames;
-    /// and a calculator (the leftward calculator, the deceleration-allowed calculator). The original counted its waits in
-    /// frames and split its speed arithmetic into calculator routines; Core cites the named duration a wait lasts for and
-    /// says which way a speed moves Samus. English stays legal: a timer, cooldown or countdown alone, a one-update wait,
-    /// timer or delay, which runs out on the next update, a wait counted in prose (sixteen updates), a calculation and a
-    /// hardware owner, which describes the program it reproduces.
+    /// and a calculator (the leftward calculator, the deceleration-allowed calculator). #2543 widens it to the waits the
+    /// frontend restates, and reads it across a run of line comments too (<see cref="AnalyzeLineCommentRuns"/>): a hold,
+    /// fanfare, pause, wait, blank or delay counted in frames, updates, ticks or steps by number, with up to two words
+    /// between (the 60-frame hold, the ninety-frame final-image hold, the mandatory 360-frame item fanfare, a 60-update
+    /// blank); a thing that waits, holds, delays, pauses or lasts for a number of frames, updates, ticks or steps, with up to
+    /// six words between (waits nine updates, holds a blank screen for sixty updates, delays the fade by sixteen updates, a
+    /// wait of 80 updates, lasts eight more updates); an animation frame's duration by number (six duration-3 frames); a
+    /// duration's value restated after its meaning (the updates each letter shows, eight.); and a count seeded with a
+    /// number (always seeds 60). The original counted its waits in frames and split its speed arithmetic into calculator
+    /// routines; Core cites the named duration a wait lasts for and says which way a speed moves Samus. English stays
+    /// legal: a timer, cooldown or countdown alone, a one-update wait, timer or delay, which runs out on the next update, a
+    /// wait for one update, a wait whose length is a named duration (<c>holds for the blank's updates</c>), a thing held to
+    /// a bound or a held of frames, which count no wait, a calculation and a hardware owner, which describes the program it
+    /// reproduces.
     /// </summary>
     private static readonly Regex CountedWaitAndCalculatorProse = new(
-        @"\b(?:[2-9][\d,]*|1[\d,]+|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|" +
-        @"sixteen|seventeen|eighteen|nineteen|(?:twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)(?:-(?:one|two|three|" +
-        @"four|five|six|seven|eight|nine))?|hundred)-(?:frame|update|tick|step)[-\s]+(?:[\w/'’-]+\s+){0,2}?(?:cooldowns?" +
+        @"\b" + WaitCount + @"-(?:frame|update|tick|step)[-\s]+(?:[\w/'’-]+\s+){0,2}?(?:cooldowns?" +
         @"|timers?|countdowns?|lifetimes?|charges?|afterglows?)\b" +
-        @"|\b(?:[2-9][\d,]*|1[\d,]+|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|" +
-        @"sixteen|seventeen|eighteen|nineteen|(?:twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)(?:-(?:one|two|three|" +
-        @"four|five|six|seven|eight|nine))?|hundred)-(?:update|tick|step)[-\s]+(?:[\w/'’-]+\s+){0,2}?(?:delays?|waits?)\b" +
-        @"|\bcalculators?\b",
+        @"|\b" + WaitCount + @"-(?:update|tick|step)[-\s]+(?:[\w/'’-]+\s+){0,2}?(?:delays?|waits?)\b" +
+        @"|\bcalculators?\b" +
+        @"|\b" + WaitCount + @"-(?:frame|update|tick|step)[-\s]+(?:[\w/'’-]+\s+){0,2}?(?:holds?|fanfares?|pauses?|waits?|blanks?|delays?)\b" +
+        @"|\b(?:waits?|waited|waiting|delays?|delayed|delaying|pauses?|paused|pausing|lasts|lasted|lasting" +
+        @"|(?:holds?|held|holding)(?!\s+(?:of|to)\b))\s+(?:[\w'’-]+\s+){0,6}?(?:for\s+|by\s+|of\s+)?" + WaitCount +
+        @"\s+(?:more\s+)?(?:frames?|updates?|ticks?|steps?)\b" +
+        @"|\bduration-\d+\b" +
+        @"|\b(?:frames?|updates?|ticks?|steps?)\b[^.;:]{0,160}?,\s+(?:\d[\d,]*|" + NumberWordsOnly + @"(?:-" + NumberWordsOnly +
+        @")?)\s*(?::|\.(?![\d.])|$)" +
+        @"|\bseeds?\s+\d[\d,]*\b",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A count of two or more, in digits or words, that <see cref="CountedWaitAndCalculatorProse"/> reads a wait's length in
+    /// (#2530, #2543): one update is no wait to restate.
+    /// </summary>
+    private const string WaitCount =
+        @"(?:[2-9][\d,]*|1[\d,]+|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|" +
+        @"sixteen|seventeen|eighteen|nineteen|(?:twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)(?:-(?:one|two|three|" +
+        @"four|five|six|seven|eight|nine))?|hundred)";
 
     /// <summary>
     /// The original's storage units, random bits and program bytes told in enemy prose (#2533), outside hardware owners and
@@ -2905,6 +2931,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             Report(context, trivia.ToFullString(), trivia.GetLocation(), trivia.Token.Parent, codeNames, generated,
                 DocumentsTypedMeasure(trivia), TypedParameterUnitFinding(trivia));
         }
+        AnalyzeLineCommentRuns(context, root);
         foreach (SyntaxToken token in root.DescendantTokens())
         {
             if (token.IsKind(SyntaxKind.StringLiteralToken) || token.IsKind(SyntaxKind.InterpolatedStringTextToken) ||
@@ -2921,6 +2948,64 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
                 (CallNameWord.IsMatch(name.ValueText) || ExecutionCounterNameWord.IsMatch(name.ValueText) ||
                     TranslatedNameWord.IsMatch(name.ValueText) || MainLoopNameWord.IsMatch(name.ValueText)) && !IsInHardwareOwner(node))
                 context.ReportDiagnostic(Diagnostic.Create(Rule, name.GetLocation(), name.ValueText));
+        }
+    }
+
+    /// <summary>
+    /// Reports each run of line comments, one under another on consecutive lines, that tells a wait's length by number
+    /// across its lines (#2543, <see cref="CountedWaitAndCalculatorProse"/>), outside hardware owners: each line comment is
+    /// read alone by <see cref="Report"/>, so a phrase that runs on from one line to the next is read here, as a
+    /// documentation comment's line breaks are. A phrase within one line is the single comment's, and is not reported twice.
+    /// </summary>
+    private static void AnalyzeLineCommentRuns(SyntaxTreeAnalysisContext context, SyntaxNode root)
+    {
+        Microsoft.CodeAnalysis.Text.SourceText source = context.Tree.GetText(context.CancellationToken);
+        var run = new List<SyntaxTrivia>();
+        foreach (SyntaxTrivia trivia in root.DescendantTrivia(descendIntoTrivia: false))
+        {
+            if (!trivia.IsKind(SyntaxKind.SingleLineCommentTrivia))
+                continue;
+            if (run.Count > 0 && !OnTheNextLine(source, run[run.Count - 1], trivia))
+            {
+                ReportLineCommentRun(context, run);
+                run.Clear();
+            }
+            run.Add(trivia);
+        }
+        ReportLineCommentRun(context, run);
+    }
+
+    /// <summary>Whether only white space, with one line break, lies between <paramref name="above"/> and <paramref name="below"/>.</summary>
+    private static bool OnTheNextLine(Microsoft.CodeAnalysis.Text.SourceText source, SyntaxTrivia above, SyntaxTrivia below)
+    {
+        string between = source.ToString(Microsoft.CodeAnalysis.Text.TextSpan.FromBounds(above.Span.End, below.SpanStart));
+        return between.All(char.IsWhiteSpace) && between.Count(character => character == '\n') == 1;
+    }
+
+    /// <summary>
+    /// Reports a run of two or more line comments once when its lines, read as one text, tell a wait's length by number in a
+    /// phrase that runs from one line onto the next.
+    /// </summary>
+    private static void ReportLineCommentRun(SyntaxTreeAnalysisContext context, List<SyntaxTrivia> run)
+    {
+        if (run.Count < 2 || IsInHardwareOwner(run[0].Token.Parent))
+            return;
+        var joined = new System.Text.StringBuilder();
+        var lineStarts = new List<int>();
+        foreach (SyntaxTrivia comment in run)
+        {
+            if (joined.Length > 0)
+                joined.Append(' ');
+            lineStarts.Add(joined.Length);
+            joined.Append(comment.ToString().Substring(2).Trim());
+        }
+        foreach (Match match in CountedWaitAndCalculatorProse.Matches(joined.ToString()))
+        {
+            if (lineStarts.Any(start => start > match.Index && start < match.Index + match.Length))
+            {
+                context.ReportDiagnostic(Diagnostic.Create(Rule, run[0].GetLocation(), match.Value));
+                return;
+            }
         }
     }
 

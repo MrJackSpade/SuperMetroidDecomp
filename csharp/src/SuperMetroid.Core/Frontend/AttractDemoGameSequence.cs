@@ -86,8 +86,8 @@ internal sealed class AttractDemoGameSequence(FrontendSession session) : IGamePh
     {
         if (session.Demo.Holding)
         {
-            // The final image holds: no actor, animation, or
-            // script advances during the ninety-frame final-image hold.
+            // The final image holds: no actor, animation, or script advances during the final-image hold
+            // (AttractDemoDefinitions.FinalImageHoldFrames).
             session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
             if (session.GameplayRuntime.PlayerActions.NewlyPressed != GameplayAction.None)
                 FinishAttractPlayback(end: AttractPlaybackEnd.Cancelled);

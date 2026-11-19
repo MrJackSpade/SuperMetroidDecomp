@@ -15,7 +15,7 @@ public static class PowerBombExplosionDefinitions
     public static readonly PowerBombRadius ExplosionAcceleration = PowerBombRadius.FromFraction(48);
     /// <summary>
     /// The fade steps a Power Bomb's afterglow takes after its white explosion, one each update (#2529); the update after
-    /// its last ends the blast, so the afterglow lasts thirty-two updates.
+    /// its last ends the blast, so the afterglow lasts one update longer than its steps.
     /// </summary>
     public const int AfterglowFades = 31;
     /// <summary>

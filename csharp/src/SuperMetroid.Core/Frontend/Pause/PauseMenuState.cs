@@ -336,7 +336,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                     LoadMapPage();
                     Transition = PauseMenuTransition.EquipmentToMapFadeIn;
                 }
-                transitionFade.Restart(0, PauseFadeTiming.CounterReload);
+                transitionFade.Restart(0, PauseFadeTiming.WaitBeforeEachStep);
                 return;
 
             case PauseMenuTransition.MapToEquipmentFadeIn:

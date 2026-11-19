@@ -127,15 +127,15 @@ internal sealed class GameplayGamePhases(FrontendSession session)
                 session.Enter(PauseStep.DarkeningGameplay);
                 break;
             case GameplayUpdateTransition.Pause:
-                // Samus's pause check executes during the already-completed main-gameplay frame. It initializes both fade
-                // counters and starts the pause; the following update consumes the first delay.
-                session.screenFade.SetCadence(PauseFadeTiming.CounterReload, PauseFadeTiming.CounterReload);
+                // Samus's pause check runs during the main-gameplay update just completed. It sets the pause fade's wait
+                // before each step and starts the pause; the following update spends the first wait.
+                session.screenFade.SetCadence(PauseFadeTiming.WaitBeforeEachStep, PauseFadeTiming.WaitBeforeEachStep);
                 session.Close<PauseMenuState>();
                 session.Enter(PauseStep.DarkeningGameplay);
                 break;
             case GameplayUpdateTransition.CeresDeparture:
                 // The elevator has already selected standing pose and locked Samus. The following update owns the
-                // 60-frame hold; do not decrement it on this trigger frame.
+                // elevator hold (CeresElevatorDepartureDefinitions.DepartureHoldFrames); this update does not count it down.
                 session.ceresDeparture.Begin();
                 session.Enter(SuperMetroidGameState.CeresDeparture);
                 break;

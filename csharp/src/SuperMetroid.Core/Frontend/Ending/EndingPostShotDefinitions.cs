@@ -17,16 +17,16 @@ internal static class EndingPostShotDefinitions
     public const int OffsetY = -8;
     /// <summary>The reward turning floor's starting zoom: nine floor pixels per screen pixel.</summary>
     public static FloorZoom InitialZoom { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(9);
-    /// <summary>The zoom narrows by a quarter floor pixel per screen pixel each frame, in 256ths.</summary>
+    /// <summary>The zoom narrows by a quarter floor pixel per screen pixel each update.</summary>
     public static FloorZoomStep ZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(64);
     /// <summary>The zoom the completed rotation stops at.</summary>
     public static FloorZoom MinimumZoom { get; } = FloorZoom.FromTwoHundredFiftySixths(24);
-    /// <summary>The shot's rotation turns eight angle units backwards each frame.</summary>
+    /// <summary>How far the shot's rotation turns backwards each update, in steps of its angle.</summary>
     public const int AngleStep = 8;
-    /// <summary>The post-shot step delays the Samus fade by sixteen updates.</summary>
+    /// <summary>How long the post-shot step delays the Samus fade behind the shot's.</summary>
     public const int SamusFadeDelay = 16;
-    /// <summary>The post-credits fades run thirty-two steps.</summary>
+    /// <summary>How many steps the post-credits fades run.</summary>
     public const int FadeFrames = 32;
-    /// <summary>The hold waits 180 updates before switching to the white-flash display.</summary>
+    /// <summary>The hold before the white-flash display.</summary>
     public const int HoldFrames = 180;
 }

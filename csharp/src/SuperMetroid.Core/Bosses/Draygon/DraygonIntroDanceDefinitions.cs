@@ -13,7 +13,7 @@ internal static class DraygonIntroDanceDefinitions
 
     /// <summary>
     /// How many dance updates each Evir waits before it takes the path's first step, in the order the Evirs spawn. Even
-    /// the first Evir waits 128 updates, so no Evir starts at once.
+    /// the first Evir waits, so no Evir starts at once.
     /// </summary>
     internal static readonly int[] StartDelays = [128, 160, 192, 224];
 

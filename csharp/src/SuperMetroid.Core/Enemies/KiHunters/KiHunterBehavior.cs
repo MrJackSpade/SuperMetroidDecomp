@@ -664,7 +664,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void StartKiHunterGroundWaitFromCue(KiHunterBodyState state) =>
         state.Action = KiHunterAction.GroundWait;
 
-    /// <summary>Emits the acid projectile and sound, then starts the 24-frame spit wait.</summary>
+    /// <summary>Emits the acid projectile and sound, then starts the spit wait (<see cref="KiHunterMotionDefinitions.SpitWait"/>).</summary>
     private void SpawnKiHunterAcidFromCue(RoomEnemyPlace body, HorizontalDirection direction)
     {
         _audio.QueueEnemySound(EnemySound.AcidSpit, priority: SoundRequestPriority.Normal);

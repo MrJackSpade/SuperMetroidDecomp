@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Frontend.Pause;
 internal static class PauseFadeTiming
 {
     /// <summary>
-    /// Pausing, the pause fades and unpausing initialize both fade counters
-    /// to one. The fades consume a counter-only frame before each change.
+    /// The updates pausing, the pause fades and unpausing wait before each brightness step, the first included: the
+    /// screen holds its brightness for that wait, then steps.
     /// </summary>
-    public const int CounterReload = 1;
+    public const int WaitBeforeEachStep = 1;
 }

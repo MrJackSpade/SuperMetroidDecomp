@@ -57,7 +57,7 @@ public enum DraygonPhase
     FlyStraightUp,
     /// <summary>Drifts toward room pixel (256,480), then spawns burial Evirs and retires the arms and tail.</summary>
     Dying,
-    /// <summary>Waits 416 frames while the burial Evirs approach, before the body sinks (#1939).</summary>
+    /// <summary>Waits out the burial wait (<see cref="DraygonArenaDefinitions.BurialWaitUpdates"/>) while the burial Evirs approach, before the body sinks (#1939).</summary>
     DyingWaitForEvirs,
     /// <summary>Sinks one pixel per frame to Y=576, scatters drops, deletes the remaining parts, and persists defeat.</summary>
     DyingFinish,

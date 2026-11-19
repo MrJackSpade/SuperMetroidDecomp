@@ -35,7 +35,7 @@ public enum SamusPoseId
 
     /// <summary>
     /// This pose is the right-moving horizontal-fire body. It is a genuine running
-    /// pose, shares the ordinary ten-frame running frame delays, and is selected when Shot
+    /// pose, shares the ordinary running frame delays, and is selected when Shot
     /// remains held with Right after the projectile direction has been established.
     /// </summary>
     MovingRightGunExtendedPose,

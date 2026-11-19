@@ -308,7 +308,7 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>Makes the projectile a blank, harmless drop and returns the respawn pause it shows until it is removed.</summary>
     private static EnemyDeathAndDropSegment ConfigureDormantPickup(EnemyProjectile projectile)
     {
-        // The blank frame lasts 64 updates before a retained respawning enemy respawns and the drop is removed. A
+        // The blank frame lasts its respawn pause before a retained respawning enemy respawns and the drop is removed. A
         // collected or expired pickup ends the same way.
         projectile.HoldStill();
         projectile.CanDamageSamus = false;

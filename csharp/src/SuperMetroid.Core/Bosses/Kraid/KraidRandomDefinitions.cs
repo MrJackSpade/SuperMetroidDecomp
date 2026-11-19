@@ -50,7 +50,7 @@ internal static class KraidRandomDefinitions
     internal static readonly SignedEightEight CeilingRockSlowestFall = SignedEightEight.FromSixteenthsOfPixel(4);
 
     /// <summary>
-    /// Kraid's thinking delay in steps of 64 updates, chosen from eight rolls (#2510): a roll of one through seven takes that
+    /// Kraid's thinking delay in steps of <see cref="KraidArenaDefinitions.ThinkingDelayStepUpdates"/>, chosen from eight rolls (#2510): a roll of one through seven takes that
     /// many steps and a roll of none <see cref="KraidArenaDefinitions.ThinkingDelayStepsOnNoRoll"/>.
     /// </summary>
     internal static readonly WeightedRandomChoice<int> ThinkingDelaySteps = WeightedRandomChoice<int>.InTurn(

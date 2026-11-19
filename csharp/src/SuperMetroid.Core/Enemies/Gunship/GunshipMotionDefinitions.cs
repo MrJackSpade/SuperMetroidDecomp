@@ -11,7 +11,7 @@ internal static class GunshipMotionDefinitions
     internal static readonly int[] LandingBrakeYDeltas = [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1];
 
     /// <summary>
-    /// The idle bob's four steps in order (<see cref="GunshipIdleBob"/>), each held 16 updates: down a pixel, up, up, then
+    /// The idle bob's four steps in order (<see cref="GunshipIdleBob"/>), each held for its updates: down a pixel, up, up, then
     /// down; the last is followed by the first.
     /// </summary>
     internal static readonly GunshipIdleBobDefinition[] IdleBobs = [new(16, 1), new(16, -1), new(16, -1), new(16, 1)];

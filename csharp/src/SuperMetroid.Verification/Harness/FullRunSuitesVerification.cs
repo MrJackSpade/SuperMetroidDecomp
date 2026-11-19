@@ -1123,6 +1123,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyExploredMapPackingDefinitions), () => VerifyExploredMapPackingDefinitions()),
         new(nameof(VerifyGameSaveJsonPersistence), () => VerifyGameSaveJsonPersistence()),
         new(nameof(VerifyUsedStationNumbersWithoutStation), () => VerifyUsedStationNumbersWithoutStation()),
+        new(nameof(VerifyEarlierSaveLoadsInAnyListOrder), () => VerifyEarlierSaveLoadsInAnyListOrder()),
         new(nameof(VerifySelectedSaveSlotDecode), () => VerifySelectedSaveSlotDecode()),
         new(nameof(VerifyFileSelectFreshSaveTilemap), () => VerifyFileSelectFreshSaveTilemap()),
         new(nameof(VerifyFileSelectMapWindow), () => VerifyFileSelectMapWindow()),

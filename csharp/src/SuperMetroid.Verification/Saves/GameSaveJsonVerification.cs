@@ -383,6 +383,231 @@ internal static class GameSaveJsonVerification
         Console.WriteLine("  Save-file history: a power-on that found no valid save survives the JSON save; schema eleven upgrades to none.");
     }
 
+    /// <summary>The store the earlier save holds: several story events, items, doors, stations, maps and explored cells.</summary>
+    private static SaveSlotStore EarlierSaveStore(InstalledScreenContent maps)
+    {
+        var store = new SaveSlotStore(maps);
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99, MaxHealth = 99 };
+        var system = new SharedGameState(new SharedRandom());
+        system.SetEvent(StoryEvent.ZebesAwake);
+        system.SetEvent(StoryEvent.PhantoonStatueGrey);
+        system.SetEvent(StoryEvent.TourianUnlocked);
+        system.SetEvent(StoryEvent.CrittersEscaped);
+        system.SetCollectedItemBit(5);
+        system.SetCollectedItemBit(23);
+        system.SetCollectedItemBit(64);
+        system.SetOpenedDoorBit(3);
+        system.SetOpenedDoorBit(31);
+        system.MarkSaveStationUsed(LoadStationDefinitions.CrocomireSave);
+        system.MarkSaveStationUsed(LoadStationDefinitions.DraygonSave);
+        system.SetAreaMapAcquired(AreaId.Brinstar);
+        system.SetAreaMapAcquired(AreaId.Maridia);
+        system.MarkExploredMapTile(AreaId.Brinstar, new(9, 1));
+        system.MarkExploredMapTile(AreaId.Maridia, new(4, 7));
+        store.SaveSlot(SaveSlot.A, SuperMetroidSaveSnapshot.Capture(samus, system, SaveSnapshotFixtures.At(LoadStationDefinitions.DraygonSave)
+            with { GameTime = new GameClockReading(frames: 7, seconds: 59, minutes: 3, hours: 12) }));
+        return store;
+    }
+
+    /// <summary>
+    /// #2543: a save the game wrote before saves read their story events, items, doors and stations in any order still
+    /// loads and is written again byte for byte, and the same save with each of those lists reversed loads the same progress
+    /// and is written in the same order; a name listed twice is rejected.
+    /// </summary>
+    internal static void VerifyEarlierSaveLoadsInAnyListOrder()
+    {
+        InstalledScreenContent maps = RetailPresentationFixture();
+        // The serializer ends its lines with the platform's line ending, so the fixture is compared with the same endings.
+        string earlier = EarlierSaveJson.ReplaceLineEndings(Environment.NewLine) + Environment.NewLine;
+        SaveSlotStore store = EarlierSaveStore(maps);
+        AssertEqual(earlier, GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(store)),
+            "the game writes the earlier save's progress byte for byte as it did before");
+        AssertEqual(earlier, GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(GameSaveJsonCodec.ToStore(GameSaveJsonCodec.Deserialize(earlier), maps))),
+            "the earlier save loads and is written again byte for byte");
+        byte[] sram = SaveRamCodec.Encode(store, maps);
+        AssertTrue(sram.SequenceEqual(SaveRamCodec.Encode(GameSaveJsonCodec.ToStore(GameSaveJsonCodec.Deserialize(earlier), maps), maps)),
+            "the earlier save loads the progress it was written from");
+
+        JsonObject reversed = RequiredJson.Parse(earlier).AsObject();
+        JsonObject progression = reversed.Required("slots").Required(0).Required("progression").AsObject();
+        foreach (string list in (string[])["events", "collectedItems", "openedDoors", "usedStations"])
+        {
+            string[] names = [.. progression.Required(list).AsArray().Select(name => name?.GetValue<string>()
+                ?? throw new InvalidOperationException($"The fixture's {list} lists a null."))];
+            AssertTrue(names.Length > 1, $"the fixture's {list} lists more than one name, so reversing reorders it");
+            progression[list] = new JsonArray([.. names.Reverse().Select(name => (JsonNode)JsonValue.Create(name))]);
+        }
+        GameSaveJsonDocument reordered = GameSaveJsonCodec.Deserialize(reversed.ToJsonString());
+        SaveSlotStore reorderedStore = GameSaveJsonCodec.ToStore(reordered, maps);
+        SuperMetroidSaveSlot loaded = reorderedStore.ReadSlot(SaveSlot.A)
+            ?? throw new InvalidOperationException("The reordered save lost slot 0.");
+        SuperMetroidSaveSlot saved = store.ReadSlot(SaveSlot.A) ?? throw new InvalidOperationException("The earlier save lost slot 0.");
+        AssertTrue(loaded.Progression.SameAs(saved.Progression),
+            "a save listing its events, items, doors and stations in reverse loads the same progress");
+        AssertEqual(earlier, GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(reorderedStore)),
+            "the reordered save's progress is written again in the game's order");
+
+        foreach ((string list, string name) in (ValueTuple<string, string>[])[("events", "PhantoonStatueGrey"), ("collectedItems", "BigPinkChozoChargeBeam"),
+                     ("openedDoors", "LandingSiteGreyDoorFacingLeftAt142x70"), ("usedStations", "DraygonSave")])
+        {
+            JsonObject twice = RequiredJson.Parse(earlier).AsObject();
+            twice.Required("slots").Required(0).Required("progression").Required(list).AsArray().Add(name);
+            AssertInvalidJsonSave(twice.ToJsonString(), list);
+        }
+        Console.WriteLine("  Earlier save: loads and is written again byte for byte; reversed lists load the same progress; a name listed twice is rejected.");
+    }
+
+    /// <summary>
+    /// The save <see cref="EarlierSaveStore"/> holds, as the game wrote it before saves read their lists in any order
+    /// (#2543, captured at 371cc2aaf5).
+    /// </summary>
+    private const string EarlierSaveJson = """
+        {
+          "schemaVersion": 15,
+          "selectedSlot": 0,
+          "slots": [
+            {
+              "slot": 0,
+              "checkpoint": "DraygonSave",
+              "resources": {
+                "health": 99,
+                "maxHealth": 99,
+                "missiles": 0,
+                "maxMissiles": 0,
+                "superMissiles": 0,
+                "maxSuperMissiles": 0,
+                "powerBombs": 0,
+                "maxPowerBombs": 0,
+                "reserveEnergy": 0,
+                "maxReserveEnergy": 0
+              },
+              "inventory": {
+                "collectedItems": "none",
+                "equippedItems": "none",
+                "collectedBeams": "none",
+                "equippedBeams": "none"
+              },
+              "gameTime": {
+                "hours": 12,
+                "minutes": 3,
+                "seconds": 59,
+                "frames": 7
+              },
+              "controller": {
+                "shoot": "x",
+                "jump": "a",
+                "dash": "b",
+                "itemSelect": "select",
+                "itemCancel": "y",
+                "aimUp": "r",
+                "aimDown": "l"
+              },
+              "progression": {
+                "events": [
+                  "ZebesAwake",
+                  "PhantoonStatueGrey",
+                  "TourianUnlocked",
+                  "CrittersEscaped"
+                ],
+                "zebetitesDestroyed": 0,
+                "defeatedBosses": [
+                  {
+                    "area": "crateria",
+                    "bosses": "none"
+                  },
+                  {
+                    "area": "brinstar",
+                    "bosses": "none"
+                  },
+                  {
+                    "area": "norfair",
+                    "bosses": "none"
+                  },
+                  {
+                    "area": "wreckedShip",
+                    "bosses": "none"
+                  },
+                  {
+                    "area": "maridia",
+                    "bosses": "none"
+                  },
+                  {
+                    "area": "tourian",
+                    "bosses": "none"
+                  },
+                  {
+                    "area": "ceres",
+                    "bosses": "none"
+                  }
+                ],
+                "collectedItems": [
+                  "GauntletEnergyTankExposedEnergyTank",
+                  "BigPinkChozoChargeBeam",
+                  "BubbleMountainExposedMissileTank"
+                ],
+                "openedDoors": [
+                  "LandingSiteGreyDoorFacingLeftAt142x70",
+                  "GreenBrinstarMainShaftRedDoorFacingRightAt1x86"
+                ],
+                "usedStations": [
+                  "CrocomireSave",
+                  "DraygonSave"
+                ],
+                "acquiredMaps": [
+                  "brinstar",
+                  "maridia"
+                ],
+                "exploredAreas": [
+                  {
+                    "area": "crateria",
+                    "tiles": []
+                  },
+                  {
+                    "area": "brinstar",
+                    "tiles": [
+                      {
+                        "x": 9,
+                        "y": 1
+                      }
+                    ]
+                  },
+                  {
+                    "area": "norfair",
+                    "tiles": []
+                  },
+                  {
+                    "area": "wreckedShip",
+                    "tiles": []
+                  },
+                  {
+                    "area": "maridia",
+                    "tiles": []
+                  },
+                  {
+                    "area": "tourian",
+                    "tiles": []
+                  },
+                  {
+                    "area": "ceres",
+                    "tiles": []
+                  }
+                ]
+              },
+              "reserveMode": "none",
+              "hudItem": "beam",
+              "moonwalkEnabled": false,
+              "iconCancelEnabled": false,
+              "japaneseText": false,
+              "startupRoute": "mainGame"
+            },
+            null,
+            null
+          ],
+          "gameCompleted": false,
+          "powerOnFoundNoValidSave": false
+        }
+        """;
+
     /// <summary>Confirms malformed save JSON is rejected with a diagnostic naming the invalid field or value.</summary>
     internal static void AssertInvalidJsonSave(string json, string expectedMessagePart)
     {
@@ -409,6 +634,7 @@ internal static class GameSaveJsonVerification
         Suite(nameof(VerifyWidenedSlotFieldsJsonRoundTrip), () => VerifyWidenedSlotFieldsJsonRoundTrip());
         Suite(nameof(VerifyUsedStationNumbersWithoutStation), () => VerifyUsedStationNumbersWithoutStation());
         Suite(nameof(VerifyPowerOnHistoryJsonRoundTrip), () => VerifyPowerOnHistoryJsonRoundTrip());
+        Suite(nameof(VerifyEarlierSaveLoadsInAnyListOrder), () => VerifyEarlierSaveLoadsInAnyListOrder());
         return 0;
     }
 

@@ -287,7 +287,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         AlignPowampBalloonY(body, balloon);
     }
 
-    /// <summary>Selects a balloon inflation frame for fatal damage and primes the 32-frame death delay.</summary>
+    /// <summary>Selects a balloon inflation frame for fatal damage and primes the death delay (<see cref="PowampMotionDefinitions.DeathDelay"/>).</summary>
     private static void BeginPowampDeathSequence(
         RoomEnemyPlace body,
         PowampBodyState state,

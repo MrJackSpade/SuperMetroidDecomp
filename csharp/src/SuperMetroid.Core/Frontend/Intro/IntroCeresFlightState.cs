@@ -384,11 +384,8 @@ internal sealed class IntroCeresFlightState
         // The rush lasts while the zoom falls from two floor pixels by a sixteenth an update, about 32 updates, so the speed rises from four
         // pixels an update one way to at most twelve the other.
         starsVelocity += CeresFlightActorDefinitions.FrontStarAcceleration;
-        SignedEightEight velocity = starsVelocity;
-        stars.Position = new(
-            IntroCinematicMotion.AddEightEight(stars.Position.X, velocity),
-            IntroCinematicMotion.AddEightEight(stars.Position.Y, velocity));
-        SignedSixteenSixteen rush = velocity.ToSixteenSixteenDelta();
+        SignedSixteenSixteen rush = starsVelocity.ToSixteenSixteenDelta();
+        stars.Position = new(stars.Position.X + rush, stars.Position.Y + rush);
         background = new(background.X + rush, background.Y + rush);
     }
 

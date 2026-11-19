@@ -66,7 +66,7 @@ public sealed class SamusHorizontalSpeedState
     /// Attack spin starts at the spin's shade, or rests on its own brightest when the spin stood past its four, and a spin
     /// following a boosted run starts where the run's glow stood. A change of suit goes on alike. Starting or cancelling
     /// the boost's momentum, and the first frames of a spin, start it again. The player counts the Speed Booster's hold of
-    /// its shown shade: the first boosted running frame moves it on, then each shade holds its own four updates; a Screw
+    /// its shown shade: the first boosted running frame moves it on, then each shade holds for its own beat; a Screw
     /// Attack spin moves the shared place on and leaves the hold where it stood.
     /// </summary>
     internal AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> FullBodyGlow { get; } =

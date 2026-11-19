@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Death;
 
 /// <summary>
 /// The shade sequences Samus's death plays (#2387): the flash alternates her second death shade for one update with her
-/// first for three, after waiting three updates, until the suit explodes; the suit's explosion shows its nine pictures for
+/// first for three, after an opening wait, until the suit explodes; the suit's explosion shows its nine pictures for
 /// their authored dwell times (#2388), the first holding the room as it was before the whiteout and the last holding the
 /// white before the room fades; the explosion's whiteout brightens through its shades one update each and rests on its
 /// brightest.

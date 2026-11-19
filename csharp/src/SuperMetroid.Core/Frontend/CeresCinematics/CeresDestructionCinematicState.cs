@@ -206,8 +206,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Runs one update of the destruction cinematic.</summary>
     public void Step()
     {
-        // The cinematic first waits nine updates with the screen black; each wait is one update
-        // that continues it. After the last it sets up the scene and goes on with the cinematic
+        // The cinematic first waits out its opening waits (CeresDestructionSceneDefinitions.InitialFrameWaits) with the
+        // screen black, each one update that continues it. After the last it sets up the scene and goes on with the cinematic
         // phase, whose objects and update count then advance once.
         if (openingWaitsLeft is { } waitsLeft)
         {
@@ -408,7 +408,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         cinematicFrameCounter++;
     }
 
-    /// <summary>Sets up the Ceres floor, sprites, colours, and three initial actors after the ninth opening wait.</summary>
+    /// <summary>Sets up the Ceres floor, sprites, colours, and three initial actors after the last opening wait.</summary>
     private void SetupCeresDestruction()
     {
         IntroCinematicArtwork content = Artwork;

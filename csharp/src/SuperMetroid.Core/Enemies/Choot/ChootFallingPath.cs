@@ -13,9 +13,9 @@ internal enum ChootFallingPath
     /// <summary>Swings 45 pixels right and 34 left, a sample each update.</summary>
     VeryWide,
 
-    /// <summary>The normal path, holding its rightmost sample 12 updates and its leftmost 13.</summary>
+    /// <summary>The normal path, holding its rightmost and leftmost samples longer.</summary>
     Slow,
 
-    /// <summary>The normal path, holding its rightmost sample 32 updates and its leftmost 33.</summary>
+    /// <summary>The normal path, holding its rightmost and leftmost samples longer still.</summary>
     VerySlow,
 }

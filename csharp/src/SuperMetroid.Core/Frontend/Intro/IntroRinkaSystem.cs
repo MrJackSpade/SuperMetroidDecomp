@@ -27,7 +27,7 @@ internal sealed class IntroRinkaSystem
     /// <summary>Creates the invisible spawner before its timed animation runs.</summary>
     public IntroRinkaSystem()
     {
-        // The spawner's animation waits 74 frames, then 128.
+        // The spawner's animation times both launches (IntroRinkaAnimations.Spawner).
         spawner = new(new(0, 0), IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors), IntroRinkaAnimations.Spawner,
             IntroRinkaDefinitions.SpawnerActor.Animation);
     }

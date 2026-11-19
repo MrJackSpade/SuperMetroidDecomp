@@ -72,7 +72,7 @@ internal static class MotherBrainRandomDefinitions
     internal static readonly RandomSampleField CorpseDustOffset = new(0, 5);
 
     /// <summary>
-    /// Phase three's forward inch waiting two updates longer, at her medium walk rather than her fast one (#2470): an even
+    /// Phase three's forward inch waiting longer, at her medium walk rather than her fast one (#2470): an even
     /// choice of the random number, one in two.
     /// </summary>
     internal static readonly RandomChance ForwardInchWaitsLonger = RandomChance.Highest(1, new RandomSampleField(1, 1));

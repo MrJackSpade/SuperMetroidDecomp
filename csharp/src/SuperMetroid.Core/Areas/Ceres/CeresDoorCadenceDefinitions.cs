@@ -10,8 +10,8 @@ internal static class CeresDoorCadenceDefinitions
     internal static readonly UpdateCounterField PlatformPicture = new(1, 1);
 
     /// <summary>
-    /// The phase of the door's own update count that picks the elevator room's glow step: eight steps, each held for
-    /// eight updates in turn.
+    /// The phase of the door's own update count that picks the elevator room's glow step: eight steps in turn, each held
+    /// as the field steps (<see cref="UpdateCounterField"/>).
     /// </summary>
     internal static readonly UpdateCounterField GlowStep = new(3, 3);
 }

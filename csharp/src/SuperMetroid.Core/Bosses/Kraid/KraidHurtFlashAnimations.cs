@@ -4,7 +4,7 @@ using S = SuperMetroid.Core.Bosses.Kraid.KraidHurtFlashShade;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Kraid's hurt flash as a shade sequence played by the shared player (#2400). A mouth hit starts it: it waits two updates,
+/// Kraid's hurt flash as a shade sequence played by the shared player (#2400). A mouth hit starts it: it waits its opening beat,
 /// counting the hit's own update, then shows his hurt colours, his band's, his hurt colours, his band's, his hurt colours
 /// and his band's, two updates each, and rests on his band's colours. A hit while it plays starts it again; his health
 /// running out cuts it short.

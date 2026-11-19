@@ -12,7 +12,7 @@ public static class FrameTimingCounterSmokeTest
     public static FrameTimingCounterSmokeTestResult Run()
     {
         const long TimestampFrequency = 1_000;
-        var counter = new FrameTimingCounter(TimestampFrequency, TimeSpan.FromSeconds(1));
+        var counter = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Desktop.Timing.FrameTimingCounter>([typeof(long), typeof(global::System.TimeSpan)], new object?[] { (long)(TimestampFrequency), (global::System.TimeSpan)(TimeSpan.FromSeconds(1)) });
         double observedDiscards = 0;
         counter.LateFramesRecorded += count => observedDiscards += count;
         counter.Reset(timestamp: 10_000);

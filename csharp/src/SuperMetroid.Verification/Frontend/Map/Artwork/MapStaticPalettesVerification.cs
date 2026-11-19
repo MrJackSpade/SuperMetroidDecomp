@@ -29,7 +29,7 @@ internal static class MapStaticPalettesVerification
         foreach (AreaId area in AreaIds.Zebes)
         {
             nativeWorld.SelectArea(area); world.SelectArea(area);
-            AssertEqual(installed.World(area)[0], world.Screen.Backdrop, "the selected area shows its world-map backdrop");
+            AssertEqual(installed.World(area)[0], global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Frontend.Menus.MenuScreen, global::SuperMetroid.Core.Assets.RgbColor>(world.Screen, "Backdrop"), "the selected area shows its world-map backdrop");
             AssertTrue(SuperMetroid.TestSupport.FrameRendering.ScenePixels.Same(nativeWorld.BackgroundsScene(), world.BackgroundsScene()), "all six stock world selections render identical pixels");
         }
         Console.WriteLine("Static map palettes: all six native world selections and pause/file-select colors pass.");

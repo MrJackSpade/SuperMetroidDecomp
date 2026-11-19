@@ -356,7 +356,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// Number of live Mother Brain bombs. Phase two refuses another bomb when this is at
     /// least one; <see cref="RecordBombSpawned"/> and <see cref="RecordBombRemoved"/> keep it.
     /// </summary>
-    public int BombCounter { get; internal set; }
+    public int BombCounter { get; private set; }
 
     /// <summary>Counts a bomb the shared bomb setup has just spawned.</summary>
     internal void RecordBombSpawned() => BombCounter++;

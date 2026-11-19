@@ -26,7 +26,7 @@ internal static class DraygonGoopDropsVerification
         var enemies = runtime.Enemies;
         var goop = enemies.Projectiles.ProjectileInPlace(17);
         goop.Kind = RoomEnemyProjectileKind.DraygonGoop;
-        goop.Behavior = FamilyProjectileStarts.BehaviorOf(enemies, goop.Kind);
+        global::SuperMetroid.Core.PrivateState.Set(goop, "Behavior", (global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior?)(FamilyProjectileStarts.BehaviorOf(enemies, goop.Kind)));
         goop.HoldStill();
         goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileSegment.GoopShot));
         goop.Position = goop.Position.WithWhole(new(120, 240));

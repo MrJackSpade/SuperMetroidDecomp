@@ -24,7 +24,7 @@ public sealed class DachoraEnemyState
     public SignedSixteenSixteen Speed { get; internal set; }
 
     /// <summary>While blinking or charging: the phase's wait, which ends the phase on its last update.</summary>
-    public UpdateCountdown PhaseTimer { get; internal set; } = UpdateCountdown.Ended();
+    public UpdateCountdown PhaseTimer { get; private set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// While shinesparking: the updates before the body next places an echo on its trail, which the launch clears so the

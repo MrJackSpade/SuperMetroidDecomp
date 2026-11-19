@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// <summary>One quarter of a square slope block, in the slope shape's own unmirrored frame: its column half and row half.</summary>
 /// <param name="Column">The quarter's column half.</param>
 /// <param name="Row">The quarter's row half.</param>
-public readonly record struct SquareSlopeQuadrant(SquareSlopeColumnHalf Column, SquareSlopeRowHalf Row)
+private readonly record struct SquareSlopeQuadrant(SquareSlopeColumnHalf Column, SquareSlopeRowHalf Row)
 {
     /// <summary>Whether the quarter is in the shape's right column half; otherwise the left.</summary>
     public bool Right => Column == SquareSlopeColumnHalf.Right;

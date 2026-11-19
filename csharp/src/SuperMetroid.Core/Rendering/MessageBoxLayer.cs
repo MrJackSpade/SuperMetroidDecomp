@@ -16,7 +16,7 @@ public sealed record MessageBoxLayer : DisplayLayer
     /// <param name="radiusPixels">The centered reveal half-height in pixels, from zero through 24.</param>
     /// <exception cref="ArgumentException">The picture is empty, wider than the screen or taller than the open window.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The radius is out of range.</exception>
-    public MessageBoxLayer(SpriteSheetFrame picture, int radiusPixels)
+    private MessageBoxLayer(SpriteSheetFrame picture, int radiusPixels)
     {
         Ensure.NotNull(picture);
         if (picture.Size.X == 0 || picture.Size.Y == 0 || picture.Size.X > ScreenGeometry.ScreenWidthPixels

@@ -408,7 +408,7 @@ internal sealed class SuperMetroidRuntime
     /// The game state whose phase the frontend is now running. Samus's control setups test it from
     /// inside the update; runtime-only hosts run main gameplay.
     /// </summary>
-    public SuperMetroid.Core.Progression.SuperMetroidGameState RunningGameState { get; set; } = SuperMetroid.Core.Progression.SuperMetroidGameState.MainGameplay;
+    public SuperMetroid.Core.Progression.SuperMetroidGameState RunningGameState { private get; set; } = SuperMetroid.Core.Progression.SuperMetroidGameState.MainGameplay;
 
     /// <summary>Whether a power-bomb explosion is under way; X-ray setup and the pause check reject one, and the sound queues turn every sound away during one.</summary>
     /// <remarks>Before the first room exists there is no explosion.</remarks>

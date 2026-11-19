@@ -227,7 +227,7 @@ internal sealed class FrontendSession
     /// <summary>The ending transition after the Zebes escape, one level darker every frame.</summary>
     internal ScreenFade EscapeFade { get; } = new(DisplayBrightness.Full);
     /// <summary>The room state whose music was last queued.</summary>
-    internal RoomStateSettings? LastAudioRoomState { get; set; }
+    internal RoomStateSettings? LastAudioRoomState { get; private set; }
     /// <summary>Forgets the room whose music was last queued, so the next runtime's room music is queued from scratch.</summary>
     internal void ForgetQueuedAudio() => LastAudioRoomState = null;
     /// <summary>

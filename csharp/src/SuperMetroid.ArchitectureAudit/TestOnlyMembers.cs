@@ -14,10 +14,11 @@ namespace SuperMetroid.ArchitectureAudit;
 /// is listed: it is made private (checks observe it through public behaviour, a test-support access extension or
 /// <c>PrivateState</c>) or removed.
 /// <para>
-/// Checks are the verification projects, the audits and the shared test-support sources. Code a member's own type (or a
-/// type nested in it) runs is not counted, since a private member serves it. A member no production code reaches at all
-/// is listed too; the reachability audit removes such a member only once no check names it. The census lists; it is not
-/// part of the push gate until the sites it lists are fixed.
+/// Checks are the files only verification projects compile. Code a member's own type (or a type nested in it) runs is not
+/// counted, since a private member serves it; what System.Text.Json reads or binds of a payload shipped code serializes is
+/// production use. A member production never uses at all is dead code, which the reachability prune moves into
+/// test-support with what it reaches, reaching private state through the same private-access members (#2570), so the
+/// census leaves it to the prune. The architecture audit's push gate fails on every finding.
 /// </para>
 /// </summary>
 internal static class TestOnlyMembers
@@ -78,8 +79,10 @@ internal static class TestOnlyMembers
         var used = uses.Values.GroupBy(use => use.Member, SymbolEqualityComparer.Default)
             .Where(member => member.Any(use => use.Production + use.InsideReads + use.InsideWrites != 0))
             .Select(member => member.Key!).ToHashSet(SymbolEqualityComparer.Default);
-        return [.. uses.Values.Where(use => use.Checks != 0 && use.Production == 0)
-            .Select(use => new TestOnlyMemberFinding(use, Shape(use, used.Contains(use.Member))))];
+        // A member production never uses at all is dead code the reachability prune moves into test-support, which the
+        // asynchronous cleanup runs after each push; only a member production uses, but more widely than it needs, is a finding.
+        return [.. uses.Values.Where(use => use.Checks != 0 && use.Production == 0 && used.Contains(use.Member))
+            .Select(use => new TestOnlyMemberFinding(use, Shape(use, used: true)))];
     }
 
     /// <summary>One line per finding, in file order, for the census.</summary>

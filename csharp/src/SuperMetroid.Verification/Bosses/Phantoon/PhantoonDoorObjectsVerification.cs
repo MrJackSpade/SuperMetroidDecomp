@@ -120,10 +120,10 @@ internal static class PhantoonDoorObjectsVerification
         state.StartingFlames.NextFlame = SuperMetroid.Core.Bosses.ListStep<TrigonometryAngle>.At(PhantoonFlameSpawns.StartingFlameStarts, 6);
         state.PhaseWait.LastFor(1);
         enemies.PhantoonBehavior.Opening.RunPhantoonStartingFlameSpawner(state);
-        AssertEqual(null, results.PhantoonDoor, "the seventh starting flame asks for no door change");
+        AssertEqual(null, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Bosses.BossFrameResultBuilder, global::SuperMetroid.Core.Bosses.Phantoon.PhantoonDoorChange?>(results, "PhantoonDoor"), "the seventh starting flame asks for no door change");
         state.PhaseWait.LastFor(1);
         enemies.PhantoonBehavior.Opening.RunPhantoonStartingFlameSpawner(state);
-        AssertEqual((PhantoonDoorChange?)PhantoonDoorChange.FightDoor, results.PhantoonDoor, "the eighth starting flame asks for the fight's door");
+        AssertEqual((PhantoonDoorChange?)PhantoonDoorChange.FightDoor, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Bosses.BossFrameResultBuilder, global::SuperMetroid.Core.Bosses.Phantoon.PhantoonDoorChange?>(results, "PhantoonDoor"), "the eighth starting flame asks for the fight's door");
 
         // Before the fight the door shows its own frame, with the grey door's closed cap beside it.
         Dictionary<Offset16<RoomBlocks>, RoomTerrainBlock> before = NativeTerrain(rom, Frames[1].Pointer, out _);
@@ -131,7 +131,7 @@ internal static class PhantoonDoorObjectsVerification
             before[new(1, row)] = RoomTerrainBlock.Of(0x0c0 + row, BlockMirroring.None,
                 row == 0 ? RoomCollisionType.ShootableBlock : RoomCollisionType.VerticalExtension);
         RoomLevelData level = DoorRoom(before);
-        VerifyChange(rom, level, results.PhantoonDoor ?? throw new InvalidOperationException("The opening asked for no door change."), before, Frames[0].Pointer, Frames[1].Pointer);
+        VerifyChange(rom, level, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Bosses.BossFrameResultBuilder, global::SuperMetroid.Core.Bosses.Phantoon.PhantoonDoorChange?>(results, "PhantoonDoor") ?? throw new InvalidOperationException("The opening asked for no door change."), before, Frames[0].Pointer, Frames[1].Pointer);
 
     }
 
@@ -157,10 +157,10 @@ internal static class PhantoonDoorObjectsVerification
         // Past the power's last step: this update completes the power coming back.
         state.ShipPowerOn.Steps = 14;
         enemies.PhantoonBehavior.Death.ActivateWreckedShipAfterPhantoon(state.Body, state, samus);
-        AssertEqual((PhantoonDoorChange?)PhantoonDoorChange.RestoredDoor, results.PhantoonDoor, "the power's return asks for the restored door");
+        AssertEqual((PhantoonDoorChange?)PhantoonDoorChange.RestoredDoor, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Bosses.BossFrameResultBuilder, global::SuperMetroid.Core.Bosses.Phantoon.PhantoonDoorChange?>(results, "PhantoonDoor"), "the power's return asks for the restored door");
 
         Dictionary<Offset16<RoomBlocks>, RoomTerrainBlock> before = NativeTerrain(rom, Frames[0].Pointer, out _);
-        VerifyChange(rom, DoorRoom(before), results.PhantoonDoor ?? throw new InvalidOperationException("The death asked for no door change."), before, Frames[1].Pointer, Frames[0].Pointer);
+        VerifyChange(rom, DoorRoom(before), global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Bosses.BossFrameResultBuilder, global::SuperMetroid.Core.Bosses.Phantoon.PhantoonDoorChange?>(results, "PhantoonDoor") ?? throw new InvalidOperationException("The death asked for no door change."), before, Frames[1].Pointer, Frames[0].Pointer);
     }
 
     /// <summary>

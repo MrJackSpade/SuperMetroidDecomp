@@ -13,7 +13,7 @@ internal static class ShitroidEnemyStateAccess
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="updates"/> is below one.</exception>
         internal void ResumeMembrane(ShitroidMembranePace pace, ShitroidMembranePulse phase, int updates)
         {
-            self.MembranePace = pace;
+            global::SuperMetroid.Core.PrivateState.Set(self, "MembranePace", (global::SuperMetroid.Core.Bosses.MotherBrain.ShitroidMembranePace)(pace));
             self.Membrane = ShitroidMembraneAnimations.StandingOn(pace, phase, updates);
         }
     }

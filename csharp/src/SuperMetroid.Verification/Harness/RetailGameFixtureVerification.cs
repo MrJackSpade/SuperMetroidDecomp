@@ -32,8 +32,7 @@ internal static class RetailGameFixtureVerification
     internal static (SuperMetroidGame Game, SuperMetroidRuntime Runtime, SamusState Samus) CreateMainGameplayFixture()
     {
         var random = new SharedRandom();
-        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(InstalledFixtures.Maps),
-            null, SuperMetroidGameHostServices.Default, random);
+        var game = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Frontend.SuperMetroidGame>([typeof(global::SuperMetroid.Core.Saves.SaveSlotStore), typeof(global::SuperMetroid.Core.Gameplay.GameplayAssists), typeof(global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServices), typeof(global::SuperMetroid.Core.Compatibility.SharedRandom)], new object?[] { (global::SuperMetroid.Core.Saves.SaveSlotStore)(new SuperMetroid.Core.Saves.SaveSlotStore(InstalledFixtures.Maps)), (global::SuperMetroid.Core.Gameplay.GameplayAssists?)(null), (global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServices)(SuperMetroidGameHostServices.Default), (global::SuperMetroid.Core.Compatibility.SharedRandom)(random) });
         SuperMetroidRuntime runtime = RetailRuntimeFixtureVerification.CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();

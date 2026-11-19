@@ -38,7 +38,7 @@ internal sealed class BossFrameResultBuilder
     internal TorizoBellyGlowRequest? TorizoBellyGlow { get; set; }
 
     /// <summary>Phantoon's door change (#1678): the fight's door as the starting flames close in, or the restored door.</summary>
-    internal PhantoonDoorChange? PhantoonDoor { get; set; }
+    internal PhantoonDoorChange? PhantoonDoor { private get; set; }
 
     /// <summary>Crocomire's arena mutations, in publication order.</summary>
     internal List<RoomObjectSpawnRequest<CrocomireArenaMutation>> CrocomireObjects { get; } = [];

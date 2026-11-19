@@ -116,14 +116,14 @@ public sealed class SamusLiquidPhysicsState
     public int? WaterSurfaceY
     {
         get;
-        set => field = value is int surface ? Ensure.AtLeastZero(surface) : null;
+        private set => field = value is int surface ? Ensure.AtLeastZero(surface) : null;
     }
 
     /// <summary>The lava or acid surface's room Y, a line of the room, zero or more, or none when the room has no lava or acid surface.</summary>
     public int? LavaAcidSurfaceY
     {
         get;
-        set => field = value is int surface ? Ensure.AtLeastZero(surface) : null;
+        private set => field = value is int surface ? Ensure.AtLeastZero(surface) : null;
     }
 
     /// <summary>

@@ -26,7 +26,7 @@ public sealed class GrowingShutterEnemyState
     }
 
     /// <summary>The row the shutter spawned at, the first section's origin (#2183).</summary>
-    public int SpawnY { get; internal set; }
+    public int SpawnY { get; private set; }
 
     /// <summary>The way the shutter grows, from its spawn row.</summary>
     public VerticalDirection Growth { get; }

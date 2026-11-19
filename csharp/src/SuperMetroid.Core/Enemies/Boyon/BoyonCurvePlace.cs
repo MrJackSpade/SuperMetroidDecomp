@@ -13,7 +13,7 @@ public readonly record struct BoyonCurvePlace : IComparable<BoyonCurvePlace>
     private readonly int entry;
 
     /// <summary>Keeps the place's entry.</summary>
-    internal BoyonCurvePlace(int entry) => this.entry = entry;
+    private BoyonCurvePlace(int entry) => this.entry = entry;
 
     /// <summary>The top entry of the curve, where a Boyon moves slowest: the place a Boyon starts from.</summary>
     public static BoyonCurvePlace Top => default;

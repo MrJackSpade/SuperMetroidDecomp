@@ -59,7 +59,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// </summary>
     /// <param name="session">Whether the effects run and the heat phases, which room loading never clears.</param>
     /// <param name="sounds">The update's sound requests of the runtime running the effects.</param>
-    internal ColourEffectSystem(ColourEffectSessionState session, GameplaySoundRequests sounds)
+    private ColourEffectSystem(ColourEffectSessionState session, GameplaySoundRequests sounds)
     {
         _session = Ensure.NotNull(session);
         this.sounds = Ensure.NotNull(sounds);

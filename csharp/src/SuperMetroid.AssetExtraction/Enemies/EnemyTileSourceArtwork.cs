@@ -28,7 +28,7 @@ public sealed class EnemyTileSourceArtwork
     private readonly Dictionary<UnplacedEnemyArtwork, EnemyPaletteSheet> unplacedPalettes;
 
     /// <summary>Copies installed artwork, rejecting a sheet without its palette.</summary>
-    internal EnemyTileSourceArtwork(EnemyTileArtworkParts parts)
+    private EnemyTileSourceArtwork(EnemyTileArtworkParts parts)
     {
         RejectUnpaired(parts);
         sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(parts.Sheets);

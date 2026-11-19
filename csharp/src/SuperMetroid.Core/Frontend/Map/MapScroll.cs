@@ -22,7 +22,7 @@ public sealed class MapScroll
     /// <param name="framing">How the screen frames the map.</param>
     /// <param name="limits">How far the map's revealed cells reach.</param>
     /// <param name="scroll">The screen's top-left corner as an offset from the map's corner.</param>
-    public MapScroll(MapFraming framing, MapScrollLimits limits, Offset16<MapPixels> scroll)
+    private MapScroll(MapFraming framing, MapScrollLimits limits, Offset16<MapPixels> scroll)
     {
         Framing = Ensure.NotNull(framing);
         Limits = limits;

@@ -63,7 +63,7 @@ internal static class MotherBrainTubeDescentVerification
             enemies.MotherBrainBehavior.FakeDeath.DrawNextMuralRows(state);
         }
         AssertTrue(enemies.BossFrameResults.MotherBrainObjects.SequenceEqual(Enumerable.Range(0, 12).Select(row =>
-                new MotherBrainMuralRowReveal(new MotherBrainMuralRow(row)))),
+                new MotherBrainMuralRowReveal(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainMuralRow>([typeof(int)], new object?[] { (int)(row) })))),
             "the mural's twelve rows are revealed in order");
         AssertTrue(enemies.BossFrameResults.MotherBrainObjects.Select(request => request.Block).SequenceEqual(Enumerable.Range(0, 12).Select(row =>
                 new Position16<RoomBlocks>(2, 2 + row))),

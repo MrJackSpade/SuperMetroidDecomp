@@ -84,7 +84,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     public SamusBombProjectileSystem? BombProjectiles { get; set; }
 
     /// <summary>The effect-overlay FX, once the FX step has built it.</summary>
-    public RoomFxOverlayState? FxOverlay { get; set; }
+    public RoomFxOverlayState? FxOverlay { private get; set; }
 
     /// <summary>The colour effects, once the FX step has built them.</summary>
     public ColourEffectSystem? ColourEffects { get; set; }

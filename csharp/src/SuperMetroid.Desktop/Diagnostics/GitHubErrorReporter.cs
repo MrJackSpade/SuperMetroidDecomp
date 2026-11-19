@@ -46,7 +46,7 @@ public sealed class GitHubErrorReporter : IDisposable
     }
 
     /// <summary>Starts the same reporting worker with an injected issue client for focused host checks.</summary>
-    internal GitHubErrorReporter(string repository, IGitHubIssueClient issueClient)
+    private GitHubErrorReporter(string repository, IGitHubIssueClient issueClient)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(repository);
         this.repository = repository;

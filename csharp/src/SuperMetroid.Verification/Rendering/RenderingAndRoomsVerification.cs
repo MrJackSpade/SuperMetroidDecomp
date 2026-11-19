@@ -1084,7 +1084,7 @@ internal static void VerifyScrollingSkyState()
     var aboveRoom = new ScrollingSkyState(ScrollingSky.Land);
     aboveRoom.ProcessFrame(camera: new Position16<RoomPixels>(0, 0xfff0), timeIsFrozen: false);
     AssertEqual(-16, aboveRoom.CameraRow, "a camera sixteen rows above the room's top latches row -16");
-    AssertEqual(new LatchedScrollingSky(-16), LatchedScrollingSky.Capture(aboveRoom), "the accepted frame latches the signed row");
+    AssertEqual(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.LatchedScrollingSky>([typeof(int)], new object?[] { (int)(-16) }), LatchedScrollingSky.Capture(aboveRoom), "the accepted frame latches the signed row");
 
     // The land sky's five chunks repeat from its first: chunk five shows page zero.
     AssertEqual(0, ScrollingSkyChunks.PageOf(ScrollingSky.Land, 5), "land chunk five wraps to the first sky page");

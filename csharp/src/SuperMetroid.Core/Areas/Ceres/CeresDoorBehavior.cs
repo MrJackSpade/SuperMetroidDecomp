@@ -58,7 +58,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IGameplayShadingSource
     /// The step of the elevator room's glow the elevator door cycles, which the room's pictures show as
     /// <see cref="CeresDoorShades.ElevatorRoomGlow"/> (#1512); null before the door first cycles it.
     /// </summary>
-    internal int? ElevatorRoomGlowStep { get; set; }
+    internal int? ElevatorRoomGlowStep { private get; set; }
 
     /// <summary>Lays the elevator room's glow step, once the door has cycled one, over the room's pictures (#1512).</summary>
     public void ShadeGameplay(GameplayShadingBuilder frame)

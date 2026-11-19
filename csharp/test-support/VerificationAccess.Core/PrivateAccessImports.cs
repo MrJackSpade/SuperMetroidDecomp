@@ -1,12 +1,12 @@
 // The generated private-access classes (#2570), imported everywhere this folder is compiled: each names its owner's
 // private members as extension members, which a check reaches wherever it reaches the owner. The architecture audit's
-// --fix-test-only-members writes this file with the classes it generates.
+// --fix-test-only-members and the reachability prune write this file with the classes they generate.
 global using static SuperMetroid.AssetExtraction.Areas.Ceres.Artwork.CeresEscapeTileArtworkDefinitionsPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Areas.Ceres.CeresCinematicPictureSheetComposerPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Areas.Ceres.CeresDoorSourceArtworkPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Areas.Ceres.CeresDoorVisualFilesPrivateAccess;
-global using static SuperMetroid.AssetExtraction.Areas.Ceres.CeresEscapeOverlaysPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Areas.Ceres.CeresEscapeOverlayTilemapFilesPrivateAccess;
+global using static SuperMetroid.AssetExtraction.Areas.Ceres.CeresEscapeOverlaysPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Areas.Ceres.CeresFlightPalettePrivateAccess;
 global using static SuperMetroid.AssetExtraction.Areas.Ceres.CeresFloorDrawingsPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerDoorFadeShadesPrivateAccess;
@@ -160,6 +160,7 @@ global using static SuperMetroid.AssetExtraction.Progression.ProgressionTableCod
 global using static SuperMetroid.AssetExtraction.RoomBlockBehaviorCodecPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlasPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Rooms.DynamicCollectibleGraphicsPrivateAccess;
+global using static SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundProgramDefinitionsPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Rooms.LibraryBackgroundReplayPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Rooms.RoomBackgroundImageGeometryPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Rooms.RoomBackgroundTilemapArtworkFilesPrivateAccess;
@@ -624,9 +625,9 @@ global using static SuperMetroid.Core.Frontend.ScreenFadePrivateAccess;
 global using static SuperMetroid.Core.Frontend.SuperMetroidGamePrivateAccess;
 global using static SuperMetroid.Core.Frontend.Title.TitleSequenceStatePrivateAccess;
 global using static SuperMetroid.Core.Frontend.WhiteWashPrivateAccess;
+global using static SuperMetroid.Core.Fx.ColourEffectSystemPrivateAccess;
 global using static SuperMetroid.Core.Fx.ColourEffects.ColourEffectHeatAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Fx.ColourEffects.GradualFadeStepsPrivateAccess;
-global using static SuperMetroid.Core.Fx.ColourEffectSystemPrivateAccess;
 global using static SuperMetroid.Core.Fx.FirefleaDarknessPrivateAccess;
 global using static SuperMetroid.Core.Fx.FirefleaFxStatePrivateAccess;
 global using static SuperMetroid.Core.Fx.FxOverlayPictureResolutionPrivateAccess;
@@ -727,8 +728,8 @@ global using static SuperMetroid.Core.Samus.Projectiles.BeamChargeLevelPrivateAc
 global using static SuperMetroid.Core.Samus.Projectiles.BeamChargeStatePrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.BeamFiringPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.BombSpreadFlightPrivateAccess;
-global using static SuperMetroid.Core.Samus.Projectiles.ChargedShotGlowPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.ChargeFlareComponentStatePrivateAccess;
+global using static SuperMetroid.Core.Samus.Projectiles.ChargedShotGlowPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.HyperBeamColourEffectStatePrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.PowerBombBlastTimelinePrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.PowerBombRadiusPrivateAccess;
@@ -767,10 +768,10 @@ global using static SuperMetroid.Core.World.RoomStates.RoomEnemyPopulationDefini
 global using static SuperMetroid.Core.World.SamusFramePhasesPrivateAccess;
 global using static SuperMetroid.Core.World.TourianStatueSequencePrivateAccess;
 global using static SuperMetroid.Core.World.XrayRevealPrivateAccess;
-global using static SuperMetroid.Diagnostics.Saves.SaveRamCodecPrivateAccess;
-global using static SuperMetroid.Diagnostics.Saves.SaveRamMapPackingPrivateAccess;
 global using static SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializerPrivateAccess;
 global using static SuperMetroid.Diagnostics.SaveStates.DebuggerSaveStateStorePrivateAccess;
 global using static SuperMetroid.Diagnostics.SaveStates.DebuggerStateFormatPrivateAccess;
 global using static SuperMetroid.Diagnostics.SaveStates.DefinitionCatalogPrivateAccess;
 global using static SuperMetroid.Diagnostics.SaveStates.DefinitionObjectsPrivateAccess;
+global using static SuperMetroid.Diagnostics.Saves.SaveRamCodecPrivateAccess;
+global using static SuperMetroid.Diagnostics.Saves.SaveRamMapPackingPrivateAccess;

@@ -22,7 +22,7 @@ public readonly record struct VramDmaDestination
     private const int ColumnIncrementWords = 32;
 
     /// <summary>Preserves an already encoded native DMA destination word.</summary>
-    internal VramDmaDestination(ushort encoded) => Encoded = encoded;
+    private VramDmaDestination(ushort encoded) => Encoded = encoded;
 
     /// <summary>The native queue word: VMADD in bits 0-14, bit 15 set for the column increment.</summary>
     private ushort Encoded { get; }

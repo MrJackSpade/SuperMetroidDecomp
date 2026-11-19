@@ -38,7 +38,7 @@ public sealed class SamusBodyCharacterArtwork
     /// <param name="top">Upper-body tile definitions grouped by pointer table entry.</param>
     /// <param name="bottom">Lower-body tile definitions grouped by pointer table entry.</param>
     /// <exception cref="InvalidDataException">A group is missing, malformed or does not fill its set's records.</exception>
-    public SamusBodyCharacterArtwork(SamusBodySources body, SamusBodyTileTransfer[][] top, SamusBodyTileTransfer[][] bottom)
+    private SamusBodyCharacterArtwork(SamusBodySources body, SamusBodyTileTransfer[][] top, SamusBodyTileTransfer[][] bottom)
     {
         Body = Ensure.NotNull(body);
         Ensure.NotNull(top);

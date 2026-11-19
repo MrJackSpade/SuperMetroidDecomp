@@ -799,7 +799,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
     /// <summary>Creates one room's effect state, with no room effect selected, its sounds joining <paramref name="sounds"/>.</summary>
     /// <param name="sounds">The update's sound requests of the runtime running the effect.</param>
-    internal RoomFxOverlayState(GameplaySoundRequests sounds)
+    private RoomFxOverlayState(GameplaySoundRequests sounds)
     {
         this.sounds = Ensure.NotNull(sounds);
         Type = RoomFxType.None;

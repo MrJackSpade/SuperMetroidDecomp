@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>One row of the mural behind Mother Brain's tank (#2211, #2258), which her fake death's ascent reveals.</summary>
 /// <param name="Place">The row's place in the mural, counting from its top border row.</param>
-public readonly record struct MotherBrainMuralRow(int Place)
+private readonly record struct MotherBrainMuralRow(int Place)
 {
     /// <summary>The mural's rows, top row first.</summary>
     private static IReadOnlyList<MotherBrainMuralRow> All { get; } =

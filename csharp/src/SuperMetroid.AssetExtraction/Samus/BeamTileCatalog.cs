@@ -15,7 +15,7 @@ public sealed class BeamTileCatalog : IInstalledArtworkContent
     /// <summary>Gets the optional installed fixed-color cycle used by the Hyper Beam visual effect.</summary>
     public HyperBeamFxColours? HyperBeamFxColors { get; }
     /// <summary>Keeps every combination's installed atlas, each read as installed.</summary>
-    internal BeamTileCatalog(BeamTileAtlas[] sheets, InstalledBeamPalettes? palettes,
+    private BeamTileCatalog(BeamTileAtlas[] sheets, InstalledBeamPalettes? palettes,
         HyperBeamFxColours? hyperBeamFxColors)
     {
         this.sheets = sheets;

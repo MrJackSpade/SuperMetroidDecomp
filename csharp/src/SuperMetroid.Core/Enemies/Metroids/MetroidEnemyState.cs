@@ -41,7 +41,7 @@ public sealed class MetroidEnemyState
     /// The Metroid's drain of Samus's energy, a fraction an update: it takes an energy whenever its suit's fraction is
     /// more than what is held over from the last energy it took (<see cref="FractionalEnergyDrain"/>).
     /// </summary>
-    public FractionalEnergyDrain Drain { get; internal set; }
+    public FractionalEnergyDrain Drain { private get; internal set; }
 
     /// <summary>
     /// Drains one update's <paramref name="fraction"/> of an energy and reports whether it takes a whole energy from

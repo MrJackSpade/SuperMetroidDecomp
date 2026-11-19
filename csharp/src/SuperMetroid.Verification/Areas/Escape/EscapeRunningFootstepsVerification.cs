@@ -66,7 +66,7 @@ internal static class EscapeRunningFootstepsVerification
             SamusPresentation.InitializeAnimation(samus, samus.PoseFrameNumbered(8));
             SamusPresentation.SetAnimationFrameFromMovementOwner(samus, samus.AnimationFrameNumbered(8), 1);
             PrivateState.Set(samus.LiquidPhysics, nameof(SamusLiquidPhysicsState.FxType), RoomFxType.Acid);
-            samus.LiquidPhysics.LavaAcidSurfaceY = 0;
+            global::SuperMetroid.Core.PrivateState.Set(samus.LiquidPhysics, "LavaAcidSurfaceY", (int?)(0));
             samus.Drained.RunGetUpCheck(samus, (GameplayAction.Up | GameplayAction.Jump));
             // Before the fix, the stale failed-stand callback selects 18/1 here and the
             // real animation/footstep path throws the exact player-reported exception.

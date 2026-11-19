@@ -25,7 +25,7 @@ internal static class ScrollBoundaryCameraAccess
         /// </summary>
         private void ApplyDebugStimulusX(ushort pixelDistance, ushort target)
         {
-            self.Speed = self.Speed.WithX(SignedSixteenSixteen.FromParts(unchecked((short)pixelDistance), self.Speed.X.Fraction));
+            global::SuperMetroid.Core.PrivateState.Set(self, "Speed", (global::SuperMetroid.Core.Spatial.FixedVector<global::SuperMetroid.Core.Spatial.RoomPixels>)(self.Speed.WithX(SignedSixteenSixteen.FromParts(unchecked((short)pixelDistance), self.Speed.X.Fraction))));
             PrivateState.Set(self, "IdealPosition", self.IdealPosition.WithX(target));
             self.Position = self.Position.WithX(self.Position.X.WithWhole(target));
         }
@@ -33,7 +33,7 @@ internal static class ScrollBoundaryCameraAccess
         /// <summary>The vertical counterpart of <see cref="ApplyDebugStimulusX"/>.</summary>
         private void ApplyDebugStimulusY(ushort pixelDistance, ushort target)
         {
-            self.Speed = self.Speed.WithY(SignedSixteenSixteen.FromParts(unchecked((short)pixelDistance), self.Speed.Y.Fraction));
+            global::SuperMetroid.Core.PrivateState.Set(self, "Speed", (global::SuperMetroid.Core.Spatial.FixedVector<global::SuperMetroid.Core.Spatial.RoomPixels>)(self.Speed.WithY(SignedSixteenSixteen.FromParts(unchecked((short)pixelDistance), self.Speed.Y.Fraction))));
             PrivateState.Set(self, "IdealPosition", self.IdealPosition.WithY(target));
             self.Position = self.Position.WithY(self.Position.Y.WithWhole(target));
         }

@@ -70,7 +70,7 @@ internal static class ResumeChargingSoundCancelVerification
     {
         var fired = new Fixture(SamusPoseId.NormalJumpGunExtendedLeftPose, JumpingPosition, SamusBeamFlags.Charge | SamusBeamFlags.Wave);
         fired.Charge.SetFlareCount(BeamChargeDefinitions.FullyChargedCounter);
-        fired.Samus.PendingTransitionShot = new SamusTransitionShot(SamusProjectileDirection.Left);
+        fired.Samus.PendingTransitionShot = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.SamusTransitionShot>([typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)], new object?[] { (global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)(SamusProjectileDirection.Left) });
         fired.Samus.ResumeChargingBeamSoundPending = true;
         fired.Fire(new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.None, ControllerPreviousNewInput = GameplayAction.None });
         fired.AssertShotCancelled("charged release");
@@ -79,7 +79,7 @@ internal static class ResumeChargingSoundCancelVerification
         // the request and then silences the charge.
         var rejected = new Fixture(SamusPoseId.NormalJumpGunExtendedLeftPose, JumpingPosition, SamusBeamFlags.Charge | SamusBeamFlags.Wave);
         rejected.Charge.SetFlareCount(BeamChargeDefinitions.FullyChargedCounter);
-        rejected.Samus.PendingTransitionShot = new SamusTransitionShot(SamusProjectileDirection.Left);
+        rejected.Samus.PendingTransitionShot = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.SamusTransitionShot>([typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)], new object?[] { (global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)(SamusProjectileDirection.Left) });
         rejected.Bombs.SetSharedCooldown(5);
         rejected.Samus.ResumeChargingBeamSoundPending = true;
         rejected.Fire(new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.None, ControllerPreviousNewInput = GameplayAction.None });

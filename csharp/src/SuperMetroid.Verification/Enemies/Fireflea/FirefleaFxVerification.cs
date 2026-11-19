@@ -67,7 +67,7 @@ internal static class FirefleaFxVerification
             state = Darkness(fx);
             for (int frame = 1; frame <= 78; frame++)
             {
-                fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, FirefleaDarkness = new FirefleaDarkness(step) });
+                fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, FirefleaDarkness = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.FirefleaDarkness>([typeof(int)], new object?[] { (int)(step) }) });
                 int index = step < 5 ? frame / 6 % 12 : frame < 6 ? 0 : 6;
                 // The native shade's bits above the level name the colour channels each write sets, all to the level.
                 int shade = LittleEndianBytes.HighByte((ushort)(darkness[step] + flash[index])) & FadeLevelColour.FullLevel;
@@ -75,7 +75,7 @@ internal static class FirefleaFxVerification
                 AssertEqual(step, state.Darkness.FirefleasKilled, "the enemies' count of Firefleas killed reaches the Fireflea FX state");
             }
             RgbColor retained = state.Tint;
-            fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true, FirefleaDarkness = new FirefleaDarkness(step) });
+            fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true, FirefleaDarkness = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.FirefleaDarkness>([typeof(int)], new object?[] { (int)(step) }) });
             AssertEqual(retained, state.Tint, "frozen death level retains its exact shade");
         }
         // A room without the effect has no Fireflea darkness and shows no Fireflea shade; the darkness lives with its room.
@@ -116,9 +116,9 @@ internal static class FirefleaFxVerification
         AssertEqual(7, FirefleaFxDefinitions.DarknessLevels.Length, "Fireflea darkness steps");
         for (int step = 0; step < FirefleaFxDefinitions.DarknessLevels.Length; step++)
             AssertEqual(LittleEndianBytes.HighByte(CartridgeImportSource.Require(rom).ReadCartridgeWord((FirefleaFxDefinitions.DarknessReferenceAddress + step * 2))) & FadeLevelColour.FullLevel,
-                new FirefleaDarkness(step).Level, $"Original Fireflea darkness of step {step}");
-        AssertThrows<ArgumentOutOfRangeException>(() => new FirefleaDarkness(7), "Darkness upper bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => new FirefleaDarkness(-1), "Darkness negative step");
+                global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.FirefleaDarkness>([typeof(int)], new object?[] { (int)(step) }).Level, $"Original Fireflea darkness of step {step}");
+        AssertThrows<ArgumentOutOfRangeException>(() => global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.FirefleaDarkness>([typeof(int)], new object?[] { (int)(7) }), "Darkness upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.FirefleaDarkness>([typeof(int)], new object?[] { (int)(-1) }), "Darkness negative step");
     }
 
     /// <summary>The Fireflea darkness <paramref name="fx"/>'s room effect started, which the check requires.</summary>
@@ -132,18 +132,18 @@ internal static class FirefleaFxVerification
         var unfrozen = new FirefleaFxState();
         for (int frame = 0; frame < 10; frame++)
         {
-            fireflea.Step(frozen: false, new FirefleaDarkness(0));
-            unfrozen.Step(frozen: false, new FirefleaDarkness(0));
+            fireflea.Step(frozen: false, global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.FirefleaDarkness>([typeof(int)], new object?[] { (int)(0) }));
+            unfrozen.Step(frozen: false, global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.FirefleaDarkness>([typeof(int)], new object?[] { (int)(0) }));
         }
         FirefleaFlashShade look = fireflea.Flash;
-        fireflea.Step(frozen: true, new FirefleaDarkness(1));
+        fireflea.Step(frozen: true, global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.FirefleaDarkness>([typeof(int)], new object?[] { (int)(1) }));
         AssertEqual(look, fireflea.Flash, "frozen Fireflea holds its flash look");
         AssertEqual(1, fireflea.Darkness.FirefleasKilled, "frozen Fireflea still publishes the enemies' darkness");
         // The frozen update counts nothing off the flash (#2488): it goes on exactly as a flash never frozen.
         for (int frame = 0; frame < 2 * FirefleaFxDefinitions.FlashDuration; frame++)
         {
-            fireflea.Step(frozen: false, new FirefleaDarkness(0));
-            unfrozen.Step(frozen: false, new FirefleaDarkness(0));
+            fireflea.Step(frozen: false, global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.FirefleaDarkness>([typeof(int)], new object?[] { (int)(0) }));
+            unfrozen.Step(frozen: false, global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.FirefleaDarkness>([typeof(int)], new object?[] { (int)(0) }));
             AssertEqual(unfrozen.Flash, fireflea.Flash, $"frozen Fireflea holds its flash timer, unfrozen update {frame} after it");
         }
     }
@@ -157,10 +157,10 @@ internal static class FirefleaFxVerification
         {
             for (int step = 1; step < FirefleaFxDefinitions.FlashDuration; step++)
             {
-                fireflea.Step(frozen: false, new FirefleaDarkness(0));
+                fireflea.Step(frozen: false, global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.FirefleaDarkness>([typeof(int)], new object?[] { (int)(0) }));
                 AssertEqual(new FirefleaFlashShade(look), fireflea.Flash, $"look {look} still shows {step} updates in");
             }
-            fireflea.Step(frozen: false, new FirefleaDarkness(0));
+            fireflea.Step(frozen: false, global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.FirefleaDarkness>([typeof(int)], new object?[] { (int)(0) }));
             AssertEqual(new FirefleaFlashShade(look + 1), fireflea.Flash, $"look {look}'s count reaching zero shows the flash's next look");
         }
     }
@@ -182,7 +182,7 @@ internal static class FirefleaFxVerification
         // Seed a late darkness shade through the production FX owner. X-ray freezes
         // the producer, so its display must preserve this value rather than substitute
         // ordinary X-ray's constant seven or restart the flash cycle.
-        runtime.RoomFxOverlay.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, FirefleaDarkness = new FirefleaDarkness(3) });
+        runtime.RoomFxOverlay.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, FirefleaDarkness = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.FirefleaDarkness>([typeof(int)], new object?[] { (int)(3) }) });
         int shade = Darkness(runtime.RoomFxOverlay).Tint.FadeLevels.Red;
         AssertEqual(18, shade, "retail darkness table seeds a shade above X-ray's minimum");
         // The darkness and its shade reach the screen at the accepted frame (#1307).

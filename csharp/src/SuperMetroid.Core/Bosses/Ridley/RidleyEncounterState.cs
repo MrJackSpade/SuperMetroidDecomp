@@ -41,7 +41,7 @@ public abstract class RidleyEncounterState
     internal bool TailAndWingsFlashing { get; set; }
 
     /// <summary>Whether the common enemy draw path draws Ridley's body in the hurt flash's colours this update.</summary>
-    internal bool BodyFlashing { get; set; }
+    internal bool BodyFlashing { private get; set; }
 
     /// <summary>The shading Ridley's tail and wings draw in: his own colours, or the hurt flash's (#1512).</summary>
     public PictureShading TailAndWingsShading => Colours.SpriteShading(TailAndWingsFlashing);

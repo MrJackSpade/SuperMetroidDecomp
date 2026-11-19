@@ -88,13 +88,13 @@ public sealed class EnemyProjectile
     /// behaviour owns (<see cref="EnemyProjectileMotionBehavior{TMotion}"/>), or null while it holds still. Its behaviour starts
     /// it at spawn and changes it; a shot that destroys the projectile stops it.
     /// </summary>
-    internal Enum? Motion { get; set; }
+    internal Enum? Motion { get; private set; }
     /// <summary>
     /// What the projectile's kind does (#1760): it moves the projectile each update, carries out its animations'
     /// cues and names its shot and touch animations. The spawner binds it with the kind; none until then. A projectile
     /// that ends keeps it, so the cues its animation publishes on the way out still reach their owner.
     /// </summary>
-    internal EnemyProjectileBehavior? Behavior { get; set; }
+    internal EnemyProjectileBehavior? Behavior { get; private set; }
     /// <summary>Gets the sheet and shading the projectile draws its own pictures with, as its spawner supplied them.</summary>
     public SpriteGraphics Graphics { get; internal set; }
 

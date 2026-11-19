@@ -547,7 +547,7 @@ internal sealed class BeamFiring
     /// firing a beam or a missile sets it, and it is counted down to none once each gameplay update, after Samus and the
     /// enemies have moved.
     /// </summary>
-    public UpdateCountdown InteractionImmunity { get; internal set; } = UpdateCountdown.Ended();
+    public UpdateCountdown InteractionImmunity { private get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>Whether a shot just fired keeps Samus from interacting with her own projectiles.</summary>
     public bool SuppressesInteraction => InteractionImmunity.IsRunning;

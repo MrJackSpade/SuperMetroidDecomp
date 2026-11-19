@@ -92,7 +92,7 @@ internal static class YappingMawExtensionVerification
         AssertEqual(YappingMawAction.ExtendingOrRetracting, state.Action, "setup begins the extension");
         AssertEqual(SignedSixteenSixteen.Zero, state.Extension.InFixedPoint, "setup starts the curl at zero");
 
-        state.Extension = new YappingMawCurl(start);
+        state.Extension = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Enemies.YappingMaws.YappingMawCurl>([typeof(global::SuperMetroid.Core.Spatial.SignedSixteenSixteen)], new object?[] { (global::SuperMetroid.Core.Spatial.SignedSixteenSixteen)(start) });
         state.SpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(row);
         state.CurlPhase = sign == EnemySpeedSign.Negative ? YappingMawCurlPhase.Retracting : YappingMawCurlPhase.Extending;
         enemies.YappingMawBehavior.RunYappingMawMainAi(place, frame);

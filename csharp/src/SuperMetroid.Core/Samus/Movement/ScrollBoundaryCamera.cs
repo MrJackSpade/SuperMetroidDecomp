@@ -40,7 +40,7 @@ public sealed class ScrollBoundaryCamera
     /// Gets the most recently calculated camera speed on each axis:
     /// the distance Samus moved, either way, plus one pixel.
     /// </summary>
-    public FixedVector<RoomPixels> Speed { get; internal set; }
+    public FixedVector<RoomPixels> Speed { get; private set; }
 
     /// <summary>
     /// Samus's previous position written at the end of scrolling.

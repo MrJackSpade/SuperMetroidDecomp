@@ -116,7 +116,7 @@ internal static class EnemyQuadraticSpeedsVerification
         foreach (EnemySpeedSign sign in signs)
         {
             int speed = EnemySpeedTableCodec.QuadraticSpeedToward(cartridge, EnemySpeedTableCodec.QuadraticTable, row, sign).RawValue;
-            maw.Extension = new YappingMawCurl(SixteenSixteenWords.ToDisplacement(unchecked((int)start)));
+            maw.Extension = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Enemies.YappingMaws.YappingMawCurl>([typeof(global::SuperMetroid.Core.Spatial.SignedSixteenSixteen)], new object?[] { (global::SuperMetroid.Core.Spatial.SignedSixteenSixteen)(SixteenSixteenWords.ToDisplacement(unchecked((int)start))) });
             maw.SpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(row);
             maw.CurlPhase = sign == EnemySpeedSign.Negative ? YappingMawCurlPhase.Retracting : YappingMawCurlPhase.Extending;
             mawAdditions++;

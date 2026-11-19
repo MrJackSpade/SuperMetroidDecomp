@@ -16,7 +16,7 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>
     private const int FractionsPerStep = 256;
 
     /// <summary>Holds the angle in 256ths of a step, 0 through 65535: whole steps and their fraction.</summary>
-    internal RotationAngle(ushort rawValue) => RawValue = rawValue;
+    private RotationAngle(ushort rawValue) => RawValue = rawValue;
 
     /// <summary>The angle in 256ths of a step, 0 through 65535; a full turn wraps to zero.</summary>
     private ushort RawValue { get; }

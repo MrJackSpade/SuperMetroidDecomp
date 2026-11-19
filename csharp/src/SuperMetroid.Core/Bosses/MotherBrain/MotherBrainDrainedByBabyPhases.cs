@@ -19,11 +19,11 @@ internal sealed class MotherBrainDrainedByBabyPhases
     /// The stage of her stagger she walks (#2315): the stages walk forward and back in turn, the first forward, and the last
     /// stays once she has walked it.
     /// </summary>
-    internal ListStep<MotherBrainStaggerStage> PainfulWalkingStage { get; set; } =
+    internal ListStep<MotherBrainStaggerStage> PainfulWalkingStage { get; private set; } =
         ListStep<MotherBrainStaggerStage>.FirstOf(MotherBrainPainfulWalkingDefinitions.Stages);
 
     /// <summary>How fast she staggers in the current stage, slowing as the stages pass.</summary>
-    public MotherBrainWalkSpeed PainfulWalkingSpeed { get; internal set; }
+    public MotherBrainWalkSpeed PainfulWalkingSpeed { get; private set; }
 
     /// <summary>Her pause at the end of the current stage's walk (#2469), or null while she walks it.</summary>
     private BossCountdown? PainfulWalkingPause { get; set; }

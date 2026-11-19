@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Fx;
 /// the camera. The bands' sideways drift is read while the frame is drawn and is not part of this latch.
 /// </summary>
 /// <param name="CameraRow">The room row at the camera when the sky last moved; a camera above the room's top is at a negative row.</param>
-public readonly record struct LatchedScrollingSky(int CameraRow)
+private readonly record struct LatchedScrollingSky(int CameraRow)
 {
     /// <summary>The sky as it stands, or null when the room has no scrolling sky.</summary>
     public static LatchedScrollingSky? Capture(ScrollingSkyState? sky) =>

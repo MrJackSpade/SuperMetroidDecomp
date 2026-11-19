@@ -56,7 +56,7 @@ public sealed class ProjectileLaunchInheritance
     /// The camera's vertical speed as it tracked Samus on its last update (#2555). The camera records it at the end of its
     /// update; a leftward launch inherits the top part of its fraction of a pixel as its own fraction.
     /// </summary>
-    public SignedSixteenSixteen CameraVerticalSpeed { get; set; }
+    public SignedSixteenSixteen CameraVerticalSpeed { private get; set; }
 
     /// <summary>Records one horizontal movement update's signed distance, replacing the last one in <paramref name="direction"/>.</summary>
     public void Record(HorizontalDirection direction, SignedSixteenSixteen distance) => _distances[Place(direction)] = distance;

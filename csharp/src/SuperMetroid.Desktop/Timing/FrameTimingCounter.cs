@@ -36,7 +36,7 @@ public sealed class FrameTimingCounter
     }
 
     /// <summary>Injectable clock geometry used by the deterministic timing smoke test.</summary>
-    public FrameTimingCounter(long timestampFrequency, TimeSpan reportingInterval)
+    private FrameTimingCounter(long timestampFrequency, TimeSpan reportingInterval)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(timestampFrequency);
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(reportingInterval, TimeSpan.Zero);

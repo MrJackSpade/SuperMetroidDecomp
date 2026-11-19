@@ -132,8 +132,8 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The dive toward Samus along <paramref name="angle"/>, the mirrored trigonometry angle of her bearing: the dive's speed
-    /// across along its sine and its speed down along its sine a quarter turn behind (the negative cosine).
+    /// The dive toward Samus along <paramref name="angle"/>, her aim: the dive's speed across along its cosine and its speed
+    /// down along its negative sine (the sine a half turn ahead), since the aim counts up and rooms count down.
     /// </summary>
     internal static PixelVelocity<RoomPixels> DiveVelocity(TrigonometryAngle angle) => new(
         EnemyMath.SineVelocity(angle + TrigonometryAngle.QuarterTurn, FlyMotionDefinitions.DiveAcrossSpeed),

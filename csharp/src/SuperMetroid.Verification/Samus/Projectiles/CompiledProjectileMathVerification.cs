@@ -72,15 +72,15 @@ internal static class CompiledProjectileMathVerification
                 rainbow((ushort)speed, cosineAngle) != expected)
                 throw new InvalidDataException($"Signed projectile product differs: angle={angle}, speed={speed}.");
         }
-        // The fly's circle step and dive read the native view at the angle a quarter turn ahead across and at the angle
-        // itself down (the negative cosine), the dive doubling and quadrupling the samples; the eye shot takes a
-        // sixteenth of the sample, shifted toward negative infinity.
+        // The fly's circle step (at a table angle) and dive (at the aim of a clockwise-from-up word) read the native view
+        // at the angle a quarter turn ahead across and at the angle itself down (the negative cosine), the dive doubling
+        // and quadrupling the samples; the eye shot takes a sixteenth of the sample, shifted toward negative infinity.
         for (int angle = 0; angle < 256; angle++)
         {
             var tableAngle = new TrigonometryAngle(angle);
             AssertEqual(new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(native[angle + 64]), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(native[angle])), flyCircle(tableAngle),
                 "fly circle step: sine across, negative cosine down");
-            AssertEqual(new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(native[angle + 64] * 2), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(native[angle] * 4)), flyDive(tableAngle),
+            AssertEqual(new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(native[angle + 64] * 2), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(native[angle] * 4)), flyDive(AimAngleConstants.FromClockwiseSteps(angle)),
                 "fly dive: doubled sine across, quadrupled negative cosine down");
             AssertEqual((short)(native[angle + 64] >> 4), eye((byte)angle), "eye arithmetic shift");
         }

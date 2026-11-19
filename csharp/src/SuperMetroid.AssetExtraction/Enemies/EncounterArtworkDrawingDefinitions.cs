@@ -44,28 +44,28 @@ internal static class EncounterArtworkDrawingDefinitions
 
     /// <summary>The gunship's hull, drawn landed and through its takeoff.</summary>
     private static readonly EncounterArtworkDrawing GunshipHull =
-        new(ComposedEncounter.Gunship, [EncounterLook.LoadedName, GunshipTakeoffDefinitions.TakeoffLook.Name])
+        new(ComposedEncounter.Gunship, [ComposedLook.Loaded(ComposedEncounter.Gunship), ComposedLook.Of(ComposedEncounter.Gunship, GunshipTakeoffDefinitions.TakeoffLook)])
         {
             Frames = [.. GunshipAnimations.Segments.Frames],
         };
 
     /// <summary>The takeoff's dust, which the engines raise once they fire up: never while the gunship is landed.</summary>
     private static readonly EncounterArtworkDrawing GunshipDust =
-        new(ComposedEncounter.Gunship, [GunshipTakeoffDefinitions.TakeoffLook.Name])
+        new(ComposedEncounter.Gunship, [ComposedLook.Of(ComposedEncounter.Gunship, GunshipTakeoffDefinitions.TakeoffLook)])
         {
             Projectiles = [.. GunshipDustAnimations.Segments.Frames],
         };
 
     /// <summary>Crocomire's skeleton, shown only once his death has bared it.</summary>
     private static readonly EncounterArtworkDrawing CrocomireSkeleton =
-        new(ComposedEncounter.Crocomire, [CrocomireSkeletonLookDefinitions.SkeletonLook.Name])
+        new(ComposedEncounter.Crocomire, [ComposedLook.Of(ComposedEncounter.Crocomire, CrocomireSkeletonLookDefinitions.SkeletonLook)])
         {
             Frames = [.. CrocomireSkeletonVisualDefinitions.Frames],
         };
 
     /// <summary>Crocomire's projectiles: his fight's before his death, and the spike wall's pieces after the skeleton shows.</summary>
     private static readonly EncounterArtworkDrawing CrocomireProjectiles =
-        new(ComposedEncounter.Crocomire, [EncounterLook.LoadedName, CrocomireSkeletonLookDefinitions.SkeletonLook.Name])
+        new(ComposedEncounter.Crocomire, [ComposedLook.Loaded(ComposedEncounter.Crocomire), ComposedLook.Of(ComposedEncounter.Crocomire, CrocomireSkeletonLookDefinitions.SkeletonLook)])
         {
             Projectiles = [.. CrocomireAnimations.ProjectileSegments.Frames],
         };
@@ -75,7 +75,7 @@ internal static class EncounterArtworkDrawingDefinitions
     /// face half blown away and its face blown away.
     /// </summary>
     private static readonly EncounterArtworkDrawing BombTorizoBody =
-        new(ComposedEncounter.BombTorizo, [EncounterLook.LoadedName, .. Bomb(L.EyesDark, L.EyesGlowingFaintly, L.EyesGlowingBrightly, L.EyesGlowingFully,
+        new(ComposedEncounter.BombTorizo, [ComposedLook.Loaded(ComposedEncounter.BombTorizo), .. Bomb(L.EyesDark, L.EyesGlowingFaintly, L.EyesGlowingBrightly, L.EyesGlowingFully,
             L.EyesDarkAgain, L.EyesGlowingFaintlyAgain, L.EyesGlowingBrightlyAgain, L.EyesGlowingFullyAgain, L.GutBlownUp, L.FaceHalfBlownAway, L.FaceBlownUp)])
         {
             Frames = [.. TorizoAnimations.Segments.Frames],
@@ -109,7 +109,7 @@ internal static class EncounterArtworkDrawingDefinitions
     /// initialization, before its first draw; the doors of the set's other rooms are drawn as their load leaves them.
     /// </summary>
     private static readonly EncounterArtworkDrawing CeresDoors =
-        new(ComposedEncounter.CeresElevatorDoor, [EncounterLook.LoadedName, CeresElevatorDoorLookDefinitions.OverlayLook.Name])
+        new(ComposedEncounter.CeresElevatorDoor, [ComposedLook.Loaded(ComposedEncounter.CeresElevatorDoor), ComposedLook.Of(ComposedEncounter.CeresElevatorDoor, CeresElevatorDoorLookDefinitions.OverlayLook)])
         {
             Frames = [.. CeresDoorAnimations.Segments.Frames.Except([EnemyFrameId.CeresElevatorDoorBlocked])],
         };
@@ -121,7 +121,7 @@ internal static class EncounterArtworkDrawingDefinitions
     /// Ridley's arena they are Ridley's own.
     /// </summary>
     private static readonly EncounterArtworkDrawing CeresElevatorDoorBlocked =
-        new(ComposedEncounter.CeresElevatorDoor, [CeresElevatorDoorLookDefinitions.OverlayLook.Name])
+        new(ComposedEncounter.CeresElevatorDoor, [ComposedLook.Of(ComposedEncounter.CeresElevatorDoor, CeresElevatorDoorLookDefinitions.OverlayLook)])
         {
             Frames = [EnemyFrameId.CeresElevatorDoorBlocked],
         };
@@ -164,7 +164,7 @@ internal static class EncounterArtworkDrawingDefinitions
 
     /// <summary>Mother Brain's living brain, whose faces her room's load holds.</summary>
     private static readonly EncounterArtworkDrawing MotherBrainHead =
-        new(ComposedEncounter.MotherBrain, [EncounterLook.LoadedName])
+        new(ComposedEncounter.MotherBrain, [ComposedLook.Loaded(ComposedEncounter.MotherBrain)])
         {
             Frames = [.. MotherBrainVisualDefinitions.HeadFrames.Except(MotherBrainCorpseFrames).Except(MotherBrainAttackFaces),
                 MotherBrainVisualDefinitions.NeckJointFrame],
@@ -231,7 +231,7 @@ internal static class EncounterArtworkDrawingDefinitions
 
     /// <summary>Mother Brain's other effects, her breath, drool and blasts, which her room's load holds.</summary>
     private static readonly EncounterArtworkDrawing MotherBrainEffects =
-        new(ComposedEncounter.MotherBrain, [EncounterLook.LoadedName])
+        new(ComposedEncounter.MotherBrain, [ComposedLook.Loaded(ComposedEncounter.MotherBrain)])
         {
             Projectiles = [.. MotherBrainEffectAnimations.Segments.Frames
                 .Except(MotherBrainRings).Except(MotherBrainAttackEffects).Except(MotherBrainDoorFragments).Except(MotherBrainSubtitle)],
@@ -263,7 +263,7 @@ internal static class EncounterArtworkDrawingDefinitions
 
     /// <summary>The dust rising from Mother Brain's death, her corpse's rot and the exploding escape door, which her room's load holds.</summary>
     private static readonly EncounterArtworkDrawing MotherBrainDust =
-        new(ComposedEncounter.MotherBrain, [EncounterLook.LoadedName])
+        new(ComposedEncounter.MotherBrain, [ComposedLook.Loaded(ComposedEncounter.MotherBrain)])
         {
             Projectiles = [.. DustExplosionProjectileAnimations.Segments.Frames],
         };
@@ -296,9 +296,11 @@ internal static class EncounterArtworkDrawingDefinitions
         MotherBrainDust,
     ];
 
-    /// <summary>The names of Bomb Torizo's <paramref name="looks"/>.</summary>
-    private static IEnumerable<string> Bomb(params TorizoArtworkLook[] looks) => looks.Select(look => look.Of(EncounterArtwork.BombTorizo).Name);
+    /// <summary>Bomb Torizo's <paramref name="looks"/>.</summary>
+    private static IEnumerable<ComposedLook> Bomb(params TorizoArtworkLook[] looks) =>
+        looks.Select(look => ComposedLook.Of(ComposedEncounter.BombTorizo, look.Of(EncounterArtwork.BombTorizo)));
 
-    /// <summary>The names of Golden Torizo's <paramref name="looks"/>.</summary>
-    private static IEnumerable<string> Golden(params TorizoArtworkLook[] looks) => looks.Select(look => look.Of(EncounterArtwork.GoldenTorizo).Name);
+    /// <summary>Golden Torizo's <paramref name="looks"/>.</summary>
+    private static IEnumerable<ComposedLook> Golden(params TorizoArtworkLook[] looks) =>
+        looks.Select(look => ComposedLook.Of(ComposedEncounter.GoldenTorizo, look.Of(EncounterArtwork.GoldenTorizo)));
 }

@@ -199,7 +199,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         ImportEnemyArtwork artwork, MotherBrainSpecialSpriteSheetDefinition sheet)
     {
         var resolver = new EnemyTileTransfers(new ImportEnemyArtwork(artwork.Enemies, artwork.Bosses, InstalledFixtures.AreaArtwork));
-        string look = sheet.Sheet switch
+        ComposedLook look = sheet.Sheet switch
         {
             MotherBrainSpriteSheet.Legs => EncounterLookUploads.MotherBrainLegsLook,
             MotherBrainSpriteSheet.BabyMetroid => EncounterLookUploads.MotherBrainBabyLook,

@@ -38,32 +38,32 @@ internal static class EncounterLookUploads
         [EnemyDefinitionId.MotherBrainHead] = ComposedEncounter.MotherBrain,
     };
 
-    /// <summary>The name of Draygon's look once her opening has readied the Evirs she releases.</summary>
-    internal const string DraygonEvirsLook = "Evirs";
+    /// <summary>Draygon's look once her opening has readied the Evirs she releases.</summary>
+    internal static ComposedLook DraygonEvirsLook { get; } = new(ComposedEncounter.DraygonEvirs, "Evirs");
 
-    /// <summary>The name of Mother Brain's look once her rise has copied her legs.</summary>
-    internal const string MotherBrainLegsLook = "Legs";
+    /// <summary>Mother Brain's look once her rise has copied her legs.</summary>
+    internal static ComposedLook MotherBrainLegsLook { get; } = new(ComposedEncounter.MotherBrain, "Legs");
 
-    /// <summary>The name of Mother Brain's look once her rise has copied her attacks back over her legs.</summary>
-    internal const string MotherBrainAttackLook = "Attack";
+    /// <summary>Mother Brain's look once her rise has copied her attacks back over her legs.</summary>
+    internal static ComposedLook MotherBrainAttackLook { get; } = new(ComposedEncounter.MotherBrain, "Attack");
 
-    /// <summary>The name of Mother Brain's look once the finish-off has copied the Baby Metroid.</summary>
-    internal const string MotherBrainBabyLook = "Baby";
+    /// <summary>Mother Brain's look once the finish-off has copied the Baby Metroid.</summary>
+    internal static ComposedLook MotherBrainBabyLook { get; } = new(ComposedEncounter.MotherBrain, "Baby");
 
-    /// <summary>The name of Mother Brain's look once the Baby's cutscene has copied her attacks again.</summary>
-    internal const string MotherBrainAttackAgainLook = "AttackAgain";
+    /// <summary>Mother Brain's look once the Baby's cutscene has copied her attacks again.</summary>
+    internal static ComposedLook MotherBrainAttackAgainLook { get; } = new(ComposedEncounter.MotherBrain, "AttackAgain");
 
-    /// <summary>The name of Mother Brain's look once her death has copied her corpse.</summary>
-    internal const string MotherBrainCorpseLook = "Corpse";
+    /// <summary>Mother Brain's look once her death has copied her corpse.</summary>
+    internal static ComposedLook MotherBrainCorpseLook { get; } = new(ComposedEncounter.MotherBrain, "Corpse");
 
-    /// <summary>The name of Mother Brain's look once her death has copied the escape timer.</summary>
-    internal const string MotherBrainEscapeTimerLook = "EscapeTimer";
+    /// <summary>Mother Brain's look once her death has copied the escape timer.</summary>
+    internal static ComposedLook MotherBrainEscapeTimerLook { get; } = new(ComposedEncounter.MotherBrain, "EscapeTimer");
 
-    /// <summary>The name of Mother Brain's look once her death has copied the escape message.</summary>
-    internal const string MotherBrainEscapeTextLook = "EscapeText";
+    /// <summary>Mother Brain's look once her death has copied the escape message.</summary>
+    internal static ComposedLook MotherBrainEscapeTextLook { get; } = new(ComposedEncounter.MotherBrain, "EscapeText");
 
-    /// <summary>The name of Mother Brain's look once her death has copied the exploded escape door.</summary>
-    internal const string MotherBrainExplodedDoorLook = "ExplodedDoor";
+    /// <summary>Mother Brain's look once her death has copied the exploded escape door.</summary>
+    internal static ComposedLook MotherBrainExplodedDoorLook { get; } = new(ComposedEncounter.MotherBrain, "ExplodedDoor");
 
     /// <summary>
     /// Mother Brain's looks after her room's load, in the order she shows them, each with the sheet whose pages it copies:
@@ -148,30 +148,34 @@ internal static class EncounterLookUploads
         _ => throw new InvalidDataException($"Undefined {nameof(ComposedEncounter)} {encounter}."),
     };
 
-    /// <summary>The names of <paramref name="encounter"/>'s looks in the order it shows them, its room's load first.</summary>
+    /// <summary><paramref name="encounter"/>'s looks in the order it shows them, its room's load first.</summary>
     /// <exception cref="InvalidDataException">The encounter is not one the import composes.</exception>
-    internal static IReadOnlyList<string> Looks(ComposedEncounter encounter) => encounter switch
+    internal static IReadOnlyList<ComposedLook> Looks(ComposedEncounter encounter) => encounter switch
     {
-        ComposedEncounter.DraygonEvirs => [EncounterLook.LoadedName, DraygonEvirsLook],
-        ComposedEncounter.Gunship => [EncounterLook.LoadedName, GunshipTakeoffDefinitions.TakeoffLook.Name],
-        ComposedEncounter.Crocomire => [EncounterLook.LoadedName, CrocomireSkeletonLookDefinitions.SkeletonLook.Name],
-        ComposedEncounter.BombTorizo => [EncounterLook.LoadedName,
-            .. TorizoLookUploadDefinitions.BombSequence.Select(look => look.Of(EncounterArtwork.BombTorizo).Name)],
-        ComposedEncounter.GoldenTorizo => [EncounterLook.LoadedName,
-            .. TorizoLookUploadDefinitions.GoldenSequence.Select(look => look.Of(EncounterArtwork.GoldenTorizo).Name)],
-        ComposedEncounter.CeresEscape => [EncounterLook.LoadedName, CeresEscapeWarningLookDefinitions.WarningLook.Name],
-        ComposedEncounter.CeresElevatorDoor => [EncounterLook.LoadedName, CeresElevatorDoorLookDefinitions.OverlayLook.Name],
-        ComposedEncounter.MotherBrain => [EncounterLook.LoadedName, .. MotherBrainLooks.Select(look => look.Name)],
+        ComposedEncounter.DraygonEvirs => [ComposedLook.Loaded(encounter), DraygonEvirsLook],
+        ComposedEncounter.Gunship => [ComposedLook.Loaded(encounter), ComposedLook.Of(encounter, GunshipTakeoffDefinitions.TakeoffLook)],
+        ComposedEncounter.Crocomire => [ComposedLook.Loaded(encounter), ComposedLook.Of(encounter, CrocomireSkeletonLookDefinitions.SkeletonLook)],
+        ComposedEncounter.BombTorizo => [ComposedLook.Loaded(encounter),
+            .. TorizoLookUploadDefinitions.BombSequence.Select(look => ComposedLook.Of(encounter, look.Of(EncounterArtwork.BombTorizo)))],
+        ComposedEncounter.GoldenTorizo => [ComposedLook.Loaded(encounter),
+            .. TorizoLookUploadDefinitions.GoldenSequence.Select(look => ComposedLook.Of(encounter, look.Of(EncounterArtwork.GoldenTorizo)))],
+        ComposedEncounter.CeresEscape => [ComposedLook.Loaded(encounter), ComposedLook.Of(encounter, CeresEscapeWarningLookDefinitions.WarningLook)],
+        ComposedEncounter.CeresElevatorDoor => [ComposedLook.Loaded(encounter), ComposedLook.Of(encounter, CeresElevatorDoorLookDefinitions.OverlayLook)],
+        ComposedEncounter.MotherBrain => [ComposedLook.Loaded(encounter), .. MotherBrainLooks.Select(look => look.Look)],
         _ => throw new InvalidDataException($"Undefined {nameof(ComposedEncounter)} {encounter}."),
     };
 
-    /// <summary>The place among <paramref name="encounter"/>'s looks of the one named <paramref name="look"/>.</summary>
-    /// <exception cref="InvalidDataException">The encounter has no such look.</exception>
-    internal static int IndexOf(ComposedEncounter encounter, string look)
+    /// <summary>The place of <paramref name="look"/> among <paramref name="encounter"/>'s looks.</summary>
+    /// <exception cref="InvalidDataException">The look is none of the encounter's.</exception>
+    internal static int IndexOf(ComposedEncounter encounter, ComposedLook look)
     {
-        int index = Looks(encounter).ToList().IndexOf(look);
+        int index = look.Encounter == encounter ? Looks(encounter).ToList().IndexOf(look) : -1;
         return index >= 0 ? index : throw new InvalidDataException($"{encounter} has no look {look}.");
     }
+
+    /// <summary>The place among <paramref name="encounter"/>'s looks of the look gameplay names as <paramref name="look"/>.</summary>
+    /// <exception cref="InvalidDataException">The look is none of the encounter's.</exception>
+    internal static int IndexOf(ComposedEncounter encounter, EncounterLook look) => IndexOf(encounter, ComposedLook.Of(encounter, look));
 
     /// <summary>What each of <paramref name="encounter"/>'s looks copies, resolved against <paramref name="installed"/>.</summary>
     /// <exception cref="InvalidDataException">The installed artwork lacks a look's characters.</exception>
@@ -296,7 +300,7 @@ internal static class EncounterLookUploads
     /// <summary>One of Mother Brain's looks after her room's load.</summary>
     /// <param name="Name">The look's name.</param>
     /// <param name="Sheet">The sheet whose pages the look copies.</param>
-    private readonly record struct MotherBrainLook(string Name, MotherBrainSpriteSheet Sheet);
+    private readonly record struct MotherBrainLook(ComposedLook Look, MotherBrainSpriteSheet Sheet);
 
     /// <summary>The installed area artwork <paramref name="installed"/> holds.</summary>
     /// <exception cref="InvalidOperationException">It holds no installed area artwork.</exception>

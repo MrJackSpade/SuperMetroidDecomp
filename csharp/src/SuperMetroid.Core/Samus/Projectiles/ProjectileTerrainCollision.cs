@@ -457,7 +457,7 @@ internal sealed class ProjectileTerrainCollision
     /// <summary>Converts a missile impact to its family-specific explosion and requests Super Missile quake and impact audio.</summary>
     internal void KillMissile(
         SamusProjectile shot,
-        SamusBombProjectileSystem sharedProjectiles)
+        SamusBombProjectileSystem samusBombs)
     {
         // The kill step clears families beyond missiles immediately. A Super
         // Missile's supplemental probe can collide again after becoming an explosion;
@@ -489,8 +489,8 @@ internal sealed class ProjectileTerrainCollision
 
         // Only cooldowns past the cap are shortened to it. A missile's is shorter, so an ordinary
         // wall impact does not extend or replace its remaining fire delay.
-        if (sharedProjectiles.CooldownTimer > SamusProjectileCooldownDefinitions.WallImpactCooldownCap)
-            sharedProjectiles.SetSharedCooldown(SamusProjectileCooldownDefinitions.WallImpactCooldownCap);
+        if (samusBombs.CooldownTimer > SamusProjectileCooldownDefinitions.WallImpactCooldownCap)
+            samusBombs.SetSharedCooldown(SamusProjectileCooldownDefinitions.WallImpactCooldownCap);
     }
     /// <summary>
     /// Scans the rows a Wave shot's leading edge spans for block reactions, one row per step from its top row; where the

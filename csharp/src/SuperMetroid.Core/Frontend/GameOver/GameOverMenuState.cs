@@ -211,7 +211,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Captures the page and the sprites over it; the game-over screen shows no backdrop page.</summary>
-    public LayeredScene CaptureRenderSnapshot()
+    public LayeredScene ComposeScene()
     {
         PrepareRenderSprites();
         // The page is one installed picture of the whole game-over page (#1467).

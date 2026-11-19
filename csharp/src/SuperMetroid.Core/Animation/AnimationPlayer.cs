@@ -275,7 +275,7 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
     /// <summary>
     /// Goes on playing <paramref name="animation"/>, of the same segments, in place of the animation playing (#2404): from
     /// where the play stands, the shown frame keeping its updates left, so the frames after it take their timing from the
-    /// new animation, as the Shitroid's membrane pulse changes its pace.
+    /// new animation, as the Baby Metroid's membrane pulse changes its pace.
     /// </summary>
     internal void GoOnIn(Animation<TSegment> animation) => Rebind(segments, animation);
 

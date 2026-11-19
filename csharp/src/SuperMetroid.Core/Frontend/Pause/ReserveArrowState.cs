@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 internal enum ReserveArrowState
 {
     /// <summary>The arrow is shown dim.</summary>
-    Hidden,
+    Dim,
 
     /// <summary>The arrow is shown in its solid colours.</summary>
     Solid,

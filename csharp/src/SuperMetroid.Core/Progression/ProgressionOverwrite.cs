@@ -26,4 +26,4 @@ public sealed record ProgressionOverwrite(
     DecidedFlags<LockedDoor> OpenedDoors,
     DecidedFlags<LoadStation> UsedStations,
     IReadOnlyDictionary<AreaId, bool> AreaMaps,
-    SaveLoadingGameState? SavedStartupRoute);
+    SaveStartupRoute? SavedStartupRoute);

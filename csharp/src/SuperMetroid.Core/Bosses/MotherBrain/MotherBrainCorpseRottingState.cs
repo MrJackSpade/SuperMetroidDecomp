@@ -11,13 +11,13 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 public sealed class MotherBrainCorpseRottingState
 {
     /// <summary>The corpse's visible pixel rows, each of which the rot schedule drops.</summary>
-    public const int EntryCount = MotherBrainCorpseArtworkDefinitions.PixelRowCount;
+    public const int RowCount = MotherBrainCorpseArtworkDefinitions.PixelRowCount;
 
     /// <summary>The corpse's own rot schedule, from before its first rot update.</summary>
-    internal CorpseRotSchedule Schedule { get; } = new(EntryCount);
+    internal CorpseRotSchedule Schedule { get; } = new(RowCount);
 
     /// <summary>The corpse's rows as its rot has left them.</summary>
-    private readonly RottingCorpseRows rows = new(EntryCount);
+    private readonly RottingCorpseRows rows = new(RowCount);
 
     /// <summary>The corpse's rows as its rot has left them so far (#1539).</summary>
     internal CorpseRotRows Shown => rows.Shown;

@@ -39,10 +39,10 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     }
 
     /// <summary>What has armed the elevator's pseudo-door: nothing, a collision with it, or an elevator door load.</summary>
-    public ElevatorJourneyFlag ElevatorFlags
+    public ElevatorArming DoorArming
     {
-        get => _room.Session.Elevator.Flags;
-        internal set => _room.Session.Elevator.Flags = value;
+        get => _room.Session.Elevator.DoorArming;
+        internal set => _room.Session.Elevator.DoorArming = value;
     }
 
     /// <summary>The elevator status, shared across the departure and destination room actors.</summary>
@@ -83,13 +83,13 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     /// Repeated collision scans may set the same status again; the waiting AI clears it when
     /// the direction is not newly pressed, exactly like the elevator's waiting step.
     /// </summary>
-    public void PublishElevatorDoorContact() => ElevatorFlags = ElevatorJourneyFlag.DoorContact;
+    public void PublishElevatorDoorContact() => DoorArming = ElevatorArming.DoorContact;
 
     /// <summary>
     /// Gameplay resumes from the pause, which disarms the pseudo-door (<see cref="UnpauseDisarmsElevator"/>): reaching it
     /// mid-ride starts the door at once, without the down-elevator wait.
     /// </summary>
-    public void ResumeFromPause() => ElevatorFlags = UnpauseDisarmsElevator.ArmingAfterResume(ElevatorJourneyFlag.None);
+    public void ResumeFromPause() => DoorArming = UnpauseDisarmsElevator.ArmingAfterResume(ElevatorArming.None);
 
     /// <summary>
     /// Marks the ride as passing through the elevator's door, so the destination elevator's setup sees an arrival
@@ -97,7 +97,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     /// </summary>
     public void PrepareElevatorArrival()
     {
-        ElevatorFlags = ElevatorJourneyFlag.DoorLoad;
+        DoorArming = ElevatorArming.DoorLoad;
         ElevatorStatus = ElevatorActorStatus.BeginArrivalReturn;
     }
 
@@ -105,7 +105,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     public void ResetStatus()
     {
         ElevatorStatus = ElevatorActorStatus.Inactive;
-        ElevatorFlags = ElevatorJourneyFlag.None;
+        DoorArming = ElevatorArming.None;
     }
 
     /// <summary>Initializes the Elevator.</summary>
@@ -122,7 +122,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         // is arriving in starts at its arrival height with Samus on it.
         if (ElevatorStatus != ElevatorActorStatus.BeginArrivalReturn)
         {
-            ElevatorFlags = ElevatorJourneyFlag.None;
+            DoorArming = ElevatorArming.None;
             ElevatorStatus = ElevatorActorStatus.Inactive;
             return;
         }
@@ -141,7 +141,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         SamusProjectileSystem samusProjectiles)
     {
         if (_doorPassage.IsUnderWay ||
-            (ElevatorStatus == ElevatorActorStatus.Inactive && ElevatorFlags == ElevatorJourneyFlag.None))
+            (ElevatorStatus == ElevatorActorStatus.Inactive && DoorArming == ElevatorArming.None))
         {
             return;
         }
@@ -187,7 +187,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         GameplayAction requiredInput = ElevatorActorDefinitions.RequiredDirectionInputs[direction];
         if (!newlyPressedControllerInput.HasAny(requiredInput))
         {
-            ElevatorFlags = ElevatorJourneyFlag.None;
+            DoorArming = ElevatorArming.None;
             return;
         }
 
@@ -238,7 +238,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         }
 
         ElevatorStatus = ElevatorActorStatus.Inactive;
-        ElevatorFlags = ElevatorJourneyFlag.None;
+        DoorArming = ElevatorArming.None;
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.ElevatorSoundStop, priority: SoundRequestPriority.Normal);
         place.Position = place.Position.WithWholeY(state.RestingY);
         samus.Control.Unlock();
@@ -271,7 +271,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
             static (_, cue) => throw new InvalidOperationException($"A cue-free Elevator animation raised {cue}."));
 
     /// <summary>Runs Elevator's initialization AI.</summary>
-    internal void RunElevatorInitializationAi(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
+    internal void SetUpElevator(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
     {
         InitializeElevator(place, surroundings.Samus);
     }

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// park or delete an actor read such a place as lying before the room (a signed reading below zero) while every
 /// comparison with a place inside the room measures it the short way (<see cref="DistanceAcrossRoomEdge"/>). Draygon
 /// parks 80 pixels left of and above his arena between passes, Phantoon's swoop holds him as far as 64 pixels left of his
-/// room, the gunship climbs out past the top of Crateria's landing site, Mother Brain's Shitroid leaves 128 pixels left
+/// room, the gunship climbs out past the top of Crateria's landing site, Mother Brain's Baby Metroid leaves 128 pixels left
 /// of her room, the Tourian statue's particles and the room's projectiles move past the top or left before they are
 /// deleted there, and Samus's beam combos circle her past the room's edges; each keeps its place this way, and its
 /// next test reads it as before the room.

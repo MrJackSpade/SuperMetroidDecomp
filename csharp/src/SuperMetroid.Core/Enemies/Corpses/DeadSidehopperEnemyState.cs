@@ -37,32 +37,32 @@ public sealed class DeadSidehopperEnemyState
     public UpdateCountdown DrainStageWait { get; internal set; } = UpdateCountdown.Lasting(DeadSidehopperVictimDefinitions.DrainUpdatesPerStage);
 
     /// <summary>
-    /// How far Shitroid's drain has gone (#2369); absent for a corpse placed already dead, which has no drain and is
+    /// How far Baby Metroid's drain has gone (#2369); absent for a corpse placed already dead, which has no drain and is
     /// drained from the start (<see cref="IsDrained"/>).
     /// </summary>
     public SidehopperDrainStage? DrainStage { get; internal set; }
 
     /// <summary>
-    /// Whether the corpse is drained, placed already dead or turned into a corpse by Shitroid's feeding, so a shot, touch
+    /// Whether the corpse is drained, placed already dead or turned into a corpse by Baby Metroid's feeding, so a shot, touch
     /// or Power Bomb starts it rotting.
     /// </summary>
     internal bool IsDrained => DrainStage is not { } stage || stage.IsDrained;
 
     /// <summary>
-    /// Whether draining has begun: Shitroid has fed on the corpse, or it was placed already dead. The hop's end and the
+    /// Whether draining has begun: Baby Metroid has fed on the corpse, or it was placed already dead. The hop's end and the
     /// post-landing pause turn to the drain once it has.
     /// </summary>
     internal bool HasBegunDraining => DrainStage is not { } stage || stage.HasBegun;
 
     /// <summary>
     /// The colours the corpse shows, from how far its drain has gone (#1512): a corpse placed already dead lies in the
-    /// drained corpses' colours; the victim shows the colours the Shitroid's room entry gives it until the drain's first
+    /// drained corpses' colours; the victim shows the colours the Baby Metroid's room entry gives it until the drain's first
     /// step, then each step of the drain in turn.
     /// </summary>
     internal PictureShading Shading => DrainStage switch
     {
         null => TourianCorpseShades.InDrainedColours,
-        { IsShaded: false } => TourianCorpseShades.InShitroidTargetColours,
+        { IsShaded: false } => TourianCorpseShades.InBabyMetroidTargetColours,
         { } stage => PictureShading.Shaded(TourianCorpseShades.SidehopperDrain(stage)),
     };
 

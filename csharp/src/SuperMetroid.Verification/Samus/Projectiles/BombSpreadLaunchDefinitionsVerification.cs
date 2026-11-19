@@ -54,7 +54,7 @@ internal static class BombSpreadLaunchDefinitionsVerification
                 AssertEqual(samus.Position.Y.Whole,slot.Position.Y.Whole,"Spread launch Y wraps with Samus");
             }
             AssertEqual(MorphBallBombDefinitions.PlaceCount,bombs.BombCounter,"Spread allocates all five slots");
-            AssertEqual(0, samus.BeamCharge.FlareCounter,"Spread consumes charge");
+            AssertEqual(0, samus.BeamCharge.UpdatesHeld,"Spread consumes charge");
             AssertEqual(0, samus.BombSpreadCharge.Age,"Spread clears hold counter");
         }
         Console.WriteLine("Bomb Spread launch: twenty native words and 327680 actual slot initializations match with launch ROM reads forbidden.");

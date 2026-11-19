@@ -318,7 +318,7 @@ public sealed class SamusDrainedState
     }
 
     /// <summary>Puts drained Samus back into the drained crouch.</summary>
-    public void PutCrouchingOrFalling(SamusState samus)
+    public void CrouchDrained(SamusState samus)
     {
         Ensure.NotNull(samus);
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);

@@ -47,7 +47,7 @@ internal static class PauseSelectorsVerification
                 if (tick < RestoredTick)
                     continue;
                 AssertEqual(continuing.ItemSelectorAnimationState, pause.ItemSelectorAnimationState, "a restored selector keeps its phase and timer");
-                var continuingInputs = continuing.CaptureRenderSnapshot(); var restoredInputs = pause.CaptureRenderSnapshot();
+                var continuingInputs = continuing.ComposeScene(); var restoredInputs = pause.ComposeScene();
                 AssertTrue(continuingInputs.SpriteParts().SequenceEqual(restoredInputs.SpriteParts()) && PauseShownColours.Of(continuing, catalog).SequenceEqual(PauseShownColours.Of(pause, catalog)) &&
                     PauseScreenMemory.SameImage(continuing, pause, catalog) && continuingInputs.Brightness == restoredInputs.Brightness,
                     "every restored selector keeps the render inputs of the menu never restored");

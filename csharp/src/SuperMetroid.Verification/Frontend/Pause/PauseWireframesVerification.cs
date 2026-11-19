@@ -48,13 +48,13 @@ internal static class PauseWireframesVerification
                 void StepBoth(ControllerButton input)
                 {
                     native.Step(input, input); pause.Step(input, input);
-                    var nativeInputs = native.CaptureRenderSnapshot(); var portInputs = pause.CaptureRenderSnapshot();
+                    var nativeInputs = native.ComposeScene(); var portInputs = pause.ComposeScene();
                     AssertTrue(native.ShownVram(original).SequenceEqual(pause.ShownVram(original)), "every native wireframe variant retains exact VRAM through page transitions, including Gravity");
                     AssertTrue(PauseShownColours.Of(native, original).SequenceEqual(PauseShownColours.Of(pause, original)) && nativeInputs.SpriteParts().SequenceEqual(portInputs.SpriteParts()) &&
                         nativeInputs.Brightness == portInputs.Brightness, "every native wireframe variant retains exact colors, objects and brightness through page transitions");
                 }
                 void AssertPixels() =>
-                    AssertTrue(ScenePixels.Same(native.CaptureRenderSnapshot(), pause.CaptureRenderSnapshot()), "wireframe migration retains actual native pixels with all artwork reads blocked");
+                    AssertTrue(ScenePixels.Same(native.ComposeScene(), pause.ComposeScene()), "wireframe migration retains actual native pixels with all artwork reads blocked");
                 // To the equipment page and back, each change run to completion (#1266 cadence).
                 ChangePausePage(pause, ControllerButton.R, StepBoth);
                 AssertPixels();

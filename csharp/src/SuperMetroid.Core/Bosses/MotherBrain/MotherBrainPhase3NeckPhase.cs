@@ -8,11 +8,11 @@ public enum MotherBrainPhase3NeckPhase
     /// <summary>Tracks the ordinary phase-three head posture without recoil displacement.</summary>
     Normal,
     /// <summary>Initializes recovery from an ordinary weapon-hit neck recoil.</summary>
-    SetupRecoilRecovery,
+    StartRecoilRecovery,
     /// <summary>Interpolates the recoiled neck back to its normal combat posture.</summary>
     RecoilRecovery,
     /// <summary>Initializes the stronger recoil caused by Samus's Hyper Beam.</summary>
-    SetupHyperBeamRecoil,
+    StartHyperBeamRecoil,
     /// <summary>Runs the Hyper Beam recoil displacement and recovery timing.</summary>
     HyperBeamRecoil,
 }

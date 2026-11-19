@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The window about the screen that the Baby Metroid, in Mother Brain's room and as the Tourian Shitroid, counts as on
+/// The window about the screen that the Baby Metroid, in Mother Brain's room and as the Tourian Baby Metroid, counts as on
 /// screen when it reverses toward a point (#2254): the screen, widened far above and below and a little to each side. A
 /// reversal outside it takes the off-screen kick.
 /// </summary>

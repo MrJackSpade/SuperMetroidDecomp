@@ -44,7 +44,7 @@ public enum SpecialBlockReaction
 
     /// <summary>
     /// A solid block a normal bomb shows as a Speed Booster block for an update, in every area
-    /// (<see cref="Compatibility.SpecialBlockBombRunOn{TReaction, TChange}"/>).
+    /// (<see cref="Compatibility.BombRevealedSpeedBlockLookalikes{TReaction, TChange}"/>).
     /// </summary>
     BombRevealsSpeedBlock,
 

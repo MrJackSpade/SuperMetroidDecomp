@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The counter cadences and phases of Mother Brain's fight, the Baby Metroid's rescue and the Shitroid's drain (#1606):
+/// The counter cadences and phases of Mother Brain's fight, the Baby Metroid's rescue and the Baby Metroid's drain (#1606):
 /// their shakes, flashes, sounds, rise, posture changes and the rainbow beam's colours and ammunition drain.
 /// </summary>
 internal static class MotherBrainCadenceDefinitions
@@ -83,9 +83,9 @@ internal static class MotherBrainCadenceDefinitions
     internal static readonly UpdateCadence RainbowMissileDrainEveryFourthEnemyPass = new(4, 0);
 
     /// <summary>
-    /// The phase of the Shitroid's own update count that steps its shake above the victim it drains or over Samus: four
+    /// The phase of the Baby Metroid's own update count that steps its shake above the victim it drains or over Samus: four
     /// steps, each held in turn, indexing its shake offsets.
     /// </summary>
-    internal static readonly UpdateCounterField ShitroidShakeStep = new(1, 2);
+    internal static readonly UpdateCounterField BabyMetroidShakeStep = new(1, 2);
 
 }

@@ -22,7 +22,7 @@ internal static class EnemySheetRowDefinitions
     internal const int MotherBrainBrain = 1;
 
     /// <summary>
-    /// The row the Shitroid's and the Zebetites' initializations select, which Mother Brain's phase-two load writes as her
+    /// The row the Baby Metroid's and the Zebetites' initializations select, which Mother Brain's phase-two load writes as her
     /// attack's.
     /// </summary>
     internal const int MotherBrainAttack = 2;
@@ -57,7 +57,7 @@ internal static class EnemySheetRowDefinitions
     /// </summary>
     internal const int CeresDoorInactive = 2;
 
-    /// <summary>The row the Shitroid's encounter installs the drained corpses' colours in.</summary>
+    /// <summary>The row the Baby Metroid's encounter installs the drained corpses' colours in.</summary>
     internal const int DrainedCorpses = 7;
 
     /// <summary>The rows the Tourian statue scene's initialization installs its statue and base decoration colours in.</summary>
@@ -106,7 +106,7 @@ internal static class EnemySheetRowDefinitions
     /// The shared row each enemy whose initialization selects one draws in for its whole life: the Tourian statues', the
     /// Chozo statues', the Torizos', Mother Brain's body's and the escape Etecoons' common colours (each initialization
     /// clears the enemy's palette bits, so its parts show the rows their own bits name), Mother Brain's brain's row, the
-    /// Shitroid's and the Zebetites' row, the Baby's cutscene row, Ridley's own row (his breakup's fragments too,
+    /// Baby Metroid's and the Zebetites' row, the Baby's cutscene row, Ridley's own row (his breakup's fragments too,
     /// whose initialization writes it: $A6:C6A5), Ceres's steam in the enemy projectiles' colours, Ceres's doors and walls
     /// in the row their shared header's colours load into, Draygon's body, tail
     /// and arms in his row (his eye keeps the row its spawn gives it), the gunship's top and bottom, Crocomire's tongue

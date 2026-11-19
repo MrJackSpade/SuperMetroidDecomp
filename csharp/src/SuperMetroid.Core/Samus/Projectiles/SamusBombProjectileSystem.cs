@@ -156,7 +156,7 @@ public sealed class SamusBombProjectileSystem
                 samus.Position.Y.Whole == PowerBombExplosion.Position.Y &&
                 samus.CrystalFlash.TryBegin(samus, controllerInput);
             if (!crystalFlashStarted)
-                PowerBombExplosion.ReleaseFlag();
+                PowerBombExplosion.ReleasePowerBombLock();
         }
         // The explosion resumes Samus's sounds at the end of every cleanup, including the
         // Crystal Flash blast's own.
@@ -166,7 +166,7 @@ public sealed class SamusBombProjectileSystem
 
     /// <summary>
     /// Runs the bomb-owned portion of the input phase, followed by the enemy
-    /// overlap pass that the main gameplay loop invokes before the movement phase: <see cref="RunHudProducer"/>,
+    /// overlap pass that the main gameplay loop invokes before the movement phase: <see cref="TickCooldownAndPlaceBombs"/>,
     /// then <see cref="HandleBombs"/>.
     /// </summary>
     internal void StepFrame(SamusTerrain terrain, SamusState samus, GameplayAction controllerInput, GameplayAction controllerNewInput, BombJumpOverlapPublication overlap = BombJumpOverlapPublication.Immediate, PowerBombExplosionStep explosion = PowerBombExplosionStep.Advance)
@@ -176,7 +176,7 @@ public sealed class SamusBombProjectileSystem
 
         if (explosion == PowerBombExplosionStep.Advance)
             AdvancePowerBombExplosion(samus, controllerInput);
-        _ = RunHudProducer(samus, controllerInput, controllerNewInput);
+        _ = TickCooldownAndPlaceBombs(samus, controllerInput, controllerNewInput);
         HandleBombs(terrain, samus, overlap);
     }
 
@@ -185,7 +185,7 @@ public sealed class SamusBombProjectileSystem
     /// cooldown, then the morph ball's bomb producer.
     /// </summary>
     /// <returns>Whether the producer consumed the beam charge.</returns>
-    public bool RunHudProducer(SamusState samus, GameplayAction controllerInput, GameplayAction controllerNewInput)
+    public bool TickCooldownAndPlaceBombs(SamusState samus, GameplayAction controllerInput, GameplayAction controllerNewInput)
     {
         Ensure.NotNull(samus);
 

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 /// <param name="system">The session's progression owner.</param>
 /// <param name="area">The room's area, whose defeated bosses these are.</param>
-internal sealed class RoomAreaProgress(SharedGameState system, AreaId area) : IGlobalEventFlags, IAreaBossFlags, IZebetiteProgress
+internal sealed class RoomAreaProgress(SharedGameState system, AreaId area) : IStoryEvents, IDefeatedBossesRecorder, IZebetiteProgress
 {
     /// <summary>The Zebetites destroyed, kept by the session's progress.</summary>
     public int ZebetitesDestroyed

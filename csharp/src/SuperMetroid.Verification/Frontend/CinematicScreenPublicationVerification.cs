@@ -71,14 +71,14 @@ internal static class CinematicScreenPublicationVerification
         for (int frame = 0; frame < 5000 && flight.Phase != IntroCeresFlightPhase.FlyingTowardCeres; frame++)
             flight.StepFrame();
         AssertEqual(IntroCeresFlightPhase.FlyingTowardCeres, flight.Phase, "the flight reaches its rear view");
-        FramePaint rear = flight.CaptureRenderSnapshot().Paint;
+        FramePaint rear = flight.ComposeScene().Paint;
         byte[] rearVram = flight.ShownVram(InstalledFixtures.IntroArtwork.FlightCharacters.BoundCatalog);
         ReadOnlySpan<byte> maps = InstalledFixtures.IntroArtwork.FlightCharacters.FloorMaps.Span;
         for (int cell = 0; cell < CeresFlightArtworkFileFormat.MapCellsPerView; cell++)
             AssertEqual(maps[CeresFlightArtworkFileFormat.MapCellsPerView + cell], rearVram[cell * 2], $"rear view shows rear map cell {cell}");
         var restoredFlight = RoundTrip(flight);
         restoredFlight.BindFixtureFlightArtwork(InstalledFixtures.IntroArtwork.FlightCharacters);
-        AssertSameFrame(rearVram, rear, restoredFlight.ShownVram(InstalledFixtures.IntroArtwork.FlightCharacters.BoundCatalog), restoredFlight.CaptureRenderSnapshot().Paint, "Ceres flight");
+        AssertSameFrame(rearVram, rear, restoredFlight.ShownVram(InstalledFixtures.IntroArtwork.FlightCharacters.BoundCatalog), restoredFlight.ComposeScene().Paint, "Ceres flight");
 
         var destructionAudio = AudioQueues.Standalone();
         var destruction = InstalledFixtures.CreateDestruction(destructionAudio);
@@ -87,11 +87,11 @@ internal static class CinematicScreenPublicationVerification
             destruction.Step();
             destructionAudio.AdvanceFrame(default);
         }
-        FramePaint shown = destruction.CaptureRenderSnapshot().Paint;
+        FramePaint shown = destruction.ComposeScene().Paint;
         byte[] shownVram = destruction.ShownVram();
         var restoredDestruction = RoundTrip(destruction);
         restoredDestruction.BindFixtureDestructionArtwork(InstalledFixtures.IntroArtwork);
-        AssertSameFrame(shownVram, shown, restoredDestruction.ShownVram(), restoredDestruction.CaptureRenderSnapshot().Paint, "Ceres destruction");
+        AssertSameFrame(shownVram, shown, restoredDestruction.ShownVram(), restoredDestruction.ComposeScene().Paint, "Ceres destruction");
 
         IntroCinematicState intro = InstalledFixtures.CreateIntro();
         intro.SetupFirstIllustratedPage();
@@ -101,7 +101,7 @@ internal static class CinematicScreenPublicationVerification
         restoredIntro.BindFixtureIntroArtwork(InstalledFixtures.IntroArtwork);
         AssertTrue(image.AsSpan().SequenceEqual(restoredIntro.ShownVram()), "a restored intro shows the same characters, blanked glyphs and tilemaps");
         // The intro publishes its faded backdrop and its pictures' shading, not a palette (#1512).
-        LayeredScene introFrame = intro.CaptureRenderSnapshot(), restoredFrame = restoredIntro.CaptureRenderSnapshot();
+        LayeredScene introFrame = intro.ComposeScene(), restoredFrame = restoredIntro.ComposeScene();
         AssertEqual(introFrame.Paint.Backdrop, restoredFrame.Paint.Backdrop, "a restored intro keeps its backdrop");
         AssertTrue(PlacedSpritePart.Of(introFrame.SpriteDraws).SequenceEqual(PlacedSpritePart.Of(restoredFrame.SpriteDraws)),
             "a restored intro places the same sprite entries");

@@ -30,12 +30,12 @@ internal static class EnemyInteractionCallbacks
     private static readonly IReadOnlyDictionary<EnemyReaction, SnesAddress> Addresses =
         new Dictionary<EnemyReaction, SnesAddress>
     {
-        [EnemyReaction.NormalEnemyTouch] = EnemyAiRoutineDefinitions.BankA0.NormalEnemyTouch,
-        [EnemyReaction.NormalEnemyShot] = EnemyAiRoutineDefinitions.BankA0.NormalEnemyShot,
+        [EnemyReaction.OrdinaryTouch] = EnemyAiRoutineDefinitions.BankA0.OrdinaryTouch,
+        [EnemyReaction.OrdinaryShot] = EnemyAiRoutineDefinitions.BankA0.OrdinaryShot,
         [EnemyReaction.DudShot] = EnemyAiRoutineDefinitions.BankA0.DudShot,
-        [MaridiaLargeSnailReactions.DamagingTouch] = EnemyAiRoutineDefinitions.BankA2.MaridiaLargeSnailDamagingTouch,
-        [MaridiaLargeSnailReactions.NonDamagingTouch] = EnemyAiRoutineDefinitions.BankA2.MaridiaLargeSnailNonDamagingTouch,
-        [MaridiaLargeSnailReactions.Shot] = EnemyAiRoutineDefinitions.BankA2.MaridiaLargeSnailShot,
+        [OumReactions.DamagingTouch] = EnemyAiRoutineDefinitions.BankA2.OumDamagingTouch,
+        [OumReactions.NonDamagingTouch] = EnemyAiRoutineDefinitions.BankA2.OumNonDamagingTouch,
+        [OumReactions.Shot] = EnemyAiRoutineDefinitions.BankA2.OumShot,
         [CrocomireReactions.ClawTouch] = EnemyAiRoutineDefinitions.BankA4.ClawTouch,
         [CrocomireReactions.AbsorbedShot] = EnemyAiRoutineDefinitions.BankA4.HitCountShot,
         [CrocomireReactions.DustShot] = EnemyAiRoutineDefinitions.BankA4.DustHitboxShot,
@@ -153,7 +153,7 @@ internal static class EnemyInteractionCallbacks
     private static EnemyReaction? TryNameShared(int pointer)
     {
         if (ByAddress.TryGetValue(SnesAddress.InBank(EnemyAiRoutineDefinitions.BankA0.Bank, pointer), out EnemyReaction? common) &&
-            (common == EnemyReaction.NormalEnemyTouch || common == EnemyReaction.NormalEnemyShot || common == EnemyReaction.DudShot))
+            (common == EnemyReaction.OrdinaryTouch || common == EnemyReaction.OrdinaryShot || common == EnemyReaction.DudShot))
             return common;
         return null;
     }

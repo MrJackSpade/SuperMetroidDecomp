@@ -61,7 +61,7 @@ internal sealed class KraidCombat
             if (!c.UsesFrameHitboxes || (c.HitboxShot != EnemyReaction.Ignore && c.HitboxShot != KraidReactions.ArmShot))
                 throw new InvalidDataException($"Kraid's arm selected the shot reaction {c.HitboxShot?.ToString() ?? "(unnamed)"}.");
 
-            c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
             if (c.HitboxShot == KraidReactions.ArmShot)
                 SpawnKraidArmShotExplosion(c.ProjectileType, c.Projectile.Position.Whole);
             return true;
@@ -76,7 +76,7 @@ internal sealed class KraidCombat
             if (!c.UsesFrameHitboxes || c.HitboxShot != EnemyReaction.Ignore)
                 throw new InvalidDataException($"Kraid's foot selected the shot reaction {c.HitboxShot?.ToString() ?? "(unnamed)"}.");
 
-            c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
             return true;
         },
     };
@@ -92,7 +92,7 @@ internal sealed class KraidCombat
         // fractions exactly as they were before contact.
         context.Samus.Kinematics.ExtraDisplacement = context.Samus.Kinematics.ExtraDisplacement.WithWhole(KraidContactDefinitions.PushBack);
         state.BottomLintState.Phase = KraidLintPhase.Fire;
-        _collision.ResolveNormalEnemyTouch(context, TouchDeathAnimation.Skip);
+        _collision.ResolveOrdinaryTouch(context, TouchDeathAnimation.Skip);
     }
 
     /// <summary>
@@ -158,7 +158,7 @@ internal sealed class KraidCombat
                 {
                     // A damaging hit lets only the later shots from the row its kind names reach the mouth, which decides
                     // whether the next shot's test falls inside; a dud leaves its own bounds below.
-                    bounds.LeaveAfterMouthHit(KraidMouthHitReach.RowAfter(DamagingMouthHit(shot)));
+                    bounds.LeaveAfterMouthHit(KraidMouthHitReach.HighestReachingRow(DamagingMouthHit(shot)));
                     body.Health = damage >= body.Health
                         ? 0
                         : body.Health - damage;
@@ -294,7 +294,7 @@ internal sealed class KraidCombat
             ? state.EjectionLimitY : ejected.Y);
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(KraidContactDefinitions.PushBack);
         if (samus.InvincibilityTimer.IsZero)
-            _collision.ResolveNormalEnemyTouch(body, samus, pseudoScrew);
+            _collision.ResolveOrdinaryTouch(body, samus, pseudoScrew);
     }
 
     /// <summary>

@@ -95,10 +95,10 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case BeetomAction.DecideAction:
                 state.Action = Math.Abs(samus.Position.X.Whole - place.Position.X.Whole) < BeetomMotionDefinitions.ProximityDistance
-                    ? BeetomAction.DecideActionSamusInProximity
-                    : BeetomAction.DecideActionSamusNotInProximity;
+                    ? BeetomAction.StartLunge
+                    : BeetomAction.ChooseIdleCrawlOrHop;
                 return;
-            case BeetomAction.DecideActionSamusNotInProximity:
+            case BeetomAction.ChooseIdleCrawlOrHop:
                 ChooseDistantBeetomAction(state);
                 return;
             case BeetomAction.StartIdling:
@@ -114,7 +114,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             case BeetomAction.StartLongHop:
                 StartBeetomHop(place, state, BeetomLeapDefinitions.LongLeap.StartPlace, state.Heading, BeetomHopLength.Long);
                 return;
-            case BeetomAction.DecideActionSamusInProximity:
+            case BeetomAction.StartLunge:
                 StartBeetomLunge(place, state, samus);
                 return;
             case BeetomAction.StartDraining:
@@ -427,7 +427,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None)
         {
-            _collision.ResolveNormalEnemyTouch(place, samus, pseudoScrew);
+            _collision.ResolveOrdinaryTouch(place, samus, pseudoScrew);
             samus.ClearHurtTimers();
             return;
         }
@@ -478,7 +478,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Runs Beetom's initialization AI.</summary>
-    internal void RunBeetomInitializationAi(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
+    internal void SetUpBeetom(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
     {
         InitializeBeetom(place, surroundings.Samus, surroundings.ControllerInput);
     }

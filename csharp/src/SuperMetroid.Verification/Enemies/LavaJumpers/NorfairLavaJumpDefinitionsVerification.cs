@@ -29,15 +29,15 @@ internal static class NorfairLavaJumpDefinitionsVerification
                 advances++;
                 return nextRandom;
             };
-        Action<RoomEnemyPlace, NorfairLavaJumpingEnemyState> runMain = enemies.NorfairLavaJumpingEnemyBehavior.RunNorfairLavaJumpingEnemyMain;
+        Action<RoomEnemyPlace, SqueeptState> runMain = enemies.SqueeptBehavior.RunSqueeptMain;
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        var state = new NorfairLavaJumpingEnemyState(NorfairLavaJumpingEnemyAction.BeginJump);
+        var state = new SqueeptState(SqueeptAction.BeginJump);
 
         for (int random = 0; random <= ushort.MaxValue; random++)
         {
             nextRandom = unchecked((ushort)random);
             advances = 0;
-            state.Action = NorfairLavaJumpingEnemyAction.BeginJump;
+            state.Action = SqueeptAction.BeginJump;
             state.YVelocity = default;
             place.Contact = EnemyContact.None;
             place.Processing = EnemyProcessing.None;
@@ -46,7 +46,7 @@ internal static class NorfairLavaJumpDefinitionsVerification
 
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2be86 + ((LittleEndianBytes.HighByte(unchecked((ushort)random))) & 6))), state.YVelocity.RawValue,
                 $"Norfair lava jumper production velocity {random:X4}");
-            AssertEqual(NorfairLavaJumpingEnemyAction.RiseBeforeAnimationSwitch,
+            AssertEqual(SqueeptAction.RiseBeforeAnimationSwitch,
                 state.Action, $"Norfair lava jumper production handoff {random:X4}");
             AssertTrue(place.Processing.HasAny(EnemyProcessing.OffScreen),
                 $"Norfair lava jumper off-screen processing {random:X4}");

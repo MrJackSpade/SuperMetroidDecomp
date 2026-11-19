@@ -39,7 +39,7 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
     {
         PauseStep.DarkeningGameplay or PauseStep.BrighteningGameplay => GamePhaseAudio.Ordinary,
         PauseStep.PreparingPauseScreen or PauseStep.FadingIn or PauseStep.Menu or PauseStep.FadingOut or
-            PauseStep.RestoringGameplay => GamePhaseAudio.PauseInputEpilogue,
+            PauseStep.RestoringGameplay => GamePhaseAudio.PublishesHeldInputAfterPause,
         _ => throw new InvalidOperationException($"Undefined {nameof(PauseStep)} {session.PauseStep}."),
     };
 

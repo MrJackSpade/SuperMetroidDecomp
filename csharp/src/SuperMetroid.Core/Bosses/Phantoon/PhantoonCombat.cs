@@ -238,11 +238,11 @@ internal sealed class PhantoonCombat
     public int ResolvePhantoonProjectileHits(
         PhantoonEnemyState state,
         SamusProjectileSystem projectiles,
-        SamusBombProjectileSystem sharedProjectiles)
+        SamusBombProjectileSystem samusBombs)
     {
         Ensure.NotNull(state);
         Ensure.NotNull(projectiles);
-        Ensure.NotNull(sharedProjectiles);
+        Ensure.NotNull(samusBombs);
 
         RoomEnemyPlace body = state.Body;
         if (CommonEnemyEmptyFrames.ShotsPass(body) ||
@@ -288,7 +288,7 @@ internal sealed class PhantoonCombat
                     PhantoonPhase.BeginFinalWavyDeath or PhantoonPhase.DyingFadeOut or PhantoonPhase.AlmostDead or
                     PhantoonPhase.Dead or PhantoonPhase.WaitingOnEye)
             {
-                projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(
+                projectiles.EnemyImpacts.TouchEnemyWithoutImpact(
                     projectile,
                     body.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
                         !projectile.Type.HasAnyBeam(SamusBeamFlags.Plasma));
@@ -304,7 +304,7 @@ internal sealed class PhantoonCombat
             // The shot is marked as having struck before Phantoon's reaction, whose damage does not turn it into an
             // explosion: the shot ends on its own next update, while a Plasma shot that passes through enemies keeps
             // its type, direction and animation.
-            projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(projectile,
+            projectiles.EnemyImpacts.TouchEnemyWithoutImpact(projectile,
                 body.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
                 !projectileType.HasAnyBeam(SamusBeamFlags.Plasma));
 
@@ -541,7 +541,7 @@ internal sealed class PhantoonCombat
             throw new InvalidDataException(
                 $"Phantoon has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
         }
-        _collision.ResolveNormalEnemyTouch(context, TouchDeathAnimation.Skip);
+        _collision.ResolveOrdinaryTouch(context, TouchDeathAnimation.Skip);
     }
 
     /// <summary>

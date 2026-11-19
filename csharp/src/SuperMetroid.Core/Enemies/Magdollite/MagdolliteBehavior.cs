@@ -671,7 +671,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies normal Samus contact damage before mirroring the enemy's death or freeze state.</summary>
     internal void ReactToMagdolliteTouch(EnemyTouchContext context)
     {
-        _collision.ResolveNormalEnemyTouch(context);
+        _collision.ResolveOrdinaryTouch(context);
         ResolveMagdolliteCombatAfterCommon(context.Place);
     }
 

@@ -21,7 +21,7 @@ internal static class RinkaNativeListAddresses
     [
         new NativeProgramEntry<RinkaSegment>(RinkaSegment.Ordinary, 0xb9e0),
         new NativeProgramEntry<RinkaSegment>(RinkaSegment.Spin, 0xb9e8),
-        new NativeProgramEntry<RinkaSegment>(RinkaSegment.Special, 0xba0c),
+        new NativeProgramEntry<RinkaSegment>(RinkaSegment.KeptRunningOffScreen, 0xba0c),
         new NativeProgramEntry<RinkaSegment>(RinkaSegment.Spin, 0xba14),
     ];
 

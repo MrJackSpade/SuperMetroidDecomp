@@ -75,7 +75,7 @@ internal static class ChozoGrabAnimationVerification
             runtime.StepFrame(ControllerButton.Right);
             if (powerBomb)
             {
-                if (expectedExplosion.StepFrame(expectedExplosionGlowColors)) expectedExplosion.ReleaseFlag();
+                if (expectedExplosion.StepFrame(expectedExplosionGlowColors)) expectedExplosion.ReleasePowerBombLock();
                 var actual = runtime.BombProjectiles.PowerBombExplosion;
                 AssertEqual(expectedExplosion.Blast.Phase, actual.Blast.Phase, $"carried Power Bomb phase at frame {frames}");
                 AssertEqual(expectedExplosion.Blast.PreExplosionRadius, actual.Blast.PreExplosionRadius, $"carried Power Bomb pre-radius at frame {frames}");
@@ -112,7 +112,7 @@ internal static class ChozoGrabAnimationVerification
             runtime.StepFrame(ControllerButton.Right);
             if (powerBomb)
             {
-                if (expectedExplosion.StepFrame(expectedExplosionGlowColors)) expectedExplosion.ReleaseFlag();
+                if (expectedExplosion.StepFrame(expectedExplosionGlowColors)) expectedExplosion.ReleasePowerBombLock();
                 var actual = runtime.BombProjectiles.PowerBombExplosion;
                 AssertEqual(expectedExplosion.Blast.Phase, actual.Blast.Phase, $"carried Power Bomb phase at frame {frames}");
                 AssertEqual(expectedExplosion.Blast.PreExplosionRadius, actual.Blast.PreExplosionRadius, $"carried Power Bomb pre-radius at frame {frames}");

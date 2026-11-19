@@ -36,7 +36,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         AssertTrue(!ordinary.Processing.HasAny(EnemyProcessing.OffScreen),
             "ordinary Rinka program does not enable off-screen processing");
 
-        (RoomEnemySystem specialSystem, RoomEnemyPlace special) = RunRinkaProgram(RinkaSegment.Special, special: true);
+        (RoomEnemySystem specialSystem, RoomEnemyPlace special) = RunRinkaProgram(RinkaSegment.KeptRunningOffScreen, special: true);
         AssertEqual(RinkaAction.AimDelay, (specialSystem.RinkaStates[0] ?? throw new InvalidOperationException("Verification requires specialSystem.RinkaStates[0].")).Action,
             "special Rinka fire callback selects aim-delay AI");
         AssertTrue(!special.Presence.HasAny(EnemyPresence.Hidden),

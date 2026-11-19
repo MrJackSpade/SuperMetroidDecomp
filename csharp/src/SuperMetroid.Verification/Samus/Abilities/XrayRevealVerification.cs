@@ -29,7 +29,7 @@ internal static class XrayRevealVerification
             {
                 XrayRevealShape? expectedInArea = expected?.Shape is XrayRevealShape.CopyBrinstar && area != AreaId.Brinstar
                     ? null : expected?.Shape;
-                XrayRevealShape? found = XrayRevealTable.Find(type, RoomBlockBehaviorCodec.Decode(area, bts));
+                XrayRevealShape? found = XrayReveals.Find(type, RoomBlockBehaviorCodec.Decode(area, bts));
                 AssertEqual(expectedInArea, found, $"retail reveal shape {type}/BTS {bts:X2} in {area}");
                 if (area == AreaId.Brinstar && found is { } shape) { matches++; shapes.Add(shape); }
             }

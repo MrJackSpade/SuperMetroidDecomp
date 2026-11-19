@@ -21,7 +21,7 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
     /// <summary>Starts the statue's hand sequence, which the room's enemies run.</summary>
     private readonly IChozoStatueHandActivation _hands;
     /// <summary>The room's liquid, which the Lower Norfair statue lowers.</summary>
-    private readonly IRoomFxMotion _roomFx;
+    private readonly IRoomLiquid _roomFx;
 
     /// <summary>Binds Chozo hand behavior to its room services and room objects.</summary>
     /// <param name="system">The room's system and event state.</param>
@@ -29,7 +29,7 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
     /// <param name="hands">Starts the statue's hand sequence, which the room's enemies run.</param>
     /// <param name="roomFx">The room's liquid.</param>
     /// <param name="places">The room's room objects.</param>
-    internal ChozoStatueObjects(SharedGameState system, AreaId area, IChozoStatueHandActivation hands, IRoomFxMotion roomFx,
+    internal ChozoStatueObjects(SharedGameState system, AreaId area, IChozoStatueHandActivation hands, IRoomLiquid roomFx,
         RoomObjectPlaceList places)
     {
         _system = system;

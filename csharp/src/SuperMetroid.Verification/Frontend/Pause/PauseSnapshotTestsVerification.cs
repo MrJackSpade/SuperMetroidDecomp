@@ -45,11 +45,11 @@ internal static class PauseSnapshotTestsVerification
         {
             // Each comparison draws only packets whose descriptions differ (#1532): the direct capture, the published
             // packet under its frame number, and the packet again once the menu has stepped past it.
-            LayeredScene expected = pause.CaptureRenderSnapshot();
-            LayeredScene packet = pause.CaptureRenderSnapshot();
+            LayeredScene expected = pause.ComposeScene();
+            LayeredScene packet = pause.ComposeScene();
             AssertTrue(ScenePixels.Same(new DisplayPacket(0, expected), new DisplayPacket((ushort)frame, packet)),
                 $"Pause snapshot frame {frame} shows the direct capture's pixels");
-            LayeredScene repeated = pause.CaptureRenderSnapshot();
+            LayeredScene repeated = pause.ComposeScene();
             AssertTrue(packet.SpriteParts().SequenceEqual(repeated.SpriteParts()), "repeat pause capture OAM");
             pages.Add(pause.ScreenMode);
             levels.Add(packet.Brightness);
@@ -62,7 +62,7 @@ internal static class PauseSnapshotTestsVerification
         AssertEqual(16, levels.Count, "snapshot covers every page-fade brightness");
 
         // A caller may reuse the command array immediately after publication.
-        var captured = pause.CaptureRenderSnapshot();
+        var captured = pause.ComposeScene();
         DisplayLayer[] layers = captured.Layers.ToArray();
         var owned = new LayeredScene(captured.Paint, layers, captured.Brightness);
         layers[0] = new SpritesLayer([]);

@@ -58,8 +58,8 @@ public static class TourianRoomStateDefinitions
         new("BlueHopperDefault", RoomLevelDefinitions.BlueHopper, RoomGraphicsSet.Tourian, new RoomMusic(MusicDataSet.BabyMetroidEncounter, RoomMusicTrack.Plays(MusicTrack.BabyMetroidTheme)), SuperMetroid.Core.Fx.RoomFxDefinitions.BlueHopper, RoomEnemyPopulationDefinitions.BlueHopper, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.BlueHopper, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.BlueHopper, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.TourianVerticalStructures, RoomSetupBehavior.None);
 
 
-    /// <summary>The Blue Hopper room's state once the Shitroid encounter's music is skipped.</summary>
-    public static RoomStateSettings BlueHopperWhenShitroidEncounterMusicSkipped { get; } =
+    /// <summary>The Blue Hopper room's state once the Baby Metroid encounter's music is skipped.</summary>
+    public static RoomStateSettings BlueHopperWhenBabyMetroidEncounterMusicSkipped { get; } =
         new("BlueHopperWhenShitroidEncounterMusicSkipped", RoomLevelDefinitions.BlueHopper, RoomGraphicsSet.Tourian, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.BlueHopper, RoomEnemyPopulationDefinitions.BlueHopper, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.BlueHopper, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.BlueHopper, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.TourianVerticalStructures, RoomSetupBehavior.None);
 
 
@@ -68,8 +68,8 @@ public static class TourianRoomStateDefinitions
         new("DustTorizoDefault", RoomLevelDefinitions.DustTorizo, RoomGraphicsSet.Tourian, new RoomMusic(MusicDataSet.BabyMetroidEncounter, RoomMusicTrack.Plays(MusicTrack.BabyMetroidTheme)), SuperMetroid.Core.Fx.RoomFxDefinitions.DustTorizo, RoomEnemyPopulationDefinitions.DustTorizo, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.DustTorizo, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.DustTorizo, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.TourianVerticalStructures, RoomSetupBehavior.None);
 
 
-    /// <summary>The Dust Torizo room's state once the Shitroid encounter's music is skipped.</summary>
-    public static RoomStateSettings DustTorizoWhenShitroidEncounterMusicSkipped { get; } =
+    /// <summary>The Dust Torizo room's state once the Baby Metroid encounter's music is skipped.</summary>
+    public static RoomStateSettings DustTorizoWhenBabyMetroidEncounterMusicSkipped { get; } =
         new("DustTorizoWhenShitroidEncounterMusicSkipped", RoomLevelDefinitions.DustTorizo, RoomGraphicsSet.Tourian, new RoomMusic(MusicDataSet.Tourian, RoomMusicTrack.Plays(MusicTrack.Tourian)), SuperMetroid.Core.Fx.RoomFxDefinitions.DustTorizo, RoomEnemyPopulationDefinitions.DustTorizo, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.DustTorizo, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.DustTorizo, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.TourianVerticalStructures, RoomSetupBehavior.None);
 
 
@@ -78,8 +78,8 @@ public static class TourianRoomStateDefinitions
         new("BigBoyDefault", RoomLevelDefinitions.BigBoy, RoomGraphicsSet.Tourian, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.BigBoy, RoomEnemyPopulationDefinitions.BigBoy, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.BigBoy, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.BigBoy, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.TourianVerticalStructures, RoomSetupBehavior.None);
 
 
-    /// <summary>The Big Boy room's state once the Shitroid encounter's music is skipped.</summary>
-    public static RoomStateSettings BigBoyWhenShitroidEncounterMusicSkipped { get; } =
+    /// <summary>The Big Boy room's state once the Baby Metroid encounter's music is skipped.</summary>
+    public static RoomStateSettings BigBoyWhenBabyMetroidEncounterMusicSkipped { get; } =
         new("BigBoyWhenShitroidEncounterMusicSkipped", RoomLevelDefinitions.BigBoy, RoomGraphicsSet.Tourian, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.BigBoy, RoomEnemyPopulationDefinitions.BigBoy, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.BigBoy, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.BigBoy, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.TourianVerticalStructures, RoomSetupBehavior.None);
 
 

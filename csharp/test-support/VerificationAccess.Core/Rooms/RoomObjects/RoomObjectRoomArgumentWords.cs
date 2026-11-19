@@ -113,24 +113,24 @@ internal static class RoomObjectRoomArgumentWords
             return PlacedKind(RoomObjectKind.MetroidRoomClearance, word) == header ? null
                 : throw new InvalidDataException($"Held-place argument ${word:X4} selects a clearance watch, not one of the no-op entries.");
         if (RoomObjectKindVariants.Items.ContainsKey(header))
-            return new CollectedItemArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Item(word));
+            return new CollectibleIdentity(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Item(word));
         if (name.StartsWith("GreyDoor", StringComparison.Ordinal) || header == RoomObjectKind.BombTorizoGreyDoor)
         {
             int condition = (word >> GreyConditionShift) & GreyConditionMask;
-            return new GreyDoorArgument(condition < GreyDoorConditionsInTableOrder.Length ? GreyDoorConditionsInTableOrder[condition]
+            return new GreyDoorOpening(condition < GreyDoorConditionsInTableOrder.Length ? GreyDoorConditionsInTableOrder[condition]
                     : throw new InvalidDataException($"Grey door argument ${word:X4} selects condition {condition}, past the condition table."),
-                new LockedDoorArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(word & GreyDoorBitMask), Persistence(word)));
+                new DoorLock(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(word & GreyDoorBitMask), Persistence(word)));
         }
         if (name.StartsWith("RedDoor", StringComparison.Ordinal) || name.StartsWith("GreenDoor", StringComparison.Ordinal) ||
             name.StartsWith("YellowDoor", StringComparison.Ordinal) || name.StartsWith("EyeDoor", StringComparison.Ordinal))
         {
-            return new LockedDoorArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(word & ~NeverPersists), Persistence(word));
+            return new DoorLock(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(word & ~NeverPersists), Persistence(word));
         }
         if (NumbersUnread(header))
             return null;
         if (header == RoomObjectKind.SaveStation)
         {
-            return new SaveStationArgument(SuperMetroid.AssetExtraction.Progression.LoadStationNumberCodec.Decode(
+            return new SaveStationPlace(SuperMetroid.AssetExtraction.Progression.LoadStationNumberCodec.Decode(
                 area ?? throw new InvalidDataException($"A save station's argument ${word:X4} names its station only in a room's area."),
                 word, "A save station's room argument"));
         }
@@ -139,13 +139,13 @@ internal static class RoomObjectRoomArgumentWords
             int entry = MetroidRoomEntry(word);
             return entry < MetroidRoomNoOpEntryCount
                 ? throw new InvalidDataException($"Metroids-cleared argument ${word:X4} selects a no-op entry: the placement is an escape room's held place.")
-                : new MetroidRoomArgument(MetroidRoomQuotaObserverEvents[entry - MetroidRoomNoOpEntryCount]);
+                : new WatchedMetroidRoom(MetroidRoomQuotaObserverEvents[entry - MetroidRoomNoOpEntryCount]);
         }
         if (header == RoomObjectKind.DownwardGateShotBlock)
         {
             int trigger = (word & 1) == 0 ? word / 2 : throw new InvalidDataException($"Downward gate trigger argument ${word:X4} is odd.");
             return trigger < GateTriggersInTableOrder.Count
-                ? new GateTriggerArgument(GateTriggersInTableOrder[trigger])
+                ? new GateShotTrigger(GateTriggersInTableOrder[trigger])
                 : throw new InvalidDataException($"Downward gate trigger argument ${word:X4} does not name one of the eight colours and sides.");
         }
         throw new InvalidDataException($"PLM {header} has no decoded room argument for ${word:X4}.");
@@ -215,11 +215,11 @@ internal static class RoomObjectRoomArgumentWords
         BlueDoorCapObject cap => DoorWord(cap.Door),
         EyeDoorEyeObject eye => DoorWord(eye.Door),
         EyeDoorPartObject part => DoorWord(part.Door),
-        CollectibleObject item => ArgumentWord(new CollectedItemArgument(item.Location)),
-        SaveStationObject station => ArgumentWord(new SaveStationArgument(station.SavedAt)),
-        MetroidRoomClearanceObject watch => ArgumentWord(new MetroidRoomArgument(watch.Cleared)),
+        CollectibleObject item => ArgumentWord(new CollectibleIdentity(item.Location)),
+        SaveStationObject station => ArgumentWord(new SaveStationPlace(station.SavedAt)),
+        MetroidRoomClearanceObject watch => ArgumentWord(new WatchedMetroidRoom(watch.Cleared)),
         TerrainChangeObject { Change: var change } when GateTriggerDrawing(change) is { } trigger =>
-            ArgumentWord(new GateTriggerArgument(trigger)),
+            ArgumentWord(new GateShotTrigger(trigger)),
         _ => null,
     };
 
@@ -252,14 +252,14 @@ internal static class RoomObjectRoomArgumentWords
     private static ushort? ArgumentWord(RoomObjectRoomArgument? argument) =>
         argument switch
         {
-            CollectedItemArgument item => checked((ushort)SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(item.Location)),
-            LockedDoorArgument door => checked((ushort)(SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(door.Door) | (door.Persists ? 0 : NeverPersists))),
-            GreyDoorArgument grey => checked((ushort)((grey.Door.Persists ? 0 : NeverPersists) |
+            CollectibleIdentity item => checked((ushort)SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(item.Location)),
+            DoorLock door => checked((ushort)(SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(door.Door) | (door.Persists ? 0 : NeverPersists))),
+            GreyDoorOpening grey => checked((ushort)((grey.Door.Persists ? 0 : NeverPersists) |
                 (Array.IndexOf(GreyDoorConditionsInTableOrder, grey.Condition) << GreyConditionShift) | SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(grey.Door.Door))),
-            SaveStationArgument saved => checked((ushort)SuperMetroid.AssetExtraction.Progression.LoadStationNumberCodec.Number(saved.Station)),
-            MetroidRoomArgument watch =>
+            SaveStationPlace saved => checked((ushort)SuperMetroid.AssetExtraction.Progression.LoadStationNumberCodec.Number(saved.Station)),
+            WatchedMetroidRoom watch =>
                 checked((ushort)((MetroidRoomNoOpEntryCount + Array.IndexOf(MetroidRoomQuotaObserverEvents, watch.Cleared)) * 2)),
-            GateTriggerArgument gate => checked((ushort)(GateTriggerIndex(gate.Trigger) * 2)),
+            GateShotTrigger gate => checked((ushort)(GateTriggerIndex(gate.Trigger) * 2)),
             null => null,
             _ => throw new InvalidOperationException($"Undefined room argument {argument}."),
         };

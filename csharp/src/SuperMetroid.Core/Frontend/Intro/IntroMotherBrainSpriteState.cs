@@ -118,14 +118,14 @@ internal sealed class IntroMotherBrainSpriteState
     /// The fourth hit starts her explosion, which tests no missiles, so from then on every missile passes through.
     /// </summary>
     /// <param name="impacts">The flashback projectile system's enemy impacts, which kill the missile.</param>
-    /// <param name="sharedProjectiles">The flashback's bombs and power-bomb explosion, which the kill consults.</param>
+    /// <param name="samusBombs">The flashback's bombs and power-bomb explosion, which the kill consults.</param>
     /// <returns>Whether this hit was the fourth, which starts the explosion.</returns>
-    public bool TakeMissileHit(ProjectileEnemyImpacts impacts, SamusBombProjectileSystem sharedProjectiles)
+    public bool TakeMissileHit(ProjectileEnemyImpacts impacts, SamusBombProjectileSystem samusBombs)
     {
         Ensure.NotNull(impacts);
         if (ExplosionStarted)
             return false;
-        return impacts.TryImpactIntroMotherBrainMissile(sharedProjectiles, IntroMotherBrainDefinitions.MissileImpactLine) && RecordMissileHit();
+        return impacts.TryImpactIntroMotherBrainMissile(samusBombs, IntroMotherBrainDefinitions.MissileImpactLine) && RecordMissileHit();
     }
 
     /// <summary>Records the synchronous hit side effects after the projectile is killed.</summary>

@@ -182,7 +182,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // Samus's body attack hurts the Mochtroid as it hurts any enemy. This
             // includes Speed Booster, shinespark, Screw Attack, and pseudo-Screw.
-            _collision.ResolveNormalEnemyTouch(place, samus, pseudoScrew);
+            _collision.ResolveOrdinaryTouch(place, samus, pseudoScrew);
         }
 
         // Unlike any other enemy, the Mochtroid cancels at once the invincibility and knockback its

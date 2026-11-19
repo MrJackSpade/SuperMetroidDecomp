@@ -44,7 +44,7 @@ internal static class RoomObjectCollisionOnlyWritesVerification
     {
         var kept = new KeptPictures();
         var block = new Position16<RoomBlocks>(6, 6);
-        var door = new LockedDoorArgument(LockedDoorDefinitions.KraidEyeDoorEyeDoorFacingLeft, DoorOpeningPersistence.Persistent);
+        var door = new DoorLock(LockedDoorDefinitions.KraidEyeDoorEyeDoorFacingLeft, DoorOpeningPersistence.Persistent);
         kept.Check("the coloured door's setup", Solid, [block], level =>
             DoorObjects.SetupColoredDoor(level, PlaceAt(RoomObjectFixtures.Unbound(), block),
                 new ColoredDoorVariant(ColoredDoorColor.Red, ColoredDoorOrientation.Left), door));
@@ -52,7 +52,7 @@ internal static class RoomObjectCollisionOnlyWritesVerification
         {
             RoomObjectSystem roomObjects = RoomObjectFixtures.Unbound();
             roomObjects.GreyDoors.SetupGreyDoor(level, PlaceAt(roomObjects, block),
-                new GreyDoorVariant(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorArgument(GreyDoorCondition.Never, door));
+                new GreyDoorVariant(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorOpening(GreyDoorCondition.Never, door));
         });
         kept.Check("the blue door's opening", Terrain(RoomCollisionType.ShootableBlock), [block], level =>
             AssertTrue(RoomObjectFixtures.Unbound().DoorObjects.TrySpawnBlueDoorOpening(level, block,
@@ -65,7 +65,7 @@ internal static class RoomObjectCollisionOnlyWritesVerification
 
     /// <summary>
     /// Draygon's cannon setup (<c>$84:DE94</c>) and its destruction (<c>$84:DB8E</c>), Mother Brain's glass
-    /// (<c>$84:D5F6</c>), the Shitroid's wall (<c>$84:B551</c>), Kraid's room changes and Phantoon's door, whose setups
+    /// (<c>$84:D5F6</c>), the Baby Metroid's wall (<c>$84:B551</c>), Kraid's room changes and Phantoon's door, whose setups
     /// deactivate their block (<c>$84:B3C1</c>).
     /// </summary>
     internal static void VerifyBossRoomSetupsKeepWhatTheirBlocksShow()
@@ -88,7 +88,7 @@ internal static class RoomObjectCollisionOnlyWritesVerification
         });
         var wall = new Position16<RoomBlocks>(8, 2);
         kept.Check("the Shitroid's wall", Solid, [.. Enumerable.Range(0, 10).Select(row => wall + new Offset16<RoomBlocks>(0, row))],
-            level => AssertTrue(RoomObjectFixtures.Unbound().BossRoomMutations.ShitroidWall.TrySpawn(level, new(wall, ShitroidWallMutation.Clear)),
+            level => AssertTrue(RoomObjectFixtures.Unbound().BossRoomMutations.BabyMetroidWall.TrySpawn(level, new(wall, BabyMetroidWallMutation.Clear)),
                 "the Shitroid's wall takes a place"));
         var kraid = new Position16<RoomBlocks>(5, 5);
         kept.Check("Kraid's ceiling clearing", Terrain(RoomCollisionType.SpecialBlock), [kraid], level =>
@@ -172,7 +172,7 @@ internal static class RoomObjectCollisionOnlyWritesVerification
                 RoomObjectSystem roomObjects = RoomObjectFixtures.Unbound();
                 roomObjects.CollectibleObjects.SetupCollectible(new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Crateria),
                     PlaceAt(roomObjects, item), new PermanentCollectibleObject(InWorldCollectibleKind.EnergyTank, presentation),
-                    new CollectedItemArgument(ItemLocationDefinitions.CrateriaPowerBombsExposedPowerBombTank));
+                    new CollectibleIdentity(ItemLocationDefinitions.CrateriaPowerBombsExposedPowerBombTank));
             });
         }
         var tube = new Position16<RoomBlocks>(7, 7);

@@ -20,7 +20,7 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
         for (ushort parameter = 0; parameter < 3; parameter++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c929 + parameter * 2)),
-                MiscDustProjectileNativeListAddresses.Entry(MotherBrainDeathExplosionDefinitions.Animations[MotherBrainDeathExplosionNativeSelectors.Animations[parameter]]),
+                DustExplosionProjectileNativeListAddresses.Entry(MotherBrainDeathExplosionDefinitions.Animations[MotherBrainDeathExplosionNativeSelectors.Animations[parameter]]),
                 $"Mother Brain death explosion instruction {parameter}");
         }
 

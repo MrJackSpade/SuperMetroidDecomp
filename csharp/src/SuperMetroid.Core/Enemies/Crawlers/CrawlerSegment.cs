@@ -8,29 +8,29 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 internal enum CrawlerSegment
 {
     /// <summary>The Sciser crawling with its upper side right.</summary>
-    SciserUpsideRight,
+    SciserOnLeftWall,
     /// <summary>The Sciser crawling with its upper side left.</summary>
-    SciserUpsideLeft,
+    SciserOnRightWall,
     /// <summary>The Sciser crawling with its upper side down.</summary>
-    SciserUpsideDown,
+    SciserOnCeiling,
     /// <summary>The Sciser crawling with its upper side up.</summary>
-    SciserUpsideUp,
+    SciserOnFloor,
     /// <summary>The Zero crawling with its upper side right.</summary>
-    ZeroUpsideRight,
+    ZeroOnLeftWall,
     /// <summary>The Zero crawling with its upper side left.</summary>
-    ZeroUpsideLeft,
+    ZeroOnRightWall,
     /// <summary>The Zero crawling with its upper side down.</summary>
-    ZeroUpsideDown,
+    ZeroOnCeiling,
     /// <summary>The Zero crawling with its upper side up.</summary>
-    ZeroUpsideUp,
+    ZeroOnFloor,
     /// <summary>The Viola's idle crawl (#2477), the same on every surface.</summary>
     ViolaIdle,
     /// <summary>A Zoomer, Zeela, Sova or orange Zoomer crawling with its upper side right (#2283).</summary>
-    SpinyCrawlerUpsideRight,
+    SpinyCrawlerOnLeftWall,
     /// <summary>A Zoomer, Zeela, Sova or orange Zoomer crawling with its upper side left (#2283).</summary>
-    SpinyCrawlerUpsideLeft,
+    SpinyCrawlerOnRightWall,
     /// <summary>A Zoomer, Zeela, Sova or orange Zoomer crawling with its upper side down (#2283).</summary>
-    SpinyCrawlerUpsideDown,
+    SpinyCrawlerOnCeiling,
     /// <summary>A Zoomer, Zeela, Sova or orange Zoomer crawling with its upper side up (#2283).</summary>
-    SpinyCrawlerUpsideUp,
+    SpinyCrawlerOnFloor,
 }

@@ -13,5 +13,5 @@ internal enum GamePhaseAudio
     DoorTransitionSoundsDisabled,
 
     /// <summary>A pause state: held input is published after the pause phase returns.</summary>
-    PauseInputEpilogue,
+    PublishesHeldInputAfterPause,
 }

@@ -183,7 +183,7 @@ internal sealed class GameplayActorDrawing
                 room.Enemies.Elevator.ElevatorStatus != ElevatorActorStatus.Inactive && SamusPoseMetadata.IsForwardFacingPose(samus.Pose);
             if (elevatorOwnsSamusDrawing)
             {
-                if (RoomMainRoutines.ShouldDrawSamusOnElevator(_clock.Counter))
+                if (SamusCadenceDefinitions.ElevatorRideDrawnEverySecondUpdate.IsDue(_clock.Counter))
                 {
                     // The elevator ride draws the body without the ordinary invincibility
                     // flicker, so this path cannot flicker twice.

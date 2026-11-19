@@ -46,7 +46,7 @@ internal static class TorizoOwnershipVerification
             "the belly glow never starts without the Torizo that shows it");
         RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[3];
         TorizoEnemyState state = torizo.BindTorizoFixtureState(0);
-        TorizoBody.LoadTorizoBodyColours(torizo, state, new TorizoLook(TorizoLookKind.Normal));
+        TorizoBody.ShowLook(torizo, state, new TorizoLook(TorizoLookKind.Normal));
         TorizoBehavior.ShowBellyGlow(torizo, frame);
         AssertEqual(ColourEffectShades.Of(ColourEffectColours.TorizoBelly, frame), torizo.Shading.Shades[^1],
             "the belly glow shows on the Torizo that lit it, in the place it stands");

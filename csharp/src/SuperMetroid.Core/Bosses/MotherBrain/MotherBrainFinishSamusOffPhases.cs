@@ -175,7 +175,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
     /// </summary>
     internal bool Run(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests) => Encounter.FinishOffPhase switch
     {
-        MotherBrainFinishOffPhase.GetSamusToLowEnergy => AttackUntilSamusIsLow(samus, frame),
+        MotherBrainFinishOffPhase.AttackUntilSamusIsLow => AttackUntilSamusIsLow(samus, frame),
         MotherBrainFinishOffPhase.StandUp => StandUpToFinishOff(),
         MotherBrainFinishOffPhase.Admire => AdmireSamus(),
         MotherBrainFinishOffPhase.ChargeFinalBeam => ChargeFinalBeam(),

@@ -18,7 +18,7 @@ internal static class MamaTurtleEnemyDefinitionCatalogAccess
         DeathExplosion: EnemyDeathExplosion.Big,
         PowerBombReaction: null,
         Touch: null,
-        Shot: EnemyReaction.NormalEnemyShot,
+        Shot: EnemyReaction.OrdinaryShot,
         TouchHitboxScan: EnemyHitboxScan.Scanned,
         ShotHitboxScan: EnemyHitboxScan.Scanned,
         DropChances: new EnemyDropChances(80, 80, 80, 5, 5, 5),

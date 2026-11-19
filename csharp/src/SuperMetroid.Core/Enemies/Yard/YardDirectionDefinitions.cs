@@ -13,30 +13,30 @@ internal static class YardDirectionDefinitions
     /// </summary>
     internal static readonly Dictionary<YardDirection, YardDirectionDefinition> Directions = new()
     {
-        [YardDirection.UpsideRightMovingUp] = new(YardSegment.CrawlingUpsideRightMovingUp, CrawlerSurfaceOrientation.UpsideDown,
-            YardSegment.HidingUpsideRightMovingUp, HorizontalDirection.Left, YardDirection.UpsideRightMovingDown,
-            YardDirection.UpsideDownMovingLeft),
-        [YardDirection.UpsideRightMovingDown] = new(YardSegment.CrawlingUpsideRightMovingDown, CrawlerSurfaceOrientation.UpsideUp,
-            YardSegment.HidingUpsideRightMovingDown, HorizontalDirection.Right, YardDirection.UpsideRightMovingUp,
-            YardDirection.UpsideRightMovingDown),
-        [YardDirection.UpsideLeftMovingUp] = new(YardSegment.CrawlingUpsideLeftMovingUp, CrawlerSurfaceOrientation.UpsideDown,
-            YardSegment.HidingUpsideLeftMovingUp, HorizontalDirection.Right, YardDirection.UpsideLeftMovingDown,
-            YardDirection.UpsideLeftMovingUp),
-        [YardDirection.UpsideLeftMovingDown] = new(YardSegment.CrawlingUpsideLeftMovingDown, CrawlerSurfaceOrientation.UpsideUp,
-            YardSegment.HidingUpsideLeftMovingDown, HorizontalDirection.Left, YardDirection.UpsideLeftMovingUp,
-            YardDirection.UpsideLeftMovingDown),
-        [YardDirection.UpsideDownMovingLeft] = new(YardSegment.CrawlingUpsideDownMovingLeft, CrawlerSurfaceOrientation.UpsideRight,
-            YardSegment.HidingUpsideDownMovingLeft, HorizontalDirection.Right, YardDirection.UpsideDownMovingRight,
-            YardDirection.UpsideRightMovingUp),
-        [YardDirection.UpsideDownMovingRight] = new(YardSegment.CrawlingUpsideDownMovingRight, CrawlerSurfaceOrientation.UpsideLeft,
-            YardSegment.HidingUpsideDownMovingRight, HorizontalDirection.Left, YardDirection.UpsideDownMovingLeft,
-            YardDirection.UpsideDownMovingRight),
-        [YardDirection.UpsideUpMovingLeft] = new(YardSegment.CrawlingUpsideUpMovingLeft, CrawlerSurfaceOrientation.UpsideRight,
-            YardSegment.HidingUpsideUpMovingLeft, HorizontalDirection.Left, YardDirection.UpsideUpMovingRight,
-            YardDirection.UpsideUpMovingLeft),
-        [YardDirection.UpsideUpMovingRight] = new(YardSegment.CrawlingUpsideUpMovingRight, CrawlerSurfaceOrientation.UpsideLeft,
-            YardSegment.HidingUpsideUpMovingRight, HorizontalDirection.Right, YardDirection.UpsideUpMovingLeft,
-            YardDirection.UpsideUpMovingRight),
+        [YardDirection.OnLeftWallMovingUp] = new(YardSegment.CrawlingOnLeftWallMovingUp, CrawlerSurfaceOrientation.OnCeiling,
+            YardSegment.HidingOnLeftWallMovingUp, HorizontalDirection.Left, YardDirection.OnLeftWallMovingDown,
+            YardDirection.OnCeilingMovingLeft),
+        [YardDirection.OnLeftWallMovingDown] = new(YardSegment.CrawlingOnLeftWallMovingDown, CrawlerSurfaceOrientation.OnFloor,
+            YardSegment.HidingOnLeftWallMovingDown, HorizontalDirection.Right, YardDirection.OnLeftWallMovingUp,
+            YardDirection.OnLeftWallMovingDown),
+        [YardDirection.OnRightWallMovingUp] = new(YardSegment.CrawlingOnRightWallMovingUp, CrawlerSurfaceOrientation.OnCeiling,
+            YardSegment.HidingOnRightWallMovingUp, HorizontalDirection.Right, YardDirection.OnRightWallMovingDown,
+            YardDirection.OnRightWallMovingUp),
+        [YardDirection.OnRightWallMovingDown] = new(YardSegment.CrawlingOnRightWallMovingDown, CrawlerSurfaceOrientation.OnFloor,
+            YardSegment.HidingOnRightWallMovingDown, HorizontalDirection.Left, YardDirection.OnRightWallMovingUp,
+            YardDirection.OnRightWallMovingDown),
+        [YardDirection.OnCeilingMovingLeft] = new(YardSegment.CrawlingOnCeilingMovingLeft, CrawlerSurfaceOrientation.OnLeftWall,
+            YardSegment.HidingOnCeilingMovingLeft, HorizontalDirection.Right, YardDirection.OnCeilingMovingRight,
+            YardDirection.OnLeftWallMovingUp),
+        [YardDirection.OnCeilingMovingRight] = new(YardSegment.CrawlingOnCeilingMovingRight, CrawlerSurfaceOrientation.OnRightWall,
+            YardSegment.HidingOnCeilingMovingRight, HorizontalDirection.Left, YardDirection.OnCeilingMovingLeft,
+            YardDirection.OnCeilingMovingRight),
+        [YardDirection.OnFloorMovingLeft] = new(YardSegment.CrawlingOnFloorMovingLeft, CrawlerSurfaceOrientation.OnLeftWall,
+            YardSegment.HidingOnFloorMovingLeft, HorizontalDirection.Left, YardDirection.OnFloorMovingRight,
+            YardDirection.OnFloorMovingLeft),
+        [YardDirection.OnFloorMovingRight] = new(YardSegment.CrawlingOnFloorMovingRight, CrawlerSurfaceOrientation.OnRightWall,
+            YardSegment.HidingOnFloorMovingRight, HorizontalDirection.Right, YardDirection.OnFloorMovingLeft,
+            YardDirection.OnFloorMovingRight),
     };
 
     /// <summary>
@@ -45,7 +45,7 @@ internal static class YardDirectionDefinitions
     /// </summary>
     internal static readonly Dictionary<HorizontalDirection, YardAirborneAnimationDefinition> AirborneFacings = new()
     {
-        [HorizontalDirection.Left] = new(YardSegment.AirborneFacingLeft, YardSegment.HiddenUpsideUpMovingLeft),
-        [HorizontalDirection.Right] = new(YardSegment.AirborneFacingRight, YardSegment.HiddenUpsideUpMovingRight),
+        [HorizontalDirection.Left] = new(YardSegment.AirborneFacingLeft, YardSegment.HiddenOnFloorMovingLeft),
+        [HorizontalDirection.Right] = new(YardSegment.AirborneFacingRight, YardSegment.HiddenOnFloorMovingRight),
     };
 }

@@ -119,7 +119,7 @@ internal static class SaveRamCodecVerification
         var written = new SaveSlotStore(maps);
         SuperMetroidSaveSnapshot extremes = Snapshot(health: 61, area: AreaId.Brinstar) with
         {
-            StartupRoute = SaveLoadingGameState.CeresDestruction,
+            StartupRoute = SaveStartupRoute.CeresDestruction,
             GameTime = new GameClockReading(frames: 59, seconds: 0, minutes: 59, hours: 99),
         };
         written.SaveSlot(SaveSlot.A, extremes);
@@ -145,8 +145,8 @@ internal static class SaveRamCodecVerification
         SaveRamCodec.WriteSlot(importedImage, 0, importedPayload);
         AssertTrue(SaveRamCodec.Encode(SaveRamCodec.Decode(importedImage, maps), maps).SequenceEqual(image),
             "an imported save's unread words are not carried; it re-encodes as the game would save it");
-        AssertEqual(SaveLoadingGameState.CeresDestruction, slot.StartupRoute, "the startup route round-trips through its SRAM word");
-        AssertEqual(SaveLoadingGameState.MainGame, SuperMetroid.AssetExtraction.Progression.SaveLoadingGameStateCodec.Route(ushort.MaxValue),
+        AssertEqual(SaveStartupRoute.CeresDestruction, slot.StartupRoute, "the startup route round-trips through its SRAM word");
+        AssertEqual(SaveStartupRoute.MainGame, SuperMetroid.AssetExtraction.Progression.SaveStartupRouteCodec.Route(ushort.MaxValue),
             "a dispatcher word the cartridge does not name resumes the main game");
         AssertTrue(ReferenceEquals(SuperMetroid.Core.Progression.LoadStationDefinitions.GreenBrinstarSave, slot.Checkpoint), "the checkpoint decodes to the station it was saved at");
         AssertEqual(1, SaveRamCodec.ReadSlotWord(image, 0, SaveRamLayout.AreaOffset), "the checkpoint's area word holds Brinstar's number");
@@ -189,7 +189,7 @@ internal static class SaveRamCodecVerification
     internal static void VerifyProgressionSavedFields()
     {
         var system = new SharedGameState(new SharedRandom());
-        AssertThrows<ArgumentOutOfRangeException>(() => system.LoadSavedStartupRoute((SaveLoadingGameState)(-1)),
+        AssertThrows<ArgumentOutOfRangeException>(() => system.LoadSavedStartupRoute((SaveStartupRoute)(-1)),
             "an undefined startup route is rejected");
 
         // A save image's boss byte with a bit no routine tests beside two named ones: only the named flags are progress,

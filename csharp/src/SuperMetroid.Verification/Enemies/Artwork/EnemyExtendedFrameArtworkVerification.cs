@@ -10,7 +10,7 @@ using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireTongueCollision
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyExtendedFrameArtworkCommonEmptyVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
-using static SuperMetroid.Verification.Enemies.MaridiaSnails.MaridiaLargeSnailCollisionDefinitionsVerification;
+using static SuperMetroid.Verification.Enemies.MaridiaSnails.OumCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;

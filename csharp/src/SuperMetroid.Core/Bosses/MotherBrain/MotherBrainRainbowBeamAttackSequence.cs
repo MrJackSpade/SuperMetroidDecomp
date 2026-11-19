@@ -148,7 +148,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         {
             // Her neck's recoil starts on her next third-phase update; any wait her body is in runs out on its next
             // step.
-            ThirdPhaseFight.Phase3NeckPhase = MotherBrainPhase3NeckPhase.SetupHyperBeamRecoil;
+            ThirdPhaseFight.Phase3NeckPhase = MotherBrainPhase3NeckPhase.StartHyperBeamRecoil;
             Encounter.PhaseTimer.LastFor(1);
         }
     }

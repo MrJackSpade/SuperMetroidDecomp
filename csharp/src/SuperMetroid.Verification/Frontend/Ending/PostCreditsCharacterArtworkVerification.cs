@@ -35,10 +35,10 @@ internal static class PostCreditsCharacterArtworkVerification
                 if (native.Phase >= EndingCreditsPhase.Credits &&
                     checkedPhases.Add(native.Phase))
                 {
-                    LayeredScene expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
+                    LayeredScene expected = EndingCreditsPresentation.ComposeScene(native);
                     RgbColor[] expectedColours = EndingShownColours.Of(native);
                     byte[] expectedVram = native.ShownVram();
-                    LayeredScene actual = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
+                    LayeredScene actual = EndingCreditsPresentation.ComposeScene(installed);
                     RgbColor[] actualColours = EndingShownColours.Of(installed);
                     byte[] actualVram = installed.ShownVram();
                     AssertTrue(actualVram.SequenceEqual(expectedVram) &&
@@ -71,10 +71,10 @@ internal static class PostCreditsCharacterArtworkVerification
                 nativeAudio.AdvanceFrame(default);
                 installedAudio.AdvanceFrame(default);
                 if (frame < 47) continue;
-                LayeredScene expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
+                LayeredScene expected = EndingCreditsPresentation.ComposeScene(native);
                 RgbColor[] expectedColours = EndingShownColours.Of(native);
                 byte[] expectedVram = native.ShownVram();
-                LayeredScene actual = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
+                LayeredScene actual = EndingCreditsPresentation.ComposeScene(installed);
                 RgbColor[] actualColours = EndingShownColours.Of(installed);
                 byte[] actualVram = installed.ShownVram();
                 AssertTrue(actualVram.SequenceEqual(expectedVram) &&
@@ -93,10 +93,10 @@ internal static class PostCreditsCharacterArtworkVerification
                         $"installed logo phase at frame {frame}");
                     if (frame % 29 == 0 || native.Phase == EndingCreditsPhase.PostCreditsLogo)
                     {
-                        LayeredScene expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
+                        LayeredScene expected = EndingCreditsPresentation.ComposeScene(native);
                         RgbColor[] expectedColours = EndingShownColours.Of(native);
                         byte[] expectedVram = native.ShownVram();
-                        LayeredScene actual = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
+                        LayeredScene actual = EndingCreditsPresentation.ComposeScene(installed);
                         RgbColor[] actualColours = EndingShownColours.Of(installed);
                         byte[] actualVram = installed.ShownVram();
                         AssertTrue(actualVram.SequenceEqual(expectedVram) &&

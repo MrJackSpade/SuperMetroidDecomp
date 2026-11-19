@@ -61,8 +61,8 @@ internal enum CommonSpawner
     /// <summary>The particles Skrees and Metarees burst into.</summary>
     SkreeMetareeParticles,
 
-    /// <summary>The room main routines' debris and the Ceres elevator's concealer.</summary>
-    RoomMainRoutines,
+    /// <summary>The Ceres pre-elevator hall's falling debris, which its room's main spawns, and the Ceres elevator's concealer.</summary>
+    CeresFallingDebrisMain,
 
     /// <summary>The Ceres elevator's arrival pad and platform (#2425).</summary>
     CeresElevatorArrivalState,

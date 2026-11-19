@@ -13,10 +13,10 @@ public enum MotherBrainDeathPhase
     StumbleToMiddleOfRoom,
 
     /// <summary>Her neck, drool and breath stop and her brain comes away from her neck.</summary>
-    DisableBrainEffects,
+    BrainComesAway,
 
     /// <summary>Mixed explosions burst before her body fades.</summary>
-    SetupBodyFadeOut,
+    ExplodesBeforeBodyFades,
 
     /// <summary>Her flickering body fades to black.</summary>
     FadeOutBody,
@@ -34,7 +34,7 @@ public enum MotherBrainDeathPhase
     BrainSettles,
 
     /// <summary>She lies still before her corpse greys.</summary>
-    SetupFadeToGrey,
+    LiesStillBeforeGreying,
 
     /// <summary>Her corpse fades to grey.</summary>
     FadeToGrey,
@@ -55,13 +55,13 @@ public enum MotherBrainDeathPhase
     StartEscape,
 
     /// <summary>The escape text types on, then the Japanese time-bomb subtitle shows.</summary>
-    SpawnTimeBombSetSubtitle,
+    ShowsEscapeSubtitle,
 
     /// <summary>The escape text types out.</summary>
     TypeOutZebesEscapeText,
 
     /// <summary>Dust bursts over the escape door, then the escape timer starts.</summary>
-    DoorExplodingStartTimer,
+    EscapeDoorBursts,
 
     /// <summary>The escape door blows apart and opens.</summary>
     BlowUpEscapeDoor,

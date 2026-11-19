@@ -10,13 +10,13 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// </summary>
 /// <param name="samus">Samus as the room reads her.</param>
 /// <param name="roomFx">The room's liquid motion, which the trigger starts.</param>
-internal sealed class EscapeAcidRiseObject(IRoomSamusAccess samus, IRoomFxMotion roomFx) : RoomObjectBehaviour
+internal sealed class EscapeAcidRiseObject(IRoomSamusAccess samus, IRoomLiquid roomFx) : RoomObjectBehaviour
 {
     /// <summary>Samus as the room reads her.</summary>
     private readonly IRoomSamusAccess _samus = samus;
 
     /// <summary>The room's liquid motion, which the trigger starts.</summary>
-    private readonly IRoomFxMotion _roomFx = roomFx;
+    private readonly IRoomLiquid _roomFx = roomFx;
 
     /// <summary>Where the trigger is in its course: its first update only starts the watch.</summary>
     private EscapeAcidRisePhase _phase = EscapeAcidRisePhase.Starting;

@@ -9,6 +9,6 @@ internal static class EndingCreditsPresentationPixelsAccess
     extension(EndingCreditsState scene)
     {
         /// <summary>Captures the scene and draws its snapshot with the game's renderer.</summary>
-        internal RgbaPixel[] Render() => FrontendScenePixelsAccess.Pixels(EndingCreditsPresentation.CaptureRenderSnapshot(scene));
+        internal RgbaPixel[] Render() => FrontendScenePixelsAccess.Pixels(EndingCreditsPresentation.ComposeScene(scene));
     }
 }

@@ -19,7 +19,7 @@ public sealed class BoulderEnemyState
     /// drives horizontal travel while bouncing and rolling, and also the ground-following fall while rolling, so it is
     /// an independent clock rather than one axis of a velocity.
     /// </summary>
-    public QuadraticSpeedCurvePlace TravelSpeedAccumulator
+    public QuadraticSpeedCurvePlace TravelCurvePlace
     {
         get;
         internal set => field = InRange(value, BoulderMotionDefinitions.MaximumBouncingSpeed);
@@ -31,7 +31,7 @@ public sealed class BoulderEnemyState
     /// start, and the uncapped falling increment cannot pass the place past the curve's last mark, because the curve rejects that
     /// place before another increment, so it stays within the start through that place.
     /// </summary>
-    public QuadraticSpeedCurvePlace BounceSpeedAccumulator
+    public QuadraticSpeedCurvePlace BounceCurvePlace
     {
         get;
         internal set => field = InRange(value, BoulderMotionDefinitions.LargestBounceSpeed);

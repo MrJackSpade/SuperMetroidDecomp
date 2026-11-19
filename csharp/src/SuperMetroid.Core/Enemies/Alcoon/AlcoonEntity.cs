@@ -8,7 +8,7 @@ internal sealed class AlcoonEntity(AlcoonBehavior species, RoomEnemyPlace place,
     : CommonParticipationEnemyEntity(place, common), IEnemySurroundingsInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize(EnemyPopulationSurroundings surroundings) => species.RunAlcoonInitializationAi(Place, surroundings);
+    public void Initialize(EnemyPopulationSurroundings surroundings) => species.SetUpAlcoon(Place, surroundings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunAlcoonMainAi(Place, frame);

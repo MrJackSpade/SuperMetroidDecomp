@@ -116,10 +116,10 @@ internal sealed class EnemyProjectileEngine
     /// </summary>
     public int ResolveEnemyProjectileSamusProjectileHits(
         SamusProjectileSystem projectiles,
-        SamusBombProjectileSystem sharedProjectiles)
+        SamusBombProjectileSystem samusBombs)
     {
         Ensure.NotNull(projectiles);
-        Ensure.NotNull(sharedProjectiles);
+        Ensure.NotNull(samusBombs);
 
         int hitCount = 0;
         for (int enemyProjectileIndex = _places.Length - 1;
@@ -707,5 +707,5 @@ internal sealed class EnemyProjectileEngine
     /// <summary>
     /// Draws a one-in-four chance from the room's next random number: it comes up for the top quarter of the range.
     /// </summary>
-    internal bool TakeOneInFourBranch() => EnemyProjectileRandomBranchDefinitions.OneInFourBranch.IsTakenBy(_room.Random.Generate());
+    internal bool TakeRandomAnimationChange() => EnemyProjectileRandomBranchDefinitions.RandomAnimationChange.IsTakenBy(_room.Random.Generate());
 }

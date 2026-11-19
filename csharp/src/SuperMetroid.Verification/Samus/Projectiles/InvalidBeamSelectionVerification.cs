@@ -50,7 +50,7 @@ internal static class InvalidBeamSelectionVerification
         AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.Plasma, pause.SelectedControl, "same-frame Left+A moves Boots to the beams' Plasma");
         AssertEqual(scenario == 0 ? 0x000c : scenario == 1 ? 0x0008 : 0x0004, samus.EquippedBeams.ToEquipmentWord(),
             "native beam bits distinguish simultaneous, adjacent and direction-only input");
-        var after = pause.CaptureRenderSnapshot();
+        var after = pause.ComposeScene();
         byte[] afterVram = pause.ShownVram(RetailPresentationFixture());
         byte[] expectedVram = afterVram.ToArray();
         // Restore the entire label region to its before-input contents, then apply the native label of each beam whose

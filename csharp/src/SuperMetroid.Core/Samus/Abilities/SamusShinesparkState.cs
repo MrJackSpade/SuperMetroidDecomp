@@ -165,7 +165,7 @@ public sealed class SamusShinesparkState
     /// and restarts the crash's orbit: its stage, radius, angles, turn and copies, and its travel, which the next crash
     /// starts from. The spark's phase and its unrelated timers are unchanged.
     /// </summary>
-    internal void ResetProjectileEchoStorage()
+    internal void ForgetCrashEchoes()
     {
         FirstReleasedEcho.Forget();
         SecondReleasedEcho.Forget();
@@ -599,8 +599,8 @@ public sealed class SamusShinesparkState
         RotationAngle angle,
         int radius)
     {
-        int x = LookupSignedComponent(angle, radius);
-        int y = LookupSignedComponent(
+        int x = ScaledSineComponent(angle, radius);
+        int y = ScaledSineComponent(
             angle - RotationAngle.QuarterTurn,
             radius);
         return new(x, y);
@@ -610,7 +610,7 @@ public sealed class SamusShinesparkState
     /// The radius scaled by the angle's sine, rounded toward zero (<see cref="UnitComponent.ReachOf"/>): rounding down a
     /// negative product would round differently.
     /// </summary>
-    private static int LookupSignedComponent(
+    private static int ScaledSineComponent(
         RotationAngle angle,
         int radius) =>
         UnitComponent.SineOf(angle.ToTrigonometryAngle()).ReachOf(radius);

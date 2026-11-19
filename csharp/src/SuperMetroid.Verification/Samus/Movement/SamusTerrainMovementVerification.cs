@@ -200,7 +200,7 @@ internal static void VerifySamusBlockCollision()
 
     // `$94:938B` resolves the door block's door, then inspects the destination. Crateria room
     // $00/$08 leads its door blocks both ways: through entry zero of its list, a normal room
-    // door, and entry two, the shared `$83:88FC` elevator pseudo-door whose zero destination
+    // door, and entry two, the shared `$83:88FC` elevator ride whose zero destination
     // retains ordinary solid clipping. The import resolves each block's door (#2090).
     const ushort doorListPointer = 0x94f3;
     const ushort normalDoorPointer = 0x8a4e;
@@ -235,11 +235,11 @@ internal static void VerifySamusBlockCollision()
     doorBody.Position = doorBody.Position.WithWholeX(26).WithFractionX(0);
     ISamusRoomObjects elevatorDoorRoomObjects = SamusRoomObjectFixtures.WithQuicksand();
     BlockMoveResult elevatorDoorMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = elevatorDoorLevel, RoomObjects = elevatorDoorRoomObjects }, doorBody, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
-    AssertTrue(elevatorDoorMove.Collided, "elevator pseudo-door remains solid");
+    AssertTrue(elevatorDoorMove.Collided, "elevator ride remains solid");
     AssertEqual(0x00010000, elevatorDoorMove.AcceptedDisplacement.RawValue,
-        "elevator pseudo-door uses ordinary solid clipping");
+        "elevator ride uses ordinary solid clipping");
     AssertTrue(elevatorDoorRoomObjects.DoorContacts.EnteredDoor is null,
-        "elevator pseudo-door does not publish normal room transition");
+        "elevator ride does not publish normal room transition");
 
     // The room loader fills all unused level-data allocation words with `$8000` before
     // decompression. Put Samus one pixel inside the logical right and bottom boundaries;
@@ -581,13 +581,13 @@ internal static void VerifySamusGroundedMovement()
     // Every nonzero status executes `$90:A392`'s scan; destination shaft scroll PLMs rely
     // on that collision pass while the actor pins Samus. The collapsed host transition must
     // suppress only the redundant pseudo-door publication during statuses two/three.
-    AssertEqual(DoorBlockMeeting.Contacts, RoomMainRoutines.FacingForwardDoorBlocks(ElevatorActorStatus.Departing),
+    AssertEqual(DoorBlockMeeting.Contacts, ElevatorDoorBlocks.FacingForward(ElevatorActorStatus.Departing),
         "departing elevator publishes forward pseudo-door contact");
-    AssertEqual(DoorBlockMeeting.CarriedPastByElevator, RoomMainRoutines.FacingForwardDoorBlocks(ElevatorActorStatus.Inactive),
+    AssertEqual(DoorBlockMeeting.CarriedPastByElevator, ElevatorDoorBlocks.FacingForward(ElevatorActorStatus.Inactive),
         "inactive elevator suppresses pseudo-door contact");
-    AssertEqual(DoorBlockMeeting.CarriedPastByElevator, RoomMainRoutines.FacingForwardDoorBlocks(ElevatorActorStatus.BeginArrivalReturn),
+    AssertEqual(DoorBlockMeeting.CarriedPastByElevator, ElevatorDoorBlocks.FacingForward(ElevatorActorStatus.BeginArrivalReturn),
         "arrival setup suppresses repeated pseudo-door contact");
-    AssertEqual(DoorBlockMeeting.CarriedPastByElevator, RoomMainRoutines.FacingForwardDoorBlocks(ElevatorActorStatus.ReturningToRest),
+    AssertEqual(DoorBlockMeeting.CarriedPastByElevator, ElevatorDoorBlocks.FacingForward(ElevatorActorStatus.ReturningToRest),
         "arrival return suppresses repeated pseudo-door contact");
 
     Console.WriteLine("  Samus movement: forward/elevator, standing, and running speed/X/slope/grounding order agree.");

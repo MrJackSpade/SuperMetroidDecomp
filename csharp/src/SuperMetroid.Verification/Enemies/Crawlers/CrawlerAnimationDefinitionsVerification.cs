@@ -25,10 +25,10 @@ internal static class CrawlerAnimationDefinitionsVerification
         ];
         CrawlerSurfaceOrientation[] orientations =
         [
-            CrawlerSurfaceOrientation.UpsideRight,
-            CrawlerSurfaceOrientation.UpsideLeft,
-            CrawlerSurfaceOrientation.UpsideDown,
-            CrawlerSurfaceOrientation.UpsideUp,
+            CrawlerSurfaceOrientation.OnLeftWall,
+            CrawlerSurfaceOrientation.OnRightWall,
+            CrawlerSurfaceOrientation.OnCeiling,
+            CrawlerSurfaceOrientation.OnFloor,
         ];
 
         foreach ((CrawlerAnimationFamily family, int address, _) in initialTables)
@@ -65,7 +65,7 @@ internal static class CrawlerAnimationDefinitionsVerification
                 SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Zoomer,
                     new SuperMetroid.AssetExtraction.Enemies.PopulationWords(orientation, orientation, 0, 0, 0)),
                 $"crawler population words {orientation} decode to its surface and block side");
-            place.SetSpawnSettings(new CrawlerSpawnSettings(orientations[orientation], CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
+            place.SetSpawnSettings(new CrawlerSpawnSettings(orientations[orientation], CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
             if (family == CrawlerAnimationFamily.Viola)
             {
                 // InitAI_Viola ($A3:B678) selects with its block side, not its surface.
@@ -98,28 +98,28 @@ internal static class CrawlerAnimationDefinitionsVerification
             state.Velocity = state.Velocity.WithX(new SignedEightEight(0xffff));
             setHorizontal(place, state);
             AssertEqual(new AnimationPlayback<CrawlerSegment>(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(
-                    surfaceFamily, CrawlerSurfaceOrientation.UpsideRight)), AnimationPlace.StartOfAnimation),
+                    surfaceFamily, CrawlerSurfaceOrientation.OnLeftWall)), AnimationPlace.StartOfAnimation),
                 state.Playback, $"crawler production right surface {surfaceFamily}");
             state.Velocity = state.Velocity.WithX(new SignedEightEight(1));
             setHorizontal(place, state);
             AssertEqual(new AnimationPlayback<CrawlerSegment>(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(
-                    surfaceFamily, CrawlerSurfaceOrientation.UpsideLeft)), AnimationPlace.StartOfAnimation),
+                    surfaceFamily, CrawlerSurfaceOrientation.OnRightWall)), AnimationPlace.StartOfAnimation),
                 state.Playback, $"crawler production left surface {surfaceFamily}");
             state.Velocity = state.Velocity.WithY(new SignedEightEight(0xffff));
             setVertical(place, state);
             AssertEqual(new AnimationPlayback<CrawlerSegment>(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(
-                    surfaceFamily, CrawlerSurfaceOrientation.UpsideDown)), AnimationPlace.StartOfAnimation),
+                    surfaceFamily, CrawlerSurfaceOrientation.OnCeiling)), AnimationPlace.StartOfAnimation),
                 state.Playback, $"crawler production down surface {surfaceFamily}");
             state.Velocity = state.Velocity.WithY(new SignedEightEight(1));
             setVertical(place, state);
             AssertEqual(new AnimationPlayback<CrawlerSegment>(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(
-                    surfaceFamily, CrawlerSurfaceOrientation.UpsideUp)), AnimationPlace.StartOfAnimation),
+                    surfaceFamily, CrawlerSurfaceOrientation.OnFloor)), AnimationPlace.StartOfAnimation),
                 state.Playback, $"crawler production up surface {surfaceFamily}");
         }
 
         AssertThrows<InvalidDataException>(
             () => CrawlerSurfaceAnimations.AnimationFor(
-                (CrawlerAnimationFamily)5, CrawlerSurfaceOrientation.UpsideRight),
+                (CrawlerAnimationFamily)5, CrawlerSurfaceOrientation.OnLeftWall),
             "crawler initial family beyond authored tables");
         Console.WriteLine(
             "Crawler animation definitions: forty-four native selectors and all family/orientation initializers plus 16 real surface handoffs pass with source tables forbidden.");

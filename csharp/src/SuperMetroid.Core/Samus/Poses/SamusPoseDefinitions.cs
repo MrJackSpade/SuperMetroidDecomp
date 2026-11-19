@@ -3,7 +3,7 @@ using static SuperMetroid.Core.Samus.Poses.SamusPoseCollisionDefinitions;
 using static SuperMetroid.Core.Samus.Poses.SamusPoseInputList;
 using Aim = SuperMetroid.Core.Samus.Poses.SamusPoseAim;
 using Facing = SuperMetroid.Core.Samus.SamusFacingDirection;
-using Fallback = SuperMetroid.Core.Samus.Poses.SamusNoInputFallback;
+using Fallback = SuperMetroid.Core.Samus.Poses.SamusNoInputPose;
 using Move = SuperMetroid.Core.Samus.Movement.SamusMovementType;
 using Setup = SuperMetroid.Core.Samus.Poses.SamusNoTransitionSetup;
 using Shot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection;

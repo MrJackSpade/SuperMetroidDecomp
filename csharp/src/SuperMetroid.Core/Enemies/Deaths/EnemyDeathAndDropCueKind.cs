@@ -8,7 +8,7 @@ internal enum EnemyDeathAndDropCueKind
     /// <summary>Removes the explosion or pickup.</summary>
     Delete,
     /// <summary>Respawns the killed enemy when its room keeps it.</summary>
-    HandleRespawningEnemy,
+    RespawnEnemy,
     /// <summary>Queues the killed-by-contact sound.</summary>
     PlayContactKilledSound,
     /// <summary>Queues the enemy-killed sound.</summary>

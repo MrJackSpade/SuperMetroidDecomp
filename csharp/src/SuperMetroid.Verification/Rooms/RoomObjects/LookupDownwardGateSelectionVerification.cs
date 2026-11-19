@@ -37,7 +37,7 @@ internal static class LookupDownwardGateSelectionVerification
             }
             // The import decodes the word into the trigger's colour and side (#1746).
             DownwardGateTrigger trigger = (RoomObjectRoomArgumentWords.Decode(RoomObjectKind.DownwardGateShotBlock, argument)
-                as GateTriggerArgument ?? throw new InvalidDataException($"Argument ${argument:X4} names no trigger.")).Trigger;
+                as GateShotTrigger ?? throw new InvalidDataException($"Argument ${argument:X4} names no trigger.")).Trigger;
             ushort native = ReadSamusEaterObjectWord(rom, source + raw);
             if (field == 0)
             {

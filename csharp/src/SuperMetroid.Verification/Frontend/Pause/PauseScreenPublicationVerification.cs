@@ -57,7 +57,7 @@ internal static class PauseScreenPublicationVerification
         // The retail pause fixture binds the installation's map presentation.
         var artwork = RetailPresentationFixture();
         byte[] characters = PauseScreenMemory.Characters(artwork);
-        LayeredScene scene = pause.CaptureRenderSnapshot();
+        LayeredScene scene = pause.ComposeScene();
         FramePaint memory = scene.Paint;
         // The page's markers, cursors and labels are the scene's sprite layer (#1514), not draws in the paint.
         ImmutableArray<ImageSpriteDraw> painted = scene.Layers.ToArray().OfType<SpritesLayer>().Single().Draws;
@@ -84,7 +84,7 @@ internal static class PauseScreenPublicationVerification
     /// </summary>
     private static void AssertShownPlanes(PauseMenuState pause, string page)
     {
-        DisplayLayer[] layers = [.. pause.CaptureRenderSnapshot().Layers];
+        DisplayLayer[] layers = [.. pause.ComposeScene().Layers];
         PicturedPlane frame = pause.screen.Frame(pause.area, pause.ButtonHighlight);
         AssertTrue(layers.OfType<PicturedPlaneLayer>().Any(layer => layer.Plane.Equals(frame)), $"{page} draws the area's frame pictures");
         bool grid = layers.OfType<PictureGridLayer>().Any(layer => layer.Grid.Equals(AreaMapPictures.Grid(pause.ShownMap, pause.screen.Pictures)));

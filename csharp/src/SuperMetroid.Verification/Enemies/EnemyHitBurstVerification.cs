@@ -123,8 +123,8 @@ internal static class EnemyHitBurstVerification
         gold.Bind(EnemyDefinitionId.PirateGoldNinja, RoomEnemyDefinitionLookup.Get(EnemyDefinitionId.PirateGoldNinja));
         foreach ((RoomEnemyPlace pirate, EnemyReaction reaction, bool shows) in new[]
         {
-            (silver, EnemyReaction.NormalEnemyShot, true),
-            (gold, EnemyReaction.NormalEnemyShot, true),
+            (silver, EnemyReaction.OrdinaryShot, true),
+            (gold, EnemyReaction.OrdinaryShot, true),
             (silver, SpacePirateReactions.Shot, true),
             (gold, SpacePirateReactions.Shot, false),
             (silver, SpacePirateReactions.GoldNinjaVulnerableHitboxShot, false),

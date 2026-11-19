@@ -7,5 +7,5 @@ internal static class CacatacNativeValues
     internal static readonly SoundEffectId SpikeSound = EnemySound.LowThump;
 
     /// <summary>A parameter one whose nonzero high byte makes <c>InitAI_Cacatac</c> start upright, with direction zero (left).</summary>
-    internal const ushort UpsideUpParameter = 0x0100;
+    internal const ushort OnFloorParameter = 0x0100;
 }

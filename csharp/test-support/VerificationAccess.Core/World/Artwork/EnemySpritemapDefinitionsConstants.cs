@@ -15,7 +15,7 @@ internal static class EnemySpritemapDefinitionsConstants
     /// <summary>Frames the document lists before Botwoon's visual frames.</summary>
     internal static int PreBotwoonFrameCount => FramesBefore(EnemyFrameId.BotwoonHeadClosedUpLeft);
     /// <summary>Frames the document lists before the Yard's visual frames.</summary>
-    internal static int PreYardFrameCount => FramesBefore(EnemyFrameId.YardRoundingOutsideCornerUpsideRightFacingUpTurned22);
+    internal static int PreYardFrameCount => FramesBefore(EnemyFrameId.YardRoundingOutsideCornerOnLeftWallFacingUpTurned22);
     /// <summary>Frames the document lists before the work robot's visual frames.</summary>
     internal static int PreWorkRobotFrameCount => FramesBefore(EnemyFrameId.WorkRobotWalkingLeftNearFootLeanBack);
     /// <summary>Frames the document lists before the Evir's visual frames.</summary>
@@ -55,7 +55,7 @@ internal static class EnemySpritemapDefinitionsConstants
     /// <summary>Frames the document lists before the Fly's visual frames.</summary>
     internal static int PreFlyFrameCount => FramesBefore(EnemyFrameId.FlyWingsRaisedOut);
     /// <summary>Frames the document lists before the Sciser's visual frames.</summary>
-    internal static int PreSciserFrameCount => FramesBefore(EnemyFrameId.SciserUpsideRightLegsTucked);
+    internal static int PreSciserFrameCount => FramesBefore(EnemyFrameId.SciserOnLeftWallLegsTucked);
     /// <summary>Frames the document lists before the supplementary Ridley artwork.</summary>
     internal static int PreRidleySupplementFrameCount => FramesBefore(EnemyFrameId.RidleyTailBaseLink);
     /// <summary>Frames the document lists before the dead Torizo's artwork.</summary>
@@ -81,7 +81,7 @@ internal static class EnemySpritemapDefinitionsConstants
     /// <summary>Frames the document lists before the Sbug frames.</summary>
     internal static int PreSbugFrameCount => FramesBefore(EnemyFrameId.SbugFacingRightWingsUp);
     /// <summary>Frames the document lists before the spiny crawlers' frames.</summary>
-    internal static int PreSpinyCrawlerFrameCount => FramesBefore(EnemyFrameId.SpinyCrawlerUpsideRightSpinesTurned0);
+    internal static int PreSpinyCrawlerFrameCount => FramesBefore(EnemyFrameId.SpinyCrawlerOnLeftWallSpinesTurned0);
     /// <summary>Frames the document lists before the Choot frames.</summary>
     internal static int PreChootFrameCount => FramesBefore(EnemyFrameId.ChootLyingFlat);
     /// <summary>Frames the document lists before the hopper frames.</summary>
@@ -94,10 +94,10 @@ internal static class EnemySpritemapDefinitionsConstants
     internal static int PreBullFrameCount => FramesBefore(EnemyFrameId.BullTentaclesUpright);
     /// <summary>Frames the document lists before the Puyo frames.</summary>
     internal static int PrePuyoFrameCount => FramesBefore(EnemyFrameId.PuyoGroundedTall);
-    /// <summary>Frames the document lists before the Norfair Rio frames.</summary>
-    internal static int PreNorfairRioFrameCount => FramesBefore(EnemyFrameId.NorfairRioWingsLevel);
-    /// <summary>Frames the document lists before the Lower Norfair Rio frames.</summary>
-    internal static int PreLowerNorfairRioFrameCount => FramesBefore(EnemyFrameId.LowerNorfairRioWingsRaised);
+    /// <summary>Frames the document lists before the Geruta frames.</summary>
+    internal static int PreGerutaFrameCount => FramesBefore(EnemyFrameId.GerutaWingsLevel);
+    /// <summary>Frames the document lists before the Holtz frames.</summary>
+    internal static int PreHoltzFrameCount => FramesBefore(EnemyFrameId.HoltzWingsRaised);
     /// <summary>Frames the document lists before the ordinary Rio frames.</summary>
     internal static int PreRioFrameCount => FramesBefore(EnemyFrameId.RioWingsUpLegsTucked);
     /// <summary>Frames the document lists before the Ceres Baby Metroid frames.</summary>

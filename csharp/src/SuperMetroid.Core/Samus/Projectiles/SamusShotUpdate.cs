@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <param name="Terrain">The room's blocks and room objects the shots act on.</param>
 /// <param name="Samus">Samus, whom special attack particles and echoes follow.</param>
 /// <param name="Camera">The camera of the update, in whole room pixels, which the shots test the screen against.</param>
-/// <param name="SharedProjectiles">Samus's bombs, which carry the shared cooldown and the Power Bomb the shots read.</param>
+/// <param name="SamusBombs">Samus's bombs, which carry the shared cooldown and the Power Bomb the shots read.</param>
 /// <param name="Progression">
 /// The progression the Spacetime shot's overwrite turns story events, bosses, items, doors, stations, maps and the saved
 /// startup route on and off in (<see cref="SpacetimeShotOverwrite"/>).
@@ -22,5 +22,5 @@ internal readonly record struct SamusShotUpdate(
     SamusTerrain Terrain,
     SamusState Samus,
     Position16<RoomPixels> Camera,
-    SamusBombProjectileSystem SharedProjectiles,
+    SamusBombProjectileSystem SamusBombs,
     SharedGameState Progression);

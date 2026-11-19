@@ -30,7 +30,7 @@ internal static class RetailTransitionTests
             if (changed || tick % 13 == 0)
             {
                 var expected = destruction.Render();
-                var scene = destruction.CaptureRenderSnapshot();
+                var scene = destruction.ComposeScene();
                 mode1 |= scene.Layers.Any(layer => layer is PicturedPlaneLayer);
                 mode7 |= scene.Layers.Any(layer => layer is TurningFloorLayer);
                 cinematicCount++;
@@ -52,7 +52,7 @@ internal static class RetailTransitionTests
             {
                 var expected = menu.Render();
                 menuCount++;
-                var packet = new DisplayPacket((ushort)tick, menu.CaptureRenderSnapshot());
+                var packet = new DisplayPacket((ushort)tick, menu.ComposeScene());
                 Check(packet, expected, $"game-over {menu.Phase}, no={chooseNo}, tick {tick}");
                 ControllerButton input = 0;
                 if (menu.Phase == GameOverMenuPhase.Main)

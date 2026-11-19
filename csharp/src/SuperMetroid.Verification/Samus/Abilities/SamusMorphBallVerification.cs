@@ -152,7 +152,7 @@ floor, SamusPoseId.MorphingTransitionLeftPose, frameCounter: 1, roomObjects: Sam
         "non-spin aerial morph retains acceleration mode");
     AssertEqual(0, fallingMorph.BombSpreadCharge.Age,
         "morph initializer clears bomb-spread timeout");
-    AssertEqual(0x003c, fallingMorph.BeamCharge.FlareCounter,
+    AssertEqual(0x003c, fallingMorph.BeamCharge.UpdatesHeld,
         "morph initializer does not clear arm-cannon charge counter");
 
     var spinMorph = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
@@ -754,7 +754,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
         "bomb spread occupies all five physical bomb slots");
     AssertEqual(0x0010, spreadBombs.CooldownTimer,
         "bomb spread selects non-beam cooldown entry five");
-    AssertEqual(0, spreadSamus.BeamCharge.FlareCounter,
+    AssertEqual(0, spreadSamus.BeamCharge.UpdatesHeld,
         "bomb spread clears mirrored flare counter");
     AssertEqual(0, spreadSamus.BombSpreadCharge.Age,
         "bomb spread clears its timeout counter");

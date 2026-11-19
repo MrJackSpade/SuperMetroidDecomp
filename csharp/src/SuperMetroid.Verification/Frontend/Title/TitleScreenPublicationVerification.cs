@@ -31,7 +31,7 @@ internal static class TitleScreenPublicationVerification
         bool drewSprites = false;
         for (int frame = 0; frame < 9 * TitleSequenceDefinitions.Timing.BabyFrameDuration; frame++)
         {
-            FloorScene snapshot = title.CaptureRenderSnapshot();
+            FloorScene snapshot = title.ComposeScene();
             byte[] snapshotVram = title.ShownVram();
             var shownBytes = new byte[pageBytes];
             for (int pixel = 0; pixel < pageBytes; pixel++)
@@ -52,14 +52,14 @@ internal static class TitleScreenPublicationVerification
         AssertTrue(shownPages.Count >= 8 && shownPages.Select((page, index) => page == new[] { 0, 1, 2, 1 }[(index + Array.IndexOf(new[] { 0, 1, 2, 1 }, shownPages[0])) % 4]).All(match => match),
             $"the shown Baby Metroid page cycles 0, 1, 2, 1 ({string.Join(",", shownPages)})");
 
-        RgbaPixel[] shown = DisplayRendering.Render(new DisplayPacket(0, title.CaptureRenderSnapshot()));
+        RgbaPixel[] shown = DisplayRendering.Render(new DisplayPacket(0, title.ComposeScene()));
         // The debugger's store names the installed content it binds by path instead of writing it (#1507), so the round
         // trip carries only the title's own state, not the installed sheets and presentation it draws from (#1677).
         var restored = GraphDigestVerification.RoundTrip(title);
         restored.BindTitleGradient(maps.TitleGradient);
         restored.BindTitleBackdrop(maps.TitleBackdrop);
         restored.BindFixtureTitleGraphics(graphics);
-        AssertTrue(shown.SequenceEqual(DisplayRendering.Render(new DisplayPacket(0, restored.CaptureRenderSnapshot()))),
+        AssertTrue(shown.SequenceEqual(DisplayRendering.Render(new DisplayPacket(0, restored.ComposeScene()))),
             "a restored title shows the same frame once its artwork is rebound");
         Console.WriteLine("  Title screen: the Baby Metroid page cycle, palette and sprite entries come from the title's published state and survive a debugger round trip.");
     }

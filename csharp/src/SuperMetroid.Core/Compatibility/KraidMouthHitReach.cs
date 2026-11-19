@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// Which later projectiles in the same update still reach Kraid's inner mouth after a projectile damages it: those whose
-/// top lies at or below the row the damaging hit names (<see cref="RowAfter"/>), read across the wrapping room space, so
+/// top lies at or below the row the damaging hit names (<see cref="HighestReachingRow"/>), read across the wrapping room space, so
 /// the 32768 rows from that row on reach the mouth and the rows above it do not. In Kraid's 512-row, two-screen room a
 /// missile lets a later shot in from row 257 down; a placed bomb or Power Bomb lets every row of the room in; a charged
 /// beam, a Super Missile or a spread bomb lets no row of the room in, so no second shot follows a Super Missile in, where a
@@ -66,7 +66,7 @@ public static class KraidMouthHitReach
     /// </summary>
     /// <param name="hit">The kind of hit that damaged the mouth.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="hit"/> is undefined.</exception>
-    public static int RowAfter(DamagingHit hit) => hit switch
+    public static int HighestReachingRow(DamagingHit hit) => hit switch
     {
         DamagingHit.ChargedBeam => ChargedBeamRow,
         DamagingHit.Missile => MissileRow,

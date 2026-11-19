@@ -1,4 +1,6 @@
 using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.World;
 
@@ -12,7 +14,23 @@ internal sealed class CrocomireRoomShakingMain(CrocomireEnemyState crocomire) : 
     /// <inheritdoc/>
     public RoomMainOutcome Run(RoomMainUpdate update)
     {
-        Ensure.NotNull(update).Mains.RunCrocomireComebackRoomMain(_crocomire);
+        Rumble(_crocomire, Ensure.NotNull(update).BackgroundScroll);
         return RoomMainOutcome.None;
+    }
+
+    /// <summary>Crocomire's room shaking while his comeback hides the wall.</summary>
+    /// <param name="crocomire">The room's Crocomire.</param>
+    /// <param name="layers">Where the layers stand, whose foreground view the rumble shakes.</param>
+    internal static void Rumble(CrocomireEnemyState crocomire, BackgroundScrollState layers)
+    {
+        Ensure.NotNull(crocomire);
+        Ensure.NotNull(layers);
+        if (crocomire.Body.Presence.HasAny(EnemyPresence.Hidden) ||
+            crocomire.DeathStage.Entry is not CrocomireDeathStage.RumbleHiddenWall)
+            return;
+
+        // The rumble moves the foreground's view by a plain offset from the camera's row: in Crocomire's one-screen-high
+        // room the camera's row is the room's top, so the view rises above it, a negative row (#2384).
+        layers.ShiftForegroundViewFromCamera(crocomire.Death.RumbleYOffset);
     }
 }

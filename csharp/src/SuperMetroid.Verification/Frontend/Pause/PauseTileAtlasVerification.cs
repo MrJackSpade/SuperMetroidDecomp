@@ -42,11 +42,11 @@ internal static class PauseTileAtlasVerification
             AssertEqual(PauseScreenMode.Map, pause.ScreenMode, "pause PNG fixture returns to the map page");
             EnterPauseEquipment(pause);
             AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "pause PNG fixture reaches equipment page");
-            LayeredScene before = pause.CaptureRenderSnapshot();
+            LayeredScene before = pause.ComposeScene();
             // The capture names the installed content by path, as a host's store does, instead of copying it (#1532).
             pause = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(pause);
             pause.BindFixtureArtwork(original);
-            AssertTrue(ScenePixels.Same(before, pause.CaptureRenderSnapshot()), "restored pause keeps its pixels and animation phase");
+            AssertTrue(ScenePixels.Same(before, pause.ComposeScene()), "restored pause keeps its pixels and animation phase");
         }
         Console.WriteLine("Pause UI atlas: exact bytes, three-area map/equipment page changes and capture/restore pass.");
     }

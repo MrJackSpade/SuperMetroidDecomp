@@ -157,7 +157,7 @@ public static class SamusMorphBallMovement
         bool directionHeld = (controllerInput &
             (GameplayAction.Left | GameplayAction.Right)) != GameplayAction.None;
         AerialBaseSpeedResult calculation =
-            speed.CalculateBaseSpeedDecelerationDisallowed(movementType);
+            speed.CalculateAerialBaseSpeed(movementType);
         SamusHorizontalDisplacement requestedHorizontal;
         if (!directionHeld && speed.AccelerationMode == SamusAccelerationMode.Accelerating)
         {
@@ -244,7 +244,7 @@ public static class SamusMorphBallMovement
         }
 
         AerialBaseSpeedResult calculation =
-            speed.CalculateBaseSpeedDecelerationDisallowed(
+            speed.CalculateAerialBaseSpeed(
                 movementType: SamusMovementType.SpringBallInAir);
         bool directionHeld = (controllerInput &
             (GameplayAction.Left | GameplayAction.Right)) != GameplayAction.None;

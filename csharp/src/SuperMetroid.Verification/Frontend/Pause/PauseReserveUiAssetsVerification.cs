@@ -35,7 +35,7 @@ internal static class PauseReserveUiAssetsVerification
                 "installed reserve labels/digits/arrow tile palettes match native with their ROM sources forbidden");
             AssertTrue(PauseShownColours.Of(native, original).SequenceEqual(PauseShownColours.Of(installed, original)),
                 "all 32 reserve-arrow color phases match native");
-            AssertTrue(ScenePixels.Same(native.CaptureRenderSnapshot(), installed.CaptureRenderSnapshot()),
+            AssertTrue(ScenePixels.Same(native.ComposeScene(), installed.ComposeScene()),
                 "reserve UI migration retains native pixels");
         }
 

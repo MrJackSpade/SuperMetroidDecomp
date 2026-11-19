@@ -8,5 +8,5 @@ internal sealed class SpazerSpecialAttackFlight : SpecialAttackParticleBehavior
 {
     /// <inheritdoc/>
     private protected override SoundEffectId? Step(SamusShotUpdate update) =>
-        update.Shots.Combos.StepSpazerCombo(update.Samus, update.Shot, update.SharedProjectiles, update.Camera.Y);
+        update.Shots.Combos.StepSpazerCombo(update.Samus, update.Shot, update.SamusBombs, update.Camera.Y);
 }

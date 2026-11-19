@@ -36,7 +36,7 @@ internal static class SamusRoomObjectFixtures
         public BlockReactionObjects BlockReactions => throw Missing(nameof(BlockReactions));
 
         /// <inheritdoc/>
-        public IGlobalEventFlags Events => throw Missing(nameof(Events));
+        public IStoryEvents Events => throw Missing(nameof(Events));
 
         /// <inheritdoc/>
         public RoomObjectSoundQueue Sounds => throw Missing(nameof(Sounds));

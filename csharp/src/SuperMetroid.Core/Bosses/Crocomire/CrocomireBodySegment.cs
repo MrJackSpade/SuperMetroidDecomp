@@ -29,7 +29,7 @@ public enum CrocomireBodySegment
     /// <summary>His step back.</summary>
     SteppingBack,
     /// <summary>Waiting for a hit, standing.</summary>
-    WaitForFirstSecondDamage,
+    AwaitingHit,
     /// <summary>The fight cue after the damage wait's claw swing, which steps him back on a hit before he roars.</summary>
     ClawSwingFightCue,
     /// <summary>His roar opening his mouth with a cry.</summary>

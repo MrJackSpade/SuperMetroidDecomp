@@ -1061,7 +1061,7 @@ public static class SamusGrappleMovement
             // Cancelling from a connected pose takes the pose's no-input fallback while Samus still grapples: it
             // stops all her horizontal and running speed and returns her to the standing or crouching pose she
             // held before the beam locked.
-            if (!SamusPoseMetadata.ReadNoInputFallback(samus).TryGetPose(out SamusPoseId fallback))
+            if (!SamusPoseMetadata.ReadNoInputPose(samus).TryGetPose(out SamusPoseId fallback))
             {
                 throw new InvalidDataException(
                     $"Connected grapple pose {samus.Pose} has no cancellation fallback.");

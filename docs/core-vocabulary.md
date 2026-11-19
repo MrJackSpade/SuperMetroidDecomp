@@ -648,6 +648,19 @@ bits`); and `save bits`. Core says what the game does: the update draws its rand
 one colour black, the random number chooses one of rain's four winds, nothing is marked explored. The middle of a room,
 the upper half of the screen, a tint's colours, a bit and a save stay English.
 
+#2552 widens SME6454, in every type, hardware owners included, to the original's tables, routines, labels and storage
+spelled as a word of a declared name: its labels for the Baby Metroid (`Shitroid`), the dust explosion (`MiscDust`), the
+Geruta, Holtz, Oum and Squeept (`NorfairRio`, `MaridiaLargeSnail`, `NorfairLavaJumping`) and a crawler's surfaces
+(`UpsideRight`, `UpsideLeft`, `UpsideUp`); its routines and their parts (`Routines`, `Prologue`, `Epilogue`, a phase's
+head or tail, a respawn, no-drop, frozen or wrapper tail, `InitializationAi`, `ToBeDrawn`, `HudProducer`,
+`DecideActionSamus`, `CaptureRenderSnapshot`); its storage (`FlareCounter`, `SharedProjectiles`, `SpeedAccumulator`,
+`ElevatorFlags`, `JourneyFlag`, `BossFlags`, `GlobalEventFlags`, `LoadingGameState`, `FxMotion`, `Subpositions`,
+`LiquidPhysicsType`, `EchoStorage`); and its branches and shared routines (`OneInFourBranch`, `NormalEnemyTouch`,
+`NormalEnemyShot`, `CollisionPrelude`, `InputFallback`, `PseudoDoor`, `MouthControls`, `LowPowerMode`, `TimeBombSet`,
+`FirstSecondDamage`, `DecelerationDisallowed`). Core names what each is in the game: the Baby Metroid, a crawler on the
+left wall (`OnLeftWall`), the charge's held updates (`UpdatesHeld`), Samus's bombs (`SamusBombs`), an enemy's setup
+(`SetUpEnemy`). Installed keys stay as their key tables write them; an upside-down Cacatac stays English.
+
 #2427 widens SME6454, outside hardware owners, to the original's setup and storage as area prose tells them: a setup,
 initialization or spawn that selects colours (`the setup selects the enemy projectiles' colours`, `statue initialization
 selects the common sprite colours`), and a value named by its hyphenated 1/65536-pixel storage (`Samus's 1/65536-pixel
@@ -729,13 +742,13 @@ query or routine that returns zero or nonzero; `execution` (`does not leave exec
 `bookkeeping`; the real pool; the game's mover, routine, handler or subroutine (`as the game's projectile mover does`);
 the checks that compare, read or assert something; a wrapped count, counter, value, word, timer or sum; a stored value,
 word, byte or count; a respawn, flag, status, enable or done bit;
-authored arguments or operands; a direct write of anything (`the Shitroid's direct camera X write`, `a direct terrain
+authored arguments or operands; a direct write of anything (`the Baby Metroid's direct camera X write`, `a direct terrain
 write`); and a branch that also, then, first or only does something (`the riding branch also carries Samus`). In every
 type, hardware owners included, fix history told inside a clause now also covers rebuilding, recomputing, resetting,
 rewriting or replacing something here that doubles, halves, breaks, loses or desyncs something (`rebuilding a clean
 rectangle here doubles close-range damage`). Core says what the game does: a shot flies each update, the eye breathes its
 bubble whether or not its gaze turns, a deleted part's animation stays where it stood, one roll in 256 whips, the
-Shitroid moves the camera, a hit leaves the mouth's bounds as it left them. A frame alone and a behaviour alone, a
+Baby Metroid moves the camera, a hit leaves the mouth's bounds as it left them. A frame alone and a behaviour alone, a
 return to a place, a count that wraps, a value kept, a bit of a thing, an authored path, a direct hit, a branch alone
 and a hardware owner, which describes the program it reproduces, stay English.
 

@@ -12,6 +12,7 @@ using SuperMetroid.Core.Areas.Maridia;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.World;
 
@@ -136,6 +137,22 @@ internal sealed record RoomScope
     /// are projectiles of this room, so the next room's load ends them.
     /// </summary>
     public CeresElevatorArrivalState? CeresElevatorArrival { get; private set; }
+
+    /// <summary>
+    /// The block animations' step: gameplay, the door transition's scroll and every fade step take it. The X-Ray Scope's
+    /// setup disables the block animations, freezing every animation until the scope ends.
+    /// </summary>
+    /// <param name="samus">Samus, whose X-Ray Scope holds the animations still.</param>
+    /// <param name="session">The session's shared game state, whose defeated bosses the treadmills wait for.</param>
+    internal void StepBlockAnimations(SamusState samus, SharedGameState session)
+    {
+        if (Ensure.NotNull(samus).Xray.AreBlockAnimationsSuspended)
+            return;
+        // The treadmills, the effect's and the one a Wrecked Ship entrance door starts, show a frame a pass only after
+        // Phantoon is defeated.
+        BlockAnimations.Step(Ensure.NotNull(session).HasDefeatedAnyOf(Room.Area, DefeatedBosses.AreaBoss), ArtworkFrames);
+        TourianStatues?.StepBlockAnimations();
+    }
 
     /// <summary>Begins the Ceres elevator arrival in this room.</summary>
     /// <exception cref="InvalidOperationException">This room's arrival has already begun.</exception>

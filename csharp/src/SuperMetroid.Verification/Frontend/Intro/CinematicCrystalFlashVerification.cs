@@ -218,9 +218,9 @@ internal static class CinematicCrystalFlashVerification
                 $"native {encounter} palette ownership at call {movementCalls}");
         }
 
-        string[] nativeShitroid = rows.Single(row =>
+        string[] nativeBabyMetroid = rows.Single(row =>
             row[0] == "super-metroid" && row[1] == "0" && row[2] == "0");
-        AssertEqual((ushort)45, Convert.ToUInt16(nativeShitroid[10], 16),
+        AssertEqual((ushort)45, Convert.ToUInt16(nativeBabyMetroid[10], 16),
             "native unsuited Super Metroid drain subtracts four energy");
 
         string[] activeTiming = rows.Single(row =>

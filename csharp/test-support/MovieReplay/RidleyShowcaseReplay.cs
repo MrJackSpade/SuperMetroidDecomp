@@ -342,7 +342,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     SamusAtmosphericEffectWordCodec.SprayWait(W(NativeSnapshotMemory.AtmosphericFrameAndType + sprayPlace * 2),
                         W(NativeSnapshotMemory.AtmosphericTimer + sprayPlace * 2)));
                 Check("Liquid animation buffer", checked((ushort)samus.ExtraAnimationDelay), NativeSnapshotMemory.AnimationFrameBuffer);
-                Check("LiquidPhysicsType", (ushort)samus.LiquidPhysics.LiquidPhysicsType, NativeSnapshotMemory.LiquidPhysicsType);
+                Check("LiquidPhysicsType", (ushort)samus.LiquidPhysics.MediumLastEntered, NativeSnapshotMemory.LiquidPhysicsType);
                 Check("PeriodicSubDamage", checked((ushort)samus.PeriodicDamage.Pending.Fraction), NativeSnapshotMemory.PeriodicSubDamage);
                 Check("PeriodicDamage", checked((ushort)samus.PeriodicDamage.Pending.Whole), NativeSnapshotMemory.PeriodicDamage);
                 // The recorded surface word is 65535 where the room has no lava or acid surface.
@@ -355,7 +355,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             Check("Samus Y fraction", samus.Kinematics.Position.Y.Fraction, NativeSnapshotMemory.YFraction);
             Check("Samus pose", SamusPoseNumbers.Number(samus.Pose), NativeSnapshotMemory.Pose);
             Check("PreviousDrawHeldInput", GameplayActionWordCodec.ToJoypadWord(samus.InputSnapshot.PreviousDrawHeldInput), NativeSnapshotMemory.SamusFilteredHeld);
-            Check("PreviousDrawNewInput", GameplayActionWordCodec.ToJoypadWord(samus.InputSnapshot.PreviousDrawNewInput), NativeSnapshotMemory.SamusFilteredNew);
+            Check("PreviousDrawNewInput", GameplayActionWordCodec.ToJoypadWord(samus.InputSnapshot.PressesSeenLastUpdate), NativeSnapshotMemory.SamusFilteredNew);
             Check("AutoJumpTimer", samus.InputSnapshot.AutoJumpTimer, NativeSnapshotMemory.SamusAutoJumpTimer);
             Check("PreviousHealthForHurtCheck", SamusCountWords.Encode(samus.PreviousHealthForHurtCheck), NativeSnapshotMemory.SamusPreviousHealthForFlash);
             VerificationAssertions.AssertTrue(!samus.InputSnapshot.ShinesparkPoseInputLocked && !samus.InputSnapshot.CrystalFlashPoseInputLocked,
@@ -1036,7 +1036,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 RoomLevelData level = runtime.Room.LevelData ?? throw new InvalidDataException("Missing active room collision data.");
                 Console.Error.WriteLine($"Pose history: port={(int)SamusPoseNumbers.Number(samus.PoseHistory.PreviousPose):X4}/{samus.PoseHistory.PreviousMovement}/{samus.PoseHistory.MovementBeforePrevious}, native={W(NativeSnapshotMemory.PreviousPose):X4}/{W(NativeSnapshotMemory.PreviousDirection):X4}/{W(NativeSnapshotMemory.LastDifferentPose):X4}/{W(NativeSnapshotMemory.LastDifferentDirection):X4}");
                 Console.Error.WriteLine($"Liquid diagnostic: Y={samus.Position.Y.Whole:X4}, surface={samus.LiquidPhysics.LavaAcidSurfaceY?.ToString("X4", System.Globalization.CultureInfo.InvariantCulture) ?? "none"}, pose={(int)SamusPoseNumbers.Number(samus.Pose):X2}, radius={samus.Kinematics.Radius.Y}");
-                Console.Error.WriteLine($"Shot diagnostic: locked={samus.Control.InputLocked}, HUD={samus.SelectedHudItem}, charge={runtime.Projectiles.Charge.FlareCounter}, cooldown={runtime.BombProjectiles.CooldownTimer}, held={runtime.PlayerActions.Current:X}, new={runtime.PlayerActions.NewlyPressed:X}");
+                Console.Error.WriteLine($"Shot diagnostic: locked={samus.Control.InputLocked}, HUD={samus.SelectedHudItem}, charge={runtime.Projectiles.Charge.UpdatesHeld}, cooldown={runtime.BombProjectiles.CooldownTimer}, held={runtime.PlayerActions.Current:X}, new={runtime.PlayerActions.NewlyPressed:X}");
                 Console.Error.WriteLine($"Room width={level.Size.X}, Samus radius={samus.Kinematics.Radius.X}/{samus.Kinematics.Radius.Y}, speed={samus.HorizontalSpeed.BaseSpeed.Whole:X4}.{samus.HorizontalSpeed.BaseSpeed.Fraction:X4}+{samus.HorizontalSpeed.ExtraRunSpeed.Whole:X4}.{samus.HorizontalSpeed.ExtraRunSpeed.Fraction:X4}");
                 for (int block = 0; block < level.Size.X * level.Size.Y; block++)
                 {

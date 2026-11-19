@@ -10,7 +10,7 @@ internal sealed record DoorOpeningScrollSetup
     public required FixedVector<RoomPixels> SamusScrollStep { get; init; }
 
     /// <summary>The scroll updates left before the scroll reaches its destination.</summary>
-    public required int RemainingFrames { get; init; }
+    public required int ScrollUpdates { get; init; }
 
     /// <summary>The camera's position as the scroll carries it.</summary>
     public required Position16<RoomPixels> CameraPosition { get; init; }

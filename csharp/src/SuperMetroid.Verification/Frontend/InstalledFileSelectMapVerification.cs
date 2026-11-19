@@ -34,12 +34,12 @@ internal static class InstalledFileSelectMapVerification
             AssertEqual(control.Phase, installed.Phase, "installed map navigation phase matches cartridge path");
             AssertEqual((control.Outcome == FileSelectMapOutcome.Load), (installed.Outcome == FileSelectMapOutcome.Load), "installed map load handoff timing");
             AssertEqual((control.Outcome == FileSelectMapOutcome.Options), (installed.Outcome == FileSelectMapOutcome.Options), "installed map options handoff timing");
-            LayeredScene installedScene = installed.CaptureRenderSnapshot();
-            AssertTrue(ScenePixels.Same(control.CaptureRenderSnapshot(), installedScene),
+            LayeredScene installedScene = installed.ComposeScene();
+            AssertTrue(ScenePixels.Same(control.ComposeScene(), installedScene),
                 verifyCapturedRendering ? "installed map render captures retain native pixels through every transition"
                     : "installed map navigation renders exact stock frame");
             if (verifyCapturedRendering)
-                AssertTrue(ScenePixels.Same(installed.CaptureRenderSnapshot(), installedScene), "captured and direct map rendering agree");
+                AssertTrue(ScenePixels.Same(installed.ComposeScene(), installedScene), "captured and direct map rendering agree");
         }
         for (int i = 0; i < 48; i++) StepBoth(0);
         AssertEqual(FileSelectMapNavigationPhase.Area, installed.Phase, "installed menu finishes entry");
@@ -57,7 +57,7 @@ internal static class InstalledFileSelectMapVerification
         object[] content = ReferenceEquals(original, InstalledFixtures.Maps) ? [] : [original, MenuSheetFixtures.For(original)];
         byte[] state = GraphDigestVerification.SerializeGraph(installed, content);
         installed = GraphDigestVerification.RestoreGraph<FileSelectMapMenuState>(state, content);
-        AssertTrue(ScenePixels.Same(control.CaptureRenderSnapshot(), installed.CaptureRenderSnapshot()), "restored room map retains scrolled frame");
+        AssertTrue(ScenePixels.Same(control.ComposeScene(), installed.ComposeScene()), "restored room map retains scrolled frame");
         StepBoth(ControllerButton.B);
         for (int i = 0; i < 60; i++) StepBoth(0);
         AssertEqual(FileSelectMapNavigationPhase.Area, installed.Phase, "restored menu returns to area");

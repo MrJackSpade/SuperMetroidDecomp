@@ -39,7 +39,7 @@ internal static class ChargeFlareProductionVerification
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)), HyperBeamEnabled = hyper };
             samus.BindBodyFixture(body);
             SamusProjectileSystem native = Create(), compiled = Create();
-            for (int tick = 0; tick < 160 && native.Charge.FlareCounter != 0; tick++)
+            for (int tick = 0; tick < 160 && native.Charge.UpdatesHeld != 0; tick++)
             {
                 OamBuffer a = native.ChargeFlareOam(samus, new(0, 0), placement);
                 OamBuffer b = compiled.ChargeFlareOam(samus, new(0, 0), placement);
@@ -47,7 +47,7 @@ internal static class ChargeFlareProductionVerification
                 AssertEqual(a.LastFinalizedSpriteCount, b.LastFinalizedSpriteCount, "Flare producer preserves its sprite count");
                 // The flare draw writes only the charge's flare counter, frames and timers: each tick compares those, and
                 // the first tick of each pose compares the whole projectile state (#1567).
-                AssertEqual(native.Charge.FlareCounter, compiled.Charge.FlareCounter, "Drawing leaves the flare counters identical");
+                AssertEqual(native.Charge.UpdatesHeld, compiled.Charge.UpdatesHeld, "Drawing leaves the flare counters identical");
                 AssertTrue(Enum.GetValues<ChargeFlareComponent>().All(component =>
                         (native.Charge.Flare(component).NativePicture, native.Charge.Flare(component).NativeWait) ==
                         (compiled.Charge.Flare(component).NativePicture, compiled.Charge.Flare(component).NativeWait)),

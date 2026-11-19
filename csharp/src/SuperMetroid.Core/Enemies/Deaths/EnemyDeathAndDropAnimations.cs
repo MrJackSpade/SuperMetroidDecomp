@@ -16,10 +16,10 @@ internal static class EnemyDeathAndDropAnimations
     internal static AnimationSegments<EnemyDeathAndDropSegment, EnemyProjectileFrameId, EnemyDeathAndDropCue> Segments { get; } = new(
         new Dictionary<EnemyDeathAndDropSegment, AnimationBeat<EnemyProjectileFrameId, EnemyDeathAndDropCue>[]>
     {
-        [P.RespawnTail] =
+        [P.RespawnPause] =
         [
             Show(EnemyProjectileFrameId.Blank, 64),
-            Cue(new EnemyDeathAndDropCue.Signal(K.HandleRespawningEnemy)),
+            Cue(new EnemyDeathAndDropCue.Signal(K.RespawnEnemy)),
             Cue(new EnemyDeathAndDropCue.Signal(K.Delete)),
         ],
         [P.BigExplosion] =
@@ -124,7 +124,7 @@ internal static class EnemyDeathAndDropAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<EnemyDeathAndDropSegment, Animation<EnemyDeathAndDropSegment>> StartingAt { get; } = new Dictionary<EnemyDeathAndDropSegment, Animation<EnemyDeathAndDropSegment>>
     {
-        [P.RespawnTail] = new([Segments.Whole(P.RespawnTail)], AnimationEnd.Holds),
+        [P.RespawnPause] = new([Segments.Whole(P.RespawnPause)], AnimationEnd.Holds),
         [P.NormalExplosion] = new([Segments.Whole(P.NormalExplosion)], AnimationEnd.Holds),
         [P.SmallExplosion] = new([Segments.Whole(P.SmallExplosion)], AnimationEnd.Holds),
         [P.SmallEnergy] = Animation<EnemyDeathAndDropSegment>.Looping([Segments.Whole(P.SmallEnergy)]),

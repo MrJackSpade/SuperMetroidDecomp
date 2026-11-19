@@ -29,7 +29,7 @@ internal sealed class GameOverMenuGamePhase(FrontendSession session) : IGamePhas
     {
         GameOverMenuState gameOver = session.ScreenAs<GameOverMenuState>() ?? session.Show(new GameOverMenuState(session.audio,
             session.Artwork.ScreenContent, session.Artwork.SpriteSheets, continueLoadsCeresArrival: session.saves.ReadSlot(session.SelectedSaveSlot)?.StartupRoute ==
-                SaveLoadingGameState.CeresElevatorArrival));
+                SaveStartupRoute.CeresElevatorArrival));
         gameOver.Step(controllerInput);
         session.display.PublishMenu(gameOver);
         if (gameOver.Outcome == GameOverMenuOutcome.CeresArrival)

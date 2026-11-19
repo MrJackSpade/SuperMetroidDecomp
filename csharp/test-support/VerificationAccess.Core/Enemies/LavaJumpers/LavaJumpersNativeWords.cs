@@ -8,12 +8,12 @@ namespace SuperMetroid.Core.Enemies.LavaJumpers;
 /// </summary>
 internal static class LavaJumpersNativeWords
 {
-    /// <summary>The routine word naming each <see cref="NorfairLavaJumpingEnemyAction"/>.</summary>
-    internal static readonly NativeWordIdentities<NorfairLavaJumpingEnemyAction> NorfairLavaJumpingEnemyActions = new(new Dictionary<NorfairLavaJumpingEnemyAction, ushort>
+    /// <summary>The routine word naming each <see cref="SqueeptAction"/>.</summary>
+    internal static readonly NativeWordIdentities<SqueeptAction> SqueeptActions = new(new Dictionary<SqueeptAction, ushort>
     {
-        [NorfairLavaJumpingEnemyAction.BeginJump] = 0xbf1a,
-        [NorfairLavaJumpingEnemyAction.RiseBeforeAnimationSwitch] = 0xbf3e,
-        [NorfairLavaJumpingEnemyAction.MoveUntilAnimationSignal] = 0xbf7c,
-        [NorfairLavaJumpingEnemyAction.FallBackIntoLava] = 0xbfbc,
+        [SqueeptAction.BeginJump] = 0xbf1a,
+        [SqueeptAction.RiseBeforeAnimationSwitch] = 0xbf3e,
+        [SqueeptAction.MoveUntilAnimationSignal] = 0xbf7c,
+        [SqueeptAction.FallBackIntoLava] = 0xbfbc,
     });
 }

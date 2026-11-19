@@ -288,9 +288,9 @@ internal static class NativeSnapshotMotherBrainImport
     /// <summary>The phases of her death after her escape's start has placed her body at the room's corner for the warning.</summary>
     private static readonly HashSet<MotherBrainDeathPhase> EscapeWarningPhases =
     [
-        MotherBrainDeathPhase.SpawnTimeBombSetSubtitle,
+        MotherBrainDeathPhase.ShowsEscapeSubtitle,
         MotherBrainDeathPhase.TypeOutZebesEscapeText,
-        MotherBrainDeathPhase.DoorExplodingStartTimer,
+        MotherBrainDeathPhase.EscapeDoorBursts,
         MotherBrainDeathPhase.BlowUpEscapeDoor,
         MotherBrainDeathPhase.KeepEarthquakeGoing,
     ];

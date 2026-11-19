@@ -71,7 +71,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         _lifecycle.InitializePlaceFromDefinition(babyPlace, population, definition);
         // The Baby's place holds the Baby its late fight made from its setup (#2218, #2471).
         babyPlace.SetSpeciesState(baby);
-        _lifecycle.RunSpawnedInitializationAi(babyPlace);
+        _lifecycle.SetUpSpawnedEnemy(babyPlace);
 
         // Spawning leaves the Baby undrawn after its setup while it animates.
         // Its animation is still live and shows its first visible frame on its first
@@ -122,7 +122,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         {
             // However many rings struck it since its last turn, the Baby cries once, and every one of those cries is spent.
             state.PendingBabyCryCount = 0;
-            _motherBrainEncounter.RequestBodySound(ShitroidSoundDefinitions.DrainCry);
+            _motherBrainEncounter.RequestBodySound(BabyMetroidSoundDefinitions.DrainCry);
         }
         BabyMetroidCutsceneStepResult step = baby.Step(
             samus,
@@ -195,7 +195,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         if (step.LatchSoundQueued)
             _motherBrainEncounter.RequestRainbowBeamSound(MotherBrainSoundDefinitions.StartRainbowDrain);
         if (step.AmbientCrySoundQueued)
-            _motherBrainEncounter.RequestBodySound(ShitroidSoundDefinitions.RemorseCry);
+            _motherBrainEncounter.RequestBodySound(BabyMetroidSoundDefinitions.RemorseCry);
 
         foreach (BabyMetroidReleaseDustRequest dust in step.ReleaseDustClouds)
             _projectiles.SpawnDustOrExplosion(dust.Position, dust.Animation);

@@ -53,14 +53,14 @@ internal static class ScreenTilePicturesVerification
             FileSelectAreaMapGraphics world = InstalledFixtures.CreateFileSelectAreaMap(shownArea);
             foreach (AreaMapBackgroundGlow math in new[] { AreaMapBackgroundGlow.WholeScreen, AreaMapBackgroundGlow.ForegroundOnly })
             {
-                LayeredScene scene = world.CaptureRenderSnapshot(FileSelectMapGraphicsPixelsAccess.UsedStations(used), math);
+                LayeredScene scene = world.ComposeScene(FileSelectMapGraphicsPixelsAccess.UsedStations(used), math);
                 AssertTrue(scene.Layers[0] is PicturedPlaneLayer { Plane.Pictures: [{ } shownForeground] } && ReferenceEquals(shownForeground.Picture, foreground)
                     && scene.Layers[1] is AddedPicturedPlaneLayer { Plane.Pictures: [{ } shownBackground] } added && ReferenceEquals(shownBackground.Picture, background)
                     && (added.GlowsOver is null) == (math == AreaMapBackgroundGlow.WholeScreen),
                     $"{shownArea} world map shows its foreground and its background glowing over it ({math})");
             }
             var room = new FileSelectRoomMapGraphics(explored, shownArea, screenContent: maps, sheets: sheets);
-            LayeredScene roomScene = room.CaptureRenderSnapshot();
+            LayeredScene roomScene = room.ComposeScene();
             // A cell whose picture the room-map sheet holds as showing nothing draws nothing (#1513); every other cell shows
             // its installed picture.
             SpriteSheet roomPictures = sheets.Get(SpriteSheetId.RoomMapPictures);
@@ -71,7 +71,7 @@ internal static class ScreenTilePicturesVerification
                     ? cell is null
                     : cell is { } shown && ReferenceEquals(shown.Picture, roomPictures.Frame(AreaMapPictures.FrameName(shownCells[index])))).All(matches => matches),
                 $"{shownArea} room map shows every cell's picture, and nothing for a cell whose picture shows nothing");
-            AssertTrue(room.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly).Layers is [PicturedPlaneLayer { Plane.Pictures: [{ } frame] }]
+            AssertTrue(room.ComposeScene(content: RoomMapContent.FrameOnly).Layers is [PicturedPlaneLayer { Plane.Pictures: [{ } frame] }]
                 && ReferenceEquals(frame.Picture, sheets.Get(SpriteSheetId.RoomMapPictures).Frame(AreaMapPictures.RoomFrameName(shownArea))),
                 $"{shownArea} room map frame shows its picture");
         }
@@ -116,7 +116,7 @@ internal static class ScreenTilePicturesVerification
             // A phase is checked once, so its scene is only captured until then, and its memory image only for that check.
             if (!sampled.Contains(introName))
             {
-                LayeredScene introScene = introState.CaptureRenderSnapshot();
+                LayeredScene introScene = introState.ComposeScene();
                 if (ShowsFloor(introScene))
                 {
                     byte[] shownIntro = introState.ShownVram();
@@ -124,7 +124,7 @@ internal static class ScreenTilePicturesVerification
                 }
             }
             if (!captionPictured && introState.Phase == IntroCinematicPhase.CeresFlight && introState.CurrentCeresFlight?.Phase == IntroCeresFlightPhase.SpaceColonyTitle)
-                captionPictured = introState.CaptureRenderSnapshot().Layers.ToArray().Any(layer => layer is PicturedPlaneLayer);
+                captionPictured = introState.ComposeScene().Layers.ToArray().Any(layer => layer is PicturedPlaneLayer);
             introState.Step(tick % 47 == 0 ? ControllerButton.A : 0);
             audio.AdvanceFrame(default);
         }
@@ -149,7 +149,7 @@ internal static class ScreenTilePicturesVerification
             string destructionName = $"Ceres destruction {destruction.Phase}";
             if (!sampled.Contains(destructionName))
             {
-                LayeredScene destructionScene = destruction.CaptureRenderSnapshot();
+                LayeredScene destructionScene = destruction.ComposeScene();
                 if (ShowsFloor(destructionScene))
                 {
                     byte[] shownDestruction = destruction.ShownVram();
@@ -191,7 +191,7 @@ internal static class ScreenTilePicturesVerification
             if (tick % PhaseSampleUpdates == 0 && (ending.Phase > EndingCreditsPhase.Credits) == afterCredits
                 && !sampled.Contains($"{ending.Phase}"))
             {
-                LayeredScene scene = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
+                LayeredScene scene = EndingCreditsPresentation.ComposeScene(ending);
                 if (ShowsFloor(scene))
                 {
                     sampled.Add($"{ending.Phase}");
@@ -220,7 +220,7 @@ internal static class ScreenTilePicturesVerification
         {
             // Every other update is sampled, and each picture is compared once: the sequence's animation pages each show for
             // longer than that.
-            FloorScene? scene = tick % TitleSampleUpdates == 0 ? title.CaptureRenderSnapshot() : null;
+            FloorScene? scene = tick % TitleSampleUpdates == 0 ? title.ComposeScene() : null;
             if (scene?.Floor is { } floor && sampled.Add($"{floor.Map.Image.GetHashCode()}"))
             {
                 RgbaPixel[] pictured = DisplayRendering.Render(new DisplayPacket(0, scene)).ToArray();
@@ -353,7 +353,7 @@ internal static class ScreenTilePicturesVerification
     /// </summary>
     private static int AssertPauseDrawnFromVram(PauseMenuState pause, InstalledScreenContent maps, string name)
     {
-        LayeredScene scene = pause.CaptureRenderSnapshot();
+        LayeredScene scene = pause.ComposeScene();
         byte[] vram = pause.ShownVram(maps);
         var pageSize = new Extent16<CharacterCells>(AreaMapSize.WidthInMapTiles, AreaMapSize.HeightInMapTiles);
         BackgroundTile[] page = VramTilemapImage.Rows(pause.ShownBg1Tiles(maps), pageSize);

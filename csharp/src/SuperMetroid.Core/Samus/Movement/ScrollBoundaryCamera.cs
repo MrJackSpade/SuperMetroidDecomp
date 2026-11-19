@@ -104,14 +104,14 @@ public sealed class ScrollBoundaryCamera
     /// Room and game loads write only the integer positions, so the
     /// previous room's fractions remain.
     /// </summary>
-    public void RetainSubpositions(ScrollBoundaryCamera previous) =>
-        RetainSubpositions(previous.Position);
+    public void RetainFractions(ScrollBoundaryCamera previous) =>
+        RetainFractions(previous.Position);
 
     /// <summary>
     /// Keeps the fractions of <paramref name="retained"/>, such as those that
     /// survived a released gameplay owner; the whole pixels are unchanged.
     /// </summary>
-    public void RetainSubpositions(FixedPosition<RoomPixels> retained) =>
+    public void RetainFractions(FixedPosition<RoomPixels> retained) =>
         Position = Position.WithFractionsOf(retained);
 
     /// <summary>
@@ -137,7 +137,7 @@ public sealed class ScrollBoundaryCamera
         Position = retainedFractions.WithWhole(position);
 
     /// <summary>
-    /// Moves the camera across to where the Shitroid's AI places it. Unlike
+    /// Moves the camera across to where the Baby Metroid's AI places it. Unlike
     /// entry placement, the game does not clear the camera's fraction of a pixel or replace either ideal
     /// camera coordinate at this point in the gameplay frame.
     /// </summary>

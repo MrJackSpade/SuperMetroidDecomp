@@ -100,7 +100,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
                 optionSlot?.MoonwalkEnabled ?? false,
                 japaneseText: optionSlot?.JapaneseText ?? false)
             {
-                StartupRoute = optionSlot?.StartupRoute ?? SaveLoadingGameState.OpeningCinematic,
+                StartupRoute = optionSlot?.StartupRoute ?? SaveStartupRoute.OpeningCinematic,
             });
             session.Enter(FileSelectStep.Options);
             session.display.PublishMenu(session.ActiveOptions);
@@ -129,7 +129,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
                     ?? throw new InvalidDataException(
                         "The selected save became invalid before the game started.");
                 if (selectedSlot.StartupRoute ==
-                    SaveLoadingGameState.OpeningCinematic)
+                    SaveStartupRoute.OpeningCinematic)
                 {
                     // Loading sends the opening-cinematic startup route written by the Spacetime Beam
                     // to the intro while the already-loaded Samus inventory remains
@@ -149,11 +149,11 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
                         session.display.PublishIntro(session.ActiveIntro);
                     }
                 }
-                else if (selectedSlot.StartupRoute == SaveLoadingGameState.CeresDestruction)
+                else if (selectedSlot.StartupRoute == SaveStartupRoute.CeresDestruction)
                 {
                     StartSavedCeresDestruction(selectedSlot);
                 }
-                else if (selectedSlot.StartupRoute == SaveLoadingGameState.CeresElevatorArrival)
+                else if (selectedSlot.StartupRoute == SaveStartupRoute.CeresElevatorArrival)
                 {
                     // The saved new-game loading route selects loading directly, without a map.
                     session.Enter(GameDataLoadRoute.SelectedGame);
@@ -189,7 +189,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
         session.ContinueSavedGame();
         SuperMetroidSaveSlot mapSlot = session.saves.ReadSlot(session.SelectedSaveSlot)
             ?? throw new InvalidDataException("The selected save became invalid before map selection.");
-        if (mapSlot.StartupRoute == SaveLoadingGameState.CeresDestruction)
+        if (mapSlot.StartupRoute == SaveStartupRoute.CeresDestruction)
         {
             StartSavedCeresDestruction(mapSlot);
             return;

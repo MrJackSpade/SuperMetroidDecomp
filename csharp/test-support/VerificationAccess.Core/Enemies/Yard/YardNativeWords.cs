@@ -30,13 +30,13 @@ internal static class YardNativeWords
     /// <summary>The crawl routine word naming each way a Yard crawls (#2278).</summary>
     internal static readonly NativeWordIdentities<YardDirection> Crawls = new(new Dictionary<YardDirection, ushort>
     {
-        [YardDirection.UpsideUpMovingLeft] = 0xcfa6,
-        [YardDirection.UpsideLeftMovingDown] = 0xcfb7,
-        [YardDirection.UpsideDownMovingRight] = 0xcfbd,
-        [YardDirection.UpsideRightMovingUp] = 0xcfce,
-        [YardDirection.UpsideUpMovingRight] = 0xcfd4,
-        [YardDirection.UpsideRightMovingDown] = 0xcfe5,
-        [YardDirection.UpsideDownMovingLeft] = 0xcfeb,
-        [YardDirection.UpsideLeftMovingUp] = 0xcffc,
+        [YardDirection.OnFloorMovingLeft] = 0xcfa6,
+        [YardDirection.OnRightWallMovingDown] = 0xcfb7,
+        [YardDirection.OnCeilingMovingRight] = 0xcfbd,
+        [YardDirection.OnLeftWallMovingUp] = 0xcfce,
+        [YardDirection.OnFloorMovingRight] = 0xcfd4,
+        [YardDirection.OnLeftWallMovingDown] = 0xcfe5,
+        [YardDirection.OnCeilingMovingLeft] = 0xcfeb,
+        [YardDirection.OnRightWallMovingUp] = 0xcffc,
     });
 }

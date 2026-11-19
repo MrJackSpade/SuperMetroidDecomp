@@ -13,7 +13,7 @@ internal static class RoomRevealClosedContractDefinitions
     [
         new("SuperMetroid.Core.Samus.Abilities.Artwork.InstalledXrayReveals", "xray-command-and-visual-share-one-identity", ["Apply"],
             [XrayCatalog,
-             new("csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRevealTable.cs"),
+             new("csharp/src/SuperMetroid.Core/Samus/Abilities/XrayReveals.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRevealDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Abilities/XrayReveals.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomBlockAppearance.cs")]),

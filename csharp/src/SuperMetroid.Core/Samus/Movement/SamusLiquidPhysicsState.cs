@@ -137,7 +137,7 @@ public sealed class SamusLiquidPhysicsState
     /// Remembered medium. This is intentionally stateful:
     /// Space Jump reads it, and the animation's liquid steps use changes to detect entry/exit.
     /// </summary>
-    public SamusLiquidMedium LiquidPhysicsType { get; private set; }
+    public SamusLiquidMedium MediumLastEntered { get; private set; }
 
     /// <summary>
     /// Configures the water surface, or none, and whether Samus ignores it, while preserving the ordinary or statue room's
@@ -183,7 +183,7 @@ public sealed class SamusLiquidPhysicsState
         WaterSurfaceY = null;
         LavaAcidSurfaceY = null;
         IgnoresWaterSurface = false;
-        LiquidPhysicsType = SamusLiquidMedium.Air;
+        MediumLastEntered = SamusLiquidMedium.Air;
         _periodicDamage.Clear();
         EffectWaits.Clear();
         _particles.Clear();
@@ -301,8 +301,8 @@ public sealed class SamusLiquidPhysicsState
             // Water's animation delay is published before the remembered medium is tested. A
             // transition into water queues the splash sound and creates either a diving splash or
             // two grounded splashes; every submerged update then gets the bubble opportunity.
-            bool enteredWater = LiquidPhysicsType != SamusLiquidMedium.Water;
-            LiquidPhysicsType = SamusLiquidMedium.Water;
+            bool enteredWater = MediumLastEntered != SamusLiquidMedium.Water;
+            MediumLastEntered = SamusLiquidMedium.Water;
             samus.ExtraAnimationDelay = SamusAnimationDelayDefinitions.WaterAnimationDelay;
             if (enteredWater)
             {
@@ -340,7 +340,7 @@ public sealed class SamusLiquidPhysicsState
                 // Lava does nothing more to a Gravity Suit: no damage and no surface spray.
                 // Acid intentionally has no equivalent early exit and still hurts at quarter
                 // strength when periodic damage runs later in the same movement phase.
-                LiquidPhysicsType = SamusLiquidMedium.LavaOrAcid;
+                MediumLastEntered = SamusLiquidMedium.LavaOrAcid;
                 samus.ExtraAnimationDelay = 0;
                 return;
             }
@@ -353,7 +353,7 @@ public sealed class SamusLiquidPhysicsState
                 QueueSound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Low);
 
             // Both lava and acid now share one submerged delay.
-            LiquidPhysicsType = SamusLiquidMedium.LavaOrAcid;
+            MediumLastEntered = SamusLiquidMedium.LavaOrAcid;
             samus.ExtraAnimationDelay = SamusAnimationDelayDefinitions.LavaOrAcidAnimationDelay;
             TrySpawnLavaSurfaceSpray(samus, frameCounter);
             if (SamusPoseMetadata.IsForwardFacingPose(samus.Pose) || gravitySuit)
@@ -364,8 +364,8 @@ public sealed class SamusLiquidPhysicsState
         // Out of liquid the slowdown level becomes the extra animation delay and the remembered medium is cleared. Only
         // water owns an exit splash; lava/acid simply clears the remembered medium.
         samus.ExtraAnimationDelay = samus.SlowdownLevel;
-        bool exitedWater = LiquidPhysicsType == SamusLiquidMedium.Water;
-        LiquidPhysicsType = SamusLiquidMedium.Air;
+        bool exitedWater = MediumLastEntered == SamusLiquidMedium.Water;
+        MediumLastEntered = SamusLiquidMedium.Air;
         if (exitedWater)
         {
             QueueSound(EnemySound.SplashOut, priority: SoundRequestPriority.Normal);

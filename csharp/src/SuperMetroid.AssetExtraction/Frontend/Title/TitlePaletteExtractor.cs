@@ -28,7 +28,7 @@ internal static class TitlePaletteExtractor
             FlickeringDisplays = ExtractAmbient(
                 TitleScreenAmbientPaletteFxProgramOwner.FlickeringDisplays),
             SkipCopyrightWhite = PaletteRgb5.From(TitleSkipCopyrightColours.White),
-            SkipCopyrightRed = PaletteRgb5.From(TitleSkipCopyrightColours.Red),
+            SkipCopyrightTint = PaletteRgb5.From(TitleSkipCopyrightColours.Tint),
         });
         return json.ToArray();
 

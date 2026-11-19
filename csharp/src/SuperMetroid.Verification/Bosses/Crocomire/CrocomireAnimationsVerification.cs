@@ -200,7 +200,7 @@ internal static class CrocomireAnimationsVerification
         AssertEqual(CrocomireBodyFramesTooling.Spritemap(EnemyFrameId.CrocomireBodyArmUprightMouthShut), state.Body.SpritemapPointer,
             "the redirect shows the damage wait's first frame in the same update");
         AssertEqual(34, state.Body.AnimationClock.Hold, "the damage wait's first frame lasts 34 updates");
-        AssertEqual(CrocomireBodyAnimations.StartingWith(CrocomireBodyAnimation.WaitForFirstSecondDamage), state.BodyPlayback.Animation, "the damage wait animation plays");
+        AssertEqual(CrocomireBodyAnimations.StartingWith(CrocomireBodyAnimation.AwaitingHit), state.BodyPlayback.Animation, "the damage wait animation plays");
     }
 
     /// <summary>

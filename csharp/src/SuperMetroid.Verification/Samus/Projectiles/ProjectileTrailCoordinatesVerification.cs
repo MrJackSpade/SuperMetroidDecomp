@@ -152,7 +152,10 @@ internal static class ProjectileTrailCoordinatesVerification
                 continue;
             }
             SamusProjectileTrail actual = system.LiveTrails.Single();
-            AssertEqual(NativeSpawn(bus, origin, y), new ProjectileTrailCoordinatesExpected(actual.Left.Position.X, actual.Left.Position.Y, actual.Right.Position.X, actual.Right.Position.Y),
+            // The port keeps the shot's place and each sparkle's offset from it, where native keeps the sum, wrapped: the
+            // sparkle stands where native places it from the shot, on either side of the room's origin.
+            AssertEqual(Position16<RoomPixels>.Of(origin, origin), actual.Origin, "A trail stands from the shot's place");
+            AssertEqual(NativeSpawnOffsets(bus, origin, y), new ProjectileTrailCoordinatesExpected(actual.Left.Offset.X, actual.Left.Offset.Y, actual.Right.Offset.X, actual.Right.Offset.Y),
                 "Real trail spawn matches four native high-byte operand reads");
             AssertEqual(1, actual.Left.FrameHold, "Trail placements retain spawn timing");
             cases++;
@@ -173,7 +176,7 @@ internal static class ProjectileTrailCoordinatesVerification
             AssertEqual(0, system.LiveTrails.Count, $"reflected type ${type:X4} direction {direction} leaves no trail at its list's start");
             cases++;
         }
-        Console.WriteLine($"Trail spawn: {cases} beam/charged/special attack/missile direction/frame/origin cases preserve all four native positions or leave no trail, and reflected list starts leave none.");
+        Console.WriteLine($"Trail spawn: {cases} beam/charged/special attack/missile direction/frame/origin cases place both sparkles where native does from the shot or leave no trail, and reflected list starts leave none.");
     }
 
     /// <summary>The bank-$9B selector table <paramref name="type"/> reads its family from.</summary>
@@ -186,12 +189,16 @@ internal static class ProjectileTrailCoordinatesVerification
         return RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x9b0000 | unchecked((ushort)(directions + direction * 2)));
     }
 
-    /// <summary>The four positions native draws a trail at from the record at bank-$9B offset <paramref name="y"/>.</summary>
-    private static ProjectileTrailCoordinatesExpected NativeSpawn(ISnesAddressSpace bus, ushort origin, ushort y)
+    /// <summary>
+    /// How far from the shot at <paramref name="origin"/> on each axis native draws a trail's four coordinates from the
+    /// record at bank-$9B offset <paramref name="y"/>: each native coordinate, the origin plus the operand less four
+    /// wrapped to sixteen bits, measured back from the origin the short way.
+    /// </summary>
+    private static ProjectileTrailCoordinatesExpected NativeSpawnOffsets(ISnesAddressSpace bus, ushort origin, ushort y)
     {
         byte Read(ushort operand, ushort index) => LittleEndianBytes.HighByte(ReadNativeTrailOperandWord(bus, operand, index));
-        ushort Position(byte offset) => unchecked((ushort)(origin + (sbyte)offset - 4));
-        return new ProjectileTrailCoordinatesExpected(Position(Read(0, unchecked((ushort)(y - 1)))), Position(Read(0, y)), Position(Read(1, y)), Position(Read(2, y)));
+        int Offset(byte operand) => unchecked((short)(unchecked((ushort)(origin + (sbyte)operand - 4)) - origin));
+        return new ProjectileTrailCoordinatesExpected(Offset(Read(0, unchecked((ushort)(y - 1)))), Offset(Read(0, y)), Offset(Read(1, y)), Offset(Read(2, y)));
     }
 
     /// <summary>

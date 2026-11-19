@@ -1008,8 +1008,10 @@ public sealed class SamusBombProjectileSystem
                 continue;
             }
 
-            int xDistance = CoordinateAxis.Distance(bomb.Position.X.Whole, samus.Position.X.Whole);
-            int yDistance = CoordinateAxis.Distance(bomb.Position.Y.Whole, samus.Position.Y.Whole);
+            // A placed bomb stays where Samus laid it, at her place in the room, and departing on an elevator clears the
+            // bombs, so she and the bomb both lie in the room and their distance is plain.
+            int xDistance = Math.Abs(bomb.Position.X.Whole - samus.Position.X.Whole);
+            int yDistance = Math.Abs(bomb.Position.Y.Whole - samus.Position.Y.Whole);
             if (xDistance >= bomb.Radius.X + samus.Kinematics.Radius.X ||
                 yDistance >= bomb.Radius.Y + samus.Kinematics.Radius.Y)
             {
@@ -1027,7 +1029,7 @@ public sealed class SamusBombProjectileSystem
             // earlier ones.
             SamusBombJumpDirection publishedDirection = samus.Position.X.Whole == bomb.Position.X.Whole
                 ? SamusBombJumpDirection.Straight
-                : CoordinateAxis.Difference(samus.Position.X.Whole, bomb.Position.X.Whole) < 0
+                : samus.Position.X.Whole < bomb.Position.X.Whole
                     ? SamusBombJumpDirection.Left
                     : SamusBombJumpDirection.Right;
             SamusPoseMetadata.PublishBombJumpDirection(samus, publishedDirection);

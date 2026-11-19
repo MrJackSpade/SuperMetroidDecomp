@@ -429,6 +429,9 @@ internal sealed class BeamCombos
         }
         SignedEightEight oldXSpeed = shot.Velocity.X;
         StepTrail(shot);
+        // A Wave particle starts 128 pixels from Samus on each axis and swings through her as far again, ignoring
+        // terrain, so near the room's top or left edge it lies above or left of the room's origin; it homes on her the
+        // short way, as CoordinateAxis.Difference gives it.
         shot.Velocity = shot.Velocity.WithX(AccelerateWaveAxis(shot.Velocity.X, CoordinateAxis.Difference(samus.Position.X.Whole, shot.Position.X.Whole)));
         shot.Position = shot.Position.AdvanceX(shot.Velocity.X.ToSixteenSixteenDelta());
         shot.Velocity = shot.Velocity.WithY(AccelerateWaveAxis(shot.Velocity.Y, CoordinateAxis.Difference(samus.Position.Y.Whole, shot.Position.Y.Whole)));

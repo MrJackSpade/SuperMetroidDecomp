@@ -742,9 +742,14 @@ public sealed class SamusState
         }
 
         // When any probe hit, the correction also sets her previous vertical position, even a correction of zero; when
-        // none hit, her previous vertical position is left as it was.
+        // none hit, her previous vertical position is left as it was. The corrected height lies in the room: a move up is
+        // kept only when her body clears the terrain that far up, and block collision reads past the room's top as solid,
+        // so her top stays in the room; a move down is kept only when her grown body clears the terrain below; and the
+        // enemy correction runs only with both terrain probes clear by the whole growth, which it never exceeds. On a
+        // departing up-elevator, the only time her centre lies above the top, the locked input mode selects no pose and a
+        // hurt pose does not exceed the boarding pose's radius the ride keeps, so nothing grows her there.
         if (upward.Collided || downward.Collided || enemyUp.Collided || enemyDown.Collided)
-            WritePreviousYPosition(CoordinateAxis.Wrap(Kinematics.Position.Y.Whole + centerAdjustment));
+            WritePreviousYPosition(Kinematics.Position.Y.Whole + centerAdjustment);
         return LargerPoseCollisionOutcome.Allowed;
 
         LargerPoseCollisionOutcome BothSides() => Kinematics.Radius.Y < SamusPoseCollisionDefinitions.SmallestUprightYRadius
@@ -836,8 +841,10 @@ public sealed class SamusState
         {
             // The fallback moves her centre up by the extra crouch radius. This is
             // normally invisible for radius-16 aimed crouches, but compact radius ten must
-            // move up six pixels when simultaneous initial probes force ordinary crouching.
-            Kinematics.Position = Kinematics.Position.WithWrappedWholeY(
+            // move up six pixels when simultaneous initial probes force ordinary crouching. The fallback follows only an
+            // upright body, radius 10 or more, whose top block collision keeps in the room, so the lift of at most six
+            // pixels leaves her centre in it.
+            Kinematics.Position = Kinematics.Position.WithWholeY(
                 Kinematics.Position.Y.Whole - (fallbackRadius - oldRadius));
             WritePreviousYPosition(Kinematics.Position.Y.Whole);
         }
@@ -846,8 +853,7 @@ public sealed class SamusState
 
     /// <summary>
     /// Samus's previous whole-pixel Y in the room, written by a pose-collision correction this frame; null when
-    /// nothing wrote it. Only <see cref="WritePreviousYPosition"/> stores it, and its readers wrap its sum with the
-    /// alignment delta around the room, as the room coordinate does.
+    /// nothing wrote it. Only <see cref="WritePreviousYPosition"/> stores it.
     /// </summary>
     private int? _poseCollisionPreviousYPosition;
     /// <summary>Relative previous-Y correction accumulated while preserving feet across a pose change.</summary>
@@ -896,8 +902,22 @@ public sealed class SamusState
     /// frame-start checkpoint with this frame's writes so far, without consuming them.
     /// </summary>
     internal Position16<RoomPixels> PeekPreviousPosition(FixedPosition<RoomPixels> previous) => new Position16<RoomPixels>(
-        _previousXPositionWrite ?? previous.X.Whole,
-        CoordinateAxis.Wrap((_poseCollisionPreviousYPosition ?? previous.Y.Whole) + _poseAlignmentPreviousYDelta));
+        _previousXPositionWrite ?? previous.X.Whole, PreviousYWithWrites(previous));
+
+    /// <summary>
+    /// The previous whole-pixel Y with this frame's writes: the written height or the checkpoint's, moved by the feet
+    /// alignments since.
+    /// </summary>
+    /// <remarks>
+    /// The sum stays in the room. The checkpoint lies above the room's top only on a departing up-elevator's last
+    /// updates, when the locked input mode runs no pose change, no shinespark or Ceres shove holds her, and the ride keeps
+    /// the boarding pose's radius, 21 or 24, which a hurt pose does not exceed, so nothing writes the height or moves it.
+    /// Elsewhere every written height lies in the room, and a feet alignment lowers her (no pose-transition cue grows her
+    /// body), raises her by two pixels as a shinespark crash's radius-19 body, which block collision keeps below the top,
+    /// stands up, or ends the Ceres shove in Ceres Ridley's room, whose top row is solid.
+    /// </remarks>
+    private int PreviousYWithWrites(FixedPosition<RoomPixels> previous) =>
+        (_poseCollisionPreviousYPosition ?? previous.Y.Whole) + _poseAlignmentPreviousYDelta;
 
     /// <summary>
     /// Applies this frame's whole previous-position writes before scrolling calculates
@@ -908,8 +928,7 @@ public sealed class SamusState
     {
         var written = new FixedPosition<RoomPixels>(
             FixedCoordinate.Of(_previousXPositionWrite ?? previous.X.Whole, previous.X.Fraction),
-            FixedCoordinate.Of(CoordinateAxis.Wrap((_poseCollisionPreviousYPosition ?? previous.Y.Whole) + _poseAlignmentPreviousYDelta),
-                previous.Y.Fraction));
+            FixedCoordinate.Of(PreviousYWithWrites(previous), previous.Y.Fraction));
         _poseCollisionPreviousYPosition = null;
         _poseAlignmentPreviousYDelta = 0;
         _previousXPositionWrite = null;

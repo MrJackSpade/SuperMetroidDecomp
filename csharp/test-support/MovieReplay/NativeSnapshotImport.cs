@@ -287,16 +287,18 @@ internal static class NativeSnapshotImport
             int rightHold = W(NativeSnapshotMemory.TrailRightFrameHold + offset);
             if (leftHold == 0 && rightHold == 0)
                 continue;
-            var trail = runtime.Projectiles.AddTrail(SamusBeamCombinations.Of(samus.EquippedBeams));
+            // Native keeps each sparkle's own room place and not the shot's, so the trail stands from the room's origin and
+            // each sparkle's offset is its place, which lies in the room or just above or left of it, read as signed.
+            var trail = runtime.Projectiles.AddTrail(Position16<RoomPixels>.Zero, SamusBeamCombinations.Of(samus.EquippedBeams));
             // A sparkle whose timer has run out has ended: its animation is over, whatever its pointer still names.
             trail.Left.RestoreNative(W(NativeSnapshotMemory.TrailLeftInstructionPointer + offset), leftHold,
                 ProjectileTrailNative.ShownPose(W(NativeSnapshotMemory.TrailLeftTileNumberAttributes + offset)));
             trail.Right.RestoreNative(W(NativeSnapshotMemory.TrailRightInstructionPointer + offset), rightHold,
                 ProjectileTrailNative.ShownPose(W(NativeSnapshotMemory.TrailRightTileNumberAttributes + offset)));
-            trail.Left.Position = new Position16<RoomPixels>(
-                W(NativeSnapshotMemory.TrailLeftXPosition + offset), W(NativeSnapshotMemory.TrailLeftYPosition + offset));
-            trail.Right.Position = new Position16<RoomPixels>(
-                W(NativeSnapshotMemory.TrailRightXPosition + offset), W(NativeSnapshotMemory.TrailRightYPosition + offset));
+            trail.Left.Offset = new Offset16<RoomPixels>(CoordinateAxis.AsSigned(W(NativeSnapshotMemory.TrailLeftXPosition + offset)),
+                CoordinateAxis.AsSigned(W(NativeSnapshotMemory.TrailLeftYPosition + offset)));
+            trail.Right.Offset = new Offset16<RoomPixels>(CoordinateAxis.AsSigned(W(NativeSnapshotMemory.TrailRightXPosition + offset)),
+                CoordinateAxis.AsSigned(W(NativeSnapshotMemory.TrailRightYPosition + offset)));
         }
 
         // The native places become Samus's particles and the waits her breath bubbles and lava spray keep; an empty

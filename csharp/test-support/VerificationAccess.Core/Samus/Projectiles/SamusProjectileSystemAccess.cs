@@ -11,10 +11,12 @@ internal static class SamusProjectileSystemAccess
             PrivateState.Field<ProjectileTrails, List<SamusProjectileTrail>>(self.Trails, "trails");
 
         /// <summary>Starts a trail already under way, as a restored game does, and returns it.</summary>
+        /// <param name="origin">The place of the shot that left the trail, which both sparkles stand from.</param>
         /// <param name="picturedBeams">The beam combination whose pictures the trail shows.</param>
-        internal SamusProjectileTrail AddTrail(SuperMetroid.Core.Progression.SamusBeamCombination picturedBeams = SuperMetroid.Core.Progression.SamusBeamCombination.Power)
+        internal SamusProjectileTrail AddTrail(Position16<RoomPixels> origin,
+            SuperMetroid.Core.Progression.SamusBeamCombination picturedBeams = SuperMetroid.Core.Progression.SamusBeamCombination.Power)
         {
-            var trail = new SamusProjectileTrail(picturedBeams);
+            var trail = new SamusProjectileTrail(picturedBeams, origin);
             self.Trails.Add(trail);
             return trail;
         }

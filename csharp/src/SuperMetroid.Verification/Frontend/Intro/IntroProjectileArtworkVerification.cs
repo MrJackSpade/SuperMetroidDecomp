@@ -41,9 +41,8 @@ internal static class IntroProjectileArtworkVerification
         }
         projectiles.Reset();
         ProjectileTrailFrame frame = ProjectileTrailFrame.IceSparkleClustered;
-        var side = projectiles.AddTrail().Left;
+        var side = projectiles.AddTrail(Position16<RoomPixels>.Of(100, 100)).Left;
         side.RestoreNative((ushort)(ProjectileTrailNative.Address(frame) + 4), 100, frame);
-        side.Position = side.Position.WithX(100).WithY(100);
         AssertEqual(sheet.Frame(ProjectileSheetFrames.TrailFrame(frame)), Shown(intro, SpriteSourceKind.SamusProjectileTrail).Image,
             "Intro trail shows its pose's frame of the intro's projectile sheet");
         AssertEqual(99, side.FrameHold, "Intro preparation advances trail exactly once per call");

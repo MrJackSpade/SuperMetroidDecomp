@@ -200,7 +200,7 @@ internal sealed class EnemyTileArtworkReader
                 MagdollitePaletteCycle = magdollitePaletteCycle, WorkRobotPaletteCycle = workRobotPaletteCycle,
                 ChozoAndTubeColors = chozoAndTubeColors, DachoraColors = dachoraColors, AuxiliaryColors = auxiliaryColors,
             }),
-            BossSourceArtwork.FromInstalledArtwork(new BossSourceArtwork
+            new BossSourceArtwork
             {
                 CrocomireMelting = crocomire, CrocomireSkeleton = skeleton, CrocomireBg2Frames = crocomireBg2Frames,
                 CrocomireColors = crocomireColors, TorizoSwaps = torizoInstructionVram,
@@ -213,12 +213,12 @@ internal sealed class EnemyTileArtworkReader
                 BabyMetroidCutsceneColors = babyMetroidCutsceneColors, BabyMetroidColors = babyMetroidColors,
                 ZebetiteColors = zebetiteColors, SporeSpawnColors = sporeSpawnColors, BotwoonColors = botwoonColors,
                 NorfairRidleyColors = norfairRidleyColors,
-            }),
-            AreaSourceArtwork.FromInstalledArtwork(new AreaSourceArtwork
+            },
+            new AreaSourceArtwork
             {
                 CeresDoor = ceresDoor, CeresEscapeTiles = ceresEscapeTiles,
                 CeresEscapeOverlayTilemaps = ceresEscapeOverlay, TourianStatueColors = tourianStatueColors,
-            }));
+            });
     }
 
     /// <summary>

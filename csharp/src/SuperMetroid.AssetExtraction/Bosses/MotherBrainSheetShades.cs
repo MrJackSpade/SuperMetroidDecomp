@@ -87,16 +87,15 @@ internal static class MotherBrainSheetShades
     /// The shades of the sheets Mother Brain's encounter draws: her brain and neck, the Baby, and the objects she
     /// spawns, from her installed colours in <paramref name="maps"/> and <paramref name="bosses"/>.
     /// </summary>
-    /// <exception cref="InvalidDataException">Her colours are not installed.</exception>
-    internal static IReadOnlyList<SheetShade> Sprites(ImportAreaMapPresentation? maps, BossSourceArtwork bosses)
+    internal static IReadOnlyList<SheetShade> Sprites(ImportAreaMapPresentation maps, BossSourceArtwork bosses)
     {
         Ensure.NotNull(bosses);
-        ImportAreaMapPresentation presentation = maps ?? throw Missing("Mother Brain's map-installed colours");
+        ImportAreaMapPresentation presentation = Ensure.NotNull(maps);
         MotherBrainHealthPalettePresentation health = presentation.MotherBrainHealthPalette;
         InstalledMotherBrainRainbowPalette rainbow = presentation.MotherBrainRainbowColours;
         MotherBrainRoomColorPresentation room = presentation.MotherBrainRoomColors;
-        MotherBrainDeathColorCatalog death = bosses.MotherBrainDeathColors ?? throw Missing("Mother Brain's death colours");
-        BabyMetroidCutsceneColorCatalog baby = bosses.BabyMetroidCutsceneColors ?? throw Missing("the Baby's cutscene colours");
+        MotherBrainDeathColorCatalog death = bosses.MotherBrainDeathColors;
+        BabyMetroidCutsceneColorCatalog baby = bosses.BabyMetroidCutsceneColors;
 
         var shades = new List<SheetShade>([.. HealthSprites(health), .. RainbowSprites(rainbow)]);
         shades.AddRange(RoomSprites(room));
@@ -124,14 +123,13 @@ internal static class MotherBrainSheetShades
     }
 
     /// <summary>The shades of her body layer: her body's health bands, rainbow, grey and death fades.</summary>
-    /// <exception cref="InvalidDataException">Her colours are not installed.</exception>
     internal static IReadOnlyList<SheetShade> BodyLayer(ImportAreaMapPresentation maps, BossSourceArtwork bosses)
     {
         Ensure.NotNull(maps);
         Ensure.NotNull(bosses);
         MotherBrainHealthPalettePresentation health = maps.MotherBrainHealthPalette;
         InstalledMotherBrainRainbowPalette rainbow = maps.MotherBrainRainbowColours;
-        MotherBrainDeathColorCatalog death = bosses.MotherBrainDeathColors ?? throw Missing("Mother Brain's death colours");
+        MotherBrainDeathColorCatalog death = bosses.MotherBrainDeathColors;
         var shades = new List<SheetShade>([.. HealthBackground(health), .. RainbowBackground(rainbow)]);
         foreach (MotherBrainFadeImage image in Images(MotherBrainFadeDefinitions.DeathBody, death.BodyFadeFrameCount))
             shades.Add(Body(MotherBrainShades.Fade(image), Colours(MotherBrainDeathColorFormat.BodyColorCount, colour => death.BodyColor(image.Step, colour))));
@@ -264,11 +262,10 @@ internal static class MotherBrainSheetShades
     }
 
     /// <summary>The shades of the Baby Metroid's and its victim's sheets: its entry's colours and each phase of its membrane's pulse.</summary>
-    /// <exception cref="InvalidDataException">Its colours are not installed.</exception>
     internal static IReadOnlyList<SheetShade> BabyMetroid(BossSourceArtwork bosses)
     {
         Ensure.NotNull(bosses);
-        BabyMetroidColorCatalog babyMetroid = bosses.BabyMetroidColors ?? throw Missing("the Shitroid's colours");
+        BabyMetroidColorCatalog babyMetroid = bosses.BabyMetroidColors;
         var shades = new List<SheetShade>
         {
             Rows(TourianCorpseShades.BabyMetroidTargets,
@@ -285,11 +282,10 @@ internal static class MotherBrainSheetShades
     }
 
     /// <summary>The shades of the Zebetites' sheets: each frame of their shared pulse.</summary>
-    /// <exception cref="InvalidDataException">Their colours are not installed.</exception>
     internal static IReadOnlyList<SheetShade> Zebetites(BossSourceArtwork bosses)
     {
         Ensure.NotNull(bosses);
-        ZebetiteColorCatalog zebetites = bosses.ZebetiteColors ?? throw Missing("the Zebetites' colours");
+        ZebetiteColorCatalog zebetites = bosses.ZebetiteColors;
         return [.. Enumerable.Range(0, ZebetiteColorFormat.FrameCount).Select(frame => SheetShade.Run(ZebetiteShades.Pulse(ZebetitePulse.All[frame]),
             AttackRow + PulseFirstColour, Colours(ZebetiteColorFormat.ColorsPerFrame, colour => zebetites.Resolve(frame, colour))))];
     }
@@ -331,6 +327,4 @@ internal static class MotherBrainSheetShades
     /// <summary><paramref name="count"/> colours, each from <paramref name="colour"/>.</summary>
     private static RgbColor[] Colours(int count, Func<int, RgbColor> colour) => [.. Enumerable.Range(0, count).Select(colour)];
 
-    /// <summary>The error for an encounter whose colours are not installed.</summary>
-    private static InvalidDataException Missing(string colours) => new($"The sheets are shaded from {colours}, which are not installed.");
 }

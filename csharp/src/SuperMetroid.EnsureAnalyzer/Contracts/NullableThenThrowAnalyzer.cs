@@ -18,7 +18,9 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// <para>
 /// The nullability of a member declared outside the repository is that library's contract, not a choice of this source:
 /// a deserializer that reads the literal <c>null</c>, a search that finds nothing or a path with no parent is checked
-/// where it is called, and the rule leaves that read alone.
+/// where it is called, and the rule leaves that read alone. A parameter marked <c>[NotNull]</c> belongs to a guard whose
+/// contract is to throw when handed null (<c>Ensure.NotNull</c>), the check a boundary makes of a value its callers declare
+/// present, and is left alone too.
 /// </para>
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -223,6 +225,9 @@ public sealed class NullableThenThrowAnalyzer : DiagnosticAnalyzer
                 return false;
             case IAwaitOperation { Operation: var awaited }:
                 return DeclaredBySource(awaited, source);
+            case IParameterReferenceOperation { Parameter: var parameter }:
+                return !parameter.GetAttributes().Any(attribute => attribute.AttributeClass is
+                    { Name: "NotNullAttribute", ContainingNamespace: { Name: "CodeAnalysis", ContainingNamespace: { Name: "Diagnostics", ContainingNamespace.Name: "System" } } });
             default:
                 return true;
         }

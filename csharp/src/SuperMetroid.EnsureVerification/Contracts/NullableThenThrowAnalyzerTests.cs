@@ -62,6 +62,9 @@ internal static class NullableThenThrowAnalyzerTests
         Expect(Types + "class Boss { string Read(string path) => System.IO.Path.GetDirectoryName(path) ?? throw new InvalidOperationException(); }", count: 0);
         Expect(Types + "class Boss { Body Read(List<Body> all) => all.FirstOrDefault() ?? throw new InvalidOperationException(); }", count: 0);
         Expect(Types + "class Boss { Body Read(Dictionary<int, Body> all) => all.GetValueOrDefault(1) ?? throw new InvalidOperationException(); }", count: 0);
+        // A guard whose parameter is marked to be non-null on return exists to throw on null.
+        Expect(Types + "class Guard { static T NotNull<T>([System.Diagnostics.CodeAnalysis.NotNull] T? value) where T : class => value ?? throw new ArgumentNullException(nameof(value)); }",
+            count: 0);
         // An absence that is not thrown on, and a throw on something other than absence, are other code.
         Expect(Types + "class Boss { Body? _body; Body Read() => _body ?? new Body(); Body Other() { if (_body is null) return new Body(); return _body; } }", count: 0);
         Expect(Types + "class Boss { Body? _body; bool _ready; Body Read() { if (!_ready) throw new InvalidOperationException(); return _body ?? new Body(); } }", count: 0);

@@ -61,13 +61,13 @@ public sealed class SpriteImage
         var places = new Dictionary<ColourKey, int>();
         var keys = ImmutableArray.CreateBuilder<ColourKey>();
         // A clear pixel is never keyed: no shade recolours it, and a layer drawn opaque shows its stored colour. Each colour
-        // and recolour region found is held as its channels, so a pixel of a key already found costs one look in a set of
-        // plain values rather than building and comparing its key: a whole turning floor holds a million pixels.
+        // and recolour region found is held as the pixel itself, opaque, so a pixel of a key already found costs one look in
+        // a set of pixels rather than building and comparing its key: a whole turning floor holds a million pixels.
         var found = new HashSet<FoundColour>();
         for (int pixel = 0; pixel < pixels; pixel++)
         {
             RgbaPixel shown = decoded.Pixels[pixel];
-            if (shown.A != 0 && found.Add(new FoundColour(shown.R, shown.G, shown.B, decoded.RecolourRegions?[pixel] ?? 0)))
+            if (shown.A != 0 && found.Add(new FoundColour(shown with { A = byte.MaxValue }, decoded.RecolourRegions?[pixel] ?? 0)))
                 Add(KeyAt(decoded, pixel), places, keys);
         }
         if (Backdrop is { } backdrop)
@@ -82,12 +82,10 @@ public sealed class SpriteImage
         return new ColourKey(new RgbColor(shown.R, shown.G, shown.B), decoded.RecolourRegions?[pixel] ?? 0);
     }
 
-    /// <summary>A visible pixel's colour and recolour region as its plain channels, which tell its key from every other.</summary>
-    /// <param name="Red">The pixel's red channel.</param>
-    /// <param name="Green">The pixel's green channel.</param>
-    /// <param name="Blue">The pixel's blue channel.</param>
+    /// <summary>A visible pixel's colour and recolour region, which tell its key from every other.</summary>
+    /// <param name="Colour">The pixel, made opaque: a key holds no alpha.</param>
     /// <param name="Region">The pixel's recolour region.</param>
-    private readonly record struct FoundColour(byte Red, byte Green, byte Blue, int Region);
+    private readonly record struct FoundColour(RgbaPixel Colour, int Region);
 
     /// <summary>Adds <paramref name="key"/> to the keys found so far where it is new.</summary>
     private static void Add(ColourKey key, Dictionary<ColourKey, int> places, ImmutableArray<ColourKey>.Builder keys)

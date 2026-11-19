@@ -13,7 +13,6 @@ internal sealed record EnemyOverreadDocument(
     EnemyOverreadDocument.Drift FallingSparkUnauthoredLaunch)
 {
     /// <summary>A signed horizontal drift per update.</summary>
-    /// <param name="WholePixels">The signed whole pixels.</param>
-    /// <param name="Fraction">The sixteen-bit fraction of a pixel, 0 through 65535.</param>
-    internal sealed record Drift(int WholePixels, int Fraction);
+    /// <param name="Pixels">How far the spark drifts each update, in pixels, its fraction of a pixel kept exactly; negative leftward.</param>
+    internal sealed record Drift(decimal Pixels);
 }

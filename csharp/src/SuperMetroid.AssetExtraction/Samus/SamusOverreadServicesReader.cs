@@ -309,16 +309,15 @@ internal static class SamusOverreadServicesReader
         IReadOnlyDictionary<string, SamusOverreadDocument.LaunchSpeeds> speeds,
         IReadOnlyDictionary<string, SamusOverreadDocument.Cooldowns> cooldowns)
     {
-        var cardinal = new Dictionary<SamusBeamCombination, int>();
-        var diagonal = new Dictionary<SamusBeamCombination, int>();
+        var cardinal = new Dictionary<SamusBeamCombination, SignedEightEight>();
+        var diagonal = new Dictionary<SamusBeamCombination, SignedEightEight>();
         var waits = new Dictionary<SamusBeamCombination, BeamShotCooldowns>();
         foreach (SamusBeamCombination beams in Enum.GetValues<SamusBeamCombination>().Where(beams => !beams.CanBeEquipped))
         {
-            if (!speeds.TryGetValue(SamusBeamCombinationKeys.Installed.Of(beams), out SamusOverreadDocument.LaunchSpeeds? pair) || pair is null ||
-                pair.Cardinal is < short.MinValue or > short.MaxValue || pair.Diagonal is < short.MinValue or > short.MaxValue)
-                throw new InvalidDataException($"Samus overread file holds no valid launch speeds for {beams}.");
-            cardinal.Add(beams, pair.Cardinal);
-            diagonal.Add(beams, pair.Diagonal);
+            if (!speeds.TryGetValue(SamusBeamCombinationKeys.Installed.Of(beams), out SamusOverreadDocument.LaunchSpeeds? pair) || pair is null)
+                throw new InvalidDataException($"Samus overread file holds no launch speeds for {beams}.");
+            cardinal.Add(beams, SignedEightEight.FromPixels(pair.Cardinal));
+            diagonal.Add(beams, SignedEightEight.FromPixels(pair.Diagonal));
             if (!cooldowns.TryGetValue(SamusBeamCombinationKeys.Installed.Of(beams), out SamusOverreadDocument.Cooldowns? wait) || wait is null ||
                 wait.Uncharged is < 0 or > byte.MaxValue || wait.Charged is < 0 or > byte.MaxValue || wait.HeldFire is < 0 or > byte.MaxValue)
                 throw new InvalidDataException($"Samus overread file holds no valid cooldowns for {beams}.");

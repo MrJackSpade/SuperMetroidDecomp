@@ -55,6 +55,6 @@ internal static class EnemyOverreadDecoding
         int record = FallingSparkLaunchTable + FallingSparkAuthoredLaunches * FallingSparkLaunchBytes;
         int whole = cartridge.ReadCartridgeWord(record);
         int fraction = cartridge.ReadCartridgeWord(record + sizeof(ushort));
-        return new EnemyOverreadDocument.Drift(CartridgeWordReads.SignedWord(whole), fraction);
+        return new EnemyOverreadDocument.Drift(SignedSixteenSixteen.FromParts(CartridgeWordReads.SignedWord(whole), fraction).Pixels);
     }
 }

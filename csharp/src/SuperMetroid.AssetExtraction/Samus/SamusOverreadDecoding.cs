@@ -228,8 +228,8 @@ internal static class SamusOverreadDecoding
             {
                 int row = SamusOverreadSourceDefinitions.BeamSpeedTable + beams.TableIndex * 2 * sizeof(ushort);
                 return new SamusOverreadDocument.LaunchSpeeds(
-                    unchecked((short)cartridge.ReadCartridgeWord(row)),
-                    unchecked((short)cartridge.ReadCartridgeWord(row + sizeof(ushort))));
+                    new SignedEightEight(cartridge.ReadCartridgeWord(row)).Pixels,
+                    new SignedEightEight(cartridge.ReadCartridgeWord(row + sizeof(ushort))).Pixels);
             });
 
     /// <summary>

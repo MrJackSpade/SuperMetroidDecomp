@@ -40,6 +40,22 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>
     /// <summary>The fractions of a pixel the speed counts: 256 to the pixel.</summary>
     private const int FractionsPerPixel = 256;
 
+    /// <summary>The speed in pixels an update, its fraction kept exactly: the amount an installed file states (#2555).</summary>
+    public decimal Pixels => InTwoHundredFiftySixthsOfPixel / (decimal)FractionsPerPixel;
+
+    /// <summary>
+    /// The speed of <paramref name="pixels"/> pixels an update (#2555), as an installed file states it: an amount the type
+    /// keeps exactly, a whole number of its finest fractions of a pixel, within its range.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The type cannot keep the amount exactly.</exception>
+    public static SignedEightEight FromPixels(decimal pixels)
+    {
+        decimal fractions = pixels * FractionsPerPixel;
+        if (fractions != decimal.Truncate(fractions) || fractions < short.MinValue || fractions > short.MaxValue)
+            throw new ArgumentOutOfRangeException(nameof(pixels), pixels, "The speed cannot keep this amount of pixels exactly.");
+        return FromTwoHundredFiftySixthsOfPixel((int)fractions);
+    }
+
     /// <summary>A speed of <paramref name="pixels"/> whole pixels an update, -128 through 127, with no fraction.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The speed lies outside the type's range.</exception>
     public static SignedEightEight FromPixels(int pixels) => FromParts(pixels, 0);

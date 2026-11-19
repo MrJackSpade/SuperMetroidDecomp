@@ -43,6 +43,22 @@ public readonly record struct SignedSixteenSixteen : IComparable<SignedSixteenSi
     /// <summary>The fractions of a pixel the displacement counts: 65536 to the pixel.</summary>
     private const int FractionsPerPixel = 65536;
 
+    /// <summary>The displacement in pixels, its fraction kept exactly: the amount an installed file states (#2555).</summary>
+    public decimal Pixels => RawValue / (decimal)FractionsPerPixel;
+
+    /// <summary>
+    /// The displacement of <paramref name="pixels"/> pixels (#2555), as an installed file states it: an amount the type
+    /// keeps exactly, a whole number of its finest fractions of a pixel, within its range.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The type cannot keep the amount exactly.</exception>
+    public static SignedSixteenSixteen FromPixels(decimal pixels)
+    {
+        decimal fractions = pixels * FractionsPerPixel;
+        if (fractions != decimal.Truncate(fractions) || fractions < int.MinValue || fractions > int.MaxValue)
+            throw new ArgumentOutOfRangeException(nameof(pixels), pixels, "The displacement cannot keep this amount of pixels exactly.");
+        return new((int)fractions);
+    }
+
     /// <summary>The zero displacement.</summary>
     public static SignedSixteenSixteen Zero => default;
 

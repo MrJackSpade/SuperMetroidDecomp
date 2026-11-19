@@ -25,9 +25,9 @@ internal static class SamusProjectileVelocityWords
     internal static ushort Y(SamusProjectile slot)
     {
         if (slot.Behavior is IceSpecialAttackOrbit or IceSpecialAttackSpread)
-            return checked((ushort)slot.KindStateAs<IceParticleState>().Lifetime);
+            return checked((ushort)slot.KindStateAs<IceParticleState>().Lifetime.UpdatesLeft);
         if (slot.Behavior is WaveSpecialAttackHoming)
-            return checked((ushort)slot.KindStateAs<WaveParticleState>().Lifetime);
+            return checked((ushort)slot.KindStateAs<WaveParticleState>().Lifetime.UpdatesLeft);
         if (slot.Behavior is PlasmaSpecialAttackRing)
             return PlasmaPhaseWord(slot.KindStateAs<PlasmaParticleState>().Phase);
         if (slot.Behavior is SpazerSpecialAttackFlight)

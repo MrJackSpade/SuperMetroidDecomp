@@ -727,7 +727,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check("Beam charge", SamusSnapshotWords.EncodeBeamCharge(runtime.Projectiles.Charge.Level), NativeSnapshotMemory.BeamCharge);
                 Check("ProjectileCounter", runtime.Projectiles.Pool.ShotCount.Count, NativeSnapshotMemory.ProjectileCount);
                 Check("PreviousBeamChargeCounter", SamusSnapshotWords.EncodeBeamCharge(runtime.Projectiles.Charge.PreviousCharge), NativeSnapshotMemory.PreviousCharge);
-                Check("ProjectileInvincibilityTimer", runtime.Projectiles.Firing.ProjectileInvincibilityTimer, NativeSnapshotMemory.ProjectileInteractionImmunity);
+                Check("InteractionImmunityUpdatesLeft", runtime.Projectiles.Firing.InteractionImmunityUpdatesLeft, NativeSnapshotMemory.ProjectileInteractionImmunity);
                 Check("ChargedShotGlowTimer", SamusSnapshotWords.EncodeChargedShotGlow(runtime.Projectiles.Charge.ChargedShotGlow), NativeSnapshotMemory.ChargedShotGlow);
                 Check("ChargeGlowStep", runtime.Projectiles.Charge.ChargeGlowStep * sizeof(ushort), NativeSnapshotMemory.ChargePaletteIndex);
                 Check("BombCounter", runtime.BombProjectiles.BombCounter, NativeSnapshotMemory.BombCount);
@@ -805,7 +805,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     ushort recordedVariable = W(NativeSnapshotMemory.ProjectileVariable + index);
                     MissileShotState missile = projectile.KindStateAs<MissileShotState>();
                     int? linkPlace = (missile as SuperMissileShotState)?.LinkPlace;
-                    if (missile.Ignition != SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeMissileIgnition(recordedVariable) ||
+                    if (!SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.RecordsIgnitionStage(recordedVariable, missile.Ignition) ||
                         (projectile.Type.Family == SamusProjectileFamily.SuperMissile &&
                         linkPlace != SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeMissileLinkSlot(recordedVariable)))
                         mismatches.Add($"{owner} missile ignition: native={recordedVariable:X4} port={missile.Ignition}/{linkPlace}");

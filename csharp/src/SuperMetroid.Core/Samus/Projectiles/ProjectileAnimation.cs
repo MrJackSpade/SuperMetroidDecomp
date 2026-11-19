@@ -91,7 +91,7 @@ internal sealed class ProjectileAnimation
     /// </summary>
     internal void DrawFlareComponent(SpriteFrameBuffer sprites, SamusState samus, Position16<RoomPixels> cameraPosition, ChargeFlareComponent component, TurningFloorTransform? turningFloor, ChargeFlareArtwork artwork)
     {
-        if (SamusPoseMetadata.ReadAim(samus).Flare is not { } flare)
+        if (SamusPoseMetadata.ReadAim(samus) is not SamusPoseAim.Armed { Flare: var flare })
             return;
 
         DrawFlareComponentWithMetadata(sprites, samus, cameraPosition, component, turningFloor, artwork, new ChargeFlarePose { Aim = flare, Running = SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Running, PoseYOffset = SamusPoseMetadata.ReadArtOrigin(samus), FacingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) });

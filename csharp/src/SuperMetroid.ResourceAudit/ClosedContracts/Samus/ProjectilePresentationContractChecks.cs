@@ -29,8 +29,8 @@ internal static class ProjectilePresentationContractChecks
                     ChargeFlareSprites flare, InstalledProjectileTrails trails,
                     InstalledProjectileFrameBindings bindings, InstalledGrappleSprites grapple,
                     InstalledGrappleSwingFrames swing, InstalledProjectileSprites sprites, SuperMetroid.Core.Assets.ScreenSprites oam) {
-                    placement.Resolve(false, SamusFlareAim.WhileTurning(SamusTurningAim.Down));
-                    placement.Resolve(true, SamusFlareAim.AtMuzzle(SamusProjectileDirection.UpFacingLeft));
+                    placement.Resolve(false, new SamusFlareAim.WhileTurning(SamusTurningAim.Down));
+                    placement.Resolve(true, new SamusFlareAim.AtMuzzle(SamusProjectileDirection.UpFacingLeft));
                     flare.Frame(ChargeFlareSpriteDefinitions.All[27]);
                     flare.Frame(new ProjectileSpriteId(ProjectileSpriteGroup.FlareFastSparksLeft, "SparksSeventh"));
                     trails.Resolve(ProjectileTrailFrame.IceSparkleClustered);

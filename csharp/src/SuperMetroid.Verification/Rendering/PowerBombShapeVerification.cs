@@ -38,12 +38,10 @@ internal static class PowerBombShapeVerification
     /// </summary>
     internal static void VerifyPowerBombPreScaledShapes(CartridgeImportAddressSpace rom)
     {
-        AssertEqual(17, PowerBombExplosionDefinitions.ExplosionWhiteUpdates, "the white explosion lasts seventeen updates");
-        AssertEqual(4, PowerBombExplosionDefinitions.PreExplosionYellowUpdates, "the yellow pre-explosion lasts four updates");
         foreach ((string stage, IReadOnlyList<int> radii, int duration, int table) in new (string, IReadOnlyList<int>, int, int)[]
         {
-            ("white", PowerBombExplosionDefinitions.WhiteOvalRadii, PowerBombExplosionDefinitions.ExplosionWhiteUpdates, PowerBombShapeReferenceData.PreScaledWhite),
-            ("yellow", PowerBombExplosionDefinitions.YellowOvalRadii, PowerBombExplosionDefinitions.PreExplosionYellowUpdates, PowerBombShapeReferenceData.PreScaledYellow),
+            ("white", PowerBombExplosionDefinitions.WhiteOvalRadii, 17, PowerBombShapeReferenceData.PreScaledWhite),
+            ("yellow", PowerBombExplosionDefinitions.YellowOvalRadii, 4, PowerBombShapeReferenceData.PreScaledYellow),
         })
         {
             AssertEqual(duration, radii.Count, $"the {stage} stage shows one oval on each of its updates");

@@ -334,7 +334,7 @@ internal sealed class SamusFramePhases
             room.Projectiles.HandleShots(shotTerrain, samus, room.Camera.PixelPosition, room.BombProjectiles, _system);
 
             if (!_freeze.TimeIsFrozen)
-                room.BombProjectiles.ResolveSamusOverlap(samus, room.Projectiles.Firing.ProjectileInvincibilityTimer);
+                room.BombProjectiles.ResolveSamusOverlap(samus, room.Projectiles.Firing.SuppressesInteraction);
 
             // The input phase runs the selected HUD producer and immediately
             // clears the pose bridge. Pose initialization occurs later in the

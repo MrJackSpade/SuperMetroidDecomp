@@ -96,12 +96,26 @@ internal static class SamusProjectileWordCodec
     /// <param name="word">A projectile direction word.</param>
     public static bool DecodeSpent(int word) => (word & SpentMask) != 0;
 
-    /// <summary>The ignition a missile's variable word records.</summary>
+    /// <summary>
+    /// Whether a missile's variable word records the stage of <paramref name="ignition"/>: ignited, waiting to re-ignite
+    /// after a reflection, or waiting to ignite after firing. The speed an ignited missile ignited at is not compared: a
+    /// Super Missile's word keeps only its whole pixels, with its link's slot below them.
+    /// </summary>
     /// <param name="word">A missile or Super Missile's variable word.</param>
-    public static SamusMissileIgnition DecodeMissileIgnition(int word) =>
-        (word >> IgnitionShift) != 0 ? SamusMissileIgnition.Ignited
-        : (word & LowByteMask) == ReflectionHeadStart ? SamusMissileIgnition.PendingAfterReflection
-        : SamusMissileIgnition.Pending;
+    /// <param name="ignition">The game's ignition of the missile.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="ignition"/> is undefined.</exception>
+    public static bool RecordsIgnitionStage(int word, SamusMissileIgnition ignition)
+    {
+        bool ignited = (word >> IgnitionShift) != 0;
+        bool reflected = (word & LowByteMask) == ReflectionHeadStart;
+        return ignition switch
+        {
+            SamusMissileIgnition.Ignited => ignited,
+            SamusMissileIgnition.PendingAfterReflection => !ignited && reflected,
+            SamusMissileIgnition.Pending => !ignited && !reflected,
+            _ => throw new ArgumentOutOfRangeException(nameof(ignition), ignition, $"Undefined {nameof(SamusMissileIgnition)}."),
+        };
+    }
 
     /// <summary>
     /// The slot a Super Missile's variable word names as its link, or null when it names none; a word whose low byte

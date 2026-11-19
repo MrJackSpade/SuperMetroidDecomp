@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Samus;
@@ -23,9 +24,12 @@ public static class ChargeFlarePlacementFile
     internal static string Key(ChargeFlarePlacement placement)
     {
         string mode = placement.Running ? "running" : "standing";
-        return placement.Aim.Muzzle is { } direction ? $"{mode}-{direction}"
-            : placement.Aim.Turning is { } turning ? $"{mode}-turning-{turning}"
-            : throw new ArgumentException("A flare is placed at a muzzle or while turning.", nameof(placement));
+        return placement.Aim switch
+        {
+            SamusFlareAim.AtMuzzle muzzle => $"{mode}-{muzzle.Direction}",
+            SamusFlareAim.WhileTurning turning => $"{mode}-turning-{turning.HeldAim}",
+            _ => throw new ArgumentException("A flare is placed at a muzzle or while turning.", nameof(placement)),
+        };
     }
 
     /// <summary>Rejects unknown JSON properties while writing a stable camel-case authoring document.</summary>

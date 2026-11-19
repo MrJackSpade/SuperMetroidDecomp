@@ -149,7 +149,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         // aim metadata are compiled definition data, so a synthetic bank-$91 record can
         // no longer override gameplay direction merely to simplify a fixture.
         SamusPoseId pose = nativePosesByShotDirection[direction];
-        AssertEqual(SamusPoseAim.Aiming(SamusProjectileDirectionCodec.FromAimIndex(direction)), SamusPoseMetadata.ReadAim(pose),
+        AssertEqual(new SamusPoseAim.Aiming(SamusProjectileDirectionCodec.FromAimIndex(direction)), SamusPoseMetadata.ReadAim(pose),
             $"native projectile fixture pose ${(int)SamusPoseNumbers.Number(pose):X2} aim");
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
@@ -225,7 +225,7 @@ internal static void VerifySamusPowerBeamProjectiles()
                 nativeUnchargedSounds[beamType]),
             combinedResult.QueuedSoundEffect,
             $"beam combination {beamType} indexes uncharged sound");
-        AssertEqual(10, combinedProjectiles.Firing.ProjectileInvincibilityTimer,
+        AssertEqual(10, combinedProjectiles.Firing.InteractionImmunityUpdatesLeft,
             $"beam combination {beamType} publishes native invincibility timer");
 
         SamusShotBehavior expectedFrameBehavior = (beamType & 1) == 0
@@ -1012,13 +1012,13 @@ internal static void VerifySamusPowerBeamProjectiles()
         "missile increments the shared ordinary-projectile counter");
     AssertEqual(10, missileBombs.CooldownTimer,
         "missile producer installs literal ten-frame shared cooldown");
-    AssertEqual(20, missileProjectiles.Firing.ProjectileInvincibilityTimer,
+    AssertEqual(20, missileProjectiles.Firing.InteractionImmunityUpdatesLeft,
         "missile producer installs literal projectile invincibility timer twenty");
     AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.Missile), missile.Type, "missile is an ordinary missile");
     AssertEqual(0x0064, missile.Damage, "missile reads damage from `$93:8641`");
     AssertEqual(SamusShotBehaviors.Missile, missile.Behavior,
         "missile selects `$90:AF68` pre-instruction family");
-    AssertEqual(SamusMissileIgnition.Ignited, missile.KindStateAs<MissileShotState>().Ignition,
+    AssertTrue(missile.KindStateAs<MissileShotState>().Ignition.HasIgnited,
         "first alpha pass ignites the missile");
     AssertEqual(0x0100, missile.Velocity.X.InTwoHundredFiftySixthsOfPixel,
         "right missile begins at one pixel per frame after ignition");
@@ -1502,7 +1502,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(0x012c, super.Damage, "super owner reads retail 300 damage");
     AssertEqual(0x0100, super.Velocity.X.InTwoHundredFiftySixthsOfPixel,
         "super ignition begins at one pixel per frame");
-    AssertEqual(SamusMissileIgnition.Ignited, super.KindStateAs<SuperMissileShotState>().Ignition, "super owner has ignited");
+    AssertTrue(super.KindStateAs<SuperMissileShotState>().Ignition.HasIgnited, "super owner has ignited");
     AssertEqual(1, super.KindStateAs<SuperMissileShotState>().LinkPlace,
         "super owner names place one as its link");
     AssertEqual(SamusShotBehaviors.SuperMissile, super.Behavior,

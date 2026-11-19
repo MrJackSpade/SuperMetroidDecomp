@@ -95,11 +95,11 @@ internal static class SpecialAttackParticlesVerification
         null => null,
         SuperMissileShotState superMissile => (superMissile.Ignition, superMissile.LinkPlace),
         MissileShotState missile => missile.Ignition,
-        IceParticleState ice => (ice.Part, ice.Angle, ice.Radius, ice.TurnPerUpdate, ice.Lifetime),
+        IceParticleState ice => (ice.Part, ice.Angle, ice.Radius, ice.TurnPerUpdate, ice.Lifetime.UpdatesLeft),
         PlasmaParticleState ring => (ring.Part, ring.Angle, ring.Radius, ring.TurnPerUpdate, ring.Phase),
         SpazerParticleState spazer => (spazer.Part, spazer.Angle, spazer.Radius, spazer.TurnPerUpdate, spazer.Phase, spazer.Partner.Place,
             spazer.LeavesTrails),
-        WaveParticleState wave => (wave.Part, wave.Lifetime),
+        WaveParticleState wave => (wave.Part, wave.Lifetime.UpdatesLeft),
         ShinesparkEchoShotState echo => (echo.Angle, echo.Radius),
         _ => throw new InvalidOperationException($"Undefined shot kind state {shot.KindState.GetType().Name}."),
     };
@@ -242,8 +242,8 @@ internal static class SpecialAttackParticlesVerification
         missile.Animation = ProjectileFixturePlaybacks.StartingAfter(segment, MidPictureUpdates);
         missile.Radius = SamusProjectilePlayback.InitialRadius(segment);
         MissileShotState ignition = family == SamusProjectileFamily.SuperMissile
-            ? new SuperMissileShotState(SamusMissileIgnition.Pending, linkPlace: null)
-            : new MissileShotState(SamusMissileIgnition.Pending);
+            ? new SuperMissileShotState(new SamusMissileIgnition.Pending(), linkPlace: null)
+            : new MissileShotState(new SamusMissileIgnition.Pending());
         ignition.Ignite(SamusProjectileMotionDefinitions.MissileIgnitionSpeed);
         missile.Install(behavior, ignition);
         return missile;
@@ -258,7 +258,7 @@ internal static class SpecialAttackParticlesVerification
         link.Damage = SamusProjectileDamage.Read(SamusProjectileKind.SuperMissileLink);
         link.Animation = ProjectileFixturePlaybacks.StartingAfter(SamusProjectileKinds.SoleAnimation(SamusProjectileKind.SuperMissileLink), MidPictureUpdates);
         link.Install(SamusShotBehaviors.SuperMissileLink,
-            new SuperMissileShotState(SamusMissileIgnition.Pending, UnlinkedSuperMissileLink.Place));
+            new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place));
         return link;
     }
 

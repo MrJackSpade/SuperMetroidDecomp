@@ -992,7 +992,7 @@ public static class SamusGrappleMovement
 
     /// <summary>Reads the installed presentation offset for the current shot direction and running state.</summary>
     internal static Offset16<RoomPixels> ReadFlareOrigin(SamusGrappleState grapple, SamusProjectileDirection direction, bool running) =>
-        grapple.Artwork.GrappleFlarePlacement.Resolve(running, SamusFlareAim.AtMuzzle(direction));
+        grapple.Artwork.GrappleFlarePlacement.Resolve(running, new SamusFlareAim.AtMuzzle(direction));
 
     /// <summary>
     /// Completes the one-frame cancellation phase entered from firing: the stop sound, the ejection, the fallback

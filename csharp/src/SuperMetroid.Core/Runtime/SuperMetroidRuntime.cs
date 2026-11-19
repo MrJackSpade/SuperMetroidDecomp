@@ -613,11 +613,9 @@ internal sealed class SuperMetroidRuntime
             foreach ((IGlowingEnemy enemy, ColourEffectFrame frame) in room.ColourEffects.GlowsShown)
                 enemy.ShowGlow(frame);
         }
-        // Hyper Beam's colour effect runs whenever the colour effects run.
-        if (room.ColourEffects.ColourEffectsRun)
-        {
-            samus.Drained.HyperBeamColourEffect.Step(Player.Colours);
-        }
+        // Hyper Beam's colour effect, once she has received the Hyper Beam, runs whenever the colour effects run.
+        if (room.ColourEffects.ColourEffectsRun && samus.Drained.HyperBeamColourEffect is { } hyperBeamColours)
+            hyperBeamColours.Step(Player.Colours);
     }
 
     /// <summary>Starts the frame's sprite list for its draw pass.</summary>
@@ -1086,7 +1084,7 @@ internal sealed class SuperMetroidRuntime
         if (!samus.DeathSequence.IsActive)
         {
             samus.DecrementHurtTimers();
-            room.Projectiles.Firing.DecrementInteractionTimer();
+            room.Projectiles.Firing.CountInteractionImmunityDown();
         }
     }
 

@@ -59,7 +59,7 @@ internal static class ChargeFlarePlacementVerification
             bool running = bus.ReadCartridgeByte(record + 1) == SamusMovementTypeNativeWords.Byte(SamusMovementType.Running);
             // The turning placements follow the standing rows only; no running pose selects past the named directions.
             SamusFlareAim aim = SamusFlareRows.AimAtRow(row);
-            if (running && aim.Turning is not null)
+            if (running && aim is SamusFlareAim.WhileTurning)
                 continue;
             bool facingLeft = bus.ReadCartridgeByte(record) == 4;
             // The pose's offset is signed: the cartridge's unsigned read of a negative offset is a deleted presentation
@@ -102,7 +102,7 @@ internal static class ChargeFlarePlacementVerification
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
             int record = SamusSourceDefinitions.PoseDefinitions.Value + SamusPoseNumbers.Number(pose) * 8;
             int turnRow = bus.ReadCartridgeByte(record + 3) & 15;
-            AssertTrue(SamusFlareRows.AimAtRow(turnRow).Turning is not null, $"{pose} selects a turn row");
+            AssertTrue(SamusFlareRows.AimAtRow(turnRow) is SamusFlareAim.WhileTurning, $"{pose} selects a turn row");
             bool facingLeft = bus.ReadCartridgeByte(record) == 4;
             // The pose's offset is signed: the cartridge's unsigned read of a negative offset is a deleted presentation
             // quirk (#1795), so the expected placement subtracts the signed offset.
@@ -127,10 +127,11 @@ internal static class ChargeFlarePlacementVerification
             AssertThrows<ArgumentOutOfRangeException>(() => SamusFlareRows.AimAtRow(past), $"flare row {row} past the turning placements names no placement");
         }
         foreach (SamusTurningAim turning in Enum.GetValues<SamusTurningAim>())
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(true, SamusFlareAim.WhileTurning(turning)), $"running flare turning {turning} is rejected");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(true, new SamusFlareAim.WhileTurning(turning)), $"running flare turning {turning} is rejected");
         AssertTrue(Enumerable.Range(0, byte.MaxValue + 1).Where(SamusPoseNumbering.NamesPose)
-            .Select(number => SamusPoseMetadata.ReadAim(SamusPoseNumbering.FromNumber(number)).Flare)
-            .OfType<SamusFlareAim>()
+            .Select(number => SamusPoseMetadata.ReadAim(SamusPoseNumbering.FromNumber(number)))
+            .OfType<SamusPoseAim.Armed>()
+            .Select(armed => armed.Flare)
             .All(flare => ChargeFlarePlacements.Placements(ChargeFlareSource.Beam).Contains(new ChargeFlarePlacement(false, flare))),
             "every pose's flare aim is a standing beam flare placement");
         var subject = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
@@ -166,7 +167,7 @@ internal static class ChargeFlarePlacementVerification
             AssertTrue(original.LastFinalizedSpriteCount > 0, "Public normal/Hyper flare producer emits visible components");
         }
         var document = RequiredJson.Parse(json);
-        string firstKey = ChargeFlarePlacementFile.Key(new ChargeFlarePlacement(false, SamusFlareAim.AtMuzzle(SamusProjectileDirection.UpFacingRight)));
+        string firstKey = ChargeFlarePlacementFile.Key(new ChargeFlarePlacement(false, new SamusFlareAim.AtMuzzle(SamusProjectileDirection.UpFacingRight)));
         document.Required("offsets").AsObject().Remove(firstKey);
         AssertThrows<InvalidDataException>(() => Load(document), "Missing flare placement rejected");
         document = JsonNode.Parse(json);

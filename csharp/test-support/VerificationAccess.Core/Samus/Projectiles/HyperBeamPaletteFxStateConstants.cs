@@ -22,9 +22,6 @@ internal static class HyperBeamPaletteFxStateConstants
     extension(HyperBeamColourEffectState effect)
     {
         /// <summary>The updates the current shade has left, counting the update about to run; one before the first shade.</summary>
-        /// <exception cref="InvalidOperationException">The effect has not started.</exception>
-        internal int FrameHold => effect.Cycle is { } cycle
-            ? cycle.UpdatesLeft
-            : throw new InvalidOperationException("The Hyper Beam's colour effect has not started.");
+        internal int FrameHold => effect.Cycle.UpdatesLeft;
     }
 }

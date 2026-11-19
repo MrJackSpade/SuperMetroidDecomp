@@ -145,7 +145,7 @@ public sealed class SamusProjectile
     /// ignition speed, link place, departure angle or carried fuse that kind keeps. A beam, the Hyper Beam's shot and their
     /// explosions keep no kind state and carry their fuse; a missile's explosion keeps its missile's.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The projectile is an ignited missile that keeps no speed it ignited at.</exception>
+    /// <exception cref="InvalidOperationException">The projectile keeps an undefined kind state or ignition.</exception>
     internal BeamFiredOverLastShot.ReplacedShot AsReplacedByBeam => !IsOccupied ? new BeamFiredOverLastShot.ReplacedShot.FreePlace() : KindState switch
     {
         null => new BeamFiredOverLastShot.ReplacedShot.Beam(BeamFuse),
@@ -153,9 +153,8 @@ public sealed class SamusProjectile
         {
             SamusMissileIgnition.Pending => new BeamFiredOverLastShot.ReplacedShot.UnignitedMissile(),
             SamusMissileIgnition.PendingAfterReflection => new BeamFiredOverLastShot.ReplacedShot.ReflectedMissile(ReflectionHeadStart),
-            SamusMissileIgnition.Ignited => new BeamFiredOverLastShot.ReplacedShot.IgnitedMissile(
-                missile.IgnitionSpeed ?? throw new InvalidOperationException("An ignited missile keeps the speed it ignited at."),
-                (missile as SuperMissileShotState)?.LinkPlace),
+            SamusMissileIgnition.Ignited ignited => new BeamFiredOverLastShot.ReplacedShot.IgnitedMissile(
+                ignited.Speed, (missile as SuperMissileShotState)?.LinkPlace),
             _ => throw new InvalidOperationException($"Undefined {nameof(SamusMissileIgnition)} {missile.Ignition}."),
         },
         ShinesparkEchoShotState echo => new BeamFiredOverLastShot.ReplacedShot.CrashEcho(echo.Angle),

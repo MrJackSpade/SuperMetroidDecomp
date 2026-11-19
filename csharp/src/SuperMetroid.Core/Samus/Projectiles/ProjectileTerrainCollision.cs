@@ -68,15 +68,9 @@ internal sealed class ProjectileTerrainCollision
         // fired diagonally left still tests its right edge first.
         shot.Velocity = new(shot.Direction == SamusProjectileDirection.Left ? LeftScanVelocity : default, default);
 
-        SamusProjectileDirection direction = shot.Direction;
+        SamusProjectileDirectionAxes axes = SamusProjectileDirectionDefinitions.Axes(shot.Direction);
         bool collided = false;
-        if (direction is
-            SamusProjectileDirection.UpRight or
-            SamusProjectileDirection.Right or
-            SamusProjectileDirection.DownRight or
-            SamusProjectileDirection.DownLeft or
-            SamusProjectileDirection.Left or
-            SamusProjectileDirection.UpLeft)
+        if (axes.MovesHorizontally)
         {
             bool horizontalReaction = false;
             if (waveBeam)
@@ -92,16 +86,7 @@ internal sealed class ProjectileTerrainCollision
         // Diagonals call vertical collision only when the no-Wave horizontal call reported
         // no collision. Wave's horizontal scan never reports one even when it
         // publishes a block reaction, so it necessarily reaches this second axis as well.
-        bool diagonal = direction is
-            SamusProjectileDirection.UpRight or
-            SamusProjectileDirection.DownRight or
-            SamusProjectileDirection.DownLeft or
-            SamusProjectileDirection.UpLeft;
-        if (!collided && (diagonal || direction is
-            SamusProjectileDirection.UpFacingRight or
-            SamusProjectileDirection.DownFacingRight or
-            SamusProjectileDirection.DownFacingLeft or
-            SamusProjectileDirection.UpFacingLeft))
+        if (!collided && axes.MovesVertically)
         {
             bool verticalReaction = MoveVertically(level, shot, roomObjects, waveBeam);
             collided = !waveBeam && verticalReaction;
@@ -292,13 +277,11 @@ internal sealed class ProjectileTerrainCollision
         Axis axis = Axis.Horizontal)
     {
         endSpan = false;
-        // A shot reacts to the block an extension block leads to, as bombs, the grapple beam and Samus's body do. A door
-        // cap is a shootable block at one end with extension blocks across its other three, so a beam striking the cap's
-        // middle reaches the blue door's reaction through them.
-        RoomCollisionBlock? resolvedBlock = ResolveShotReactionExtension(level, block);
-        if (resolvedBlock is null)
+        // A shot reacts to the block an extension block leads to, following the links as bombs, missiles and Samus's body
+        // do; one that leads nowhere lets the shot pass. A door cap is a shootable block at one end with extension blocks
+        // across its other three, so a beam striking the cap's middle reaches the blue door's reaction through them.
+        if (!SamusBlockCollision.TryResolveExtension(level, ref block))
             return false;
-        block = resolvedBlock.Value;
         if (block.CollisionType == RoomCollisionType.Slope && !block.Behavior.Slope.IsNonSquare)
             return SquareSlopeShotReaction(shot, block, span, axis == Axis.Horizontal);
         if (block.CollisionType == RoomCollisionType.Slope && block.Behavior.Slope.IsNonSquare)
@@ -355,55 +338,6 @@ internal sealed class ProjectileTerrainCollision
         // Solid, special, grapple, door and spike blocks stop the shot with no reaction. A bomb block's reaction
         // answers only bombs and Power Bombs, so it stops a shot with no reaction too, and bombable air lets it pass.
         return block.CollisionType.IsSolidKind();
-    }
-
-    /// <summary>
-    /// Follows signed horizontal or vertical behaviour links to the actual reaction block, each leading on in the room's
-    /// reading order (<see cref="RoomReadingOrder"/>), rejecting cycles and out-of-room targets.
-    /// </summary>
-    private static RoomCollisionBlock? ResolveShotReactionExtension(
-        RoomLevelData level,
-        RoomCollisionBlock initialBlock)
-    {
-        RoomCollisionBlock block = initialBlock;
-        for (int linkCount = 0; linkCount < SamusProjectileMotionDefinitions.LongestExtensionChain; linkCount++)
-        {
-            switch (block.CollisionType)
-            {
-                case RoomCollisionType.HorizontalExtension:
-                case RoomCollisionType.VerticalExtension:
-                    if (block.Behavior.ExtensionOffset == 0)
-                        return null;
-                    break;
-
-                case RoomCollisionType.Air:
-                case RoomCollisionType.Slope:
-                case RoomCollisionType.SpikeAir:
-                case RoomCollisionType.SpecialAir:
-                case RoomCollisionType.ShootableAir:
-                case RoomCollisionType.UnrevealedAir:
-                case RoomCollisionType.BombableAir:
-                case RoomCollisionType.SolidBlock:
-                case RoomCollisionType.DoorBlock:
-                case RoomCollisionType.SpikeBlock:
-                case RoomCollisionType.SpecialBlock:
-                case RoomCollisionType.ShootableBlock:
-                case RoomCollisionType.GrappleBlock:
-                case RoomCollisionType.BombableBlock:
-                    return block;
-                default:
-                    throw new InvalidOperationException($"Undefined RoomCollisionType {block.CollisionType}.");
-            }
-
-            Position16<RoomBlocks> target = level.GridBlockStepped(block.At, block.ExtensionLink) ??
-                throw new InvalidDataException(
-                    $"Projectile extension at block {block.Position} resolved outside the " +
-                    $"{level.Size.Area}-block room grid.");
-            block = level.GetCollisionBlock(target);
-        }
-
-        throw new InvalidDataException(
-            $"Projectile extension chain from block {initialBlock.Position} did not terminate.");
     }
 
     /// <summary>Routes a shootable behaviour to its downward gate, resident room object, blue door, or ordinary shot-block owner.</summary>
@@ -503,17 +437,15 @@ internal sealed class ProjectileTerrainCollision
     {
         // Killing the beam moves the explosion anchor to the leading edge before the explosion
         // replaces the animation. Diagonals adjust both axes in their respective signs.
-        SamusProjectileDirection direction = shot.Direction;
-        if (direction is SamusProjectileDirection.UpRight or SamusProjectileDirection.Right or SamusProjectileDirection.DownRight)
+        SamusProjectileDirectionAxes axes = SamusProjectileDirectionDefinitions.Axes(shot.Direction);
+        if (axes.Horizontal == HorizontalDirection.Right)
             shot.Position += new Offset16<RoomPixels>(shot.Radius.X, 0);
-        else if (direction is SamusProjectileDirection.DownLeft or SamusProjectileDirection.Left or SamusProjectileDirection.UpLeft)
+        else if (axes.Horizontal == HorizontalDirection.Left)
             shot.Position -= new Offset16<RoomPixels>(shot.Radius.X, 0);
 
-        if (direction is SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.UpRight or
-            SamusProjectileDirection.UpLeft or SamusProjectileDirection.UpFacingLeft)
+        if (axes.Vertical == VerticalDirection.Up)
             shot.Position -= new Offset16<RoomPixels>(0, shot.Radius.Y);
-        else if (direction is SamusProjectileDirection.DownRight or SamusProjectileDirection.DownFacingRight or
-            SamusProjectileDirection.DownFacingLeft or SamusProjectileDirection.DownLeft)
+        else if (axes.Vertical == VerticalDirection.Down)
             shot.Position += new Offset16<RoomPixels>(0, shot.Radius.Y);
 
         shot.Type = shot.Type.AsFamily(SamusProjectileFamily.BeamExplosion);

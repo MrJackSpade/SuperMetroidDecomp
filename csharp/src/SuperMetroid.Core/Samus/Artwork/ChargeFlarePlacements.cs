@@ -46,9 +46,9 @@ public sealed class ChargeFlarePlacements
     {
         foreach (bool running in (bool[])[false, true])
             foreach (SamusProjectileDirection direction in Enum.GetValues<SamusProjectileDirection>())
-                yield return new(running, SamusFlareAim.AtMuzzle(direction));
+                yield return new(running, new SamusFlareAim.AtMuzzle(direction));
         if (source == ChargeFlareSource.Beam)
             foreach (SamusTurningAim turning in Enum.GetValues<SamusTurningAim>())
-                yield return new(false, SamusFlareAim.WhileTurning(turning));
+                yield return new(false, new SamusFlareAim.WhileTurning(turning));
     }
 }

@@ -336,7 +336,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     owner.Position = owner.Position.WithWhole(new(0x01b7, 0x0196));
     owner.Animation = SamusProjectileProgramAddresses.PlayerAt(0x9f3b, updates: 15);
     owner.SpritemapPointer = 0xae0f;
-    owner.Install(SamusShotBehaviors.SuperMissile, new SuperMissileShotState(SamusMissileIgnition.Pending, UnlinkedSuperMissileLink.Place));
+    owner.Install(SamusShotBehaviors.SuperMissile, new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place));
 
     SamusProjectile link = shots.Shots[1];
     link.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile);
@@ -345,7 +345,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     link.Position = link.Position.WithWhole(new(0x01af, 0x0196));
     link.Animation = SamusProjectileProgramAddresses.PlayerAt(0x9f7b);
     link.SpritemapPointer = 0;
-    link.Install(SamusShotBehaviors.SuperMissileLink, new SuperMissileShotState(SamusMissileIgnition.Pending, UnlinkedSuperMissileLink.Place));
+    link.Install(SamusShotBehaviors.SuperMissileLink, new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place));
 
     int hits = enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
         shots,

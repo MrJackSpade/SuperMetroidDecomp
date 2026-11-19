@@ -33,9 +33,10 @@ internal static class SamusPoseRecordDecoding
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The byte's low four bits select past the turning placements.</exception>
     internal static SamusPoseAim DecodeAim(int aimByte) =>
-        aimByte == ShootingDisabledByte ? SamusPoseAim.ShootingDisabled
-        : DirectionOfAimByte(aimByte) is { } direction ? SamusPoseAim.Aiming(direction)
-        : SamusPoseAim.Unaimed(DecodeFlare(aimByte & FlareSelectionBits));
+        aimByte == ShootingDisabledByte ? new SamusPoseAim.ShootingDisabled()
+        : DirectionOfAimByte(aimByte) is { } direction ? new SamusPoseAim.Aiming(direction)
+        : DecodeFlare(aimByte & FlareSelectionBits) is SamusFlareAim.WhileTurning turning ? new SamusPoseAim.Turning(turning.HeldAim)
+        : throw new InvalidDataException($"Aim byte {aimByte:X2} fires nothing and places its flare at a muzzle, which no pose's aim does.");
 
     /// <summary>
     /// The direction an aim byte names when it is one of the ten aim indices, or null for any other byte: a restriction,

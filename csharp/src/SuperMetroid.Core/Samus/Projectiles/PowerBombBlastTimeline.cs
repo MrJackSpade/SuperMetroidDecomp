@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Artwork;
 
@@ -30,11 +31,12 @@ public sealed class PowerBombBlastTimeline
     private PowerBombRadius _radiusSpeed;
 
     /// <summary>
-    /// The updates the yellow pre-explosion or the white explosion has run so far (#1927): each shows the oval its
-    /// update selects, and the stage ends after its duration (<see cref="PowerBombExplosionDefinitions.PreExplosionYellowUpdates"/>,
-    /// <see cref="PowerBombExplosionDefinitions.ExplosionWhiteUpdates"/>).
+    /// The play of the yellow pre-explosion's or the white explosion's ovals (#1927, #2529): each update shows the next
+    /// oval, and the stage ends on the update that shows its last (<see cref="PowerBombOvalAnimations"/>). Each stage starts
+    /// its ovals as it is entered; no other stage reads them.
     /// </summary>
-    private int _ovalStageUpdates;
+    private readonly AnimationPlayer<PowerBombOvalSegment, int, NoAnimationCue> _ovals =
+        AnimationPlayer<PowerBombOvalSegment, int, NoAnimationCue>.Starting(PowerBombOvalAnimations.Segments, PowerBombOvalAnimations.PreExplosionYellow);
 
     /// <summary>
     /// The horizontal radius, in pixels, of the authored oval the current frame shows, or null when the frame shows the
@@ -86,34 +88,20 @@ public sealed class PowerBombBlastTimeline
     public bool IsRunning { get; private set; }
 
     /// <summary>
-    /// Afterglow steps left, 32 when the final white-explosion frame primes them; each step consumes one, and the
-    /// step that reaches zero ends the blast instead of fading the colors. It is only stepped while positive.
+    /// The fade steps the afterglow has still to take (#2529), one each update: the white explosion's last update primes
+    /// the Power Bomb's (<see cref="PowerBombExplosionDefinitions.AfterglowFades"/>), and Crystal Flash's explosion its own
+    /// for the band it reached (<see cref="PowerBombExplosionAfterglow.CrystalFlashAfterglowSteps"/>). The update after the
+    /// last fade ends the blast. The count is kept apart from the installed colours, so rebinding them never moves that end.
     /// </summary>
-    private int _afterglowStepsRemaining;
-
-    /// <summary>
-    /// Crystal Flash completion count, kept separate from the editable colour so
-    /// rebinding colors cannot change the effect's cleanup frame after restoration.
-    /// </summary>
-    private int _crystalFlashAfterglowStepsRemaining;
+    [IntegerQuantity("afterglow fade steps left")]
+    private int _afterglowFadesLeft;
 
     /// <summary>Starts the blast: its first update runs the pre-explosion's setup.</summary>
     public void Start()
     {
-        IsRunning = true;
-
-        // The blast takes its first step on the next update, which sets up the pre-explosion; its radius first grows on
-        // the update after.
-        PreExplosionRadius = PowerBombRadius.Zero;
-        ExplosionRadius = PowerBombRadius.Zero;
-        _ovalStageUpdates = 0;
-        RenderedOvalRadius = null;
-        Phase = PowerBombExplosionPhase.PendingPreExplosionSetup;
-        RenderedPhase = PowerBombExplosionPhase.Inactive;
-        RenderedPreExplosionRadius = PowerBombRadius.Zero;
-        RenderedExplosionRadius = PowerBombRadius.Zero;
-        _afterglowStepsRemaining = 0;
-        _crystalFlashAfterglowStepsRemaining = 0;
+        // The blast takes its first step on the next update, which sets up the pre-explosion and its speed; its radius
+        // first grows on the update after.
+        Clear(PowerBombExplosionPhase.PendingPreExplosionSetup, PowerBombRadius.Zero);
         GlowColor = RgbColor.Black;
     }
 
@@ -122,19 +110,28 @@ public sealed class PowerBombBlastTimeline
     /// </summary>
     public void BeginCrystalFlash()
     {
-        IsRunning = true;
-        PreExplosionRadius = PowerBombExplosionDefinitions.InitialRadius;
-        ExplosionRadius = PowerBombExplosionDefinitions.InitialRadius;
+        Clear(PowerBombExplosionPhase.CrystalFlashExplosion, PowerBombExplosionDefinitions.InitialRadius);
+        GlowColor = RgbColor.Black;
+    }
+
+    /// <summary>
+    /// Leaves every blast value as a start or an end does (#2529): running unless <paramref name="phase"/> is
+    /// <see cref="PowerBombExplosionPhase.Inactive"/>, both radii at <paramref name="radius"/>, no speed, no oval and no
+    /// afterglow fade left, and nothing shown yet. The glow colour is left as it is: a start or a reset blackens it, and an
+    /// ordinary afterglow ends on the colour its fades left.
+    /// </summary>
+    private void Clear(PowerBombExplosionPhase phase, PowerBombRadius radius)
+    {
+        IsRunning = phase != PowerBombExplosionPhase.Inactive;
+        PreExplosionRadius = radius;
+        ExplosionRadius = radius;
         _radiusSpeed = PowerBombRadius.Zero;
-        _ovalStageUpdates = 0;
         RenderedOvalRadius = null;
-        Phase = PowerBombExplosionPhase.CrystalFlashExplosion;
+        Phase = phase;
         RenderedPhase = PowerBombExplosionPhase.Inactive;
         RenderedPreExplosionRadius = PowerBombRadius.Zero;
         RenderedExplosionRadius = PowerBombRadius.Zero;
-        GlowColor = RgbColor.Black;
-        _afterglowStepsRemaining = 0;
-        _crystalFlashAfterglowStepsRemaining = 0;
+        _afterglowFadesLeft = 0;
     }
 
     /// <summary>
@@ -197,19 +194,8 @@ public sealed class PowerBombBlastTimeline
     /// <summary>Clears every blast field during room/runtime reset.</summary>
     public void Reset()
     {
-        IsRunning = false;
-        PreExplosionRadius = PowerBombRadius.Zero;
-        ExplosionRadius = PowerBombRadius.Zero;
-        _radiusSpeed = PowerBombRadius.Zero;
-        _ovalStageUpdates = 0;
-        RenderedOvalRadius = null;
-        Phase = PowerBombExplosionPhase.Inactive;
-        RenderedPhase = PowerBombExplosionPhase.Inactive;
-        RenderedPreExplosionRadius = PowerBombRadius.Zero;
-        RenderedExplosionRadius = PowerBombRadius.Zero;
+        Clear(PowerBombExplosionPhase.Inactive, PowerBombRadius.Zero);
         GlowColor = RgbColor.Black;
-        _afterglowStepsRemaining = 0;
-        _crystalFlashAfterglowStepsRemaining = 0;
     }
 
     /// <summary>Displays the current white flash radius, then slows expansion until the yellow pre-explosion takes over.</summary>
@@ -232,25 +218,20 @@ public sealed class PowerBombBlastTimeline
 
         // Advancing past the wait runs the yellow stage's setup, starts its radius step,
         // and waits again during this same effect pass.
-        _ovalStageUpdates = 0;
+        _ovals.Start(PowerBombOvalAnimations.PreExplosionYellow);
         Phase = PowerBombExplosionPhase.PreExplosionYellow;
     }
 
     /// <summary>
-    /// Runs one update of an oval stage: returns the authored oval radius this update shows and counts the update.
+    /// Runs one update of an oval stage: returns the authored oval radius this update shows.
     /// </summary>
-    /// <param name="radii">The stage's oval radius for each of its updates.</param>
-    /// <param name="duration">The updates the stage lasts.</param>
-    /// <param name="stageEnds">Whether this update was the stage's last.</param>
-    /// <exception cref="InvalidOperationException">The stage has already run its whole duration.</exception>
-    private int ShowNextOval(IReadOnlyList<int> radii, int duration, out bool stageEnds)
+    /// <param name="stageEnds">Whether this update showed the stage's last oval, which ends it.</param>
+    /// <exception cref="InvalidOperationException">The stage has already shown its last oval.</exception>
+    private int ShowNextOval(out bool stageEnds)
     {
-        if (_ovalStageUpdates >= duration)
-            throw new InvalidOperationException(
-                $"Power Bomb phase {Phase} ran past its {duration} updates.");
-        int radius = radii[_ovalStageUpdates];
-        _ovalStageUpdates++;
-        stageEnds = _ovalStageUpdates == duration;
+        int radius = _ovals.StepToNewFrame()
+            ?? throw new InvalidOperationException($"Power Bomb phase {Phase} ran past its last oval.");
+        stageEnds = _ovals.IsResting;
         return radius;
     }
 
@@ -283,8 +264,7 @@ public sealed class PowerBombBlastTimeline
 
         // The yellow pre-explosion chooses this frame's oval before the stage counts the update, and the display shows
         // the chosen one after the logic frame has completed.
-        RenderedOvalRadius = ShowNextOval(PowerBombExplosionDefinitions.YellowOvalRadii,
-            PowerBombExplosionDefinitions.PreExplosionYellowUpdates, out bool stageEnds);
+        RenderedOvalRadius = ShowNextOval(out bool stageEnds);
 
         // The hold is tested on the growth before either value changes: a growth that would reach 256 pixels leaves
         // both the radius and its speed as they were for this frame.
@@ -321,12 +301,12 @@ public sealed class PowerBombBlastTimeline
         }
 
         // The white explosion starts its seventeen expanding ovals on the next update.
-        _ovalStageUpdates = 0;
+        _ovals.Start(PowerBombOvalAnimations.ExplosionWhite);
         RenderedOvalRadius = null;
         Phase = PowerBombExplosionPhase.ExplosionWhite;
     }
 
-    /// <summary>Shows the seventeen white ovals and primes the 32-step afterglow that fades the glow.</summary>
+    /// <summary>Shows the seventeen white ovals and primes the afterglow that fades the glow.</summary>
     private void StepExplosionWhite(InstalledPowerBombGlowColors colors)
     {
         RenderedExplosionRadius = ExplosionRadius;
@@ -335,8 +315,7 @@ public sealed class PowerBombBlastTimeline
             PowerBombGlowSequence.Explosion,
             ExplosionRadius.GlowColorBand);
 
-        RenderedOvalRadius = ShowNextOval(PowerBombExplosionDefinitions.WhiteOvalRadii,
-            PowerBombExplosionDefinitions.ExplosionWhiteUpdates, out bool stageEnds);
+        RenderedOvalRadius = ShowNextOval(out bool stageEnds);
 
         if (TryGrowRadius(ExplosionRadius, out PowerBombRadius nextRadius))
         {
@@ -347,34 +326,21 @@ public sealed class PowerBombBlastTimeline
         if (!stageEnds)
             return;
 
-        // The white explosion primes the afterglow's steps. The afterglow then fades the first step on the following
+        // The white explosion primes the afterglow's fades. The afterglow then takes its first fade on the following
         // frame.
-        _afterglowStepsRemaining = PowerBombExplosionDefinitions.AfterglowSteps;
+        _afterglowFadesLeft = PowerBombExplosionDefinitions.AfterglowFades;
         Phase = PowerBombExplosionPhase.Afterglow;
     }
 
     /// <summary>Fades the glow colour's three components one step every update and ends the blast after the last step.</summary>
     private bool StepAfterglow()
     {
-        // The step that leaves none ends the blast without fading the colour again.
-        ConsumeAfterglowStep();
-        if (_afterglowStepsRemaining == 0)
-        {
-            IsRunning = false;
-            PreExplosionRadius = PowerBombRadius.Zero;
-            ExplosionRadius = PowerBombRadius.Zero;
-            _radiusSpeed = PowerBombRadius.Zero;
-            _ovalStageUpdates = 0;
-            RenderedOvalRadius = null;
-            Phase = PowerBombExplosionPhase.Inactive;
-            RenderedPhase = PowerBombExplosionPhase.Inactive;
-            RenderedPreExplosionRadius = PowerBombRadius.Zero;
-            RenderedExplosionRadius = PowerBombRadius.Zero;
-            return true;
-        }
+        if (TakeAfterglowFade())
+            return false;
 
-        GlowColor = GlowColor.FadeLevels.Map((_, channel) => channel == 0 ? 0 : channel - 1).ToColour();
-        return false;
+        // The update after the last fade ends the blast without fading the colour again, leaving the colour its fades left.
+        Clear(PowerBombExplosionPhase.Inactive, PowerBombRadius.Zero);
+        return true;
     }
 
     /// <summary>Uses the explosion curve to expand Crystal Flash only to its smaller radius limit.</summary>
@@ -396,8 +362,7 @@ public sealed class PowerBombBlastTimeline
         }
 
         // As with the ordinary afterglow, the Crystal Flash afterglow fades a step on every update.
-        _crystalFlashAfterglowStepsRemaining =
-            PowerBombExplosionAfterglow.CrystalFlashAfterglowSteps(RenderedExplosionRadius);
+        _afterglowFadesLeft = PowerBombExplosionAfterglow.CrystalFlashAfterglowSteps(RenderedExplosionRadius);
         Phase = PowerBombExplosionPhase.CrystalFlashAfterglow;
     }
 
@@ -406,39 +371,28 @@ public sealed class PowerBombBlastTimeline
     {
         // Crystal Flash's afterglow fades a step every update, as the ordinary afterglow does, for the length its
         // explosion set (PowerBombExplosionAfterglow); the installed colours only change what each step shows.
-        if (_crystalFlashAfterglowStepsRemaining != 0)
-        {
-            _crystalFlashAfterglowStepsRemaining--;
-            GlowColor = GlowColor.FadeLevels.Map((_, channel) => channel == 0 ? 0 : channel - 1).ToColour();
+        if (TakeAfterglowFade())
             return false;
-        }
 
         // The update after the afterglow's last fade ends the blast and clears every blast value, its speed included.
-        IsRunning = false;
-        PreExplosionRadius = PowerBombRadius.Zero;
-        ExplosionRadius = PowerBombRadius.Zero;
-        _radiusSpeed = PowerBombRadius.Zero;
-        _ovalStageUpdates = 0;
-        RenderedOvalRadius = null;
-        Phase = PowerBombExplosionPhase.Inactive;
-        RenderedPhase = PowerBombExplosionPhase.Inactive;
-        RenderedPreExplosionRadius = PowerBombRadius.Zero;
-        RenderedExplosionRadius = PowerBombRadius.Zero;
+        Clear(PowerBombExplosionPhase.Inactive, PowerBombRadius.Zero);
         // The blast's end turns its glow off, however bright the installed colours left it.
         GlowColor = RgbColor.Black;
         return true;
     }
 
     /// <summary>
-    /// Consumes one afterglow step. The afterglow phase is entered with 32 steps and ends on the step that reaches
-    /// zero, so a step is never taken from zero; one would mean the phase and its count disagree.
+    /// Takes the afterglow's next fade step, dimming each of the glow colour's three components one level, unless it has
+    /// taken them all.
     /// </summary>
-    private void ConsumeAfterglowStep()
+    /// <returns>Whether the update took a fade step; once none is left, the update ends the blast instead.</returns>
+    private bool TakeAfterglowFade()
     {
-        if (_afterglowStepsRemaining <= 0)
-            throw new InvalidOperationException(
-                $"Power Bomb afterglow stepped with {_afterglowStepsRemaining} steps remaining; the phase ends when the count reaches zero.");
-        _afterglowStepsRemaining--;
+        if (_afterglowFadesLeft == 0)
+            return false;
+        _afterglowFadesLeft--;
+        GlowColor = GlowColor.FadeLevels.Map((_, channel) => channel == 0 ? 0 : channel - 1).ToColour();
+        return true;
     }
 
     /// <summary>

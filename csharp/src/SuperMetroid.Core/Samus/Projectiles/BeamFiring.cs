@@ -250,7 +250,7 @@ internal sealed class BeamFiring
         projectile.TrailUpdatesLeft = ProjectileTimingDefinitions.TrailInterval;
         projectile.Type = SamusProjectileType.Beam(SamusBeamCombinations.Of(samus.EquippedBeams), charged);
         projectile.PicturedBeams = projectile.Type.BeamCombination;
-        ProjectileInvincibilityTimer = ProjectileTimingDefinitions.BeamInteractionImmunity;
+        InteractionImmunityUpdatesLeft = ProjectileTimingDefinitions.BeamInteractionImmunity;
         // The shot cancels a pending resume of the charging sound where it requests its own sound, before the projectile
         // is set up, so the next post-draw sound pass does not resume the charge after it (#1689).
         samus.ResumeChargingBeamSoundPending = false;
@@ -340,7 +340,7 @@ internal sealed class BeamFiring
         projectile.Direction = aim;
 
         InitializePosition(samus, projectile);
-        ProjectileInvincibilityTimer = ProjectileTimingDefinitions.BeamInteractionImmunity;
+        InteractionImmunityUpdatesLeft = ProjectileTimingDefinitions.BeamInteractionImmunity;
         // As for ordinary beams, the shot cancels a pending resume of the charging sound where it requests its own (#1689).
         samus.ResumeChargingBeamSoundPending = false;
 
@@ -418,7 +418,7 @@ internal sealed class BeamFiring
 
         InitializePosition(samus, projectile);
         _pool.ShotCount.CountShot();
-        ProjectileInvincibilityTimer = ProjectileTimingDefinitions.MissileInteractionImmunity;
+        InteractionImmunityUpdatesLeft = ProjectileTimingDefinitions.MissileInteractionImmunity;
         // A count Crystal Flash drained below zero still fires, each shot taking it further below; only the 32768th shot
         // from below zero wraps it to the largest count (CountsRunBelowZero), a wrap play can reach.
         if (isSuperMissile)
@@ -440,10 +440,10 @@ internal sealed class BeamFiring
         if (isSuperMissile)
         {
             projectile.Install(SamusShotBehaviors.SuperMissile,
-                new SuperMissileShotState(SamusMissileIgnition.Pending, UnlinkedSuperMissileLink.Place));
+                new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place));
         }
         else
-            projectile.Install(SamusShotBehaviors.Missile, new MissileShotState(SamusMissileIgnition.Pending));
+            projectile.Install(SamusShotBehaviors.Missile, new MissileShotState(new SamusMissileIgnition.Pending()));
 
         // The missile sound and the missile's shared cooldown. An item-selection press made while item cancel
         // is held asks for the selection to return to the beam after one shot; a successful
@@ -492,8 +492,7 @@ internal sealed class BeamFiring
         UnauthoredBeamFiring<SamusBeamCombination> unauthoredFiring)
     {
         Ensure.NotNull(unauthoredFiring);
-        bool diagonal = projectile.Direction is SamusProjectileDirection.UpRight or SamusProjectileDirection.DownRight or
-            SamusProjectileDirection.DownLeft or SamusProjectileDirection.UpLeft;
+        bool diagonal = SamusProjectileDirectionDefinitions.Axes(projectile.Direction).IsDiagonal;
         SamusBeamCombination beams = projectile.Type.BeamCombination;
         SignedEightEight authoredSpeed = diagonal ? SamusProjectileMotionDefinitions.DiagonalSpeed : SamusProjectileMotionDefinitions.CardinalSpeed;
         // An unauthored combination's speed is the one its unauthored firing gives, which the launch adds as a wrapping velocity.
@@ -523,40 +522,40 @@ internal sealed class BeamFiring
         SignedEightEight baseSpeed)
     {
         Ensure.NotNull(inheritance);
-        SignedEightEight x = direction switch
+        SamusProjectileDirectionAxes axes = SamusProjectileDirectionDefinitions.Axes(direction);
+        SignedEightEight x = axes.Horizontal switch
         {
-            SamusProjectileDirection.UpRight or SamusProjectileDirection.Right or SamusProjectileDirection.DownRight =>
-                inheritance.InheritedVelocity(HorizontalDirection.Right) + baseSpeed,
-            SamusProjectileDirection.DownLeft or SamusProjectileDirection.Left or SamusProjectileDirection.UpLeft =>
-                inheritance.InheritedVelocity(HorizontalDirection.Left) - baseSpeed,
-            SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.DownFacingRight or
-                SamusProjectileDirection.DownFacingLeft or SamusProjectileDirection.UpFacingLeft => SignedEightEight.Zero,
-            _ => throw new InvalidOperationException($"Undefined projectile direction {direction}."),
+            HorizontalDirection.Right => inheritance.InheritedVelocity(HorizontalDirection.Right) + baseSpeed,
+            HorizontalDirection.Left => inheritance.InheritedVelocity(HorizontalDirection.Left) - baseSpeed,
+            null => SignedEightEight.Zero,
+            _ => throw new InvalidOperationException($"Undefined horizontal direction {axes.Horizontal}."),
         };
-        SignedEightEight y = direction switch
+        SignedEightEight y = axes.Vertical switch
         {
             // The rising launch velocity and the base speed combine as wrapping velocities.
-            SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.UpRight or
-                SamusProjectileDirection.UpLeft or SamusProjectileDirection.UpFacingLeft =>
-                inheritance.RisingLaunchVelocity() - baseSpeed,
-            SamusProjectileDirection.DownRight or SamusProjectileDirection.DownFacingRight or
-                SamusProjectileDirection.DownFacingLeft or SamusProjectileDirection.DownLeft =>
-                inheritance.InheritedVelocity(VerticalDirection.Down) + baseSpeed,
-            SamusProjectileDirection.Right or SamusProjectileDirection.Left => SignedEightEight.Zero,
-            _ => throw new InvalidOperationException($"Undefined projectile direction {direction}."),
+            VerticalDirection.Up => inheritance.RisingLaunchVelocity() - baseSpeed,
+            VerticalDirection.Down => inheritance.InheritedVelocity(VerticalDirection.Down) + baseSpeed,
+            null => SignedEightEight.Zero,
+            _ => throw new InvalidOperationException($"Undefined vertical direction {axes.Vertical}."),
         };
         return new(x, y);
     }
 
     /// <summary>
-    /// The interaction-immunity timer; humanoid shots temporarily suppress Samus/projectile
-    /// interaction, including bomb jumps. Counted down once each gameplay update, after Samus and the enemies have moved.
+    /// The updates a shot just fired keeps Samus from interacting with her own projectiles, bomb jumps included (#2529):
+    /// firing a beam or a missile sets it, and it is counted down to none once each gameplay update, after Samus and the
+    /// enemies have moved.
     /// </summary>
-    public int ProjectileInvincibilityTimer { get; internal set; }
+    [IntegerQuantity("updates Samus's projectiles leave her alone")]
+    public int InteractionImmunityUpdatesLeft { get; internal set => field = Ensure.AtLeastZero(value); }
 
-    /// <summary>Counts the projectile invincibility down by one update, stopping at zero.</summary>
-    public void DecrementInteractionTimer()
+    /// <summary>Whether a shot just fired keeps Samus from interacting with her own projectiles.</summary>
+    public bool SuppressesInteraction => InteractionImmunityUpdatesLeft > 0;
+
+    /// <summary>Counts one update of the interaction immunity down; an immunity that has run out stays at none.</summary>
+    public void CountInteractionImmunityDown()
     {
-        ProjectileInvincibilityTimer = Math.Max(0, ProjectileInvincibilityTimer - 1);
+        if (SuppressesInteraction)
+            InteractionImmunityUpdatesLeft--;
     }
 }

@@ -45,24 +45,10 @@ internal sealed class ProjectileMotion
 
         Accelerate(shot, SamusProjectileAccelerations.For(shot.Direction).Beam);
 
-        SamusProjectileDirection direction = shot.Direction;
-        bool collided = direction switch
-        {
-            SamusProjectileDirection.UpFacingRight or
-            SamusProjectileDirection.DownFacingRight or
-            SamusProjectileDirection.DownFacingLeft or
-            SamusProjectileDirection.UpFacingLeft => ProjectileTerrainCollision.MoveVertically(level, shot, roomObjects),
-            SamusProjectileDirection.Right or SamusProjectileDirection.Left =>
-                ProjectileTerrainCollision.MoveHorizontally(level, shot, roomObjects),
-            SamusProjectileDirection.UpRight or
-            SamusProjectileDirection.DownRight or
-            SamusProjectileDirection.DownLeft or
-            SamusProjectileDirection.UpLeft =>
-                ProjectileTerrainCollision.MoveHorizontally(level, shot, roomObjects) ||
-                ProjectileTerrainCollision.MoveVertically(level, shot, roomObjects),
-            _ => throw new InvalidDataException(
-                $"Beam shot has undefined direction {direction}."),
-        };
+        // A diagonal beam moves vertically only when its horizontal move found no collision.
+        SamusProjectileDirectionAxes axes = SamusProjectileDirectionDefinitions.Axes(shot.Direction);
+        bool collided = (axes.MovesHorizontally && ProjectileTerrainCollision.MoveHorizontally(level, shot, roomObjects)) ||
+            (axes.MovesVertically && ProjectileTerrainCollision.MoveVertically(level, shot, roomObjects));
 
         if (collided)
             _terrainCollision.KillBeamOnBlockCollision(shot);
@@ -131,9 +117,10 @@ internal sealed class ProjectileMotion
         // the defining Wave Beam behavior: block reactions may run, yet terrain never kills
         // or clips the shot. The span scans below publish ordinary shootable-block
         // room objects while discarding their collision result.
-        if (MovesHorizontally(direction))
+        SamusProjectileDirectionAxes axes = SamusProjectileDirectionDefinitions.Axes(direction);
+        if (axes.MovesHorizontally)
             _terrainCollision.MoveWaveShotHorizontally(level, shot, roomObjects);
-        if (MovesVertically(direction))
+        if (axes.MovesVertically)
         {
             shot.Position = shot.Position.AdvanceY(shot.Velocity.Y.ToSixteenSixteenDelta());
             ProjectileTerrainCollision.ScanVerticalWaveShotReactions(level, shot, roomObjects);
@@ -162,7 +149,7 @@ internal sealed class ProjectileMotion
 
         SamusProjectileDirection direction = shot.Direction;
         MissileShotState missile = shot.KindStateAs<MissileShotState>();
-        if (missile.Ignition != SamusMissileIgnition.Ignited)
+        if (!missile.Ignition.HasIgnited)
         {
             // A missile ignites on its first input phase: its velocity is rebuilt from its
             // ignition speed plus Samus's inherited motion.
@@ -176,20 +163,10 @@ internal sealed class ProjectileMotion
             Accelerate(shot, accelerations.Missile);
         }
 
-        bool collided = direction switch
-        {
-            SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.DownFacingRight or
-                SamusProjectileDirection.DownFacingLeft or SamusProjectileDirection.UpFacingLeft =>
-                MoveMissileVertically(level, shot, roomObjects),
-            SamusProjectileDirection.Right or SamusProjectileDirection.Left =>
-                MoveMissileHorizontally(level, shot, roomObjects),
-            SamusProjectileDirection.UpRight or SamusProjectileDirection.DownRight or
-                SamusProjectileDirection.DownLeft or SamusProjectileDirection.UpLeft =>
-                MoveMissileHorizontally(level, shot, roomObjects) ||
-                MoveMissileVertically(level, shot, roomObjects),
-            _ => throw new InvalidDataException(
-                $"Missile shot has undefined direction {direction}."),
-        };
+        // A diagonal missile moves vertically only when its horizontal move found no collision.
+        SamusProjectileDirectionAxes axes = SamusProjectileDirectionDefinitions.Axes(direction);
+        bool collided = (axes.MovesHorizontally && MoveMissileHorizontally(level, shot, roomObjects)) ||
+            (axes.MovesVertically && MoveMissileVertically(level, shot, roomObjects));
         if (collided)
             _terrainCollision.KillMissile(shot, sharedProjectiles);
 
@@ -223,7 +200,7 @@ internal sealed class ProjectileMotion
 
         SamusProjectileDirection direction = shot.Direction;
         SuperMissileShotState superMissile = shot.KindStateAs<SuperMissileShotState>();
-        if (superMissile.Ignition != SamusMissileIgnition.Ignited)
+        if (!superMissile.Ignition.HasIgnited)
         {
             // A Super Missile ignites as a missile does on its first input phase, and then
             // immediately allocates its invisible collision link.
@@ -236,7 +213,8 @@ internal sealed class ProjectileMotion
         }
 
         bool collided = false;
-        if (MovesHorizontally(direction))
+        SamusProjectileDirectionAxes axes = SamusProjectileDirectionDefinitions.Axes(direction);
+        if (axes.MovesHorizontally)
         {
             collided = MoveMissileHorizontally(level, shot, roomObjects);
             if (collided)
@@ -244,7 +222,7 @@ internal sealed class ProjectileMotion
             UpdateSuperMissileLinkAxis(
                 level, shot, superMissile, axis: Axis.Horizontal, sharedProjectiles, roomObjects);
         }
-        if (!collided && MovesVertically(direction))
+        if (!collided && axes.MovesVertically)
         {
             collided = MoveMissileVertically(level, shot, roomObjects);
             if (collided)
@@ -258,17 +236,6 @@ internal sealed class ProjectileMotion
             ClearAllSuperMissileLinks();
         }
     }
-
-    /// <summary>Whether a shot in <paramref name="direction"/> moves horizontally: every direction but straight up or down.</summary>
-    private static bool MovesHorizontally(SamusProjectileDirection direction) => direction is
-        SamusProjectileDirection.UpRight or SamusProjectileDirection.Right or SamusProjectileDirection.DownRight or
-        SamusProjectileDirection.DownLeft or SamusProjectileDirection.Left or SamusProjectileDirection.UpLeft;
-
-    /// <summary>Whether a shot in <paramref name="direction"/> moves vertically: every direction but straight left or right.</summary>
-    private static bool MovesVertically(SamusProjectileDirection direction) => direction is
-        SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.UpRight or SamusProjectileDirection.DownRight or
-        SamusProjectileDirection.DownFacingRight or SamusProjectileDirection.DownFacingLeft or
-        SamusProjectileDirection.DownLeft or SamusProjectileDirection.UpLeft or SamusProjectileDirection.UpFacingLeft;
 
     /// <summary>
     /// Adds one update's acceleration to the shot's velocity, the direction's entry for the shot's kind. The velocity
@@ -308,7 +275,7 @@ internal sealed class ProjectileMotion
     /// </summary>
     private static void IgniteMissile(SamusState samus, SamusProjectile shot, MissileShotState missile)
     {
-        SignedEightEight ignitionSpeed = missile.Ignition == SamusMissileIgnition.PendingAfterReflection
+        SignedEightEight ignitionSpeed = missile.Ignition is SamusMissileIgnition.PendingAfterReflection
             ? SamusProjectileMotionDefinitions.ReflectedMissileIgnitionSpeed
             : SamusProjectileMotionDefinitions.MissileIgnitionSpeed;
         missile.Ignite(ignitionSpeed);
@@ -341,7 +308,7 @@ internal sealed class ProjectileMotion
         link.Damage = SamusProjectileDamage.Read(kind);
         link.Animation = SamusProjectilePlayback.Start(SamusProjectileKinds.SoleAnimation(kind));
         link.Install(SamusShotBehaviors.SuperMissileLink,
-            new SuperMissileShotState(SamusMissileIgnition.Pending, UnlinkedSuperMissileLink.Place));
+            new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place));
 
         ownerState.LinkPlace = link.Place;
         _pool.ShotCount.CountShot();
@@ -367,7 +334,7 @@ internal sealed class ProjectileMotion
         SamusBombProjectileSystem sharedProjectiles,
         ISamusRoomObjects roomObjects)
     {
-        if (ownerState.Ignition != SamusMissileIgnition.Ignited || ownerState.LinkPlace is not { } linkPlace)
+        if (!ownerState.Ignition.HasIgnited || ownerState.LinkPlace is not { } linkPlace)
             return;
         SamusProjectile link = _pool.Shots[linkPlace];
         if (!link.IsActive)

@@ -22,11 +22,6 @@ internal static class SamusProjectileMotionDefinitions
     /// the movement window reaches up to the pixel before.
     /// </summary>
     internal const int MovementWindowFarEdge = 320;
-    /// <summary>
-    /// The most extension links a shot's block reaction follows to the block it reacts to; a chain that does not end
-    /// within them is malformed room data.
-    /// </summary>
-    internal const int LongestExtensionChain = 16;
     /// <summary>The diagonal speed every beam combination launches at, each update.</summary>
     internal static readonly SignedEightEight DiagonalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(683);
     /// <summary>The base speed a fired missile ignites at: one pixel per update.</summary>

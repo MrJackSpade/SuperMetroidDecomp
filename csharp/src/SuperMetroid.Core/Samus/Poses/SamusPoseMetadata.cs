@@ -95,7 +95,7 @@ internal static class SamusPoseMetadata
     /// The direction Samus's pose aims her arm cannon, or none for a pose that fires nothing (turning or shooting
     /// disabled).
     /// </summary>
-    public static SamusProjectileDirection? ReadAimDirection(SamusState samus) => ReadAim(samus).Direction;
+    public static SamusProjectileDirection? ReadAimDirection(SamusState samus) => ReadAim(samus) is SamusPoseAim.Aiming aiming ? aiming.Direction : null;
 
     /// <summary>What a current or prospective pose does with Samus's arm cannon.</summary>
     public static SamusPoseAim ReadAim(SamusPoseId pose) => SamusPoseAims.Read(pose);

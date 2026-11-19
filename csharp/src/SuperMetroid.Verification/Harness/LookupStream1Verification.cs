@@ -887,13 +887,10 @@ internal static class LookupStream1Verification
             AssertEqual(expected.Offset, grapple.Resolve(placement.Running, placement.Aim), "Installed Grapple defaults match native");
         }
         AssertEqual(20, ChargeFlarePlacements.Placements(ChargeFlareSource.Grapple).Count(), "The Grapple flare is placed at ten muzzles in each movement mode");
-        // A flare aim naming neither a muzzle nor a turn is no placement.
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(false, default), "Flare placement catalog bounds");
-        AssertThrows<ArgumentOutOfRangeException>(() => grapple.Resolve(true, default), "Grapple catalog bounds");
         // No pose places a flare while turning running, or a Grapple flare while turning (#1500).
         foreach (SamusTurningAim turning in Enum.GetValues<SamusTurningAim>())
         {
-            SamusFlareAim aim = SamusFlareAim.WhileTurning(turning);
+            SamusFlareAim aim = new SamusFlareAim.WhileTurning(turning);
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(true, aim), "Running flare placement rejects turning placements");
             AssertThrows<ArgumentOutOfRangeException>(() => grapple.Resolve(false, aim), "Grapple flare placement has no turning placements");
         }

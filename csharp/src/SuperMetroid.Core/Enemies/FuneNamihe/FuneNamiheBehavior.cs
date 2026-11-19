@@ -62,7 +62,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts the Fune waiting on its cooldown and its idle animation, facing as its spawn settings say.</summary>
     internal static void InitializeFune(RoomEnemyPlace place)
     {
-        var state = new FuneEnemyState(FuneAction.WaitForCooldown) { CooldownTimer = 0 };
+        var state = new FuneEnemyState(FuneAction.WaitForCooldown) { Cooldown = CooldownOf(place) };
         place.SetSpeciesState(state);
         StartFuneNamiheAnimation(place, state);
     }
@@ -75,20 +75,25 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         StartFuneNamiheAnimation(place, state);
     }
 
+    /// <summary>
+    /// The Fune's wait between spits, as its spawn settings give it: the cooldown time's updates, the last the one it spits
+    /// on; a cooldown of nothing spits on the first waiting update, as a cooldown of one does.
+    /// </summary>
+    internal static UpdateCountdown CooldownOf(RoomEnemyPlace place) =>
+        UpdateCountdown.Lasting(Math.Max(1, place.SpawnSettings<FuneSpawnSettings>().CooldownTime));
+
     /// <summary>Starts the Fune's spit after its cooldown; the active animation owns the return to idle.</summary>
     internal static void RunFuneMain(RoomEnemyPlace place, FuneEnemyState state)
     {
         switch (state.Action)
         {
             case FuneAction.WaitForCooldown:
-                // The count steps before the comparison; a cooldown of nothing spits on the first waiting update.
-                state.CooldownTimer++;
-                if (state.CooldownTimer < place.SpawnSettings<FuneSpawnSettings>().CooldownTime)
+                if (!state.Cooldown.Count())
                     return;
 
                 state.Action = FuneAction.Spitting;
                 StartFuneNamiheAnimation(place, state);
-                state.CooldownTimer = 0;
+                state.Cooldown = CooldownOf(place);
                 return;
 
             case FuneAction.Spitting:
@@ -187,7 +192,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
         SignedEightEight launchSpeed = source.SpawnSettings<FuneNamiheSpawnSettings>().LaunchSpeed;
         projectile.Velocity = new(
-            direction == HorizontalDirection.Right ? launchSpeed : launchSpeed.Negated(),
+            launchSpeed.Toward(direction),
             SignedEightEight.Zero);
     }
 

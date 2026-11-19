@@ -165,12 +165,11 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The Boyon's speed at its place: the curve sample there scaled by its spawn settings' <paramref name="multiplier"/>,
-    /// in 256ths of a pixel an update. Entries after the stored curve use the explicit saturated sample rather than
-    /// reading past it.
+    /// The Boyon's speed at its place: the curve sample there scaled by its spawn settings' <paramref name="multiplier"/>.
+    /// Entries after the stored curve use the explicit saturated sample rather than reading past it.
     /// </summary>
     internal static UnsignedSixteenSixteen MultiplyBoyonCurveEntry(BoyonEnemyState state, int multiplier) =>
-        UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(BoyonBounceCurve.Multiply(state.CurvePlace, multiplier));
+        BoyonBounceCurve.Multiply(state.CurvePlace, multiplier);
 
     /// <summary>Whether Samus lies within Boyon's authored horizontal reach, in pixel columns, of the enemy.</summary>
     private static bool IsBoyonSamusWithinHorizontalRange(RoomEnemyPlace place, SamusState samus)

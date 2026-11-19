@@ -67,7 +67,7 @@ internal sealed class DraygonCombat
         DraygonEnemyState state,
         SamusState samus)
     {
-        bool whiteFrame = DraygonCadenceDefinitions.HurtWhiteFlashShown.IsSetIn(body.FlashTimer);
+        bool whiteFrame = DraygonCadenceDefinitions.HurtWhiteFlashShown.IsSetIn(body.HurtFlash.UpdatesLeft);
         // A hurt update shows his material colours with his band, or their white flash, as the import's shades (#1512).
         state.Colours.ShowHurt(whiteFrame);
         if (!whiteFrame)
@@ -130,9 +130,8 @@ internal sealed class DraygonCombat
 
         // The death behaviour releases Samus unconditionally, even during an
         // unrelated movement owner. In particular, this can interrupt a shinespark.
-        // Samus's grapple flags, the owner-release signal among them, are cleared after this.
+        // Samus's grapple flags are cleared after this; Draygon sees his own release.
         _grab.ReleaseSamusDuringEnemyUpdate(samus);
-        samus.DraygonGrabbed.ConsumeOwnerReleaseSignal();
         samus.Grapple.Phase = GrapplePhase.Dropped;
     }
 

@@ -34,7 +34,7 @@ internal static class GameOptionsStartGameVerification
             if (route == SaveLoadingGameState.MainGame)
             {
                 options.Step(ControllerButton.A);
-                AssertTrue(options.IntroRequested, "a main-game save is dispatched on the next update");
+                AssertTrue((options.Outcome == GameOptionsMenuOutcome.Intro), "a main-game save is dispatched on the next update");
             }
         }
         Console.WriteLine("Game options START GAME: a main-game save starts at once; a new game fades out first.");

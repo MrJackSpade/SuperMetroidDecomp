@@ -8,9 +8,10 @@ internal static class EnemyOverreadFormat
 {
     /// <summary>
     /// Supported enemy overread schema revision; revision one held Magdollite's apex growth and the falling spark's
-    /// unauthored launch, and revision two keys Magdollite's apex growth by the enemy place an arm occupies (#1961).
+    /// unauthored launch, and revision two keys Magdollite's apex growth by the enemy place an arm occupies (#1961);
+    /// revision three states the falling spark's drift as one amount of pixels (#2555).
     /// </summary>
-    internal const int Version = 2;
+    internal const int Version = 3;
     /// <summary>JSON filename holding the decoded over-read results.</summary>
     internal const string FileName = "enemy-overreads.json";
     /// <summary>Shared camel-case, case-insensitive JSON options that reject unknown fields; the file is written compactly.</summary>

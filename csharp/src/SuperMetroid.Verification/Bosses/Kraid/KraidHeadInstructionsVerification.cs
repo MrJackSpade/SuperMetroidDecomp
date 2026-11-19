@@ -4,7 +4,6 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidContourCaseMappingsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidHeadCommandMappingVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
@@ -99,7 +98,7 @@ internal static class KraidHeadInstructionsVerification
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             state.BodyState.FightPhase = KraidFightPhase.FirstPhaseThinking;
-            PrivateState.Set(state.ThinkingWait, nameof(HeldBossCountdown.UpdatesLeft), raw);
+            state.ThinkingWait.SetUpdatesLeft(raw);
             state.HeadHold.LastFor(999);
             combat(body, state, 0);
             AssertEqual(raw == 1
@@ -108,7 +107,7 @@ internal static class KraidHeadInstructionsVerification
                 state.HeadHold.UpdatesLeft, "the roar starts only on the thinking's last update");
 
             state.BodyState.FightPhase = KraidFightPhase.SecondPhaseThinking;
-            PrivateState.Set(state.ThinkingWait, nameof(HeldBossCountdown.UpdatesLeft), raw);
+            state.ThinkingWait.SetUpdatesLeft(raw);
             state.HeadHold.LastFor(999);
             combat(body, state, 0);
             AssertEqual(raw == 1

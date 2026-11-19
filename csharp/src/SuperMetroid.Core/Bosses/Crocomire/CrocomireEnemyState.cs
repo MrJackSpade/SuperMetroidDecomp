@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Animation;
@@ -88,8 +89,8 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
     internal void RestAsCorpse() =>
         DeathStage = ListStep<CrocomireDeathStage>.At(CrocomireDeathStageDefinitions.Stages, CrocomireDeathStageDefinitions.Stages.Count - 1);
 
-    /// <summary>Whether a mouth hit is waiting for the fight AI to start a backward step.</summary>
-    public bool DamageReactionPending { get; internal set; }
+    /// <summary>The step back a mouth hit asks of his fight, waiting until the fight takes it.</summary>
+    public CrocomireAwaitedStepBack StepBack { get; } = new();
 
     /// <summary>
     /// The fight's phase, run when the body animation's fight-AI cue fires rather than once per main-AI frame (#1939). The
@@ -151,18 +152,11 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
     public int ShotsSpat { get; internal set; }
 
     /// <summary>
-    /// While the body sinks or rises: the part of a pixel his travel has carried between updates, less than one pixel
-    /// (#2181). The sinks and rises keep it apart from his position's own fraction, which they never move and his
-    /// skeleton's later arc moves from.
+    /// While the body sinks or rises: the part of a pixel his travel has carried between updates (#2181, #2555). The sinks
+    /// and rises move his position by the whole pixels it crosses and keep it apart from his position's own fraction,
+    /// which they never move and his skeleton's later arc moves from.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The value set is negative or reaches a whole pixel.</exception>
-    public SignedEightEight VerticalFraction
-    {
-        get;
-        internal set => field = value.IsNegative || value.WholePixels != 0
-            ? throw new ArgumentOutOfRangeException(nameof(value), value, "Crocomire's carried vertical fraction is less than one pixel and never negative.")
-            : value;
-    }
+    public PixelFractionCarry VerticalTravelCarry { get; internal set; }
 
     /// <summary>
     /// While the skeleton breaks out and collapses: its horizontal speed in room pixels per frame, zero when the
@@ -177,7 +171,7 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
     internal void StartVerticalMotion(SignedSixteenSixteen acceleration)
     {
         VerticalSpeed = SignedEightEight.Zero;
-        VerticalFraction = SignedEightEight.Zero;
+        VerticalTravelCarry = PixelFractionCarry.None;
         VerticalAcceleration = acceleration;
     }
 }

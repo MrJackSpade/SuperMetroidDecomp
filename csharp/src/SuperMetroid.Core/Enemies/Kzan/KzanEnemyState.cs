@@ -42,5 +42,5 @@ public sealed class KzanEnemyState
     public SignedSixteenSixteen FallingSpeed { get; internal set; }
 
     /// <summary>Post-landing wait in actor updates; loaded with 64 on landing and decremented to zero before upward motion begins.</summary>
-    public int RiseWaitTimer { get; internal set; }
+    public UpdateCountdown RiseWaitTimer { get; internal set; } = UpdateCountdown.Ended();
 }

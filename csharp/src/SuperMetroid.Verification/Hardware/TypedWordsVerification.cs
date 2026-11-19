@@ -238,13 +238,11 @@ internal static void VerifyTypedNativeWords()
     AssertEqual(unchecked((int)0xffff_8000),
         negativeEightEight.ToSixteenSixteenDelta().RawValue,
         "negative signed 8.8 promotion sign-extends");
-    FixedCoordinate halfPixelBack = negativeEightEight
-        .ToSixteenSixteenDelta()
-        .AddTo(10, 0x4000);
+    FixedCoordinate halfPixelBack = new FixedCoordinate(10, 0x4000).MovedBy(negativeEightEight.ToSixteenSixteenDelta());
     AssertEqual(new FixedCoordinate(9, 0xc000), halfPixelBack,
         "signed fixed delta carries and borrows across split position words");
     AssertEqual(new FixedCoordinate(0, 0),
-        SignedSixteenSixteen.FromWholePixels(1).AddTo(ushort.MaxValue, 0),
+        new FixedCoordinate(ushort.MaxValue, 0).MovedBy(SignedSixteenSixteen.FromWholePixels(1)),
         "signed fixed position addition wraps native whole word");
     AssertEqual(unchecked((ushort)0xff00),
         SignedEightEight.FromWholePixels(127).AddRawWrapping(0x8000).RawValue,

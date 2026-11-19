@@ -125,8 +125,8 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     /// </summary>
     public RotationAngle GoopYOscillationAngle { get; internal set; }
 
-    /// <summary>Goop shots left in a firing pass, set to sixteen when the pass begins; the pass ends when it reaches zero.</summary>
-    public int GoopCounter { get; internal set; }
+    /// <summary>The goop shots left in a firing pass, sixteen when the pass begins; the pass ends on the last of them.</summary>
+    public BossCountdown GoopShotsLeft { get; } = new();
 
 
     /// <summary>
@@ -183,16 +183,12 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     public HorizontalDirection PassDirection { get; internal set; }
 
     /// <summary>
-    /// The updates the current intro stage has run: zero when the opening delay starts and when the dance starts, and
-    /// one more after each of that stage's updates. The opening delay ends at 256 and the dance at its duration. In the
-    /// dance, each Evir takes the traced path's step this far past its own start delay, and waits while it has not reached
-    /// the delay.
+    /// The current intro stage: the opening delay of <see cref="DraygonArenaDefinitions.IntroUpdates"/>, then the dance of
+    /// <see cref="DraygonIntroDanceDefinitions.DurationFrames"/>, each counted once on each of its updates. In the dance,
+    /// each Evir takes the traced path's step as far past its own start delay as the stage's age, and waits while the
+    /// stage has not reached the delay.
     /// </summary>
-    public int IntroFrames
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, DraygonIntroDanceDefinitions.DurationFrames, value);
-    }
+    public UpdateCountdown IntroStage { get; internal set; } = UpdateCountdown.Lasting(DraygonArenaDefinitions.IntroUpdates);
 
     /// <summary>
     /// The dying body's wait at its burial point before it sinks (#2538): reaching the point starts it for
@@ -201,15 +197,15 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     public BossCountdown BurialWait { get; } = new();
 
     /// <summary>
-    /// The swoop path entry whose height the body takes next: it counts down from the path's
-    /// <see cref="DraygonSwoopPath.EntryCount"/> to zero on the descent and back up on the ascent.
+    /// The half of the swoop the body is flying, one update a path entry: the descent takes the heights from the path's
+    /// <see cref="DraygonSwoopPath.EntryCount"/> down by its updates left and ends at the bottom; the climb takes them back
+    /// up from the first by its age and ends at the top.
     /// </summary>
-    internal int SwoopEntry
-    {
-        get;
-        set => field = Ensure.AtLeastZero(value);
-    }
+    internal UpdateCountdown SwoopHalf { get; set; } = UpdateCountdown.Ended();
 
-    /// <summary>The horizontal speed the swoop and goop passes move the body's X by, toward their side.</summary>
-    internal UnsignedSixteenSixteen SwoopVelocity { get; set; }
+    /// <summary>
+    /// The horizontal velocity the swoop and goop passes move the body's X by each update (#2569): toward the pass's side,
+    /// so a leftward pass's velocity is negative.
+    /// </summary>
+    internal SignedSixteenSixteen SwoopVelocity { get; set; }
 }

@@ -65,7 +65,8 @@ internal static class RoomFloorSheetComposer
         FloorSheetComposer.FloorPicture whole = FloorSheetComposer.Whole(RoomFloorSheet.FloorFrameName, map, pixels)
             with { Cleared = resting.Values.SelectMany(CeresFloorDrawings.Covered).ToHashSet() };
         return FloorSheetComposer.ComposeRoom([whole, .. CeresFloorDrawings.Pictures(map, pixels),
-            .. resting.Values.Select(rest => CeresFloorDrawings.Picture(rest, map, pixels) with { Name = RoomFloorSheet.RestingNameOf(rest) })],
+            .. CeresFloorActors.DrawingOrder.Where(resting.ContainsKey)
+                .Select(actor => CeresFloorDrawings.Picture(resting[actor], map, pixels) with { Name = RoomFloorSheet.RestingNameOf(resting[actor]) })],
             colours);
     }
 }

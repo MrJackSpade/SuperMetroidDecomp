@@ -3,6 +3,11 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// <summary>
 /// What a Magdollite's tracking overlay, its hand, is doing. Its values are arbitrary.
 /// </summary>
+/// <remarks>
+/// Thrown is a state of its course, not a request another owner stores for it (#2562): a cue, a touch or a shot ends
+/// the state before, and the game acts on it one update later, the state naming where it stands until then; the update
+/// that acts on it moves it on, as every other state's does. The update between is the game's.
+/// </remarks>
 public enum MagdolliteOverlayAction
 {
     /// <summary>Waits for the head to begin forming the base pillar before tracking arm growth.</summary>

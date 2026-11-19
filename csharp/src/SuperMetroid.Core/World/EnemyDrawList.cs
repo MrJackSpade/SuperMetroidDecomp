@@ -96,12 +96,13 @@ internal sealed class EnemyDrawList
             // The draw pass consumes one shake tick of an enemy it reaches while forming
             // its origin. The enemy's own update count chooses one pixel left or right; this is deliberately not the
             // room's background displacement. An earthquake that shakes the enemies, as Ceres's does
-            // (EarthquakeShake.ShakesEnemies), reloads ShakeTimer for every active enemy, which is why its door sprites
+            // (EarthquakeShake.ShakesEnemies), restarts the shake for every active enemy, which is why its door sprites
             // visibly move with the station instead of remaining pinned to host screen space.
-            if (reached && place.ShakeTimer != 0)
+            if (reached && place.Shake.IsRunning)
             {
-                origin += new Offset16<ScreenPixels>(EnemyDrawPhaseDefinitions.ShakeShiftsLeft.IsSetIn(place.FrameCounter) ? -1 : 1, 0);
-                place.ShakeTimer--;
+                origin += new Offset16<ScreenPixels>(1.Toward(EnemyDrawPhaseDefinitions.ShakeShiftsLeft.IsSetIn(place.FrameCounter)
+                    ? HorizontalDirection.Left : HorizontalDirection.Right), 0);
+                place.Shake.Count();
             }
             PictureShading drawShading = SelectCommonEnemyDrawShading(place);
             // An enemy the draw pass does not reach and that has shown no frame yet shows nothing; one it reaches has
@@ -203,12 +204,12 @@ internal sealed class EnemyDrawList
         // A hit flash shows the common hurt colours on alternate phases. The flash shades the draw over the enemy's own
         // shading: the colours it changes show the flash, and the colours it leaves as they are keep showing what the
         // enemy's own effects laid there.
-        if (place.FlashTimer != 0 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(_frameContext.EnemyPassCount))
+        if (place.HurtFlash.IsRunning && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(_frameContext.EnemyPassCount))
             return place.Shading.With(EnemyShades.HurtFlash);
 
-        if (place.FrozenTimer != 0 &&
-            (place.FrozenTimer >= EnemyDrawPhaseDefinitions.FrozenColoursSteadyUpdates ||
-             EnemyDrawPhaseDefinitions.FrozenColoursShown.IsSetIn(place.FrozenTimer)))
+        if (place.Freeze.IsRunning &&
+            (place.Freeze.UpdatesLeft >= EnemyDrawPhaseDefinitions.FrozenColoursSteadyUpdates ||
+             EnemyDrawPhaseDefinitions.FrozenColoursShown.IsSetIn(place.Freeze.UpdatesLeft)))
         {
             return place.Shading.With(EnemyShades.Frozen);
         }

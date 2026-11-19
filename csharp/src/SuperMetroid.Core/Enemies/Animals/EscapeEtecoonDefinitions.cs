@@ -13,7 +13,7 @@ internal static class EscapeEtecoonDefinitions
         [EscapeEtecoonRole.LeftWalker] = new(new(128, 200), EscapeEtecoonAction.Walking,
             EscapeEtecoonSegment.RunningLeftLowTide, HorizontalDirection.Left, SignedEightEight.FromPixels(2)),
         [EscapeEtecoonRole.RightWalker] = new(new(160, 200), EscapeEtecoonAction.Walking,
-            EscapeEtecoonSegment.RunningRightLowTide, HorizontalDirection.Right, SignedEightEight.FromParts(2, 128)),
+            EscapeEtecoonSegment.RunningRightLowTide, HorizontalDirection.Right, SignedEightEight.FromPixelFraction(5, 2)),
         [EscapeEtecoonRole.WaitForEscapeEvent] = new(new(232, 200), EscapeEtecoonAction.AwaitingEscape,
             EscapeEtecoonSegment.Stationary, HorizontalDirection.Right, default),
     };

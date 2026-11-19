@@ -216,8 +216,8 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// intro starts black.
     /// </summary>
     private readonly ScreenFade fade = new(0);
-    /// <summary>The updates the running narration hold has left.</summary>
-    private int timer;
+    /// <summary>The running narration hold.</summary>
+    private UpdateCountdown timer = UpdateCountdown.Ended();
 
     /// <summary>Creates the opening cinematic and performs its initial graphics and music setup.</summary>
     /// <param name="overreads">
@@ -248,7 +248,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         flashbackBombProjectiles = new SamusBombProjectileSystem(flashbackAudioRequests, samusArtwork);
         // The flashback's shots shake an earthquake of their own, which nothing in the flashback shows.
         flashbackProjectiles = new SamusProjectileSystem(flashbackAudioRequests, new BeamChargeState(), samusOverreads,
-            new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), samusArtwork, new RoomEarthquake());
+            new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), samusArtwork, new RoomEarthquake());
 
         subtitles = new IntroJapaneseSubtitles(japaneseText);
         this.audio = Ensure.NotNull(audio);
@@ -315,21 +315,21 @@ public sealed class IntroCinematicState : IFrontendScreen
                 if (fade.Brighten())
                 {
                     Phase = IntroCinematicPhase.LastMetroidIsInCaptivity;
-                    timer = IntroCinematicDefinitions.Timing.FirstLineHold;
+                    timer = UpdateCountdown.For(IntroCinematicDefinitions.Timing.FirstLineHold);
                 }
                 break;
 
             case IntroCinematicPhase.LastMetroidIsInCaptivity:
-                if (--timer <= 0)
+                if (timer.Step())
                 {
                     audio.QueueMusic(MusicRequest.SelectTrack(IntroCinematicDefinitions.Music.CaptivityLineSong));
                     Phase = IntroCinematicPhase.GalaxyIsAtPeace;
-                    timer = IntroCinematicDefinitions.Timing.CaptivityLineHold;
+                    timer = UpdateCountdown.For(IntroCinematicDefinitions.Timing.CaptivityLineHold);
                 }
                 break;
 
             case IntroCinematicPhase.GalaxyIsAtPeace:
-                if (--timer <= 0)
+                if (timer.Step())
                 {
                     // The next music requests wait on the music queue before the
                     // documented four-second hold; they take the shortest delay.
@@ -347,12 +347,12 @@ public sealed class IntroCinematicState : IFrontendScreen
                 if (MusicQueueFinished())
                 {
                     Phase = IntroCinematicPhase.FourSecondHold;
-                    timer = IntroCinematicDefinitions.Timing.FourSecondHold;
+                    timer = UpdateCountdown.For(IntroCinematicDefinitions.Timing.FourSecondHold);
                 }
                 break;
 
             case IntroCinematicPhase.FourSecondHold:
-                if (--timer <= 0)
+                if (timer.Step())
                 {
                     Phase = IntroCinematicPhase.FadeOutFirstNarration;
                     fade.StepEvery(IntroCinematicDefinitions.Fade.NarrationUpdatesPerStep);
@@ -473,7 +473,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             // The page's text phase becomes its input wait once the narration's wait for that page starts.
             if (Phase == IntroCinematicPhase.PageText && CurrentNarration.AwaitingInputPage == Page)
                 Phase = IntroCinematicPhase.PageAwaitingInput;
-            if (CurrentNarration.IntroFinishRequested && Phase == IntroCinematicPhase.PageText)
+            if (CurrentNarration.FinalHoldEnded && Phase == IntroCinematicPhase.PageText)
             {
                 // The last page starts the final fade-out; the screen on this request frame is still the full-brightness
                 // last page.
@@ -806,7 +806,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // Both the demo and locked movement modes end by resetting the
         // movement and pose-change state, so a later missile inherits only the
         // movement recorded in its own update.
-        SamusAerialPoseTransitions.DropPendingTransitionShot(FlashbackSamus);
+        SamusAerialPoseTransitions.DropTransitionShot(FlashbackSamus);
         FlashbackSamus.ProjectileInheritance.ClearMovement();
     }
 
@@ -904,10 +904,10 @@ public sealed class IntroCinematicState : IFrontendScreen
         // preceding cinematic-sprite pass. Keeping this after animation matches Samus's update during the intro demo:
         // the hit frame finishes its standing animation before the knockback start installs the knockback pose.
         if (!samus.KnockbackActive &&
-            samus.KnockbackTimer != 0 &&
+            samus.KnockbackHold.IsRunning &&
             samus.KnockbackDirection == Samus.Movement.SamusKnockbackDirection.None)
         {
-            SamusKnockbackMovement.Start(samus, demoInput, KnockbackLaunch.FromPendingHit(samus), poseCollision: null);
+            SamusKnockbackMovement.Start(samus, demoInput, KnockbackLaunch.FromHurtState(samus), poseCollision: null);
             transitionAccepted = true;
         }
 

@@ -21,7 +21,7 @@ public sealed class HibashiEnemyState
     /// first wait (<see cref="HibashiDefinitions.FirstWait"/>), and each eruption restarts the wait at its placement's
     /// inactive time and the update it runs out on (<see cref="EnemyWaitDefinitions.RunOutUpdate"/>, #2340).
     /// </summary>
-    public int InactiveTimer { get; internal set; }
+    public UpdateCountdown InactiveTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>The flame's room Y where it was placed. The eruption's steps raise the collision part from it and its last cue returns the flame to it.</summary>
     public int SpawnY { get; internal set; }

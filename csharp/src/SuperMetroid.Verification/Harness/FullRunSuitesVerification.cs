@@ -793,6 +793,12 @@ internal static class FullRunSuitesVerification
         // The typed sine products and the fine sine's coarse reading equal the raw 8.8 arithmetic they replace (#2428).
         new(nameof(SuperMetroid.Verification.Spatial.TypedSineProductsVerification.VerifyTypedSineProducts),
             SuperMetroid.Verification.Spatial.TypedSineProductsVerification.VerifyTypedSineProducts),
+        // The signed velocities equal the magnitude-and-sign arithmetic they replace (#2569).
+        new(nameof(SuperMetroid.Verification.Spatial.SignedVelocityVerification.VerifySignedVelocities),
+            SuperMetroid.Verification.Spatial.SignedVelocityVerification.VerifySignedVelocities),
+        // Every aim word's reads in the one angle convention equal its unconverted reads (#2555).
+        new(nameof(SuperMetroid.Verification.Spatial.AimAngleConventionVerification.VerifyAimAngleConvention),
+            SuperMetroid.Verification.Spatial.AimAngleConventionVerification.VerifyAimAngleConvention),
         // The typed angle steps, the X-ray aim, the combo orbit and the Crystal Flash radius (#1684).
         new(nameof(SuperMetroid.Verification.Spatial.TypedAngleStepsVerification.VerifyTypedAngleSteps),
             SuperMetroid.Verification.Spatial.TypedAngleStepsVerification.VerifyTypedAngleSteps),

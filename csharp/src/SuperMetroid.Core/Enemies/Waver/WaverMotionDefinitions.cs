@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Waver;
 internal static class WaverMotionDefinitions
 {
     /// <summary>How fast a Waver flies sideways, a pixel and a half an update.</summary>
-    internal static SignedSixteenSixteen HorizontalSpeed { get; } = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(384);
+    internal static SignedSixteenSixteen HorizontalSpeed { get; } = SignedSixteenSixteen.FromPixelFraction(3, 2);
 
     /// <summary>How far above and below its line a Waver's wave reaches, in pixels.</summary>
     internal const int WaveHeight = 4;

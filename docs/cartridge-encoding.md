@@ -103,10 +103,10 @@ A whole value and its fraction are one quantity. Speeds and accelerations are `S
 side by side, in a tuple or as two parameters (SME6351).
 
 An angle's type states its convention (SME6352). `RotationAngle` is a turn in steps of a 256th with a fraction, spoken of in named turns, angle arithmetic, comparison and sectors, whose `ToTrigonometryAngle()` is the trigonometry angle the tables read;
-`TrigonometryAngle` is that table index, with `QuarterTurn`, `HalfTurn` and `TurnedBySteps` wrapping in one byte; and
-`Bearing` is the cartridge angle routine's result, zero pointing up, converted by `ToTrigonometryAngle()`, or by
-`ToMirroredTrigonometryAngle()` where a routine reads a bearing's steps directly as an angle. Steps, deltas, masks and offsets
-in table units stay integers.
+`TrigonometryAngle` is that table index, with `QuarterTurn`, `HalfTurn` and `TurnedBySteps` wrapping in one byte; an
+aim toward a point (`EnemyMath.CalculateAimAngle`) is a `TrigonometryAngle` too, its parts read as its cosine across
+and its sine a half turn on down, so no second angle convention exists. Steps, deltas, masks and offsets in table
+units stay integers.
 
 Processor flags do not cross routine boundaries (SME6353). Where a carry is load-bearing, the code states the rule it
 serves in the value's own terms: a 16.16 or 8.8 addition whose fraction overflow moves the whole part, or, where the

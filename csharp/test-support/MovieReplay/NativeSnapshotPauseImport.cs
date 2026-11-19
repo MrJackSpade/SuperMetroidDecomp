@@ -44,14 +44,15 @@ internal static class NativeSnapshotPauseImport
         game.Session.Show(menu);
         game.Session.screenFade.SetCadence(W(PauseMemory.ScreenFadeDelay), W(PauseMemory.ScreenFadeCounter));
 
-        // The native countdown starts at the reset on a change and is pinned to zero once the repeat fires; the port counts
-        // the unchanged updates instead, one past the delay once repeating.
+        // The native countdown starts at the reset on a change and is pinned to zero once the repeat fires; the port's repeat
+        // wait counts the unchanged updates instead, over once repeating and absent before the first unchanged update.
         int delay = W(PauseMemory.TimedHeldReset);
         VerificationAssertions.AssertEqual(PauseCadenceDefinitions.HeldInputRepeatDelay, delay, "native pause held-input reset");
         ControllerButton repeating = ControllerWordCodec.FromJoypadWord(W(PauseMemory.TimedHeldInput), "native timed held input");
         int countdown = Ensure.BetweenInclusive(0, delay, W(PauseMemory.TimedHeldTimer));
-        PrivateState.SetField(runtime.PauseHeldButtonRepeat, "_unchangedUpdates",
-            repeating == ControllerButton.None ? delay - countdown : delay + 1);
+        int unchangedUpdates = repeating == ControllerButton.None ? delay - countdown : delay + 1;
+        PrivateState.SetField(runtime.PauseHeldButtonRepeat, "_repeatWait",
+            unchangedUpdates == 0 ? null : UpdateCountdownAccess.AtAge(delay + 1, unchangedUpdates));
         PrivateState.Set(runtime.PauseHeldButtonRepeat, nameof(HeldButtonRepeat.Repeating), repeating);
     }
 }

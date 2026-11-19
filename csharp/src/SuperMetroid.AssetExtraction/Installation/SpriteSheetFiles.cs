@@ -17,6 +17,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Pause;
+using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.Ending;
@@ -31,6 +32,16 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// </summary>
 public static class SpriteSheetFiles
 {
+    /// <summary>The Ceres floor's shots in the order the floor sheet holds them (#2567).</summary>
+    private static readonly IReadOnlyList<CeresFloorShot> CeresFloorShotOrder = Ensure.EveryMemberOnce<CeresFloorShot>(
+    [
+        CeresFloorShot.FlightFront,
+        CeresFloorShot.FlightRear,
+        CeresFloorShot.Station,
+        CeresFloorShot.Explosion,
+        CeresFloorShot.ZebesApproach,
+    ]);
+
     /// <summary>
     /// Composes every sheet as the installation holds it, in the sheets' own order, for the picture store to write
     /// (<see cref="PictureStoreFiles"/>, #1635).
@@ -119,8 +130,8 @@ public static class SpriteSheetFiles
         SpriteSheetId.EndingCreditsRows or SpriteSheetId.EndingPostCreditsPictures or
             SpriteSheetId.EndingWavySamusPicture or SpriteSheetId.EndingExplosionPictures =>
             EndingPictureSheetComposer.FrameNames(sheet),
-        SpriteSheetId.TitleFloor => Enum.GetValues<TitleBabyPose>().Select(TitleFloors.BabyFrameName).Prepend(TitleFloors.FloorFrameName),
-        SpriteSheetId.CeresFloor => Enum.GetValues<CeresFloorShot>().Select(CeresFloors.FrameName),
+        SpriteSheetId.TitleFloor => TitleFloorTileDefinitions.BabyPoses.Select(TitleFloors.BabyFrameName).Prepend(TitleFloors.FloorFrameName),
+        SpriteSheetId.CeresFloor => CeresFloorShotOrder.Select(CeresFloors.FrameName),
         SpriteSheetId.EndingSideCloudEscapeFloor or SpriteSheetId.EndingTopAndBottomCloudEscapeFloor or
             SpriteSheetId.EndingPlanetExplosionFloor or SpriteSheetId.EndingFlyawayFloor or
             SpriteSheetId.EndingRewardIconFloor =>

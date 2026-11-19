@@ -57,8 +57,11 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
     /// <summary>One library's handshake.</summary>
     /// <param name="Phase">Where the queue is.</param>
     /// <param name="Awaited">The sound the queue last requested and has not withdrawn, or none.</param>
-    /// <param name="HoldPassesLeft">Sound-queue passes left before the accepted request is withdrawn; 1 or 2 while holding, otherwise 0.</param>
-    internal readonly record struct Handshake(Phase Phase, TSound? Awaited, int HoldPassesLeft);
+    /// <param name="Hold">
+    /// While holding, the sound-queue passes before the accepted request is withdrawn, counted once a pass and over on the
+    /// pass that withdraws it; otherwise none.
+    /// </param>
+    internal readonly record struct Handshake(Phase Phase, TSound? Awaited, UpdateCountdown? Hold);
 
     /// <summary>Sound-queue passes an accepted request is held before it is withdrawn, the withdrawal falling on the last.</summary>
     public const int WithdrawalHoldPasses = 2;
@@ -117,18 +120,15 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
             case Phase.AwaitingAcceptance:
                 if (!acceptance.Acknowledges(handshake.Awaited))
                     return HandshakeStep.RepeatRequest;
-                handshakes[library] = handshake with { Phase = Phase.HoldingBeforeWithdrawal, HoldPassesLeft = WithdrawalHoldPasses };
+                handshakes[library] = handshake with { Phase = Phase.HoldingBeforeWithdrawal, Hold = UpdateCountdown.Lasting(WithdrawalHoldPasses) };
                 return HandshakeStep.Wait;
 
             case Phase.HoldingBeforeWithdrawal:
-                // The hold starts at two and is withdrawn on reaching zero, so it never runs below zero.
-                int holdPassesLeft = Ensure.AtLeastZero(handshake.HoldPassesLeft - 1);
-                if (holdPassesLeft != 0)
-                {
-                    handshakes[library] = handshake with { HoldPassesLeft = holdPassesLeft };
+                UpdateCountdown hold = handshake.Hold
+                    ?? throw new InvalidDataException("A sound handshake holds its accepted request with no hold.");
+                if (!hold.Count())
                     return HandshakeStep.Wait;
-                }
-                handshakes[library] = new Handshake(Phase.AwaitingWithdrawalAcceptance, Awaited: null, HoldPassesLeft: 0);
+                handshakes[library] = new Handshake(Phase.AwaitingWithdrawalAcceptance, Awaited: null, Hold: null);
                 return HandshakeStep.Withdraw;
 
             case Phase.AwaitingWithdrawalAcceptance:
@@ -152,7 +152,7 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
         Phase phase = HandshakeOf(library).Phase;
         if (phase != Phase.ReadyToRequest)
             throw new InvalidOperationException($"Sound library {library} requested a sound while {phase}.");
-        handshakes[library] = new Handshake(Phase.AwaitingAcceptance, sound, HoldPassesLeft: 0);
+        handshakes[library] = new Handshake(Phase.AwaitingAcceptance, sound, Hold: null);
     }
 
     /// <summary>

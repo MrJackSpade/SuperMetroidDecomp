@@ -929,6 +929,25 @@ by the room state, the palette rows and members by the graphics set); and an ins
 (`music-xx-phrase-NNN` names a phrase by its place, a track repeats from the place of one of its instructions, enemy-tile
 import data files a sheet under its enemy's key).
 
+SME6465 (#2555) keeps measures in named units. Outside the type that declares the factory and outside an
+`[EncodingOwner]` type, Core passes no constant to a raw-unit factory (`FromTwoHundredFiftySixths…`, `FromSixteenths…`,
+`FromParts`, `FromFractionsOfStep`, `FromEighthsOfStep`, `FromHalfSteps`, `FromFraction`) or to a parameter counting a
+raw fraction (`fraction`, `twoHundredFiftySixths`, `sixteenths`, `fractionsOfStep`, `subposition`), writes no constant
+fraction to a power-of-two fraction factory (`FromPixelFraction`, `FromStepFraction`, `FromMarkFraction`,
+`FromEnergyFraction`, `FromPlaceFraction`, `FromFloorPixelsPerScreenPixel`) outside its lowest terms, and shifts no
+computed value by a literal count. An amount is zero, whole units (`FromPixels`, `FromWholePixels`, `FromSteps`) or a
+fraction in its lowest terms (three eighths of a pixel is `FromPixelFraction(3, 8)`); a position's part of a pixel is a
+`PixelFraction`; an installed speed or step is one amount of pixels through its fixed-point type's codec.
+
+SME6471 (#2569) keeps velocities signed. Outside an `[EncodingOwner]` type and a `[CompatibilityService]`, Core chooses
+neither between a value and its reversal by a condition (`left ? -speed : speed`, `v.IsNegative ? -offset : offset`,
+`facing == Right ? speed : speed.Negated()`) nor between adding and subtracting the same change
+(`v.IsNegative ? v - a : v + a`), and declares no enum of signs (`Positive` and `Negative`). A speed, distance or turn is
+taken toward its direction by `Toward(direction)`, a velocity's sign is its direction, the speed types own speeding a
+velocity up away from rest (`SpedUpBy`) or dragging it toward rest (`DraggedBy`), and Samus's vertical velocity is one
+`SamusVerticalVelocity`. Where the original's unsigned-magnitude arithmetic is observable, a compatibility service
+reproduces it (`SpeedAlongAngle`, `MultiviolaLeftOrUpSpeed`, `BullBackwardStep`).
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

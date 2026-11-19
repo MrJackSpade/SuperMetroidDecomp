@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
@@ -5,8 +6,79 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// <summary>Each installed sprite sheet's file name.</summary>
 public static class SpriteSheetDefinitions
 {
+    /// <summary>Every installed sprite sheet in the order the installation composes and lists them (#2567).</summary>
+    private static readonly IReadOnlyList<SpriteSheetId> SheetOrder = Ensure.EveryMemberOnce<SpriteSheetId>(
+    [
+        SpriteSheetId.EscapeTimer,
+        SpriteSheetId.Grapple,
+        SpriteSheetId.SamusBody,
+        SpriteSheetId.SamusOverlays,
+        SpriteSheetId.SamusAtmosphere,
+        SpriteSheetId.SamusDeath,
+        SpriteSheetId.GameOver,
+        SpriteSheetId.FileSelect,
+        SpriteSheetId.GameOptions,
+        SpriteSheetId.MapSprites,
+        SpriteSheetId.PauseSprites,
+        SpriteSheetId.Title,
+        SpriteSheetId.IntroSprites,
+        SpriteSheetId.CeresFlightSprites,
+        SpriteSheetId.CeresDestructionSprites,
+        SpriteSheetId.ZebesRevealSprites,
+        SpriteSheetId.EndingCloudSprites,
+        SpriteSheetId.EndingExplosionSprites,
+        SpriteSheetId.EndingSuitedRewardSprites,
+        SpriteSheetId.EndingSuitlessRewardSprites,
+        SpriteSheetId.EndingShootingSprites,
+        SpriteSheetId.IntroProjectiles,
+        SpriteSheetId.ProjectilesPower,
+        SpriteSheetId.ProjectilesWave,
+        SpriteSheetId.ProjectilesIce,
+        SpriteSheetId.ProjectilesIceWave,
+        SpriteSheetId.ProjectilesSpazer,
+        SpriteSheetId.ProjectilesSpazerWave,
+        SpriteSheetId.ProjectilesSpazerIce,
+        SpriteSheetId.ProjectilesSpazerIceWave,
+        SpriteSheetId.ProjectilesPlasma,
+        SpriteSheetId.ProjectilesPlasmaWave,
+        SpriteSheetId.ProjectilesPlasmaIce,
+        SpriteSheetId.ProjectilesPlasmaIceWave,
+        SpriteSheetId.ProjectilesSpazerPlasmaWave,
+        SpriteSheetId.ProjectilesSpazerPlasmaIce,
+        SpriteSheetId.MenuPictures,
+        SpriteSheetId.RoomMapPictures,
+        SpriteSheetId.PausePictures,
+        SpriteSheetId.AreaMapForegroundCrateria,
+        SpriteSheetId.AreaMapForegroundBrinstar,
+        SpriteSheetId.AreaMapForegroundNorfair,
+        SpriteSheetId.AreaMapForegroundWreckedShip,
+        SpriteSheetId.AreaMapForegroundMaridia,
+        SpriteSheetId.AreaMapForegroundTourian,
+        SpriteSheetId.AreaMapBackgroundCrateria,
+        SpriteSheetId.AreaMapBackgroundBrinstar,
+        SpriteSheetId.AreaMapBackgroundNorfair,
+        SpriteSheetId.AreaMapBackgroundWreckedShip,
+        SpriteSheetId.AreaMapBackgroundMaridia,
+        SpriteSheetId.AreaMapBackgroundTourian,
+        SpriteSheetId.PauseHud,
+        SpriteSheetId.IntroScenePictures,
+        SpriteSheetId.IntroNarrationPictures,
+        SpriteSheetId.CeresCinematicPictures,
+        SpriteSheetId.EndingCreditsRows,
+        SpriteSheetId.EndingPostCreditsPictures,
+        SpriteSheetId.EndingWavySamusPicture,
+        SpriteSheetId.EndingExplosionPictures,
+        SpriteSheetId.TitleFloor,
+        SpriteSheetId.CeresFloor,
+        SpriteSheetId.EndingSideCloudEscapeFloor,
+        SpriteSheetId.EndingTopAndBottomCloudEscapeFloor,
+        SpriteSheetId.EndingPlanetExplosionFloor,
+        SpriteSheetId.EndingFlyawayFloor,
+        SpriteSheetId.EndingRewardIconFloor,
+    ]);
+
     /// <summary>Every installed sprite sheet.</summary>
-    public static IReadOnlyList<SpriteSheetId> Sheets { get; } = Enum.GetValues<SpriteSheetId>();
+    public static IReadOnlyList<SpriteSheetId> Sheets { get; } = SheetOrder;
 
     /// <summary>The installed name of each sheet's image and manifest, without extension.</summary>
     public static IReadOnlyDictionary<SpriteSheetId, string> FileNames { get; } = new Dictionary<SpriteSheetId, string>

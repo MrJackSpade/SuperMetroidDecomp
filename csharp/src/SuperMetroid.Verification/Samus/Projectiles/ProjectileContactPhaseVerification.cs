@@ -37,7 +37,7 @@ internal static class ProjectileContactPhaseVerification
         samus.Control.Unlock();
         samus.Health = 99;
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
-        var projectile = runtime.Enemies.Projectiles.EnemyProjectiles[^1];
+        var projectile = runtime.Enemies.Projectiles.ProjectileInPlace(17);
         projectile.Kind = RoomEnemyProjectileKind.RidleyFireball;
         projectile.Behavior = FamilyProjectileStarts.BehaviorOf(runtime.Enemies, projectile.Kind);
         projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.Fireball));
@@ -61,8 +61,8 @@ internal static class ProjectileContactPhaseVerification
         {
             runtime.StepFrame(0);
             var actual = new ProjectileContactPhaseExpected(SixteenSixteenWords.Compose(samus.Kinematics.Position.X), SixteenSixteenWords.Compose(samus.Kinematics.Position.Y), samus.Pose,
-                checked((ushort)samus.KnockbackTimer), SuperMetroid.Core.Samus.Movement.SamusMovementNativeWords.KnockbackDirections.Word(samus.KnockbackDirection));
-            Console.WriteLine($"CONTACT_FRAME {frame} x={SixteenSixteenWords.Compose(samus.Kinematics.Position.X):X8} y={SixteenSixteenWords.Compose(samus.Kinematics.Position.Y):X8} pose={(int)SamusPoseNumbers.Number(samus.Pose):X2} health={samus.Health} timer={samus.KnockbackTimer} direction={samus.KnockbackDirection}");
+                checked((ushort)samus.KnockbackHold.UpdatesLeft), SuperMetroid.Core.Samus.Movement.SamusMovementNativeWords.KnockbackDirections.Word(samus.KnockbackDirection));
+            Console.WriteLine($"CONTACT_FRAME {frame} x={SixteenSixteenWords.Compose(samus.Kinematics.Position.X):X8} y={SixteenSixteenWords.Compose(samus.Kinematics.Position.Y):X8} pose={(int)SamusPoseNumbers.Number(samus.Pose):X2} health={samus.Health} timer={samus.KnockbackHold.UpdatesLeft} direction={samus.KnockbackDirection}");
             if (actual != expected[frame] || samus.Health != 79)
                 failures.Add($"frame {frame}: {actual} != {expected[frame]}");
         }
@@ -85,7 +85,7 @@ internal static class ProjectileContactPhaseVerification
             samus.Health = 99;
             samus.EquippedItems = suit;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            var projectile = runtime.Enemies.Projectiles.EnemyProjectiles[^1];
+            var projectile = runtime.Enemies.Projectiles.ProjectileInPlace(17);
             projectile.Kind = RoomEnemyProjectileKind.RidleyFireball;
             projectile.Behavior = FamilyProjectileStarts.BehaviorOf(runtime.Enemies, projectile.Kind);
             projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.Fireball));
@@ -96,12 +96,12 @@ internal static class ProjectileContactPhaseVerification
             projectile.Damage = 20;
             projectile.CanDamageSamus = true;
             runtime.Enemies.StepEnemyProjectiles(runtime.Room.LoadedLevelData, samus);
-            Console.WriteLine($"PROJECTILE suit={suit.ToEquipmentWord():X4} health={samus.Health} pose={(int)SamusPoseNumbers.Number(samus.Pose):X2} timer={samus.KnockbackTimer} direction={samus.KnockbackDirection} active={samus.KnockbackActive}");
+            Console.WriteLine($"PROJECTILE suit={suit.ToEquipmentWord():X4} health={samus.Health} pose={(int)SamusPoseNumbers.Number(samus.Pose):X2} timer={samus.KnockbackHold.UpdatesLeft} direction={samus.KnockbackDirection} active={samus.KnockbackActive}");
             ushort expectedHealth = suit == 0 ? (ushort)79 : suit == SamusEquipmentFlags.VariaSuit ? (ushort)89 : (ushort)94;
             if (samus.Health != expectedHealth) failures.Add($"suit {suit.ToEquipmentWord():X4}: expected health {expectedHealth}, got {samus.Health}");
             if (verifyPhase && (samus.Pose != SamusPoseId.FacingRightNormalPose || samus.KnockbackActive || samus.KnockbackDirection != 0))
                 failures.Add($"suit {suit.ToEquipmentWord():X4}: projectile contact initialized hurt movement early");
-            AssertEqual(5, samus.KnockbackTimer, "projectile publishes five-frame hurt request");
+            AssertEqual(5, samus.KnockbackHold.UpdatesLeft, "projectile publishes five-frame hurt request");
             AssertEqual(96, samus.InvincibilityTimer.RawValue, "projectile publishes invincibility");
             AssertTrue(!projectile.IsActive, "nonpersistent projectile deletes on contact");
         }

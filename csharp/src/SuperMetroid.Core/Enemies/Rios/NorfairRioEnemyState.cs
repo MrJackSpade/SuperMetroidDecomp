@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Rios;
 
@@ -23,7 +24,7 @@ public sealed class NorfairRioEnemyState
     /// The finish then carries into that wait, where it rests the Rio idle the next time it does not attack, or ends at
     /// once the takeoff of an attack it starts first.
     /// </summary>
-    public bool AnimationSignal { get; internal set; }
+    public RioAnimationFinish Finish { get; } = new();
 
     /// <summary>
     /// The flame follower's vertical placement relative to its parent, -16 through 12 pixels, negative above it. Private
@@ -35,7 +36,7 @@ public sealed class NorfairRioEnemyState
     internal NorfairRioFlames Flames { get; set; }
 
     /// <summary>The Norfair Rio's velocity each update, positive right and down.</summary>
-    public EightEightVector<RoomPixels> Velocity { get; internal set; }
+    public PixelVelocity<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>The behaviour the parent runs.</summary>
     public NorfairRioAction Action { get; internal set; }

@@ -20,12 +20,8 @@ internal sealed class DownwardGateState(Position16<RoomBlocks> roomObjectBlock, 
     internal DownwardGateProjectileSegment Stage { get; set; } = stage;
 
     /// <summary>
-    /// How many whole pixels the gate has moved since it last reached a block (#2047); it reaches the next block, and starts
-    /// again from zero, once it has moved a block's pixels (<see cref="RoomGridConversions.BlockPixels"/>).
+    /// The gate's travel to its next block, counted once for each whole pixel it moves (#2047): it reaches the next block,
+    /// and starts the travel again, once it has moved a block's pixels (<see cref="RoomGridConversions.BlockPixels"/>).
     /// </summary>
-    internal int PixelsSinceBlock
-    {
-        get;
-        set => field = Ensure.BetweenInclusive(0, RoomGridConversions.BlockPixels - 1, value);
-    }
+    internal UpdateCountdown BlockTravel { get; set; } = UpdateCountdown.Lasting(RoomGridConversions.BlockPixels);
 }

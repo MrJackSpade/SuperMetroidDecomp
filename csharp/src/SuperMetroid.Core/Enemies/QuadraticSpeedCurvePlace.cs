@@ -46,6 +46,14 @@ public readonly record struct QuadraticSpeedCurvePlace : IComparable<QuadraticSp
     /// <summary>The place <paramref name="twoHundredFiftySixths"/> 256ths of a mark along the curve, or the step of that many.</summary>
     public static QuadraticSpeedCurvePlace FromTwoHundredFiftySixthsOfMark(int twoHundredFiftySixths) => new(twoHundredFiftySixths);
 
+    /// <summary>
+    /// The place <paramref name="numerator"/> <paramref name="denominator"/>ths of a mark along the curve, or the step of that
+    /// much (#2555), the denominator a power of two from 1 through 256: a mark and a half, or three quarters of a mark.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The denominator is no power of two from 1 through 256.</exception>
+    public static QuadraticSpeedCurvePlace FromMarkFraction(int numerator, int denominator) =>
+        new(PowerOfTwoFraction.InFinestUnits(numerator, denominator, TwoHundredFiftySixthsPerMark));
+
     /// <summary>The whole marks of the place, its fraction dropped toward negative infinity.</summary>
     [IntegerQuantity("whole marks of a quadratic speed curve place")]
     public int WholeMarks => InTwoHundredFiftySixthsOfMark >> TwoHundredFiftySixthsPerMarkExponent;

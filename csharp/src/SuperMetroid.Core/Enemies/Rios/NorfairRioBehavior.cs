@@ -55,7 +55,6 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         place.SetSpeciesState(new NorfairRioEnemyState(NorfairRioAction.WaitForAttackOpportunity)
         {
-            AnimationSignal = false,
             FollowerYOffset = 0,
             Flames = NorfairRioFlames.Ascending,
             Playback = new(NorfairRioAnimations.StartingWith(NorfairRioSegment.Idle), AnimationPlace.StartOfAnimation),
@@ -83,20 +82,17 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (RioLaunchDefinitions.AttackHeldBack.IsTakenBy(random) ||
                     Math.Abs(samus.Position.X.Whole - place.Position.X.Whole) >= RioLaunchDefinitions.NorfairTriggerDistance)
                 {
-                    if (state.AnimationSignal)
+                    if (state.Finish.Take())
                     {
-                        state.AnimationSignal = false;
                         RestNorfairRio(place, state);
                     }
                     return;
                 }
 
                 // The same random number picks the dive's fast or slow downward launch.
-                state.Velocity = new EightEightVector<RoomPixels>(
-                    RioLaunchDefinitions.NorfairXVelocity,
+                state.Velocity = new PixelVelocity<RoomPixels>(
+                    RioLaunchDefinitions.NorfairXVelocity.Toward(RioLaunches.SideOfSamus(place, samus)),
                     RioLaunches.NorfairYVelocity(random));
-                if (samus.Position.X.Whole < place.Position.X.Whole)
-                    state.Velocity = state.Velocity.ReversedX();
                 StartNorfairRioSwoopAnimation(
                     place,
                     state,
@@ -105,9 +101,8 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case NorfairRioAction.WaitForTakeoffAnimation:
-                if (!state.AnimationSignal)
+                if (!state.Finish.Take())
                     return;
-                state.AnimationSignal = false;
                 StartNorfairRioSwoopAnimation(
                     place,
                     state,
@@ -144,9 +139,8 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
 
                 state.Velocity = state.Velocity.WithY(state.Velocity.Y - RioLaunchDefinitions.NorfairGravity);
-                if (state.AnimationSignal)
+                if (state.Finish.Take())
                 {
-                    state.AnimationSignal = false;
                     StartNorfairRioSwoopAnimation(
                         place,
                         state,
@@ -172,7 +166,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue)
         {
             case NorfairRioCue.SwoopStartFinished:
-                state.AnimationSignal = true;
+                state.Finish.Raise();
                 break;
             case NorfairRioCue.PlaceFlames placeFlames:
                 state.FollowerYOffset = placeFlames.Below;
@@ -198,8 +192,8 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         // its animation (RoomEnemyPlace.FoundState).
         NorfairRioEnemyState parentState = parent.FoundState<NorfairRioEnemyState>() ?? throw new InvalidOperationException(
             $"Rio flame follower {follower.Ordinal} finds no Rio in its parent's place {parent.Ordinal}.");
-        follower.FrozenTimer = parent.FrozenTimer;
-        if (parent.FrozenTimer != 0 || parentState.Idles)
+        follower.Freeze.Restart(parent.Freeze.UpdatesLeft);
+        if (parent.Freeze.IsRunning || parentState.Idles)
         {
             follower.Presence = follower.Presence.With(EnemyPresence.Hidden);
             return;

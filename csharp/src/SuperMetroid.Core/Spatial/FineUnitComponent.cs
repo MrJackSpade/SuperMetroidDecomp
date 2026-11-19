@@ -8,15 +8,19 @@ namespace SuperMetroid.Core.Spatial;
 /// </summary>
 internal readonly record struct FineUnitComponent
 {
-    /// <summary>The share of the whole in each step of the half-wave: 65536 to the whole.</summary>
-    private const int Whole = 65536;
+    /// <summary>
+    /// The component the half-wave at <paramref name="axisAngle"/> gives (#2569): its share of the whole
+    /// (<see cref="Trigonometry.HalfWaveShare"/>), less than one whole, toward the axis's decreasing side where the angle
+    /// lies in the turn's second half.
+    /// </summary>
+    private FineUnitComponent(TrigonometryAngle axisAngle) =>
+        _share = axisAngle.WithSineSign(Trigonometry.HalfWaveShare(axisAngle.StepsIntoHalfTurn).AsDisplacement());
 
-    /// <summary>The component of <paramref name="share"/> steps of the whole, negative toward the axis's decreasing side.</summary>
-    private FineUnitComponent(int share) => Share = Ensure.BetweenInclusive(-(Whole - 1), Whole - 1, share);
-
-    /// <summary>The share, negative toward the axis's decreasing side; its size is the half-wave's.</summary>
-    [IntegerQuantity("signed share of a direction in steps of the half-wave")]
-    private int Share { get; }
+    /// <summary>
+    /// The share of the whole, read once as the component is made: under one whole either way, negative toward
+    /// the axis's decreasing side.
+    /// </summary>
+    private readonly SignedSixteenSixteen _share;
 
     /// <summary>
     /// The share of <paramref name="angle"/> across, its cosine: the half-wave a quarter turn on, pointing left where that
@@ -31,25 +35,17 @@ internal readonly record struct FineUnitComponent
     internal static FineUnitComponent DownOf(TrigonometryAngle angle) => SineOf(angle.TurnedBy(TrigonometryAngle.HalfTurn));
 
     /// <summary>The half-wave of <paramref name="angle"/>, reversed where the angle lies in the turn's second half.</summary>
-    private static FineUnitComponent SineOf(TrigonometryAngle angle)
-    {
-        int size = Trigonometry.UnsignedHalfWave(angle.StepsIntoHalfTurn);
-        return new(angle.IsInSecondHalf ? -size : size);
-    }
+    private static FineUnitComponent SineOf(TrigonometryAngle angle) => new(angle);
 
     /// <summary>
     /// The speed along the axis of a point moving at <paramref name="wholePixels"/> whole pixels per update along the
-    /// direction: the share's size times the speed, every finer fraction dropped, then given the component's side, so the
-    /// speed rounds toward zero and a speed toward the decreasing side is exactly the reverse of the same speed the other way.
+    /// direction: the share times the speed, which keeps every fraction the share holds, so a speed toward the decreasing
+    /// side is exactly the reverse of the same speed the other way.
     /// </summary>
     /// <param name="wholePixels">The speed along the direction in whole pixels per update, zero or more.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="wholePixels"/> is negative.</exception>
-    internal SignedSixteenSixteen SpeedAt(int wholePixels)
-    {
-        SignedSixteenSixteen size = UnsignedSixteenSixteen.ShareOfWholePixels(wholePixels, Math.Abs(Share)).AsDisplacement();
-        return Share < 0 ? -size : size;
-    }
+    internal SignedSixteenSixteen SpeedAt(int wholePixels) => _share * Ensure.AtLeastZero(wholePixels);
 
     /// <inheritdoc />
-    public override string ToString() => $"{Share}/{Whole}";
+    public override string ToString() => _share.ToString();
 }

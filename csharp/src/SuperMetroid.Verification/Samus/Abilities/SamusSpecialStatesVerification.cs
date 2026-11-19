@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -123,10 +124,10 @@ internal static void VerifySamusCrystalFlash()
     AssertTrue(!samus.CrystalFlash.TryBegin(samus, chord | GameplayAction.Jump),
         "Crystal Flash rejects extra held input");
     AssertEqual(96, samus.InvincibilityTimer.RawValue, "rejected Crystal Flash preserves hit immunity");
-    samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithFraction(1);
+    samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(samus.Kinematics.VerticalVelocity.Speed.WithFraction(1));
     AssertTrue(!samus.CrystalFlash.TryBegin(samus, chord),
         "Crystal Flash rejects fractional vertical movement");
-    samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithFraction(0);
+    samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(samus.Kinematics.VerticalVelocity.Speed.WithFraction(0));
     AssertTrue(samus.CrystalFlash.TryBegin(samus, chord),
         "Crystal Flash accepts exact chord and resources");
     AssertEqual(0, samus.InvincibilityTimer.RawValue, "Crystal Flash activation clears native hit immunity");
@@ -182,7 +183,7 @@ internal static void VerifySamusCrystalFlash()
     }
     AssertEqual((initialY - 18), samus.Position.Y.Whole, "first nine raise calls move 18 pixels");
 
-    samus.CrystalFlash.Step(samus, 9);
+    CrystalFlashMovementResult raiseEnd = samus.CrystalFlash.Step(samus, 9);
     AssertEqual(0, samus.InvincibilityTimer.RawValue, "raise completion clears hit immunity");
     AssertEqual(CrystalFlashPhase.DrainingAmmo, samus.CrystalFlash.Phase,
         "tenth raise call installs ammo handler");
@@ -190,7 +191,7 @@ internal static void VerifySamusCrystalFlash()
     AssertEqual(samus.Position.Y.Whole, samus.CrystalFlash.RaisedHeight,
         "raised Y capture follows tenth displacement");
     AssertEqual(6, samus.AnimationNumber, "raise transition forces animation frame six");
-    AssertTrue(samus.CrystalFlash.BubbleEffectRequested,
+    AssertTrue(raiseEnd.BubbleStarted,
         "raise transition publishes Crystal Flash HDMA spawn seam");
     AssertSequenceEqual(new[] { new SoundRequest(RoomSound.Silence, SoundRequestPriority.Essential) },
         samus.AudioRequests.SoundRequests.Where(request => request.SoundEffect == RoomSound.Silence),
@@ -251,22 +252,22 @@ internal static void VerifySamusCrystalFlash()
     // Call only accepted NMI counters divisible by eight. These are the only handler calls
     // that can consume ammo or restore energy; skipped counters are checked separately.
     samus.InvincibilityTimer = WrappingCountdown.Start(77);
-    samus.KnockbackTimer = 5;
+    samus.KnockbackHold = UpdateCountdown.For(5);
     var resourcesBeforeSkipped =
         new ResourcesBeforeSkipped(samus.Health, samus.Missiles, samus.SuperMissiles, samus.PowerBombs);
     samus.CrystalFlash.Step(samus, 15);
     AssertEqual(0, samus.InvincibilityTimer.RawValue, "non-draining main frame still clears hit immunity");
-    AssertEqual(0, samus.KnockbackTimer, "non-draining main frame still clears knockback timer");
+    AssertEqual(0, samus.KnockbackHold.UpdatesLeft, "non-draining main frame still clears knockback timer");
     AssertEqual(resourcesBeforeSkipped,
         new ResourcesBeforeSkipped(samus.Health, samus.Missiles, samus.SuperMissiles, samus.PowerBombs),
         "non-mod-eight frame leaves Crystal Flash resources untouched");
     for (ushort drain = 1; drain <= 30; drain++)
     {
         samus.InvincibilityTimer = WrappingCountdown.Start(77);
-        samus.KnockbackTimer = 5;
+        samus.KnockbackHold = UpdateCountdown.For(5);
         samus.CrystalFlash.Step(samus, unchecked((ushort)(drain * 8)));
         AssertEqual(0, samus.InvincibilityTimer.RawValue, "ammo-drain frame clears hit immunity, including final drain");
-        AssertEqual(0, samus.KnockbackTimer, "ammo-drain frame clears knockback timer");
+        AssertEqual(0, samus.KnockbackHold.UpdatesLeft, "ammo-drain frame clears knockback timer");
     }
 
     AssertEqual(0, samus.Missiles, "Crystal Flash consumes ten missiles");
@@ -282,13 +283,13 @@ internal static void VerifySamusCrystalFlash()
     samus.LiquidPhysics.BeginFrameSoundRequests();
     SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom(), ControllerInput = chord });
     int finishFrames = 0;
-    while (samus.PendingTransitionalPose is null && finishFrames++ < 20)
+    while (samus.CuePose.Named is null && finishFrames++ < 20)
     {
         samus.CrystalFlash.Step(samus, (ushort)(0x0100 + finishFrames));
         samus.LiquidPhysics.BeginFrameSoundRequests();
         SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom(), ControllerInput = chord });
     }
-    AssertEqual<SamusPoseId?>(SamusPoseId.FacingRightNormalPose, samus.PendingTransitionalPose,
+    AssertEqual<SamusPoseId?>(SamusPoseId.FacingRightNormalPose, samus.CuePose.Named,
         "Crystal Flash ROM finish command publishes standing right");
     AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(samus),
         "Crystal Flash standing transition is applied");
@@ -299,7 +300,7 @@ internal static void VerifySamusCrystalFlash()
     AssertEqual(0, samus.InvincibilityTimer.RawValue, "Crystal Flash normal-input completion clears hit immunity");
     AssertEqual(CrystalFlashPhase.Inactive, samus.CrystalFlash.Phase,
         "following beta pass restores normal movement handler");
-    AssertTrue(samus.CrystalFlash.BeamShadeRestoreRequested,
+    AssertTrue(samus.CrystalFlash.Colouring == SpecialColouringStage.Ending,
         "cleanup requests normal palette restoration");
     AssertTrue(samus.CrystalFlash.UpdateColouring(crystalColours, samus),
         "Crystal Flash finish restores beam palette");
@@ -535,7 +536,7 @@ internal static void VerifySamusXray()
     AssertTrue(!standing.Xray.IsActive && !standing.Xray.TimeIsFrozen,
         "X-ray teardown restores time and handlers");
     AssertEqual(SamusPoseId.FacingLeftNormalPose, standing.Pose, "left X-ray exits to ordinary standing");
-    AssertEqual(XrayVisorShadeMode.RestoreSuitShade, standing.Xray.VisorShadeMode,
+    AssertEqual(XrayVisorShadeMode.TornDown, standing.Xray.VisorShadeMode,
         "X-ray teardown requests palette restoration");
     AssertEqual(1, standing.AudioRequests.CountOf(SamusSound.XrayEnd), "X-ray teardown queues its sound once");
     AssertTrue(standing.Xray.UpdateColouring(xrayColours, standing.EquippedItems),
@@ -585,7 +586,7 @@ internal static void VerifySamusXray()
     };
     SamusPoseMetadata.RefreshCollisionRadii(interrupted);
     SamusPresentation.InitializeAnimation(interrupted);
-    AssertTrue(interrupted.Xray.TryBegin(interrupted, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, PowerBombExplosionActive = false, ProjectileCooldownTimer = 0, BombCounter = 0 }),
+    AssertTrue(interrupted.Xray.TryBegin(interrupted, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, PowerBombExplosionActive = false, ProjectileCooldownTimer = 0, BombCounter = 0 }, activationPose: out SamusPoseId? interruptedPose),
         "X-Mode fixture admits deferred left-facing X-Ray setup");
     AssertTrue(interrupted.Xray.IsActive && !interrupted.Xray.OwnsSamusControl,
         "deferred setup starts beam ownership before pose-command arbitration");
@@ -599,7 +600,7 @@ internal static void VerifySamusXray()
         "deferred setup does not queue command-five activation sound early");
 
     interrupted.Pose = SamusPoseId.MovingLeftNormalPose;
-    AssertTrue(!interrupted.Xray.CommitPendingActivation(interrupted, superseded: true),
+    AssertTrue(!interrupted.Xray.CommitActivation(interrupted, interruptedPose ?? throw new InvalidOperationException("The admitted setup returned no activation pose."), superseded: true),
         "higher-priority hit expiry suppresses only X-Ray's Samus command");
     AssertEqual(SamusPoseId.MovingLeftNormalPose, interrupted.Pose,
         "interrupted X-Mode retains native winning ordinary pose");
@@ -621,7 +622,7 @@ internal static void VerifySamusXray()
         var sample = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = pose };
         SamusPoseMetadata.RefreshCollisionRadii(sample);
         SamusPresentation.InitializeAnimation(sample);
-        sample.Kinematics.YSpeed = new UnsignedSixteenSixteen(ySpeed, ySubspeed);
+        sample.Kinematics.VerticalVelocity = sample.Kinematics.VerticalVelocity.WithSpeed(new UnsignedSixteenSixteen(ySpeed, ySubspeed));
         return sample;
     }
 
@@ -633,17 +634,17 @@ internal static void VerifySamusXray()
     WritePoseAnimationDelays(bus, SamusPoseId.NormalLandingRightPose, 0xc700, [0x01, 0xff]);
     WritePoseAnimationDelays(bus, SamusPoseId.FallingRightPose, 0xc710, [0x01, 0xff]);
     var landing = Rejected(SamusPoseId.NormalLandingRightPose);
-    AssertTrue(!landing.Xray.TryBegin(landing, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, PowerBombExplosionActive = false, ProjectileCooldownTimer = 0, BombCounter = 0 }),
+    AssertTrue(!landing.Xray.TryBegin(landing, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, PowerBombExplosionActive = false, ProjectileCooldownTimer = 0, BombCounter = 0 }, activationPose: out _),
         "X-ray rejects landing pose");
     var movingVertically = Rejected(SamusPoseId.FacingRightNormalPose, ySubspeed: 1);
-    AssertTrue(!movingVertically.Xray.TryBegin(movingVertically, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, PowerBombExplosionActive = false, ProjectileCooldownTimer = 0, BombCounter = 0 }),
+    AssertTrue(!movingVertically.Xray.TryBegin(movingVertically, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, PowerBombExplosionActive = false, ProjectileCooldownTimer = 0, BombCounter = 0 }, activationPose: out _),
         "X-ray rejects fractional Y velocity");
     var badPrevious = Rejected(SamusPoseId.FacingRightNormalPose);
-    AssertTrue(!badPrevious.Xray.TryBegin(badPrevious, previousMovementType: SamusMovementType.Falling, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, PowerBombExplosionActive = false, ProjectileCooldownTimer = 0, BombCounter = 0 }),
+    AssertTrue(!badPrevious.Xray.TryBegin(badPrevious, previousMovementType: SamusMovementType.Falling, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, PowerBombExplosionActive = false, ProjectileCooldownTimer = 0, BombCounter = 0 }, activationPose: out _),
         "X-ray rejects unsupported previous movement type");
     var fiveBombQuirk = Rejected(SamusPoseId.FacingRightNormalPose);
     fiveBombQuirk.SlowdownLevel = 2;
-    AssertTrue(!fiveBombQuirk.Xray.TryBegin(fiveBombQuirk, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, ProjectileCooldownTimer = 7, BombCounter = 5, PowerBombExplosionActive = false }),
+    AssertTrue(!fiveBombQuirk.Xray.TryBegin(fiveBombQuirk, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, ProjectileCooldownTimer = 7, BombCounter = 5, PowerBombExplosionActive = false }, activationPose: out _),
         "X-ray preserves five-bomb cooldown/divisor rejection");
 
     Console.WriteLine(

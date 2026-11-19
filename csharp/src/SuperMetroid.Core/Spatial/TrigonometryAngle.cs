@@ -48,8 +48,28 @@ public readonly record struct TrigonometryAngle : IComparable<TrigonometryAngle>
     /// <summary>Whether this angle lies in the second half of the turn, where the sine wave is negative.</summary>
     public bool IsInSecondHalf => RawValue >= HalfTurn.RawValue;
 
+    /// <summary>
+    /// <paramref name="halfWave"/>, a size the game's sine folded onto the first half of the turn gives this angle, with the
+    /// sign the sine takes here (#2569): as it is in the turn's first half and reversed in its second, as the game's sine
+    /// restores the half of the turn after reading its half-wave.
+    /// </summary>
+    public T WithSineSign<T>(T halfWave) where T : System.Numerics.IUnaryNegationOperators<T, T> => IsInSecondHalf ? -halfWave : halfWave;
+
     /// <summary>Turns the angle by <paramref name="delta"/> signed steps, continuing around the turn.</summary>
     public TrigonometryAngle TurnedBySteps(int delta) => Wrapped(RawValue + delta);
+
+    /// <summary>
+    /// Turns the angle by <paramref name="steps"/> steps the way <paramref name="direction"/> turns as the screen shows it
+    /// (#2569): counterclockwise toward increasing angles, since zero points right and a quarter turn up, and clockwise
+    /// toward decreasing ones.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is neither clockwise nor counterclockwise.</exception>
+    public TrigonometryAngle TurnedBySteps(int steps, RotationDirection direction) => TurnedBySteps(direction switch
+    {
+        RotationDirection.Counterclockwise => steps,
+        RotationDirection.Clockwise => -steps,
+        _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Not a rotation direction."),
+    });
 
     /// <summary>The angle turned on by <paramref name="turn"/>, wrapping around the full turn.</summary>
     public TrigonometryAngle TurnedBy(TrigonometryAngle turn) => Wrapped(RawValue + turn.RawValue);
@@ -108,6 +128,59 @@ public readonly record struct TrigonometryAngle : IComparable<TrigonometryAngle>
     /// the half turn: an angle in the other half turns on by a half turn.
     /// </summary>
     public TrigonometryAngle InSecondHalfTurn() => new(RawValue % HalfTurn.RawValue + HalfTurn.RawValue);
+
+    /// <summary>
+    /// This angle carried into the half turn on <paramref name="side"/> (#2555): on the right from just past straight down
+    /// up to straight up, on the left from just past straight up down to straight down. An angle on the other side turns
+    /// a half turn, as an aim turned toward one side is.
+    /// </summary>
+    public TrigonometryAngle InHalfTurnToward(HorizontalDirection side)
+    {
+        TrigonometryAngle fromUp = QuarterTurn - this;
+        return QuarterTurn - side switch
+        {
+            HorizontalDirection.Right => fromUp.InFirstHalfTurn(),
+            HorizontalDirection.Left => fromUp.InSecondHalfTurn(),
+            _ => throw new ArgumentOutOfRangeException(nameof(side), side, $"Undefined {nameof(HorizontalDirection)}."),
+        };
+    }
+
+    /// <summary>
+    /// The steps from straight up round to this angle, turning clockwise as the screen shows it (#2555): the order the
+    /// compass directions an aim picks are counted in, up first.
+    /// </summary>
+    private int StepsClockwiseFromUp => (QuarterTurn.RawValue - RawValue + StepsPerTurn) % StepsPerTurn;
+
+    /// <summary>The eight compass directions in clockwise order from up, each an eighth of the turn on from the last.</summary>
+    internal static readonly CompassDirection[] DirectionsClockwise =
+    [
+        CompassDirection.Up, CompassDirection.UpRight, CompassDirection.Right, CompassDirection.DownRight,
+        CompassDirection.Down, CompassDirection.DownLeft, CompassDirection.Left, CompassDirection.UpLeft,
+    ];
+
+    /// <summary>The four straight directions in clockwise order from up, each a quarter of the turn on from the last.</summary>
+    private static readonly CompassDirection[] StraightDirectionsClockwise =
+        [CompassDirection.Up, CompassDirection.Right, CompassDirection.Down, CompassDirection.Left];
+
+    /// <summary>
+    /// The compass direction opening the eighth of the turn that holds the angle: each direction's eighth runs from it
+    /// clockwise up to the next, so an angle takes the direction it has last turned past, clockwise.
+    /// </summary>
+    public CompassDirection DirectionOfEighth() => DirectionsClockwise[StepsClockwiseFromUp / (StepsPerTurn / 8)];
+
+    /// <summary>
+    /// The compass direction nearest the angle: the one whose eighth of the turn, centred on it, holds the angle. An angle
+    /// exactly halfway between two takes the later one clockwise.
+    /// </summary>
+    public CompassDirection NearestDirection() =>
+        DirectionsClockwise[(StepsClockwiseFromUp + StepsPerTurn / 16) % StepsPerTurn / (StepsPerTurn / 8)];
+
+    /// <summary>
+    /// The straight direction, up, right, down or left, nearest the angle: the one whose quarter of the turn, centred on
+    /// it, holds the angle. An angle exactly halfway between two takes the later one clockwise.
+    /// </summary>
+    public CompassDirection NearestStraightDirection() =>
+        StraightDirectionsClockwise[(StepsClockwiseFromUp + StepsPerTurn / 8) % StepsPerTurn / (StepsPerTurn / 4)];
 
     /// <summary>This angle as the whole steps of an 8.8 <see cref="RotationAngle"/>.</summary>
     public RotationAngle ToAngle() => RotationAngle.FromSteps(RawValue);

@@ -33,6 +33,21 @@ internal sealed record SamusShadeSources(GameplayStartingColours Starting, RgbCo
     InstalledCrystalFlashColors CrystalFlash, HyperBeamFxColours HyperBeamCycle,
     InstalledSamusDeathPalettes Death, IPaletteFxColorSource PaletteFx)
 {
+    /// <summary>The suits in the order the sheet lists their shades (#2567): Power, Varia, Gravity.</summary>
+    private static readonly IReadOnlyList<SamusSuit> SuitShadeOrder = Ensure.EveryMemberOnce<SamusSuit>(
+    [
+        SamusSuit.Power,
+        SamusSuit.Varia,
+        SamusSuit.Gravity,
+    ]);
+
+    /// <summary>The hurt flashes in the order the sheet lists their shades (#2567): gameplay's, then the opening's.</summary>
+    private static readonly IReadOnlyList<SamusHurtColorVariant> HurtShadeOrder = Ensure.EveryMemberOnce<SamusHurtColorVariant>(
+    [
+        SamusHurtColorVariant.Hurt,
+        SamusHurtColorVariant.Intro,
+    ]);
+
     /// <summary>The visible colours of an ordinary charged shot's glow, every one but the transparent first.</summary>
     private static readonly RgbColor ChargedShotGlowColour = new(255, 255, 0);
 
@@ -61,7 +76,7 @@ internal sealed record SamusShadeSources(GameplayStartingColours Starting, RgbCo
             new(SamusShades.DoorCompletionVisor, [SamusSheetInks.Suit + SamusSheetInks.VisorColour], [DoorCompletionVisorColour]),
             new(SamusShades.GrappleFiringFlare, [SamusSheetInks.GrappleFlare], [GrappleFiringFlareColour]),
         };
-        foreach (SamusSuit suit in Enum.GetValues<SamusSuit>())
+        foreach (SamusSuit suit in SuitShadeOrder)
             shades.Add(Suit(SamusShades.Suit(suit), Colours(colour => Suits.Resolve(suit, colour))));
         foreach (SamusChargeShade palette in Charge.Palettes)
             shades.Add(Suit(SamusShades.Charge(palette), Colours(colour => Charge.Resolve(palette, colour))));
@@ -78,7 +93,7 @@ internal sealed record SamusShadeSources(GameplayStartingColours Starting, RgbCo
         }
         foreach (SamusFullBodyCycleShade palette in FullBodyCycles.Palettes)
             shades.Add(Suit(SamusShades.FullBodyCycle(palette), Colours(colour => FullBodyCycles.Resolve(palette, colour))));
-        foreach (SamusHurtColorVariant variant in Enum.GetValues<SamusHurtColorVariant>())
+        foreach (SamusHurtColorVariant variant in HurtShadeOrder)
             shades.Add(Suit(SamusShades.Hurt(variant), Colours(colour => Hurt.Resolve(variant, colour))));
         for (int step = 0; step < SamusShades.XrayWideningVisor.Count; step++)
             shades.Add(new(SamusShades.XrayWideningVisor[step], [SamusSheetInks.Suit + SamusSheetInks.VisorColour], [Visor.XrayWidening(step)]));
@@ -105,7 +120,7 @@ internal sealed record SamusShadeSources(GameplayStartingColours Starting, RgbCo
         }
         foreach (SamusDeathShade shown in SamusDeathShade.All)
         {
-            foreach (SamusSuit suit in Enum.GetValues<SamusSuit>())
+            foreach (SamusSuit suit in SuitShadeOrder)
             {
                 shades.Add(Suit(SamusShades.DeathSuit(suit, shown),
                     Colours(colour => Death.SuitedColor(SamusSuitListLayout.Place(suit), shown.Step, colour))));

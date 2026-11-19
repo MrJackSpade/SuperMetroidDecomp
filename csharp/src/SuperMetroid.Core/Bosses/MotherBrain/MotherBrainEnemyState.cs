@@ -234,10 +234,14 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     public bool DeleteTurretsAndRinkas { get; internal set; }
 
     /// <summary>
-    /// Set by the head main, as her brain's action selects, on updates her brain is drawn by her own draw after the ordinary
-    /// enemy queues; rebuilt every update. Her head's place is hidden from the ordinary enemy draw throughout.
+    /// The brain action her head's main last carried out (#2562), which decides what her own draw shows after the ordinary
+    /// enemy queues: her brain, with her neck while the action draws it. Null until her head's first main, before which her
+    /// own draw shows nothing. Her head's place is hidden from the ordinary enemy draw throughout.
     /// </summary>
-    public bool DrawBrain { get; internal set; }
+    public MotherBrainBrainAction? BrainActionDrawn { get; internal set; }
+
+    /// <summary>Whether her own draw shows her brain: once her head's main has run.</summary>
+    public bool DrawBrain => BrainActionDrawn is not null;
 
     /// <summary>
     /// The rainbow image Mother Brain's body and sprites take the next time the rainbow attack's alternate-frame colour
@@ -245,8 +249,8 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// </summary>
     public ListStep<MotherBrainRainbowImage> NextRainbowImage { get; internal set; } = MotherBrainRainbowImage.CycleStart;
 
-    /// <summary>Whether her brain's draw appends five articulated neck joints.</summary>
-    public bool DrawNeck { get; internal set; }
+    /// <summary>Whether her brain's draw appends five articulated neck joints: while her head's last main drew her neck.</summary>
+    public bool DrawNeck => BrainActionDrawn == MotherBrainBrainAction.SetupBrainAndNeckToBeDrawn;
 
     /// <summary>
     /// Her neck (#2314): the lower joints hang from her body on the lower angle, the upper joints from the last lower joint
@@ -389,7 +393,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// <remarks>Charging starts it at the beam position with no fraction of a pixel (body Y minus 48).</remarks>
     public FixedPosition<RoomPixels> HandBeamNextPosition { get; internal set; }
     /// <summary>The aimed velocity; moves the shared start position on before each child receives its independent randomized scatter velocity.</summary>
-    public EightEightVector<RoomPixels> HandBeamNextVelocity { get; internal set; }
+    public PixelVelocity<RoomPixels> HandBeamNextVelocity { get; internal set; }
     /// <summary>Aim angle, calculated from hand to Samus at charging setup and used as the children's randomized scatter-angle base.</summary>
     public TrigonometryAngle HandBeamNextAngle { get; internal set; }
 

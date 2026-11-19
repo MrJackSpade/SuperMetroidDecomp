@@ -9,7 +9,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// with the push. Its effect on the camera's position is gameplay-observable.
 /// </summary>
 /// <remarks>
-/// Written by the rainbow beam's forced movement during the enemy pass; consulted, and cleared, when the update's
+/// Written by the rainbow beam's forced movement during the enemy pass, beside the whole pixels the push writes, as part
+/// of Samus's corrections to the camera's record of where she was (#2562); consulted, and cleared, when the update's
 /// scrolling measures how far Samus moved. Evidence: the original routines at <c>$A9:BBFD-$BC75</c> store one byte
 /// of the sub-pixel position into the previous-position record and the full word at the arena clamps, and the camera's
 /// speed routine subtracts the full sub-pixel words; the 100% movie's fall into the floor clamp established the
@@ -24,21 +25,21 @@ public sealed class RainbowBeamCameraCheckpoint
     /// <summary>The vertical sub-pixel the push recorded this update.</summary>
     private HiddenFraction _vertical;
 
-    /// <summary>Hides the coarse part of a horizontal push that left Samus's sub-pixel at <paramref name="fraction"/>.</summary>
-    /// <param name="fraction">Samus's horizontal sub-pixel position after the push, 0 through <see cref="FixedCoordinate.LastFraction"/>.</param>
-    public void HideCoarseHorizontalMovement(int fraction) => _horizontal = _horizontal.WithCoarse(fraction);
+    /// <summary>Hides the coarse part of a horizontal push that left Samus's fraction of a pixel at <paramref name="fraction"/>.</summary>
+    /// <param name="fraction">Samus's horizontal fraction of a pixel after the push.</param>
+    public void HideCoarseHorizontalMovement(PixelFraction fraction) => _horizontal = _horizontal.WithCoarse(fraction.FinestSteps);
 
-    /// <summary>Hides the coarse part of a vertical push that left Samus's sub-pixel at <paramref name="fraction"/>.</summary>
-    /// <param name="fraction">Samus's vertical sub-pixel position after the push, 0 through <see cref="FixedCoordinate.LastFraction"/>.</param>
-    public void HideCoarseVerticalMovement(int fraction) => _vertical = _vertical.WithCoarse(fraction);
+    /// <summary>Hides the coarse part of a vertical push that left Samus's fraction of a pixel at <paramref name="fraction"/>.</summary>
+    /// <param name="fraction">Samus's vertical fraction of a pixel after the push.</param>
+    public void HideCoarseVerticalMovement(PixelFraction fraction) => _vertical = _vertical.WithCoarse(fraction.FinestSteps);
 
-    /// <summary>Hides a horizontal push completely: the record takes Samus's whole sub-pixel position.</summary>
-    /// <param name="fraction">Samus's horizontal sub-pixel position, 0 through <see cref="FixedCoordinate.LastFraction"/>.</param>
-    public void HideHorizontalMovement(int fraction) => _horizontal = HiddenFraction.Complete(fraction);
+    /// <summary>Hides a horizontal push completely: the record takes Samus's whole fraction of a pixel.</summary>
+    /// <param name="fraction">Samus's horizontal fraction of a pixel.</param>
+    public void HideHorizontalMovement(PixelFraction fraction) => _horizontal = HiddenFraction.Complete(fraction.FinestSteps);
 
-    /// <summary>Hides a vertical push completely: the record takes Samus's whole sub-pixel position.</summary>
-    /// <param name="fraction">Samus's vertical sub-pixel position, 0 through <see cref="FixedCoordinate.LastFraction"/>.</param>
-    public void HideVerticalMovement(int fraction) => _vertical = HiddenFraction.Complete(fraction);
+    /// <summary>Hides a vertical push completely: the record takes Samus's whole fraction of a pixel.</summary>
+    /// <param name="fraction">Samus's vertical fraction of a pixel.</param>
+    public void HideVerticalMovement(PixelFraction fraction) => _vertical = HiddenFraction.Complete(fraction.FinestSteps);
 
     /// <summary>
     /// The camera's record of where Samus was, with this update's hidden pushes applied to its sub-pixels; the

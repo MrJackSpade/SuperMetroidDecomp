@@ -26,10 +26,10 @@ internal static class TitleCounterPhasesVerification
         for (int zoom = 0; zoom <= FloorZoom.OwnSize.TwoHundredFiftySixths; zoom++)
         {
             AssertSameAt(variants[(zoom >> 4) % TitleGradientFormat.VariantCount],
-                presentation.Resolve(FloorZoom.FromTwoHundredFiftySixths(zoom)), "gradient zoom range", zoom);
+                presentation.Resolve(FloorZoomConstants.FromTwoHundredFiftySixths(zoom)), "gradient zoom range", zoom);
         }
         AssertThrows<ArgumentOutOfRangeException>(
-            () => presentation.Resolve(FloorZoom.OwnSize.Widened(FloorZoomStep.FromTwoHundredFiftySixths(1))),
+            () => presentation.Resolve(FloorZoom.OwnSize.Widened(FloorZoomStepConstants.FromTwoHundredFiftySixths(1))),
             "the title gradient refuses a zoom past the floor's own size, which the title never reaches");
 
         for (int input = 0; input <= ushort.MaxValue; input++)

@@ -49,37 +49,16 @@ public static class AudioAssetCatalogDefinitions
         }
     }
 
-    /// <summary>Returns the catalog entry of one bank; <see cref="AudioBank"/> follows the pointer-table order.</summary>
+    /// <summary>
+    /// Returns the catalog entry of one bank, found by the bank each entry holds (#2567), so the order
+    /// <see cref="AudioBank"/> declares its members in carries nothing.
+    /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="audioSet"/> is not a defined bank.</exception>
-    public static AudioUploadAssetDefinition Get(AudioBank audioSet) => audioSet switch
-    {
-        AudioBank.SpcEngine => Common,
-        AudioBank.TitleSequence or
-            AudioBank.EmptyCrateria or
-            AudioBank.LowerCrateria or
-            AudioBank.UpperCrateria or
-            AudioBank.GreenBrinstar or
-            AudioBank.RedBrinstar or
-            AudioBank.UpperNorfair or
-            AudioBank.LowerNorfair or
-            AudioBank.Maridia or
-            AudioBank.Tourian or
-            AudioBank.MotherBrain or
-            AudioBank.BossFight1 or
-            AudioBank.BossFight2 or
-            AudioBank.MiniBossFight or
-            AudioBank.Ceres or
-            AudioBank.WreckedShip or
-            AudioBank.ZebesExplosion or
-            AudioBank.Intro or
-            AudioBank.Death or
-            AudioBank.Credits or
-            AudioBank.LastMetroidInCaptivity or
-            AudioBank.GalaxyAtPeace or
-            AudioBank.BabyMetroidBossFight2 or
-            AudioBank.SamusThemeUpperCrateria => Music[(int)audioSet - 1],
-        _ => throw new ArgumentOutOfRangeException(nameof(audioSet), audioSet, "Undefined audio bank."),
-    };
+    public static AudioUploadAssetDefinition Get(AudioBank audioSet) =>
+        audioSet == AudioBank.SpcEngine
+            ? Common
+            : Music.SingleOrDefault(definition => definition.AudioSet == audioSet)
+                ?? throw new ArgumentOutOfRangeException(nameof(audioSet), audioSet, "Undefined audio bank.");
 
     /// <summary>
     /// Returns the catalog entry of the stream holding <paramref name="dataSet"/>, or the common stream for no data set,

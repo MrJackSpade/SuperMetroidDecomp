@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 public static class ColourEffectHeatData
 {
     /// <summary>The damage the heat deals unprotected Samus every update: a quarter of one energy, no whole energy.</summary>
-    public static readonly UnsignedSixteenSixteen DamagePerUpdate = new(whole: 0, fraction: PeriodicDamageEnergyFraction.PartsPerEnergy / 4);
+    public static readonly EnergyAmount DamagePerUpdate = EnergyAmount.FromEnergyFraction(1, 4);
 
     /// <summary>
     /// Energy must be greater than 70 before the heat condition queues another environmental

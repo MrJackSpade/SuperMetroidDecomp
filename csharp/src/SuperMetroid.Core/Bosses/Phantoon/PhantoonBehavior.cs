@@ -72,9 +72,9 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         _places = dependencies.Places;
         Presentation = new PhantoonPresentation(dependencies.FrameContext);
         Combat = new PhantoonCombat(_room, dependencies.Earthquake, _audio, dependencies.Collision, dependencies.DeathsAndDrops);
-        Opening = new PhantoonOpening(dependencies.Projectiles, _audio, Presentation, dependencies.FrameResults, Combat);
+        Opening = new PhantoonOpening(dependencies.Projectiles, _audio, Presentation, dependencies.PassEvents, Combat);
         Patterns = new PhantoonPatterns(_room, dependencies.Projectiles, _audio, dependencies.FrameContext, Presentation, Combat);
-        Death = new PhantoonDeath(new PhantoonDeathDependencies { Room = _room, Projectiles = dependencies.Projectiles, Presentation = _presentation, FrameContext = dependencies.FrameContext, DeathsAndDrops = dependencies.DeathsAndDrops, PhantoonPresentation = Presentation, Patterns = Patterns, Audio = _audio, FrameResults = dependencies.FrameResults });
+        Death = new PhantoonDeath(new PhantoonDeathDependencies { Room = _room, Projectiles = dependencies.Projectiles, Presentation = _presentation, FrameContext = dependencies.FrameContext, DeathsAndDrops = dependencies.DeathsAndDrops, PhantoonPresentation = Presentation, Patterns = Patterns, Audio = _audio, PassEvents = dependencies.PassEvents });
     }
 
     /// <summary>
@@ -101,7 +101,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
         StartPhantoonPart(state.BodyPart);
         // The body starts asking for no flame rain; no reader consumes it before a phase sets it (#1472).
-        state.FlameRainRequested = false;
+        state.NextPattern = PhantoonPatternChoice.FigureEight;
         body.SetSpeciesState(state.BodyPart);
         ResetPhantoonMouthControls(state);
     }
@@ -297,7 +297,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         PhantoonRoundState round = state.Round;
         // His health colours return on his last hurt update, as the enemy pass is about to clear his hurt state.
-        bool showHealthColours = body.FlashTimer == EnemyCollisionDefinitions.HurtStateMinimumFlashUpdates ||
+        bool showHealthColours = body.HurtFlash.UpdatesLeft == EnemyCollisionDefinitions.HurtStateMinimumFlashUpdates ||
             !PhantoonCadenceDefinitions.HurtFlashShown.IsSetIn(body.FrameCounter) && round.HurtFlashShown;
         if (showHealthColours)
         {
@@ -373,7 +373,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts the eye's Samus-tracking animation for the current attack phase.</summary>
     internal void BeginPhantoonEyeTracking(PhantoonEnemyState state)
     {
-        state.Swoop.Requested = false;
+        state.WindowEnd = PhantoonWindowEnd.EyeCloses;
         RoomEnemyPlace body = state.Body;
         state.BodyPart.StartAnimation(PhantoonPartSegment.EyeHitboxBody);
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);

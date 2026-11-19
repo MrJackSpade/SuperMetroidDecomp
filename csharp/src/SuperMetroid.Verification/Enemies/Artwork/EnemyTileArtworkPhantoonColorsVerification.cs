@@ -80,7 +80,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
             AssertShade(bodyShades, PhantoonShades.Body(PhantoonBodyLook.Health(band)), color => colors.ResolveHealth(row, color),
                 $"Phantoon health band {band}");
             state.BodyFade.Steps = 1;
-            state.BodyFade.Complete = false;
+            state.BodyFade.Resume();
             enemies.PhantoonBehavior.Presentation.AdvancePhantoonFadeIn(body, state, steps);
             AssertEqual(PictureShading.Standard.With(new PictureShadeFade(Body(PhantoonBodyLook.Health(band)), Body(PhantoonBodyLook.Health(band)), 1, steps)),
                 Shown(state), $"Phantoon live materialization band {band}: a typed fade from its first moving step");
@@ -88,7 +88,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         }
 
         body.Health = unchecked(2 * 312 + 1);
-        body.FlashTimer = 8;
+        body.HurtFlash.Restart(8);
         state.Round.HurtFlashShown = true;
         PhantoonBehavior.ApplyPhantoonHurt(body, state);
         AssertEqual(Body(PhantoonBodyLook.Health(PhantoonHealthBandDefinitions.BelowThreeEighths)), Shown(state), "Phantoon live hurt restore");
@@ -96,13 +96,13 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
 
         // The step past a fade's length reaches its goal, and the step after completes the fade, which then shows its goal.
         state.BodyFade.Steps = steps + 1;
-        state.BodyFade.Complete = false;
+        state.BodyFade.Resume();
         enemies.PhantoonBehavior.Patterns.AdvancePhantoonFadeOut(state, steps);
         AssertEqual(PictureShading.Standard.With(new PictureShadeFade(Body(PhantoonBodyLook.Health(PhantoonHealthBandDefinitions.BelowThreeEighths)), Body(PhantoonBodyLook.FadedOut), 1, 1)),
             Shown(state), "Phantoon's fade-out restarted at its last step reaches its goal");
         AssertEqual(steps + 2, state.BodyFade.Steps, "Phantoon's fade-out takes its last step");
         enemies.PhantoonBehavior.Patterns.AdvancePhantoonFadeOut(state, steps);
-        AssertTrue(state.BodyFade.Complete && state.BodyFade.Steps == 0, "the next step completes the fade and starts the next over");
+        AssertTrue(state.BodyFade.IsFinished && state.BodyFade.Steps == 0, "the next step completes the fade and starts the next over");
         AssertEqual(Body(PhantoonBodyLook.FadedOut), Shown(state), "a completed fade shows its goal");
         AssertShade(bodyShades, PhantoonShades.Body(PhantoonBodyLook.FadedOut), colors.ResolveFadeOut, "Phantoon's faded-out colours");
 

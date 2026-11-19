@@ -23,14 +23,14 @@ public sealed class DachoraEnemyState
     /// </summary>
     public SignedSixteenSixteen Speed { get; internal set; }
 
-    /// <summary>While blinking or charging: the updates left in the phase, which ends when they reach zero.</summary>
-    public int PhaseTimer { get; internal set; }
+    /// <summary>While blinking or charging: the phase's wait, which ends the phase on its last update.</summary>
+    public UpdateCountdown PhaseTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// While shinesparking: the updates before the body next places an echo on its trail, which the launch clears so the
     /// first update places one (#2147).
     /// </summary>
-    public int TrailTimer { get; internal set; }
+    public UpdateCountdown TrailTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// During the shinespark: the vertical acceleration per update, which gravity accumulates into with
@@ -43,7 +43,7 @@ public sealed class DachoraEnemyState
     /// the run that follows starts from rest.
     /// </summary>
     /// <param name="duration">The countdown, in updates.</param>
-    internal void StartBlinking(int duration) => PhaseTimer = duration;
+    internal void StartBlinking(int duration) => PhaseTimer = UpdateCountdown.For(duration);
 
     /// <summary>
     /// Starts the shinespark charge countdown. The charge stops the Dachora, so the launch that follows starts from rest.
@@ -51,7 +51,7 @@ public sealed class DachoraEnemyState
     /// <param name="duration">The countdown, in updates.</param>
     internal void StartCharging(int duration)
     {
-        PhaseTimer = duration;
+        PhaseTimer = UpdateCountdown.For(duration);
         Speed = SignedSixteenSixteen.Zero;
     }
 

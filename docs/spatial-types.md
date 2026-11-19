@@ -73,7 +73,7 @@ scale (`FloorView`) are not coordinates and are `double`s.
 | `Extent16<TSpace>` | `ushort X, Y` | Sizes and half-extents (radii); the owning member name says which. Grid sizes own `Area`, `Contains`, `RowMajorIndex` and `CellAtRowMajorIndex`. |
 | `FixedPosition<TSpace>` | `FixedCoordinate X, Y` (whole + subpixel word per axis) | Native 16.16 positions such as Samus, enemy, camera and cinematic positions with subpixels. |
 | `FixedVector<TSpace>` | `SignedSixteenSixteen X, Y` | Native signed 16.16 displacements and per-frame velocities. |
-| `EightEightVector<TSpace>` | `SignedEightEight X, Y` | Native signed 8.8 velocities and accelerations; `ToSixteenSixteen()` promotes them for `FixedPosition.Advance`. |
+| `PixelVelocity<TSpace>` | `SignedEightEight X, Y` | Native signed 8.8 velocities and accelerations; `ToDisplacement()` promotes them for `FixedPosition.Advance`. |
 
 The native per-axis arithmetic lives once in `SignedSixteenSixteen` and `FixedCoordinate`
 (whole/fraction assembly, carry/borrow, 32-bit wrap, half-word replacement). The two-dimensional
@@ -103,7 +103,7 @@ left unwrapped fails where it is stored instead of being truncated there.
 - Natural operators only where the meaning is unambiguous and lossless:
   `Position16 ± Offset16 → Position16`, `Position16 - Position16 → Offset16`,
   `Offset16 + Offset16`, unary `-Offset16`, `FixedPosition.Advance(FixedVector)`,
-  `EightEightVector + EightEightVector` and `EightEightVector * int` (both wrapping the raw words),
+  `PixelVelocity + PixelVelocity` and `PixelVelocity * int` (both wrapping the raw words),
   `FixedVector ± FixedVector` (fraction carry/borrow, 32-bit wrap per axis), and
   `FixedPosition ± Offset16` / `FixedVector ± Offset16` (whole words only, wrapping at sixteen
   bits, fractions unchanged — the platform pushes into Samus's external displacement).
@@ -117,7 +117,7 @@ left unwrapped fails where it is stored instead of being truncated there.
   `FixedPosition.WithWhole/WithFractionsOf/WithWholeX/WithWholeY/WithFractionX/WithFractionY` and
   `FixedVector.WithWhole/WithWholeX/WithWholeY/WithFractionY`.
 - Reflection and reversal: `Offset16.MirroredX` (X negated, wrapping; Y kept) for facing-mirrored
-  part offsets; `EightEightVector.ReversedX/ReversedY` negate one raw 8.8 word, as crawlers turn.
+  part offsets; `PixelVelocity.ReversedX/ReversedY` negate one raw 8.8 word, as crawlers turn.
   Operations exist only where production code uses them; add one with its first consumer.
 - Conversions between spaces are named methods/extensions in `SuperMetroid.Core.Spatial` next to
   the spaces they join:

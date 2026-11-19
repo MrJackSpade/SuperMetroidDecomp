@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Spatial;
 
 /// <summary>A signed 8.8 fixed-point velocity: eight whole bits and eight fraction bits, kept exactly.</summary>
 [EncodingOwner("signed 8.8 fixed-point number")]
-public readonly record struct SignedEightEight : IComparable<SignedEightEight>
+public readonly record struct SignedEightEight : IComparable<SignedEightEight>, System.Numerics.IUnaryNegationOperators<SignedEightEight, SignedEightEight>
 {
     /// <summary>The value whose sixteen-bit two's-complement form is <paramref name="rawValue"/>, 0 through 65535.</summary>
     /// <param name="rawValue">The unchanged two's-complement form, eight whole and eight fractional bits.</param>
@@ -22,10 +22,34 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>
     public static SignedEightEight FromTwoHundredFiftySixthsOfPixel(int twoHundredFiftySixths) =>
         new(unchecked((ushort)Ensure.BetweenInclusive(short.MinValue, short.MaxValue, twoHundredFiftySixths)));
 
-    /// <summary>A speed of <paramref name="sixteenths"/> sixteenths of a pixel an update, -2048 through 2047.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The speed lies outside the type's range.</exception>
-    public static SignedEightEight FromSixteenthsOfPixel(int sixteenths) =>
-        FromTwoHundredFiftySixthsOfPixel(Ensure.BetweenInclusive(-2048, 2047, sixteenths) * 16);
+    /// <summary>
+    /// A speed of <paramref name="numerator"/> <paramref name="denominator"/>ths of a pixel an update (#2555), the denominator
+    /// a power of two from 1 through 256 so the fraction is kept exactly: three eighths of a pixel, a pixel and a half.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The denominator is no power of two from 1 through 256, or the speed lies outside the type's range.
+    /// </exception>
+    public static SignedEightEight FromPixelFraction(int numerator, int denominator) =>
+        FromTwoHundredFiftySixthsOfPixel(PowerOfTwoFraction.InFinestUnits(numerator, denominator, FractionsPerPixel));
+
+    /// <summary>The fractions of a pixel the speed counts: 256 to the pixel.</summary>
+    private const int FractionsPerPixel = 256;
+
+    /// <summary>The speed in pixels an update, its fraction kept exactly: the amount an installed file states (#2555).</summary>
+    public decimal Pixels => InTwoHundredFiftySixthsOfPixel / (decimal)FractionsPerPixel;
+
+    /// <summary>
+    /// The speed of <paramref name="pixels"/> pixels an update (#2555), as an installed file states it: an amount the type
+    /// keeps exactly, a whole number of its finest fractions of a pixel, within its range.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The type cannot keep the amount exactly.</exception>
+    public static SignedEightEight FromPixels(decimal pixels)
+    {
+        decimal fractions = pixels * FractionsPerPixel;
+        if (fractions != decimal.Truncate(fractions) || fractions < short.MinValue || fractions > short.MaxValue)
+            throw new ArgumentOutOfRangeException(nameof(pixels), pixels, "The speed cannot keep this amount of pixels exactly.");
+        return FromTwoHundredFiftySixthsOfPixel((int)fractions);
+    }
 
     /// <summary>A speed of <paramref name="pixels"/> whole pixels an update, -128 through 127, with no fraction.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The speed lies outside the type's range.</exception>
@@ -71,9 +95,22 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>
     [IntegerQuantity("whole-pixel part of a signed 8.8 velocity")]
     public int WholePixels => InTwoHundredFiftySixthsOfPixel >> 8;
 
+    /// <summary>
+    /// The velocity's speed, whichever way it points, counted in its finest steps, a 256th of a pixel an update each
+    /// (#2555): the count a Torizo's ground probe reads as whole pixels.
+    /// </summary>
+    [IntegerQuantity("finest steps of a signed 8.8 speed's magnitude")]
+    public int MagnitudeInFinestSteps => Math.Abs(InTwoHundredFiftySixthsOfPixel);
+
     /// <summary>The whole pixels of the velocity's speed, whichever way it points: its magnitude, the fraction dropped.</summary>
     [IntegerQuantity("whole-pixel part of a signed 8.8 speed")]
     public int MagnitudeWholePixels => Math.Abs(InTwoHundredFiftySixthsOfPixel) >> 8;
+
+    /// <summary>
+    /// <paramref name="amount"/> taken the way the velocity points (#2569): as it is for a velocity toward increasing
+    /// coordinates, or at rest, and reversed for one toward decreasing coordinates.
+    /// </summary>
+    public T Along<T>(T amount) where T : System.Numerics.IUnaryNegationOperators<T, T> => IsNegative ? -amount : amount;
 
     /// <summary>The velocity halved, its lowest fraction bit dropped toward negative infinity.</summary>
     public SignedEightEight Halved() => FromTwoHundredFiftySixthsOfPixel(InTwoHundredFiftySixthsOfPixel >> 1);
@@ -84,6 +121,20 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>
     /// </summary>
     public static SignedEightEight operator +(SignedEightEight velocity, SignedEightEight acceleration) =>
         Wrapped(velocity.RawValue + acceleration.RawValue);
+
+    /// <summary>
+    /// The velocity scaled by a whole <paramref name="factor"/>, as the game's velocity arithmetic multiplies it: a product
+    /// past the largest positive value continues from the most negative one and the reverse (<see cref="Wrapped"/>).
+    /// </summary>
+    public static SignedEightEight operator *(SignedEightEight velocity, int factor) =>
+        Wrapped(velocity.InTwoHundredFiftySixthsOfPixel * factor);
+
+    /// <summary>
+    /// The velocity scaled by a whole <paramref name="factor"/> (#2555), for a velocity whose owner keeps the product far
+    /// inside the type's range: a product outside the range fails instead of continuing from the other end.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The product lies outside the type's range.</exception>
+    public SignedEightEight Times(int factor) => FromTwoHundredFiftySixthsOfPixel(checked(InTwoHundredFiftySixthsOfPixel * factor));
 
     /// <summary>
     /// The velocity after one update's <paramref name="acceleration"/>, for a velocity whose owner keeps it far inside the
@@ -155,6 +206,27 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>
 
     /// <summary>This speed pointed the way <paramref name="direction"/> points: reversed when that velocity is negative.</summary>
     public SignedEightEight AlongDirectionOf(SignedEightEight direction) => direction.IsNegative ? -this : this;
+
+    /// <summary>
+    /// The velocity kept at least <paramref name="least"/>'s speed from rest whichever way it points (#2569): a slower
+    /// velocity toward decreasing coordinates moves at <paramref name="least"/> that way, and any other slower velocity,
+    /// at rest included, at <paramref name="least"/> toward increasing coordinates.
+    /// </summary>
+    /// <param name="least">The slowest speed, toward increasing coordinates.</param>
+    public SignedEightEight WithSpeedAtLeast(SignedEightEight least) => IsNegative ? Min(this, -least) : Max(this, least);
+
+    /// <summary>
+    /// The velocity sped up away from rest by <paramref name="acceleration"/> (#2569): one toward decreasing coordinates
+    /// lowered by it and any other, at rest included, raised by it, each wrapping as the velocity arithmetic does.
+    /// </summary>
+    public SignedEightEight SpedUpBy(SignedEightEight acceleration) => IsNegative ? this - acceleration : this + acceleration;
+
+    /// <summary>
+    /// The velocity dragged toward rest by <paramref name="drag"/> (#2569): one toward decreasing coordinates raised by it
+    /// and any other, at rest included, lowered by it, each wrapping as the velocity arithmetic does, so a drag larger than
+    /// the speed carries it past rest the other way.
+    /// </summary>
+    public SignedEightEight DraggedBy(SignedEightEight drag) => IsNegative ? this + drag : this - drag;
 
     /// <summary>
     /// The velocity slowed by <paramref name="drag"/>: its speed lowered by the drag, stopping at rest, and its direction kept,

@@ -80,7 +80,7 @@ internal sealed class SamusPresentation
         }
 
         samus.AnimationFrameTimer = WrappingCountdown.Start(samus.ExtraAnimationDelay).AddFrames(initialDelay.Ticks);
-        samus.PendingTransitionalPose = null;
+        samus.CuePose.Forget();
     }
 
     /// <summary>
@@ -131,7 +131,7 @@ internal sealed class SamusPresentation
         samus.AnimatedPose = pose;
         samus.AnimationFrame = SamusAnimationDelays.AnimationForPose(pose).Require(frame);
         samus.AnimationFrameTimer = WrappingCountdown.Start(timer);
-        samus.PendingTransitionalPose = null;
+        samus.CuePose.Forget();
     }
 
     /// <summary>
@@ -175,7 +175,7 @@ internal sealed class SamusPresentation
         // still rising. This is intentionally tested before the decrement and applies only when the
         // timer's last update remains; release or the apex turns her downward and lets it expire.
         if (samus.Pose is SamusPoseId.NeutralJumpRightPose or SamusPoseId.NeutralJumpLeftPose &&
-            samus.Kinematics.YDirection != SamusVerticalDirection.Down &&
+            !samus.Kinematics.VerticalVelocity.IsFalling &&
             samus.AnimationIsOn(SamusAnimationFrames.NeutralJumpRise) &&
             samus.AnimationFrameTimer.IsAt(1))
         {
@@ -314,19 +314,19 @@ internal sealed class SamusPresentation
                     SamusPoseId.NeutralJumpTransitionLeftPose or
                     SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose)
                     return;
-                if (!samus.Control.InputLocked && !demoPoseInput) samus.InputSnapshot.AutoJumpInputPending = true;
+                if (!samus.Control.InputLocked && !demoPoseInput) samus.InputSnapshot.AutoJump.Install();
                 // The transition neither selects a new delay nor advances the shown frame; the pose transitions that
                 // follow the animation consume it.
-                samus.PendingTransitionalPose = turn.Pose;
+                samus.CuePose.Name(turn.Pose);
                 return;
 
             case SamusAnimationItemAirborneTransition itemAirborne:
                 // Moving vertically means any vertical speed at all. Morph entry uses this to finish
                 // without guessing whether the transition walked off a ledge.
-                bool movingVertically = !samus.Kinematics.YSpeed.IsZero;
-                samus.PendingTransitionalPose = samus.EquippedItems.HasAny(itemAirborne.Item)
+                bool movingVertically = samus.Kinematics.VerticalVelocity.IsMoving;
+                samus.CuePose.Name(samus.EquippedItems.HasAny(itemAirborne.Item)
                     ? movingVertically ? itemAirborne.EquippedAirborne : itemAirborne.EquippedGrounded
-                    : movingVertically ? itemAirborne.UnequippedAirborne : itemAirborne.UnequippedGrounded;
+                    : movingVertically ? itemAirborne.UnequippedAirborne : itemAirborne.UnequippedGrounded);
                 return;
 
             case SamusAnimationWallJumpSelect wallJump:
@@ -340,18 +340,18 @@ internal sealed class SamusPresentation
 
             case SamusAnimationVerticalSpeedTransition verticalSpeed:
                 // Read only on a cue value's place (#1535): the pose depends on whether Samus has any vertical speed alone.
-                samus.PendingTransitionalPose = !samus.Kinematics.YSpeed.IsZero
+                samus.CuePose.Name(samus.Kinematics.VerticalVelocity.IsMoving
                     ? verticalSpeed.Airborne
-                    : verticalSpeed.Grounded;
+                    : verticalSpeed.Grounded);
                 return;
 
             case SamusAnimationItemTransition item:
-                samus.PendingTransitionalPose = samus.EquippedItems.HasAny(item.Item) ? item.Equipped : item.Unequipped;
+                samus.CuePose.Name(samus.EquippedItems.HasAny(item.Item) ? item.Equipped : item.Unequipped);
                 return;
 
             case SamusAnimationTransition transition:
                 // Unlike a turn's transition, no selected jump supersedes it.
-                samus.PendingTransitionalPose = transition.Pose;
+                samus.CuePose.Name(transition.Pose);
                 return;
 
             case SamusAnimationRepeat repeat:
@@ -414,7 +414,7 @@ internal sealed class SamusPresentation
         // Samus. Active knockback and any nonzero stored/active shine timer independently
         // force the body visible, even though the separately drawn arm cannon follows its
         // stricter rule and may still disappear on that same odd frame.
-        bool bodyVisible = samus.KnockbackTimer != 0 ||
+        bool bodyVisible = samus.KnockbackHold.IsRunning ||
             samus.InvincibilityTimer.IsZero ||
             SamusInputSnapshot.HoldsShine(samus) ||
             !SamusCadenceDefinitions.InvincibilityFlickerHidden.IsSetIn(frameCounter);

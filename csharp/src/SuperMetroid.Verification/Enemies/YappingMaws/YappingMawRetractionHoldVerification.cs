@@ -49,7 +49,7 @@ internal static class YappingMawRetractionHoldVerification
             AssertEqual(YappingMawAction.ExtendingOrRetracting, state.Action, $"{context}: setup begins the extension");
 
             state.Aim = aim;
-            state.Extension = SixteenSixteenWords.ToDisplacement(-retract - 1);
+            state.Extension = new YappingMawCurl(SixteenSixteenWords.ToDisplacement(-retract - 1));
             state.SpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(row);
             state.CurlPhase = YappingMawCurlPhase.Retracting;
             state.HasGrabbedSamus = true;

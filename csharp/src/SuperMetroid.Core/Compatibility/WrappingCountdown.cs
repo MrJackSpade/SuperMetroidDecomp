@@ -36,7 +36,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// with no clamp; the full-movie replays (the Ridley full movie and the 13% SMV) step every enemy, boss, Samus and frontend
 /// countdown through this type and match the recording on every update. The wrap itself is observable where a timer is
 /// stepped from zero: the Ceres hall's debris waits as long as the elevator shaft's last turn step reads as a countdown
-/// (<see cref="RoomMainCarryover"/>).
+/// (<see cref="ShaftTurnSetsDebrisWait"/>).
 /// </para>
 /// <para>
 /// Gameplay reads a countdown only through these named tests and the <see cref="RemainingFrames"/> it has left; checks and

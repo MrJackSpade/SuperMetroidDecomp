@@ -24,7 +24,7 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
     /// </exception>
     internal AnimationSegments(IReadOnlyDictionary<TSegment, AnimationBeat<TFrame, TEvent>[]> segments)
         : this(segments, typeof(TSegment).IsEnum
-            ? Enum.GetValues(typeof(TSegment)).Cast<TSegment>()
+            ? Enum.GetValues(typeof(TSegment)).Cast<TSegment>().ToHashSet()
             : throw new ArgumentException($"{typeof(TSegment).Name} is not an enum; name the segments it requires.", nameof(segments)))
     {
     }
@@ -84,9 +84,9 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
         return beats[opening.Segment][opening.FirstBeat] is AnimationBeat<TFrame, TEvent>.Frame or AnimationBeat<TFrame, TEvent>.HeldFrame;
     }
 
-    /// <summary>Every frame a segment shows, each once, in the order the segments first show them.</summary>
-    internal IEnumerable<TFrame> Frames =>
-        beats.Values.SelectMany(segment => segment).Select(beat => beat.ShownFrame).OfType<TFrame>().Distinct();
+    /// <summary>Every frame a segment shows, each once: a set, since no order of the segments is stated (#2567).</summary>
+    internal IReadOnlySet<TFrame> Frames =>
+        beats.Values.SelectMany(segment => segment).Select(beat => beat.ShownFrame).OfType<TFrame>().ToHashSet();
 
     /// <summary>
     /// Plays <paramref name="animation"/> on from <paramref name="place"/> to its next frame, raising each event it passes

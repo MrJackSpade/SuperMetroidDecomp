@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Compatibility;
+
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
@@ -10,12 +12,12 @@ namespace SuperMetroid.Core.Rooms.Doors;
 internal sealed class RoomDoorContacts
 {
     /// <summary>
-    /// Whether Samus's stand at the elevator's door is waiting for the elevator. Every gameplay update runs the enemies
-    /// before Samus's collision, so the elevator takes a stand her collision makes at the start of the next update's
-    /// enemies, never on the update she made it. The one-update delay is gameplay-observable: the elevator leaves an
-    /// update after she stands at its door.
+    /// Samus's stand at the elevator's door, which waits for the elevator. Every gameplay update runs the enemies before
+    /// Samus's collision, so the elevator takes a stand her collision makes at the start of the next update's enemies, never
+    /// on the update she made it. The one-update delay is gameplay-observable: the elevator leaves an update after she stands
+    /// at its door.
     /// </summary>
-    private bool _elevatorStandWaitsForNextUpdate;
+    internal ElevatorStandAtDoor ElevatorStand { get; } = new();
 
     /// <summary>
     /// The door Samus's collision entered, until the door transition goes through it or the reserve refill's beginning
@@ -33,7 +35,7 @@ internal sealed class RoomDoorContacts
                 EnteredDoor ??= entered.Door;
                 return;
             case DoorContact.StandsAtElevator:
-                _elevatorStandWaitsForNextUpdate = true;
+                ElevatorStand.Stand();
                 return;
             case DoorContact.BrushesElevator:
                 return;
@@ -61,16 +63,5 @@ internal sealed class RoomDoorContacts
         if (entered != door)
             throw new InvalidOperationException($"The entered door changed from {door.Name} to {entered.Name} while its destination's assets were prepared.");
         EnteredDoor = null;
-    }
-
-    /// <summary>
-    /// Hands the elevator, at the start of an update's enemies, the stand at its door Samus's collision made on the update
-    /// before; returns whether she made one, which the stand then has reached.
-    /// </summary>
-    internal bool HandOverElevatorStandFromLastUpdate()
-    {
-        bool stood = _elevatorStandWaitsForNextUpdate;
-        _elevatorStandWaitsForNextUpdate = false;
-        return stood;
     }
 }

@@ -432,10 +432,9 @@ internal sealed class EnemyDeathsAndDrops
         EnemyProjectile projectile,
         SamusState samus)
     {
-        // The lifetime is decremented first; the pickup expires on the update it reaches zero.
+        // The lifetime is counted first; the pickup expires on the update it ends.
         EnemyPickupState pickup = projectile.StateOf<EnemyPickupState>();
-        pickup.Lifetime--;
-        if (pickup.Lifetime == 0)
+        if (pickup.Lifetime.Count())
         {
             MakeEnemyPickupDormant(projectile);
             return;
@@ -448,7 +447,7 @@ internal sealed class EnemyDeathsAndDrops
         // The grapple query reports any grapple phase but inactive. A pickup is immune to its
         // endpoint for the first sixteen decrements, then uses strict 16-pixel axis tests.
         if (samus.Grapple.Phase != GrapplePhase.Inactive &&
-            pickup.Lifetime < EnemyPickupDefinitions.Lifetime - EnemyPickupDefinitions.GrappleDelay &&
+            pickup.Lifetime.UpdatesLeft < EnemyPickupDefinitions.Lifetime - EnemyPickupDefinitions.GrappleDelay &&
             DistanceAcrossRoomEdge.Between(projectile.Position.X.Whole, samus.Grapple.Anchor.X) < EnemyPickupDefinitions.GrappleReach &&
             DistanceAcrossRoomEdge.Between(projectile.Position.Y.Whole, samus.Grapple.Anchor.Y) < EnemyPickupDefinitions.GrappleReach)
         {

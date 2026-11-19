@@ -13,6 +13,6 @@ internal sealed record RoomSetupEnemiesLoaded
     /// <summary>The session's progress.</summary>
     public required SharedGameState System { get; init; }
 
-    /// <summary>The working value room mains carry between rooms, whose diagonal quake two escape setups clear.</summary>
-    public required RoomMainCarryover Carryover { get; init; }
+    /// <summary>The escape's diagonal quake carried from the previous room's main, which two escape setups clear.</summary>
+    public required EscapeQuakeCarriedAcrossRooms EscapeQuake { get; init; }
 }

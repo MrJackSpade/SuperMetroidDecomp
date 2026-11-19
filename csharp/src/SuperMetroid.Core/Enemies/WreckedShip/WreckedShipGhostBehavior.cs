@@ -27,7 +27,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         var state = new WreckedShipGhostEnemyState(WreckedShipGhostAction.InitialInvisibleDelay)
         {
             Playback = new(WreckedShipGhostAnimations.StartingWith(WreckedShipGhostSegment.Floating), AnimationPlace.StartOfAnimation),
-            InvisibleDelay = WreckedShipGhostAppearanceDefinitions.InitialDelay,
+            InvisibleDelay = UpdateCountdown.For(WreckedShipGhostAppearanceDefinitions.InitialDelay),
         };
 
         // The ghost starts dark: its colours have settled to black long before its first wait
@@ -80,7 +80,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     /// </summary>
     private static void RunWreckedShipGhostInitialDelay(WreckedShipGhostEnemyState state)
     {
-        if (--state.InvisibleDelay != 0)
+        if (!state.InvisibleDelay.StepEnds())
             return;
 
         state.Action = WreckedShipGhostAction.TrackingSamusForSpawn;
@@ -107,7 +107,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
 
         if (withinPreviousBox)
         {
-            if (--state.StablePositionTimer == 0)
+            if (state.StablePositionTimer.StepEnds())
             {
                 // Remaining inside the tiny box for 64 frames means "stationary" on both
                 // axes and therefore selects the central spawn offset.
@@ -118,14 +118,14 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         }
         else
         {
-            state.StablePositionTimer = WreckedShipGhostAppearanceDefinitions.StillPositionDuration;
+            state.StablePositionTimer = UpdateCountdown.For(WreckedShipGhostAppearanceDefinitions.StillPositionDuration);
             Offset16<RoomPixels> motion = samusPosition - state.PreviousSamusPosition;
             SamusAxisMotion horizontal = AxisMotion(motion.X);
 
             if (horizontal != state.SamusMotion.Horizontal)
             {
                 state.SamusMotion = state.SamusMotion with { Horizontal = horizontal };
-                state.StableDirectionTimer = WreckedShipGhostAppearanceDefinitions.SteadyFacingDuration;
+                state.StableDirectionTimer = UpdateCountdown.For(WreckedShipGhostAppearanceDefinitions.SteadyFacingDuration);
             }
             else
             {
@@ -134,11 +134,11 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
                 if (vertical != state.SamusMotion.Vertical)
                 {
                     state.SamusMotion = state.SamusMotion with { Vertical = vertical };
-                    state.StableDirectionTimer = WreckedShipGhostAppearanceDefinitions.SteadyFacingDuration;
+                    state.StableDirectionTimer = UpdateCountdown.For(WreckedShipGhostAppearanceDefinitions.SteadyFacingDuration);
                 }
                 else
                 {
-                    if (--state.StableDirectionTimer == 0)
+                    if (state.StableDirectionTimer.StepEnds())
                     {
                         SpawnWreckedShipGhost(place, state, samusPosition);
                         return;
@@ -173,10 +173,10 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     {
         place.Position = place.Position.WithWhole(samusPosition + WreckedShipGhostAppearance.SpawnOffset(state.SamusMotion));
         state.Action = WreckedShipGhostAction.BrighteningAndFlickering;
-        state.FlickerTimer = WreckedShipGhostAppearanceDefinitions.FlickerFirstStepDelay;
+        state.FlickerTimer = UpdateCountdown.For(WreckedShipGhostAppearanceDefinitions.FlickerFirstStepDelay);
         state.NextFlickerStep = WreckedShipGhostFlickerStep.First;
-        state.StablePositionTimer = WreckedShipGhostAppearanceDefinitions.StillPositionDuration;
-        state.StableDirectionTimer = WreckedShipGhostAppearanceDefinitions.SteadyFacingDuration;
+        state.StablePositionTimer = UpdateCountdown.For(WreckedShipGhostAppearanceDefinitions.StillPositionDuration);
+        state.StableDirectionTimer = UpdateCountdown.For(WreckedShipGhostAppearanceDefinitions.SteadyFacingDuration);
     }
 
     /// <summary>Brightens the ghost toward its white flash, flickering as it brightens; once no colour changes, it fades to its own colours.</summary>
@@ -216,7 +216,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
         state.Action = WreckedShipGhostAction.BobbingWhileVisible;
         state.BobbingOriginY = place.Position.Y.Whole;
-        state.VisibleTimer = WreckedShipGhostAppearanceDefinitions.VisibleDuration;
+        state.VisibleTimer = UpdateCountdown.For(WreckedShipGhostAppearanceDefinitions.VisibleDuration);
         state.VerticalVelocity = WreckedShipGhostAppearanceDefinitions.BobStartSpeed;
         state.SamusMotion = new(SamusAxisMotion.Still, SamusAxisMotion.Still);
         state.PreviousSamusPosition = samus.Position.Whole;
@@ -234,12 +234,11 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         // The ghost appears 64 pixels above a Samus who has been rising, and Samus can rise to within 70 pixels of the
         // top of the Wrecked Ship's main shaft and save room, so a ghost can bob a few pixels either side of the room's
         // top edge; it turns back toward where it appeared the short way, as DistanceAcrossRoomEdge.LiesBefore reads it.
-        SignedSixteenSixteen acceleration = DistanceAcrossRoomEdge.LiesBefore(place.Position.Y.Whole, state.BobbingOriginY)
-            ? WreckedShipGhostAppearanceDefinitions.BobAcceleration
-            : -WreckedShipGhostAppearanceDefinitions.BobAcceleration;
+        SignedSixteenSixteen acceleration = WreckedShipGhostAppearanceDefinitions.BobAcceleration.Toward(
+            DistanceAcrossRoomEdge.LiesBefore(place.Position.Y.Whole, state.BobbingOriginY) ? VerticalDirection.Down : VerticalDirection.Up);
         state.VerticalVelocity += acceleration;
 
-        if (--state.VisibleTimer != 0)
+        if (!state.VisibleTimer.StepEnds())
             return;
 
         state.Action = WreckedShipGhostAction.WaitingForWhiteFade;
@@ -257,7 +256,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
 
         state.Action = WreckedShipGhostAction.InitialInvisibleDelay;
         place.Presence = place.Presence.With(EnemyPresence.Hidden);
-        state.InvisibleDelay = WreckedShipGhostAppearanceDefinitions.ReappearanceDelay;
+        state.InvisibleDelay = UpdateCountdown.For(WreckedShipGhostAppearanceDefinitions.ReappearanceDelay);
     }
 
     /// <summary>
@@ -270,13 +269,13 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     {
         if (state.IsFlickering)
         {
-            if (--state.FlickerTimer != 0)
+            if (!state.FlickerTimer.StepEnds())
                 return;
 
             if (state.NextFlickerStep is not { } step)
                 return;
 
-            state.FlickerTimer = step.Duration;
+            state.FlickerTimer = UpdateCountdown.For(step.Duration);
             state.NextFlickerStep = step.Next;
             if (step.Visibility == WreckedShipGhostFlickerVisibility.Unchanged)
                 return;

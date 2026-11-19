@@ -88,13 +88,11 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             Action = YappingMawAction.WaitingForSamus,
             Origin = place.Position.Whole,
-            RetractedDelayTimer = YappingMawAttackDefinitions.RetractedHold,
+            RetractedDelayTimer = UpdateCountdown.Lasting(YappingMawAttackDefinitions.RetractedHold),
             Links = [.. bodies.Select(body => new YappingMawLink(body))],
             // The root's kind follows the Maw's attack direction; the Maw holds the root it spawned.
             RootEffectActor = _effectActors.SpawnRoomEffectActor(
-                new(place.Position.X.Whole, place.Position.Y.Whole + (place.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
-                    ? -YappingMawAttackDefinitions.RootDistance
-                    : YappingMawAttackDefinitions.RootDistance)),
+                new(place.Position.X.Whole, place.Position.Y.Whole + (YappingMawAttackDefinitions.RootDistance.Toward(place.SpawnSettings<YappingMawSpawnSettings>().Attack.Reversed()))),
                 place.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
                     ? RoomEffectActorKind.YappingMawBaseFacingDown
                     : RoomEffectActorKind.YappingMawBaseFacingUp,
@@ -150,7 +148,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         YappingMawEnemyState state,
         SamusState samus)
     {
-        (int distance, Bearing bearing) = CalculateYappingMawTarget(
+        (int distance, TrigonometryAngle bearing) = CalculateYappingMawTarget(
             state.Origin,
             samus.Position.Whole);
         state.DistanceToSamus = distance;
@@ -177,11 +175,11 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the one-frame setup action.</summary>
     internal static void BeginYappingMawExtension(RoomEnemyPlace place, YappingMawEnemyState state)
     {
-        state.Extension = SignedSixteenSixteen.Zero;
+        state.Extension = YappingMawCurl.None;
         state.SpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
         state.CurlPhase = YappingMawCurlPhase.Extending;
         state.SegmentRadius = state.DistanceToSamus / 2;
-        state.CurlAngle = state.AimAngle.ToTrigonometryAngle().ToAngle();
+        state.CurlAngle = state.AimAngle.ToAngle();
 
         state.Baseline = new Offset16<RoomPixels>(
             CalculateYappingMawX(TrigonometryAngle.HalfTurn, state.SegmentRadius),
@@ -208,7 +206,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         YappingMawEnemyState state,
         SamusState samus)
     {
-        int bendStep = BendStepOf(state.Extension.WholePixels);
+        int bendStep = BendStepOf(state.Extension.WholeUnits);
         // The bend corrects the eight offsets in one chain, link by link and X before Y (YappingMawBendChain).
         var chain = new YappingMawBendChain();
         for (int segment = 0; segment < state.Links.Count; segment++)
@@ -238,11 +236,11 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Position = place.Position.WithWhole(YappingMawLinkPosition(state, 3));
         AddYappingMawQuadraticSpeed(state);
 
-        if (state.Extension.WholePixels >= 0)
+        if (!state.Extension.IsNegative)
         {
-            if (state.Extension.WholePixels >= YappingMawAttackDefinitions.LargestCurl)
+            if (state.Extension.WholeUnits >= YappingMawAttackDefinitions.LargestCurl)
             {
-                state.Extension = SignedSixteenSixteen.FromParts(checked(YappingMawAttackDefinitions.LargestCurl), 0);
+                state.Extension = YappingMawCurl.FromWholeUnits(YappingMawAttackDefinitions.LargestCurl);
                 // The turn-around steps half a mark further than the update's own advance: from extending at a mark's
                 // speed to retracting at the same mark's, or from retracting on to extending at the next mark's.
                 if (state.CurlPhase == YappingMawCurlPhase.Retracting)
@@ -299,7 +297,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Adds the current quadratic speed to the curl, carrying the fraction, then advances its place along the curve.</summary>
     internal static void AddYappingMawQuadraticSpeed(YappingMawEnemyState state)
     {
-        state.Extension += state.SpeedCurvePlace.Speed.Toward(state.CurlPhase == YappingMawCurlPhase.Retracting ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
+        state.Extension = state.Extension.MovedBy(state.CurlPhase.CurlChange(state.SpeedCurvePlace.Speed.Speed));
         state.SpeedCurvePlace += QuadraticSpeedCurvePlace.OneMark;
     }
 
@@ -313,15 +311,13 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             PositionSamusInYappingMaw(mouth, state, samus);
 
         // A hold that has run out stays at zero while Samus's death keeps the Maw waiting.
-        if (state.RetractedDelayTimer > 0)
-            state.RetractedDelayTimer--;
-        if (state.RetractedDelayTimer > 0 || samus.DeathSequence.IsActive)
+        if (!state.RetractedDelayTimer.Step() || samus.DeathSequence.IsActive)
             return;
 
         samus.Control.Unlock();
         state.HasGrabbedSamus = false;
         state.GrabCooldown = YappingMawGrabCooldown.Started(YappingMawAttackDefinitions.GrabCooldown);
-        state.RetractedDelayTimer = YappingMawAttackDefinitions.RetractedHold;
+        state.RetractedDelayTimer = UpdateCountdown.Lasting(YappingMawAttackDefinitions.RetractedHold);
         state.Action = YappingMawAction.WaitingForSamus;
     }
 
@@ -380,7 +376,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (place.Health != 0)
         {
-            if (place.FrozenTimer == 0)
+            if (place.Freeze.IsOver)
                 return;
 
             ReleaseSamusFromYappingMaw(state, samus);
@@ -410,7 +406,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         PictureShading shading = SelectYappingMawFrozenShading(
             place.Shading,
-            place.FrozenTimer);
+            place.Freeze.UpdatesLeft);
         foreach (YappingMawLink link in state.Links)
             link.Body.Graphics = link.Body.Graphics.In(shading);
 
@@ -475,26 +471,26 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         int deltaX = samus.X - origin.X;
         int absoluteX = Math.Abs(deltaX);
         if (absoluteX >= ShortProductReach)
-            return new YappingMawTarget(absoluteX, default);
+            return new YappingMawTarget(absoluteX, TrigonometryAngle.QuarterTurn);
 
         int deltaY = samus.Y - origin.Y;
         int absoluteY = Math.Abs(deltaY);
         if (absoluteY >= ShortProductReach)
-            return new YappingMawTarget(absoluteY, default);
+            return new YappingMawTarget(absoluteY, TrigonometryAngle.QuarterTurn);
 
-        TrigonometryAngle positiveQuadrantAngle = EnemyMath.CalculateBearing(new(absoluteX, absoluteY)).ToMirroredTrigonometryAngle();
+        TrigonometryAngle positiveQuadrantAngle = EnemyMath.CalculateAimAngle(new(absoluteX, absoluteY));
         int distance =
-            Math.Abs(EnemyMath.CircleNegativeSinePixels(positiveQuadrantAngle, absoluteX)) +
-            Math.Abs(EnemyMath.CircleCosinePixels(positiveQuadrantAngle, absoluteY));
-        return new YappingMawTarget(distance, EnemyMath.CalculateBearing(new(deltaX, deltaY)));
+            Math.Abs(EnemyMath.CircleSinePixels(positiveQuadrantAngle - TrigonometryAngle.QuarterTurn, absoluteX)) +
+            Math.Abs(EnemyMath.CircleSinePixels(positiveQuadrantAngle, absoluteY));
+        return new YappingMawTarget(distance, EnemyMath.CalculateAimAngle(new(deltaX, deltaY)));
     }
 
     /// <summary>
     /// Which of the eight aims the bearing <paramref name="aim"/> points in: eight equal sectors in the aims' clockwise
     /// order from up, each centred on its direction, so the aim is turned on half a sector before its sector is read.
     /// </summary>
-    internal static YappingMawAim AimOf(Bearing aim) => YappingMawAnimationDefinitions.Aims.At(
-        aim.TurnedBySteps(RotationAngle.StepsPerTurn / 16).Sector(8));
+    internal static YappingMawAim AimOf(TrigonometryAngle aim) => YappingMawAnimationDefinitions.Aims.At(
+        Array.IndexOf(TrigonometryAngle.DirectionsClockwise, aim.NearestDirection()));
 
     /// <summary>X is the Y offset a quarter turn behind.</summary>
     internal static int CalculateYappingMawX(TrigonometryAngle angle, int length) =>

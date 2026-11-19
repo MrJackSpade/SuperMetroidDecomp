@@ -33,10 +33,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Rio.</summary>
     internal static void InitializeRio(RoomEnemyPlace place)
     {
-        var state = new RioEnemyState(RioAction.WaitingForSamus)
-        {
-            AnimationFinished = false,
-        };
+        var state = new RioEnemyState(RioAction.WaitingForSamus);
         place.SetSpeciesState(state);
 
         // The Rio rests in its idle animation until its first swoop starts another.
@@ -64,11 +61,9 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
                 }
 
-                state.Velocity = new EightEightVector<RoomPixels>(
-                    RioLaunchDefinitions.RioXVelocity,
+                state.Velocity = new PixelVelocity<RoomPixels>(
+                    RioLaunchDefinitions.RioXVelocity.Toward(RioLaunches.SideOfSamus(place, samus)),
                     RioLaunchDefinitions.RioYVelocity);
-                if (samus.Position.X.Whole < place.Position.X.Whole)
-                    state.Velocity = state.Velocity.ReversedX();
                 StartRioAnimation(
                     place,
                     state,
@@ -82,9 +77,8 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case RioAction.WaitingForLandingAnimation:
-                if (!state.AnimationFinished)
+                if (!state.Finish.Take())
                     return;
-                state.AnimationFinished = false;
                 state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, RioAnimations.PostSwoopHover);
                 state.Action = RioAction.WaitingForSamus;
                 return;
@@ -112,12 +106,11 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (state.Velocity.Y.IsNegative)
                 {
                     state.SavedHorizontalVelocity = state.Velocity.X;
-                    state.Velocity = new EightEightVector<RoomPixels>(SignedEightEight.Zero, SignedEightEight.Zero);
+                    state.Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.Zero, SignedEightEight.Zero);
                     state.Action = RioAction.HoveringTowardSamus;
                 }
-                else if (state.AnimationFinished)
+                else if (state.Finish.Take())
                 {
-                    state.AnimationFinished = false;
                     StartRioAnimation(
                         place,
                         state,
@@ -155,18 +148,17 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 // its climb back to its perch at a 256th of a pixel an update.
                 if (place.Position.Y.Whole >= samus.Position.Y.Whole)
                 {
-                    state.Velocity = new EightEightVector<RoomPixels>(
+                    state.Velocity = new PixelVelocity<RoomPixels>(
                         state.SavedHorizontalVelocity,
                         RioLaunchDefinitions.ReturnYVelocity);
                     state.Action = RioAction.BouncingBackToPerch;
                     return;
                 }
 
-                TrigonometryAngle angle = EnemyMath.CalculateBearing(
-                    new(samus.Position.X.Whole - place.Position.X.Whole, samus.Position.Y.Whole - place.Position.Y.Whole)).ToMirroredTrigonometryAngle();
-                state.Velocity = state.Velocity.WithX(HoverVelocity(
-                    angle + TrigonometryAngle.QuarterTurn));
-                state.Velocity = state.Velocity.WithY(HoverVelocity(angle));
+                TrigonometryAngle angle = EnemyMath.CalculateAimAngle(
+                    new(samus.Position.X.Whole - place.Position.X.Whole, samus.Position.Y.Whole - place.Position.Y.Whole));
+                state.Velocity = state.Velocity.WithX(HoverVelocity(angle));
+                state.Velocity = state.Velocity.WithY(HoverVelocity(angle + TrigonometryAngle.QuarterTurn));
                 _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                     level,
                     place,
@@ -189,7 +181,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue.Kind)
         {
             case RioCueKind.AnimationFinished:
-                state.AnimationFinished = true;
+                state.Finish.Raise();
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(RioCueKind)} {cue.Kind}.");

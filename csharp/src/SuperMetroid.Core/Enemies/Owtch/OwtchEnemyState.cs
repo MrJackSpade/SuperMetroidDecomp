@@ -14,31 +14,20 @@ public sealed class OwtchEnemyState
     public OwtchBehaviorState Behavior { get; internal set; }
 
     /// <summary>
-    /// How many pixels the Owtch has sunk below its walking height, zero through sixteen while it sinks; set directly
-    /// by initialization and the sinking steps. Rising counts it down through <see cref="RiseOnePixel"/>.
+    /// The Owtch's sink below its walking height, one pixel each sinking update: its age is the depth sunk, and it is over
+    /// at <see cref="OwtchMovementDefinitions.MaximumBurialDepth"/>, where the Owtch goes underground.
     /// </summary>
-    public int BurialDepth
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, OwtchMovementDefinitions.MaximumBurialDepth, value);
-    }
+    public UpdateCountdown Sink { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>
-    /// Counts one rising pixel off the burial depth and reports whether it reached zero. An Owtch rises only out of a
-    /// burial, from the underground wait or its buried spawn, so it never rises unburied: no placement starts it rising
-    /// (#1846).
+    /// The Owtch's rise out of its burial, one pixel each rising update: its updates left are the depth still buried, and
+    /// it is over as the Owtch surfaces. An Owtch rises only out of a burial, from the underground wait or its buried
+    /// spawn, so the rise always starts at <see cref="OwtchMovementDefinitions.MaximumBurialDepth"/> (#1846).
     /// </summary>
-    /// <exception cref="InvalidOperationException">The Owtch is not buried.</exception>
-    internal bool RiseOnePixel()
-    {
-        if (BurialDepth == 0)
-            throw new InvalidOperationException("An unburied Owtch cannot rise.");
-        BurialDepth--;
-        return BurialDepth == 0;
-    }
+    public UpdateCountdown Rise { get; internal set; } = UpdateCountdown.Ended();
 
-    /// <summary>The underground wait countdown.</summary>
-    public int UndergroundTimer { get; internal set; }
+    /// <summary>The underground wait, which ends on the update the Owtch starts rising.</summary>
+    public UpdateCountdown UndergroundTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>The left end of the patrol: the spawn X less the travel distance.</summary>
     public int MinimumX { get; internal set; }

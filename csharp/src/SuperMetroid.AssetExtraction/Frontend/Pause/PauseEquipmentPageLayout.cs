@@ -90,21 +90,20 @@ internal static class PauseEquipmentPageLayout
         HashSet<int> afterLabels = [.. afterWireframe, .. parts.Wireframe];
         HashSet<int> afterHyper = [.. afterLabels, .. PauseEquipmentControls.Upgrades.SelectMany(control => maps.Pause.EquipmentLabels.PageCells(control.Label))];
         yield return ScreenPictureSubject.Page(PauseEquipmentPictures.BaseFrame, maps.Pause.EquipmentBase.CreateTilemap(), Columns, parts.Dynamic);
-        PauseEquipmentLabelState[] states = Enum.GetValues<PauseEquipmentLabelState>();
         foreach (PauseUpgradeControl control in PauseEquipmentControls.Upgrades)
         {
             int[] cells = [.. maps.Pause.EquipmentLabels.PageCells(control.Label)];
-            foreach (PauseEquipmentLabelState state in states)
+            foreach (PauseEquipmentLabelState state in PauseSheetFrameOrder.LabelStates)
             {
                 BackgroundTile[] page = LayOut(maps, Reference with { Labels = Reference.Labels.Replace(Reference.Label(control.Label), new ShownEquipmentLabel(control.Label, state)) });
                 yield return Part(PauseEquipmentPictures.LabelFrame(control.Label, state), page, cells, afterLabels);
             }
         }
         yield return Part(PauseEquipmentPictures.HyperBeamsFrame, LayOut(maps, Reference with { HyperBeam = true }), parts.HyperColumn, afterHyper);
-        foreach (PauseWireframeKind kind in Enum.GetValues<PauseWireframeKind>())
+        foreach (PauseWireframeKind kind in PauseSheetFrameOrder.Wireframes)
             yield return Part(PauseEquipmentPictures.WireframeFrame(kind), LayOut(maps, Reference with { Wireframe = kind }), parts.Wireframe, afterWireframe);
         yield return Part(PauseEquipmentPictures.ReserveAbsentFrame, LayOut(maps, Reference), parts.Reserve, afterReserve);
-        foreach (ReserveTankMode mode in Enum.GetValues<ReserveTankMode>())
+        foreach (ReserveTankMode mode in PauseSheetFrameOrder.ReserveModes)
         {
             BackgroundTile[] page = LayOut(maps, Reference with { Reserve = new ShownReserveDisplay(mode, 0) });
             yield return Part(PauseEquipmentPictures.ReserveModeFrame(mode), page, parts.Mode, afterReserve);
@@ -120,7 +119,7 @@ internal static class PauseEquipmentPageLayout
                 yield return Part(PauseEquipmentPictures.ReserveDigitFrame(place, digit), page, [maps.Pause.ReserveUi.DigitCell(place)], afterReserve);
             }
         }
-        foreach (ShownReserveArrow arrow in Enum.GetValues<ShownReserveArrow>())
+        foreach (ShownReserveArrow arrow in PauseSheetFrameOrder.ReserveArrows)
             yield return Part(PauseEquipmentPictures.ReserveArrowFrame(arrow), LayOut(maps, Reference with { Arrow = arrow }), parts.Arrow, new HashSet<int>());
 
         // The renderer shows, at each pixel, the last placed picture whose bounds cover it, so a part's picture paints its
@@ -149,13 +148,13 @@ internal static class PauseEquipmentPageLayout
     {
         yield return PauseEquipmentPictures.BaseFrame;
         foreach (PauseUpgradeControl control in PauseEquipmentControls.Upgrades)
-        foreach (PauseEquipmentLabelState state in Enum.GetValues<PauseEquipmentLabelState>())
+        foreach (PauseEquipmentLabelState state in PauseSheetFrameOrder.LabelStates)
             yield return PauseEquipmentPictures.LabelFrame(control.Label, state);
         yield return PauseEquipmentPictures.HyperBeamsFrame;
-        foreach (PauseWireframeKind kind in Enum.GetValues<PauseWireframeKind>())
+        foreach (PauseWireframeKind kind in PauseSheetFrameOrder.Wireframes)
             yield return PauseEquipmentPictures.WireframeFrame(kind);
         yield return PauseEquipmentPictures.ReserveAbsentFrame;
-        foreach (ReserveTankMode mode in Enum.GetValues<ReserveTankMode>())
+        foreach (ReserveTankMode mode in PauseSheetFrameOrder.ReserveModes)
         {
             yield return PauseEquipmentPictures.ReserveModeFrame(mode);
             if (mode == ReserveTankMode.None)
@@ -164,7 +163,7 @@ internal static class PauseEquipmentPageLayout
         for (int place = 0; place < PauseReserveUiDefinitions.SupplyDigitPlaces; place++)
         for (int digit = 0; digit < PauseReserveUiDefinitions.DigitCount; digit++)
             yield return PauseEquipmentPictures.ReserveDigitFrame(place, digit);
-        foreach (ShownReserveArrow arrow in Enum.GetValues<ShownReserveArrow>())
+        foreach (ShownReserveArrow arrow in PauseSheetFrameOrder.ReserveArrows)
             yield return PauseEquipmentPictures.ReserveArrowFrame(arrow);
     }
 

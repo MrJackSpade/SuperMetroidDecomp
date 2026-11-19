@@ -26,7 +26,7 @@ internal static class GoldenTorizoEggHatchVerification
             new RoomBlockBehavior[256], new RoomBlockAppearance[256]), RoomLevelData.NothingBeyondGrid(), []);
         foreach (bool laidFacingRight in new[] { true, false })
         {
-            EnemyProjectile egg = enemies.Projectiles.EnemyProjectiles[0];
+            EnemyProjectile egg = enemies.Projectiles.ProjectileInPlace(0);
             FamilyProjectileStarts.Initialize(enemies, egg, RoomEnemyProjectileKind.GoldenTorizoEgg, SpriteGraphics.SharedStandard);
             egg.StartAnimation(new TorizoProjectileAnimation(laidFacingRight
                 ? TorizoProjectileSegment.EggBouncingRight

@@ -14,41 +14,42 @@ internal sealed class PrePhantoonRoomBehavior
     /// <summary>Shared pool in which the setup holds its place.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
+    /// <summary>The hold on the place the room's setup takes.</summary>
+    private readonly PrePhantoonRoomHeldProjectilePlace _heldPlace = new();
+
     /// <summary>Connects the room's rules to its loaded-room guard and projectile pool.</summary>
     internal PrePhantoonRoomBehavior(EnemyProjectileEngine projectiles)
     {
         _projectiles = projectiles;
+        HoldingProjectile = new HoldingProjectileBehavior(_heldPlace);
     }
 
+    /// <summary>The room's held place (#1760): it holds still, showing nothing, until its hold runs out and frees it.</summary>
+    internal EnemyProjectileBehavior HoldingProjectile { get; }
+
     /// <summary>
-    /// Runs the pre-Phantoon room's setup: takes the first free projectile place and holds it until the hold's animation
-    /// frees it or a room load clears the pool.
+    /// Runs the pre-Phantoon room's setup: takes the first free projectile place and holds it until the hold frees it or a
+    /// room load clears the pool.
     /// </summary>
     public void SpawnPrePhantoonRoomProjectile()
     {
         EnemyProjectile projectile = _projectiles.AllocateEnemyProjectile() ?? throw new InvalidOperationException(
             "The pre-Phantoon room's held place found no free place in a freshly cleared pool.");
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace, HoldingProjectile, graphics: default);
+        _heldPlace.Take();
         projectile.StartAnimation(new PrePhantoonRoomAnimation());
     }
 
-    /// <summary>The room's held place (#1760): it holds still until its animation frees it.</summary>
-    internal static readonly EnemyProjectileBehavior HoldingProjectile = new HoldingProjectileBehavior();
-
-    /// <summary>The held place, which carries out its animation's freeing cue.</summary>
-    private sealed class HoldingProjectileBehavior : EnemyProjectileBehavior, IEnemyProjectileCues<PrePhantoonRoomCue>
+    /// <summary>The held place, which counts its hold on each of its updates and frees the place on the update after it.</summary>
+    /// <param name="heldPlace">The hold the room's setup takes.</param>
+    private sealed class HoldingProjectileBehavior(PrePhantoonRoomHeldProjectilePlace heldPlace) : EnemyProjectileBehavior
     {
         /// <inheritdoc/>
-        public void RunCue(EnemyProjectileCueContext context, PrePhantoonRoomCue cue)
+        internal override void RunMotion(EnemyProjectileMotionContext context)
         {
-            switch (cue)
-            {
-                case PrePhantoonRoomCue.Delete:
-                    context.Projectile.Delete();
-                    return;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(PrePhantoonRoomCue)} {cue}.");
-            }
+            base.RunMotion(context);
+            if (heldPlace.FreesOnThisUpdate())
+                context.Projectile.Delete();
         }
     }
 }

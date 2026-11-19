@@ -13,7 +13,7 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>
     public const int StepsPerTurn = 256;
 
     /// <summary>Number of fractions in one step.</summary>
-    private const int FractionsPerStep = 256;
+    internal const int FractionsPerStep = 256;
 
     /// <summary>Holds the angle in 256ths of a step, 0 through 65535: whole steps and their fraction.</summary>
     internal RotationAngle(ushort rawValue) => RawValue = rawValue;
@@ -36,6 +36,9 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>
     /// <summary>Zero turns: the sine wave's zero angle.</summary>
     public static RotationAngle Zero { get; } = FromSteps(0);
 
+    /// <summary>The finest turn past none: a 256th of a step (#2555).</summary>
+    public static RotationAngle FinestTurn { get; } = new(1);
+
     /// <summary>One eighth of a turn on from <see cref="Zero"/>: the turn between neighbouring compass directions.</summary>
     public static RotationAngle EighthTurn { get; } = FromSteps(StepsPerTurn / 8);
 
@@ -56,21 +59,19 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>
         new(checked((ushort)(Ensure.BetweenInclusive(0, StepsPerTurn - 1, steps) * FractionsPerStep +
             Ensure.BetweenInclusive(0, FractionsPerStep - 1, fraction))));
 
+    /// <summary>
+    /// The angle <paramref name="numerator"/> <paramref name="denominator"/>ths of a step round from zero (#2555), the
+    /// denominator a power of two from 1 through 256 so the fraction is kept exactly: an eighth of a step, a step and a half.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The denominator is no power of two from 1 through 256, or the angle lies outside one turn.
+    /// </exception>
+    public static RotationAngle FromStepFraction(int numerator, int denominator) =>
+        new(checked((ushort)Ensure.BetweenInclusive(0, StepsPerTurn * FractionsPerStep - 1,
+            PowerOfTwoFraction.InFinestUnits(numerator, denominator, FractionsPerStep))));
+
     /// <summary>The angle halfway through whole step <paramref name="step"/>: the step with half a step's fraction.</summary>
     public static RotationAngle MiddleOfStep(TrigonometryAngle step) => FromSteps(step.RawValue, FractionsPerStep / 2);
-
-    /// <summary>
-    /// The angle <paramref name="eighths"/> eighths of a step round from zero, 0 through 2047 (#2422): the precision a tide's
-    /// turn each update is authored in.
-    /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="eighths"/> lies outside one turn.</exception>
-    public static RotationAngle FromEighthsOfStep(int eighths) =>
-        FromSteps(Ensure.BetweenInclusive(0, 8 * StepsPerTurn - 1, eighths) / 8, eighths % 8 * (FractionsPerStep / 8));
-
-    /// <summary>The angle <paramref name="halfSteps"/> half steps round from zero, 0 through 511: a whole or a half step.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="halfSteps"/> lies outside one turn.</exception>
-    public static RotationAngle FromHalfSteps(int halfSteps) =>
-        FromSteps(Ensure.BetweenInclusive(0, 2 * StepsPerTurn - 1, halfSteps) / 2, halfSteps % 2 * (FractionsPerStep / 2));
 
     /// <summary>The angle a computation in 256ths of a step lands on: past a full turn, or below zero, it continues around the circle.</summary>
     public static RotationAngle NormalizeRaw(int rawValue) => new(unchecked((ushort)rawValue));
@@ -86,6 +87,26 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>
     /// circle: the sub-step precision the game's turn rates are authored in.
     /// </summary>
     public RotationAngle TurnedByFractionsOfStep(int fractionsOfStep) => NormalizeRaw(RawValue + fractionsOfStep);
+
+    /// <summary>
+    /// The angle turned by <paramref name="speed"/>'s whole steps alone (#2555), keeping its own fraction, as a turn that
+    /// steps an angle by whole steps leaves the speed's fraction to accumulate in the speed.
+    /// </summary>
+    public RotationAngle TurnedByWholeStepsOf(AngularSpeed speed) => TurnedBySteps(speed.WholeSteps);
+
+    /// <summary>
+    /// The angle turned on by <paramref name="turn"/> <paramref name="times"/> times (#2555), continuing around the circle
+    /// past a full turn.
+    /// </summary>
+    /// <param name="turn">The turn each time takes.</param>
+    /// <param name="times">How many times, zero or more.</param>
+    public RotationAngle TurnedBy(RotationAngle turn, int times) => AddRaw(checked(turn.RawValue * Ensure.AtLeastZero(times)));
+
+    /// <summary>
+    /// The angle with its whole steps replaced by <paramref name="other"/>'s and its own fraction of a step kept (#2555),
+    /// as a beam held at its full width keeps the part of a step its widening had reached.
+    /// </summary>
+    public RotationAngle WithWholeStepsOf(RotationAngle other) => new((ushort)(other.Steps * FractionsPerStep + RawValue % FractionsPerStep));
 
     /// <summary>Turns the angle by <paramref name="steps"/> whole steps, keeping its fraction, continuing around the circle.</summary>
     public RotationAngle TurnedBySteps(int steps) => AddRaw(steps * FractionsPerStep);

@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Areas.Maridia;
 /// <summary>
 /// The Maridia elevatube's room main behaviour and the four door
 /// behaviours that initialize or release it. The fraction of the tracked height starts from what the previous
-/// room's main left (<see cref="RoomMainCarryover"/>), because the door behaviours do not set it, and is left for the
-/// following room's main.
+/// room's main left, because the door behaviours do not set it, and is left for the following room's main
+/// (<see cref="ElevatubeInheritedFraction"/>).
 /// </summary>
 [RoomLifetime]
 public sealed class MaridiaElevatubeRoomMainState
@@ -19,6 +19,9 @@ public sealed class MaridiaElevatubeRoomMainState
     /// The tube's tracked room height (#2016): the room Y its ride moves by the velocity each update, with its fraction.
     /// </summary>
     public FixedCoordinate TrackedY { get; private set; }
+
+    /// <summary>The hand-over the tube's fraction is adopted from and left in for the following room's main.</summary>
+    private readonly ElevatubeInheritedFraction _fraction;
 
     /// <summary>The tube's vertical velocity in room pixels per update, negative upward.</summary>
     public SignedEightEight Velocity { get; private set; }
@@ -30,10 +33,11 @@ public sealed class MaridiaElevatubeRoomMainState
     /// Builds the elevatube's ride for a room whose state runs the elevatube (#2287). The door behaviours initialize the
     /// room-main values this behaviour reads.
     /// </summary>
-    /// <param name="carryover">The room-main value the previous room left, whose fraction the tube adopts.</param>
-    public MaridiaElevatubeRoomMainState(RoomMainCarryover carryover)
+    /// <param name="fraction">The fraction the previous room's main left, which the tube adopts and leaves its own in.</param>
+    public MaridiaElevatubeRoomMainState(ElevatubeInheritedFraction fraction)
     {
-        TrackedY = FixedCoordinate.Of(0, Ensure.NotNull(carryover).Fraction);
+        _fraction = Ensure.NotNull(fraction);
+        TrackedY = FixedCoordinate.Of(0, fraction.Fraction);
     }
 
     /// <summary>
@@ -61,20 +65,18 @@ public sealed class MaridiaElevatubeRoomMainState
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
-        ISamusRoomObjects roomObjects,
-        RoomMainCarryover carryover)
+        ISamusRoomObjects roomObjects)
     {
-        Ensure.NotNull(carryover);
         Ensure.NotNull(level);
         Ensure.NotNull(roomObjects);
         Ensure.NotNull(samus);
 
         // Samus is held at the tube's centre every update, with no fraction of a pixel.
-        samus.Kinematics.Position = samus.Kinematics.Position.WithX(new FixedCoordinate(MaridiaElevatubeDefinitions.SamusCenterX, 0));
+        samus.Kinematics.Position = samus.Kinematics.Position.WithX(FixedCoordinate.FromWhole(MaridiaElevatubeDefinitions.SamusCenterX));
 
         SignedSixteenSixteen displacement = Velocity.ToSixteenSixteenDelta();
         TrackedY = TrackedY.MovedBy(displacement);
-        carryover.LeaveFraction(TrackedY.Fraction);
+        _fraction.Leave(TrackedY.Fraction);
 
         SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), IncludeSolidEnemies = false });
 

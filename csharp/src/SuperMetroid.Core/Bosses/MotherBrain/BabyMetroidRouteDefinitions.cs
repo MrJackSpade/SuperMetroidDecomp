@@ -13,13 +13,13 @@ internal static class BabyMetroidRouteDefinitions
     /// </summary>
     internal static IReadOnlyList<BabyMetroidRouteLeg> Legs { get; } =
     [
-        new(new(160, 120), SignedEightEight.FromSixteenthsOfPixel(1)),
-        new(new(304, 122), SignedEightEight.FromSixteenthsOfPixel(1)),
-        new(new(192, 64), SignedEightEight.FromSixteenthsOfPixel(1)),
-        new(new(192, 112), SignedEightEight.FromSixteenthsOfPixel(1)),
-        new(new(224, 128), SignedEightEight.FromSixteenthsOfPixel(1)),
-        new(new(205, 144), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(8)),
-        new(new(204, 160), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(8)),
-        new(new(203, 176), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(8)),
+        new(new(160, 120), SignedEightEight.FromPixelFraction(1, 16)),
+        new(new(304, 122), SignedEightEight.FromPixelFraction(1, 16)),
+        new(new(192, 64), SignedEightEight.FromPixelFraction(1, 16)),
+        new(new(192, 112), SignedEightEight.FromPixelFraction(1, 16)),
+        new(new(224, 128), SignedEightEight.FromPixelFraction(1, 16)),
+        new(new(205, 144), SignedEightEight.FromPixelFraction(1, 32)),
+        new(new(204, 160), SignedEightEight.FromPixelFraction(1, 32)),
+        new(new(203, 176), SignedEightEight.FromPixelFraction(1, 32)),
     ];
 }

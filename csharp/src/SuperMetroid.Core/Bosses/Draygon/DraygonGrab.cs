@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal sealed class DraygonGrab
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    private readonly BossFrameResultBuilder _frameResults;
+    private readonly EnemyPassEvents _passEvents;
     /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocates breath bubbles, death smoke, and burial Evir sprites.</summary>
@@ -23,9 +23,9 @@ internal sealed class DraygonGrab
     private readonly DraygonTurrets _turrets;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal DraygonGrab(BossFrameResultBuilder frameResults, EnemyRoomBinding room, RoomEffectActors effectActors, SamusScrollCap scrollCap, DraygonTurrets turrets)
+    internal DraygonGrab(EnemyPassEvents passEvents, EnemyRoomBinding room, RoomEffectActors effectActors, SamusScrollCap scrollCap, DraygonTurrets turrets)
     {
-        _frameResults = frameResults;
+        _passEvents = passEvents;
         _room = room;
         _effectActors = effectActors;
         _scrollCap = scrollCap;
@@ -56,7 +56,7 @@ internal sealed class DraygonGrab
         RoomEnemyPlace body = state.Body;
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
 
-        int clawOffset = state.Facing == HorizontalDirection.Right ? DraygonArenaDefinitions.ClawReach : -DraygonArenaDefinitions.ClawReach;
+        int clawOffset = DraygonArenaDefinitions.ClawReach.Toward(state.Facing);
         bool insideGrabWindow =
             DistanceAcrossRoomEdge.Between(body.Position.X.Whole + clawOffset, samus.Position.X.Whole) < DraygonArenaDefinitions.GrabWindow &&
             DistanceAcrossRoomEdge.Between(body.Position.Y.Whole, samus.Position.Y.Whole) < DraygonArenaDefinitions.GrabWindow;
@@ -80,7 +80,7 @@ internal sealed class DraygonGrab
         }
 
         samus.DraygonGrabbed.Begin(samus, state.Facing);
-        _frameResults.DraygonDiscardedSamusPoseRequests = true;
+        _passEvents.Publish(new DraygonHoldChanged());
         state.SpiralCenter = state.SpiralCenter.StartSpiral(DraygonGrabDefinitions.SpiralTarget);
         state.SpiralXRadius = SignedSixteenSixteen.Zero;
         state.SpiralAngle = DraygonGrabDefinitions.InitialSpiralAngle;
@@ -231,11 +231,8 @@ internal sealed class DraygonGrab
         // The normal route does own one, so invoke the release only in that case.
         if (samus.DraygonGrabbed.IsActive)
         {
+            // Draygon sees his own release, so no later carry or encounter finds an escape waiting.
             ReleaseSamusDuringEnemyUpdate(samus);
-            // ReleaseSamusFromDraygon publishes the owner-release flag, and the release immediately clears
-            // all of Samus's grapple flags. Consume that release signal here so
-            // a later encounter cannot observe a stale owner-release request.
-            samus.DraygonGrabbed.ConsumeOwnerReleaseSignal();
         }
 
         state.Phase = DraygonPhase.FlyStraightUp;
@@ -247,18 +244,18 @@ internal sealed class DraygonGrab
 
     /// <summary>
     /// Carries Samus with Draygon. It places Samus without checking that she is
-    /// still held, and only then tests the escape flag Samus's grapple publishes. The first carrying
+    /// still held, and the carry reports whether she has broken free since his last. The first carrying
     /// update after an escape therefore drags the released Samus once more before Draygon
     /// switches to flying straight up.
     /// </summary>
     internal void MoveSamusWithDraygon(DraygonEnemyState state, SamusState samus)
     {
-        samus.DraygonGrabbed.ApplyOwnerPosition(
+        bool escaped = samus.DraygonGrabbed.CarryTo(
             samus,
             state.Body.Position.Whole,
             state.Facing);
         _scrollCap.CapSamusScrollingSpeed(samus);
-        if (samus.DraygonGrabbed.ConsumeOwnerReleaseSignal())
+        if (escaped)
             state.Phase = DraygonPhase.FlyStraightUp;
     }
 
@@ -271,7 +268,7 @@ internal sealed class DraygonGrab
         Position16<RoomPixels> target,
         int speed)
     {
-        DraygonMovement.MoveDraygonAtAngle(body, EnemyMath.CalculateBearing(target - body.Position.Whole).ToTrigonometryAngle(), speed);
+        DraygonMovement.MoveDraygonAtAngle(body, EnemyMath.CalculateAimAngle(target - body.Position.Whole), speed);
     }
 
     /// <summary>Recognizes grapple phases that let Samus electrocute a connected Draygon.</summary>
@@ -283,7 +280,7 @@ internal sealed class DraygonGrab
     private static void MarkDraygonGrappleShock(DraygonEnemyState state)
     {
         RoomEnemyPlace body = state.Body;
-        body.FlashTimer = body.HurtFlashFrames + DraygonArenaDefinitions.GrappleShockFlashExtension;
+        body.HurtFlash.Restart(body.HurtFlashFrames + DraygonArenaDefinitions.GrappleShockFlashExtension);
         body.AiStates = body.AiStates | EnemyAiStates.Hurt;
     }
 
@@ -293,7 +290,7 @@ internal sealed class DraygonGrab
     /// </summary>
     internal void ReleaseSamusDuringEnemyUpdate(SamusState samus)
     {
-        samus.DraygonGrabbed.Release(samus);
-        _frameResults.DraygonDiscardedSamusPoseRequests = true;
+        samus.DraygonGrabbed.ReleaseByDraygon(samus);
+        _passEvents.Publish(new DraygonHoldChanged());
     }
 }

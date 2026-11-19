@@ -71,7 +71,7 @@ internal sealed class RidleyReveal
                 return;
 
             case RidleyRevealPhase.TakingOff:
-                ridley.Flight.Velocity = EightEightVector<RoomPixels>.Zero;
+                ridley.Flight.Velocity = PixelVelocity<RoomPixels>.Zero;
                 return;
 
             default:
@@ -131,7 +131,7 @@ internal sealed class RidleyReveal
     private static void TakeOff(RoomEnemyPlace place, RidleyEncounterState ridley)
     {
         RidleyFlight.StartAnimation(ridley.Flight, place, RidleyAnimations.TransitionToFlying);
-        ridley.Flight.Wings.Countdown = RidleyWingDefinitions.TakeOffCountdown;
+        ridley.Flight.Wings.Countdown.Restart(RidleyWingDefinitions.TakeOffCountdown);
         foreach (RidleyTailLink link in ridley.Tail.Links)
             link.Active = true;
         ridley.Tail.Action = RidleyTailAction.Neutral;

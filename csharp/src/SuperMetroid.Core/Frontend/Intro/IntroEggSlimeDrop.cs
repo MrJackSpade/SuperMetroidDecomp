@@ -12,10 +12,10 @@ internal sealed class IntroEggSlimeDrop
     /// <summary>How the drop flies: its sideways drift and its vertical speed for each update it has flown.</summary>
     private readonly IntroEggSlimeLaunch launch;
     /// <summary>
-    /// The frames the drop has fallen: its place along its fall. A plain count (#1781): every drop reaches
-    /// the puddle height within its curve, whose next step throws.
+    /// The drop's fall, counted once each update it flies: its age is its place along its fall's curve (#1781). Every drop
+    /// reaches the puddle height within its curve, whose next step throws.
     /// </summary>
-    private int framesFallen;
+    private readonly UpdateCountdown fall;
     /// <summary>Whether the drop still flies, or splashes where it reached the puddle-animation height.</summary>
     private IntroEggSlimeDropPhase phase;
 
@@ -24,6 +24,7 @@ internal sealed class IntroEggSlimeDrop
     {
         CinematicActorDefinition<IntroEggEffectAnimation> definition = IntroEggEffectDefinitions.SlimeDrop;
         this.launch = launch;
+        fall = UpdateCountdown.Lasting(launch.Fall.Updates);
 
         // Every drop starts where the confused Baby is.
         sprite = new(babyPosition, IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors), IntroEggEffectAnimations.Effects,
@@ -42,7 +43,7 @@ internal sealed class IntroEggSlimeDrop
         if (phase == IntroEggSlimeDropPhase.Falling)
         {
             AddVelocity(axis: Axis.Horizontal, launch.Drift);
-            AddVelocity(axis: Axis.Vertical, launch.Fall.Speed(framesFallen));
+            AddVelocity(axis: Axis.Vertical, launch.Fall.Speed(fall.Age));
 
             if (sprite.ScreenPlace.Y >= IntroEggEffectDefinitions.SlimeDropLandingY)
             {
@@ -53,7 +54,7 @@ internal sealed class IntroEggSlimeDrop
             }
             else
             {
-                framesFallen++;
+                fall.Count();
             }
         }
 

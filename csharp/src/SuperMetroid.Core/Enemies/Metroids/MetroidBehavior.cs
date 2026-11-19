@@ -185,11 +185,11 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Makes the escaping Metroid's next move; after its last it chases Samus.</summary>
     internal static void RunMetroidPowerBombEscape(RoomEnemyPlace place, MetroidEnemyState state)
     {
-        place.Position += MetroidReactions.EscapeDisplacement(state.EscapeMovesLeft);
+        place.Position += MetroidReactions.EscapeDisplacement(state.EscapeMovesLeft.UpdatesLeft);
         StoreMetroidXVelocity(state, SignedSixteenSixteen.Zero);
         StoreMetroidYVelocity(state, SignedSixteenSixteen.Zero);
 
-        if (--state.EscapeMovesLeft != 0)
+        if (!state.EscapeMovesLeft.Count())
             return;
 
         state.Movement = MetroidMovement.Homing;
@@ -200,10 +200,10 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void RunMetroidFrozen(RoomEnemyPlace place)
     {
         MetroidEnemyState state = place.RequireSpeciesState<MetroidEnemyState>();
-        if (state.EscapeMovesLeft != 0)
+        if (state.EscapeMovesLeft.IsRunning)
         {
-            state.EscapeMovesLeft--;
-            place.FlashTimer = MetroidBehaviorDefinitions.EscapeFlashDuration;
+            state.EscapeMovesLeft.Count();
+            place.HurtFlash.Restart(MetroidBehaviorDefinitions.EscapeFlashDuration);
         }
 
         FreezeMetroidOuterBody(state.Electricity);
@@ -217,7 +217,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void ApplyMetroidHurt(RoomEnemyPlace place)
     {
         MetroidEnemyState state = place.RequireSpeciesState<MetroidEnemyState>();
-        if (MetroidCadenceDefinitions.HurtOuterBodiesShowOwnColours.IsSetIn(place.FlashTimer))
+        if (MetroidCadenceDefinitions.HurtOuterBodiesShowOwnColours.IsSetIn(place.HurtFlash.UpdatesLeft))
         {
             state.Electricity.Graphics = state.Electricity.Graphics.In(place.Shading);
             state.Shell.Graphics = state.Shell.Graphics.In(place.Shading);
@@ -240,10 +240,10 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 // The body attack throws the Metroid away from Samus at a quarter of their distance an update.
                 StoreMetroidXVelocity(
                     state,
-                    SignedSixteenSixteen.FromSixteenthsOfPixel(MetroidBehaviorDefinitions.BodyAttackThrowPerDistance * (place.Position.X.Whole - samus.Position.X.Whole)));
+                    MetroidBehaviorDefinitions.BodyAttackThrowPerDistance * (place.Position.X.Whole - samus.Position.X.Whole));
                 StoreMetroidYVelocity(
                     state,
-                    SignedSixteenSixteen.FromSixteenthsOfPixel(MetroidBehaviorDefinitions.BodyAttackThrowPerDistance * (place.Position.Y.Whole - targetY)));
+                    MetroidBehaviorDefinitions.BodyAttackThrowPerDistance * (place.Position.Y.Whole - targetY));
                 state.Movement = MetroidMovement.Homing;
                 SetMetroidAnimation(place, state, MetroidSegment.ChasingSamus);
             }
@@ -275,7 +275,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Subtracts one health at suit-dependent fractional intervals without ordinary hurt flash or knockback.</summary>
     private static void DrainSamusWithMetroid(MetroidEnemyState state, SamusState samus)
     {
-        int drainFraction = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
+        EnergyAmount drainFraction = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
             ? MetroidBehaviorDefinitions.GravityDrainFraction
             : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
                 ? MetroidBehaviorDefinitions.VariaDrainFraction
@@ -314,20 +314,20 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // that edge, still pushes the Metroid away from it the short way, as DistanceAcrossRoomEdge.Apart gives it.
         StoreMetroidXVelocity(
             state,
-            SignedSixteenSixteen.FromSixteenthsOfPixel(MetroidBehaviorDefinitions.ShotRecoilPerDistance * DistanceAcrossRoomEdge.Apart(place.Position.X.Whole, recoilOrigin.X)));
+            MetroidBehaviorDefinitions.ShotRecoilPerDistance * DistanceAcrossRoomEdge.Apart(place.Position.X.Whole, recoilOrigin.X));
         StoreMetroidYVelocity(
             state,
-            SignedSixteenSixteen.FromSixteenthsOfPixel(MetroidBehaviorDefinitions.ShotRecoilPerDistance * DistanceAcrossRoomEdge.Apart(place.Position.Y.Whole, recoilOrigin.Y)));
+            MetroidBehaviorDefinitions.ShotRecoilPerDistance * DistanceAcrossRoomEdge.Apart(place.Position.Y.Whole, recoilOrigin.Y));
         state.Movement = MetroidMovement.Homing;
         SetMetroidAnimation(place, state, MetroidSegment.ChasingSamus);
 
         if (collisionProjectileType.BeamCombination.HasIce)
         {
-            place.FlashTimer = MetroidBehaviorDefinitions.IceFlashDuration;
+            place.HurtFlash.Restart(MetroidBehaviorDefinitions.IceFlashDuration);
             if (collisionProjectileDamage >= state.IceDamageToFreeze)
             {
                 state.IceDamageToFreeze = 0;
-                place.FrozenTimer = MetroidBehaviorDefinitions.FrozenDuration;
+                place.Freeze.Restart(MetroidBehaviorDefinitions.FrozenDuration);
                 place.AiStates |= EnemyAiStates.Frozen;
                 return;
             }
@@ -343,7 +343,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         MetroidEnemyState state,
         SamusState samus)
     {
-        state.EscapeMovesLeft = MetroidBehaviorDefinitions.EscapeDuration;
+        state.EscapeMovesLeft = UpdateCountdown.For(MetroidBehaviorDefinitions.EscapeDuration);
         state.Movement = MetroidMovement.PowerBombEscape;
         SetMetroidAnimation(place, state, MetroidSegment.ChasingSamus);
         samus.MetroidAttachmentShade = SamusMetroidAttachmentShade.Inactive;
@@ -376,7 +376,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Clamps the signed whole pixels of homing speed to three while retaining in-range fractions.</summary>
-    private static SignedSixteenSixteen ClampMetroidVelocity(SignedSixteenSixteen velocity) => EnemyMath.ClampWholeVelocity(velocity, MetroidBehaviorDefinitions.FastestChase);
+    private static SignedSixteenSixteen ClampMetroidVelocity(SignedSixteenSixteen velocity) => EnemyMath.LimitedEitherWay(velocity, MetroidBehaviorDefinitions.FastestHoming);
 
     /// <summary>Stores the recoil or homing X speed.</summary>
     private static void StoreMetroidXVelocity(MetroidEnemyState state, SignedSixteenSixteen velocity) =>
@@ -423,7 +423,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal void ReactToMetroidBomb(EnemyBombContext c)
     {
-        if (c.Enemy.FrozenTimer == 0)
+        if (c.Enemy.Freeze.IsOver)
         {
             SamusProjectile recoilOrigin = MetroidRecoilOrigin.Of(c.OrdinaryProjectiles.Shots);
             ResolveMetroidNonFrozenShot(c.Enemy, c.Bomb.Type, Ensure.AtLeastZero(c.Bomb.Damage), recoilOrigin.Position.Whole, c.Samus);
@@ -456,7 +456,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal bool ResolveMetroidOrdinaryShot(in EnemyShotContext c)
     {
         RoomEnemyPlace enemy = c.Enemy;
-        if (enemy.FrozenTimer != 0)
+        if (enemy.Freeze.IsRunning)
         {
             if (c.Family is not SamusProjectileFamily.Missile and not SamusProjectileFamily.SuperMissile)
             {
@@ -475,7 +475,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             int frozenDamage = frozenVulnerability.DamageFrom(c.ProjectileDamage);
             if (!frozenVulnerability.FreezesWithoutDamage && frozenDamage != 0)
             {
-                enemy.FlashTimer = enemy.HurtFlashFrames + MetroidBehaviorDefinitions.FrozenHurtFlashExtension;
+                enemy.HurtFlash.Restart(enemy.HurtFlashFrames + MetroidBehaviorDefinitions.FrozenHurtFlashExtension);
                 enemy.AiStates |= EnemyAiStates.Hurt;
                 enemy.Health = frozenDamage >= enemy.Health
                     ? 0

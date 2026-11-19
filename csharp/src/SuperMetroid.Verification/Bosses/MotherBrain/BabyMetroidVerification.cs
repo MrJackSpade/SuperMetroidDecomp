@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidFixtureHeadVerification;
@@ -76,7 +77,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     motherBrain.StartAttackCycle(); // Establishes the pre-existing enabled neck flag.
 
     var baby = motherBrain.Baby;
-    baby.Initialize(FixedPosition<RoomPixels>.Zero);
+    MotherBrainLateFightFixtures.Arrive(baby, FixedPosition<RoomPixels>.Zero);
 
     AssertEqual(false, baby.HurtFlashShown, "Baby cutscene shows its own palette, not the hit flash");
     // The Baby keeps no graphics: its sheet pictures its frames where its tile rows are transferred, and its parts carry
@@ -98,7 +99,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
         baby.Step(samus, HeadOf(motherBrain), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
     AssertEqual(BabyMetroidCutscenePhase.DashOntoScreen, baby.Phase,
         "Baby dash delay retains function at timer zero");
-    AssertEqual(0, baby.PhaseTimer.Count, "Baby dash delay exact zero boundary");
+    AssertEqual(0, baby.PhaseTimer.CartridgeCount, "Baby dash delay exact zero boundary");
     AssertEqual(new Position16<RoomPixels>(0x0140, 0x0060), baby.Position.Whole, "Baby remains still through call 248");
 
     baby.Step(samus, HeadOf(motherBrain), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
@@ -168,12 +169,12 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(MotherBrainDrainedPhase.TakenAback, motherBrain.Encounter.DrainedPhase,
         "Baby installs Mother Brain $BE38 for the following actor turn");
 
-    MotherBrainRainbowBeamAttackStepResult takenAback = motherBrain.Step(samus, MotherBrainLateFightFixtures.QuietFrame(new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint(), 0, 0));
-    AssertTrue(takenAback.RainbowColours, "the taken-aback setup falls through into regain balance, which runs her rainbow colours");
+    MotherBrainRainbowBeamAttackStepResult takenAback = motherBrain.Step(samus, MotherBrainLateFightFixtures.QuietFrame(0, 0));
+    AssertTrue(takenAback.Starts(MotherBrainStepEffect.RainbowColours), "the taken-aback setup falls through into regain balance, which runs her rainbow colours");
     AssertEqual(MotherBrainDrainedPhase.RegainBalance,
         motherBrain.Encounter.DrainedPhase,
         "Mother Brain taken-aback setup falls through into regain balance");
-    AssertEqual(0x002f, motherBrain.Encounter.PhaseTimer.Count,
+    AssertEqual(0x002f, motherBrain.Encounter.PhaseTimer.CartridgeCount,
         "Mother Brain first regain call decrements $30 to $2F");
     AssertEqual(MotherBrainForm.DrainedByBabyMetroid, motherBrain.Encounter.Form, "Baby drain changes Mother Brain to her drained form");
     AssertEqual(MotherBrainNeckMovement.Raise, motherBrain.Encounter.LowerNeckMovement,
@@ -186,7 +187,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     int regainCalls = 1;
     while ((motherBrain.Encounter.Stage == MotherBrainBodyStage.DrainedByBaby && motherBrain.Encounter.DrainedPhase == MotherBrainDrainedPhase.RegainBalance))
     {
-        motherBrain.Step(samus, MotherBrainLateFightFixtures.QuietFrame(new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint(), 0, 0));
+        motherBrain.Step(samus, MotherBrainLateFightFixtures.QuietFrame(0, 0));
         regainCalls++;
     }
     AssertEqual(49, regainCalls, "Mother Brain regain balance includes setup fallthrough call");

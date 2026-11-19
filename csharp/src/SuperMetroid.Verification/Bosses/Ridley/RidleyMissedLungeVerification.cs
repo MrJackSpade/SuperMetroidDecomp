@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -30,7 +31,7 @@ internal static class RidleyMissedLungeVerification
         run(place, state, samus, 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
         AssertEqual(NorfairRidleyPhase.HoverSetup, state.Phase,
             "low missed lunge exits immediately when Ridley Y + 35 reaches Samus Y");
-        AssertTrue(state.Tail.WhipRequested, "missed lunge requests native tail whip");
+        AssertTrue(state.Tail.Whip.IsWaiting, "missed lunge requests native tail whip");
         ushort lowY = place.Position.Y.Whole;
         for (int frame = 0; frame < 32; frame++)
         {
@@ -45,11 +46,11 @@ internal static class RidleyMissedLungeVerification
             place.Health = 1000;
             state.Phase = NorfairRidleyPhase.GrabApproach;
             state.Flight.FacingDirection = facing;
-            state.Flight.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
+            state.Flight.Velocity = new PixelVelocity<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
             state.Flight.HitRoomBoundary = false;
             state.ZeroHealthLungeCount = 0;
             state.FightMode = RidleyFightMode.Fighting;
-            state.Tail.WhipRequested = false;
+            _ = state.Tail.Whip.Take();
         }
         // The native Y comparison is >=, and applies even when the claw's X misses.
         ResetLunge(160, 384);
@@ -89,7 +90,7 @@ internal static class RidleyMissedLungeVerification
         run(place, state, samus, 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
         AssertEqual(NorfairRidleyPhase.DeathRoar, state.Phase, "tenth miss immediately executes death-roar setup");
         AssertEqual(RidleyFightMode.Dying, state.FightMode, "tenth miss enters death mode without requiring a grab");
-        AssertEqual(32, state.PhaseTimer.Count, "native death-roar timer is armed");
+        AssertEqual(32, state.PhaseTimer.CartridgeCount, "native death-roar timer is armed");
 
         bomb.Arm();
         bomb.Spawn(new(200, 400));

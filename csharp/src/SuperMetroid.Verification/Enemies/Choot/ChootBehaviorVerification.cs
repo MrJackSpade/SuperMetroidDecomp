@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -36,7 +37,7 @@ internal static class ChootBehaviorVerification
             EnemyInstructionRunner.ShownFrames(place, 3), "Choot idle pose");
         AssertTrue(!place.Processing.HasAny(EnemyProcessing.OffScreen), "Choot idle program disables off-screen processing");
 
-        state.JumpDelayTimer = 0;
+        state.JumpDelayTimer = UpdateCountdown.Ended();
         ChootBehavior.PrepareChootJump(place, state);
         AssertEqual(new AnimationPlayback<ChootSegment>(ChootAnimations.StartingWith(ChootSegment.Jumping), AnimationPlace.StartOfAnimation), state.Playback,
             "Choot real preparation handoff starts the jumping animation");

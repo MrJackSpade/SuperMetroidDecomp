@@ -92,7 +92,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         int adjustedHalfSpan = covered.WholePixels;
         state.RightPostX = state.PostsMidpointX + adjustedHalfSpan;
         state.LeftPostX = state.PostsMidpointX - adjustedHalfSpan;
-        place.Position = place.Position.WithX(new(startsAtLeft ? state.LeftPostX : state.RightPostX, 0));
+        place.Position = place.Position.WithX(FixedCoordinate.FromWhole(startsAtLeft ? state.LeftPostX : state.RightPostX));
         state.SpawnPosition = place.Position.Whole;
     }
 
@@ -318,9 +318,9 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         VerticalDirection vertical)
     {
         int xPixels = state.SpinSpeed.WholePixels;
-        place.Position = place.Position.WithWholeX(place.Position.X.Whole + (direction == HorizontalDirection.Right ? xPixels : -xPixels));
+        place.Position = place.Position.WithWholeX(place.Position.X.Whole + (xPixels.Toward(direction)));
         place.Position = place.Position.WithWholeY(place.Position.Y.Whole +
-            (vertical == VerticalDirection.Up ? -SpacePirateMotionDefinitions.NinjaSpinClimbStep : SpacePirateMotionDefinitions.NinjaSpinClimbStep));
+            (SpacePirateMotionDefinitions.NinjaSpinClimbStep.Toward(vertical)));
 
         if (vertical == VerticalDirection.Up)
         {
@@ -389,7 +389,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         HorizontalDirection direction)
     {
         place.Position = place.Position.WithWholeX(place.Position.X.Whole +
-            (direction == HorizontalDirection.Right ? SpacePirateMotionDefinitions.NinjaDiveStep : -SpacePirateMotionDefinitions.NinjaDiveStep));
+            (SpacePirateMotionDefinitions.NinjaDiveStep.Toward(direction)));
 
         bool landed = _terrain.MoveEnemyVertically(level, place, NinjaPirateDiveFallStep.Of(state.DiveSpeed));
         if (!landed)
@@ -420,7 +420,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         HorizontalDirection direction)
     {
         place.Position = place.Position.WithWholeX(place.Position.X.Whole +
-            (direction == HorizontalDirection.Right ? SpacePirateMotionDefinitions.NinjaReturnStep : -SpacePirateMotionDefinitions.NinjaReturnStep));
+            (SpacePirateMotionDefinitions.NinjaReturnStep.Toward(direction)));
         bool reachedPost = direction == HorizontalDirection.Right
             ? place.Position.X.Whole >= state.RightPostX
             : place.Position.X.Whole < state.LeftPostX;
@@ -491,7 +491,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         // OffRoomPlaces places it, before the view test deletes it; it falls a pixel an update, so it stays below the
         // room's top.
         projectile.Position = OffRoomPlaces.WithWholeX(projectile.Position, projectile.Position.X.Whole +
-            (thrown == HorizontalDirection.Right ? outbound : -outbound));
+            (outbound.Toward(thrown)));
         projectile.Position = projectile.Position.WithWholeY(projectile.Position.Y.Whole + 1);
 
         if (!EnemyView.ContainsBeforeFarEdges(projectile.Position.Whole, camera))

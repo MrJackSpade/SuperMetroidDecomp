@@ -118,8 +118,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="crawlSpeed">The crawl speed on both axes, or none to keep <paramref name="velocity"/>.</param>
     /// <param name="velocity">The velocity kept when there is no crawl speed.</param>
     /// <returns>The reset velocity: <paramref name="velocity"/> or the crawl speed on both axes, signed by the block side.</returns>
-    internal static EightEightVector<RoomPixels> ResetCrawlerVelocities(
-        CrawlerSurfaceOrientation blockSide, SignedEightEight? crawlSpeed, EightEightVector<RoomPixels> velocity)
+    internal static PixelVelocity<RoomPixels> ResetCrawlerVelocities(
+        CrawlerSurfaceOrientation blockSide, SignedEightEight? crawlSpeed, PixelVelocity<RoomPixels> velocity)
     {
         if (crawlSpeed is SignedEightEight speed)
             velocity = new(speed, speed);
@@ -128,8 +128,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>A crawl velocity signed for the side of its block the crawler holds.</summary>
-    private static EightEightVector<RoomPixels> SignedForBlockSide(
-        CrawlerSurfaceOrientation blockSide, EightEightVector<RoomPixels> velocity) => blockSide switch
+    private static PixelVelocity<RoomPixels> SignedForBlockSide(
+        CrawlerSurfaceOrientation blockSide, PixelVelocity<RoomPixels> velocity) => blockSide switch
         {
             CrawlerSurfaceOrientation.UpsideRight => velocity.ReversedX(),
             CrawlerSurfaceOrientation.UpsideDown => velocity.ReversedY(),
@@ -155,7 +155,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             CrawlerAnimationFamily.Shared, orientation)), AnimationPlace.StartOfAnimation);
         place.Frame = EnemyFrameId.Empty;
         place.AnimationClock.StepOnNextUpdate();
-        state.Velocity = SignedForBlockSide(settings.BlockSide, new EightEightVector<RoomPixels>(crawlSpeed, crawlSpeed));
+        state.Velocity = SignedForBlockSide(settings.BlockSide, new PixelVelocity<RoomPixels>(crawlSpeed, crawlSpeed));
     }
 
     /// <summary>
@@ -442,7 +442,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static SignedSixteenSixteen GetSurfaceSlopeAdjustedHorizontalDisplacement(
         RoomEnemyPlace place,
-        EightEightVector<RoomPixels> velocity,
+        PixelVelocity<RoomPixels> velocity,
         RoomLevelData level)
     {
         int surfaceY = velocity.Y.IsNegative
@@ -469,7 +469,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static SignedSixteenSixteen WithProbeMargin(SignedEightEight velocity, int wholePixels)
     {
         SignedSixteenSixteen margin = SignedSixteenSixteen.FromWholePixels(wholePixels);
-        return velocity.ToSixteenSixteenDelta() + (velocity.IsNegative ? -margin : margin);
+        return velocity.ToSixteenSixteenDelta() + velocity.Along(margin);
     }
 
     /// <summary>Runs the shared crawler main AI.</summary>

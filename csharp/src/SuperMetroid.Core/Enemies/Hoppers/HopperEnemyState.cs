@@ -39,7 +39,7 @@ public sealed class HopperEnemyState
     /// Whole-pixel horizontal velocity, with no fraction of a pixel: <see cref="HopperHopDefinitions.HorizontalSpeed"/>
     /// toward <see cref="Heading"/> (#2338).
     /// </summary>
-    public int XVelocity => Heading == HorizontalDirection.Right ? HopperHopDefinitions.HorizontalSpeed : -HopperHopDefinitions.HorizontalSpeed;
+    public int XVelocity => HopperHopDefinitions.HorizontalSpeed.Toward(Heading);
 
     /// <summary>
     /// The step along the speed curve, three marks for small hops or four for big hops, taken back while moving away from

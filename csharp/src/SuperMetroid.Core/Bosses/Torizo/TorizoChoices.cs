@@ -31,8 +31,13 @@ internal sealed class TorizoChoices
     /// <param name="frameCounter">The frame counter on the update the choice is made.</param>
     /// <param name="samusX">Samus's X, in whole pixels.</param>
     internal static bool InFirstAttackPhase(int frameCounter, int samusX) =>
-        // Halving rounds toward lower values, so adding one first rounds every X up, a negative one included.
-        TorizoCadenceDefinitions.FirstAttackPhase.IsSetIn(frameCounter + ((samusX + 1) >> 1));
+        TorizoCadenceDefinitions.FirstAttackPhase.IsSetIn(frameCounter + TwoPixelStepsRoundedUp(samusX));
+
+    /// <summary>
+    /// <paramref name="x"/> counted in two-pixel steps, rounded up (#2555): an odd X reads as the next step, toward
+    /// increasing coordinates for a negative X too.
+    /// </summary>
+    private static int TwoPixelStepsRoundedUp(int x) => (int)Math.Ceiling(x / 2.0);
 
     /// <summary>Branches to the grounded-ball response only when Samus is four to 39 pixels away behind the statue.</summary>
     internal static AnimationContinuation<TorizoBodySegment>? SelectGoldenTorizoMorphBallBranch(
@@ -151,7 +156,7 @@ internal sealed class TorizoChoices
         TorizoEnemyState state)
     {
         SignedEightEight side = TorizoMotionDefinitions.ForwardLeapSideSpeed;
-        state.Velocity = new(TorizoFacing.FacesRight(torizo) ? side : -side, TorizoMotionDefinitions.ForwardLeapRise);
+        state.Velocity = new(side.Toward(TorizoFacing.Posture(torizo).Facing), TorizoMotionDefinitions.ForwardLeapRise);
         state.JumpAcceleration = TorizoMotionDefinitions.LeapGravity;
     }
 
@@ -164,7 +169,7 @@ internal sealed class TorizoChoices
         TorizoEnemyState state)
     {
         SignedEightEight side = TorizoMotionDefinitions.BackwardJumpSideSpeed;
-        state.Velocity = new(TorizoFacing.FacesRight(torizo) ? -side : side, TorizoMotionDefinitions.BackwardJumpRise);
+        state.Velocity = new(side.Toward(TorizoFacing.Posture(torizo).Facing.Reversed()), TorizoMotionDefinitions.BackwardJumpRise);
         state.JumpAcceleration = TorizoMotionDefinitions.LeapGravity;
     }
 

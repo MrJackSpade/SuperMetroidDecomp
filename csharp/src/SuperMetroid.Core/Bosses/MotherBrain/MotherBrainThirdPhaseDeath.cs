@@ -164,7 +164,7 @@ internal sealed class MotherBrainThirdPhaseDeath
             Encounter.DroolGenerationEnabled = false;
             Encounter.SmallPurpleBreathGenerationEnabled = false;
             _state.HealthColoursEnabled = false;
-            requests.BrainDetached = true;
+            requests.Start(MotherBrainStepEffect.BrainDetached);
             // Disabling the brain's effects restarts the bursts before the fade-out explosions.
             _bursts.Restart();
             Encounter.DeathPhase = MotherBrainDeathPhase.SetupBodyFadeOut;
@@ -200,17 +200,17 @@ internal sealed class MotherBrainThirdPhaseDeath
         // and hides the body.
         GenerateDeathExplosions(
             style: MotherBrainDeathExplosionStyle.Mixed, frame.NextRandomNumber, requests.DeathExplosions);
-        requests.BodyFlickers = true;
+        requests.Start(MotherBrainStepEffect.BodyFlickers);
         if (Encounter.DeathBodyFade.Step() is { } image)
             requests.DeathFadeImage = image;
         else if (Encounter.DeathBodyFade.IsOver)
         {
-            requests.BodyClearRequested = true;
+            requests.Start(MotherBrainStepEffect.BodyCleared);
             RoomEnemyPlace body = Encounter.Body;
             body.Presence = body.Presence.With(EnemyPresence.Hidden);
             body.Processing = body.Processing.Without(EnemyProcessing.Animates);
             body.CollidesByFrameHitboxes = false;
-            body.AnimationClock.ShowsNewFrame = false;
+            body.AnimationClock.Halt();
             Encounter.DeathPhase = MotherBrainDeathPhase.FinalFewExplosions;
             Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.FinalExplosionsUpdates);
         }
@@ -254,7 +254,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         // The brain gains fall speed each update and falls the speed's whole pixels.
         // Reaching the floor clamps the head and starts the brain's landing earthquake.
         _state.BrainFallSpeed += MotherBrainDeathDefinitions.BrainFallAcceleration;
-        int fallingDisplacement = _state.BrainFallSpeed.UnsignedWholePixels;
+        int fallingDisplacement = _state.BrainFallSpeed.WholePixels;
         Position16<RoomPixels> candidate = _state.BrainPosition + new Offset16<RoomPixels>(0, fallingDisplacement);
         if (candidate.Y >= MotherBrainFightDefinitions.BrainFloorY)
         {
@@ -350,9 +350,9 @@ internal sealed class MotherBrainThirdPhaseDeath
         brain.Presence = brain.Presence.With(EnemyPresence.Hidden);
         brain.Processing = brain.Processing.Without(EnemyProcessing.Animates);
         brain.CollidesByFrameHitboxes = false;
-        brain.AnimationClock.ShowsNewFrame = false;
-        requests.MusicStopQueued = true;   // Queue the music stop.
-        requests.EscapeMusicQueued = true; // Queue the escape music.
+        brain.AnimationClock.Halt();
+        requests.Start(MotherBrainStepEffect.MusicStop);   // Queue the music stop.
+        requests.Start(MotherBrainStepEffect.EscapeMusic); // Queue the escape music.
         Encounter.DeathPhase = MotherBrainDeathPhase.PauseBeforeEscape;
         Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.BeforeEscapeUpdates);
         return true;
@@ -402,13 +402,13 @@ internal sealed class MotherBrainThirdPhaseDeath
         // The wait's last update starts the escape: the escape music, the quake held indefinitely, four colour
         // effects and the escape text. The door's
         // fragments are pre-coloured in the exploded door's colours, so its colour load is not kept (#1544).
-        requests.EscapeMusicTrackQueued = true;
+        requests.Start(MotherBrainStepEffect.EscapeMusicTrack);
         requests.StartIndefiniteEarthquake(MotherBrainDeathDefinitions.EscapeEarthquake);
         requests.EscapeColourEffectRequests.Add(ColourEffectId.TourianShutterRedFlashing);
         requests.EscapeColourEffectRequests.Add(ColourEffectId.TourianBackgroundRedFlashing);
         requests.EscapeColourEffectRequests.Add(ColourEffectId.TourianGeneralLevelRedFlashing);
         requests.EscapeColourEffectRequests.Add(ColourEffectId.TourianRedFlashingArkanoidBlocksAndRedOrbs);
-        requests.EscapeTypewriterSetupRequested = true;
+        requests.Start(MotherBrainStepEffect.EscapeTypewriterSetup);
         Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.EscapeTextDelayUpdates);
         Encounter.DeathPhase = frame.AlternateEscapeText
             ? MotherBrainDeathPhase.SpawnTimeBombSetSubtitle
@@ -427,7 +427,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             Encounter.DeathPhase = MotherBrainDeathPhase.TypeOutZebesEscapeText;
-            requests.TimeBombSetSubtitleSpawnRequested = true;
+            requests.Start(MotherBrainStepEffect.TimeBombSetSubtitle);
         }
         return true;
     }
@@ -460,10 +460,10 @@ internal sealed class MotherBrainThirdPhaseDeath
 
         // Ending the drained get-up, starting the escape timer, recording Mother Brain's defeat and the escape event
         // happen together here; each is requested of what owns it.
-        requests.GetUpReleaseRequested = true;
-        requests.MotherBrainEscapeTimerStartRequested = true;
-        requests.MotherBrainDefeatRecordRequested = true;
-        requests.ZebesTimebombEventRequested = true;
+        requests.Start(MotherBrainStepEffect.GetUpRelease);
+        requests.Start(MotherBrainStepEffect.EscapeTimerStart);
+        requests.Start(MotherBrainStepEffect.DefeatRecord);
+        requests.Start(MotherBrainStepEffect.ZebesTimebombEvent);
         Encounter.DeathPhase = MotherBrainDeathPhase.BlowUpEscapeDoor;
         _bursts.Restart();
         return false;

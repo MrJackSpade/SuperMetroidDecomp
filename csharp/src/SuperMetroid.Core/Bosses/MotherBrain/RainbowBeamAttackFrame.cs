@@ -33,7 +33,4 @@ public sealed record RainbowBeamAttackFrame
 
     /// <summary>Whether the room's earthquake has stopped as this step observes it.</summary>
     public required bool RoomEarthquakeStopped { get; init; }
-
-    /// <summary>The session's record of what the beam's push hides from the camera, which every push writes.</summary>
-    public required RainbowBeamCameraCheckpoint CameraCheckpoint { get; init; }
 }

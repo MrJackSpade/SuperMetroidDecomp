@@ -1,3 +1,5 @@
+using SuperMetroid.Core;
+
 namespace SuperMetroid.AssetExtraction.Frontend.GameOver;
 
 /// <summary>The game-over page's five text elements and the cells they start on.</summary>
@@ -19,13 +21,16 @@ public static class GameOverTexts
         _ => throw new ArgumentOutOfRangeException(nameof(element)),
     };
 
-    /// <summary>Enumerates the five elements in their load order, without a stored table.</summary>
-    public static IEnumerable<GameOverTextStream> All
-    {
-        get
-        {
-            foreach (GameOverTextElement element in Enum.GetValues<GameOverTextElement>())
-                yield return Get(element);
-        }
-    }
+    /// <summary>The five elements in the order the menu's initialization loads them (#2567): the title, objective, prompt, Yes and No.</summary>
+    private static readonly IReadOnlyList<GameOverTextElement> LoadOrder = Ensure.EveryMemberOnce<GameOverTextElement>(
+    [
+        GameOverTextElement.Title,
+        GameOverTextElement.Objective,
+        GameOverTextElement.Prompt,
+        GameOverTextElement.ReturnToGame,
+        GameOverTextElement.ReturnToTitle,
+    ]);
+
+    /// <summary>Enumerates the five elements in their load order.</summary>
+    public static IEnumerable<GameOverTextStream> All => LoadOrder.Select(Get);
 }

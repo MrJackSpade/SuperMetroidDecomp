@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -24,7 +25,7 @@ internal static class DownwardGateProjectileBehaviorVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, DownwardGateProjectileNativeListAddresses.Extent, "downward gate");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        EnemyProjectile gate = enemies.Projectiles.EnemyProjectiles[0];
+        EnemyProjectile gate = enemies.Projectiles.ProjectileInPlace(0);
         FamilyProjectileStarts.Initialize(enemies, gate, RoomEnemyProjectileKind.DownwardGateMoving,
             SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard);
         AssertTrue(gate.Animation is DownwardGateProjectileAnimation { PlayingSegment: DownwardGateProjectileSegment.Moving }, "the moving gate starts its program");
@@ -43,7 +44,7 @@ internal static class DownwardGateProjectileBehaviorVerification
                 ? playing.PlayingSegment
                 : throw new InvalidOperationException("The gate lost its animation.");
             DownwardGateProjectileSegment stage = gate.StateOf<DownwardGateState>().Stage;
-            gate.StateOf<DownwardGateState>().PixelsSinceBlock = RoomGridConversions.BlockPixels - 1;
+            gate.StateOf<DownwardGateState>().BlockTravel = UpdateCountdownAccess.AtAge(RoomGridConversions.BlockPixels, RoomGridConversions.BlockPixels - 1);
             gate.Velocity = gate.Velocity.WithY(new SignedEightEight(256));
             DownwardGateBehavior.RunDownwardGateProjectileMovement(gate);
             DownwardGateProjectileSegment resumed = DownwardGateProjectileAnimations.NextStage[stage];

@@ -200,7 +200,7 @@ internal sealed class CrocomireBridgeCollapse
     internal void RunCrocomireSink(CrocomireEnemyState state, Position16<RoomPixels> camera)
     {
         CrocomireBodyLayer.LevelCrocomireMeltDistortion(state);
-        state.DamageReactionPending = false;
+        state.StepBack.Forget();
         CrocomireBodyLayer.PlaceCrocomireTongue(state);
         RoomEnemyPlace body = state.Body;
 
@@ -220,9 +220,8 @@ internal sealed class CrocomireBridgeCollapse
         SignedEightEight speed = CrocomireSpeedGain.Gained(state.VerticalSpeed, acceleration, CrocomireBridgeCollapseDefinitions.MaximumSinkSpeed);
         state.VerticalSpeed = speed;
 
-        SignedEightEight travelled = state.VerticalFraction + speed;
-        state.VerticalFraction = travelled.WithoutWholePixels();
-        body.Position = body.Position.WithWholeY(body.Position.Y.Whole + travelled.WholePixels);
+        body.Position = body.Position.WithWholeY(body.Position.Y.Whole + state.VerticalTravelCarry.WholePixelsCrossedBy(speed));
+        state.VerticalTravelCarry = state.VerticalTravelCarry.After(speed);
         // The acid hides his body below its row wherever this update leaves him, which is where his body is shown.
         HideCrocomireSunkenBody(state, camera);
     }
@@ -250,10 +249,9 @@ internal sealed class CrocomireBridgeCollapse
             speed = CrocomireBridgeCollapseDefinitions.RiseSpeedAfterStalling;
         state.VerticalSpeed = speed;
 
-        // The rise moves up: the carried fraction less the speed, its whole pixels zero or below.
-        SignedEightEight remaining = state.VerticalFraction - speed;
-        state.VerticalFraction = remaining.WithoutWholePixels();
-        body.Position = body.Position.WithWholeY(body.Position.Y.Whole + remaining.WholePixels);
+        // The rise moves up: the carried part of a pixel less the speed, its whole pixels zero or below.
+        body.Position = body.Position.WithWholeY(body.Position.Y.Whole + state.VerticalTravelCarry.WholePixelsCrossedBy(-speed));
+        state.VerticalTravelCarry = state.VerticalTravelCarry.After(-speed);
     }
 
     /// <summary>
@@ -320,7 +318,7 @@ internal sealed class CrocomireBridgeCollapse
         state.Tongue.Presence = state.Tongue.Presence.With(EnemyPresence.Deleted);
         _access.PublishCrocomireObject(CrocomireArenaDefinitions.BridgeWallBlock, CrocomireArenaMutation.ClearInvisibleWall);
         _cameraDistance.Request(CameraDistanceMode.NormalTracking);
-        state.Death.SkeletonBaringElapsed = 0;
+        state.Death.SkeletonBaring = UpdateCountdown.Lasting(CrocomireSkeletonLookDefinitions.BaringDuration);
     }
 
     /// <summary>Picks the next crumbling bridge column and runs the bridge fragment's setup.</summary>
@@ -343,11 +341,10 @@ internal sealed class CrocomireBridgeCollapse
             graphics: default);
         projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileSegment.BridgeFragment));
         projectile.Position = projectile.Position.WithWholeX(CrocomireBridgeFragmentDefinitions.XPosition(fragment));
-        projectile.Position = projectile.Position.WithWholeY(CrocomireBridgeFragmentDefinitions.Y).WithFractionX(0).WithFractionY(0);
+        projectile.Position = projectile.Position.WithWholeY(CrocomireBridgeFragmentDefinitions.Y).WithoutFractions();
         projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Zero);
         // The fragment's fall speed reads the room's random number without drawing a new one.
-        projectile.Velocity = projectile.Velocity.WithY(CrocomireBridgeFragmentDefinitions.SlowestFall +
-            SignedEightEight.FromTwoHundredFiftySixthsOfPixel(CrocomireRandomDefinitions.BridgeFragmentFallSpeedSpread.Of(_room.Random.Read())));
+        projectile.Velocity = projectile.Velocity.WithY(CrocomireRandomDefinitions.BridgeFragmentFallSpeed.Of(_room.Random.Read()));
         // The fragments draw in the wall colours Crocomire's encounter installs.
         projectile.Graphics = SpriteGraphics.SharedIn(CrocomireColours.WallShading);
     }

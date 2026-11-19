@@ -17,7 +17,7 @@ public static class SamusGrappleSwing
         SamusGrappleState grapple)
     {
         // A fast swing makes the camera scroll slowly.
-        grapple.SlowScrolling = grapple.AngularVelocity.Magnitude >= GrappleSlowScrollDefinitions.FastSwingAngularSpeed;
+        grapple.FollowSwing(grapple.AngularVelocity.Magnitude >= GrappleSlowScrollDefinitions.FastSwingAngularSpeed);
         // The swing places the rope by the same collision point the terrain probes use. Besides scaling the
         // angle's signed sine and cosine, it applies the block-side 7/8 endpoint bias documented in
         // CalculateCollisionPoint; using one point prevents visible art from disagreeing
@@ -48,23 +48,22 @@ public static class SamusGrappleSwing
         SamusGrappleState grapple)
     {
         AngularSpeed swingSpeed = grapple.AngularVelocity.Magnitude;
-        AngularSpeed releaseSpeed = swingSpeed + swingSpeed;
+        AngularSpeed releaseTurn = grapple.AngularVelocity + grapple.AngularVelocity;
         UnitComponent cosine = ReadSignedSine(grapple.Angle + RotationAngle.QuarterTurn);
 
         // Samus leaves at twice the swing's speed, each step of turn a pixel, along each axis's share of the rope's
-        // direction. The swing speed is at most four and a half steps and the component at most one, so each speed
-        // stays below 256 pixels and never wraps.
-        samus.Kinematics.YSpeed = cosine.SizeTimes(releaseSpeed);
-
-        // The release's vertical direction depends on which way the swing turns and which side of its anchor's
-        // level she hangs.
-        bool movingDown = grapple.AngularVelocity.IsNegative ? cosine.IsNegative : !cosine.IsNegative;
-        samus.Kinematics.YDirection = movingDown ? SamusVerticalDirection.Down : SamusVerticalDirection.Up;
+        // direction: downward where the swing's turn and the side of its anchor's level she hangs on point the same way.
+        // The swing speed is at most four and a half steps and the component at most one, so each speed stays below 256
+        // pixels and never wraps. A release with no vertical speed still heads the way the two point: down unless exactly
+        // one of them points back.
+        samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.FromDisplacement(cosine.VelocityOf(releaseTurn),
+            atRest: grapple.AngularVelocity.IsNegative == cosine.IsNegative ? VerticalDirection.Down : VerticalDirection.Up);
 
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
         int phaseOffset = GrappleBeamDefinitions.Physics.ReleaseLeadSteps - GrappleBeamDefinitions.Physics.ReleaseLeadStepsPerSwingStep * swingSpeed.WholeSteps;
         UnitComponent horizontal = UnitComponent.SineOf(grapple.Angle.TurnedBySteps(-phaseOffset).ToTrigonometryAngle());
-        samus.HorizontalSpeed.BaseSpeed = horizontal.SizeTimes(releaseSpeed);
+        // Her running speed is the horizontal velocity's speed; the release's facing gives it its side.
+        samus.HorizontalSpeed.BaseSpeed = horizontal.VelocityOf(releaseTurn).Magnitude();
     }
 
     /// <summary>
@@ -265,15 +264,14 @@ public static class SamusGrappleSwing
         // The kick reads Jump, not Dash. That test must agree with the release-window
         // check, or tight anchors become inescapable using Jump even though the
         // unrelated Dash accidentally supplies the kick.
-        if (grapple.CollisionBounceTimer != 0 &&
+        if (grapple.CollisionBounceTimer.IsRunning &&
             (newlyPressedInput & GameplayAction.Jump) != GameplayAction.None)
         {
             AngularSpeed impulse = grapple.Submerged
                 ? GrappleBeamDefinitions.Physics.JumpImpulseMagnitude.DividedBy(GrappleBeamDefinitions.Physics.SubmergedShare)
                 : GrappleBeamDefinitions.Physics.JumpImpulseMagnitude;
-            grapple.JumpImpulse = grapple.AngularVelocity == AngularSpeed.Zero ? AngularSpeed.Zero
-                : grapple.AngularVelocity.IsNegative ? -impulse
-                : impulse;
+            // The impulse pushes the way the swing turns, and a still swing takes none.
+            grapple.JumpImpulse = AngularSpeed.FromFractionsOfStep(Math.Sign(grapple.AngularVelocity.FractionsOfStep) * impulse.FractionsOfStep);
         }
     }
 
@@ -297,7 +295,8 @@ public static class SamusGrappleSwing
         RotationAngle targetAngle = grapple.Angle.TurnedBy(turn);
         TrigonometryAngle targetStep = targetAngle.ToTrigonometryAngle();
         TrigonometryAngle lastSafeStep = grapple.Angle.ToTrigonometryAngle();
-        int stepDirection = combined.IsNegative ? -1 : 1;
+        // A turning swing is never at rest here: a still one returned above.
+        int stepDirection = Math.Sign(combined.FractionsOfStep);
 
         // At the maximum velocity this loop executes at most five times. Keep an
         // explicit one-turn guard anyway: it documents the cyclic angle domain and turns a
@@ -324,15 +323,15 @@ public static class SamusGrappleSwing
                     collision.StruckPointFromHand < GrappleBeamDefinitions.Swing.StoppingPointsNearHand;
                 if (closeCollision)
                 {
-                    // This flag asks the swing to compare against the eight exact locked and
+                    // At rest close to her hand, the swing compares against the eight exact locked and
                     // wallgrab angles. Velocity is stopped instead of reflected.
-                    grapple.CloseCollision = true;
+                    grapple.RestCloseToHand();
                     grapple.AngularVelocity = AngularSpeed.Zero;
                     grapple.JumpImpulse = AngularSpeed.Zero;
                 }
                 else
                 {
-                    grapple.CollisionBounceTimer = GrappleBeamDefinitions.Physics.CollisionBounceFrames;
+                    grapple.CollisionBounceTimer = UpdateCountdown.For(GrappleBeamDefinitions.Physics.CollisionBounceFrames);
                     grapple.AngularVelocity = ReversedAtHalfSpeed(grapple.AngularVelocity);
                     grapple.JumpImpulse = ReversedAtHalfSpeed(grapple.JumpImpulse);
                 }
@@ -347,13 +346,13 @@ public static class SamusGrappleSwing
             throw new InvalidDataException("Grapple angle sweep exceeded one full revolution.");
 
         // No sampled angle collided, so preserve the full fine target, clear the special
-        // angle request, age the kick window, and damp the extra velocity. Every one of
+        // angle rest, age the kick window, and damp the extra velocity. Every one of
         // these operations is bypassed by the collision return above.
         grapple.Angle = targetAngle;
         grapple.MirroredAngle = targetAngle;
-        grapple.CloseCollision = false;
+        grapple.SwingFreely();
 
-        grapple.CollisionBounceTimer = Math.Max(0, grapple.CollisionBounceTimer - 1);
+        grapple.CollisionBounceTimer.Step();
 
         // The angular movement damps the temporary jump impulse toward zero after a successful
         // angle step. This impulse is separate from angular velocity and must not be folded in.
@@ -435,61 +434,57 @@ public static class SamusGrappleSwing
         if (block.Position is null)
             return true;
 
-        // Each extension link leads on in the room's reading order; one that leads outside the grid reads the edge-solid block.
-        for (int extensionDepth = 0; extensionDepth <= GrappleBeamDefinitions.Blocks.LongestExtensionChain; extensionDepth++)
+        // The block an extension stands for collides in its stead, and one that leads outside the grid reads the
+        // edge-solid block (ContinuedBlocks); an extension that ends its chain behaves as air.
+        if (level.GrappleBlockStoodFor(block) is not { } stoodFor)
+            return false;
+        block = stoodFor;
+        switch (block.CollisionType)
         {
-            switch (block.CollisionType)
-            {
-                // The swing step intentionally treats shootable/bombable air as air;
-                // unlike a firing endpoint, body contact does not spawn their room objects.
-                case RoomCollisionType.Air:
-                case RoomCollisionType.SpecialAir:
-                case RoomCollisionType.ShootableAir:
-                case RoomCollisionType.UnrevealedAir:
-                case RoomCollisionType.BombableAir:
-                    return false;
+            // The swing step intentionally treats shootable/bombable air as air;
+            // unlike a firing endpoint, body contact does not spawn their room objects.
+            case RoomCollisionType.Air:
+            case RoomCollisionType.SpecialAir:
+            case RoomCollisionType.ShootableAir:
+            case RoomCollisionType.UnrevealedAir:
+            case RoomCollisionType.BombableAir:
+                return false;
 
-                case RoomCollisionType.SpikeAir:
-                    // Spike air is harmless to the swing except damaging spike air, which queues
-                    // 16 damage. It never collides, but it still starts the common
-                    // spike invulnerability and knockback (SpikeHazardDefinitions.InvincibilityFrames,
-                    // SpikeHazardDefinitions.KnockbackFrames). The timer
-                    // check must precede the behaviour lookup so a second radial probe in this
-                    // same six-point sweep cannot queue damage again.
-                    ApplySwingSpikeDamage(samus, block.Behavior.Spike, block: SwingSpikeBlock.Plain);
-                    return false;
+            case RoomCollisionType.SpikeAir:
+                // Spike air is harmless to the swing except damaging spike air, which queues
+                // 16 damage. It never collides, but it still starts the common
+                // spike invulnerability and knockback (SpikeHazardDefinitions.InvincibilityFrames,
+                // SpikeHazardDefinitions.KnockbackFrames). The timer
+                // check must precede the behaviour lookup so a second radial probe in this
+                // same six-point sweep cannot queue damage again.
+                ApplySwingSpikeDamage(samus, block.Behavior.Spike, block: SwingSpikeBlock.Plain);
+                return false;
 
-                // Slopes are unconditional collision in this grapple-specific step.
-                case RoomCollisionType.Slope:
-                case RoomCollisionType.SolidBlock:
-                case RoomCollisionType.DoorBlock:
-                case RoomCollisionType.SpecialBlock:
-                case RoomCollisionType.ShootableBlock:
-                case RoomCollisionType.GrappleBlock:
-                case RoomCollisionType.BombableBlock:
-                    return true;
+            // Slopes are unconditional collision in this grapple-specific step.
+            case RoomCollisionType.Slope:
+            case RoomCollisionType.SolidBlock:
+            case RoomCollisionType.DoorBlock:
+            case RoomCollisionType.SpecialBlock:
+            case RoomCollisionType.ShootableBlock:
+            case RoomCollisionType.GrappleBlock:
+            case RoomCollisionType.BombableBlock:
+                return true;
 
-                case RoomCollisionType.SpikeBlock:
-                    // The solid spike reaction always reports collision. Before reporting it, it applies
-                    // 60 damage for the heavy spike or 16 for the light spike; every other spike deals
-                    // none.
-                    ApplySwingSpikeDamage(samus, block.Behavior.Spike, block: SwingSpikeBlock.Solid);
-                    return true;
+            case RoomCollisionType.SpikeBlock:
+                // The solid spike reaction always reports collision. Before reporting it, it applies
+                // 60 damage for the heavy spike or 16 for the light spike; every other spike deals
+                // none.
+                ApplySwingSpikeDamage(samus, block.Behavior.Spike, block: SwingSpikeBlock.Solid);
+                return true;
 
-                case RoomCollisionType.HorizontalExtension:
-                case RoomCollisionType.VerticalExtension:
-                    if (block.Behavior.EndsExtension)
-                        return false;
-                    block = level.LinkedBlockOrEdgeSolid(block);
-                    continue;
+            case RoomCollisionType.HorizontalExtension:
+            case RoomCollisionType.VerticalExtension:
+                throw new InvalidOperationException($"Continuing block {block.Position} reached the grapple's swing in place of the block it stands for.");
 
-                default:
-                    throw new InvalidDataException(
-                        $"Invalid grapple swing collision type {block.CollisionType}.");
-            }
+            default:
+                throw new InvalidDataException(
+                    $"Invalid grapple swing collision type {block.CollisionType}.");
         }
-
-        throw new InvalidDataException("Grapple swing extension chain exceeded sixteen blocks.");
     }
 
 /// <summary>Rechecks the stored endpoint through the firing step and retains the connection while the block there stops the beam.</summary>
@@ -532,9 +527,9 @@ public static class SamusGrappleSwing
         if (damage == 0)
             return;
 
-        samus.PeriodicDamage.Accumulate(new UnsignedSixteenSixteen(whole: damage, fraction: 0));
+        samus.PeriodicDamage.Accumulate(EnergyAmount.FromEnergy(damage));
         samus.InvincibilityTimer = WrappingCountdown.Start(SpikeHazardDefinitions.InvincibilityFrames);
-        samus.KnockbackTimer = SpikeHazardDefinitions.KnockbackFrames;
+        samus.KnockbackHold = UpdateCountdown.For(SpikeHazardDefinitions.KnockbackFrames);
     }
 
 /// <summary>

@@ -37,8 +37,8 @@ public sealed class YappingMawEnemyState
     /// <summary>Half of the capped target distance in room pixels, 16 through 32, used as the tongue's X radius.</summary>
     public int SegmentRadius { get; internal set; }
 
-    /// <summary>The bearing from the maw to Samus as it aims its bite.</summary>
-    public Bearing AimAngle { get; internal set; }
+    /// <summary>The direction from the maw to Samus as it aims its bite: straight up before its first aim.</summary>
+    public TrigonometryAngle AimAngle { get; internal set; } = TrigonometryAngle.QuarterTurn;
 
     /// <summary><see cref="AimAngle"/> as a rotation; rotates the curled link corrections.</summary>
     public RotationAngle CurlAngle { get; internal set; }
@@ -60,7 +60,7 @@ public sealed class YappingMawEnemyState
     /// stops on the whole unit, then decelerates back; the update that carries it below zero is the one on which the
     /// retracting tongue has completed its full curve.
     /// </summary>
-    public SignedSixteenSixteen Extension { get; internal set; }
+    public YappingMawCurl Extension { get; internal set; }
 
     /// <summary>
     /// The whole-mark place along the quadratically increasing common enemy speeds the next curl update adds: each
@@ -75,7 +75,7 @@ public sealed class YappingMawEnemyState
     internal YappingMawCurlPhase CurlPhase { get; set; }
 
     /// <summary>The updates left in the hold after the tongue fully retracts, the one it releases Samus on included (#2281).</summary>
-    public int RetractedDelayTimer { get; internal set; }
+    public UpdateCountdown RetractedDelayTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>Whether the mouth currently holds Samus, owning her input and position.</summary>
     public bool HasGrabbedSamus { get; internal set; }
@@ -93,7 +93,11 @@ public sealed class YappingMawEnemyState
     /// </summary>
     public YappingMawGrabCooldown GrabCooldown { get; internal set; }
 
-    /// <summary>Whether the Maw lay outside the view as its update began, which silences its bite.</summary>
+    /// <summary>
+    /// Whether the Maw lay outside the view as its update began, which silences its bite (#2562). Its update records where
+    /// it lay before it moves; the bite's cue, which plays after the Maw has moved, reads that record, since asking the view
+    /// then would answer for where the Maw lies by the cue.
+    /// </summary>
     public bool IsOffScreen { get; internal set; }
 
     /// <summary>The root/base object its attack direction selects, which every Maw spawns with (#2284).</summary>

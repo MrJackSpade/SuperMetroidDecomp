@@ -78,15 +78,16 @@ public static class EnemyTileArtworkFiles
         var entries = new Dictionary<string, EnemyTileFileEntry>(StringComparer.Ordinal);
         var unplacedEntries = new Dictionary<string, EnemyTileFileEntry>(StringComparer.Ordinal);
         var headers = new List<int>();
-        foreach (EnemyDefinitionId enemy in EnemyTileSourceDefinitions.All.Select(source => source.DefinitionId).Order())
+        HashSet<EnemyDefinitionId> tiled = [.. EnemyTileSourceDefinitions.All.Select(source => source.DefinitionId)];
+        foreach (EnemyDefinitionId enemy in Ensure.EveryMemberOnce(EnemyDefinitionIdKeys.ListedOrder).Where(tiled.Contains))
         {
-            int headerWord = (int)EnemyDefinitionIds.HeaderPointer(enemy);
+            int headerWord = EnemyDefinitionIds.HeaderPointer(enemy);
             headers.Add(headerWord);
             entries.Add(EnemyDefinitionIdKeys.Installed.Of(enemy), ExtractSheet(bus, importData, headerWord, SheetStem(enemy)));
         }
         foreach (UnplacedEnemyArtwork artwork in EnemyTileSourceDefinitions.Unplaced)
         {
-            int headerWord = (int)EnemyHeaderWords.UnplacedArtworkHeaders.WordsByIdentity[artwork].Single();
+            int headerWord = EnemyHeaderWords.UnplacedArtworkHeaders.WordsByIdentity[artwork].Single();
             headers.Add(headerWord);
             unplacedEntries.Add(UnplacedEnemyArtworkKeys.Installed.Of(artwork), ExtractSheet(bus, importData, headerWord, SheetStem(artwork)));
         }

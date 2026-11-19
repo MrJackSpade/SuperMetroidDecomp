@@ -51,7 +51,7 @@ internal static class CeresEscapeHandoffVerification
         AssertTrue(samus.CeresRidleyEjection.IsActive, "room-main request installs Ridley ejection");
         AssertTrue(!samus.Control.InputLocked, "installed ejection replaces movement but not pose input");
 
-        bool initializationWasPending = samus.CeresRidleyEjection.InitializationPending;
+        bool initializationWasPending = samus.CeresRidleyEjection.IsStarting;
         FixedCoordinate xBeforeInitialization = samus.Kinematics.Position.X;
         FixedCoordinate yBeforeInitialization = samus.Kinematics.Position.Y;
         samus.CeresRidleyEjection.Step(
@@ -60,7 +60,7 @@ internal static class CeresEscapeHandoffVerification
             samus,
             cameraX: 0,
             frameCounter: 0);
-        AssertTrue(initializationWasPending && !samus.CeresRidleyEjection.InitializationPending,
+        AssertTrue(initializationWasPending && !samus.CeresRidleyEjection.IsStarting,
             "first ejection gamma initializes state");
         AssertEqual(SamusMovementType.Standing, samus.PoseHistory.MovementBeforePrevious, "ejection initialization shifts prior metadata");
         AssertEqual(SamusPoseId.KnockbackRightPose, samus.PoseHistory.PreviousPose, "ejection initialization publishes hurt pose");
@@ -68,8 +68,8 @@ internal static class CeresEscapeHandoffVerification
         AssertEqual(xBeforeInitialization, samus.Kinematics.Position.X, "first gamma performs no horizontal movement");
         AssertEqual(yBeforeInitialization, samus.Kinematics.Position.Y, "first gamma performs no vertical movement");
         AssertEqual(SamusPoseId.KnockbackRightPose, samus.Pose, "ejection selects pose from old facing");
-        AssertEqual(CeresRidleyShoveDirection.Left, samus.CeresRidleyEjection.PushDirection, "left-half Samus is pushed left");
-        AssertEqual(5, samus.Kinematics.YSpeed.Whole, "ejection installs terminal downward speed");
+        AssertEqual(HorizontalDirection.Left, samus.CeresRidleyEjection.PushDirection, "left-half Samus is pushed left");
+        AssertEqual(5, samus.Kinematics.VerticalVelocity.Speed.Whole, "ejection installs terminal downward speed");
         AssertSamusPosition(new(100, 100), samus, "first ejection gamma leaves world position unchanged");
 
         // The type-$0A air record supplies one pixel/frame after the first acceleration.
@@ -85,7 +85,7 @@ internal static class CeresEscapeHandoffVerification
             samus,
             cameraX: 0,
             frameCounter: 1);
-        AssertEqual(CeresRidleyShoveDirection.None, samus.CeresRidleyEjection.PushDirection, "room-wall contact terminates Ceres ejection");
+        AssertEqual(null, samus.CeresRidleyEjection.PushDirection, "room-wall contact terminates Ceres ejection");
         AssertTrue(!samus.CeresRidleyEjection.IsActive, "wall contact restores normal movement");
         AssertTrue(!samus.Control.InputLocked, "wall contact leaves ordinary pose input available");
         // The push never sets knockback direction `$0A52`, so `$90:DDE9` has no knockback
@@ -94,10 +94,10 @@ internal static class CeresEscapeHandoffVerification
         AssertEqual(SamusPoseId.KnockbackRightPose, samus.Pose,
             "wall handoff keeps the hurt pose for ordinary movement");
         AssertEqual(SuperMetroid.Core.Samus.Movement.SamusKnockbackDirection.None, samus.KnockbackDirection, "Ceres push never publishes knockback direction");
-        AssertEqual(0, samus.Kinematics.YSpeed.Whole, "$90:DF85 clears Y speed");
+        AssertEqual(0, samus.Kinematics.VerticalVelocity.Speed.Whole, "$90:DF85 clears Y speed");
         AssertEqual(0, samus.HorizontalSpeed.ExtraRunSpeed.Fraction,
             "Kill_SamusXSpeed_IfCollisionDetected clears extra-run speed at the wall");
-        AssertEqual(SamusVerticalDirection.None, samus.Kinematics.YDirection, "$90:DF88 clears Y direction");
+        AssertEqual(SamusVerticalDirection.None, samus.Kinematics.VerticalVelocity.Direction, "$90:DF88 clears Y direction");
         AssertEqual(100, samus.Kinematics.Position.Y.Whole,
             "bottom alignment against the previous hurt pose leaves Y unchanged");
 
@@ -123,21 +123,21 @@ internal static class CeresEscapeHandoffVerification
         // No rotation bytes are installed in this address space. The live matrix
         // lifecycle consumes application-owned records, not synthetic ROM artwork.
 
-        var carryover = new RoomMainCarryover();
+        var carryover = new RoomMainHandOvers().ShaftTurnToDebris;
         var state = new CeresElevatorShaftRoomMainState(carryover);
         SamusState outsideTrigger = CreateSamus(
             SamusPoseId.FacingRightNormalPose,
             position: new(32, 100));
 
-        StepFrames(60, _ => state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, carryover));
-        AssertEqual(0, state.HoldFramesLeft, "shaft door delay retains zero for one room-main call");
+        StepFrames(60, _ => state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true));
+        AssertEqual(0, state.Hold.UpdatesLeft, "shaft door delay retains zero for one room-main call");
         AssertEqual(
             0,
             state.Tilt.StepsFromLevel,
             "shaft index waits through first 60 calls");
 
         CeresElevatorShaftRoomMainResult firstTilt =
-            state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, carryover);
+            state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true);
         AssertTrue(firstTilt.TiltChanged, "61st shaft call underflows and consumes the first rotation step");
         AssertEqual(1, state.Tilt.StepsFromLevel, "shaft tilt advances clockwise from level");
         AssertEqual(0.0, state.Transform.Angle, "step 34 leaves the shaft level");
@@ -145,37 +145,37 @@ internal static class CeresEscapeHandoffVerification
         // Consume records 35..67. The sweep then reverses at step 68, and one more call proves step 68 reads record 68.
         // The following room inherits the backward steps with the native phase word's sign bit.
         for (int i = 0; i < 33; i++)
-            StepFrames(state.HoldFramesLeft + 1, _ => state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, carryover));
+            StepFrames(state.Hold.UpdatesLeft + 1, _ => state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true));
         AssertEqual(CeresShaftRotationDefinitions.FullTiltSteps, state.Tilt.StepsFromLevel, "shaft forward sweep enters the reverse sweep at the full clockwise tilt");
         AssertEqual(CeresShaftSweep.Backward, state.Sweep, "shaft forward sweep reverses after step 67");
-        AssertEqual(0x8044, carryover.Countdown.RawValue, "the following room inherits the reverse step as phase $8044");
-        StepFrames(state.HoldFramesLeft + 1, _ => state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, carryover));
+        AssertEqual(0x8044, carryover.FirstDebrisWait.RawValue, "the following room inherits the reverse step as phase $8044");
+        StepFrames(state.Hold.UpdatesLeft + 1, _ => state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true));
         AssertEqual(CeresShaftRotationDefinitions.FullTiltSteps - 1, state.Tilt.StepsFromLevel, "shaft reverse sweep turns back");
-        AssertEqual(0x8043, carryover.Countdown.RawValue, "the following room inherits the next reverse step as phase $8043");
+        AssertEqual(0x8043, carryover.FirstDebrisWait.RawValue, "the following room inherits the next reverse step as phase $8043");
         AssertEqual(34 / CeresShaftRotationDefinitions.StepsPerRadian, state.Transform.Angle,
             "reverse step 68 reads record 68, the shaft's furthest clockwise tilt");
         Suite(nameof(VerifyCeresShaftCompiledRotation), () => VerifyCeresShaftCompiledRotation());
 
         // State $20/$21 still run room main but fail its explicit game-state-eight gate.
-        var triggerCarryover = new RoomMainCarryover();
+        var triggerCarryover = new RoomMainHandOvers().ShaftTurnToDebris;
         var trigger = new CeresElevatorShaftRoomMainState(triggerCarryover);
         SamusState samus = CreateSamus(
             SamusPoseId.FacingRightNormalPose,
             position: new(113, 75));
         CeresElevatorShaftRoomMainResult refused =
-            trigger.Step(samus, elevatorDoorDestroyed: true, allowDeparture: false, triggerCarryover);
+            trigger.Step(samus, elevatorDoorDestroyed: true, allowDeparture: false);
         AssertTrue(!refused.ElevatorTookSamus, "non-gameplay dispatcher cannot trigger departure");
         AssertTrue(!samus.Control.InputLocked, "a refused departure leaves Samus free");
 
         CeresElevatorShaftRoomMainResult requested =
-            trigger.Step(samus, elevatorDoorDestroyed: true, allowDeparture: true, triggerCarryover);
+            trigger.Step(samus, elevatorDoorDestroyed: true, allowDeparture: true);
         AssertTrue(requested.ElevatorTookSamus, "inclusive lower Y/exclusive lower X trigger admits Samus");
         AssertTrue(samus.Control.InputLocked, "departure trigger installs SamusCode_00 lock");
         AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose, "departure keeps right-facing standing pose");
 
         // The update that took Samus moved the game to the departure, whose own updates leave main gameplay (#2545).
         CeresElevatorShaftRoomMainResult departing =
-            trigger.Step(samus, elevatorDoorDestroyed: true, allowDeparture: false, triggerCarryover);
+            trigger.Step(samus, elevatorDoorDestroyed: true, allowDeparture: false);
         AssertTrue(!departing.ElevatorTookSamus, "the departure's own updates do not take Samus again");
     }
 
@@ -184,11 +184,11 @@ internal static class CeresEscapeHandoffVerification
     {
         var departure = new CeresDepartureState();
         departure.Begin();
-        AssertEqual(60, departure.HoldFramesRemaining, "Ceres state 20 starts at 60");
+        AssertEqual(60, departure.Hold.UpdatesLeft, "Ceres state 20 starts at 60");
 
         StepFrames(59, _ =>
             AssertTrue(!departure.StepHoldAfterGameplay(), "first 59 state-20 calls retain hold"));
-        AssertEqual(1, departure.HoldFramesRemaining, "state 20 has one call remaining");
+        AssertEqual(1, departure.Hold.UpdatesLeft, "state 20 has one call remaining");
         AssertTrue(departure.StepHoldAfterGameplay(), "60th state-20 call enters blackout");
         AssertEqual(CeresDeparturePhase.FadingToBlack, departure.Phase, "state 21 is active");
 

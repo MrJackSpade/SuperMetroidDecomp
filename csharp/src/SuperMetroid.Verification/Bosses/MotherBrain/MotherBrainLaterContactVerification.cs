@@ -47,7 +47,7 @@ internal static class MotherBrainLaterContactVerification
             AssertEqual(expectedX, samus.Kinematics.ExtraDisplacement.X.WholePixels, $"{contact} horizontal displacement");
             AssertEqual(4, samus.Kinematics.ExtraDisplacement.Y.WholePixels, $"{contact} vertical displacement");
             AssertEqual((ushort)96, samus.InvincibilityTimer.RawValue, "Native contact invincibility timer");
-            AssertEqual(5, samus.KnockbackTimer, "Native contact knockback timer");
+            AssertEqual(5, samus.KnockbackHold.UpdatesLeft, "Native contact knockback timer");
         }
         // Isolate the actual body callback in the ordinary radius collision pass.
         // Shot blocking is native behavior and must remain a dud, not body damage.
@@ -59,7 +59,7 @@ internal static class MotherBrainLaterContactVerification
         interactive.Add(body);
         foreach (SamusProjectileType type in new[] { SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false), SamusProjectileType.Of(SamusProjectileFamily.Missile) })
         {
-            var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
+            var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             var shot = shots.Shots[0];
             shot.Type = type; shot.Damage = 100; shot.Direction = SamusProjectileDirection.Right;
             shot.Position = shot.Position.WithWhole(new(128, 128)); shot.Radius = new(4, 4);

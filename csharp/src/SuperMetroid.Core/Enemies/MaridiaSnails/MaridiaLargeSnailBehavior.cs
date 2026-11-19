@@ -39,7 +39,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         {
             Facing = HorizontalDirection.Right,
             ShowsSpawnIdle = true,
-            AttackCooldown = MaridiaLargeSnailMotionDefinitions.InitialAttackCooldown,
+            AttackCooldown = UpdateCountdown.Lasting(MaridiaLargeSnailMotionDefinitions.InitialAttackCooldown),
             Heading = HorizontalDirection.Right,
             RemainingBounces = MaridiaLargeSnailMotionDefinitions.SettlingBounces,
         };
@@ -138,13 +138,11 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         }
 
         // The stop is the one the previous update asked for; this update asks again only after it rolls.
-        if (state.StopMovementNextFrame)
+        if (state.InputStop.IsHeld)
             return;
 
         // The cooldown lasts its whole duration and then stays run out until Oum attacks (#2340).
-        if (state.AttackCooldown > 0)
-            state.AttackCooldown--;
-        if (state.AttackCooldown == 0)
+        if (state.AttackCooldown.Step())
         {
             bool mayAttack = Math.Abs(samus.Position.X.Whole - place.Position.X.Whole) < MaridiaLargeSnailMotionDefinitions.AttackReach &&
                 state.AttackAllowsRotation &&
@@ -152,7 +150,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             if (mayAttack)
             {
                 state.Heading = SamusSide(samus, place);
-                state.AttackCooldown = MaridiaLargeSnailMotionDefinitions.InitialAttackCooldown;
+                state.AttackCooldown = UpdateCountdown.For(MaridiaLargeSnailMotionDefinitions.InitialAttackCooldown);
                 state.Facing = state.Heading;
                 StartMaridiaLargeSnailAnimation(place, state, MaridiaLargeSnailAnimationChoices.Attacking(state.Facing));
                 state.Action = MaridiaLargeSnailAction.Attacking;
@@ -234,17 +232,14 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         RoomLevelData level,
         HorizontalDirection? pushSide)
     {
-        bool movingLeft = state.Heading == HorizontalDirection.Left;
-        SignedSixteenSixteen speed = movingLeft ? -MaridiaLargeSnailMotionDefinitions.RollSpeed : MaridiaLargeSnailMotionDefinitions.RollSpeed;
+        SignedSixteenSixteen speed = MaridiaLargeSnailMotionDefinitions.RollSpeed.Toward(state.Heading);
         bool temporarilyReachTowardSamus = state.Heading == pushSide;
         if (temporarilyReachTowardSamus)
         {
             // Temporarily extends the whole-pixel move toward Samus by the push's reach,
             // performs collision, then retracts the center. Net velocity remains one
             // pixel per frame while wall clipping naturally passes the lost distance to Samus.
-            speed = speed.WithWholePixels(speed.WholePixels + (movingLeft
-                ? -MaridiaLargeSnailMotionDefinitions.PushReach
-                : MaridiaLargeSnailMotionDefinitions.PushReach));
+            speed += MaridiaLargeSnailMotionDefinitions.PushReach.Toward(state.Heading);
         }
 
         SignedSixteenSixteen displacement = speed;
@@ -255,10 +250,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
 
         if (temporarilyReachTowardSamus)
         {
-            place.Position = place.Position.WithWholeX(
-                place.Position.X.Whole + (movingLeft
-                    ? MaridiaLargeSnailMotionDefinitions.PushReach
-                    : -MaridiaLargeSnailMotionDefinitions.PushReach));
+            place.Position = place.Position.AdvanceX(MaridiaLargeSnailMotionDefinitions.PushReach.Toward(state.Heading.Reversed()));
         }
 
         if (!collided)
@@ -286,11 +278,12 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         Position16<RoomPixels> previousPosition,
         HorizontalDirection? pushSide)
     {
-        state.StopMovementNextFrame = false;
+        state.InputStop.Release();
         if (EnemyCollision.IsSamusStandingOn(place, samus))
         {
             // Unlike most moving-platform producers, Oum assigns—not adds—the vertical
-            // displacement. This preserves the last touching Oum's ownership.
+            // displacement. This preserves the last touching Oum's ownership. It assigns the whole pixels alone, so the
+            // fraction of a pixel an earlier carry this update left stays.
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(
                 place.Position.Y.Whole - previousPosition.Y);
         }
@@ -337,7 +330,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         if (!stop)
             return;
 
-        state.StopMovementNextFrame = true;
+        state.InputStop.HoldNextUpdate();
         place.Position = place.Position.WithWholeX(previousPosition.X);
     }
 
@@ -406,9 +399,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         if (EnemyCollision.IsSamusStandingOn(place, samus))
             return;
 
-        int shove = samus.Position.X.Whole < place.Position.X.Whole
-            ? -MaridiaLargeSnailMotionDefinitions.ShoveDistance
-            : MaridiaLargeSnailMotionDefinitions.ShoveDistance;
+        int shove = MaridiaLargeSnailMotionDefinitions.ShoveDistance.Toward(
+            samus.Position.X.Whole < place.Position.X.Whole ? HorizontalDirection.Left : HorizontalDirection.Right);
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(shove, 0);
     }
 

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed record MotherBrainFakeDeathDependencies
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    public required BossFrameResultBuilder FrameResults { get; init; }
+    public required EnemyPassEvents PassEvents { get; init; }
 
     /// <summary>Spawns the enemies the fake death releases into the room.</summary>
     public required IEnemyLifecycle Lifecycle { get; init; }

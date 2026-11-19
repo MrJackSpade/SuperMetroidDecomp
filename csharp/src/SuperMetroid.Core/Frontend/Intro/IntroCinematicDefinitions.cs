@@ -9,10 +9,14 @@ public static class IntroCinematicDefinitions
     /// <summary>The timing of the repeating crossfades between the narration and the flashback scenes.</summary>
     public static class Crossfade
     {
-        /// <summary>The updates a crossfade counts down from before its last: it runs one update more than this.</summary>
-        public const int Updates = 127;
-        /// <summary>Updates per crossfade step: a step shows on every fourth update counted down to the last.</summary>
-        public const int StepFrames = 4;
+        /// <summary>The updates a crossfade lasts, its last included.</summary>
+        public const int Updates = 128;
+        /// <summary>
+        /// The crossfaded scenes in the order their shades are listed and laid over each other (#2567): the narration's, the
+        /// flashback's, then the laboratory's.
+        /// </summary>
+        internal static IReadOnlyList<IntroCrossfadeScene> ShadedScenes { get; } =
+            [IntroCrossfadeScene.Narration, IntroCrossfadeScene.Flashback, IntroCrossfadeScene.Laboratory];
     }
 
     /// <summary>

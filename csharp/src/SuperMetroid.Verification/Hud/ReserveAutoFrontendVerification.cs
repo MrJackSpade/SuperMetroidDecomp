@@ -81,7 +81,7 @@ internal static class ReserveAutoFrontendVerification
         AssertEqual(1, samus.Health, "automatic refill first frame");
         AssertTrue(samus.HealthWarning.IsActive, "native external health check starts warning during frozen refill");
         AssertTrue(runtime.Freeze.TimeIsFrozen && samus.Control.InputLocked, "nonfinal refill keeps native freeze and input lock");
-        AssertTrue(runtime.Player.LastGroundedSamusMovement is null, "nonfinal refill does not execute grounded movement");
+        AssertTrue(runtime.LatestGameplayFrame?.GroundedMovement is null, "nonfinal refill does not execute grounded movement");
         AssertEqual(10, runtime.BombProjectiles.CooldownTimer, "nonfinal refill freezes shared projectile clock");
         game.StepCaptured(ControllerButton.Right);
         AssertEqual(2, samus.Health, "automatic refill completion frame");
@@ -89,7 +89,7 @@ internal static class ReserveAutoFrontendVerification
         AssertTrue(!runtime.Freeze.TimeIsFrozen && !samus.Control.InputLocked, "completion clears native freeze and input lock");
         AssertEqual(9, runtime.BombProjectiles.CooldownTimer,
             "completion unfreezes the gameplay projectile pass on the same frame");
-        AssertTrue(runtime.Player.LastGroundedSamusMovement is not null,
+        AssertTrue(runtime.LatestGameplayFrame?.GroundedMovement is not null,
             "native $82:DC18 unfreezes BEFORE the completion frame gameplay/movement pass");
         var audio = game.Session.audio;
         samus.HealthWarning.Update(99, runtime.AudioRequests);
@@ -176,7 +176,7 @@ internal static class ReserveAutoFrontendVerification
         var ship = runtime.Enemies.Places.InUpdateOrder[0];
         GunshipState shipPart = GunshipState.Of(ship);
         shipPart.Phase = GunshipPhase.WaitForEntranceToOpen;
-        shipPart.PhaseTimer = 100;
+        shipPart.PhaseTimer = UpdateCountdown.For(100);
         (samus ?? throw new InvalidOperationException("Verification requires samus.")).HealthWarning.Update(99, runtime.AudioRequests);
         samus.Health = 30; samus.Control.EnterGunship();
         audio.Reset();

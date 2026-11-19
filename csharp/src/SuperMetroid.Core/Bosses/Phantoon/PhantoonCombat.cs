@@ -246,7 +246,7 @@ internal sealed class PhantoonCombat
 
         RoomEnemyPlace body = state.Body;
         if (CommonEnemyEmptyFrames.ShotsPass(body) ||
-            body.InvincibilityTimer != 0 ||
+            body.Invincibility.IsRunning ||
             body.Presence.HasAny(EnemyPresence.Deleted) ||
             body.Contact.HasAny(EnemyContact.IgnoresSamus))
         {
@@ -381,9 +381,9 @@ internal sealed class PhantoonCombat
                 // sequence.
                 _ = _room.Random.Generate();
                 state.Round.RearmHurtFlash();
-                if (!state.Swoop.Requested)
+                if (state.WindowEnd != PhantoonWindowEnd.Swoop)
                 {
-                    state.Swoop.Requested = true;
+                    state.WindowEnd = PhantoonWindowEnd.Swoop;
                     if (state.PhaseWait.UpdatesLeft >= PhantoonArenaDefinitions.SwoopRequestTimerCap)
                         state.PhaseWait.LastFor(PhantoonArenaDefinitions.SwoopRequestTimerCap);
                 }
@@ -402,13 +402,13 @@ internal sealed class PhantoonCombat
         PhantoonPhase fadeOut)
     {
         state.Phase = fadeOut;
-        state.Swoop.Requested = false;
+        state.WindowEnd = PhantoonWindowEnd.EyeCloses;
         state.Round.Damage = 0;
         state.Translucent = true;
         state.BodyPart.StartAnimation(PhantoonPartSegment.InvulnerableBody);
         state.EyePart.StartAnimation(PhantoonPartSegment.EyeClose);
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
-        state.BodyFade.Complete = false;
+        state.BodyFade.Resume();
         state.Round.RearmHurtFlash();
     }
 
@@ -422,7 +422,7 @@ internal sealed class PhantoonCombat
                 ? PhantoonPhase.FinishFatalSwoop
                 : PhantoonPhase.DyingFadeInOut;
         state.FigureEight.Direction = PhantoonPathDirection.Forwards;
-        state.BodyFade.Complete = false;
+        state.BodyFade.Resume();
         state.BodyWave.InitializeDeathScroll();
         state.Translucent = true;
     }
@@ -459,7 +459,8 @@ internal sealed class PhantoonCombat
         flame.Velocity = flame.Velocity.WithY(PhantoonArenaDefinitions.CasualRiseSpeed);
         // The flame drifts left or right by the game's frame counter.
         flame.Velocity = flame.Velocity.WithX(
-            PhantoonCadenceDefinitions.RisingFlameDriftsLeft.IsSetIn(frameCounter) ? -PhantoonArenaDefinitions.CasualDriftSpeed : PhantoonArenaDefinitions.CasualDriftSpeed);
+            PhantoonArenaDefinitions.CasualDriftSpeed.Toward(
+                PhantoonCadenceDefinitions.RisingFlameDriftsLeft.IsSetIn(frameCounter) ? HorizontalDirection.Left : HorizontalDirection.Right));
     }
 
     /// <summary>Advances the flame's post-impact bounce motion.</summary>

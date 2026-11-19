@@ -55,9 +55,9 @@ internal static class BotwoonAnimationsVerification
         for (int angle = 0; angle < 256; angle++)
         {
             ushort moving = CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonMovingListTable + 2 * (angle >> 5)));
-            CompareBotwoonHead(rom, moving, BotwoonHeadAnimationSegment.MovingToward(new Bearing((byte)angle)), $"moving angle ${angle:X2}", inputs, drawn);
+            CompareBotwoonHead(rom, moving, BotwoonHeadAnimationSegment.MovingToward(AimAngleConstants.FromClockwiseSteps(angle)), $"moving angle ${angle:X2}", inputs, drawn);
             ushort spitting = CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonSpitListTable + 2 * (unchecked((byte)(angle + 16)) >> 5)));
-            CompareBotwoonHead(rom, spitting, BotwoonHeadAnimationSegment.SpittingToward(new Bearing((byte)angle)), $"spitting angle ${angle:X2}", inputs, drawn);
+            CompareBotwoonHead(rom, spitting, BotwoonHeadAnimationSegment.SpittingToward(AimAngleConstants.FromClockwiseSteps(angle)), $"spitting angle ${angle:X2}", inputs, drawn);
             compared += 2;
         }
         for (int octant = 0; octant < 8; octant++)
@@ -115,7 +115,7 @@ internal static class BotwoonAnimationsVerification
             (RoomEnemySystem volleyEnemies, RoomEnemyPlace volleyHead, BotwoonEnemyState volleyState) = NewBotwoonHead();
             volleyHead.Position = volleyHead.Position.WithWhole(new(1000, 1000));
             aimHead(volleyEnemies, volleyHead, volleyState, samus);
-            byte aim = EnemyMath.CalculateBearing(new(dx, dy)).RawValue;
+            byte aim = checked((byte)AimAngleConstants.ClockwiseSteps(EnemyMath.CalculateAimAngle(new(dx, dy))));
             byte spitAngle = unchecked((byte)(64 - aim));
             AssertEqual(RotationAngle.FromSteps(spitAngle), volleyState.SpitAngle, $"spit angle toward octant {octant} wraps around the turn");
             int[] expectedDirections = [unchecked((byte)(spitAngle - 16)), spitAngle, unchecked((byte)(spitAngle + 16))];
@@ -285,7 +285,7 @@ internal static class BotwoonAnimationsVerification
                 drawn?.Add(head.SpritemapPointer);
             AssertEqual(native.Radius, head.Radius, $"{at}: radius");
             AssertEqual(native.NewFrame, head.AnimationClock.ShowsNewFrame, $"{at}: new-frame flag");
-            AssertEqual(native.SpitFrame, state.SpitFrameReached, $"{at}: spit frame");
+            AssertEqual(native.SpitFrame, state.HeadAction == BotwoonHeadAction.SpitAimedVolley, $"{at}: spit frame");
             AssertEqual(EnemyAudioQueueAccess.SoundList(nativeSound ? [BotwoonSoundDefinitions.Spit] : []), enemies.Audio.QueuedSoundList,
                 $"{at}: the spit sound is the update's only sound when the native list queues it");
         }

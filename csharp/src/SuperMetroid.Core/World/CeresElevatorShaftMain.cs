@@ -18,8 +18,7 @@ internal sealed class CeresElevatorShaftMain(CeresElevatorShaftRoomMainState sha
         CeresElevatorShaftRoomMainResult result = shaft.Step(
             update.Player.IntroducedSamus,
             update.Room.Enemies.Ceres.CeresStatus == CeresEscapeStatus.ElevatorDoorDestroyed,
-            allowDeparture: update.AllowCeresElevatorDeparture,
-            update.Carryover);
+            allowDeparture: update.AllowCeresElevatorDeparture);
         if (result.TiltChanged)
             update.Display.ActiveTurningFloor = result.Transform;
         return result.ElevatorTookSamus ? RoomMainOutcome.CeresElevatorTookSamus : RoomMainOutcome.None;

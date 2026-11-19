@@ -28,10 +28,10 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     public bool IsActive => Phase != SamusDeathSequencePhase.Inactive;
 
     /// <summary>
-    /// The updates left before the alternating yellow flash, the last one included:
-    /// <see cref="SamusDeathSequenceDefinitions.PreFlashFrameCount"/> when the death sequence begins.
+    /// The wait before the alternating yellow flash, the last update included: it lasts
+    /// <see cref="SamusDeathSequenceDefinitions.PreFlashFrameCount"/> from when the death sequence begins.
     /// </summary>
-    public int PreFlashingTimer { get; private set; }
+    public UpdateCountdown PreFlashingTimer { get; private set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// The flash's shades (#2387): after three updates it shows her second death shade for one update and her first for
@@ -40,8 +40,8 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     internal AnimationPlayer<SamusDeathFlashSegment, SamusDeathShade, NoAnimationCue> Flash { get; private set; } =
         SamusDeathAnimations.FlashStarting();
 
-    /// <summary>Flashing updates made, up to <see cref="SamusDeathSequenceDefinitions.FlashFrameCount"/>, when the suit explodes.</summary>
-    public int FlashUpdates { get; private set; }
+    /// <summary>The flashing, lasting <see cref="SamusDeathSequenceDefinitions.FlashFrameCount"/>: the suit explodes on its last update.</summary>
+    public UpdateCountdown Flashing { get; private set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// The suit's explosion (#2388), its nine pictures played once for their dwell times, or null before the suit explodes;
@@ -114,9 +114,9 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         // on the screen, taken here for the explosion.
         ScreenPosition = samus.Position.Whole.RelativeToCamera(cameraPosition);
 
-        PreFlashingTimer = SamusDeathSequenceDefinitions.PreFlashFrameCount;
+        PreFlashingTimer = UpdateCountdown.Lasting(SamusDeathSequenceDefinitions.PreFlashFrameCount);
         Flash = SamusDeathAnimations.FlashStarting();
-        FlashUpdates = 0;
+        Flashing = UpdateCountdown.Lasting(SamusDeathSequenceDefinitions.FlashFrameCount);
         Explosion = null;
         WhiteoutBrightening = null;
         WhiteoutShade = null;
@@ -153,13 +153,12 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
                 // The flashing state freezes that final body frame while its shades alternate.
                 SamusPresentation.AnimateDeathFrame(samus);
                 draws = SamusDeathDraw.Pose;
-                if (--PreFlashingTimer == 0)
+                if (PreFlashingTimer.StepEnds())
                     Phase = SamusDeathSequencePhase.Flashing;
                 break;
 
             case SamusDeathSequencePhase.Flashing:
-                FlashUpdates++;
-                if (FlashUpdates >= SamusDeathSequenceDefinitions.FlashFrameCount)
+                if (Flashing.Step())
                 {
                     // The flash's last update shows the first death shade, starts the explosion on its first picture, and
                     // immediately plays and draws it in this same update.

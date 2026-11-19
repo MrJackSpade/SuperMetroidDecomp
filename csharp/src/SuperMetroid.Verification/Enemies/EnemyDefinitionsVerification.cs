@@ -51,7 +51,7 @@ internal static class EnemyDefinitionsVerification
                 if (pointerWord == 0xffff) break;
                 graphicsAddress += 4;
                 // A set also loads artwork for no enemy (#1686): three headers' the import uploads, and the Reflec's.
-                if (!EnemyDefinitionIds.TryFromHeaderPointer(pointerWord, out EnemyDefinitionId pointer))
+                if (!EnemyDefinitionIdsConstants2.TryFromHeaderPointer(pointerWord, out EnemyDefinitionId pointer))
                 {
                     AssertTrue(SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWords.UnplacedArtworkHeaders.TryDecode(pointerWord, out _)
                         || pointerWord == ReflecHeader, $"graphics-set header ${pointerWord:X4} is an enemy or artwork loaded for no enemy");

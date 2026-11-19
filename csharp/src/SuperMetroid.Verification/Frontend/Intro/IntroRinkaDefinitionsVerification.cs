@@ -14,12 +14,11 @@ internal static class IntroRinkaDefinitionsVerification
     internal static void VerifyIntroRinkaDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        // Native six-byte definitions $8B:CF21 (Rinka) and $8B:CF27 (spawner). Their first
+        // Native six-byte definition $8B:CF21 (Rinka); the spawner's at $8B:CF27 is the port's launch schedule. Its first
         // word, the initialization callback, has no port counterpart.
         IntroRinkaDefinitionsActor[] actors =
         [
             new IntroRinkaDefinitionsActor(IntroRinkaDefinitions.RinkaActor, 0xcf21),
-            new IntroRinkaDefinitionsActor(IntroRinkaDefinitions.SpawnerActor, 0xcf27),
         ];
         for (int index = 0; index < actors.Length; index++)
         {

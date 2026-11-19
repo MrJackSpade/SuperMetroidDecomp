@@ -44,7 +44,7 @@ internal static class AutomaticCheckpointSaver
     {
         Ensure.NotNull(saves);
         Ensure.NotNull(runtime);
-        if (runtime.EnemyFrameResults.LastEnemyFrame.Gunship != GunshipFrameEvent.LandingCompleted)
+        if (!runtime.EnemyFrameResults.LastEnemyFrame.Reports(GunshipFrameEvent.LandingCompleted))
             return false;
 
         // The gunship sets the ship-landed marker before moving the checkpoint from the Zebes arrival to

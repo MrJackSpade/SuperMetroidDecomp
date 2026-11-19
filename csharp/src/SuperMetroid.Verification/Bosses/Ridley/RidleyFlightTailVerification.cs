@@ -105,7 +105,7 @@ internal static class RidleyFlightTailVerification
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 200)) };
         aim(state, samus, 0);
         RidleyTailAngle? samusTarget = state.Tail.ClockwiseWhipTarget;
-        var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
+        var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         projectiles.Pool.ShotCount.Restore(1);
         projectiles.Shots[0].Type = SamusProjectileType.Of(SamusProjectileFamily.Missile);
         projectiles.Shots[0].Position = projectiles.Shots[0].Position.WithWhole(new(96, 128));
@@ -113,7 +113,7 @@ internal static class RidleyFlightTailVerification
         aim(state, samus, 0);
         RidleyTailAngle? missileTarget = state.Tail.ClockwiseWhipTarget;
         AssertTrue(missileTarget != samusTarget, "nearby missile changes tail target");
-        aimedProjectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
+        aimedProjectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         aim(state, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(96, 104)) }, 0);
         AssertEqual(missileTarget, state.Tail.ClockwiseWhipTarget, "missile uses its exact position without Samus's 24-pixel offset");
         ushort seed = 0xf0;
@@ -133,15 +133,16 @@ internal static class RidleyFlightTailVerification
         state.Flight.MovementMaximum = state.Flight.MovementMaximum.WithX(192);
         place.Position = place.Position.WithWholeX(128);
         state.Flight.Velocity = state.Flight.Velocity.WithX(new SignedEightEight(0x100));
+        state.PogoBounce = HorizontalDirection.Right;
         seed = 0x1000;
         direction(place, state, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(64, 0)) });
-        AssertEqual(unchecked((ushort)-0x100), state.Flight.Velocity.X.RawValue, "pogo bounce turns toward Samus for ordinary seed");
+        AssertEqual(HorizontalDirection.Left, state.PogoBounce, "pogo bounce turns toward Samus for ordinary seed");
         place.Position = place.Position.WithWholeX(32);
         direction(place, state, samus);
-        AssertEqual((ushort)0x100, state.Flight.Velocity.X.RawValue, "pogo left boundary forces rightward bounce");
+        AssertEqual(HorizontalDirection.Right, state.PogoBounce, "pogo left boundary forces rightward bounce");
         place.Position = place.Position.WithWholeX(192);
         direction(place, state, samus);
-        AssertEqual(unchecked((ushort)-0x100), state.Flight.Velocity.X.RawValue, "pogo right boundary forces leftward bounce");
+        AssertEqual(HorizontalDirection.Left, state.PogoBounce, "pogo right boundary forces leftward bounce");
         AssertEqual(0, advances, "pogo direction does not advance RNG");
         Console.WriteLine("Ridley flight: native swoop magnitude and signed angle comparison confirmed.");
         Console.WriteLine("Ridley tail: real pogo setup, exact segment angles/position, stop, descending stab and neutral recovery confirmed.");

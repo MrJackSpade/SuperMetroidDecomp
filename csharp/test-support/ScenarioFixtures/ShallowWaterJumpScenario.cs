@@ -40,7 +40,7 @@ internal sealed class ShallowWaterJumpScenario
         samus.Control.Unlock();
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(104, 427));
-        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0xffff);
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(PixelFraction.Last);
         samus.EquippedItems = 0;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
@@ -66,7 +66,7 @@ internal sealed class ShallowWaterJumpScenario
             FixedCoordinate y = Samus.Kinematics.Position.Y;
             if (y.Whole < apex.Whole || (y.Whole == apex.Whole && y.Fraction < apex.Fraction))
                 apex = y;
-            rows.Add($"{frame},{(int)SamusPoseNumbers.Number(Samus.Pose):X2},{Samus.Kinematics.Position.Y.Whole:X4}{Samus.Kinematics.Position.Y.Fraction:X4},{Samus.Kinematics.YSpeed.RawValue:X8},{SamusVerticalDirectionCodec.ToNative(Samus.Kinematics.YDirection)},{Samus.Kinematics.Radius.Y},{SamusLiquidMediumCodec.ToNative(Samus.LiquidPhysics.LiquidPhysicsType)}");
+            rows.Add($"{frame},{(int)SamusPoseNumbers.Number(Samus.Pose):X2},{Samus.Kinematics.Position.Y.Whole:X4}{Samus.Kinematics.Position.Y.Fraction:X4},{Samus.Kinematics.VerticalVelocity.Speed.RawValue:X8},{SamusVerticalDirectionCodec.ToNative(Samus.Kinematics.VerticalVelocity.Direction)},{Samus.Kinematics.Radius.Y},{SamusLiquidMediumCodec.ToNative(Samus.LiquidPhysics.LiquidPhysicsType)}");
         }
         return new JumpTrace(rows, apex);
     }

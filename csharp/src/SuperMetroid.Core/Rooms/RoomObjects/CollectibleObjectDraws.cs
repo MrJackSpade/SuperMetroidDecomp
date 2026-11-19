@@ -31,8 +31,9 @@ internal static class CollectibleObjectDraws
     /// </summary>
     internal static RoomTerrainBlock? BlockPairTerrain(CollectibleDraw draw)
     {
-        foreach ((CollectibleBlockPairs.Pair pair, CollectibleLookDraws looks) in BlockPairLooks)
+        foreach (CollectibleBlockPairs.Pair pair in CollectibleBlockPairs.InTurn)
         {
+            CollectibleLookDraws looks = BlockPairLooks[pair];
             foreach (CollectibleLook look in Looks)
             {
                 if (looks.Of(look) == draw)
@@ -99,7 +100,7 @@ internal static class CollectibleObjectDraws
             RoomObjectFrameDraw<CollectibleDraw> draw)
         {
             if (BlockPairTerrain(Ensure.NotNull(draw).Frame) is { } blockPair)
-                DrawTerrainAt(level, draw, origin, blockPair);
+                DrawTerrainAt(level, draw, origin, Offset16<RoomBlocks>.Zero, blockPair);
             else
                 base.Draw(level, origin, drawing, draw);
         }

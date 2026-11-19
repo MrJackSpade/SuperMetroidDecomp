@@ -303,7 +303,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             source,
             new(
                 source.Position.X.Whole +
-                    (direction == HorizontalDirection.Right ? SpacePirateMotionDefinitions.WalkingLaserMuzzleAhead : -SpacePirateMotionDefinitions.WalkingLaserMuzzleAhead),
+                    (SpacePirateMotionDefinitions.WalkingLaserMuzzleAhead.Toward(direction)),
                 source.Position.Y.Whole - laserHeight),
             direction,
             speed);
@@ -463,7 +463,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         }
         if (pirateAction == PirateHitboxShotActions.PirateHitboxShotAction.Reflect)
         {
-            c.Enemy.InvincibilityTimer = SpacePirateCollisionDefinitions.ReflectInvincibility;
+            c.Enemy.Invincibility.Restart(SpacePirateCollisionDefinitions.ReflectInvincibility);
             // A shot aimed straight left or right reflects up and away; every other aim reflects down.
             SamusProjectileDirection reflected = c.Projectile.Direction switch
             {
@@ -476,7 +476,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                 _ => throw new InvalidDataException($"Projectile aim {c.Projectile.Direction} decoded to an undefined direction."),
             };
             c.Projectile.Direction = reflected;
-            c.Projectile.IsSpent = false;
+            c.Projectile.FlyOn();
             c.Projectiles.EnemyImpacts.ReflectFromEnemy(c.Samus,
                 c.Projectile);
             RequestSpacePirateSound(EnemySoundEffectDefinitions.WalkingPirateReflectSound);
@@ -561,7 +561,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                 $"Space Pirate has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
         }
         // While the Pirate is frozen, touching it deals neither Samus nor the Pirate contact damage.
-        if (context.Place.FrozenTimer != 0)
+        if (context.Place.Freeze.IsRunning)
             return;
         _collision.ResolveNormalEnemyTouch(context);
     }

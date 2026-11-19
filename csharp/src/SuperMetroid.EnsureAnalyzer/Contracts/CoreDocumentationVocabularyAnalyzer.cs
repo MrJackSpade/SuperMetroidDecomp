@@ -2525,8 +2525,8 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// </summary>
     private static readonly ImmutableHashSet<string> TypedMeasures =
     [
-        "RotationAngle", "TrigonometryAngle", "AngularSpeed", "Bearing", "FloorZoom", "FloorZoomStep", "SignedEightEight",
-        "SignedSixteenSixteen", "UnsignedSixteenSixteen", "FixedCoordinate", "FixedVector", "EightEightVector", "SpeedShare",
+        "RotationAngle", "TrigonometryAngle", "AngularSpeed", "FloorZoom", "FloorZoomStep", "SignedEightEight",
+        "SignedSixteenSixteen", "UnsignedSixteenSixteen", "FixedCoordinate", "FixedVector", "PixelVelocity", "SpeedShare",
     ];
 
     /// <summary>

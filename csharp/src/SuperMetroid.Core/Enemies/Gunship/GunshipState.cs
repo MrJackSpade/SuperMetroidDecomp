@@ -13,16 +13,16 @@ internal sealed class GunshipState
     /// The updates left of a waiting phase, the one it ends on included: each pad movement starts it at 144 and the wait
     /// for the engines at five, and the update that takes it to zero ends the phase (#2340, #2469).
     /// </summary>
-    public int PhaseTimer { get; internal set; }
+    public UpdateCountdown PhaseTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>The ship's next idle-bob step.</summary>
     public GunshipIdleBob Bob { get; internal set; }
 
     /// <summary>The ship's updates until its next idle-bob step.</summary>
-    public int BobTimer { get; internal set; }
+    public UpdateCountdown BobTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>The ship's updates until its next engine sound, the one it sounds on included.</summary>
-    public int EngineSoundTimer { get; internal set; }
+    public UpdateCountdown EngineSoundTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>The ship's landed room Y, its top hull's, from which Samus's entry and exit heights are measured.</summary>
     public int BaseY { get; internal set; }
@@ -31,10 +31,11 @@ internal sealed class GunshipState
     public GunshipLandingBrake LandingBrake { get; internal set; }
 
     /// <summary>
-    /// The ship's engine-rumble frame, counting the <see cref="GunshipTakeoffDefinitions.EngineRumbleFrames"/>
-    /// frames before liftoff.
+    /// The ship's engine rumble, the <see cref="GunshipTakeoffDefinitions.EngineRumbleFrames"/> updates before liftoff,
+    /// counted once each: its age chooses each update's shake, and the rumble strengthens at
+    /// <see cref="GunshipTakeoffDefinitions.RumbleStrengthensFrame"/>.
     /// </summary>
-    public int RumbleFrame { get; internal set; }
+    public UpdateCountdown Rumble { get; internal set; } = UpdateCountdown.Lasting(GunshipTakeoffDefinitions.EngineRumbleFrames);
 
     /// <summary>The phase the ship runs.</summary>
     public GunshipPhase Phase { get; internal set; }
@@ -48,14 +49,14 @@ internal sealed class GunshipState
 
     /// <summary>
     /// One update of the escape's acceleration: the speed grows by <see cref="GunshipMotionDefinitions.EscapeAcceleration"/>,
-    /// and an update whose speed's whole pixels reach <see cref="GunshipMotionDefinitions.EscapeVelocityCapTriggerPixels"/>
+    /// and an update whose speed reaches <see cref="GunshipMotionDefinitions.EscapeVelocityCapTrigger"/>
     /// sets it back to <see cref="GunshipMotionDefinitions.EscapeVelocityCap"/>, so once it first gets there the speed
     /// saws between nine pixels an update and nine and three quarters.
     /// </summary>
     internal void AccelerateEscape()
     {
         EscapeVelocity += GunshipMotionDefinitions.EscapeAcceleration;
-        if (EscapeVelocity.WholePixels >= GunshipMotionDefinitions.EscapeVelocityCapTriggerPixels)
+        if (EscapeVelocity >= GunshipMotionDefinitions.EscapeVelocityCapTrigger)
             EscapeVelocity = GunshipMotionDefinitions.EscapeVelocityCap;
     }
 

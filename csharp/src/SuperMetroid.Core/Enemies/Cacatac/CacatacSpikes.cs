@@ -8,7 +8,7 @@ internal static class CacatacSpikes
     /// its direction names, and none on an axis it does not move along.
     /// </summary>
     /// <exception cref="InvalidDataException"><paramref name="direction"/> is not one of the ten spike directions.</exception>
-    internal static EightEightVector<RoomPixels> Velocity(CacatacSpikeDirection direction)
+    internal static PixelVelocity<RoomPixels> Velocity(CacatacSpikeDirection direction)
     {
         SignedEightEight cardinal = CacatacProjectileDefinitions.CardinalSpeed;
         SignedEightEight diagonal = CacatacProjectileDefinitions.DiagonalSpeed;

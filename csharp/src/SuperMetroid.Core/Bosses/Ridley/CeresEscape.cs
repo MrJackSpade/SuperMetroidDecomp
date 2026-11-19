@@ -24,7 +24,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal sealed class CeresEscape : IGameplayShadingSource
 {
     /// <summary>The enemy pass's results, which the self-destruct writes.</summary>
-    private readonly BossFrameResultBuilder _frameResults;
+    private readonly EnemyPassEvents _passEvents;
     /// <summary>Provides room services and the floor's frames.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Queues the getaway's and the warning's sounds and music.</summary>
@@ -47,7 +47,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
     internal CeresEscape(CeresEscapeDependencies dependencies)
     {
         _bossArtwork = dependencies.BossArtwork;
-        _frameResults = dependencies.FrameResults;
+        _passEvents = dependencies.PassEvents;
         _room = dependencies.Room;
         _audio = dependencies.Audio;
         _presentation = dependencies.Presentation;
@@ -89,7 +89,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
         _status.CeresStatus = CeresEscapeStatus.RidleyEscaped;
         Stage = CeresEscapeStage.Getaway;
         Floor.Active = true;
-        Floor.GetawayUpdate = 0;
+        Floor.Flight = UpdateCountdown.Lasting(CeresRidleyGetawayCurve.Duration);
         Floor.Angle = CeresRidleyGetawayDefinitions.InitialAngle;
         Floor.Offset = CeresRidleyGetawayDefinitions.InitialFloorOffset;
         Floor.Zoom = CeresRidleyGetawayDefinitions.InitialZoom;
@@ -112,8 +112,9 @@ internal sealed class CeresEscape : IGameplayShadingSource
     {
         if (Stage != CeresEscapeStage.Getaway)
             return;
-        int update = Floor.GetawayUpdate;
-        Floor.GetawayUpdate = update + 1;
+        int update = Floor.Flight.Age;
+        bool flown = Floor.Flight.IsOver;
+        Floor.Flight.Step();
 
         // The getaway requests the departure sound on its first update only.
         if (update == 0)
@@ -125,7 +126,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
             samus.CeresRidleyEjection.Request(samus);
 
         // The update after the curves' last ends the getaway.
-        if (update == CeresRidleyGetawayCurve.Duration)
+        if (flown)
         {
             // The getaway's end restores the ordinary view and clears all rotation and scroll values, so the
             // self-destruct warning shows over the room, not the turning floor.
@@ -304,7 +305,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
                 // The escape-text sequence records the area boss's defeat inside Ridley's AI, so enemies listed after
                 // him (the room's exit door) observe it in this same enemy update.
                 _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaBoss);
-                _frameResults.CeresEscapeStarted = true;
+                _passEvents.Publish(new CeresEscapeStarted());
                 return;
 
             default:

@@ -11,9 +11,7 @@ internal static class HorizontalCameraTargets
     /// </summary>
     internal static int Offset(CameraDistanceMode mode, HorizontalDirection facing) => mode switch
     {
-        CameraDistanceMode.NormalTracking => ScreenGeometry.ScreenWidthPixels / 2 + (facing == HorizontalDirection.Right
-            ? -HorizontalCameraTargetDefinitions.NormalTrackingLead
-            : HorizontalCameraTargetDefinitions.NormalTrackingLead),
+        CameraDistanceMode.NormalTracking => ScreenGeometry.ScreenWidthPixels / 2 + (HorizontalCameraTargetDefinitions.NormalTrackingLead.Toward(facing.Reversed())),
         CameraDistanceMode.BossTracking => facing == HorizontalDirection.Right
             ? HorizontalCameraTargetDefinitions.BossTrackingFacingRightX
             : HorizontalCameraTargetDefinitions.BossTrackingFacingLeftX,

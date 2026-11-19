@@ -262,24 +262,22 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // A crawl along a wall moves vertically, one along a floor or ceiling horizontally.
         bool movesVertically = YardDirections.IsOnWall(state.Crawl);
-        YardTurnDefinition turn = YardTurns.ForCrawl(
+        YardCrawlStep turn = YardTurns.ForCrawl(
             state.Crawl,
             state.TurnsSuppressed);
 
-        // The lookahead offset is temporary, but the normal-axis probe movement is not.
-        // Adds the offset, performs collision/alignment, then subtracts only the
-        // original offset from the resulting center.
-        place.Position += turn.Lookahead;
+        // The probe stands the lookahead ahead and moves toward the surface; the Yard keeps that move (ProbeMovementKept).
+        var probe = new EnemyTerrainProbe(place, turn.Lookahead);
         bool surfaceCollision = movesVertically
             ? _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
-                place,
+                probe,
                 CrawlersBehavior.WithProbeMargin(state.CrawlingVelocity.X, YardMotionDefinitions.CrawlProbeMargin))
             : _terrain.MoveEnemyVertically(
                 level,
-                place,
+                probe,
                 CrawlersBehavior.WithProbeMargin(state.CrawlingVelocity.Y, YardMotionDefinitions.CrawlProbeMargin));
-        place.Position -= turn.Lookahead;
+        place.Position = ProbeMovementKept.AfterLookaheadProbe(probe.Position, turn.Lookahead);
 
         if (!surfaceCollision)
         {
@@ -297,7 +295,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             SetYardAnimationAndDisableTurn(
                 place,
                 state,
-                turn.OutsideTurnAnimation);
+                turn.WhenSurfaceEnds);
             return;
         }
 
@@ -313,7 +311,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
                 SetYardAnimationAndDisableTurn(
                     place,
                     state,
-                    turn.InsideTurnAnimation);
+                    turn.WhenSurfaceMet);
             }
             return;
         }
@@ -328,7 +326,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             SetYardAnimationAndDisableTurn(
                 place,
                 state,
-                turn.InsideTurnAnimation);
+                turn.WhenSurfaceMet);
             return;
         }
 
@@ -347,8 +345,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (state.TurnsSuppressed)
-            state.TurnSuppressionPassesLeft--;
+        state.TurnSuppressionPassesLeft.Step();
     }
 
     /// <summary>Starts a turn animation immediately and resets the temporary turn suppression counter.</summary>
@@ -436,7 +433,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             : CrawlerSurfaceOrientation.UpsideRight;
         // Surface direction can still describe a wall or ceiling. The landing instead uses
         // the new floor-facing block side for its downward probe and horizontal sign.
-        var landing = new EightEightVector<RoomPixels>(state.CrawlSpeed, state.CrawlSpeed);
+        var landing = new PixelVelocity<RoomPixels>(state.CrawlSpeed, state.CrawlSpeed);
         state.CrawlingVelocity = state.BlockSide == CrawlerSurfaceOrientation.UpsideRight ? landing.ReversedX() : landing;
         place.Frame = EnemyFrameId.Empty;
         state.Movement = YardMovement.HoldingStill;
@@ -524,9 +521,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Movement = YardMovement.Airborne;
         SetYardAirborneLists(place, state);
         state.AirborneVelocity = YardShotLaunchFractions.Launched(state.AirborneVelocity, new Offset16<RoomPixels>(
-            SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Left
-                ? -YardMotionDefinitions.BeamLaunchWholeSpeed
-                : YardMotionDefinitions.BeamLaunchWholeSpeed,
+            YardMotionDefinitions.BeamLaunchWholeSpeed.Toward(
+                SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Left ? HorizontalDirection.Left : HorizontalDirection.Right),
             -YardMotionDefinitions.BeamLaunchWholeSpeed));
     }
 

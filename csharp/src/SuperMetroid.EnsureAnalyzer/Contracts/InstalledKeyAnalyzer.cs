@@ -411,8 +411,8 @@ public sealed class InstalledKeyAnalyzer : DiagnosticAnalyzer
                         _ => null,
                     }, marker);
                 case IArgumentOperation { Parameter: { } parameter } argument:
-                    if (Writes(argument))
-                        return new KeyDestination(((IInvocationOperation)argument.Parent!).TargetMethod.Name, false);
+                    if (Writes(argument) && argument.Parent is IInvocationOperation writer)
+                        return new KeyDestination(writer.TargetMethod.Name, false);
                     if (IsKey(parameter, marker))
                         return new KeyDestination(parameter.Name, false);
                     if (SymbolEqualityComparer.Default.Equals(parameter.ContainingAssembly, assembly))

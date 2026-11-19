@@ -11,11 +11,11 @@ internal static class RidleyExplosionDefinitions
 {
     /// <summary>
     /// The breakup setup draws a fragment's horizontal speed from one random value as the sum of two
-    /// selections: this one, 0 to 3 sixteenths of a pixel per frame, and <see cref="FragmentSpeedWholePixel"/>.
+    /// selections: this one, none up to three sixteenths of a pixel per frame, and <see cref="FragmentSpeedWholePixel"/>.
     /// </summary>
-    internal static readonly RandomSampleField FragmentSpeedSixteenths = new(4, 2);
+    internal static readonly RandomSpeed FragmentSpeedFraction = new(new(4, 2), SignedEightEight.Zero, SignedEightEight.FromPixelFraction(1, 16));
     /// <summary>The selection of a whole pixel per frame or none that a fragment's horizontal speed adds.</summary>
-    internal static readonly RandomSampleField FragmentSpeedWholePixel = new(8, 1);
+    internal static readonly RandomSpeed FragmentSpeedWholePixel = new(new(8, 1), SignedEightEight.Zero, SignedEightEight.FromPixels(1));
     /// <summary>
     /// The breakup's spawn order: the tail from tip to base, then wings, legs, torso, head and claw. The places the
     /// pieces take and the draw order make this sequence observable.
@@ -73,8 +73,8 @@ internal static class RidleyExplosionDefinitions
         }.ToFrozenDictionary();
 
     /// <summary>The drag a breakup fragment's sideways speed loses each update, stopping at rest.</summary>
-    internal static readonly SignedEightEight BreakupFragmentDrag = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(4);
+    internal static readonly SignedEightEight BreakupFragmentDrag = SignedEightEight.FromPixelFraction(1, 64);
 
     /// <summary>The gravity a breakup fragment's fall gains each update.</summary>
-    internal static readonly SignedEightEight BreakupFragmentGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(4);
+    internal static readonly SignedEightEight BreakupFragmentGravity = SignedEightEight.FromPixelFraction(1, 64);
 }

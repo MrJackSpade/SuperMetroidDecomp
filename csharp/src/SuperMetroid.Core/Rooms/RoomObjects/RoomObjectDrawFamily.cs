@@ -80,24 +80,27 @@ internal class RoomObjectDrawFamily<TFrame> where TFrame : struct
         Ensure.NotNull(draw);
         RoomObjectFrameImage image = Image(drawing, draw);
         foreach (RoomBlockShapeCell cell in Shape(draw.Frame).Cells)
-            DrawTerrainAt(level, draw, origin + cell.Cell, new RoomTerrainBlock(image.At(cell.Cell), cell.Collision));
+            DrawTerrainAt(level, draw, origin, cell.Cell, new RoomTerrainBlock(image.At(cell.Cell), cell.Collision));
     }
 
     /// <summary>
-    /// Writes a draw's terrain at <paramref name="block"/>: a block of the grid, or one the room's reading order reaches in
-    /// the terrain beyond the room (<see cref="RoomLevelData.SetObjectTerrain"/>).
+    /// Writes a draw's terrain at the cell <paramref name="cell"/> from <paramref name="origin"/>, reached through the room's
+    /// reading order (<see cref="RoomReadingOrder"/>): a block of the grid, or, past its last row, one of the terrain beyond
+    /// the room (<see cref="TerrainBeyondRoom{TTerrain, TBehavior}"/>).
     /// </summary>
-    /// <exception cref="InvalidDataException">The block lies past the terrain beyond the room.</exception>
-    private protected static void DrawTerrainAt(RoomLevelData level, RoomObjectDraw draw, Position16<RoomBlocks> block, RoomTerrainBlock terrain)
+    /// <exception cref="InvalidDataException">The cell lies before the room's first block or past the terrain beyond the room.</exception>
+    private protected static void DrawTerrainAt(RoomLevelData level, RoomObjectDraw draw, Position16<RoomBlocks> origin,
+        Offset16<RoomBlocks> cell, RoomTerrainBlock terrain)
     {
         try
         {
-            RoomObjectLevelWrites.DrawTerrain(level, block, terrain);
+            RoomObjectLevelWrites.DrawTerrain(level, level.ObjectBlockStep(origin, cell), terrain);
         }
         catch (ArgumentOutOfRangeException error)
         {
             throw new InvalidDataException(
-                $"Room-object draw {draw} targets block ({block.X},{block.Y}) outside the room's room-object-reachable blocks.", error);
+                $"Room-object draw {draw} targets cell ({cell.X},{cell.Y}) of block ({origin.X},{origin.Y}) outside the room's " +
+                "room-object-reachable blocks.", error);
         }
     }
 }

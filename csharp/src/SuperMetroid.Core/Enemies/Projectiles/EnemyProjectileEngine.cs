@@ -70,32 +70,37 @@ internal sealed class EnemyProjectileEngine
     internal const int PlaceCount = 18;
 
     /// <summary>
-    /// Each place's latest projectile, live or gone: the place is free while its projectile is gone or has freed it.
-    /// Until the room spawns into a place, it holds a gone projectile standing where the room before left that place's.
+    /// Each place's latest projectile of this room, live or gone, or null while the room has spawned none into it: the place
+    /// is free while it holds none, or its projectile is gone or has freed it.
     /// </summary>
-    private readonly EnemyProjectile[] _places =
-        Enumerable.Range(0, PlaceCount)
-            .Select(place => new EnemyProjectile(place, default))
-            .ToArray();
+    private readonly EnemyProjectile?[] _places = new EnemyProjectile?[PlaceCount];
 
-    /// <summary>Each place's latest projectile, in place order, live or gone.</summary>
-    public IReadOnlyList<EnemyProjectile> EnemyProjectiles => _places;
+    /// <summary>What each new projectile starts from: what its place's previous projectile left there, in this room or the room before.</summary>
+    private readonly EnemyProjectilePlaceLeftovers _leftovers = new(PlaceCount);
+
+    /// <summary>The latest projectile of each place the room has spawned into, live or gone, in place order.</summary>
+    public IEnumerable<EnemyProjectile> EnemyProjectiles => _places.OfType<EnemyProjectile>();
+
+    /// <summary>How many places no live projectile holds: the free places a spawn can take.</summary>
+    public int FreePlaceCount => _places.Count(projectile => projectile is not { IsActive: true });
+
+    /// <summary>The latest projectile of <paramref name="place"/>, live or gone, or null while the room has spawned none into it.</summary>
+    /// <param name="place">The zero-based enemy-projectile place, zero for the last place spawns search.</param>
+    public EnemyProjectile? LatestInPlace(int place) => _places[Ensure.BetweenInclusive(0, PlaceCount - 1, place)];
 
     /// <summary>
-    /// Starts each place from what the room this one replaces left in it (<see cref="RoomHandOver"/>): a gone projectile
-    /// at that place's whole position and velocity, which the room's first spawn there starts from. Called before the
-    /// room's population loads.
+    /// Starts each place from what the room this one replaces left in it (<see cref="EnemyProjectilePlaceLeftovers"/>), which
+    /// the room's first spawn there starts from. Called before the room's population loads.
     /// </summary>
     internal void TakeOverFrom(RoomHandOver handOver)
     {
-        Ensure.NotNull(handOver);
-        for (int place = 0; place < _places.Length; place++)
-            _places[place] = new EnemyProjectile(place, handOver.EnemyProjectile(place));
+        Array.Clear(_places);
+        _leftovers.TakeOverFrom(handOver);
     }
 
-    /// <summary>Leaves what each place's latest projectile left there for the room that replaces this one (<see cref="RoomHandOver"/>).</summary>
+    /// <summary>Leaves what each place's latest projectile left there for the room that replaces this one (<see cref="EnemyProjectilePlaceLeftovers"/>).</summary>
     internal void HandOverTo(RoomHandOver handOver) =>
-        Ensure.NotNull(handOver).LeaveEnemyProjectiles(_places.Select(projectile => projectile.LeftInPlace));
+        _leftovers.HandOverTo(handOver, [.. _places.Select(projectile => projectile?.LeftInPlace)]);
 
     /// <summary>
     /// Queues the dud sound a rejected Samus shot makes, at <paramref name="priority"/>: a protected body part's dud competes at
@@ -121,9 +126,7 @@ internal sealed class EnemyProjectileEngine
              enemyProjectileIndex >= 0;
              enemyProjectileIndex--)
         {
-            EnemyProjectile enemyProjectile =
-                _places[enemyProjectileIndex];
-            if (!enemyProjectile.IsActive ||
+            if (_places[enemyProjectileIndex] is not { IsActive: true } enemyProjectile ||
                 !enemyProjectile.BlocksSamusProjectiles ||
                 enemyProjectile.CollisionOption == EnemyProjectileCollisionOption.NoCollision)
                 continue;
@@ -145,7 +148,7 @@ internal sealed class EnemyProjectileEngine
                 // enemy, so a freshly fired Super Missile (or its invisible link) does not explode on the update it was
                 // fired. The shot acts on the mark as it moves on the next projectile pass.
                 if (!shot.Type.HasAnyBeam(SamusBeamFlags.Plasma))
-                    shot.IsSpent = true;
+                    shot.Spend();
 
                 if (enemyProjectile.CollisionOption == EnemyProjectileCollisionOption.IndestructibleDud)
                 {
@@ -194,8 +197,7 @@ internal sealed class EnemyProjectileEngine
         // pass, and one spawned above it waits for the next.
         for (int place = _places.Length - 1; place >= 0; place--)
         {
-            EnemyProjectile projectile = _places[place];
-            if (!projectile.IsActive)
+            if (_places[place] is not { IsActive: true } projectile)
                 continue;
 
             BehaviorOf(projectile).RunMotion(
@@ -205,7 +207,8 @@ internal sealed class EnemyProjectileEngine
             // to the replacement, whose animation starts in this pass. One that freed its place without ending finishes
             // its update with its animation (a power-bombed Draygon goop that reaches Samus sticks to her through its
             // touch animation, EnemyProjectile.FreePlace). One that ended plays no animation, so nothing runs.
-            AdvanceEnemyProjectileAnimations(_places[place], samus, camera, shortCounter, samusBombs);
+            AdvanceEnemyProjectileAnimations(_places[place] ?? throw new InvalidOperationException(
+                $"Enemy-projectile place {place} lost its projectile during its own motion."), samus, camera, shortCounter, samusBombs);
         }
     }
 
@@ -225,8 +228,7 @@ internal sealed class EnemyProjectileEngine
         KnockbackHorizontalDirection? finalKnockbackXDirection = null;
         for (int index = _places.Length - 1; index >= 0; index--)
         {
-            EnemyProjectile projectile = _places[index];
-            if (projectile.IsActive)
+            if (_places[index] is { IsActive: true } projectile)
             {
                 finalKnockbackXDirection =
                     ResolveEnemyProjectileSamusCollision(projectile, samus) ??
@@ -240,7 +242,7 @@ internal sealed class EnemyProjectileEngine
         if (finalKnockbackXDirection.HasValue)
         {
             samus.KnockbackXDirection = finalKnockbackXDirection.Value;
-            samus.KnockbackTimer = EnemyCollisionDefinitions.SamusTouchKnockbackUpdates;
+            samus.KnockbackHold = UpdateCountdown.For(EnemyCollisionDefinitions.SamusTouchKnockbackUpdates);
         }
     }
 
@@ -299,9 +301,7 @@ internal sealed class EnemyProjectileEngine
         Offset16<RoomPixels> shake = _earthquake.GetEnemyProjectileShake(timeIsFrozen);
         for (int place = _places.Length - 1; place >= 0; place--)
         {
-            EnemyProjectile projectile = _places[place];
-
-            if (!projectile.IsActive ||
+            if (_places[place] is not { IsActive: true } projectile ||
                 projectile.State is IFlickeringProjectileState { IsHidden: true } ||
                 projectile.Depth != depth ||
                 projectile.Frame is not { } frame)
@@ -319,16 +319,16 @@ internal sealed class EnemyProjectileEngine
 
     /// <summary>
     /// Spawns a fresh projectile into the first free place searched from the last down, starting from what the place's
-    /// previous projectile left there (<see cref="EnemyProjectileHandOver"/>), or returns null when every place is held.
+    /// previous projectile left there (<see cref="EnemyProjectilePlaceLeftovers"/>), or returns null when every place is held.
     /// The new projectile is gone until its spawner gives it a kind.
     /// </summary>
     internal EnemyProjectile? AllocateEnemyProjectile()
     {
         for (int place = _places.Length - 1; place >= 0; place--)
         {
-            EnemyProjectile previous = _places[place];
-            if (!previous.IsActive)
-                return _places[place] = new EnemyProjectile(place, previous.LeftInPlace);
+            EnemyProjectile? previous = _places[place];
+            if (previous is not { IsActive: true })
+                return _places[place] = new EnemyProjectile(place, _leftovers.StartOf(place, previous?.LeftInPlace));
         }
         return null;
     }
@@ -457,13 +457,13 @@ internal sealed class EnemyProjectileEngine
 
             if (axis == Axis.Horizontal)
             {
-                projectile.Position = projectile.Position.WithFractionX(0);
+                projectile.Position = projectile.Position.WithFractionX(PixelFraction.None);
                 if (snapDoesNotMoveBackwards)
                     projectile.Position = projectile.Position.WithWholeX(snappedPosition);
             }
             else
             {
-                projectile.Position = projectile.Position.WithFractionY(0);
+                projectile.Position = projectile.Position.WithFractionY(PixelFraction.None);
                 if (snapDoesNotMoveBackwards)
                     projectile.Position = projectile.Position.WithWholeY(snappedPosition);
             }
@@ -668,7 +668,7 @@ internal sealed class EnemyProjectileEngine
             RoomEffectActorKind.DudShot,
             graphics: default);
         QueueDudSound(SoundRequestPriority.Low);
-        projectile.IsSpent = true;
+        projectile.Spend();
     }
 
     /// <summary>

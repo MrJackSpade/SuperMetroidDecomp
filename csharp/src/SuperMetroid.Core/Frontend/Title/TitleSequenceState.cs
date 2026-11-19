@@ -57,8 +57,14 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>Installed row gradient, bound when the game is bound to its installed content.</summary>
     private TitleGradientPresentation titleGradientPresentation;
 
-    /// <summary>Countdown for the active title phase, including fade and idle stages.</summary>
-    internal int PhaseTimer { get; private set; }
+    /// <summary>The final zoom's updates, whose cadence paces the zoom's steps.</summary>
+    private readonly ElapsedUpdates zoomAge = new();
+    /// <summary>The logo's hold before the copyright shows.</summary>
+    private UpdateCountdown logoHold = UpdateCountdown.Ended();
+    /// <summary>The copyright's hold before the title screen opens.</summary>
+    private UpdateCountdown copyrightHold = UpdateCountdown.Ended();
+    /// <summary>The idle title screen's wait before the attract demo starts.</summary>
+    internal UpdateCountdown IdleTimeout { get; private set; } = UpdateCountdown.Ended();
     /// <summary>The running title card's typing (#2359): it shows nothing until its first update reads its first beat.</summary>
     private readonly AnimationPlayer<TitleSequencePhase, TitleCardTyping, TitleCardCue> textCard =
         AnimationPlayer<TitleSequencePhase, TitleCardTyping, TitleCardCue>.Starting(TitleCards.Segments, TitleCards.Typing(TitleSequencePhase.YearText));
@@ -183,10 +189,8 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>How far the skip to the title screen has run alongside the running step (#1719).</summary>
     internal TitleSkipStage SkipStage { get; private set; }
 
-    /// <summary>True after the title's slow fade has handed control to file select.</summary>
-    public bool FileSelectRequested { get; private set; }
-    /// <summary>True after the idle timeout's slow fade reaches the demo state.</summary>
-    public bool DemoRequested { get; private set; }
+    /// <summary>How the title hands off to the frontend (#2562): file select or the demo, kept once it reaches one.</summary>
+    public TitleSequenceOutcome Outcome { get; private set; }
 
     /// <summary>The player-cancelled return from the demo skips the introductory title cards.</summary>
     internal static TitleSequenceState ReturnFromDemo(
@@ -299,7 +303,9 @@ public sealed class TitleSequenceState : IFrontendScreen
                 // The zoom acts only on every second update: it grows one step while the floor is smaller than its own
                 // size, and the first such update that finds it at its own size completes the zoom (#1715), so the zoom
                 // holds the floor's own size for one of its steps before the logo shows.
-                if (!TitleSequenceDefinitions.Scenes.FinalZoomStepEverySecondUpdate.IsDue(PhaseTimer++))
+                bool zoomSteps = TitleSequenceDefinitions.Scenes.FinalZoomStepEverySecondUpdate.IsDue(zoomAge.Age);
+                zoomAge.Count();
+                if (!zoomSteps)
                     break;
                 if (Zoom < FloorZoom.OwnSize)
                     Zoom = Zoom.Widened(TitleSequenceDefinitions.Scenes.FinalZoomStep);
@@ -309,7 +315,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                     ActiveOrigin = TitleSequenceDefinitions.Sprites.LogoOrigin;
                     ActiveColouring = TitleSequenceDefinitions.Sprites.LogoColouring;
                     Phase = TitleSequencePhase.TitleLogoFade;
-                    PhaseTimer = TitleSequenceDefinitions.Timing.LogoHoldFrames;
+                    logoHold = UpdateCountdown.For(TitleSequenceDefinitions.Timing.LogoHoldFrames);
                     // The logo starts its fade as it first shows; the effect shows its first shade when the colour
                     // effects step at the end of this update, so the logo first shows black.
                     colourEffects.StartScreen(TitleSequenceDefinitions.Fades.Logo);
@@ -317,19 +323,19 @@ public sealed class TitleSequenceState : IFrontendScreen
                 break;
 
             case TitleSequencePhase.TitleLogoFade:
-                if (--PhaseTimer <= 0)
+                if (logoHold.Step())
                 {
                     // The copyright first shows, and starts its fade, as the logo's hold ends; it holds for its own hold
                     // (TitleSequenceDefinitions.Timing.CopyrightHoldFrames) before arming the demo countdown
                     // (TitleSequenceDefinitions.Timing.TitleScreenIdleTimeoutFrames).
                     Phase = TitleSequencePhase.CopyrightFade;
-                    PhaseTimer = TitleSequenceDefinitions.Timing.CopyrightHoldFrames;
+                    copyrightHold = UpdateCountdown.For(TitleSequenceDefinitions.Timing.CopyrightHoldFrames);
                     colourEffects.StartScreen(TitleSequenceDefinitions.Fades.Copyright);
                 }
                 break;
 
             case TitleSequencePhase.CopyrightFade:
-                if (--PhaseTimer <= 0)
+                if (copyrightHold.Step())
                     EnterTitleScreen();
                 break;
 
@@ -340,7 +346,7 @@ public sealed class TitleSequenceState : IFrontendScreen
 
             case TitleSequencePhase.TitleScreen:
                 // The timeout check wins over confirmation on its final frame.
-                if (--PhaseTimer <= 0)
+                if (IdleTimeout.Step())
                 {
                     Phase = TitleSequencePhase.TitleScreenFadeOutToDemo;
                     fade.StepEvery(TitleSequenceDefinitions.Timing.TitleFadeUpdatesPerStep);
@@ -354,12 +360,12 @@ public sealed class TitleSequenceState : IFrontendScreen
 
             case TitleSequencePhase.TitleScreenFadeOutToFileSelect:
                 if (fade.Darken())
-                    FileSelectRequested = true;
+                    Outcome = TitleSequenceOutcome.FileSelect;
                 break;
 
             case TitleSequencePhase.TitleScreenFadeOutToDemo:
                 if (fade.Darken())
-                    DemoRequested = true;
+                    Outcome = TitleSequenceOutcome.Demo;
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(TitleSequencePhase)} {Phase}.");
@@ -544,7 +550,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                 return;
 
             case TitleCardCue.StartFinalZoom:
-                PhaseTimer = 0;
+                zoomAge.Restart();
                 ApplyScene(TitleSequenceDefinitions.Scenes.FinalZoom);
                 return;
 
@@ -566,7 +572,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         ActiveCard = null;
         ActiveOrigin = definition.Origin;
         ActiveColouring = definition.Colouring;
-        panPosition = new(panPosition.X.WithFraction(0), panPosition.Y.WithFraction(0));
+        panPosition = FixedVector<FloorPixels>.FromWholePixels(panPosition.Whole);
     }
 
     /// <summary>Installs the logo, gradient, copyright colors, and identity turning-floor scene used after a skip.</summary>
@@ -578,7 +584,9 @@ public sealed class TitleSequenceState : IFrontendScreen
         ActiveSprite = TitleSprite.SuperMetroidLogo;
         ActiveOrigin = TitleSequenceDefinitions.Sprites.LogoOrigin;
         ActiveColouring = TitleSequenceDefinitions.Sprites.LogoColouring;
-        panPosition = new(panPosition.X.WithWholePixels(0), panPosition.Y.WithWholePixels(0));
+        // The pan returns to the floor's origin in whole pixels alone: the fractions an earlier pan left stay, as the game
+        // resets only the pan's whole pixels.
+        panPosition = panPosition.WithWhole(Offset16<FloorPixels>.Zero);
         Zoom = FloorZoom.OwnSize;
     }
 
@@ -587,7 +595,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     {
         EnterImmediateTitleScreen();
         Phase = TitleSequencePhase.TitleScreen;
-        PhaseTimer = TitleSequenceDefinitions.Timing.TitleScreenIdleTimeoutFrames;
+        IdleTimeout = UpdateCountdown.For(TitleSequenceDefinitions.Timing.TitleScreenIdleTimeoutFrames);
         fade.Show(DisplayBrightness.Full);
     }
 

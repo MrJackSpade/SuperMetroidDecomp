@@ -77,11 +77,11 @@ internal sealed class DoorTransitionRunner
     internal void DrawDoorTransitionActors(DoorTransitionEnemyProjectiles enemyProjectiles, RoomScope room, SamusState samus)
     {
         _sprites.BeginFrame();
-        _enemyPhase.RunEnemyUpdatePhase(processingList: EnemyProcessingList.Unprepared, room.Camera.PreviousSamusPoint, room, samus);
+        _ = _enemyPhase.RunEnemyUpdatePhase(processingList: EnemyProcessingList.Unprepared, room.Camera.PreviousSamusPoint, room, samus);
         // The Samus-collision pass belongs to gameplay only.
         if (enemyProjectiles == DoorTransitionEnemyProjectiles.Run)
             RunEnemyProjectiles(room, samus);
-        _actorDrawing.DrawGameplayActors(room, samus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold);
+        _actorDrawing.DrawGameplayActors(room, samus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold, deathStep: null);
         // Drawing Samus every frame bypasses ordinary hurt flicker after the shared
         // draw. Elevator-owned drawing retains its separate alternating cadence.
         if (room.Enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Inactive)

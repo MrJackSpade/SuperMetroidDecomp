@@ -43,7 +43,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new PuyoEnemyState(PuyoAction.Grounded)
         {
             YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start,
-            HopCooldownTimer = place.SpawnSettings<PuyoSpawnSettings>().HopCooldown + EnemyWaitDefinitions.RunOutUpdate,
+            HopCooldownTimer = UpdateCountdown.For(place.SpawnSettings<PuyoSpawnSettings>().HopCooldown + EnemyWaitDefinitions.RunOutUpdate),
             CurrentHop = PuyoHopType.NormalSmall,
             HopType = PuyoHopType.NormalSmall,
             Direction = HorizontalDirection.Right,
@@ -80,12 +80,12 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // A placement's cooldown of N keeps the Puyo grounded for N updates and it hops on the next, so a zero cooldown hops
         // at once.
-        if (--state.HopCooldownTimer > 0)
+        if (!state.HopCooldownTimer.Step())
             return;
 
         // Every hop starts rising.
         state.Action = PuyoAction.Rising;
-        state.HopCooldownTimer = place.SpawnSettings<PuyoSpawnSettings>().HopCooldown + EnemyWaitDefinitions.RunOutUpdate;
+        state.HopCooldownTimer = UpdateCountdown.For(place.SpawnSettings<PuyoSpawnSettings>().HopCooldown + EnemyWaitDefinitions.RunOutUpdate);
         InitiatePuyoHop(place, state, samus);
     }
 
@@ -265,7 +265,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     private bool MovePuyo(RoomEnemyPlace place, PuyoEnemyState state, RoomLevelData level)
     {
         QuadraticCurveSpeed curveSpeed = QuadraticSpeedCurvePlace.Min(state.YSpeedCurvePlace, PuyoHopDefinitions.FastestSpeedPlace).Speed;
-        SignedSixteenSixteen verticalDisplacement = curveSpeed.Toward(state.Action == PuyoAction.Falling ? EnemySpeedSign.Positive : EnemySpeedSign.Negative);
+        SignedSixteenSixteen verticalDisplacement = curveSpeed.Toward(state.Action == PuyoAction.Falling ? VerticalDirection.Down : VerticalDirection.Up);
         bool verticalCollision = _terrain.MoveEnemyVertically(level, place, verticalDisplacement);
         if (verticalCollision)
         {
@@ -292,10 +292,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The hop moves sideways by the whole pixels of its horizontal speed only, so the giant hop's one and a quarter
         // moves exactly one pixel each update.
-        int whole = Hop(state).XSpeed.WholePixels;
-        if (state.Direction == HorizontalDirection.Left)
-            whole = -whole;
-        SignedSixteenSixteen horizontalDisplacement = SignedSixteenSixteen.FromWholePixels(whole);
+        SignedSixteenSixteen horizontalDisplacement = SignedSixteenSixteen.FromWholePixels(Hop(state).XSpeed.WholePixels.Toward(state.Direction));
 
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,

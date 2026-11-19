@@ -3,19 +3,23 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Escape;
-using SuperMetroid.Core.Bosses;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.SporeSpawn;
+using SuperMetroid.Core.Bosses.Torizo;
 
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// Room effects enemy AI requests during a pass: the fixed room-object spawns of Botwoon, Spore Spawn, Crocomire,
-/// Kraid, Mother Brain, the Shitroid, Phantoon and the Chozo statues, and the downward gates' projectile requests. Each
-/// lands in the room it is handed (<see cref="EnemyRoomEffectSite"/>, #2382).
+/// The room effects a room's enemies ask for in a pass or as their room loads: the fixed room-object spawns of Botwoon,
+/// Spore Spawn, Crocomire, Kraid, Mother Brain, the Shitroid, Phantoon and the Chozo statues, the colour effects and acid
+/// changes of the Torizos and Mother Brain, the effects of Mother Brain's death, and the downward gates' projectile
+/// requests. Each lands in the room it is handed (<see cref="EnemyRoomEffectSite"/>, #2382).
 /// </summary>
 internal sealed class EnemyRoomEffects
 {
@@ -24,7 +28,7 @@ internal sealed class EnemyRoomEffects
     /// <summary>Records defeated bosses and the Zebes timebomb event requested by the encounter.</summary>
     private readonly SharedGameState _system;
 
-    /// <summary>Binds the room systems needed to consume enemy publications immediately after their AI pass.</summary>
+    /// <summary>Binds the room systems that act on the enemies' events immediately after their AI pass.</summary>
     internal EnemyRoomEffects(EnemyRoomEffectsDependencies dependencies)
     {
         _escapeTimer = dependencies.EscapeTimer;
@@ -38,58 +42,83 @@ internal sealed class EnemyRoomEffects
     internal void StartCeresEscape() => _escapeTimer.RequestCeresStart();
 
     /// <summary>
-    /// Applies the fixed room objects and room effects that enemy AI requested during its pass.
+    /// Spawns the room objects and starts the room effects that <paramref name="pass"/>'s enemies asked for, in the order
+    /// they asked for them; the pass's other events are the runtime's (<see cref="EnemyFramePhase"/>).
     /// </summary>
     /// <remarks>
     /// Actors spawn their fixed room objects and make their other room writes
     /// inside the enemy pass, and each room object's setup edits the level at once. Applying them right
     /// after the enemy pass lets Samus's movement later in the frame meet the edited
     /// terrain; Baby Metroid clears its invisible wall this way just before Samus runs
-    /// through it.
+    /// through it. A fixed room-object spawn into a room whose places are all held is lost (RoomObjectPlaces); a room
+    /// loads with every place free.
     /// </remarks>
-    internal void ApplyEnemyRequestedRoomEffects(EnemyRoomEffectRequests requests, EnemyRoomEffectSite site)
+    internal void ApplyEnemyRequestedRoomEffects(EnemyFrameResult pass, EnemyRoomEffectSite site)
     {
-        ApplyPendingBotwoonWallObject(requests, site);
-        ApplyPendingSporeSpawnCeilingObject(requests, site);
-        ApplyPendingCrocomireArenaObjects(requests, site);
-        ApplyPendingKraidObjects(requests, site);
-        ApplyPendingMotherBrainObjects(requests, site);
-        ApplyPendingShitroidWallObjects(requests, site);
-        ApplyPendingPhantoonDoorObject(requests, site);
-        ApplyPendingChozoStatueObjects(site);
-        ApplyPendingTorizoBellyGlow(requests, site);
+        foreach (EnemyPassEvent passEvent in pass.Events)
+        {
+            switch (passEvent)
+            {
+                case BotwoonWallChange wall:
+                    ApplyBotwoonWallChange(wall.Mutation, site);
+                    break;
+                case SporeSpawnCeilingChange ceiling:
+                    // Its setup in a defeated room asks for the clear ceiling; the live death the animated crumble, on
+                    // the exact collision update.
+                    site.RoomObjects.BossRoomMutations.SporeSpawnCeiling.TrySpawn(site.Level, ceiling.Mutation);
+                    break;
+                case CrocomireArenaChange arena:
+                    site.RoomObjects.BossRoomMutations.CrocomireArena.TrySpawn(site.Level, arena.Request);
+                    break;
+                case KraidRoomChange kraid:
+                    site.RoomObjects.BossRoomMutations.KraidRoom.TrySpawn(site.Level, kraid.Request);
+                    break;
+                case MotherBrainDeathStepTaken death:
+                    ApplyMotherBrainDeathStep(death.Step, site);
+                    break;
+                case MotherBrainAcidChange acid:
+                    site.FxOverlay.ApplyEntry(acid.Change);
+                    break;
+                case MotherBrainRoomChangeRequest change:
+                    site.RoomObjects.BossRoomMutations.MotherBrainRoom.TrySpawn(site.Level, change);
+                    break;
+                case ShitroidWallChange shitroidWall:
+                    site.RoomObjects.BossRoomMutations.ShitroidWall.TrySpawn(site.Level, shitroidWall.Request);
+                    break;
+                case PhantoonDoorChanged door:
+                    // The door's setup holds its top block solid until its first update draws the door.
+                    site.RoomObjects.BossRoomMutations.PhantoonDoor.TrySpawn(site.Level, door.Change);
+                    break;
+                case ChozoStatueObjectAsked chozo:
+                    site.RoomObjects.ChozoStatue.TrySpawnChozoStatueObject(site.Level, chozo.Request);
+                    break;
+                case TorizoBellyGlowRequest glow:
+                    site.ColourEffects.StartTorizoBellyGlow(glow.Glow, glow.Torizo, site.Samus.EquippedItems);
+                    break;
+                default:
+                    // The pass's events for Samus, the camera, the escape and the game are the runtime's.
+                    break;
+            }
+        }
     }
 
     /// <summary>
-    /// Starts the glow an enemy's placement started, if any, among the room's colour effects (#1733): the gunship's glow,
-    /// which its top hull's placement starts. The glow keeps the gunship it shows on and runs until the room's colour
+    /// Starts the glows the pass's enemies' placements started among the room's colour effects (#1733): the gunship's
+    /// glow, which its top hull's placement starts. The glow keeps the gunship it shows on and runs until the room's colour
     /// effects are cleared, which a room load does (#1783).
     /// </summary>
-    internal static void StartEnemyGlow(EnemyGlowStart? glow, EnemyRoomEffectSite site)
+    internal static void StartEnemyGlows(EnemyFrameResult pass, EnemyRoomEffectSite site)
     {
-        if (glow is not null)
-            site.ColourEffects.StartEnemyGlow(glow, site.Samus.EquippedItems);
-    }
-
-    /// <summary>Starts the belly glow a Torizo's fight start asked for among the room's colour effects, watching that Torizo.</summary>
-    private static void ApplyPendingTorizoBellyGlow(EnemyRoomEffectRequests requests, EnemyRoomEffectSite site)
-    {
-        if (requests.TorizoBellyGlow is { } glow)
-            site.ColourEffects.StartTorizoBellyGlow(glow.Glow, glow.Torizo, site.Samus.EquippedItems);
+        foreach (EnemyGlowStarted glow in pass.All<EnemyGlowStarted>())
+            site.ColourEffects.StartEnemyGlow(glow.Glow, site.Samus.EquippedItems);
     }
 
     /// <summary>
-    /// Applies the effect published by Botwoon's AI through the shared
-    /// room-object owner. This is called at both producer sites: room initialization
-    /// for an already-defeated boss and the enemy pass when the final body segment lands.
+    /// Spawns Botwoon's wall change through the shared room-object owner, at both of its producers: his setup in a
+    /// defeated room and the enemy pass on which his final body segment lands.
     /// </summary>
-    private static void ApplyPendingBotwoonWallObject(EnemyRoomEffectRequests requests, EnemyRoomEffectSite site)
+    private static void ApplyBotwoonWallChange(BotwoonWallMutation mutation, EnemyRoomEffectSite site)
     {
-        if (requests.BotwoonWall is not BotwoonWallMutation mutation)
-            return;
-
-        // The wall's room object does not spawn while every room-object place is held; a room loads with every place
-        // free.
         site.RoomObjects.BossRoomMutations.BotwoonWall.TrySpawn(site.Level, mutation);
 
         if (mutation == BotwoonWallMutation.Clear)
@@ -103,105 +132,22 @@ internal sealed class EnemyRoomEffects
     }
 
     /// <summary>
-    /// Applies Spore Spawn's ceiling request through the shared room-object
-    /// owner. Initialization publishes the clear entry for a defeated save; the live death
-    /// reaction publishes the animated crumble entry on the exact collision frame.
+    /// Carries out the room-level effects one step of Mother Brain's death asked for: the escape's colour effects, the end
+    /// of Samus's drained get-up, the escape countdown, her defeat's record and the Zebes time bomb's story event.
     /// </summary>
-    private static void ApplyPendingSporeSpawnCeilingObject(EnemyRoomEffectRequests requests, EnemyRoomEffectSite site)
+    internal void ApplyMotherBrainDeathStep(MotherBrainRainbowBeamAttackStepResult death, EnemyRoomEffectSite site)
     {
-        if (requests.SporeSpawnCeiling is not SporeSpawnCeilingMutation mutation)
-            return;
-
-        // A fixed room-object spawn silently drops the request if all forty places are held.
-        site.RoomObjects.BossRoomMutations.SporeSpawnCeiling.TrySpawn(site.Level, mutation);
+        foreach (ColourEffectId definition in death.EscapeColourEffectRequests)
+            site.ColourEffects.Start(definition, site.Samus.EquippedItems);
+        if (death.Starts(MotherBrainStepEffect.GetUpRelease))
+            site.Samus.Drained.RelinquishGetUp();
+        if (death.Starts(MotherBrainStepEffect.EscapeTimerStart))
+            _escapeTimer.RequestMotherBrainStart(); // The runtime already owns per-frame timer processing/drawing.
+        if (death.Starts(MotherBrainStepEffect.DefeatRecord))
+            _system.RecordBossesDefeated(site.Area, DefeatedBosses.AreaMiniBoss);
+        if (death.Starts(MotherBrainStepEffect.ZebesTimebombEvent))
+            _system.SetEvent(StoryEvent.ZebesTimebombSet);
     }
-
-    /// <summary>
-    /// Applies Crocomire's arena changes through the shared
-    /// room-object owner. Consuming the full frame-local list preserves publication order
-    /// and fixed-pool exhaustion behavior.
-    /// </summary>
-    private static void ApplyPendingCrocomireArenaObjects(EnemyRoomEffectRequests requests, EnemyRoomEffectSite site)
-    {
-        foreach (RoomObjectSpawnRequest<CrocomireArenaMutation> request in requests.CrocomireObjects)
-        {
-            // A fixed room-object spawn silently loses a request when all forty places are
-            // held. The arena spawner deliberately mirrors that result.
-            site.RoomObjects.BossRoomMutations.CrocomireArena.TrySpawn(site.Level, request);
-        }
-    }
-
-    /// <summary>
-    /// Transfers Kraid's ceiling and platform requests into the shared
-    /// room-object pool before the current frame's room-object step.
-    /// </summary>
-    private static void ApplyPendingKraidObjects(EnemyRoomEffectRequests requests, EnemyRoomEffectSite site)
-    {
-        foreach (RoomObjectSpawnRequest<KraidRoomMutation> request in requests.KraidObjects)
-            site.RoomObjects.BossRoomMutations.KraidRoom.TrySpawn(site.Level, request);
-    }
-
-    /// <summary>
-    /// Transfers Mother Brain's fixed room-object requests to the shared
-    /// owner. The enemy state publishes requests in the order it makes them; consuming them
-    /// here keeps the places they take in update order and applies them in the update that makes them.
-    /// </summary>
-    internal void ApplyPendingMotherBrainObjects(EnemyRoomEffectRequests requests, EnemyRoomEffectSite site)
-    {
-        if (requests.MotherBrainDeathStep is { } death)
-        {
-            foreach (ColourEffectId definition in death.EscapeColourEffectRequests)
-                site.ColourEffects.Start(definition, site.Samus.EquippedItems);
-            if (death.GetUpReleaseRequested)
-                site.Samus.Drained.RelinquishGetUp();
-            if (death.MotherBrainEscapeTimerStartRequested)
-                _escapeTimer.RequestMotherBrainStart(); // The runtime already owns per-frame timer processing/drawing.
-            if (death.MotherBrainDefeatRecordRequested)
-                _system.RecordBossesDefeated(site.Area, DefeatedBosses.AreaMiniBoss);
-            if (death.ZebesTimebombEventRequested)
-                _system.SetEvent(StoryEvent.ZebesTimebombSet);
-        }
-        if (requests.MotherBrainAcidChange is { } acidChange)
-        {
-            // The acid change is applied once, on the pass that requested it. Reapplying it each frame would reset
-            // its delay and prevent the acid from moving.
-            site.FxOverlay.ApplyEntry(acidChange);
-        }
-
-        foreach (MotherBrainRoomChangeRequest request in requests.MotherBrainObjects)
-            site.RoomObjects.BossRoomMutations.MotherBrainRoom.TrySpawn(site.Level, request);
-    }
-
-    /// <summary>
-    /// Transfers the Shitroid's wall requests to the shared room-object
-    /// pool at both producer seams: enemy initialization and the end of each enemy pass.
-    /// </summary>
-    private static void ApplyPendingShitroidWallObjects(EnemyRoomEffectRequests requests, EnemyRoomEffectSite site)
-    {
-        foreach (RoomObjectSpawnRequest<ShitroidWallMutation> request in requests.ShitroidObjects)
-            site.RoomObjects.BossRoomMutations.ShitroidWall.TrySpawn(site.Level, request);
-    }
-
-    /// <summary>
-    /// Spawns the door change Phantoon's fight asked for in the pass (#1678) among the room's objects: the fight's door
-    /// as the starting flames close in, the restored door once the Wrecked Ship's power is back. Its setup holds the
-    /// door's top block solid until its first update draws the door.
-    /// </summary>
-    private static void ApplyPendingPhantoonDoorObject(EnemyRoomEffectRequests requests, EnemyRoomEffectSite site)
-    {
-        if (requests.PhantoonDoor is not { } change)
-            return;
-
-        // A spawn into a full room is lost, as every boss terrain change's is (RoomObjectPlaces).
-        site.RoomObjects.BossRoomMutations.PhantoonDoor.TrySpawn(site.Level, change);
-    }
-
-    /// <summary>
-    /// Consumes pending Chozo terrain publications. Also runs at the frame's entry, before movement, so Samus cannot
-    /// collide before a pending initialization setup has installed the hand block.
-    /// </summary>
-    internal static void ApplyPendingChozoStatueObjects(EnemyRoomEffectSite site) =>
-        site.Enemies.RoomObjectRequests.ApplyPendingChozoStatueObjects(site.Level, site.RoomObjects.ChozoStatue);
 
     /// <summary>Transfers downward-gate spawn/wake work into the enemy-projectile pool.</summary>
     internal static void ApplyPendingDownwardGateProjectileRequests(EnemyRoomEffectSite site)

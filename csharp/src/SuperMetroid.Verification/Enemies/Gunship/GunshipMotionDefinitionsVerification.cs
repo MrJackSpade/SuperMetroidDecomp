@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Enemies.Gunship.GunshipLandingVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -69,14 +70,14 @@ internal static class GunshipMotionDefinitionsVerification
             var part = new GunshipState(GunshipPhase.Idle);
             top.SetSpeciesState(part);
             part.Bob = GunshipIdleBob.All[phase];
-            part.BobTimer = 1;
+            part.BobTimer = UpdateCountdown.For(1);
             top.Position = top.Position.WithWholeY(0x2000);
             enemies.Places.InUpdateOrder[1].Position = enemies.Places.InUpdateOrder[1].Position.WithWholeY(0x2100);
             enemies.Places.InUpdateOrder[2].Position = enemies.Places.InUpdateOrder[2].Position.WithWholeY(0x2200);
 
             stepBob(top);
 
-            AssertEqual(expectedTimer, part.BobTimer,
+            AssertEqual(expectedTimer, part.BobTimer.UpdatesLeft,
                 $"gunship production bob timer {phase}");
             AssertEqual(GunshipIdleBob.All[(phase + 1) & 3], part.Bob,
                 $"gunship production bob phase {phase}");

@@ -156,7 +156,7 @@ internal static class EndingSpriteSheetComposer
 
     /// <summary>The names of the letter frames of every text the scene types in <paramref name="family"/>; none for another family.</summary>
     private static IEnumerable<string> LetterNames(CinematicSpriteFamily family, EndingSheetDraws draws) => family == EndingTextAnimations.Family
-        ? draws.Texts.Keys.SelectMany(text => EndingTextAnimations.Typings(text).Select(EndingTypedTextDrawing.LetterFrameName))
+        ? draws.Texts.SelectMany(text => EndingTextAnimations.Typings(text.Key).Select(EndingTypedTextDrawing.LetterFrameName))
         : [];
 
     /// <summary>
@@ -207,7 +207,7 @@ internal static class EndingSpriteSheetComposer
             SpriteSheetId.EndingExplosionSprites => new(EndingReward.Armored,
                 [
                     new EndingTransfer(EndingTransferKind.ExplosionObjects),
-                    .. Enum.GetValues<EndingExplosionPicture>().Select(fragment => new EndingTransfer(EndingTransferKind.ExplosionMap, Fragment: fragment)),
+                    .. EndingObjectArtworkFormat.ExplosionPictures.Select(fragment => new EndingTransfer(EndingTransferKind.ExplosionMap, Fragment: fragment)),
                     new EndingTransfer(EndingTransferKind.EndingFont),
                 ],
                 [CinematicSpriteFamily.EndingExplosion, CinematicSpriteFamily.EndingCompletionText, CinematicSpriteFamily.EndingAnimalEscape], Logo: false,

@@ -147,10 +147,8 @@ internal sealed class CeresRidleyFlight
     /// <summary>Steers Ridley into his fireball position and installs the mouth/fireball animation.</summary>
     internal void TickCeresRidleyFireballMove(RoomEnemyPlace place, CeresRidleyState state)
     {
-        // Every acceleration clamps Ridley to five pixels an update, so his speed always has a magnitude.
-        SignedEightEight verticalVelocity = state.Flight.Velocity.Y;
-        state.Flight.Velocity = state.Flight.Velocity.WithY(SignedEightEight.Max(CeresRidleyFlightDefinitions.FireballMoveMinimumSpeed, verticalVelocity.Magnitude())
-            .AlongDirectionOf(verticalVelocity));
+        state.Flight.Velocity = state.Flight.Velocity.WithY(
+            state.Flight.Velocity.Y.WithSpeedAtLeast(CeresRidleyFlightDefinitions.FireballMoveMinimumSpeed));
         AccelerateRidleyToward(place, state.Flight, new Position16<RoomPixels>(place.Position.X.Whole, CeresRidleyArenaDefinitions.FireballMoveTargetY), CeresRidleyFlightDefinitions.HoverDivisor);
 
         int height = RidleyFlight.SignedPlace(place).Y;
@@ -176,9 +174,7 @@ internal sealed class CeresRidleyFlight
     {
         // The aim reads the room's current random number without drawing a new one.
         int random = _room.Random.Read();
-        int jitter = BossRandomRolls.InLowerHalf(random)
-            ? RidleyRandomDefinitions.FireballJitter.Of(random)
-            : -RidleyRandomDefinitions.FireballJitter.Of(random);
+        int jitter = RidleyRandomDefinitions.FireballJitter.Of(random).Toward(BossRandomRolls.SideOf(random));
         Position16<RoomPixels> target = CeresRidleyFireballTarget.Around(state.FireballBasePosition, jitter);
         AccelerateRidleyToward(place, state.Flight, target, CeresRidleyFlightDefinitions.HoverDivisor);
         if (state.PhaseTimer.StepRunsOut())
@@ -310,7 +306,7 @@ internal sealed class CeresRidleyFlight
         // The retreat places the two wall actors before the getaway begins. The getaway scene shows the chamber's walls
         // itself (#1545); the actors draw nothing, but they take two enemy places.
         SpawnCeresRidleyGetawayWalls();
-        state.Flight.Velocity = EightEightVector<RoomPixels>.Zero;
+        state.Flight.Velocity = PixelVelocity<RoomPixels>.Zero;
         state.Tail.Action = RidleyTailAction.None;
         state.Phase = CeresRidleyPhase.PublishEscapeHandoff;
 
@@ -343,7 +339,7 @@ internal sealed class CeresRidleyFlight
 
         Position16<RoomPixels> at = place.Position.Whole;
         Offset16<RoomPixels> fromTarget = at - target;
-        flight.Velocity = new EightEightVector<RoomPixels>(
+        flight.Velocity = new PixelVelocity<RoomPixels>(
             AccelerateAxis(new SeekingVelocityRun(flight.Velocity.X, at.X, target.X), fromTarget.X, divisor),
             AccelerateAxis(new SeekingVelocityRun(flight.Velocity.Y, at.Y, target.Y), fromTarget.Y, divisor));
     }
@@ -363,7 +359,7 @@ internal sealed class CeresRidleyFlight
         if (difference == 0)
             return velocity;
         // The distance divided by the inertia, at most 32768; a step that divides to zero is raised to one.
-        int step = Math.Max(1, Math.Abs(difference) / divisor);
+        SignedEightEight step = SeekingVelocityRun.StepFor(Math.Max(1, Math.Abs(difference) / divisor));
 
         if (difference < 0)
         {

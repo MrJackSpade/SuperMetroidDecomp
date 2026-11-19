@@ -47,7 +47,7 @@ internal sealed class PhantoonPatterns
         state.FigureEight.Stage = PhantoonFigureEightStage.EasingIn;
         if (PhantoonRandomDefinitions.FigureEightRunsReversed.IsTakenBy(_room.Random.Generate()))
         {
-            state.FigureEight.Speed = SignedSixteenSixteen.Zero;
+            state.FigureEight.Speed = PhantoonPathSpeed.Zero;
             state.FigureEight.Direction = PhantoonPathDirection.Backwards;
             state.FigureEight.PathPlace = PhantoonPath.At(PhantoonPathDefinitions.LastPlace);
         }
@@ -72,7 +72,7 @@ internal sealed class PhantoonPatterns
 
         state.Phase = PhantoonPhase.WaitingOnEye;
         state.EyePart.StartAnimation(PhantoonPartSegment.EyeOpen);
-        state.FlameRainRequested = false;
+        state.NextPattern = PhantoonPatternChoice.FigureEight;
         SpawnPhantoonSpiralFlames(state);
     }
 
@@ -85,9 +85,7 @@ internal sealed class PhantoonPatterns
         else
             AdjustPhantoonForwardFigureEightSpeed(figureEight);
 
-        int steps = backwards
-            ? -figureEight.Speed.WholePixels
-            : figureEight.Speed.WholePixels;
+        int steps = figureEight.Speed.WholePlacesAlong(figureEight.Direction);
         for (int step = 0; step < steps; step++)
         {
             Offset16<RoomPixels> pathStep = figureEight.PathPlace.Entry;
@@ -109,8 +107,8 @@ internal sealed class PhantoonPatterns
     {
         if (figureEight.Stage == PhantoonFigureEightStage.EasingIn)
         {
-            ChangePhantoonSpeed(figureEight, PhantoonMotionDefinitions.SlowSpeedChange, PhantoonSpeedChange.Accelerate);
-            if (figureEight.Speed.WholePixels >= PhantoonMotionDefinitions.ForwardSlowCap)
+            ChangePhantoonSpeed(figureEight, PhantoonMotionDefinitions.SlowSpeedChange);
+            if (figureEight.Speed.WholePlaces >= PhantoonMotionDefinitions.ForwardSlowCap)
             {
                 figureEight.Speed = PhantoonMotionDefinitions.ForwardSurgeStart;
                 figureEight.Stage = PhantoonFigureEightStage.Surging;
@@ -120,17 +118,17 @@ internal sealed class PhantoonPatterns
 
         if (figureEight.Stage == PhantoonFigureEightStage.Surging)
         {
-            ChangePhantoonSpeed(figureEight, PhantoonMotionDefinitions.FastSpeedChange, PhantoonSpeedChange.Accelerate);
-            if (figureEight.Speed.WholePixels >= PhantoonMotionDefinitions.ForwardFastCap)
+            ChangePhantoonSpeed(figureEight, PhantoonMotionDefinitions.FastSpeedChange);
+            if (figureEight.Speed.WholePlaces >= PhantoonMotionDefinitions.ForwardFastCap)
             {
-                figureEight.Speed = SignedSixteenSixteen.FromWholePixels(PhantoonMotionDefinitions.ForwardFastCap);
+                figureEight.Speed = PhantoonPathSpeed.FromPlaces(PhantoonMotionDefinitions.ForwardFastCap);
                 figureEight.Stage = PhantoonFigureEightStage.Settling;
             }
             return;
         }
 
-        ChangePhantoonSpeed(figureEight, PhantoonMotionDefinitions.FastSpeedChange, PhantoonSpeedChange.Decelerate);
-        if (figureEight.Speed.WholePixels <= PhantoonMotionDefinitions.ForwardMinimum)
+        ChangePhantoonSpeed(figureEight, -PhantoonMotionDefinitions.FastSpeedChange);
+        if (figureEight.Speed.WholePlaces <= PhantoonMotionDefinitions.ForwardMinimum)
         {
             figureEight.Speed = PhantoonMotionDefinitions.ForwardEaseStart;
             figureEight.Stage = PhantoonFigureEightStage.EasingIn;
@@ -142,8 +140,8 @@ internal sealed class PhantoonPatterns
     {
         if (figureEight.Stage == PhantoonFigureEightStage.EasingIn)
         {
-            ChangePhantoonSpeed(figureEight, PhantoonMotionDefinitions.SlowSpeedChange, PhantoonSpeedChange.Decelerate);
-            if (figureEight.Speed.WholePixels <= PhantoonMotionDefinitions.ReverseSlowCap)
+            ChangePhantoonSpeed(figureEight, -PhantoonMotionDefinitions.SlowSpeedChange);
+            if (figureEight.Speed.WholePlaces <= PhantoonMotionDefinitions.ReverseSlowCap)
             {
                 figureEight.Speed = PhantoonMotionDefinitions.ReverseSurgeStart;
                 figureEight.Stage = PhantoonFigureEightStage.Surging;
@@ -153,8 +151,8 @@ internal sealed class PhantoonPatterns
 
         if (figureEight.Stage == PhantoonFigureEightStage.Surging)
         {
-            ChangePhantoonSpeed(figureEight, PhantoonMotionDefinitions.FastSpeedChange, PhantoonSpeedChange.Decelerate);
-            if (figureEight.Speed.WholePixels <= PhantoonMotionDefinitions.ReverseFastCap)
+            ChangePhantoonSpeed(figureEight, -PhantoonMotionDefinitions.FastSpeedChange);
+            if (figureEight.Speed.WholePlaces <= PhantoonMotionDefinitions.ReverseFastCap)
             {
                 figureEight.Speed = PhantoonMotionDefinitions.ReverseSettleStart;
                 figureEight.Stage = PhantoonFigureEightStage.Settling;
@@ -162,22 +160,18 @@ internal sealed class PhantoonPatterns
             return;
         }
 
-        ChangePhantoonSpeed(figureEight, PhantoonMotionDefinitions.FastSpeedChange, PhantoonSpeedChange.Accelerate);
+        ChangePhantoonSpeed(figureEight, PhantoonMotionDefinitions.FastSpeedChange);
         int maximum = PhantoonMotionDefinitions.ReverseMaximum;
-        if (figureEight.Speed.WholePixels >= maximum)
+        if (figureEight.Speed.WholePlaces >= maximum)
         {
-            figureEight.Speed = SignedSixteenSixteen.FromWholePixels(maximum);
+            figureEight.Speed = PhantoonPathSpeed.FromPlaces(maximum);
             figureEight.Stage = PhantoonFigureEightStage.EasingIn;
         }
     }
 
-    /// <summary>Adds a speed change to the figure-eight's speed, or subtracts it when slowing.</summary>
-    private static void ChangePhantoonSpeed(PhantoonFigureEightState figureEight, SignedSixteenSixteen change, PhantoonSpeedChange direction)
-    {
-        figureEight.Speed = direction == PhantoonSpeedChange.Decelerate
-            ? figureEight.Speed - change
-            : figureEight.Speed + change;
-    }
+    /// <summary>Changes the figure-eight's speed by <paramref name="change"/>, a change below none where it slows.</summary>
+    private static void ChangePhantoonSpeed(PhantoonFigureEightState figureEight, PhantoonPathSpeed change) =>
+        figureEight.Speed += change;
 
     /// <summary>Advances the casual-flame burst while he runs his figure-eight.</summary>
     internal void StepPhantoonCasualFlameSchedule(PhantoonEnemyState state)
@@ -223,7 +217,7 @@ internal sealed class PhantoonPatterns
             // The round's damage is the damage accumulated during this
             // opening. Clears it before deciding whether a shot requested a swoop.
             state.Round.Damage = 0;
-            if (!state.Swoop.Requested)
+            if (state.WindowEnd != PhantoonWindowEnd.Swoop)
             {
                 state.Phase = PhantoonPhase.WaitingOnEye;
                 state.BodyPart.StartAnimation(PhantoonPartSegment.InvulnerableBody);
@@ -232,11 +226,11 @@ internal sealed class PhantoonPatterns
 
                 // This flag makes the next pattern choice take the initial flame-rain
                 // branch after the eye-close animation runs its flame-rain cue.
-                state.FlameRainRequested = true;
+                state.NextPattern = PhantoonPatternChoice.FlameRain;
                 return;
             }
 
-            state.Swoop.Requested = false;
+            state.WindowEnd = PhantoonWindowEnd.EyeCloses;
             state.PhaseWait.LastFor(PhantoonArenaDefinitions.BeforeSwoopUpdates);
             state.Phase = PhantoonPhase.BecomeSolidAndSwoop;
         }
@@ -272,7 +266,7 @@ internal sealed class PhantoonPatterns
         state.BodyPart.StartAnimation(PhantoonPartSegment.InvulnerableBody);
         state.EyePart.StartAnimation(PhantoonPartSegment.EyeClose);
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
-        state.BodyFade.Complete = false;
+        state.BodyFade.Resume();
         state.Round.Damage = 0;
     }
 
@@ -284,7 +278,7 @@ internal sealed class PhantoonPatterns
     {
         MovePhantoonInSwoop(body, state, samus, target: PhantoonSwoopTarget.AboveSamus);
         AdvancePhantoonFadeOut(state, steps: PhantoonColorDefinitions.BodyFadeSteps);
-        if (!state.BodyFade.Complete)
+        if (!state.BodyFade.IsFinished)
             return;
 
         state.Phase = PhantoonPhase.WaitAfterFadeOut;
@@ -316,14 +310,14 @@ internal sealed class PhantoonPatterns
         body.Position = body.Position.WithWholeY(PhantoonPathDefinitions.AppearanceY);
         state.FigureEight.Direction = PhantoonPathDirection.Forwards;
         state.FigureEight.Speed = PhantoonMotionDefinitions.FigureEightStartSpeed;
-        state.FlameRainRequested = false;
+        state.NextPattern = PhantoonPatternChoice.FigureEight;
 
         // The call deliberately starts a pattern phase which is immediately
         // overwritten with the fade-in phase. Its timer, direction, and movement-side
         // effects remain live, so run the shared pattern choice in full.
         PickPhantoonSecondRoundPattern(state);
         state.Phase = PhantoonPhase.FadeInBeforeFigureEight;
-        state.BodyFade.Complete = false;
+        state.BodyFade.Resume();
     }
 
     /// <summary>Reveals Phantoon before the next figure-eight pass.</summary>
@@ -332,14 +326,14 @@ internal sealed class PhantoonPatterns
         PhantoonEnemyState state)
     {
         _phantoonPresentation.AdvancePhantoonFadeIn(body, state, steps: PhantoonColorDefinitions.BodyFadeSteps);
-        if (state.BodyFade.Complete)
+        if (state.BodyFade.IsFinished)
             state.Phase = PhantoonPhase.MoveInFigureEightThenOpenEye;
     }
 
     /// <summary>Runs the visible setup for every flame-rain window.</summary>
     internal static void BeginPhantoonFlameRainVulnerableWindow(PhantoonEnemyState state)
     {
-        state.BodyFade.Complete = false;
+        state.BodyFade.Resume();
         state.Translucent = false;
         state.BodyPart.StartAnimation(PhantoonPartSegment.FullHitboxBody);
         state.EyePart.StartAnimation(PhantoonPartSegment.EyeballCentered);
@@ -352,7 +346,7 @@ internal sealed class PhantoonPatterns
         PhantoonEnemyState state)
     {
         _phantoonPresentation.AdvancePhantoonFadeIn(body, state, steps: PhantoonColorDefinitions.FlameRainFadeInSteps);
-        if (!state.BodyFade.Complete)
+        if (!state.BodyFade.IsFinished)
             return;
 
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
@@ -369,16 +363,16 @@ internal sealed class PhantoonPatterns
             return;
 
         state.Round.Damage = 0;
-        if (state.Swoop.Requested)
+        if (state.WindowEnd == PhantoonWindowEnd.Swoop)
         {
-            state.Swoop.Requested = false;
-            state.FlameRainRequested = true;
+            state.WindowEnd = PhantoonWindowEnd.EyeCloses;
+            state.NextPattern = PhantoonPatternChoice.FlameRain;
             BeginPhantoonSwoop(state);
             return;
         }
 
         state.Phase = PhantoonPhase.FadeOutDuringFlameRain;
-        state.BodyFade.Complete = false;
+        state.BodyFade.Resume();
         state.BodyPart.StartAnimation(PhantoonPartSegment.InvulnerableBody);
         state.EyePart.StartAnimation(PhantoonPartSegment.EyeClose);
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
@@ -390,7 +384,7 @@ internal sealed class PhantoonPatterns
         PhantoonEnemyState state)
     {
         AdvancePhantoonFadeOut(state, steps: PhantoonColorDefinitions.BodyFadeSteps);
-        if (!state.BodyFade.Complete)
+        if (!state.BodyFade.IsFinished)
             return;
 
         state.Phase = PhantoonPhase.SpawnFlameRain;
@@ -424,7 +418,7 @@ internal sealed class PhantoonPatterns
         if (!state.Round.EyeClosedWait.StepRunsOut())
             return;
 
-        state.Swoop.Requested = false;
+        state.WindowEnd = PhantoonWindowEnd.EyeCloses;
         state.Phase = PhantoonPhase.BecomeSolidAfterFlameRain;
         SpawnPhantoonFlameRain(body, body.Position.X.Whole < PhantoonArenaDefinitions.MiddleX
             ? PhantoonRainPatternDefinitions.FirstRainFromLeftHalf
@@ -436,7 +430,7 @@ internal sealed class PhantoonPatterns
         PhantoonEnemyState state)
     {
         AdvancePhantoonFadeOut(state, steps: PhantoonColorDefinitions.BodyFadeSteps);
-        if (!state.BodyFade.Complete)
+        if (!state.BodyFade.IsFinished)
             return;
         state.Phase = PhantoonPhase.MoveToTopCenterForRage;
         state.PhaseWait.LastFor(PhantoonArenaDefinitions.BeforeRageUpdates);
@@ -451,7 +445,7 @@ internal sealed class PhantoonPatterns
             return;
         state.Phase = PhantoonPhase.FadeInForRage;
         body.Position = body.Position.WithWhole(PhantoonArenaDefinitions.RageStart);
-        state.BodyFade.Complete = false;
+        state.BodyFade.Resume();
     }
 
     /// <summary>Reveals the body at the start of the enraged swoop.</summary>
@@ -460,11 +454,11 @@ internal sealed class PhantoonPatterns
         PhantoonEnemyState state)
     {
         _phantoonPresentation.AdvancePhantoonFadeIn(body, state, steps: PhantoonColorDefinitions.BodyFadeSteps);
-        if (!state.BodyFade.Complete)
+        if (!state.BodyFade.IsFinished)
             return;
         state.Phase = PhantoonPhase.Enraged;
         state.PhaseWait.LastFor(PhantoonArenaDefinitions.FirstRageWaveUpdates);
-        state.BodyFade.Complete = false;
+        state.BodyFade.Resume();
     }
 
     /// <summary>Runs all eight alternating radial flame waves.</summary>
@@ -498,7 +492,7 @@ internal sealed class PhantoonPatterns
         PhantoonEnemyState state)
     {
         AdvancePhantoonFadeOut(state, steps: PhantoonColorDefinitions.BodyFadeSteps);
-        if (!state.BodyFade.Complete)
+        if (!state.BodyFade.IsFinished)
             return;
         state.Phase = PhantoonPhase.WaitAfterFadeOut;
         state.PhaseWait.LastFor(PhantoonArenaDefinitions.HiddenAfterFadeOutUpdates);
@@ -605,7 +599,7 @@ internal sealed class PhantoonPatterns
         PhantoonEnemyState state,
         int steps)
     {
-        if (!PhantoonCadenceDefinitions.FadeStepEverySecondUpdate.IsDue(_frameContext.FrameCounter) || state.BodyFade.Complete)
+        if (!PhantoonCadenceDefinitions.FadeStepEverySecondUpdate.IsDue(_frameContext.FrameCounter) || state.BodyFade.IsFinished)
             return;
 
         // The fade's step is a typed fade toward his faded-out colours (#1512, #2251).
@@ -638,7 +632,7 @@ internal sealed class PhantoonPatterns
         {
             if (state.FigureEight.Direction == PhantoonPathDirection.Forwards)
                 state.FigureEight.PathPlace = state.FigureEight.PathPlace.PreviousInCycle;
-            state.FigureEight.Speed = SignedSixteenSixteen.Zero;
+            state.FigureEight.Speed = PhantoonPathSpeed.Zero;
             state.FigureEight.Stage = PhantoonFigureEightStage.EasingIn;
             state.FigureEight.Direction = PhantoonPathDirection.Backwards;
         }
@@ -651,11 +645,11 @@ internal sealed class PhantoonPatterns
             state.FigureEight.Direction = PhantoonPathDirection.Forwards;
         }
 
-        state.Phase = state.FlameRainRequested
+        state.Phase = state.NextPattern == PhantoonPatternChoice.FlameRain
             ? PhantoonPhase.FadeOutBeforeFirstFlameRain
             : PhantoonPhase.MoveInFigureEightThenOpenEye;
-        if (state.FlameRainRequested)
-            state.BodyFade.Complete = false;
+        if (state.NextPattern == PhantoonPatternChoice.FlameRain)
+            state.BodyFade.Resume();
     }
 
     /// <summary>Initializes a casual flame, which falls from the mouth harmless until it strikes the floor.</summary>
@@ -741,7 +735,7 @@ internal sealed class PhantoonPatterns
             _combat.DestroyableFlame,
             SpriteGraphics.SpawnedBy(body));
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.Burning));
-        flame.Position = flame.Position.WithFractionX(0).WithFractionY(0);
+        flame.Position = flame.Position.WithoutFractions();
         flame.Velocity = flame.Velocity.WithY(SignedEightEight.Zero);
         return flame;
     }

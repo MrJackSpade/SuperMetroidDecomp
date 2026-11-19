@@ -43,7 +43,7 @@ internal static class EnemyPickupDefinitionsVerification
                 $"production pickup program {kind}");
             AssertEqual(1, projectile.FrameHold.RawValue,
                 $"production pickup instruction timer {kind}");
-            AssertEqual(400, projectile.StateOf<EnemyPickupState>().Lifetime,
+            AssertEqual(400, projectile.StateOf<EnemyPickupState>().Lifetime.UpdatesLeft,
                 $"production pickup lifetime {kind}");
             AssertEqual<Enum?>(SingleMotion.Moving,
                 projectile.Motion,

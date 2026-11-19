@@ -63,7 +63,7 @@ internal static class ChargeFlareDefinitionsVerification
             }
         }
 
-        var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
+        var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         int ticks = 0, boundaries = 0;
         for (int place = 0; place < components.Length; place++)
         {
@@ -109,7 +109,7 @@ internal static class ChargeFlareDefinitionsVerification
                      (false, new[] { 2, 1, 0 }, new ushort[] { 0, 1, 2 }),
                  })
         {
-            var hyper = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
+            var hyper = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             var samus = new SuperMetroid.Core.Samus.SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
                 SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), hyper.Charge, artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { HyperBeamEnabled = true };
             if (shot)
@@ -120,7 +120,7 @@ internal static class ChargeFlareDefinitionsVerification
             {
                 // An ordinary charge the Baby's gift catches: the count still runs and each component stands where the
                 // ordinary flare left it.
-                hyper.Charge.FlareCounter = ChargeFlareAnimationDefinitions.SparksShownFrom;
+                hyper.Charge.SetFlareCount(ChargeFlareAnimationDefinitions.SparksShownFrom);
                 for (int place = 0; place < 3; place++)
                     hyper.Charge.Flare(components[place]).ShowNative(startPhases[place], WrappingCountdown.Start(startHolds[place]));
             }

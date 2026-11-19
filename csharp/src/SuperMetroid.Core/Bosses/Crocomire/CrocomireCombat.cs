@@ -36,7 +36,7 @@ internal sealed class CrocomireCombat
     /// <summary>Runs Crocomire's eight-color body hurt flash.</summary>
     internal void ApplyCrocomireHurtFlash(RoomEnemyPlace body, CrocomireEnemyState state)
     {
-        bool white = body.FlashTimer != 0 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(_frameContext.EnemyPassCount);
+        bool white = body.HurtFlash.IsRunning && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(_frameContext.EnemyPassCount);
         // His body shows its fight colours or the white flash as the import's shades of them (#1512).
         state.Colours.ShowBody(white);
     }
@@ -131,7 +131,7 @@ internal sealed class CrocomireCombat
 
             // The shot keeps the gradient its volley fires it along. The angle starts at up, not right: Y uses negative cosine.
             int gradient = projectile.StateOf<CrocomireProjectileState>().Gradient;
-            projectile.Velocity = CalculateCrocomireProjectileVelocity(EnemyMath.CalculateBearing(new(-CrocomireProjectileDefinitions.AimReachLeft, gradient)));
+            projectile.Velocity = CalculateCrocomireProjectileVelocity(EnemyMath.CalculateAimAngle(new(-CrocomireProjectileDefinitions.AimReachLeft, gradient)));
             projectile.StartMotion(CrocomireProjectileMotion.ShotFlying);
         }
 
@@ -157,9 +157,7 @@ internal sealed class CrocomireCombat
 
             // The piece moves across by its velocity, a 256th of a pixel at its finest: its place within a 256th of a
             // pixel stays exactly as it was.
-            FixedCoordinate x = new FixedCoordinate(projectile.Position.X.Whole, projectile.Position.X.Fraction)
-                .MovedBy(xVelocity);
-            projectile.Position = projectile.Position.WithFractionX(x.Fraction).WithWholeX(x.Whole);
+            projectile.Position = projectile.Position.WithX(projectile.Position.X.MovedBy(xVelocity));
 
             // The piece falls by its speed, which gains three sixteenths of a pixel of gravity per update.
             piece.FallSpeed += CrocomireSpikeMotionDefinitions.PieceGravity;
@@ -275,7 +273,7 @@ internal sealed class CrocomireCombat
         Position16<RoomPixels> projectile,
         Position16<RoomPixels> camera)
     {
-        body.InvincibilityTimer = 0;
+        body.Invincibility.End();
 
         // A hit while Crocomire's body is off screen skips choosing the projectile's family and still records the
         // pending hit. The body is on screen while its left edge lies left of the camera's right edge, 256 pixels past
@@ -308,14 +306,11 @@ internal sealed class CrocomireCombat
         if (!bodyLeftEdgeIsOnScreen || stepCount != 0)
         {
             state.StepCounter += stepCount;
-            if (!state.DamageReactionPending)
-            {
+            if (state.StepBack.Ask())
                 body.AnimationClock.Extend(CrocomireFightDefinitions.MouthShotReactionHoldFrames);
-            }
-            state.DamageReactionPending = true;
         }
 
-        body.FlashTimer += CrocomireFightDefinitions.MouthShotFlash;
+        body.HurtFlash.Lengthen(CrocomireFightDefinitions.MouthShotFlash);
         body.AiStates |= EnemyAiStates.Hurt;
     }
 
@@ -340,7 +335,7 @@ internal sealed class CrocomireCombat
         if (state.Phase == CrocomirePhase.PowerBombCharge)
             return;
 
-        body.FlashTimer += CrocomireFightDefinitions.PowerBombFlash;
+        body.HurtFlash.Lengthen(CrocomireFightDefinitions.PowerBombFlash);
         body.AiStates |= EnemyAiStates.Hurt;
         state.Phase = CrocomirePhase.PowerBombCharge;
 
@@ -368,15 +363,10 @@ internal sealed class CrocomireCombat
         }
     }
 
-    /// <summary>Projects a projectile angle into its sideways and vertical speeds: its sine and negative cosine at the volley's speed.</summary>
-    internal static EightEightVector<RoomPixels> CalculateCrocomireProjectileVelocity(Bearing bearing)
-    {
-        // The bearing is used as a heading without conversion, so X is its sine and Y its negative cosine.
-        TrigonometryAngle heading = bearing.ToMirroredTrigonometryAngle();
-        return new(
-            EnemyMath.SineVelocity(heading, CrocomireProjectileDefinitions.VolleySpeed),
-            EnemyMath.SineVelocity(heading - TrigonometryAngle.QuarterTurn, CrocomireProjectileDefinitions.VolleySpeed));
-    }
+    /// <summary>Projects a projectile's direction into its sideways and vertical speeds: its cosine and negative sine at the volley's speed.</summary>
+    internal static PixelVelocity<RoomPixels> CalculateCrocomireProjectileVelocity(TrigonometryAngle aim) => new(
+        EnemyMath.SineVelocity(aim + TrigonometryAngle.QuarterTurn, CrocomireProjectileDefinitions.VolleySpeed),
+        EnemyMath.SineVelocity(aim + TrigonometryAngle.HalfTurn, CrocomireProjectileDefinitions.VolleySpeed));
 
     /// <summary>Runs bridge-fragment vertical collision and gravity.</summary>
     internal static void RunCrocomireBridgeFragment(

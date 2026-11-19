@@ -98,7 +98,8 @@ internal sealed class RidleyTail
         if (allActive)
         {
             bool targetsIdle = state.Tail.ClockwiseWhipTarget is null && state.Tail.CounterClockwiseWhipTarget is null;
-            if (state.Tail.WhipRequested && targetsIdle)
+            bool ordered = state.Tail.Whip.Take();
+            if (ordered && targetsIdle)
             {
                 AimRidleyTailWhip(state, samus, samusProjectiles, turnsBeyond: 0);
             }
@@ -107,12 +108,10 @@ internal sealed class RidleyTail
                 // An idle whip reads the random number as it stands and never advances it.
                 // An idle random whip with no request pending aims one whole turn short of a requested one.
                 if (RidleyRandomDefinitions.TailWhips.IsTakenBy(_room.Random.Read()))
-                    AimRidleyTailWhip(state, samus, samusProjectiles, turnsBeyond: state.Tail.WhipRequested ? 0 : -1);
+                    AimRidleyTailWhip(state, samus, samusProjectiles, turnsBeyond: ordered ? 0 : -1);
                 else if (Math.Abs(samus.Position.X.Whole - place.Position.X.Whole) < RidleyTailDefinitions.WhipRange)
                     AimRidleyTailWhip(state, samus, samusProjectiles, turnsBeyond: 0);
             }
-
-            state.Tail.WhipRequested = false;
         }
 
         if (state.Tail.Links.Any(link => link.Active))
@@ -161,7 +160,7 @@ internal sealed class RidleyTail
                 Math.Abs((projectile.Position.Whole - tip.Position).Y) - projectile.Radius.Y < RidleyTailDefinitions.MissileWhipReach);
         if (missile is not null)
             aim = missile.Position.Whole;
-        TrigonometryAngle targetDirection = EnemyMath.CalculateBearing(aim - root.Position).ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
+        TrigonometryAngle targetDirection = EnemyMath.CalculateAimAngle(aim - root.Position).TurnedBy(TrigonometryAngle.QuarterTurn);
 
         if (state.Flight.FacingDirection == RidleyFacing.Left)
         {
@@ -429,7 +428,7 @@ internal sealed class RidleyTail
             }
 
             projectile.Position = projectile.Position.WithWhole(joint.Position);
-            projectile.IsSpent = true;
+            projectile.Spend();
 
             // A missile gets the tiny dud and the dud-shot sound. Beams and supers
             // use the larger smoke variant, exactly as the tail's shot reaction selects it.

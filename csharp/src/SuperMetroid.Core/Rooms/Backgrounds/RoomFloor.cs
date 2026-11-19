@@ -40,5 +40,5 @@ public sealed class RoomFloor
 
     /// <summary>The floor the next frame shows, every actor's picture over the installed floor; shared until an actor changes.</summary>
     public AffineFloor Publish() => published ??= new AffineFloor(Sheet.Floor.Image,
-        [.. Enum.GetValues<CeresFloorActor>().Where(shown.ContainsKey).Select(actor => Sheet.Picture(shown[actor]))]);
+        [.. CeresFloorActors.DrawingOrder.Where(shown.ContainsKey).Select(actor => Sheet.Picture(shown[actor]))]);
 }

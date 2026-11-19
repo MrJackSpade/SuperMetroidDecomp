@@ -15,7 +15,7 @@ internal static class RidleyInertiaVerification
     internal static void VerifyCompiledRidleyInertia(CartridgeImportAddressSpace rom)
     {
         Action<RoomEnemyPlace, RidleyFlightState, Position16<RoomPixels>, int> ceres = CeresRidleyFlight.AccelerateRidleyToward;
-        Action<RoomEnemyPlace, RidleyFlightState, Position16<RoomPixels>, int, int> norfair = NorfairRidleyMovement.MoveNorfairRidleyToward;
+        Action<RoomEnemyPlace, RidleyFlightState, Position16<RoomPixels>, int, SignedEightEight> norfair = NorfairRidleyMovement.MoveNorfairRidleyToward;
         var place = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).Places.InUpdateOrder[0];
         var state = new NorfairRidleyState();
         for (int index = 0; index < 16; index++)
@@ -34,13 +34,13 @@ internal static class RidleyInertiaVerification
                 short distance = (short)(raw - MaximumRoomDistance);
                 ushort velocity = unchecked((ushort)((raw % 7) switch { 0 => -1280, 1 => -1, 2 => 0, 3 => 1, 4 => 1280, 5 => -640, _ => 640 }));
                 place.Position = place.Position.WithWhole(new(unchecked((ushort)(0xff00 + distance)), unchecked((ushort)(0x100 - distance))));
-                state.Flight.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(velocity), new SignedEightEight(velocity));
+                state.Flight.Velocity = new PixelVelocity<RoomPixels>(new SignedEightEight(velocity), new SignedEightEight(velocity));
                 ceres(place, state.Flight, new(0xff00, 0x100), ceresDivisor);
                 AssertEqual(ExpectedCeresNativeAcceleration(velocity, place.Position.X.Whole, 0xff00, ceresDivisor), state.Flight.Velocity.X.RawValue, "Ceres actual X acceleration");
                 AssertEqual(ExpectedCeresNativeAcceleration(velocity, place.Position.Y.Whole, 0x100, ceresDivisor), state.Flight.Velocity.Y.RawValue, "Ceres actual wrapped Y acceleration");
-                state.Flight.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(velocity), new SignedEightEight(velocity));
+                state.Flight.Velocity = new PixelVelocity<RoomPixels>(new SignedEightEight(velocity), new SignedEightEight(velocity));
                 ushort boost = (ushort)(raw % 3 * 16);
-                norfair(place, state.Flight, new Position16<RoomPixels>(0xff00, 0x100), divisor, boost);
+                norfair(place, state.Flight, new Position16<RoomPixels>(0xff00, 0x100), divisor, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(boost));
                 AssertEqual(ExpectedRidleyNativeAcceleration(velocity, place.Position.X.Whole, 0xff00, divisor, boost), state.Flight.Velocity.X.RawValue, "Norfair actual X acceleration");
                 AssertEqual(ExpectedRidleyNativeAcceleration(velocity, place.Position.Y.Whole, 0x100, divisor, boost), state.Flight.Velocity.Y.RawValue, "Norfair actual wrapped Y acceleration");
             }

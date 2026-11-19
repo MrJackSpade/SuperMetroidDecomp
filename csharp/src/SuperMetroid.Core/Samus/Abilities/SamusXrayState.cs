@@ -70,9 +70,6 @@ public sealed class SamusXrayState
     public bool AreColourEffectsSuspended =>
         (SuspendedSubsystems & XraySuspendedSubsystems.ColourEffects) != XraySuspendedSubsystems.None;
 
-    /// <summary>Interrupted pose published by the input phase, awaiting pose commit in the movement phase.</summary>
-    public SamusPoseId? PendingActivationPose { get; private set; }
-
     /// <summary>X-ray freezes enemy/projectile/room-object/block-animation time.</summary>
     public bool TimeIsFrozen { get; private set; }
 
@@ -130,15 +127,24 @@ public sealed class SamusXrayState
     /// Runs the admission tests and pose selection of the X-ray setup.
     /// The X-ray scope is already the selected and equipped HUD item; item ownership is
     /// checked by the HUD selector one layer above this. An admitted beam begins at once; its pose and Samus's control
-    /// wait for <see cref="CommitPendingActivation"/>, which the frame's pose update calls once higher-priority
-    /// transitions have had their turn.
+    /// wait for <see cref="CommitActivation"/>, which the frame's pose update calls with the pose this setup returns once
+    /// higher-priority transitions have had their turn (#2562).
     /// </summary>
-    public bool TryBegin(SamusState samus, SamusMovementType previousMovementType, XrayBeginConditions conditions)
+    /// <param name="samus">Samus.</param>
+    /// <param name="previousMovementType">The movement type of her previous update.</param>
+    /// <param name="conditions">What else the setup reads of the update.</param>
+    /// <param name="activationPose">
+    /// The pose the admitted setup installs as it activates, which the frame's pose update commits; null when the setup
+    /// refuses, or when it ends a stranded beam at once.
+    /// </param>
+    public bool TryBegin(SamusState samus, SamusMovementType previousMovementType, XrayBeginConditions conditions,
+        out SamusPoseId? activationPose)
     {
         Ensure.NotNull(samus);
+        activationPose = null;
 
         bool cancellingDirectGMode = IsReserveMode;
-        if ((IsActive && !cancellingDirectGMode) || PendingActivationPose is not null)
+        if (IsActive && !cancellingDirectGMode)
             return false;
 
         if (XrayRefusedAsDrained.Refuses(conditions.ProjectileCooldownTimer, conditions.BombCounter, samus.SlowdownLevel))
@@ -150,7 +156,7 @@ public sealed class SamusXrayState
             return false;
 
         if (conditions.GameState != SuperMetroidGameState.MainGameplay || conditions.PowerBombExplosionActive ||
-            !samus.Kinematics.YSpeed.IsZero)
+            samus.Kinematics.VerticalVelocity.IsMoving)
         {
             return false;
         }
@@ -177,17 +183,18 @@ public sealed class SamusXrayState
             return true;
         }
         BeginAdmittedBeam(facingLeft);
-        PendingActivationPose = targetPose;
+        activationPose = targetPose;
         return true;
     }
 
-    /// <summary>Commits the setup after movement/animation; higher-priority poses can supersede it.</summary>
-    public bool CommitPendingActivation(SamusState samus, bool superseded)
+    /// <summary>
+    /// Commits the setup's <paramref name="activationPose"/> after movement and animation; a higher-priority pose
+    /// supersedes it.
+    /// </summary>
+    public bool CommitActivation(SamusState samus, SamusPoseId activationPose, bool superseded)
     {
-        if (PendingActivationPose is not { } targetPose) return false;
-        PendingActivationPose = null;
         if (superseded) return false;
-        InstallSamusControl(samus, targetPose);
+        InstallSamusControl(samus, activationPose);
         return true;
     }
 
@@ -476,7 +483,7 @@ public sealed class SamusXrayState
     {
         Ensure.NotNull(colours);
 
-        if (VisorShadeMode == XrayVisorShadeMode.RestoreSuitShade)
+        if (VisorShadeMode == XrayVisorShadeMode.TornDown)
         {
             // The first colouring update after X-ray ends shows Samus's complete normal suit shade again and clears
             // every X-ray shade value; the visor's glow restarts at its widening for the next X-ray.
@@ -614,7 +621,7 @@ public sealed class SamusXrayState
         Angle = RotationAngle.Zero;
         AngularHalfWidth = RotationAngle.Zero;
         AngularWideningSpeed = RotationAngle.Zero;
-        VisorShadeMode = XrayVisorShadeMode.RestoreSuitShade;
+        VisorShadeMode = XrayVisorShadeMode.TornDown;
         samus.AudioRequests.QueueSound(SamusSound.XrayEnd, SoundRequestPriority.Normal);
         SamusHudSelection.ReturnAutoCancelledItem(samus);
     }

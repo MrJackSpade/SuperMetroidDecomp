@@ -23,18 +23,26 @@ internal static class MotherBrainLateFightFixtures
     }
 
     /// <summary>
+    /// Gives <paramref name="baby"/> a standalone place that holds <paramref name="leftInPlace"/> from its previous occupant,
+    /// as the final beam's spawn does, and initializes the Baby there (#2572): its position and health live in the place.
+    /// </summary>
+    internal static RoomEnemyPlace Arrive(BabyMetroidCutsceneState baby, FixedPosition<RoomPixels> leftInPlace)
+    {
+        var place = new RoomEnemyPlace(2, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = leftInPlace };
+        Ensure.NotNull(baby).Arrive(place);
+        return place;
+    }
+
+    /// <summary>
     /// One late-fight update with nothing else under way (#2261): no Power Bomb, the room's random number zero and a fresh
     /// shared random sequence for the draws, the ordinary escape text not yet typed, and the room's earthquake not stopped.
     /// </summary>
-    /// <param name="cameraCheckpoint">The session's record of what the beam's push hides from the camera.</param>
     /// <param name="enemyFrameCounter">The enemy frame counter's count.</param>
     /// <param name="enemyPassCount">The main enemy pass counter's count.</param>
     internal static RainbowBeamAttackFrame QuietFrame(
-        SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint cameraCheckpoint,
         int enemyFrameCounter,
         int enemyPassCount) => new()
     {
-        CameraCheckpoint = cameraCheckpoint,
         EnemyFrameCounter = enemyFrameCounter,
         EnemyPassCount = enemyPassCount,
         PowerBombActive = false,

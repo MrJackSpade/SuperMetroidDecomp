@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    private readonly BossFrameResultBuilder _frameResults;
+    private readonly EnemyPassEvents _passEvents;
 
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BabyMetroid];
@@ -40,10 +40,10 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
     /// <summary>Connects the Tourian Baby Metroid to room, victim, colour, audio and Zebetite owners.</summary>
-    internal ShitroidBehavior(EnemyRoomBinding room, EnemyPlaces places, SharedFadeStepCount fadeStepCount, BossFrameResultBuilder frameResults, EnemyAudioQueue audio)
+    internal ShitroidBehavior(EnemyRoomBinding room, EnemyPlaces places, SharedFadeStepCount fadeStepCount, EnemyPassEvents passEvents, EnemyAudioQueue audio)
     {
         _audio = audio;
-        _frameResults = frameResults;
+        _passEvents = passEvents;
         _fadeStepCount = fadeStepCount;
         _room = room;
         _places = places;
@@ -316,7 +316,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // Puts the camera at its arena's edge directly, then rescrolls the room's four screens as the wall entrance does: the second
         // and fourth are closed, the first and third keep the scroll they have. This is not ordinary camera
         // tracking.
-        _frameResults.CameraXOverride = ShitroidFightDefinitions.ArenaLeftX;
+        _passEvents.Publish(new ShitroidCameraMove(ShitroidFightDefinitions.ArenaLeftX));
         SetShitroidScrollPair(RoomScrollState.Closed);
         QueueShitroidWallObjects(ShitroidWallMutation.Create);
         state.Action = ShitroidAction.BeginEntranceDelay;
@@ -337,7 +337,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private void QueueShitroidWallObjects(ShitroidWallMutation mutation)
     {
         foreach (Position16<RoomBlocks> wall in ShitroidFightDefinitions.WallBlocks)
-            _frameResults.ShitroidObjects.Add(new RoomObjectSpawnRequest<ShitroidWallMutation>(wall, mutation));
+            _passEvents.Publish(new ShitroidWallChange(new RoomObjectSpawnRequest<ShitroidWallMutation>(wall, mutation)));
     }
 
     /// <summary>Accelerates to the Sidehopper's head and enters the latched feeding animation on arrival.</summary>
@@ -381,7 +381,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         UpdateShitroidHorizontalLock(state, place.Position.X.Whole, samus.Position.X.Whole, threshold: ShitroidFightDefinitions.HoverLockReach);
         // Samus stays between the room's walls, so her X is compared with the arena's edge plainly.
-        if (state.HorizontalLockAccumulator >= ShitroidFightDefinitions.HoverLockToChase ||
+        if (state.HorizontalLock.HasBuiltTo(ShitroidFightDefinitions.HoverLockToChase) ||
             samus.Position.X.Whole < ShitroidFightDefinitions.ArenaLeftX)
         {
             state.Action = ShitroidAction.ChaseSamus;
@@ -440,10 +440,10 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         samus.SlowdownLevel = ShitroidFightDefinitions.DrainXSpeedDivisor;
         // A speed slowed past zero at the apex reads as below four in the clamp's comparison, so it keeps its value
         // (#1562); the Shitroid sits a pixel right while the speed reads four or more (DrainingShitroidFallShift).
-        int ySpeed = samus.Kinematics.YSpeed.Whole;
-        int rightOfShake = DrainingShitroidFallShift.PixelsRightOfShake(ySpeed);
-        if (SamusSpeedMagnitude.IsAtLeast(ySpeed, ShitroidFightDefinitions.DrainFallSpeedLimit))
-            samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(ShitroidFightDefinitions.DrainFallSpeed);
+        UnsignedSixteenSixteen fallSpeed = samus.Kinematics.VerticalVelocity.Speed;
+        int rightOfShake = DrainingShitroidFallShift.PixelsRightOfShake(fallSpeed.Whole);
+        if (SamusSpeedMagnitude.WholePixelsReach(fallSpeed, ShitroidFightDefinitions.DrainFallSpeedLimit))
+            samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(fallSpeed.WithWholePixelsOf(ShitroidFightDefinitions.DrainFallSpeed));
 
         int shakeIndex = MotherBrainCadenceDefinitions.ShitroidShakeStep.Of(place.FrameCounter);
         place.Position = place.Position.WithWhole(
@@ -471,27 +471,17 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             SelectShitroidHoverTarget(state, samus.Position.Whole + ShitroidFightDefinitions.FollowOffset),
             camera);
         // Samus stays between the room's walls, so her X is compared with the leaving line plainly.
-        return state.HorizontalLockAccumulator >= ShitroidFightDefinitions.FollowLockToLeave ||
+        return state.HorizontalLock.HasBuiltTo(ShitroidFightDefinitions.FollowLockToLeave) ||
             samus.Position.X.Whole < ShitroidFightDefinitions.FollowLeaveSamusX;
     }
 
-    /// <summary>Accumulates two lock ticks within a narrow X threshold and decays by one when separated.</summary>
+    /// <summary>Builds the horizontal lock while the Shitroid keeps within <paramref name="threshold"/> of its target's X, and decays it otherwise.</summary>
     private static void UpdateShitroidHorizontalLock(
         ShitroidEnemyState state,
         int currentX,
         int targetX,
-        int threshold)
-    {
-        int distance = DistanceAcrossRoomEdge.Between(currentX, targetX);
-        if (distance < threshold)
-        {
-            state.HorizontalLockAccumulator += 2;
-        }
-        else if (state.HorizontalLockAccumulator != 0)
-        {
-            state.HorizontalLockAccumulator--;
-        }
-    }
+        int threshold) =>
+        state.HorizontalLock.Update(withinReach: DistanceAcrossRoomEdge.Between(currentX, targetX) < threshold);
 
     /// <summary>
     /// Steers both axes toward <paramref name="target"/> with the pull <paramref name="divisor"/> names
@@ -606,7 +596,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 DistanceAcrossRoomEdge.Apart(samus.Position.X.Whole, place.Position.X.Whole),
                 DistanceAcrossRoomEdge.Apart(samus.Position.Y.Whole, place.Position.Y.Whole)));
             RotationAngle angle = RotationAngle.Zero - sourceAngle;
-            state.Velocity += new EightEightVector<RoomPixels>(
+            state.Velocity += new PixelVelocity<RoomPixels>(
                 EnemyMath.SineSpeed(ShitroidFlightDefinitions.ContactPushSpeed, angle.ToTrigonometryAngle()),
                 EnemyMath.SineSpeed(
                     ShitroidFlightDefinitions.ContactPushSpeed,
@@ -651,8 +641,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             DistanceAcrossRoomEdge.Apart(recoilOrigin.Position.Y.Whole, place.Position.Y.Whole)));
         RotationAngle angle = RotationAngle.Zero - sourceAngle;
         // The recoil strength is a multiple of the damage, capped at its limit.
-        SignedEightEight magnitude = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(Math.Min(ShitroidFightDefinitions.RecoilPerDamage * collisionDamage, ShitroidFightDefinitions.RecoilLimit));
-        state.Velocity += new EightEightVector<RoomPixels>(
+        SignedEightEight magnitude = SignedEightEight.Min(ShitroidFightDefinitions.RecoilPerDamage.Times(collisionDamage), ShitroidFightDefinitions.RecoilLimit);
+        state.Velocity += new PixelVelocity<RoomPixels>(
             EnemyMath.SineSpeed(magnitude, angle.ToTrigonometryAngle()),
             EnemyMath.SineSpeed(
                 magnitude,

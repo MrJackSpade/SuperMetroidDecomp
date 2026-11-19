@@ -61,10 +61,10 @@ internal static class EnemyHitBurstVerification
             (RoomEnemySystem enemies, RoomEnemyPlace place) = RoomWith(id, definition, health, frozenTimer);
             (SamusProjectileSystem shots, SamusBombProjectileSystem bombs) = ShotAt(beam);
             AssertTrue(enemies.Collision.ResolveOrdinaryProjectileHit(shots, bombs, SuperMetroid.Core.Progression.AreaId.Crateria, samus: RoomEnemyFrameFixtures.StandaloneSamus(), place, Position16<RoomPixels>.Zero), $"{kind}: the beam hits the enemy");
-            AssertTrue(kind == "immune" ? place.Health == health : place.Health < health || place.FrozenTimer != frozenTimer,
+            AssertTrue(kind == "immune" ? place.Health == health : place.Health < health || place.Freeze.UpdatesLeft != frozenTimer,
                 $"{kind}: the hit's damage or freeze lands");
             if (kind == "frozen instead of killed")
-                AssertEqual(400, place.FrozenTimer, "the lethal Ice hit freezes the Mellow instead of killing it");
+                AssertEqual(400, place.Freeze.UpdatesLeft, "the lethal Ice hit freezes the Mellow instead of killing it");
             if (kind == "killed")
                 AssertEqual(0, place.Health, "the lethal hit kills the Mellow");
             RoomEffectActor[] bursts = Bursts(enemies);
@@ -319,7 +319,7 @@ internal static class EnemyHitBurstVerification
         place.Position = FixedPosition<RoomPixels>.FromWhole(Place);
         place.Radius = definition.Radius;
         place.Health = health;
-        place.FrozenTimer = frozenTimer;
+        place.Freeze.Restart(frozenTimer);
         // Shots reach only an enemy showing a frame.
         place.Frame = EnemyFrameId.EffectActorDudShotDot;
         ((List<RoomEnemyPlace>)enemies.ProcessingWindow.InteractiveEnemies).Add(place);
@@ -329,7 +329,7 @@ internal static class EnemyHitBurstVerification
     /// <summary>One uncharged beam of <paramref name="beam"/> at <see cref="Place"/>, flying right.</summary>
     private static (SamusProjectileSystem Shots, SamusBombProjectileSystem Bombs) ShotAt(SamusBeamCombination beam)
     {
-        var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
+        var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         SamusProjectile shot = shots.Shots[0];
         shot.Type = SamusProjectileType.Beam(beam, charged: false);
         shot.Damage = 20;

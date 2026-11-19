@@ -40,8 +40,7 @@ internal static class SamusBallBounceDefinitionsVerification
                     1 => spring ? SamusBallBounceState.SpringBallFirstRebound : SamusBallBounceState.FirstRebound,
                     _ => spring ? SamusBallBounceState.SpringBallSecondRebound : SamusBallBounceState.SecondRebound,
                 };
-                samus.Kinematics.YSpeed = new UnsignedSixteenSixteen((ushort)raw, ushort.MaxValue);
-                samus.Kinematics.YDirection = SamusVerticalDirection.Down;
+                samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(new UnsignedSixteenSixteen((ushort)raw, ushort.MaxValue), SamusVerticalDirection.Down);
                 samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0x8000);
                 samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
                 bool grounded = spring
@@ -51,9 +50,9 @@ internal static class SamusBallBounceDefinitionsVerification
                 bool rebound = first || phase == 1;
                 AssertEqual(!rebound, grounded, "Native rebound versus grounded return");
                 AssertEqual(rebound ? (ushort)(first ? whole : whole - 1) : (ushort)0,
-                    samus.Kinematics.YSpeed.Whole, "Native rebound whole decrement");
-                AssertEqual(rebound ? fraction : (ushort)0, samus.Kinematics.YSpeed.Fraction, "Native rebound fraction");
-                AssertEqual(rebound ? SamusVerticalDirection.Up : SamusVerticalDirection.None, samus.Kinematics.YDirection, "Native rebound direction");
+                    samus.Kinematics.VerticalVelocity.Speed.Whole, "Native rebound whole decrement");
+                AssertEqual(rebound ? fraction : (ushort)0, samus.Kinematics.VerticalVelocity.Speed.Fraction, "Native rebound fraction");
+                AssertEqual(rebound ? SamusVerticalDirection.Up : SamusVerticalDirection.None, samus.Kinematics.VerticalVelocity.Direction, "Native rebound direction");
                 SamusBallBounceState published = !rebound ? SamusBallBounceState.None
                     : first
                         ? spring ? SamusBallBounceState.SpringBallFirstRebound : SamusBallBounceState.FirstRebound

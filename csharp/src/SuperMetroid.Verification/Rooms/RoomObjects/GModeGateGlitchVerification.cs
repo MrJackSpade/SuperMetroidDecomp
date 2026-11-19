@@ -451,7 +451,7 @@ internal static class GModeGateGlitchVerification
                 block,
                 SamusBombProjectileSystem.PowerBombType),
             "Power Bomb publishes its hit to the intact glass-tube resident");
-        AssertEqual(new ResidentObjectProjectileHit(SamusProjectileFamily.PowerBomb), (roomObjects.PopulationPlaces.Single().Behaviour as NoobTubeObject)?.PendingHit,
+        AssertEqual(new ResidentObjectProjectileHit(SamusProjectileFamily.PowerBomb), (roomObjects.PopulationPlaces.Single().Behaviour as NoobTubeObject)?.AwaitingStrike,
             "G-Mode-disabled tube retains the pending Power Bomb hit");
         AssertTrue(!brokenEvent && projectiles.Count == 0 && !samus.Control.InputLocked,
             "without a PLM handler pass the glass tube cannot arm, break, or lock Samus");
@@ -488,7 +488,7 @@ internal static class GModeGateGlitchVerification
         samus.ReserveEnergy = 4;
         samus.MaxReserveEnergy = 100;
         samus.ReserveTankMode = ReserveTankMode.Auto;
-        samus.Kinematics.YSpeed = default;
+        samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.Stopped();
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         AssertTrue(samus.Xray.TryBeginAndActivate(samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, PowerBombExplosionActive = false, ProjectileCooldownTimer = 0, BombCounter = 0 }),

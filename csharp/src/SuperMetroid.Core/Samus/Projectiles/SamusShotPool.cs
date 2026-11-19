@@ -23,19 +23,19 @@ internal sealed class SamusShotPool
         Enumerable.Range(0, SamusProjectileSystem.PlaceCount).Select(place => new SamusProjectile(place)).ToArray();
 
     /// <summary>
-    /// Starts an empty pool whose places hand their fractions of a pixel on through <paramref name="muzzleCarry"/> and whose
+    /// Starts an empty pool whose places hand their fractions of a pixel on through <paramref name="leftBeamStart"/> and whose
     /// shots are counted by <paramref name="shotCount"/>.
     /// </summary>
-    /// <param name="muzzleCarry">What each place keeps for its next projectile's horizontal fraction of a pixel.</param>
+    /// <param name="leftBeamStart">What each place keeps for its next projectile's horizontal fraction of a pixel.</param>
     /// <param name="shotCount">The shots counted out, which the room's builder creates with the pool.</param>
-    internal SamusShotPool(LeftMuzzleSubpixelCarry muzzleCarry, SamusShotCount shotCount)
+    internal SamusShotPool(LeftBeamStartFromLastShot leftBeamStart, SamusShotCount shotCount)
     {
-        MuzzleCarry = Ensure.NotNull(muzzleCarry);
+        LeftBeamStart = Ensure.NotNull(leftBeamStart);
         ShotCount = Ensure.NotNull(shotCount);
     }
 
-    /// <summary>The horizontal fraction of a pixel each place hands its next projectile.</summary>
-    internal LeftMuzzleSubpixelCarry MuzzleCarry { get; }
+    /// <summary>The fraction of a pixel each place keeps from its last shot, which decides where a beam fired to the left starts.</summary>
+    internal LeftBeamStartFromLastShot LeftBeamStart { get; }
 
     /// <summary>Each place's projectile, in place order.</summary>
     internal IReadOnlyList<SamusProjectile> Shots => _places;
@@ -68,22 +68,22 @@ internal sealed class SamusShotPool
     {
         int fuse = BeamFiredOverLastShot.FuseLeftBy(_places[place].AsReplacedByBeam);
         SamusProjectile beam = Occupy(place);
-        beam.BeamFuse = fuse;
+        beam.BeamFuse = UpdateCountdown.For(fuse);
         return beam;
     }
 
     /// <summary>
     /// Creates the new projectile of <paramref name="place"/>, ending the one there. It starts at the room's origin with
     /// the horizontal fraction of a pixel the place hands on: the replaced projectile's when it still held the place,
-    /// otherwise what the place kept (<see cref="LeftMuzzleSubpixelCarry"/>).
+    /// otherwise what the place kept (<see cref="LeftBeamStartFromLastShot"/>).
     /// </summary>
     /// <param name="place">The zero-based shot place.</param>
     /// <returns>The new projectile, holding no damage until its setup gives it some.</returns>
     internal SamusProjectile Occupy(int place)
     {
         SamusProjectile replaced = _places[place];
-        int kept = MuzzleCarry.Start(place);
-        int fraction = replaced.IsOccupied ? replaced.Position.X.Fraction : kept;
+        PixelFraction kept = LeftBeamStart.Start(place);
+        PixelFraction fraction = replaced.IsOccupied ? replaced.Position.X.FractionOfPixel : kept;
         SamusProjectile projectile = OccupyAtRest(place);
         projectile.Position = projectile.Position.WithFractionX(fraction);
         return projectile;
@@ -97,7 +97,7 @@ internal sealed class SamusShotPool
     /// <returns>The new projectile, holding no damage until its setup gives it some.</returns>
     internal SamusProjectile OccupyAtRest(int place)
     {
-        _ = MuzzleCarry.Start(place);
+        _ = LeftBeamStart.Start(place);
         _places[place].End();
         var projectile = new SamusProjectile(place);
         _places[place] = projectile;
@@ -113,20 +113,9 @@ internal sealed class SamusShotPool
         foreach (SamusProjectile projectile in _places)
         {
             if (projectile.IsOccupied)
-                MuzzleCarry.Keep(projectile.Place, projectile.Position.X.Fraction);
+                LeftBeamStart.Keep(projectile.Place, projectile.Position.X.FractionOfPixel);
             projectile.End();
         }
-    }
-
-    /// <summary>
-    /// The horizontal fraction of a pixel <paramref name="place"/> would keep if Samus's shots were cleared now: its
-    /// projectile's while one holds it, otherwise what it already keeps.
-    /// </summary>
-    /// <param name="place">The zero-based shot place.</param>
-    internal int SubpixelKeptOnClear(int place)
-    {
-        SamusProjectile projectile = _places[place];
-        return projectile.IsOccupied ? projectile.Position.X.Fraction : MuzzleCarry.Kept(place);
     }
 
     /// <summary>Each place's projectile in update order, highest place first.</summary>

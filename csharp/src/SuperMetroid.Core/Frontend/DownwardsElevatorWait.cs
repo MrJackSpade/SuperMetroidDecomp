@@ -9,30 +9,28 @@ namespace SuperMetroid.Core.Frontend;
 internal sealed class DownwardsElevatorWait
 {
     /// <summary>
-    /// The frames loading still stays paused, counted down to none: a wait of <c>n</c> pauses <c>n</c> frames and resumes
-    /// loading on the frame after them (#2488).
+    /// The delay loading stays paused for, over once its frames have passed: a delay of <c>n</c> pauses <c>n</c> frames and
+    /// resumes loading on the frame after them (#2488); none while loading is not paused.
     /// </summary>
-    private int framesLeft;
+    private UpdateCountdown? delay;
 
     /// <summary>Whether room loading is paused for the downward elevator.</summary>
-    internal bool Waiting { get; private set; }
+    internal bool Waiting => delay is not null;
 
     /// <summary>Starts the elevator's delay.</summary>
-    internal void Begin()
-    {
-        framesLeft = ElevatorDoorDefinitions.DownwardsElevatorDelayFrames;
-        Waiting = true;
-    }
+    internal void Begin() => delay = UpdateCountdown.For(ElevatorDoorDefinitions.DownwardsElevatorDelayFrames);
 
     /// <summary>Counts one frame of the delay; returns whether loading resumes.</summary>
+    /// <exception cref="InvalidOperationException">Loading is not paused.</exception>
     internal bool CountFrame()
     {
-        if (framesLeft > 0)
+        UpdateCountdown paused = delay ?? throw new InvalidOperationException("The downward elevator's delay is counted while loading is not paused.");
+        if (paused.IsRunning)
         {
-            framesLeft--;
+            paused.Count();
             return false;
         }
-        Waiting = false;
+        delay = null;
         return true;
     }
 }

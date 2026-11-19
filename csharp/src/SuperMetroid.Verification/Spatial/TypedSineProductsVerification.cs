@@ -82,7 +82,7 @@ internal static class TypedSineProductsVerification
         for (int mark = 0; mark < QuadraticSpeedCurveDefinitions.MarkCount; mark++)
         {
             QuadraticCurveSpeed speed = QuadraticSpeedCurve.AtMark(mark);
-            SignedSixteenSixteen old = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(speed.CoarseToward(EnemySpeedSign.Positive));
+            SignedSixteenSixteen old = speed.CoarseToward(VerticalDirection.Down);
             if (speed.CoarseRise != old)
                 throw new InvalidDataException($"Mark {mark}: the coarse rise {speed.CoarseRise.RawValue} differs from {old.RawValue}.");
             compared++;
@@ -198,10 +198,12 @@ internal static class TypedSineProductsVerification
         });
         foreach (DraygonBurialEvirDefinition evir in DraygonBurialEvirDefinitions.InSpawnOrder)
         {
-            SignedSixteenSixteen across = EnemyMath.AbsoluteCosineSpeed(evir.Heading, 1).AsDisplacement();
-            SignedSixteenSixteen down = EnemyMath.AbsoluteSineSpeed(evir.Heading, 1).AsDisplacement();
-            var old = new FixedVector<RoomPixels>(EnemyMath.CosineIsNegative(evir.Heading) ? across : -across,
-                EnemyMath.SineIsNegative(evir.Heading) ? down : -down);
+            TrigonometryAngle acrossAngle = evir.Heading.TurnedBy(TrigonometryAngle.QuarterTurn);
+            TrigonometryAngle downAngle = evir.Heading.TurnedBy(TrigonometryAngle.HalfTurn);
+            SignedSixteenSixteen across = UnsignedSixteenSixteen.ShareOfWholePixels(1, Trigonometry.UnsignedHalfWave(acrossAngle.StepsIntoHalfTurn)).AsDisplacement();
+            SignedSixteenSixteen down = UnsignedSixteenSixteen.ShareOfWholePixels(1, Trigonometry.UnsignedHalfWave(downAngle.StepsIntoHalfTurn)).AsDisplacement();
+            var old = new FixedVector<RoomPixels>(acrossAngle.IsInSecondHalf ? across : -across,
+                downAngle.IsInSecondHalf ? down : -down);
             AssertEqual(old, DraygonDeath.BurialDrift(evir), $"the burial Evir heading {evir.Heading.RawValue} drifts back along it");
         }
 
@@ -218,11 +220,10 @@ internal static class TypedSineProductsVerification
         int compared = 0;
         for (int raw = 0; raw <= byte.MaxValue; raw++)
         {
-            Bearing bearing = Bearing.Up.TurnedBySteps(raw);
-            TrigonometryAngle heading = bearing.ToMirroredTrigonometryAngle();
-            var volley = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(
-                Trigonometry.SignedSine(heading) * 4, Trigonometry.SignedSine(heading - TrigonometryAngle.QuarterTurn) * 4);
-            AssertEqual(volley, CrocomireCombat.CalculateCrocomireProjectileVelocity(bearing), $"Crocomire's volley velocity at bearing {raw}");
+            // The cartridge reads the aim word clockwise from up as its sine's angle: X its sine, Y its negative cosine.
+            var heading = new TrigonometryAngle(raw);
+            var volley = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(Trigonometry.SignedSine(heading) * 4), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(Trigonometry.SignedSine(heading - TrigonometryAngle.QuarterTurn) * 4));
+            AssertEqual(volley, CrocomireCombat.CalculateCrocomireProjectileVelocity(AimAngleConstants.FromClockwiseSteps(raw)), $"Crocomire's volley velocity at bearing {raw}");
 
             var angle = new TrigonometryAngle(raw);
             AssertEqual(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(Trigonometry.SignedSine(angle)),

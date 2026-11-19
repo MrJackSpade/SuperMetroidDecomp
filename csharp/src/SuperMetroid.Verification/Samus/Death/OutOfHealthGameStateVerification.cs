@@ -144,7 +144,7 @@ internal static class OutOfHealthGameStateVerification
         AssertEqual(SuperMetroidGameState.ReserveTankRefill, game.GameState, "zero health with AUTO reserves enters the refill");
 
         // The refill's next update moves the last reserve unit and completes; its unfrozen gameplay applies the damage.
-        samus.PeriodicDamage.Accumulate(new UnsignedSixteenSixteen(999, 0));
+        samus.PeriodicDamage.Accumulate(EnergyAmount.FromEnergy(999));
         game.Step(0);
         AssertEqual(0, samus.ReserveEnergy, "the refill's update moves the last reserve unit");
         AssertEqual(0, samus.Health, "the completion update's gameplay applies the periodic damage");
@@ -165,7 +165,7 @@ internal static class OutOfHealthGameStateVerification
 
         // The next update's spark reaches the door, and the periodic damage Samus's movement applies after it empties her.
         PlaceJustShortOfTheDoor(samus);
-        samus.PeriodicDamage.Accumulate(new UnsignedSixteenSixteen(999, 0));
+        samus.PeriodicDamage.Accumulate(EnergyAmount.FromEnergy(999));
         GameClockReading beforeDoor = runtime.GameTime.Reading;
         game.Step(0);
         AssertEqual(0, samus.Health, "the periodic damage takes Samus's last energy on the update she touches the door");
@@ -205,7 +205,7 @@ internal static class OutOfHealthGameStateVerification
 
         // The next update's spark reaches the door, and the periodic damage Samus's movement applies after it empties her.
         PlaceJustShortOfTheDoor(samus);
-        samus.PeriodicDamage.Accumulate(new UnsignedSixteenSixteen(999, 0));
+        samus.PeriodicDamage.Accumulate(EnergyAmount.FromEnergy(999));
         game.Step(0);
         AssertEqual(0, samus.Health, "the periodic damage takes Samus's last energy on the update she touches the door");
         AssertEqual(SuperMetroidGameState.ReserveTankRefill, game.GameState, "the AUTO reserves' refill takes the update from the door");
@@ -237,7 +237,7 @@ internal static class OutOfHealthGameStateVerification
         AssertEqual(SuperMetroidGameState.CeresDeparture, game.GameState, "the Ceres elevator takes the update Samus runs out of health on, not her death");
         AssertEqual(beforeElevator, runtime.GameTime.Reading, "the out-of-health check returns before counting the play time");
 
-        int holdUpdates = game.Session.ceresDeparture.HoldFramesRemaining;
+        int holdUpdates = game.Session.ceresDeparture.Hold.UpdatesLeft;
         for (int update = 0; update < holdUpdates + 2; update++)
         {
             game.Step(0);
@@ -264,7 +264,7 @@ internal static class OutOfHealthGameStateVerification
         GameClockReading beforeTakeoff = runtime.GameTime.Reading;
 
         game.Step(0);
-        AssertEqual(GunshipFrameEvent.EscapeTakeoffCompleted, runtime.EnemyFrameResults.LastEnemyFrame.Gunship,
+        AssertTrue(runtime.EnemyFrameResults.LastEnemyFrame.Reports(GunshipFrameEvent.EscapeTakeoffCompleted),
             $"the ship's ascent completes the takeoff; the top hull is at {top.Position.Y.Whole} in {GunshipState.Of(top).Phase}");
         AssertTrue(game.IsAt(EndingStep.LeavingZebes), $"the gunship's takeoff takes the update Samus runs out of health on, not her death; ended in {game.GameState}");
         AssertEqual(beforeTakeoff, runtime.GameTime.Reading, "the out-of-health check returns before counting the play time");
@@ -419,7 +419,7 @@ internal static class OutOfHealthGameStateVerification
             game.Step(0);
             AssertTrue(++landing < 120, "Samus lands on the elevator");
         }
-        while (!samus.Kinematics.YSpeed.IsZero || landing < 4);
+        while (!samus.Kinematics.VerticalVelocity.Speed.IsZero || landing < 4);
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the dormant shaft keeps Samus in main gameplay");
         AssertTrue(samus.Position.Y.Whole is >= 75 and < 128 && samus.Position.X.Whole is > 112 and <= 144,
             $"Samus stands inside the elevator's trigger at {samus.Position.Whole}");

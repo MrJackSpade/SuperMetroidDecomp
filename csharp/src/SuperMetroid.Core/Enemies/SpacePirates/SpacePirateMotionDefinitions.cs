@@ -16,13 +16,13 @@ internal static class SpacePirateMotionDefinitions
     internal const int WallSnapForwardFrom = 11;
 
     /// <summary>The speed a ninja's divekick jump and descent start at, six pixels an update.</summary>
-    internal static SignedEightEight NinjaDiveStartSpeed { get; } = SignedEightEight.FromParts(6, 0);
+    internal static SignedEightEight NinjaDiveStartSpeed { get; } = SignedEightEight.FromPixels(6);
 
     /// <summary>How much a ninja's spin jump speed changes each update, an eighth of a pixel.</summary>
-    internal static SignedEightEight NinjaSpinSpeedChange { get; } = SignedEightEight.FromParts(0, 32);
+    internal static SignedEightEight NinjaSpinSpeedChange { get; } = SignedEightEight.FromPixelFraction(1, 8);
 
     /// <summary>How much a ninja's divekick speed falls each update, a quarter of a pixel.</summary>
-    internal static SignedEightEight NinjaDiveSpeedChange { get; } = SignedEightEight.FromParts(0, 64);
+    internal static SignedEightEight NinjaDiveSpeedChange { get; } = SignedEightEight.FromPixelFraction(1, 4);
 
     /// <summary>How close horizontally Samus comes, in pixels, for an idle ninja to activate.</summary>
     internal const int NinjaActivationDistance = 128;
@@ -64,10 +64,10 @@ internal static class SpacePirateMotionDefinitions
     internal const int WalkingRightLedgeProbe = 16;
 
     /// <summary>A walking Pirate's rightward patrol step, seven thirty-seconds of a pixel.</summary>
-    internal static SignedSixteenSixteen WalkingRightStep { get; } = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(56);
+    internal static SignedSixteenSixteen WalkingRightStep { get; } = SignedSixteenSixteen.FromPixelFraction(7, 32);
 
     /// <summary>A walking Pirate's leftward patrol step: the rightward step mirrored, and the finest distance further left.</summary>
-    internal static SignedSixteenSixteen WalkingLeftStep { get; } = -WalkingRightStep - SignedSixteenSixteen.FromParts(0, 1);
+    internal static SignedSixteenSixteen WalkingLeftStep { get; } = -WalkingRightStep - SignedSixteenSixteen.FromPixelFraction(1, 65536);
 
     /// <summary>The farthest vertically Samus may be from a walking Pirate, in pixels, for it to choose its laser attack.</summary>
     internal const int WalkingFiringBand = 16;

@@ -125,12 +125,12 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         DragonEnemyState bodyState,
         SamusState samus)
     {
-        if (--bodyState.ActionTimer > 0)
+        if (!bodyState.ActionTimer.Step())
             return;
 
         RoomEnemyPlace wing = bodyState.Wing;
         DragonWingState wingState = wing.RequireSpeciesState<DragonWingState>();
-        bodyState.ActionTimer = DragonTimingDefinitions.RiseOrSinkDuration;
+        bodyState.ActionTimer = UpdateCountdown.For(DragonTimingDefinitions.RiseOrSinkDuration);
         bodyState.Action = DragonAction.Rising;
 
         // The body turns to face Samus, and the idle body and its flapping wing each turn to that side.
@@ -144,7 +144,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Rises out of the lava.</summary>
     internal static void RunDragonRising(RoomEnemyPlace body, DragonEnemyState bodyState)
     {
-        if (--bodyState.ActionTimer <= 0)
+        if (bodyState.ActionTimer.Step())
         {
             bodyState.AttackCounter = DragonTimingDefinitions.ShotsPerAttack;
             bodyState.Action = DragonAction.Attacking;
@@ -186,7 +186,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
                 }
 
-                bodyState.ActionTimer = DragonTimingDefinitions.WaitBeforeSink;
+                bodyState.ActionTimer = UpdateCountdown.For(DragonTimingDefinitions.WaitBeforeSink);
                 bodyState.Action = DragonAction.WaitToSink;
                 return;
 
@@ -203,10 +203,10 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace body,
         DragonEnemyState bodyState)
     {
-        if (--bodyState.ActionTimer > 0)
+        if (!bodyState.ActionTimer.Step())
             return;
 
-        bodyState.ActionTimer = DragonTimingDefinitions.RiseOrSinkDuration;
+        bodyState.ActionTimer = UpdateCountdown.For(DragonTimingDefinitions.RiseOrSinkDuration);
         bodyState.Action = DragonAction.Sinking;
         StartDragonAnimation(body, bodyState, DragonPhases.Idle(bodyState.Facing));
     }
@@ -214,9 +214,9 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Sinks back into the lava.</summary>
     private static void RunDragonSinking(RoomEnemyPlace body, DragonEnemyState bodyState)
     {
-        if (--bodyState.ActionTimer <= 0)
+        if (bodyState.ActionTimer.Step())
         {
-            bodyState.ActionTimer = DragonTimingDefinitions.WaitBeforeRise;
+            bodyState.ActionTimer = UpdateCountdown.For(DragonTimingDefinitions.WaitBeforeRise);
             bodyState.Action = DragonAction.WaitToRise;
         }
 
@@ -246,10 +246,10 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         // never counts down on a wing that ignores Samus, so it keeps every later power bomb off the wing and its
         // follow-up off the enemy placed after it. Each part also counts its copied freeze and flash down on its own
         // turn, and the wing's own power-bomb hit sets them on the wing alone.
-        following.ShakeTimer = actor.ShakeTimer;
-        following.InvincibilityTimer = actor.InvincibilityTimer;
-        following.FlashTimer = actor.FlashTimer;
-        following.FrozenTimer = actor.FrozenTimer;
+        following.Shake.Restart(actor.Shake.UpdatesLeft);
+        following.Invincibility.Restart(actor.Invincibility.UpdatesLeft);
+        following.HurtFlash.Restart(actor.HurtFlash.UpdatesLeft);
+        following.Freeze.Restart(actor.Freeze.UpdatesLeft);
         following.AiStates = actor.AiStates;
     }
 
@@ -335,7 +335,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectile projectile,
         int cameraY)
     {
-        projectile.Position = projectile.Position.Advance(projectile.Velocity.ToSixteenSixteen());
+        projectile.Position = projectile.Position.Advance(projectile.Velocity.ToDisplacement());
 
         if (projectile.Velocity.Y.IsNegative)
         {

@@ -34,7 +34,7 @@ internal readonly record struct TextureDrift
     internal Offset16<OverlayPixels> Whole => new(across.Whole, down.Whole);
 
     /// <summary>The drift moved one update further by <paramref name="velocity"/>, its fractions carried.</summary>
-    public static TextureDrift operator +(TextureDrift drift, EightEightVector<OverlayPixels> velocity) =>
+    public static TextureDrift operator +(TextureDrift drift, PixelVelocity<OverlayPixels> velocity) =>
         new(drift.across.MovedBy(velocity.X), drift.down.MovedBy(velocity.Y));
 
     /// <summary>

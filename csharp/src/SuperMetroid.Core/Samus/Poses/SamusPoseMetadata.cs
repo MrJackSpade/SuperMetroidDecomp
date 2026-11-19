@@ -206,8 +206,7 @@ internal static class SamusPoseMetadata
         samus.HorizontalSpeed.ExtraRunSpeed = default;
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
-        samus.Kinematics.YSpeed = default;
-        samus.Kinematics.YDirection = SamusVerticalDirection.None;
+        samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Still;
         samus.MorphBallBounceState = SamusBallBounceState.None;
     }
 
@@ -639,7 +638,7 @@ internal static class SamusPoseMetadata
                 SamusAerialPoseTransitions.InitializeInstalledNormalJumpPose(samus, movementType, controllerNewInput);
                 if (movementType == SamusMovementType.WallJumping &&
                     samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
-                    samus.HorizontalSpeed.RequestSuitShadeRestore();
+                    samus.HorizontalSpeed.ShowSuitShadeAtColourStep();
 
                 // The selected forward-jump poses are NOT the transition poses that
                 // initialize ordinary jump speed (or apply the crouch jump offset).

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Metaree;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -28,7 +29,7 @@ internal static class MetareeBurrowVerification
         state.Action = MetareeAction.LaunchedAttack;
         state.YVelocity = 8;
         // A countdown left over from before the dive never shortens the burrow.
-        state.BurrowTimer = 3;
+        state.BurrowTimer = UpdateCountdown.For(3);
         var frame = new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(level, 0) with
             {
@@ -46,7 +47,7 @@ internal static class MetareeBurrowVerification
             enemies.MetareeBehavior.RunMetareeMainAi(place, frame);
         }
         AssertEqual(MetareeAction.Burrowing, state.Action, "the dive ends in a burrow");
-        AssertEqual(MetareeMotionDefinitions.BurrowLifetime, state.BurrowTimer, "the burrow starts its whole countdown as the Metaree strikes the ground");
+        AssertEqual(MetareeMotionDefinitions.BurrowLifetime, state.BurrowTimer.UpdatesLeft, "the burrow starts its whole countdown as the Metaree strikes the ground");
 
         for (int update = 1; update < MetareeMotionDefinitions.BurrowLifetime; update++)
         {

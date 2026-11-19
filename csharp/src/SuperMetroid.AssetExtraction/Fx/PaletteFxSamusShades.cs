@@ -15,6 +15,14 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// </summary>
 internal static class PaletteFxSamusShades
 {
+    /// <summary>The heat pulses' suits in the order Samus's sheets list their shades (#2567).</summary>
+    private static readonly IReadOnlyList<ColourEffectHeatSuit> HeatSuitOrder = Ensure.EveryMemberOnce<ColourEffectHeatSuit>(
+    [
+        ColourEffectHeatSuit.Power,
+        ColourEffectHeatSuit.Varia,
+        ColourEffectHeatSuit.Gravity,
+    ]);
+
     /// <summary>The first colour of her suit each of her suit's groups recolours.</summary>
     private static readonly ImmutableDictionary<ColourEffectColours, int> FirstSuitColours = new Dictionary<ColourEffectColours, int>
     {
@@ -28,7 +36,7 @@ internal static class PaletteFxSamusShades
     /// </summary>
     private static readonly ImmutableArray<ColourEffectId> SuitObjects =
     [
-        .. Enum.GetValues<ColourEffectHeatSuit>().Select(ColourEffectHeatAnimations.Pulse),
+        .. HeatSuitOrder.Select(ColourEffectHeatAnimations.Pulse),
         ColourEffectId.SamusLoadingPowerSuit, ColourEffectId.SamusLoadingVariaSuit, ColourEffectId.SamusLoadingGravitySuit,
     ];
 

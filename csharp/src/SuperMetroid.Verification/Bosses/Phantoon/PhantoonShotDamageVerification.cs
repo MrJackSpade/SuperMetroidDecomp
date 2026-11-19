@@ -33,7 +33,7 @@ internal static class PhantoonShotDamageVerification
         (RoomEnemySystem hurtEnemies, RoomEnemyPlace hurtBody, SamusProjectile _, int hurtHits) = Fire(charged: true, damage: 60);
         AssertEqual(1, hurtHits, "a charged beam meets his eye");
         AssertEqual(2500 - 60, hurtBody.Health, "a charged beam takes its full damage");
-        AssertEqual(hurtBody.HurtFlashFrames + 8, hurtBody.FlashTimer, "the common damage starts his hurt flash");
+        AssertEqual(hurtBody.HurtFlashFrames + 8, hurtBody.HurtFlash.UpdatesLeft, "the common damage starts his hurt flash");
         AssertTrue((hurtBody.AiStates & EnemyAiStates.Hurt) != EnemyAiStates.None, "the common damage hurts him");
         AssertEqual(0, hurtEnemies.RoomEffectActors.Count(actor => actor.IsActive && actor.Kind == RoomEffectActorKind.DudShot),
             "a hurting beam shows no dud");
@@ -60,7 +60,7 @@ internal static class PhantoonShotDamageVerification
 
         Position16<RoomPixels> eye = EyeCentre(body);
         var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads,
-            new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(),
+            new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(),
             InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         SamusProjectile shot = shots.Shots[0];
         shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Power, charged);

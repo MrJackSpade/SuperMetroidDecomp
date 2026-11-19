@@ -16,11 +16,11 @@ internal static class KzanMotionDefinitions
     internal const int RiseWait = 64;
 
     /// <summary>How far a rising Kzan's top moves each update: half a pixel upward (#2339).</summary>
-    internal static SignedSixteenSixteen RisingStep { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(-8);
+    internal static SignedSixteenSixteen RisingStep { get; } = SignedSixteenSixteen.FromPixelFraction(-1, 2);
 
     /// <summary>How much faster a falling Kzan's top falls each update: a sixteenth of a pixel (#2339).</summary>
-    internal static SignedSixteenSixteen FallAcceleration { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(1);
+    internal static SignedSixteenSixteen FallAcceleration { get; } = SignedSixteenSixteen.FromPixelFraction(1, 16);
 
     /// <summary>The fastest a Kzan's top falls: four pixels an update (#2339).</summary>
-    internal static SignedSixteenSixteen FastestFall { get; } = SignedSixteenSixteen.FromParts(4, 0);
+    internal static SignedSixteenSixteen FastestFall { get; } = SignedSixteenSixteen.FromWholePixels(4);
 }

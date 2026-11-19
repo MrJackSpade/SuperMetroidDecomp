@@ -29,23 +29,22 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.Start(place, BullAnimations.StartingWith(BullSegment.Idle));
 
         BullSpawnSettings settings = place.SpawnSettings<BullSpawnSettings>();
-        state.AccelerationIntervalTimer = settings.Intervals.Acceleration;
-        state.ActivationTimer = BullMovementDefinitions.MovementDelay;
+        state.AccelerationIntervalTimer = UpdateCountdown.For(settings.Intervals.Acceleration);
+        state.ActivationTimer = UpdateCountdown.For(BullMovementDefinitions.MovementDelay);
     }
 
     /// <summary>Runs a Bull for one update through all four of its actions.</summary>
     internal static void RunBullMain(RoomEnemyPlace place, BullEnemyState state, SamusState samus)
     {
         // A kick's guard runs out on the update its countdown reaches zero.
-        if (state.ShotReactionDisableTimer > 0)
-            state.ShotReactionDisableTimer--;
+        state.ShotReactionDisableTimer.Step();
 
         switch (state.Action)
         {
             case BullAction.MovementDelay:
-                if (--state.ActivationTimer == 0)
+                if (state.ActivationTimer.StepEnds())
                 {
-                    state.ActivationTimer = BullMovementDefinitions.MovementDelay;
+                    state.ActivationTimer = UpdateCountdown.For(BullMovementDefinitions.MovementDelay);
                     state.Action = BullAction.TargetSamus;
                 }
                 return;
@@ -90,27 +89,27 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     /// and must still turn back toward her the short way.
     /// </remarks>
     private static RotationAngle CalculateBullAngleToSamus(RoomEnemyPlace place, SamusState samus) =>
-        (EnemyMath.CalculateBearing(
-            new(DistanceAcrossRoomEdge.Apart(samus.Position.X.Whole, place.Position.X.Whole), DistanceAcrossRoomEdge.Apart(samus.Position.Y.Whole, place.Position.Y.Whole)))
-            .ToMirroredTrigonometryAngle() - TrigonometryAngle.QuarterTurn).ToAngle();
+        // The Bull measures its heading clockwise from right, the screen's Y pointing down: the aim reversed.
+        (TrigonometryAngle.Zero - EnemyMath.CalculateAimAngle(
+            new(DistanceAcrossRoomEdge.Apart(samus.Position.X.Whole, place.Position.X.Whole), DistanceAcrossRoomEdge.Apart(samus.Position.Y.Whole, place.Position.Y.Whole)))).ToAngle();
 
     /// <summary>Increases acceleration and speed only when the configured interval expires.</summary>
     private static void AccelerateBull(RoomEnemyPlace place, BullEnemyState state)
     {
-        if (--state.AccelerationIntervalTimer != 0)
+        if (!state.AccelerationIntervalTimer.StepEnds())
             return;
 
-        state.AccelerationIntervalTimer = place.SpawnSettings<BullSpawnSettings>().Intervals.Acceleration;
+        state.AccelerationIntervalTimer = UpdateCountdown.For(place.SpawnSettings<BullSpawnSettings>().Intervals.Acceleration);
         state.Accelerate();
     }
 
     /// <summary>Reduces acceleration and speed on the configured deceleration cadence.</summary>
     private static void DecelerateBull(RoomEnemyPlace place, BullEnemyState state)
     {
-        if (--state.AccelerationIntervalTimer != 0)
+        if (!state.AccelerationIntervalTimer.StepEnds())
             return;
 
-        state.AccelerationIntervalTimer = place.SpawnSettings<BullSpawnSettings>().Intervals.Deceleration;
+        state.AccelerationIntervalTimer = UpdateCountdown.For(place.SpawnSettings<BullSpawnSettings>().Intervals.Deceleration);
         state.Decelerate();
     }
 
@@ -163,8 +162,11 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="speed"/> is negative.</exception>
     internal static SignedSixteenSixteen BullStep(UnitComponent share, SignedEightEight speed)
     {
-        // The share is under one and the speed at most eleven and a quarter pixels, so the step is under six pixels.
-        SignedSixteenSixteen forward = share.SizeTimes(speed).Halved(BullMovementDefinitions.StepHalvings).AsDisplacement();
+        // The share is under one and the speed at most eleven and a quarter pixels, so the step is under six pixels. The
+        // step's size is halved before its direction is restored, and a step up or left reverses as BullBackwardStep does.
+        if (speed.IsNegative)
+            throw new ArgumentOutOfRangeException(nameof(speed), speed, "A Bull's speed is never below zero.");
+        SignedSixteenSixteen forward = share.VelocityOf(speed).Magnitude().Halved(BullMovementDefinitions.StepHalvings).AsDisplacement();
         return share.IsNegative ? BullBackwardStep.Of(forward) : forward;
     }
 
@@ -184,7 +186,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Acceleration = BullMovementDefinitions.ShotKickAcceleration;
         state.Speed = BullMovementDefinitions.ShotKickSpeed;
         state.Action = BullAction.Decelerating;
-        state.ShotReactionDisableTimer = BullMovementDefinitions.ShotReactionGuardDuration;
+        state.ShotReactionDisableTimer = UpdateCountdown.For(BullMovementDefinitions.ShotReactionGuardDuration);
     }
 
     /// <summary>Runs Bull's idle and immune-shot animations (#641).</summary>

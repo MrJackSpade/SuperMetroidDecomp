@@ -35,6 +35,18 @@ public readonly record struct FixedCoordinate
     /// <summary>The position at <paramref name="whole"/> pixels and <paramref name="fraction"/> 65536ths, each 0 through 65535.</summary>
     public static FixedCoordinate Of(int whole, int fraction) => new(whole, fraction);
 
+    /// <summary>The position on whole pixel <paramref name="whole"/>, 0 through 65535, with no part of a pixel past it (#2555).</summary>
+    public static FixedCoordinate FromWhole(int whole) => new(whole, 0);
+
+    /// <summary>The part of a pixel the position lies past its whole pixel (#2555).</summary>
+    public PixelFraction FractionOfPixel => new(Fraction);
+
+    /// <summary>Replaces only the part of a pixel past the whole pixel, keeping the whole pixel (#2555).</summary>
+    public FixedCoordinate WithFraction(PixelFraction fraction) => this with { Fraction = checked((ushort)fraction.FinestSteps) };
+
+    /// <summary>The position on its whole pixel: the part of a pixel past it cleared (#2555).</summary>
+    public FixedCoordinate WithoutFraction() => WithFraction(PixelFraction.None);
+
     /// <summary>The position <paramref name="subpixels"/> 65536ths of a pixel from the origin, around the wrapping coordinate range.</summary>
     private static FixedCoordinate FromSubpixels(uint subpixels) =>
         new(unchecked((ushort)(subpixels >> 16)), unchecked((ushort)subpixels));
@@ -67,6 +79,18 @@ public readonly record struct FixedCoordinate
     /// whole pixel, which wraps around the coordinate range as <see cref="MovedBy(SignedSixteenSixteen)"/> does.
     /// </summary>
     public FixedCoordinate MovedForward(UnsignedSixteenSixteen distance) => FromSubpixels(unchecked(Subpixels + distance.RawValue));
+
+    /// <summary>
+    /// Whether moving this position toward increasing coordinates by <paramref name="distance"/> carries its fraction of a
+    /// pixel across a pixel's edge (#2555): the two fractions together reach a whole pixel.
+    /// </summary>
+    public bool CrossesPixelEdgeMovingForward(UnsignedSixteenSixteen distance) => Fraction + distance.Fraction >= FractionsPerPixel;
+
+    /// <summary>
+    /// Whether moving this position toward decreasing coordinates by <paramref name="distance"/> borrows its fraction of a
+    /// pixel across a pixel's edge (#2555): the distance's fraction is larger than the position's.
+    /// </summary>
+    public bool CrossesPixelEdgeMovingBack(UnsignedSixteenSixteen distance) => Fraction < distance.Fraction;
 
     /// <summary>
     /// This position moved toward decreasing coordinates by <paramref name="distance"/>, the fraction borrowing from the

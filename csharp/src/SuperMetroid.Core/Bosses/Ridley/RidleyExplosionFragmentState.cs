@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal sealed class RidleyExplosionFragmentState
 {
     /// <summary>Velocity in pixels per update: X, which drag slows toward zero, and Y, which gravity increases.</summary>
-    public EightEightVector<RoomPixels> Velocity { get; internal set; }
+    public PixelVelocity<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>The fragment's life; it dies on the update it runs out (#2233).</summary>
     public BossCountdown Lifetime { get; } = new();

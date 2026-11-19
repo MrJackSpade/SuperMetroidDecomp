@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -34,15 +35,15 @@ internal static class YardTurnDefinitionsVerification
 
         foreach ((YardDirection movement, bool suppressed, int address) in records)
         {
-            YardTurnDefinition definition =
+            YardCrawlStep definition =
                 YardTurns.ForCrawl(movement, suppressed);
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address)), definition.Lookahead.X,
                 $"Yard turn {movement}/{suppressed} lookahead X");
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2))), definition.Lookahead.Y,
                 $"Yard turn {movement}/{suppressed} lookahead Y");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4)), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.OutsideTurnAnimation),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4)), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.WhenSurfaceEnds),
                 $"Yard turn {movement}/{suppressed} outside list");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6)), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.InsideTurnAnimation),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6)), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.WhenSurfaceMet),
                 $"Yard turn {movement}/{suppressed} inside list");
         }
 
@@ -76,13 +77,13 @@ internal static class YardTurnDefinitionsVerification
 
         foreach ((YardDirection movement, bool suppressed, _) in records)
         {
-            YardTurnDefinition definition =
+            YardCrawlStep definition =
                 YardTurns.ForCrawl(movement, suppressed);
             VerifyYardTurnProductionBranch(
-                movement, suppressed, empty, definition.OutsideTurnAnimation,
+                movement, suppressed, empty, definition.WhenSurfaceEnds,
                 $"Yard outside turn {movement}/{suppressed}");
             VerifyYardTurnProductionBranch(
-                movement, suppressed, solid, definition.InsideTurnAnimation,
+                movement, suppressed, solid, definition.WhenSurfaceMet,
                 $"Yard inside turn {movement}/{suppressed}");
         }
 
@@ -104,15 +105,15 @@ internal static class YardTurnDefinitionsVerification
                 Playback = new(YardAnimations.StartingWith(YardSegment.HidingUpsideUpMovingLeft), AnimationPlace.StartOfAnimation),
                 Movement = YardMovement.Crawling,
                 Crawl = movement,
-                TurnSuppressionPassesLeft = suppressed ? YardMotionDefinitions.TurnSuppressionPasses : 0,
-                CrawlingVelocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(256, 256),
+                TurnSuppressionPassesLeft = UpdateCountdown.For(suppressed ? YardMotionDefinitions.TurnSuppressionPasses : 0),
+                CrawlingVelocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256)),
             };
 
             run(place, state, level);
 
             AssertEqual(new AnimationPlayback<YardSegment>(YardAnimations.StartingWith(expectedProgram), AnimationPlace.StartOfAnimation), state.Playback,
                 $"{context} production instruction");
-            AssertEqual(YardMotionDefinitions.TurnSuppressionPasses, state.TurnSuppressionPassesLeft,
+            AssertEqual(YardMotionDefinitions.TurnSuppressionPasses, state.TurnSuppressionPassesLeft.UpdatesLeft,
                 $"{context} suppresses turns for a whole run of slope-free passes");
         }
     }

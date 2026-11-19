@@ -3,6 +3,11 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// <summary>
 /// What a Magdollite's head is doing. Its values are arbitrary.
 /// </summary>
+/// <remarks>
+/// Submerged, ArmLanded and Surfaced are states of its course, not requests another owner stores for it (#2562): a cue, a touch or a shot ends
+/// the state before, and the game acts on it one update later, the state naming where it stands until then; the update
+/// that acts on it moves it on, as every other state's does. The update between is the game's.
+/// </remarks>
 public enum MagdolliteHeadAction
 {
     /// <summary>Faces Samus and submerges when the overlay's cooldown has expired and Samus is within the configured horizontal range.</summary>

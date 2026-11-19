@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Owtch;
@@ -42,18 +43,18 @@ internal static class OwtchPatrolStateVerification
                          })
         {
             (enemies, place, state) = NewOwtch(OwtchBehaviorState.Sinking);
-            state.BurialDepth = depth;
+            state.Sink = UpdateCountdownAccess.AtAge(OwtchMovementDefinitions.MaximumBurialDepth, depth);
             enemies.OwtchBehavior.RunOwtchMainAi(place, frame);
-            AssertEqual(expectedDepth, state.BurialDepth, $"Owtch sinking from {depth}");
+            AssertEqual(expectedDepth, state.Sink.Age, $"Owtch sinking from {depth}");
             AssertEqual(expectedBehavior, state.Behavior, $"Owtch sinking from {depth}: behavior");
         }
 
         // An Owtch rises only out of a burial (#2474): one placed buried whose wait has run out rises.
         (enemies, place, state) = NewOwtch(OwtchBehaviorState.Underground);
         state.Behavior = OwtchBehaviorState.Rising;
-        state.BurialDepth = 1;
+        state.Rise = UpdateCountdown.Lasting(1);
         enemies.OwtchBehavior.RunOwtchMainAi(place, frame);
-        AssertEqual(0, state.BurialDepth, "Owtch rising from depth one surfaces");
+        AssertTrue(state.Rise.IsOver, "Owtch rising from depth one surfaces");
         AssertTrue(state.Behavior is OwtchBehaviorState.MovingLeft or OwtchBehaviorState.MovingRight, "Owtch walks again once surfaced");
 
         Console.WriteLine("  Owtch patrol state: speeds carry and wrap, sinking stops at sixteen and rising surfaces at zero.");

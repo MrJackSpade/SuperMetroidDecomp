@@ -84,7 +84,7 @@ internal static class IntroCinematicRomDataVerification
             .Distinct()
             .ToArray();
         // The native start of every typed cinematic animation an actor starts (#641, #2197).
-        ushort[] bank8BLists = [.. CinematicSpriteNativeListAddresses.Starts.Values];
+        ushort[] bank8BLists = [.. CinematicSpriteNativeListAddresses.Starts.Values, CinematicSpriteNativeListAddresses.RinkaSpawnerList];
         // The narration pages' lists are named by the narration script definitions, not by loose constants.
         ushort[] bank8CLists =
         [

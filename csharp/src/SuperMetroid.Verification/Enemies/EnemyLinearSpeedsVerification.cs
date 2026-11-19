@@ -26,7 +26,7 @@ internal static class EnemyLinearSpeedsVerification
             {
                 (SignedSixteenSixteen positive, SignedSixteenSixteen negative) = EnemySpeedTableCodec.LinearRow(cartridge, table, row);
                 AssertEqual(speed, positive, $"linear speed row {row} at {table:X6}");
-                AssertEqual(new EnemyLinearSpeed(speed).Negative, negative, $"linear speed row {row} at {table:X6}: stored negation is the speed negated at use");
+                AssertEqual(speed.Toward(HorizontalDirection.Left), negative, $"linear speed row {row} at {table:X6}: stored negation is the speed taken leftward at use");
             }
         }
         AssertThrows<InvalidDataException>(() => EnemyLinearSpeedTable.Speed(-1), "negative linear row");

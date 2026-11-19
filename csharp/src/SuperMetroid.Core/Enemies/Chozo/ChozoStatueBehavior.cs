@@ -32,30 +32,21 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyAudioQueue _audio;
     /// <summary>Receives statue-authored effect overlay motion writes.</summary>
     private readonly EnemyRoomFx _roomFx;
+    /// <summary>The enemy pass's events, among which the statue asks for its room objects as it decides on them.</summary>
+    private readonly EnemyPassEvents _passEvents;
     /// <summary>The room's statue, which its hand belongs to, once the statue is placed (#2283).</summary>
     private RoomEnemyPlace? _statue;
 
     /// <summary>Binds statue behavior to room, movement, FX, sound and projectile owners.</summary>
-    internal ChozoStatueBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemyRoomFx roomFx)
+    internal ChozoStatueBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemyRoomFx roomFx,
+        EnemyPassEvents passEvents)
     {
+        _passEvents = passEvents;
         _room = room;
         _terrain = terrain;
         _projectiles = projectiles;
         _audio = audio;
         _roomFx = roomFx;
-    }
-
-    /// <summary>The room objects the statue has asked for and the room has still to spawn, in the order it asked.</summary>
-    private readonly List<RoomObjectSpawnRequest<ChozoStatueRoomObject>> _objectRequests = [];
-
-    /// <summary>Spawns each room object the statue asked for, once, in the order it asked.</summary>
-    internal void ApplyPendingChozoStatueObjects(RoomLevelData level, ChozoStatueObjects chozoStatueObjects)
-    {
-        while (_objectRequests.Count != 0)
-        {
-            chozoStatueObjects.TrySpawnChozoStatueObject(level, _objectRequests[0]);
-            _objectRequests.RemoveAt(0);
-        }
     }
 
     /// <summary>Initializes either shipped statue.</summary>
@@ -97,7 +88,8 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// admitted, both trigger setups advance the statue's wait (<see cref="ChozoStatueState.TriggerHand"/>) and disable
     /// Samus controls.
     /// </summary>
-    public void ActivateChozoStatueHandTrigger()
+    /// <returns>The room objects the trigger asks its room for, in the order it asks, which the room spawns at once.</returns>
+    public IReadOnlyList<RoomObjectSpawnRequest<ChozoStatueRoomObject>> ActivateChozoStatueHandTrigger()
     {
         RoomEnemyPlace statue = _statue ?? throw new InvalidOperationException("A Chozo hand triggered in a room whose statue was never placed.");
         statue.RequireSpeciesState<ChozoStatueState>().TriggerHand();
@@ -106,7 +98,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // Lower Norfair's hand trigger records the acid-lowered event before waking the actor.
             _room.Services.Events.Set(StoryEvent.LowerNorfairChozoLoweredAcid);
-            RequestChozoObject(ChozoStatueRoomObject.PlugCrumbleAtHand, ChozoStatueRoomDefinitions.LowerNorfairHandBlock);
+            return [new(ChozoStatueRoomDefinitions.LowerNorfairHandBlock, ChozoStatueRoomObject.PlugCrumbleAtHand)];
         }
         else
         {
@@ -116,7 +108,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
                 _room.Services.RoomScroll.Write(screen, RoomScrollState.Open);
             foreach (Position16<RoomScreens> screen in ChozoStatueRoomDefinitions.WakingTopAlignedScreens)
                 _room.Services.RoomScroll.Write(screen, RoomScrollState.OpenAlignedToTop);
-            RequestChozoObject(ChozoStatueRoomObject.SlopeAccessOpening, ChozoStatueRoomDefinitions.WreckedShipSlopeAccessBlock);
+            return [new(ChozoStatueRoomDefinitions.WreckedShipSlopeAccessBlock, ChozoStatueRoomObject.SlopeAccessOpening)];
         }
     }
 
@@ -280,9 +272,12 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Takes Samus's controls away while the statue holds her.</summary>
     private void DisableChozoStatueSamusControls() => _room.Services.SamusControls.DisableControls();
 
-    /// <summary>Asks the room to spawn <paramref name="roomObject"/> at <paramref name="block"/>.</summary>
+    /// <summary>
+    /// Asks the room to spawn <paramref name="roomObject"/> at <paramref name="block"/>: the room spawns it after the
+    /// statue's setup or the enemy pass that asks.
+    /// </summary>
     private void RequestChozoObject(ChozoStatueRoomObject roomObject, Position16<RoomBlocks> block) =>
-        _objectRequests.Add(new RoomObjectSpawnRequest<ChozoStatueRoomObject>(block, roomObject));
+        _passEvents.Publish(new ChozoStatueObjectAsked(new RoomObjectSpawnRequest<ChozoStatueRoomObject>(block, roomObject)));
 
     /// <summary>Runs ChozoStatue's main AI.</summary>
     internal static void RunChozoStatueMainAi(RoomEnemyPlace place, IEnemyAiFrame _)

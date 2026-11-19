@@ -57,7 +57,7 @@ internal static class RefillCompletionTransitionVerification
         samus.MaxReserveEnergy = 100;
         samus.ReserveTankMode = ReserveTankMode.Auto;
         samus.Position = samus.Position.WithWholeX(64);
-        samus.PeriodicDamage.Accumulate(new UnsignedSixteenSixteen(999, 0));
+        samus.PeriodicDamage.Accumulate(EnergyAmount.FromEnergy(999));
         game.Step(0);
         AssertEqual(SuperMetroidGameState.ReserveTankRefill, game.GameState, "Samus's emptied energy enters the refill");
         AssertTrue(runtime.EnteredDoor is null, "the spark is still short of the door as the refill begins");
@@ -110,7 +110,7 @@ internal static class RefillCompletionTransitionVerification
         samus.Position = samus.Position.WithWholeY(GunshipTakeoffDefinitions.TakeoffCompleteY + GunshipMotionDefinitions.TopHullAboveSamus - 8);
         game.Step(0);
         AssertEqual(0, samus.ReserveEnergy, "the refill's update moves the last reserve unit");
-        AssertEqual(GunshipFrameEvent.EscapeTakeoffCompleted, runtime.EnemyFrameResults.LastEnemyFrame.Gunship,
+        AssertTrue(runtime.EnemyFrameResults.LastEnemyFrame.Reports(GunshipFrameEvent.EscapeTakeoffCompleted),
             $"the ship's ascent completes the takeoff; the top hull is at {top.Position.Y.Whole} in {GunshipState.Of(top).Phase}");
         AssertTrue(game.IsAt(EndingStep.LeavingZebes), $"the gunship's takeoff on the refill's completion update leaves Zebes; ended in {game.GameState}");
 

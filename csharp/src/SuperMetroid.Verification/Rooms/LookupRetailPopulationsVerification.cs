@@ -87,15 +87,27 @@ internal static class LookupRetailPopulationsVerification
     private static void VerifyRetailPopulationField(CartridgeImportAddressSpace rom, int field)
     {
         int total = 0;
+        int orphans = 0;
         foreach (ushort pointer in OriginalRetailPopulationPointers)
         {
             ReadOnlySpan<RoomObjectPlacement> actual = RoomObjectPopulationDefinitions.Get(pointer).Placements.Span;
             int count = 0;
+            int placed = 0;
             int address = 0x8f0000 | pointer;
+            HashSet<(int X, int Y)> scrollChain = NativeScrollChain(rom, address);
             while (ReadSamusEaterObjectWord(rom, address) != 0)
             {
-                AssertTrue(count < 256 && count < actual.Length, "native placement has a corresponding bounded operation");
-                RoomObjectPlacement placement = actual[count];
+                // A scroll extension whose step back leads to no trigger or extension extends nothing, and the catalog
+                // leaves it out (#2572).
+                if (ExtendsNothing(rom, address, scrollChain))
+                {
+                    orphans++;
+                    address += 6;
+                    count++;
+                    continue;
+                }
+                AssertTrue(count < 256 && placed < actual.Length, "native placement has a corresponding bounded operation");
+                RoomObjectPlacement placement = actual[placed];
                 int expected = field switch
                 {
                     0 => ReadSamusEaterObjectWord(rom, address),
@@ -137,13 +149,42 @@ internal static class LookupRetailPopulationsVerification
                     AssertEqual(expected, result, $"population {pointer:X4} operation {count} field {field}");
                 address += 6;
                 count++;
+                placed++;
             }
             if (field == 4)
-                AssertEqual(count, actual.Length, $"population {pointer:X4} returns exactly at the native zero header");
+                AssertEqual(placed, actual.Length, $"population {pointer:X4} returns exactly at the native zero header");
             total += count;
         }
         AssertEqual(941, total, $"complete original placement domain for field {field}");
+        AssertEqual(1, orphans, "East Pants' rightwards scroll extension at (10, 18) is the one that extends nothing");
     }
+
+    /// <summary>The steps back toward the trigger each scroll extension continues, by the extension's header word.</summary>
+    private static readonly Dictionary<int, (int X, int Y)> ScrollExtensionStepsBack = new()
+    {
+        [RoomObjectNativeWords.Word(RoomObjectKind.RightwardsScrollExtension)] = (-1, 0),
+        [RoomObjectNativeWords.Word(RoomObjectKind.LeftwardsScrollExtension)] = (1, 0),
+        [RoomObjectNativeWords.Word(RoomObjectKind.DownwardsScrollExtension)] = (0, -1),
+        [RoomObjectNativeWords.Word(RoomObjectKind.UpwardsScrollExtension)] = (0, 1),
+    };
+
+    /// <summary>The blocks of a native population's scroll triggers and extensions.</summary>
+    private static HashSet<(int X, int Y)> NativeScrollChain(CartridgeImportAddressSpace rom, int address)
+    {
+        var chain = new HashSet<(int X, int Y)>();
+        int trigger = RoomObjectNativeWords.Word(RoomObjectKind.ScrollTrigger);
+        for (; ReadSamusEaterObjectWord(rom, address) is var word && word != 0; address += 6)
+        {
+            if (word == trigger || ScrollExtensionStepsBack.ContainsKey(word))
+                chain.Add((RetailPopulationFieldRomByte(rom, address + 2), RetailPopulationFieldRomByte(rom, address + 3)));
+        }
+        return chain;
+    }
+
+    /// <summary>Whether the native record at <paramref name="address"/> is a scroll extension whose step back leads to none of the chain.</summary>
+    private static bool ExtendsNothing(CartridgeImportAddressSpace rom, int address, HashSet<(int X, int Y)> chain) =>
+        ScrollExtensionStepsBack.TryGetValue(ReadSamusEaterObjectWord(rom, address), out (int X, int Y) back) &&
+        !chain.Contains((RetailPopulationFieldRomByte(rom, address + 2) + back.X, RetailPopulationFieldRomByte(rom, address + 3) + back.Y));
 
     /// <summary>Reads native placement coordinate bytes for the independent oracle.</summary>
     private static byte RetailPopulationFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);

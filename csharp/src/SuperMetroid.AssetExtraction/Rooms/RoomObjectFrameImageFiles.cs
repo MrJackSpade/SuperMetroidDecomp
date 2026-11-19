@@ -51,11 +51,11 @@ internal static class RoomObjectFrameImageFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         Ensure.NotNull(visualId);
-        var layouts = new Dictionary<RoomObjectDraw, RoomObjectFrameLayout>();
+        var layouts = new List<RoomObjectFamilyFrame<RoomObjectDraw>>();
         var ids = new Dictionary<RoomObjectDraw, string>();
         foreach (RoomObjectDrawLists.DrawList frame in Ensure.NotNull(frames))
         {
-            layouts.Add(frame.Draw, RoomObjectFrameLayout.Of(frame));
+            layouts.Add(new(frame.Draw, RoomObjectFrameLayout.Of(frame)));
             ids.Add(frame.Draw, visualId(frame.Draw));
         }
         return new(fileName, name, layouts, ids);
@@ -74,9 +74,9 @@ internal static class RoomObjectFrameImageFiles
         Ensure.NotNull(family);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         var frames = new List<FrameEntry>();
-        foreach (TFrame frame in family.Layouts.Keys)
+        foreach ((TFrame frame, RoomObjectFrameLayout layout) in family.Frames)
         {
-            RoomObjectFrameImage image = Picture(bus, family.Name, Layout(family, frame));
+            RoomObjectFrameImage image = Picture(bus, family.Name, layout);
             frames.Add(new FrameEntry(Id(family, frame), image.Cells
                 .Select(cell => new FrameCell(cell.Key.X, cell.Key.Y, cell.Value.ShowsNothing ? null : cell.Value.Block,
                     cell.Value.Mirroring)).ToArray()));
@@ -158,7 +158,7 @@ internal static class RoomObjectFrameImageFiles
                 throw new InvalidDataException($"frame {entry.Id} is pictured twice.");
             images.Add(frame, Image(entry, Layout(family, frame).Cells()));
         }
-        foreach (TFrame drawn in family.Layouts.Keys)
+        foreach ((TFrame drawn, _) in family.Frames)
             if (!images.ContainsKey(drawn))
                 throw new InvalidDataException($"frame {Id(family, drawn)} is not pictured.");
         return new RoomObjectFrameImages<TFrame>(images);

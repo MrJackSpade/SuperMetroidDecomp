@@ -12,6 +12,20 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </summary>
 internal static class RoomFxBlendSheetShades
 {
+    /// <summary>The room effects' tints in the order the blend sheet lists their shades (#2567).</summary>
+    private static readonly IReadOnlyList<RoomEffectTint> TintOrder = Ensure.EveryMemberOnce<RoomEffectTint>(
+    [
+        RoomEffectTint.None,
+        RoomEffectTint.Lava,
+        RoomEffectTint.LandingSiteRain,
+        RoomEffectTint.IndigoMaridiaWater,
+        RoomEffectTint.WaterAndAcid,
+        RoomEffectTint.Fog,
+        RoomEffectTint.TealMaridiaWater,
+        RoomEffectTint.GreenMaridiaWater,
+        RoomEffectTint.PurpleMaridiaWater,
+    ]);
+
     /// <summary>The first blend ink of a tileset's layer-3 picture.</summary>
     private const int FirstInk = 25;
 
@@ -22,7 +36,7 @@ internal static class RoomFxBlendSheetShades
     internal static IReadOnlyList<SheetShade> Of(RoomFxBlendInks blends)
     {
         Ensure.NotNull(blends);
-        return [.. Enum.GetValues<RoomEffectTint>().Select(blend => SheetShade.Run(RoomEffectTintShading.Of(blend),
+        return [.. TintOrder.Select(blend => SheetShade.Run(RoomEffectTintShading.Of(blend),
             blend == RoomEffectTint.None ? ClearedInk : FirstInk, [.. blends.Inks(blend)]))];
     }
 }

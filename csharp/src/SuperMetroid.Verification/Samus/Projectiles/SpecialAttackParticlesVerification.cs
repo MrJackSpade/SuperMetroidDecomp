@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
@@ -80,14 +81,14 @@ internal static class SpecialAttackParticlesVerification
     /// its Spazer partner by the place it holds.
     /// </summary>
     private sealed record ShotState(bool IsOccupied, int Damage, SamusProjectileType Type, SamusBeamCombination PicturedBeams,
-        SamusProjectileDirection Direction, bool IsSpent, FixedPosition<RoomPixels> Position, EightEightVector<RoomPixels> Velocity,
+        SamusProjectileDirection Direction, bool IsSpent, FixedPosition<RoomPixels> Position, PixelVelocity<RoomPixels> Velocity,
         Extent16<RoomPixels> Radius, AnimationPlayback<SamusProjectileSegment>? Playback, int? FrameUpdatesLeft,
         ProjectileSpriteId? Sprite, int? TrailUpdatesLeft, object? Kind, SamusShotBehavior? Behavior);
 
     /// <summary>Reads <paramref name="shot"/>'s whole state.</summary>
     private static ShotState StateOf(SamusProjectile shot) => new(shot.IsOccupied, shot.Damage, shot.Type, shot.PicturedBeams,
         shot.Direction, shot.IsSpent, shot.Position, shot.Velocity, shot.Radius, shot.Playback, shot.Animation?.UpdatesLeft, shot.Sprite,
-        shot.TrailUpdatesLeft, KindOf(shot), shot.Behavior);
+        shot.Trail?.UpdatesLeft, KindOf(shot), shot.Behavior);
 
     /// <summary>The values <paramref name="shot"/>'s kind keeps, compared by value; null when it keeps none.</summary>
     private static object? KindOf(SamusProjectile shot) => shot.KindState switch
@@ -178,7 +179,7 @@ internal static class SpecialAttackParticlesVerification
                 _ = FlyingBeam(projectiles, place, fraction, charged: true);
                 break;
             case PlaceHolding.SpentBeam:
-                FlyingBeam(projectiles, place, fraction, charged: false).IsSpent = true;
+                FlyingBeam(projectiles, place, fraction, charged: false).Spend();
                 break;
             case PlaceHolding.BeamExplosion:
                 SamusProjectile exploding = FlyingBeam(projectiles, place, fraction, charged: false);
@@ -272,8 +273,8 @@ internal static class SpecialAttackParticlesVerification
         shot.Direction = SamusProjectileDirection.Right;
         shot.Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(200 + place, 90 + place))
             .WithFractionX(fraction).WithFractionY(0x4321);
-        shot.Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(1200, -300);
-        shot.TrailUpdatesLeft = 2;
+        shot.Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1200), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-300));
+        shot.Trail = UpdateCountdown.Lasting(2);
     }
 
     /// <summary>The four beams that start a special attack.</summary>
@@ -309,7 +310,7 @@ internal static class SpecialAttackParticlesVerification
                 AssertEqual(place >= 2, spazer.LeavesTrails,
                     $"Spazer particle {place} leaves trails from the start exactly when it is one of the trailing pair");
                 if (place >= 2)
-                    AssertEqual(ProjectileTimingDefinitions.TrailInterval, particle.TrailUpdatesLeft,
+                    AssertEqual(ProjectileTimingDefinitions.TrailInterval, particle.Trail?.UpdatesLeft,
                         $"trailing Spazer particle {place} starts its trail countdown");
                 AssertTrue(ReferenceEquals(projectiles.Shots[place ^ 2], spazer.Partner),
                     $"Spazer particle {place} is paired with the particle two places from it");
@@ -396,7 +397,7 @@ internal static class SpecialAttackParticlesVerification
             (SamusProjectileSystem projectiles, SamusBombProjectileSystem shared, SamusState samus) =
                 StartAttack(SamusBeamFlags.Spazer, SpazerSamus);
             SamusProjectile spent = projectiles.Shots[spentPlace];
-            spent.IsSpent = true;
+            spent.Spend();
             AssertTrue(projectiles.Combos.StepSpazerCombo(samus, spent, shared, SpazerCameraY) is null,
                 $"spent Spazer particle {spentPlace} makes no sound");
             for (int place = 0; place < 4; place++)
@@ -414,7 +415,7 @@ internal static class SpecialAttackParticlesVerification
         echo.Install(SamusShotBehaviors.ShinesparkEcho, new ShinesparkEchoShotState(TrigonometryAngle.Zero));
         AssertTrue(!replaced.IsOccupied, "the crash echo's release ends the trailing particle it replaces");
         SamusProjectile spentBeam = echoProjectiles.Shots[1];
-        spentBeam.IsSpent = true;
+        spentBeam.Spend();
         _ = echoProjectiles.Combos.StepSpazerCombo(echoSamus, spentBeam, echoShared, SpazerCameraY);
         AssertTrue(!echo.IsOccupied, "a spent Spazer particle ends the crash echo holding its partner's place");
         AssertTrue(ReferenceEquals(echo, echoProjectiles.Shots[3]), "the ended echo is the last shot of its place");
@@ -480,7 +481,7 @@ internal static class SpecialAttackParticlesVerification
         SamusBeamFlags beam, Position16<RoomPixels> samusAt)
     {
         var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads,
-            new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
+            new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         var shared = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(),
             SamusCompatibility.ForNewSamus(), new BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())

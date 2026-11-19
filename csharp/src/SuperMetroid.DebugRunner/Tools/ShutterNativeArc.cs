@@ -38,7 +38,7 @@ internal static class ShutterNativeArc
                 bombInputs.Write(bomb.Position.X.Whole); bombInputs.Write(bomb.Position.Y.Whole);
                 bombInputs.Write(bomb.Radius.X); bombInputs.Write(bomb.Radius.Y);
                 bombInputs.Write(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordEncoder.EncodeDirection(SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.UpFacingRight, bomb.IsSpent)); bombInputs.Write(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordEncoder.EncodeBombType(bomb.Type, bomb.IsBombSpread, bomb.HasReactedToTerrain));
-                bombInputs.Write(bomb.Damage); bombInputs.Write(checked((ushort)bomb.FuseUpdatesLeft));
+                bombInputs.Write(bomb.Damage); bombInputs.Write(checked((ushort)bomb.Fuse.UpdatesLeft));
             }
             arc.Add(scenario.ArcRow(frame));
         }
@@ -126,8 +126,8 @@ internal static class ShutterNativeArc
         ram[0xA1E] = SamusPoseRecordCodecTooling.FacingByte(samus.Pose);
         ram[0xA1F] = SamusPoseRecordCodecTooling.MovementByte(samus.Pose);
         Word(0xA56, SamusBombJumpRequestCodec.ToNative(samus.BombJumpRequest)); Word(0xA58, 0xE032); Word(0xA60, 0xE90E);
-        Word(0xB2C, k.YSpeed.Fraction); Word(0xB2E, k.YSpeed.Whole);
-        Word(0xB32, k.YAcceleration.Fraction); Word(0xB34, k.YAcceleration.Whole); Word(0xB36, SamusVerticalDirectionCodec.ToNative(k.YDirection));
+        Word(0xB2C, k.VerticalVelocity.Speed.Fraction); Word(0xB2E, k.VerticalVelocity.Speed.Whole);
+        Word(0xB32, k.YAcceleration.Fraction); Word(0xB34, k.YAcceleration.Whole); Word(0xB36, SamusVerticalDirectionCodec.ToNative(k.VerticalVelocity.Direction));
         Word(0xB42, speed.ExtraRunSpeed.Whole); Word(0xB44, speed.ExtraRunSpeed.Fraction);
         Word(0xB46, speed.BaseSpeed.Whole); Word(0xB48, speed.BaseSpeed.Fraction); Word(0xB4A, SamusAccelerationModeCodec.ToNative(speed.AccelerationMode));
         Word(0x195E, 0xFFFF); Word(0x1962, 0xFFFF);

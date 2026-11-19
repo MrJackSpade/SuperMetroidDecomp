@@ -319,10 +319,10 @@ public static class GameSaveJsonCodec
         options.Converters.Add(new SaveKeyJsonConverter<HudItem>(HudItemKeys.Installed));
         options.Converters.Add(new SaveKeyJsonConverter<SaveLoadingGameState>(SaveLoadingGameStateKeys.Installed));
         options.Converters.Add(new SaveKeyJsonConverter<AreaId>(AreaIdKeys.Installed));
-        options.Converters.Add(new SaveFlagsJsonConverter<ControllerButton>(ControllerButtonKeys.Installed, (left, right) => left | right));
-        options.Converters.Add(new SaveFlagsJsonConverter<SamusEquipmentFlags>(SamusEquipmentFlagsKeys.Installed, (left, right) => left | right));
-        options.Converters.Add(new SaveFlagsJsonConverter<SamusBeamFlags>(SamusBeamFlagsKeys.Installed, (left, right) => left | right));
-        options.Converters.Add(new SaveFlagsJsonConverter<DefeatedBosses>(DefeatedBossesKeys.Installed, (left, right) => left | right));
+        options.Converters.Add(new SaveFlagsJsonConverter<ControllerButton>(ControllerButtonKeys.Installed, ControllerButtonKeys.ListedOrder, (left, right) => left | right));
+        options.Converters.Add(new SaveFlagsJsonConverter<SamusEquipmentFlags>(SamusEquipmentFlagsKeys.Installed, SamusEquipmentFlagsKeys.ListedOrder, (left, right) => left | right));
+        options.Converters.Add(new SaveFlagsJsonConverter<SamusBeamFlags>(SamusBeamFlagsKeys.Installed, SamusBeamFlagsKeys.ListedOrder, (left, right) => left | right));
+        options.Converters.Add(new SaveFlagsJsonConverter<DefeatedBosses>(DefeatedBossesKeys.Installed, DefeatedBossesKeys.ListedOrder, (left, right) => left | right));
         return options;
     }
 

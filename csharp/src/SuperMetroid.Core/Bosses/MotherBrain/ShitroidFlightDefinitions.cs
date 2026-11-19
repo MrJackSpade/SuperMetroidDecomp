@@ -26,7 +26,7 @@ internal static class ShitroidFlightDefinitions
     internal static readonly SignedEightEight OffScreenReversalKick = SignedEightEight.FromPixels(4);
 
     /// <summary>The speed a spin-jumping Samus adds to the Shitroid's velocity along the negated bearing to her: a quarter pixel an update.</summary>
-    internal static readonly SignedEightEight ContactPushSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(64);
+    internal static readonly SignedEightEight ContactPushSpeed = SignedEightEight.FromPixelFraction(1, 4);
 
     /// <summary>The acceleration of the Shitroid's approach to a latch, on each axis.</summary>
     internal static readonly SignedEightEight LatchAcceleration = SignedEightEight.FromPixels(2);

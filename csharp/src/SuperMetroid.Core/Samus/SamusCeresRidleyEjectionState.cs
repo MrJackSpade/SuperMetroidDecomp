@@ -19,13 +19,13 @@ public sealed class SamusCeresRidleyEjectionState
     public bool IsActive { get; private set; }
 
     /// <summary>True until the first shove update installs pose and velocity.</summary>
-    public bool InitializationPending { get; private set; }
+    public bool IsStarting { get; private set; }
 
     /// <summary>
-    /// The wall the shove carries Samus toward; <see cref="CeresRidleyShoveDirection.None"/>
-    /// until initialization chooses a side and again once wall contact ends the shove.
+    /// The wall the shove carries Samus toward; none until initialization chooses a side and again once wall contact ends
+    /// the shove.
     /// </summary>
-    public CeresRidleyShoveDirection PushDirection { get; private set; }
+    public HorizontalDirection? PushDirection { get; private set; }
 
     /// <summary>
     /// Sets Samus to be pushed out of Ceres Ridley's way: the shove takes her movement
@@ -35,7 +35,7 @@ public sealed class SamusCeresRidleyEjectionState
     {
         Ensure.NotNull(samus);
         IsActive = true;
-        InitializationPending = true;
+        IsStarting = true;
 
         // The shove takes Samus's movement. An
         // uncrashed ordinary spark consequently keeps its boost as Blue Suit. If
@@ -61,9 +61,9 @@ public sealed class SamusCeresRidleyEjectionState
         if (!IsActive)
             throw new InvalidOperationException("Ceres Ridley ejection is not active.");
 
-        if (InitializationPending)
+        if (IsStarting)
         {
-            InitializationPending = false;
+            IsStarting = false;
 
             // The ejection selects the ordinary hurt pose from the PREVIOUS pose direction and
             // refreshes the animation. The pose setup does not publish the hurt pose's
@@ -85,9 +85,9 @@ public sealed class SamusCeresRidleyEjectionState
             // rightward shove.
             int screenX = samus.Position.X.Whole - cameraX;
             PushDirection = screenX < ScreenGeometry.ScreenWidthPixels / 2
-                ? CeresRidleyShoveDirection.Left
-                : CeresRidleyShoveDirection.Right;
-            samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(SamusVerticalMotionDefinitions.CeresRidleyShoveFallingSpeed, 0);
+                ? HorizontalDirection.Left
+                : HorizontalDirection.Right;
+            samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(SamusVerticalMotionDefinitions.CeresRidleyShoveFallingSpeed);
 
             // Only the shove's state is set up on this update. The shove does not
             // perform the first collision/movement pass until the following frame.
@@ -102,7 +102,8 @@ public sealed class SamusCeresRidleyEjectionState
             samus.LiquidPhysics.DetermineMovementMedium(samus));
         UnsignedSixteenSixteen baseSpeed = horizontalSpeed.CalculateBaseSpeed(
             SamusPoseMetadata.ReadMovementType(samus));
-        var requestedX = SamusHorizontalDisplacement.Toward(PushDirection == CeresRidleyShoveDirection.Left, samus, baseSpeed);
+        var requestedX = SamusHorizontalDisplacement.Toward(
+            PushDirection ?? throw new InvalidOperationException("Ceres Ridley's shove moves Samus toward no wall."), samus, baseSpeed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
 
         if (horizontal.Collided)
@@ -116,19 +117,19 @@ public sealed class SamusCeresRidleyEjectionState
             // never sets knockback direction, so the knockback check does not convert the
             // hurt pose; the knockback pose remains for her pose's own movement.
             IsActive = false;
-            PushDirection = CeresRidleyShoveDirection.None;
-            samus.Kinematics.YSpeed = default;
-            samus.Kinematics.YDirection = SamusVerticalDirection.None;
+            PushDirection = null;
+            samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Still;
             samus.AlignBottomAfterPoseChange(
                 SamusPoseMetadata.ReadPoseYRadius(samus.PoseHistory.PreviousPose),
                 SamusPoseMetadata.ReadPoseYRadius(samus.Pose));
             return;
         }
 
-        // Her fall speeds up only while its whole pixels are below five, and she falls by that speed alone, without the
-        // extra pixel an ordinary fall adds.
-        if (samus.Kinematics.YSpeed.Whole < SamusVerticalMotionDefinitions.CeresRidleyShoveFallingSpeed)
-            samus.Kinematics.YSpeed += samus.Kinematics.YAcceleration;
-        SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = samus.Kinematics.YSpeed.AsDisplacement(), ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
+        // Her fall speeds up only while its whole pixels are below five, and she falls by that speed alone, whichever way
+        // her velocity heads and without the extra pixel an ordinary fall adds.
+        UnsignedSixteenSixteen fallSpeed = samus.Kinematics.VerticalVelocity.Speed;
+        if (fallSpeed.IsSlowerThan(SamusVerticalMotionDefinitions.CeresRidleyShoveFallingSpeed))
+            samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(fallSpeed + samus.Kinematics.YAcceleration);
+        SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SamusVerticalVelocity.Falling(samus.Kinematics.VerticalVelocity.Speed).Displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
     }
 }

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Spatial;
 /// carrying beneath them from update to update. Its fraction is a rotation angle's, so a speed turns a rotation angle
 /// exactly. The same measure serves the change a turning speed takes each update.
 /// </summary>
-public readonly record struct AngularSpeed : IComparable<AngularSpeed>
+public readonly record struct AngularSpeed : IComparable<AngularSpeed>, System.Numerics.IUnaryNegationOperators<AngularSpeed, AngularSpeed>
 {
     /// <summary>Number of fractions in one step.</summary>
     private const int FractionsPerStep = 256;
@@ -18,7 +18,7 @@ public readonly record struct AngularSpeed : IComparable<AngularSpeed>
 
     /// <summary>The speed of <paramref name="fractionsOfStep"/> 256ths of a step an update, within half a turn either way.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The speed turns half a turn or more an update.</exception>
-    private AngularSpeed(int fractionsOfStep) =>
+    internal AngularSpeed(int fractionsOfStep) =>
         FractionsOfStep = Ensure.BetweenInclusive(-MostWholeSteps * FractionsPerStep, MostWholeSteps * FractionsPerStep - 1, fractionsOfStep);
 
     /// <summary>The speed in 256ths of a step an update, -32768 through 32767: negative toward decreasing angles.</summary>
@@ -39,6 +39,24 @@ public readonly record struct AngularSpeed : IComparable<AngularSpeed>
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The speed turns half a turn or more an update.</exception>
     public static AngularSpeed FromFractionsOfStep(int fractionsOfStep) => new(fractionsOfStep);
+
+    /// <summary>
+    /// The turning speed of one step an update for each pixel of <paramref name="speed"/> (#2555), its fraction turning
+    /// likewise: a 256th of a step for each 256th of a pixel, the speed's finer fraction dropped, toward decreasing angles
+    /// for a speed toward decreasing coordinates.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The speed turns half a turn or more an update.</exception>
+    public static AngularSpeed StepPerPixelOf(SignedSixteenSixteen speed) => new(speed.InTwoFiftySixths);
+
+    /// <summary>
+    /// A speed of <paramref name="numerator"/> <paramref name="denominator"/>ths of a step an update (#2555), the denominator
+    /// a power of two from 1 through 256 so the fraction is kept exactly: a step and a half an update, or a quarter step.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The denominator is no power of two from 1 through 256, or the speed turns half a turn or more an update.
+    /// </exception>
+    public static AngularSpeed FromStepFraction(int numerator, int denominator) =>
+        new(PowerOfTwoFraction.InFinestUnits(numerator, denominator, FractionsPerStep));
 
     /// <summary>
     /// The speed's whole steps, rounded toward decreasing angles: a speed of a fraction of a step toward decreasing
@@ -71,9 +89,9 @@ public readonly record struct AngularSpeed : IComparable<AngularSpeed>
     /// The speed with its whole steps held to <paramref name="limit"/>'s when they lie beyond them in the limit's
     /// direction, its fraction kept: a speed toward increasing angles is held to at most the limit's whole steps, one
     /// toward decreasing angles to at least them, as a turn that caps only its whole steps lets its fraction accumulate
-    /// beneath the cap.
+    /// beneath the cap, as a Ki-Hunter's swoop caps its turning.
     /// </summary>
-    public AngularSpeed WithWholeStepsLimitedTo(AngularSpeed limit)
+    public AngularSpeed CappedInWholeSteps(AngularSpeed limit)
     {
         int whole = WholeSteps;
         int cap = limit.WholeSteps;
@@ -83,7 +101,7 @@ public readonly record struct AngularSpeed : IComparable<AngularSpeed>
 
     /// <summary>How fast the speed turns, whichever way: the speed itself, or the same speed turning the other way.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The speed is the most negative one, which has no reversal within the range.</exception>
-    public AngularSpeed Magnitude => IsNegative ? -this : this;
+    public AngularSpeed Magnitude => new(Math.Abs(FractionsOfStep));
 
     /// <summary>
     /// The speed scaled by <paramref name="share"/> parts of <paramref name="parts"/> (#2110), rounded toward no turning
@@ -95,7 +113,7 @@ public readonly record struct AngularSpeed : IComparable<AngularSpeed>
         new(FractionsOfStep * Ensure.BetweenInclusive(0, int.MaxValue, share) / Ensure.BetweenInclusive(1, int.MaxValue, parts));
 
     /// <summary>Half the speed, rounded toward decreasing angles to a whole 256th of a step (#2110).</summary>
-    public AngularSpeed HalvedRoundingDown() => new(FractionsOfStep >> 1);
+    public AngularSpeed HalvedRoundingDown() => new((int)Math.Floor(FractionsOfStep / 2.0));
 
     /// <summary>
     /// The speed held within <paramref name="most"/> either way (#2110): a speed faster than it toward either side turns

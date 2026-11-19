@@ -14,7 +14,7 @@ public sealed class EvirBodyState : EvirPartState
     /// zero reverses the bobbing and restarts it at its spawn settings' direction-change period and the update it runs
     /// out on (<see cref="EnemyWaitDefinitions.RunOutUpdate"/>, #2281, #2476).
     /// </summary>
-    public int MovementTimer { get; internal set; }
+    public UpdateCountdown MovementTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// The way the body bobs at its spawn settings' speed (#2369): up from its spawn, reversed each time
@@ -23,5 +23,5 @@ public sealed class EvirBodyState : EvirPartState
     public VerticalDirection BobbingDirection { get; internal set; }
 
     /// <summary>The body's vertical velocity: <paramref name="speed"/>, its spawn settings' bobbing speed, toward its <see cref="BobbingDirection"/>.</summary>
-    internal SignedSixteenSixteen BobbingVelocity(SignedSixteenSixteen speed) => BobbingDirection == VerticalDirection.Down ? speed : -speed;
+    internal SignedSixteenSixteen BobbingVelocity(SignedSixteenSixteen speed) => speed.Toward(BobbingDirection);
 }

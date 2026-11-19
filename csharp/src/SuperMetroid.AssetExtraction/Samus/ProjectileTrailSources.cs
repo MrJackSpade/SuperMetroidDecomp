@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus.Projectiles;
 
@@ -9,6 +10,16 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 internal static class ProjectileTrailSources
 {
+    /// <summary>The trail segments in the order their sources are read (#2567).</summary>
+    private static readonly IReadOnlyList<ProjectileTrailSegment> TrailSegmentOrder = Ensure.EveryMemberOnce<ProjectileTrailSegment>(
+    [
+        ProjectileTrailSegment.Empty,
+        ProjectileTrailSegment.LeftIce,
+        ProjectileTrailSegment.RightIce,
+        ProjectileTrailSegment.Wave,
+        ProjectileTrailSegment.Missile,
+    ]);
+
     /// <summary>The bank-$90 address of <paramref name="program"/>'s first beat.</summary>
     internal static ushort Start(ProjectileTrailSegment program) =>
         ProjectileTrailSourceDefinitions.Starts.ContainsKey(program)
@@ -40,7 +51,7 @@ internal static class ProjectileTrailSources
     private static List<KeyValuePair<ushort, ProjectileTrailFrame>> ReadRecords()
     {
         var records = new List<KeyValuePair<ushort, ProjectileTrailFrame>>();
-        foreach (ProjectileTrailSegment program in Enum.GetValues<ProjectileTrailSegment>())
+        foreach (ProjectileTrailSegment program in TrailSegmentOrder)
         {
             IReadOnlyList<AnimationBeat<ProjectileTrailFrame, ProjectileTrailCue>> beats = ProjectileTrailSparkleAnimations.PlayedBeats(program);
             for (int beat = 0; beat < beats.Count; beat++)

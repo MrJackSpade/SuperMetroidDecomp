@@ -20,6 +20,25 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// </summary>
 internal static class EndingScreenShades
 {
+    /// <summary>The ending's sprite colourings in the order its sheets list the drawn shades (#2567).</summary>
+    private static readonly EndingSpriteColouring[] ColouringOrder = [.. Ensure.EveryMemberOnce<EndingSpriteColouring>(
+    [
+        EndingSpriteColouring.ClearTimeDigits,
+        EndingSpriteColouring.ClearTimeLabel,
+        EndingSpriteColouring.CompletionText,
+        EndingSpriteColouring.Clouds,
+        EndingSpriteColouring.ExplosionLava,
+        EndingSpriteColouring.ExplodingPlanet,
+        EndingSpriteColouring.ExplosionAfterglow,
+        EndingSpriteColouring.AnimalEscape,
+        EndingSpriteColouring.Logo,
+        EndingSpriteColouring.SuitlessSamus,
+        EndingSpriteColouring.SuitedSamus,
+        EndingSpriteColouring.FallingSamus,
+        EndingSpriteColouring.ShootingSamus,
+        EndingSpriteColouring.ShootingStars,
+    ])];
+
     /// <summary>Every palette object the ending spawns, whose records the ending's sheets are pre-coloured in (#1512).</summary>
     private static readonly ColourEffectId[] PaletteFxObjects =
     [
@@ -126,7 +145,7 @@ internal static class EndingScreenShades
         Ensure.NotNull(pictures);
         Ensure.NotNull(ownSets);
         var shades = new List<SheetShade>();
-        EndingSpriteColouring[] colourings = Enum.GetValues<EndingSpriteColouring>();
+        EndingSpriteColouring[] colourings = ColouringOrder;
         foreach (EndingSpriteColouring colouring in colourings)
         {
             int set = EndingScreenInks.SpriteSet(colouring);

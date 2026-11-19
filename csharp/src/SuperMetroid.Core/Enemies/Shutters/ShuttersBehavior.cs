@@ -99,14 +99,14 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         // Its sections' origins follow from the spawn row, each eight pixels further along the growth.
         var state = new GrowingShutterEnemyState(action, place.Position.Y.Whole, settings.Growth)
         {
-            ActivationTimer = settings.ActivationWait + EnemyWaitDefinitions.RunOutUpdate,
+            ActivationTimer = UpdateCountdown.For(settings.ActivationWait + EnemyWaitDefinitions.RunOutUpdate),
         };
         place.SetSpeciesState(state);
 
         state.GrowthLevel = 0;
 
+        // The shutter's new clock shows no new frame until its animation's first step shows one.
         place.CollidesByFrameHitboxes = false;
-        place.AnimationClock.ShowsNewFrame = false;
         StartGrowingShutterAnimation(
             place,
             state,
@@ -148,7 +148,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Steps the timer-mode wait one update and reports whether it ran out on this update (#2281).</summary>
-    internal static bool AdvanceGrowingShutterTimer(GrowingShutterEnemyState state) => --state.ActivationTimer == 0;
+    internal static bool AdvanceGrowingShutterTimer(GrowingShutterEnemyState state) => state.ActivationTimer.StepEnds();
 
     /// <summary>Switches a timed or proximity shutter into growth and queues audible activation on screen.</summary>
     private void ActivateGrowingShutter(
@@ -236,9 +236,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         bool finalSection = state.GrowthLevel == GrowingShutterEnemyState.SectionCount - 1;
         int placedY = finalSection
             ? targetY
-            : targetY + (direction == VerticalDirection.Up
-                ? GrowingShutterDefinitions.IntermediateInset
-                : -GrowingShutterDefinitions.IntermediateInset);
+            : targetY + (GrowingShutterDefinitions.IntermediateInset.Toward(direction.Reversed()));
         place.Position = place.Position.WithWholeY(placedY);
         state.GrowthLevel += 1;
 
@@ -413,8 +411,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.ShotActivated = false;
+        // The shutter's new clock shows no new frame until its animation's first step shows one.
         place.CollidesByFrameHitboxes = false;
-        place.AnimationClock.ShowsNewFrame = false;
         StartVerticalShutterAnimation(place, state, pose);
     }
 
@@ -522,7 +520,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static SignedSixteenSixteen VerticalShutterVelocity(RoomEnemyPlace place, VerticalDirection direction)
     {
         SignedSixteenSixteen speed = Ensure.NotNull(place).SpawnSettings<ShutterSpawnSettings>().Speed;
-        return direction == VerticalDirection.Up ? -speed : speed;
+        return speed.Toward(direction);
     }
 
     /// <summary>Moves toward the upper or lower endpoint, carrying Samus when riding the shutter.</summary>
@@ -568,7 +566,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Action = VerticalShutterAction.Still;
             return;
         }
-        state.RestTimer = rest.Updates + EnemyWaitDefinitions.RunOutUpdate;
+        state.RestTimer = UpdateCountdown.For(rest.Updates + EnemyWaitDefinitions.RunOutUpdate);
         state.Action = moved == VerticalDirection.Up ? VerticalShutterAction.StoppedAfterMovingUp : VerticalShutterAction.StoppedAfterMovingDown;
     }
 
@@ -582,7 +580,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> camera,
         VerticalDirection end)
     {
-        if (--state.RestTimer > 0)
+        if (!state.RestTimer.Step())
             return;
 
         ShutterSpawnSettings settings = place.SpawnSettings<ShutterSpawnSettings>();

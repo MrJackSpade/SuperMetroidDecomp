@@ -12,6 +12,12 @@ internal static class ColoredDoorObjectDrawDefinitions
     /// extension collision types. Final middle cells clear for every left cap, green and red right caps and yellow down
     /// caps; the other final caps stay solid.
     /// </summary>
+    /// <remarks>
+    /// A closed cap's three cells after its first continue the first (<see cref="ContinuedBlocks"/>) rather than each
+    /// colliding and reacting as its own block (#2572): a shot, bomb or grapple striking any of them reacts at the cap's
+    /// first block, where the cap's resident object hears the hit and counts it toward opening, and the cells follow the first block as it stands. Giving each cell the cap's behaviour
+    /// directly would move that reaction to the cell struck, where no cap's object stands to hear it, which changes the game.
+    /// </remarks>
     internal static IReadOnlyDictionary<ColoredDoorCaps.Draw, IReadOnlyList<RoomCollisionType>> Collisions { get; } =
         new Dictionary<ColoredDoorCaps.Draw, IReadOnlyList<RoomCollisionType>>
         {

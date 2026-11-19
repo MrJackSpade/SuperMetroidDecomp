@@ -73,9 +73,9 @@ internal static class SpikeShinesparkSuitVerification
         uint frozenY = SixteenSixteenWords.Compose(frozenSamus.Kinematics.Position.Y);
         int frozenAnimationFrame = frozenSamus.AnimationNumber;
         ushort frozenAnimationTimer = frozenSamus.AnimationFrameTimer.RawValue;
-        int frozenShineTimer = frozenSamus.Shinespark.ShineTimer;
+        int frozenShineTimer = frozenSamus.Shinespark.ShineTimer.UpdatesLeft;
         SamusSpecialColouringKind frozenPalette = frozenSamus.SpecialColouring.Holder;
-        int frozenKnockbackTimer = frozenSamus.KnockbackTimer;
+        int frozenKnockbackTimer = frozenSamus.KnockbackHold.UpdatesLeft;
         frozenRuntime.StepFrame(0, new RuntimeFrameRequest { AfterFrameBoundary = owner =>
             {
                 shortRecovery.StepAfterFrame(frozenSamus, frozenRuntime.Clock.Counter);
@@ -88,9 +88,9 @@ internal static class SpikeShinesparkSuitVerification
             new AnimationResult(frozenSamus.AnimationNumber, frozenSamus.AnimationFrameTimer.RawValue),
             "Reserve command zero freezes the unmorph animation cursor");
         AssertEqual(new VerifySpikeShinesparkSuitCase(frozenShineTimer, frozenPalette),
-            new VerifySpikeShinesparkSuitCase(frozenSamus.Shinespark.ShineTimer, frozenSamus.SpecialColouring.Holder),
+            new VerifySpikeShinesparkSuitCase(frozenSamus.Shinespark.ShineTimer.UpdatesLeft, frozenSamus.SpecialColouring.Holder),
             "Reserve command zero freezes stored-shine palette progression");
-        AssertEqual(frozenKnockbackTimer - 1, frozenSamus.KnockbackTimer,
+        AssertEqual(frozenKnockbackTimer - 1, frozenSamus.KnockbackHold.UpdatesLeft,
             "global hurt timer continues while Reserve owns Samus");
         AssertTrue(frozenSamus.KnockbackActive && frozenSamus.KnockbackDirection != 0,
             "Reserve command zero retains the interrupted knockback movement owner");
@@ -187,7 +187,7 @@ internal static class SpikeShinesparkSuitVerification
         if (underwater)
             samus.LiquidPhysics.ConfigureWater(8, ignoresSurface: false, type: SuperMetroid.Core.Fx.RoomFxType.Water);
         samus.Kinematics.Position = samus.Kinematics.Position.WithWholeX(200).WithFractionX(0).WithWholeY(166).WithFractionY(0);
-        samus.Kinematics.YSpeed = default;
+        samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.Stopped();
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         samus.PoseHistory.Restore(samus.Pose, SamusMovementType.MorphBallGround, SamusMovementType.Standing);

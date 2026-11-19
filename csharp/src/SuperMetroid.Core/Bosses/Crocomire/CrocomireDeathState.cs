@@ -58,11 +58,11 @@ public sealed class CrocomireDeathState
     internal int[] MeltBandSteps { get; } = new int[CrocomireMeltingDefinitions.MeltImageBandCount];
 
     /// <summary>
-    /// The updates his death has spent baring the skeleton so far, zero through
-    /// <see cref="CrocomireSkeletonLookDefinitions.BaringDuration"/>: one more each update the skeleton waits behind the wall
-    /// breaking through, the skeleton look showing from the last on; the final sink starts it over.
+    /// His death's baring of the skeleton, lasting <see cref="CrocomireSkeletonLookDefinitions.BaringDuration"/>: counted
+    /// each update the skeleton waits behind the wall breaking through, the skeleton look showing from the update it ends
+    /// on; the final sink starts it over.
     /// </summary>
-    public int SkeletonBaringElapsed { get; internal set; }
+    public UpdateCountdown SkeletonBaring { get; internal set; } = UpdateCountdown.Lasting(CrocomireSkeletonLookDefinitions.BaringDuration);
 
     /// <summary>Lowest background source row the melt distortion stretches back to, from the active pass.</summary>
     public int LowestDistortionSourceRow { get; internal set; }
@@ -94,7 +94,7 @@ public sealed class CrocomireDeathState
     public int RumbleYOffset { get; internal set; }
 
     /// <summary>The swings left in the current rumble oscillation after the one under way; it stops at zero.</summary>
-    public int RumbleRepeatsLeft { get; internal set; }
+    public UpdateCountdown RumbleRepeatsLeft { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// The skeleton's wait before it falls once it has broken through the wall (#2463): the break-through starts it to last

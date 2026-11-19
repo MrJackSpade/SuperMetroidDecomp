@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Samus.Grapple;
 internal static class GrappleFiringDefinitions
 {
     /// <summary>Launch speed along an axis: twelve pixels an update times the sine of a right angle, 255/256.</summary>
-    internal static readonly SignedEightEight CardinalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(12 * 255);
+    internal static readonly SignedEightEight CardinalSpeed = SignedEightEight.FromPixelFraction(765, 64);
     /// <summary>Each component of a diagonal launch: twelve pixels an update times the sine of an eighth turn, 181/256.</summary>
-    internal static readonly SignedEightEight DiagonalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(12 * 181);
+    internal static readonly SignedEightEight DiagonalSpeed = SignedEightEight.FromPixelFraction(543, 64);
 
     /// <summary>
     /// Each firing direction's launch velocity and angle (#2280): the axis and diagonal speeds, the sine scaled by twelve

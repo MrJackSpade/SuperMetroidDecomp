@@ -21,7 +21,7 @@ public sealed class RidleyWingBeat
     public ListStep<RidleyWingPose> Pose { get; internal set; }
 
     /// <summary>Gets the countdown to the wings' next pose, which starts again from 32 once it runs below zero.</summary>
-    public int Countdown { get; internal set; }
+    public PacedCountdown Countdown { get; } = new();
 
     /// <summary>
     /// Counts <paramref name="pace"/> off the countdown, and once it runs below zero shows the beat's next pose and starts
@@ -30,10 +30,9 @@ public sealed class RidleyWingBeat
     /// <param name="pace">The countdown the update takes off, which Ridley's flight speed sets.</param>
     internal void Beat(int pace)
     {
-        Countdown -= pace;
-        if (Countdown >= 0)
+        if (!Countdown.CountOff(pace))
             return;
-        Countdown = RidleyWingDefinitions.BeatCountdown;
+        Countdown.Restart(RidleyWingDefinitions.BeatCountdown);
         Pose = Pose.NextInCycle;
     }
 

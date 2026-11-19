@@ -76,7 +76,7 @@ internal static class PhantoonReport1196Verification
         AssertTrue(displayed.Amplitude.IsZero, "every first-frame death scroll equals native BG2 X");
         boss.Wave.Amplitude = PhantoonWaveDefinitions.IntroAmplitude;
         wave.Step(boss);
-        AssertEqual(RotationAngle.FromHalfSteps(14), wave.Phase, "following HDMA pass resumes native phase advancement");
+        AssertEqual(RotationAngleConstants2.FromHalfSteps(14), wave.Phase, "following HDMA pass resumes native phase advancement");
         AssertTrue(wave.CurrentWave is { Period: PhantoonWaveDefinitions.LongPeriod } rebuilt && rebuilt.Amplitude == new UnsignedSixteenSixteen(12, 0) && rebuilt.Phase == new TrigonometryAngle(7),
             "following pass rebuilds the animated death wave from the resumed phase");
         Console.WriteLine("Phantoon death: retained intro data is initialized before setup-only death frame; every displayed line aligns before wave advancement.");

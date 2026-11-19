@@ -22,7 +22,7 @@ public readonly record struct FixedPosition<TSpace>(FixedCoordinate X, FixedCoor
 
     /// <summary>A whole-pixel position with no fraction of a pixel.</summary>
     public static FixedPosition<TSpace> FromWhole(Position16<TSpace> whole) =>
-        new(new FixedCoordinate(whole.X, 0), new FixedCoordinate(whole.Y, 0));
+        new(FixedCoordinate.FromWhole(whole.X), FixedCoordinate.FromWhole(whole.Y));
 
     /// <summary>
     /// Replaces both whole-pixel coordinates and keeps both fractions of a pixel, as game code that
@@ -33,7 +33,13 @@ public readonly record struct FixedPosition<TSpace>(FixedCoordinate X, FixedCoor
 
     /// <summary>Keeps both whole-pixel coordinates and takes both fractions of a pixel from <paramref name="source"/>.</summary>
     public FixedPosition<TSpace> WithFractionsOf(FixedPosition<TSpace> source) =>
-        new(X.WithFraction(source.X.Fraction), Y.WithFraction(source.Y.Fraction));
+        new(X.WithFraction(source.X.FractionOfPixel), Y.WithFraction(source.Y.FractionOfPixel));
+
+    /// <summary>
+    /// Keeps both whole-pixel coordinates and clears both fractions of a pixel (#2555), as game code that places a thing
+    /// on its whole pixels does.
+    /// </summary>
+    public FixedPosition<TSpace> WithoutFractions() => new(X.WithoutFraction(), Y.WithoutFraction());
 
     /// <summary>Replaces the X axis.</summary>
     public FixedPosition<TSpace> WithX(FixedCoordinate x) => this with { X = x };
@@ -60,10 +66,10 @@ public readonly record struct FixedPosition<TSpace>(FixedCoordinate X, FixedCoor
     public FixedPosition<TSpace> WithWrappedWholeY(int whole) => WithY(Y.WithWrappedWhole(whole));
 
     /// <summary>Replaces only the X fraction of a pixel, as game code that sets only the fraction does.</summary>
-    public FixedPosition<TSpace> WithFractionX(int fraction) => WithX(X.WithFraction(fraction));
+    public FixedPosition<TSpace> WithFractionX(PixelFraction fraction) => WithX(X.WithFraction(fraction));
 
     /// <summary>Replaces only the Y fraction of a pixel, as game code that sets only the fraction does.</summary>
-    public FixedPosition<TSpace> WithFractionY(int fraction) => WithY(Y.WithFraction(fraction));
+    public FixedPosition<TSpace> WithFractionY(PixelFraction fraction) => WithY(Y.WithFraction(fraction));
 
     /// <summary>Translates the whole pixels by a signed offset (<see cref="CoordinateAxis.Wrap"/>); the fractions of a pixel are unchanged.</summary>
     public static FixedPosition<TSpace> operator +(FixedPosition<TSpace> position, Offset16<TSpace> offset) =>
@@ -74,16 +80,16 @@ public readonly record struct FixedPosition<TSpace>(FixedCoordinate X, FixedCoor
         position.WithWhole(position.Whole - offset);
 
     /// <summary>Moves only the X axis by <paramref name="delta"/>, the fraction's overflow passing on to the whole pixels, which wrap.</summary>
-    public FixedPosition<TSpace> AdvanceX(SignedSixteenSixteen delta) => WithX(delta.AddTo(X.Whole, X.Fraction));
+    public FixedPosition<TSpace> AdvanceX(SignedSixteenSixteen delta) => WithX(X.MovedBy(delta));
 
     /// <summary>Moves only the Y axis by <paramref name="delta"/>, the fraction's overflow passing on to the whole pixels, which wrap.</summary>
-    public FixedPosition<TSpace> AdvanceY(SignedSixteenSixteen delta) => WithY(delta.AddTo(Y.Whole, Y.Fraction));
+    public FixedPosition<TSpace> AdvanceY(SignedSixteenSixteen delta) => WithY(Y.MovedBy(delta));
 
     /// <summary>Moves each axis by its velocity, the fraction's overflow passing on to the whole pixels, which wrap.</summary>
-    public FixedPosition<TSpace> MovedBy(EightEightVector<TSpace> velocity) =>
+    public FixedPosition<TSpace> MovedBy(PixelVelocity<TSpace> velocity) =>
         WithX(X.MovedBy(velocity.X)).WithY(Y.MovedBy(velocity.Y));
 
     /// <summary>Applies a displacement on each axis, the fraction's overflow passing on to the whole pixels, which wrap.</summary>
     public FixedPosition<TSpace> Advance(FixedVector<TSpace> displacement) =>
-        new(displacement.X.AddTo(X.Whole, X.Fraction), displacement.Y.AddTo(Y.Whole, Y.Fraction));
+        new(X.MovedBy(displacement.X), Y.MovedBy(displacement.Y));
 }

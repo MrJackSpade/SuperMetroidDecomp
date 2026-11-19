@@ -70,12 +70,12 @@ internal static class GroundedSpreadTransitionVerification
             }
             runtime.StepFrame(input);
             if (trace is not null)
-                AssertEqual(trace.ReadLine(), $"{(left ? 1 : 0)},{scenario},{frame},{ControllerWordCodec.ToJoypadWord(input):X8},{(int)SamusPoseNumbers.Number(samus.Pose):X4},{samus.Position.Y.Whole:X4},{samus.BeamCharge.FlareCounter:X4},{samus.BombSpreadChargeTimeoutCounter:X4},{runtime.BombProjectiles.BombCounter:X4}",
+                AssertEqual(trace.ReadLine(), $"{(left ? 1 : 0)},{scenario},{frame},{ControllerWordCodec.ToJoypadWord(input):X8},{(int)SamusPoseNumbers.Number(samus.Pose):X4},{samus.Position.Y.Whole:X4},{samus.BeamCharge.FlareCounter:X4},{samus.BombSpreadCharge.Age:X4},{runtime.BombProjectiles.BombCounter:X4}",
                     $"native/runtime charge-preserving unmorph frame {frame}");
             if (frame == 99)
             {
                 AssertEqual(77, samus.BeamCharge.FlareCounter, "beam charge earned before morph stays intact while holding Down");
-                AssertEqual(17, samus.BombSpreadChargeTimeoutCounter, "hold counter advances only after morph animation");
+                AssertEqual(17, samus.BombSpreadCharge.Age, "hold counter advances only after morph animation");
             }
             if (frame is >= 100 and <= 105 && scenario != 3)
                 AssertEqual(left ? SamusPoseId.UnmorphingTransitionLeftPose : SamusPoseId.UnmorphingTransitionRightPose,

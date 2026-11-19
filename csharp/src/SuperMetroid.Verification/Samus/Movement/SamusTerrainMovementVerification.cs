@@ -350,7 +350,7 @@ internal static void VerifySamusBlockCollision()
             spikeSamus.InvincibilityTimer.RawValue,
             $"spike-block BTS ${spikeBehavior:X2} publishes invincibility timer");
         AssertEqual(expectedDamage == 0 ? 0 : SpikeHazardDefinitions.KnockbackFrames,
-            spikeSamus.KnockbackTimer,
+            spikeSamus.KnockbackHold.UpdatesLeft,
             $"spike-block BTS ${spikeBehavior:X2} publishes knockback timer");
         AssertEqual(KnockbackHorizontalDirection.Left, spikeSamus.KnockbackXDirection,
             $"right-facing spike-block BTS ${spikeBehavior:X2} knocks left");
@@ -756,7 +756,7 @@ internal static void VerifySamusGroundedReversal()
     // pending until the transition seam; applying it initializes pose $02 frame zero.
     for (int tick = 0; tick < 6; tick++)
         SamusPresentation.Animate(animatedTurn, new SamusAnimationStep { Random = new SharedRandom() });
-    AssertEqual(SamusPoseId.FacingLeftNormalPose, (animatedTurn.PendingTransitionalPose ?? throw new InvalidOperationException("Verification requires animatedTurn.PendingTransitionalPose.")), "turn $F8 publishes left-standing pose");
+    AssertEqual(SamusPoseId.FacingLeftNormalPose, (animatedTurn.CuePose.Named ?? throw new InvalidOperationException("Verification requires animatedTurn.CuePose.Named.")), "turn $F8 publishes left-standing pose");
     AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(animatedTurn), "turn animation transition applies");
     AssertEqual(SamusPoseId.FacingLeftNormalPose, animatedTurn.Pose, "turn animation ends facing left");
     AssertEqual(0, animatedTurn.AnimationNumber, "turn completion resets animation frame");
@@ -872,7 +872,7 @@ internal static void VerifySamusGroundedReversal()
 
         for (int tick = 0; tick < 6; tick++)
             SamusPresentation.Animate(aimedTurn, new SamusAnimationStep { Random = new SharedRandom() });
-        AssertEqual(testCase.Destination, (aimedTurn.PendingTransitionalPose ?? throw new InvalidOperationException("Verification requires aimedTurn.PendingTransitionalPose.")), $"aimed turn publishes destination case {caseIndex}");
+        AssertEqual(testCase.Destination, (aimedTurn.CuePose.Named ?? throw new InvalidOperationException("Verification requires aimedTurn.CuePose.Named.")), $"aimed turn publishes destination case {caseIndex}");
         AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(aimedTurn), $"aimed turn transition applies case {caseIndex}");
         AssertEqual(testCase.Destination, aimedTurn.Pose, $"aimed turn destination case {caseIndex}");
         AssertEqual(0, aimedTurn.AnimationNumber, $"aimed turn target frame zero case {caseIndex}");
@@ -973,8 +973,7 @@ internal static void VerifySamusGroundedReversal()
             var airborneCrouchedTurn = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = testCase.SelectedTurn };
             airborneCrouchedTurn.Kinematics.Position = airborneCrouchedTurn.Kinematics.Position.WithWhole(new(64, 32));
             airborneCrouchedTurn.Kinematics.Radius = new(5, 16);
-            airborneCrouchedTurn.Kinematics.YDirection = SamusVerticalDirection.Up;
-            airborneCrouchedTurn.Kinematics.YSpeed = airborneCrouchedTurn.Kinematics.YSpeed.WithWhole(1);
+            airborneCrouchedTurn.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(airborneCrouchedTurn.Kinematics.VerticalVelocity.Speed.WithWhole(1), SamusVerticalDirection.Up);
             FixedCoordinate airborneYBefore = airborneCrouchedTurn.Kinematics.Position.Y;
             SamusAerialMovement.StepTurningInAir(
 
@@ -987,7 +986,7 @@ internal static void VerifySamusGroundedReversal()
 
         for (int tick = 0; tick < 6; tick++)
             SamusPresentation.Animate(crouchedTurn, new SamusAnimationStep { Random = new SharedRandom() });
-        AssertEqual(testCase.Destination, (crouchedTurn.PendingTransitionalPose ?? throw new InvalidOperationException("Verification requires crouchedTurn.PendingTransitionalPose.")), $"crouched turn publishes destination case {caseIndex}");
+        AssertEqual(testCase.Destination, (crouchedTurn.CuePose.Named ?? throw new InvalidOperationException("Verification requires crouchedTurn.CuePose.Named.")), $"crouched turn publishes destination case {caseIndex}");
         AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(crouchedTurn), $"crouched turn transition applies case {caseIndex}");
         AssertEqual(testCase.Destination, crouchedTurn.Pose, $"crouched turn destination case {caseIndex}");
     }
@@ -1550,14 +1549,14 @@ internal static void VerifySamusMoonwalking()
     // `$91:F8F3-$F903` is specific to a turn whose PREVIOUS movement type is Moonwalk.
     // It hands over the source pose's shot direction; ordinary standing turns, including
     // the disabled-option substitution above, must not hand over a shot.
-    AssertEqual<SamusTransitionShot?>(null, disabled.PendingTransitionShot,
+    AssertEqual<SamusTransitionShot?>(null, disabled.TransitionShot.Handed,
         "ordinary standing turn does not publish moonwalk shot bridge");
     var moonwalkBridge = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MoonwalkFacingRightPose };
     SamusGroundedPoseTransitions.ApplyGroundedTurn(moonwalkBridge, SamusPoseId.TurningRightToLeftPose);
-    AssertEqual<SamusTransitionShot?>(new SamusTransitionShot(SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Right), moonwalkBridge.PendingTransitionShot,
+    AssertEqual<SamusTransitionShot?>(new SamusTransitionShot(SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Right), moonwalkBridge.TransitionShot.Handed,
         "moonwalk turn hands over the source shot direction");
-    SamusAerialPoseTransitions.DropPendingTransitionShot(moonwalkBridge);
-    AssertEqual<SamusTransitionShot?>(null, moonwalkBridge.PendingTransitionShot,
+    SamusAerialPoseTransitions.DropTransitionShot(moonwalkBridge);
+    AssertEqual<SamusTransitionShot?>(null, moonwalkBridge.TransitionShot.Handed,
         "moonwalk shot bridge is one-current-handler state");
 
     // Enabled entry must preserve every exact candidate, not merely the unaimed pair.
@@ -1663,11 +1662,11 @@ floor, walker, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksa
         SamusGroundedPoseTransitions.ApplyMoonwalkTurnJump(turn, target);
         AssertEqual<SamusTransitionShot?>(new SamusTransitionShot(sourceMuzzleDirection
                 ?? throw new InvalidOperationException($"Moonwalk pose {source} names no aim.")),
-            turn.PendingTransitionShot, "all six Moonwalk jump routes publish their original muzzle direction");
+            turn.TransitionShot.Handed, "all six Moonwalk jump routes publish their original muzzle direction");
         AssertEqual(target, turn.Pose, $"moonwalk ${SamusPoseNumbers.Number(source):X2} selects exact turn ${SamusPoseNumbers.Number(target):X2}");
         AssertEqual(SamusAccelerationMode.Turning, turn.HorizontalSpeed.AccelerationMode,
             $"moonwalk turn ${SamusPoseNumbers.Number(target):X2} preserves reversal mode");
-        AssertEqual(SamusVerticalDirection.None, turn.Kinematics.YDirection,
+        AssertEqual(SamusVerticalDirection.None, turn.Kinematics.VerticalVelocity.Direction,
             $"moonwalk turn ${SamusPoseNumbers.Number(target):X2} remains grounded before completion");
     }
 
@@ -1677,17 +1676,17 @@ floor, walker, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksa
     SamusGroundedPoseTransitions.ApplyMoonwalkTurnJump(animated, SamusPoseId.MoonwalkTurnJumpLeftPose);
     for (int tick = 0; tick < 6; tick++)
         SamusPresentation.Animate(animated, new SamusAnimationStep { Random = new SharedRandom() });
-    AssertEqual(SamusPoseId.SpinJumpLeftPose, (animated.PendingTransitionalPose ?? throw new InvalidOperationException("Verification requires animated.PendingTransitionalPose.")),
+    AssertEqual(SamusPoseId.SpinJumpLeftPose, (animated.CuePose.Named ?? throw new InvalidOperationException("Verification requires animated.CuePose.Named.")),
         "moonwalk turn publishes literal spin-left operand");
     AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(animated),
         "moonwalk terminal spin transition applies");
     AssertEqual(SamusPoseId.SpinJumpLeftPose, animated.Pose,
         "moonwalk terminal command enters spin jump");
-    AssertEqual(0, animated.Kinematics.YSpeed.Whole,
+    AssertEqual(0, animated.Kinematics.VerticalVelocity.Speed.Whole,
         "moonwalk animation command bypasses jump-speed initialization");
-    AssertEqual(0, animated.Kinematics.YSpeed.Fraction,
+    AssertEqual(0, animated.Kinematics.VerticalVelocity.Speed.Fraction,
         "moonwalk animation command preserves vertical subspeed");
-    AssertEqual(SamusVerticalDirection.None, animated.Kinematics.YDirection,
+    AssertEqual(SamusVerticalDirection.None, animated.Kinematics.VerticalVelocity.Direction,
         "moonwalk animation command preserves direction-none for Moonfall");
 
     Console.WriteLine("  Moonwalk: option gate, six stable routes, reversed X, fallback, and $BF-$C4 jump art agree.");

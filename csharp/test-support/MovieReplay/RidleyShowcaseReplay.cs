@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.TestSupport.Assertions;
 using static SuperMetroid.TestSupport.MovieReplay.RidleySamusDrawReference;
@@ -359,7 +360,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             Check("PreviousHealthForHurtCheck", SamusCountWords.Encode(samus.PreviousHealthForHurtCheck), NativeSnapshotMemory.SamusPreviousHealthForFlash);
             VerificationAssertions.AssertTrue(!samus.InputSnapshot.ShinesparkPoseInputLocked && !samus.InputSnapshot.CrystalFlashPoseInputLocked,
                 "Movie now uses a special pose-input lock; map its handler explicitly");
-            Check("Samus input handler", samus.InputSnapshot.AutoJumpInputPending
+            Check("Samus input handler", samus.InputSnapshot.AutoJump.IsInstalled
                 ? NativeSnapshotMemory.SamusAutoJumpInputHandler : NativeSnapshotMemory.SamusNormalInputHandler,
                 NativeSnapshotMemory.SamusInputHandler);
 
@@ -374,9 +375,9 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             Check("Samus base fraction", samus.HorizontalSpeed.BaseSpeed.Fraction, NativeSnapshotMemory.BaseFraction);
             Check("Samus extra speed", samus.HorizontalSpeed.ExtraRunSpeed.Whole, NativeSnapshotMemory.ExtraSpeed);
             Check("Samus extra fraction", samus.HorizontalSpeed.ExtraRunSpeed.Fraction, NativeSnapshotMemory.ExtraFraction);
-            Check("Samus vertical speed", samus.Kinematics.YSpeed.Whole, NativeSnapshotMemory.VerticalSpeed);
-            Check("Samus vertical fraction", samus.Kinematics.YSpeed.Fraction, NativeSnapshotMemory.VerticalFraction);
-            Check("Samus vertical direction", SamusVerticalDirectionCodec.ToNative(samus.Kinematics.YDirection), NativeSnapshotMemory.VerticalDirection);
+            Check("Samus vertical speed", samus.Kinematics.VerticalVelocity.Speed.Whole, NativeSnapshotMemory.VerticalSpeed);
+            Check("Samus vertical fraction", samus.Kinematics.VerticalVelocity.Speed.Fraction, NativeSnapshotMemory.VerticalFraction);
+            Check("Samus vertical direction", SamusVerticalDirectionCodec.ToNative(samus.Kinematics.VerticalVelocity.Direction), NativeSnapshotMemory.VerticalDirection);
             Check("Samus SamusXRadius", samus.Kinematics.Radius.X, NativeSnapshotMemory.SamusXRadius);
             Check("Samus SamusYRadius", samus.Kinematics.Radius.Y, NativeSnapshotMemory.SamusYRadius);
             Check("Samus Gravity", samus.Kinematics.YAcceleration.Whole, NativeSnapshotMemory.Gravity);
@@ -426,7 +427,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
 
             Check("Samus health", SamusCountWords.Encode(samus.Health), NativeSnapshotMemory.Health);
             Check("Samus general Samus damage immunity countdown", samus.InvincibilityTimer.RawValue, NativeSnapshotMemory.InvincibilityTimer);
-            Check("Samus Samus knockback countdown", samus.KnockbackTimer, NativeSnapshotMemory.KnockbackTimer);
+            Check("Samus Samus knockback countdown", samus.KnockbackHold.UpdatesLeft, NativeSnapshotMemory.KnockbackTimer);
             Check("Samus Samus knockback direction", SuperMetroid.Core.Samus.Movement.SamusMovementNativeWords.KnockbackDirections.Word(samus.KnockbackDirection), NativeSnapshotMemory.KnockbackDirection);
             Check("Samus horizontal knockback direction", (ushort)samus.KnockbackXDirection, NativeSnapshotMemory.KnockbackXDirection);
             Check("Samus hurt palette/audio recovery countdown", checked((ushort)samus.HurtFlash.Count), NativeSnapshotMemory.HurtFlashCounter);
@@ -536,10 +537,10 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check(owner + " PaletteRow", NativeSpriteGraphicsWords.PaletteBits(actor.PaletteRowIn(runtime.Enemies)), address + 30);
                 // The port's slots carry no tile index (#1513); the index the import composes the occupant's sheet at is compared.
                 Check(owner + " TileIndexBase", actor.NativeTileBaseIn(runtime.Enemies), address + 32);
-                Check(owner + " FlashTimer", actor.FlashTimer, address + 36);
-                Check(owner + " FrozenTimer", actor.FrozenTimer, address + 38);
-                Check(owner + " InvincibilityTimer", actor.InvincibilityTimer, address + 40);
-                Check(owner + " ShakeTimer", actor.ShakeTimer, address + 42);
+                Check(owner + " FlashTimer", actor.HurtFlash.UpdatesLeft, address + 36);
+                Check(owner + " FrozenTimer", actor.Freeze.UpdatesLeft, address + 38);
+                Check(owner + " InvincibilityTimer", actor.Invincibility.UpdatesLeft, address + 40);
+                Check(owner + " ShakeTimer", actor.Shake.UpdatesLeft, address + 42);
                 // A breakup fragment's count only flickers it; the cartridge keeps only that phase of it (#1940).
                 if (actor.DefinitionId == EnemyDefinitionId.RidleyBreakupPiece)
                     CheckValue(owner + " flicker phase", actor.FrameCounter & 1, W(address + 44) & 1);
@@ -563,14 +564,14 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 // Once the reveal ends, the cartridge's timer keeps the reload of its last step, which no phase reads; the port
                 // keeps no such value, so the timer is compared only where a phase runs it.
                 int? expectedTimer = ridleyState.LiftedOff
-                    ? NorfairRidleyRunsPhaseTimer(ridleyState.Phase) ? ridleyState.PhaseTimer.Count : null
+                    ? NorfairRidleyRunsPhaseTimer(ridleyState.Phase) ? ridleyState.PhaseTimer.CartridgeCount : null
                     : ridleyState.RevealPhase switch
                     {
                         RidleyRevealPhase.FadeInEyes => 0,
                         RidleyRevealPhase.FadeInBody => ridleyState.BodyFade.UpdatesLeft == 1 ? 1 : 0,
                         RidleyRevealPhase.WaitBeforeLiftoff => ridleyState.ArenaReveal.UpdatesLeft - 1,
                         RidleyRevealPhase.WaitForDoorTransition or RidleyRevealPhase.InitialDelay or RidleyRevealPhase.WaitBeforeRoar =>
-                            ridleyState.PhaseTimer.Count,
+                            ridleyState.PhaseTimer.CartridgeCount,
                         RidleyRevealPhase.TakingOff => null,
                         _ => throw new InvalidOperationException($"Undefined {nameof(RidleyRevealPhase)} {ridleyState.RevealPhase}."),
                     };
@@ -578,7 +579,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     Check("Ridley AI timer", unchecked((ushort)timer), NativeSnapshotMemory.RidleyFunctionTimer);
                 Check("Ridley TailFunctionIndex", RidleyNativeWords.TailActions.Word(ridleyState.Tail.Action), NativeSnapshotMemory.RidleyTailFunctionIndex);
                 Check("Ridley IdleTailWhipEnabled", ridleyState.Tail.IdleWhipEnabled ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyIdleTailWhipEnabled);
-                Check("Ridley TailWhipRequest", ridleyState.Tail.WhipRequested ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyTailWhipRequest);
+                Check("Ridley TailWhipRequest", ridleyState.Tail.Whip.IsWaiting ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyTailWhipRequest);
                 Check("Ridley TailExtensionSpeed", ridleyState.Tail.ExtensionSpeed.RawValue, NativeSnapshotMemory.RidleyTailExtensionSpeed);
                 Check("Ridley TailAngleDelta", checked((ushort)ridleyState.Tail.SwingStep.Steps), NativeSnapshotMemory.RidleyTailAngleDelta);
                 Check("Ridley TailMinimumClockwiseAngle", RidleyTailNativeWords.Angle(ridleyState.Tail.MinimumClockwiseAngle), NativeSnapshotMemory.RidleyTailMinimumClockwiseAngle);
@@ -599,7 +600,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check("Ridley TailDamage", checked((ushort)ridleyState.Tail.Damage), NativeSnapshotMemory.RidleyTailDamage);
                 Check("Ridley FeetDistanceIndex", checked((ushort)RidleyClawHeightPlaces.ByteOffset(ridleyState.Flight.ClawHeight)), NativeSnapshotMemory.RidleyFeetDistanceIndex);
                 // The cartridge counts the release's intangibility down to zero, one above what the countdown holds, and holds zero while none runs.
-                Check("Ridley IntangibilityTimer", ridleyState.ReleaseIntangibility is { } intangibility ? checked((ushort)(intangibility.Count + 1)) : (ushort)0, NativeSnapshotMemory.RidleyIntangibilityTimer);
+                Check("Ridley IntangibilityTimer", ridleyState.ReleaseIntangibility is { } intangibility ? checked((ushort)intangibility.UpdatesLeft) : (ushort)0, NativeSnapshotMemory.RidleyIntangibilityTimer);
                 if (ridleyState.LiftedOff && ridleyState.Phase is NorfairRidleyPhase.SwoopMoveToStart or
                     NorfairRidleyPhase.SwoopAimDown or NorfairRidleyPhase.SwoopAimSideways or
                     NorfairRidleyPhase.SwoopAimUp or NorfairRidleyPhase.SwoopClimb or NorfairRidleyPhase.SwoopRecover)
@@ -675,7 +676,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     // The cartridge keeps a pending projectile hit in the loop counter's storage; a pending hit is
                     // compared as the family the recorded word decodes to. A grey cap counts no loops of its own, its
                     // repeated flashes being steps of its sequence, so the counter is not compared otherwise.
-                    if (typedDoor.PendingHit is { } pendingHit)
+                    if (typedDoor.AwaitingStrike is { } pendingHit)
                     {
                         SamusProjectileFamily recordedHit = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(W(NativeSnapshotMemory.RoomObjectLoopTimer + offset)).Family;
                         if (recordedHit != pendingHit.Family)
@@ -727,7 +728,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check("Beam charge", SamusSnapshotWords.EncodeBeamCharge(runtime.Projectiles.Charge.Level), NativeSnapshotMemory.BeamCharge);
                 Check("ProjectileCounter", runtime.Projectiles.Pool.ShotCount.Count, NativeSnapshotMemory.ProjectileCount);
                 Check("PreviousBeamChargeCounter", SamusSnapshotWords.EncodeBeamCharge(runtime.Projectiles.Charge.PreviousCharge), NativeSnapshotMemory.PreviousCharge);
-                Check("InteractionImmunityUpdatesLeft", runtime.Projectiles.Firing.InteractionImmunityUpdatesLeft, NativeSnapshotMemory.ProjectileInteractionImmunity);
+                Check("InteractionImmunityUpdatesLeft", runtime.Projectiles.Firing.InteractionImmunity.UpdatesLeft, NativeSnapshotMemory.ProjectileInteractionImmunity);
                 Check("ChargedShotGlowTimer", SamusSnapshotWords.EncodeChargedShotGlow(runtime.Projectiles.Charge.ChargedShotGlow), NativeSnapshotMemory.ChargedShotGlow);
                 Check("ChargeGlowStep", runtime.Projectiles.Charge.ChargeGlowStep * sizeof(ushort), NativeSnapshotMemory.ChargePaletteIndex);
                 Check("BombCounter", runtime.BombProjectiles.BombCounter, NativeSnapshotMemory.BombCount);
@@ -747,12 +748,12 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 VerificationAssertions.AssertTrue(W(NativeSnapshotMemory.PowerBombArmedFlag) == 0 &&
                     W(NativeSnapshotMemory.PowerBombExplosionStatus) == 0,
                     "Movie now activates a power bomb; add its full live-state mapping");
-                Check("BombSpreadChargeTimeoutCounter", checked((ushort)samus.BombSpreadChargeTimeoutCounter), NativeSnapshotMemory.BombSpreadChargeTimeout);
-                if (samus.PendingTransitionShot != SamusSnapshotWords.DecodeTransitionShot(W(NativeSnapshotMemory.PoseShotDirection)))
-                    mismatches.Add($"PendingTransitionShot: native={W(NativeSnapshotMemory.PoseShotDirection):X4} port={samus.PendingTransitionShot}");
+                Check("BombSpreadChargeTimeoutCounter", checked((ushort)samus.BombSpreadCharge.Age), NativeSnapshotMemory.BombSpreadChargeTimeout);
+                if (samus.TransitionShot.Handed != SamusSnapshotWords.DecodeTransitionShot(W(NativeSnapshotMemory.PoseShotDirection)))
+                    mismatches.Add($"PendingTransitionShot: native={W(NativeSnapshotMemory.PoseShotDirection):X4} port={samus.TransitionShot.Handed}");
                 Check("HyperBeam", SamusSnapshotWords.EncodeHyperBeam(samus.HyperBeamEnabled), NativeSnapshotMemory.HyperBeam);
-                if (samus.ResumeChargingBeamSoundPending != SamusSnapshotWords.DecodeResumeChargingBeamSound(W(NativeSnapshotMemory.ResumeChargeSound)))
-                    mismatches.Add($"ResumeChargingBeamSound: native={W(NativeSnapshotMemory.ResumeChargeSound):X4} port={samus.ResumeChargingBeamSoundPending}");
+                if (samus.ChargingSound.IsArmed != SamusSnapshotWords.DecodeResumeChargingBeamSound(W(NativeSnapshotMemory.ResumeChargeSound)))
+                    mismatches.Add($"ResumeChargingBeamSound: native={W(NativeSnapshotMemory.ResumeChargeSound):X4} port={samus.ChargingSound.IsArmed}");
 
             }
             if (game.GameState == SuperMetroidGameState.MainGameplay)
@@ -813,7 +814,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 // A Super Missile's link never sets or reads its trail timer, on the cartridge or here; the cartridge's word is
                 // whatever the place's previous projectile left, which a fresh link does not inherit (#1590).
                 if (projectile.Behavior != SamusShotBehaviors.SuperMissileLink)
-                    Check(owner + " TrailTimer", projectile.TrailUpdatesLeft
+                    Check(owner + " TrailTimer", projectile.Trail?.UpdatesLeft
                         ?? throw new InvalidDataException($"{owner} leaves no trail, which no projectile this movie reaches does."),
                         NativeSnapshotMemory.ProjectileTrailTimer + index);
                 // No Spazer phase is compared: only a Spazer special attack's particles have one, they set it before
@@ -823,14 +824,17 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 CheckValue(owner + " Spritemap", unchecked((ushort)projectile.SpritemapPointer), nativeSpritemap == 0 ? 0 : global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(nativeSpritemap));
             }
             if (game.GameState == SuperMetroidGameState.MainGameplay)
-            foreach (var projectile in runtime.Enemies.Projectiles.EnemyProjectiles)
+            for (int place = 0; place < SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine.PlaceCount; place++)
             {
-                int index = projectile.Place * 2;
-                string owner = $"Enemy projectile {projectile.Place}";
-                // Identical cartridge definitions that differ only in their way or look name one kind (#2278).
-                Check(owner + " identity", EnemyProjectileNativeWords.IdentityWord(projectile.Kind, W(NativeSnapshotMemory.EnemyProjectileId + index)),
+                int index = place * 2;
+                string owner = $"Enemy projectile {place}";
+                EnemyProjectile? latest = runtime.Enemies.Projectiles.LatestInPlace(place);
+                // Identical cartridge definitions that differ only in their way or look name one kind (#2278); a place the room
+                // has spawned nothing into holds none.
+                Check(owner + " identity", EnemyProjectileNativeWords.IdentityWord(latest?.Kind ?? RoomEnemyProjectileKind.None,
+                        W(NativeSnapshotMemory.EnemyProjectileId + index)),
                     NativeSnapshotMemory.EnemyProjectileId + index);
-                if (!projectile.IsActive || W(NativeSnapshotMemory.EnemyProjectileId + index) == 0) continue;
+                if (latest is not { IsActive: true } projectile || W(NativeSnapshotMemory.EnemyProjectileId + index) == 0) continue;
                 Check(owner + " X", projectile.Position.X.Whole, NativeSnapshotMemory.EnemyProjectileX + index);
                 Check(owner + " Y", projectile.Position.Y.Whole, NativeSnapshotMemory.EnemyProjectileY + index);
                 // The port holds a tile base and colouring; they are compared, with the row holding the colouring, as the native
@@ -1102,7 +1106,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
     private static ushort NativeSwoopTimer(NorfairRidleyState ridley) =>
         ridley.Phase == NorfairRidleyPhase.SwoopMoveToStart
             ? NativeSwoopSetupTimer
-            : checked((ushort)ridley.SwoopPhaseTimer.Count);
+            : checked((ushort)ridley.SwoopPhaseTimer.CartridgeCount);
 
     /// <summary>
     /// Whether Lower Norfair Ridley's <paramref name="phase"/> runs his phase countdown (#2409): every such phase is entered

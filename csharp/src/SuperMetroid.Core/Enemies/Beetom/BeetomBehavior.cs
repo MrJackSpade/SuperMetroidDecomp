@@ -66,7 +66,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         BeetomEnemyState state = _inheritance.Inherit(place.Ordinal, static previous => new BeetomEnemyState(previous, BeetomAction.DecideAction));
         place.SetSpeciesState(state);
 
-        state.ActionTimer = 0;
+        state.ActionTimer = UpdateCountdown.Ended();
         state.AttachedToSamus = false;
         state.ButtonCounter = BeetomMotionDefinitions.MashCount;
         state.LastSeenPlayerActions = controllerInput;
@@ -102,7 +102,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 ChooseDistantBeetomAction(state);
                 return;
             case BeetomAction.StartIdling:
-                state.ActionTimer = BeetomMotionDefinitions.IdleDuration;
+                state.ActionTimer = UpdateCountdown.For(BeetomMotionDefinitions.IdleDuration);
                 state.Action = BeetomAction.Idling;
                 return;
             case BeetomAction.StartCrawling:
@@ -128,7 +128,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Action = BeetomAction.BeingFlung;
                 return;
             case BeetomAction.Idling:
-                if (--state.ActionTimer <= 0)
+                if (state.ActionTimer.Step())
                     state.Action = BeetomAction.DecideAction;
                 return;
             case BeetomAction.Crawling:
@@ -266,9 +266,9 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Probes eight pixels ahead for a ledge, then crawls or reverses at terrain.</summary>
     private void RunBeetomCrawl(RoomEnemyPlace place, BeetomEnemyState state, RoomLevelData level, HorizontalDirection direction)
     {
-        if (--state.ActionTimer <= 0)
+        if (state.ActionTimer.Step())
         {
-            state.ActionTimer = BeetomMotionDefinitions.CrawlDuration;
+            state.ActionTimer = UpdateCountdown.For(BeetomMotionDefinitions.CrawlDuration);
             state.Action = BeetomAction.DecideAction;
             return;
         }
@@ -276,7 +276,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         // The ledge probe temporarily moves the center ahead, then performs a real downward
         // collision move. Restore only the whole pixels: where the collision left it within a pixel stays, just as
         // the game does.
-        int reach = direction == HorizontalDirection.Left ? -BeetomMotionDefinitions.LedgeProbeReach : BeetomMotionDefinitions.LedgeProbeReach;
+        int reach = BeetomMotionDefinitions.LedgeProbeReach.Toward(direction);
         place.Position = place.Position.WithWholeX(place.Position.X.Whole + reach);
         if (!_terrain.MoveEnemyVertically(level, place, SignedSixteenSixteen.FromWholePixels(BeetomMotionDefinitions.LedgeProbeDrop)))
         {
@@ -287,7 +287,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         place.Position = place.Position.WithWholeX(place.Position.X.Whole - reach);
-        SignedSixteenSixteen displacement = direction == HorizontalDirection.Left ? -BeetomMotionDefinitions.CrawlSpeed : BeetomMotionDefinitions.CrawlSpeed;
+        SignedSixteenSixteen displacement = BeetomMotionDefinitions.CrawlSpeed.Toward(direction);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, displacement))
             state.Begin(BeetomAction.StartCrawling, direction.Reversed());
     }
@@ -307,8 +307,8 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         // the AI action. That ordering is easy to lose when expressing the two axes
         // as a single combined movement vector.
         SignedSixteenSixteen displacement = arc == BeetomArcKind.Lunge
-            ? (direction == HorizontalDirection.Left ? -BeetomMotionDefinitions.LungeSpeed : BeetomMotionDefinitions.LungeSpeed)
-            : (direction == HorizontalDirection.Left ? -BeetomMotionDefinitions.HopSpeed : BeetomMotionDefinitions.HopSpeed);
+            ? (BeetomMotionDefinitions.LungeSpeed.Toward(direction))
+            : (BeetomMotionDefinitions.HopSpeed.Toward(direction));
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, displacement))
             return;
 
@@ -375,11 +375,11 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Escape throws the Beetom away. A wall reverses the direction and applies the rebound,
         // producing the net throw to the other side rather than merely cancelling the first displacement.
-        SignedSixteenSixteen initialDisplacement = SignedSixteenSixteen.FromWholePixels(side == HorizontalDirection.Left ? BeetomMotionDefinitions.EscapeThrow : -BeetomMotionDefinitions.EscapeThrow);
+        SignedSixteenSixteen initialDisplacement = SignedSixteenSixteen.FromWholePixels(BeetomMotionDefinitions.EscapeThrow.Toward(side.Reversed()));
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, initialDisplacement))
         {
             state.Facing = side.Reversed();
-            SignedSixteenSixteen reflectedDisplacement = SignedSixteenSixteen.FromWholePixels(side == HorizontalDirection.Left ? -BeetomMotionDefinitions.EscapeRebound : BeetomMotionDefinitions.EscapeRebound);
+            SignedSixteenSixteen reflectedDisplacement = SignedSixteenSixteen.FromWholePixels(BeetomMotionDefinitions.EscapeRebound.Toward(side));
             _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, reflectedDisplacement);
         }
         state.AttachedToSamus = false;
@@ -404,7 +404,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The facing is the pre-escape facing. The throw deliberately travels in the
         // opposite direction: facing left moves right and facing right moves left.
-        SignedSixteenSixteen horizontal = state.Facing == HorizontalDirection.Right ? -BeetomMotionDefinitions.FlungSpeed : BeetomMotionDefinitions.FlungSpeed;
+        SignedSixteenSixteen horizontal = BeetomMotionDefinitions.FlungSpeed.Toward(state.Facing.Reversed());
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, horizontal))
             return;
         state.Facing = state.Facing.Reversed();
@@ -453,7 +453,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         if (place.Health == 0)
             return;
         BeetomEnemyState state = place.RequireSpeciesState<BeetomEnemyState>();
-        if (place.FrozenTimer != 0 && state.Action == BeetomAction.Draining)
+        if (place.Freeze.IsRunning && state.Action == BeetomAction.Draining)
         {
             state.Action = BeetomAction.StartDropping;
         }

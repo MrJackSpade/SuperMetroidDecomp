@@ -37,7 +37,7 @@ internal sealed class DraygonGoop
 
         RoomEnemyPlace body = state.Body;
         body.Position = body.Position.WithWhole(new(direction == HorizontalDirection.Right ? OffRoomPlaces.Place(DraygonArenaDefinitions.OffscreenLeftX) : state.RightSideResetX, DraygonArenaDefinitions.SwimLineY));
-        state.SwoopVelocity = UnsignedSixteenSixteen.FromWholePixels(1);
+        state.SwoopVelocity = SignedSixteenSixteen.FromWholePixels(1).Toward(direction);
         state.GoopYOscillationAngle = RotationAngle.Zero;
         state.Phase = DraygonPhase.GoopApproach;
         state.BodyPart.StartAnimation(direction == HorizontalDirection.Right
@@ -49,7 +49,6 @@ internal sealed class DraygonGoop
     /// <summary>Runs the oscillating approach.</summary>
     internal void ApproachSamusForDraygonGoop(
         DraygonEnemyState state,
-        HorizontalDirection direction,
         SamusState samus,
         int frameCounter)
     {
@@ -58,10 +57,10 @@ internal sealed class DraygonGoop
         if (DistanceAcrossRoomEdge.Between(state.Body.Position.X.Whole, samus.Position.X.Whole) < DraygonArenaDefinitions.GoopTailRange)
         {
             state.Phase = DraygonPhase.GoopTail;
-            state.GoopCounter = DraygonArenaDefinitions.GoopsPerPass;
+            state.GoopShotsLeft.LastFor(DraygonArenaDefinitions.GoopsPerPass);
             return;
         }
-        MoveDraygonAlongGoopPath(state, direction);
+        MoveDraygonAlongGoopPath(state);
     }
 
     /// <summary>Runs the firing and off-screen selection.</summary>
@@ -82,7 +81,7 @@ internal sealed class DraygonGoop
 
         if (DraygonRandomDefinitions.GoopVolleySteps.IsTakenBy(_room.Random.Read()))
         {
-            if (--state.GoopCounter == 0)
+            if (state.GoopShotsLeft.StepRunsOut())
             {
                 FinishDraygonGoopFiring(state, direction);
                 return;
@@ -92,7 +91,7 @@ internal sealed class DraygonGoop
                     : DraygonSegment.BodyFacingLeftFireGoop);
         }
 
-        MoveDraygonAlongGoopPath(state, direction);
+        MoveDraygonAlongGoopPath(state);
         int x = state.Body.Position.X.Whole;
         bool crossedExit = direction == HorizontalDirection.Right
             ? !OffRoomPlaces.LiesBeforeRoom(x) && x >= DraygonArenaDefinitions.RightSideResetDistance
@@ -124,7 +123,7 @@ internal sealed class DraygonGoop
             return;
         }
 
-        MoveDraygonAlongGoopPath(state, direction);
+        MoveDraygonAlongGoopPath(state);
         int x = state.Body.Position.X.Whole;
         bool offScreen = direction == HorizontalDirection.Right
             ? !OffRoomPlaces.LiesBeforeRoom(x) && x >= DraygonArenaDefinitions.RightSideResetDistance
@@ -132,7 +131,6 @@ internal sealed class DraygonGoop
         if (!offScreen)
             return;
 
-        state.SwoopEntry = DraygonSwoops.PathOf(state).EntryCount;
         if (direction == HorizontalDirection.Right)
         {
             state.Phase = DraygonPhase.SwoopSetup;
@@ -149,11 +147,11 @@ internal sealed class DraygonGoop
     }
 
     /// <summary>Applies the goop pass's horizontal motion and one-step Y oscillation.</summary>
-    internal static void MoveDraygonAlongGoopPath(DraygonEnemyState state, HorizontalDirection direction)
+    internal static void MoveDraygonAlongGoopPath(DraygonEnemyState state)
     {
         state.Body.Position = state.Body.Position.WithWholeY(
             DraygonArenaDefinitions.SwimLineY + EnemyMath.CircleCosinePixels(state.GoopYOscillationAngle.ToTrigonometryAngle(), DraygonArenaDefinitions.GoopSwayRadius));
         state.GoopYOscillationAngle = state.GoopYOscillationAngle.TurnedBySteps(1);
-        DraygonMovement.MoveDraygonHorizontally(state, direction);
+        DraygonMovement.MoveDraygonHorizontally(state);
     }
 }

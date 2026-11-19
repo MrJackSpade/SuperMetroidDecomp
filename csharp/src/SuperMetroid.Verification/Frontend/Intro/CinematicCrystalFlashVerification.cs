@@ -42,7 +42,7 @@ internal static class CinematicCrystalFlashVerification
                 $"Mother Brain command $18 retains Flash pointer after {movementCalls} calls");
 
             runtime.StepFrame(0);
-            AssertTrue(runtime.Player.LastCrystalFlashMovement is null,
+            AssertTrue(runtime.LatestGameplayFrame?.CrystalFlashMovement is null,
                 $"Mother Brain's locked beta suspends retained Flash after {movementCalls} calls");
             AssertEqual(phaseBefore, samus.CrystalFlash.Phase,
                 "locked beta does not discard the suspended movement pointer");
@@ -60,19 +60,18 @@ internal static class CinematicCrystalFlashVerification
         motherSamus.Health = 699;
         var motherRainbow = MotherBrainLateFightFixtures.NewSequence();
         motherRainbow.RainbowAttack.StartActiveBeam(motherSamus);
-        var motherCameraCheckpoint = new RainbowBeamCameraCheckpoint();
         bool motherUnlocked = false;
         for (ushort frame = 0; frame < 700; frame++)
         {
-            MotherBrainRainbowBeamAttackStepResult step = motherRainbow.Step(motherSamus, MotherBrainLateFightFixtures.QuietFrame(motherCameraCheckpoint, frame, frame));
+            MotherBrainRainbowBeamAttackStepResult step = motherRainbow.Step(motherSamus, MotherBrainLateFightFixtures.QuietFrame(frame, frame));
             // `$90:F117` command one clears the input lock as the beam installs LetSamusFall.
-            bool unlockedSamus = !motherSamus.Control.InputLocked && step.BeamEnded;
+            bool unlockedSamus = !motherSamus.Control.InputLocked && step.Starts(MotherBrainStepEffect.BeamEnded);
             motherRuntime.StepFrame(0);
             if (!unlockedSamus)
                 continue;
 
             motherUnlocked = true;
-            AssertTrue(motherRuntime.Player.LastCrystalFlashMovement is not null,
+            AssertTrue(motherRuntime.LatestGameplayFrame?.CrystalFlashMovement is not null,
                 "Mother Brain command-one unlock resumes retained Flash on the same beta pass");
             break;
         }
@@ -88,7 +87,7 @@ internal static class CinematicCrystalFlashVerification
         AssertEqual(DrainedSamusPhase.WaitingForFallingCue, superSamus.Drained.Phase,
             "Super Metroid terminal drain installs crouching/falling controller state");
         superRuntime.StepFrame(0);
-        AssertTrue(superRuntime.Player.LastCrystalFlashMovement is not null,
+        AssertTrue(superRuntime.LatestGameplayFrame?.CrystalFlashMovement is not null,
             "Super Metroid drained pose does not suppress retained Flash movement");
         AssertEqual(CrystalFlashPhase.DrainingAmmo, superSamus.CrystalFlash.Phase,
             "Super Metroid interruption retains Flash ammo handler");
@@ -268,7 +267,7 @@ internal static class CinematicCrystalFlashVerification
         samus.Missiles = samus.MaxMissiles = 10;
         samus.SuperMissiles = samus.MaxSuperMissiles = 10;
         samus.PowerBombs = samus.MaxPowerBombs = 10;
-        samus.Kinematics.YSpeed = default;
+        samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.Stopped();
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
 

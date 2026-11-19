@@ -61,13 +61,14 @@ internal static class EndingRewardGestureVerification
             var gesture = new EndingRewardGesture(reward);
             var maps = new HashSet<string>();
             int calls = 0;
-            while (!gesture.JumpRequested && calls < 1000)
+            bool jumped = false;
+            while (!jumped && calls < 1000)
             {
-                gesture.Step();
+                jumped = gesture.Step();
                 calls++;
                 maps.Add(Convert.ToHexString(ScreenSpritesFixtures.Frame(objects => gesture.Draw(objects, rewardSprites)).LowTable));
             }
-            AssertTrue(gesture.JumpRequested, "native reward gesture reaches jumping-actor instruction");
+            AssertTrue(jumped, "native reward gesture reaches jumping-actor instruction");
             AssertTrue(maps.Count >= 8, "reward gesture produces changing OAM, not a static idle pose");
             AssertEqual(reward == EndingReward.Suitless ? 244 : 329, calls,
                 "native ED2D/EDD3 gesture durations before jump spawn");
@@ -76,10 +77,11 @@ internal static class EndingRewardGestureVerification
             bool switched = false, firstMotion = false;
             int minimumY = jump.BodyY;
             int jumpCalls = 0;
-            while (!jump.ShotRequested && jumpCalls++ < 500)
+            bool shot = false;
+            while (!shot && jumpCalls++ < 500)
             {
                 SignedSixteenSixteen beforeVelocity = jump.VerticalVelocity;
-                jump.Step();
+                shot = jump.Step();
                 SignedSixteenSixteen launch = SignedSixteenSixteen.FromWholePixels(-16);
                 if (beforeVelocity == launch && !firstMotion)
                 {
@@ -95,7 +97,7 @@ internal static class EndingRewardGestureVerification
                     switched = true;
                 }
             }
-            AssertTrue(jump.ShotRequested && switched && firstMotion, "jump executes flight, fall, landing and shooting");
+            AssertTrue(shot && switched && firstMotion, "jump executes flight, fall, landing and shooting");
             AssertEqual(136, jump.BodyY, "native reward landing center");
             Console.WriteLine($"  {reward}: jump/landing {jumpCalls} frames, apex {minimumY}, shot request.");
         }

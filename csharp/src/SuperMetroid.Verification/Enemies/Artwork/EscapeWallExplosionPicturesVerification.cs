@@ -4,7 +4,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Enemies.OldTourianWall;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -29,7 +28,7 @@ internal static class EscapeWallExplosionPicturesVerification
         SpriteGraphics shared = SpriteGraphics.SharedIn(PictureShading.Standard);
         foreach (RoomStateSettings state in states)
         {
-            var session = new EnemySession(GameplayAudioRequests.Standalone(), InstalledFixtures.EnemyOverreads, InstalledFixtures.BossAndIntroOverreads, new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint(),
+            var session = new EnemySession(GameplayAudioRequests.Standalone(), InstalledFixtures.EnemyOverreads, InstalledFixtures.BossAndIntroOverreads,
                 InstalledFixtures.EnemySheets, InstalledFixtures.EnemyFrameDisplays);
             var presentation = new EnemyPresentation(session, new EncounterLooks(), new SharedFadeStepCount());
             // The room load draws the state's population's artwork unless its population is empty.

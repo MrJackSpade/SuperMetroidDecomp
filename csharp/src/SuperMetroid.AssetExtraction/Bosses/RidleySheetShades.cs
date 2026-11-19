@@ -18,6 +18,15 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// </summary>
 internal static class RidleySheetShades
 {
+    /// <summary>The Baby's shades in the order Ceres Ridley's sheet lists them (#2567).</summary>
+    private static readonly IReadOnlyList<CeresBabyShade> BabyShadeOrder = Ensure.EveryMemberOnce<CeresBabyShade>(
+    [
+        CeresBabyShade.Resting,
+        CeresBabyShade.HorizontalSquish,
+        CeresBabyShade.Round,
+        CeresBabyShade.VerticalSquish,
+    ]);
+
     /// <summary>The colours of one row or colour group.</summary>
     private const int Group = 16;
 
@@ -134,7 +143,7 @@ internal static class RidleySheetShades
             shades.Add(SheetShade.Run(RidleyShades.Health(RidleyHealthShadeDefinitions.LeastHurtFirst[shown]), OwnRow + 1,
                 Colours(CeresRidleyColorFormat.HealthColorCount, colour => ceres.ResolveHealth(shown, colour))));
         }
-        foreach (CeresBabyShade baby in Enum.GetValues<CeresBabyShade>())
+        foreach (CeresBabyShade baby in BabyShadeOrder)
             shades.Add(SheetShade.Run(RidleyShades.Baby(baby), BabyRow + 1,
                 Colours(CeresRidleyColorFormat.BabyColorCount, colour => ceres.ResolveBaby(baby, colour))));
         return shades;

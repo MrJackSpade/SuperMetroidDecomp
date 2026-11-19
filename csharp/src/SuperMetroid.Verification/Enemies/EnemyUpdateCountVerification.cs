@@ -35,7 +35,7 @@ internal static class EnemyUpdateCountVerification
         enemy.Processing = EnemyProcessing.None;
         enemy.Presence = EnemyPresence.None;
         enemy.FrameCounter = SixteenBitSpan - 1;
-        var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new SuperMetroid.Core.Compatibility.LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SuperMetroid.Core.Compatibility.SamusShotCount(), InstalledFixtures.SamusArtwork(), new SuperMetroid.Core.Fx.RoomEarthquake());
+        var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new SuperMetroid.Core.Compatibility.LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SuperMetroid.Core.Compatibility.SamusShotCount(), InstalledFixtures.SamusArtwork(), new SuperMetroid.Core.Fx.RoomEarthquake());
         fixture.System.StepStandaloneFrame(fixture.System.StandaloneFrame(fixture.Level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, SamusProjectiles = projectiles, SamusColours = new SamusColours() });
         AssertEqual(SixteenBitSpan, enemy.FrameCounter, "the enemy's update counts on past the original's last sixteen-bit value");
 

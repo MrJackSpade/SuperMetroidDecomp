@@ -89,7 +89,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         if (EnemyTerrain.EnemyMeetsAttachmentBlockBelow(level, place, SignedSixteenSixteen.FromWholePixels(SkreeMotionDefinitions.DiveStep)))
         {
             place.AnimationClock.Restart();
-            state.BurrowTimer = SkreeMotionDefinitions.BurrowDuration;
+            state.BurrowTimer = UpdateCountdown.For(SkreeMotionDefinitions.BurrowDuration);
             state.Action = SkreeAction.Burrowing;
             // The floor collision has its own distinct impact/burrow request.
             _audio.QueueEnemySound(EnemySound.Burrow, priority: SoundRequestPriority.Normal);
@@ -100,19 +100,19 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         // drifts it a pixel toward Samus, so the dive stays in the room.
         place.Position = place.Position.WithWholeY(place.Position.Y.Whole + SkreeMotionDefinitions.DiveStep);
         place.Position = place.Position.WithWholeX(place.Position.X.Whole +
-            (place.Position.X.Whole >= samus.Position.X.Whole ? -SkreeMotionDefinitions.DiveDrift : SkreeMotionDefinitions.DiveDrift));
+            SkreeMotionDefinitions.DiveDrift.Toward(place.Position.X.Whole >= samus.Position.X.Whole ? HorizontalDirection.Left : HorizontalDirection.Right));
     }
 
     /// <summary>Advances the 21-frame burrow, spawning debris at eight and deleting the place at zero.</summary>
     private void RunSkreeBurrow(RoomEnemyPlace place, SkreeEnemyState state)
     {
-        if (--state.BurrowTimer == 0)
+        if (state.BurrowTimer.StepEnds())
         {
             place.Presence = place.Presence.With(EnemyPresence.Deleted);
             return;
         }
 
-        if (state.BurrowTimer == SkreeMotionDefinitions.DebrisBurstAt)
+        if (state.BurrowTimer.UpdatesLeft == SkreeMotionDefinitions.DebrisBurstAt)
             SkreeMetareeParticles.SpawnBurst(_projectiles, place, SkreeMetareeParticleSegment.Skree);
         place.Position = place.Position.WithWholeY(place.Position.Y.Whole + SkreeMotionDefinitions.BurrowSink);
     }

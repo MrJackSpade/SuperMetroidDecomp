@@ -24,7 +24,7 @@ public sealed class ShitroidEnemyState
     public HorizontalDirection DepartureSide { get; internal set; }
 
     /// <summary>Velocity in pixels per update.</summary>
-    public EightEightVector<RoomPixels> Velocity { get; internal set; }
+    public PixelVelocity<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>
     /// The membrane's pulse playing (#2259, #2404): its eight phases looping at its pace
@@ -62,11 +62,8 @@ public sealed class ShitroidEnemyState
     /// </summary>
     public BossCountdown? SamusHeightHover { get; internal set; }
 
-    /// <summary>
-    /// Horizontal-lock accumulator: gains two each update the Shitroid is horizontally
-    /// aligned with its target and loses one, never below zero, otherwise.
-    /// </summary>
-    public int HorizontalLockAccumulator { get; internal set; }
+    /// <summary>The Shitroid's horizontal lock on its target, built while it keeps aligned with it.</summary>
+    public ShitroidHorizontalLock HorizontalLock { get; } = new();
 
     /// <summary>Whether the periodic Shitroid cry is enabled.</summary>
     public bool CryEnabled { get; internal set; }

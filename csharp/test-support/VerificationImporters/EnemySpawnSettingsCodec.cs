@@ -148,7 +148,7 @@ internal static class EnemySpawnSettingsCodec
         [EnemyDefinitionId.Elevator] = words => new ElevatorSpawnSettings(Direction: Bits(words.Parameter1, 0, 16) switch { 0 => ElevatorTravelDirection.Down, 1 => ElevatorTravelDirection.Up, var other => throw Unmapped("Direction", other) }, ArrivalY: Bits(words.Parameter2, 0, 16)),
         [EnemyDefinitionId.Evir] = words => new EvirSpawnSettings(Part: (words.Parameter1 & 65535) != 0 ? EvirBodyPart.Arms : EvirBodyPart.Body, Speed: EnemySpawnSelectors.LinearSpeed("Speed", Bits(words.Parameter2, 0, 8)), DirectionChangePeriod: Bits(words.Parameter2, 8, 8)),
         [EnemyDefinitionId.FaceBlock] = words => new FaceBlockSpawnSettings(TriggerDistance: Bits(words.Parameter1, 0, 16), Facing: Bits(words.Parameter2, 0, 1) switch { 0 => HorizontalDirection.Left, 1 => HorizontalDirection.Right, var other => throw Unmapped("Facing", other) }),
-        [EnemyDefinitionId.Fireflea] = words => Unset("Fireflea starting angle", Bits(words.Parameter1, 8, 8), new FirefleaSpawnSettings(Flight: FirefleaFlightOf((words.Parameter1 & 2) != 0, (words.Parameter1 & 1) != 0 ? EnemySpeedSign.Positive : EnemySpeedSign.Negative, EnemySpawnSelectors.LinearSpeed("Speed", Bits(words.Parameter2, 0, 8))), Radius: EnemySpawnSelectors.Select("Radius", EnemySpawnSelectorDefinitions.FirefleaRadii, Bits(words.Parameter2, 8, 8)))),
+        [EnemyDefinitionId.Fireflea] = words => Unset("Fireflea starting angle", Bits(words.Parameter1, 8, 8), new FirefleaSpawnSettings(Flight: FirefleaFlightOf((words.Parameter1 & 2) != 0, (words.Parameter1 & 1) != 0 ? VerticalDirection.Down : VerticalDirection.Up, EnemySpawnSelectors.LinearSpeed("Speed", Bits(words.Parameter2, 0, 8))), Radius: EnemySpawnSelectors.Select("Radius", EnemySpawnSelectorDefinitions.FirefleaRadii, Bits(words.Parameter2, 8, 8)))),
         [EnemyDefinitionId.Fune] = words => Unset("Fune's Namihe behaviour", Bits(words.Parameter1, 0, 4), FuneSettings(words)),
         [EnemyDefinitionId.Namihe] = words => Bits(words.Parameter1, 0, 4) != 0 ? NamiheSettings(words) : throw Unmapped("Namihe's Fune behaviour", 0),
         [EnemyDefinitionId.ShipBottomEntrance] = words => new GunshipSpawnSettings(Part: (words.Parameter2 & 65535) != 0 ? GunshipBottomPiece.EntrancePad : GunshipBottomPiece.Hull),
@@ -196,7 +196,7 @@ internal static class EnemySpawnSettingsCodec
         [EnemyDefinitionId.ShutterShootable] = DecodeShutter,
         [EnemyDefinitionId.ShutterDestroyable] = DecodeShutter,
         [EnemyDefinitionId.Kamer] = DecodeShutter,
-        [EnemyDefinitionId.Skultera] = words => new SkulteraSpawnSettings(Speed: EnemySpawnSelectors.LinearSpeed("Skultera speed", Bits(words.Parameter1, 0, 8)), StartDirection: (words.Parameter1 & 65280) != 0 ? HorizontalDirection.Left : HorizontalDirection.Right, Radius: Bits(words.Parameter2, 0, 8), AngleDelta: Bits(words.Parameter2, 8, 8)),
+        [EnemyDefinitionId.Skultera] = words => new SkulteraSpawnSettings(Speed: EnemySpawnSelectors.LinearSpeed("Skultera speed", Bits(words.Parameter1, 0, 8)), StartDirection: (words.Parameter1 & 65280) != 0 ? HorizontalDirection.Left : HorizontalDirection.Right, Radius: Bits(words.Parameter2, 0, 8), AngleStep: RotationAngle.FromSteps(Bits(words.Parameter2, 8, 8))),
         [EnemyDefinitionId.PirateGoldWalking] = words => new WalkingSpacePirateSpawnSettings(Facing: Has(words.Parameter1, 0) ? HorizontalDirection.Right : HorizontalDirection.Left, LaserSpeed: Has(words.Parameter1, 15) ? PirateLaserSpeed.Slow : PirateLaserSpeed.Fast, ShotWatch: Has(words.Parameter1, 15) ? WalkingSpacePirateShotWatch.FlinchesFromShots : WalkingSpacePirateShotWatch.IgnoresShots, PatrolReach: Bits(words.Parameter2, 0, 16)),
         [EnemyDefinitionId.PirateGreenWalking] = words => new WalkingSpacePirateSpawnSettings(Facing: Has(words.Parameter1, 0) ? HorizontalDirection.Right : HorizontalDirection.Left, LaserSpeed: Has(words.Parameter1, 15) ? PirateLaserSpeed.Slow : PirateLaserSpeed.Fast, ShotWatch: Has(words.Parameter1, 15) ? WalkingSpacePirateShotWatch.FlinchesFromShots : WalkingSpacePirateShotWatch.IgnoresShots, PatrolReach: Bits(words.Parameter2, 0, 16)),
         [EnemyDefinitionId.PirateGreyWalking] = words => new WalkingSpacePirateSpawnSettings(Facing: Has(words.Parameter1, 0) ? HorizontalDirection.Right : HorizontalDirection.Left, LaserSpeed: Has(words.Parameter1, 15) ? PirateLaserSpeed.Slow : PirateLaserSpeed.Fast, ShotWatch: Has(words.Parameter1, 15) ? WalkingSpacePirateShotWatch.FlinchesFromShots : WalkingSpacePirateShotWatch.IgnoresShots, PatrolReach: Bits(words.Parameter2, 0, 16)),
@@ -252,7 +252,7 @@ internal static class EnemySpawnSettingsCodec
     /// </summary>
     /// <exception cref="InvalidDataException">The pointer names no placeable header, or its parameter selects no actor.</exception>
     public static EnemyDefinitionId PlacedActor(int headerPointer, int parameter1) =>
-        EnemyDefinitionIds.TryFromHeaderPointer(headerPointer, out EnemyDefinitionId enemy) ? enemy
+        EnemyDefinitionIdsConstants2.TryFromHeaderPointer(headerPointer, out EnemyDefinitionId enemy) ? enemy
         : SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWords.UnplacedArtworkHeaders.TryDecode(headerPointer, out UnplacedEnemyArtwork shared)
             && shared == UnplacedEnemyArtwork.CeresDoors
             ? CeresDoorHeaderPlacement(parameter1).Actor
@@ -369,7 +369,7 @@ internal static class EnemySpawnSettingsCodec
         ShaktoolSpawnSettings s => Checked(EnemyDefinitionId.Shaktool, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: (s.Motion.NextWall == ShaktoolWallResponse.ReverseOrbit ? 1 << 13 : 0) | (s.Motion.Phase == ShaktoolChainPhase.Straightening ? 1 << 14 : 0) | (s.Motion.OrbitDirection == RotationDirection.Counterclockwise ? 1 << 15 : 0), Parameter2: ShaktoolSegmentPosition(s.Segment) * 2)),
         GrowingShutterSpawnSettings s => Checked(EnemyDefinitionId.ShutterGrowing, settings, new PopulationWords(Initialization: ((s.Wait switch { GrowingShutterWait.Timer => 0, GrowingShutterWait.SamusNear => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), SpeciesPropertyBits: 0, ExtraProperties: ((s.Growth switch { VerticalDirection.Down => 0, VerticalDirection.Up => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), Parameter1: Place(s.Wait == GrowingShutterWait.Timer ? s.ActivationWait : s.ActivationDistance, 0, 16), Parameter2: Place(GrowingShutterSpeedRecord(s.GrowthSpeed), 0, 16))),
         ShutterSpawnSettings s => Checked(EnemyDefinitionId.ShutterShootable, settings, new PopulationWords(Initialization: Place(EnemySpawnSelectors.LinearSpeedRow("ShutterShootable speed", s.Speed), 0, 8) | ((s.PrimaryDirection switch { VerticalDirection.Up => 0, VerticalDirection.Down => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 8), SpeciesPropertyBits: 0, ExtraProperties: Place(ShutterRestUnits(s.RestAfterMovingUp), 0, 8) | Place(ShutterRestUnits(s.RestAfterMovingDown), 8, 8), Parameter1: ((s.TriggerMode switch { ShutterTriggerMode.Timer => 0, ShutterTriggerMode.HorizontalProximity => 1, ShutterTriggerMode.Immediate => 2, ShutterTriggerMode.OneShotReaction => 3, ShutterTriggerMode.RepeatableReaction => 4, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0) | Place(s.TravelDistance, 8, 8), Parameter2: Place(s.TriggerMode == ShutterTriggerMode.Timer ? s.WaitTime : s.ProximityDistance, 0, 16))),
-        SkulteraSpawnSettings s => Checked(EnemyDefinitionId.Skultera, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(EnemySpawnSelectors.LinearSpeedRow("Skultera speed", s.Speed), 0, 8) | (s.StartDirection == HorizontalDirection.Left ? 256 : 0), Parameter2: Place(s.Radius, 0, 8) | Place(s.AngleDelta, 8, 8))),
+        SkulteraSpawnSettings s => Checked(EnemyDefinitionId.Skultera, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(EnemySpawnSelectors.LinearSpeedRow("Skultera speed", s.Speed), 0, 8) | (s.StartDirection == HorizontalDirection.Left ? 256 : 0), Parameter2: Place(s.Radius, 0, 8) | Place(s.AngleStep.ToTrigonometryAngle().RawValue, 8, 8))),
         WalkingSpacePirateSpawnSettings s => Checked(EnemyDefinitionId.PirateGoldWalking, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: (s.Facing == HorizontalDirection.Right ? 1 << 0 : 0) | (s.LaserSpeed == PirateLaserSpeed.Slow ? 1 << 15 : 0), Parameter2: Place(s.PatrolReach, 0, 16))),
         WallSpacePirateSpawnSettings s => Checked(EnemyDefinitionId.PirateGoldWall, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: (s.Wall == HorizontalDirection.Right ? 1 << 0 : 0) | (s.LaserSpeed == PirateLaserSpeed.Slow ? 1 << 15 : 0), Parameter2: Place(s.JumpSpan, 0, 16))),
         NinjaSpacePirateSpawnSettings s => Checked(EnemyDefinitionId.PirateGoldNinja, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: s.StartPost == NinjaSpacePirateStartPost.Left ? 1 : 0, Parameter2: Place(s.PostDistance, 0, 16))),
@@ -569,13 +569,14 @@ internal static class EnemySpawnSettingsCodec
         new(Facing: (words.Parameter1 & 240) != 0 ? HorizontalDirection.Right : HorizontalDirection.Left, LaunchSpeed: EnemySpawnSelectors.FuneNamiheLaunchSpeed(Bits(words.Parameter2, 0, 8)), YProximity: Bits(words.Parameter2, 8, 8));
 
     /// <summary>
-    /// A Fireflea's flight from its words: a bobbing Fireflea moves at the row's speed, starting toward the sign; a
-    /// circling one turns by the speed read as a turn (<see cref="EnemySpawnSelectors.FirefleaTurnPerUpdate"/>).
+    /// A Fireflea's flight from its words: a bobbing Fireflea moves at the row's speed, starting toward
+    /// <paramref name="direction"/>; a circling one turns by the speed toward it read as a turn
+    /// (<see cref="EnemySpawnSelectors.FirefleaTurnPerUpdate"/>).
     /// </summary>
-    private static FirefleaFlight FirefleaFlightOf(bool circling, EnemySpeedSign sign, SignedSixteenSixteen speed) =>
+    private static FirefleaFlight FirefleaFlightOf(bool circling, VerticalDirection direction, SignedSixteenSixteen speed) =>
         circling
-            ? new FirefleaFlight.Circling(EnemySpawnSelectors.FirefleaTurnPerUpdate(sign == EnemySpeedSign.Positive ? speed : -speed))
-            : new FirefleaFlight.Bobbing(speed, sign == EnemySpeedSign.Positive ? VerticalDirection.Down : VerticalDirection.Up);
+            ? new FirefleaFlight.Circling(EnemySpawnSelectors.FirefleaTurnPerUpdate(speed.Toward(direction)))
+            : new FirefleaFlight.Bobbing(speed, direction);
 
     /// <summary>The words that give a Fireflea <paramref name="settings"/>: the first speed row and sign that give its flight.</summary>
     /// <exception cref="ArgumentException">No speed row gives the flight.</exception>
@@ -585,12 +586,12 @@ internal static class EnemySpawnSettingsCodec
         bool circling = settings.Flight is FirefleaFlight.Circling;
         for (int row = 0; row < EnemyLinearSpeedTable.RowCount; row++)
         {
-            foreach (EnemySpeedSign sign in new[] { EnemySpeedSign.Negative, EnemySpeedSign.Positive })
+            foreach (VerticalDirection direction in new[] { VerticalDirection.Up, VerticalDirection.Down })
             {
-                if (FirefleaFlightOf(circling, sign, EnemyLinearSpeedTable.Speed(row)) != settings.Flight)
+                if (FirefleaFlightOf(circling, direction, EnemyLinearSpeedTable.Speed(row)) != settings.Flight)
                     continue;
                 return new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0,
-                    Parameter1: (circling ? 2 : 0) | (sign == EnemySpeedSign.Positive ? 1 : 0),
+                    Parameter1: (circling ? 2 : 0) | (direction == VerticalDirection.Down ? 1 : 0),
                     Parameter2: Place(row, 0, 8) | Place(radius, 8, 8));
             }
         }

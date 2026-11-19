@@ -32,10 +32,15 @@ public sealed class RidleyFlightState
     public Offset16<RoomPixels> MovementMinimum { get; internal set; }
     /// <summary>Gets the bottom-right corner of the box his movement keeps him in, where it lies from the room's origin.</summary>
     public Offset16<RoomPixels> MovementMaximum { get; internal set; }
-    /// <summary>Whether Ridley's movement hit a room boundary, consumed by the swoop.</summary>
+    /// <summary>
+    /// Whether his last movement would have taken him out of the box his movement keeps him in (#2562): his movement records
+    /// it as it clamps him, and his next update's lunge reads it as the previous movement's result before it accelerates
+    /// again. The clamped position cannot tell it again, since a movement that merely reaches the box's edge leaves him there
+    /// too.
+    /// </summary>
     public bool HitRoomBoundary { get; internal set; }
     /// <summary>Gets Ridley's velocity, each axis held unchanged.</summary>
-    public EightEightVector<RoomPixels> Velocity { get; internal set; }
+    public PixelVelocity<RoomPixels> Velocity { get; internal set; }
     /// <summary>His wing beat: the pose his wings show and the countdown to the next, paced by his flight speed (#2329).</summary>
     public RidleyWingBeat Wings { get; }
     /// <summary>Gets the swoop's heading, which wraps around the full turn; its whole step selects the sine sample.</summary>
@@ -55,5 +60,5 @@ public sealed class RidleyFlightState
     /// <summary>Gets whether Ridley's animation has enabled the roar presentation.</summary>
     public bool Roaring { get; internal set; }
     /// <summary>Gets the velocity his body animation's aim computed from the clamped fireball aim angle.</summary>
-    public EightEightVector<RoomPixels> FireballVelocity { get; internal set; }
+    public PixelVelocity<RoomPixels> FireballVelocity { get; internal set; }
 }

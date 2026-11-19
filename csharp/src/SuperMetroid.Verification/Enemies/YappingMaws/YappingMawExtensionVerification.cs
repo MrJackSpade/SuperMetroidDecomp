@@ -44,31 +44,31 @@ internal static class YappingMawExtensionVerification
         // The starting fraction complements the speed's, so the fraction sum is exactly one whole unit: the result's
         // fraction is zero and its whole part is the speed's whole part plus the carried one.
         YappingMawEnemyState carried = Advance(
-            SignedSixteenSixteen.FromParts(0, checked((ushort)(ushort.MaxValue + 1 - extendFraction))), row, EnemySpeedSign.Positive);
-        AssertEqual(SignedSixteenSixteen.FromParts(checked((short)(extendWhole + 1)), 0), carried.Extension,
+            SignedSixteenSixteen.FromParts(0, checked((ushort)(ushort.MaxValue + 1 - extendFraction))), row, YappingMawCurlPhase.Extending);
+        AssertEqual(SignedSixteenSixteen.FromParts(checked((short)(extendWhole + 1)), 0), carried.Extension.InFixedPoint,
             "the fraction's carry reaches the whole part");
         AssertEqual(YappingMawAction.ExtendingOrRetracting, carried.Action, "a positive curl keeps extending");
         AssertEqual(QuadraticSpeedCurvePlace.FromMarks(row + 1), carried.SpeedCurvePlace, "below the clamp the row advances once");
         AssertEqual(YappingMawCurlPhase.Extending, carried.CurlPhase, "below the clamp the speed stays extending");
 
-        YappingMawEnemyState clamped = Advance(maximum - SixteenSixteenWords.ToDisplacement(extend), row, EnemySpeedSign.Positive);
-        AssertEqual(maximum, clamped.Extension, "reaching +128 clamps the curl there with a cleared fraction");
+        YappingMawEnemyState clamped = Advance(maximum - SixteenSixteenWords.ToDisplacement(extend), row, YappingMawCurlPhase.Extending);
+        AssertEqual(maximum, clamped.Extension.InFixedPoint, "reaching +128 clamps the curl there with a cleared fraction");
         AssertEqual(QuadraticSpeedCurvePlace.FromMarks(row + 1), clamped.SpeedCurvePlace, "the clamp keeps the update's row advance");
         AssertEqual(YappingMawCurlPhase.Retracting, clamped.CurlPhase, "the clamp turns the speed around to the row's retracting speed");
 
         YappingMawEnemyState belowClamp = Advance(
-            maximum - SixteenSixteenWords.ToDisplacement(extend) - SignedSixteenSixteen.FromParts(0, 1), row, EnemySpeedSign.Positive);
-        AssertEqual(SignedSixteenSixteen.FromParts(127, ushort.MaxValue), belowClamp.Extension,
+            maximum - SixteenSixteenWords.ToDisplacement(extend) - SignedSixteenSixteen.FromParts(0, 1), row, YappingMawCurlPhase.Extending);
+        AssertEqual(SignedSixteenSixteen.FromParts(127, ushort.MaxValue), belowClamp.Extension.InFixedPoint,
             "one fraction unit short of +128 is not clamped");
         AssertEqual(QuadraticSpeedCurvePlace.FromMarks(row + 1), belowClamp.SpeedCurvePlace, "one fraction unit short of +128 advances the row once");
         AssertEqual(YappingMawCurlPhase.Extending, belowClamp.CurlPhase, "one fraction unit short of +128 keeps extending");
 
-        YappingMawEnemyState atZero = Advance(SixteenSixteenWords.ToDisplacement(-retract), row, EnemySpeedSign.Negative);
-        AssertEqual(SignedSixteenSixteen.Zero, atZero.Extension, "retraction can return the curl exactly to zero");
+        YappingMawEnemyState atZero = Advance(SixteenSixteenWords.ToDisplacement(-retract), row, YappingMawCurlPhase.Retracting);
+        AssertEqual(SignedSixteenSixteen.Zero, atZero.Extension.InFixedPoint, "retraction can return the curl exactly to zero");
         AssertEqual(YappingMawAction.ExtendingOrRetracting, atZero.Action, "a zero curl is not negative and keeps retracting");
 
-        YappingMawEnemyState pastZero = Advance(SixteenSixteenWords.ToDisplacement(-retract - 1), row, EnemySpeedSign.Negative);
-        AssertEqual(SignedSixteenSixteen.FromParts(-1, ushort.MaxValue), pastZero.Extension,
+        YappingMawEnemyState pastZero = Advance(SixteenSixteenWords.ToDisplacement(-retract - 1), row, YappingMawCurlPhase.Retracting);
+        AssertEqual(SignedSixteenSixteen.FromParts(-1, ushort.MaxValue), pastZero.Extension.InFixedPoint,
             "one fraction unit past zero borrows the whole part to -1");
         AssertEqual(YappingMawAction.RetractedDelay, pastZero.Action, "a negative whole part ends the retraction");
         Console.WriteLine($"Yapping Maw extension: row {row} carry, +128 clamp and miss, and zero/negative retraction sign test pass through production.");
@@ -78,7 +78,7 @@ internal static class YappingMawExtensionVerification
     /// Brings a production-initialized Maw through its targeting and setup updates, then runs one extension update
     /// from the given curl and speed row.
     /// </summary>
-    private static YappingMawEnemyState Advance(SignedSixteenSixteen start, int row, EnemySpeedSign sign)
+    private static YappingMawEnemyState Advance(SignedSixteenSixteen start, int row, YappingMawCurlPhase phase)
     {
         (RoomEnemySystem enemies, RoomEnemyPlace place, YappingMawEnemyState state) =
             YappingMawInstructionProgramDefinitionsVerification.NewInitializedYappingMaw(301);
@@ -90,11 +90,11 @@ internal static class YappingMawExtensionVerification
         enemies.YappingMawBehavior.RunYappingMawMainAi(place, frame);
         enemies.YappingMawBehavior.RunYappingMawMainAi(place, frame);
         AssertEqual(YappingMawAction.ExtendingOrRetracting, state.Action, "setup begins the extension");
-        AssertEqual(SignedSixteenSixteen.Zero, state.Extension, "setup starts the curl at zero");
+        AssertEqual(SignedSixteenSixteen.Zero, state.Extension.InFixedPoint, "setup starts the curl at zero");
 
-        state.Extension = start;
+        state.Extension = new YappingMawCurl(start);
         state.SpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(row);
-        state.CurlPhase = sign == EnemySpeedSign.Negative ? YappingMawCurlPhase.Retracting : YappingMawCurlPhase.Extending;
+        state.CurlPhase = phase;
         enemies.YappingMawBehavior.RunYappingMawMainAi(place, frame);
         return state;
     }

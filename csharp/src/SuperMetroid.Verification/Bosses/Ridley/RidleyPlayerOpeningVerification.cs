@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.TestSupport.SamusNativeCodecs;
 using SuperMetroid.TestSupport.MovieReplay;
 using System.Globalization;
@@ -79,7 +80,7 @@ internal static class RidleyPlayerOpeningVerification
             string actual = $"{RidleyNativeWords.NorfairPhaseWord(state ?? throw new InvalidOperationException("Verification requires state.")):X4},{body.Position.X.Whole:X4},{body.Position.X.Fraction:X4},{body.Position.Y.Whole:X4},{body.Position.Y.Fraction:X4},{state.Flight.Velocity.X.RawValue:X4},{state.Flight.Velocity.Y.RawValue:X4}";
             string native = string.Join(",", ComparedRidleyStateAddresses.Select(a => W(expected,a).ToString("X4")));
             if (actual != native)
-                throw new InvalidDataException($"Ridley movie first divergence at frame {frame}: native {native}; port {actual}; instructions native={W(expected,0xf92):X4}/{W(expected,0xf94)} port={pointers.Body(state.Flight):X4}/{body.AnimationClock.Hold}; timer={state.PhaseTimer.Count} native={W(expected,0xfb2)}");
+                throw new InvalidDataException($"Ridley movie first divergence at frame {frame}: native {native}; port {actual}; instructions native={W(expected,0xf92):X4}/{W(expected,0xf94)} port={pointers.Body(state.Flight):X4}/{body.AnimationClock.Hold}; timer={state.PhaseTimer.CartridgeCount} native={W(expected,0xfb2)}");
         }
         Console.WriteLine("Ridley player opening trajectory matches native movie frames 375..744.");
     }

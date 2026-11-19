@@ -10,9 +10,8 @@ internal static class SamusDeathDefinitions
     public static MusicQueueDelay FanfareDelay { get; } = new(14);
 
     /// <summary>
-    /// The shared fade counter's last value at which a step of the death fade moves the display toward black: the step
-    /// after it completes the fade. The display darkens in this many parts, one for each of the fade's own steps after its
-    /// first (#2421).
+    /// The parts the death fade darkens the display in, one for each of its own steps after its first; the step after the
+    /// last part completes it (#2421).
     /// </summary>
-    public const int FadeLastStep = 7;
+    public const int FadeParts = 7;
 }

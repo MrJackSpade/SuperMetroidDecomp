@@ -57,7 +57,7 @@ internal static class SamusCueValuePlaceReadsVerification
         SamusPresentation.InitializeAnimation(samus);
         write(samus);
         AssertEqual(0, samus.ExtraAnimationDelay, $"{pose} at the {writer} animates without a liquid's delay buffer");
-        AssertTrue(samus.PendingTransitionalPose is null, $"{pose} at the {writer} has no transition pending");
+        AssertTrue(samus.CuePose.Named is null, $"{pose} at the {writer} has no transition pending");
 
         // The tick that runs out the written frame's one-tick timer moves to the next frame; each delay byte read after it
         // holds the frame for its ticks, a zero delay for one, before the next tick moves on.
@@ -75,10 +75,10 @@ internal static class SamusCueValuePlaceReadsVerification
 
         for (int tick = 1; tick <= ticks; tick++)
         {
-            AssertTrue(samus.PendingTransitionalPose is null, $"{pose} at the {writer} has no transition pending before tick {tick}");
+            AssertTrue(samus.CuePose.Named is null, $"{pose} at the {writer} has no transition pending before tick {tick}");
             SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
         }
-        AssertEqual<SamusPoseId?>(expected, samus.PendingTransitionalPose, $"{pose} at the {writer} publishes {expected} after {ticks} ticks");
+        AssertEqual<SamusPoseId?>(expected, samus.CuePose.Named, $"{pose} at the {writer} publishes {expected} after {ticks} ticks");
     }
 
     /// <summary>The cue a decoded program holds at window position <paramref name="place"/>.</summary>

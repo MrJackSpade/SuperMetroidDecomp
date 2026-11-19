@@ -99,7 +99,7 @@ internal static class SolidEnemyContactRecordsVerification
         RoomEnemyPlace replaced = runtime.Enemies.Places.InUpdateOrder[10];
         foreach (SamusCollisionDirection direction in ContactDirections)
             samus.Kinematics.RecordSolidEnemyCollision(direction, replaced);
-        samus.Kinematics.RequestWallJumpLaunchShake(replaced);
+        samus.Kinematics.WallJumpLaunch.Launch(replaced);
 
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.ThreeMusketeers);
         RoomEnemyPlace loaded = runtime.Enemies.Places.InUpdateOrder[10];
@@ -107,7 +107,7 @@ internal static class SolidEnemyContactRecordsVerification
         foreach (SamusCollisionDirection direction in ContactDirections)
             AssertEqual<ISolidEnemy?>(null, samus.Kinematics.SolidEnemyContact(direction), $"the room change forgets direction {direction}'s contact");
         AssertTrue(!samus.Kinematics.DidCollideWithSolidEnemy(loaded), "the new room's enemy in the same place is not met");
-        AssertEqual<ISolidEnemy?>(null, samus.Kinematics.TakeWallJumpLaunchShake(), "the room change withdraws the waiting launch shake");
+        AssertEqual<ISolidEnemy?>(null, samus.Kinematics.WallJumpLaunch.Take(), "the room change withdraws the waiting launch shake");
     }
 
     /// <summary>The four directions' contacts of a combination, for a failure message.</summary>

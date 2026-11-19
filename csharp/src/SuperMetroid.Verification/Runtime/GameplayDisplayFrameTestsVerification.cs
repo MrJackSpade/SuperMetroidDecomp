@@ -230,7 +230,7 @@ internal static class GameplayDisplayFrameTestsVerification
         CeresTurningFloor getaway = runtime.Enemies.CeresEscape.Floor;
         getaway.Active = true;
         getaway.Angle = RotationAngle.FromSteps(5);
-        getaway.Zoom = FloorZoom.FromTwoHundredFiftySixths(240);
+        getaway.Zoom = FloorZoomConstants.FromTwoHundredFiftySixths(240);
         getaway.Center = new Offset16<FloorPixels>(128, 120);
         getaway.Offset = new Offset16<FloorPixels>(7, 19);
         AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is GameplaySceneLayer,

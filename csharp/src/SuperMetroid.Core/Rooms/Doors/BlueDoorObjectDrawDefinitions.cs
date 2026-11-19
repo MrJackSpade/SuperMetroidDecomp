@@ -13,6 +13,12 @@ internal static class BlueDoorObjectDrawDefinitions
     /// first cell solid; the closed cap carries the shootable and extension types; nearly open vertical caps clear their
     /// middle cells, and horizontal caps stay solid.
     /// </summary>
+    /// <remarks>
+    /// A closed cap's three cells after its first continue the first (<see cref="ContinuedBlocks"/>) rather than each
+    /// colliding and reacting as its own block (#2572): a shot, bomb or grapple striking any of them reacts at the cap's
+    /// first block, where the blue cap's opening is spawned and draws its four cells, and the cells follow the first block as it stands. Giving each cell the cap's behaviour
+    /// directly would move that reaction to the cell struck, opening a cap shifted down its column or along its row, which changes the game.
+    /// </remarks>
     internal static IReadOnlyDictionary<BlueDoorCaps.Draw, IReadOnlyList<RoomCollisionType>> Collisions { get; } =
         new Dictionary<BlueDoorCaps.Draw, IReadOnlyList<RoomCollisionType>>
         {

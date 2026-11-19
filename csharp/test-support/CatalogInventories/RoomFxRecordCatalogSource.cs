@@ -175,10 +175,32 @@ internal static class RoomFxRecordCatalogSource
     private static string SurfaceY(int? y) =>
         y is int named ? named.ToString(System.Globalization.CultureInfo.InvariantCulture) : "null";
 
+    /// <summary>
+    /// Renders a liquid level's speed as the generated catalog spells it (#2555): none, whole pixels an update, or a
+    /// fraction of a pixel an update in lowest terms.
+    /// </summary>
+    private static string LevelSpeed(SignedEightEight speed)
+    {
+        int numerator = speed.InTwoHundredFiftySixthsOfPixel;
+        if (numerator == 0)
+            return $"{nameof(SignedEightEight)}.{nameof(SignedEightEight.Zero)}";
+        int denominator = 256;
+        while (denominator > 1 && numerator % 2 == 0)
+        {
+            numerator /= 2;
+            denominator /= 2;
+        }
+        string pixels = numerator.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        return denominator == 1
+            ? $"{nameof(SignedEightEight)}.{nameof(SignedEightEight.FromPixels)}({pixels})"
+            : $"{nameof(SignedEightEight)}.{nameof(SignedEightEight.FromPixelFraction)}({pixels}, " +
+                $"{denominator.ToString(System.Globalization.CultureInfo.InvariantCulture)})";
+    }
+
     /// <summary>Renders one record as the generated catalog spells it.</summary>
     private static string RenderRecord(RoomEffectDefinition record) =>
         $"new({SurfaceY(record.LiquidStartLevel)}, {SurfaceY(record.LiquidTargetLevel)}, " +
-        $"SignedEightEight.FromTwoHundredFiftySixthsOfPixel({record.LiquidLevelSpeed.InTwoHundredFiftySixthsOfPixel.ToString(System.Globalization.CultureInfo.InvariantCulture)}), " +
+        $"{LevelSpeed(record.LiquidLevelSpeed)}, " +
         $"{record.LiquidMoveDelay.ToString(System.Globalization.CultureInfo.InvariantCulture)}, {Member(record.Type)}, " +
         $"{Member(record.VisorAnimation)}, {EffectBlend(record.EffectBlend)}, " +
         $"{Liquid(record.Liquid)}, {Effects(record.ColourEffects)}, " +

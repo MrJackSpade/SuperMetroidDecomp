@@ -153,14 +153,12 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
                 break;
             case EndingRewardGestureScene { Gesture: var gesture }:
                 RequirePhase(EndingCreditsPhase.PostCreditsGesture);
-                gesture.Step();
-                if (gesture.JumpRequested)
+                if (gesture.Step())
                     Show(EndingCreditsPhase.PostCreditsJump, new EndingRewardJumpScene(new EndingRewardJump(Stage.EndingReward)));
                 break;
             case EndingRewardJumpScene { Jump: var jump }:
                 RequirePhase(EndingCreditsPhase.PostCreditsJump);
-                jump.Step();
-                if (jump.ShotRequested)
+                if (jump.Step())
                 {
                     Show(EndingCreditsPhase.PostCreditsShot, new EndingPostShotScene(jump, new EndingPostShot()));
                     audio.QueueSound(EndingPostShotDefinitions.ShotSound, EndingPostShotDefinitions.ShotSoundPriority);
@@ -576,7 +574,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
         }
         RequirePhase(EndingCreditsPhase.ItemPercentage);
         scene.Typing.Step();
-        if (scene.Typing.RequestedItemPercentageScroll && scene.Typing.Completed)
+        if (scene.Typing.TypesItemPercentage && scene.Typing.Completed)
             Show(EndingCreditsPhase.ItemPercentageScrollDown, new EndingLogoScene(scene.Logo),
                 EndingSequenceDefinitions.Timing.ItemPercentageDropUpdates);
     }

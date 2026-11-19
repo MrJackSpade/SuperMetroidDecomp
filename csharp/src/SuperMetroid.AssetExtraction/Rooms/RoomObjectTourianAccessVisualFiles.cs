@@ -11,6 +11,9 @@ public static class RoomObjectTourianAccessVisualFiles
     /// <summary>Editable Tourian entrance access-floor visual JSON filename.</summary>
     public const string VisualFileName = "tourian-access.json";
 
+    /// <summary>The stages of a row's crumble the floor draws, in their published order (#2567): rock, pieces, dust.</summary>
+    private static readonly BlockBreakupStage[] CrumbleStages = [BlockBreakupStage.Rock, BlockBreakupStage.Pieces, BlockBreakupStage.Dust];
+
     /// <summary>The Tourian access floor as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
         RoomObjectFrameImageFiles.DrawFamily(VisualFileName, "Tourian access", All, VisualId);
@@ -30,7 +33,7 @@ public static class RoomObjectTourianAccessVisualFiles
 
     /// <summary>The draw lists of every Tourian access draw, in the cartridge's order: the empty row, the crumble's stages, the clear.</summary>
     internal static IEnumerable<RoomObjectDrawLists.DrawList> All =>
-        [Compile(TourianAccessDraw.EmptyRow), .. TourianAccessObjectDrawDefinitions.CrumbleShapes.Keys.Select(CompileCrumble),
+        [Compile(TourianAccessDraw.EmptyRow), .. CrumbleStages.Select(CompileCrumble),
             Compile(TourianAccessDraw.Clear)];
 
     /// <summary>Gets the stable artwork identity of a Tourian access draw: a crumble stage's, or the empty row's or the clear's.</summary>

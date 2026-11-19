@@ -78,7 +78,7 @@ internal static class SamusAerialPoseTransitions
             // below. The pose change still runs and sees the spin/wall-jump previous movement type.
             samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
             if (samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
-                samus.HorizontalSpeed.RequestSuitShadeRestore();
+                samus.HorizontalSpeed.ShowSuitShadeAtColourStep();
             return true;
         }
 
@@ -99,7 +99,7 @@ internal static class SamusAerialPoseTransitions
         // type was spin/wall-jump and Screw Attack is equipped, even if the visible source
         // happened to be generic spin or Space Jump art.
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
-            samus.HorizontalSpeed.RequestSuitShadeRestore();
+            samus.HorizontalSpeed.ShowSuitShadeAtColourStep();
 
         if (beganShinespark)
             return true;
@@ -107,7 +107,7 @@ internal static class SamusAerialPoseTransitions
         // The newly installed pose's shot direction is published on the exact Fire
         // edge that selected this pose. The projectile producer consumes it in the input phase.
         if ((controllerNewInput & GameplayAction.Shoot) != GameplayAction.None)
-            samus.PendingTransitionShot = SamusTransitionShot.FromPose(samus);
+            samus.TransitionShot.Hand(SamusTransitionShot.FromPose(samus));
 
         SamusPresentation.InitializeAnimation(samus);
         return true;
@@ -271,7 +271,7 @@ internal static class SamusAerialPoseTransitions
         // A wall jump from a Screw Attack spin asks for the normal suit shade back before the jump starts; the shade
         // itself is applied later in the update.
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
-            samus.HorizontalSpeed.RequestSuitShadeRestore();
+            samus.HorizontalSpeed.ShowSuitShadeAtColourStep();
 
         samus.Pose = targetPose;
         // The collision radius stays the spin body's; the input phase's radius update takes
@@ -541,7 +541,7 @@ internal static class SamusAerialPoseTransitions
     /// HUD and projectile step. A shot refused by the cooldown or by Samus's shot count must lose the bridge too;
     /// it is deliberately not retained until some later shot succeeds.
     /// </summary>
-    public static void DropPendingTransitionShot(SamusState samus) => samus.PendingTransitionShot = null;
+    public static void DropTransitionShot(SamusState samus) => samus.TransitionShot.Drop();
 
     /// <summary>
     /// The normal-jumping pose setup for a normal-jump pose already
@@ -570,7 +570,7 @@ internal static class SamusAerialPoseTransitions
     {
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.NormalJumping &&
             (controllerNewInput & GameplayAction.Shoot) != GameplayAction.None)
-            samus.PendingTransitionShot = SamusTransitionShot.FromPose(samus);
+            samus.TransitionShot.Hand(SamusTransitionShot.FromPose(samus));
     }
 
     /// <summary>

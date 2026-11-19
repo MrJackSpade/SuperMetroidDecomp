@@ -141,7 +141,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new MagdolliteOverlayState(MagdolliteOverlayAction.WaitingForAttack);
         place.SetSpeciesState(state);
         state.OriginY = place.Position.Y.Whole;
-        state.AttackCooldown = MagdolliteMotionDefinitions.AttackPollWait;
+        state.AttackCooldown = UpdateCountdown.For(MagdolliteMotionDefinitions.AttackPollWait);
         StartMagdolliteAnimation(place, state, MagdolliteSegment.PillarCap);
         place.Position = place.Position.WithWholeY(place.Position.Y.Whole + MagdolliteMotionDefinitions.HiddenDepth);
         place.Presence = place.Presence.With(EnemyPresence.Hidden);
@@ -202,8 +202,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Counts down the attack cooldown and runs the tracking overlay's current action.</summary>
     internal void RunMagdolliteOverlay(RoomEnemyPlace place, MagdolliteOverlayState state, SamusState samus)
     {
-        if (state.AttackCooldown != 0)
-            state.AttackCooldown--;
+        state.AttackCooldown.Step();
         switch (state.Action)
         {
             case MagdolliteOverlayAction.WaitingForAttack:
@@ -238,10 +237,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         (_, _, RoomEnemyPlace overlay) = RequireMagdolliteComposite(head);
         MagdolliteOverlayState overlayState = overlay.RequireSpeciesState<MagdolliteOverlayState>();
-        if (overlayState.AttackCooldown != 0)
+        if (overlayState.AttackCooldown.IsRunning)
             return;
 
-        overlayState.AttackCooldown = MagdolliteMotionDefinitions.AttackPollWait;
+        overlayState.AttackCooldown = UpdateCountdown.For(MagdolliteMotionDefinitions.AttackPollWait);
         int range = HeadRise(head).Range;
         if (Math.Abs(head.Position.X.Whole - samus.Position.X.Whole) >= range)
             return;
@@ -563,7 +562,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 place.Position = place.Position.WithWhole(place.RequireSpeciesState<MagdolliteOverlayState>().ThrowOrigin + shift.Offset);
                 break;
             case MagdolliteCue.Signal { Kind: MagdolliteCueKind.StartCooldown }:
-                place.RequireSpeciesState<MagdolliteOverlayState>().AttackCooldown = MagdolliteMotionDefinitions.AttackCooldown;
+                place.RequireSpeciesState<MagdolliteOverlayState>().AttackCooldown = UpdateCountdown.Lasting(MagdolliteMotionDefinitions.AttackCooldown);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(MagdolliteCue)} {cue}.");
@@ -591,16 +590,16 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 secondFollowing.Presence = secondFollowing.Presence.With(EnemyPresence.Deleted);
         }
 
-        if (current.FrozenTimer == 0)
+        if (current.Freeze.IsOver)
             return;
         if (following is not null)
         {
-            following.FrozenTimer = current.FrozenTimer;
+            following.Freeze.Restart(current.Freeze.UpdatesLeft);
             following.AiStates = following.AiStates | EnemyAiStates.Frozen;
         }
         if (secondFollowing is not null)
         {
-            secondFollowing.FrozenTimer = current.FrozenTimer;
+            secondFollowing.Freeze.Restart(current.Freeze.UpdatesLeft);
             secondFollowing.AiStates = secondFollowing.AiStates | EnemyAiStates.Frozen;
         }
     }
@@ -694,9 +693,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The lava starts where the throwing overlay stands, with its fractions of a pixel, a drop below it, and flies
         // sideways the way the overlay faces.
-        projectile.Position = new(new(source.Position.X.Whole, source.Position.X.Fraction), new(source.Position.Y.Whole + MagdolliteMotionDefinitions.LavaDrop, source.Position.Y.Fraction));
+        projectile.Position = source.Position.WithWholeY(source.Position.Y.Whole + MagdolliteMotionDefinitions.LavaDrop);
         projectile.Velocity = new(
-            thrown == HorizontalDirection.Right ? MagdolliteMotionDefinitions.LavaThrowSpeed : -MagdolliteMotionDefinitions.LavaThrowSpeed,
+            MagdolliteMotionDefinitions.LavaThrowSpeed.Toward(thrown),
             SignedEightEight.Zero);
         projectile.InstallAnimation(new MagdolliteLavaAnimation(thrown == HorizontalDirection.Right ? MagdolliteLavaSegment.Right : MagdolliteLavaSegment.Left));
     }

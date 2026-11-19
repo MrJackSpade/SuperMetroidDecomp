@@ -103,7 +103,7 @@ internal sealed class BombSpreadTransitionScenario
 
     /// <summary>Samus row after <paramref name="frame"/> ran with <paramref name="input"/>.</summary>
     internal string Row(int frame, ControllerButton input) =>
-        $"{(Left ? 1 : 0)},{Delay},{frame},{ControllerWordCodec.ToJoypadWord(input):X8},{(int)SamusPoseNumbers.Number(Samus.Pose):X4},{Samus.Position.X.Whole:X4},{Samus.Kinematics.Position.X.Fraction:X4},{Samus.Position.Y.Whole:X4},{Samus.Kinematics.Position.Y.Fraction:X4},{Samus.BeamCharge.FlareCounter:X4},{Samus.BombSpreadChargeTimeoutCounter:X4},{Runtime.Room.LoadedScope.BombProjectiles.BombCounter:X4}";
+        $"{(Left ? 1 : 0)},{Delay},{frame},{ControllerWordCodec.ToJoypadWord(input):X8},{(int)SamusPoseNumbers.Number(Samus.Pose):X4},{Samus.Position.X.Whole:X4},{Samus.Kinematics.Position.X.Fraction:X4},{Samus.Position.Y.Whole:X4},{Samus.Kinematics.Position.Y.Fraction:X4},{Samus.BeamCharge.FlareCounter:X4},{Samus.BombSpreadCharge.Age:X4},{Runtime.Room.LoadedScope.BombProjectiles.BombCounter:X4}";
 
     /// <summary>Whether <paramref name="frame"/> also records every bomb slot: the release window onward.</summary>
     internal bool RecordsBombs(int frame) => WallRoute ? frame >= 115 : Delay == 6 && frame >= 105;
@@ -135,7 +135,7 @@ internal sealed class BombSpreadTransitionScenario
             var slot = Runtime.Room.LoadedScope.BombProjectiles.Bombs[slotIndex];
             string bomb = $"bomb,{slotIndex},{(slot.IsActive ? 1 : 0)}";
             if (slot.IsActive)
-                bomb += $",{SuperMetroid.AssetExtraction.Samus.SamusProjectileWordEncoder.EncodeBombType(slot.Type, slot.IsBombSpread, slot.HasReactedToTerrain):X4},{slot.Position.X.Whole:X4},{slot.Position.X.Fraction:X4},{slot.Position.Y.Whole:X4},{slot.Position.Y.Fraction:X4},{FlightColumns(slot.SpreadFlight)},{slot.FuseUpdatesLeft:X4},{slot.Radius.X:X4},{slot.Radius.Y:X4},{(slot.Playback is { } playback ? Lists.Position(SuperMetroid.Core.Samus.Projectiles.SamusProjectilePlayback.BeatOf(playback)) : 0):X4},{slot.Animation!.UpdatesLeft:X4},{slot.Sprite?.Name}";
+                bomb += $",{SuperMetroid.AssetExtraction.Samus.SamusProjectileWordEncoder.EncodeBombType(slot.Type, slot.IsBombSpread, slot.HasReactedToTerrain):X4},{slot.Position.X.Whole:X4},{slot.Position.X.Fraction:X4},{slot.Position.Y.Whole:X4},{slot.Position.Y.Fraction:X4},{FlightColumns(slot.SpreadFlight)},{slot.Fuse.UpdatesLeft:X4},{slot.Radius.X:X4},{slot.Radius.Y:X4},{(slot.Playback is { } playback ? Lists.Position(SuperMetroid.Core.Samus.Projectiles.SamusProjectilePlayback.BeatOf(playback)) : 0):X4},{slot.Animation!.UpdatesLeft:X4},{slot.Sprite?.Name}";
             yield return bomb;
         }
     }

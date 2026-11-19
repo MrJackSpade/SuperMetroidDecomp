@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed class MotherBrainBody
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    private readonly BossFrameResultBuilder _frameResults;
+    private readonly EnemyPassEvents _passEvents;
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>
@@ -44,7 +44,7 @@ internal sealed class MotherBrainBody
     {
         _presentation = dependencies.Presentation;
         _places = dependencies.Places;
-        _frameResults = dependencies.FrameResults;
+        _passEvents = dependencies.PassEvents;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
         _earthquake = dependencies.Earthquake;
@@ -94,7 +94,7 @@ internal sealed class MotherBrainBody
         _presentation.AttachBossBody(BossBodyParts.Hidden(BossBodyOwner.MotherBrain, state));
         // Her glass shards and tube projectiles show their own colours, MotherBrainColours.GlassAndTubes (#1544).
         // Her room's acid rises, which the room loader applies after enemy initialization.
-        _frameResults.MotherBrainAcidChange = MotherBrainRoomFxDefinitions.AcidRises;
+        _passEvents.Publish(new MotherBrainAcidChange(MotherBrainRoomFxDefinitions.AcidRises));
         SpawnMotherBrainInitialTurrets(state);
     }
 
@@ -280,7 +280,7 @@ internal sealed class MotherBrainBody
             samus.RequestKnockback(EnemyCollisionDefinitions.SamusTouchInvincibilityUpdates,
                 EnemyCollisionDefinitions.SamusTouchKnockbackUpdates, KnockbackHorizontalDirection.Right);
             if (samus.Position.Y.Whole < MotherBrainFightDefinitions.BodyPushDownAboveY)
-                samus.Kinematics.YDirection = SamusVerticalDirection.Down;
+                samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.TurnedDownward();
 
             // Only contact to the right of the hurting touch's edge hurts Samus. Contact
             // elsewhere still installs the displacement and timers above without damage.
@@ -312,16 +312,16 @@ internal sealed class MotherBrainBody
             RoomEnemyProjectileKind.MotherBrainHandBeamCharging,
             _projectileAttacks.Projectile,
             graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading));
-        beam.Velocity = EightEightVector<RoomPixels>.Zero;
-        beam.Position = beam.Position.WithFractionX(0).WithFractionY(0);
+        beam.Velocity = PixelVelocity<RoomPixels>.Zero;
+        beam.Position = beam.Position.WithoutFractions();
         beam.Position = beam.Position.WithWhole(state.Body.Position.Whole + MotherBrainFightDefinitions.HandOffset);
 
         state.HandBeamNextPosition = FixedPosition<RoomPixels>.FromWhole(beam.Position.Whole);
 
-        TrigonometryAngle angle = EnemyMath.CalculateBearing(samus.Position.Whole - beam.Position.Whole)
-            .ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
+        TrigonometryAngle angle = EnemyMath.CalculateAimAngle(samus.Position.Whole - beam.Position.Whole)
+            .TurnedBy(TrigonometryAngle.QuarterTurn);
         state.HandBeamNextAngle = angle;
-        state.HandBeamNextVelocity = new EightEightVector<RoomPixels>(
+        state.HandBeamNextVelocity = new PixelVelocity<RoomPixels>(
             EnemyMath.SineSpeed(MotherBrainHandBeamDefinitions.Speed, angle),
             EnemyMath.SineSpeed(MotherBrainHandBeamDefinitions.Speed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
 

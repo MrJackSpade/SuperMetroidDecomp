@@ -20,7 +20,7 @@ public sealed class PuyoEnemyState
     /// The grounded updates left before the next hop, the one it hops on included: its placement's hop cooldown and the
     /// update it runs out on (<see cref="EnemyWaitDefinitions.RunOutUpdate"/>, #2281).
     /// </summary>
-    public int HopCooldownTimer { get; internal set; }
+    public UpdateCountdown HopCooldownTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>Whether the Puyo is grounded, or airborne rising or falling (#2512).</summary>
     public PuyoAction Action { get; internal set; }
@@ -65,7 +65,7 @@ public sealed class PuyoEnemyState
         {
             case PuyoAction.Falling:
                 YSpeedCurvePlace += delta;
-                if (PuyoFallRestart.StartsOver(YSpeedCurvePlace.InTwoHundredFiftySixthsOfMark))
+                if (PuyoFallRestart.StartsOver(YSpeedCurvePlace.WholeMarks))
                     YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
                 return;
             case PuyoAction.Rising:

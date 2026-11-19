@@ -31,6 +31,9 @@ internal static class ProjectileSheetComposer
         SamusBeamCombination.SpazerPlasmaWave, SamusBeamCombination.SpazerPlasmaIce,
     ];
 
+    /// <summary>The trail poses a projectile sheet holds, in its order, each listed once (#2567).</summary>
+    private static readonly IReadOnlyList<ProjectileTrailFrame> TrailFrames = Ensure.EveryMemberOnce(ProjectileSheetDefinitions.TrailFrames);
+
     /// <summary>The flare compositions a projectile sheet holds: every flare and spark composition.</summary>
     internal static IEnumerable<ProjectileSpriteId> FlareCompositions => ChargeFlareSpriteDefinitions.All;
 
@@ -43,7 +46,7 @@ internal static class ProjectileSheetComposer
     internal static IEnumerable<string> Frames(SpriteSheetId sheet, InstalledProjectileFrameBindings bindings) =>
         Compositions(Combination(sheet), bindings).Select(ProjectileSheetFrames.ProjectileFrame)
             .Concat(FlareCompositions.Select(ProjectileSheetFrames.FlareFrame))
-            .Concat(Enum.GetValues<ProjectileTrailFrame>().Select(ProjectileSheetFrames.TrailFrame))
+            .Concat(TrailFrames.Select(ProjectileSheetFrames.TrailFrame))
             .Concat(HitBursts(sheet).Select(ProjectileSheetFrames.HitBurstFrame));
 
     /// <summary>
@@ -110,7 +113,7 @@ internal static class ProjectileSheetComposer
             frames.Add(new(ProjectileSheetFrames.FlareFrame(composition), artwork.Compositions.Flares.Frame(composition), page));
         }
         // A trail sparkle's picture is placed by its centre, where the sparkle is (#2573).
-        foreach (ProjectileTrailFrame pose in Enum.GetValues<ProjectileTrailFrame>())
+        foreach (ProjectileTrailFrame pose in TrailFrames)
             frames.Add(new(ProjectileSheetFrames.TrailFrame(pose), SpritePartFrames.CentredSmallObject(artwork.Compositions.Trails.Resolve(pose), 0), page));
         // The burst is one of Samus's weapon effects: it is pictured over the combination's page in her beams' colours, and
         // shows her beams' current colouring through the sheet's shades as her other beam pictures do.

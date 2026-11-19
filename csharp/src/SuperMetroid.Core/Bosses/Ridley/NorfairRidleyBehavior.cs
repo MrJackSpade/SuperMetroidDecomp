@@ -63,7 +63,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
         SamusState samus = frame.Samus;
         SamusProjectileSystem samusProjectiles = frame.SamusProjectiles;
         SamusBombProjectileSystem sharedProjectiles = frame.SharedProjectiles;
-        state.HurtMovementClamp = Math.Max(0, state.HurtMovementClamp - NorfairRidleyMotionDefinitions.HurtCarryLagRecovery);
+        state.HurtCarryLag.RecoverOnOrdinaryUpdate();
 
         RidleyInteractions.UpdateNorfairRidleyIntangibility(place, state, frame.Camera);
         NorfairRidleyCombat.PrepareNorfairRidleyCombatFrame(state, sharedProjectiles);
@@ -170,7 +170,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
                         NorfairRidleyPhase.SwoopAimUp,
                         NorfairRidleyMotionDefinitions.SwoopTurnUpdates))
                 {
-                    state.Tail.WhipRequested = true;
+                    state.Tail.Whip.Give();
                 }
                 return;
 
@@ -398,8 +398,8 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
         RidleyBodyContact.UpdateHurtFlash(body, state, body.FrameCounter);
         RidleyInteractions.UpdateNorfairRidleyHealthBand(body, state);
 
-        state.HurtMovementClamp = Math.Min(NorfairRidleyMotionDefinitions.HurtCarryLag, state.HurtMovementClamp + 1);
-        if (state.GrabState != RidleyGrabState.Released && state.HurtMovementClamp >= NorfairRidleyMotionDefinitions.HurtCarryLag)
+        state.HurtCarryLag.BuildOnHurtUpdate();
+        if (state.GrabState != RidleyGrabState.Released && state.HurtCarryLag.IsFull)
             NorfairRidleyCombat.UpdateNorfairRidleyGrabbedSamus(body, state, samus);
     }
 

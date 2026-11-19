@@ -79,7 +79,7 @@ internal static class GrappleConnectionDefinitionsVerification
             if (sourcePose < 0) continue; // Native unused movement $0C has no authored pose.
             metadataPose = samus.Pose = SamusPoseNumbering.FromNumber(sourcePose);
             samus.Position = samus.Position.WithWhole(new(512, 512));
-            samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(vertical == 1 ? (ushort)1 : (ushort)0, vertical == 2 ? (ushort)1 : (ushort)0);
+            samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(new UnsignedSixteenSixteen(vertical == 1 ? (ushort)1 : (ushort)0, vertical == 2 ? (ushort)1 : (ushort)0));
             var g = samus.Grapple;
             g.FireDirection = (SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)direction; g.Anchor = g.Anchor.WithX(536); g.Anchor = g.Anchor.WithY(520); g.RopeLength = 32;
             samus.LiquidPhysics.BeginFrameSoundRequests();
@@ -102,8 +102,8 @@ internal static class GrappleConnectionDefinitionsVerification
             bool locked = function == 0xc77e;
             AssertEqual(locked ? GrapplePhase.ConnectedLocked : GrapplePhase.ConnectedSwinging, g.Phase, "Actual next connection phase");
             AssertEqual(locked, g.Phase == GrapplePhase.ConnectedLocked, "Connection locks Samus in place");
-            AssertEqual(0, samus.Kinematics.YSpeed.Whole, "Connection clears Y whole speed");
-            AssertEqual(0, samus.Kinematics.YSpeed.Fraction, "Connection clears Y fractional speed");
+            AssertEqual(0, samus.Kinematics.VerticalVelocity.Speed.Whole, "Connection clears Y whole speed");
+            AssertEqual(0, samus.Kinematics.VerticalVelocity.Speed.Fraction, "Connection clears Y fractional speed");
         }
     }
 
@@ -156,14 +156,14 @@ internal static class GrappleConnectionDefinitionsVerification
         for (int coordinate = SnapAnchorFirst; coordinate <= SnapAnchorLast; coordinate++)
         {
             g.Anchor = g.Anchor.WithX(coordinate); g.Anchor = g.Anchor.WithY(SnapAnchorFirst + SnapAnchorLast - coordinate);
-            g.Angle = row.Angle; g.WallJumpTimer = 77;
+            g.Angle = row.Angle; g.WallJumpTimer = UpdateCountdown.For(77);
             AssertTrue(special(samus, g, preSnap, out var result), "Native special record dispatch");
             int x = g.Anchor.X + row.SamusOffset.X, y = g.Anchor.Y + row.SamusOffset.Y;
             AssertEqual(x, samus.Position.X.Whole, "Special body X");
             AssertEqual(y, samus.Position.Y.Whole, "Special body Y");
             AssertEqual(row.Pose, samus.Pose, "Special body pose");
             AssertEqual(row.Kind == GrappleConnectionKind.LockedInPlace ? GrapplePhase.ConnectedLocked : GrapplePhase.WallGrab, g.Phase, "Special next phase");
-            AssertEqual(0, g.WallJumpTimer, "Special resets wall-jump timer");
+            AssertEqual(0, g.WallJumpTimer.UpdatesLeft, "Special resets wall-jump timer");
             AssertEqual(Clamp(x, preSnap.X), (result.CameraPrevious ?? throw new InvalidOperationException("Verification requires result.CameraPrevious.")).X, "Special previous-camera X clamp");
             AssertEqual(Clamp(y, preSnap.Y), result.CameraPrevious.Value.Y, "Special previous-camera Y clamp");
         }
@@ -217,14 +217,14 @@ internal static class GrappleConnectionDefinitionsVerification
                 SamusSourceDefinitions.PoseDefinitions.Value + sourcePose * 8 + 3);
             samus.Pose = SamusPoseNumbering.FromNumber(sourcePose);
             samus.Grapple.Phase = GrapplePhase.Firing; samus.Grapple.FireDirection = SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Right;
-            samus.Grapple.PoseChangeAutoFireTimer = timer;
+            samus.Grapple.PoseChangeAutoFireTimer = UpdateCountdown.For(timer);
             samus.LiquidPhysics.BeginFrameSoundRequests();
             var result = cancel(empty, samus, 0);
             bool invalidDirection = (direction & 0xf0) != 0;
             bool cancelled = banned || invalidDirection || (direction != 2 && timer <= 1);
             AssertEqual(cancelled ? GrapplePhase.Inactive : GrapplePhase.Firing, samus.Grapple.Phase, "Actual cancellation/refire phase");
             AssertEqual(!cancelled && direction == 2, !result.HasValue, "Unchanged aim retains current dispatch");
-            AssertEqual(cancelled ? 0 : direction != 2 ? 10 : Math.Max(0, timer - 1), samus.Grapple.PoseChangeAutoFireTimer, "Cancellation/refire timer ordering");
+            AssertEqual(cancelled ? 0 : direction != 2 ? 10 : Math.Max(0, timer - 1), samus.Grapple.PoseChangeAutoFireTimer.UpdatesLeft, "Cancellation/refire timer ordering");
         }
         for (byte direction = 0; direction < 10; direction++)
         for (int radius = 0; radius <= ushort.MaxValue; radius++)

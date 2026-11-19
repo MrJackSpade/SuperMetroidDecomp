@@ -547,7 +547,7 @@ internal static class LookupStream4Verification
                 expectedZoom -= fast ? 8 : 2;
                 step();
                 AssertEqual(RotationAngle.FromSteps((byte)expectedAngle), floor.Angle, "rotation context advances independently of selected signs");
-                AssertEqual(FloorZoom.FromTwoHundredFiftySixths(expectedZoom), floor.Zoom, "zoom context advances independently of selected signs");
+                AssertEqual(FloorZoomConstants.FromTwoHundredFiftySixths(expectedZoom), floor.Zoom, "zoom context advances independently of selected signs");
                 AssertEqual((ushort)SixteenSixteenWords.WholeOf(expected), floor.Position.X.UnsignedWholePixels, "production shake whole position follows the authored sequence");
                 AssertEqual((ushort)expected, floor.Position.X.Fraction, "production shake fraction preserves carry/borrow");
                 AssertEqual((frame + 1) % count, state.Flyaway.ShipShake.Place, "production shake moves on after each displacement and starts again after the last");
@@ -810,7 +810,7 @@ internal static class LookupStream4Verification
                 state.Step();
             }
             AssertTrue(!state.Shown().Contains(subtitle), "Actual ending state clears the subtitle at its hold boundary");
-            AssertTrue(state.RequestedItemPercentageScroll, "Subtitle clear preserves completion and scroll handoff");
+            AssertTrue(state.TypesItemPercentage && state.Completed, "Subtitle clear preserves completion and scroll handoff");
         }
     }
 
@@ -873,7 +873,7 @@ internal static class LookupStream4Verification
         // The station's escape flies the getaway (#2228), from its second frame.
         CeresEscape escape = enemies.CeresEscape;
         escape.BeginGetaway();
-        escape.Floor.GetawayUpdate = 1;
+        escape.Floor.Flight = UpdateCountdownAccess.AtAge(CeresRidleyGetawayCurve.Duration, 1);
         SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
         void tick(int frameCounter) => escape.RunGetawayRoomMain(samus, map, frameCounter);
         byte[] untouched = new byte[SnesVram.ByteCount];
@@ -1102,7 +1102,7 @@ internal static class LookupStream4Verification
                 if (CartridgeImportSource.Require(rom).ReadCartridgeWord((entry + 2)) != 0) nativeTitlePointers.Add(CartridgeImportSource.Require(rom).ReadCartridgeWord((entry + 2)));
         AssertEqual(31, nativeTitlePointers.Count, "native title sprite catalog size");
         AssertEqual(TitleGraphicsFormat.Sprites.Count, Enum.GetValues<TitleSprite>().Length, "title composition domain is complete");
-        AssertTrue(nativeTitlePointers.SetEquals(SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(rom).All),
+        AssertTrue(nativeTitlePointers.SetEquals(SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(rom).Spritemaps),
             "extraction maps every native title selector to exactly one named composition or card typing step");
         AssertEqual(4, TitleSequenceDefinitions.Graphics.BabyAnimation.Count, "title baby animation frame count");
         for (int frame = 0; frame < 4; frame++)
@@ -1246,12 +1246,12 @@ internal static class LookupStream4Verification
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseNumbering.FromNumber(pose) };
             byte flags = rom.ReadCartridgeByte(0xa6bd04 + rom.ReadCartridgeByte(0x91b62a + pose * 8));
             AssertEqual((flags & 0x80) != 0, canGrab(samus), "Actual grab policy preserves each native real-pose classification");
-            var state = new NorfairRidleyState { GrabState = RidleyGrabState.CarryingSamus, Tail = { WhipRequested = false, Action = RidleyTailAction.Pogo }, ReleaseIntangibility = BossCountdown.Lasting(99) };
+            var state = new NorfairRidleyState { GrabState = RidleyGrabState.CarryingSamus, Tail = { Action = RidleyTailAction.Pogo }, ReleaseIntangibility = BossCountdown.Lasting(99) };
             release(state, samus);
             // The release's intangibility lasts its frames: the countdown runs out on the step of the last.
-            AssertEqual((flags & 0x40) != 0 ? morphedFrames - 1 : ordinaryFrames - 1, state.ReleaseIntangibility?.Count, "Actual release preserves native movement-dependent intangibility");
+            AssertEqual((flags & 0x40) != 0 ? morphedFrames - 1 : ordinaryFrames - 1, state.ReleaseIntangibility?.CartridgeCount, "Actual release preserves native movement-dependent intangibility");
             AssertEqual(RidleyGrabState.Released, state.GrabState, "Actual release clears grab");
-            AssertTrue(state.Tail.WhipRequested, "Actual release requests tail whip");
+            AssertTrue(state.Tail.Whip.IsWaiting, "Actual release requests tail whip");
             AssertEqual(RidleyTailAction.Neutral, state.Tail.Action, "Actual release resets tail controller");
         }
 
@@ -1629,8 +1629,8 @@ internal static class LookupStream4Verification
         // The attack initializer adds eight pixels to the table's X before placing the shot.
         AssertEqual(new Offset16<RoomPixels>(checked((short)(8 + NativeWord(0x86b65b))), NativeWord(0x86b65d)), EyeDoorEffectDefinitions.LeftShotOrigin, "left eye-door shot origin");
         AssertEqual(new Offset16<RoomPixels>(checked((short)(8 + NativeWord(0x86b65b + 20))), NativeWord(0x86b65b + 22)), EyeDoorEffectDefinitions.RightShotOrigin, "right eye-door shot origin");
-        AssertEqual(EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(NativeWord(0x86b6b1), NativeWord(0x86b6b3)), EyeDoorEffectDefinitions.LeftSweatLaunch, "left eye-door sweat launch");
-        AssertEqual(EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(NativeWord(0x86b6b1 + 4), NativeWord(0x86b6b1 + 6)), EyeDoorEffectDefinitions.RightSweatLaunch, "right eye-door sweat launch");
+        AssertEqual(new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(NativeWord(0x86b6b1)), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(NativeWord(0x86b6b3))), EyeDoorEffectDefinitions.LeftSweatLaunch, "left eye-door sweat launch");
+        AssertEqual(new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(NativeWord(0x86b6b1 + 4)), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(NativeWord(0x86b6b1 + 6))), EyeDoorEffectDefinitions.RightSweatLaunch, "right eye-door sweat launch");
         // The fourth choice names the bottom cannon's word, $880A, which no room places and Draygon's setup disables: it fires
         // from none (#1686).
         AssertEqual(4, DraygonCannonData.FiringCannon.Field.Outcomes, "Draygon firing choices");
@@ -1751,7 +1751,7 @@ internal static class LookupStream4Verification
                 Action<RoomEnemyPlace,DraygonEnemyState,SamusState> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
-                    body.FlashTimer=timer; hurt(body,state,SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus()); LayDraygonShading(cgram, selected, state.Colours);
+                    body.HurtFlash.Restart(timer); hurt(body,state,SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus()); LayDraygonShading(cgram, selected, state.Colours);
                     for(int color=0;color<16;color++)AssertEqual(Pack((timer==2?document.WhiteFlash:document.Sprite)[color]),cgram.Colors[240+color],"Actual sprite hurt phase and clear/color targets");
                 }
             }
@@ -1803,7 +1803,7 @@ internal static class LookupStream4Verification
                 Action<RoomEnemyPlace,DraygonEnemyState,SamusState> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
-                    body.FlashTimer=timer; hurt(body,state,SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus()); LayDraygonShading(cgram, selected, state.Colours);
+                    body.HurtFlash.Restart(timer); hurt(body,state,SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus()); LayDraygonShading(cgram, selected, state.Colours);
                     for(int color=0;color<16;color++) AssertEqual(timer==2?Pack(document.WhiteFlash[color]):color is >=9 and <=12?Pack(document.HealthBands[3][color-9]):Pack(document.Background[color]),cgram.Colors[80+color],"Actual hurt producer preserves targets and health overlay");
                 }
             }
@@ -1855,9 +1855,9 @@ internal static class LookupStream4Verification
                     for (int shade = 0; shade < 4; shade++) AssertEqual(Pack(document.HealthBands[band][shade]), cgram.Colors[89 + shade], "Actual health producer shows the band's colours");
                     PictureShading heldBand = DraygonRoomShading(state.Colours); update(state);
                     AssertEqual(heldBand, DraygonRoomShading(state.Colours), "Same health band keeps the shading it shows");
-                    body.FlashTimer = 2; hurt(body,state,SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus()); LayDraygonShading(cgram, selected, state.Colours);
+                    body.HurtFlash.Restart(2); hurt(body,state,SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus()); LayDraygonShading(cgram, selected, state.Colours);
                     for (int color = 0; color < 16; color++) AssertEqual(Pack(document.WhiteFlash[color]),cgram.Colors[80 + color],"Actual white hurt phase");
-                    body.FlashTimer = 0; hurt(body,state,SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus()); LayDraygonShading(cgram, selected, state.Colours);
+                    body.HurtFlash.End(); hurt(body,state,SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus()); LayDraygonShading(cgram, selected, state.Colours);
                     for (int color = 0; color < 16; color++)
                     {
                         AssertEqual(color is >= 9 and <= 12 ? Pack(document.HealthBands[band][color - 9]) : Pack(document.Background[color]), cgram.Colors[80 + color], "Actual normal hurt restores selected belly band");
@@ -1968,7 +1968,7 @@ internal static class LookupStream4Verification
                 }
                 AssertEqual(RidleyRevealPhase.TakingOff, state.RevealPhase, "Native terminator handoff");
                 AssertEqual<int?>(RidleyLiquidDefinitions.BattleHeight, liquid.TargetSurface, "Native liquid target handoff");
-                AssertEqual(8, state.Flight.Wings.Countdown, "Native wing timer handoff");
+                AssertEqual(8, state.Flight.Wings.Countdown.Left, "Native wing timer handoff");
                 AssertTrue(state.Tail.Links.All(segment => segment.Active), "Native tail activation handoff");
             }
         }
@@ -2173,7 +2173,7 @@ internal static class LookupStream4Verification
                 RidleyExplosionFragmentState fragmentState = fragment.SpeciesState<RidleyExplosionFragmentState>()
                     ?? throw new InvalidOperationException("A spawned fragment has no state.");
                 AssertEqual((ushort)((0x100 + 0x10 * index) & 0x130), fragmentState.Velocity.X.RawValue, "Actual breakup maps each random draw to its original fragment");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + expected[index])), fragmentState.Lifetime.Count, "Actual breakup preserves each unresolved native lifetime");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + expected[index])), fragmentState.Lifetime.CartridgeCount, "Actual breakup preserves each unresolved native lifetime");
             }
         }
         Console.WriteLine("Ridley ordered spawning: native twelve-call order, exact RNG assignment, partial/full pool exhaustion pass.");
@@ -2342,7 +2342,7 @@ internal static class LookupStream4Verification
             CeresEscape escape = enemies.CeresEscape;
             var ridley = new CeresRidleyState(Position16<RoomPixels>.Zero);
             IReadOnlyList<SheetShade> zoomRoom = RidleySheetShades.CeresRoom(ceresStock, selected);
-            Action<ushort> apply = appliedZoom => escape.ShowFloorZoom(FloorZoom.FromTwoHundredFiftySixths(appliedZoom));
+            Action<ushort> apply = appliedZoom => escape.ShowFloorZoom(FloorZoomConstants.FromTwoHundredFiftySixths(appliedZoom));
             for (int row = 0; row < 9; row++)
             {
                 apply((ushort)(row * 256 + 255));

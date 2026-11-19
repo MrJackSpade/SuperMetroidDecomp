@@ -33,7 +33,7 @@ internal static class ProjectileTrailArtworkVerification
                 if (word < 0x8000) { encountered.Add(cursor); cursor += 4; }
                 else { cursor += 2; }
             }
-            var authoredSystem = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
+            var authoredSystem = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             // The native interpreter's own trail, run beside the port's, and the cartridge's retained tile words it keeps.
             var nativeTrail = new NativeTrail(NativeTrailSide.StartingAt(start, Position16<RoomPixels>.Of(100, 100)), NativeTrailSide.StartingAt(start, Position16<RoomPixels>.Of(100, 100)));
             SamusProjectileTrail authoredTrail = authoredSystem.AddTrail(Position16<RoomPixels>.Of(100, 100));
@@ -86,7 +86,7 @@ internal static class ProjectileTrailArtworkVerification
         {
             ushort frame = ProjectileTrailNative.Address(pose);
             ushort attributes = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusSourceDefinitions.MovementBank.Value | (frame + 2));
-            var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
+            var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             var side = system.AddTrail(Position16<RoomPixels>.Of(coordinate, coordinate)).Left;
             side.RestoreNative((ushort)(frame + 4), 3, pose);
             // The OAM capacity stop is a dropped presentation quirk (#1308), and so is the off-screen cull (#1541):
@@ -113,7 +113,7 @@ internal static class ProjectileTrailArtworkVerification
         }
         var document = RequiredJson.Parse(json);
         ProjectileTrailFrame first = ProjectileTrailFrame.IceSparkleClustered;
-        var animation = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
+        var animation = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         var trail = animation.AddTrail(Position16<RoomPixels>.Of(100, 100)).Left;
         trail.RestoreNative(ProjectileTrailNative.Address(first), 1, shownPose: null);
         OamBuffer frozen = SpriteFrameBuffer.DrawnOam(sprites =>

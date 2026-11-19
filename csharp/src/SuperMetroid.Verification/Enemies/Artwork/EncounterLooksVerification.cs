@@ -32,7 +32,7 @@ internal static class EncounterLooksVerification
         looks.Show(eyes);
         looks.Show(gut);
         AssertTrue(looks.Shows(gut) && !looks.Shows(eyes), "a Torizo shows the look it named last");
-        AssertTrue(EncounterLookUploads.IndexOf(ComposedEncounter.BombTorizo, eyes) < EncounterLookUploads.IndexOf(ComposedEncounter.BombTorizo, gut),
+        AssertTrue(EncounterLookUploadsConstants.IndexOf(ComposedEncounter.BombTorizo, eyes) < EncounterLookUploadsConstants.IndexOf(ComposedEncounter.BombTorizo, gut),
             "the import composes the gut's look over the lit eyes'");
 
         AssertEqual(EncounterLook.Loaded(EncounterArtwork.Gunship), new EncounterLooks().Current(EncounterArtwork.Gunship),

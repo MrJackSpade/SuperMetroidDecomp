@@ -29,7 +29,7 @@ internal static class SporeSpawnCameraFloorVerification
 
         RoomEnemyPlace body = live.Places.InUpdateOrder[0];
         body.Health = 0;
-        body.FlashTimer = 0;
+        body.HurtFlash.End();
         EnemyBombContext killingBomb = KillingBomb(body);
         // His body's own stages around common bomb damage, for the bomb that selects his shot reaction.
         EnemyBombReaction reaction = (body.Entity as IEnemyBombReaction)?.CommonBombDamageReaction(killingBomb)
@@ -82,7 +82,7 @@ internal static class SporeSpawnCameraFloorVerification
     private static EnemyBombContext KillingBomb(RoomEnemyPlace body)
     {
         var ordinaryProjectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads,
-            new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
+            new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         var bomb = new SamusBomb(0)
         {
             Type = SamusProjectileType.Of(SamusProjectileFamily.Bomb),

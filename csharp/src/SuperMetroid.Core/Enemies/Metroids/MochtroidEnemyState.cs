@@ -9,7 +9,11 @@ public sealed class MochtroidEnemyState
     /// <summary>The Mochtroid's velocity in room pixels per update, positive right and down.</summary>
     public FixedVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>How the Mochtroid moves this update, cleared before each run of its main AI.</summary>
+    /// <summary>
+    /// How the Mochtroid moves on its next main AI (#2562): attached while Samus has touched it since its last, free
+    /// otherwise. Its touch, which the contact step resolves apart from its main AI, attaches it, and its main AI's run is
+    /// the attachment's end: it moves attached, and is free again unless a touch comes before its next run.
+    /// </summary>
     public MochtroidMovementMode MovementMode { get; internal set; }
 
     /// <summary>
@@ -19,17 +23,9 @@ public sealed class MochtroidEnemyState
     internal AnimationPlayback<MochtroidSegment> Playback { get; set; }
 
     /// <summary>
-    /// Attached updates counted since the last contact damage: contact damage occurs once the count reaches the damage
-    /// period. An update in which Samus attacks with her body counts without the check, but that touch kills the
-    /// Mochtroid outright, every body attack dealing at least its whole health, so the count never runs far past the
-    /// period.
+    /// The drain period between contact damages, counted each attached update: contact damage occurs once it is over,
+    /// and starts it again. An update in which Samus attacks with her body counts it without the check, but that touch
+    /// kills the Mochtroid outright, every body attack dealing at least its whole health.
     /// </summary>
-    public int AttachmentDamageTimer { get; internal set; }
-
-    /// <summary>Counts one attached update.</summary>
-    internal void CountAttachedUpdate() => AttachmentDamageTimer++;
-
-    /// <summary>Whether the count has reached <paramref name="period"/>.</summary>
-    /// <param name="period">The damage period in attached updates.</param>
-    internal bool HasReachedDamagePeriod(int period) => AttachmentDamageTimer >= period;
+    public UpdateCountdown DrainPeriod { get; internal set; } = UpdateCountdown.Lasting(MochtroidBehaviorDefinitions.AttachedDrainPeriod);
 }

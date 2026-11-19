@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Elevator;
@@ -52,8 +53,12 @@ internal sealed class GameplayActorDrawing
 
     /// <summary>What Samus's projectile, bomb, flare and trail draws show: each the sheet of its own beams (#1586).</summary>
     private ProjectileDrawArtwork ProjectileArtwork => new(_artwork.ProjectileSheets);
-    /// <summary>Shared enemy-layer/Samus/projectile drawing, independently of movement.</summary>
-    internal void DrawGameplayActors(RoomScope room, SamusState samus, SamusDrawOwner owner, SamusColourEffects colourEffects)
+    /// <summary>
+    /// Shared enemy-layer/Samus/projectile drawing, independently of movement. <paramref name="deathStep"/> is the frame's
+    /// death-sequence step, which a frame the death sequence owns draws.
+    /// </summary>
+    internal void DrawGameplayActors(RoomScope room, SamusState samus, SamusDrawOwner owner, SamusColourEffects colourEffects,
+        SamusDeathSequenceStepResult? deathStep)
     {
         bool deathOwnsSamus = owner == SamusDrawOwner.DeathSequence;
         // The frame draws bomb/projectile explosions before reaching the enemy-layer
@@ -90,7 +95,7 @@ internal sealed class GameplayActorDrawing
             // A cancelled move or a new pose asks for the normal suit during movement, before this colour step. That
             // shade shows first, so the charge and drained colourings of the same update show over it.
             if (!deathOwnsSamus)
-                samus.HorizontalSpeed.ApplyPendingSuitShadeRestore(
+                samus.HorizontalSpeed.ShowDueSuitShade(
                     _player.Colours, samus.EquippedItems);
             bool drainedOwnsSamusColours = !deathOwnsSamus &&
                 samus.Drained.UpdateColouring(_player.Colours, samus.EquippedItems);
@@ -155,7 +160,7 @@ internal sealed class GameplayActorDrawing
 
         if (deathOwnsSamus)
         {
-            if (_player.LastDeathSequenceStep is { } step)
+            if (deathStep is { } step)
                 samus.DeathSequence.Draw(step.Draws, samus, _sprites, room.Camera.PixelPosition, _display.ActiveTurningFloor);
         }
         else
@@ -326,7 +331,7 @@ internal sealed class GameplayActorDrawing
             samus.InputSnapshot.SnapshotDrawInput(_playerActions.Current, _playerActions.NewlyPressed);
             SamusInputSnapshot.UpdateHurtFlashFromHealthLoss(samus);
             // The demo's input is never replaced with auto-jump.
-            if (_attractSession.IsAttractDemo) samus.InputSnapshot.AutoJumpInputPending = false;
+            if (_attractSession.IsAttractDemo) samus.InputSnapshot.AutoJump.Reinstate();
 
             // The charge-sound latch follows the drawing of Samus and her projectiles. A hurt flash's sound-recovery update
             // may have armed this latch above; consuming it here preserves both the

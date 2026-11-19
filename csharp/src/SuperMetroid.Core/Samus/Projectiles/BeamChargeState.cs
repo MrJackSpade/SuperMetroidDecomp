@@ -17,7 +17,7 @@ internal sealed class BeamChargeState
     /// </summary>
     internal void ClearCount()
     {
-        FlareCounter = 0;
+        charge.Restart(BeamChargeDefinitions.SpecialAttackCounter);
         HyperBeamFlare = false;
     }
 
@@ -26,12 +26,18 @@ internal sealed class BeamChargeState
     /// <see cref="BeamChargeDefinitions.SpecialAttackCounter"/> is the special-attack clamp, past which the
     /// charge advances no further. Zero while the Hyper Beam's flare shows (<see cref="HyperBeamFlare"/>).
     /// </summary>
-    [IntegerQuantity("updates the charge flare has shown")]
-    public int FlareCounter
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, BeamChargeDefinitions.SpecialAttackCounter, value);
-    }
+    public int FlareCounter => charge.Age;
+
+    /// <summary>
+    /// The charge, lasting <see cref="BeamChargeDefinitions.SpecialAttackCounter"/> and counted once each update Samus
+    /// holds it until it is over: its age is <see cref="FlareCounter"/>, whose named stages arm the charged shot, start
+    /// the charging sound and show the flare's components.
+    /// </summary>
+    private readonly UpdateCountdown charge = UpdateCountdown.Lasting(BeamChargeDefinitions.SpecialAttackCounter);
+
+    /// <summary>Counts one update of the charge held.</summary>
+    /// <exception cref="InvalidOperationException">The charge has already reached the special-attack clamp.</exception>
+    internal void CountChargeUpdate() => charge.Count();
 
     /// <summary>
     /// Whether the Hyper Beam's flare shows (#1682): a Hyper Beam shot starts it in place of the charge, and it ends when
@@ -98,7 +104,7 @@ internal sealed class BeamChargeState
     /// <summary>The Hyper Beam's shot: every component shows its last picture, to count its pictures backward from there.</summary>
     internal void StartHyperBeamFlare()
     {
-        FlareCounter = 0;
+        charge.Restart(BeamChargeDefinitions.SpecialAttackCounter);
         HyperBeamFlare = true;
         foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
             Flare(component).StartBackward();

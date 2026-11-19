@@ -46,7 +46,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         place.SetSpeciesState(state);
         state.SpawnPosition = place.Position.Whole;
         state.EmergenceTopY = state.SpawnPosition.Y - PipeBugDefinitions.BrinstarEmergenceHeight;
-        state.RespawnDelay = PipeBugDefinitions.BrinstarRespawnWait;
+        state.RespawnDelay = UpdateCountdown.For(PipeBugDefinitions.BrinstarRespawnWait);
         state.Playback = new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(
             PipeBugAnimationChoices.Rising(KindOf(place), HorizontalDirection.Left)), AnimationPlace.StartOfAnimation);
     }
@@ -79,7 +79,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new YellowPipeBugState(YellowPipeBugAction.WaitForSamus);
         place.SetSpeciesState(state);
         state.SpawnPosition = place.Position.Whole;
-        place.Position = place.Position.WithFractionX(0).WithFractionY(0);
+        place.Position = place.Position.WithoutFractions();
         state.Playback = EnemyAnimationPlayback.Start(place, PipeBugAnimations.StartingWith(
             place.SpawnSettings<YellowPipeBugSpawnSettings>().Facing == HorizontalDirection.Left
                 ? PipeBugSegment.GeegaFlyingLeft
@@ -110,7 +110,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunBrinstarPipeBugFlight(place, state, camera.X);
                 return;
             case BrinstarPipeBugAction.RespawnDelay:
-                if (--state.RespawnDelay == 0)
+                if (state.RespawnDelay.StepEnds())
                     state.Action = BrinstarPipeBugAction.WaitForSamus;
                 return;
             default:
@@ -158,7 +158,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 // A departed member flies at its spawn settings' speed toward Samus's side.
                 SignedSixteenSixteen flightSpeed = place.SpawnSettings<NorfairPipeBugSpawnSettings>().Speed;
                 AddPipeBugLinearVelocity(place, axis: Axis.Horizontal,
-                    state.FlightDirection == HorizontalDirection.Left ? -flightSpeed : flightSpeed);
+                    flightSpeed.Toward(state.FlightDirection));
                 ResetNorfairPipeBugIfOffScreen(place, state, camera);
                 return;
             default:
@@ -249,16 +249,16 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         // crosses the edge and continues from the far end of the room's coordinates, which the despawn test reads as
         // left of the room, so this room wrap is the flight's end (#2373).
         place.Position = OffRoomPlaces.WithWholeX(place.Position, place.Position.X.Whole +
-            (state.Flight == HorizontalDirection.Left ? -PipeBugDefinitions.BrinstarFlightStep : PipeBugDefinitions.BrinstarFlightStep));
+            (PipeBugDefinitions.BrinstarFlightStep.Toward(state.Flight)));
         // The despawn tests only the horizontal screen extent.
         if (!EnemyProcessingWindow.EnemyIsHorizontallyOffScreen(place, cameraX))
             return;
 
-        place.Position = place.Position.WithWhole(state.SpawnPosition).WithFractionX(0)
+        place.Position = place.Position.WithWhole(state.SpawnPosition).WithFractionX(PixelFraction.None)
             .WithY(PipeBugEmergenceRise.Respawned(state.SpawnPosition.Y));
         SelectBrinstarPipeBugAnimation(place, state, PipeBugAnimationChoices.Rising(KindOf(place), HorizontalDirection.Left));
         place.Presence = place.Presence.With(EnemyPresence.Hidden);
-        state.RespawnDelay = PipeBugDefinitions.BrinstarRespawnWait;
+        state.RespawnDelay = UpdateCountdown.For(PipeBugDefinitions.BrinstarRespawnWait);
         state.Action = BrinstarPipeBugAction.RespawnDelay;
     }
 
@@ -299,7 +299,6 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        leaderState.CountFormationTick();
         // Only the leader's animation clock restarts. The formation then changes every member's animation but leaves
         // the followers' frame timers as they are, a killed member's included.
         leader.AnimationClock.Restart();
@@ -316,6 +315,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             memberState.Action = NorfairPipeBugAction.Rise;
             memberState.Role = member.Role;
         }
+        // The launch counts one formation update of the leader's, once its role gives its wait its length.
+        leaderState.CountFormationTick();
     }
 
     /// <summary>Raises one Norfair bug until it passes Samus's Y and selects its authored post-rise action.</summary>
@@ -350,7 +351,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         AddPipeBugLinearVelocity(
             place,
             axis: Axis.Vertical,
-            up ? -PipeBugDefinitions.NorfairRiseSpeed : PipeBugDefinitions.NorfairRiseSpeed);
+            PipeBugDefinitions.NorfairRiseSpeed.Toward(stagger.Direction));
         int targetY = up ? state.RiseEndY - stagger.Distance : state.RiseEndY + stagger.Distance;
         int distancePastTarget = place.Position.Y.Whole - targetY;
         bool reached = up
@@ -358,7 +359,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             : distancePastTarget >= 0;
         if (!reached)
             return;
-        place.Position = place.Position.WithY(new(targetY, 0));
+        place.Position = place.Position.WithY(FixedCoordinate.FromWhole(targetY));
         state.Action = NorfairPipeBugAction.WaitForStagger;
     }
 
@@ -372,7 +373,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.HasReachedStaggerTarget)
             return;
 
-        state.FormationCounter = 0;
+        state.RestartDeparture();
         place.AnimationClock.Restart();
         state.Action = NorfairPipeBugAction.Fly;
         if (samus.Position.X.Whole >= place.Position.X.Whole)
@@ -444,14 +445,14 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         place.Presence = place.Presence.Without(EnemyPresence.Hidden);
-        state.EmergenceDelay = PipeBugDefinitions.YellowEmergenceDelay;
+        state.EmergenceDelay = UpdateCountdown.For(PipeBugDefinitions.YellowEmergenceDelay);
         state.Action = YellowPipeBugAction.EmergenceDelay;
     }
 
     /// <summary>Counts down the visible emergence delay, then flies straight toward the bug's facing with its flying animation.</summary>
     private static void RunYellowPipeBugDelay(RoomEnemyPlace place, YellowPipeBugState state)
     {
-        if (--state.EmergenceDelay != 0)
+        if (!state.EmergenceDelay.StepEnds())
             return;
         place.AnimationClock.Restart();
         state.Playback = new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(YellowPipeBugFacing(place) == HorizontalDirection.Left
@@ -571,7 +572,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         HorizontalDirection direction)
     {
         SignedSixteenSixteen flightSpeed = place.SpawnSettings<YellowPipeBugSpawnSettings>().Speed;
-        place.Position = place.Position.AdvanceX(direction == HorizontalDirection.Left ? -flightSpeed : flightSpeed);
+        place.Position = place.Position.AdvanceX(flightSpeed.Toward(direction));
     }
 
     /// <summary>Adds a linear-speed velocity to one axis, carrying the fraction into the whole.</summary>

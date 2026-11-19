@@ -49,7 +49,7 @@ internal static class EnemySpawnSelectors
     /// the speed the same place round the turn does: the reading is kept within half a turn each way.
     /// </summary>
     public static AngularSpeed FirefleaTurnPerUpdate(SignedSixteenSixteen speed) =>
-        AngularSpeed.FromFractionsOfStep(unchecked((short)speed.InTwoFiftySixths));
+        AngularSpeedConstants.FromFractionsOfStep(unchecked((short)speed.InTwoFiftySixths));
 
     /// <summary>The linear-speed row whose positive speed is <paramref name="speed"/>.</summary>
     /// <exception cref="ArgumentException">No row moves at the speed.</exception>

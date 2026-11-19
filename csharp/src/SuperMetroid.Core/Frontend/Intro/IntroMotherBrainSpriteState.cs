@@ -19,13 +19,13 @@ internal sealed class IntroMotherBrainSpriteState
     private readonly CinematicActor<IntroMotherBrainAnimation, CinematicSpritePose, IntroMotherBrainCue> actor =
         new(IntroMotherBrainDefinitions.MotherBrainOrigin, Colouring, IntroMotherBrainAnimations.MotherBrain,
             IntroMotherBrainDefinitions.MotherBrain.Animation);
-    /// <summary>Remaining colour alternations after a missile hit.</summary>
-    private int hurtFlashTimer;
+    /// <summary>The colour alternations after a missile hit, counted once each update they show.</summary>
+    private readonly UpdateCountdown hurtFlash = UpdateCountdown.Ended();
     /// <summary>
-    /// Updates since the fourth hit began the explosion phase: zero at the hit, counted up once per update to the
-    /// 128 that starts the page-two animation, after which it is no longer advanced.
+    /// The explosion phase the fourth hit begins, lasting <see cref="IntroMotherBrainDefinitions.ExplodingUpdates"/> from
+    /// the update after the hit: the update it ends on starts the page-two animation.
     /// </summary>
-    private int explodingTimer;
+    private UpdateCountdown exploding = UpdateCountdown.Ended();
     /// <summary>Missiles her hit test has consumed; the fourth starts the explosion.</summary>
     private int hitCount;
     /// <summary>Where she stands, from taking hits through her explosion and page two's crossfade to her deletion.</summary>
@@ -58,6 +58,11 @@ internal sealed class IntroMotherBrainSpriteState
         new(0, IntroCinematicState.GameplayFlashbackVerticalScroll);
 
     /// <summary>True when the exploding behaviour's animation asks for the page the flashback leads into.</summary>
+    /// <remarks>
+    /// The scene's end, kept once its cue reaches it (#2562): the cinematic's phase step, which runs before the actors'
+    /// step on each update, starts the next page on the update after the cue, so the end lasts across that boundary; it is
+    /// set once and never cleared, and the next page's setup discards the scene.
+    /// </remarks>
     public bool NextPageRequested { get; private set; }
 
     /// <summary>Whether the actor still contributes its frame to the cinematic sprites: until page two's crossfade deletes it.</summary>
@@ -87,8 +92,7 @@ internal sealed class IntroMotherBrainSpriteState
 
         ApplyScreenShake(cinematicFrameCounter);
 
-        explodingTimer++;
-        if (explodingTimer >= IntroMotherBrainDefinitions.ExplodingUpdates)
+        if (exploding.Count())
         {
             // The exploding behaviour starts the page-two animation. The shared step below runs its page request and
             // starts the cross-fade during this same cinematic-actor update.
@@ -102,11 +106,11 @@ internal sealed class IntroMotherBrainSpriteState
     /// </summary>
     public void ApplyHurtFlash()
     {
-        if (hurtFlashTimer == 0)
+        if (hurtFlash.IsOver)
             return;
 
-        FlashesWhite = !IntroCadenceDefinitions.MotherBrainHurtShowsOwnColours.IsSetIn(hurtFlashTimer);
-        hurtFlashTimer--;
+        FlashesWhite = !IntroCadenceDefinitions.MotherBrainHurtShowsOwnColours.IsSetIn(hurtFlash.UpdatesLeft);
+        hurtFlash.Count();
     }
 
     /// <summary>
@@ -127,14 +131,14 @@ internal sealed class IntroMotherBrainSpriteState
     /// <summary>Records the synchronous hit side effects after the projectile is killed.</summary>
     public bool RecordMissileHit()
     {
-        hurtFlashTimer = IntroMotherBrainDefinitions.HurtFlashUpdates;
+        hurtFlash.Restart(IntroMotherBrainDefinitions.HurtFlashUpdates);
         hitCount++;
         if (hitCount != IntroMotherBrainDefinitions.MissileHitsToExplode)
             return false;
 
         // The fourth hit clears the actor timer before selecting the exploding behaviour. The
         // explosion behaviour does not run until the next cinematic-actor frame.
-        explodingTimer = 0;
+        exploding = UpdateCountdown.Lasting(IntroMotherBrainDefinitions.ExplodingUpdates);
         phase = IntroMotherBrainPhase.Exploding;
         return true;
     }
@@ -160,9 +164,7 @@ internal sealed class IntroMotherBrainSpriteState
     {
         // The shake adds four on even cinematic frames and subtracts four on odd ones, so the room's scroll alternates
         // between twelve and the flashback's eight and never passes the room's top.
-        Background = Background.WithY(Background.Y +
-            (IntroCadenceDefinitions.MotherBrainRoomShakesUp.IsSetIn(cinematicFrameCounter)
-                ? -IntroMotherBrainDefinitions.RoomShakePixels
-                : IntroMotherBrainDefinitions.RoomShakePixels));
+        Background = Background.WithY(Background.Y + IntroMotherBrainDefinitions.RoomShakePixels.Toward(
+            IntroCadenceDefinitions.MotherBrainRoomShakesUp.IsSetIn(cinematicFrameCounter) ? VerticalDirection.Up : VerticalDirection.Down));
     }
 }

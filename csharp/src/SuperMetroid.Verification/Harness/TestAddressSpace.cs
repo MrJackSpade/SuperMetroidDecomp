@@ -88,7 +88,7 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
 
     /// <summary>The identity a fixture's seeded header pointer names: the inverse of <see cref="FixtureHeaderPointer(EnemyDefinitionId)"/>.</summary>
     internal static EnemyDefinitionId FixtureDefinitionId(ushort pointer) =>
-        SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.TryFromHeaderPointer(pointer, out EnemyDefinitionId id)
+        SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIdsConstants2.TryFromHeaderPointer(pointer, out EnemyDefinitionId id)
             ? id
             : (EnemyDefinitionId)pointer;
 

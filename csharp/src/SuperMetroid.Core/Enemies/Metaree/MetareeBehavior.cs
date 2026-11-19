@@ -115,7 +115,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
                 SignedSixteenSixteen.FromWholePixels(state.YVelocity)))
         {
             place.AnimationClock.Restart();
-            state.BurrowTimer = MetareeMotionDefinitions.BurrowLifetime;
+            state.BurrowTimer = UpdateCountdown.For(MetareeMotionDefinitions.BurrowLifetime);
             state.Action = MetareeAction.Burrowing;
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.BurrowSound, priority: SoundRequestPriority.Normal);
             return;
@@ -127,21 +127,19 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Position = place.Position.WithWholeY(place.Position.Y.Whole + state.YVelocity);
         bool metareeIsLeftOfSamus = place.Position.X.Whole < samus.Position.X.Whole;
         place.Position = place.Position.WithWholeX(place.Position.X.Whole +
-            (metareeIsLeftOfSamus
-                ? MetareeMotionDefinitions.DiveSteer
-                : -MetareeMotionDefinitions.DiveSteer));
+            MetareeMotionDefinitions.DiveSteer.Toward(metareeIsLeftOfSamus ? HorizontalDirection.Right : HorizontalDirection.Left));
     }
 
     /// <summary>Moves down one pixel per burrow frame, emits debris at timer eight, then deletes the actor.</summary>
     private void RunMetareeBurrow(RoomEnemyPlace place, MetareeEnemyState state)
     {
-        if (--state.BurrowTimer == 0)
+        if (state.BurrowTimer.StepEnds())
         {
             place.Presence = place.Presence.With(EnemyPresence.Deleted);
             return;
         }
 
-        if (state.BurrowTimer == MetareeMotionDefinitions.BurstCountdown)
+        if (state.BurrowTimer.UpdatesLeft == MetareeMotionDefinitions.BurstCountdown)
             SkreeMetareeParticles.SpawnBurst(_projectiles, place, SkreeMetareeParticleSegment.Metaree);
         place.Position = place.Position.WithWholeY(place.Position.Y.Whole + MetareeMotionDefinitions.BurrowSpeed);
     }

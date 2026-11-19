@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal sealed record CeresEscapeDependencies
 {
     /// <summary>The enemy pass's results, which the self-destruct writes.</summary>
-    public required BossFrameResultBuilder FrameResults { get; init; }
+    public required EnemyPassEvents PassEvents { get; init; }
 
     /// <summary>Provides room services and the floor's frames.</summary>
     public required EnemyRoomBinding Room { get; init; }

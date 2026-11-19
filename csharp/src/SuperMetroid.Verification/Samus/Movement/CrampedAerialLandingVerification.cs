@@ -59,8 +59,7 @@ internal static class CrampedAerialLandingVerification
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
         samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(3);
-        samus.Kinematics.YDirection = SamusVerticalDirection.Down;
-        samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(4);
+        samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(samus.Kinematics.VerticalVelocity.Speed.WithWhole(4), SamusVerticalDirection.Down);
 
         bool installedLanding = SamusPoseTransitions.TryApplyAerialLanding(samus, 
 
@@ -90,9 +89,9 @@ internal static class CrampedAerialLandingVerification
             "rejected full landing skips collision command five");
         AssertEqual(3, samus.HorizontalSpeed.BaseSpeed.Whole,
             "cramped landing preserves horizontal speed");
-        AssertEqual(4, samus.Kinematics.YSpeed.Whole,
+        AssertEqual(4, samus.Kinematics.VerticalVelocity.Speed.Whole,
             "cramped landing preserves vertical speed");
-        AssertEqual(SamusVerticalDirection.Down, samus.Kinematics.YDirection,
+        AssertEqual(SamusVerticalDirection.Down, samus.Kinematics.VerticalVelocity.Direction,
             "cramped landing does not publish grounded direction");
 
         WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.ScrewAttackRightPose),
@@ -101,7 +100,7 @@ internal static class CrampedAerialLandingVerification
         samus.Position = samus.Position.WithWholeY(0x0034);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPoseTransitions.TryApplyAerialLanding(samus, level, true, 0, 39440, roomObjects: SamusRoomObjectFixtures.Uninstalled);
-        AssertTrue(samus.HorizontalSpeed.SuitShadeRestoreRequested,
+        AssertTrue(samus.HorizontalSpeed.SuitShade.IsDue,
             "rejected landing still performs pre-command suit palette restoration");
     }
 }

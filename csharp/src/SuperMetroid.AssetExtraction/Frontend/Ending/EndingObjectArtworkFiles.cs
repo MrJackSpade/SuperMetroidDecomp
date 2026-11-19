@@ -42,9 +42,9 @@ public static class EndingObjectArtworkFiles
         Export(EndingObjectArtworkFormat.ExplosionFileName,
             EndingSourceDefinitions.Artwork.ExplosionObjectCharacters,
             EndingObjectArtworkFormat.ExplosionByteCount);
-        for (int index = 0; index < EndingObjectArtworkFormat.FragmentCount; index++)
-            ExportMap(EndingObjectArtworkFormat.FragmentFileName(index),
-                EndingArtworkSources.ObjectFragment((EndingExplosionPicture)index), EndingObjectArtworkFormat.FragmentByteCount);
+        foreach (EndingExplosionPicture picture in Ensure.EveryMemberOnce(EndingObjectArtworkFormat.ExplosionPictures))
+            ExportMap(EndingObjectArtworkFormat.FragmentFileName(Ensure.Listed(EndingObjectArtworkFormat.FragmentNumbers, picture)),
+                EndingArtworkSources.ObjectFragment(picture), EndingObjectArtworkFormat.FragmentByteCount);
         Export(EndingObjectArtworkFormat.WaitingSamusFileName,
             EndingSourceDefinitions.Artwork.WaitingForCreditsCharacters,
             EndingObjectArtworkFormat.RewardByteCount);

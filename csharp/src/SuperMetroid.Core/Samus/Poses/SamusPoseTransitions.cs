@@ -53,11 +53,10 @@ internal static class SamusPoseTransitions
         // Starting the fall with no floor below preserves an ascending
         // velocity, even if an ability that moved her left it on a standing pose. Crystal
         // Flash can do exactly that; unconditional reset shortens its return arc.
-        if (samus.Kinematics.YDirection != SamusVerticalDirection.Up)
+        if (!samus.Kinematics.VerticalVelocity.IsRising)
         {
             samus.MorphBallBounceState = SamusBallBounceState.None;
-            samus.Kinematics.YSpeed = default;
-            samus.Kinematics.YDirection = SamusVerticalDirection.Down;
+            samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.FallFromRest;
         }
         SamusAerialMovement.ConfigureEnvironmentGravity(samus);
         samus.Pose = targetPose;
@@ -163,7 +162,7 @@ internal static class SamusPoseTransitions
             SettleAcceptedLanding(samus, leavingScrewAttack);
         else if (leavingScrewAttack)
             // Shade restoration belongs to the pose change, before the blocked-collision gate on settling.
-            samus.HorizontalSpeed.RequestSuitShadeRestore();
+            samus.HorizontalSpeed.ShowSuitShadeAtColourStep();
         return collision == LargerPoseCollisionOutcome.Allowed;
     }
 
@@ -223,17 +222,16 @@ internal static class SamusPoseTransitions
     {
         // The landing sets the same one-shot pose input a turn animation's transition installs.
         // Its short held-Jump window is evaluated in the next input phase, not during landing.
-        if (!samus.Control.InputLocked) samus.InputSnapshot.AutoJumpInputPending = true;
+        if (!samus.Control.InputLocked) samus.InputSnapshot.AutoJump.Install();
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         samus.HorizontalSpeed.BaseSpeed = default;
-        samus.Kinematics.YSpeed = default;
+        samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Still;
 
         // The normal suit shade is reloaded whenever a pose change leaves spin or
         // wall-jump movement while Screw Attack is equipped. The suit shade shows
         // at the later shade phase, so the landing requests it here.
         if (leavingScrewAttack)
-            samus.HorizontalSpeed.RequestSuitShadeRestore();
-        samus.Kinematics.YDirection = SamusVerticalDirection.None;
+            samus.HorizontalSpeed.ShowSuitShadeAtColourStep();
     }
 
     /// <summary>
@@ -289,7 +287,7 @@ internal static class SamusPoseTransitions
     /// </summary>
     public static bool ApplyPendingAnimationTransition(SamusState samus)
     {
-        if (samus.PendingTransitionalPose is not SamusPoseId targetPose)
+        if (samus.CuePose.Named is not SamusPoseId targetPose)
             return false;
 
         // The game's pose initialization computes its own local delay without replacing

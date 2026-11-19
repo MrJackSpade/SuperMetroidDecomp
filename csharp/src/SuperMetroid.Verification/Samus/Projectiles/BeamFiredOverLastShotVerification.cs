@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Input;
@@ -198,18 +199,18 @@ internal static class BeamFiredOverLastShotVerification
                 BeamCombos.InitializeComboShot(echo, BeamComboShotKind.Echo);
                 echo.Install(SamusShotBehaviors.ShinesparkEcho, new ShinesparkEchoShotState(new TrigonometryAngle(echoAngle)));
             }, echoAngle),
-            ("a beam carrying a fuse", projectiles => FlyingBeam(projectiles, LastPlace).BeamFuse = carriedFuse, carriedFuse),
+            ("a beam carrying a fuse", projectiles => FlyingBeam(projectiles, LastPlace).BeamFuse = UpdateCountdown.For(carriedFuse), carriedFuse),
             ("a Chainsaw shot part-way through its fuse", projectiles =>
             {
                 SamusProjectile chainsaw = FlyingBeam(projectiles, LastPlace);
                 chainsaw.Type = SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaWave, charged: false);
                 chainsaw.Install(SamusShotBehaviors.ChainsawPowerBomb, kindState: null);
-                chainsaw.BeamFuse = chainsawFuseLeft;
+                chainsaw.BeamFuse = UpdateCountdown.For(chainsawFuseLeft);
             }, chainsawFuseLeft),
             ("a free place whose last beam carried a fuse", projectiles =>
             {
                 SamusProjectile ended = FlyingBeam(projectiles, LastPlace);
-                ended.BeamFuse = carriedFuse;
+                ended.BeamFuse = UpdateCountdown.For(carriedFuse);
                 projectiles.Animation.ClearProjectile(ended);
             }, 0),
         ];
@@ -223,7 +224,7 @@ internal static class BeamFiredOverLastShotVerification
             AssertTrue(Fire(FirePath.Uncharged, projectiles, EmptyLevel(), samus, shared) is not null, $"a beam fired over {holder} fires");
             AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false), projectiles.Shots[LastPlace].Type,
                 $"the beam fired over {holder} holds the last place");
-            AssertEqual(expected, projectiles.Shots[LastPlace].BeamFuse, $"a beam fired over {holder} starts from the count it left");
+            AssertEqual(expected, projectiles.Shots[LastPlace].BeamFuse.UpdatesLeft, $"a beam fired over {holder} starts from the count it left");
         }
         Console.WriteLine($"  Fuse each shot leaves: {cases.Length} holdings of the last place leave the count the original's arithmetic gives.");
     }
@@ -236,10 +237,10 @@ internal static class BeamFiredOverLastShotVerification
     {
         foreach (bool blastUnderWay in new[] { false, true })
         {
-            AssertTrue(SamusPowerBombFuse.Step(0, blastUnderWay).BoundaryReacts, $"blast {blastUnderWay}: a burned-out fuse reacts");
-            AssertTrue(!SamusPowerBombFuse.Step(1, blastUnderWay).BoundaryReacts, $"blast {blastUnderWay}: the step burning the fuse out reacts with nothing");
-            AssertTrue(!SamusPowerBombFuse.Step(2, blastUnderWay).BoundaryReacts, $"blast {blastUnderWay}: a burning fuse reacts with nothing");
-            AssertTrue(!SamusPowerBombFuse.Step(FastStage + 1, blastUnderWay).BoundaryReacts, $"blast {blastUnderWay}: the fast stage reacts with nothing");
+            AssertTrue(SamusPowerBombFuse.Step(UpdateCountdown.Ended(), blastUnderWay).BoundaryReacts, $"blast {blastUnderWay}: a burned-out fuse reacts");
+            AssertTrue(!SamusPowerBombFuse.Step(UpdateCountdown.Lasting(1), blastUnderWay).BoundaryReacts, $"blast {blastUnderWay}: the step burning the fuse out reacts with nothing");
+            AssertTrue(!SamusPowerBombFuse.Step(UpdateCountdown.Lasting(2), blastUnderWay).BoundaryReacts, $"blast {blastUnderWay}: a burning fuse reacts with nothing");
+            AssertTrue(!SamusPowerBombFuse.Step(UpdateCountdown.Lasting(FastStage + 1), blastUnderWay).BoundaryReacts, $"blast {blastUnderWay}: the fast stage reacts with nothing");
         }
     }
 

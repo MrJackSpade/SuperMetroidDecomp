@@ -685,7 +685,8 @@ internal static class EnemyTrigonometryVerification
         var sbugForward = new Func<byte, byte, int, SignedSixteenSixteen>((angle, speed, phase) => (phase == 64
             ? FineUnitComponent.AcrossOf(new TrigonometryAngle(angle))
             : FineUnitComponent.DownOf(new TrigonometryAngle(angle))).SpeedAt(speed));
-        var unsigned = new Func<ushort, ushort, ushort, int>((angle, magnitude, offset) => unchecked((int)EnemyMath.UnsignedSineSpeed(new TrigonometryAngle(unchecked((byte)angle)).TurnedBySteps(offset), magnitude).RawValue));
+        var unsigned = new Func<ushort, ushort, ushort, int>((angle, magnitude, offset) => unchecked((int)UnsignedSixteenSixteen.ShareOfWholePixels(magnitude,
+            Trigonometry.UnsignedHalfWave(new TrigonometryAngle(unchecked((byte)angle)).TurnedBySteps(offset).StepsIntoHalfTurn)).RawValue));
 
         int ExpectedPixel(int angle, int radius)
         {

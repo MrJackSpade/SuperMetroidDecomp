@@ -10,7 +10,8 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 internal static class ColourEffectShownFrames
 {
     /// <summary>
-    /// Every colour group and frame <paramref name="effects"/> can show, each once, ordered by group, effect and frame. Samus
+    /// Every colour group and frame <paramref name="effects"/> can show, each once, ordered by group and effect in their
+    /// written-out orders (<see cref="ColourEffectListedOrders"/>, #2567), then by frame. Samus
     /// in heat shows none of her own: her suit's pulse is the effect that shows her shimmer's frames.
     /// </summary>
     /// <exception cref="InvalidOperationException">An effect plays a beat of no defined kind.</exception>
@@ -36,8 +37,8 @@ internal static class ColourEffectShownFrames
             }
         }
         return [.. shown
-            .OrderBy(entry => entry.Colours)
-            .ThenBy(entry => entry.Frame.Effect)
+            .OrderBy(entry => ColourEffectListedOrders.Groups.PlaceOf(entry.Colours))
+            .ThenBy(entry => ColourEffectListedOrders.Effects.PlaceOf(entry.Frame.Effect))
             .ThenBy(entry => entry.Frame.Frame)];
     }
 

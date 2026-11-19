@@ -22,9 +22,36 @@ internal readonly record struct RoomEffectActorSegment
     /// <summary>A Metroid's shell's cycle, which loops after its first pass.</summary>
     internal static RoomEffectActorSegment MetroidShellCycle { get; } = new(RoomEffectActorKind.MetroidShell) { IsCycle = true };
 
+    /// <summary>Every room effect actor in the order its runs and its sheets' pictures are listed (#2567), written out so reordering the kinds' members reorders neither.</summary>
+    internal static IReadOnlyList<RoomEffectActorKind> Kinds { get; } =
+    [
+        RoomEffectActorKind.SmallExplosion,
+        RoomEffectActorKind.Smoke,
+        RoomEffectActorKind.DudShot,
+        RoomEffectActorKind.RisingDustPuff,
+        RoomEffectActorKind.SmokePuff,
+        RoomEffectActorKind.BigExplosion,
+        RoomEffectActorKind.ShortBigDustCloud,
+        RoomEffectActorKind.BigDustCloud,
+        RoomEffectActorKind.DraygonBreathBubbles,
+        RoomEffectActorKind.NuclearWaffleBody,
+        RoomEffectActorKind.NuclearWaffleRightExplosion,
+        RoomEffectActorKind.NuclearWaffleLeftExplosion,
+        RoomEffectActorKind.NuclearWaffleSplash,
+        RoomEffectActorKind.FallingSparkTrail,
+        RoomEffectActorKind.MetroidElectricity,
+        RoomEffectActorKind.MetroidShell,
+        RoomEffectActorKind.YappingMawBaseFacingDown,
+        RoomEffectActorKind.YappingMawBaseFacingUp,
+        RoomEffectActorKind.EvirFacingLeft,
+        RoomEffectActorKind.EvirFacingRight,
+        RoomEffectActorKind.DraygonFoam,
+        RoomEffectActorKind.HitBurst,
+    ];
+
     /// <summary>Every run: each actor's own run and the two cycles.</summary>
     internal static IEnumerable<RoomEffectActorSegment> All =>
-        [.. Enum.GetValues<RoomEffectActorKind>().Select(Of), MetroidElectricityCycle, MetroidShellCycle];
+        [.. Kinds.Select(Of), MetroidElectricityCycle, MetroidShellCycle];
 
     /// <summary>The run <paramref name="actor"/> starts with: its whole animation, or a Metroid's electricity's or shell's first pass.</summary>
     internal static RoomEffectActorSegment Of(RoomEffectActorKind actor) => new(actor);

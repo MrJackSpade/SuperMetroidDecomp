@@ -52,7 +52,7 @@ public sealed class KiHunterBodyState
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
 
     /// <summary>The thinking countdown: twelve after landing or twenty-four after acid emission, consumed once the animation selects ground wait.</summary>
-    public int WaitTimer { get; internal set; }
+    public UpdateCountdown WaitTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>The whole-pixel swoop ellipse radii: the absolute horizontal separation from Samus and Samus Y minus body Y when a swoop begins.</summary>
     public Extent16<RoomPixels> SwoopRadius { get; internal set; }
@@ -71,7 +71,7 @@ public sealed class KiHunterBodyState
 
     /// <summary>The horizontal velocity: <see cref="HorizontalSpeed"/> toward <see cref="Heading"/> (#2338).</summary>
     public SignedSixteenSixteen HorizontalVelocity =>
-        SignedSixteenSixteen.FromWholePixels(Heading == HorizontalDirection.Right ? HorizontalSpeed : -HorizontalSpeed);
+        SignedSixteenSixteen.FromWholePixels(HorizontalSpeed.Toward(Heading));
 
     /// <summary>The vertical velocity in pixels per update; positive is downward and gravity accumulates through the fraction.</summary>
     public SignedSixteenSixteen VerticalVelocity { get; internal set; }

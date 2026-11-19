@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    private readonly BossFrameResultBuilder _frameResults;
+    private readonly EnemyPassEvents _passEvents;
 
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.SporeSpawn];
@@ -42,7 +42,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     internal SporeSpawnBehavior(SporeSpawnBehaviorDependencies dependencies)
     {
         _audio = dependencies.Audio;
-        _frameResults = dependencies.FrameResults;
+        _passEvents = dependencies.PassEvents;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
         _effectActors = dependencies.EffectActors;
@@ -173,8 +173,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Aims Spore Spawn's death drift at the arena's centre: a pixel an update along his bearing to it.</summary>
     private static void SetupSporeSpawnDeathVelocity(RoomEnemyPlace body, SporeSpawnEnemyState state)
     {
-        TrigonometryAngle direction = EnemyMath.CalculateBearing(
-            new(SporeSpawnArenaDefinitions.CentreX - body.Position.X.Whole, SporeSpawnArenaDefinitions.CentreY - body.Position.Y.Whole)).ToTrigonometryAngle();
+        TrigonometryAngle direction = EnemyMath.CalculateAimAngle(
+            new(SporeSpawnArenaDefinitions.CentreX - body.Position.X.Whole, SporeSpawnArenaDefinitions.CentreY - body.Position.Y.Whole));
         state.DeathVelocity = EnemyMath.VelocityAlong(direction, 1);
     }
 
@@ -233,19 +233,17 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         Axis axis)
     {
         // The links lie a quarter, a half and three quarters of the way along the distance from the anchor to the
-        // body, each fraction of the distance rounded down.
+        // body, the quarter and the half each rounded toward the anchor and the three quarters their sum.
         int delta = end - anchor;
-        bool negative = delta < 0;
-        int magnitude = Math.Abs(delta);
-        int quarter = magnitude / 4;
-        int half = magnitude / 2;
+        int quarter = delta / 4;
+        int half = delta / 2;
         int threeQuarters = quarter + half;
         Span<int> positions = stackalloc int[4]
         {
             firstPosition,
-            anchor + (negative ? -quarter : quarter),
-            anchor + (negative ? -half : half),
-            anchor + (negative ? -threeQuarters : threeQuarters),
+            anchor + quarter,
+            anchor + half,
+            anchor + threeQuarters,
         };
 
         for (int segment = 0; segment < positions.Length; segment++)
@@ -260,7 +258,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Requests the arena ceiling room object at its fixed room block position.</summary>
     private void PublishSporeSpawnObject(SporeSpawnCeilingMutation mutation) =>
-        _frameResults.SporeSpawnCeiling = mutation;
+        _passEvents.Publish(new SporeSpawnCeilingChange(mutation));
 
     /// <summary>Routes accepted bomb hits on <paramref name="body"/> through his encounter's post-damage response.</summary>
     /// <param name="body">His body, whose encounter the response acts on.</param>
@@ -372,7 +370,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // He reacts to whatever strikes his core while he flashes hurt, by this hit or by an earlier one whose flash still
         // shows: a bomb, which does him no damage, still sets him swaying inside a missile's flash.
-        bool flashingHurt = body.FlashTimer != 0;
+        bool flashingHurt = body.HurtFlash.IsRunning;
         if (flashingHurt)
         {
             state.Movement = SporeSpawnMovement.Moving;
@@ -409,8 +407,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.DeathStarted = true;
         state.SporeGenerationSuppressed = false;
-        body.InvincibilityTimer = 0;
-        body.FlashTimer = 0;
+        body.Invincibility.End();
+        body.HurtFlash.End();
         body.AiStates = EnemyAiStates.None;
         // The dead body stops touching Samus.
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);

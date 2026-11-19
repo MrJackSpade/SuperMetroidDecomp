@@ -161,7 +161,7 @@ internal static class LookupStream2Verification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Shading = PictureShading.Standard;
-        var state = new WreckedShipGhostEnemyState(WreckedShipGhostAction.InitialInvisibleDelay) { FlickerTimer = 2, NextFlickerStep = WreckedShipGhostFlickerStep.First };
+        var state = new WreckedShipGhostEnemyState(WreckedShipGhostAction.InitialInvisibleDelay) { FlickerTimer = UpdateCountdown.Lasting(2), NextFlickerStep = WreckedShipGhostFlickerStep.First };
         Action<RoomEnemyPlace, WreckedShipGhostEnemyState> brightening = WreckedShipGhostBehavior.RunWreckedShipGhostBrightening;
         Func<RoomEnemyPlace, WreckedShipGhostEnemyState, int> fade = WreckedShipGhostBehavior.StepWreckedShipGhostFadeTowardTarget;
         Dictionary<PictureShade, RgbColor[]> installedSteps = EnemySheetShades.GhostFadeSteps().ToDictionary(step => step.Shade, step => step.Colours);
@@ -659,7 +659,7 @@ internal static class LookupStream2Verification
     /// <summary>Checks native crawler/Yard speed ramps through actual velocity resets.</summary>
     internal static void VerifyLookupStream2CrawlerRamps(CartridgeImportAddressSpace rom)
     {
-        Func<CrawlerSurfaceOrientation, SignedEightEight?, EightEightVector<RoomPixels>, EightEightVector<RoomPixels>> reset = CrawlersBehavior.ResetCrawlerVelocities;
+        Func<CrawlerSurfaceOrientation, SignedEightEight?, PixelVelocity<RoomPixels>, PixelVelocity<RoomPixels>> reset = CrawlersBehavior.ResetCrawlerVelocities;
         Action<YardEnemyState, YardDirection> setYard = YardEnemyBehavior.SetYardCrawlingVelocities;
         var yard = new YardEnemyState(YardMovement.HoldingStill);
         SignedEightEight? crawlSpeed;
@@ -673,7 +673,7 @@ internal static class LookupStream2Verification
             for (ushort property = 0; property < 4; property++)
             {
                 // The block side is the crawler's two low property bits in the cartridge.
-                EightEightVector<RoomPixels> velocity = reset(SuperMetroid.AssetExtraction.Enemies.CrawlerOrientationOrder.Orientations.At(property), crawlSpeed, default);
+                PixelVelocity<RoomPixels> velocity = reset(SuperMetroid.AssetExtraction.Enemies.CrawlerOrientationOrder.Orientations.At(property), crawlSpeed, default);
                 AssertEqual(property == 0 ? unchecked((ushort)-expected) : expected, velocity.X.RawValue,
                     "Actual crawler reset X magnitude");
                 AssertEqual(property == 2 ? unchecked((ushort)-expected) : expected, velocity.Y.RawValue,
@@ -961,7 +961,7 @@ internal static class LookupStream2Verification
                 if (word < 0x8000) { encountered.Add(cursor); cursor += 4; }
                 else { cursor += 2; }
             }
-            var authoredSystem = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
+            var authoredSystem = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             // The native interpreter's own trail, run beside the port's.
             var nativeTrail = new SuperMetroid.Verification.Samus.Projectiles.NativeTrail(
                 SuperMetroid.Verification.Samus.Projectiles.NativeTrailSide.StartingAt(start, Position16<RoomPixels>.Of(100, 100)),
@@ -1058,7 +1058,7 @@ internal static class LookupStream2Verification
         foreach (SamusProjectileType trailingType in trailing)
         {
             int selection = ProjectileTrailNative.Selection(trailingType);
-            var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
+            var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             var projectile = new SamusProjectile(0)
             {
                 Type = trailingType,
@@ -1178,7 +1178,7 @@ internal static class LookupStream2Verification
         AssertEqual(5, transfers.Length, "Gunship calculated transfer count");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var place = enemies.Places.InUpdateOrder[0];
-        var part = new GunshipState(GunshipPhase.WaitForEngines) { PhaseTimer = GunshipTakeoffDefinitions.EngineStartUpdates };
+        var part = new GunshipState(GunshipPhase.WaitForEngines) { PhaseTimer = UpdateCountdown.Lasting(GunshipTakeoffDefinitions.EngineStartUpdates) };
         place.SetSpeciesState(part);
         int enumerated = 0;
         foreach (var transfer in transfers)
@@ -1291,9 +1291,9 @@ internal static class LookupStream2Verification
             AssertEqual(unchecked((ushort)(32 + originalX)), place.Position.X.Whole, "Ghost actual wrapped spawn X");
             AssertEqual(unchecked((ushort)(65520 + originalY)), place.Position.Y.Whole, "Ghost actual wrapped spawn Y");
             AssertEqual(WreckedShipGhostAction.BrighteningAndFlickering, state.Action, "Ghost appearance phase");
-            AssertEqual(64, state.StablePositionTimer, "Ghost appearance position timer");
-            AssertEqual(16, state.StableDirectionTimer, "Ghost appearance direction timer");
-            AssertEqual(1, state.FlickerTimer, "Ghost appearance starts its flicker's first step on its first brightening update");
+            AssertEqual(64, state.StablePositionTimer.UpdatesLeft, "Ghost appearance position timer");
+            AssertEqual(16, state.StableDirectionTimer.UpdatesLeft, "Ghost appearance direction timer");
+            AssertEqual(1, state.FlickerTimer.UpdatesLeft, "Ghost appearance starts its flicker's first step on its first brightening update");
             AssertEqual(WreckedShipGhostFlickerStep.First, state.NextFlickerStep, "Ghost appearance starts its flicker at the first step");
         }
         // The flicker steps are the native interval table's words after its first, which no appearance starts (each starts
@@ -1317,28 +1317,28 @@ internal static class LookupStream2Verification
             place.Contact = EnemyContact.None;
             place.Processing = EnemyProcessing.OffScreen;
             place.Presence = EnemyPresence.Hidden;
-            state.FlickerTimer = 1;
+            state.FlickerTimer = UpdateCountdown.For(1);
             state.NextFlickerStep = ended ? null : steps[position];
             flicker(place, state);
-            AssertEqual(ended ? 0 : original, state.FlickerTimer, "Ghost actual next interval");
+            AssertEqual(ended ? 0 : original, state.FlickerTimer.UpdatesLeft, "Ghost actual next interval");
             AssertEqual(ended || position + 1 == steps.Count ? null : steps[position + 1], state.NextFlickerStep, "Ghost actual next step");
             bool remainsInvisible = ended || position % 2 == 0;
             AssertEqual(EnemyContact.None, place.Contact, "Ghost actual visibility preserves unrelated contact");
             AssertEqual(EnemyProcessing.OffScreen, place.Processing, "Ghost actual visibility preserves unrelated processing");
             AssertEqual(remainsInvisible ? EnemyPresence.Hidden : EnemyPresence.None, place.Presence, "Ghost actual visibility");
         }
-        state.FlickerTimer = 2;
+        state.FlickerTimer = UpdateCountdown.For(2);
         state.NextFlickerStep = WreckedShipGhostFlickerStep.First;
         place.Contact = EnemyContact.None;
         place.Processing = EnemyProcessing.None;
         place.Presence = EnemyPresence.Hidden;
         flicker(place, state);
-        AssertEqual(1, state.FlickerTimer, "Ghost interval countdown");
+        AssertEqual(1, state.FlickerTimer.UpdatesLeft, "Ghost interval countdown");
         AssertEqual(WreckedShipGhostFlickerStep.First, state.NextFlickerStep, "Ghost no early interval advance");
         AssertEqual(EnemyContact.None, place.Contact, "Ghost no early contact change");
         AssertEqual(EnemyProcessing.None, place.Processing, "Ghost no early processing change");
         AssertEqual(EnemyPresence.Hidden, place.Presence, "Ghost no early visibility change");
-        state.FlickerTimer = 0;
+        state.FlickerTimer = UpdateCountdown.For(0);
         flicker(place, state);
         AssertTrue(place.Contact == EnemyContact.None && place.Processing == EnemyProcessing.None && place.Presence == EnemyPresence.None,
             "Ghost terminal next call clears invisibility");
@@ -1471,7 +1471,7 @@ internal static class LookupStream2Verification
         {
             ushort pointer = (ushort)(0x86db + direction * 12);
             var shot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer) };
-            var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock), new global::SuperMetroid.Core.Fx.RoomEarthquake());
+            var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             _ = system.Animation.AdvanceProjectileAnimation(shot);
             AssertEqual(global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(ReadVerificationWord(rom, (0x930000 | pointer) + 2)), shot.SpritemapPointer, "Actual projectile handler selects calculated compass pose");
         }
@@ -1495,7 +1495,7 @@ internal static class LookupStream2Verification
             if (pointer is >= 0x8bfb and < 0x8c4f)
                 checkedCappedSweep++;
             var shot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer) };
-            var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock), new global::SuperMetroid.Core.Fx.RoomEarthquake());
+            var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             _ = system.Animation.AdvanceProjectileAnimation(shot);
             AssertEqual(global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(ReadVerificationWord(rom, (0x930000 | pointer) + 2)), shot.SpritemapPointer, "Actual handler uses native Wave/Ice traversal pose");
             checkedWaveIce++;

@@ -285,5 +285,5 @@ internal static class RoomBlockWriters
 
     /// <summary>Every block any of a room object's installed frames shows.</summary>
     private static HashSet<int> FrameBlocks<TFrame>(RoomObjectFrameImages<TFrame> images) where TFrame : notnull =>
-        BlocksOf(images.All.Values.SelectMany(image => image.Cells.Values));
+        [.. images.All.Values.SelectMany(image => image.Cells.Values).Where(block => block.ShowsBlock).Select(block => block.Block)];
 }

@@ -80,12 +80,10 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
         Suite(nameof(VerifyCrocomireTongueComponentCases), () => VerifyCrocomireTongueComponentCases(rom));
         var denied = NewCrocomireTongueNoReadBus();
         var compiled = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var nativePlace = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>());
-        RoomEnemyPlace compiledPlace = compiled.Places.InUpdateOrder[0];
-        var boundDefinition = default(RoomEnemyDefinition);
-        nativePlace.Bind(nativePlace.DefinitionId, boundDefinition);
-        compiledPlace.Bind(compiledPlace.DefinitionId, boundDefinition);
-        compiledPlace.Bind(EnemyDefinitionId.CrocomireTongue, compiledPlace.Definition);
+        // The cartridge walker reads the bound tongue's frame word in its own bank (#2327), so both walkers read the one
+        // tongue place; the walkers stay independent, each filling its own argument row.
+        RoomEnemyPlace place = compiled.Places.InUpdateOrder[0];
+        place.Bind(EnemyDefinitionId.CrocomireTongue, place.Definition);
         AssertEqual(9, CrocomireTongueCollisionDefinitionsConstants.FrameCount,
             "all selected Crocomire tongue frames have compiled collision");
 
@@ -95,7 +93,7 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
         {
             ushort frame = CrocomireTongueCollisionDefinitionsConstants.FramePointer(frameIndex);
             seenLists.Add(rom.ReadCartridgeWord(0xa40000 | frame + 8));
-            nativePlace.Frame = compiledPlace.Frame = RoomEnemyPlaceFrameAccess.FrameAt(CrocomireTongueCollisionDefinitionsConstants.Bank, frame);
+            place.Frame = RoomEnemyPlaceFrameAccess.FrameAt(CrocomireTongueCollisionDefinitionsConstants.Bank, frame);
             foreach ((ushort x, ushort y) in new VerifyCrocomireTongueCollisionDefinitionsCase[]
                      {
                          new VerifyCrocomireTongueCollisionDefinitionsCase(0x0100, 0x0100), new VerifyCrocomireTongueCollisionDefinitionsCase(0x0004, 0x0006),
@@ -103,14 +101,11 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
                      })
             for (int shot = 0; shot <= 1; shot++)
             {
-                compiledPlace.Position = compiledPlace.Position.WithWholeX(x);
-                nativePlace.Position = nativePlace.Position.WithWholeX(x);
-                compiledPlace.Position = compiledPlace.Position.WithWholeY(y);
-                nativePlace.Position = nativePlace.Position.WithWholeY(y);
+                place.Position = place.Position.WithWhole(new(x, y));
                 object?[] nativeArguments =
-                    [nativePlace, new Position16<RoomPixels>(x, y), Extent16<RoomPixels>.Zero, shot != 0, (ushort)0];
+                    [place, new Position16<RoomPixels>(x, y), Extent16<RoomPixels>.Zero, shot != 0, (ushort)0];
                 object?[] compiledArguments =
-                    [compiledPlace, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(0, 0), shot != 0, (ushort)0];
+                    [place, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(0, 0), shot != 0, (ushort)0];
                 bool nativeHit = ReferenceExtendedCollision(rom, CrocomireTongueCollisionDefinitionsConstants.Bank, nativeArguments);
                 bool compiledHit = ExtendedHitboxWalker.Find(compiledArguments);
                 AssertEqual(nativeHit, compiledHit,

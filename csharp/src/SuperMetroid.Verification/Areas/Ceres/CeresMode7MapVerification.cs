@@ -62,7 +62,7 @@ internal static class CeresMode7MapVerification
             "the floor is the room's tileset's");
         // Only the actors resting on the floor show their pictures over the floor a room starts with (#2573).
         SuperMetroid.Core.Rooms.Artwork.RoomFloorSheet sheet = (runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException("Ceres shows no floor.")).Sheet;
-        SpriteSheetFrame[] resting = [.. Enum.GetValues<CeresFloorActor>().Where(sheet.Resting.ContainsKey).Select(actor => sheet.Picture(sheet.Resting[actor]))];
+        SpriteSheetFrame[] resting = [.. CeresFloorActors.DrawingOrder.Where(sheet.Resting.ContainsKey).Select(actor => sheet.Picture(sheet.Resting[actor]))];
         AssertTrue(first.DrawnOver.SequenceEqual(resting), "only the resting actors' pictures are drawn over the floor a room starts with");
 
         CeresFloorActorPicture platform = CeresFloorActorPicture.ElevatorLight;

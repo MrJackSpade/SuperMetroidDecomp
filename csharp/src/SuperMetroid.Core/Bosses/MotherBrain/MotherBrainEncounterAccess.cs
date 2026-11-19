@@ -8,23 +8,23 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed class MotherBrainEncounterAccess
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    private readonly BossFrameResultBuilder _frameResults;
+    private readonly EnemyPassEvents _passEvents;
 
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal MotherBrainEncounterAccess(BossFrameResultBuilder frameResults)
+    internal MotherBrainEncounterAccess(EnemyPassEvents passEvents)
     {
-        _frameResults = frameResults;
+        _passEvents = passEvents;
     }
 
     /// <summary>Requests one of Mother Brain's room mutations at a foreground room block for this pass.</summary>
     internal void RequestMotherBrainObject(Position16<RoomBlocks> block, MotherBrainRoomMutation mutation) =>
-        _frameResults.MotherBrainObjects.Add(new MotherBrainMutationRequest(block, mutation));
+        _passEvents.Publish(new MotherBrainMutationRequest(block, mutation));
 
     /// <summary>Requests the reveal of <paramref name="row"/> of the mural behind her tank, at the row's own block, for this pass.</summary>
     internal void RequestMuralRowReveal(MotherBrainMuralRow row) =>
-        _frameResults.MotherBrainObjects.Add(new MotherBrainMuralRowReveal(row));
+        _passEvents.Publish(new MotherBrainMuralRowReveal(row));
 
     /// <summary>Starts the brain animation that begins at <paramref name="segment"/>.</summary>
     internal static void SetMotherBrainBrainAnimation(MotherBrainEnemyState state, MotherBrainHeadSegment segment) =>

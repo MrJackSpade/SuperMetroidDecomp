@@ -19,8 +19,8 @@ public sealed class SparkEnemyState
 
 
     /// <summary>
-    /// The countdown to the Spark's next action, from its base time: the update whose step would reach zero expires it.
-    /// Only an always-active Spark has a base time of zero, and it never counts down (#1846).
+    /// The wait for the Spark's next action, lasting its base time: the update it ends on expires it. Only an always-active
+    /// Spark has a base time of zero, and it never counts its wait (#1846).
     /// </summary>
-    public int ActionTimer { get; internal set; }
+    public UpdateCountdown ActionTimer { get; internal set; } = UpdateCountdown.Ended();
 }

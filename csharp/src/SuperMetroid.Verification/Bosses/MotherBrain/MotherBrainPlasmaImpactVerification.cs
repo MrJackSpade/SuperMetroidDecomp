@@ -31,7 +31,7 @@ internal static class MotherBrainPlasmaImpactVerification
         enemies.MotherBrainEncounter.BeginAsSetUp(state, head);
         ((List<RoomEnemyPlace>)enemies.ProcessingWindow.InteractiveEnemies).Add(head);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
-        var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
+        var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         var shot = shots.Shots[0];
         SeedChargedPlasma();
@@ -42,7 +42,7 @@ internal static class MotherBrainPlasmaImpactVerification
             "Mother Brain plasma-blocking property marks the shot for removal");
         AssertEqual(MotherBrainWalkCredit.Of(4096 - MotherBrainWalkCredit.StepCredit), state.WalkCounter,
             "Accepted beam spends one step of walk credit");
-        AssertEqual(EnemyCollisionDefinitions.PlasmaShotInvincibilityUpdates, head.InvincibilityTimer,
+        AssertEqual(EnemyCollisionDefinitions.PlasmaShotInvincibilityUpdates, head.Invincibility.UpdatesLeft,
             "The no-death damage tail grants Plasma's hit immunity");
         var level = CreateEmptyRoom(new(16, 16));
         for (int frame = 0; frame < 3; frame++)
@@ -54,12 +54,12 @@ internal static class MotherBrainPlasmaImpactVerification
                 "Later overlap does not spend walk credit again");
         }
         // Later checks are new shots after that immunity has run out.
-        head.InvincibilityTimer = 0;
+        head.Invincibility.End();
         state.Form = MotherBrainForm.Glass;
         SeedChargedPlasma();
         Hit();
         AssertEqual(17550, head.Health, "First form retains its missile-only damage restriction");
-        head.InvincibilityTimer = 0;
+        head.Invincibility.End();
         state.Form = MotherBrainForm.ThirdPhase;
         MotherBrainRainbowBeamAttackSequence lateFight = state.BeginLateFight();
         lateFight.Encounter.Form = MotherBrainForm.ThirdPhase;
@@ -69,7 +69,7 @@ internal static class MotherBrainPlasmaImpactVerification
         shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true); shot.Damage = 1000; shot.Behavior = SamusShotBehaviors.HyperBeam;
         // The first case's Plasma hit left the head invincible; $A0:A17C skips it until the
         // timer expires, so this case starts once that immunity has run out.
-        head.InvincibilityTimer = 0;
+        head.Invincibility.End();
         AssertEqual(1, Hit(), "Hyper Beam still accepts its later-form damage callback");
         AssertEqual(16550, head.Health, "Hyper Beam retains its native charged damage selection");
         AssertEqual(MotherBrainPhase3NeckPhase.SetupHyperBeamRecoil, lateFight.ThirdPhaseFight.Phase3NeckPhase,

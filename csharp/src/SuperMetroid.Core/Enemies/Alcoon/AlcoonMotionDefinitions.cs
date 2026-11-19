@@ -21,7 +21,7 @@ internal static class AlcoonMotionDefinitions
     internal static SignedSixteenSixteen HideJumpVelocity { get; } = SignedSixteenSixteen.FromWholePixels(-4);
 
     /// <summary>How much an airborne Alcoon's vertical speed gains each update: half a pixel an update.</summary>
-    internal static SignedSixteenSixteen Gravity { get; } = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(128);
+    internal static SignedSixteenSixteen Gravity { get; } = SignedSixteenSixteen.FromPixelFraction(1, 2);
 
     /// <summary>How far a walking Alcoon moves down each update to keep to the floor, or to fall where the floor ends.</summary>
     internal static SignedSixteenSixteen FloorPress { get; } = SignedSixteenSixteen.FromWholePixels(2);

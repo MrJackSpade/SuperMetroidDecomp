@@ -26,7 +26,7 @@ internal static class RidleyWingBeatVerification
         for (int update = 0; update < 100; update++)
             RidleyFlight.TickWingAnimation(still);
         AssertEqual(0, still.Wings.Pose.Place, "a still Ridley's wings keep their pose");
-        AssertEqual(RidleyWingDefinitions.TakeOffCountdown, still.Wings.Countdown, "a still Ridley's beat counts nothing off");
+        AssertEqual(RidleyWingDefinitions.TakeOffCountdown, still.Wings.Countdown.Left, "a still Ridley's beat counts nothing off");
 
         // Climbing at five pixels an update, the full pace of 48 shows a new pose every update, and the beat's tenth pose
         // is followed by its first.
@@ -35,7 +35,7 @@ internal static class RidleyWingBeatVerification
         {
             RidleyFlight.TickWingAnimation(climbing);
             AssertEqual(update % 10, climbing.Wings.Pose.Place, $"climbing update {update}: a new pose every update, wrapping after the tenth");
-            AssertEqual(RidleyWingDefinitions.BeatCountdown, climbing.Wings.Countdown, $"climbing update {update}: the countdown starts again");
+            AssertEqual(RidleyWingDefinitions.BeatCountdown, climbing.Wings.Countdown.Left, $"climbing update {update}: the countdown starts again");
         }
 
         // Level at five pixels an update, half the pace, 24: 8 runs below zero, 32 does not, 8 does again.
@@ -44,16 +44,16 @@ internal static class RidleyWingBeatVerification
         foreach ((int place, int countdown) in levelBeat)
         {
             RidleyFlight.TickWingAnimation(level);
-            AssertEqual((place, countdown), (level.Wings.Pose.Place, level.Wings.Countdown), "level flight beats at half the pace");
+            AssertEqual((place, countdown), (level.Wings.Pose.Place, level.Wings.Countdown.Left), "level flight beats at half the pace");
         }
 
         // Descending at a quarter pixel an update, half the slowest-but-one pace of 14, 7: 8 counts down to 1, then below zero.
-        RidleyFlightState descending = TakenOff(SignedEightEight.Zero, SignedEightEight.FromSixteenthsOfPixel(4));
+        RidleyFlightState descending = TakenOff(SignedEightEight.Zero, SignedEightEightConstants.FromSixteenthsOfPixel(4));
         (int Place, int Countdown)[] descendingBeat = [(0, 1), (1, 32), (1, 25), (1, 18), (1, 11), (1, 4), (2, 32)];
         foreach ((int place, int countdown) in descendingBeat)
         {
             RidleyFlight.TickWingAnimation(descending);
-            AssertEqual((place, countdown), (descending.Wings.Pose.Place, descending.Wings.Countdown), "descending flight beats at half its speed's pace");
+            AssertEqual((place, countdown), (descending.Wings.Pose.Place, descending.Wings.Countdown.Left), "descending flight beats at half its speed's pace");
         }
         Console.WriteLine("  Ridley wing beat: the starting poses, a still beat, and the full climbing and halved level and descending paces hold.");
     }
@@ -62,8 +62,8 @@ internal static class RidleyWingBeatVerification
     private static RidleyFlightState TakenOff(SignedEightEight x, SignedEightEight y)
     {
         RidleyFlightState flight = new NorfairRidleyState().Flight;
-        flight.Wings.Countdown = RidleyWingDefinitions.TakeOffCountdown;
-        flight.Velocity = new EightEightVector<RoomPixels>(x, y);
+        flight.Wings.Countdown.Restart(RidleyWingDefinitions.TakeOffCountdown);
+        flight.Velocity = new PixelVelocity<RoomPixels>(x, y);
         return flight;
     }
 

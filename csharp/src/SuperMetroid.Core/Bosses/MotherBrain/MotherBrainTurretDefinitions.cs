@@ -49,13 +49,13 @@ internal static class MotherBrainTurretDefinitions
         new(new(232, 64), MotherBrainTurretDirection.DownLeft, MotherBrainTurretDirection.Left, MotherBrainTurretDirection.DownRight),
     ];
     /// <summary>A bullet's speed along an axis it is fired straight along: two and three quarter pixels an update.</summary>
-    private static readonly SignedEightEight StraightBulletSpeed = SignedEightEight.FromParts(2, 192);
+    private static readonly SignedEightEight StraightBulletSpeed = SignedEightEight.FromPixelFraction(11, 4);
 
     /// <summary>
     /// A diagonal bullet's speed along each axis: just under two pixels an update, the straight speed's share of each axis
     /// on a diagonal.
     /// </summary>
-    private static readonly SignedEightEight DiagonalBulletSpeed = SignedEightEight.FromParts(1, 242);
+    private static readonly SignedEightEight DiagonalBulletSpeed = SignedEightEight.FromPixelFraction(249, 128);
 
     /// <summary>
     /// The eight turret directions around the compass, counterclockwise from left through down to up-left: the order a

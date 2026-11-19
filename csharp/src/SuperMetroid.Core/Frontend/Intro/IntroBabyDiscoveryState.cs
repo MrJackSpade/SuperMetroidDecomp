@@ -82,6 +82,11 @@ internal sealed class IntroBabyDiscoveryState
     public RoomLevelData Level { get; }
 
     /// <summary>Signals the outer cinematic owner to start the next page's colour transition.</summary>
+    /// <remarks>
+    /// The scene's end, kept once its cue reaches it (#2562): the cinematic's phase step, which runs before the actors'
+    /// step on each update, starts the next page on the update after the cue, so the end lasts across that boundary; it is
+    /// set once and never cleared, and the next page's setup discards the scene.
+    /// </remarks>
     public bool NextPageRequested { get; private set; }
 
     /// <summary>
@@ -112,7 +117,7 @@ internal sealed class IntroBabyDiscoveryState
             demo.Step(HandleDemoCue);
             // The input phase ends by resetting the movement and pose-change state,
             // before this update's movement records new distances.
-            SamusAerialPoseTransitions.DropPendingTransitionShot(Samus);
+            SamusAerialPoseTransitions.DropTransitionShot(Samus);
             Samus.ProjectileInheritance.ClearMovement();
 
             // An end cue read above already stopped Samus's update, so this
@@ -273,12 +278,11 @@ internal sealed class IntroBabyDiscoveryState
                 return;
 
             case ConfusedBabyMotion.Idling:
-                if (--BabyIdleTimer <= 0)
+                if (BabyIdleTimer.Step())
                 {
                     babyMotion = ConfusedBabyMotion.Dancing;
-                    BabyIdleTimer = 0;
                     BabyVelocity = BabyVelocity.WithY(default);
-                    BabyDanceFrames = 0;
+                    BabyCryingDance = UpdateCountdown.Lasting(IntroBabyDiscoveryDefinitions.CryingDanceUpdates);
                 }
                 return;
 
@@ -292,13 +296,16 @@ internal sealed class IntroBabyDiscoveryState
     }
 
     /// <summary>The velocity of the baby's rise and two-axis dance.</summary>
-    private EightEightVector<ScreenPixels> BabyVelocity { get; set; }
+    private PixelVelocity<ScreenPixels> BabyVelocity { get; set; }
 
-    /// <summary>Countdown from the apex of the baby's rise to the start of its dance.</summary>
-    private int BabyIdleTimer { get; set; }
+    /// <summary>The hold from the apex of the baby's rise to the start of its dance.</summary>
+    private UpdateCountdown BabyIdleTimer { get; set; } = UpdateCountdown.Ended();
 
-    /// <summary>The frames the baby has danced, counted up to 128; it cries as the count reaches 64 and 128.</summary>
-    private int BabyDanceFrames { get; set; }
+    /// <summary>
+    /// The crying stretch of the baby's dance, its first 128 updates, counted once each: it cries as its age reaches 64 and
+    /// 128, and dances on silently once it is over.
+    /// </summary>
+    private UpdateCountdown BabyCryingDance { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>Spawns slime at the authored row and accelerates the baby toward its hover point.</summary>
     private void StepHatchedBaby()
@@ -329,7 +336,7 @@ internal sealed class IntroBabyDiscoveryState
         // then holds before enabling the two-axis dance around Samus.
         if (!BabyVelocity.Y.IsNegative)
         {
-            BabyIdleTimer = IntroBabyDiscoveryDefinitions.ArcTopHold;
+            BabyIdleTimer = UpdateCountdown.For(IntroBabyDiscoveryDefinitions.ArcTopHold);
             babyMotion = ConfusedBabyMotion.Idling;
         }
     }
@@ -345,11 +352,11 @@ internal sealed class IntroBabyDiscoveryState
             return;
         }
 
-        if (BabyDanceFrames < IntroBabyDiscoveryDefinitions.CryingDanceUpdates)
+        if (BabyCryingDance.IsRunning)
         {
-            BabyDanceFrames++;
+            BabyCryingDance.Count();
             // The dancing baby cries when its count of frames danced reaches 64 and 128.
-            if (IntroCadenceDefinitions.BabyCriesEverySixtyFourthDanceUpdate.IsDue(BabyDanceFrames))
+            if (IntroCadenceDefinitions.BabyCriesEverySixtyFourthDanceUpdate.IsDue(BabyCryingDance.Age))
                 audio.QueueSound(
                     IntroCinematicDefinitions.Sounds.BabyCry1,
                     priority: IntroCinematicDefinitions.Sounds.SoundPriority);
@@ -376,13 +383,13 @@ internal sealed class IntroBabyDiscoveryState
     }
 
     /// <summary>The hatched baby's fastest vertical speed either way.</summary>
-    private static readonly SignedEightEight VerticalSpeedLimit = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(544);
+    private static readonly SignedEightEight VerticalSpeedLimit = SignedEightEight.FromPixelFraction(17, 8);
 
     /// <summary>The dancing baby's fastest horizontal speed either way.</summary>
-    private static readonly SignedEightEight HorizontalSpeedLimit = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(640);
+    private static readonly SignedEightEight HorizontalSpeedLimit = SignedEightEight.FromPixelFraction(5, 2);
 
     /// <summary>How much the baby's speed changes toward its target on each update.</summary>
-    private static readonly SignedEightEight BabyAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32);
+    private static readonly SignedEightEight BabyAcceleration = SignedEightEight.FromPixelFraction(1, 8);
 
     /// <summary>
     /// Adjusts a velocity toward a target by one acceleration step without passing <paramref name="limit"/> either

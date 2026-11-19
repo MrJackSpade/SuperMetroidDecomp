@@ -74,7 +74,7 @@ internal static class EscapeTimerSamusHeldVerification
         game.Session.Enter(SuperMetroidGameState.CeresDeparture);
         int held = runtime.EscapeTimer.RemainingCentiseconds;
 
-        int holdUpdates = game.Session.ceresDeparture.HoldFramesRemaining;
+        int holdUpdates = game.Session.ceresDeparture.Hold.UpdatesLeft;
         for (int update = 0; update < holdUpdates + 2; update++)
         {
             game.Step(0);

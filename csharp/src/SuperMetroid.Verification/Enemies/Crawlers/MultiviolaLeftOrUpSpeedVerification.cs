@@ -56,13 +56,17 @@ internal static class MultiviolaLeftOrUpSpeedVerification
             // The original turns an axis left when the heading a quarter turn on lies in the turn's first half, and up
             // when the heading lies in its second half.
             var expected = new FixedPosition<RoomPixels>(
-                Moved(EnemyMath.AbsoluteCosineSpeed(angle, speed), turnedLeftOrUp: ((heading + 0x40) & 0x80) == 0),
-                Moved(EnemyMath.AbsoluteSineSpeed(angle, speed), turnedLeftOrUp: ((heading + 0x80) & 0x80) == 0));
+                Moved(HalfWaveSpeed(angle.TurnedBy(TrigonometryAngle.QuarterTurn), speed), turnedLeftOrUp: ((heading + 0x40) & 0x80) == 0),
+                Moved(HalfWaveSpeed(angle.TurnedBy(TrigonometryAngle.HalfTurn), speed), turnedLeftOrUp: ((heading + 0x80) & 0x80) == 0));
             if (place.Position != expected)
                 throw new InvalidOperationException($"A Multiviola heading {heading} at speed {speed} moved to {place.Position}, not {expected}.");
         }
         Console.WriteLine($"  Multiviola left-or-up speed: all {HeadingCount} headings at each of the {placements.Select(placement => placement.Speed).Distinct().Count()} authored speeds move as the original's main update.");
     }
+
+    /// <summary>The original's unsigned product of <paramref name="speed"/> whole pixels and the half-wave at <paramref name="angle"/>.</summary>
+    private static UnsignedSixteenSixteen HalfWaveSpeed(TrigonometryAngle angle, int speed) =>
+        UnsignedSixteenSixteen.ShareOfWholePixels(speed, Trigonometry.UnsignedHalfWave(angle.StepsIntoHalfTurn));
 
     /// <summary>
     /// The centre moved by <paramref name="magnitude"/>, its whole word complemented and its fraction word negated first when

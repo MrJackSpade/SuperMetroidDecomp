@@ -40,7 +40,7 @@ public sealed class MamaTurtleEnemyState
     }
 
     /// <summary>Gets the phase-specific countdown used by peak and transition states.</summary>
-    public int ActionTimer { get; internal set; }
+    public UpdateCountdown ActionTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// Mama's sideways acceleration while she hovers, in pixels an update each update, toward Samus's side when hovering

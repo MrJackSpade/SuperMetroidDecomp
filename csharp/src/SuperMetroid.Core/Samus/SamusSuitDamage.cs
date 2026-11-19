@@ -57,11 +57,11 @@ public static class SamusSuitDamage
     /// spike's one, all far below 256. The suit pickup, which holds the damage over its updates, equips its suit before it
     /// starts, which stops heat, and its rooms hold no other producer.
     /// </remarks>
-    public static UnsignedSixteenSixteen ReducePeriodic(UnsignedSixteenSixteen damage, SamusEquipmentFlags equippedItems)
+    public static EnergyAmount ReducePeriodic(EnergyAmount damage, SamusEquipmentFlags equippedItems)
     {
         if (!equippedItems.HasAny(SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.VariaSuit))
             return damage;
 
-        return damage.DividedInTwoFiftySixths(Divisor(equippedItems));
+        return damage.DividedAsSuitsDivide(Divisor(equippedItems));
     }
 }

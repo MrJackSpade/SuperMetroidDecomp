@@ -140,8 +140,9 @@ internal sealed class KraidCombat
                     (type.Family == SamusProjectileFamily.Beam && !type.IsChargedBeam))
                     continue;
 
-                if (type.Family == SamusProjectileFamily.Beam)
-                    state.ChargedHitThisPass = true;
+                // A charged beam into his mouth marks a charged hit as the game does, but his body's pass, which alone
+                // reads the mark, forgets it before it tests, so only the body pass's own charged hits arm his mouth's
+                // reopens (#2562).
                 // Every beam takes Kraid's charged-beam response; the other families take their own.
                 EnemyWeaponVulnerability vulnerability = type.Family switch
                 {
@@ -161,10 +162,10 @@ internal sealed class KraidCombat
                     body.Health = damage >= body.Health
                         ? 0
                         : body.Health - damage;
-                    body.FlashTimer = body.HurtFlashFrames + EnemyCollisionDefinitions.WeaponHurtFlashExtension;
+                    body.HurtFlash.Restart(body.HurtFlashFrames + EnemyCollisionDefinitions.WeaponHurtFlashExtension);
                     body.AiStates = body.AiStates | EnemyAiStates.Hurt;
                     if (type.HasAnyBeam(SamusBeamFlags.Plasma))
-                        body.InvincibilityTimer = EnemyCollisionDefinitions.PlasmaShotInvincibilityUpdates;
+                        body.Invincibility.Restart(EnemyCollisionDefinitions.PlasmaShotInvincibilityUpdates);
                 }
                 else
                 {
@@ -182,7 +183,7 @@ internal sealed class KraidCombat
         {
             state.StartHurtFlash();
             if (state.MouthReopenArmed)
-                state.MouthReopenPending = true;
+                state.MouthReopenMarked = true;
             if (body.Health < 1 && state.BodyState.Fights)
                 BeginKraidDeath(state);
         }
@@ -199,7 +200,7 @@ internal sealed class KraidCombat
         if (KraidSinkingSkipsProjectileCollision(state))
             return 0;
 
-        state.ChargedHitThisPass = false;
+        bool chargedHit = false;
         int bodyHits = 0;
         if (tested.Count != 0)
         {
@@ -214,7 +215,7 @@ internal sealed class KraidCombat
                 bounds.LeaveAfterBodyHit(shot.Position);
                 projectile.MarkCollision();
                 if (shot.Type.IsChargedBeam)
-                    state.ChargedHitThisPass = true;
+                    chargedHit = true;
                 bodyHits++;
             }
         }
@@ -223,7 +224,7 @@ internal sealed class KraidCombat
             state.BodyState.FightPhase == KraidFightPhase.FirstPhaseThinking)
         {
             state.BodyState.FightPhase = KraidFightPhase.InitializeEyeGlow;
-            if (state.ChargedHitThisPass)
+            if (chargedHit)
             {
                 state.MouthReopenArmed = true;
                 state.ArmMouthReopens();

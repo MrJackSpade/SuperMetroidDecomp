@@ -35,7 +35,7 @@ internal static class ElevatorBehaviorVerification
 
     /// <summary>
     /// An arriving elevator's setup names itself, wherever the room lists it, as the placement the door loader waits for
-    /// (#1808): the loader consumes that elevator once, and asks room loading's progress about that elevator.
+    /// (#1808) while its arrival begins, and the loader asks room loading's progress about that elevator.
     /// </summary>
     internal static void VerifyElevatorArrivalPlacement()
     {
@@ -48,9 +48,8 @@ internal static class ElevatorBehaviorVerification
 
         enemies.ElevatorBehavior.PrepareElevatorArrival();
         enemies.ElevatorBehavior.InitializeElevator(elevator, samus);
-        AssertTrue(ReferenceEquals(elevator, enemies.ElevatorBehavior.ConsumeElevatorArrivalPlacement()),
+        AssertTrue(ReferenceEquals(elevator, enemies.ElevatorBehavior.ArrivalElevator),
             "the arriving elevator is the placement the door loader waits for");
-        AssertEqual<RoomEnemyPlace?>(null, enemies.ElevatorBehavior.ConsumeElevatorArrivalPlacement(), "the placement is consumed once");
 
         var progress = new EvidencedRoomLoadProgress();
         progress.Expect(3);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -71,10 +72,10 @@ internal static class ShitroidGradualAccelerationVerification
             shitroid.FrameCounter = 0;
             samus.Health = 500;
             samus.Position = samus.Position.WithWhole(new(0x01c3, 0x00b9));
-            samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(ySpeed);
+            samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(samus.Kinematics.VerticalVelocity.Speed.WithWhole(ySpeed));
             runtime.Enemies.ShitroidBehavior.RunShitroidMain(shitroid, samus, new Position16<RoomPixels>(0x0158, 0x0000), runtime.BombProjectiles);
             AssertEqual(expectedX, shitroid.Position.X.Whole, $"Y speed {ySpeed}: the drain's X add takes CMP #4's carry");
-            AssertEqual(expectedSpeed, samus.Kinematics.YSpeed.Whole, $"Y speed {ySpeed}: the drain clamps only speeds of 4 or more");
+            AssertEqual(expectedSpeed, samus.Kinematics.VerticalVelocity.Speed.Whole, $"Y speed {ySpeed}: the drain clamps only speeds of 4 or more");
         }
         Console.WriteLine("Shitroid drain carry: a Y speed of 4 or more adds one pixel to the latched X.");
     }
@@ -125,14 +126,14 @@ internal static class ShitroidGradualAccelerationVerification
         };
         var velocities = new[]
         {
-            new EightEightVector<RoomPixels>(SignedEightEight.FromPixels(2), SignedEightEight.FromPixels(1)),
-            new EightEightVector<RoomPixels>(SignedEightEight.FromPixels(-2), SignedEightEight.FromPixels(-1)),
+            new PixelVelocity<RoomPixels>(SignedEightEight.FromPixels(2), SignedEightEight.FromPixels(1)),
+            new PixelVelocity<RoomPixels>(SignedEightEight.FromPixels(-2), SignedEightEight.FromPixels(-1)),
         };
         // From the camera at 512 the Shitroid at 700 is on screen; from the room's corner it is off screen to the right.
         var cameras = new[] { new Position16<RoomPixels>(0x0200, 0x0000), new Position16<RoomPixels>(0x0000, 0x0000) };
         int checks = 0;
         foreach (var flight in flights)
-        foreach (EightEightVector<RoomPixels> velocity in velocities)
+        foreach (PixelVelocity<RoomPixels> velocity in velocities)
         foreach (Position16<RoomPixels> camera in cameras)
         {
             state.Action = flight.Action;
@@ -141,7 +142,7 @@ internal static class ShitroidGradualAccelerationVerification
             state.Velocity = velocity;
             state.StateTimer.LastFor(101);
             state.SamusHeightHover = SuperMetroid.Core.Bosses.BossCountdown.Lasting(4);
-            state.HorizontalLockAccumulator = 0;
+            PrivateState.Set(state.HorizontalLock, nameof(ShitroidHorizontalLock.Built), 0);
             shitroid.Position = shitroid.Position.WithWhole(new(700, 150));
             samus.Position = samus.Position.WithWhole(new(600, 180));
             Position16<RoomPixels> target = flight.Target();

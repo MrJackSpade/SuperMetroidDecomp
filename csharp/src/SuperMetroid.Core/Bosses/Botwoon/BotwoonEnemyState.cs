@@ -53,10 +53,10 @@ public sealed class BotwoonEnemyState
     /// </summary>
     public QuadraticSpeedCurvePlace FallPlace { get; internal set; }
     /// <summary>
-    /// The updates the wall sequence has run, 0 through <see cref="BotwoonDeathDefinitions.WallExplosionDuration"/>; the
-    /// band its explosions burst in moves down the wall with it.
+    /// The wall sequence, lasting <see cref="BotwoonDeathDefinitions.WallExplosionDuration"/>; the band its explosions
+    /// burst in moves down the wall with its age.
     /// </summary>
-    public int WallExplosionUpdates { get; internal set; }
+    public UpdateCountdown WallSequence { get; internal set; } = UpdateCountdown.Ended();
     /// <summary>
     /// The wait for the next large wall explosion (#2267): from the wall sequence's update 64 one bursts at once, then one
     /// every <see cref="BotwoonDeathDefinitions.LargeExplosionInterval"/>.
@@ -110,12 +110,8 @@ public sealed class BotwoonEnemyState
     public bool HoleLatch { get; internal set; }
     /// <summary>Set until his first crossing: it sends him on a walk without drawing his next action at random.</summary>
     public bool InitialAction { get; internal set; }
-    /// <summary>Movement completion signal, raised when a path ends or on an observed hole-state transition and consumed by the main action step.</summary>
-    public bool PathComplete { get; internal set; }
-    /// <summary>Set as his spitting animation reaches its spit; the aimed volley spits on it and clears it.</summary>
-    public bool SpitFrameReached { get; internal set; }
     /// <summary>Set by the fatal hit: he keeps on his walk until his tail has next crossed out of the wall, and then dies.</summary>
-    public bool PendingDeath { get; internal set; }
+    public bool FatallyHit { get; internal set; }
     /// <summary>Set when his tail crosses the place his head crossed at while the head is outside the wall, letting a fatal hit's death begin.</summary>
     public bool ExitTransitionComplete { get; internal set; }
     /// <summary>Set as his death begins: each of his thirteen body segments then stops following his head and starts its own delay before it falls.</summary>

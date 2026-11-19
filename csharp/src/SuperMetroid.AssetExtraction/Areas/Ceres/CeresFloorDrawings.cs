@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
@@ -11,6 +12,18 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 /// </summary>
 internal static class CeresFloorDrawings
 {
+    /// <summary>The floor's animation frames in the order the floor sheet holds their pictures (#2567).</summary>
+    private static readonly IReadOnlyList<CeresFloorActorPicture> FrameOrder = Ensure.EveryMemberOnce<CeresFloorActorPicture>(
+    [
+        CeresFloorActorPicture.ElevatorLight,
+        CeresFloorActorPicture.ElevatorDark,
+        CeresFloorActorPicture.BabyVertical,
+        CeresFloorActorPicture.BabyRound,
+        CeresFloorActorPicture.BabyHorizontal,
+        CeresFloorActorPicture.WingsRaised,
+        CeresFloorActorPicture.WingsLowered,
+    ]);
+
     /// <summary>The tiles of each cell <paramref name="frame"/>'s runs write, by floor cell.</summary>
     internal static IReadOnlyDictionary<int, int> Cells(CeresFloorActorPicture frame)
     {
@@ -38,12 +51,12 @@ internal static class CeresFloorDrawings
     internal static IReadOnlyList<FloorSheetComposer.FloorPicture> Pictures(ReadOnlySpan<byte> map, byte[] tilePixels)
     {
         var pictures = new List<FloorSheetComposer.FloorPicture>();
-        foreach (CeresFloorActorPicture frame in Enum.GetValues<CeresFloorActorPicture>())
+        foreach (CeresFloorActorPicture frame in FrameOrder)
             pictures.Add(Picture(frame, map, tilePixels));
         FloorSheetComposer.RequireSeparateParts(pictures);
-        foreach (CeresFloorActorPicture first in Enum.GetValues<CeresFloorActorPicture>())
+        foreach (CeresFloorActorPicture first in FrameOrder)
         {
-            foreach (CeresFloorActorPicture second in Enum.GetValues<CeresFloorActorPicture>())
+            foreach (CeresFloorActorPicture second in FrameOrder)
             {
                 FloorSheetComposer.FloorPicture one = pictures.Single(picture => picture.Name == RoomFloorSheet.PictureNameOf(first));
                 FloorSheetComposer.FloorPicture other = pictures.Single(picture => picture.Name == RoomFloorSheet.PictureNameOf(second));
@@ -62,7 +75,7 @@ internal static class CeresFloorDrawings
     {
         byte[] floor = map.ToArray();
         var resting = new Dictionary<CeresFloorActor, CeresFloorActorPicture>();
-        foreach (CeresFloorActorPicture picture in Enum.GetValues<CeresFloorActorPicture>())
+        foreach (CeresFloorActorPicture picture in FrameOrder)
         {
             CeresFloorActor actor = CeresFloorActors.Of(picture);
             if (!resting.ContainsKey(actor) && Cells(picture).All(pair => floor[pair.Key] == pair.Value))

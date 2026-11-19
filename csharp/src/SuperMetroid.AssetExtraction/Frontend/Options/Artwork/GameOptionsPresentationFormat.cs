@@ -16,12 +16,28 @@ public static class GameOptionsPresentationFormat
     public const string ArtworkFileName = "options-menu-artwork.json";
     /// <summary>The JSON name of the common background page, separate from the foreground option pages.</summary>
     public const string BackgroundPageName = "Background";
-    /// <summary>The foreground option pages in document order: primary, then English and Japanese controller and special pages.</summary>
-    public static IReadOnlyList<GameOptionsScreen> Tilemaps { get; } = Enum.GetValues<GameOptionsScreen>();
-    /// <summary>The two special settings, icon cancel then moonwalk.</summary>
-    public static IReadOnlyList<GameOptionsToggle> Toggles { get; } = Enum.GetValues<GameOptionsToggle>();
-    /// <summary>The three menu layouts headings and cursors are anchored by, in primary, controller and special order.</summary>
-    internal static IReadOnlyList<GameOptionsPage> MenuPages { get; } = Enum.GetValues<GameOptionsPage>();
+    /// <summary>The foreground option pages in document order (#2567): primary, then English and Japanese controller and special pages.</summary>
+    public static IReadOnlyList<GameOptionsScreen> Tilemaps { get; } = Ensure.EveryMemberOnce<GameOptionsScreen>(
+    [
+        GameOptionsScreen.Primary,
+        GameOptionsScreen.ControllerEnglish,
+        GameOptionsScreen.ControllerJapanese,
+        GameOptionsScreen.SpecialEnglish,
+        GameOptionsScreen.SpecialJapanese,
+    ]);
+    /// <summary>The two special settings in document order (#2567), icon cancel then moonwalk.</summary>
+    public static IReadOnlyList<GameOptionsToggle> Toggles { get; } = Ensure.EveryMemberOnce<GameOptionsToggle>(
+    [
+        GameOptionsToggle.IconCancel,
+        GameOptionsToggle.Moonwalk,
+    ]);
+    /// <summary>The three menu layouts headings and cursors are anchored by, in primary, controller and special order (#2567).</summary>
+    internal static IReadOnlyList<GameOptionsPage> MenuPages { get; } = Ensure.EveryMemberOnce<GameOptionsPage>(
+    [
+        GameOptionsPage.Primary,
+        GameOptionsPage.Controller,
+        GameOptionsPage.Special,
+    ]);
 
     /// <summary>The JSON name of each menu layout, which keys its heading and cursor anchors.</summary>
     private static readonly IReadOnlyDictionary<GameOptionsPage, string> MenuNames =

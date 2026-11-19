@@ -13,9 +13,9 @@ internal static class GreyDoorDefinitions
     /// <summary>A locked cap's closed image, for one update.</summary>
     internal static Animation<DoorCapSegment> Locked => DoorCapSequenceDefinitions.Closed;
 
-    /// <summary>An unlocked cap's flash, the shared flash three times over and over until a shot opens it.</summary>
+    /// <summary>An unlocked cap's flash, the shared flash over and over until a shot opens it.</summary>
     internal static Animation<DoorCapSegment> Flash { get; } =
-        new([DoorCapSequenceDefinitions.Segments.Repeated(S.Flash, DoorCapSequenceDefinitions.FlashesPerHit)], new AnimationEnd.Loop(0));
+        new([DoorCapSequenceDefinitions.Segments.Whole(S.Flash)], new AnimationEnd.Loop(0));
 
     /// <summary>A shot cap opening, after which it leaves the room.</summary>
     internal static Animation<DoorCapSegment> Opening { get; } = DoorCapSequenceDefinitions.Once(S.GreyOpening);

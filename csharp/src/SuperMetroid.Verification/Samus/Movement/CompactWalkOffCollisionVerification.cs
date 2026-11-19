@@ -30,7 +30,7 @@ internal static class CompactWalkOffCollisionVerification
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x6400);
-            samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(2, 0xf400);
+            samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(new UnsignedSixteenSixteen(2, 0xf400));
             SamusPoseId target = left ? SamusPoseId.FallingLeftPose : SamusPoseId.FallingRightPose;
             SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus, level, target, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
             AssertEqual(FixedCoordinate.Of(0x00ed, 0xffff), samus.Kinematics.Position.Y, "compact walk-off uses native floor center/subpixel correction");
@@ -39,9 +39,9 @@ internal static class CompactWalkOffCollisionVerification
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             AssertEqual(19, samus.Kinematics.Radius.Y, "compact walk-off next alpha publishes falling radius");
             AssertEqual(FixedCoordinate.Of(0x00ed, 0xffff), samus.Kinematics.Position.Y, "radius publication does not repeat compact correction");
-            AssertEqual(0, samus.Kinematics.YSpeed.Whole, "accepted falling command clears whole vertical speed");
-            AssertEqual(0, samus.Kinematics.YSpeed.Fraction, "accepted falling command clears fractional vertical speed");
-            AssertEqual(SamusVerticalDirection.Down, samus.Kinematics.YDirection, "accepted falling command starts downward motion");
+            AssertEqual(0, samus.Kinematics.VerticalVelocity.Speed.Whole, "accepted falling command clears whole vertical speed");
+            AssertEqual(0, samus.Kinematics.VerticalVelocity.Speed.Fraction, "accepted falling command clears fractional vertical speed");
+            AssertEqual(SamusVerticalDirection.Down, samus.Kinematics.VerticalVelocity.Direction, "accepted falling command starts downward motion");
         }
     }
 }

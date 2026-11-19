@@ -111,7 +111,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        state.ActionTimer = MorphBallEyeWatchDefinitions.TransitionDuration;
+        state.ActionTimer = UpdateCountdown.For(MorphBallEyeWatchDefinitions.TransitionDuration);
         eye.AnimationClock.StepOnNextUpdate();
         state.Playback = new(MorphBallEyeAnimations.StartingWith(eye.SpawnSettings<MorphBallEyeBodySpawnSettings>().Facing == HorizontalDirection.Right
             ? MorphBallEyeSegment.FacingRightActivating
@@ -126,7 +126,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         // The opening lasts its whole duration: the update that takes the timer to zero opens the eye (#2340).
-        if (--state.ActionTimer != 0)
+        if (!state.ActionTimer.StepEnds())
             return;
 
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.EyeActivationSound, priority: SoundRequestPriority.Normal);
@@ -151,7 +151,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.EyeRaySoundStop, priority: SoundRequestPriority.Normal);
             state.IsActivated = false;
-            state.ActionTimer = MorphBallEyeWatchDefinitions.TransitionDuration;
+            state.ActionTimer = UpdateCountdown.For(MorphBallEyeWatchDefinitions.TransitionDuration);
             state.Aim = null;
             state.Playback = new(MorphBallEyeAnimations.StartingWith(eye.SpawnSettings<MorphBallEyeBodySpawnSettings>().Facing == HorizontalDirection.Right
                 ? MorphBallEyeSegment.FacingRightDeactivating
@@ -172,14 +172,15 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Returns to waiting on the update the closing's duration runs out (#2340).</summary>
     private static void AdvanceMorphBallEyeDeactivation(MorphBallEyeEnemyState state)
     {
-        if (--state.ActionTimer == 0)
+        if (state.ActionTimer.StepEnds())
             state.Action = MorphBallEyeAction.WaitForSamus;
     }
 
     /// <summary>The eye's bearing to Samus, from her distance on each axis.</summary>
     private static RotationAngle CalculateMorphBallEyeAngle(RoomEnemyPlace eye, SamusState samus) =>
-        EnemyMath.CalculateBearing(
-            new(samus.Position.X.Whole - eye.Position.X.Whole, samus.Position.Y.Whole - eye.Position.Y.Whole)).ToMirroredTrigonometryAngle().ToAngle();
+        // The eye's beam measures its direction clockwise from straight up, as its window cone does.
+        (TrigonometryAngle.QuarterTurn - EnemyMath.CalculateAimAngle(
+            new(samus.Position.X.Whole - eye.Position.X.Whole, samus.Position.Y.Whole - eye.Position.Y.Whole))).ToAngle();
 
     /// <summary>
     /// Schedules the room-global beam to appear next frame, following <paramref name="eye"/>, the eye that opened (#2342):
@@ -245,7 +246,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         RotationAngle width = MorphBallEyeBeam.AngularHalfWidth;
         if (width >= MorphBallEyeBeamDefinitions.FullHalfWidth)
         {
-            MorphBallEyeBeam.AngularHalfWidth = MorphBallEyeBeamDefinitions.FullHalfWidth + (width - width.WholeStep);
+            MorphBallEyeBeam.AngularHalfWidth = width.WithWholeStepsOf(MorphBallEyeBeamDefinitions.FullHalfWidth);
             MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.Full;
         }
     }

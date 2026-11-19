@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -63,9 +64,9 @@ internal static class PipeBugBehaviorVerification
             NorfairPipeBugState state = place.RequireSpeciesState<NorfairPipeBugState>();
             state.Action = NorfairPipeBugAction.WaitForStagger;
             state.Role = new NorfairPipeBugRole(StaggerTarget: 72, Stagger: null);
-            state.FormationCounter = before;
+            PrivateState.Set(state, nameof(NorfairPipeBugState.Departure), UpdateCountdownAccess.AtAge(72, before));
             enemies.PipeBugsBehavior.RunNorfairPipeBugMainAi(place, Frame(new(200, 128)));
-            AssertEqual(after, state.FormationCounter, $"Norfair Pipe Bug count after {before}");
+            AssertEqual(after, state.Departure.Age, $"Norfair Pipe Bug count after {before}");
             AssertEqual(departs ? NorfairPipeBugAction.Fly : NorfairPipeBugAction.WaitForStagger, state.Action,
                 $"Norfair Pipe Bug departs only on reaching its target (count {before})");
             if (departs)
@@ -143,7 +144,7 @@ internal static class PipeBugBehaviorVerification
             state.Action = NorfairPipeBugAction.Stagger;
             state.Role = role;
             state.RiseEndY = 128;
-            state.FormationCounter = 0;
+            PrivateState.Set(state, nameof(NorfairPipeBugState.Departure), UpdateCountdown.Lasting(role.StaggerTarget));
             int updates = 0;
             while (state.Action == NorfairPipeBugAction.Stagger && updates <= stagger.Distance + 1)
             {
@@ -152,7 +153,7 @@ internal static class PipeBugBehaviorVerification
             }
             AssertEqual(NorfairPipeBugAction.WaitForStagger, state.Action, $"the member staggering {offset} pixels then waits");
             AssertEqual(128 + offset, slot.Position.Y.Whole, $"the member staggering {offset} pixels stops there");
-            AssertEqual(updates, state.FormationCounter, $"the member staggering {offset} pixels counts each update");
+            AssertEqual(updates, state.Departure.Age, $"the member staggering {offset} pixels counts each update");
         }
         Console.WriteLine("  Norfair Pipe Bug staggers: each member moves by its role's offset and then waits.");
     }

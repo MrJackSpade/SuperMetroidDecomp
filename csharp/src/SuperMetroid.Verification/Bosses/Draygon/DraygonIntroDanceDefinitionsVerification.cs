@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies.EffectActors;
@@ -107,7 +108,11 @@ internal static class DraygonIntroDanceDefinitionsVerification
         enemies.VerificationServices().NextRandom = () => 0;
         Action<DraygonEnemyState, SamusState, byte> run = (danceState, danceSamus, frameCounter) =>
             enemies.DraygonBehavior.Intro.RunDraygonIntroDance(danceState, danceSamus, frameCounter);
-        var state = new DraygonEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
+        // The dance starts its own stage, as the intro's handoff does.
+        var state = new DraygonEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3])
+        {
+            IntroStage = UpdateCountdown.Lasting(DraygonIntroDanceDefinitions.DurationFrames),
+        };
 
         ushort[] expectedX = new ushort[4];
         ushort[] expectedY = new ushort[4];
@@ -152,7 +157,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
             run(state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), 1);
             expectedStreamOffset += DraygonIntroDanceDefinitionsConstants.NativeMovementRecordBytes;
 
-            AssertEqual(frame + 1, state.IntroFrames, $"Draygon intro frame {frame} dance step");
+            AssertEqual(frame + 1, state.IntroStage.Age, $"Draygon intro frame {frame} dance step");
             for (int slotIndex = 28; slotIndex <= 31; slotIndex++)
             {
                 int actor = slotIndex - 28;
@@ -169,14 +174,12 @@ internal static class DraygonIntroDanceDefinitionsVerification
             }
         }
 
-        AssertEqual(DraygonIntroDanceDefinitions.DurationFrames, state.IntroFrames,
+        AssertEqual(DraygonIntroDanceDefinitions.DurationFrames, state.IntroStage.Age,
             "Draygon intro exact native duration");
         run(state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), 1);
         AssertEqual(DraygonPhase.SwoopSetup, state.Phase,
             "Draygon intro transitions to right-swoop setup after the native duration");
         AssertEqual(HorizontalDirection.Right, state.PassDirection, "Draygon's first swoop flies right (#2165)");
-        AssertEqual(0, state.IntroFrames,
-            "Draygon intro clears its frame count at the native handoff");
 
         // A restored dance step can be corrupt while the owner is still inside its native duration. Exercise the
         // production dispatcher so this cannot regress into reading past the traced path.
@@ -186,7 +189,8 @@ internal static class DraygonIntroDanceDefinitionsVerification
         var malformedState = new DraygonEnemyState(malformedEnemies.Places.InUpdateOrder[0], malformedEnemies.Places.InUpdateOrder[1], malformedEnemies.Places.InUpdateOrder[2], malformedEnemies.Places.InUpdateOrder[3])
         {
             // The first Evir waits the shortest, so it reaches one step past the path's end first.
-            IntroFrames = DraygonIntroDanceDefinitions.TracedPath.Length + DraygonIntroDance.StartDelay(0),
+            IntroStage = UpdateCountdownAccess.AtAge(DraygonIntroDanceDefinitions.DurationFrames,
+                DraygonIntroDanceDefinitions.TracedPath.Length + DraygonIntroDance.StartDelay(0)),
         };
         RoomEffectActor malformedSprite = malformedEnemies.EffectActors.SpawnRoomEffectActor(new(0x0100, 0x0180),
             RoomEffectActorKind.EvirFacingLeft, SuperMetroid.Core.Enemies.SpriteGraphics.SharedIn(DraygonColours.Evirs));

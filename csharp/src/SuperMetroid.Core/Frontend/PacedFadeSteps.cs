@@ -17,7 +17,7 @@ internal sealed class PacedFadeSteps
     {
         Steps = Ensure.BetweenInclusive(1, int.MaxValue, steps);
         this.updatesPerStep = Ensure.BetweenInclusive(1, int.MaxValue, updatesPerStep);
-        updatesToStep = Ensure.BetweenInclusive(1, int.MaxValue, firstStepUpdate);
+        stepWait = UpdateCountdown.Lasting(firstStepUpdate);
     }
 
     /// <summary>The updates the fade takes from one step to the next.</summary>
@@ -26,7 +26,7 @@ internal sealed class PacedFadeSteps
 
     /// <summary>The updates the fade takes to its next step, the update that takes it included.</summary>
     [IntegerQuantity("updates to the next fade step")]
-    private int updatesToStep;
+    private readonly UpdateCountdown stepWait;
 
     /// <summary>The fade's steps from its start to its goal.</summary>
     [IntegerQuantity("colour fade steps from start to goal")]
@@ -48,9 +48,9 @@ internal sealed class PacedFadeSteps
     /// <returns>Whether the update took a step.</returns>
     internal bool Advance()
     {
-        if (--updatesToStep > 0)
+        if (!stepWait.Step())
             return false;
-        updatesToStep = updatesPerStep;
+        stepWait.Restart(updatesPerStep);
         if (IsComplete)
             return false;
         Taken++;

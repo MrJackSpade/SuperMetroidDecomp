@@ -33,17 +33,17 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
             for (int raw = 0; raw <= DeadSidehopperVictimDefinitions.PostLandingPause; raw++)
             {
                 state.Action = DeadSidehopperAction.PostLandingDelay;
-                state.StateTimer = raw;
+                state.PostLandingPause = UpdateCountdown.For(raw);
                 state.DrainStage = drainStage;
-                state.NextHop = CyclingSequence<EightEightVector<RoomPixels>>.At(DeadSidehopperLaunchDefinitions.Launches, phase);
-                state.Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(4660, 4660);
+                state.NextHop = CyclingSequence<PixelVelocity<RoomPixels>>.At(DeadSidehopperLaunchDefinitions.Launches, phase);
+                state.Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(4660), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(4660));
                 state.Playback = new(DeadTourianAnimations.StartingWith(DeadTourianSegment.SidehopperCorpse), AnimationPlace.StartOfAnimation);
                 place.AnimationClock.HoldFor(9);
                 dispatch(place, state, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), default);
                 int timer = raw - 1;
                 bool expired = timer <= 0;
                 bool launch = expired && drainStage == SidehopperDrainStage.Untouched;
-                AssertEqual(timer, state.StateTimer, "Exact delay decrement, ending at zero");
+                AssertEqual(Math.Max(0, timer), state.PostLandingPause.UpdatesLeft, "Exact delay count, ending at zero");
                 AssertEqual(launch ? vx : (ushort)0x1234, state.Velocity.X.RawValue, "Timer and drain gates control X launch");
                 AssertEqual(launch ? vy : (ushort)0x1234, state.Velocity.Y.RawValue, "Timer and drain gates control Y launch");
                 AssertEqual(expired ? (launch ? DeadSidehopperAction.ActivatedMovement : DeadSidehopperAction.Draining) : DeadSidehopperAction.PostLandingDelay,

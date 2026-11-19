@@ -111,7 +111,7 @@ public sealed class TorizoEnemyState
     /// leaves its sideways velocity at <see cref="TorizoWalkLeftVelocity"/>. Any change to its vertical speed ends the
     /// resting fall (<see cref="FallsAtRestingSpeed"/>).
     /// </summary>
-    public EightEightVector<RoomPixels> Velocity
+    public PixelVelocity<RoomPixels> Velocity
     {
         get;
         internal set

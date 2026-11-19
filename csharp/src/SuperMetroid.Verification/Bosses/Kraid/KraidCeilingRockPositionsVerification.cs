@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.Kraid;
@@ -35,7 +36,6 @@ internal static class KraidCeilingRockPositionsVerification
         KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
         enemies.VerificationServices().ReadRandom = () => 63;
         Action<RoomEnemyPlace, KraidEnemyState> step = enemies.KraidBehavior.Rise.RunKraidGrowthPhase;
-        var requests = enemies.BossFrameResults.KraidObjects;
         var body = enemies.Places.InUpdateOrder[0];
         body.FrameCounter = 1; // Isolate the ceiling placement from the independent rising-rock cadence.
         // Every height his rising body passes through as it breaks the ceiling, and on past his room's two screens (#2299).
@@ -43,7 +43,7 @@ internal static class KraidCeilingRockPositionsVerification
         for (int index = 0; index < KraidCeilingRockDefinitions.Rocks.Count; index++)
         {
             foreach (var occupied in enemies.Projectiles.EnemyProjectiles) occupied.Delete();
-            requests.Clear();
+            enemies.PassEvents.Begin();
             body.Position = body.Position.WithWhole(new(128, (ushort)raw));
             state.BodyState.NextCeilingRock = ListStep<KraidCeilingRock>.At(KraidCeilingRockDefinitions.Rocks, index);
             state.BodyState.GrowthPhase = KraidGrowthPhase.BreakCeilingPlatforms;
@@ -51,16 +51,16 @@ internal static class KraidCeilingRockPositionsVerification
             int y = raw - 1;
             bool spawn = (y & 3) == 0;
             AssertEqual(y, body.Position.Y.Whole, "Ceiling break moves before cadence test");
-            AssertEqual(spawn ? 1 : 0, requests.Count, "Ceiling PLM cadence");
+            AssertEqual(spawn ? 1 : 0, enemies.LastEnemyFrame.All<KraidRoomChange>().Count(), "Ceiling PLM cadence");
             // The rock after the last is none, the place past the list's end.
             AssertEqual(index + (spawn ? 1 : 0), state.BodyState.NextCeilingRock?.Place ?? KraidCeilingRockDefinitions.Rocks.Count,
                 "Ceiling rock advances only on emission");
             if (!spawn) continue;
-            var rock = enemies.Projectiles.EnemyProjectiles[^1];
+            var rock = enemies.Projectiles.ProjectileInPlace(17);
             AssertEqual(Word(EnemyRomTablePointers.Kraid.CeilingRockXWords + index * 2), rock.Position.X.Whole, "Native ceiling X reaches actual projectile");
             AssertEqual((ushort)312, rock.Position.Y.Whole, "Ceiling projectile origin Y");
             AssertEqual((ushort)127, rock.Velocity.Y.RawValue, "Ceiling projectile retains current RNG velocity");
-            AssertEqual(KraidCeilingRockDefinitions.Rocks[index].Crumble, requests[0], "Rock and ceiling mutation stay paired");
+            AssertEqual(KraidCeilingRockDefinitions.Rocks[index].Crumble, enemies.LastEnemyFrame.All<KraidRoomChange>().First().Request, "Rock and ceiling mutation stay paired");
         }
         Console.WriteLine("Kraid ceiling rocks: all 9 rock positions and 9216 actual growth updates, at every height his rise passes, match with placement reads forbidden.");
     }

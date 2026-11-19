@@ -38,14 +38,19 @@ internal sealed class MotherBrainGlassObject(MotherBrainGlassObjects owner) : Ro
     /// <summary>Whether strikes on the glass's block count hits: from its first update, once it shows its first stage.</summary>
     internal bool HitCountArmed { get; private set; }
 
-    /// <summary>The strike on the glass's block its hit count has not yet read, or null for none.</summary>
-    internal ResidentObjectProjectileHit? PendingHit { get; private set; }
-
     /// <summary>How long the glass holds before its next step: its first update, then each image's own updates.</summary>
     private readonly BossCountdown _holdBeforeNextStep = BossCountdown.Lasting(1);
 
-    /// <inheritdoc/>
-    public void Strike(ResidentObjectProjectileHit hit) => PendingHit = hit;
+    /// <summary>
+    /// A Missile or Super Missile that strikes the glass's block counts a hit as it lands once the glass counts hits (#2562):
+    /// its count is read only at its updates, which strikes do not reach before its first, so counting at the strike
+    /// counts every strike the game's update counts.
+    /// </summary>
+    public void Strike(ResidentObjectProjectileHit hit)
+    {
+        if (HitCountArmed && hit.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
+            Hits++;
+    }
 
     /// <summary>Mother Brain's head shot counts a hit on the glass at once.</summary>
     internal void CountHeadShot() => Hits++;
@@ -54,12 +59,6 @@ internal sealed class MotherBrainGlassObject(MotherBrainGlassObjects owner) : Ro
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
-        if (HitCountArmed)
-        {
-            if (PendingHit?.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
-                Hits++;
-            PendingHit = null;
-        }
         if (_holdBeforeNextStep.StepKeepsRunning())
             return;
         switch (Phase)

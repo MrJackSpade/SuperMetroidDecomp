@@ -33,16 +33,16 @@ public static class BlockReactionFamilies
         _ => throw new ArgumentOutOfRangeException(nameof(reaction), reaction, "The value is no block reaction."),
     };
 
-    /// <summary>Every reaction of <paramref name="family"/>, in its declaration order.</summary>
+    /// <summary>Every reaction of <paramref name="family"/>, in the family's written-out order (its keys' listed order, #2567).</summary>
     /// <exception cref="InvalidOperationException"><paramref name="family"/> is undefined.</exception>
     public static IReadOnlyList<Enum> Reactions(BlockReactionFamily family) => family switch
     {
-        BlockReactionFamily.Shootable => [.. Enum.GetValues<ShootableReaction>().Cast<Enum>()],
-        BlockReactionFamily.Bombable => [.. Enum.GetValues<BombableReaction>().Cast<Enum>()],
-        BlockReactionFamily.Special => [.. Enum.GetValues<SpecialBlockReaction>().Cast<Enum>()],
-        BlockReactionFamily.SpecialAir => [.. Enum.GetValues<SpecialAirReaction>().Cast<Enum>()],
-        BlockReactionFamily.Spike => [.. Enum.GetValues<SpikeReaction>().Cast<Enum>()],
-        BlockReactionFamily.Grapple => [.. Enum.GetValues<GrappleReaction>().Cast<Enum>()],
+        BlockReactionFamily.Shootable => [.. Ensure.EveryMemberOnce(ShootableReactionKeys.ListedOrder).Cast<Enum>()],
+        BlockReactionFamily.Bombable => [.. Ensure.EveryMemberOnce(BombableReactionKeys.ListedOrder).Cast<Enum>()],
+        BlockReactionFamily.Special => [.. Ensure.EveryMemberOnce(SpecialBlockReactionKeys.ListedOrder).Cast<Enum>()],
+        BlockReactionFamily.SpecialAir => [.. Ensure.EveryMemberOnce(SpecialAirReactionKeys.ListedOrder).Cast<Enum>()],
+        BlockReactionFamily.Spike => [.. Ensure.EveryMemberOnce(SpikeReactionKeys.ListedOrder).Cast<Enum>()],
+        BlockReactionFamily.Grapple => [.. Ensure.EveryMemberOnce(GrappleReactionKeys.ListedOrder).Cast<Enum>()],
         _ => throw new InvalidOperationException($"Undefined reaction family {family}."),
     };
 

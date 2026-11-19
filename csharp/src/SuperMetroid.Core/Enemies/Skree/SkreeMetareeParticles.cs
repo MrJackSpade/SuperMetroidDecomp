@@ -31,7 +31,7 @@ internal static class SkreeMetareeParticles
     /// <summary>Flies a particle under gravity, removing it once it leaves the view, whose right and bottom edges are already outside.</summary>
     private static void Fly(EnemyProjectile projectile, Position16<RoomPixels> camera)
     {
-        projectile.Position = projectile.Position.Advance(projectile.Velocity.ToSixteenSixteen());
+        projectile.Position = projectile.Position.Advance(projectile.Velocity.ToDisplacement());
         projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + MetalParticleBurstDefinitions.Gravity);
         if (!EnemyView.ContainsBeforeFarEdges(projectile.Position.Whole, camera))
             projectile.Delete();
@@ -47,7 +47,7 @@ internal static class SkreeMetareeParticles
         RoomEnemyPlace source,
         SkreeMetareeParticleSegment look,
         int xOffset,
-        EightEightVector<RoomPixels> velocity)
+        PixelVelocity<RoomPixels> velocity)
     {
         EnemyProjectile? particle = projectiles.AllocateEnemyProjectile();
         if (particle is null)

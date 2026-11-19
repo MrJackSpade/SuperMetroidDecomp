@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Frontend.Menus;
 internal static class TimeUpDefinitions
 {
     /// <summary>
-    /// The shared fade counter's last value at which a step of the whiteout moves the screen toward white: the step after it
-    /// completes the fade. The screen whitens in this many parts, one for each of the fade's own steps after its first (#2421).
+    /// The parts the whiteout moves the screen toward white in, one for each of its own steps after its first; the step
+    /// after the last part completes it (#2421).
     /// </summary>
-    public const int WhiteOutLastStep = 9;
+    public const int WhiteOutParts = 9;
 }

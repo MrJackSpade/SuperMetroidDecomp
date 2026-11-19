@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Menus;
 using System.Collections.Immutable;
@@ -868,7 +869,7 @@ internal static class LookupStream3Verification
         // head's orientation chooses (#2284).
         for (int bucket = 0; bucket <= 224; bucket += 32)
         {
-            CompassDirection aim = new Bearing(bucket).DirectionOfEighth();
+            CompassDirection aim = AimAngleConstants.FromClockwiseSteps(bucket).DirectionOfEighth();
             AssertEqual(ShaktoolNativeListAddresses.AimedSpritemap(CartridgeImportSource.Require(rom), bucket),
                 SuperMetroid.Core.Enemies.Shaktool.Artwork.ShaktoolFrameToolingDefinitions.Spritemap(ShaktoolHeadPictures.Aiming(aim)),
                 "stream 3 native Shaktool orientation picture");
@@ -1006,7 +1007,7 @@ internal static class LookupStream3Verification
             scatter.Encounter.Body.Position = FixedPosition<RoomPixels>.FromWhole(new(320, 192));
             for (int burst = 0; burst < 8; burst++)
             {
-                PrivateState.Set(bursts, nameof(MotherBrainBurstCycle.Interval), 0);
+                PrivateState.SetField(bursts, "burstWait", UpdateCountdown.For(1));
                 int calls = 0;
                 Func<int> random = () => { calls++; return ushort.MaxValue; };
                 var requests = new List<MotherBrainDeathExplosionRequest>();
@@ -1032,14 +1033,14 @@ internal static class LookupStream3Verification
         sequence.Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.EscapeStartUpdates);
         var bus = new TestAddressSpace();
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99 };
-        var firstPage = sequence.Step(samus, MotherBrainLateFightFixtures.QuietFrame(new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint(), 0, 0));
+        var firstPage = sequence.Step(samus, MotherBrainLateFightFixtures.QuietFrame(0, 0));
         AssertEqual(0, firstPage.EscapeColourEffectRequests.Count, "stream 3 escape palette effects wait for door graphics");
-        var handoff = sequence.Step(samus, MotherBrainLateFightFixtures.QuietFrame(new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint(), 0, 0));
+        var handoff = sequence.Step(samus, MotherBrainLateFightFixtures.QuietFrame(0, 0));
         AssertEqual(4, handoff.EscapeColourEffectRequests.Count, "stream 3 four escape palette registrations");
         for (int effect = 0; effect < 4; effect++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b296 + 7 * effect)), PaletteFxObjectAccess.NativeAddress(handoff.EscapeColourEffectRequests[effect]),
                 "stream 3 native escape palette registration order");
-        var text = sequence.Step(samus, MotherBrainLateFightFixtures.QuietFrame(new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint(), 0, 0));
+        var text = sequence.Step(samus, MotherBrainLateFightFixtures.QuietFrame(0, 0));
         AssertEqual(0, text.EscapeColourEffectRequests.Count, "stream 3 escape palette registrations occur once");
     }
 
@@ -1083,7 +1084,7 @@ internal static class LookupStream3Verification
             // As the stagger's setup does before each walk: the stage selects its speed.
             sequence.DrainedByBaby.PainfulWalkingSpeed = stages[stage].Speed;
             sequence.DrainedByBaby.StepPainfulWalking();
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9c049 + 2 * stage) - 1, sequence.DrainedByBaby.PainfulWalkingPause?.Count,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9c049 + 2 * stage) - 1, sequence.DrainedByBaby.PainfulWalkingPause?.CartridgeCount,
                 "stream 3 real stagger pause after each stage's walk");
         }
     }

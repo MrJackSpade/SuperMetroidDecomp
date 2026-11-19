@@ -63,7 +63,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Action = SbugAction.ZigZag;
                 return;
             case SbugAction.ActivateMoveForwardThenWait:
-                state.MovementTimer = SbugMovementDefinitions.LegDuration;
+                state.MovementTimer = UpdateCountdown.For(SbugMovementDefinitions.LegDuration);
                 state.Action = SbugAction.MoveForwardThenWait;
                 return;
 
@@ -108,7 +108,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Moves straight for its leg, then returns to the proximity wait.</summary>
     private static void RunSbugForwardThenWait(RoomEnemyPlace place, SbugEnemyState state)
     {
-        if (--state.MovementTimer == 0)
+        if (state.MovementTimer.StepEnds())
         {
             state.Action = SbugAction.WaitForSamus;
             return;

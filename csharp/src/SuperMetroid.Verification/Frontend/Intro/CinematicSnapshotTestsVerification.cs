@@ -93,7 +93,7 @@ internal static class CinematicSnapshotTestsVerification
             var menu = new GameOverMenuState(audio, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()), continueLoadsCeresArrival: false);
             bool toggled = false, released = false;
             GameOverMenuPhase? sampledPhase = null;
-            for (int tick = 0; tick < 300 && !menu.ContinueRequested && !menu.TitleRequested; tick++)
+            for (int tick = 0; tick < 300 && menu.Outcome != GameOverMenuOutcome.Continue && menu.Outcome != GameOverMenuOutcome.Title; tick++)
             {
                 // The menu is captured every update, as the game draws it; each phase's first update and every fourth are
                 // rendered and digested (#1532).
@@ -117,8 +117,8 @@ internal static class CinematicSnapshotTestsVerification
                 Survives(held, snapshot, tick);
                 menuSamples++;
             }
-            AssertEqual(chooseNo, menu.TitleRequested, "game-over no outcome");
-            AssertEqual(!chooseNo, menu.ContinueRequested, "game-over yes outcome");
+            AssertEqual(chooseNo, (menu.Outcome == GameOverMenuOutcome.Title), "game-over no outcome");
+            AssertEqual(!chooseNo, (menu.Outcome == GameOverMenuOutcome.Continue), "game-over yes outcome");
         }
         Console.WriteLine($"  Cinematic snapshots: {samples} Ceres/Zebes frames ({phases.Count} phases) and {menuSamples} game-over frames match.");
 

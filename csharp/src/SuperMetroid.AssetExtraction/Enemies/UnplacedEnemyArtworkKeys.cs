@@ -16,4 +16,13 @@ internal static class UnplacedEnemyArtworkKeys
         [UnplacedEnemyArtwork.TourianStatueGhosts] = "TourianStatueGhosts",
         [UnplacedEnemyArtwork.CeresDoors] = "CeresDoors",
     });
+
+    /// <summary>The UnplacedEnemyArtwork members in the order the installation lists them (#2567), written out beside the keys so reordering the members never reorders an installed sheet or document.</summary>
+    internal static IReadOnlyList<UnplacedEnemyArtwork> ListedOrder { get; } =
+    [
+        UnplacedEnemyArtwork.Stoke,
+        UnplacedEnemyArtwork.DeadSidehopperLivingTiles,
+        UnplacedEnemyArtwork.TourianStatueGhosts,
+        UnplacedEnemyArtwork.CeresDoors,
+    ];
 }

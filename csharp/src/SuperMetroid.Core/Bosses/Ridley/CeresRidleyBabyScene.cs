@@ -46,7 +46,7 @@ internal sealed class CeresRidleyBabyScene
                 return;
 
             case CeresBabyAction.Drop:
-                baby.Position = baby.Position.WithFractionY(0);
+                baby.Position = baby.Position.WithFractionY(PixelFraction.None);
                 baby.VerticalVelocity = SignedEightEight.Zero;
                 baby.Action = CeresBabyAction.Dropped;
                 goto case CeresBabyAction.Dropped;

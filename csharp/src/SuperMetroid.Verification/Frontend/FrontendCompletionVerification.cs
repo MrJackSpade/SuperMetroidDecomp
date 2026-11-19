@@ -244,7 +244,7 @@ internal static void VerifyDoorOpeningTrajectories()
             3 => 55,
             _ => throw new InvalidOperationException(),
         };
-        AssertEqual(expectedFrames, trajectory.RemainingFrames,
+        AssertEqual(expectedFrames, trajectory.Scroll.UpdatesLeft,
             $"door direction {direction} remaining IRQ calls after setup");
         AssertEqual(direction switch
         {
@@ -315,7 +315,7 @@ internal static void VerifyDoorOpeningTrajectories()
             $"door direction {direction} final camera snap");
         AssertEqual(finalBackground, trajectory.BackgroundPosition,
             $"door direction {direction} snap leaves layer two at its streamed endpoint");
-        AssertEqual(0, trajectory.RemainingFrames,
+        AssertEqual(0, trajectory.Scroll.UpdatesLeft,
             $"door direction {direction} exhausts IRQ frame count");
         AssertTrue(trajectory.SamusPosition != postNudge,
             $"door direction {direction} leaves $82:E6A2 nudge for its later phase");
@@ -420,7 +420,7 @@ internal static void VerifyEndingCreditsState()
             CollectedBeams: SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma), JapaneseText = false, Text = RetailPresentationFixture().EndingText }, EndingTextSequence.ItemPercentage);
     for (int frame = 0; frame < 4_000 && !percentage.Completed; frame++)
         percentage.Step();
-    AssertTrue(percentage.Completed && percentage.RequestedItemPercentageScroll,
+    AssertTrue(percentage.Completed && percentage.TypesItemPercentage,
         "item-percentage object reaches its native scroll handoff");
     // The digits and the percent sign are pictures shown left to right from the hundreds digit's corner (#1467, #1555).
     EndingShownText[] digits = [.. percentage.Shown().Where(text => text.Corner.Y == EndingResultTextLayout.PercentageHundredsCorner.Y)];

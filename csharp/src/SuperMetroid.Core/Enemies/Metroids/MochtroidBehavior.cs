@@ -99,7 +99,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Caps a velocity by its whole-pixel component at three pixels.</summary>
-    private static SignedSixteenSixteen ClampMochtroidVelocity(SignedSixteenSixteen velocity) => EnemyMath.ClampWholeVelocity(velocity, MochtroidBehaviorDefinitions.FastestFlight);
+    private static SignedSixteenSixteen ClampMochtroidVelocity(SignedSixteenSixteen velocity) => EnemyMath.LimitedEitherWay(velocity, MochtroidBehaviorDefinitions.FastestFlight);
 
     /// <summary>Moves one pixel per axis toward Samus, resolving X before Y while attached.</summary>
     private void RunMochtroidAttachedFlight(
@@ -112,17 +112,15 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // axis toward Samus, with X collision resolved before Y and ignored return values.
         SignedSixteenSixteen xVelocity = place.Position.X.Whole == samus.Position.X.Whole
             ? SignedSixteenSixteen.Zero
-            : place.Position.X.Whole > samus.Position.X.Whole
-                ? -MochtroidBehaviorDefinitions.AttachedSpeed
-                : MochtroidBehaviorDefinitions.AttachedSpeed;
+            : MochtroidBehaviorDefinitions.AttachedSpeed.Toward(
+                place.Position.X.Whole > samus.Position.X.Whole ? HorizontalDirection.Left : HorizontalDirection.Right);
         StoreMochtroidXVelocity(state, xVelocity);
         _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, xVelocity);
 
         SignedSixteenSixteen yVelocity = place.Position.Y.Whole == samus.Position.Y.Whole
             ? SignedSixteenSixteen.Zero
-            : place.Position.Y.Whole > samus.Position.Y.Whole
-                ? -MochtroidBehaviorDefinitions.AttachedSpeed
-                : MochtroidBehaviorDefinitions.AttachedSpeed;
+            : MochtroidBehaviorDefinitions.AttachedSpeed.Toward(
+                place.Position.Y.Whole > samus.Position.Y.Whole ? VerticalDirection.Up : VerticalDirection.Down);
         StoreMochtroidYVelocity(state, yVelocity);
         _terrain.MoveEnemyVertically(level, place, yVelocity);
     }
@@ -156,7 +154,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MovementMode = MochtroidMovementMode.TouchingSamus;
         SetMochtroidAnimation(
             place, state, MochtroidSegment.Attached);
-        state.CountAttachedUpdate();
+        state.DrainPeriod.Step();
 
         bool applyCommonTouch = samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None;
         if (!applyCommonTouch)
@@ -165,9 +163,9 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
             if (MetroidCadenceDefinitions.DrainSoundEveryEighthEnemyPass.IsDue(_frameContext.EnemyPassCount) && samus.Health >= MetroidBehaviorDefinitions.DrainSoundLeastHealth)
                 _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Normal);
 
-            if (state.HasReachedDamagePeriod(MochtroidBehaviorDefinitions.AttachedDrainPeriod))
+            if (state.DrainPeriod.IsOver)
             {
-                state.AttachmentDamageTimer = 0;
+                state.DrainPeriod = UpdateCountdown.Lasting(MochtroidBehaviorDefinitions.AttachedDrainPeriod);
                 applyCommonTouch = true;
             }
         }

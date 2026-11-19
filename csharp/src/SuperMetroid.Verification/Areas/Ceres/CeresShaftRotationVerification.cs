@@ -15,7 +15,7 @@ internal static class CeresShaftRotationVerification
             AssertEqual(rom.ReadCartridgeWord(CeresShaftRotationDefinitions.ReferenceAddress + record * 6) + 1,
                 CeresShaftRotationDefinitions.TiltHoldFrames[Math.Abs(record - CeresShaftRotationDefinitions.FullTiltSteps)],
                 $"shaft hold of native record {record}");
-        var carryover = new RoomMainCarryover();
+        var carryover = new RoomMainHandOvers().ShaftTurnToDebris;
         var state = new CeresElevatorShaftRoomMainState(carryover);
         // Departure is not allowed, so the elevator trigger never reads where Samus stands.
         SuperMetroid.Core.Samus.SamusState samus = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateSamus();
@@ -31,9 +31,9 @@ internal static class CeresShaftRotationVerification
             int offset = (ushort)(phaseWord * 6);
             if (changed)
                 timer = rom.ReadCartridgeWord(CeresShaftRotationDefinitions.ReferenceAddress + offset);
-            var actual = state.Step(samus, elevatorDoorDestroyed: true, allowDeparture: false, carryover);
+            var actual = state.Step(samus, elevatorDoorDestroyed: true, allowDeparture: false);
             AssertEqual(changed, actual.TiltChanged, "shaft tilt publication frame");
-            AssertEqual(timer, state.HoldFramesLeft, "shaft native timer every frame");
+            AssertEqual(timer, state.Hold.UpdatesLeft, "shaft native timer every frame");
             if (changed)
             {
                 // The native record holds the tilt's sine and cosine in 256ths: its sine is the tilt in steps, and its
@@ -51,7 +51,7 @@ internal static class CeresShaftRotationVerification
             }
             AssertEqual((phaseWord & 127) - CeresShaftRotationDefinitions.FullTiltSteps, state.Tilt.StepsFromLevel, "shaft tilt every frame");
             AssertEqual(phaseWord >= 32768 ? CeresShaftSweep.Backward : CeresShaftSweep.Forward, state.Sweep, "shaft sweep direction every frame");
-            AssertEqual(phaseWord, carryover.Countdown.RawValue, "shaft turn step the following room inherits, as the native phase word");
+            AssertEqual(phaseWord, carryover.FirstDebrisWait.RawValue, "shaft turn step the following room inherits, as the native phase word");
         }
     }
 }

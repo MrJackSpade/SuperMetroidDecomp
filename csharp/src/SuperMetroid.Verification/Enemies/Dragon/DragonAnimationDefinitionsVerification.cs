@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Animation;
@@ -145,7 +146,7 @@ internal static class DragonAnimationDefinitionsVerification
             facingLeft ? "live left-facing Dragon wing" : "live right-facing Dragon wing",
             expectedFrameHold: facingLeft ? (ushort)0 : (ushort)1);
 
-        bodyState.ActionTimer = 0;
+        bodyState.ActionTimer = UpdateCountdown.Ended();
         DragonBehavior.RunDragonRising(body, bodyState);
         enemies.DragonBehavior.RunDragonAttacking(body, bodyState);
         DragonSegment attacking = facingLeft

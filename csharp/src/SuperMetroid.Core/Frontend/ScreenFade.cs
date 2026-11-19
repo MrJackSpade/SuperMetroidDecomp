@@ -38,7 +38,7 @@ public sealed class ScreenFade
 
     /// <summary>The updates still to wait before the next step.</summary>
     [IntegerQuantity("updates still waited before the next fade step")]
-    private int wait;
+    private readonly UpdateCountdown wait = UpdateCountdown.Ended();
 
     /// <summary>Whether the screen is black.</summary>
     public bool IsBlack => Level == 0;
@@ -56,7 +56,7 @@ public sealed class ScreenFade
     public void SetCadence(int stepDelay, int firstWait)
     {
         this.stepDelay = Ensure.BetweenInclusive(0, int.MaxValue, stepDelay);
-        wait = Ensure.BetweenInclusive(0, int.MaxValue, firstWait);
+        wait.Restart(firstWait);
     }
 
     /// <summary>Steps once every <paramref name="updates"/> updates from now, the first step on the last of them.</summary>
@@ -105,12 +105,12 @@ public sealed class ScreenFade
     /// <summary>Counts one update of the wait: true while it only waits; otherwise reloads the wait for the next step.</summary>
     private bool Waits()
     {
-        if (wait > 0)
+        if (wait.IsRunning)
         {
-            wait--;
+            wait.Count();
             return true;
         }
-        wait = stepDelay;
+        wait.Restart(stepDelay);
         return false;
     }
 }

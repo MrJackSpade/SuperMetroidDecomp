@@ -9,18 +9,18 @@ public static class SamusPowerBombFuse
     /// out starts the explosion; the bomb's boundary reactions wait for the update after it, because other bombs' updates
     /// can reach this step.
     /// </summary>
-    /// <param name="fuseUpdatesLeft">The updates the fuse has left, zero once it has burned out.</param>
+    /// <param name="fuse">The fuse, counted once by this step while it burns and over once it has burned out.</param>
     /// <param name="explosionArmed">Whether a Power Bomb's blast is under way.</param>
-    public static PowerBombFuseStep Step(int fuseUpdatesLeft, bool explosionArmed)
+    public static PowerBombFuseStep Step(UpdateCountdown fuse, bool explosionArmed)
     {
-        // A burned-out fuse is left alone. Otherwise the fuse counts down: reaching zero burns it out and starts the
-        // explosion, and the fast-animation switch tests the count left.
-        if (Ensure.AtLeastZero(fuseUpdatesLeft) == 0)
+        // A burned-out fuse is left alone. Otherwise the fuse counts one update: its last burns it out and starts the
+        // explosion, and the fast-animation switch is the named point of the updates it has left.
+        Ensure.NotNull(fuse);
+        if (fuse.IsOver)
             return new(0, FastAnimation: false, SpawnExplosion: false, DeleteProjectile: !explosionArmed);
-        int left = fuseUpdatesLeft - 1;
-        if (left == 0)
+        if (fuse.Count())
             return new(0, FastAnimation: false, SpawnExplosion: true, DeleteProjectile: false);
-        return new(left, FastAnimation: left == SamusPowerBombFuseData.FastAnimationTimer,
+        return new(fuse.UpdatesLeft, FastAnimation: fuse.UpdatesLeft == SamusPowerBombFuseData.FastAnimationTimer,
             SpawnExplosion: false, DeleteProjectile: false);
     }
 

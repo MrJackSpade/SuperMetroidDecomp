@@ -26,4 +26,25 @@ internal static class SamusBeamCombinationKeys
         [SamusBeamCombination.SpazerPlasmaIce] = "SpazerPlasmaIce",
         [SamusBeamCombination.SpazerPlasmaIceWave] = "SpazerPlasmaIceWave",
     });
+
+    /// <summary>The SamusBeamCombination members in the order an installed document lists them (#2567), written out beside the keys so reordering the members never changes the bytes written.</summary>
+    internal static IReadOnlyList<SamusBeamCombination> ListedOrder { get; } =
+    [
+        SamusBeamCombination.Power,
+        SamusBeamCombination.Wave,
+        SamusBeamCombination.Ice,
+        SamusBeamCombination.IceWave,
+        SamusBeamCombination.Spazer,
+        SamusBeamCombination.SpazerWave,
+        SamusBeamCombination.SpazerIce,
+        SamusBeamCombination.SpazerIceWave,
+        SamusBeamCombination.Plasma,
+        SamusBeamCombination.PlasmaWave,
+        SamusBeamCombination.PlasmaIce,
+        SamusBeamCombination.PlasmaIceWave,
+        SamusBeamCombination.SpazerPlasma,
+        SamusBeamCombination.SpazerPlasmaWave,
+        SamusBeamCombination.SpazerPlasmaIce,
+        SamusBeamCombination.SpazerPlasmaIceWave,
+    ];
 }

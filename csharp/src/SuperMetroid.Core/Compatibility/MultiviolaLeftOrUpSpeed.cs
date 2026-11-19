@@ -9,8 +9,10 @@ namespace SuperMetroid.Core.Compatibility;
 /// in Norfair's Mickey Mouse room heads straight right, drifting up, after its first wall and floor bounces.
 /// </summary>
 /// <remarks>
-/// Consulted on every update of a Multiviola, once for each axis its heading points left or up along, after its speeds
-/// are rebuilt from its heading and before that axis's move. Evidence: the main update (<c>$A2:B443</c> for its horizontal
+/// Consulted on every update of a Multiviola, as its velocity is rebuilt from its heading and before its moves. Its heading
+/// points it the other way from the angle the game's sine and cosine take: each axis's speed is the heading's unsigned
+/// half-wave share of its whole speed, taken right or down where the heading a quarter turn on (across) or a half turn on
+/// (down) lies in the turn's second half, and left or up where it lies in the first. Evidence: the main update (<c>$A2:B443</c> for its horizontal
 /// speed, <c>$A2:B47D</c> for its vertical speed) only complements the whole word and negates the fraction word, never
 /// carrying the fraction's increment into the whole pixels; the Multiviola left-or-up speed check runs the production
 /// update at every heading and every authored speed and compares both moves with that arithmetic.
@@ -18,8 +20,27 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("a Multiviola turning a speed left or up complements its whole pixels, so an axis without speed still moves it a pixel an update left or up")]
 internal static class MultiviolaLeftOrUpSpeed
 {
-    /// <summary>The speed a Multiviola moves at along an axis it heads left or up along, at <paramref name="magnitude"/>.</summary>
-    /// <param name="magnitude">The speed along the axis regardless of direction, as its heading's sine or cosine gives it.</param>
-    internal static SignedSixteenSixteen Of(SignedSixteenSixteen magnitude) =>
-        PartwiseReversal.WholeComplementedFractionNegated(magnitude);
+    /// <summary>
+    /// The velocity a Multiviola heading <paramref name="heading"/> at <paramref name="wholePixels"/> whole pixels an update
+    /// moves at (#2569): on each axis the heading's share of the speed toward the heading, an axis it heads left or up
+    /// along taking the left-or-up speed.
+    /// </summary>
+    /// <param name="heading">The Multiviola's heading.</param>
+    /// <param name="wholePixels">Its spawn speed in whole pixels an update, zero or more.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="wholePixels"/> is negative.</exception>
+    internal static FixedVector<RoomPixels> VelocityAlong(TrigonometryAngle heading, int wholePixels) => new(
+        AlongAxis(heading.TurnedBy(TrigonometryAngle.QuarterTurn), wholePixels),
+        AlongAxis(heading.TurnedBy(TrigonometryAngle.HalfTurn), wholePixels));
+
+    /// <summary>
+    /// The speed along one axis whose share of <paramref name="wholePixels"/> the half-wave at <paramref name="axisAngle"/>
+    /// gives: right or down where the angle lies in the turn's second half, and turned left or up with its whole pixels
+    /// complemented and its fraction negated where it lies in the first.
+    /// </summary>
+    private static SignedSixteenSixteen AlongAxis(TrigonometryAngle axisAngle, int wholePixels)
+    {
+        SignedSixteenSixteen share = UnsignedSixteenSixteen.ShareOfWholePixels(
+            wholePixels, Trigonometry.UnsignedHalfWave(axisAngle.StepsIntoHalfTurn)).AsDisplacement();
+        return axisAngle.IsInSecondHalf ? share : PartwiseReversal.WholeComplementedFractionNegated(share);
+    }
 }

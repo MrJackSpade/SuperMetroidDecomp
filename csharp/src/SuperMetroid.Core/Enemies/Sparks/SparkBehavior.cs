@@ -101,27 +101,16 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>
-    /// Expires on the update whose step would reach zero, leaving the countdown at one for its reset.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">The countdown has already run out: a counting Spark's base time is zero.</exception>
-    internal static bool DecrementSparkTimerAndTestExpired(SparkEnemyState state)
-    {
-        if (state.ActionTimer < 1)
-            throw new InvalidOperationException($"A Spark counted down from {state.ActionTimer}; only an always-active Spark has no wait.");
-        if (state.ActionTimer == 1)
-            return true;
-
-        state.ActionTimer--;
-        return false;
-    }
+    /// <summary>Counts one update of the Spark's wait: whether it ends on this update, which every action follows with a new wait.</summary>
+    /// <exception cref="InvalidOperationException">The wait is already over: a counting Spark's base time is zero.</exception>
+    internal static bool DecrementSparkTimerAndTestExpired(SparkEnemyState state) => state.ActionTimer.Count();
 
     /// <summary>
     /// Sets the Spark's action timer: its placement's wait between actions (#2450) and <paramref name="additionalTime"/>.
     /// </summary>
     private static void SetSparkActionTimer(RoomEnemyPlace place, SparkEnemyState state, int additionalTime)
     {
-        state.ActionTimer = place.SpawnSettings<SparkSpawnSettings>().BaseActionTime + additionalTime;
+        state.ActionTimer = UpdateCountdown.For(place.SpawnSettings<SparkSpawnSettings>().BaseActionTime + additionalTime);
     }
 
     /// <summary>Selects an animation and makes its first step due on the next pass.</summary>

@@ -83,7 +83,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     /// </summary>
     internal bool RegainBalance(MotherBrainRainbowBeamStepRequests requests)
     {
-        requests.RainbowColours = true;
+        requests.Start(MotherBrainStepEffect.RainbowColours);
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             PainfulWalkingStage = ListStep<MotherBrainStaggerStage>.FirstOf(MotherBrainPainfulWalkingDefinitions.Stages);
@@ -105,7 +105,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         // Her brain's shake starts again only once it has run out; her brain's animation counts it down.
         if (!Encounter.BrainShake.IsShaking)
             Encounter.BrainShake.ShakeFor(MotherBrainFightDefinitions.BrainShakeUpdates);
-        requests.RainbowColours = true;
+        requests.Start(MotherBrainStepEffect.RainbowColours);
         // Her beam runs out before her last stage, so her stagger never ends while it fires.
         _ = StepPainfulWalking();
 
@@ -118,8 +118,8 @@ internal sealed class MotherBrainDrainedByBabyPhases
         {
             _state.RainbowBeamSoundPlaying = false;
             Encounter.DrainedPhase = MotherBrainDrainedPhase.RainbowBeamRunOut;
-            requests.DrainedBeamRanOut = true;
-            requests.SoundQueued = true; // The rainbow-drain sound stops as the beam runs out.
+            requests.Start(MotherBrainStepEffect.DrainedBeamRanOut);
+            requests.Start(MotherBrainStepEffect.RainbowBeamSound); // The rainbow-drain sound stops as the beam runs out.
         }
         return false;
     }

@@ -26,7 +26,7 @@ public static class SamusInsideBlockReactions
         void Visit(int y, bool bottomPoint, bool centerPoint)
         {
             var block = level.GetCollisionBlockOrEdgeSolid(new(RoomGridConversions.PixelToBlock(body.Position.X.Whole), RoomGridConversions.PixelToBlock(y)));
-            if (block.Position is null || !SamusBlockCollision.TryResolveExtension(level, ref block) ||
+            if (block.Position is null || !level.TryReachBlockStoodFor(ref block) ||
                 block.CollisionType != RoomCollisionType.SpecialAir)
                 return;
             // A scroll trigger wakes only from the inside-block sample at Samus's centre.
@@ -74,19 +74,18 @@ public static class SamusInsideBlockReactions
                         QuicksandReactions.SurfacePhysics(
                             samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit));
                     // One reaction per vertical direction; a still Samus takes the grounded reaction.
-                    switch (body.YDirection)
+                    switch (body.VerticalVelocity.Direction)
                     {
                         case SamusVerticalDirection.None:
-                            body.YSpeed = default;
+                            body.VerticalVelocity = body.VerticalVelocity.Stopped();
                             SetExtra(physics.StationaryDisplacement);
                             break;
                         case SamusVerticalDirection.Up:
                             SignedSixteenSixteen limit = physics.UpwardSpeedLimit;
-                            // The game compares the speed and limit in 256ths of a pixel, then
-                            // replaces the speed's whole pixels and fraction with the limit's.
-                            if (body.YSpeed.InTwoFiftySixths > limit.InTwoFiftySixths)
+                            // A speed past the limit takes the limit's whole pixels and fraction.
+                            if (body.VerticalVelocity.Speed.IsFasterInTwoFiftySixthsThan(limit))
                             {
-                                body.YSpeed = UnsignedSixteenSixteen.FromDisplacement(limit);
+                                body.VerticalVelocity = body.VerticalVelocity.WithSpeed(UnsignedSixteenSixteen.FromDisplacement(limit));
                             }
                             SetExtra(physics.MovingDisplacement);
                             break;
@@ -95,7 +94,7 @@ public static class SamusInsideBlockReactions
                             break;
                         default:
                             throw new InvalidOperationException(
-                                $"Undefined {nameof(SamusVerticalDirection)} {body.YDirection}.");
+                                $"Undefined {nameof(SamusVerticalDirection)} {body.VerticalVelocity.Direction}.");
                     }
                     break;
                 case SpecialAirInsideReaction.SubmergingQuicksand:
@@ -116,12 +115,11 @@ public static class SamusInsideBlockReactions
             bool rightward = conveyor.Direction == HorizontalDirection.Right;
             samus.HorizontalSpeed.SelectAirSpeeds();
             if (conveyor.Condition == ConveyorCarryCondition.OnFootWithPower &&
-                (!roomHasPower || body.YSpeed.Whole != 0))
+                (!roomHasPower || body.VerticalVelocity.Speed.Whole != 0))
                 return;
             // Only whole pixels of Y speed stop the carry: fractional vertical motion does
             // not. This replaces external X displacement, never adds to it.
-            body.ExtraDisplacement = body.ExtraDisplacement.WithX(SignedSixteenSixteen.FromParts(
-                rightward ? ConveyorBlockDefinitions.RightwardCarry : ConveyorBlockDefinitions.LeftwardCarry, 0));
+            body.ExtraDisplacement = body.ExtraDisplacement.WithX(rightward ? ConveyorBlockDefinitions.RightwardCarry : ConveyorBlockDefinitions.LeftwardCarry);
         }
         void SetExtra(SignedSixteenSixteen displacement)
         {
@@ -165,7 +163,7 @@ public static class SamusInsideBlockReactions
         }
         if (reaction == SpecialAirCollisionReaction.SubmergingQuicksand)
         {
-            body.YSpeed = default;
+            body.VerticalVelocity = body.VerticalVelocity.Stopped();
             body.YAcceleration = default;
             return SpecialAirCollisionOutcome.PassesThrough;
         }
@@ -179,7 +177,7 @@ public static class SamusInsideBlockReactions
         if (reactionDirection is SamusCollisionDirection.Left or SamusCollisionDirection.Right) return SpecialAirCollisionOutcome.PassesThrough;
         // A rising Samus passes through; a stationary one lands only on an actual downward collision; a falling one lands
         // even during pose-observation probes. The grounded vertical direction never reaches the surface.
-        switch (body.YDirection)
+        switch (body.VerticalVelocity.Direction)
         {
             case SamusVerticalDirection.Up:
                 return SpecialAirCollisionOutcome.PassesThrough;
@@ -190,20 +188,26 @@ public static class SamusInsideBlockReactions
                 break;
             default:
                 throw new InvalidOperationException(
-                    $"Undefined {nameof(SamusVerticalDirection)} {body.YDirection}.");
+                    $"Undefined {nameof(SamusVerticalDirection)} {body.VerticalVelocity.Direction}.");
         }
         if (contact.ContactDamage == SamusBodyAttack.SpeedBooster)
         {
             displacement = SignedSixteenSixteen.Zero;
             return SpecialAirCollisionOutcome.Blocks;
         }
-        // A stationary Samus's probe is limited to the surface limit counted in 256ths of a pixel, keeping its finer
-        // fraction. The probe here moves down (only a scan's own downward displacement reaches this for a stationary
-        // Samus; the pose-observation probe passed through above) and by far less than 256 pixels, so counting it in
-        // 256ths of a pixel loses nothing but its finer fraction.
-        if (body.YDirection == SamusVerticalDirection.None)
-            displacement = displacement.WithTwoFiftySixthsAtMost(QuicksandDefinitions.StationarySurfaceProbeLimit);
+        // The probe here moves down (only a scan's own downward displacement reaches this for a stationary Samus; the
+        // pose-observation probe passed through above) and by far less than 256 pixels.
+        if (body.VerticalVelocity.HasNoDirection)
+            displacement = HeldAtQuicksandSurface(displacement);
         surfaceContact = true;
         return SpecialAirCollisionOutcome.PassesThrough;
     }
+
+    /// <summary>
+    /// A stationary Samus's downward <paramref name="probe"/> held at the quicksand surface (#2555): sunk no further than
+    /// <see cref="QuicksandDefinitions.StationarySurfaceProbeLimit"/>, compared at the precision of the game's speeds, the
+    /// probe's finer fraction kept as it was (<see cref="SignedSixteenSixteen.WithTwoFiftySixthsAtMost"/>).
+    /// </summary>
+    private static SignedSixteenSixteen HeldAtQuicksandSurface(SignedSixteenSixteen probe) =>
+        probe.WithTwoFiftySixthsAtMost(QuicksandDefinitions.StationarySurfaceProbeLimit);
 }

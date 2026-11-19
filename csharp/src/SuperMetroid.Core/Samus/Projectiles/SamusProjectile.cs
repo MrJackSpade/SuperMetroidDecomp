@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// fresh when it takes its place in Samus's shot pool (<see cref="SamusShotPool.Occupy"/>), keeps its own state,
 /// and ends when it is deleted, replaced, or Samus's shots are cleared. Nothing it holds reaches the next projectile in
 /// its place but two values gameplay carries over: its horizontal position's fraction of a pixel, which is
-/// <see cref="LeftMuzzleSubpixelCarry"/>'s, and, for a beam fired with every place held over the shot in the last place,
+/// <see cref="LeftBeamStartFromLastShot"/>'s, and, for a beam fired with every place held over the shot in the last place,
 /// the count that shot leaves (<see cref="BeamFiredOverLastShot"/>). A place no projectile holds reads as the projectile
 /// that last ended there, or one never fired: no type, no damage, at rest at the room's origin.
 /// </summary>
@@ -64,15 +64,24 @@ public sealed class SamusProjectile
     public SamusProjectileDirection Direction { get; internal set; }
 
     /// <summary>
-    /// Whether the projectile has already struck something: enemy and enemy-projectile collision set it so later
-    /// collisions skip the projectile, and the projectile's own update then deletes or converts it.
+    /// Whether the projectile has already struck something: an enemy or enemy-projectile collision spends it
+    /// (<see cref="Spend"/>) so later collisions skip it, and the projectile's own update then deletes or converts it.
     /// </summary>
-    public bool IsSpent { get; internal set; }
+    public bool IsSpent { get; private set; }
+
+    /// <summary>The projectile strikes something (#2562): later collisions skip it, and its own update deletes or converts it.</summary>
+    internal void Spend() => IsSpent = true;
+
+    /// <summary>
+    /// The projectile flies on as though it had struck nothing (#2562): an enemy it passes through, or a beam combination
+    /// that keeps it, leaves it unspent, even when an earlier collision this update spent it.
+    /// </summary>
+    internal void FlyOn() => IsSpent = false;
 
     /// <summary>Room position, to a fraction of a pixel.</summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
     /// <summary>Velocity in pixels per update.</summary>
-    public EightEightVector<RoomPixels> Velocity { get; internal set; }
+    public PixelVelocity<RoomPixels> Velocity { get; internal set; }
     /// <summary>Collision half-extents in pixels.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }
     /// <summary>
@@ -86,15 +95,11 @@ public sealed class SamusProjectile
     public ProjectileSpriteId? Sprite { get; internal set; }
 
     /// <summary>
-    /// The updates left before the shot next leaves a trail (#2458): set when a trailing shot is fired or a special attack's
-    /// particle starts to trail, counted down by its flight, and set again to the flight's interval on each update it leaves
-    /// one; null for a shot that leaves no trail, as the Hyper Beam's.
+    /// The wait before the shot next leaves a trail (#2458): started when a trailing shot is fired or a special attack's
+    /// particle starts to trail, counted by its flight, and started again with the flight's interval on each update it
+    /// leaves one; null for a shot that leaves no trail, as the Hyper Beam's.
     /// </summary>
-    public int? TrailUpdatesLeft
-    {
-        get;
-        internal set => field = value is { } updates ? Ensure.BetweenInclusive(1, int.MaxValue, updates) : null;
-    }
+    public UpdateCountdown? Trail { get; internal set; }
 
     /// <summary>
     /// Counts one update of the shot's flight toward its next trail: whether the shot leaves one on this update, after which
@@ -103,14 +108,9 @@ public sealed class SamusProjectile
     /// <param name="interval">The updates from this trail to the next, at least one.</param>
     internal bool CountsDownToTrail(int interval)
     {
-        if (TrailUpdatesLeft is not { } left)
+        if (Trail is not { } trail || !trail.Count())
             return false;
-        if (left > 1)
-        {
-            TrailUpdatesLeft = left - 1;
-            return false;
-        }
-        TrailUpdatesLeft = interval;
+        trail.Restart(Ensure.BetweenInclusive(1, int.MaxValue, interval));
         return true;
     }
 
@@ -133,11 +133,7 @@ public sealed class SamusProjectile
     /// burns it down (<see cref="ChainsawFuse"/>); every other beam, its reflection and its explosion keep it for a beam
     /// fired over it in turn. None for every other projectile, whose kind keeps its own count.
     /// </summary>
-    internal int BeamFuse
-    {
-        get;
-        set => field = Ensure.AtLeastZero(value);
-    }
+    internal UpdateCountdown BeamFuse { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// What a beam fired into this projectile's place finds there (#2524), from which <see cref="BeamFiredOverLastShot"/>
@@ -148,7 +144,7 @@ public sealed class SamusProjectile
     /// <exception cref="InvalidOperationException">The projectile keeps an undefined kind state or ignition.</exception>
     internal BeamFiredOverLastShot.ReplacedShot AsReplacedByBeam => !IsOccupied ? new BeamFiredOverLastShot.ReplacedShot.FreePlace() : KindState switch
     {
-        null => new BeamFiredOverLastShot.ReplacedShot.Beam(BeamFuse),
+        null => new BeamFiredOverLastShot.ReplacedShot.Beam(BeamFuse.UpdatesLeft),
         MissileShotState missile => missile.Ignition switch
         {
             SamusMissileIgnition.Pending => new BeamFiredOverLastShot.ReplacedShot.UnignitedMissile(),
@@ -210,13 +206,13 @@ public sealed class SamusProjectile
         Direction = default;
         IsSpent = false;
         Position = FixedPosition<RoomPixels>.Zero;
-        Velocity = default(EightEightVector<RoomPixels>);
+        Velocity = default(PixelVelocity<RoomPixels>);
         Radius = Extent16<RoomPixels>.Zero;
         Animation = null;
         Sprite = null;
-        TrailUpdatesLeft = null;
+        Trail = null;
         Behavior = null;
         KindState = null;
-        BeamFuse = 0;
+        BeamFuse = UpdateCountdown.Ended();
     }
 }

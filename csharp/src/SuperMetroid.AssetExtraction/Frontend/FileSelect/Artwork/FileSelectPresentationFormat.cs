@@ -39,14 +39,41 @@ public static class FileSelectPresentationFormat
     public const int CharacterRows = 32;
     /// <summary>The JSON name of the common background tilemap, separate from the foreground menu pages.</summary>
     public const string BackgroundPageName = "Background";
-    /// <summary>The foreground pages, in document order.</summary>
-    public static IReadOnlyList<FileSelectPage> Pages { get; } = Enum.GetValues<FileSelectPage>();
-    /// <summary>The slot-field patches, in document order.</summary>
-    public static IReadOnlyList<FileSelectPatch> Patches { get; } = Enum.GetValues<FileSelectPatch>();
-    /// <summary>The bordered headings, in document order.</summary>
-    public static IReadOnlyList<FileSelectBorder> Borders { get; } = Enum.GetValues<FileSelectBorder>();
-    /// <summary>The copy and clear pages' slot-letter anchors, in document order.</summary>
-    public static IReadOnlyList<FileSelectAnchor> Anchors { get; } = Enum.GetValues<FileSelectAnchor>();
+    /// <summary>The foreground pages, in document order (#2567).</summary>
+    public static IReadOnlyList<FileSelectPage> Pages { get; } = Ensure.EveryMemberOnce<FileSelectPage>(
+    [
+        FileSelectPage.MainWithData,
+        FileSelectPage.MainEmpty,
+        FileSelectPage.CopySource,
+        FileSelectPage.CopyDestination,
+        FileSelectPage.CopyConfirm,
+        FileSelectPage.CopyCompleted,
+        FileSelectPage.ClearSelection,
+        FileSelectPage.ClearConfirm,
+        FileSelectPage.ClearCompleted,
+    ]);
+    /// <summary>The slot-field patches, in document order (#2567).</summary>
+    public static IReadOnlyList<FileSelectPatch> Patches { get; } = Ensure.EveryMemberOnce<FileSelectPatch>(
+    [
+        FileSelectPatch.Energy,
+        FileSelectPatch.NoData,
+        FileSelectPatch.TimeColon,
+    ]);
+    /// <summary>The bordered headings, in document order (#2567).</summary>
+    public static IReadOnlyList<FileSelectBorder> Borders { get; } = Ensure.EveryMemberOnce<FileSelectBorder>(
+    [
+        FileSelectBorder.Main,
+        FileSelectBorder.Copy,
+        FileSelectBorder.Clear,
+    ]);
+    /// <summary>The copy and clear pages' slot-letter anchors, in document order (#2567).</summary>
+    public static IReadOnlyList<FileSelectAnchor> Anchors { get; } = Ensure.EveryMemberOnce<FileSelectAnchor>(
+    [
+        FileSelectAnchor.CopyDestinationSource,
+        FileSelectAnchor.CopyConfirmSource,
+        FileSelectAnchor.CopyConfirmDestination,
+        FileSelectAnchor.ClearConfirmSource,
+    ]);
 
     /// <summary>The JSON name of a bordered heading, which keys its anchor.</summary>
     private static readonly IReadOnlyDictionary<FileSelectBorder, string> BorderNames =

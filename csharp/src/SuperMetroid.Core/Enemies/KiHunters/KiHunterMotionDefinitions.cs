@@ -10,7 +10,7 @@ public static class KiHunterMotionDefinitions
     public const int SwoopLeastDepth = 32;
 
     /// <summary>Seven eighths of a pixel per frame squared, added by both falling and hopping.</summary>
-    public static SignedSixteenSixteen Gravity { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(14);
+    public static SignedSixteenSixteen Gravity { get; } = SignedSixteenSixteen.FromPixelFraction(7, 8);
     /// <summary>The way a flying Ki-Hunter first flies (#2338).</summary>
     public const HorizontalDirection PatrolStartHeading = HorizontalDirection.Left;
 
@@ -19,6 +19,9 @@ public static class KiHunterMotionDefinitions
     /// it starts descending at this speed, a swoop sets off and a swoop's recovery flies back at it (#2338).
     /// </summary>
     public const int PatrolSpeed = 1;
+
+    /// <summary>The speed a flying Ki-Hunter climbs or descends on its patrol: <see cref="PatrolSpeed"/>'s pixel an update.</summary>
+    public static SignedSixteenSixteen PatrolClimbSpeed { get; } = SignedSixteenSixteen.FromWholePixels(PatrolSpeed);
 
     /// <summary>How far above where it is placed a flying Ki-Hunter's patrol turns back down, in pixels.</summary>
     public const int PatrolRise = 16;
@@ -54,10 +57,10 @@ public static class KiHunterMotionDefinitions
     public static SignedSixteenSixteen SwoopRecoveryVerticalVelocity { get; } = SignedSixteenSixteen.FromWholePixels(-1);
 
     /// <summary>
-    /// The whole downward speed a hopping Ki-Hunter turns to when it strikes the room above, in pixels an update; its
-    /// fraction is kept (#2339).
+    /// The downward speed a hopping Ki-Hunter turns to when it strikes the room above, a pixel an update; it sets only
+    /// the speed's whole pixels, so the fraction its hop held is kept (#2339).
     /// </summary>
-    public const int HopReboundSpeed = 1;
+    public static SignedSixteenSixteen HopReboundSpeed { get; } = SignedSixteenSixteen.FromWholePixels(1);
 
     /// <summary>How long a landed Ki-Hunter waits before it decides whether to spit or hop again, in updates (#2339).</summary>
     public const int LandingWait = 12;
@@ -69,13 +72,13 @@ public static class KiHunterMotionDefinitions
     public const int SpitRange = 96;
 
     /// <summary>How fast spat acid flies sideways, three pixels an update, toward the way it was spat (#2339).</summary>
-    public static SignedEightEight AcidHorizontalSpeed { get; } = SignedEightEight.FromParts(3, 0);
+    public static SignedEightEight AcidHorizontalSpeed { get; } = SignedEightEight.FromPixels(3);
 
     /// <summary>How much faster falling acid falls each update: a sixteenth of a pixel (#2339).</summary>
-    public static SignedEightEight AcidGravity { get; } = SignedEightEight.FromParts(0, 16);
+    public static SignedEightEight AcidGravity { get; } = SignedEightEight.FromPixelFraction(1, 16);
 
     /// <summary>The fastest acid falls: two pixels an update (#2339).</summary>
-    public static SignedEightEight AcidFastestFall { get; } = SignedEightEight.FromParts(2, 0);
+    public static SignedEightEight AcidFastestFall { get; } = SignedEightEight.FromPixels(2);
 
     /// <summary>
     /// The place along the speed curve, mark one, a slowing detached wing lands on when its next step would take it before
@@ -150,5 +153,5 @@ public static class KiHunterMotionDefinitions
     /// half a pass, at which the coarse speeds passed sum to 32 pixels.
     /// </summary>
     internal static QuadraticCurveClimb DetachedWingClimb { get; } =
-        new(SignedSixteenSixteen.FromWholePixels(32), QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(384));
+        new(SignedSixteenSixteen.FromWholePixels(32), QuadraticSpeedCurvePlace.FromMarkFraction(3, 2));
 }

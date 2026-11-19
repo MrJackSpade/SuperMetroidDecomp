@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Compatibility;
 public sealed class FallingSparkFloorProbe
 {
     /// <summary>The creep for each whole pixel of fall speed: a 256th of a pixel.</summary>
-    private readonly SignedEightEight _creepPerWholePixel = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1);
+    private readonly SignedEightEight _creepPerWholePixel = SignedEightEight.FromPixelFraction(1, 256);
 
     /// <summary>
     /// The distance the probe creeps a spark falling at <paramref name="fallSpeed"/>, as a speed of one update: a 256th of

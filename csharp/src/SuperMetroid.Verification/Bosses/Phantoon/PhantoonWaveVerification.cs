@@ -35,7 +35,7 @@ internal static class PhantoonWaveVerification
         foreach (var (phase, first) in new[] { new VerifyPhantoonWaveLifecycleCase(14, 2), new VerifyPhantoonWaveLifecycleCase(30, 4), new VerifyPhantoonWaveLifecycleCase(46, 6), new VerifyPhantoonWaveLifecycleCase(62, 8) })
         {
             wave.Step(boss);
-            AssertEqual(RotationAngle.FromHalfSteps(phase), wave.Phase, "original-CPU phase progression");
+            AssertEqual(RotationAngleConstants2.FromHalfSteps(phase), wave.Phase, "original-CPU phase progression");
             PhantoonWave current = wave.CurrentWave ?? throw new InvalidOperationException("Verification requires a set-up Phantoon wave.");
             AssertEqual(new PhantoonWave(new UnsignedSixteenSixteen(12, 0), new TrigonometryAngle((byte)(phase / 2)), PhantoonWaveDefinitions.ShortPeriod),
                 current, "the wave stands at its amplitude, phase's angle and period");

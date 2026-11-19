@@ -13,16 +13,25 @@ namespace SuperMetroid.Core.Samus.Movement;
 public readonly record struct SamusHorizontalDisplacement(SignedSixteenSixteen Displacement, SamusCollisionDirection CollisionDirection)
 {
     /// <summary>
-    /// Displacement from a base speed plus the extra X displacement, calculated toward the side already decided: left
-    /// when <paramref name="left"/>, otherwise right.
+    /// Displacement from a base speed plus the extra X displacement, calculated toward <paramref name="side"/>, the side
+    /// already decided (#2569).
     /// </summary>
-    public static SamusHorizontalDisplacement Toward(bool left, SamusState samus, UnsignedSixteenSixteen baseSpeed)
-    {
-        SignedSixteenSixteen extraDisplacement = samus.Kinematics.ExtraDisplacement.X;
-        return left
-            ? new(samus.HorizontalSpeed.CalculateLeftDisplacement(baseSpeed, extraDisplacement), SamusCollisionDirection.Left)
-            : new(samus.HorizontalSpeed.CalculateRightDisplacement(baseSpeed, extraDisplacement), SamusCollisionDirection.Right);
-    }
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="side"/> is neither left nor right.</exception>
+    public static SamusHorizontalDisplacement Toward(HorizontalDirection side, SamusState samus, UnsignedSixteenSixteen baseSpeed) => new(
+        samus.HorizontalSpeed.CalculateDisplacement(side, baseSpeed, samus.Kinematics.ExtraDisplacement.X),
+        side switch
+        {
+            HorizontalDirection.Left => SamusCollisionDirection.Left,
+            HorizontalDirection.Right => SamusCollisionDirection.Right,
+            _ => throw new ArgumentOutOfRangeException(nameof(side), side, "Not a horizontal direction."),
+        });
+
+    /// <summary>
+    /// Displacement calculated toward the side her pose faces (#2569): left for a left-facing pose, otherwise right, a front
+    /// view included.
+    /// </summary>
+    public static SamusHorizontalDisplacement TowardFacing(SamusState samus, UnsignedSixteenSixteen baseSpeed) => Toward(
+        SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) ? HorizontalDirection.Left : HorizontalDirection.Right, samus, baseSpeed);
 
     /// <summary>
     /// Displacement calculated toward the side her acceleration mode takes: accelerating and decelerating follow the
@@ -32,6 +41,7 @@ public readonly record struct SamusHorizontalDisplacement(SignedSixteenSixteen D
     {
         SamusFacingDirection facing = SamusPoseMetadata.ReadFacingDirection(samus);
         bool reversePoseDirection = samus.HorizontalSpeed.AccelerationMode is not (SamusAccelerationMode.Accelerating or SamusAccelerationMode.Decelerating);
-        return Toward(reversePoseDirection ? facing == SamusFacingDirection.Right : facing == SamusFacingDirection.Left, samus, baseSpeed);
+        bool left = reversePoseDirection ? facing == SamusFacingDirection.Right : facing == SamusFacingDirection.Left;
+        return Toward(left ? HorizontalDirection.Left : HorizontalDirection.Right, samus, baseSpeed);
     }
 }

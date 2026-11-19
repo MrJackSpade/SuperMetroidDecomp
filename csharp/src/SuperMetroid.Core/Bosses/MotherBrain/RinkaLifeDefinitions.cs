@@ -25,5 +25,5 @@ internal static class RinkaLifeDefinitions
     internal const int FlightWindowHeight = ScreenGeometry.ScreenHeightPixels + 2 * FlightMargin;
 
     /// <summary>The speed a Rinka flies at along its aim: a pixel and an eighth an update.</summary>
-    internal static readonly SignedEightEight Speed = SignedEightEight.FromParts(1, 32);
+    internal static readonly SignedEightEight Speed = SignedEightEight.FromPixelFraction(9, 8);
 }

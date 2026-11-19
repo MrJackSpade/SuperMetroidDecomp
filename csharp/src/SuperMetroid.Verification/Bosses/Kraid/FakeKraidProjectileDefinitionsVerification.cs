@@ -50,7 +50,7 @@ internal static class FakeKraidProjectileDefinitionsVerification
                 $"Fake Kraid {(movingRight ? "right" : "left")} physical spit actors");
             for (int projectile = 0; projectile < 2; projectile++)
             {
-                EightEightVector<RoomPixels> launch = FakeKraidProjectiles.SpitLaunch(
+                PixelVelocity<RoomPixels> launch = FakeKraidProjectiles.SpitLaunch(
                     movingRight ? HorizontalDirection.Right : HorizontalDirection.Left, FakeKraidProjectileDefinitions.SpitsInLaunchOrder[projectile]);
                 AssertEqual(RoomEnemyProjectileKind.FakeKraidSpit, spawned[projectile].Kind,
                     $"Fake Kraid spit {projectile} kind");

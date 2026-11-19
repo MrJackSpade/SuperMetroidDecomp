@@ -2,6 +2,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
@@ -14,7 +15,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal sealed class KraidRise
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    private readonly BossFrameResultBuilder _frameResults;
+    private readonly EnemyPassEvents _passEvents;
     /// <summary>Room services used throughout the Kraid fight.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns rocks, lint, and other fight projectiles.</summary>
@@ -38,7 +39,7 @@ internal sealed class KraidRise
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal KraidRise(KraidRiseDependencies dependencies)
     {
-        _frameResults = dependencies.FrameResults;
+        _passEvents = dependencies.PassEvents;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
         _earthquake = dependencies.Earthquake;
@@ -74,7 +75,8 @@ internal sealed class KraidRise
             _access.Backdrop.ShowKraidColours();
             state.BodyAppearance = KraidBodyAppearance.Hidden;
             ShowKraidRoomBackdrop();
-            _frameResults.KraidObjects.AddRange(KraidObjectDefinitions.DefeatedRoom);
+            foreach (RoomObjectSpawnRequest<KraidRoomMutation> change in KraidObjectDefinitions.DefeatedRoom)
+                _passEvents.Publish(new KraidRoomChange(change));
             // The body owns the sinking: a defeated room's body starts at hiding his body and the death's wait
             // before the fade-in. Kraid's other seven parts take their own dead setup and remain deleted.
             state.BodyState.DeathPhase = KraidDeathPhase.HideBody;
@@ -151,13 +153,13 @@ internal sealed class KraidRise
                 if (KraidCadenceDefinitions.CeilingBreakRockEveryEighthUpdate.IsDue(body.FrameCounter))
                     RequestKraidRisingRock(body);
                 body.Position = body.Position.WithWholeX(body.Position.X.Whole +
-                    (KraidCadenceDefinitions.RiseSwayPhase.IsSetIn(body.Position.Y.Whole) ? -1 : 1));
+                    1.Toward(KraidCadenceDefinitions.RiseSwayPhase.IsSetIn(body.Position.Y.Whole) ? HorizontalDirection.Left : HorizontalDirection.Right));
                 body.Position = body.Position.WithWholeY(body.Position.Y.Whole - 1);
                 if (KraidCadenceDefinitions.CeilingRockEveryFourthRow.IsDue(body.Position.Y.Whole) &&
                     state.BodyState.NextCeilingRock is { } rock)
                 {
                     _background.SpawnKraidCeilingRock(rock.Entry.X);
-                    _frameResults.KraidObjects.Add(rock.Entry.Crumble);
+                    _passEvents.Publish(new KraidRoomChange(rock.Entry.Crumble));
                     state.BodyState.NextCeilingRock = rock.Following;
                 }
                 if (body.Position.Y.Whole < KraidArenaDefinitions.GrownY)
@@ -244,7 +246,7 @@ internal sealed class KraidRise
         if (!KraidRandomDefinitions.RisingRockStartsOnRight.IsTakenBy(random))
             randomOffset = -(randomOffset + KraidRandomDefinitions.RisingRockLeftExtraPixels);
         rock.Position = FixedPosition<RoomPixels>.FromWhole(new(body.Position.X.Whole + randomOffset, KraidArenaDefinitions.RisingRockY));
-        rock.Velocity = new(SignedEightEight.FromSixteenthsOfPixel(KraidRandomDefinitions.RisingRockXSpeedSixteenths.Of(random)), KraidRockLaunchDefinitions.RisingRockRise);
+        rock.Velocity = new(KraidRandomDefinitions.RisingRockXSpeed.Of(random), KraidRockLaunchDefinitions.RisingRockRise);
         _access.RequestKraidSound(KraidSoundDefinitions.RockSpit);
     }
 
@@ -308,7 +310,7 @@ internal sealed class KraidRise
                     KraidCadenceDefinitions.RaisedBodySecondRockOfEight.IsDue(_earthquake.RemainingFrames))
                     RequestKraidRisingRock(body);
                 body.Position = body.Position.WithWholeX(body.Position.X.Whole +
-                    (KraidCadenceDefinitions.RiseSwayPhase.IsSetIn(body.Position.Y.Whole) ? 1 : -1));
+                    1.Toward(KraidCadenceDefinitions.RiseSwayPhase.IsSetIn(body.Position.Y.Whole) ? HorizontalDirection.Right : HorizontalDirection.Left));
                 body.Position = body.Position.AdvanceY(KraidArenaDefinitions.RisingBodyLift);
                 if (body.Position.Y.Whole < KraidArenaDefinitions.RisenY)
                 {

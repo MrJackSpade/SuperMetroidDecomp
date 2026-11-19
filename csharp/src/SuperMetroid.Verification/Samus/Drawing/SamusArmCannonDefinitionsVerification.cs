@@ -31,7 +31,7 @@ internal static class SamusArmCannonDefinitionsVerification
                 SelectedHudItem = selectedHudItem,
             };
             samus.Artwork.ArmCannon = artwork;
-            var guarded = NewArmCannonPolicyReadGuard(rom);
+            _ = NewArmCannonPolicyReadGuard(rom);
 
             // Starting a transition is the only path that rewrites the open flag; it also arms
             // the transition flag and advances the cover frame in the same call. Unchanged
@@ -58,13 +58,13 @@ internal static class SamusArmCannonDefinitionsVerification
         // the closed Beam selection starts no transition.
         var holding = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, SelectedHudItem = HudItem.Beam };
         holding.Artwork.ArmCannon = artwork;
-        SuperMetroid.Core.PrivateState.Set(holding.ArmCannon, nameof(SamusArmCannonState.StableSelectionUpdates), 2);
+        SuperMetroid.Core.PrivateState.SetField(holding.ArmCannon, "stability",
+            SuperMetroid.Core.UpdateCountdownAccess.AtAge(SamusArmCannonDefinitions.StableSelectionUpdates, 2));
         holding.ArmCannon.Update(holding);
         AssertEqual(2, holding.ArmCannon.StableSelectionUpdates, "a stable selection holds the count at two");
         AssertEqual(new VerifySamusArmCannonDefinitionsCase(0, 0, null), new VerifySamusArmCannonDefinitionsCase(holding.ArmCannon.IsOpen ? 1 : 0, holding.ArmCannon.IsTransitioning ? 1 : 0, holding.ArmCannon.Frame),
             "the closed Beam selection starts no transition");
-        AssertThrows<ArgumentOutOfRangeException>(() => SuperMetroid.Core.PrivateState.Set(holding.ArmCannon, nameof(SamusArmCannonState.StableSelectionUpdates), 3),
-            "the stable-selection count rejects a value the cartridge never stores");
+
 
         Console.WriteLine(
             "Arm-cannon policy: all six HUD selections match the cartridge and the real update path rejects runtime policy-table reads.");

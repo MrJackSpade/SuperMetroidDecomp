@@ -17,6 +17,13 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// </summary>
 internal static class MapPictureSheets
 {
+    /// <summary>The shades every map cell is pictured in, in the sheet's order (#2567): unexplored, explored.</summary>
+    private static readonly IReadOnlyList<MapCellShade> CellShades = Ensure.EveryMemberOnce<MapCellShade>(
+    [
+        MapCellShade.Unexplored,
+        MapCellShade.Explored,
+    ]);
+
     /// <summary>
     /// The picture of each cell any area map can show, each once in each shade: the empty cell the map screens show where
     /// nothing is revealed, then every area's cells, each pictured from the map character that pictures it (#1513).
@@ -39,7 +46,7 @@ internal static class MapPictureSheets
         }
         Extent16<CharacterCells> one = new(1, 1);
         foreach (MapCell cell in ordered)
-        foreach (MapCellShade shade in Enum.GetValues<MapCellShade>())
+        foreach (MapCellShade shade in CellShades)
         {
             var shown = new ShownMapCell(cell, shade);
             yield return ScreenPictureSubject.Block(AreaMapPictures.FrameName(shown), default, one, new[] { MapCellCharacters.Tile(shown) });

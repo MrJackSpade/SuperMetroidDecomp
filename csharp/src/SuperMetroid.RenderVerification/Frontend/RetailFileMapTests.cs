@@ -49,7 +49,7 @@ internal static class RetailFileMapTests
             var legacy = new FileSelectMapMenuState(AudioQueues.Standalone(), new SharedRandom(), (saves.ReadSlot(SaveSlot.A) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(SaveSlot.A).")), 0, InstalledFixtures.Maps, MenuSheetFixtures.For(InstalledFixtures.Maps));
             var captured = new FileSelectMapMenuState(AudioQueues.Standalone(), new SharedRandom(), (saves.ReadSlot(SaveSlot.A) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(SaveSlot.A).")), 0, InstalledFixtures.Maps, MenuSheetFixtures.For(InstalledFixtures.Maps));
             var phases = new HashSet<FileSelectMapNavigationPhase>();
-            for (int tick = 0; tick < 300 && !legacy.LoadRequested && !legacy.OptionsRequested; tick++)
+            for (int tick = 0; tick < 300 && legacy.Outcome != FileSelectMapOutcome.Load && legacy.Outcome != FileSelectMapOutcome.Options; tick++)
             {
                 ControllerButton input = tick == 48 ? ControllerButton.Start
                     : tick == 130 ? (cancel ? ControllerButton.B : ControllerButton.Start)
@@ -58,12 +58,12 @@ internal static class RetailFileMapTests
                 legacy.Step(input); captured.Step(input);
                 phases.Add(legacy.Phase);
                 Compare(legacy.Render(), captured.CaptureRenderSnapshot(), $"phase={legacy.Phase}, tick={tick}, cancel={cancel}");
-                if (legacy.Phase != captured.Phase || legacy.LoadRequested != captured.LoadRequested ||
-                    legacy.OptionsRequested != captured.OptionsRequested)
+                if (legacy.Phase != captured.Phase || (legacy.Outcome == FileSelectMapOutcome.Load) != (captured.Outcome == FileSelectMapOutcome.Load) ||
+                    (legacy.Outcome == FileSelectMapOutcome.Options) != (captured.Outcome == FileSelectMapOutcome.Options))
                     throw new InvalidOperationException("GPU file-map capture changed navigation signals.");
             }
             if (!phases.Contains(FileSelectMapNavigationPhase.Room) || !phases.Contains(FileSelectMapNavigationPhase.ExpandingWindow) ||
-                !(cancel ? legacy.OptionsRequested : legacy.LoadRequested))
+                !(cancel ? (legacy.Outcome == FileSelectMapOutcome.Options) : (legacy.Outcome == FileSelectMapOutcome.Load)))
                 throw new InvalidOperationException("GPU file-map route did not complete its expected coverage.");
         }
         Console.WriteLine($"{device.Kind}: {samples} exact retail file-map frames; all areas, wrapped scroll, zoom, load/cancel routes passed.");

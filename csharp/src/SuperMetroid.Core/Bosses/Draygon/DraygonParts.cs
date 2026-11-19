@@ -239,19 +239,18 @@ internal sealed class DraygonParts
         // as one of the room's dust and explosion effects.
         if (DraygonCadenceDefinitions.EyeBreathBubbleEvery128thUpdate.IsDue(eye.FrameCounter))
             _projectiles.SpawnDustOrExplosion(
-                new(OffRoomPlaces.Place(eye.Position.X.Whole + (facing == HorizontalDirection.Right
-                    ? DraygonEyeEffects.HorizontalOffset : -DraygonEyeEffects.HorizontalOffset)), OffRoomPlaces.Place(eye.Position.Y.Whole + DraygonEyeEffects.VerticalOffset)),
+                new(OffRoomPlaces.Place(eye.Position.X.Whole + (DraygonEyeEffects.HorizontalOffset.Toward(facing))), OffRoomPlaces.Place(eye.Position.Y.Whole + DraygonEyeEffects.VerticalOffset)),
                 DraygonEyeEffects.DustVariant);
         Position16<RoomPixels> gaze = eye.Position.Whole +
             TowardFacing(new(DraygonEyeEffects.HorizontalOffset, DraygonEyeEffects.VerticalOffset), facing);
-        Bearing bearing = EnemyMath.CalculateBearing(samus.Position.Whole - gaze);
+        TrigonometryAngle aim = EnemyMath.CalculateAimAngle(samus.Position.Whole - gaze);
         DraygonEyeState eyeState = state.EyeTracking;
-        if (bearing == eyeState.LookAngle)
+        if (aim == eyeState.LookAngle)
             return;
 
-        eyeState.LookAngle = bearing;
-        // The straight direction nearest the bearing, up, right, down or left, chooses the look.
-        CompassDirection direction = bearing.NearestStraightDirection();
+        eyeState.LookAngle = aim;
+        // The straight direction nearest the aim, up, right, down or left, chooses the look.
+        CompassDirection direction = aim.NearestStraightDirection();
         DraygonSegment look = direction switch
         {
             CompassDirection.Up => facing == HorizontalDirection.Right
@@ -267,8 +266,8 @@ internal sealed class DraygonParts
                 ? DraygonSegment.EyeFacingRightLookingLeft
                 : DraygonSegment.EyeFacingLeftLookingLeft,
             CompassDirection.UpRight or CompassDirection.DownRight or CompassDirection.DownLeft or CompassDirection.UpLeft =>
-                throw new InvalidOperationException($"Draygon's eye bearing {bearing} is nearest the diagonal {direction}."),
-            _ => throw new InvalidOperationException($"Draygon's eye bearing {bearing} is nearest no straight direction."),
+                throw new InvalidOperationException($"Draygon's eye aim {aim} is nearest the diagonal {direction}."),
+            _ => throw new InvalidOperationException($"Draygon's eye aim {aim} is nearest no straight direction."),
         };
         state.EyePart.StartAnimation(look);
     }

@@ -23,13 +23,13 @@ public sealed class PowampBodyState
     /// The updates until the body's next wiggle step, the one it steps on included: one when it is placed, so its first
     /// wiggle update steps, and five after each step.
     /// </summary>
-    public int WiggleTimer { get; internal set; } = PowampMotionDefinitions.FirstWiggleStepWait;
+    public UpdateCountdown WiggleTimer { get; internal set; } = UpdateCountdown.Lasting(PowampMotionDefinitions.FirstWiggleStepWait);
 
     /// <summary>
     /// The updates left of the body's rest, inflation, deflation or death, the one it ends on included: sixty for rest, ten
     /// for inflation or deflation and thirty-two for death, counted down once per update of the action.
     /// </summary>
-    public int ActionTimer { get; internal set; }
+    public UpdateCountdown ActionTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>The main-AI behaviour.</summary>
     public PowampAction Action { get; internal set; }

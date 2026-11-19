@@ -13,28 +13,28 @@ public static class QuadraticSpeedCurveDefinitions
     /// The speed at each mark along the curve, its start through its last mark, toward increasing coordinates, in pixels
     /// per frame to a fraction of a pixel.
     /// </summary>
-    [SuppressMessage("Design", "SME6447", Justification = "Each speed's fraction is the game's own fraction of a pixel, written exactly; only the size of the fractions above half a pixel makes this rule flag them.")]
+    [SuppressMessage("Design", "SME6447", Justification = "Each speed is the game's own amount of pixels, written exactly as a fraction of a pixel; only the size of the numerators makes this rule flag them.")]
     internal static readonly QuadraticCurveSpeed[] Speeds =
     [
-        new(FromParts(0, 0)), new(FromParts(0, 265)), new(FromParts(0, 795)), new(FromParts(0, 1590)), new(FromParts(0, 2650)),
-        new(FromParts(0, 3975)), new(FromParts(0, 5565)), new(FromParts(0, 7420)), new(FromParts(0, 9540)), new(FromParts(0, 11925)),
-        new(FromParts(0, 14575)), new(FromParts(0, 17490)), new(FromParts(0, 20670)), new(FromParts(0, 24115)), new(FromParts(0, 27825)),
-        new(FromParts(0, 31800)), new(FromParts(0, 36040)), new(FromParts(0, 40545)), new(FromParts(0, 45315)), new(FromParts(0, 50350)),
-        new(FromParts(0, 55650)), new(FromParts(0, 61215)), new(FromParts(0, 1509)), new(FromParts(1, 5300)), new(FromParts(1, 11660)),
-        new(FromParts(1, 18285)), new(FromParts(1, 25175)), new(FromParts(1, 32330)), new(FromParts(1, 39750)), new(FromParts(1, 47435)),
-        new(FromParts(1, 55385)), new(FromParts(1, 63600)), new(FromParts(2, 4240)), new(FromParts(2, 12985)), new(FromParts(2, 21995)),
-        new(FromParts(2, 31270)), new(FromParts(2, 40810)), new(FromParts(2, 50615)), new(FromParts(2, 60685)), new(FromParts(3, 3180)),
-        new(FromParts(3, 13780)), new(FromParts(3, 24645)), new(FromParts(3, 35775)), new(FromParts(3, 47170)), new(FromParts(3, 58830)),
-        new(FromParts(4, 2915)), new(FromParts(4, 15105)), new(FromParts(4, 27560)), new(FromParts(4, 40280)), new(FromParts(4, 53265)),
-        new(FromParts(4, 979)), new(FromParts(5, 12190)), new(FromParts(5, 25970)), new(FromParts(5, 40015)), new(FromParts(5, 54325)),
-        new(FromParts(6, 1060)), new(FromParts(6, 15900)), new(FromParts(6, 31005)), new(FromParts(6, 46375)), new(FromParts(6, 62010)),
-        new(FromParts(7, 10070)), new(FromParts(7, 26235)), new(FromParts(7, 42665)), new(FromParts(7, 59360)), new(FromParts(8, 8480)),
-        new(FromParts(8, 25705)), new(FromParts(8, 43195)), new(FromParts(8, 60950)), new(FromParts(9, 11130)), new(FromParts(9, 29415)),
-        new(FromParts(9, 47965)), new(FromParts(9, 1244)), new(FromParts(10, 18020)), new(FromParts(10, 37365)), new(FromParts(10, 56975)),
-        new(FromParts(11, 9010)), new(FromParts(11, 29150)), new(FromParts(11, 49555)), new(FromParts(12, 2385)), new(FromParts(12, 23320)),
-        new(FromParts(12, 44520)), new(FromParts(12, 449)), new(FromParts(13, 19875)), new(FromParts(13, 41870)), new(FromParts(13, 64130)),
-        new(FromParts(14, 18815)), new(FromParts(14, 41605)), new(FromParts(14, 64660)), new(FromParts(15, 20140)), new(FromParts(15, 43725)),
-        new(FromParts(15, 2039)), new(FromParts(16, 23850)), new(FromParts(16, 48230)), new(FromParts(17, 5035)), new(FromParts(17, 29945)),
+        new(Zero), new(FromPixelFraction(265, 65536)), new(FromPixelFraction(795, 65536)), new(FromPixelFraction(795, 32768)), new(FromPixelFraction(1325, 32768)),
+        new(FromPixelFraction(3975, 65536)), new(FromPixelFraction(5565, 65536)), new(FromPixelFraction(1855, 16384)), new(FromPixelFraction(2385, 16384)), new(FromPixelFraction(11925, 65536)),
+        new(FromPixelFraction(14575, 65536)), new(FromPixelFraction(8745, 32768)), new(FromPixelFraction(10335, 32768)), new(FromPixelFraction(24115, 65536)), new(FromPixelFraction(27825, 65536)),
+        new(FromPixelFraction(3975, 8192)), new(FromPixelFraction(4505, 8192)), new(FromPixelFraction(40545, 65536)), new(FromPixelFraction(45315, 65536)), new(FromPixelFraction(25175, 32768)),
+        new(FromPixelFraction(27825, 32768)), new(FromPixelFraction(61215, 65536)), new(FromPixelFraction(1509, 65536)), new(FromPixelFraction(17709, 16384)), new(FromPixelFraction(19299, 16384)),
+        new(FromPixelFraction(83821, 65536)), new(FromPixelFraction(90711, 65536)), new(FromPixelFraction(48933, 32768)), new(FromPixelFraction(52643, 32768)), new(FromPixelFraction(112971, 65536)),
+        new(FromPixelFraction(120921, 65536)), new(FromPixelFraction(8071, 4096)), new(FromPixelFraction(8457, 4096)), new(FromPixelFraction(144057, 65536)), new(FromPixelFraction(153067, 65536)),
+        new(FromPixelFraction(81171, 32768)), new(FromPixelFraction(85941, 32768)), new(FromPixelFraction(181687, 65536)), new(FromPixelFraction(191757, 65536)), new(FromPixelFraction(49947, 16384)),
+        new(FromPixelFraction(52597, 16384)), new(FromPixelFraction(221253, 65536)), new(FromPixelFraction(232383, 65536)), new(FromPixelFraction(121889, 32768)), new(FromPixelFraction(127719, 32768)),
+        new(FromPixelFraction(265059, 65536)), new(FromPixelFraction(277249, 65536)), new(FromPixelFraction(36213, 8192)), new(FromPixelFraction(37803, 8192)), new(FromPixelFraction(315409, 65536)),
+        new(FromPixelFraction(263123, 65536)), new(FromPixelFraction(169935, 32768)), new(FromPixelFraction(176825, 32768)), new(FromPixelFraction(367695, 65536)), new(FromPixelFraction(382005, 65536)),
+        new(FromPixelFraction(98569, 16384)), new(FromPixelFraction(102279, 16384)), new(FromPixelFraction(424221, 65536)), new(FromPixelFraction(439591, 65536)), new(FromPixelFraction(227613, 32768)),
+        new(FromPixelFraction(234411, 32768)), new(FromPixelFraction(484987, 65536)), new(FromPixelFraction(501417, 65536)), new(FromPixelFraction(16191, 2048)), new(FromPixelFraction(16649, 2048)),
+        new(FromPixelFraction(549993, 65536)), new(FromPixelFraction(567483, 65536)), new(FromPixelFraction(292619, 32768)), new(FromPixelFraction(300477, 32768)), new(FromPixelFraction(619239, 65536)),
+        new(FromPixelFraction(637789, 65536)), new(FromPixelFraction(147767, 16384)), new(FromPixelFraction(168345, 16384)), new(FromPixelFraction(692725, 65536)), new(FromPixelFraction(712335, 65536)),
+        new(FromPixelFraction(364953, 32768)), new(FromPixelFraction(375023, 32768)), new(FromPixelFraction(770451, 65536)), new(FromPixelFraction(788817, 65536)), new(FromPixelFraction(101219, 8192)),
+        new(FromPixelFraction(103869, 8192)), new(FromPixelFraction(786881, 65536)), new(FromPixelFraction(871843, 65536)), new(FromPixelFraction(446919, 32768)), new(FromPixelFraction(458049, 32768)),
+        new(FromPixelFraction(936319, 65536)), new(FromPixelFraction(959109, 65536)), new(FromPixelFraction(245541, 16384)), new(FromPixelFraction(250795, 16384)), new(FromPixelFraction(1026765, 65536)),
+        new(FromPixelFraction(985079, 65536)), new(FromPixelFraction(536213, 32768)), new(FromPixelFraction(548403, 32768)), new(FromPixelFraction(1119147, 65536)), new(FromPixelFraction(1144057, 65536)),
     ];
 
     /// <summary>The number of marks along the curve, its start through its last mark.</summary>

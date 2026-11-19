@@ -33,7 +33,7 @@ public readonly record struct CeresShaftTilt
 
     /// <summary>
     /// The steps from the full anticlockwise tilt, 0 through 68: the place in the shaft's turn the following room's main
-    /// inherits (<see cref="RoomMainCarryover"/>).
+    /// inherits (<see cref="ShaftTurnSetsDebrisWait"/>).
     /// </summary>
     public int StepsFromFullAnticlockwise => StepsFromLevel + FullTiltSteps;
 

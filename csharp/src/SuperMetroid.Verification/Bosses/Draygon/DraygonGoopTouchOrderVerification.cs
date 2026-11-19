@@ -36,10 +36,10 @@ internal static class DraygonGoopTouchOrderVerification
             SamusState samus = runtime.Player.IntroducedSamus;
             samus.Position = FixedPosition<RoomPixels>.FromWhole(new(samusX, 385));
             samus.InvincibilityTimer = WrappingCountdown.Start(96);
-            samus.KnockbackTimer = 5;
+            samus.KnockbackHold = UpdateCountdown.For(5);
             samus.SlowdownLevel = 0;
             var enemies = runtime.Enemies;
-            var goop = enemies.Projectiles.EnemyProjectiles[^1];
+            var goop = enemies.Projectiles.ProjectileInPlace(17);
             goop.Kind = RoomEnemyProjectileKind.DraygonGoop;
             goop.Behavior = FamilyProjectileStarts.BehaviorOf(enemies, goop.Kind);
             goop.StartMotion(DraygonShotMotion.GoopFlying);
@@ -57,7 +57,7 @@ internal static class DraygonGoopTouchOrderVerification
 
             string context = powerBombed ? "power-bombed goop at Samus" : "goop at Samus beyond the room edge";
             AssertEqual(1, samus.SlowdownLevel, $"{context} attaches through its touch list");
-            AssertTrue(samus.InvincibilityTimer.IsZero && samus.KnockbackTimer == 0,
+            AssertTrue(samus.InvincibilityTimer.IsZero && samus.KnockbackHold.IsOver,
                 $"{context} clears Samus's invincibility and knockback");
             AssertEqual(!powerBombed, goop.IsActive, $"{context} {(powerBombed ? "stays released" : "stays attached")}");
         }

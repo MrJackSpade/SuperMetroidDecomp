@@ -65,7 +65,7 @@ internal static class GrappleFlarePresentationVerification
                 samus.Grapple.FlareOrigin = samus.Grapple.FlareOrigin.WithX(coordinate); samus.Grapple.FlareOrigin = samus.Grapple.FlareOrigin.WithY(coordinate);
                 samus.Grapple.RopeStart = samus.Grapple.RopeStart.WithX(70); samus.Grapple.RopeStart = samus.Grapple.RopeStart.WithY(80);
                 samus.Grapple.Anchor = samus.Grapple.Anchor.WithX(200); samus.Grapple.Anchor = samus.Grapple.Anchor.WithY(100);
-                samus.Grapple.RopeLength = 40; samus.Grapple.AngularVelocity = AngularSpeed.FromFractionsOfStep(123);
+                samus.Grapple.RopeLength = 40; samus.Grapple.AngularVelocity = AngularSpeedConstants.FromFractionsOfStep(123);
                 return samus;
             }
         }
@@ -194,7 +194,7 @@ internal static class GrappleFlarePresentationVerification
         game.BindArtwork(InstalledFixtures.GameArtwork with { SpriteSheets = rebound });
         AssertTrue(original.SequenceEqual(Draw(runtime)), "Real Grapple actor draws the same flare from rebound sheets");
         runtime.Sprites.BeginFrame();
-        runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, runtime.Player.IntroducedSamus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold);
+        runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, runtime.Player.IntroducedSamus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold, deathStep: null);
         runtime.Sprites.FinalizeFrame();
         AssertTrue(runtime.Sprites.Draws.Where(draw => draw.Source.Kind == SpriteSourceKind.SamusGrappleFlare)
                 .All(draw => ReferenceEquals(rebound.Get(SpriteSheetId.ProjectilesPower).Image, ((SamusColouredDraw)draw).Image.Sheet)),
@@ -202,7 +202,7 @@ internal static class GrappleFlarePresentationVerification
         static byte[] Draw(SuperMetroidRuntime target)
         {
             target.Sprites.BeginFrame();
-            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, target.Player.IntroducedSamus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold);
+            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, target.Player.IntroducedSamus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold, deathStep: null);
             OamBuffer image = target.Sprites.FinalizeAsOam();
             return image.LowTable.ConcatToArray(image.HighTable).Concat(BitConverter.GetBytes(image.LastFinalizedSpriteCount)).ToArray();
         }

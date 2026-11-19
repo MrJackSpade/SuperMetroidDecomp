@@ -1,4 +1,5 @@
 using SuperMetroid.Diagnostics.Input;
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.Core.Frontend.Options;
@@ -54,20 +55,20 @@ internal static class MovieDesyncComparison
             Console.WriteLine($"  options port phase={options.Phase} row={options.SelectedRow}");
         if (samus is null) return;
         Console.WriteLine($"  port   pose={(int)SamusPoseNumbers.Number(samus.Pose):X2} X={samus.Position.X.Whole:X4}.{samus.Kinematics.Position.X.Fraction:X4} Y={samus.Position.Y.Whole:X4}.{samus.Kinematics.Position.Y.Fraction:X4} " +
-            $"vs={samus.Kinematics.YSpeed.Whole:X4}.{samus.Kinematics.YSpeed.Fraction:X4} total={samus.HorizontalSpeed.TotalSpeed.Whole:X4}.{samus.HorizontalSpeed.TotalSpeed.Fraction:X4} slope={(samus.Kinematics.PositionAdjustedBySlope ? 1 : 0)} base={samus.HorizontalSpeed.BaseSpeed.Whole:X4}.{samus.HorizontalSpeed.BaseSpeed.Fraction:X4} extra={samus.HorizontalSpeed.ExtraRunSpeed.Whole:X4}.{samus.HorizontalSpeed.ExtraRunSpeed.Fraction:X4} accel={SamusAccelerationModeCodec.ToNative(samus.HorizontalSpeed.AccelerationMode):X4} anim={samus.AnimationFrame:X4}/{samus.AnimationFrameTimer.RawValue:X4} ydir={samus.Kinematics.YDirection} drained={samus.Drained.Phase} movement={SamusPoseMetadata.ReadMovementType(samus)}");
+            $"vs={samus.Kinematics.VerticalVelocity.Speed.Whole:X4}.{samus.Kinematics.VerticalVelocity.Speed.Fraction:X4} total={samus.HorizontalSpeed.TotalSpeed.Whole:X4}.{samus.HorizontalSpeed.TotalSpeed.Fraction:X4} slope={(samus.Kinematics.PositionAdjustedBySlope ? 1 : 0)} base={samus.HorizontalSpeed.BaseSpeed.Whole:X4}.{samus.HorizontalSpeed.BaseSpeed.Fraction:X4} extra={samus.HorizontalSpeed.ExtraRunSpeed.Whole:X4}.{samus.HorizontalSpeed.ExtraRunSpeed.Fraction:X4} accel={SamusAccelerationModeCodec.ToNative(samus.HorizontalSpeed.AccelerationMode):X4} anim={samus.AnimationFrame:X4}/{samus.AnimationFrameTimer.RawValue:X4} ydir={samus.Kinematics.VerticalVelocity.Direction} drained={samus.Drained.Phase} movement={SamusPoseMetadata.ReadMovementType(samus)}");
         Console.WriteLine($"  native pose={Native(MovieDesyncMemory.SamusPose)} X={Native(MovieDesyncMemory.SamusX)}.{Native(MovieDesyncMemory.SamusXFraction)} Y={Native(MovieDesyncMemory.SamusY)}.{Native(MovieDesyncMemory.SamusYFraction)} " +
             $"vs={Native(0x0b2e)}.{Native(0x0b2c)} total={Native(0x0dbc)}.{Native(0x0dbe)} slope={Native(0x0dba)} base={Native(0x0b46)}.{Native(0x0b48)} extra={Native(0x0b42)}.{Native(0x0b44)} accel={Native(0x0b4a)} anim={Native(0x0a96)}/{Native(0x0a94)}");
-        Console.WriteLine($"  hurt port inv={samus.InvincibilityTimer.RawValue:X4} kb={samus.KnockbackTimer:X4} div={samus.SlowdownLevel:X4} hp={samus.Health:X4}");
+        Console.WriteLine($"  hurt port inv={samus.InvincibilityTimer.RawValue:X4} kb={samus.KnockbackHold.UpdatesLeft:X4} div={samus.SlowdownLevel:X4} hp={samus.Health:X4}");
         if (game.CeresDestructionForVerification is { } boom)
             Console.WriteLine($"  cinematic port={boom.Phase} native={Native(0x1f51)}");
         if (game.Session.ScreenAs<PauseMenuState>() is { } pause)
             Console.WriteLine($"  pause port mode={pause.ScreenMode} control={pause.SelectedControl} transition={pause.IsPageTransitionActive} " +
-                $"held cur={GameplayActionWordCodec.ToJoypadWord(game.Session.GameplayRuntime.PlayerActions.Current):X4} new={GameplayActionWordCodec.ToJoypadWord(game.Session.GameplayRuntime.PlayerActions.NewlyPressed):X4} hp={ControllerWordCodec.ToJoypadWord(PrivateState.Field<SuperMetroid.Core.Input.HeldButtonRepeat, SuperMetroid.Core.Input.ControllerButton>(game.Session.GameplayRuntime.PauseHeldButtonRepeat, "_previousHeld")):X4} unchanged={PrivateState.Field<SuperMetroid.Core.Input.HeldButtonRepeat, int>(game.Session.GameplayRuntime.PauseHeldButtonRepeat, "_unchangedUpdates")} th={ControllerWordCodec.ToJoypadWord(game.Session.GameplayRuntime.PauseHeldButtonRepeat.Repeating):X4}");
+                $"held cur={GameplayActionWordCodec.ToJoypadWord(game.Session.GameplayRuntime.PlayerActions.Current):X4} new={GameplayActionWordCodec.ToJoypadWord(game.Session.GameplayRuntime.PlayerActions.NewlyPressed):X4} hp={ControllerWordCodec.ToJoypadWord(PrivateState.Field<SuperMetroid.Core.Input.HeldButtonRepeat, SuperMetroid.Core.Input.ControllerButton>(game.Session.GameplayRuntime.PauseHeldButtonRepeat, "_previousHeld")):X4} unchanged={(PrivateState.Field<SuperMetroid.Core.Input.HeldButtonRepeat, UpdateCountdown?>(game.Session.GameplayRuntime.PauseHeldButtonRepeat, "_repeatWait")?.Age ?? 0)} th={ControllerWordCodec.ToJoypadWord(game.Session.GameplayRuntime.PauseHeldButtonRepeat.Repeating):X4}");
         Console.WriteLine($"  nmi port={(game.RuntimeForVerification?.Clock.Counter ?? game.MenuNmiFrameCounterForVerification):X4} native={Native(0x05b6)}");
         if (game.RuntimeForVerification?.EscapeTimer is { } escape)
             Console.WriteLine($"  escape port={escape.Phase}/{escape.IsActive} {escape.Readout.Minutes:D2}:{escape.Readout.Seconds:D2}.{escape.Readout.Centiseconds:D2} " +
                 $"native={Native(0x0943)} {memory[0x0947]:X2}:{memory[0x0946]:X2}.{memory[0x0945]:X2}");
-        Console.WriteLine("  aerial port  " + game.RuntimeForVerification?.Player.LastAerialSamusMovement);
+        Console.WriteLine("  aerial port  " + game.RuntimeForVerification?.LatestGameplayFrame?.AerialMovement);
         if (game.RuntimeForVerification is { } projectileRuntime)
         {
             Console.WriteLine("  sproj port   " + string.Join(" ", projectileRuntime.Projectiles.Shots
@@ -92,7 +93,7 @@ internal static class MovieDesyncComparison
         if (game.RuntimeForVerification?.Enemies is { } traceEnemies)
         {
             // $1997 IDs, $1A4B X, $1A93 Y: one word per slot.
-            var portProjectiles = traceEnemies.Projectiles.EnemyProjectiles.Select((projectile, slot) => new PortProjectile(projectile, slot))
+            var portProjectiles = traceEnemies.Projectiles.EnemyProjectiles.Select(projectile => new PortProjectile(projectile, projectile.Place))
                 .Where(entry => entry.Projectile.IsActive)
                 .Select(entry => $"{entry.Slot}:{EnemyProjectileNativeWords.IdentityWord(entry.Projectile.Kind, Word(memory, 0x1997 + 2 * entry.Slot)):X4}@{entry.Projectile.Position.X.Whole:X}/{entry.Projectile.Position.Y.Whole:X}" +
                     $"#{entry.Projectile.Animation?.GetType().Name}/{entry.Projectile.FrameHold.RawValue:X}");
@@ -125,7 +126,7 @@ internal static class MovieDesyncComparison
             // $7E:2020: seven ten-word tail records; X/Y at +12/+14.
             string Port(int index) => $"{ridley.Tail.Links[index].Position.X:X4}/{ridley.Tail.Links[index].Position.Y:X4}";
             string NativeTail(int index) => $"{Native(0x2020 + index * 20 + 12)}/{Native(0x2020 + index * 20 + 14)}";
-            Console.WriteLine("  tail port   " + string.Join(" ", Enumerable.Range(0, 7).Select(Port)) + $" fn={ridley.PhaseName()} tailfn={SuperMetroid.Core.Bosses.Ridley.RidleyNativeWords.TailActions.Word(ridley.Tail.Action):X4} v={ridley.Flight.Velocity.X.RawValue:X4}/{ridley.Flight.Velocity.Y.RawValue:X4} getaway-frame={ridleyRuntime.Enemies.CeresEscape.Floor.GetawayUpdate}");
+            Console.WriteLine("  tail port   " + string.Join(" ", Enumerable.Range(0, 7).Select(Port)) + $" fn={ridley.PhaseName()} tailfn={SuperMetroid.Core.Bosses.Ridley.RidleyNativeWords.TailActions.Word(ridley.Tail.Action):X4} v={ridley.Flight.Velocity.X.RawValue:X4}/{ridley.Flight.Velocity.Y.RawValue:X4} getaway-frame={ridleyRuntime.Enemies.CeresEscape.Floor.Flight.Age}");
             // $7E:8026 holds the getaway frame as a byte offset into its word-sized tables: twice the frame.
             Console.WriteLine("  tail native " + string.Join(" ", Enumerable.Range(0, 7).Select(NativeTail)) + $" fn={Native(0x0fa8)} tailfn={Native(0x2000)} v={Native(0x0faa)}/{Native(0x0fac)} getaway-frame={Word(memory, 0x8026) / 2}");
         }
@@ -203,16 +204,14 @@ internal static class MovieDesyncComparison
                 Check($"Ridley tail {index} X", ridley.Tail.Links[index].Position.X, tail + MovieDesyncMemory.RidleyTailXOffset);
                 Check($"Ridley tail {index} Y", ridley.Tail.Links[index].Position.Y, tail + MovieDesyncMemory.RidleyTailYOffset);
             }
-        var projectiles = runtime.Enemies.Projectiles.EnemyProjectiles;
-        if (projectiles.Count != MovieDesyncMemory.EnemyProjectileSlots)
-            throw new InvalidOperationException($"Port has {projectiles.Count} enemy-projectile slots.");
+        var projectiles = runtime.Enemies.Projectiles;
         // The fresh-Ceres pad ($86:A387) and concealer ($86:A395) live in their own arrival
         // model, which owns native slots $22 and $20 while they exist; the pool leaves them free.
         var arrival = runtime.Room.CeresElevatorArrival;
         void CheckArrivalSlot(int slot, bool active, ushort id, ushort y)
         {
             int offset = 2 * slot;
-            if (projectiles[slot].IsActive)
+            if (projectiles.LatestInPlace(slot) is { IsActive: true })
                 mismatches.Add($"Enemy projectile {slot} is allocated while the Ceres arrival owns it");
             Check($"Enemy projectile {slot} ID", active ? id : (ushort)0, MovieDesyncMemory.EnemyProjectileIds + offset);
             if (!active) return;
@@ -225,17 +224,17 @@ internal static class MovieDesyncComparison
             CheckArrivalSlot(17, (arrival ?? throw new InvalidOperationException("Verification requires arrival.")).PadActive, 0xa387, arrival.PadPosition.Y);
             CheckArrivalSlot(16, arrival.PlatformActive, 0xa395, arrival.PlatformPosition.Y);
         }
-        for (int slot = 0; slot < (arrivalLive ? 16 : projectiles.Count); slot++)
+        for (int slot = 0; slot < (arrivalLive ? 16 : SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine.PlaceCount); slot++)
         {
             // The port's projectile kind is the native bank-$86 header pointer.
-            var projectile = projectiles[slot];
+            var latest = projectiles.LatestInPlace(slot);
             int offset = 2 * slot;
             // Identical cartridge definitions that differ only in their way or look name one kind (#2278).
-            Check($"Enemy projectile {slot} ID", projectile.IsActive
-                    ? EnemyProjectileNativeWords.IdentityWord(projectile.Kind, Word(memory, MovieDesyncMemory.EnemyProjectileIds + offset))
+            Check($"Enemy projectile {slot} ID", latest is { IsActive: true }
+                    ? EnemyProjectileNativeWords.IdentityWord(latest.Kind, Word(memory, MovieDesyncMemory.EnemyProjectileIds + offset))
                     : (ushort)0,
                 MovieDesyncMemory.EnemyProjectileIds + offset);
-            if (!projectile.IsActive) continue;
+            if (latest is not { IsActive: true } projectile) continue;
             // $86:8097 leaves the whole X word unwritten and the n00b-tube bubble's init only
             // stores its X in Var1; $86:D8DF copies it on its first run. Until then native X
             // is whatever the aliased RAM held (slot 3's X is CinematicFrameCounter $1A51).
@@ -276,7 +275,7 @@ internal static class MovieDesyncComparison
     /// </summary>
     private static Position16<RoomPixels> NativeWholePosition(RoomEnemyPlace actor) =>
         actor.SpeciesState<SuperMetroid.Core.Bosses.Phantoon.PhantoonPart>() is { Phantoon: { Phase: SuperMetroid.Core.Bosses.Phantoon.PhantoonPhase.Dead } phantoon } &&
-        (ReferenceEquals(actor, phantoon.Body) || phantoon.PhaseWait.Count != ClearedPhantoonPowerDelay)
+        (ReferenceEquals(actor, phantoon.Body) || phantoon.PhaseWait.CartridgeCount != ClearedPhantoonPowerDelay)
             ? ClearedPhantoonNativePlace
             : actor.Position.Whole;
 

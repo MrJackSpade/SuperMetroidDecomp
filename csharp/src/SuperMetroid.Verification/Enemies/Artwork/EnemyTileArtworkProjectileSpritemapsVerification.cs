@@ -592,7 +592,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         // The frame drawn from the loaded set's sheets under the spawner's graphics.
         static OamBuffer DrawSpawnerFrame(RoomEnemySystem enemies, EnemyProjectileFrameId frame, SpriteGraphics graphics)
         {
-            EnemyProjectile slot = enemies.Projectiles.EnemyProjectiles[0];
+            EnemyProjectile slot = enemies.Projectiles.ProjectileInPlace(0);
             slot.Kind = RoomEnemyProjectileKind.DustOrExplosion;
             slot.Position = slot.Position.WithWhole(new(128, 96));
             slot.Graphics = graphics;
@@ -631,7 +631,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         static RoomEnemySystem PresentedSystem(ImportEnemyArtwork artwork, EnemyProjectileFrameId frame, RoomEnemyProjectileKind kind)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
-            EnemyProjectile slot = enemies.Projectiles.EnemyProjectiles[0];
+            EnemyProjectile slot = enemies.Projectiles.ProjectileInPlace(0);
             slot.Kind = kind;
             slot.Position = slot.Position.WithWhole(new(128, 96));
             // As the typed runner does when it shows the program frame.
@@ -653,7 +653,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             ISnesAddressSpace source)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
-            EnemyProjectile slot = enemies.Projectiles.EnemyProjectiles[0];
+            EnemyProjectile slot = enemies.Projectiles.ProjectileInPlace(0);
             // The shard is spawned as the tube's spawner spawns it, bound to the tube pieces' behaviour that carries out its
             // cues (#1760). The first shard's animation opens on its flying loop, whose first beat is the reflecting flicker.
             FamilyProjectileStarts.Initialize(enemies, slot, RoomEnemyProjectileKind.NoobTubeShard, SpawnedGraphics);

@@ -145,7 +145,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the warning blink (<see cref="DachoraTimingDefinitions.BlinkDuration"/>).</summary>
     private static void RunDachoraBlinking(RoomEnemyPlace place, DachoraEnemyState state)
     {
-        if (--state.PhaseTimer != 0)
+        if (!state.PhaseTimer.StepEnds())
             return;
 
         StartDachoraAnimation(
@@ -262,7 +262,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunDachoraCharging(RoomEnemyPlace place, DachoraEnemyState state)
     {
         StepDachoraShineGlow(place, state);
-        if (--state.PhaseTimer != 0)
+        if (!state.PhaseTimer.StepEnds())
             return;
 
         // The charge animation holds its crouch until the launch, which starts the right-facing echo animation the
@@ -271,9 +271,9 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = DachoraAction.Shinesparking;
 
         RoomEnemyPlace[] echoes = _echoes.Of(place);
-        state.TrailTimer = 0;
+        state.TrailTimer = UpdateCountdown.Ended();
         foreach (RoomEnemyPlace echo in echoes)
-            echo.RequireSpeciesState<DachoraEchoState>().Lifetime = 0;
+            echo.RequireSpeciesState<DachoraEchoState>().Lifetime = UpdateCountdown.Ended();
         state.VerticalAcceleration = SignedSixteenSixteen.Zero;
         place.Position = place.Position.WithWholeY(place.Position.Y.Whole - DachoraMotionDefinitions.ChargeCrouchDepth);
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.DachoraLaunchSound, priority: SoundRequestPriority.Normal);
@@ -354,22 +354,22 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     private void UpdateDachoraEchoPositions(RoomEnemyPlace body, DachoraEnemyState state)
     {
         RoomEnemyPlace[] echoes = _echoes.Of(body);
-        if (state.TrailTimer != 0)
+        if (state.TrailTimer.IsRunning)
         {
-            state.TrailTimer--;
+            state.TrailTimer.Count();
             return;
         }
 
-        state.TrailTimer = DachoraTimingDefinitions.EchoPlacementInterval;
+        state.TrailTimer = UpdateCountdown.For(DachoraTimingDefinitions.EchoPlacementInterval);
         for (int trailPlace = 0; trailPlace < echoes.Length; trailPlace++)
         {
             RoomEnemyPlace echo = echoes[trailPlace];
             DachoraEchoState echoState = echo.RequireSpeciesState<DachoraEchoState>();
-            if (echoState.Lifetime != 0)
+            if (echoState.Lifetime.IsRunning)
                 continue;
 
             echo.Position = echo.Position.WithWhole(body.Position.Whole);
-            echoState.Lifetime = DachoraTimingDefinitions.EchoLifetime;
+            echoState.Lifetime = UpdateCountdown.For(DachoraTimingDefinitions.EchoLifetime);
             // Neighbouring echoes flicker on alternate updates, the first on odd ones.
             echoState.ShowsOnOddFrames = trailPlace % 2 == 0;
             return;
@@ -382,9 +382,9 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         DachoraEchoState state,
         int frameCycle)
     {
-        if (state.Lifetime != 0)
+        if (state.Lifetime.IsRunning)
         {
-            state.Lifetime--;
+            state.Lifetime.Count();
             bool visible = DachoraCadenceDefinitions.EchoOddUpdate.IsSetIn(frameCycle) == state.ShowsOnOddFrames;
             place.Presence = visible
                 ? place.Presence.Without(EnemyPresence.Hidden)

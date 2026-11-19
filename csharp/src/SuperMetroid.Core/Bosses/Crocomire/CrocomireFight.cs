@@ -257,7 +257,7 @@ internal sealed class CrocomireFight
     private static bool StepMoves(CrocomireStepCondition condition, CrocomireEnemyState state, RoomEnemyPlace body, int cameraX) => condition switch
     {
         CrocomireStepCondition.Always => true,
-        CrocomireStepCondition.UnlessHitPending => !state.DamageReactionPending,
+        CrocomireStepCondition.UnlessHitPending => !state.StepBack.IsAwaited,
         CrocomireStepCondition.WhileOnScreen => CrocomireBodyIsOnScreen(body, cameraX),
         _ => throw new InvalidOperationException($"Undefined {nameof(CrocomireStepCondition)} {condition}."),
     };
@@ -305,9 +305,8 @@ internal sealed class CrocomireFight
                     return CrocomireBodyAnimation.BackOffFromSpikeWall;
                 }
                 int random = _access.ReadCrocomireRandom();
-                int baseOffset = BossRandomRolls.InHalfFrom(random, CrocomireRandomDefinitions.SpikeWallDustLeftFrom)
-                    ? -CrocomireFightDefinitions.SpikeWallDustSide
-                    : CrocomireFightDefinitions.SpikeWallDustSide;
+                int baseOffset = CrocomireFightDefinitions.SpikeWallDustSide.Toward(
+                    BossRandomRolls.InHalfFrom(random, CrocomireRandomDefinitions.SpikeWallDustLeftFrom) ? HorizontalDirection.Left : HorizontalDirection.Right);
                 _access.SpawnCrocomireDust(state, baseOffset + CrocomireRandomDefinitions.SpikeWallDustSpread.Of(random));
                 return null;
             case CrocomireBodyCueKind.SkeletonCollapsed:
@@ -345,9 +344,8 @@ internal sealed class CrocomireFight
                 return null;
 
             case CrocomirePhase.SteppingForward:
-                if (state.DamageReactionPending)
+                if (state.StepBack.Take())
                 {
-                    state.DamageReactionPending = false;
                     if (state.StepCounter != 0)
                     {
                         state.Phase = CrocomirePhase.SteppingBack;
@@ -363,9 +361,8 @@ internal sealed class CrocomireFight
                 return null;
 
             case CrocomirePhase.ProjectileAttack:
-                if (state.DamageReactionPending)
+                if (state.StepBack.Take())
                 {
-                    state.DamageReactionPending = false;
                     state.Phase = CrocomirePhase.SteppingBack;
                     return CrocomireBodyAnimation.StepBack;
                 }
@@ -381,9 +378,8 @@ internal sealed class CrocomireFight
                 return CrocomireBodyAnimation.StepForwardAfterDelay;
 
             case CrocomirePhase.NearSpikeWallCharge:
-                if (state.DamageReactionPending)
+                if (state.StepBack.Take())
                 {
-                    state.DamageReactionPending = false;
                     state.Phase = CrocomirePhase.SteppingBack;
                     return CrocomireBodyAnimation.StepBack;
                 }
@@ -443,9 +439,8 @@ internal sealed class CrocomireFight
         CrocomireEnemyState state,
         CrocomirePhase damagedDestination)
     {
-        if (!state.DamageReactionPending)
+        if (!state.StepBack.Take())
             return null;
-        state.DamageReactionPending = false;
         state.Phase = damagedDestination;
         return CrocomireBodyAnimation.StepBack;
     }
@@ -482,7 +477,7 @@ internal sealed class CrocomireFight
         projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileSegment.Mouth));
         projectile.Velocity = CrocomireFightDefinitions.SpitVelocity;
         projectile.Position = projectile.Position.WithWhole(body.Position.Whole + CrocomireFightDefinitions.SpitOffset);
-        projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);
+        projectile.Position = projectile.Position.WithoutFractions();
         projectile.State = new CrocomireProjectileState(gradient);
     }
 }

@@ -54,7 +54,7 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>The special colouring timer: 180 stored, 60 windup, and 15 during active motion.</summary>
-    public int ShineTimer { get; private set; }
+    public UpdateCountdown ShineTimer { get; private set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// Where the shine's glow stands (#2387): the stored shine's six shades or the shinespark's four, one each colouring
@@ -70,14 +70,14 @@ public sealed class SamusShinesparkState
     /// The updates the windup still waits for a direction: <see cref="ShinesparkDefinitions.WindupFrames"/> when it
     /// starts, launching her upward on the update it runs out.
     /// </summary>
-    public int WindupCountdown { get; private set; }
+    public UpdateCountdown WindupCountdown { get; private set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// The updates the crash still holds its echoes on Samus once its orbit has drawn in:
     /// <see cref="ShinesparkDefinitions.CrashHoldFrames"/> when the hold starts, finishing the crash on the update it runs
     /// out.
     /// </summary>
-    public int CrashHoldCountdown { get; private set; }
+    public UpdateCountdown CrashHoldCountdown { get; private set; } = UpdateCountdown.Ended();
 
     /// <summary>The shinespark's phase: a stored shine, or the windup, flight or crash that moves Samus.</summary>
     public ShinesparkPhase Phase { get; private set; }
@@ -106,7 +106,7 @@ public sealed class SamusShinesparkState
     internal void RelinquishToCrystalFlash()
     {
         Phase = ShinesparkPhase.Inactive;
-        ShineTimer = 0;
+        ShineTimer = UpdateCountdown.Ended();
         ShineGlow = ShineGlowStart;
     }
 
@@ -130,10 +130,10 @@ public sealed class SamusShinesparkState
     public RotationAngle SecondCrashEchoAngle { get; private set; }
 
     /// <summary>
-    /// The steps of a 256-step turn both orbiting copies turn by on each orbiting update: four while Samus faces left and
-    /// minus four otherwise, set at crash entry.
+    /// The turn both orbiting copies take on each orbiting update: toward increasing angles while Samus faces left and
+    /// toward decreasing ones otherwise, set at crash entry.
     /// </summary>
-    private int _crashOrbitTurn;
+    private TurnStep _crashOrbitTurn;
 
     /// <summary>Where the first orbiting copy is shown while the crash runs.</summary>
     public Position16<RoomPixels> FirstOrbitingCopy { get; private set; }
@@ -154,7 +154,7 @@ public sealed class SamusShinesparkState
     /// </summary>
     internal void RelinquishColoursToXray()
     {
-        ShineTimer = 0;
+        ShineTimer = UpdateCountdown.Ended();
         ShineGlow = ShineGlowStart;
         if (Phase == ShinesparkPhase.Stored)
             Phase = ShinesparkPhase.Inactive;
@@ -171,7 +171,7 @@ public sealed class SamusShinesparkState
         SecondReleasedEcho.Forget();
         _orbitTravel.Clear();
         FirstCrashEchoAngle = SecondCrashEchoAngle = RotationAngle.Zero;
-        _crashOrbitTurn = 0;
+        _crashOrbitTurn = TurnStep.None;
         FirstOrbitingCopy = SecondOrbitingCopy = Position16<RoomPixels>.Zero;
         CrashOrbitStage = ShinesparkCrashOrbitStage.Expanding;
         CrashRadius = 0;
@@ -185,7 +185,7 @@ public sealed class SamusShinesparkState
         if (!speedBoostCounter.IsAtFullStage)
             return false;
 
-        ShineTimer = ShinesparkDefinitions.StoredShineFrames;
+        ShineTimer = UpdateCountdown.For(ShinesparkDefinitions.StoredShineFrames);
         _colouring.Take(SamusSpecialColouringKind.SpeedBoosterShine);
         ShineGlow = ShineGlowStart;
         Phase = ShinesparkPhase.Stored;
@@ -236,8 +236,7 @@ public sealed class SamusShinesparkState
 
         // The windup sets these whatever they held. The speed boost stays at its full stage through the windup
         // even though her base speed is zero and her extra speed becomes exactly eight pixels per frame.
-        samus.Kinematics.YDirection = SamusVerticalDirection.Up;
-        samus.Kinematics.YSpeed = default;
+        samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Rising(UnsignedSixteenSixteen.Zero);
         samus.KnockbackDirection = Movement.SamusKnockbackDirection.None;
         samus.KnockbackActive = false;
         samus.HorizontalSpeed.SpeedBoostCounter = SamusSpeedBoostCounter.AtFullStage;
@@ -246,8 +245,8 @@ public sealed class SamusShinesparkState
         samus.BombJumpRequest = SamusBombJumpRequest.None;
 
         _acceleration.StartSpark(ShinesparkDefinitions.WindupInitialVerticalAcceleration);
-        WindupCountdown = ShinesparkDefinitions.WindupFrames;
-        ShineTimer = ShinesparkDefinitions.WindupShadeFrames;
+        WindupCountdown = UpdateCountdown.For(ShinesparkDefinitions.WindupFrames);
+        ShineTimer = UpdateCountdown.For(ShinesparkDefinitions.WindupShadeFrames);
         _colouring.Take(SamusSpecialColouringKind.Shinesparking);
         ShineGlow = ShineGlowStart;
         Phase = ShinesparkPhase.Windup;
@@ -282,7 +281,7 @@ public sealed class SamusShinesparkState
                 "Only the six directional shinespark poses launch a spark.");
 
         samus.InputSnapshot.ShinesparkPoseInputLocked = true;
-        samus.InputSnapshot.AutoJumpInputPending = false;
+        samus.InputSnapshot.AutoJump.Reinstate();
         samus.HorizontalSpeed.ClearSpeedEchoes();
         AudioRequests.QueueSound(RoomSound.Shinespark, SoundRequestPriority.High);
     }
@@ -310,7 +309,7 @@ public sealed class SamusShinesparkState
         if (Phase == ShinesparkPhase.Windup)
         {
             // The windup launches Samus upward on the update its countdown runs out.
-            bool timedOut = --WindupCountdown == 0;
+            bool timedOut = WindupCountdown.StepEnds();
             SamusPoseId? pendingLaunchPose = null;
             if (timedOut)
             {
@@ -392,10 +391,10 @@ public sealed class SamusShinesparkState
             return false;
 
         if (colouring == SamusSpecialColouringKind.SpeedBoosterShine &&
-            ShineTimer == ShinesparkDefinitions.StoredShineFrames - ShinesparkDefinitions.StoredShineSoundDelayFrames)
+            ShineTimer.UpdatesLeft == ShinesparkDefinitions.StoredShineFrames - ShinesparkDefinitions.StoredShineSoundDelayFrames)
             AudioRequests.QueueSound(RoomSound.StoredShinespark, SoundRequestPriority.High);
 
-        bool expired = --ShineTimer <= 0;
+        bool expired = ShineTimer.Step();
         if (expired)
         {
             _colouring.Release(colouring);
@@ -424,8 +423,7 @@ public sealed class SamusShinesparkState
     private void BeginCrash(SamusState samus)
     {
         // The crash entry kills translational velocity before the crash starts.
-        samus.Kinematics.YSpeed = default;
-        samus.Kinematics.YDirection = SamusVerticalDirection.None;
+        samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Still;
         samus.HorizontalSpeed.ExtraRunSpeed = default;
         samus.HorizontalSpeed.SpeedBoostCounter = default;
         // Ending the shinespark keeps this frame's contact damage. The start of the next
@@ -437,7 +435,7 @@ public sealed class SamusShinesparkState
             : ShinesparkEchoDefinitions.CrashOrbitStartFacingRight;
         FirstCrashEchoAngle = orbitStart.First;
         SecondCrashEchoAngle = orbitStart.Second;
-        _crashOrbitTurn = facingLeft ? ShinesparkDefinitions.CrashOrbitTurnSteps : -ShinesparkDefinitions.CrashOrbitTurnSteps;
+        _crashOrbitTurn = new(ShinesparkDefinitions.CrashOrbitTurn, facingLeft ? RotationDirection.Counterclockwise : RotationDirection.Clockwise);
         CrashOrbitStage = ShinesparkCrashOrbitStage.Expanding;
         CrashRadius = 0;
         samus.HorizontalSpeed.ClearSpeedEchoes();
@@ -452,7 +450,7 @@ public sealed class SamusShinesparkState
     private ShinesparkMovementResult StepCrashOrbit(
         SamusState samus)
     {
-        ShineTimer = ShinesparkDefinitions.SparkShadeFrames;
+        ShineTimer = UpdateCountdown.For(ShinesparkDefinitions.SparkShadeFrames);
         switch (CrashOrbitStage)
         {
             case ShinesparkCrashOrbitStage.Expanding:
@@ -467,8 +465,8 @@ public sealed class SamusShinesparkState
             }
 
             case ShinesparkCrashOrbitStage.Orbiting:
-                FirstCrashEchoAngle = FirstCrashEchoAngle.TurnedBySteps(_crashOrbitTurn);
-                SecondCrashEchoAngle = SecondCrashEchoAngle.TurnedBySteps(_crashOrbitTurn);
+                FirstCrashEchoAngle = _crashOrbitTurn.Turn(FirstCrashEchoAngle);
+                SecondCrashEchoAngle = _crashOrbitTurn.Turn(SecondCrashEchoAngle);
                 if (_orbitTravel.Advance())
                     CrashOrbitStage = ShinesparkCrashOrbitStage.Contracting;
                 break;
@@ -478,7 +476,7 @@ public sealed class SamusShinesparkState
                 if (CrashRadius == 0)
                 {
                     Phase = ShinesparkPhase.CrashHold;
-                    CrashHoldCountdown = ShinesparkDefinitions.CrashHoldFrames;
+                    CrashHoldCountdown = UpdateCountdown.For(ShinesparkDefinitions.CrashHoldFrames);
                     CrashOrbitStage = ShinesparkCrashOrbitStage.Expanding;
                     FirstCrashEchoAngle = RotationAngle.Zero;
                     SecondCrashEchoAngle = RotationAngle.Zero;
@@ -502,8 +500,8 @@ public sealed class SamusShinesparkState
     /// <summary>Runs one update of the crash's hold, finishing the crash once the hold runs out.</summary>
     private ShinesparkMovementResult StepCrashHold()
     {
-        ShineTimer = ShinesparkDefinitions.SparkShadeFrames;
-        if (--CrashHoldCountdown == 0)
+        ShineTimer = UpdateCountdown.For(ShinesparkDefinitions.SparkShadeFrames);
+        if (CrashHoldCountdown.StepEnds())
             Phase = ShinesparkPhase.CrashFinish;
         return new ShinesparkMovementResult(
             false);
@@ -525,7 +523,7 @@ public sealed class SamusShinesparkState
                 SamusBeamCombinations.Of(samus.EquippedBeams), samus.Position.Whole))
             _orbitTravel.LeaveEchoHeight(samus.Position.Whole.Y);
 
-        ShineTimer = ShinesparkDefinitions.FinishedShadeFrames;
+        ShineTimer = UpdateCountdown.For(ShinesparkDefinitions.FinishedShadeFrames);
         _acceleration.StopSpark();
         Phase = ShinesparkPhase.Inactive;
         return new ShinesparkMovementResult(
@@ -608,15 +606,14 @@ public sealed class SamusShinesparkState
         return new(x, y);
     }
 
-    /// <summary>The radius scaled by the angle's sine, truncated toward zero.</summary>
+    /// <summary>
+    /// The radius scaled by the angle's sine, rounded toward zero (<see cref="UnitComponent.ReachOf"/>): rounding down a
+    /// negative product would round differently.
+    /// </summary>
     private static int LookupSignedComponent(
         RotationAngle angle,
-        int radius)
-    {
-        // The game multiplies the positive half-wave, discards the fraction, then
-        // restores sign. Shifting a negative product would round differently.
-        return Trigonometry.ScaledBySine(radius, angle.ToTrigonometryAngle());
-    }
+        int radius) =>
+        UnitComponent.SineOf(angle.ToTrigonometryAngle()).ReachOf(radius);
 
     /// <summary>
     /// After horizontal spark movement, a previous X more than
@@ -658,14 +655,14 @@ public sealed class SamusShinesparkState
         SamusState samus,
         ISamusRoomObjects roomObjects)
     {
-        ShineTimer = ShinesparkDefinitions.SparkShadeFrames;
+        ShineTimer = UpdateCountdown.For(ShinesparkDefinitions.SparkShadeFrames);
         samus.HorizontalSpeed.ExtraRunSpeed += samus.Kinematics.YAcceleration;
-        if (samus.HorizontalSpeed.ExtraRunSpeed.Whole >= ShinesparkDefinitions.MostRunSpeed)
+        if (!samus.HorizontalSpeed.ExtraRunSpeed.IsSlowerThan(ShinesparkDefinitions.MostRunSpeed))
         {
-            samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(ShinesparkDefinitions.MostRunSpeed, 0);
+            samus.HorizontalSpeed.ExtraRunSpeed = ShinesparkDefinitions.MostRunSpeed;
         }
 
-        var displacement = SamusHorizontalDisplacement.Toward(SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left), samus, baseSpeed: default);
+        var displacement = SamusHorizontalDisplacement.TowardFacing(samus, baseSpeed: default);
         return SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = displacement.Displacement, CanBreakBombBlocks = true, CollisionMovementDirection = displacement.CollisionDirection });
     }
 
@@ -676,28 +673,24 @@ public sealed class SamusShinesparkState
         int frameCounter,
         ISamusRoomObjects roomObjects)
     {
-        ShineTimer = ShinesparkDefinitions.SparkShadeFrames;
+        ShineTimer = UpdateCountdown.For(ShinesparkDefinitions.SparkShadeFrames);
         _acceleration.Accelerate(samus.Kinematics.YAcceleration.AsDisplacement());
-        samus.Kinematics.YSpeed += _acceleration.SparkAcceleration;
+        samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(
+            samus.Kinematics.VerticalVelocity.Speed + _acceleration.SparkAcceleration);
 
-        // The clamp operates on a temporary displacement, not stored velocity.
-        // Keep accumulating the speed even after movement reaches its cap.
-        UnsignedSixteenSixteen displacementSpeed = samus.Kinematics.YSpeed.Whole >= ShinesparkDefinitions.MostRiseStep
-            ? samus.Kinematics.YSpeed.WithWhole(ShinesparkDefinitions.MostRiseStep)
-            : samus.Kinematics.YSpeed;
+        // The clamp operates on a temporary rise, not the stored velocity, which keeps gathering speed after the rise
+        // reaches its cap: the spark rises by its speed, its whole pixels capped, whichever way the velocity heads.
+        SamusVerticalVelocity cappedRise = SamusVerticalVelocity.Rising(
+            samus.Kinematics.VerticalVelocity.Speed.WithWholePixelsAtMost(ShinesparkDefinitions.MostRiseStep));
         SignedSixteenSixteen upwardDisplacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
             samus.Kinematics,
-            -displacementSpeed.AsDisplacement());
+            cappedRise.Displacement);
 
         // A rise meets the room's blocks over at most 15 whole pixels, keeping its fraction. A move that outside
         // forces reverse downward is not capped. The spark's speed never passes fourteen pixels, so every rise is
         // far short of a distance the cap could misjudge.
-        SignedSixteenSixteen collisionMagnitude = -upwardDisplacement;
-        if (collisionMagnitude.WholePixels >= ShinesparkDefinitions.MostRiseCollisionStep)
-        {
-            collisionMagnitude = SignedSixteenSixteen.FromParts(ShinesparkDefinitions.MostRiseCollisionStep, collisionMagnitude.Fraction);
-            upwardDisplacement = -collisionMagnitude;
-        }
+        SignedSixteenSixteen collisionMagnitude = (-upwardDisplacement).WithWholePixelsAtMost(ShinesparkDefinitions.MostRiseCollisionStep);
+        upwardDisplacement = -collisionMagnitude;
         // A spark striking a solid enemy collides without moving up the distance to it, unlike an ordinary upward move,
         // which reaches the enemy's edge; where the spark crashes and recovers depends on it.
         SolidEnemyCollisionResult enemy = SamusSolidEnemyCollision.Probe(

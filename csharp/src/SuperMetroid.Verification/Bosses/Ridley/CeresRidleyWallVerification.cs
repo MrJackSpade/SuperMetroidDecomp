@@ -39,14 +39,14 @@ internal static class CeresRidleyWallVerification
         AssertEqual(0, runtime.Enemies.Earthquake.LastRoomShake.Foreground.X, "native impact does not shift BG1 X");
         AssertEqual(0, runtime.Enemies.Earthquake.LastRoomShake.Foreground.Y, "native impact does not shift BG1 Y");
         AssertEqual(3, runtime.Enemies.Earthquake.LastRoomShake.Background.X, "native impact shifts BG2 three pixels on first frame");
-        AssertTrue(body.ShakeTimer != 0, "native impact also shakes selected enemies");
+        AssertTrue(body.Shake.IsRunning, "native impact also shakes selected enemies");
         AssertEqual(runtime.Enemies.Earthquake.LastRoomShake, runtime.Display.DisplayedGameplayScrolls.RoomShake,
             "accepted display snapshot carries the wall-impact displacement");
         // Stop further attack acceleration so this checks one impact's lifetime, not
         // repeated wall contacts refreshing its timer: the retreat's delay holds him still while it counts down.
         ridley.Phase = CeresRidleyPhase.RetreatDelay;
         ridley.PhaseTimer.LastFor(65);
-        ridley.Flight.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
+        ridley.Flight.Velocity = new PixelVelocity<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
         for (int remaining = 10; remaining >= 0; remaining--)
         {
             runtime.StepFrame(0);

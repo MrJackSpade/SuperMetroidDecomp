@@ -39,25 +39,25 @@ internal static class MetroidDeathDropsVerification
         // Metroid showed when it was shot ($F137).
         metroid.SpritemapPointer = 0xf137;
         // A frozen Metroid takes the frozen branch of its shot AI; one missile finishes it.
-        metroid.FrozenTimer = 100;
+        metroid.Freeze.Restart(100);
         metroid.Health = 1;
         runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(new((ushort)(metroid.Position.X.Whole - 0x80), (ushort)(metroid.Position.Y.Whole - 0x70)));
 
         var shot = runtime.Projectiles.Shots[0];
-        shot.Type = SamusProjectileType.Of(SamusProjectileFamily.Missile); shot.Damage = 100; shot.Direction = SamusProjectileDirection.Right; shot.IsSpent = alreadyMarked;
+        shot.Type = SamusProjectileType.Of(SamusProjectileFamily.Missile); shot.Damage = 100; shot.Direction = SamusProjectileDirection.Right; if (alreadyMarked) shot.Spend();
         shot.Position = shot.Position.WithWhole(metroid.Position.Whole);
         shot.Radius = new(4, 4);
         shot.Animation = ProjectileFixturePlaybacks.Active();
         runtime.Enemies.ResolveShotsOnInteractiveEnemies(runtime.Projectiles, runtime.BombProjectiles, runtime.Room.LoadedRoom.Area, samus);
         AssertEqual(0, metroid.Health, $"the missile kills the frozen Metroid (already marked: {alreadyMarked})");
 
-        var projectiles = runtime.Enemies.Projectiles.EnemyProjectiles;
-        int explosion = projectiles.Count - 1;
-        while (explosion >= 0 && projectiles[explosion].Kind != RoomEnemyProjectileKind.EnemyDeathExplosion)
+        var projectiles = runtime.Enemies.Projectiles;
+        int explosion = SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine.PlaceCount - 1;
+        while (explosion >= 0 && projectiles.LatestInPlace(explosion)?.Kind != RoomEnemyProjectileKind.EnemyDeathExplosion)
             explosion--;
         AssertTrue(explosion >= 0, "EnemyDeath spawns the death explosion");
-        for (int slot = explosion + 1; slot < projectiles.Count; slot++)
-            AssertTrue(projectiles[slot].Kind != RoomEnemyProjectileKind.EnemyDeathPickup,
+        for (int slot = explosion + 1; slot < SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine.PlaceCount; slot++)
+            AssertTrue(projectiles.LatestInPlace(slot)?.Kind != RoomEnemyProjectileKind.EnemyDeathPickup,
                 $"no drop sits above the explosion (slot {slot})");
         AssertEqual(5, runtime.Enemies.ActiveEnemyDropPickups, "the Metroid requests its five special drops");
     }

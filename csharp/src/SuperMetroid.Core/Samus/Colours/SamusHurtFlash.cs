@@ -85,15 +85,15 @@ public static class SamusHurtFlash
     }
 
     /// <summary>
-    /// Consumes the pending charging-sound resume in the same post-draw position as the game's post-draw check.
+    /// Takes the charging sound's armed resumption in the same post-draw position as the game's post-draw check.
     /// </summary>
-    /// <param name="samus">Owner of the resume-charging flag, which is cleared whenever set regardless of the held buttons.</param>
+    /// <param name="samus">Owner of the resumption, which the check takes whenever armed, regardless of the held buttons.</param>
     /// <param name="controllerInput">Current held actions; Shoot must still be held to queue the resume-charging sound.</param>
     /// <returns>Whether a pending resume made a resume-charging sound request; this is not confirmation of playback.</returns>
-    public static bool ConsumeResumeChargingBeamSound(SamusState samus, GameplayAction controllerInput)
+    public static bool ResumeChargingBeamSound(SamusState samus, GameplayAction controllerInput)
     {
         Ensure.NotNull(samus);
-        if (!samus.ResumeChargingBeamSoundPending)
+        if (!samus.ChargingSound.Take())
             return false;
 
         bool queued = (controllerInput & GameplayAction.Shoot) != GameplayAction.None;
@@ -102,7 +102,6 @@ public static class SamusHurtFlash
             samus.AudioRequests.QueueSound(SamusSound.ResumeChargingBeam, priority: SoundRequestPriority.High);
         }
 
-        samus.ResumeChargingBeamSoundPending = false;
         return queued;
     }
 
@@ -125,7 +124,7 @@ public static class SamusHurtFlash
             if (samus.BeamCharge.HasCharged(BeamChargeDefinitions.ChargeSoundStartCounter) &&
                 (controllerInput & GameplayAction.Shoot) != GameplayAction.None)
             {
-                samus.ResumeChargingBeamSoundPending = true;
+                samus.ChargingSound.Arm();
             }
 
             return;

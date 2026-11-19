@@ -7,8 +7,6 @@ namespace SuperMetroid.Core.Spatial;
 /// </summary>
 public static class Trigonometry
 {
-    /// <summary>The signed sine's peak: its samples count 256ths of the whole.</summary>
-    private const int SignedSinePeak = 256;
 
     /// <summary>The fine sine's steps in each step of its coarse reading (<see cref="CoarseSizeOfFineSine"/>).</summary>
     private const int FineStepsPerCoarseStep = 256;
@@ -24,17 +22,8 @@ public static class Trigonometry
     /// </remarks>
     public static int FineSignedSine(TrigonometryAngle angle)
     {
-        int magnitude = UnsignedHalfWave(angle.StepsIntoHalfTurn) >> 1;
-        return angle.IsInSecondHalf ? -magnitude : magnitude;
+        return angle.WithSineSign(UnsignedHalfWave(angle.StepsIntoHalfTurn) / 2);
     }
-
-    /// <summary>
-    /// The sine or cosine product: <paramref name="speed"/>, taken as a value 0 through 65535 as the game's multiply takes it, scaled by
-    /// <paramref name="angle"/>'s sine, a signed number of 256ths (<see cref="ScaledBySine"/>), the result wrapping as a velocity does.
-    /// A cosine is this product at the angle a quarter-turn on.
-    /// </summary>
-    public static SignedEightEight MultiplySignedSine(SignedEightEight speed, TrigonometryAngle angle) =>
-        SignedEightEight.Wrapped(ScaledBySine(speed.UnsignedTwoHundredFiftySixthsOfPixel, angle));
 
     /// <summary>
     /// The velocity <paramref name="angle"/>'s sine gives at <paramref name="peakPixels"/> pixels an update (#2482): the signed
@@ -53,17 +42,6 @@ public static class Trigonometry
     public static SignedSixteenSixteen SineDisplacement(TrigonometryAngle angle, int peakPixels) =>
         SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(peakPixels * SignedSine(angle));
 
-    /// <summary>
-    /// <paramref name="magnitude"/>, 0 through 65535 in any unit, times <paramref name="angle"/>'s sine, a signed number of 256ths: the
-    /// product of the magnitude and the sine's size with its 256ths dropped, then the sine's sign restored, so the result
-    /// rounds toward zero in the magnitude's own unit.
-    /// </summary>
-    public static int ScaledBySine(int magnitude, TrigonometryAngle angle)
-    {
-        int sample = SignedSine(angle);
-        int product = Ensure.BetweenInclusive(0, ushort.MaxValue, magnitude) * Math.Abs(sample) / SignedSinePeak;
-        return sample < 0 ? -product : product;
-    }
 
     /// <summary>
     /// The size of the fine sine (<see cref="FineSignedSine"/>) at <paramref name="angle"/> read coarsely, 0 through 127:
@@ -84,8 +62,7 @@ public static class Trigonometry
     public static int SignedSine(TrigonometryAngle angle)
     {
         int steps = angle.StepsIntoHalfTurn;
-        int magnitude = steps == 64 ? 256 : CoarseHalfWave(steps);
-        return angle.IsInSecondHalf ? -magnitude : magnitude;
+        return angle.WithSineSign(steps == 64 ? 256 : CoarseHalfWave(steps));
     }
 
     /// <summary>The game's coarse half-wave, the sine in 256ths of its peak over the first half turn:
@@ -115,6 +92,14 @@ public static class Trigonometry
         if ((uint)step >= 128) throw new ArgumentOutOfRangeException(nameof(step));
         return (int)(65535 * UnitHalfWave(step));
     }
+
+    /// <summary>
+    /// The game's unsigned half-wave at <paramref name="step"/> as a share of one whole (#2555): from none up to just short
+    /// of the whole, every fraction finer than the half-wave's 65536th of the whole dropped, as the game's multiplications
+    /// by it take it (<see cref="UnsignedHalfWave"/>).
+    /// </summary>
+    /// <param name="step">The step into the half turn, 0 through 127.</param>
+    public static UnsignedSixteenSixteen HalfWaveShare(int step) => UnsignedSixteenSixteen.FromRaw((uint)UnsignedHalfWave(step));
 
     /// <summary>Reflects into the first quadrant and evaluates sine with exact endpoints and twelve decimal Taylor terms.</summary>
     /// <remarks>The omitted term is below 5.2e-21, and a margin of 1e-19 covers rounding and the 28-place pi constant, so the integer outputs need no libm or correction tables.</remarks>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies;
@@ -33,7 +34,12 @@ internal static class DraygonStateQuantitiesVerification
     private static void VerifyAttachedGoopCountdown()
     {
         (RoomEnemySystem enemies, _) = NewDraygon();
-        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { SlowdownLevel = 1 };
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
+        {
+            SlowdownLevel = 1,
+            // Samus stands inside the arena, where the goop's stack above her stays in the room.
+            Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)),
+        };
         EnemyProjectile goop = AttachedGoop(enemies);
         var powerBomb = InstalledFixtures.CreateBombSystem().PowerBombExplosion;
         AssertEqual(256, DraygonArenaDefinitions.GoopAttachedLifetime, "the goop stays the 256 updates the game counted");
@@ -50,7 +56,7 @@ internal static class DraygonStateQuantitiesVerification
     /// <summary>Puts a blob of Draygon goop that has just stuck to Samus in the last projectile slot.</summary>
     private static EnemyProjectile AttachedGoop(RoomEnemySystem enemies)
     {
-        EnemyProjectile goop = enemies.Projectiles.EnemyProjectiles[^1];
+        EnemyProjectile goop = enemies.Projectiles.ProjectileInPlace(17);
         goop.Kind = RoomEnemyProjectileKind.DraygonGoop;
         goop.StartMotion(DraygonShotMotion.GoopStuckToSamus);
         goop.State = new DraygonGoopAttachedState(stackPosition: 1);
@@ -66,11 +72,11 @@ internal static class DraygonStateQuantitiesVerification
         (_, DraygonEnemyState state) = NewDraygon();
         state.SwoopVelocity = default;
         state.GoopYOscillationAngle = RotationAngle.FromSteps(byte.MaxValue);
-        DraygonGoop.MoveDraygonAlongGoopPath(state, HorizontalDirection.Right);
+        DraygonGoop.MoveDraygonAlongGoopPath(state);
         AssertEqual(unchecked((ushort)(384 + EnemyMath.CircleCosinePixels(new TrigonometryAngle(byte.MaxValue), 32))), state.Body.Position.Y.Whole,
             "the bob reads the phase before advancing it");
         AssertEqual(RotationAngle.Zero, state.GoopYOscillationAngle, "the phase wraps from the last table unit to zero");
-        DraygonGoop.MoveDraygonAlongGoopPath(state, HorizontalDirection.Right);
+        DraygonGoop.MoveDraygonAlongGoopPath(state);
         AssertEqual(unchecked((ushort)(384 + EnemyMath.CircleCosinePixels(new TrigonometryAngle(0), 32))), state.Body.Position.Y.Whole,
             "the next bob reads the wrapped phase");
         AssertEqual(1, (int)state.GoopYOscillationAngle.ToTrigonometryAngle().RawValue, "the wrapped phase advances by one unit");
@@ -183,8 +189,8 @@ internal static class DraygonStateQuantitiesVerification
         AssertEqual(state.Body.Position.Y.Whole, path.HeightAt(expected.Count), "the path ends at the body's height");
         AssertThrows<ArgumentOutOfRangeException>(() => path.HeightAt(expected.Count + 1), "the path has no height past its starting height");
         uint velocity = SixteenSixteenWords.FromWhole((uint)Math.Abs(CoordinateAxis.AsSigned(unchecked(resetX - 200)))) / (uint)expected.Count;
-        AssertEqual(velocity, state.SwoopVelocity.RawValue, "swoop horizontal speed");
-        AssertEqual(expected.Count, state.SwoopEntry, "the descent starts at the swoop's starting height");
+        AssertEqual((int)velocity, state.SwoopVelocity.RawValue, "the rightward swoop's horizontal velocity");
+        AssertEqual(expected.Count, state.SwoopHalf.UpdatesLeft, "the descent starts at the swoop's starting height");
     }
 
     /// <summary>Samus at the point the swoop paths aim at.</summary>

@@ -97,7 +97,7 @@ internal sealed class BeamFiring
             return new(sound, sound is null ? null : SoundRequestPriority.Essential);
         }
 
-        if (samus.PendingTransitionShot is not null)
+        if (samus.TransitionShot.Handed is not null)
         {
             // Charging forces release before testing held Shoot. This is why a
             // charged beam can leave the OLD gun direction while a normal-jump or moonwalk
@@ -123,7 +123,7 @@ internal sealed class BeamFiring
             // than suppressing the familiar initial power shot.
             if (!_charge.HasCharged(BeamChargeDefinitions.SpecialAttackCounter))
             {
-                _charge.FlareCounter++;
+                _charge.CountChargeUpdate();
                 if (_charge.FlareCounter == 1)
                 {
                     _charge.ClearFlare();
@@ -151,7 +151,7 @@ internal sealed class BeamFiring
                 // failed family selection leaves charge intact, including its ammo debit.
                 _charge.ClearCount();
                 _charge.ClearFlare();
-                samus.HorizontalSpeed.RequestSuitShadeRestore();
+                samus.HorizontalSpeed.ShowSuitShadeAtColourStep();
                 return new(comboSound, SoundRequestPriority.Normal);
             }
             return new(null, null);
@@ -194,7 +194,7 @@ internal sealed class BeamFiring
 
         if (!_charge.PreviousCharge.HasCharged(BeamChargeDefinitions.ChargeSoundStartCounter))
             return new(null, null);
-        samus.ResumeChargingBeamSoundPending = false;
+        samus.ChargingSound.Cancel();
         return new(SamusSound.Silence, Priority: SoundRequestPriority.Essential);
     }
 
@@ -228,7 +228,7 @@ internal sealed class BeamFiring
         // the fifth place holds. With every place held the shot takes the last place over the shot there (#2468).
         int place = _pool.PlaceForBeam();
 
-        SamusProjectileDirection? direction = samus.PendingTransitionShot is { } transitionShot
+        SamusProjectileDirection? direction = samus.TransitionShot.Handed is { } transitionShot
             ? transitionShot.Aim
             : SamusPoseMetadata.ReadAimDirection(samus);
 
@@ -239,19 +239,19 @@ internal sealed class BeamFiring
             return null;
         }
 
-        // The shot starts from the horizontal fraction of a pixel its place hands on (LeftMuzzleSubpixelCarry): the left
+        // The shot starts from the horizontal fraction of a pixel its place hands on (LeftBeamStartFromLastShot): the left
         // muzzle check's -1 speed can carry it back into the same whole pixel before the velocity setup clears it. Over a
         // held place it also starts from the Power Bomb fuse the shot there leaves (BeamFiredOverLastShot).
         SamusProjectile projectile = _pool.OccupyWithBeam(place);
         projectile.Direction = aim;
         InitializePosition(samus, projectile);
-        projectile.TrailUpdatesLeft = ProjectileTimingDefinitions.TrailInterval;
+        projectile.Trail = UpdateCountdown.Lasting(ProjectileTimingDefinitions.TrailInterval);
         projectile.Type = SamusProjectileType.Beam(SamusBeamCombinations.Of(samus.EquippedBeams), charged);
         projectile.PicturedBeams = projectile.Type.BeamCombination;
-        InteractionImmunityUpdatesLeft = ProjectileTimingDefinitions.BeamInteractionImmunity;
+        InteractionImmunity = UpdateCountdown.Lasting(ProjectileTimingDefinitions.BeamInteractionImmunity);
         // The shot cancels a pending resume of the charging sound where it requests its own sound, before the projectile
         // is set up, so the next post-draw sound pass does not resume the charge after it (#1689).
-        samus.ResumeChargingBeamSoundPending = false;
+        samus.ChargingSound.Cancel();
 
         // The combination selects one projectile: Spazer's three streaks are one picture of one projectile, so no
         // further projectiles are created here.
@@ -332,15 +332,15 @@ internal sealed class BeamFiring
             return null;
         }
 
-        // As for ordinary beams, the shot starts from the fraction of a pixel its place hands on (LeftMuzzleSubpixelCarry)
+        // As for ordinary beams, the shot starts from the fraction of a pixel its place hands on (LeftBeamStartFromLastShot)
         // and the Power Bomb fuse a shot there leaves (BeamFiredOverLastShot).
         SamusProjectile projectile = _pool.OccupyWithBeam(place);
         projectile.Direction = aim;
 
         InitializePosition(samus, projectile);
-        InteractionImmunityUpdatesLeft = ProjectileTimingDefinitions.BeamInteractionImmunity;
+        InteractionImmunity = UpdateCountdown.Lasting(ProjectileTimingDefinitions.BeamInteractionImmunity);
         // As for ordinary beams, the shot cancels a pending resume of the charging sound where it requests its own (#1689).
-        samus.ResumeChargingBeamSoundPending = false;
+        samus.ChargingSound.Cancel();
 
         // The Hyper Beam is a charged Plasma beam for its projectile data and animation even though
         // acquisition equips Wave and Plasma, whose pictures its shots show; its damage is its own.
@@ -416,14 +416,14 @@ internal sealed class BeamFiring
 
         InitializePosition(samus, projectile);
         _pool.ShotCount.CountShot();
-        InteractionImmunityUpdatesLeft = ProjectileTimingDefinitions.MissileInteractionImmunity;
+        InteractionImmunity = UpdateCountdown.Lasting(ProjectileTimingDefinitions.MissileInteractionImmunity);
         // A count Crystal Flash drained below zero still fires, each shot taking it further below; only the 32768th shot
         // from below zero wraps it to the largest count (CountsRunBelowZero), a wrap play can reach.
         if (isSuperMissile)
             samus.SuperMissiles = CountsRunBelowZero.DecrementWrapping(samus.SuperMissiles);
         else
             samus.Missiles = CountsRunBelowZero.DecrementWrapping(samus.Missiles);
-        projectile.TrailUpdatesLeft = ProjectileTimingDefinitions.TrailInterval;
+        projectile.Trail = UpdateCountdown.Lasting(ProjectileTimingDefinitions.TrailInterval);
         projectile.Type = SamusProjectileType.Of(isSuperMissile ? SamusProjectileFamily.SuperMissile : SamusProjectileFamily.Missile);
         projectile.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
 
@@ -497,8 +497,7 @@ internal sealed class BeamFiring
         bool diagonal = SamusProjectileDirectionDefinitions.Axes(projectile.Direction).IsDiagonal;
         SamusBeamCombination beams = projectile.Type.BeamCombination;
         SignedEightEight authoredSpeed = diagonal ? SamusProjectileMotionDefinitions.DiagonalSpeed : SamusProjectileMotionDefinitions.CardinalSpeed;
-        // An unauthored combination's speed is the one its unauthored firing gives, which the launch adds as a wrapping velocity.
-        SignedEightEight speed = beams.CanBeEquipped ? authoredSpeed : SignedEightEight.Wrapped(unauthoredFiring.Speed(beams, diagonal));
+        SignedEightEight speed = beams.CanBeEquipped ? authoredSpeed : unauthoredFiring.Speed(beams, diagonal);
 
         InitializeDirectionalVelocity(inheritance, projectile, speed);
     }
@@ -509,7 +508,7 @@ internal sealed class BeamFiring
         SamusProjectile projectile,
         SignedEightEight baseSpeed)
     {
-        projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);
+        projectile.Position = projectile.Position.WithoutFractions();
         projectile.Velocity = LaunchVelocity(inheritance, projectile.Direction, baseSpeed);
     }
 
@@ -518,7 +517,7 @@ internal sealed class BeamFiring
     /// pixels per update: the base speed along the direction plus the motion it inherits from Samus. Each axis wraps as
     /// a velocity does, so an unauthored speed that passes the end of the range continues from the other end.
     /// </summary>
-    internal static EightEightVector<RoomPixels> LaunchVelocity(
+    internal static PixelVelocity<RoomPixels> LaunchVelocity(
         ProjectileLaunchInheritance inheritance,
         SamusProjectileDirection direction,
         SignedEightEight baseSpeed)
@@ -548,16 +547,11 @@ internal sealed class BeamFiring
     /// firing a beam or a missile sets it, and it is counted down to none once each gameplay update, after Samus and the
     /// enemies have moved.
     /// </summary>
-    [IntegerQuantity("updates Samus's projectiles leave her alone")]
-    public int InteractionImmunityUpdatesLeft { get; internal set => field = Ensure.AtLeastZero(value); }
+    public UpdateCountdown InteractionImmunity { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>Whether a shot just fired keeps Samus from interacting with her own projectiles.</summary>
-    public bool SuppressesInteraction => InteractionImmunityUpdatesLeft > 0;
+    public bool SuppressesInteraction => InteractionImmunity.IsRunning;
 
-    /// <summary>Counts one update of the interaction immunity down; an immunity that has run out stays at none.</summary>
-    public void CountInteractionImmunityDown()
-    {
-        if (SuppressesInteraction)
-            InteractionImmunityUpdatesLeft--;
-    }
+    /// <summary>Counts one update of the interaction immunity; an immunity that has run out stays over.</summary>
+    public void CountInteractionImmunityDown() => InteractionImmunity.Step();
 }

@@ -27,5 +27,6 @@ public static class EnemyProjectileSpritemapDefinitions
         };
 
     /// <summary>Every composition the document's frames hold: the projectile compositions, then the Ceres elevator arrival's.</summary>
-    internal static IReadOnlyList<string> DocumentFrameNames => [.. FrameNames, .. ElevatorArrivalFrameNames.Values];
+    internal static IReadOnlyList<string> DocumentFrameNames =>
+        [.. FrameNames, .. CeresElevatorArrivalPoseKeys.ListedOrder.Select(pose => ElevatorArrivalFrameNames[pose])];
 }

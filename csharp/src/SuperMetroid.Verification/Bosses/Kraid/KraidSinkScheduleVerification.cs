@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
@@ -72,21 +73,20 @@ internal static class KraidSinkScheduleVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().ReadRandom = () => 0;
         Action<RoomEnemyPlace> step = enemies.KraidBehavior.Death.TakeKraidSinkStep;
-        var requests = enemies.BossFrameResults.KraidObjects;
         foreach (var entry in callbacks.DistinctBy(entry => entry.Value))
         {
             foreach (var occupied in enemies.Projectiles.EnemyProjectiles) occupied.Delete();
-            requests.Clear();
+            enemies.PassEvents.Begin();
             enemies.Places.InUpdateOrder[0].Position = enemies.Places.InUpdateOrder[0].Position.WithWholeY(entry.Key);
             step(enemies.Places.InUpdateOrder[0]);
             int code = 0xa70000 | entry.Value;
             bool empty = KraidSinkRockPlacementRomByte(rom, code) == 0x60;
-            AssertEqual(empty ? 0 : 1, requests.Count, "Sinking callback mutation count");
+            AssertEqual(empty ? 0 : 1, enemies.LastEnemyFrame.All<KraidRoomChange>().Count(), "Sinking callback mutation count");
             AssertEqual(empty ? 0 : 1, enemies.Projectiles.EnemyProjectiles.Count(p => p.Kind != RoomEnemyProjectileKind.None),
                 "Sinking callback rock count");
             if (empty) continue;
             ushort expectedX = LittleEndianBytes.Word(KraidSinkRockPlacementRomByte(rom, code + 1), KraidSinkRockPlacementRomByte(rom, code + 2));
-            AssertEqual(expectedX, enemies.Projectiles.EnemyProjectiles[^1].Position.X.Whole, "Production sinking rock matches native immediate");
+            AssertEqual(expectedX, enemies.Projectiles.ProjectileInPlace(17).Position.X.Whole, "Production sinking rock matches native immediate");
         }
     }
 
@@ -117,22 +117,21 @@ internal static class KraidSinkScheduleVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().ReadRandom = () => 0;
         Action<RoomEnemyPlace> step = enemies.KraidBehavior.Death.TakeKraidSinkStep;
-        var requests = enemies.BossFrameResults.KraidObjects;
         var body = enemies.Places.InUpdateOrder[0];
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             foreach (var occupied in enemies.Projectiles.EnemyProjectiles) occupied.Delete();
-            requests.Clear();
+            enemies.PassEvents.Begin();
             body.Position = body.Position.WithWholeY((ushort)raw);
             ushort? expected = callbacks.TryGetValue((ushort)raw, out ushort callback) ? callback : null;
             step(body);
             bool crumble = expected.HasValue && KraidNativeListAddresses.NativeSinkCallbacks[callback] is not null;
-            AssertEqual(crumble ? 1 : 0, requests.Count, "Only native crumble callbacks mutate platforms");
+            AssertEqual(crumble ? 1 : 0, enemies.LastEnemyFrame.All<KraidRoomChange>().Count(), "Only native crumble callbacks mutate platforms");
             AssertEqual(crumble ? 1 : 0, enemies.Projectiles.EnemyProjectiles.Count(p => p.Kind != RoomEnemyProjectileKind.None), "Exact native rock count");
             if (!crumble) continue;
             int code = 0xa70000 | callback;
-            AssertEqual(new Position16<RoomBlocks>(KraidSinkScheduleRomByte(rom, code + 17), KraidSinkScheduleRomByte(rom, code + 18)), requests[0].Block, "Native callback inline PLM block");
-            AssertEqual(KraidNativeWords.RoomMutations.Decode(Word(code + 19), "Kraid room-mutation PLM header"), requests[0].RoomObject, "Native callback inline PLM identity");
+            AssertEqual(new Position16<RoomBlocks>(KraidSinkScheduleRomByte(rom, code + 17), KraidSinkScheduleRomByte(rom, code + 18)), enemies.LastEnemyFrame.All<KraidRoomChange>().First().Request.Block, "Native callback inline PLM block");
+            AssertEqual(KraidNativeWords.RoomMutations.Decode(Word(code + 19), "Kraid room-mutation PLM header"), enemies.LastEnemyFrame.All<KraidRoomChange>().First().Request.RoomObject, "Native callback inline PLM identity");
         }
         Console.WriteLine("Kraid sink schedule: all 65536 Y coordinates, native callbacks, emitted rocks and inline PLM arguments match with schedule reads forbidden.");
     }

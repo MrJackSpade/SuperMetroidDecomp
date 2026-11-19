@@ -59,9 +59,9 @@ public sealed class SamusGrappleState
     /// </summary>
     public SamusProjectileDirection FireDirection { get; set; }
     /// <summary>The pose-change auto-fire timer; permits early pose-directed refiring.</summary>
-    public int PoseChangeAutoFireTimer { get; set; }
+    public UpdateCountdown PoseChangeAutoFireTimer { get; set; } = UpdateCountdown.Ended();
     /// <summary>The velocity the beam's end extends at, either way on each axis.</summary>
-    public EightEightVector<RoomPixels> ExtensionVelocity { get; set; }
+    public PixelVelocity<RoomPixels> ExtensionVelocity { get; set; }
 
     /// <summary>
     /// The substep the extending beam's end moved by, on both axes. Each firing update rebuilds it from the extension
@@ -123,7 +123,7 @@ public sealed class SamusGrappleState
             ? value
             : throw new ArgumentOutOfRangeException(nameof(value), value, $"The swing's angular terms turn no faster than {most} either way.");
     /// <summary>The countdown suppressing repeated swing-collision bounces.</summary>
-    public int CollisionBounceTimer { get; set; }
+    public UpdateCountdown CollisionBounceTimer { get; set; } = UpdateCountdown.Ended();
     /// <summary>Whether the grapple movement uses submerged physics.</summary>
     public bool Submerged { get; set; }
 
@@ -144,27 +144,36 @@ public sealed class SamusGrappleState
     public GrappleAnchorKind? ValidatedAnchor { get; set; }
 
     /// <summary>
-    /// Whether the swing collided while the rope was at its shortest: such a collision has the next update look for the
-    /// locked or wall-grab angle Samus snaps to, and successful swing motion clears it.
+    /// Whether the swing rests against a collision it met while the rope was at its shortest, close to her hand: until the
+    /// swing next turns without colliding, each connected update compares its angle with the locked and wall-grab angles
+    /// Samus snaps to. A swing that does not turn stays at rest; the grapple's start, end and connection free it.
     /// </summary>
-    public bool CloseCollision { get; set; }
+    public bool RestsCloseToHand { get; private set; }
 
     /// <summary>
-    /// Set by the swing while it is fast,
-    /// it switches the camera's scrolling to its slow three-pixel branch.
+    /// How the camera follows the swing: slowly, three pixels an update, while the swing is fast, and ordinarily otherwise.
+    /// The swing's positioning sets it each update; the grapple's firing, connection, release and end return it to ordinary.
     /// </summary>
-    public bool SlowScrolling { get; set; }
+    public GrappleCameraScroll CameraScroll { get; private set; }
+
+    /// <summary>The swing stops against a collision met at its shortest rope, close to her hand.</summary>
+    internal void RestCloseToHand() => RestsCloseToHand = true;
+
+    /// <summary>The swing turns without colliding, or the grapple starts, connects or ends: it no longer rests.</summary>
+    internal void SwingFreely() => RestsCloseToHand = false;
+
+    /// <summary>The swing's positioning makes the camera follow it slowly while <paramref name="fast"/>, ordinarily otherwise.</summary>
+    internal void FollowSwing(bool fast) => CameraScroll = fast ? GrappleCameraScroll.Slow : GrappleCameraScroll.Ordinary;
+
+    /// <summary>The grapple's firing, connection, release or end returns the camera to its ordinary scroll.</summary>
+    internal void ScrollCameraOrdinarily() => CameraScroll = GrappleCameraScroll.Ordinary;
 
     /// <summary>
-    /// The wall-jump checks the wall-grab release window has left: wall-grab release opens it at
-    /// <see cref="GrappleBeamDefinitions.WallGrab.WallJumpWindowFrames"/>, each update of the window spends one check, and
-    /// the update that finds none left drops Samus.
+    /// The wall-grab release window's wall-jump checks: wall-grab release opens it for
+    /// <see cref="GrappleBeamDefinitions.WallGrab.WallJumpWindowFrames"/>, each update of the window counts one check, and
+    /// the update that finds it over drops Samus.
     /// </summary>
-    public int WallJumpTimer
-    {
-        get;
-        set => field = Ensure.AtLeastZero(value);
-    }
+    public UpdateCountdown WallJumpTimer { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// Distinguishes a cancel reached from a locked grappling pose from ordinary firing

@@ -34,7 +34,7 @@ internal static class YardSurfaceLossVerification
                 Movement = YardMovement.Crawling,
                 Crawl = YardDirection.UpsideUpMovingRight,
                 Behavior = YardBehavior.NormalCrawling,
-                CrawlingVelocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(256, 256),
+                CrawlingVelocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256)),
                 ConsecutiveTurnCounter = counted,
             };
 

@@ -21,7 +21,6 @@ internal sealed record BossAndIntroOverreadDocument(
     internal sealed record ContourRecord(int LeftOffset, int Bound);
 
     /// <summary>One update's fall.</summary>
-    /// <param name="WholePixels">The signed whole pixels.</param>
-    /// <param name="Fraction">The unsigned fraction of a pixel, in 65536ths.</param>
-    internal sealed record FallStep(int WholePixels, int Fraction);
+    /// <param name="Pixels">How far the fragment falls, in pixels, its fraction of a pixel kept exactly; negative rises.</param>
+    internal sealed record FallStep(decimal Pixels);
 }

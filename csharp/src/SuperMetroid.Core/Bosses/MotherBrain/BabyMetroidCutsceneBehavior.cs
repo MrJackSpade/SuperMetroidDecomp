@@ -94,7 +94,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         place.Contact = place.Contact.With(EnemyContact.BlocksPlasmaBeam);
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
 
-        CopyBabyMetroidActorToPhysicalPlace(place, baby, state.Colours);
+        ShowBabyMetroidShading(place, baby, state.Colours);
         // The Baby's opening pulse, which it is made playing, plays its first step on the next update.
         place.AnimationClock.Restart();
 
@@ -115,7 +115,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         BabyMetroidCutsceneState baby = place.RequireSpeciesState<BabyMetroidCutsceneState>();
         MotherBrainEnemyState state = baby.LateFight.Encounter;
 
-        place.ShakeTimer = 0;
+        place.Shake.End();
         if (state.PendingBabyCryCount != 0 &&
             baby.Phase is BabyMetroidCutscenePhase.HealSamusToFullHealth or
                 BabyMetroidCutscenePhase.IdleUntilNoHealth)
@@ -140,7 +140,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
         if (step.StartedAnimation is { } started)
             baby.Playback = EnemyAnimationPlayback.Start(place, MotherBrainBabyAnimations.StartingAt[started]);
-        CopyBabyMetroidActorToPhysicalPlace(place, baby, state.Colours);
+        ShowBabyMetroidShading(place, baby, state.Colours);
         ShowOrDeleteBabyMetroid(place, step);
         ApplyBabyMetroidFrameEffects(state.Colours, step);
     }
@@ -168,16 +168,12 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
             place.Presence = place.Presence.With(EnemyPresence.Deleted);
     }
 
-    /// <summary>Copies cutscene position, shading and health state into the live enemy.</summary>
-    private static void CopyBabyMetroidActorToPhysicalPlace(
+    /// <summary>Shows the Baby in its own colours, or in the hurt flash's while an onion ring's hit flashes it.</summary>
+    private static void ShowBabyMetroidShading(
         RoomEnemyPlace place,
         BabyMetroidCutsceneState baby,
-        MotherBrainColours colours)
-    {
-        place.Position = baby.Position;
+        MotherBrainColours colours) =>
         place.Shading = baby.HurtFlashShown ? EnemyShades.HurtFlashLook : colours.BabyShading;
-        place.Health = baby.Health;
-    }
 
     /// <summary>Applies one step's music, sounds, dust, fade and recovery-light requests to room systems.</summary>
     internal void ApplyBabyMetroidFrameEffects(MotherBrainColours colours, BabyMetroidCutsceneStepResult step)

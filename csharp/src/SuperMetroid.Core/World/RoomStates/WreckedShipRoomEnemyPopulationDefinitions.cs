@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Atomic;
 using SuperMetroid.Core.Enemies.Bull;
 using SuperMetroid.Core.Enemies.Chozo;
@@ -18,17 +18,17 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Sponge Bath room once the area's boss is dead.</summary>
     internal static RoomEnemyPopulationDefinition SpongeBathWhenAreaBossDead { get; } = new("SpongeBathWhenAreaBossDead",
     [
-        new(EnemyDefinitionId.Bull, new(240, 136), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BullSpawnSettings(Intervals: new BullSpeedIntervals(6, 2), MaximumSpeed: SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1791))),
+        new(EnemyDefinitionId.Bull, new(240, 136), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BullSpawnSettings(Intervals: new BullSpeedIntervals(6, 2), MaximumSpeed: SignedEightEight.FromPixelFraction(1791, 256))),
     ], 1);
 
     /// <summary>The enemy population of the Wrecked Ship Energy Tank room once the area's boss is dead.</summary>
     internal static RoomEnemyPopulationDefinition WreckedShipEnergyTankWhenAreaBossDead { get; } = new("WreckedShipEnergyTankWhenAreaBossDead",
     [
-        new(EnemyDefinitionId.Skultera, new(173, 374), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(16), StartDirection: HorizontalDirection.Right, Radius: 16, AngleDelta: 2)),
-        new(EnemyDefinitionId.Skultera, new(576, 300), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(16), StartDirection: HorizontalDirection.Left, Radius: 16, AngleDelta: 2)),
-        new(EnemyDefinitionId.SuspensorPlatform, new(280, 168), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PlatformSpawnSettings(Movement: HorizontalDirection.Left, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0), VerticalAccelerationUpdates: 32)),
-        new(EnemyDefinitionId.SuspensorPlatform, new(384, 168), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PlatformSpawnSettings(Movement: HorizontalDirection.Left, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0), VerticalAccelerationUpdates: 32)),
-        new(EnemyDefinitionId.SuspensorPlatform, new(496, 168), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PlatformSpawnSettings(Movement: HorizontalDirection.Left, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0), VerticalAccelerationUpdates: 32)),
+        new(EnemyDefinitionId.Skultera, new(173, 374), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), StartDirection: HorizontalDirection.Right, Radius: 16, AngleStep: RotationAngle.FromSteps(2))),
+        new(EnemyDefinitionId.Skultera, new(576, 300), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), StartDirection: HorizontalDirection.Left, Radius: 16, AngleStep: RotationAngle.FromSteps(2))),
+        new(EnemyDefinitionId.SuspensorPlatform, new(280, 168), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PlatformSpawnSettings(Movement: HorizontalDirection.Left, Speed: SignedSixteenSixteen.Zero, VerticalAccelerationUpdates: 32)),
+        new(EnemyDefinitionId.SuspensorPlatform, new(384, 168), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PlatformSpawnSettings(Movement: HorizontalDirection.Left, Speed: SignedSixteenSixteen.Zero, VerticalAccelerationUpdates: 32)),
+        new(EnemyDefinitionId.SuspensorPlatform, new(496, 168), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PlatformSpawnSettings(Movement: HorizontalDirection.Left, Speed: SignedSixteenSixteen.Zero, VerticalAccelerationUpdates: 32)),
     ], 2);
 
     /// <summary>The enemy population of the Wrecked Ship Main Shaft room in its default state.</summary>
@@ -55,16 +55,16 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
         new(EnemyDefinitionId.Sbug, new(317, 707), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromSteps(140), ActivationRadius: 64, Behavior: SbugActivationBehavior.MoveForward)),
         new(EnemyDefinitionId.Sbug, new(269, 731), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(172), ActivationRadius: 128, Behavior: SbugActivationBehavior.MoveForward)),
         new(EnemyDefinitionId.Sbug, new(429, 1256), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 4, InitialAngle: RotationAngle.FromSteps(232), ActivationRadius: 32, Behavior: SbugActivationBehavior.MoveForward)),
-        new(EnemyDefinitionId.KzanTop, new(608, 1368), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromSixteenthsOfPixel(0), FallWait: 0, FallDistance: 0)),
+        new(EnemyDefinitionId.KzanTop, new(608, 1368), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.Zero, FallWait: 0, FallDistance: 0)),
         new(EnemyDefinitionId.KzanBottom, new(608, 1376), EnemyContact.None, EnemyProcessing.None, EnemyPresence.Hidden, false, EnemySpawnSettings.None),
-        new(EnemyDefinitionId.KzanTop, new(448, 1368), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromSixteenthsOfPixel(0), FallWait: 0, FallDistance: 0)),
+        new(EnemyDefinitionId.KzanTop, new(448, 1368), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.Zero, FallWait: 0, FallDistance: 0)),
         new(EnemyDefinitionId.KzanBottom, new(448, 1376), EnemyContact.None, EnemyProcessing.None, EnemyPresence.Hidden, false, EnemySpawnSettings.None),
-        new(EnemyDefinitionId.KzanTop, new(288, 1368), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromSixteenthsOfPixel(0), FallWait: 0, FallDistance: 0)),
+        new(EnemyDefinitionId.KzanTop, new(288, 1368), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.Zero, FallWait: 0, FallDistance: 0)),
         new(EnemyDefinitionId.KzanBottom, new(288, 1376), EnemyContact.None, EnemyProcessing.None, EnemyPresence.Hidden, false, EnemySpawnSettings.None),
-        new(EnemyDefinitionId.KzanTop, new(128, 1368), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromSixteenthsOfPixel(0), FallWait: 0, FallDistance: 0)),
+        new(EnemyDefinitionId.KzanTop, new(128, 1368), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.Zero, FallWait: 0, FallDistance: 0)),
         new(EnemyDefinitionId.KzanBottom, new(128, 1376), EnemyContact.None, EnemyProcessing.None, EnemyPresence.Hidden, false, EnemySpawnSettings.None),
-        new(EnemyDefinitionId.Atomic, new(1072, 2000), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurning, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0))),
-        new(EnemyDefinitionId.Atomic, new(1232, 2000), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurning, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0))),
+        new(EnemyDefinitionId.Atomic, new(1072, 2000), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurning, Speed: SignedSixteenSixteen.Zero)),
+        new(EnemyDefinitionId.Atomic, new(1232, 2000), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurning, Speed: SignedSixteenSixteen.Zero)),
     ], 3);
 
     /// <summary>The enemy population of the Bowling Alley room in its default state.</summary>
@@ -102,10 +102,10 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
         new(EnemyDefinitionId.KihunterYellowWings, new(511, 142), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
         new(EnemyDefinitionId.KihunterYellow, new(1493, 118), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterSpawnSettings(Wings: KiHunterWings.Winged)),
         new(EnemyDefinitionId.KihunterYellowWings, new(1493, 118), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
-        new(EnemyDefinitionId.Atomic, new(1423, 90), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpLeftTurning, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(8))),
-        new(EnemyDefinitionId.Atomic, new(850, 97), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpLeftTurning, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(8))),
-        new(EnemyDefinitionId.Atomic, new(556, 96), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpLeftTurning, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(8))),
-        new(EnemyDefinitionId.Atomic, new(147, 124), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurning, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(8))),
+        new(EnemyDefinitionId.Atomic, new(1423, 90), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpLeftTurning, Speed: SignedSixteenSixteen.FromPixelFraction(1, 2))),
+        new(EnemyDefinitionId.Atomic, new(850, 97), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpLeftTurning, Speed: SignedSixteenSixteen.FromPixelFraction(1, 2))),
+        new(EnemyDefinitionId.Atomic, new(556, 96), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpLeftTurning, Speed: SignedSixteenSixteen.FromPixelFraction(1, 2))),
+        new(EnemyDefinitionId.Atomic, new(147, 124), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurning, Speed: SignedSixteenSixteen.FromPixelFraction(1, 2))),
         new(EnemyDefinitionId.KihunterYellow, new(1256, 200), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterSpawnSettings(Wings: KiHunterWings.Wingless)),
         new(EnemyDefinitionId.KihunterYellowWings, new(1256, 200), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
         new(EnemyDefinitionId.Spark, new(224, 88), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SparkSpawnSettings(Start: SparkMovementDefinitions.Emitter, BaseActionTime: 144)),
@@ -124,9 +124,9 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
     [
         new(EnemyDefinitionId.WorkRobot, new(77, 176), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new WorkRobotSpawnSettings(Pose: WorkRobotSegment.NoPowerNeutral)),
         new(EnemyDefinitionId.WorkRobot, new(880, 176), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new WorkRobotSpawnSettings(Pose: WorkRobotSegment.NoPowerNeutral)),
-        new(EnemyDefinitionId.Atomic, new(152, 77), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurning, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(8))),
-        new(EnemyDefinitionId.Atomic, new(638, 168), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurningBack, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(8))),
-        new(EnemyDefinitionId.Atomic, new(852, 73), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurningBack, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(8))),
+        new(EnemyDefinitionId.Atomic, new(152, 77), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurning, Speed: SignedSixteenSixteen.FromPixelFraction(1, 2))),
+        new(EnemyDefinitionId.Atomic, new(638, 168), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurningBack, Speed: SignedSixteenSixteen.FromPixelFraction(1, 2))),
+        new(EnemyDefinitionId.Atomic, new(852, 73), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurningBack, Speed: SignedSixteenSixteen.FromPixelFraction(1, 2))),
         new(EnemyDefinitionId.Spark, new(1145, 106), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SparkSpawnSettings(Start: SparkMovementDefinitions.Intermittent, BaseActionTime: 32)),
     ], 5);
 
@@ -325,15 +325,15 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
         new(EnemyDefinitionId.Sbug, new(1490, 215), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromSteps(184), ActivationRadius: 64, Behavior: SbugActivationBehavior.MoveForward)),
         new(EnemyDefinitionId.Sbug, new(423, 148), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(64), ActivationRadius: 64, Behavior: SbugActivationBehavior.MoveForwardThenWait)),
         new(EnemyDefinitionId.Sbug, new(1749, 197), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromSteps(224), ActivationRadius: 128, Behavior: SbugActivationBehavior.MoveForward)),
-        new(EnemyDefinitionId.Atomic, new(224, 78), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurning, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0))),
-        new(EnemyDefinitionId.Atomic, new(752, 94), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurning, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0))),
-        new(EnemyDefinitionId.Atomic, new(1584, 110), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurning, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0))),
-        new(EnemyDefinitionId.Atomic, new(1488, 190), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurning, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0))),
-        new(EnemyDefinitionId.Atomic, new(656, 190), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurning, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0))),
-        new(EnemyDefinitionId.Atomic, new(304, 190), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurning, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0))),
-        new(EnemyDefinitionId.Atomic, new(880, 222), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurning, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0))),
-        new(EnemyDefinitionId.Atomic, new(1232, 126), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurning, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0))),
-        new(EnemyDefinitionId.Atomic, new(1072, 126), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurning, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0))),
+        new(EnemyDefinitionId.Atomic, new(224, 78), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurning, Speed: SignedSixteenSixteen.Zero)),
+        new(EnemyDefinitionId.Atomic, new(752, 94), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurning, Speed: SignedSixteenSixteen.Zero)),
+        new(EnemyDefinitionId.Atomic, new(1584, 110), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurning, Speed: SignedSixteenSixteen.Zero)),
+        new(EnemyDefinitionId.Atomic, new(1488, 190), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurning, Speed: SignedSixteenSixteen.Zero)),
+        new(EnemyDefinitionId.Atomic, new(656, 190), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurning, Speed: SignedSixteenSixteen.Zero)),
+        new(EnemyDefinitionId.Atomic, new(304, 190), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurning, Speed: SignedSixteenSixteen.Zero)),
+        new(EnemyDefinitionId.Atomic, new(880, 222), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurning, Speed: SignedSixteenSixteen.Zero)),
+        new(EnemyDefinitionId.Atomic, new(1232, 126), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurning, Speed: SignedSixteenSixteen.Zero)),
+        new(EnemyDefinitionId.Atomic, new(1072, 126), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurning, Speed: SignedSixteenSixteen.Zero)),
     ], 10);
 
     /// <summary>The enemy population of the Wrecked Ship East Super room in its default state.</summary>
@@ -362,10 +362,10 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
         new(EnemyDefinitionId.Sbug, new(240, 229), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromSteps(130), ActivationRadius: 128, Behavior: SbugActivationBehavior.MoveForward)),
         new(EnemyDefinitionId.UnpoweredWorkRobot, new(376, 144), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new WorkRobotSpawnSettings(Pose: WorkRobotSegment.NoPowerNeutral)),
         new(EnemyDefinitionId.UnpoweredWorkRobot, new(708, 144), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new WorkRobotSpawnSettings(Pose: WorkRobotSegment.NoPowerLeaningRight)),
-        new(EnemyDefinitionId.Atomic, new(160, 80), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurning, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0))),
-        new(EnemyDefinitionId.Atomic, new(288, 80), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpLeftTurning, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0))),
-        new(EnemyDefinitionId.Atomic, new(464, 80), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurningBack, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0))),
-        new(EnemyDefinitionId.Atomic, new(592, 80), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpLeftTurningBack, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0))),
+        new(EnemyDefinitionId.Atomic, new(160, 80), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurning, Speed: SignedSixteenSixteen.Zero)),
+        new(EnemyDefinitionId.Atomic, new(288, 80), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpLeftTurning, Speed: SignedSixteenSixteen.Zero)),
+        new(EnemyDefinitionId.Atomic, new(464, 80), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurningBack, Speed: SignedSixteenSixteen.Zero)),
+        new(EnemyDefinitionId.Atomic, new(592, 80), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpLeftTurningBack, Speed: SignedSixteenSixteen.Zero)),
     ], 7);
 
     /// <summary>The enemy population of the Wrecked Ship Save room in its default state.</summary>
@@ -400,15 +400,15 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Spiky Death room once the area's boss is dead.</summary>
     internal static RoomEnemyPopulationDefinition SpikyDeathWhenAreaBossDead { get; } = new("SpikyDeathWhenAreaBossDead",
     [
-        new(EnemyDefinitionId.KzanTop, new(80, 96), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromSixteenthsOfPixel(64), FallWait: 16, FallDistance: 104)),
+        new(EnemyDefinitionId.KzanTop, new(80, 96), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromWholePixels(4), FallWait: 16, FallDistance: 104)),
         new(EnemyDefinitionId.KzanBottom, new(80, 104), EnemyContact.None, EnemyProcessing.None, EnemyPresence.Hidden, false, EnemySpawnSettings.None),
-        new(EnemyDefinitionId.KzanTop, new(160, 96), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromSixteenthsOfPixel(64), FallWait: 12, FallDistance: 104)),
+        new(EnemyDefinitionId.KzanTop, new(160, 96), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromWholePixels(4), FallWait: 12, FallDistance: 104)),
         new(EnemyDefinitionId.KzanBottom, new(160, 104), EnemyContact.None, EnemyProcessing.None, EnemyPresence.Hidden, false, EnemySpawnSettings.None),
-        new(EnemyDefinitionId.KzanTop, new(256, 96), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromSixteenthsOfPixel(64), FallWait: 17, FallDistance: 104)),
+        new(EnemyDefinitionId.KzanTop, new(256, 96), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromWholePixels(4), FallWait: 17, FallDistance: 104)),
         new(EnemyDefinitionId.KzanBottom, new(256, 104), EnemyContact.None, EnemyProcessing.None, EnemyPresence.Hidden, false, EnemySpawnSettings.None),
-        new(EnemyDefinitionId.KzanTop, new(352, 96), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromSixteenthsOfPixel(64), FallWait: 10, FallDistance: 104)),
+        new(EnemyDefinitionId.KzanTop, new(352, 96), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromWholePixels(4), FallWait: 10, FallDistance: 104)),
         new(EnemyDefinitionId.KzanBottom, new(352, 104), EnemyContact.None, EnemyProcessing.None, EnemyPresence.Hidden, false, EnemySpawnSettings.None),
-        new(EnemyDefinitionId.KzanTop, new(432, 96), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromSixteenthsOfPixel(64), FallWait: 20, FallDistance: 104)),
+        new(EnemyDefinitionId.KzanTop, new(432, 96), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromWholePixels(4), FallWait: 20, FallDistance: 104)),
         new(EnemyDefinitionId.KzanBottom, new(432, 104), EnemyContact.None, EnemyProcessing.None, EnemyPresence.Hidden, false, EnemySpawnSettings.None),
     ], 0);
 
@@ -417,8 +417,8 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
     [
         new(EnemyDefinitionId.WorkRobot, new(376, 128), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new WorkRobotSpawnSettings(Pose: WorkRobotSegment.NoPowerNeutral)),
         new(EnemyDefinitionId.WorkRobot, new(704, 128), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new WorkRobotSpawnSettings(Pose: WorkRobotSegment.NoPowerNeutral)),
-        new(EnemyDefinitionId.Bull, new(224, 120), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BullSpawnSettings(Intervals: new BullSpeedIntervals(6, 2), MaximumSpeed: SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1791))),
-        new(EnemyDefinitionId.Bull, new(528, 117), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BullSpawnSettings(Intervals: new BullSpeedIntervals(6, 2), MaximumSpeed: SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1791))),
+        new(EnemyDefinitionId.Bull, new(224, 120), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BullSpawnSettings(Intervals: new BullSpeedIntervals(6, 2), MaximumSpeed: SignedEightEight.FromPixelFraction(1791, 256))),
+        new(EnemyDefinitionId.Bull, new(528, 117), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new BullSpawnSettings(Intervals: new BullSpeedIntervals(6, 2), MaximumSpeed: SignedEightEight.FromPixelFraction(1791, 256))),
         new(EnemyDefinitionId.Spark, new(160, 80), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SparkSpawnSettings(Start: SparkMovementDefinitions.Intermittent, BaseActionTime: 128)),
         new(EnemyDefinitionId.Spark, new(288, 80), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SparkSpawnSettings(Start: SparkMovementDefinitions.Intermittent, BaseActionTime: 16)),
         new(EnemyDefinitionId.Spark, new(464, 80), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SparkSpawnSettings(Start: SparkMovementDefinitions.Intermittent, BaseActionTime: 160)),
@@ -444,17 +444,17 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
         new(EnemyDefinitionId.Spark, new(1160, 1468), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SparkSpawnSettings(Start: SparkMovementDefinitions.Intermittent, BaseActionTime: 24)),
         new(EnemyDefinitionId.Spark, new(1129, 1818), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SparkSpawnSettings(Start: SparkMovementDefinitions.AlwaysActive, BaseActionTime: 0)),
         new(EnemyDefinitionId.Spark, new(1048, 1928), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SparkSpawnSettings(Start: SparkMovementDefinitions.Emitter, BaseActionTime: 48)),
-        new(EnemyDefinitionId.Atomic, new(1144, 594), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurning, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(8))),
-        new(EnemyDefinitionId.Atomic, new(1237, 683), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpLeftTurning, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(8))),
-        new(EnemyDefinitionId.Atomic, new(1216, 1287), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurningBack, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(8))),
-        new(EnemyDefinitionId.Atomic, new(1062, 1465), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurningBack, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(8))),
-        new(EnemyDefinitionId.KzanTop, new(608, 1368), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromSixteenthsOfPixel(32), FallWait: 48, FallDistance: 80)),
+        new(EnemyDefinitionId.Atomic, new(1144, 594), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurning, Speed: SignedSixteenSixteen.FromPixelFraction(1, 2))),
+        new(EnemyDefinitionId.Atomic, new(1237, 683), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpLeftTurning, Speed: SignedSixteenSixteen.FromPixelFraction(1, 2))),
+        new(EnemyDefinitionId.Atomic, new(1216, 1287), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurningBack, Speed: SignedSixteenSixteen.FromPixelFraction(1, 2))),
+        new(EnemyDefinitionId.Atomic, new(1062, 1465), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new AtomicSpawnSettings(Spin: AtomicSegment.UpRightTurningBack, Speed: SignedSixteenSixteen.FromPixelFraction(1, 2))),
+        new(EnemyDefinitionId.KzanTop, new(608, 1368), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromWholePixels(2), FallWait: 48, FallDistance: 80)),
         new(EnemyDefinitionId.KzanBottom, new(608, 1376), EnemyContact.None, EnemyProcessing.None, EnemyPresence.Hidden, false, EnemySpawnSettings.None),
-        new(EnemyDefinitionId.KzanTop, new(448, 1368), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromSixteenthsOfPixel(32), FallWait: 48, FallDistance: 80)),
+        new(EnemyDefinitionId.KzanTop, new(448, 1368), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromWholePixels(2), FallWait: 48, FallDistance: 80)),
         new(EnemyDefinitionId.KzanBottom, new(448, 1376), EnemyContact.None, EnemyProcessing.None, EnemyPresence.Hidden, false, EnemySpawnSettings.None),
-        new(EnemyDefinitionId.KzanTop, new(288, 1368), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromSixteenthsOfPixel(32), FallWait: 48, FallDistance: 80)),
+        new(EnemyDefinitionId.KzanTop, new(288, 1368), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromWholePixels(2), FallWait: 48, FallDistance: 80)),
         new(EnemyDefinitionId.KzanBottom, new(288, 1376), EnemyContact.None, EnemyProcessing.None, EnemyPresence.Hidden, false, EnemySpawnSettings.None),
-        new(EnemyDefinitionId.KzanTop, new(128, 1368), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromSixteenthsOfPixel(32), FallWait: 48, FallDistance: 80)),
+        new(EnemyDefinitionId.KzanTop, new(128, 1368), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromWholePixels(2), FallWait: 48, FallDistance: 80)),
         new(EnemyDefinitionId.KzanBottom, new(128, 1376), EnemyContact.None, EnemyProcessing.None, EnemyPresence.Hidden, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Spark, new(1232, 1992), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SparkSpawnSettings(Start: SparkMovementDefinitions.Intermittent, BaseActionTime: 48)),
         new(EnemyDefinitionId.Spark, new(1072, 1992), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SparkSpawnSettings(Start: SparkMovementDefinitions.Intermittent, BaseActionTime: 32)),

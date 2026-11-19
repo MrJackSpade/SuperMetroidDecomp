@@ -39,9 +39,9 @@ internal static class SamusImpulseDefinitionsVerification
             bomb.Kinematics.YAcceleration = new UnsignedSixteenSixteen(7, 123);
             SamusBombJumpMovement.Start(bomb);
             int medium = gravity == 0 && raw < bombBottom ? liquid : 0;
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ef5 + medium * 2)), bomb.Kinematics.YSpeed.Whole, "Bomb native whole launch");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909efb + medium * 2)), bomb.Kinematics.YSpeed.Fraction, "Bomb native fractional launch");
-            AssertEqual(SamusVerticalDirection.Up, bomb.Kinematics.YDirection, "Bomb upward launch");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ef5 + medium * 2)), bomb.Kinematics.VerticalVelocity.Speed.Whole, "Bomb native whole launch");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909efb + medium * 2)), bomb.Kinematics.VerticalVelocity.Speed.Fraction, "Bomb native fractional launch");
+            AssertEqual(SamusVerticalDirection.Up, bomb.Kinematics.VerticalVelocity.Direction, "Bomb upward launch");
             AssertEqual(7, bomb.Kinematics.YAcceleration.Whole, "Bomb launch retains live whole gravity");
             AssertEqual(123, bomb.Kinematics.YAcceleration.Fraction, "Bomb launch retains live fractional gravity");
             AssertEqual((ushort)128, bomb.Position.Y.Whole, "Bomb setup does not move Samus");
@@ -71,10 +71,10 @@ internal static class SamusImpulseDefinitionsVerification
             hurt.HorizontalSpeed.BodyAttack = SamusBodyAttack.SpeedBooster;
             AssertTrue(SamusKnockbackMovement.Start(hurt, input, new KnockbackLaunch { KnockbackXDirection = side == 0 ? KnockbackHorizontalDirection.Left : KnockbackHorizontalDirection.Right, KnockbackTimer = 11 }, poseCollision: null), "Native hurt branch admitted");
             int medium = (equipment & 4) != 0 || environment == 3 ? 0 : environment;
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ee9 + medium * 2)), hurt.Kinematics.YSpeed.Whole, "Hurt native whole launch");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909eef + medium * 2)), hurt.Kinematics.YSpeed.Fraction, "Hurt native fractional launch");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ee9 + medium * 2)), hurt.Kinematics.VerticalVelocity.Speed.Whole, "Hurt native whole launch");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909eef + medium * 2)), hurt.Kinematics.VerticalVelocity.Speed.Fraction, "Hurt native fractional launch");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ea1 + medium * 2)), hurt.Kinematics.YAcceleration.Fraction, "Hurt refreshes native gravity");
-            AssertEqual(11, hurt.KnockbackTimer, "Hurt retains producer timer");
+            AssertEqual(11, hurt.KnockbackHold.UpdatesLeft, "Hurt retains producer timer");
             AssertTrue(hurt.KnockbackActive && !hurt.BombJumpActive && !hurt.BombJumpStarting, "Hurt replaces bomb mover");
             AssertEqual(SamusBombJumpRequest.None, hurt.BombJumpRequest, "Hurt drops the bomb-jump request");
             AssertEqual(1, hurt.HurtFlash.Count, "Hurt starts flash");

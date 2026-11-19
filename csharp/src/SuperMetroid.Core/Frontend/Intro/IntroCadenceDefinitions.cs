@@ -26,4 +26,10 @@ internal static class IntroCadenceDefinitions
     /// laboratory one pixel with the baby: every fourth, down to its last.
     /// </summary>
     internal static readonly UpdateCadence LaboratoryStepEveryFourthUpdate = new(4, 0);
+
+    /// <summary>
+    /// The updates left of a crossfade, its last included, on which it takes a step: every fourth counted back from its
+    /// last, the last among them, so its thirty-two steps end on that last update.
+    /// </summary>
+    internal static readonly UpdateCadence CrossfadeStepEveryFourthUpdate = new(4, 1);
 }

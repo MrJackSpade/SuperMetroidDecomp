@@ -61,17 +61,19 @@ public sealed class NorfairRidleyState : RidleyEncounterState
     public Position16<RoomPixels> Target { get; internal set; }
     /// <summary>Gets the pogo bounce counter, reset after its two-bounce threshold.</summary>
     public int PogoBounceCount { get; internal set; }
+    /// <summary>
+    /// The side his pogo bounces toward (#2569): each launch takes its sideways speed toward it, and each bounce chooses
+    /// it afresh, keeping or reversing it.
+    /// </summary>
+    public HorizontalDirection PogoBounce { get; internal set; }
     /// <summary>Gets the positive velocity increment the health band's pogo launch gives downward pogo motion.</summary>
     public SignedEightEight PogoDownwardAcceleration { get; internal set; }
     /// <summary>Gets the positive velocity increment the health band's pogo launch gives upward pogo motion.</summary>
     public SignedEightEight PogoUpwardAcceleration { get; internal set; }
     /// <summary>Gets Samus's signed whole-pixel displacement from the claw anchor; carry updates decay each axis toward zero.</summary>
     public Offset16<RoomPixels> GrabOffset { get; internal set; }
-    /// <summary>
-    /// Gets the hit-pressure count, zero through eight: each hurt frame raises it by one and each ordinary AI frame lowers
-    /// it by four; at eight a hurt frame also carries a grabbed Samus.
-    /// </summary>
-    public int HurtMovementClamp { get; internal set; }
+    /// <summary>The lag a held Samus builds behind his claw as he is hurt; once it is full a hurt update carries her.</summary>
+    public RidleyHurtCarryLag HurtCarryLag { get; } = new();
     /// <summary>Gets the number of zero-health lunges completed before the authored death transition.</summary>
     public int ZeroHealthLungeCount { get; internal set; }
     /// <summary>The wait before his death's next small explosion, one every five updates.</summary>

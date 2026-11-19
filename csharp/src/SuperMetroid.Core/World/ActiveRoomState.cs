@@ -33,6 +33,9 @@ internal sealed class ActiveRoomState
     /// <summary>The completed scope of the loaded room, or null before the first load.</summary>
     internal RoomScope? Scope { get; private set; }
 
+    /// <summary>How many rooms the runtime has loaded, counting each completed room load (#2562).</summary>
+    internal int RoomsLoaded { get; private set; }
+
     /// <summary>The scope a room load is building; null between loads.</summary>
     private RoomScopeConstruction? _construction;
 
@@ -46,7 +49,7 @@ internal sealed class ActiveRoomState
     {
         if (_construction is not null)
             throw new InvalidOperationException("A room load is already building its scope.");
-        _construction = new RoomScopeConstruction(door, room, assets, loadStation, RoomMainCarryover);
+        _construction = new RoomScopeConstruction(door, room, assets, loadStation, RoomMainHandOvers);
         return _construction;
     }
 
@@ -54,6 +57,7 @@ internal sealed class ActiveRoomState
     internal void Adopt(RoomScope scope)
     {
         Scope = Ensure.NotNull(scope);
+        RoomsLoaded++;
         _construction = null;
     }
 
@@ -74,8 +78,8 @@ internal sealed class ActiveRoomState
     /// <summary>The loaded room's Ceres elevator arrival; null while a load builds the next room's scope.</summary>
     public CeresElevatorArrivalState? CeresElevatorArrival => _construction is null ? Scope?.CeresElevatorArrival : null;
 
-    /// <summary>The value one room's main leaves for the next, which room loading never clears.</summary>
-    public RoomMainCarryover RoomMainCarryover { get; } = new();
+    /// <summary>What one room's main hands the next, which room loading never clears.</summary>
+    public RoomMainHandOvers RoomMainHandOvers { get; } = new();
 
     /// <summary>What one room's shots and enemy projectiles leave for the next room's, which room loading never clears.</summary>
     public RoomHandOver HandOver { get; } = new();

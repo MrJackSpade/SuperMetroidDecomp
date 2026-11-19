@@ -38,7 +38,7 @@ public static class SamusBlockCollision
         // trigger it reaches, through an extension block too, wakes its owner during the wall-jump check.
         BlockMoveResult result = MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, probe, owner, pose, new HorizontalBlockMove { Displacement = signedDistance, BlockReactionDirection = SamusCollisionDirection.NonDirectionalProbe });
         // Submerging sand writes these real motion values even through wall observation.
-        state.YSpeed = probe.YSpeed;
+        state.VerticalVelocity = state.VerticalVelocity.WithSpeed(probe.VerticalVelocity.Speed);
         state.YAcceleration = probe.YAcceleration;
 
         // A block hit (and square-slope clipping) writes Samus's real X fraction of a pixel even through the wall-jump probe. The
@@ -46,13 +46,13 @@ public static class SamusBlockCollision
         // whole X is unchanged; without it, movement away from the wall would gather fractional speed during the
         // wall-check pose.
         if (result.Collided && result.EnemyCollision is null)
-            state.Position = state.Position.WithFractionX(probe.Position.X.Fraction);
+            state.Position = state.Position.WithFractionX(probe.Position.X.FractionOfPixel);
 
         // The step preceding the block scan has a separate
         // real side effect: its touching path clears Samus's vertical fraction of a pixel. Copy that single
         // write back without committing the probe's X movement or slope alignment.
         if (result.EnemyCollision is { WasTouching: true })
-            state.Position = state.Position.WithFractionY(0);
+            state.Position = state.Position.WithFractionY(PixelFraction.None);
 
         return result;
     }
@@ -107,9 +107,7 @@ public static class SamusBlockCollision
                 // On enemy collision the movement skips block detection and moves Samus by the clipped whole distance
                 // alone. The accepted gap is never negative: the probe ignores an enemy Samus is already embedded in.
                 SignedSixteenSixteen clippedMagnitude = SignedSixteenSixteen.FromWholePixels(probe.Distance);
-                acceptedDisplacement = entersLeft
-                    ? -clippedMagnitude
-                    : clippedMagnitude;
+                acceptedDisplacement = move.Displacement.Along(clippedMagnitude);
                 collided = true;
                 enemyCollision = probe;
             }
@@ -133,7 +131,7 @@ public static class SamusBlockCollision
             {
                 RoomCollisionBlock block = terrain.Level.GetCollisionBlockOrEdgeSolid(
                     new(TerrainScanEdges.Block(blockX), TerrainScanEdges.Block(topBlockY + rowOffset)));
-                if (!TryResolveExtension(terrain.Level, ref block))
+                if (!terrain.Level.TryReachBlockStoodFor(ref block))
                     continue;
                 switch (block.CollisionType)
                 {
@@ -162,7 +160,7 @@ public static class SamusBlockCollision
                         acceptedDisplacement = SamusSlopePhysics.ScaleGroundedHorizontalDisplacement(
                             block.Behavior,
                             acceptedDisplacement,
-                            state.YSpeed);
+                            state.VerticalVelocity.Speed);
                         break;
 
                     case RoomCollisionType.SolidBlock:
@@ -348,7 +346,8 @@ public static class SamusBlockCollision
         // Slope alignment only sets this latch; it does not clear a square-floor contact
         // published by the previous vertical pass. The vertical move consumes it before
         // the next terrain Y move of some distance clears it.
-        state.PositionAdjustedBySlope |= alignment.Adjusted;
+        if (alignment.Adjusted)
+            state.RestOnSlope();
 
         return new BlockMoveResult(
             acceptedDisplacement,
@@ -402,9 +401,7 @@ public static class SamusBlockCollision
                 // distinguish an enemy stop from an unobstructed terrain move. The accepted gap is never negative: the
                 // probe ignores an enemy Samus is already embedded in.
                 SignedSixteenSixteen clippedMagnitude = SignedSixteenSixteen.FromWholePixels(probe.Distance);
-                acceptedDisplacement = acceptedDisplacement.IsNegative
-                    ? -clippedMagnitude
-                    : clippedMagnitude;
+                acceptedDisplacement = acceptedDisplacement.Along(clippedMagnitude);
                 collided = true;
                 enemyCollision = probe;
             }
@@ -414,7 +411,7 @@ public static class SamusBlockCollision
         {
             // Only a terrain move of some distance clears this latch. A solid-enemy
             // stop skips the terrain, and a zero movement does not clear it either.
-            state.PositionAdjustedBySlope = false;
+            state.LeaveSlope();
             VerticalTerrainScan scan = ScanVerticalTerrain(terrain, state, owner, pose, new VerticalTerrainProbe { Displacement = acceptedDisplacement, ScanLeftToRight = move.ScanLeftToRight, CanBreakBombBlocks = move.CanBreakBombBlocks, DoorBlocks = move.DoorBlocks, BlockReactionDirection = move.BlockReactionDirection });
             acceptedDisplacement = scan.AcceptedDisplacement;
             collided = scan.Collided;
@@ -465,7 +462,7 @@ public static class SamusBlockCollision
         {
             int blockX = move.ScanLeftToRight ? firstBlockX + offset : firstBlockX - offset;
             RoomCollisionBlock block = terrain.Level.GetCollisionBlockOrEdgeSolid(new(TerrainScanEdges.Block(blockX), TerrainScanEdges.Block(blockY)));
-            if (!TryResolveExtension(terrain.Level, ref block))
+            if (!terrain.Level.TryReachBlockStoodFor(ref block))
                 continue;
             switch (block.CollisionType)
             {
@@ -934,7 +931,7 @@ public static class SamusBlockCollision
         // A downward square-slope hit publishes support. Without this
         // latch, fast running probes farther than the eight-pixel floor thickness
         // on the next frame and can embed Samus below its surface.
-        if (!displacement.IsNegative) state.PositionAdjustedBySlope = true;
+        if (!displacement.IsNegative) state.RestOnSlope();
         return true;
     }
 
@@ -949,7 +946,7 @@ public static class SamusBlockCollision
             int whole = TerrainScanEdges.Approach(state.Radius.X + RoomGridConversions.BlockEnd(leadingBoundary) + 1, state.Position.X.Whole);
             if (whole >= 0)
                 whole = 0;
-            state.Position = state.Position.WithFractionX(0);
+            state.Position = state.Position.WithFractionX(PixelFraction.None);
             return SignedSixteenSixteen.FromWholePixels(whole);
         }
         else
@@ -957,7 +954,7 @@ public static class SamusBlockCollision
             int whole = TerrainScanEdges.Approach(RoomGridConversions.BlockStart(leadingBoundary) - state.Radius.X, state.Position.X.Whole);
             if (whole < 0)
                 whole = 0;
-            state.Position = state.Position.WithFractionX(FixedCoordinate.LastFraction);
+            state.Position = state.Position.WithFractionX(PixelFraction.Last);
             return SignedSixteenSixteen.FromWholePixels(whole);
         }
     }
@@ -974,7 +971,7 @@ public static class SamusBlockCollision
                 state.Radius.X + RoomGridConversions.HalfBlockEnd(leadingBoundary) + 1, state.Position.X.Whole);
             if (whole >= 0)
                 whole = 0;
-            state.Position = state.Position.WithFractionX(0);
+            state.Position = state.Position.WithFractionX(PixelFraction.None);
             return SignedSixteenSixteen.FromWholePixels(whole);
         }
 
@@ -982,7 +979,7 @@ public static class SamusBlockCollision
             RoomGridConversions.HalfBlockStart(leadingBoundary) - state.Radius.X, state.Position.X.Whole);
         if (rightWhole < 0)
             rightWhole = 0;
-        state.Position = state.Position.WithFractionX(FixedCoordinate.LastFraction);
+        state.Position = state.Position.WithFractionX(PixelFraction.Last);
         return SignedSixteenSixteen.FromWholePixels(rightWhole);
     }
 
@@ -997,7 +994,7 @@ public static class SamusBlockCollision
             int whole = TerrainScanEdges.Approach(state.Radius.Y + RoomGridConversions.BlockEnd(leadingBoundary) + 1, state.Position.Y.Whole);
             if (whole >= 0)
                 whole = 0;
-            state.Position = state.Position.WithFractionY(0);
+            state.Position = state.Position.WithFractionY(PixelFraction.None);
             return SignedSixteenSixteen.FromWholePixels(whole);
         }
         else
@@ -1005,7 +1002,7 @@ public static class SamusBlockCollision
             int whole = TerrainScanEdges.Approach(RoomGridConversions.BlockStart(leadingBoundary) - state.Radius.Y, state.Position.Y.Whole);
             if (whole < 0)
                 whole = 0;
-            state.Position = state.Position.WithFractionY(FixedCoordinate.LastFraction);
+            state.Position = state.Position.WithFractionY(PixelFraction.Last);
             return SignedSixteenSixteen.FromWholePixels(whole);
         }
     }
@@ -1022,7 +1019,7 @@ public static class SamusBlockCollision
                 state.Radius.Y + RoomGridConversions.HalfBlockEnd(leadingBoundary) + 1, state.Position.Y.Whole);
             if (whole >= 0)
                 whole = 0;
-            state.Position = state.Position.WithFractionY(0);
+            state.Position = state.Position.WithFractionY(PixelFraction.None);
             return SignedSixteenSixteen.FromWholePixels(whole);
         }
 
@@ -1030,11 +1027,11 @@ public static class SamusBlockCollision
             RoomGridConversions.HalfBlockStart(leadingBoundary) - state.Radius.Y, state.Position.Y.Whole);
         if (downWhole < 0)
             downWhole = 0;
-        state.Position = state.Position.WithFractionY(FixedCoordinate.LastFraction);
+        state.Position = state.Position.WithFractionY(PixelFraction.Last);
 
         // Only the downward square-slope clip writes this flag. The no-speed vertical move consumes it to use
         // a one-pixel grounding probe instead of total-horizontal-speed-plus-one.
-        state.PositionAdjustedBySlope = true;
+        state.RestOnSlope();
         return SignedSixteenSixteen.FromWholePixels(downWhole);
     }
 
@@ -1050,55 +1047,6 @@ public static class SamusBlockCollision
     {
         int alignedLeft = RoomGridConversions.BlockStart(TerrainScanEdges.Edge(state.Position.X.Whole - state.Radius.X));
         return RoomGridConversions.WholeBlocksIn(TerrainScanEdges.Edge(state.Radius.X + state.Position.X.Whole - 1 - alignedLeft));
-    }
-
-    /// <summary>
-    /// Follows collision-extension blocks exactly as block collision does: a horizontal extension
-    /// moves its signed behaviour in blocks along the row; a vertical extension moves it in rows.
-    /// Each link leads on in the room's reading order (<see cref="RoomReadingOrder"/>), so a horizontal link past a
-    /// row's end continues on the next row. A zero behaviour reports no collision immediately and therefore behaves as air.
-    /// </summary>
-    /// <remarks>
-    /// The one extension follower (#2529): Samus's collision and inside reactions, her shots' block reactions, her missiles'
-    /// point reactions and her bombs' reactions all follow links here, sharing one horizontal and one vertical extension
-    /// step. Those go back into the reaction until a block that is no extension or an extension
-    /// whose behaviour is zero, with no bound; a chain of as many links as the room has blocks must revisit one, a cycle the
-    /// game never leaves, and is reported as malformed room data.
-    /// </remarks>
-    /// <exception cref="InvalidDataException">A link leads outside the room's grid, or the chain is cyclic.</exception>
-    internal static bool TryResolveExtension(
-        RoomLevelData level,
-        ref RoomCollisionBlock block)
-    {
-        int blockCount = level.Size.Area;
-        for (int hops = 0; hops < blockCount; hops++)
-        {
-            switch (block.CollisionType)
-            {
-                case RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension when block.Behavior.EndsExtension:
-                    return false;
-                case RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension:
-                    break;
-                case RoomCollisionType.Air or RoomCollisionType.Slope or RoomCollisionType.SpikeAir or
-                    RoomCollisionType.SpecialAir or RoomCollisionType.ShootableAir or RoomCollisionType.UnrevealedAir or
-                    RoomCollisionType.BombableAir or RoomCollisionType.SolidBlock or RoomCollisionType.DoorBlock or
-                    RoomCollisionType.SpikeBlock or RoomCollisionType.SpecialBlock or
-                    RoomCollisionType.ShootableBlock or RoomCollisionType.GrappleBlock or
-                    RoomCollisionType.BombableBlock:
-                    return true;
-                default:
-                    throw new InvalidOperationException($"Undefined RoomCollisionType {block.CollisionType}.");
-            }
-
-            Position16<RoomBlocks> target = level.GridBlockStepped(block.At, block.ExtensionLink) ??
-                throw new InvalidDataException(
-                    $"Collision extension block {block.Position} type {block.CollisionType}/" +
-                    $"behaviour ({block.Behavior}) resolves outside the room's grid.");
-            block = level.GetCollisionBlock(target);
-        }
-
-        throw new InvalidDataException(
-            $"Collision extension chain beginning at block {block.Position} contains a cycle.");
     }
 
     /// <summary>

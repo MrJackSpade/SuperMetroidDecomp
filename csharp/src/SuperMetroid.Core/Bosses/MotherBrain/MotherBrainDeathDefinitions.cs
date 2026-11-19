@@ -20,7 +20,7 @@ public static class MotherBrainDeathDefinitions
         new(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground);
 
     /// <summary>The fall speed her severed brain gains each update it falls: an eighth of a pixel an update.</summary>
-    public static readonly SignedEightEight BrainFallAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32);
+    public static readonly SignedEightEight BrainFallAcceleration = SignedEightEight.FromPixelFraction(1, 8);
 
     /// <summary>The medium diagonal foreground shake the escape starts and keeps going.</summary>
     public static readonly EarthquakeShake EscapeEarthquake =
@@ -30,10 +30,10 @@ public static class MotherBrainDeathDefinitions
     public const int DoorFragmentLifetimeUpdates = 33;
 
     /// <summary>The drag subtracted from a door fragment's sideways speed each update.</summary>
-    public static readonly SignedEightEight DoorFragmentDrag = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(16);
+    public static readonly SignedEightEight DoorFragmentDrag = SignedEightEight.FromPixelFraction(1, 16);
 
     /// <summary>The gravity added to a door fragment's vertical speed each update.</summary>
-    public static readonly SignedEightEight DoorFragmentGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32);
+    public static readonly SignedEightEight DoorFragmentGravity = SignedEightEight.FromPixelFraction(1, 8);
 
     /// <summary>The room position the door fragments spawn about.</summary>
     public const int DoorX = 16, DoorY = 128;

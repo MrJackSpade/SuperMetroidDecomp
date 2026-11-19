@@ -13,7 +13,7 @@ internal sealed class NoobTubeDebrisState(int column) : EnemyProjectileState, IF
     public bool IsHidden { get; internal set; }
 
     /// <summary>The debris's own horizontal position, with its fraction; the drawn position follows it or hides.</summary>
-    internal FixedCoordinate X { get; set; } = new(column, 0);
+    internal FixedCoordinate X { get; set; } = FixedCoordinate.FromWhole(column);
 
     /// <summary>
     /// How far through its sway the falling debris is, as an angle that goes once round a full turn each swing; it starts
@@ -34,8 +34,8 @@ internal sealed class NoobTubeDebrisState(int column) : EnemyProjectileState, IF
         }
     }
 
-    /// <summary>Starts the sway <paramref name="halfSteps"/> half steps round the turn, 0 through 511.</summary>
-    internal void StartSway(int halfSteps) => Sway = RotationAngle.FromHalfSteps(halfSteps);
+    /// <summary>Starts the sway at <paramref name="start"/> round the turn.</summary>
+    internal void StartSway(RotationAngle start) => Sway = start;
 
     /// <summary>Moves the sway on by <paramref name="steps"/> whole steps, going on round the turn past a full swing.</summary>
     internal void AdvanceSway(int steps) => Sway = Sway.TurnedBySteps(steps);

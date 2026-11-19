@@ -8,13 +8,13 @@ internal static class FakeKraidProjectiles
     /// <paramref name="direction"/> and the shots' common rise.
     /// </summary>
     /// <exception cref="InvalidDataException"><paramref name="spit"/> is neither of the two shots.</exception>
-    internal static EightEightVector<RoomPixels> SpitLaunch(HorizontalDirection direction, FakeKraidSpit spit)
+    internal static PixelVelocity<RoomPixels> SpitLaunch(HorizontalDirection direction, FakeKraidSpit spit)
     {
         SignedEightEight horizontal = SignedEightEight.FromPixels(
             FakeKraidProjectileDefinitions.SpitSpeedPixels.TryGetValue(spit, out int speed)
                 ? speed
                 : throw new InvalidDataException($"Fake Kraid spit {spit} is neither of its two shots."));
-        return new(direction == HorizontalDirection.Right ? horizontal : -horizontal, FakeKraidProjectileDefinitions.SpitRise);
+        return new(horizontal.Toward(direction), FakeKraidProjectileDefinitions.SpitRise);
     }
 
     /// <summary>

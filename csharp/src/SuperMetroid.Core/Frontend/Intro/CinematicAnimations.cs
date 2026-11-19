@@ -29,7 +29,7 @@ internal sealed class CinematicAnimations<TAnimation, TFrame, TCue>
     {
         Ensure.NotNull(segments);
         Ensure.NotNull(startingAt);
-        Segments = new AnimationSegments<TAnimation, TFrame, TCue>(segments, segments.Keys);
+        Segments = new AnimationSegments<TAnimation, TFrame, TCue>(segments, segments.Keys.ToHashSet());
         IReadOnlyDictionary<TAnimation, Animation<TAnimation>> starting = startingAt(new CinematicPlays<TAnimation, TFrame, TCue>(Segments));
         foreach ((TAnimation start, Animation<TAnimation> animation) in starting)
         {

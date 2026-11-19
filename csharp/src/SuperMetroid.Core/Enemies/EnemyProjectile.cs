@@ -6,9 +6,8 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>
 /// One enemy projectile, created fresh in a free enemy-projectile place each time one is spawned (#1590). It holds its
 /// own state: nothing an earlier projectile in its place held reaches it, except the whole position and velocity that
-/// projectile left there (<see cref="EnemyProjectileHandOver"/>), which a spawn that does not set them starts from.
-/// Until a room spawns into a place, the place holds a projectile that is already gone, standing where the room before
-/// left that place's projectile.
+/// projectile left there, in this room or the room before (<see cref="EnemyProjectilePlaceLeftovers"/>), which a spawn
+/// that does not set them starts from.
 /// </summary>
 public sealed class EnemyProjectile
 {
@@ -44,7 +43,7 @@ public sealed class EnemyProjectile
     /// </summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
     /// <summary>How far the projectile moves each update, for the shared movements and the families that move by it.</summary>
-    public EightEightVector<RoomPixels> Velocity { get; internal set; }
+    public PixelVelocity<RoomPixels> Velocity { get; internal set; }
     /// <summary>
     /// What the projectile leaves in its place for the next projectile spawned there: its whole position and velocity
     /// as they stand when that spawn takes the place (<see cref="EnemyProjectileHandOver"/>).
@@ -191,7 +190,7 @@ public sealed class EnemyProjectile
     /// </summary>
     internal void Delete()
     {
-        Position = Position.WithFractionX(0).WithFractionY(0);
+        Position = Position.WithoutFractions();
         Vacate();
     }
 

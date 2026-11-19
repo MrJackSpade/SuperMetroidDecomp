@@ -166,9 +166,8 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         else
         {
-            SignedSixteenSixteen displacement = SignedSixteenSixteen.FromWholePixels(state.Walking == HorizontalDirection.Right
-                ? FakeKraidProjectileDefinitions.StepPixels
-                : -FakeKraidProjectileDefinitions.StepPixels);
+            SignedSixteenSixteen displacement =
+                SignedSixteenSixteen.FromWholePixels(FakeKraidProjectileDefinitions.StepPixels).Toward(state.Walking);
             reverse = _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 place,
@@ -211,9 +210,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace place,
         HorizontalDirection direction)
     {
-        int xOffset = direction == HorizontalDirection.Right
-            ? FakeKraidProjectileDefinitions.StepPixels
-            : -FakeKraidProjectileDefinitions.StepPixels;
+        int xOffset = FakeKraidProjectileDefinitions.SpitAheadPixels.Toward(direction);
         foreach (FakeKraidSpit spit in FakeKraidProjectileDefinitions.SpitsInLaunchOrder)
             SpawnFakeKraidSpit(place, xOffset, FakeKraidProjectiles.SpitLaunch(direction, spit));
     }
@@ -225,7 +222,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void SpawnFakeKraidSpit(
         RoomEnemyPlace source,
         int xOffset,
-        EightEightVector<RoomPixels> velocity)
+        PixelVelocity<RoomPixels> velocity)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -264,7 +261,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             : FakeKraidProjectilePose.SpikeRight));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(
             source.Position.Whole + Offset16<RoomPixels>.Of(0, FakeKraidProjectiles.SpikeYOffset(row)));
-        projectile.Velocity = new(left ? -FakeKraidProjectileDefinitions.SpikeSpeed : FakeKraidProjectileDefinitions.SpikeSpeed, SignedEightEight.Zero);
+        projectile.Velocity = new(FakeKraidProjectileDefinitions.SpikeSpeed.Toward(state.Facing), SignedEightEight.Zero);
         return true;
     }
 

@@ -100,7 +100,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         StartKiHunterAnimation(body, state, KiHunterSegment.FlyingLeft);
         state.Heading = KiHunterMotionDefinitions.PatrolStartHeading;
         state.HorizontalSpeed = KiHunterMotionDefinitions.PatrolSpeed;
-        state.VerticalVelocity = SignedSixteenSixteen.FromWholePixels(KiHunterMotionDefinitions.PatrolSpeed);
+        state.VerticalVelocity = KiHunterMotionDefinitions.PatrolClimbSpeed;
         state.UpperPatrolY = body.Position.Y.Whole - KiHunterMotionDefinitions.PatrolRise;
         state.LowerPatrolY = state.UpperPatrolY + KiHunterMotionDefinitions.PatrolDepth;
         state.SpawnPosition = body.Position.Whole;
@@ -204,15 +204,15 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 body,
                 state.VerticalVelocity))
         {
-            state.VerticalVelocity = state.VerticalVelocity.WithWholePixels(-state.VerticalVelocity.WholePixels);
+            state.VerticalVelocity = state.VerticalVelocity.WithWholePixelsReversed();
         }
         else if (body.Position.Y.Whole < state.UpperPatrolY)
         {
-            state.VerticalVelocity = state.VerticalVelocity.WithWholePixels(KiHunterMotionDefinitions.PatrolSpeed);
+            state.VerticalVelocity = state.VerticalVelocity.WithWholePixelsOf(KiHunterMotionDefinitions.PatrolClimbSpeed);
         }
         else if (body.Position.Y.Whole >= state.LowerPatrolY)
         {
-            state.VerticalVelocity = state.VerticalVelocity.WithWholePixels(-KiHunterMotionDefinitions.PatrolSpeed);
+            state.VerticalVelocity = state.VerticalVelocity.WithWholePixelsOf(-KiHunterMotionDefinitions.PatrolClimbSpeed);
         }
 
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
@@ -251,7 +251,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// rightward swoop, decreasing ones for a leftward one.
     /// </summary>
     private static AngularSpeed SwoopTurning(AngularSpeed speed, HorizontalDirection heading) =>
-        heading == HorizontalDirection.Left ? -speed : speed;
+        speed.Toward(heading);
 
     /// <summary>
     /// Starts the swipe (#2473) once the swoop's angle, as the update finds it, has passed the swipe angle: below it for a
@@ -278,12 +278,12 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The cap holds only the whole steps; the fraction keeps accumulating beneath it.
         state.AngularVelocity = (state.AngularVelocity + SwoopTurning(KiHunterMotionDefinitions.SwoopAcceleration, state.Heading))
-            .WithWholeStepsLimitedTo(SwoopTurning(KiHunterMotionDefinitions.SwoopMaximumAngularVelocity, state.Heading));
+            .CappedInWholeSteps(SwoopTurning(KiHunterMotionDefinitions.SwoopMaximumAngularVelocity, state.Heading));
 
         // The swoop runs through the second half of the turn: a rightward swoop ends as its angle comes round past the
         // full turn onto the first half, a leftward one as it falls below the half turn. At two steps an update neither
         // can cross the other end of that half.
-        state.SwoopAngle = state.SwoopAngle.TurnedBySteps(state.AngularVelocity.WholeSteps);
+        state.SwoopAngle = state.SwoopAngle.TurnedByWholeStepsOf(state.AngularVelocity);
         if (state.SwoopAngle < RotationAngle.HalfTurn)
         {
             state.Action = KiHunterAction.FlyingPatrol;
@@ -392,15 +392,15 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 body,
                 state.VerticalVelocity))
         {
-            if (state.VerticalVelocity.WholePixels < 0)
+            if (state.VerticalVelocity.IsNegative)
             {
-                state.VerticalVelocity = state.VerticalVelocity.WithWholePixels(KiHunterMotionDefinitions.HopReboundSpeed);
+                state.VerticalVelocity = state.VerticalVelocity.WithWholePixelsOf(KiHunterMotionDefinitions.HopReboundSpeed);
             }
             else
             {
                 state.VerticalVelocity = KiHunterMotionDefinitions.LandedVerticalVelocity;
                 state.Action = KiHunterAction.AnimatingOnGround;
-                state.WaitTimer = KiHunterMotionDefinitions.LandingWait;
+                state.WaitTimer = UpdateCountdown.For(KiHunterMotionDefinitions.LandingWait);
                 StartKiHunterAnimation(
                     body,
                     body.RequireSpeciesState<KiHunterBodyState>(),
@@ -430,7 +430,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         KiHunterBodyState state,
         SamusState samus)
     {
-        if (--state.WaitTimer != 0)
+        if (!state.WaitTimer.StepEnds())
             return;
 
         int distance = Math.Abs(body.Position.X.Whole - samus.Position.X.Whole);
@@ -490,7 +490,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.WingArcAngle = state.WingArcAngle.TurnedBy(DetachedWingTurn(
             state.DetachedSpeedCurvePlace,
-            sign: EnemySpeedSign.Negative));
+            RotationDirection.Clockwise));
         int radius = KiHunterMotionDefinitions.DetachedWingRadius;
         TrigonometryAngle trigonometryAngle = state.WingArcAngle.ToTrigonometryAngle();
         wings.Position = wings.Position.WithWhole(state.OrbitCenter + EnemyMath.CircleOffset(trigonometryAngle, radius) - KiHunterMotionDefinitions.DetachedOrbitOffset);
@@ -511,7 +511,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.WingArcAngle = state.WingArcAngle.TurnedBy(DetachedWingTurn(
             state.DetachedSpeedCurvePlace,
-            sign: EnemySpeedSign.Positive));
+            RotationDirection.Counterclockwise));
         int radius = KiHunterMotionDefinitions.DetachedWingRadius;
         TrigonometryAngle trigonometryAngle = state.WingArcAngle.ToTrigonometryAngle();
         int desiredY = state.OrbitCenter.Y + EnemyMath.CircleNegativeSinePixels(trigonometryAngle, radius) - KiHunterMotionDefinitions.FallingArcOffset.Y;
@@ -575,9 +575,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!wingsInPlace)
             return;
         wings.AiStates = body.AiStates;
-        wings.FrozenTimer = body.FrozenTimer;
-        wings.InvincibilityTimer = body.InvincibilityTimer;
-        wings.FlashTimer = body.FlashTimer;
+        wings.Freeze.Restart(body.Freeze.UpdatesLeft);
+        wings.Invincibility.Restart(body.Invincibility.UpdatesLeft);
+        wings.HurtFlash.Restart(body.HurtFlash.UpdatesLeft);
     }
 
     /// <summary>Detaches the wings: their first orbit is centred where they are, starting where their climb starts.</summary>
@@ -621,10 +621,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// The detached wing's turn along its orbit each update (#2439): one step for each pixel of its curve mark's coarse
-    /// speed in the direction it turns; a speed toward decreasing coordinates turns the orbit back.
+    /// speed toward <paramref name="direction"/>; clockwise turns the orbit back.
     /// </summary>
-    internal static AngularSpeed DetachedWingTurn(QuadraticSpeedCurvePlace place, EnemySpeedSign sign) =>
-        place.Speed.TurnOfAStepAPixelToward(sign);
+    internal static AngularSpeed DetachedWingTurn(QuadraticSpeedCurvePlace place, RotationDirection direction) =>
+        place.Speed.TurnOfAStepAPixelToward(direction);
 
     /// <summary>Slows a detached wing by one speed step, landing on the slowest place on the curve when the step would go below its start.</summary>
     private static void SlowDetachedKiHunterWing(KiHunterWingState state)
@@ -669,7 +669,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         _audio.QueueEnemySound(EnemySound.AcidSpit, priority: SoundRequestPriority.Normal);
         SpawnKiHunterAcidSpit(body, direction);
-        body.RequireSpeciesState<KiHunterBodyState>().WaitTimer = KiHunterMotionDefinitions.SpitWait;
+        body.RequireSpeciesState<KiHunterBodyState>().WaitTimer = UpdateCountdown.For(KiHunterMotionDefinitions.SpitWait);
     }
 
     /// <summary>Restarts matching body and still-attached wing animations for the selected flight direction.</summary>
@@ -823,13 +823,11 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             : KiHunterAcidSpitSegment.Left));
         projectile.State = new KiHunterAcidState(direction);
 
-        projectile.Velocity = projectile.Velocity.WithX(direction == HorizontalDirection.Right
-            ? KiHunterMotionDefinitions.AcidHorizontalSpeed
-            : -KiHunterMotionDefinitions.AcidHorizontalSpeed);
+        projectile.Velocity = projectile.Velocity.WithX(KiHunterMotionDefinitions.AcidHorizontalSpeed.Toward(direction));
         projectile.Position = projectile.Position.WithWholeX(body.Position.X.Whole +
-            (direction == HorizontalDirection.Right ? KiHunterMotionDefinitions.AcidSpitReach : -KiHunterMotionDefinitions.AcidSpitReach));
+            (KiHunterMotionDefinitions.AcidSpitReach.Toward(direction)));
         projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Zero);
-        projectile.Position = projectile.Position.WithWholeY(body.Position.Y.Whole - KiHunterMotionDefinitions.AcidSpitHeight).WithFractionX(0).WithFractionY(0);
+        projectile.Position = projectile.Position.WithWholeY(body.Position.Y.Whole - KiHunterMotionDefinitions.AcidSpitHeight).WithoutFractions();
     }
 
     /// <summary>
@@ -841,9 +839,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         HorizontalDirection direction = projectile.StateOf<KiHunterAcidState>().Spat;
         projectile.StartMotion(KiHunterAcidMotion.Falling);
         projectile.Position = projectile.Position.WithWholeX(
-            projectile.Position.X.Whole + (direction == HorizontalDirection.Right
-                ? KiHunterMotionDefinitions.AcidLaunchShift
-                : -KiHunterMotionDefinitions.AcidLaunchShift));
+            projectile.Position.X.Whole + (KiHunterMotionDefinitions.AcidLaunchShift.Toward(direction)));
     }
 
     /// <summary>

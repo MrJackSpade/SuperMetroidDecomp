@@ -6,9 +6,6 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </summary>
 internal static class NorfairRidleyMotionDefinitions
 {
-    /// <summary>The sideways speed a pogo bounce starts from when Ridley has none: three quarters of a pixel an update.</summary>
-    internal static readonly SignedEightEight PogoRestartSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(192);
-
     /// <summary>The fastest Ridley falls on a pogo bounce: six pixels an update.</summary>
     internal static readonly SignedEightEight PogoMaximumFallSpeed = SignedEightEight.FromPixels(6);
 
@@ -46,13 +43,13 @@ internal static class NorfairRidleyMotionDefinitions
     internal const int SwoopRecoveryUpdates = 33;
 
     /// <summary>How far his swoop's heading turns each update of its dive: an eighth of a step.</summary>
-    internal static readonly RotationAngle SwoopDiveTurn = RotationAngle.FromSteps(0, 32);
+    internal static readonly RotationAngle SwoopDiveTurn = RotationAngle.FromStepFraction(1, 8);
 
     /// <summary>The heading his swoop's dive turns toward, facing right: two steps round from straight down.</summary>
     internal static readonly RotationAngle SwoopDiveHeading = RotationAngle.FromSteps(2);
 
     /// <summary>How far his swoop's heading turns each update of its sweep: a step and a quarter.</summary>
-    internal static readonly RotationAngle SwoopSweepTurn = RotationAngle.FromSteps(1, 64);
+    internal static readonly RotationAngle SwoopSweepTurn = RotationAngle.FromStepFraction(5, 4);
 
     /// <summary>How far his swoop's heading turns each update of its turn up: two steps.</summary>
     internal static readonly RotationAngle SwoopTurnUpTurn = RotationAngle.FromSteps(2);
@@ -64,7 +61,7 @@ internal static class NorfairRidleyMotionDefinitions
     internal const int TurnStartUpdates = 2;
 
     /// <summary>The speed his swoop's dive moves toward: four and a half pixels an update.</summary>
-    internal static readonly SignedEightEight SwoopDiveSpeed = SignedEightEight.FromParts(4, 128);
+    internal static readonly SignedEightEight SwoopDiveSpeed = SignedEightEight.FromPixelFraction(9, 2);
 
     /// <summary>The speed his swoop's sweep moves toward: five pixels an update.</summary>
     internal static readonly SignedEightEight SwoopSweepSpeed = SignedEightEight.FromPixels(5);
@@ -73,7 +70,7 @@ internal static class NorfairRidleyMotionDefinitions
     internal static readonly SignedEightEight SwoopClimbSpeed = SignedEightEight.FromPixels(3);
 
     /// <summary>The speed his swoop's recovery moves toward: one and three quarter pixels an update.</summary>
-    internal static readonly SignedEightEight SwoopRecoverySpeed = SignedEightEight.FromParts(1, 192);
+    internal static readonly SignedEightEight SwoopRecoverySpeed = SignedEightEight.FromPixelFraction(7, 4);
 
     /// <summary>The updates of each leg of his wall sweep, after its first.</summary>
     internal const int WallSweepLegUpdates = 129;
@@ -110,6 +107,9 @@ internal static class NorfairRidleyMotionDefinitions
 
     /// <summary>How much of the hurt carry lag each ordinary update takes off.</summary>
     internal const int HurtCarryLagRecovery = 4;
+
+    /// <summary>How much of the hurt carry lag each hurt update builds.</summary>
+    internal const int HurtCarryLagRise = 1;
 
     /// <summary>
     /// The health below which his attacks take no account of where Samus stands or whether he can grab her: below it,

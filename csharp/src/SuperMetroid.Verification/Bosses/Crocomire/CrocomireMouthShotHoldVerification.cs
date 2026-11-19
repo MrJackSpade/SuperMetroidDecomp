@@ -31,7 +31,7 @@ internal static class CrocomireMouthShotHoldVerification
                 var state = new CrocomireEnemyState(body) { Phase = phase };
                 body.SetSpeciesState(state);
                 body.AnimationClock.HoldFor(StartingHold);
-                body.FlashTimer = 0;
+                body.HurtFlash.End();
 
                 SamusProjectileType superMissile = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile);
                 var camera = new Position16<RoomPixels>(cameraX, 0);
@@ -58,7 +58,7 @@ internal static class CrocomireMouthShotHoldVerification
         var state = new CrocomireEnemyState(body) { Phase = CrocomirePhase.SteppingForward };
         body.SetSpeciesState(state);
         var ordinaryProjectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads,
-            new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
+            new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         var bomb = new SamusBomb(0)
         {
             Type = SamusProjectileType.Of(SamusProjectileFamily.Bomb),
@@ -68,15 +68,15 @@ internal static class CrocomireMouthShotHoldVerification
         int expected = WrappingCountdown.Start(StartingHold).AddFrames(CrocomireFightDefinitions.MouthShotReactionHoldFrames).RemainingFrames;
         foreach ((string place, int cameraX, bool reacts) in new[] { ("off screen", 0, true), ("on screen", 400, false) })
         {
-            state.DamageReactionPending = false;
+            state.StepBack.Forget();
             body.AnimationClock.HoldFor(StartingHold);
-            body.FlashTimer = 0;
+            body.HurtFlash.End();
             enemies.CrocomireBehavior.Combat.ReactToCrocomireBomb(new EnemyBombContext(body, bomb, ordinaryProjectiles, RoomEnemyFrameFixtures.StandaloneSamus(),
                 CrocomireReactions.MouthShot, UsesFrameHitboxes: true, new Position16<RoomPixels>(cameraX, 0))
             {
                 StruckOccupant = body.OccupantStates,
             }, state);
-            AssertEqual(reacts, state.DamageReactionPending, $"a bomb with the camera at column {cameraX} finds his body {place}");
+            AssertEqual(reacts, state.StepBack.IsAwaited, $"a bomb with the camera at column {cameraX} finds his body {place}");
             AssertEqual(reacts ? expected : StartingHold, body.AnimationClock.Hold,
                 $"a bomb with the camera at column {cameraX} {(reacts ? "holds" : "leaves")} his frame");
         }

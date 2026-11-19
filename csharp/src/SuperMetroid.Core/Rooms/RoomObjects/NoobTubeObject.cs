@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
@@ -22,11 +23,14 @@ internal sealed class NoobTubeObject(NoobTubeObjects owner) : SequencedRoomObjec
     /// <summary>Where the tube is in its course.</summary>
     internal NoobTubePhase Phase { get; private set; } = NoobTubePhase.Starting;
 
-    /// <summary>The strike on the tube's block it has not yet read, or null for none.</summary>
-    internal ResidentObjectProjectileHit? PendingHit { get; private set; }
+    /// <summary>The strike on the tube's block it has yet to take (#2562).</summary>
+    private readonly StrikeAwaitingRoomObject<ResidentObjectProjectileHit> _strike = new();
+
+    /// <summary>The strike on the tube's block it has yet to take, or null for none.</summary>
+    internal ResidentObjectProjectileHit? AwaitingStrike => _strike.Awaiting;
 
     /// <inheritdoc/>
-    public void Strike(ResidentObjectProjectileHit hit) => PendingHit = hit;
+    public void Strike(ResidentObjectProjectileHit hit) => _strike.Land(hit);
 
     /// <inheritdoc/>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
@@ -85,16 +89,16 @@ internal sealed class NoobTubeObject(NoobTubeObjects owner) : SequencedRoomObjec
         switch (Phase)
         {
             case NoobTubePhase.WaitingForPowerBomb:
-                if (PendingHit?.Family == SamusProjectileFamily.PowerBomb)
+                ResidentObjectProjectileHit? hit = _strike.Take();
+                if (hit?.Family == SamusProjectileFamily.PowerBomb)
                 {
                     Phase = NoobTubePhase.WaitingForInput;
                     EndOnNextUpdate();
                 }
-                else if (PendingHit is not null)
+                else if (hit is not null)
                 {
                     context.QueueSound(NoobTubeObjectDefinitions.IneffectiveShotSound, SoundRequestPriority.Normal);
                 }
-                PendingHit = null;
                 return;
             case NoobTubePhase.WaitingForInput when (context.Frame.ControllerNewInput & NoobTubeObjectDefinitions.AcceptedWakeInputMask) != GameplayAction.None:
                 // The break starts on this update.

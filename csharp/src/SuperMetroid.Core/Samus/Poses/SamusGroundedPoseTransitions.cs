@@ -177,7 +177,7 @@ internal static class SamusGroundedPoseTransitions
                 return SelectRanIntoWallPose(target);
         }
 
-        SignedSixteenSixteen onePixelForward = SignedSixteenSixteen.FromParts(facingLeft ? -1 : 1, 0);
+        SignedSixteenSixteen onePixelForward = SignedSixteenSixteen.FromWholePixels(1).Toward(facingLeft ? HorizontalDirection.Left : HorizontalDirection.Right);
         onePixelProbe = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = onePixelForward, AlignToSlopeAfterMovement = false });
         return onePixelProbe.Value.Collided
             ? SelectRanIntoWallPose(target)
@@ -306,7 +306,7 @@ internal static class SamusGroundedPoseTransitions
         SamusTransitionShot sourceShot = SamusTransitionShot.FromPose(samus);
         FoldExtraRunSpeedIntoBaseAndStartTurn(samus);
         ApplySimpleGroundedPoseChange(samus, samus.Pose, expectedTarget, "Moonwalk turn/jump");
-        samus.PendingTransitionShot = sourceShot;
+        samus.TransitionShot.Hand(sourceShot);
     }
 
     /// <summary>
@@ -466,7 +466,7 @@ internal static class SamusGroundedPoseTransitions
             // The handed shot makes the turning HUD step treat the one-frame turning
             // state as shooting. The beam producer later fires it in this source pose's
             // direction once Samus's shot count leaves room for another shot.
-            samus.PendingTransitionShot = moonwalkSourceShot;
+            samus.TransitionShot.Hand(moonwalkSourceShot);
         }
     }
 

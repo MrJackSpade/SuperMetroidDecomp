@@ -23,7 +23,7 @@ internal static class SetCharactersAccess
         {
             Ensure.NotNull(shown);
             SetCharacters.FrameLookPart[] parts = [.. shown.Select(look => self.Encounters.FirstOrDefault(encounter => EncounterLookUploads.ShownAs(encounter.Encounter) == look.Encounter)
-                is { } played ? new SetCharacters.FrameLookPart(played, [EncounterLookUploads.IndexOf(played.Encounter, look)], look.Encounter)
+                is { } played ? new SetCharacters.FrameLookPart(played, [EncounterLookUploadsConstants.IndexOf(played.Encounter, look)], look.Encounter)
                 : throw new InvalidDataException($"The set's members play no encounter that shows {look}."))];
             return self.Page(parts, [.. parts.Select(part => part.Looks[0])]);
         }

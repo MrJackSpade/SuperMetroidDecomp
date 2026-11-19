@@ -25,12 +25,8 @@ internal sealed class RidleyBodyContact
     /// Sets whether Ridley's body and his tail and wings show his hurt flash: his body on its phase of
     /// <paramref name="bodyUpdateCount"/>, his tail and wings on the phase one update ahead.
     /// </summary>
-    internal static void UpdateHurtFlash(RoomEnemyPlace place, RidleyEncounterState ridley, int bodyUpdateCount)
-    {
-        ridley.BodyFlashing = place.FlashTimer != 0 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(bodyUpdateCount);
-        // His drawn parts take the phase one pass ahead of his body's colours.
-        ridley.TailAndWingsFlashing = place.FlashTimer > 1 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(bodyUpdateCount + 1);
-    }
+    internal static void UpdateHurtFlash(RoomEnemyPlace place, RidleyEncounterState ridley, int bodyUpdateCount) =>
+        ridley.HurtFlashShows = RidleyHurtFlashShowing.Of(place.HurtFlash, bodyUpdateCount);
 
     /// <summary>Tests Samus against Ridley's extended body and applies contact response after invincibility gating.</summary>
     /// <param name="place">Ridley's body.</param>

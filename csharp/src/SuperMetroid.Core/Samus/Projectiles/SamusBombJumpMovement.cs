@@ -26,9 +26,8 @@ public static class SamusBombJumpMovement
         // The launch uses the same bottom-edge air/water/lava classification as ordinary
         // launch, with a launch speed for each medium. Gravity is refreshed by
         // the input phase, so this launch replaces only the launch speed/direction.
-        samus.Kinematics.YSpeed =
-            SamusVerticalMotion.BombJump(samus.LiquidPhysics.DetermineMovementMedium(samus));
-        samus.Kinematics.YDirection = SamusVerticalDirection.Up;
+        samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Rising(
+            SamusVerticalMotion.BombJump(samus.LiquidPhysics.DetermineMovementMedium(samus)));
         samus.BombJumpStarting = false;
         samus.BombJumpActive = true;
         return new BombJumpMovementResult(null);
@@ -58,7 +57,8 @@ public static class SamusBombJumpMovement
             // may slow her does. Existing base speeds intentionally participate.
             UnsignedSixteenSixteen baseSpeed = samus.HorizontalSpeed.CalculateBaseSpeed(
                 SamusHorizontalSpeedDefinitions.DiagonalBombJump);
-            var displacement = SamusHorizontalDisplacement.Toward(direction == SamusBombJumpDirection.Left, samus, baseSpeed);
+            var displacement = SamusHorizontalDisplacement.Toward(
+                direction == SamusBombJumpDirection.Left ? HorizontalDirection.Left : HorizontalDirection.Right, samus, baseSpeed);
             horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = displacement.Displacement, CollisionMovementDirection = displacement.CollisionDirection });
             // The direction-aware X mover clears momentum on a wall hit
             // before the later Y scan replaces its collision result. This must
@@ -70,15 +70,13 @@ public static class SamusBombJumpMovement
         // The jump turns a speed that passed zero into the falling direction. A diagonal jump
         // additionally selects SamusAccelerationMode.Decelerating so normal horizontal movement decelerates after
         // the bomb jump hands her movement back to her pose.
-        if (samus.Kinematics.YDirection == SamusVerticalDirection.Up &&
-            SamusSpeedMagnitude.HasPassedZero(samus.Kinematics.YSpeed.Whole))
+        if (samus.Kinematics.VerticalVelocity.HasPassedApex)
         {
-            samus.Kinematics.YSpeed = default;
-            samus.Kinematics.YDirection = SamusVerticalDirection.Down;
+            samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.FallFromRest;
             if (direction != SamusBombJumpDirection.Straight)
                 samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
         }
-        else if (samus.Kinematics.YDirection == SamusVerticalDirection.Up && samus.Kinematics.YSpeed.Whole == 0)
+        else if (samus.Kinematics.VerticalVelocity is { IsRising: true, Speed.Whole: 0 })
         {
             // The rise gives her pose input back while her speed is still a fraction of a pixel upward, before the apex
             // or a collision gives her movement back, so the next update's pose input can end the rest of the rise.
@@ -87,7 +85,7 @@ public static class SamusBombJumpMovement
 
         // The game ends immediately once direction becomes down; it does not spend one
         // bomb-jump frame moving by a zero/negative vertical magnitude.
-        if (samus.Kinematics.YDirection == SamusVerticalDirection.Down)
+        if (samus.Kinematics.VerticalVelocity.IsFalling)
             return End(samus, null);
 
         (BlockMoveResult vertical, bool movedDown) = MoveUpWithGravity(
@@ -113,17 +111,16 @@ public static class SamusBombJumpMovement
         int frameCounter,
         ISamusRoomObjects roomObjects)
     {
+        // The rise moves by its OLD velocity before gravity slows it; it never falls here, so the terminal speed takes no
+        // part.
         SamusKinematicsState state = samus.Kinematics;
-        UnsignedSixteenSixteen oldSpeed = state.YSpeed;
-        state.YSpeed = oldSpeed - state.YAcceleration;
-        SignedSixteenSixteen displacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
-            state,
-            -oldSpeed.AsDisplacement());
+        SignedSixteenSixteen rise = state.VerticalVelocity.Displacement;
+        state.VerticalVelocity = state.VerticalVelocity.AfterGravity(state.YAcceleration, SamusVerticalMotionDefinitions.TerminalFallWholeSpeed);
+        SignedSixteenSixteen displacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(state, rise);
         BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, state, samus, samus.Pose, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
         if (result.Collided)
         {
-            state.YSpeed = default;
-            state.YDirection = SamusVerticalDirection.Down;
+            state.VerticalVelocity = SamusVerticalVelocity.FallFromRest;
         }
         // A non-negative displacement, including the apex's zero, moves Samus down.
         return new BombJumpRise(result, !displacement.IsNegative);

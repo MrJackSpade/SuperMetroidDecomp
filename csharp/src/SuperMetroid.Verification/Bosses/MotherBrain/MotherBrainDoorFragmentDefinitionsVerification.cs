@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -49,7 +50,7 @@ internal static class MotherBrainDoorFragmentDefinitionsVerification
                 $"production Mother Brain door fragment X velocity {parameter}");
             AssertEqual(definition.Velocity.Y, fragment.Velocity.Y,
                 $"production Mother Brain door fragment Y velocity {parameter}");
-            AssertEqual(MotherBrainDeathDefinitions.DoorFragmentLifetimeUpdates - 1, fragment.StateOf<MotherBrainDoorFragmentState>().Lifetime.Count,
+            AssertEqual(MotherBrainDeathDefinitions.DoorFragmentLifetimeUpdates - 1, fragment.StateOf<MotherBrainDoorFragmentState>().Lifetime.CartridgeCount,
                 $"production Mother Brain door fragment lifetime {parameter}");
         }
 

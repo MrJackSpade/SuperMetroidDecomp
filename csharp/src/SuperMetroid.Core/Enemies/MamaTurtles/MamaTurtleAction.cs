@@ -4,6 +4,11 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 /// The behaviour Mama Turtle's main AI runs.
 /// Its values are arbitrary.
 /// </summary>
+/// <remarks>
+/// Placed, PlacedAndWoken and Woken are states of its course, not requests another owner stores for it (#2562): a cue, a touch or a shot ends
+/// the state before, and the game acts on it one update later, the state naming where it stands until then; the update
+/// that acts on it moves it on, as every other state's does. The update between is the game's.
+/// </remarks>
 public enum MamaTurtleAction
 {
     /// <summary>

@@ -33,8 +33,18 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("a beam fired with every shot place held takes the last place over the shot holding it and starts its Power Bomb fuse from the count that shot leaves")]
 public static class BeamFiredOverLastShot
 {
-    /// <summary>The step between the fractions an ignited Super Missile's count holds for successive link places.</summary>
-    private const int LinkPlaceStep = 2;
+    /// <summary>
+    /// The step between the fractions an ignited Super Missile's count holds for successive link places: a 128th of a pixel
+    /// an update.
+    /// </summary>
+    private static readonly SignedEightEight LinkPlaceStep = SignedEightEight.FromPixelFraction(1, 128);
+
+    /// <summary>
+    /// The count an ignited Super Missile naming its link leaves: its ignition speed's whole pixels, with the link's place,
+    /// a step a place, as their fraction.
+    /// </summary>
+    private static SignedEightEight LinkedSuperMissileCount(SignedEightEight ignitionSpeed, int linkPlace) =>
+        SignedEightEight.FromPixels(ignitionSpeed.WholePixels) + LinkPlaceStep * Ensure.AtLeastZero(linkPlace);
 
     /// <summary>The place a beam takes: the lowest free one, or the last when every place is held.</summary>
     /// <param name="lowestFreePlace">The lowest place no shot holds, or null when every place is held.</param>
@@ -59,7 +69,7 @@ public static class BeamFiredOverLastShot
         ReplacedShot.FreePlace or ReplacedShot.UnignitedMissile => 0,
         ReplacedShot.ReflectedMissile reflected => reflected.HeadStart.InTwoHundredFiftySixthsOfPixel,
         ReplacedShot.IgnitedMissile { LinkPlace: { } linkPlace } superMissile =>
-            SignedEightEight.FromParts(superMissile.IgnitionSpeed.WholePixels, LinkPlaceStep * linkPlace).InTwoHundredFiftySixthsOfPixel,
+            LinkedSuperMissileCount(superMissile.IgnitionSpeed, linkPlace).InTwoHundredFiftySixthsOfPixel,
         ReplacedShot.IgnitedMissile missile => missile.IgnitionSpeed.InTwoHundredFiftySixthsOfPixel,
         ReplacedShot.CrashEcho echo => echo.DepartureAngle.RawValue,
         ReplacedShot.Beam beam => beam.CarriedFuse,

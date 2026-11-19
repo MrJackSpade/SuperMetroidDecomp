@@ -71,7 +71,7 @@ internal static class TitleSequenceRomDataVerification
         AssertEqual(TitleSequencePhase.TitleScreenFadeOutToFileSelect, state.Phase,
             "title confirmation begins cadence fade");
         StepUntil(
-            () => state.FileSelectRequested,
+            () => (state.Outcome == TitleSequenceOutcome.FileSelect),
             _ => state.Step(0),
             maximumFrames: 40,
             "title file-select handoff");
@@ -100,9 +100,9 @@ internal static class TitleSequenceRomDataVerification
         for (int idle = 1; idle < TitleSequenceDefinitions.Timing.TitleScreenIdleTimeoutFrames; idle++)
             skipped.Step(0);
         skipped.Step(ControllerButton.Start);
-        StepUntil(() => skipped.DemoRequested, _ => skipped.Step(0), 40,
+        StepUntil(() => (skipped.Outcome == TitleSequenceOutcome.Demo), _ => skipped.Step(0), 40,
             "title timeout takes priority over same-frame confirmation");
-        AssertTrue(!skipped.FileSelectRequested, "timeout routes only to the attract dispatcher");
+        AssertTrue(skipped.Outcome != TitleSequenceOutcome.FileSelect, "timeout routes only to the attract dispatcher");
 
         AssertEqual(RotationAngle.Zero, TitleSequenceDefinitions.Scenes.Rotation,
             "title Mode-7 scenes use typed zero rotation");

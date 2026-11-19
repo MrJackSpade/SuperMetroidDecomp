@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -117,12 +118,12 @@ internal static void VerifySamusRenderingSlice()
     var itemTransitionSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MorphingTransitionLeftPose };
     SamusPresentation.InitializeAnimation(itemTransitionSamus, itemTransitionSamus.PoseFrameNumbered(29));
     SamusPresentation.AnimateDeathFrame(itemTransitionSamus);
-    AssertEqual(SamusPoseId.MorphBallGroundRightPose, itemTransitionSamus.PendingTransitionalPose,
+    AssertEqual(SamusPoseId.MorphBallGroundRightPose, itemTransitionSamus.CuePose.Named,
         "an item transition without Spring Ball selects its unequipped pose");
     itemTransitionSamus.EquippedItems = SamusEquipmentFlags.SpringBall;
     SamusPresentation.InitializeAnimation(itemTransitionSamus, itemTransitionSamus.PoseFrameNumbered(29));
     SamusPresentation.AnimateDeathFrame(itemTransitionSamus);
-    AssertEqual(SamusPoseId.SpringBallGroundRightPose, itemTransitionSamus.PendingTransitionalPose,
+    AssertEqual(SamusPoseId.SpringBallGroundRightPose, itemTransitionSamus.CuePose.Named,
         "an item transition with Spring Ball selects its equipped pose");
 
     // Restore the ordinary debugger scenario before verifying frame-zero drawing below.
@@ -193,7 +194,7 @@ internal static void VerifySamusRenderingSlice()
     SeedForwardFacingSamusData(bus);
     samus.EquippedItems = 0;
     samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(3);
-    samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(2);
+    samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(samus.Kinematics.VerticalVelocity.Speed.WithWhole(2));
     samus.PoseHistory.Restore(SamusPoseId.SpinJumpRightPose, SamusMovementType.SpinJumping, SamusMovementType.WallJumping);
     // A $18 live radius takes MakeSamusFaceForward's no-lift branch, so the drawing
     // checks below keep Samus at the seeded Y.
@@ -214,7 +215,7 @@ internal static void VerifySamusRenderingSlice()
     AssertEqual(radiusBeforeForwardSetup, samus.Kinematics.Radius.Y, "forward setup leaves the live radius");
     AssertEqual(8, samus.AnimationFrameTimer.RawValue, "power forward setup reads delay eight");
     AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Whole, "forward setup clears base X speed");
-    AssertEqual(0, samus.Kinematics.YSpeed.Whole, "forward setup clears Y speed");
+    AssertEqual(0, samus.Kinematics.VerticalVelocity.Speed.Whole, "forward setup clears Y speed");
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.DrawWithoutFlicker(samus, oamFrame, cameraPosition: new(0x0400, 0));
@@ -263,7 +264,7 @@ internal static void VerifySamusRenderingSlice()
     // `$90:85E2` suppresses body OAM on odd invincibility frames. This is deliberately not folded into the arm-
     // cannon test: `$90:C663` has a similar-looking but stricter condition of its own.
     samus.InvincibilityTimer = WrappingCountdown.Start(1);
-    samus.KnockbackTimer = 0;
+    samus.KnockbackHold = UpdateCountdown.Ended();
     SamusBodyFrame? drawnBeforeHidden = samus.Presentation.DrawnFrame;
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
@@ -283,7 +284,7 @@ internal static void VerifySamusRenderingSlice()
 
     // Knockback and shine are two independent OR terms in the native branch. Prove each
     // on an odd frame so neither can pass accidentally through the even-NMI condition.
-    samus.KnockbackTimer = 1;
+    samus.KnockbackHold = UpdateCountdown.For(1);
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.Draw(samus, oamFrame, cameraPosition: new(0x0400, 0), frameCounter: 1);
@@ -291,7 +292,7 @@ internal static void VerifySamusRenderingSlice()
     AssertEqual(2, oam.LastFinalizedSpriteCount,
         "knockback overrides odd-frame invincibility blink");
 
-    samus.KnockbackTimer = 0;
+    samus.KnockbackHold = UpdateCountdown.Ended();
     AssertTrue(samus.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(4, 0)),
         "test fixture installs nonzero native shine timer");
     oamFrame.BeginFrame();
@@ -311,7 +312,7 @@ internal static void VerifySamusRenderingSlice()
     // bottom-half matrix using authored pose/movement pairs. Movement type $0C has no
     // authored pose record, so production correctly cannot reach that dispatcher slot.
     samus.InvincibilityTimer = WrappingCountdown.Start(0);
-    samus.KnockbackTimer = 0;
+    samus.KnockbackHold = UpdateCountdown.Ended();
     SeedBodyHalfRoutingTileAnimation(bus);
     SamusRenderingVerifySamusRenderingSliceCase[] routingCases =
     [
@@ -679,7 +680,7 @@ internal static void VerifySamusVisorPalette()
     // `HandleBeamChargePalettes` reaches the visor only through its no-charge branch.
     // This integration assertion prevents the exact state machine from becoming orphaned.
     var integratedSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
-    var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
+    var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
     AssertTrue(!projectiles.UpdateBeamChargeGlow(samusColours, integratedSamus, RoomVisorAnimation.Animated),
         "inactive charging restores no suit");
     AssertEqual(new VerifySamusVisorPaletteCase(5, SamusShades.VisorCycle[0]), VerifySamusVisorPaletteCase.Of(integratedSamus.VisorShades),
@@ -825,12 +826,12 @@ internal static void VerifySamusHurtFlashPalette()
         samusColours, charging, GameplayAction.Shoot);
     AssertEqual(0, charging.LiquidPhysics.SoundRequests.Count,
         "counter forty arms charging-beam recovery without an immediate sound");
-    AssertTrue(charging.ResumeChargingBeamSoundPending,
+    AssertTrue(charging.ChargingSound.IsArmed,
         "charging recovery publishes native flag one");
-    AssertTrue(SamusHurtFlash.ConsumeResumeChargingBeamSound(
+    AssertTrue(SamusHurtFlash.ResumeChargingBeamSound(
             charging, GameplayAction.Shoot),
         "post-draw handler queues held charging sound");
-    AssertTrue(!charging.ResumeChargingBeamSoundPending,
+    AssertTrue(!charging.ChargingSound.IsArmed,
         "post-draw handler clears charging recovery flag");
     AssertEqual(new SoundRequest(SamusSound.ResumeChargingBeam, SoundRequestPriority.High),
         charging.LiquidPhysics.SoundRequests[^1],
@@ -852,7 +853,7 @@ internal static void VerifySamusHurtFlashPalette()
     cancelledGrapple.Grapple.Phase = GrapplePhase.CancelPending;
     SamusHurtFlash.Update(
         samusColours, cancelledGrapple, controllerInput: 0);
-    AssertTrue(!cancelledGrapple.ResumeChargingBeamSoundPending,
+    AssertTrue(!cancelledGrapple.ChargingSound.IsArmed,
         "grapple cancel cutoff suppresses recovery sound and charging latch");
     AssertEqual(0, cancelledGrapple.LiquidPhysics.SoundRequests.Count,
         "cancelled grapple leaves sound queue empty");

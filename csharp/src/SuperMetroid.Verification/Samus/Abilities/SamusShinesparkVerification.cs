@@ -41,7 +41,7 @@ static void SeedStoredShinePalettes(TestAddressSpace bus)
 /// <summary>A fresh shot pool for a spark fixture, whose count admits the crash's echoes and whose shots carry them.</summary>
 static SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem Shots() =>
     new(GameplayAudioRequests.Standalone(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), InstalledFixtures.SamusOverreads,
-        new LeftMuzzleSubpixelCarry(SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.PlaceCount), new SamusShotCount(), InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
+        new LeftBeamStartFromLastShot(SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.PlaceCount), new SamusShotCount(), InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
 
 /// <summary>Checks shine storage and palette selection through launch, movement, collision, crash, echoes, and return to standing.</summary>
 internal static void VerifySamusStoredShineAndShinespark()
@@ -89,7 +89,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         "stage three cannot store shine");
     AssertTrue(shine.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(4, 0)),
         "stage four stores shine");
-    AssertEqual(180, shine.Shinespark.ShineTimer, "stored shine begins at 180");
+    AssertEqual(180, shine.Shinespark.ShineTimer.UpdatesLeft, "stored shine begins at 180");
     AssertEqual(SamusSpecialColouringKind.SpeedBoosterShine, shine.SpecialColouring.Holder, "the stored shine takes Samus's suit colouring");
 
     var samusColours = new SamusColours();
@@ -98,7 +98,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     AssertTrue(shine.Shinespark.UpdateColouring(samusColours, equippedItems: 0),
         "stored shine copies first ROM palette");
     AssertEqual(0x1100, samusColours.ShownSuit(shineSources)[0], "stored shine follows double pointer");
-    AssertEqual(179, shine.Shinespark.ShineTimer, "stored palette decrements every frame");
+    AssertEqual(179, shine.Shinespark.ShineTimer.UpdatesLeft, "stored palette decrements every frame");
     AssertEqual(1, shine.Shinespark.ShineGlow.Place.Beat,
         "stored palette stands past the cycle's first shade");
 
@@ -108,7 +108,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     AssertSequenceEqual(new[] { new SoundRequest(RoomSound.StoredShinespark, SoundRequestPriority.High) },
         shine.AudioRequests.SoundRequests.Where(request => request.SoundEffect == RoomSound.StoredShinespark),
         "stored timer 170 queues the warning sound once, at high priority");
-    AssertEqual(169, shine.Shinespark.ShineTimer,
+    AssertEqual(169, shine.Shinespark.ShineTimer.UpdatesLeft,
         "warning frame still decrements timer");
 
     SamusPoseMetadata.RefreshCollisionRadii(shine);
@@ -116,7 +116,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     shine.Shinespark.BeginWindup(shine);
     AssertEqual(ShinesparkPhase.Windup, shine.Shinespark.Phase,
         "stored shine installs windup handler");
-    AssertEqual(30, shine.Shinespark.WindupCountdown, "windup timer is 30");
+    AssertEqual(30, shine.Shinespark.WindupCountdown.UpdatesLeft, "windup timer is 30");
     AssertEqual(8, shine.HorizontalSpeed.ExtraRunSpeed.Whole,
         "windup seeds exact 8.0000 extra speed");
     AssertEqual(new SamusSpeedBoostCounter(4, 0), shine.HorizontalSpeed.SpeedBoostCounter,
@@ -347,7 +347,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         horizontal.Shinespark.StepAndCommit(new SamusTerrain { Level = empty, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, horizontal, frameCounter: unchecked((ushort)(7 + frame)), projectiles: horizontalShots));
     AssertEqual(ShinesparkPhase.CrashHold, horizontal.Shinespark.Phase,
         "crash orbit contracts into echo-circle hold");
-    AssertEqual(30, horizontal.Shinespark.CrashHoldCountdown,
+    AssertEqual(30, horizontal.Shinespark.CrashHoldCountdown.UpdatesLeft,
         "echo circle begins at 30 frames");
 
     StepFrames(30, frame =>

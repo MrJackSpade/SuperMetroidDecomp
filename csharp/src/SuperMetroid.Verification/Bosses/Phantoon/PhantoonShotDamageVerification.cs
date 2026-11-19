@@ -60,7 +60,7 @@ internal static class PhantoonShotDamageVerification
 
         Position16<RoomPixels> eye = EyeCentre(body);
         var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads,
-            new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(),
+            new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(),
             InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         SamusProjectile shot = shots.Shots[0];
         shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Power, charged);

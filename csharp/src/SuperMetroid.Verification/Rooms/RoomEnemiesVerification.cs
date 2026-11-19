@@ -328,7 +328,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     SeedEnemyProjectileDefinitionWord(bus, eyeShot.Kind, 12, 0xb5fb);
 
     var shotsEarthquake = new RoomEarthquake();
-    var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), shotsEarthquake);
+    var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), shotsEarthquake);
     SamusProjectile owner = shots.Shots[0];
     owner.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile);
     owner.Damage = 0x012c;

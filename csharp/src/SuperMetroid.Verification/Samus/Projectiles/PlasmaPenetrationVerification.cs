@@ -15,7 +15,7 @@ internal static class PlasmaPenetrationVerification
         foreach (bool charged in new[] { false, true })
         for (ushort combination = 0; combination < 8; combination++)
         {
-            var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
+            var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             var slot = shots.Shots[0];
             SamusProjectileType type = SamusProjectileType.Beam(
                 SamusBeamCombinations.Of(SamusEquipmentWordCodec.FromBeamWord(combination) | SamusBeamFlags.Plasma), charged);

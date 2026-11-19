@@ -43,7 +43,7 @@ internal static class EnemyBombShotReactionVerification
             bomb.Radius = new(4, 4);
             bomb.Position = FixedPosition<RoomPixels>.FromWhole(Place);
             var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads,
-                new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
+                new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
 
             enemies.Audio.BeginFrame();
             AssertTrue(enemies.Collision.ResolveOrdinaryBombHit(bombs, shots, samus: RoomEnemyFrameFixtures.StandaloneSamus(), place, Position16<RoomPixels>.Zero),
@@ -97,7 +97,7 @@ internal static class EnemyBombShotReactionVerification
             bomb.Radius = new(4, 4);
             bomb.Position = FixedPosition<RoomPixels>.FromWhole(place);
             var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads,
-                new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
+                new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
 
             enemies.Audio.BeginFrame();
             AssertEqual(hit, enemies.Collision.ResolveOrdinaryBombHit(bombs, shots, samus: RoomEnemyFrameFixtures.StandaloneSamus(), enemy, Position16<RoomPixels>.Zero),

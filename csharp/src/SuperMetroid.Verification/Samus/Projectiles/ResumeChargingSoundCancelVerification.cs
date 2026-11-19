@@ -138,7 +138,7 @@ internal static class ResumeChargingSoundCancelVerification
                 Position = position,
                 EquippedBeams = beams,
             };
-            Projectiles = new SamusProjectileSystem(Requests, Charge, InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
+            Projectiles = new SamusProjectileSystem(Requests, Charge, InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         }
 
         /// <summary>The charge Samus and her projectiles share.</summary>

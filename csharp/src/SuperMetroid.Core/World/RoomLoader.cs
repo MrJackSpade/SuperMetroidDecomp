@@ -835,7 +835,7 @@ internal sealed class RoomLoader
         // The room's earthquake is composed with the room: Super Missile impacts and the room's enemies start it.
         var earthquake = new RoomEarthquake();
         var projectiles = new SamusProjectileSystem(_audioRequests, _beamCharge, _samusOverreads,
-            new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), _artwork.SamusArtwork, earthquake);
+            new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), _artwork.SamusArtwork, earthquake);
         projectiles.TakeOverFrom(_room.HandOver);
         scope.BombProjectiles = bombs;
         scope.Projectiles = projectiles;

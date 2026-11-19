@@ -76,9 +76,9 @@ public enum SamusPoseTransitionSetup
     ChangeDraygonGrabbedPose,
 
     /// <summary>
-    /// The stand-up Up chooses from the ball the Hyper Beam's freeze can leave in Draygon's hold. Its setup is not
-    /// reproduced: the game makes room for the larger body and starts the stand-up's animation, with no setup of the
-    /// stand-up's own, and no other transition shares that change.
+    /// The stand-up Up chooses from the ball the Hyper Beam's freeze can leave in Draygon's hold (#2516): the game makes
+    /// room for the larger body and starts the stand-up's animation, with no setup of the stand-up's own, and no other
+    /// transition shares that change.
     /// </summary>
     StandUpFromDraygonHold,
 }

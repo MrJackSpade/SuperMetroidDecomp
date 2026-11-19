@@ -370,6 +370,58 @@ internal static class SamusPosturePoseTransitions
         return true;
     }
 
+    /// <summary>
+    /// Applies the stand-up Up chooses from the Draygon-held ball the Baby's Hyper Beam freeze can install (#1535, #2516).
+    /// The stand-up's own setup does nothing and its movement type has no jump-transition handling, so the pose change only
+    /// makes room for the larger body through the larger-pose collision and starts the stand-up's animation.
+    /// </summary>
+    /// <param name="samus">The Samus this changes.</param>
+    /// <param name="level">Live room block geometry used by the shared pose-expansion resolver.</param>
+    /// <param name="targetPose">The Draygon-held stand-up, the only pose the ball's input transitions choose.</param>
+    /// <param name="frameCounter">The frame counter supplied to changed-pose block reactions.</param>
+    /// <param name="roomObjects">The room's room objects, receiving those collision reactions.</param>
+    /// <returns>True when the stand-up is installed; false when the collision keeps the ball.</returns>
+    /// <remarks>
+    /// As for the stand transitions, the collision radius stays the ball's until the input phase publishes the stand-up's
+    /// at the start of the next frame.
+    /// </remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="level"/> is null.</exception>
+    /// <exception cref="InvalidOperationException">The source and target are not the Draygon-held ball and its stand-up.</exception>
+    public static bool TryApplyDraygonHoldStandUp(
+        SamusState samus,
+        RoomLevelData level,
+        SamusPoseId targetPose,
+        int frameCounter,
+        ISamusRoomObjects roomObjects)
+    {
+        Ensure.NotNull(level);
+
+        SamusPoseId sourcePose = samus.Pose;
+        if (sourcePose != SamusPoseId.DraygonHeldBallLeftPose || targetPose != SamusPoseId.DraygonHeldStandingUpLeftPose)
+        {
+            throw new InvalidOperationException(
+                $"Draygon-held stand-up {sourcePose} -> {targetPose} is not the ball's input transition.");
+        }
+
+        LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
+            level,
+            targetPose,
+            frameCounter,
+            roomObjects,
+            out int centerAdjustment);
+        if (collision != LargerPoseCollisionOutcome.Allowed)
+        {
+            if (collision == LargerPoseCollisionOutcome.CrouchFallback)
+                samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
+            return false;
+        }
+
+        samus.Pose = targetPose;
+        samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
+        SamusPresentation.InitializeAnimation(samus);
+        return true;
+    }
+
     /// <summary>Shared bounce cancellation of the posture change.</summary>
     private static void CancelBounceForPostureTransition(SamusState samus)
     {

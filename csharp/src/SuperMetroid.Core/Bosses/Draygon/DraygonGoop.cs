@@ -49,7 +49,6 @@ internal sealed class DraygonGoop
     /// <summary>Runs the oscillating approach.</summary>
     internal void ApproachSamusForDraygonGoop(
         DraygonEnemyState state,
-        HorizontalDirection direction,
         SamusState samus,
         int frameCounter)
     {

@@ -593,7 +593,7 @@ internal static class NativeEnemyFamilyStateImport
             verticalShutterRecord.ActionTimer = WrappingCountdown.Start(words.B);
             // The cartridge rests at an end in the same word as the first wait; the port keeps the rest's own duration.
             if (verticalShutterRecord.Action is VerticalShutterAction.StoppedAfterMovingUp or VerticalShutterAction.StoppedAfterMovingDown)
-                verticalShutterRecord.RestTimer = TrueDuration(words.B);
+                verticalShutterRecord.RestTimer = TrueWait(words.B);
             // The upward words are the speed reversed (#2278): the speed is the downward pair. The shutter moves at its
             // placement's speed (#2450), which the recording's must be.
             SignedSixteenSixteen verticalShutterSpeed = SignedSixteenSixteen.FromParts(unchecked((short)words.D), words.C);
@@ -846,14 +846,14 @@ internal static class NativeEnemyFamilyStateImport
             switch (ghost.Action)
             {
                 case WreckedShipGhostAction.InitialInvisibleDelay:
-                    ghost.InvisibleDelay = ghostTimer;
+                    ghost.InvisibleDelay = UpdateCountdownAccess.Recorded(ghostTimer);
                     break;
                 case WreckedShipGhostAction.BrighteningAndFlickering or WreckedShipGhostAction.FadingToGhostColours:
-                    ghost.FlickerTimer = ghostTimer;
+                    ghost.FlickerTimer = UpdateCountdownAccess.Recorded(ghostTimer);
                     ghost.NextFlickerStep = WreckedShipGhostFlickerStepOf(words.C);
                     break;
                 case WreckedShipGhostAction.BobbingWhileVisible:
-                    ghost.VisibleTimer = ghostTimer;
+                    ghost.VisibleTimer = UpdateCountdownAccess.Recorded(ghostTimer);
                     break;
                 case WreckedShipGhostAction.TrackingSamusForSpawn:
                     if (ghostTimer != WreckedShipGhostAppearanceDefinitions.FlickerFirstStepDelay)
@@ -917,7 +917,7 @@ internal static class NativeEnemyFamilyStateImport
         if (enemy.DefinitionId == EnemyDefinitionId.Polyp && enemy.SpeciesState<PolypEnemyState>() is { } polyp)
         {
             polyp.Action = PolypNativeWords.PolypActions.Decode(words.A, "recorded PolypAction");
-            polyp.CooldownTimer = TrueDuration(words.B);
+            polyp.CooldownTimer = TrueWait(words.B);
         }
         // The halves reuse the same words for different values, each half into its own state (#1845).
         if (enemy.DefinitionId == EnemyDefinitionId.Powamp && enemy.SpeciesState<PowampBalloonState>() is { } powampBalloon)
@@ -933,8 +933,8 @@ internal static class NativeEnemyFamilyStateImport
         {
             powampBody.YVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.A), words.B);
             powampBody.Wiggle = PowampWiggle.All[Index(words.C, PowampWiggle.All.Count - 1, "Powamp wiggle phase")];
-            powampBody.WiggleTimer = ZeroOrBelowDuration(words.D);
-            powampBody.ActionTimer = ZeroOrBelowDuration(words.E);
+            powampBody.WiggleTimer = UpdateCountdown.For(ZeroOrBelowDuration(words.D));
+            powampBody.ActionTimer = UpdateCountdown.For(ZeroOrBelowDuration(words.E));
             powampBody.Action = PowampNativeWords.PowampActions.Decode(words.F, "recorded PowampAction");
         }
         if (enemy.DefinitionId == EnemyDefinitionId.MamaTurtle && enemy.SpeciesState<MamaTurtleEnemyState>() is { } mama)
@@ -1139,12 +1139,13 @@ internal static class NativeEnemyFamilyStateImport
             // The Spark waits its placement's time between actions (#2450), which the recording's copy must be.
             if (words.E != enemy.SpawnSettings<SparkSpawnSettings>().BaseActionTime)
                 throw new InvalidDataException($"Recorded Spark wait {words.E} is not its placement's {enemy.SpawnSettings<SparkSpawnSettings>().BaseActionTime}.");
-            spark.ActionTimer = unchecked((short)words.F);
+            // The cartridge's countdown expires on the update it would step from one, which the wait's last update stands for.
+            spark.ActionTimer = UpdateCountdownAccess.Recorded(unchecked((short)words.F));
         }
         if (enemies.PuyoStates[index] is { } puyo)
         {
             puyo.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(Index(words.A, short.MaxValue, "Puyo speed index"));
-            puyo.HopCooldownTimer = TrueDuration(words.B);
+            puyo.HopCooldownTimer = TrueWait(words.B);
             puyo.Action = PuyoNativeWords.PuyoActions.Decode(words.C, "recorded PuyoAction");
             // A Puyo that has not hopped yet records no airborne behaviour; the port chooses one as each hop starts, so a
             // grounded Puyo's is not read before its next hop writes it.
@@ -1216,8 +1217,8 @@ internal static class NativeEnemyFamilyStateImport
         {
             // The lock-on timer ($7E:781A) counts Samus's keeping still, the directed movement timer ($7E:781C) her keeping
             // her direction; the appearance sets both, which the ghost keeps until it watches her again (#2512).
-            ghost.StablePositionTimer = extraWord(CovenLockOnTimerOffset);
-            ghost.StableDirectionTimer = extraWord(CovenDirectedMovementTimerOffset);
+            ghost.StablePositionTimer = UpdateCountdownAccess.Recorded(extraWord(CovenLockOnTimerOffset));
+            ghost.StableDirectionTimer = UpdateCountdownAccess.Recorded(extraWord(CovenDirectedMovementTimerOffset));
         }
         if (enemy.EntityState<KagoEntity, KagoEnemyState>() is { } kago)
         {

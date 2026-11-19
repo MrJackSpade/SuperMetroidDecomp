@@ -19,10 +19,10 @@ public sealed class CeresDepartureState
     public CeresDeparturePhase Phase { get; private set; } = CeresDeparturePhase.Inactive;
 
     /// <summary>
-    /// The updates left in the elevator hold, started at <see cref="CeresElevatorDepartureDefinitions.DepartureHoldFrames"/>
-    /// when Samus reaches the elevator and the room's main behaviour begins the departure.
+    /// The elevator hold, lasting <see cref="CeresElevatorDepartureDefinitions.DepartureHoldFrames"/> from when Samus
+    /// reaches the elevator and the room's main behaviour begins the departure.
     /// </summary>
-    public int HoldFramesRemaining { get; private set; }
+    public UpdateCountdown Hold { get; private set; } = UpdateCountdown.Ended();
 
     /// <summary>The blackout fade: fully lit until the fade, then one level darker on every update until black.</summary>
     private readonly ScreenFade fade = new(DisplayBrightness.Full);
@@ -37,7 +37,7 @@ public sealed class CeresDepartureState
         if (Phase != CeresDeparturePhase.Inactive)
             throw new InvalidOperationException("Ceres elevator departure was started twice.");
 
-        HoldFramesRemaining = CeresElevatorDepartureDefinitions.DepartureHoldFrames;
+        Hold = UpdateCountdown.Lasting(CeresElevatorDepartureDefinitions.DepartureHoldFrames);
         fade.Restart(DisplayBrightness.Full, 0);
         Phase = CeresDeparturePhase.HoldingOnElevator;
     }
@@ -52,9 +52,8 @@ public sealed class CeresDepartureState
         if (Phase != CeresDeparturePhase.HoldingOnElevator)
             throw new InvalidOperationException("Ceres departure hold is not active.");
 
-        // The hold counts down after the main gameplay update returns, and ends once it reaches zero or runs past it. Begin()
-        // starts it at the elevator hold's length, so it ends on reaching zero.
-        if (--HoldFramesRemaining > 0)
+        // The hold is counted after the main gameplay update returns, and ends on its last update.
+        if (!Hold.Step())
             return false;
 
         Phase = CeresDeparturePhase.FadingToBlack;

@@ -17,10 +17,10 @@ public sealed class EscapeTimer
     private int _pendingDuration;
 
     /// <summary>
-    /// The updates left in the centre delay under way (#2499): the initial delay's, loaded as the start enters it, then the
-    /// centre count's, loaded as the initial delay ends.
+    /// The centre delay under way (#2499): the initial delay, started as the start enters it, then the centre count's,
+    /// started as the initial delay ends.
     /// </summary>
-    private int _delayUpdatesLeft;
+    private UpdateCountdown _delay = UpdateCountdown.Ended();
 
     /// <summary>Which step of the timer's sequence the timer's next update (<see cref="Process"/>) runs.</summary>
     public EscapeTimerPhase Phase { get; private set; }
@@ -113,17 +113,17 @@ public sealed class EscapeTimer
         Clear();
         SetRemaining(duration);
         Phase = EscapeTimerPhase.InitialDelay;
-        _delayUpdatesLeft = InitialDelayFrames;
+        _delay = UpdateCountdown.Lasting(InitialDelayFrames);
         return false;
     }
 
     /// <summary>Waits at the centre without counting down, then begins the centre count.</summary>
     private bool ProcessInitialDelay()
     {
-        if (--_delayUpdatesLeft == 0)
+        if (_delay.StepEnds())
         {
             Phase = EscapeTimerPhase.CountingAtCentre;
-            _delayUpdatesLeft = CentreCountingFrames;
+            _delay = UpdateCountdown.Lasting(CentreCountingFrames);
         }
 
         // The initial delay never counts down, even on the update that ends it.
@@ -133,7 +133,7 @@ public sealed class EscapeTimer
     /// <summary>Counts down at the centre until the centre count's delay has passed.</summary>
     private bool ProcessCentreDelay(int frameCounter)
     {
-        if (--_delayUpdatesLeft == 0)
+        if (_delay.StepEnds())
             Phase = EscapeTimerPhase.MovingIntoPlace;
 
         return CountDown(frameCounter);

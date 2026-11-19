@@ -31,7 +31,7 @@ internal static class PowampDeathSequenceVerification
 
         body.Health = 0;
         state.Action = PowampAction.DeathSequence;
-        state.ActionTimer = 1;
+        state.ActionTimer = UpdateCountdown.For(1);
         runtime.Enemies.PowampBehavior.RunPowampMain(body, state, runtime.Room.LoadedLevelData, runtime.Player.IntroducedSamus);
 
         var projectiles = runtime.Enemies.Projectiles.EnemyProjectiles;

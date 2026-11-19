@@ -99,7 +99,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         // Its sections' origins follow from the spawn row, each eight pixels further along the growth.
         var state = new GrowingShutterEnemyState(action, place.Position.Y.Whole, settings.Growth)
         {
-            ActivationTimer = settings.ActivationWait + EnemyWaitDefinitions.RunOutUpdate,
+            ActivationTimer = UpdateCountdown.For(settings.ActivationWait + EnemyWaitDefinitions.RunOutUpdate),
         };
         place.SetSpeciesState(state);
 
@@ -148,7 +148,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Steps the timer-mode wait one update and reports whether it ran out on this update (#2281).</summary>
-    internal static bool AdvanceGrowingShutterTimer(GrowingShutterEnemyState state) => --state.ActivationTimer == 0;
+    internal static bool AdvanceGrowingShutterTimer(GrowingShutterEnemyState state) => state.ActivationTimer.StepEnds();
 
     /// <summary>Switches a timed or proximity shutter into growth and queues audible activation on screen.</summary>
     private void ActivateGrowingShutter(
@@ -568,7 +568,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Action = VerticalShutterAction.Still;
             return;
         }
-        state.RestTimer = rest.Updates + EnemyWaitDefinitions.RunOutUpdate;
+        state.RestTimer = UpdateCountdown.For(rest.Updates + EnemyWaitDefinitions.RunOutUpdate);
         state.Action = moved == VerticalDirection.Up ? VerticalShutterAction.StoppedAfterMovingUp : VerticalShutterAction.StoppedAfterMovingDown;
     }
 
@@ -582,7 +582,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> camera,
         VerticalDirection end)
     {
-        if (--state.RestTimer > 0)
+        if (!state.RestTimer.Step())
             return;
 
         ShutterSpawnSettings settings = place.SpawnSettings<ShutterSpawnSettings>();

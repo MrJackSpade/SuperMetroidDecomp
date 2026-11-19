@@ -273,12 +273,11 @@ internal sealed class IntroBabyDiscoveryState
                 return;
 
             case ConfusedBabyMotion.Idling:
-                if (--BabyIdleTimer <= 0)
+                if (BabyIdleTimer.Step())
                 {
                     babyMotion = ConfusedBabyMotion.Dancing;
-                    BabyIdleTimer = 0;
                     BabyVelocity = BabyVelocity.WithY(default);
-                    BabyDanceFrames = 0;
+                    BabyCryingDance = UpdateCountdown.Lasting(IntroBabyDiscoveryDefinitions.CryingDanceUpdates);
                 }
                 return;
 
@@ -294,11 +293,14 @@ internal sealed class IntroBabyDiscoveryState
     /// <summary>The velocity of the baby's rise and two-axis dance.</summary>
     private EightEightVector<ScreenPixels> BabyVelocity { get; set; }
 
-    /// <summary>Countdown from the apex of the baby's rise to the start of its dance.</summary>
-    private int BabyIdleTimer { get; set; }
+    /// <summary>The hold from the apex of the baby's rise to the start of its dance.</summary>
+    private UpdateCountdown BabyIdleTimer { get; set; } = UpdateCountdown.Ended();
 
-    /// <summary>The frames the baby has danced, counted up to 128; it cries as the count reaches 64 and 128.</summary>
-    private int BabyDanceFrames { get; set; }
+    /// <summary>
+    /// The crying stretch of the baby's dance, its first 128 updates, counted once each: it cries as its age reaches 64 and
+    /// 128, and dances on silently once it is over.
+    /// </summary>
+    private UpdateCountdown BabyCryingDance { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>Spawns slime at the authored row and accelerates the baby toward its hover point.</summary>
     private void StepHatchedBaby()
@@ -329,7 +331,7 @@ internal sealed class IntroBabyDiscoveryState
         // then holds before enabling the two-axis dance around Samus.
         if (!BabyVelocity.Y.IsNegative)
         {
-            BabyIdleTimer = IntroBabyDiscoveryDefinitions.ArcTopHold;
+            BabyIdleTimer = UpdateCountdown.For(IntroBabyDiscoveryDefinitions.ArcTopHold);
             babyMotion = ConfusedBabyMotion.Idling;
         }
     }
@@ -345,11 +347,11 @@ internal sealed class IntroBabyDiscoveryState
             return;
         }
 
-        if (BabyDanceFrames < IntroBabyDiscoveryDefinitions.CryingDanceUpdates)
+        if (BabyCryingDance.IsRunning)
         {
-            BabyDanceFrames++;
+            BabyCryingDance.Count();
             // The dancing baby cries when its count of frames danced reaches 64 and 128.
-            if (IntroCadenceDefinitions.BabyCriesEverySixtyFourthDanceUpdate.IsDue(BabyDanceFrames))
+            if (IntroCadenceDefinitions.BabyCriesEverySixtyFourthDanceUpdate.IsDue(BabyCryingDance.Age))
                 audio.QueueSound(
                     IntroCinematicDefinitions.Sounds.BabyCry1,
                     priority: IntroCinematicDefinitions.Sounds.SoundPriority);

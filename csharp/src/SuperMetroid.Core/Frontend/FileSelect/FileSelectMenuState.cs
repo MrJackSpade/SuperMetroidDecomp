@@ -53,8 +53,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     internal FileSelectHelmetFrame HelmetAnimationFrame => selectedHelmet.Frame;
     /// <summary>The screen's brightness and the cadence of its entry and submenu fades; the menu opens black.</summary>
     private readonly ScreenFade screenFade = new(0);
-    /// <summary>Updates left of the opening's black hold (<see cref="FileSelectPhase.BlackHold"/>).</summary>
-    private int blackHoldUpdatesLeft = FileSelectLayout.BlackHoldUpdates;
+    /// <summary>The opening's black hold (<see cref="FileSelectPhase.BlackHold"/>), counted once each update.</summary>
+    private readonly UpdateCountdown blackHold = UpdateCountdown.Lasting(FileSelectLayout.BlackHoldUpdates);
     /// <summary>The page file select has selected, which it shows with its slots as they are now.</summary>
     private FileSelectPage selectedPage = FileSelectPage.MainEmpty;
     /// <summary>The page shown, with its slots' fields and the slots its prompt names (#1467).</summary>
@@ -140,7 +140,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
                 break;
 
             case FileSelectPhase.BlackHold:
-                if (--blackHoldUpdatesLeft == 0)
+                if (blackHold.StepEnds())
                     Phase = FileSelectPhase.InitializeMain;
                 break;
 
@@ -269,8 +269,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     private SaveSlot copyTargetSlot;
     /// <summary>Yes or No row selected on the copy or clear confirmation page.</summary>
     private YesNoChoice confirmationSelection;
-    /// <summary>Updates remaining before the copy arrow rotates its colors.</summary>
-    private int copyArrowGlowTimer;
+    /// <summary>The wait before the copy arrow rotates its colors; over while the glow is stopped.</summary>
+    private readonly UpdateCountdown copyArrowGlow = UpdateCountdown.Ended();
     /// <summary>
     /// The step the copy arrows' colour rotation shows
     /// (#1512). The rotation runs on from where it stopped each time a copy is confirmed, as the game's colours keep it.
@@ -506,7 +506,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         }
         copyTargetSlot = FileSelectItemRows.SaveSlotOf(submenuSelection);
         confirmationSelection = YesNoChoice.Yes;
-        copyArrowGlowTimer = FileCopyArrowDefinitions.InitialGlowDelay;
+        copyArrowGlow.Restart(FileCopyArrowDefinitions.InitialGlowDelay);
         ShowPage(FileSelectPage.CopyConfirm);
         Phase = FileSelectPhase.CopyConfirm;
     }
@@ -514,9 +514,9 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>Moves the copy arrows' glow on one colour when its timer expires.</summary>
     private void StepCopyArrowGlow()
     {
-        if (copyArrowGlowTimer == 0 || --copyArrowGlowTimer != 0)
+        if (!copyArrowGlow.StepEnds())
             return;
-        copyArrowGlowTimer = FileCopyArrowDefinitions.GlowDelay;
+        copyArrowGlow.Restart(FileCopyArrowDefinitions.GlowDelay);
         CopyArrowRotation = CopyArrowRotation.Next;
     }
 

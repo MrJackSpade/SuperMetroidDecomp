@@ -63,7 +63,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case PolypAction.Cooldown:
-                if (--state.CooldownTimer == 0)
+                if (state.CooldownTimer.StepEnds())
                     state.Action = PolypAction.WaitingForSamus;
                 return;
 
@@ -82,7 +82,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         SpawnPolypRock(place, launchPlace, xVelocity);
 
         state.Action = PolypAction.Cooldown;
-        state.CooldownTimer = PolypLaunchDefinitions.Cooldown.Choose(_room.Random.Generate());
+        state.CooldownTimer = UpdateCountdown.For(PolypLaunchDefinitions.Cooldown.Choose(_room.Random.Generate()));
     }
 
     /// <summary>

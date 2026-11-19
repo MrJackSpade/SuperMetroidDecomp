@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 internal sealed class GameLoadingWait
 {
-    /// <summary>The black waiting updates left.</summary>
-    internal int WaitsRemaining { get; private set; }
+    /// <summary>The load's black wait, counted once each waiting update.</summary>
+    internal UpdateCountdown Wait { get; private set; } = UpdateCountdown.Ended();
 
     /// <summary>Where the game goes once the waits finish.</summary>
     internal GameLoadingCompletion Completion { get; private set; }
@@ -15,16 +15,15 @@ internal sealed class GameLoadingWait
     /// True while the load waits out frames of the display: the next update continues that wait instead of starting a new
     /// update of the loading phase (<see cref="DisplayFrameWaitContinuation"/>).
     /// </summary>
-    internal bool Resumes => WaitsRemaining > 0;
+    internal bool Resumes => Wait.IsRunning;
 
     /// <summary>Owes <paramref name="waits"/> waiting updates, after which the game enters <paramref name="completion"/>.</summary>
     internal void Begin(int waits, GameLoadingCompletion completion)
     {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(waits);
-        WaitsRemaining = waits;
+        Wait = UpdateCountdown.Lasting(waits);
         Completion = completion;
     }
 
     /// <summary>Counts one wait; returns whether it was the last.</summary>
-    internal bool CountWait() => --WaitsRemaining == 0;
+    internal bool CountWait() => Wait.StepEnds();
 }

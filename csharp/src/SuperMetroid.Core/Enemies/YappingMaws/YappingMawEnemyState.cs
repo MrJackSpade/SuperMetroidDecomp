@@ -75,7 +75,7 @@ public sealed class YappingMawEnemyState
     internal YappingMawCurlPhase CurlPhase { get; set; }
 
     /// <summary>The updates left in the hold after the tongue fully retracts, the one it releases Samus on included (#2281).</summary>
-    public int RetractedDelayTimer { get; internal set; }
+    public UpdateCountdown RetractedDelayTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>Whether the mouth currently holds Samus, owning her input and position.</summary>
     public bool HasGrabbedSamus { get; internal set; }

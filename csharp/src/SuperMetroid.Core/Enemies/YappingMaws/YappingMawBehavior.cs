@@ -88,7 +88,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             Action = YappingMawAction.WaitingForSamus,
             Origin = place.Position.Whole,
-            RetractedDelayTimer = YappingMawAttackDefinitions.RetractedHold,
+            RetractedDelayTimer = UpdateCountdown.Lasting(YappingMawAttackDefinitions.RetractedHold),
             Links = [.. bodies.Select(body => new YappingMawLink(body))],
             // The root's kind follows the Maw's attack direction; the Maw holds the root it spawned.
             RootEffectActor = _effectActors.SpawnRoomEffectActor(
@@ -313,15 +313,13 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             PositionSamusInYappingMaw(mouth, state, samus);
 
         // A hold that has run out stays at zero while Samus's death keeps the Maw waiting.
-        if (state.RetractedDelayTimer > 0)
-            state.RetractedDelayTimer--;
-        if (state.RetractedDelayTimer > 0 || samus.DeathSequence.IsActive)
+        if (!state.RetractedDelayTimer.Step() || samus.DeathSequence.IsActive)
             return;
 
         samus.Control.Unlock();
         state.HasGrabbedSamus = false;
         state.GrabCooldown = YappingMawGrabCooldown.Started(YappingMawAttackDefinitions.GrabCooldown);
-        state.RetractedDelayTimer = YappingMawAttackDefinitions.RetractedHold;
+        state.RetractedDelayTimer = UpdateCountdown.Lasting(YappingMawAttackDefinitions.RetractedHold);
         state.Action = YappingMawAction.WaitingForSamus;
     }
 

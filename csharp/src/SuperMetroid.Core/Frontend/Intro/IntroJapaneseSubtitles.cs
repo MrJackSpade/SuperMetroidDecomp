@@ -32,16 +32,16 @@ internal sealed class IntroJapaneseSubtitles
     public bool Enabled { get; }
 
     /// <summary>
-    /// The updates the second subtitle still holds the page's input wait, counted down by the wait's hold checks to none;
-    /// none when the intro starts.
+    /// The second subtitle's hold on the page's input wait, counted once by each of the wait's hold checks; over when the
+    /// intro starts.
     /// </summary>
-    private int inputWaitHoldLeft;
+    private UpdateCountdown inputWaitHold = UpdateCountdown.Ended();
 
     /// <summary>
-    /// True on the one update the input wait's hold has counted down once: the second subtitle showed on the update
+    /// True on the one update the input wait's hold has counted its first update: the second subtitle showed on the update
     /// before. The next-page arrow hides for the hold from then (#1655).
     /// </summary>
-    public bool HoldFirstCounted => inputWaitHoldLeft == SecondSubtitleHoldFrames - 1;
+    public bool HoldFirstCounted => inputWaitHold.Age == 1;
 
     /// <summary>Begins <paramref name="page"/>'s text: Japanese text shows the page's first subtitle.</summary>
     public void BeginPage(IntroNarrationPageId page)
@@ -69,9 +69,9 @@ internal sealed class IntroJapaneseSubtitles
     /// </summary>
     public bool HoldInputWait()
     {
-        if (inputWaitHoldLeft == 0)
+        if (inputWaitHold.IsOver)
             return false;
-        inputWaitHoldLeft--;
+        inputWaitHold.Count();
         return true;
     }
 
@@ -87,7 +87,7 @@ internal sealed class IntroJapaneseSubtitles
             // The press shows the second subtitle, holds the input wait it will start, and moves to starting that
             // wait on this same frame.
             stage = SubtitleStage.StartInputWait;
-            inputWaitHoldLeft = SecondSubtitleHoldFrames;
+            inputWaitHold = UpdateCountdown.Lasting(SecondSubtitleHoldFrames);
         }
         switch (stage)
         {

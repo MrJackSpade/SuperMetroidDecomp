@@ -14,5 +14,5 @@ public sealed class PolypEnemyState
     public PolypAction Action { get; internal set; }
 
     /// <summary>The updates left in the launch cooldown, the one the Polyp rearms on included (#2281).</summary>
-    public int CooldownTimer { get; internal set; }
+    public UpdateCountdown CooldownTimer { get; internal set; } = UpdateCountdown.Ended();
 }

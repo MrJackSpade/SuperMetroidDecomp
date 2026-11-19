@@ -53,8 +53,12 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     private readonly FileSelectMapEntry entry;
     /// <summary>Active clipping window for the room-to-area return transition.</summary>
     private FileSelectMapWindow? returnWindow;
-    /// <summary>The updates the current load or return has run since the update that requested it.</summary>
-    private int requestUpdates;
+    /// <summary>
+    /// The wait of the current load or return, from the update that requested it: a return's setup of
+    /// <see cref="FileSelectMapDefinitions.ReturnSetupFrames"/>, or a load's prelude, fade and black wait together; over
+    /// for every other phase.
+    /// </summary>
+    private UpdateCountdown requestWait = UpdateCountdown.Ended();
     /// <summary>The screen's brightness: fully lit, and one level darker on every update of the exit fades, stopping at black.</summary>
     private readonly ScreenFade fade = new(DisplayBrightness.Full);
 
@@ -147,7 +151,13 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         navigation.Step(input);
         if (Phase != before)
         {
-            requestUpdates = 0;
+            requestWait = Phase switch
+            {
+                FileSelectMapNavigationPhase.AreaReturnRequested => UpdateCountdown.Lasting(FileSelectMapDefinitions.ReturnSetupFrames),
+                FileSelectMapNavigationPhase.LoadRequested => UpdateCountdown.Lasting(
+                    FileSelectMapDefinitions.LoadPreludeFrames + FileSelectMapDefinitions.LoadFadeFrames + FileSelectMapDefinitions.LoadBlackFrames),
+                _ => UpdateCountdown.Ended(),
+            };
             if (Phase is FileSelectMapNavigationPhase.PreparingWindow or FileSelectMapNavigationPhase.LoadRequested)
                 Queue(SamusSound.MenuConfirm);
             if (Phase == FileSelectMapNavigationPhase.ExpandingWindow) Queue(SamusSound.MapExpand);
@@ -163,7 +173,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         switch (Phase)
         {
             case FileSelectMapNavigationPhase.AreaReturnRequested:
-                if (++requestUpdates < FileSelectMapDefinitions.ReturnSetupFrames) break;
+                if (!requestWait.Step()) break;
                 if (returnWindow is null)
                 {
                     returnWindow = FileSelectMapWindow.CreateReturn(area, InstalledScreenContent.Maps.Labels);
@@ -179,14 +189,14 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
                 OptionsRequested = fade.Darken();
                 break;
             case FileSelectMapNavigationPhase.LoadRequested:
-                requestUpdates++;
-                if (requestUpdates <= FileSelectMapDefinitions.LoadPreludeFrames) break;
+                requestWait.Step();
+                if (requestWait.Age <= FileSelectMapDefinitions.LoadPreludeFrames) break;
                 if (!fade.IsBlack)
                 {
                     _ = fade.Darken();
                     break;
                 }
-                LoadRequested = requestUpdates >= FileSelectMapDefinitions.LoadPreludeFrames + FileSelectMapDefinitions.LoadFadeFrames + FileSelectMapDefinitions.LoadBlackFrames;
+                LoadRequested = requestWait.IsOver;
                 break;
             // Navigation itself advances these phases; no menu countdown runs.
             case FileSelectMapNavigationPhase.Area:
@@ -226,7 +236,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
             FileSelectMapNavigationPhase.Room when !roomMapStepped => Room(null),
             FileSelectMapNavigationPhase.Room or FileSelectMapNavigationPhase.LoadRequested => Room(marker),
             FileSelectMapNavigationPhase.AreaReturnRequested when roomMapStepped => Room(marker),
-            FileSelectMapNavigationPhase.AreaReturnRequested when requestUpdates == FileSelectMapDefinitions.ReturnSetupFrames - 1 =>
+            FileSelectMapNavigationPhase.AreaReturnRequested when requestWait.UpdatesLeft == 1 =>
                 Insert(Frame(), Area(), FileSelectMapDefinitions.EntryWindowLeft, FileSelectMapDefinitions.EntryWindowTop,
                     FileSelectMapDefinitions.EntryWindowRight + 1, ScreenGeometry.ScreenHeightPixels - FileSelectMapDefinitions.EntryWindowTop),
             FileSelectMapNavigationPhase.AreaReturnRequested when returnWindow is not null => Window(Area(), Frame(), returnWindow),

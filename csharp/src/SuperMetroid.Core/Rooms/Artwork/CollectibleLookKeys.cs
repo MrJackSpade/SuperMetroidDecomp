@@ -12,4 +12,11 @@ internal static class CollectibleLookKeys
         [CollectibleLook.Primary] = "Primary",
         [CollectibleLook.Alternate] = "Alternate",
     });
+
+    /// <summary>The CollectibleLook members in the order the installation lists them (#2567), written out beside the keys so reordering the members never reorders them.</summary>
+    internal static IReadOnlyList<CollectibleLook> ListedOrder { get; } =
+    [
+        CollectibleLook.Primary,
+        CollectibleLook.Alternate,
+    ];
 }

@@ -28,4 +28,27 @@ internal static class SpecialAirReactionKeys
         [SpecialAirReaction.WreckedShipChozoHand] = "WreckedShipChozoHand",
         [SpecialAirReaction.LowerNorfairChozoHand] = "LowerNorfairChozoHand",
     });
+
+    /// <summary>The SpecialAirReaction members in the order the installation and a kind's reaction list name them (#2567), written out beside the keys so reordering the members never reorders them.</summary>
+    internal static IReadOnlyList<SpecialAirReaction> ListedOrder { get; } =
+    [
+        SpecialAirReaction.PassesThrough,
+        SpecialAirReaction.RightwardConveyorOnFoot,
+        SpecialAirReaction.LeftwardConveyorOnFoot,
+        SpecialAirReaction.RightwardConveyor,
+        SpecialAirReaction.LeftwardConveyor,
+        SpecialAirReaction.ScrollTrigger,
+        SpecialAirReaction.FloorPlant,
+        SpecialAirReaction.CeilingPlant,
+        SpecialAirReaction.QuicksandSurface,
+        SpecialAirReaction.SubmergingQuicksand,
+        SpecialAirReaction.SlowSandfall,
+        SpecialAirReaction.FastSandfall,
+        SpecialAirReaction.SlowRespawningSpeedBlock,
+        SpecialAirReaction.SlowPermanentSpeedBlock,
+        SpecialAirReaction.DachoraRespawningSpeedBlock,
+        SpecialAirReaction.PermanentSpeedBlock,
+        SpecialAirReaction.WreckedShipChozoHand,
+        SpecialAirReaction.LowerNorfairChozoHand,
+    ];
 }

@@ -14,11 +14,14 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// <param name="Look">The look of the collectible's picture the block lies under.</param>
 public readonly record struct CollectiblePairBlock(CollectibleBlockPairs.Pair Pair, CollectibleLook Look)
 {
-    /// <summary>Every pair's blocks, pair by pair in the turn the room's collectibles take them in, each pair's looks in order.</summary>
+    /// <summary>
+    /// Every pair's blocks, pair by pair in the turn the room's collectibles take them in, each pair's looks in their
+    /// written-out order (<see cref="CollectibleLookKeys.ListedOrder"/>, #2567).
+    /// </summary>
     public static ImmutableArray<CollectiblePairBlock> All { get; } =
     [
         .. CollectibleBlockPairs.InTurn.SelectMany(pair =>
-            Enum.GetValues<CollectibleLook>().Select(look => new CollectiblePairBlock(pair, look))),
+            Ensure.EveryMemberOnce(CollectibleLookKeys.ListedOrder).Select(look => new CollectiblePairBlock(pair, look))),
     ];
 
     /// <summary>The block pair.</summary>

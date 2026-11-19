@@ -3,6 +3,13 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// <summary>Which part of a Ceres room's turning floor each floor animation frame shows (#1626).</summary>
 public static class CeresFloorParts
 {
+    /// <summary>
+    /// The floor's parts in the order their pictures lie over it (#2567): the elevator platform, the Baby's capsule, then
+    /// Ridley's wings.
+    /// </summary>
+    public static IReadOnlyList<CeresFloorPart> DrawingOrder { get; } =
+        [CeresFloorPart.ElevatorPlatform, CeresFloorPart.BabyCapsule, CeresFloorPart.RidleyWings];
+
     /// <summary>The part of the floor <paramref name="frame"/> animates.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is not a floor animation frame.</exception>
     public static CeresFloorPart Of(CeresFloorAnimationFrame frame) => frame switch

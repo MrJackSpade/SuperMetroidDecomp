@@ -8,7 +8,11 @@ namespace SuperMetroid.Core.Enemies.Animals;
 public sealed class EtecoonEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    internal EtecoonEnemyState(EtecoonAction action) => Action = action;
+    internal EtecoonEnemyState(EtecoonAction action)
+    {
+        Action = action;
+        Heading = HorizontalDirection.Left;
+    }
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<EtecoonSegment> Playback { get; set; }

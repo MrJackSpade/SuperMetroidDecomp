@@ -574,12 +574,13 @@ internal static class RoomBlockUploads
         internal IEnumerable<BgCharacterUpload> Uploads => options.Select(option => option.Upload);
 
         /// <summary>
-        /// The graphics of each collectible showing its own picture that the rooms place, in kind order (#1453, #1538): its
+        /// The graphics of each collectible showing its own picture that the rooms place, in the order the dynamic uploads list
+        /// their kinds (<see cref="RoomObjectDynamicCollectibleGraphicsDefinitions.Kinds"/>, #1453, #1538, #2567): its
         /// kind's pictures are composed from them alone, never under the room's other blocks (#1513), and an edit of the
         /// installed room block sheet restyles them.
         /// </summary>
         internal IReadOnlyList<RoomObjectDynamicCollectibleGraphic> Collectibles =>
-            [.. placedCollectibles.Order().Select(DynamicCollectibleGraphics.Get)];
+            [.. placedCollectibles.OrderBy(DynamicCollectibleGraphics.KindIndex).Select(DynamicCollectibleGraphics.Get)];
 
         /// <summary>Records that a room of the tileset places collectible <paramref name="kind"/>.</summary>
         /// <exception cref="InvalidDataException">The tileset's rooms are Ceres rooms, which place no collectibles.</exception>

@@ -41,4 +41,40 @@ internal static class ShootableReactionKeys
         [ShootableReaction.AnimalEscape] = "AnimalEscape",
         [ShootableReaction.NothingWhenSolid] = "NothingWhenSolid",
     });
+
+    /// <summary>The ShootableReaction members in the order the installation and a kind's reaction list name them (#2567), written out beside the keys so reordering the members never reorders them.</summary>
+    internal static IReadOnlyList<ShootableReaction> ListedOrder { get; } =
+    [
+        ShootableReaction.RespawningBreak1x1,
+        ShootableReaction.RespawningBreak2x1,
+        ShootableReaction.RespawningBreak1x2,
+        ShootableReaction.RespawningBreak2x2,
+        ShootableReaction.PermanentBreak1x1,
+        ShootableReaction.PermanentBreak2x1,
+        ShootableReaction.PermanentBreak1x2,
+        ShootableReaction.PermanentBreak2x2,
+        ShootableReaction.RespawningPowerBombBlock,
+        ShootableReaction.PermanentPowerBombBlock,
+        ShootableReaction.RespawningSuperMissileBlock,
+        ShootableReaction.PermanentSuperMissileBlock,
+        ShootableReaction.Nothing,
+        ShootableReaction.CollisionProbe,
+        ShootableReaction.IgnoresShots,
+        ShootableReaction.BlueDoorCapLeft,
+        ShootableReaction.BlueDoorCapRight,
+        ShootableReaction.BlueDoorCapUp,
+        ShootableReaction.BlueDoorCapDown,
+        ShootableReaction.ResidentObjectTrigger,
+        ShootableReaction.CollectibleTrigger,
+        ShootableReaction.GateTriggerBlueLeft,
+        ShootableReaction.GateTriggerBlueRight,
+        ShootableReaction.GateTriggerRedLeft,
+        ShootableReaction.GateTriggerRedRight,
+        ShootableReaction.GateTriggerGreenLeft,
+        ShootableReaction.GateTriggerGreenRight,
+        ShootableReaction.GateTriggerYellowLeft,
+        ShootableReaction.GateTriggerYellowRight,
+        ShootableReaction.AnimalEscape,
+        ShootableReaction.NothingWhenSolid,
+    ];
 }

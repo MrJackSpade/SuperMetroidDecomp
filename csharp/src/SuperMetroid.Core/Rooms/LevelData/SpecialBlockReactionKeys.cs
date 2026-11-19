@@ -37,4 +37,36 @@ internal static class SpecialBlockReactionKeys
         [SpecialBlockReaction.BrinstarRespawningSpeedBlock] = "BrinstarRespawningSpeedBlock",
         [SpecialBlockReaction.BrinstarPermanentSpeedBlock] = "BrinstarPermanentSpeedBlock",
     });
+
+    /// <summary>The SpecialBlockReaction members in the order the installation and a kind's reaction list name them (#2567), written out beside the keys so reordering the members never reorders them.</summary>
+    internal static IReadOnlyList<SpecialBlockReaction> ListedOrder { get; } =
+    [
+        SpecialBlockReaction.RespawningCrumble1x1,
+        SpecialBlockReaction.RespawningCrumble2x1,
+        SpecialBlockReaction.RespawningCrumble1x2,
+        SpecialBlockReaction.RespawningCrumble2x2,
+        SpecialBlockReaction.PermanentCrumble1x1,
+        SpecialBlockReaction.PermanentCrumble2x1,
+        SpecialBlockReaction.PermanentCrumble1x2,
+        SpecialBlockReaction.PermanentCrumble2x2,
+        SpecialBlockReaction.XrayRevealedSolid,
+        SpecialBlockReaction.RespawningSpeedBlock,
+        SpecialBlockReaction.PermanentSpeedBlock,
+        SpecialBlockReaction.BombRevealsSpeedBlock,
+        SpecialBlockReaction.CollectibleTrigger,
+        SpecialBlockReaction.MapStationRight,
+        SpecialBlockReaction.MapStationLeft,
+        SpecialBlockReaction.EnergyStationRight,
+        SpecialBlockReaction.EnergyStationLeft,
+        SpecialBlockReaction.MissileStationRight,
+        SpecialBlockReaction.MissileStationLeft,
+        SpecialBlockReaction.SaveStationFloor,
+        SpecialBlockReaction.Solid,
+        SpecialBlockReaction.WreckedShipChozoHand,
+        SpecialBlockReaction.LowerNorfairChozoHand,
+        SpecialBlockReaction.SlowRespawningSpeedBlock,
+        SpecialBlockReaction.SlowPermanentSpeedBlock,
+        SpecialBlockReaction.BrinstarRespawningSpeedBlock,
+        SpecialBlockReaction.BrinstarPermanentSpeedBlock,
+    ];
 }

@@ -118,13 +118,13 @@ internal sealed class PhantoonOpening
             RoomEnemyProjectileKind.PhantoonStartingFlame,
             _combat.StartingFlame,
             SpriteGraphics.SpawnedBy(body));
-        flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.StartingFlame));
+        flame.StartAnimation(new PhantoonFlameAnimation(_combat.StartingFlame, PhantoonFlameSegment.StartingFlame));
         flame.Position = flame.Position.WithoutFractions();
         flame.Velocity = PixelVelocity<RoomPixels>.Zero;
         var orbit = new PhantoonOrbitingFlameState(phantoon, start);
         flame.State = orbit;
         PhantoonCombat.PositionPhantoonFlameAroundBody(flame, body, orbit.Angle, radius: PhantoonFlameMotionDefinitions.IntroCircleRadius);
-        flame.StartMotion(PhantoonFlameMotion.IntroWaiting);
+        flame.StartMotion(_combat.StartingFlame, PhantoonFlameMotion.IntroWaiting);
         return true;
     }
 }

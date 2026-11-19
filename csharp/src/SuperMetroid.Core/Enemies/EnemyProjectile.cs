@@ -152,12 +152,16 @@ public sealed class EnemyProjectile
         Motion = behavior.InitialMotion(kind);
     }
 
-    /// <summary>Moves the projectile by <paramref name="motion"/>, one of its behaviour's motions, from its next pass.</summary>
+    /// <summary>
+    /// Moves the projectile by <paramref name="motion"/>, one of <paramref name="owner"/>'s motions, from its next pass (#2571):
+    /// <paramref name="owner"/> is the behaviour bound to the projectile, which its own code and its spawner hold typed, so
+    /// the motion is held through it with no test of the behaviour's type.
+    /// </summary>
     /// <typeparam name="TMotion">The behaviour's motions.</typeparam>
-    /// <exception cref="InvalidOperationException">The projectile's behaviour does not own <typeparamref name="TMotion"/>.</exception>
-    internal void StartMotion<TMotion>(TMotion motion) where TMotion : struct, Enum =>
-        Motion = (Behavior as EnemyProjectileMotionBehavior<TMotion> ?? throw new InvalidOperationException(
-            $"Enemy projectile {Kind} in place {Place} is bound to {Behavior?.GetType().Name ?? "no behaviour"}, which owns no {typeof(TMotion).Name}.")).Moving(motion);
+    /// <param name="owner">The projectile's behaviour, which owns <paramref name="motion"/>.</param>
+    /// <param name="motion">The motion the projectile moves by.</param>
+    internal void StartMotion<TMotion>(EnemyProjectileMotionBehavior<TMotion> owner, TMotion motion) where TMotion : struct, Enum =>
+        Motion = Ensure.NotNull(owner).Moving(motion);
 
     /// <summary>Whether the projectile moves by <paramref name="motion"/>, one of its behaviour's motions.</summary>
     /// <typeparam name="TMotion">The behaviour's motions.</typeparam>

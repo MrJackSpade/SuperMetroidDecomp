@@ -661,8 +661,8 @@ internal sealed class PhantoonPatterns
             return false;
         flame.Velocity = flame.Velocity.WithX(SignedEightEight.Zero);
         flame.Position = flame.Position.WithWhole(body.Position.Whole + PhantoonArenaDefinitions.MouthOffset);
-        flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.CasualFallingKindling));
-        flame.StartMotion(PhantoonFlameMotion.CasualFalling);
+        flame.StartAnimation(new PhantoonFlameAnimation(_combat.DestroyableFlame, PhantoonFlameSegment.CasualFallingKindling));
+        flame.StartMotion(_combat.DestroyableFlame, PhantoonFlameMotion.CasualFalling);
 
         // The falling flame's step changes the spawn definition's harmful, shootable properties to harmless ones.
         // The falling flame therefore cannot hurt Samus and cannot be shot until
@@ -686,7 +686,7 @@ internal sealed class PhantoonPatterns
             TurnPerUpdate = PhantoonFlameSpawns.RageTurnPerUpdate(start),
         };
         flame.Position = flame.Position.WithWhole(body.Position.Whole + PhantoonArenaDefinitions.MouthOffset);
-        flame.StartMotion(PhantoonFlameMotion.RageOrbiting);
+        flame.StartMotion(_combat.DestroyableFlame, PhantoonFlameMotion.RageOrbiting);
         return true;
     }
 
@@ -701,7 +701,7 @@ internal sealed class PhantoonPatterns
             return false;
         flame.State = new PhantoonOrbitingFlameState(phantoon, start);
         flame.Position = flame.Position.WithWhole(body.Position.Whole + PhantoonArenaDefinitions.FlameCircleCentre);
-        flame.StartMotion(PhantoonFlameMotion.SpiralOrbiting);
+        flame.StartMotion(_combat.DestroyableFlame, PhantoonFlameMotion.SpiralOrbiting);
         return true;
     }
 
@@ -717,7 +717,7 @@ internal sealed class PhantoonPatterns
         flame.State = new PhantoonRainFlameState(hangUpdates);
         flame.Position = flame.Position.WithWholeX(columnX);
         flame.Position = flame.Position.WithWholeY(PhantoonArenaDefinitions.RainStartY);
-        flame.StartMotion(PhantoonFlameMotion.RainFalling);
+        flame.StartMotion(_combat.DestroyableFlame, PhantoonFlameMotion.RainFalling);
         return true;
     }
 
@@ -734,7 +734,7 @@ internal sealed class PhantoonPatterns
             RoomEnemyProjectileKind.PhantoonDestroyableFlame,
             _combat.DestroyableFlame,
             SpriteGraphics.SpawnedBy(body));
-        flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.Burning));
+        flame.StartAnimation(new PhantoonFlameAnimation(_combat.DestroyableFlame, PhantoonFlameSegment.Burning));
         flame.Position = flame.Position.WithoutFractions();
         flame.Velocity = flame.Velocity.WithY(SignedEightEight.Zero);
         return flame;

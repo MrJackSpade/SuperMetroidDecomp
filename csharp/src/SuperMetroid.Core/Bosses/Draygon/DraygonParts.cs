@@ -321,7 +321,7 @@ internal sealed class DraygonParts
             RoomEnemyProjectileKind.DraygonGoop,
             _shots.Goop,
             graphics: SpriteGraphics.SharedIn(DraygonColours.Goop));
-        goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileSegment.Goop));
+        goop.StartAnimation(new DraygonProjectileAnimation(_shots.Goop, DraygonProjectileSegment.Goop));
         goop.Position = FixedPosition<RoomPixels>.FromWhole(state.Body.Position.Whole + (direction == HorizontalDirection.Right
             ? DraygonArenaDefinitions.GoopSpawnMovingRight : DraygonArenaDefinitions.GoopSpawnMovingLeft));
 

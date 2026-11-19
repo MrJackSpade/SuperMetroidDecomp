@@ -66,7 +66,7 @@ internal sealed class DraygonTurrets
             RoomEnemyProjectileKind.DraygonWallTurret,
             _shots.WallTurretShot,
             graphics: SpriteGraphics.SharedIn(EnemyShades.InProjectileLook));
-        turret.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileSegment.WallTurretBloom));
+        turret.StartAnimation(new DraygonProjectileAnimation(_shots.WallTurretShot, DraygonProjectileSegment.WallTurretBloom));
         turret.Position = FixedPosition<RoomPixels>.FromWhole(DraygonCannonData.FiringOrigins[cannon]);
 
         // The shot flies along the direction from the turret to Samus at the wall turret's speed, its direction on

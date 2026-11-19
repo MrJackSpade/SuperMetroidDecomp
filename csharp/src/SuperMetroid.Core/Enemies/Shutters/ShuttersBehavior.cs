@@ -561,12 +561,12 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         ShutterSpawnSettings settings = place.SpawnSettings<ShutterSpawnSettings>();
         ShutterRest rest = moved == VerticalDirection.Up ? settings.RestAfterMovingUp : settings.RestAfterMovingDown;
-        if (rest.IsPermanent)
+        if (!rest.TryGetUpdates(out int updates))
         {
             state.Action = VerticalShutterAction.Still;
             return;
         }
-        state.RestTimer = UpdateCountdown.For(rest.Updates + EnemyWaitDefinitions.RunOutUpdate);
+        state.RestTimer = UpdateCountdown.For(updates + EnemyWaitDefinitions.RunOutUpdate);
         state.Action = moved == VerticalDirection.Up ? VerticalShutterAction.StoppedAfterMovingUp : VerticalShutterAction.StoppedAfterMovingDown;
     }
 

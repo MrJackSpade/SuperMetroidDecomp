@@ -23,12 +23,9 @@ internal static class MotherBrainTubeCollapseDefinitions
     /// </summary>
     internal const int MainTubeWaitUpdates = 3;
 
-    /// <summary>The updates the collapse's wait is loaded with once the main tube's place is cleared; no tube follows to wait them out.</summary>
-    internal const int AfterLastClearUpdates = 1;
-
     /// <summary>
     /// The tubes the collapse drops, in the order they fall (#2258): what falls, the blocks clearing its place leaves, and
-    /// the wait after the clear before the next tube falls.
+    /// the wait after the clear before the next tube falls, which the main tube, falling last, does not have.
     /// </summary>
     internal static IReadOnlyList<MotherBrainTubeDrop> Drops { get; } =
     [
@@ -49,7 +46,7 @@ internal static class MotherBrainTubeCollapseDefinitions
         new MotherBrainBottomTubeDrop(MotherBrainTubePiece.BottomMiddleRight,
             new(new(9, 10), MotherBrainRoomMutation.ClearBottomMiddleSideTube), MainTubeWaitUpdates),
         new MotherBrainBottomTubeDrop(MotherBrainTubePiece.Main,
-            new(new(7, 7), MotherBrainRoomMutation.ClearBottomMiddleTubes), AfterLastClearUpdates),
+            new(new(7, 7), MotherBrainRoomMutation.ClearBottomMiddleTubes), WaitAfterUpdates: null),
     ];
 
     /// <summary>The gravity a falling tube gains each update.</summary>

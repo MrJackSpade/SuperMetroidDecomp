@@ -86,7 +86,7 @@ internal static class RoomEnemySystemAccess
         /// Runs the native mouth pass followed by the outer mouth/body pass outside Kraid's AI.
         /// <c>MainAI_Kraid</c> itself interleaves palette handling between the two passes.
         /// </summary>
-        internal int ResolveKraidProjectileHits(
+        internal void ResolveKraidProjectileHits(
             SamusProjectileSystem projectiles,
             SamusBombProjectileSystem sharedProjectiles)
         {
@@ -96,10 +96,10 @@ internal static class RoomEnemySystemAccess
             RoomEnemyPlace body = self.Places.InUpdateOrder[0];
             if (kraid is null || body.DefinitionId != EnemyDefinitionId.Kraid ||
                 body.Presence.HasAny(EnemyPresence.Deleted))
-                return 0;
+                return;
             IReadOnlyList<KraidBehavior.KraidPassProjectile> tested = KraidBehavior.TestedByShotPasses(projectiles, sharedProjectiles);
-            return self.KraidBehavior.Combat.ResolveKraidMouthProjectileHits(body, kraid, tested) +
-                self.KraidBehavior.Combat.ResolveKraidBodyProjectileHits(body, kraid, tested);
+            self.KraidBehavior.Combat.ResolveKraidMouthProjectileHits(body, kraid, tested);
+            self.KraidBehavior.Combat.ResolveKraidBodyProjectileHits(body, kraid, tested);
         }
 
         /// <summary>Per-place Evir states, indexed by enemy place.</summary>
@@ -410,13 +410,13 @@ internal static class RoomEnemySystemAccess
         }
 
         /// <summary>Standalone contact probe; runtime dispatches body before AI and tail during tail update.</summary>
-        internal bool ResolveRidleySamusContact(SamusState samus)
+        internal void ResolveRidleySamusContact(SamusState samus)
         {
             // Each body resolves its own contact with the encounter it holds (#2231).
             RoomEnemyPlace body = self.Places.InUpdateOrder.First(place => place.Entity is SuperMetroid.Core.Bosses.Ridley.RidleyEntity);
             SuperMetroid.Core.Bosses.Ridley.RidleyEncounterState ridley = SuperMetroid.Core.Bosses.Ridley.RidleyEntityConstants.EncounterOf(body);
-            return self.RidleyBody.Contact.ResolveSamusContact(body, samus, RoomEnemyFrameFixtures.StandalonePseudoScrew()) ||
-                SuperMetroid.Core.Bosses.Ridley.RidleyTail.ResolveRidleyTailSamusContact(body, ridley, samus);
+            self.RidleyBody.Contact.ResolveSamusContact(body, samus, RoomEnemyFrameFixtures.StandalonePseudoScrew());
+            SuperMetroid.Core.Bosses.Ridley.RidleyTail.ResolveRidleyTailSamusContact(body, ridley, samus);
         }
     }
 }

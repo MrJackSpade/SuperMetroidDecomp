@@ -222,7 +222,6 @@ public sealed class BabyMetroidCutsceneState
         // spawned in turn: when the room's enemy projectiles have nearly no room left, the earlier clouds take it.
         var releaseDustClouds = new List<BabyMetroidReleaseDustRequest>(capacity: BabyMetroidCutsceneDefinitions.ReleaseDustOffsets.Count);
         bool ambientCrySoundQueued = false;
-        bool samusRainbowActivated = false;
         DustExplosionRequest? deathExplosion = null;
         MotherBrainFadeImage? babyFadeImage = null;
         MotherBrainFadeImage? recoveryLightsImage = null;
@@ -595,7 +594,7 @@ public sealed class BabyMetroidCutsceneState
                 break;
 
             case BabyMetroidCutscenePhase.DeathSequence:
-                StepSamusRainbowColours(samus, ref samusRainbowActivated);
+                StepSamusRainbowColours(samus);
                 AccelerateDownwardsForDeath();
                 if (StepFadeToBlack(ref babyFadeImage))
                 {
@@ -615,7 +614,7 @@ public sealed class BabyMetroidCutsceneState
                 break;
 
             case BabyMetroidCutscenePhase.PauseAfterFade:
-                StepSamusRainbowColours(samus, ref samusRainbowActivated);
+                StepSamusRainbowColours(samus);
                 if (PhaseTimer.StepRunsOut())
                 {
                     // Letting Samus rainbow some more starts on the pause's last update, which is its first.
@@ -696,9 +695,7 @@ public sealed class BabyMetroidCutsceneState
     }
 
     /// <summary>Activates Samus's healed rainbow colours when the Baby reaches her, then slows its frame cadence by a fractional counter.</summary>
-    private void StepSamusRainbowColours(
-        SamusState samus,
-        ref bool samusRainbowActivated)
+    private void StepSamusRainbowColours(SamusState samus)
     {
         switch (SamusRainbowPhase)
         {
@@ -710,7 +707,6 @@ public sealed class BabyMetroidCutsceneState
                 if (SignedPlace.Y + BabyMetroidCutsceneDefinitions.SamusRainbowAboveBaby < samus.Position.Y.Whole)
                     return;
                 samus.Drained.EnableRainbow(samus);
-                samusRainbowActivated = true;
                 SamusRainbowPhase = BabyMetroidSamusRainbowPhase.GraduallySlowAnimationDown;
                 return;
 

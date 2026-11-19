@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 /// <param name="Clears">The room mutation clearing the tube's place, and the block it is spawned at.</param>
 /// <param name="WaitAfterUpdates">
-/// The updates the collapse waits after the clear before the next tube falls, the last being the update it falls on.
+/// The updates the collapse waits after the clear before the next tube falls, the last being the update it falls on; none
+/// for the last tube, which no tube follows.
 /// </param>
-internal abstract record MotherBrainTubeDrop(RoomObjectSpawnRequest<MotherBrainRoomMutation> Clears, int WaitAfterUpdates);
+internal abstract record MotherBrainTubeDrop(RoomObjectSpawnRequest<MotherBrainRoomMutation> Clears, int? WaitAfterUpdates);

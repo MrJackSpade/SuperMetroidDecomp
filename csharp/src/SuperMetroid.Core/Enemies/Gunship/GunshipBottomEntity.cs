@@ -8,16 +8,10 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// <param name="place">The place the bottom hull occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class GunshipBottomEntity(GunshipBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemySurroundingsInitialization, IEnemyAi, IEnemyTypedAnimation
+    : CommonParticipationEnemyEntity(place, common), IEnemySurroundingsInitialization, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
     public void Initialize(EnemyPopulationSurroundings surroundings) => species.InitializeGunshipBottom(Place, surroundings.Samus);
-
-    /// <summary>Takes no action of its own; the top hull moves the ship.</summary>
-    /// <param name="frame">The enemy frame.</param>
-    public void RunMainAi(IEnemyAiFrame frame)
-    {
-    }
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => GunshipBehavior.AdvanceGunshipAnimation(Place);

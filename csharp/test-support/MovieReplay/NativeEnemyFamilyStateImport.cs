@@ -300,8 +300,6 @@ internal static class NativeEnemyFamilyStateImport
             // The cartridge keeps several of the body's values in each of words D, E and F; the phase says which.
             CrocomireNativeWords.ImportSharedWords(crocomireRecord, words.D, words.E, words.F);
         }
-        if (enemy.SpeciesState<CrocomireTongueState>() is { } crocomireTongueRecord)
-            crocomireTongueRecord.BodyXOffset = words.A;
         if (enemy.SpeciesState<DeadSidehopperEnemyState>() is { } deadSidehopperRecord)
         {
             deadSidehopperRecord.Action = CorpsesNativeWords.DeadSidehopperActions.Decode(words.A, "recorded DeadSidehopperAction");

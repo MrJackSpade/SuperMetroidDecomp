@@ -312,10 +312,8 @@ internal sealed class PhantoonPatterns
         state.FigureEight.Speed = PhantoonMotionDefinitions.FigureEightStartSpeed;
         state.NextPattern = PhantoonPatternChoice.FigureEight;
 
-        // The call deliberately starts a pattern phase which is immediately
-        // overwritten with the fade-in phase. Its timer, direction, and movement-side
-        // effects remain live, so run the shared pattern choice in full.
-        PickPhantoonSecondRoundPattern(state);
+        // The round's timers and figure-eight direction are the shared pattern choice's; the phase is the fade-in's.
+        ApplyPhantoonSecondRoundSettings(state);
         state.Phase = PhantoonPhase.FadeInBeforeFigureEight;
         state.BodyFade.Resume();
     }
@@ -626,6 +624,20 @@ internal sealed class PhantoonPatterns
     internal void PickPhantoonSecondRoundPattern(
         PhantoonEnemyState state)
     {
+        ApplyPhantoonSecondRoundSettings(state);
+        state.Phase = state.NextPattern == PhantoonPatternChoice.FlameRain
+            ? PhantoonPhase.FadeOutBeforeFirstFlameRain
+            : PhantoonPhase.MoveInFigureEightThenOpenEye;
+        if (state.NextPattern == PhantoonPatternChoice.FlameRain)
+            state.BodyFade.Resume();
+    }
+
+    /// <summary>
+    /// Sets the round's pattern timer and eye-closed wait, drawing the wait from the room's random numbers, and turns the
+    /// figure-eight forwards or backwards by the frame counter.
+    /// </summary>
+    private void ApplyPhantoonSecondRoundSettings(PhantoonEnemyState state)
+    {
         state.PhaseWait.LastFor(PhantoonArenaDefinitions.PatternPickUpdates);
         state.Round.EyeClosedWait.LastFor(PhantoonRandomDefinitions.EyeClosed.Choose(_room.Random.Generate()));
         if (PhantoonCadenceDefinitions.FigureEightReverses.IsSetIn(_frameContext.FrameCounter))
@@ -644,12 +656,6 @@ internal sealed class PhantoonPatterns
             state.FigureEight.Stage = PhantoonFigureEightStage.EasingIn;
             state.FigureEight.Direction = PhantoonPathDirection.Forwards;
         }
-
-        state.Phase = state.NextPattern == PhantoonPatternChoice.FlameRain
-            ? PhantoonPhase.FadeOutBeforeFirstFlameRain
-            : PhantoonPhase.MoveInFigureEightThenOpenEye;
-        if (state.NextPattern == PhantoonPatternChoice.FlameRain)
-            state.BodyFade.Resume();
     }
 
     /// <summary>Initializes a casual flame, which falls from the mouth harmless until it strikes the floor.</summary>

@@ -134,7 +134,8 @@ internal sealed class MotherBrainFakeDeath
         }
 
         _access.RequestMotherBrainObject(drop.Clears.Block, drop.Clears.RoomObject);
-        state.TubeCollapseTimer.LastFor(drop.WaitAfterUpdates);
+        if (drop.WaitAfterUpdates is { } wait)
+            state.TubeCollapseTimer.LastFor(wait);
         state.TubeCollapse = new(tube.Following, MotherBrainTubeDropStage.Standing);
     }
 

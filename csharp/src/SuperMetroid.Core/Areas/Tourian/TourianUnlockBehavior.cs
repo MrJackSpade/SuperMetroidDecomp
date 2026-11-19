@@ -150,15 +150,15 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
 
     /// <summary>
     /// Raises a soul, accelerating upward, and ends it once it rises above the room's top (#2424): it leaves in its own
-    /// update, before its animation's step, and the velocity it leaves behind for the next spawn in its place still gains
-    /// this update's acceleration.
+    /// update, before its animation's step, and the velocity it leaves in its place for the next spawn there
+    /// (<see cref="Compatibility.EnemyProjectileHandOver"/>) already holds this update's acceleration.
     /// </summary>
     private static void RaiseTourianStatueSoul(EnemyProjectile projectile)
     {
         projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
+        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y - TourianStatueSoulDefinitions.RiseAcceleration);
         if (OffRoomPlaces.LiesBeforeRoom(projectile.Position.Y.Whole))
             projectile.Delete();
-        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y - TourianStatueSoulDefinitions.RiseAcceleration);
     }
 
     /// <summary>

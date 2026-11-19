@@ -109,7 +109,7 @@ internal sealed class RoomObjectFramePhase
                     room.Enemies.RoomObjectSpawns.SpawnMotherBrainGlassProjectile(shard);
                     break;
                 case BombTorizoStatueProjectileRequest fragment:
-                    _ = room.Enemies.RoomObjectSpawns.SpawnBombTorizoStatueBreakingProjectile(fragment);
+                    room.Enemies.RoomObjectSpawns.SpawnBombTorizoStatueBreakingProjectile(fragment);
                     break;
                 default:
                     throw new InvalidDataException($"A room object threw the undefined projectile {thrown}.");

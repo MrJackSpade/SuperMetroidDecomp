@@ -100,8 +100,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.StartingFlames.Orbiting = false;
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
         StartPhantoonPart(state.BodyPart);
-        // The body starts asking for no flame rain; no reader consumes it before a phase sets it (#1472).
-        state.NextPattern = PhantoonPatternChoice.FigureEight;
         body.SetSpeciesState(state.BodyPart);
         ResetPhantoonMouthControls(state);
     }

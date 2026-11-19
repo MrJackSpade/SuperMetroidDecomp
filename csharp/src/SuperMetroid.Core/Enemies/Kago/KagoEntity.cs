@@ -5,16 +5,10 @@ namespace SuperMetroid.Core.Enemies.Kago;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class KagoEntity(KagoBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
     public void Initialize() => KagoBehavior.InitializeKago(Place);
-
-    /// <inheritdoc/>
-    /// <remarks>The Kago has no main behaviour (#1814): its animation plays the shell and its shot reaction does the rest.</remarks>
-    public void RunMainAi(IEnemyAiFrame frame)
-    {
-    }
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => KagoBehavior.AdvanceKagoTypedAnimation(Place, context);

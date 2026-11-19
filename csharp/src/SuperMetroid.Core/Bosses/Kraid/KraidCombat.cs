@@ -122,10 +122,10 @@ internal sealed class KraidCombat
     /// Resolves projectile hits on Kraid's mouth. Projectile
     /// removal is deferred to the projectile's own update.
     /// </summary>
-    internal int ResolveKraidMouthProjectileHits(RoomEnemyPlace body, KraidEnemyState state, IReadOnlyList<KraidBehavior.KraidPassProjectile> tested)
+    internal void ResolveKraidMouthProjectileHits(RoomEnemyPlace body, KraidEnemyState state, IReadOnlyList<KraidBehavior.KraidPassProjectile> tested)
     {
         if (KraidSinkingSkipsProjectileCollision(state))
-            return 0;
+            return;
 
         int mouthHits = 0;
         KraidMouthHitbox? innerMouth = tested.Count == 0 ? null : KraidHeadAnimations.InnerMouthAt(state.HeadPlayback);
@@ -187,18 +187,16 @@ internal sealed class KraidCombat
             if (body.Health < 1 && state.BodyState.Fights)
                 BeginKraidDeath(state);
         }
-
-        return mouthHits;
     }
 
     /// <summary>
     /// Resolves projectile hits on Kraid's body, the independent
     /// outer mouth/body pass.
     /// </summary>
-    internal int ResolveKraidBodyProjectileHits(RoomEnemyPlace body, KraidEnemyState state, IReadOnlyList<KraidBehavior.KraidPassProjectile> tested)
+    internal void ResolveKraidBodyProjectileHits(RoomEnemyPlace body, KraidEnemyState state, IReadOnlyList<KraidBehavior.KraidPassProjectile> tested)
     {
         if (KraidSinkingSkipsProjectileCollision(state))
-            return 0;
+            return;
 
         bool chargedHit = false;
         int bodyHits = 0;
@@ -230,7 +228,6 @@ internal sealed class KraidCombat
                 state.ArmMouthReopens();
             }
         }
-        return bodyHits;
     }
 
     /// <summary>Places a mouth shape at Kraid's body position as the bounds a collision pass starts from.</summary>

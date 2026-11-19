@@ -266,7 +266,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case KraidFightPhase.HeadAnimationBeforeGrowth:
-                _ = Head.AdvanceKraidHeadAnimation(state);
+                Head.AdvanceKraidHeadAnimation(state);
                 if (state.BodyState.PhaseWait.StepRunsOut())
                     state.BodyState.GrowthPhase = KraidGrowthPhase.ReleaseCamera;
                 return;

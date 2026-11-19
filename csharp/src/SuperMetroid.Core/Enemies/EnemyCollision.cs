@@ -328,7 +328,7 @@ internal sealed class EnemyCollision
                 return true;
             }
 
-            NormalShotHit hit = ApplyNormalShotDamage(enemy, projectile, projectileType, projectileDamage, roomArea);
+            NormalShotHit hit = ApplyNormalShotDamage(enemy, projectile, projectileType, projectileDamage, roomArea).Hit;
             if (hit == NormalShotHit.Froze)
             {
                 reaction.AfterCommon?.Invoke(shot with { Froze = true });
@@ -370,8 +370,8 @@ internal sealed class EnemyCollision
     /// <param name="projectileType">The shot's type as it reached the enemy, before any impact rewrote it.</param>
     /// <param name="projectileDamage">The shot's damage, zero or more.</param>
     /// <param name="roomArea">The area of the room the enemy is in, which decides how long a freeze lasts.</param>
-    /// <returns>Whether the shot froze the enemy outright, was a dud, or hurt it while it was frozen or not.</returns>
-    internal NormalShotHit ApplyNormalShotDamage(
+    /// <returns>Whether the shot froze the enemy outright, was a dud, or hurt it while it was frozen or not, and the health it lost.</returns>
+    internal NormalShotOutcome ApplyNormalShotDamage(
         RoomEnemyPlace enemy,
         SamusProjectile projectile,
         SamusProjectileType projectileType,
@@ -380,11 +380,12 @@ internal sealed class EnemyCollision
     {
         Ensure.NotNull(enemy);
         Ensure.NotNull(projectile);
+        int healthBefore = enemy.Health;
         NormalShotVulnerability shotVulnerability = ReadNormalShotVulnerability(enemy, projectileType);
         if (shotVulnerability.FreezeImmediately)
         {
             FreezeEnemyFromNormalShot(enemy, roomArea);
-            return NormalShotHit.Froze;
+            return new(NormalShotHit.Froze, healthBefore - enemy.Health);
         }
 
         int damage = shotVulnerability.DamageFrom(projectileDamage);
@@ -392,7 +393,7 @@ internal sealed class EnemyCollision
         {
             // A zero-damage hit is a dud even for Plasma: the immune enemy removes the shot, which does not pierce it.
             _projectiles.CreateEnemyProjectileDudShot(projectile);
-            return NormalShotHit.Dud;
+            return new(NormalShotHit.Dud, healthBefore - enemy.Health);
         }
 
         enemy.HurtFlash.Restart(enemy.HurtFlashFrames + EnemyCollisionDefinitions.WeaponHurtFlashExtension);
@@ -429,7 +430,7 @@ internal sealed class EnemyCollision
                 ? 0
                 : enemy.Health - damage;
         }
-        return hurtUnfrozen ? NormalShotHit.HurtUnfrozen : NormalShotHit.HurtFrozen;
+        return new(hurtUnfrozen ? NormalShotHit.HurtUnfrozen : NormalShotHit.HurtFrozen, healthBefore - enemy.Health);
     }
 
     /// <summary>Runs an optional enemy-specific shot stage and reports whether it consumed the hit.</summary>

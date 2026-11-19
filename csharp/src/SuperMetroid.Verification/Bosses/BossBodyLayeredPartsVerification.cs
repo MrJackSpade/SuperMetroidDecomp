@@ -70,7 +70,7 @@ internal static class BossBodyLayeredPartsVerification
             melting.ShowCrocomireMeltImage(state, pass);
             AssertEqual(1, enemies.Presentation.RequireBossBody().Publish().Frames.Length, $"Crocomire's {pass} melt image replaces what his body showed");
             Compare($"showing his {pass} melt image");
-            melting.BeginCrocomireMeltPass(state, pass);
+            CrocomireMelting.BeginCrocomireMeltPass(state, pass);
             for (int erased = 1; erased <= CrocomireMeltingDefinitions.ColumnCount; erased++)
             {
                 melting.EraseNextCrocomireMeltingColumn(state.Death);

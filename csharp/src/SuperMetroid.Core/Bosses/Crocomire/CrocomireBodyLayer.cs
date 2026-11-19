@@ -77,8 +77,7 @@ internal sealed class CrocomireBodyLayer
     {
         RoomEnemyPlace body = state.Body;
         RoomEnemyPlace tongue = state.Tongue;
-        int offset = tongue.RequireSpeciesState<CrocomireTongueState>().BodyXOffset;
-        tongue.Position = tongue.Position.WithWhole(new(body.Position.X.Whole + offset, body.Position.Y.Whole));
+        tongue.Position = tongue.Position.WithWhole(new(body.Position.X.Whole + CrocomireFightDefinitions.TongueBodyXOffset, body.Position.Y.Whole));
         tongue.DrawOffset = Offset16<RoomPixels>.Zero;
     }
 

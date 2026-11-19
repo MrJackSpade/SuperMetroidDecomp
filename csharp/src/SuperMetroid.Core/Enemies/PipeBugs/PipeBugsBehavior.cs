@@ -62,8 +62,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <exception cref="InvalidDataException">The formation's last member completes a formation whose members are not all Norfair Pipe Bugs.</exception>
     internal void InitializeNorfairPipeBug(RoomEnemyPlace place)
     {
-        // Only the formation's first bug has a trigger width; it leads the four its room lists after it.
-        if (place.SpawnSettings<NorfairPipeBugSpawnSettings>().TriggerWidth != 0)
+        // Only the formation's leader has a trigger width; it leads the four its room lists after it.
+        if (place.SpawnSettings<NorfairPipeBugSpawnSettings>() is NorfairPipeBugLeaderSpawnSettings)
             _formations.Place(place, NorfairPipeBugFormation.LedBy(_places, place));
         CheckNorfairPipeBugFormationCompletedBy(place);
         var state = new NorfairPipeBugState(NorfairPipeBugAction.WaitForFormation);
@@ -272,11 +272,11 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Arms the Norfair leader only after all five consecutive formation members remain dormant.</summary>
     private void RunNorfairPipeBugFormationWait(RoomEnemyPlace place, NorfairPipeBugState state)
     {
-        // Only the first Pipe Bug listed has a trigger width. It leads the formation and may
+        // Only the formation's leader has a trigger width. It leads the formation and may
         // arm itself only while all four Pipe Bugs listed after it are still at the
         // dormant action. It reads each member's place whatever it holds: a member killed and not yet respawned has a
         // cleared place, which never reads as waiting, so it holds the formation back until its respawn sets it up again.
-        if (place.SpawnSettings<NorfairPipeBugSpawnSettings>().TriggerWidth == 0)
+        if (place.SpawnSettings<NorfairPipeBugSpawnSettings>() is not NorfairPipeBugLeaderSpawnSettings)
             return;
         NorfairPipeBugFormation formation = _formations.Of(place);
         if (formation.Members.All(static member =>
@@ -292,7 +292,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         NorfairPipeBugState leaderState,
         SamusState samus)
     {
-        int triggerWidth = leader.SpawnSettings<NorfairPipeBugSpawnSettings>().TriggerWidth;
+        int triggerWidth = leader.SpawnSettings<NorfairPipeBugLeaderSpawnSettings>().TriggerWidth;
         if (Math.Abs(leader.Position.X.Whole - samus.Position.X.Whole) >= triggerWidth ||
             leader.Position.Y.Whole < samus.Position.Y.Whole)
         {

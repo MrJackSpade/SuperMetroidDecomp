@@ -123,23 +123,27 @@ public static class KiHunterMotionDefinitions
     /// </summary>
     public static RotationAngle LeftSwoopAnimationChangeAngle { get; } = RotationAngle.WrappedSteps(-RotationAngle.StepsPerTurn / 16);
 
-    /// <summary>
-    /// The detached wing orbit's correction (#2474): the point seven eighths of a turn round a circle of
-    /// <see cref="DetachedWingRadius"/>, which the orbit takes off its points so it starts where the wings stand.
-    /// </summary>
-    public static Offset16<RoomPixels> DetachedOrbitOffset { get; } = EnemyMath.CircleOffset(new TrigonometryAngle(224), DetachedWingRadius);
-
-    /// <summary>
-    /// The detached wing's falling-arc correction (#2474): the point five eighths of a turn round a circle of
-    /// <see cref="DetachedWingRadius"/>, which the falling arc takes off its points so it starts where the wings stand.
-    /// </summary>
-    public static Offset16<RoomPixels> FallingArcOffset { get; } = EnemyMath.CircleOffset(new TrigonometryAngle(160), DetachedWingRadius);
-
     /// <summary>The detached wing orbit's starting rotation angle, an eighth of a turn below zero.</summary>
     public static RotationAngle DetachedOrbitStartAngle { get; } = RotationAngle.WrappedSteps(-RotationAngle.StepsPerTurn / 8);
 
     /// <summary>The detached wing's falling-arc starting rotation angle, three eighths of a turn below zero.</summary>
     public static RotationAngle FallingArcStartAngle { get; } = RotationAngle.WrappedSteps(-3 * RotationAngle.StepsPerTurn / 8);
+
+    /// <summary>
+    /// The detached wing orbit's correction (#2474): the point at the orbit's starting angle, seven eighths of a turn
+    /// (<see cref="DetachedOrbitStartAngle"/>), round a circle of <see cref="DetachedWingRadius"/>, which the orbit takes
+    /// off its points so it starts where the wings stand (#2536).
+    /// </summary>
+    public static Offset16<RoomPixels> DetachedOrbitOffset { get; } =
+        EnemyMath.CircleOffset(DetachedOrbitStartAngle.ToTrigonometryAngle(), DetachedWingRadius);
+
+    /// <summary>
+    /// The detached wing's falling-arc correction (#2474): the point at the arc's starting angle, five eighths of a turn
+    /// (<see cref="FallingArcStartAngle"/>), round a circle of <see cref="DetachedWingRadius"/>, which the falling arc takes
+    /// off its points so it starts where the wings stand (#2536).
+    /// </summary>
+    public static Offset16<RoomPixels> FallingArcOffset { get; } =
+        EnemyMath.CircleOffset(FallingArcStartAngle.ToTrigonometryAngle(), DetachedWingRadius);
 
     /// <summary>
     /// The climb that fixes where the detached wings' speed resets on the speed curve: the place, stepping a mark and a

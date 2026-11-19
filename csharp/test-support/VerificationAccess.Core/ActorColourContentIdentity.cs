@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.WorkRobots;
+using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -46,9 +47,9 @@ internal static class ActorColourContentIdentity
         /// <summary>Canonical selected RGB5 colors and ordered cycle frames, independent of JSON encoding.</summary>
         public string ContentIdentity => SelectedPresentationHash.Create("MagdollitePaletteCycle-v1", content =>
             {
-                content.Append("frames", MagdolliteShades.GlowFrames);
+                content.Append("frames", MagdolliteGlowAnimations.Cycle.Count);
                 Span<RgbColor> frameColours = stackalloc RgbColor[MagdollitePaletteCycle.AnimatedColorCount];
-                for (int frame = 0; frame < MagdolliteShades.GlowFrames; frame++)
+                for (int frame = 0; frame < MagdolliteGlowAnimations.Cycle.Count; frame++)
                 {
                     for (int color = 0; color < frameColours.Length; color++) frameColours[color] = cycle.Resolve(frame, color);
                     content.AppendColors("row", frameColours);

@@ -2120,6 +2120,15 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { /// <summary>Moves in 256ths of a pixel; a 256th of a pixel; one 256th further; an odd number of hits; odd updates\n/// and odd frames; an odd column; its odd counts; the frame counter's parity; a map stored with its door; the missile\n/// points at the answer; the arrow pointing at the destination; the heading points up at zero; <see cref=\"Run\"/>.</summary>\nvoid Run() { } }");
         Expect(Measures + "class P { /// <summary>Crawls.</summary>\n/// <param name=\"speed\">Its crawl speed, in 1/256 pixels per update.</param>\n/// <param name=\"angle\">The angle it climbs at.</param>\nvoid Crawl(int speed, RotationAngle angle) { } }");
         Expect(CompatibilityService + "struct SignedSixteenSixteen { }\n/// <summary>Evidence: an odd sample drifts by the code stored after the launches, twelve 256ths of a pixel.</summary>\n/// <param name=\"drift\">The drift, in pixels and 65536ths of a pixel.</param>\n[CompatibilityService(\"bytes\")] class Bytes(SignedSixteenSixteen drift) { SignedSixteenSixteen Drift { get; } = drift; }");
+        // A random number's oddness told through a pronoun, outside hardware owners and markup, read across a documentation
+        // comment's line breaks (#2536): a random number, sample, roll or draw that chooses by whether it is odd or even.
+        Expect("enum P { /// <summary>Takes a random number that chooses a small or a big hop by whether it is odd.</summary>\nA }",
+            "('random number that chooses a small or a big hop by whether it is odd')");
+        Expect("class P { /// <summary>Takes a sample and turns left by\n/// whether it is even.</summary>\nvoid Run() { } }", "('sample and turns left by whether it is even')");
+        Expect("class P { void Run() { // Two rolls pick the side by whether they are odd.\n } }", "('rolls pick the side by whether they are odd')");
+        // A random number alone, a count's oddness, a sentence that ends before the choice and a hardware owner are English.
+        Expect("class P { /// <summary>Takes a random number. It turns by whether it is odd; whether the count is odd; one hop in\n/// two; <see cref=\"Run\"/>.</summary>\nvoid Run() { } }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the random number picks the hop by whether it is odd.</summary>\n[CompatibilityService(\"hops\")] class Hops { }");
         // The species-owner template on a type that owns no species (#2427), read on the type's own summary; a type that
         // implements or is a species owner's interface owns a species, and an entity's parameter names its owner.
         const string SpeciesOwners = "interface IEnemySpecies { }\ninterface IEnemyEntityFactory { }\n";

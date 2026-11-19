@@ -47,7 +47,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.XMovement = settings.Movement;
 
         state.Playback = new(PlatformAnimations.StartingWith(PlatformAnimationChoices.SelectAnimation(
-            state.Kind, axis: Axis.Horizontal, state.XMovement)), AnimationPlace.StartOfAnimation);
+            state.Kind, PlatformVerticalArt.Still, state.XMovement)), AnimationPlace.StartOfAnimation);
 
         state.PreviousYMovement = PlatformVerticalMovement.Rising;
         state.RestingY = place.Position.Y.Whole + PlatformMotionDefinitions.RestingDepthBelowPlacement;
@@ -230,7 +230,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         PlatformEnemyState state)
     {
         StartPlatformAnimation(place, state, PlatformAnimationChoices.SelectAnimation(
-            state.Kind, axis: Axis.Vertical, state.XMovement));
+            state.Kind, PlatformVerticalArt.Moving, state.XMovement));
     }
 
     /// <summary>Selects the stationary animation from which platform it is and its current horizontal direction.</summary>
@@ -239,7 +239,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         PlatformEnemyState state)
     {
         StartPlatformAnimation(place, state, PlatformAnimationChoices.SelectAnimation(
-            state.Kind, axis: Axis.Horizontal, state.XMovement));
+            state.Kind, PlatformVerticalArt.Still, state.XMovement));
     }
 
     /// <summary>Starts the selected animation, its first step playing on the next update.</summary>

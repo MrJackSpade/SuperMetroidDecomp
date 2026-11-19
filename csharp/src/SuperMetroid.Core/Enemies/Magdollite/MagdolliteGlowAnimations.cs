@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 internal static class MagdolliteGlowAnimations
 {
     /// <summary>
-    /// The glow's frames in the order it shows them, from its first (#2474): the installed glow colours hold one row for
-    /// each in this order, and the import installs one shade for each, named by the frame.
+    /// The glow's frames in the order it shows them, from its first (#2474): the import installs one shade per frame, named
+    /// by the frame (<see cref="Artwork.MagdolliteShades.Glow"/>).
     /// </summary>
     internal static IReadOnlyList<MagdolliteGlow> Cycle { get; } =
     [

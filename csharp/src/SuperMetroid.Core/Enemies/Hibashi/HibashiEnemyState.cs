@@ -17,9 +17,9 @@ public sealed class HibashiEnemyState
     public HibashiAction Action { get; internal set; }
 
     /// <summary>
-    /// The inactive updates left before the next eruption, the one it erupts on included (#2340): a new flame starts with
-    /// none left and erupts on its first update, and each eruption restarts the wait at its placement's inactive time and
-    /// the update it runs out on (<see cref="EnemyWaitDefinitions.RunOutUpdate"/>, #2340).
+    /// The inactive updates left before the next eruption, the one it erupts on included (#2340): a new flame starts at its
+    /// first wait (<see cref="HibashiDefinitions.FirstWait"/>), and each eruption restarts the wait at its placement's
+    /// inactive time and the update it runs out on (<see cref="EnemyWaitDefinitions.RunOutUpdate"/>, #2340).
     /// </summary>
     public int InactiveTimer { get; internal set; }
 

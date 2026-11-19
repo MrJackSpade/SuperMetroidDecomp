@@ -491,8 +491,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Carries out one cue of a Magdollite part's animations: each private cue the ten
-    /// authored animations reference. Every cue runs on to the next step, so none redirects.
+    /// Carries out one cue of a Magdollite part's animations: a sound heard while the part is in view, a move of the part or
+    /// of the head with the body's pillar, a shift from the throw's origin, or a signal (<see cref="MagdolliteCueKind"/>).
+    /// Every cue runs on to the next step, so none redirects.
     /// </summary>
     private void ApplyMagdolliteCue(
         RoomEnemyPlace place,

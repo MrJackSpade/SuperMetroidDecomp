@@ -9,9 +9,6 @@ namespace SuperMetroid.Core.Enemies.Magdollite.Artwork;
 /// </summary>
 internal static class MagdolliteShades
 {
-    /// <summary>The glow's frames, in cycle order: the installed glow colours hold one row for each.</summary>
-    internal const int GlowFrames = 4;
-
     /// <summary>
     /// The installed name of each glow frame's shade (#2511), written out so renaming a frame's identity never changes a name
     /// on disk.

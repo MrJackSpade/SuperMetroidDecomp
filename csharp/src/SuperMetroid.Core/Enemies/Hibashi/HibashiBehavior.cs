@@ -55,14 +55,15 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         });
 
     /// <summary>
-    /// Initializes the flame: it sets up its rest and the collision part it finds, and starts the eruption animation,
-    /// whose first step plays on its first update.
+    /// Initializes the flame: it sets up its first wait (<see cref="HibashiDefinitions.FirstWait"/>) and the collision part
+    /// it finds, and starts the eruption animation, whose first step plays on its first update.
     /// </summary>
     internal void InitializeHibashi(RoomEnemyPlace place)
     {
         var state = new HibashiEnemyState(HibashiAction.Inactive);
         place.SetSpeciesState(state);
         _hitboxes.Place(place, _places.ListedAfter(place, 1));
+        state.InactiveTimer = HibashiDefinitions.FirstWait;
         state.Playback = EnemyAnimationPlayback.Start(place, HibashiAnimations.StartingWith(HibashiSegment.Flame));
         state.SpawnY = place.Position.Y.Whole;
 
@@ -96,9 +97,8 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the inactive Hibashi.</summary>
     private void RunHibashiInactive(RoomEnemyPlace flame, HibashiEnemyState state)
     {
-        // The wait lasts its whole duration: the update that takes it to zero erupts, as does the first update of the wait
-        // a new flame starts with none of (#2340).
-        if (--state.InactiveTimer > 0)
+        // The wait lasts its whole duration: the update that takes it to zero erupts (#2340).
+        if (--state.InactiveTimer != 0)
             return;
 
         RoomEnemyPlace hitbox = GetFollowingHibashiPart(flame);

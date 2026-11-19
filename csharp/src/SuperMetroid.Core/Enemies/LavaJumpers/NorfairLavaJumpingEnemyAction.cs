@@ -7,7 +7,7 @@ public enum NorfairLavaJumpingEnemyAction
 {
     /// <summary>Chooses one of four launch speeds from the current random number, keeps updating off screen, and plays the jump sound.</summary>
     BeginJump,
-    /// <summary>Rises under gravity of seven thirty-seconds of a pixel an update each update; once the rise has slowed to four pixels an update the flip animation starts while it is still ascending.</summary>
+    /// <summary>Rises under its gravity (<see cref="NorfairLavaJumpDefinitions.Gravity"/>) each update; once the rise has slowed to four pixels an update the flip animation starts while it is still ascending.</summary>
     RiseBeforeAnimationSwitch,
     /// <summary>Keeps to its arc while the flip animation plays.</summary>
     MoveUntilAnimationSignal,

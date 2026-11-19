@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Enemies.PipeBugs;
 
 /// <summary>
-/// A Norfair Pipe Bug formation (#1840): its leader, the Pipe Bug its room lists with a trigger width, and the four its room
-/// lists right after it, each in its own role: the near and far members above the leader, then the near and far members
+/// A Norfair Pipe Bug formation (#1840): its leader, the Pipe Bug its room places with leader's settings
+/// (<see cref="NorfairPipeBugLeaderSpawnSettings"/>, #2536), and the four its room lists right after it, each in its own role: the near and far members above the leader, then the near and far members
 /// below it.
 /// </summary>
 /// <param name="Members">The members, the leader first, each with its role.</param>

@@ -129,13 +129,55 @@ try {
     $coreLines.Add('')
     $coreLines.Add('public static partial class LibraryBackgroundDefinitions')
     $coreLines.Add('{')
+    # Each background's summary names the rooms that show it (#2546): the room-state choices name each state's room, and the
+    # room states name the background each loads.
+    $roomStates = [IO.Path]::Combine($workspace, 'csharp', 'src', 'SuperMetroid.Core', 'World', 'RoomStates')
+    $stateRooms = @{}
+    $roomOrder = [Collections.Generic.List[string]]::new()
+    $room = $null
+    foreach ($line in [IO.File]::ReadAllLines([IO.Path]::Combine($roomStates, 'RoomStateSelectionDefinitions.cs'))) {
+        $roomMatch = [regex]::Match($line, '\[RoomDefinitions\.(\w+)\] = ')
+        if ($roomMatch.Success) {
+            $room = $roomMatch.Groups[1].Value
+            $roomOrder.Add($room)
+        }
+        foreach ($stateMatch in [regex]::Matches($line, '\w+RoomStateDefinitions\.(\w+)')) {
+            if ($null -eq $room) { throw "Room state $($stateMatch.Groups[1].Value) is chosen before any room." }
+            if (-not $stateRooms.ContainsKey($stateMatch.Groups[1].Value)) { $stateRooms[$stateMatch.Groups[1].Value] = $room }
+        }
+    }
+    $backgroundRooms = @{}
+    foreach ($stateFile in [IO.Directory]::GetFiles($roomStates, '*RoomStateDefinitions.cs')) {
+        foreach ($line in [IO.File]::ReadAllLines($stateFile)) {
+            $stateMatch = [regex]::Match($line, 'new\(nameof\((\w+)\),')
+            $backgroundMatch = [regex]::Match($line, 'LibraryBackgroundDefinitions\.(\w+)')
+            if (-not $stateMatch.Success -or -not $backgroundMatch.Success) { continue }
+            $state = $stateMatch.Groups[1].Value
+            if (-not $stateRooms.ContainsKey($state)) { throw "Room state $state loads a library background but no room chooses it." }
+            $background = $backgroundMatch.Groups[1].Value
+            if (-not $backgroundRooms.ContainsKey($background)) { $backgroundRooms[$background] = [Collections.Generic.HashSet[string]]::new() }
+            [void]$backgroundRooms[$background].Add($stateRooms[$state])
+        }
+    }
+    function Format-Rooms([string]$background) {
+        if (-not $backgroundRooms.ContainsKey($background)) { throw "No room state loads library background $background." }
+        $shown = @($roomOrder | Where-Object { $backgroundRooms[$background].Contains($_) } |
+            ForEach-Object { '<see cref="RoomDefinitions.{0}"/>' -f $_ })
+        if ($shown.Count -eq 1) { return $shown[0] }
+        return ($shown[0..($shown.Count - 2)] -join ', ') + ' and ' + $shown[-1]
+    }
+
+    # The backgrounds the simulation cannot tell apart are one Core identity each (#2546): every list that clears the layer
+    # leaves nothing, and every list that copies the enemies' staging leaves the boss's body, whichever room loads it. The
+    # import keeps each list as its own program, naming the shared background.
+    $sharedNames = @{ Nothing = 'Cleared'; BossBody = 'BossBody' }
+    $declared = [Collections.Generic.HashSet[string]]::new()
     $instructionCount = 0
     foreach ($pointer in $pointers) {
         $cursor = $pointer
         $programName = $programNames[$pointer]
         $pictureDoors = [Collections.Generic.List[string]]::new()
-        $lines.Add(('    /// <summary>The {0} library-background program.</summary>' -f $programName))
-        $lines.Add(('    public static LibraryBackgroundProgram {0} {{ get; }} = new(LibraryBackgroundDefinitions.{0}, [' -f $programName))
+        $instructionLines = [Collections.Generic.List[string]]::new()
         $terminated = $false
         # What the player sees on the background of a room that loads the list (#1649): the tilemap it stages, the sky's
         # rows (which the sky draws from its own image), the boss's body (the enemies' staging holds the boss's own layer,
@@ -172,7 +214,7 @@ try {
                 default { throw ('Unknown bank-$8F library command ${0:X4} at ${1:X4}.' -f
                         $command, ($cursor - 2)) }
             }
-            $lines.Add(('        new(LibraryBackgroundCommand.{0}, {1}, {2}, {3}, {4}),' -f
+            $instructionLines.Add(('        new(LibraryBackgroundCommand.{0}, {1}, {2}, {3}, {4}),' -f
                 $name, $source, $destination, $byteCount, (Format-Door $door)))
             if ($command -eq 10 -or $command -eq 12) { [void]$views.Add('Nothing') }
             elseif ($pages -contains $destination) {
@@ -191,27 +233,41 @@ try {
             throw ('Library list ${0:X4} leaves the background showing [{1}], not one view.' -f $pointer, ($views -join ', '))
         }
         $view = @($views)[0]
+        $backgroundName = if ($sharedNames.ContainsKey($view)) { $sharedNames[$view] } else { $programName }
+        if ($sharedNames.ContainsKey($view) -and $pictureDoors.Count -ne 0) {
+            throw ('Library list ${0:X4} shows {1} but gives entry doors pictures of their own.' -f $pointer, $view)
+        }
+        $lines.Add(('    /// <summary>The {0} library-background program.</summary>' -f $programName))
+        $lines.Add(('    public static LibraryBackgroundProgram {0} {{ get; }} = new(LibraryBackgroundDefinitions.{1}, [' -f
+            $programName, $backgroundName))
+        $lines.AddRange($instructionLines)
         $lines.Add('    ]);')
         $lines.Add('')
-        # Each background's summary says what the player sees of it and how many entry doors show a picture of their own
-        # (#2482), which its name does not.
-        $viewPhrases = @{
-            Picture = 'A background that shows its own picture'
-            BossBody = "A background that shows the body the room's boss draws there"
-            SkyRows = "A background that shows the scrolling sky's rows"
-            Nothing = 'A background that shows nothing'
-        }
+        if (-not $declared.Add($backgroundName)) { continue }
+        # Each background's summary says what the player sees of it, behind which rooms' blocks, and how many entry doors
+        # show a picture of their own (#2482, #2546), which neither its name nor its view does.
+        $rooms = Format-Rooms $backgroundName
         $doorPhrase = switch ($pictureDoors.Count) {
             0 { '' }
             1 { '; one of its entry doors shows a picture of its own' }
             default { '; {0} of its entry doors each show a picture of their own' -f $pictureDoors.Count }
         }
-        $coreLines.Add(('    /// <summary>{0}{1}.</summary>' -f $viewPhrases[$view], $doorPhrase))
+        $summary = switch ($view) {
+            Picture { 'The picture shown behind the blocks of {0}' -f $rooms }
+            SkyRows { "The scrolling sky's rows, shown behind the blocks of {0}" -f $rooms }
+            BossBody { "The body of the room's boss, which the boss draws behind the blocks of {0}" -f $rooms }
+            Nothing { 'No picture: nothing is shown behind the blocks of {0}' -f $rooms }
+            default { throw "Library list $programName leaves the undefined view $view." }
+        }
+        $coreLines.Add(('    /// <summary>{0}{1}.</summary>' -f $summary, $doorPhrase))
         $coreLines.Add(('    public static LibraryBackground {0} {{ get; }} = new(nameof({0}), LibraryBackgroundView.{1}, [{2}]);' -f
-            $programName, $view, ($pictureDoors -join ', ')))
+            $backgroundName, $view, ($pictureDoors -join ', ')))
         $coreLines.Add('')
     }
-    $lines.Add('    /// <summary>Every library-background program, one for each library background, in command-list order.</summary>')
+    $lines.Add('    /// <summary>')
+    $lines.Add('    /// Every library-background program, in command-list order: one for each background the player sees as a picture or')
+    $lines.Add('    /// as the sky''s rows, and several for the cleared background and for the boss''s body.')
+    $lines.Add('    /// </summary>')
     $lines.Add('    public static IReadOnlyList<LibraryBackgroundProgram> All { get; } =')
     $lines.Add('    [')
     foreach ($pointer in $pointers) {

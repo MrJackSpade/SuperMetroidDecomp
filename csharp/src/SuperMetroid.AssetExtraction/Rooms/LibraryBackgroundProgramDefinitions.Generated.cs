@@ -48,18 +48,18 @@ public static partial class LibraryBackgroundProgramDefinitions
     ]);
 
     /// <summary>The KraidDead library-background program.</summary>
-    public static LibraryBackgroundProgram KraidDead { get; } = new(LibraryBackgroundDefinitions.KraidDead, [
+    public static LibraryBackgroundProgram KraidDead { get; } = new(LibraryBackgroundDefinitions.Cleared, [
         new(LibraryBackgroundCommand.TransferForKraid, LibraryBackgroundSource.HudCharacters, LibraryBackgroundDestination.KraidLayer3Characters, 4096, null),
         new(LibraryBackgroundCommand.ClearBg2ForKraid, LibraryBackgroundSource.None, LibraryBackgroundDestination.None, 0, null),
     ]);
 
     /// <summary>The CrocomireDefault library-background program.</summary>
-    public static LibraryBackgroundProgram CrocomireDefault { get; } = new(LibraryBackgroundDefinitions.CrocomireDefault, [
+    public static LibraryBackgroundProgram CrocomireDefault { get; } = new(LibraryBackgroundDefinitions.BossBody, [
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.EnemyTilemapStaging, LibraryBackgroundDestination.BackgroundFirstPage, 4096, null),
     ]);
 
     /// <summary>The CrocomireWhenAreaMiniBossDead library-background program.</summary>
-    public static LibraryBackgroundProgram CrocomireWhenAreaMiniBossDead { get; } = new(LibraryBackgroundDefinitions.CrocomireWhenAreaMiniBossDead, [
+    public static LibraryBackgroundProgram CrocomireWhenAreaMiniBossDead { get; } = new(LibraryBackgroundDefinitions.BossBody, [
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.EnemyTilemapStaging, LibraryBackgroundDestination.BackgroundFirstPage, 4096, null),
     ]);
 
@@ -336,17 +336,17 @@ public static partial class LibraryBackgroundProgramDefinitions
     ]);
 
     /// <summary>The PhantoonDefault library-background program.</summary>
-    public static LibraryBackgroundProgram PhantoonDefault { get; } = new(LibraryBackgroundDefinitions.PhantoonDefault, [
+    public static LibraryBackgroundProgram PhantoonDefault { get; } = new(LibraryBackgroundDefinitions.BossBody, [
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.EnemyTilemapStaging, LibraryBackgroundDestination.BackgroundFirstPage, 4096, null),
     ]);
 
     /// <summary>The DraygonDefault library-background program.</summary>
-    public static LibraryBackgroundProgram DraygonDefault { get; } = new(LibraryBackgroundDefinitions.DraygonDefault, [
+    public static LibraryBackgroundProgram DraygonDefault { get; } = new(LibraryBackgroundDefinitions.BossBody, [
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.EnemyTilemapStaging, LibraryBackgroundDestination.BackgroundFirstPage, 4096, null),
     ]);
 
     /// <summary>The DraygonOrPhantoonWhenAreaBossDead library-background program.</summary>
-    public static LibraryBackgroundProgram DraygonOrPhantoonWhenAreaBossDead { get; } = new(LibraryBackgroundDefinitions.DraygonOrPhantoonWhenAreaBossDead, [
+    public static LibraryBackgroundProgram DraygonOrPhantoonWhenAreaBossDead { get; } = new(LibraryBackgroundDefinitions.Cleared, [
         new(LibraryBackgroundCommand.ClearBg2, LibraryBackgroundSource.None, LibraryBackgroundDestination.None, 0, null),
     ]);
 
@@ -393,7 +393,7 @@ public static partial class LibraryBackgroundProgramDefinitions
     ]);
 
     /// <summary>The CeresElevator library-background program.</summary>
-    public static LibraryBackgroundProgram CeresElevator { get; } = new(LibraryBackgroundDefinitions.CeresElevator, [
+    public static LibraryBackgroundProgram CeresElevator { get; } = new(LibraryBackgroundDefinitions.Cleared, [
         new(LibraryBackgroundCommand.ClearBg2, LibraryBackgroundSource.None, LibraryBackgroundDestination.None, 0, null),
     ]);
 
@@ -465,7 +465,10 @@ public static partial class LibraryBackgroundProgramDefinitions
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundSecondPage, 2048, null),
     ]);
 
-    /// <summary>Every library-background program, one for each library background, in command-list order.</summary>
+    /// <summary>
+    /// Every library-background program, in command-list order: one for each background the player sees as a picture or
+    /// as the sky's rows, and several for the cleared background and for the boss's body.
+    /// </summary>
     public static IReadOnlyList<LibraryBackgroundProgram> All { get; } =
     [
         ScrollingSkyLandingSite,

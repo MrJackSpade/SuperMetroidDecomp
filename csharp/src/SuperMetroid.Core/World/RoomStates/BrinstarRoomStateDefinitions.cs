@@ -274,7 +274,7 @@ public static class BrinstarRoomStateDefinitions
 
     /// <summary>The Kraid room's state once the area's boss is dead.</summary>
     public static RoomStateSettings KraidWhenAreaBossDead { get; } =
-        new(nameof(KraidWhenAreaBossDead), RoomLevelDefinitions.Kraid, RoomGraphicsSet.Kraid, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.Kraid, RoomEnemyPopulationDefinitions.Kraid, new BackgroundScrollModes(BackgroundAxisScroll.Fixed, BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Kraid, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Kraid, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.KraidDead, RoomSetupBehavior.None);
+        new(nameof(KraidWhenAreaBossDead), RoomLevelDefinitions.Kraid, RoomGraphicsSet.Kraid, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.Kraid, RoomEnemyPopulationDefinitions.Kraid, new BackgroundScrollModes(BackgroundAxisScroll.Fixed, BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Kraid, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Kraid, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Cleared, RoomSetupBehavior.None);
 
 
     /// <summary>The Red Tower Refill room's state.</summary>

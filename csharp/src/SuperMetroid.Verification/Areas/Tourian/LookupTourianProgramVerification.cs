@@ -90,12 +90,12 @@ internal static class LookupTourianProgramVerification
                 {
                     TourianStatueNativeWords.AnimationOperand flags = TourianStatueNativeWords.AnimationState(operand, at);
                     if (flags == new TourianStatueNativeWords.AnimationOperand(TourianGreyStatues.None, AllReleased: false, ReleaseInProgress: true))
-                        steps.Add(Cue(TourianStatueBlockCueKind.ClaimRelease));
+                        steps.Add(Cue(TourianStatueBlockCue.ClaimRelease));
                     else
                     {
                         AssertEqual(new TourianStatueNativeWords.AnimationOperand(TourianGreyStatueSets.Alone[definition.Statue], AllReleased: false, ReleaseInProgress: false), flags,
                             $"{at}: statue animating flag");
-                        steps.Add(Cue(TourianStatueBlockCueKind.MarkAnimating));
+                        steps.Add(Cue(TourianStatueBlockCue.MarkAnimating));
                     }
                     break;
                 }
@@ -106,13 +106,13 @@ internal static class LookupTourianProgramVerification
                     {
                         AssertEqual(new TourianStatueNativeWords.AnimationOperand(TourianGreyStatueSets.Alone[definition.Statue], AllReleased: false, ReleaseInProgress: true), flags,
                             $"{at}: release finish clears the turn with the statue's flag");
-                        steps.Add(Cue(TourianStatueBlockCueKind.FinishRelease));
+                        steps.Add(Cue(TourianStatueBlockCue.FinishRelease));
                     }
                     else
                     {
                         AssertEqual(new TourianStatueNativeWords.AnimationOperand(TourianGreyStatueSets.Alone[definition.Statue], AllReleased: false, ReleaseInProgress: false), flags,
                             $"{at}: statue animating flag");
-                        steps.Add(Cue(TourianStatueBlockCueKind.ClearAnimating));
+                        steps.Add(Cue(TourianStatueBlockCue.ClearAnimating));
                     }
                     break;
                 }
@@ -121,42 +121,42 @@ internal static class LookupTourianProgramVerification
                     // Each native branch names the animation the statue's owner starts on that event (#2189).
                     AssertEqual(TourianStatueSequence.AlreadyGreyAnimation, Label(labels, Word(rom, instruction.Cursor + 4), at),
                         $"{at}: grey branch target");
-                    steps.Add(Cue(TourianStatueBlockCueKind.MayAlreadyBeGrey));
+                    steps.Add(Cue(TourianStatueBlockCue.MayAlreadyBeGrey));
                     break;
                 case AnimatedTileInstruction.GotoIfAnyBossBitsSetForArea:
                     AssertEqual(definition.BossArea, AreaNumberCodec.Decode(LittleEndianBytes.HighByte(operand), at), $"{at}: boss area");
                     AssertEqual(definition.DefeatedBosses, BossMaskCodec.Decode(LittleEndianBytes.LowByte(operand), at), $"{at}: boss bits");
                     AssertEqual(TourianStatueSequence.ReleaseAnimation, Label(labels, Word(rom, instruction.Cursor + 4), at),
                         $"{at}: release branch target");
-                    steps.Add(Cue(TourianStatueBlockCueKind.MayBeReleased));
+                    steps.Add(Cue(TourianStatueBlockCue.MayBeReleased));
                     break;
                 case AnimatedTileInstruction.GotoIfTourianStatueBusy:
                     AssertEqual(TourianStatueSequence.WaitingAnimation, Label(labels, operand, at), $"{at}: busy branch target");
-                    steps.Add(Cue(TourianStatueBlockCueKind.MayWaitItsTurn));
+                    steps.Add(Cue(TourianStatueBlockCue.MayWaitItsTurn));
                     break;
                 case AnimatedTileInstruction.ClearThreePaletteColors:
                     AssertEqual(NativeColourIndexes[definition.ClearedShade] * sizeof(ushort), (int)operand, $"{at}: cleared colour byte index");
-                    steps.Add(Cue(TourianStatueBlockCueKind.BlackOutEyes));
+                    steps.Add(Cue(TourianStatueBlockCue.BlackOutEyes));
                     break;
                 case AnimatedTileInstruction.SpawnTourianStatueEyeGlow:
                     AssertEqual(definition.Eye, TourianStatueNativeWords.Eye(operand), $"{at}: eye-glow statue selector names the statue's eye");
-                    steps.Add(Cue(TourianStatueBlockCueKind.SpawnEyeGlow));
+                    steps.Add(Cue(TourianStatueBlockCue.SpawnEyeGlow));
                     break;
                 case AnimatedTileInstruction.SpawnTourianStatueSoul:
                     AssertEqual(definition.Eye, TourianStatueNativeWords.Eye(operand), $"{at}: soul statue selector names the statue's eye");
-                    steps.Add(Cue(TourianStatueBlockCueKind.SpawnSoul));
+                    steps.Add(Cue(TourianStatueBlockCue.SpawnSoul));
                     break;
                 case AnimatedTileInstruction.SpawnPaletteFxObject:
                     AssertEqual(definition.PaletteFxDefinition, operand, $"{at}: grey palette effect");
-                    steps.Add(Cue(TourianStatueBlockCueKind.SpawnGreyColourEffect));
+                    steps.Add(Cue(TourianStatueBlockCue.SpawnGreyColourEffect));
                     break;
                 case AnimatedTileInstruction.SetEvent:
                     AssertEqual(operand, definition.GreyEvent.Number(), $"{at}: grey event set");
-                    steps.Add(Cue(TourianStatueBlockCueKind.SetGreyEvent));
+                    steps.Add(Cue(TourianStatueBlockCue.SetGreyEvent));
                     break;
                 case AnimatedTileInstruction.WriteEightTargetPaletteColors:
                     AssertEqual(NativeColourIndexes[definition.GreyShade] * sizeof(ushort), (int)operand, $"{at}: grey colour byte index");
-                    steps.Add(Cue(TourianStatueBlockCueKind.TurnGrey));
+                    steps.Add(Cue(TourianStatueBlockCue.TurnGrey));
                     break;
                 case AnimatedTileInstruction.Goto:
                     continues.Add(currentLabel, Label(labels, operand, at));
@@ -257,8 +257,8 @@ internal static class LookupTourianProgramVerification
         return matches[0];
     }
 
-    /// <summary>An event beat of <paramref name="kind"/>.</summary>
-    private static Beat Cue(TourianStatueBlockCueKind kind) =>
+    /// <summary>An event beat of <paramref name="cue"/>.</summary>
+    private static Beat Cue(TourianStatueBlockCue cue) =>
         new Beat.Event(new TourianStatueBlockCue(kind));
 
     /// <summary>The bank-$87 word at <paramref name="cursor"/>.</summary>

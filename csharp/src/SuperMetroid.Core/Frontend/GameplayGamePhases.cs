@@ -53,6 +53,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
                     session.Enter(SuperMetroidGameState.MainGameplay);
                 }
             } });
+        session.WriteCompletedSave(outcome);
         session.display.PublishGameplay(session.GameplayRuntime);
         // The reserve refill invokes the external low-health check even while the
         // locked Samus movement mode omits it, after the update's gameplay, whose sounds are
@@ -117,7 +118,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         bool runsBehindTimeUp = session.GameState == SuperMetroidGameState.TimeUp;
         RuntimeFrameOutcome outcome = session.GameplayRuntime.StepFrame(controllerInput,
             new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { RunsLowHealthCheck = true, RunsBehindTimeUp = runsBehindTimeUp } });
-        HandleSaveStationPersistence();
+        session.WriteCompletedSave(outcome);
         session.display.PublishGameplay(session.GameplayRuntime);
         session.HandleGunshipLandingSave();
         if (RouteOutOfHealth(samus, outcome.OutOfHealth))
@@ -204,14 +205,5 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             default:
                 throw new InvalidOperationException($"Undefined {nameof(SamusOutOfHealthRoute)} {route}.");
         }
-    }
-
-    /// <summary>Consumes a confirmed station save and writes the selected save slot.</summary>
-    private void HandleSaveStationPersistence()
-    {
-        if (session.GameplayRuntime.MessageBoxes.ConsumeSaveStationPersistenceRequest() is not { } request)
-            return;
-        session.saves.SaveSlot(session.SelectedSaveSlot, session.GameplayRuntime.SaveSnapshotAt(request.Station));
-        session.RaiseSavesChanged();
     }
 }

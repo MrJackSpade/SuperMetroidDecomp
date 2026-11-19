@@ -53,10 +53,10 @@ internal static class MotherBrainGlassObjectProgramVerification
         roomObjects.Step(level);
         AssertTrue(roomObjects.LiveMotherBrainGlass is { Phase: MotherBrainGlassPhase.Holding, Stage.Place: 0, HitCountArmed: true },
             "intact glass first draw holds at the first stage's hit threshold");
-        roomObjects.Step(level);
+        RoomObjectStepOutcome holding = roomObjects.Step(level);
         AssertTrue(roomObjects.LiveMotherBrainGlass is { Phase: MotherBrainGlassPhase.Holding, Stage.Place: 0 },
             "zero head hits hold the first glass stage");
-        AssertTrue(!eventSet && roomObjects.MotherBrainGlass.MotherBrainGlassProjectileRequests.Count == 0,
+        AssertTrue(!eventSet && holding.ThrownProjectiles.Count == 0,
             "unhit glass emits neither event nor shards");
 
         // Head-shot AI can increment the native room argument before a PLM
@@ -67,8 +67,7 @@ internal static class MotherBrainGlassObjectProgramVerification
         int emitted = 0;
         for (int frame = 0; frame < 128 && roomObjects.LiveMotherBrainGlass is not null; frame++)
         {
-            roomObjects.Step(level);
-            emitted += roomObjects.MotherBrainGlass.MotherBrainGlassProjectileRequests.Count;
+            emitted += roomObjects.Step(level).ThrownProjectiles.OfType<MotherBrainGlassProjectileRequest>().Count();
         }
         AssertTrue(eventSet && roomObjects.LiveMotherBrainGlass is null,
             $"all glass stages end by setting the event and deleting the PLM; " +

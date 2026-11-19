@@ -387,8 +387,6 @@ internal static class GModeGateGlitchVerification
             "station setup executes Samus command six before the suspended PLM handler");
         AssertTrue(roomObjects.StationSnapshots.Single().Triggered,
             "disabled PLM handler leaves the station activation pending");
-        AssertEqual(0, roomObjects.Stations.StationActivationEvents.Count,
-            "suspended station cannot publish its refill/message event");
 
         // A normal frame in G-Mode omits this call entirely. Executing it once represents
         // cancellation by a second X-Ray use: the pending access list finally begins, but
@@ -413,15 +411,13 @@ internal static class GModeGateGlitchVerification
         fixture.Samus.Position = fixture.Samus.Position.WithWhole(new(0x0200, 0x0200));
         AssertTrue(!fixture.System.HasCollectedItemBit(17),
             "suspended item PLM remains uncollected after Samus leaves its block");
-        AssertEqual(0, fixture.RoomObjects.CollectibleObjects.CollectiblePickupEvents.Count,
-            "suspended item PLM publishes no pickup event");
 
         // The omitted handler pass above represents G-Mode. Once a second X-Ray use
         // restores PLMs, the resident trigger is consumed without rechecking distance.
-        fixture.RoomObjects.Step(fixture.Level);
+        RoomObjectStepOutcome resumed = fixture.RoomObjects.Step(fixture.Level);
         AssertTrue(fixture.System.HasCollectedItemBit(17),
             "first post-G-Mode handler remotely acquires the previously touched item");
-        AssertEqual(1, fixture.RoomObjects.CollectibleObjects.CollectiblePickupEvents.Count,
+        AssertEqual(1, resumed.Pickups.Count,
             "remote acquisition publishes exactly one cartridge pickup event");
     }
 

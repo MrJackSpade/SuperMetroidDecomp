@@ -49,9 +49,15 @@ internal static class SaveStationSoundVerification
         game.AdoptRuntime(runtime);
         game.Session.Enter(SuperMetroidGameState.MainGameplay);
         AudioQueues audio = game.Session.audio;
-        int messageFrame = -1, soundFrame = -1;
+        int messageFrame = -1, soundFrame = -1, savedFrame = -1, currentFrame = -1, savesWritten = 0;
+        game.SavesChanged += () =>
+        {
+            savesWritten++;
+            savedFrame = currentFrame;
+        };
         for (int frame = 0; frame < 900 && soundFrame < 0; frame++)
         {
+            currentFrame = frame;
             audio.Reset();
             SoundRequestsMark samusMark = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Samus);
             // A on alternate frames gives the message box a fresh press on each of its read frames.
@@ -64,6 +70,9 @@ internal static class SaveStationSoundVerification
         }
         AssertTrue(messageFrame >= 0, "landing on the save station opens the save message");
         AssertTrue(soundFrame >= 0, "accepting the save publishes library-one sound $2E");
+        // #2514: the save is an event of the update whose closing box hands over YES; that update writes the slot once.
+        AssertEqual(1, savesWritten, "accepting the save writes the selected slot once");
+        AssertEqual(soundFrame, savedFrame, "the update the confirmation closes on writes the save");
         Console.WriteLine($"Save station sound: the save message opens on frame {messageFrame} and the saving sound plays on frame {soundFrame}.");
     }
 

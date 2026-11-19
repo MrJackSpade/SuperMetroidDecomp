@@ -42,15 +42,14 @@ internal sealed class SaveStationObject(LoadStation savedAt) : RoomObjectBehavio
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
-        StationObjects stations = context.RoomObjects.Stations;
         if (Triggered)
         {
             Triggered = false;
             SavePhase = SaveStationPhase.AwaitingConfirmation;
-            stations.Publish(new SaveConfirmationRequested(SaveActivation(place)));
+            context.Outcome.StationActed(new SaveConfirmationRequested(SaveActivation(place)));
         }
 
-        if (StepSaveAnimation(place, context, stations))
+        if (StepSaveAnimation(place, context))
             return;
 
         // The station draws its pod once and then stays still until its floor asks to save.
@@ -75,7 +74,7 @@ internal sealed class SaveStationObject(LoadStation savedAt) : RoomObjectBehavio
     }
 
     /// <summary>Runs the accepted save's flash until the saved-game message can be published.</summary>
-    private bool StepSaveAnimation(RoomObjectPlace place, RoomObjectStepContext context, StationObjects stations)
+    private bool StepSaveAnimation(RoomObjectPlace place, RoomObjectStepContext context)
     {
         if (SavePhase is SaveStationPhase.Idle or SaveStationPhase.AwaitingConfirmation)
             return false;
@@ -95,7 +94,7 @@ internal sealed class SaveStationObject(LoadStation savedAt) : RoomObjectBehavio
         if (_flash.HasStopped)
         {
             SavePhase = SaveStationPhase.AwaitingCompletionMessageClose;
-            stations.Publish(new SaveCompleted(SaveActivation(place)));
+            context.Outcome.StationActed(new SaveCompleted(SaveActivation(place)));
         }
         return true;
     }

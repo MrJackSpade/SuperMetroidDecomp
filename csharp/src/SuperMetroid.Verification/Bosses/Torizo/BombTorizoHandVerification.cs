@@ -59,11 +59,12 @@ internal static class BombTorizoHandVerification
         AssertEqual(RoomTerrainBlock.Of(0x49, BlockMirroring.None, RoomCollisionType.SolidBlock), level.GetCollisionBlock(new(14, 12)).Terrain,
             "multi-run hand geometry retains the fourth native run");
         roomObjects.Step(level);
+        int sleepingFragments = 0;
         for (int frame = 0; frame < 180; frame++)
-            roomObjects.Step(level);
+            sleepingFragments += roomObjects.Step(level).ThrownProjectiles.Count;
         AssertTrue(roomObjects.BombTorizoHand.HandRemains,
             "hand remains resident while Samus lacks Bombs");
-        AssertEqual(0, roomObjects.BombTorizoHand.BombTorizoStatueProjectileRequests.Count,
+        AssertEqual(0, sleepingFragments,
             "sleeping hand drops no premature fragment");
 
         samus.CollectedItems |= SamusEquipmentFlags.Bombs;
@@ -71,20 +72,21 @@ internal static class BombTorizoHandVerification
         AssertTrue(roomObjects.BombTorizoHand.HandRemains,
             "Bombs wake starts authored delay without deleting hand");
 
+        int delayFragments = 0;
         for (int frame = 0; frame < 119; frame++)
-            roomObjects.Step(level);
-        AssertEqual(0, roomObjects.BombTorizoHand.BombTorizoStatueProjectileRequests.Count,
+            delayFragments += roomObjects.Step(level).ThrownProjectiles.Count;
+        AssertEqual(0, delayFragments,
             "the hand holds through its 120-frame post-pickup delay");
         roomObjects.Step(level);
         var fragments = new List<BombTorizoStatueFragment>();
         int firstFragmentFrame = 0;
         for (int frame = 1; frame <= 400 && roomObjects.BombTorizoHand.HandRemains; frame++)
         {
-            roomObjects.Step(level);
-            if (fragments.Count == 0 && roomObjects.BombTorizoHand.BombTorizoStatueProjectileRequests.Count > 0)
+            IReadOnlyList<BombTorizoStatueProjectileRequest> thrown =
+                [.. roomObjects.Step(level).ThrownProjectiles.OfType<BombTorizoStatueProjectileRequest>()];
+            if (fragments.Count == 0 && thrown.Count > 0)
                 firstFragmentFrame = frame;
-            fragments.AddRange(roomObjects.BombTorizoHand.BombTorizoStatueProjectileRequests.Select(
-                request => request.Fragment));
+            fragments.AddRange(thrown.Select(request => request.Fragment));
         }
         // The crumble starts on the delay's last frame; the first fragment drops its own delay later, with no step
         // between them for the debris characters the cartridge loaded there (#1406).

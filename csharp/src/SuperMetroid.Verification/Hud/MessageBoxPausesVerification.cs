@@ -70,8 +70,10 @@ internal static class MessageBoxPausesVerification
         StepWhile(box, () => box.Phase != GameplayMessageBoxPhase.AwaitingInput, ControllerButton.None, 40, "completion notice opening and display");
         box.Step(ControllerButton.A);
         StepWhile(box, () => box.Phase == GameplayMessageBoxPhase.Closing, ControllerButton.None, 13, "completion notice closing");
-        AssertPause(box, GameplayMessageBoxPhase.PausedAfterClosing, AfterClosing, GameplayMessageBoxPhase.Inactive, "completion notice after closing");
-        AssertEqual(SaveChoice.Yes, box.ConsumeConfirmationResult(), "the accepted gunship save reports YES once its notice closes");
+        MessageBoxStep closing = AssertPause(box, GameplayMessageBoxPhase.PausedAfterClosing, AfterClosing, GameplayMessageBoxPhase.Inactive,
+            "completion notice after closing");
+        AssertEqual<MessageBoxStep>(new MessageBoxStep.Answered(SaveChoice.Yes), closing,
+            "the accepted gunship save hands over YES as its notice closes");
         Console.WriteLine("Message box pauses: eight updates before an item box opens, five before the gunship's completion notice, one before its saving wait and six after a box closes, each with its music, sound and liquid advance.");
     }
 
@@ -80,16 +82,19 @@ internal static class MessageBoxPausesVerification
     /// <paramref name="updates"/> requiring each update's music, sound and liquid advance and the box still paused until
     /// the last, after which it is in <paramref name="after"/>.
     /// </summary>
-    private static void AssertPause(GameplayMessageBoxState box, GameplayMessageBoxPhase paused, MessageBoxFrameAudio[] updates,
+    /// <returns>What the pause's last update did.</returns>
+    private static MessageBoxStep AssertPause(GameplayMessageBoxState box, GameplayMessageBoxPhase paused, MessageBoxFrameAudio[] updates,
         GameplayMessageBoxPhase after, string context)
     {
+        MessageBoxStep? last = null;
         for (int update = 0; update < updates.Length; update++)
         {
             AssertEqual(paused, box.Phase, $"{context}: paused before update {update}");
-            box.Step(ControllerButton.None);
+            last = box.Step(ControllerButton.None);
             AssertEqual(updates[update], box.LastFrameAudio, $"{context}: update {update} music, sound and liquid advance");
         }
         AssertEqual(after, box.Phase, $"{context}: the pause ends after {updates.Length} updates");
+        return last ?? throw new InvalidOperationException($"{context}: a pause has at least one update.");
     }
 
     /// <summary>Steps <paramref name="box"/> with <paramref name="input"/> held while <paramref name="condition"/> holds, at most <paramref name="limit"/> updates.</summary>

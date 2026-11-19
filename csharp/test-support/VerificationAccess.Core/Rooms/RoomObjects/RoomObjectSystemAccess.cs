@@ -453,7 +453,8 @@ internal static class RoomObjectSystemAccess
         /// Executes <c>PLM_Handler</c>'s timer/instruction portion for all translated slots. Drawn blocks change the level
         /// data, which BG1 shows (#1346).
         /// </summary>
-        internal void Step(
+        /// <returns>The pass's outcome: the items it collected, the stations' actions and the projectiles it threw.</returns>
+        internal RoomObjectStepOutcome Step(
             RoomLevelData level,
             RoomScrollGrid? scrolls = null,
             ushort enemyDeaths = 0,
@@ -461,7 +462,7 @@ internal static class RoomObjectSystemAccess
         {
             // A check's pass is an update of its own: it begins the check's record of the requests the room objects join.
             self.Sounds.Requests.BeginRecordedUpdate();
-            self.Step(level, new RoomObjectFrameInputs { Scrolls = scrolls ?? RoomObjectFixtures.UnreadScrolls(), EnemyDeaths = enemyDeaths, EnemyDeathQuota = enemyDeathQuota, ControllerNewInput = 0, CollectedItems = SamusEquipmentFlags.None, PowerBombExplosionActive = false });
+            return self.Step(level, new RoomObjectFrameInputs { Scrolls = scrolls ?? RoomObjectFixtures.UnreadScrolls(), EnemyDeaths = enemyDeaths, EnemyDeathQuota = enemyDeathQuota, ControllerNewInput = 0, CollectedItems = SamusEquipmentFlags.None, PowerBombExplosionActive = false });
         }
     }
 

@@ -118,13 +118,13 @@ internal static class CollectiblesVerification
             RoomTerrainBlock visibleItemWord = fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).Terrain;
             AssertTrue(fixture.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(fixture.Block),
                 $"{kind} visible block accepts Samus contact");
-            fixture.RoomObjects.Step(fixture.Level);
+            RoomObjectStepOutcome pickupStep = fixture.RoomObjects.Step(fixture.Level);
 
             AssertTrue(fixture.System.HasCollectedItemBit(location),
                 $"{kind} records its item location collected");
-            AssertEqual(1, fixture.RoomObjects.CollectibleObjects.CollectiblePickupEvents.Count,
+            AssertEqual(1, pickupStep.Pickups.Count,
                 $"{kind} publishes exactly one acquisition");
-            AssertEqual(kind, fixture.RoomObjects.CollectibleObjects.CollectiblePickupEvents[0].Kind,
+            AssertEqual(kind, pickupStep.Pickups[0].Kind,
                 $"{kind} acquisition identity");
             AssertEqual(1, fixture.RoomObjects.Sounds.Requests.PermanentItemFanfares,
                 $"{kind} starts the shared permanent-item fanfare once, as it is picked up");
@@ -148,8 +148,7 @@ internal static class CollectiblesVerification
                 $"{kind} freed PLM slot can be reused by a bomb-special actor");
             AssertEqual(0, fixture.RoomObjects.CollectibleObjects.Collectibles.Count,
                 $"{kind} semantic owner does not survive physical slot reuse");
-            fixture.RoomObjects.Step(fixture.Level);
-            AssertEqual(0, fixture.RoomObjects.CollectibleObjects.CollectiblePickupEvents.Count,
+            AssertEqual(0, fixture.RoomObjects.Step(fixture.Level).Pickups.Count,
                 $"{kind} reused slot cannot republish its pickup message");
             if (kind is InWorldCollectibleKind.VariaSuit or InWorldCollectibleKind.GravitySuit)
             {
@@ -261,12 +260,12 @@ internal static class CollectiblesVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(1124, 651)), Radius = new(5, 14),
         };
         SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = fixture.Level, RoomObjects = fixture.RoomObjects }, movement, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(-1), AlignToSlopeAfterMovement = false });
-        fixture.RoomObjects.Step(fixture.Level);
+        RoomObjectStepOutcome pickupStep = fixture.RoomObjects.Step(fixture.Level);
         AssertTrue(fixture.System.HasCollectedItemBit(26), "Morph Ball pickup persists");
         AssertPermanentCollectibleEffect(InWorldCollectibleKind.MorphBall, fixture.Samus);
         AssertEqual(CollectiblePhase.AwaitingMessage, fixture.RoomObjects.CollectiblePhases[0],
             "Morph Ball retains its owner during the synchronous message");
-        AssertEqual(1, fixture.RoomObjects.CollectibleObjects.CollectiblePickupEvents.Count, "Morph Ball publishes one pickup");
+        AssertEqual(1, pickupStep.Pickups.Count, "Morph Ball publishes one pickup");
         // The message returns into the item's list, which draws empty for one frame
         // within that same PLM_Handler call and deletes the PLM on the next pass.
         fixture.RoomObjects.CollectibleObjects.CompleteCollectibleMessage(fixture.Level);
@@ -277,9 +276,9 @@ internal static class CollectiblesVerification
         AssertTrue(!next.Collided, "message-return Morph Ball block remains passable");
         AssertEqual(CollectiblePhase.EmptyAwaitingDelete, fixture.RoomObjects.CollectiblePhases[0],
             "repeat contact preserves the pending delete");
-        fixture.RoomObjects.Step(fixture.Level);
-        AssertEqual(0, fixture.RoomObjects.Places.ActiveCount, "Morph Ball owner deletes on the next PLM pass"); 
-        AssertEqual(0, fixture.RoomObjects.CollectibleObjects.CollectiblePickupEvents.Count, "Morph Ball cannot be awarded twice");
+        RoomObjectStepOutcome deleteStep = fixture.RoomObjects.Step(fixture.Level);
+        AssertEqual(0, fixture.RoomObjects.Places.ActiveCount, "Morph Ball owner deletes on the next PLM pass");
+        AssertEqual(0, deleteStep.Pickups.Count, "Morph Ball cannot be awarded twice");
         var cleared = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = fixture.Level, RoomObjects = fixture.RoomObjects }, movement, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(-1), AlignToSlopeAfterMovement = false });
         AssertTrue(!cleared.Collided, "deleted Morph Ball leaves passable air");
         AssertEqual((ushort)1121, movement.Position.X.Whole, "movement also advances after owner deletion");

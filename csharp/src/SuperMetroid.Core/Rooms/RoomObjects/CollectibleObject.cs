@@ -92,7 +92,7 @@ internal sealed class CollectibleObject(
             case CollectiblePhase.ShotBlockVisible:
                 if (Triggered)
                 {
-                    context.RoomObjects.CollectibleObjects.Acquire(this, place);
+                    context.RoomObjects.CollectibleObjects.Acquire(this, place, context.Outcome);
                     return;
                 }
                 _ = ShowsOn(place, context);
@@ -116,7 +116,7 @@ internal sealed class CollectibleObject(
                 Phase = CollectiblePhase.Visible;
                 if (Triggered)
                 {
-                    context.RoomObjects.CollectibleObjects.Acquire(this, place);
+                    context.RoomObjects.CollectibleObjects.Acquire(this, place, context.Outcome);
                     return;
                 }
                 Show(CollectibleSequenceAnimations.Exposed, place, context);
@@ -145,7 +145,7 @@ internal sealed class CollectibleObject(
                 Phase = CollectiblePhase.ShotBlockVisible;
                 if (Triggered)
                 {
-                    context.RoomObjects.CollectibleObjects.Acquire(this, place);
+                    context.RoomObjects.CollectibleObjects.Acquire(this, place, context.Outcome);
                     return;
                 }
                 Show(CollectibleSequenceAnimations.Revealed, place, context);

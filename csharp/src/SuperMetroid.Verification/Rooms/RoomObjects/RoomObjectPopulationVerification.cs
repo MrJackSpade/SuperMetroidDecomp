@@ -356,12 +356,12 @@ internal static class RoomObjectPopulationVerification
         for (int frame = 1; frame < 102; frame++)
             roomObjects.Step(level);
         AssertEqual(25, samus.Health, "energy station has not activated before its 103rd pass");
-        roomObjects.Step(level);
+        RoomObjectStepOutcome activation = roomObjects.Step(level);
         AssertEqual(199, samus.Health, "energy station restores health to cartridge maximum");
-        AssertEqual(1, roomObjects.Stations.StationActivationEvents.Count,
+        AssertEqual(1, activation.StationActivations.Count,
             "energy station publishes one shared message request");
         AssertEqual(GameplayMessageId.EnergyRechargeCompleted,
-            roomObjects.Stations.StationActivationEvents[0].Message,
+            activation.StationActivations[0].Message,
             "energy station uses cartridge message $15");
 
         Suite(nameof(VerifyOtherStationFamilies), () => VerifyOtherStationFamilies(bus));
@@ -1178,7 +1178,7 @@ internal static class RoomObjectPopulationVerification
         for (int frame = 0; frame < 102; frame++)
             roomObjects.Step(level);
         AssertTrue(!system.HasAreaMap(2), "map station has not activated before its 103rd pass");
-        roomObjects.Step(level);
+        RoomObjectStepOutcome activations = roomObjects.Step(level);
         AssertEqual(RoomTerrainBlock.Of(0x059, BlockMirroring.Vertical, RoomCollisionType.SpecialBlock), level.GetCollisionBlock(new(18, 6)).Terrain,
             "compiled save-pod idle draw installs its physical floor word");
         AssertEqual(RoomTerrainBlock.Of(0x05b, BlockMirroring.None, RoomCollisionType.Air), level.GetCollisionBlock(new(18, 2)).Terrain,
@@ -1187,7 +1187,7 @@ internal static class RoomObjectPopulationVerification
             "compiled save-pod draw installs its upper cap");
         AssertTrue(system.HasAreaMap(2), "map station marks current area acquired");
         AssertEqual(10, samus.Missiles, "missile station restores missiles");
-        AssertEqual(2, roomObjects.Stations.StationActivationEvents.Count,
+        AssertEqual(2, activations.StationActivations.Count,
             "two station parents publish two explicit activations");
         // $84:8CE7 runs Samus command one as soon as the missile message returns; the map
         // activation never unlocks, but both fixtures share this Samus owner.
@@ -1212,8 +1212,7 @@ internal static class RoomObjectPopulationVerification
         samus.Position = samus.Position.WithWholeX(0x0130);
         AssertTrue(roomObjects.TryNotifyStationTouch(level, new(18, 6), 0x4d),
             "save trigger resolves its same-block parent");
-        roomObjects.Step(level);
-        SaveStationActivation saveRequest = roomObjects.Stations.StationActivationEvents.Single() is SaveConfirmationRequested request
+        SaveStationActivation saveRequest = roomObjects.Step(level).StationActivations.Single() is SaveConfirmationRequested request
             ? request.Save
             : throw new InvalidOperationException("The save trigger publishes a save confirmation request.");
         AssertTrue(ReferenceEquals(SuperMetroid.Core.Progression.LoadStationDefinitions.CrocomireSave, saveRequest.SavesAt),
@@ -1248,10 +1247,10 @@ internal static class RoomObjectPopulationVerification
             SaveStationAnimationDefinitions.SaveAnimationLoops * 8 + 8;
         for (int frame = 0; frame < maximumSaveAnimationFrames && !completionPublished; frame++)
         {
-            roomObjects.Step(level);
-            if (roomObjects.Stations.StationActivationEvents.Count != 0)
+            RoomObjectStepOutcome step = roomObjects.Step(level);
+            if (step.StationActivations.Count != 0)
             {
-                completion = roomObjects.Stations.StationActivationEvents.Single();
+                completion = step.StationActivations.Single();
                 completionPublished = true;
                 completionFrame = frame;
             }
@@ -1274,8 +1273,7 @@ internal static class RoomObjectPopulationVerification
         samus.Position = samus.Position.WithWholeX(0x0130);
         AssertTrue(roomObjects.TryNotifyStationTouch(level, new(18, 6), 0x4d),
             "locked save trigger remains a solid station block");
-        roomObjects.Step(level);
-        AssertEqual(0, roomObjects.Stations.StationActivationEvents.Count,
+        AssertEqual(0, roomObjects.Step(level).StationActivations.Count,
             "locked save station cannot reopen until room re-entry");
     }
 
@@ -1433,10 +1431,11 @@ internal static class RoomObjectPopulationVerification
         AssertEqual(GameplayMessageBoxPhase.AwaitingInput, message.Phase, "A is read on the next read frame");
         message.Step(ControllerButton.A);
         AssertEqual(GameplayMessageBoxPhase.Closing, message.Phase, "A confirms on a read frame");
+        MessageBoxStep? declined = null;
         for (int guard = 0; message.IsActive && guard < 32; guard++)
-            message.Step(0);
-        AssertEqual(SaveChoice.No, message.ConsumeConfirmationResult(),
-            "save confirmation publishes selected no result after close");
+            declined = message.Step(0);
+        AssertEqual<MessageBoxStep?>(new MessageBoxStep.Answered(SaveChoice.No), declined,
+            "save confirmation hands over the selected no as it closes");
 
         message.Begin(GameplayMessageId.SaveConfirmation, 0, SuperMetroid.Core.Input.ControllerBindings.Default);
         for (int guard = 0;
@@ -1448,10 +1447,11 @@ internal static class RoomObjectPopulationVerification
         message.Step(0);
         message.Step(0);
         message.Step(ControllerButton.A);
+        MessageBoxStep? accepted = null;
         for (int guard = 0; message.IsActive && guard < 32; guard++)
-            message.Step(0);
-        AssertEqual(SaveChoice.Yes, message.ConsumeConfirmationResult(),
-            "save confirmation defaults to yes and publishes acceptance");
+            accepted = message.Step(0);
+        AssertEqual<MessageBoxStep?>(new MessageBoxStep.Answered(SaveChoice.Yes), accepted,
+            "save confirmation defaults to yes and hands over the acceptance as it closes");
     }
 
     /// <summary>Seeds the sparse bank-$84 header pointers and elevator frame loop needed by population fixtures.</summary>

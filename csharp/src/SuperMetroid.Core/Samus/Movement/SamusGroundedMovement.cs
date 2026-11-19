@@ -404,7 +404,7 @@ public static class SamusGroundedMovement
     /// vertical-collision result and performs only the shared no-speed Y probe; it does not
     /// invent another knockback arc or silently reinterpret the hurt body as standing.
     /// </summary>
-    internal static BlockMoveResult StepKnockbackOrCrystalFlashEnding(
+    internal static BlockMoveResult StepKnockbackEnding(
         RoomLevelData level,
         SamusState samus,
         int frameCounter,

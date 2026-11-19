@@ -34,7 +34,7 @@ internal static class QuicksandVerification
             body.YSpeed = body.YSpeed.WithWhole(5);
             samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(4, 0xffff);
             samus.HorizontalSpeed.HasRunningMomentum = true;
-            SamusInsideBlockReactions.PrepareFrame(level, samus, AreaId.Maridia, areaBossDefeated: false, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+            SamusInsideBlockReactions.PrepareFrame(level, samus, roomHasPower: true, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
             AssertEqual(direction == SamusVerticalDirection.None ? (suit == 0 ? 0x12000 : 0x10000) : 0x20000,
                 body.ExtraDisplacement.Y.RawValue, "quicksand per-direction/suit displacement");
             AssertEqual(direction == SamusVerticalDirection.None ? 0u : direction == SamusVerticalDirection.Up ? (suit == 0 ? 0x28000u : 0x38000u) : 0x50000u,
@@ -58,7 +58,7 @@ internal static class QuicksandVerification
             samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(4);
             samus.Kinematics.YAcceleration = samus.Kinematics.YAcceleration.WithFraction(0x1c00);
             var sand = Room((byte)(0x83 + kind));
-            SamusInsideBlockReactions.PrepareFrame(sand, samus, AreaId.Maridia, areaBossDefeated: false, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+            SamusInsideBlockReactions.PrepareFrame(sand, samus, roomHasPower: true, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
             AssertEqual(kind == 0 ? 0x12000 : kind == 1 ? 0x14000 : 0x1c000,
                 samus.Kinematics.ExtraDisplacement.Y.RawValue, "submerging and sandfall forces");
             SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = sand, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1) });
@@ -99,7 +99,7 @@ internal static class QuicksandVerification
             body.YDirection = direction;
             body.YSpeed = body.YSpeed.WithWhole(5);
             SamusInsideBlockReactions.PrepareFrame(
-                level, samus, AreaId.Maridia, areaBossDefeated: false, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+                level, samus, roomHasPower: true, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
             QuicksandSurfacePhysics physics =
                 QuicksandReactions.SurfacePhysics(suit != 0);
             AssertEqual(
@@ -228,7 +228,7 @@ internal static class QuicksandVerification
         // 255/65536 of a pixel above the limit: below the resolution of the middle-word comparison.
         SignedSixteenSixteen justAbove = limit + SignedSixteenSixteen.FromParts(wholePixels: 0, fraction: 255);
         body.YSpeed = new UnsignedSixteenSixteen(justAbove.UnsignedWholePixels, justAbove.Fraction);
-        SamusInsideBlockReactions.PrepareFrame(level, samus, AreaId.Maridia, areaBossDefeated: false, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        SamusInsideBlockReactions.PrepareFrame(level, samus, roomHasPower: true, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
         AssertEqual(justAbove, SignedSixteenSixteen.FromParts(unchecked((short)body.YSpeed.Whole), body.YSpeed.Fraction),
             "quicksand upward cap ignores the speed's lowest fraction byte");
     }

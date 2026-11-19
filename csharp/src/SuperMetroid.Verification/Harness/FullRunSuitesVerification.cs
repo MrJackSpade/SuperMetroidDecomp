@@ -636,6 +636,8 @@ internal static class FullRunSuitesVerification
             SuperMetroid.Verification.Enemies.Yard.YardRandomChancesVerification.VerifyYardRandomChances),
         new(nameof(SuperMetroid.Verification.Samus.Movement.SamusBreathBubbleSoundVerification.VerifySamusBreathBubbleSound),
             SuperMetroid.Verification.Samus.Movement.SamusBreathBubbleSoundVerification.VerifySamusBreathBubbleSound),
+        new(nameof(SuperMetroid.Verification.Samus.Movement.SamusLiquidLinesVerification.VerifySamusLiquidLines),
+            SuperMetroid.Verification.Samus.Movement.SamusLiquidLinesVerification.VerifySamusLiquidLines),
         new(nameof(SuperMetroid.Verification.Bosses.Draygon.DraygonBurialDriftVerification.VerifyDraygonBurialDrift),
             SuperMetroid.Verification.Bosses.Draygon.DraygonBurialDriftVerification.VerifyDraygonBurialDrift),
         new(nameof(SuperMetroid.Verification.Bosses.Crocomire.CrocomireMouthShotHoldVerification.VerifyCrocomireMouthShotHold),

@@ -206,8 +206,7 @@ public sealed class SamusLiquidPhysicsState
             return SamusLiquidMedium.Air;
         // Samus's bottom boundary samples the current pose definition, even before the next
         // movement pass publishes its radius to the live collision state.
-        int bottom = CoordinateAxis.Wrap(samus.Position.Y.Whole + SamusPoseCollisionRadii.ReadVerticalRadius(samus.Pose) - 1);
-        return DetermineRawMediumAtBoundary(bottom);
+        return DetermineRawMediumAtBoundary(PoseBottomPixel(samus));
     }
 
     /// <summary>
@@ -217,7 +216,7 @@ public sealed class SamusLiquidPhysicsState
     public bool IsTopBoundarySubmerged(SamusState samus)
     {
         Ensure.NotNull(samus);
-        return DetermineRawMediumAtBoundary(samus.Kinematics.TopBoundary.Y) != SamusLiquidMedium.Air;
+        return DetermineRawMediumAtBoundary(TopLine(samus)) != SamusLiquidMedium.Air;
     }
 
     /// <summary>
@@ -269,9 +268,7 @@ public sealed class SamusLiquidPhysicsState
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit))
             return samus.SlowdownLevel;
 
-        int bottomMinusOne = CoordinateAxis.Wrap(
-            samus.Position.Y.Whole + SamusPoseCollisionRadii.ReadVerticalRadius(samus.Pose) - 1);
-        SamusLiquidMedium medium = DetermineRawMediumAtBoundary(bottomMinusOne);
+        SamusLiquidMedium medium = DetermineRawMediumAtBoundary(PoseBottomPixel(samus));
         return medium switch
         {
             SamusLiquidMedium.Water => SamusAnimationDelayDefinitions.WaterAnimationDelay,
@@ -302,7 +299,6 @@ public sealed class SamusLiquidPhysicsState
         // The exclusive collision boundary would
         // enter liquid one frame early and can prematurely cancel lava momentum.
         int bottom = samus.Kinematics.BottomPixel.Y;
-        int top = samus.Kinematics.TopBoundary.Y;
         RoomFxType fxKind = FxType;
         bool gravitySuit = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit);
 
@@ -322,7 +318,6 @@ public sealed class SamusLiquidPhysicsState
 
             TrySpawnAirBubbles(
                 samus,
-                top,
                 frameCounter,
                 random);
 
@@ -367,7 +362,7 @@ public sealed class SamusLiquidPhysicsState
             // Both lava and acid now share one submerged delay.
             LiquidPhysicsType = SamusLiquidMedium.LavaOrAcid;
             samus.ExtraAnimationDelay = SamusAnimationDelayDefinitions.LavaOrAcidAnimationDelay;
-            TrySpawnLavaSurfaceSpray(samus, top, frameCounter);
+            TrySpawnLavaSurfaceSpray(samus, frameCounter);
             if (samus.Pose is SamusPoseId.ForwardFacingPowerSuitPose or
                 SamusPoseId.ForwardFacingSuitedPose || gravitySuit)
                 samus.ExtraAnimationDelay = 0;
@@ -388,7 +383,6 @@ public sealed class SamusLiquidPhysicsState
             SpawnWaterSplash(samus, movementType, bottom);
             TrySpawnAirBubbles(
                 samus,
-                top,
                 frameCounter,
                 random);
         }
@@ -475,8 +469,7 @@ public sealed class SamusLiquidPhysicsState
     {
         // The bottom boundary uses the current pose definition and includes the last
         // occupied pixel; the live collision radius can still belong to the old pose.
-        int bottom = CoordinateAxis.Wrap(samus.Position.Y.Whole +
-            SamusPoseCollisionRadii.ReadVerticalRadius(samus.Pose) - 1);
+        int bottom = PoseBottomPixel(samus);
 
         // Both landing particle steps suppress their particles when Samus's current
         // bottom is genuinely below active water or lava/acid. The raw-medium determination
@@ -535,14 +528,14 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>Creates a bubble every 128 frames only when Samus's mouth is underwater and nothing holds bubbles up.</summary>
     private void TrySpawnAirBubbles(
         SamusState samus,
-        int top,
         int frameCounter,
         SharedRandom random)
     {
         // Leaving water for a room configured without a water surface still runs this test, on the surface as it is
-        // read untested.
-        int mouthY = CoordinateAxis.Wrap(top - SamusLiquidParticleDefinitions.BreathTestAboveTop);
-        if (CoordinateAxis.Difference(mouthY, UntestedWaterSurfaceLine) < 0 ||
+        // read untested. A mouth near the room's top lies above it, on a line less than zero, and above any surface.
+        int top = TopLine(samus);
+        int mouthY = top - SamusLiquidParticleDefinitions.BreathTestAboveTop;
+        if (mouthY < AbsentWaterSurfaceLine.Read(WaterSurfaceY) ||
             !SamusCadenceDefinitions.BreathBubbleEvery128thUpdate.IsDue(frameCounter) ||
             !EffectWaits.BubbleCanForm)
         {
@@ -558,12 +551,11 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>Starts the four-particle lava spray while Samus's top is above the surface and nothing holds the spray up.</summary>
     private void TrySpawnLavaSurfaceSpray(
         SamusState samus,
-        int top,
         int frameCounter)
     {
         // The spray runs only while Samus is below the lava or acid surface, so the surface is present.
         int surface = LavaAcidSurfaceY ?? throw new InvalidOperationException("Lava surface spray requires a lava or acid surface.");
-        if (CoordinateAxis.Difference(top, surface) >= 0 || !EffectWaits.SprayCanStart)
+        if (TopLine(samus) >= surface || !EffectWaits.SprayCanStart)
             return;
 
         // The outer particles show at once and the middle two one update late; the first two drift right and the last two
@@ -654,10 +646,38 @@ public sealed class SamusLiquidPhysicsState
         !IgnoresWaterSurface &&
         IsBelowSurface(WaterSurfaceY, boundary);
 
-    /// <summary>Whether <paramref name="boundary"/> lies below a present surface (<see cref="CoordinateAxis.Precedes"/>); no surface is never above it.</summary>
+    /// <summary>
+    /// Whether <paramref name="boundary"/>, a line of Samus's body, lies below a present surface; no surface is never above
+    /// it. A surface is a line of the room. So is her bottom, whose feet are still in the top row as a departing
+    /// up-elevator leaves, and her top's line is less than zero where it lies above the room (<see cref="TopLine"/>), so
+    /// the two compare plainly.
+    /// </summary>
     internal static bool IsBelowSurface(int? surface, int boundary) =>
         surface is int y &&
-        CoordinateAxis.Difference(y, boundary) < 0;
+        y < boundary;
+
+    /// <summary>
+    /// The last pixel row the current pose's body covers: Samus's centre plus that pose's radius, less one. The movement,
+    /// pose-change, landing and wall-jump tests read it while the live radius can still be the previous pose's.
+    /// </summary>
+    /// <remarks>
+    /// Her centre lies in the room whenever these run: only a departing up-elevator carries it above the room's top, and
+    /// that ride moves her facing forward, which runs none of her own movement and changes no pose, lands nowhere and
+    /// jumps off no wall. Her bottom therefore lies in the room too.
+    /// </remarks>
+    private static int PoseBottomPixel(SamusState samus) =>
+        samus.Position.Y.Whole + SamusPoseCollisionRadii.ReadVerticalRadius(samus.Pose) - 1;
+
+    /// <summary>
+    /// The line of Samus's top, her centre less her live radius: a line of the room, or less than zero where her top lies
+    /// above the room's top.
+    /// </summary>
+    /// <remarks>
+    /// Her centre lies in the room whenever her top is tested: only a departing up-elevator carries it above the room's
+    /// top, and that ride faces her forward, so she neither spins nor jumps off a wall, and rises clear of every liquid long
+    /// before her centre reaches the top row, so no breath bubble or lava spray is tried.
+    /// </remarks>
+    private static int TopLine(SamusState samus) => samus.Position.Y.Whole - samus.Kinematics.Radius.Y;
 
     /// <summary>
     /// Kicks up the wall jump's dust as its pose starts, shared by ordinary and grapple wall jumps. The dust holds nothing up.
@@ -668,7 +688,7 @@ public sealed class SamusLiquidPhysicsState
         // pose's definition radius, not the live collision radius, which keeps the spin body's radius
         // through the wall-jump frame. Liquid suppresses the dust even when Gravity Suit makes movement itself behave as
         // though the room were dry.
-        int bottom = CoordinateAxis.Wrap(samus.Position.Y.Whole + SamusPoseMetadata.ReadPoseYRadius(samus.Pose) - 1);
+        int bottom = PoseBottomPixel(samus);
         if (DetermineRawMediumAtBoundary(bottom) != SamusLiquidMedium.Air)
             return;
         int offset = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Right)

@@ -261,9 +261,12 @@ internal sealed class SamusFramePhases
                 _system.HasDefeatedAnyOf(room.Room.Area, DefeatedBosses.AreaBoss));
         }
 
+        // The Wrecked Ship has no power, which its on-foot conveyors need, until its area boss is defeated; every other room
+        // has power.
         if (!_freeze.TimeIsFrozen && !frame.InputHandlingLocked(samus))
-            SamusInsideBlockReactions.PrepareFrame(room.LevelData, samus, room.Room.Area,
-                _system.HasDefeatedAnyOf(room.Room.Area, DefeatedBosses.AreaBoss), room.RoomObjects);
+            SamusInsideBlockReactions.PrepareFrame(room.LevelData, samus,
+                room.Room.Area != AreaId.WreckedShip || _system.HasDefeatedAnyOf(room.Room.Area, DefeatedBosses.AreaBoss),
+                room.RoomObjects);
 
         // The input phase order is cooldown -> movement-type HUD projectile producer ->
         // projectile handling. The outer gameplay loop then runs overlap
@@ -847,7 +850,7 @@ internal sealed class SamusFramePhases
         // installs the input/no-input target chosen during the input phase.
         SignedSixteenSixteen groundingDisplacement = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
             samus.Kinematics, samus.HorizontalSpeed);
-        BlockMoveResult grounding = SamusGroundedMovement.StepKnockbackOrCrystalFlashEnding(
+        BlockMoveResult grounding = SamusGroundedMovement.StepKnockbackEnding(
             room.LevelData,
             samus,
             _clock.Counter,

@@ -10,6 +10,15 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 /// <summary>Checks Samus projectile muzzle origins against native direction and pose records.</summary>
 internal static class ProjectileOriginsVerification
 {
+    /// <summary>
+    /// The leftmost centre Samus reaches: every row she reaches closes the room's left column with terrain or a door, and
+    /// her body is five pixels either side of her centre (#2528).
+    /// </summary>
+    private const int LeftmostCentreX = 21;
+
+    /// <summary>The last column of the widest room, 50 screens of 256 pixels, past which no centre of hers lies.</summary>
+    private const int RightmostCentreX = SuperMetroid.Core.Rooms.Scrolling.RoomScrollGrid.KeptCellCount * 256 - 1;
+
     /// <summary>Exercises authored and adjacent table words through physical projectile initialization.</summary>
     internal static void VerifyProjectileOrigins(CartridgeImportAddressSpace rom)
     {
@@ -32,15 +41,16 @@ internal static class ProjectileOriginsVerification
                 ? unchecked((sbyte)stored)
                 : stored;
             initialize(samus, slot);
-            AssertEqual(unchecked((ushort)(x + dx)), slot.Position.X.Whole, "Physical muzzle X follows native direction/table selection");
+            AssertEqual(x + dx, slot.Position.X.Whole, "Physical muzzle X follows native direction/table selection");
             AssertEqual(unchecked((ushort)(y + dy - correction)), slot.Position.Y.Whole, "Physical muzzle Y follows native signed origin and unsigned pose correction");
             AssertEqual(direction, slot.Direction, "Origin lookup does not rewrite the direction");
             AssertEqual(x, samus.Position.X.Whole, "Origin setup leaves Samus X unchanged");
             AssertEqual(y, samus.Position.Y.Whole, "Origin setup leaves Samus Y unchanged");
         }
 
-        // Every direction at every coordinate, through standing, running, both special
-        // Moonwalk poses and ordinary Moonwalk.
+        // Every direction at every height and across the room, through standing, running, both special
+        // Moonwalk poses and ordinary Moonwalk. The muzzle's height, which can lie above the room, sweeps the whole
+        // coordinate range; its place across is her centre's in the room plus the origin.
         foreach (SamusPoseId pose in new[]
         {
             SamusPoseId.FacingRightNormalPose, SamusPoseId.MovingRightNormalPose,
@@ -49,11 +59,13 @@ internal static class ProjectileOriginsVerification
         })
         foreach (SamusProjectileDirection direction in Enum.GetValues<SamusProjectileDirection>())
         for (int coordinate = 0; coordinate <= ushort.MaxValue; coordinate++)
-            Check(pose, direction, (ushort)coordinate, unchecked((ushort)~coordinate));
-        foreach (ushort boundary in new ushort[] { 0, 127, 0x8000, ushort.MaxValue })
+            Check(pose, direction, (ushort)(LeftmostCentreX + coordinate % (RightmostCentreX - LeftmostCentreX + 1)),
+                unchecked((ushort)~coordinate));
+        foreach ((ushort x, ushort y) in new (ushort, ushort)[]
+            { (LeftmostCentreX, 0), (127, 127), (RightmostCentreX, 0x8000), (RightmostCentreX, ushort.MaxValue) })
         foreach (int pose in Enumerable.Range(0, SamusPoseNumbering.RecordCount).Where(SamusPoseNumbering.NamesPose))
         foreach (SamusProjectileDirection direction in Enum.GetValues<SamusProjectileDirection>())
-            Check(SamusPoseNumbering.FromNumber(pose), direction, boundary, boundary);
+            Check(SamusPoseNumbering.FromNumber(pose), direction, x, y);
 
         // Ten authored directions; a projectile's aim is always one of them (#1506).
         foreach (bool running in new[] { false, true })

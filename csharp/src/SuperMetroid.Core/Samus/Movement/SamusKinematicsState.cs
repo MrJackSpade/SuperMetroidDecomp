@@ -19,7 +19,7 @@ public sealed class SamusKinematicsState
     /// the end of the enemy pass clears them; the corpses' and idle shutters' contact tests observe this delayed result.
     /// They name enemies of the room they were made in, which forgets them when it unloads (#1702).
     /// </summary>
-    internal readonly Dictionary<SamusCollisionDirection, ISolidEnemy> solidEnemyContacts = [];
+    private readonly Dictionary<SamusCollisionDirection, ISolidEnemy> _solidEnemyContacts = [];
 
     /// <summary>
     /// The solid enemy Samus's latest wall jump launched from, waiting for the next enemy pass to shake it; null when no
@@ -76,7 +76,7 @@ public sealed class SamusKinematicsState
         Array.Empty<SolidEnemyCollisionBody>();
 
     /// <summary>The solid enemies Samus met moving in any direction since the enemy pass last cleared them.</summary>
-    public IEnumerable<ISolidEnemy> SolidEnemyContacts => solidEnemyContacts.Values;
+    public IEnumerable<ISolidEnemy> SolidEnemyContacts => _solidEnemyContacts.Values;
 
     /// <summary>
     /// Room position, to a fraction of a pixel.
@@ -142,9 +142,9 @@ public sealed class SamusKinematicsState
         ISolidEnemy? solidEnemy)
     {
         if (solidEnemy is null)
-            solidEnemyContacts.Remove(RequireContactDirection(direction));
+            _solidEnemyContacts.Remove(RequireContactDirection(direction));
         else
-            solidEnemyContacts[RequireContactDirection(direction)] = solidEnemy;
+            _solidEnemyContacts[RequireContactDirection(direction)] = solidEnemy;
     }
 
     /// <summary><paramref name="direction"/>, which must be one Samus can meet an enemy moving in.</summary>
@@ -161,7 +161,7 @@ public sealed class SamusKinematicsState
     internal bool DidCollideWithSolidEnemy(ISolidEnemy enemy)
     {
         Ensure.NotNull(enemy);
-        foreach (ISolidEnemy contact in solidEnemyContacts.Values)
+        foreach (ISolidEnemy contact in _solidEnemyContacts.Values)
         {
             if (ReferenceEquals(contact, enemy))
                 return true;
@@ -170,7 +170,7 @@ public sealed class SamusKinematicsState
     }
 
     /// <summary>Forgets every direction's contact, as the end of the enemy pass does.</summary>
-    internal void ClearSolidEnemyCollisions() => solidEnemyContacts.Clear();
+    internal void ClearSolidEnemyCollisions() => _solidEnemyContacts.Clear();
 
     /// <summary>
     /// Forgets the enemies of a room that unloads (#1697, #1702): a waiting launch shake and every direction's contact

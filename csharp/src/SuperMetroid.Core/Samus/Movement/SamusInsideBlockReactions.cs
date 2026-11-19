@@ -9,11 +9,14 @@ namespace SuperMetroid.Core.Samus.Movement;
 public static class SamusInsideBlockReactions
 {
     /// <summary>Samples bottom, center, and top in order.</summary>
+    /// <param name="level">The room's terrain.</param>
+    /// <param name="samus">Samus, whose body the reactions sample and move.</param>
+    /// <param name="roomHasPower">Whether the room has the power its on-foot conveyors need to run, as the room supplies it.</param>
+    /// <param name="roomObjects">The room's objects the reactions wake.</param>
     internal static void PrepareFrame(
         RoomLevelData level,
         SamusState samus,
-        AreaId area,
-        bool areaBossDefeated,
+        bool roomHasPower,
         ISamusRoomObjects roomObjects)
     {
         var body = samus.Kinematics;
@@ -113,7 +116,7 @@ public static class SamusInsideBlockReactions
             bool rightward = conveyor.Direction == HorizontalDirection.Right;
             samus.HorizontalSpeed.SelectAirSpeeds();
             if (conveyor.Condition == ConveyorCarryCondition.OnFootWithPower &&
-                ((area == AreaId.WreckedShip && !areaBossDefeated) || body.YSpeed.Whole != 0))
+                (!roomHasPower || body.YSpeed.Whole != 0))
                 return;
             // Only whole pixels of Y speed stop the carry: fractional vertical motion does
             // not. This replaces external X displacement, never adds to it.

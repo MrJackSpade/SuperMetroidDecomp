@@ -53,8 +53,7 @@ public static class FileSelectMapDefinitions
     public const int EntryWindowSpeed = 4;
 
     /// <summary>
-    /// Crateria's reveal: its edges move on 52 updates, the left edge 452 and the right 820 256ths of a pixel per
-    /// update, the top edge 248 and the bottom 1024.
+    /// Crateria's reveal: its four edges move outward on 52 updates, each at its own speed per update.
     /// </summary>
     internal static FileSelectMapWindowMotion CrateriaReveal { get; } = new(
         MovingUpdates: 52,
@@ -64,8 +63,7 @@ public static class FileSelectMapDefinitions
         Bottom: SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(1024));
 
     /// <summary>
-    /// Brinstar's reveal: its edges move on 54 updates, the left edge 200 and the right 1024 256ths of a pixel per
-    /// update, the top edge 604 and the bottom 616.
+    /// Brinstar's reveal: its four edges move outward on 54 updates, each at its own speed per update.
     /// </summary>
     internal static FileSelectMapWindowMotion BrinstarReveal { get; } = new(
         MovingUpdates: 54,
@@ -75,8 +73,7 @@ public static class FileSelectMapDefinitions
         Bottom: SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(616));
 
     /// <summary>
-    /// Norfair's reveal: its edges move on 46 updates, the left edge 528 and the right 916 256ths of a pixel per
-    /// update, the top edge 1024 and the bottom 424.
+    /// Norfair's reveal: its four edges move outward on 46 updates, each at its own speed per update.
     /// </summary>
     internal static FileSelectMapWindowMotion NorfairReveal { get; } = new(
         MovingUpdates: 46,
@@ -86,8 +83,7 @@ public static class FileSelectMapDefinitions
         Bottom: SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(424));
 
     /// <summary>
-    /// Wrecked Ship's reveal: its edges move on 52 updates, the left edge 1024 and the right 248 256ths of a pixel per
-    /// update, the top edge 396 and the bottom 872.
+    /// Wrecked Ship's reveal: its four edges move outward on 52 updates, each at its own speed per update.
     /// </summary>
     internal static FileSelectMapWindowMotion WreckedShipReveal { get; } = new(
         MovingUpdates: 52,
@@ -97,8 +93,7 @@ public static class FileSelectMapDefinitions
         Bottom: SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(872));
 
     /// <summary>
-    /// Maridia's reveal: its edges move on 52 updates, the left edge 1024 and the right 248 256ths of a pixel per
-    /// update, the top edge 788 and the bottom 480.
+    /// Maridia's reveal: its four edges move outward on 52 updates, each at its own speed per update.
     /// </summary>
     internal static FileSelectMapWindowMotion MaridiaReveal { get; } = new(
         MovingUpdates: 52,
@@ -108,8 +103,7 @@ public static class FileSelectMapDefinitions
         Bottom: SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(480));
 
     /// <summary>
-    /// Tourian's reveal: its edges move on 35 updates, the left edge 992 and the right 888 256ths of a pixel per
-    /// update, the top edge 1024 and the bottom 860.
+    /// Tourian's reveal: its four edges move outward on 35 updates, each at its own speed per update.
     /// </summary>
     internal static FileSelectMapWindowMotion TourianReveal { get; } = new(
         MovingUpdates: 35,

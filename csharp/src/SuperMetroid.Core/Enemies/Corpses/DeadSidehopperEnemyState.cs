@@ -4,14 +4,14 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
-/// One dead sidehopper's corpse state: its silhouette, rot schedule, animation, hop, drain and contact progress.
+/// One dead sidehopper's corpse state: its rot schedule, pixel rows, animation, hop, drain and contact progress.
 /// </summary>
 public sealed class DeadSidehopperEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<DeadTourianSegment> Playback { get; set; }
 
-    /// <summary>Captures one corpse's silhouette and its own rot schedule, and starts its own rows and its first action.</summary>
+    /// <summary>Captures one corpse's own rot schedule, and starts its own rows and its first action.</summary>
     internal DeadSidehopperEnemyState(CorpseRotSchedule rot, DeadSidehopperAction action)
     {
         Action = action;

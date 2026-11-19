@@ -76,7 +76,7 @@ internal sealed class RoomEffectActors
         _objects.RemoveAll(static spawned => !spawned.IsActive);
     }
 
-    /// <summary>Steps every live object whose updates are enabled, in the order they spawned.</summary>
+    /// <summary>Steps every live object, in the order they spawned.</summary>
     internal void StepRoomEffectActors()
     {
         // No animation spawns another object, so the list does not change while it is stepped.

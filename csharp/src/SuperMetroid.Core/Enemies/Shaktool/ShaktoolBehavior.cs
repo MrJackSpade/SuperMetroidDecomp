@@ -341,7 +341,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Sets the speed the segment turns toward its chain's target at: a sixty-fourth of the whole steps left to the target
-    /// its chain's way round, four 256ths of a step an update for each.
+    /// its chain's way round, a sixty-fourth of a step an update for each.
     /// </summary>
     private static void CalculateShaktoolAngularVelocity(ShaktoolChain chain, ShaktoolSegmentState state)
     {

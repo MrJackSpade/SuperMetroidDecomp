@@ -786,7 +786,7 @@ public sealed class BabyMetroidCutsceneState
 
     /// <summary>Multiplies speed by the angle's sine, rounding the product down to a 256th of a pixel, as the game does.</summary>
     /// <param name="speed">The speed, taken without its sign.</param>
-    /// <param name="angle">The angle in steps, 256ths of a turn.</param>
+    /// <param name="angle">The angle whose sine scales the speed.</param>
     internal static SignedEightEight CalculateVelocityComponent(
         SignedEightEight speed,
         TrigonometryAngle angle)

@@ -18,8 +18,8 @@ internal static class BeetomDecisions
         new(1, new BeetomDistantChoice(BeetomAction.StartLongHop, HorizontalDirection.Right)));
 
     /// <summary>
-    /// Whether a distant Beetom turns to face right (#2479): an odd sample, the parity of the roll
-    /// <see cref="DistantChoice"/> reads, so an odd roll faces right.
+    /// Whether a distant Beetom turns to face right (#2479), read from the same random number as
+    /// <see cref="DistantChoice"/>: it faces the way a chosen hop goes, and after one idling choice in two it faces right.
     /// </summary>
     internal static readonly RandomChance FacesRight = RandomChance.Highest(1, new RandomSampleField(0, 1));
 }

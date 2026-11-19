@@ -24,7 +24,7 @@ internal static class CrocomireRandomDefinitions
     /// </summary>
     internal static readonly RandomSampleField AcidSmokeRise = new(8, 5);
 
-    /// <summary>The spread of a crumbling bridge fragment's starting fall speed, 0 through 63 256ths of a pixel an update added to its slowest.</summary>
+    /// <summary>The spread of a crumbling bridge fragment's starting fall speed added to its slowest: 0 through 63, in 256ths of a pixel an update.</summary>
     internal static readonly RandomSampleField BridgeFragmentFallSpeedSpread = new(0, 6);
 
     /// <summary>A foot dust puff's jitter to the right of its offset, 0 through 7 pixels.</summary>

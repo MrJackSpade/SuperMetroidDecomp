@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Hoppers;
 /// </summary>
 public enum HopperAction
 {
-    /// <summary>Takes a random number that chooses a small or a big hop by whether it is odd, and hops from the next update.</summary>
+    /// <summary>Takes a random number that chooses a small or a big hop (<see cref="HopperDecisions.HopsBig"/>), and hops from the next update.</summary>
     ChooseHopSize,
     /// <summary>
     /// Sets the chosen hop size's precomputed speed-curve place and its place step (three marks a pass for a small hop,

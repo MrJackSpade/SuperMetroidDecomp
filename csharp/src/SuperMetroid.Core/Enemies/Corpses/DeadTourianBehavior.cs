@@ -173,7 +173,6 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Starts decomposition on physical contact without applying ordinary enemy contact damage.</summary>
     internal static void ReactToDeadTourianTouch(EnemyTouchContext context) =>
-        // Dead Zoomer/Ripper/Skree definitions intentionally point touch and shot at the same private reaction.
-        // Physical contact begins decomposition; these already-dead actors never apply ordinary contact damage.
+        // Touching a dead Zoomer, Ripper or Skree starts its rot just as a shot does; a corpse never deals contact damage.
         TriggerDeadTourianCorpseRotting(context.Place);
 }

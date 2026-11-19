@@ -41,9 +41,9 @@ internal sealed class RoomObjectRuntimeServices(
     public void SpawnNoobTubeProjectile(NoobTubeProjectileRequest request) =>
         Enemies.RoomObjectSpawns.SpawnNoobTubeProjectile(request);
 
-    /// <summary>Spawns an eye-door sweat or smoke actor at its door's block, with the system state.</summary>
+    /// <summary>Spawns an eye-door sweat or smoke actor at its door's block.</summary>
     public void SpawnEyeDoorProjectile(EyeDoorProjectileRequest request) =>
-        Enemies.RoomObjectSpawns.SpawnEyeDoorProjectile(request, system);
+        Enemies.RoomObjectSpawns.SpawnEyeDoorProjectile(request);
 
     /// <summary>Spawns an eye's attack at its door's block, with the system state that records the door's opening.</summary>
     public void SpawnEyeDoorAttack(EyeDoorAttackRequest request) =>

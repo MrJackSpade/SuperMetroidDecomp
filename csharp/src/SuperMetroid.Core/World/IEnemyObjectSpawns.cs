@@ -15,7 +15,7 @@ internal interface IEnemyObjectSpawns
     void SpawnNoobTubeProjectile(NoobTubeProjectileRequest request);
 
     /// <summary>Spawns an eye-door sweat or smoke actor.</summary>
-    void SpawnEyeDoorProjectile(EyeDoorProjectileRequest request, SharedGameState system);
+    void SpawnEyeDoorProjectile(EyeDoorProjectileRequest request);
 
     /// <summary>Spawns an eye door's attack, which bursts once <paramref name="system"/> records its door opened.</summary>
     void SpawnEyeDoorAttack(EyeDoorAttackRequest request, SharedGameState system);

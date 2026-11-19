@@ -24,7 +24,7 @@ internal static class TorizoRandomDefinitions
     internal static readonly RandomClearBitsChance ForwardLeap = RandomClearBitsChance.WhenAllClear(
         new RandomSampleField(0, 1), new RandomSampleField(8, 1));
 
-    /// <summary>The initial drool's added fall speed, 0 through 31 256ths of a pixel an update.</summary>
+    /// <summary>The initial drool's added fall speed: 0 through 31, in 256ths of a pixel an update.</summary>
     internal static readonly RandomSampleField DroolFallJitter = new(0, 5);
 
     /// <summary>
@@ -57,7 +57,7 @@ internal static class TorizoRandomDefinitions
             TorizoProjectileAnimations.DroolFormingForFourUpdates);
 
     /// <summary>
-    /// A sonic boom flying high, twelve pixels above Torizo's Y rather than twenty below (#2410): an odd sample, one in two.
+    /// A sonic boom flying high, twelve pixels above Torizo's Y rather than twenty below (#2410): one time in two.
     /// </summary>
     internal static readonly RandomChance SonicBoomFliesHigh = RandomChance.Highest(1, new RandomSampleField(0, 1));
 

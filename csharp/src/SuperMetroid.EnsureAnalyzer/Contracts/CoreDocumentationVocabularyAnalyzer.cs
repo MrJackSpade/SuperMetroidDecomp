@@ -184,6 +184,10 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// documentation comment's line breaks: a value's two halves, fraction bits, a negative test, a wrap to 65535, a position
 /// told by its range, a wrapping comparison, a value negated back, an expired timer that wraps, a flag named for a
 /// condition or read as this flag, a list scanned last to first, a value stored as a whole and a one-shot index.
+/// #2533 adds, outside hardware owners, the original's storage units, random bits and program bytes as enemy prose tells
+/// them, read across a documentation comment's line breaks: a value counted as a number of 256ths, a random number told by
+/// its oddness or parity, code or data stored after another thing, a definition pointing a thing at a routine, and, on a
+/// parameter typed as a measure, the unit its type already states.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -2341,9 +2345,41 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The original's storage units, random bits and program bytes told in enemy prose (#2533), outside hardware owners and
+    /// markup, read across a documentation comment's line breaks: a value counted as a number of 256ths, in digits or words
+    /// (twelve 256ths of a pixel, 1023 through 2815 256ths, 32 or 64 256ths of a mark, four pixels and 80 256ths); a random
+    /// number told by its oddness (faces right on an odd number, an odd sample, an odd roll, the random number is odd) or
+    /// its parity (the parity of the roll); code, data, words, definitions, entries, lists or tables stored, kept or placed
+    /// after, before, around or past another thing (drifting by the code stored after them) and the code that follows or
+    /// precedes one; and a definition, entry, table or record pointing a thing at a reaction, routine, animation, handler,
+    /// list, entry, definition, program or segment (definitions intentionally point touch and shot at the same private
+    /// reaction, points the caret sprite at its blinking animation). The original kept its speeds in 256ths, chose between
+    /// two outcomes by a random number's lowest bit, ran on into the bytes after a table and reached its reactions through
+    /// pointers; Core says what the game does: how fast a thing moves in the game's fractions, one time in two, which drift
+    /// the roll past the authored launches takes, that a touch starts the rot as a shot does. English stays legal: a unit of
+    /// measure (in 256ths of a pixel, a 256th of a pixel, one 256th), an odd number of things (an odd number of hits), odd
+    /// updates, frames, columns and counts, a frame counter's parity, a thing stored alone, a thing pointing at another
+    /// (the missile points at the answer, the arrow pointing at the destination) and a hardware owner, which describes the
+    /// encoding it keeps.
+    /// </summary>
+    private static readonly Regex EnemyUnitSampleAndProgramByteProse = new(
+        @"\b(?:[0-9]+|" + NumberWordsOnly + @"(?:-" + NumberWordsOnly + @")?)\s+256ths\b" +
+        @"|\bodd\s+(?:numbers?|samples?|rolls?|draws?|random\s+numbers?)\b(?!\s+of\b)" +
+        @"|\b(?:random\s+numbers?|samples?|rolls?|draws?)\s+(?:is|are|was|were|comes?\s+up|lands?)\s+odd\b" +
+        @"|\bparity\s+of\s+(?:the|its|a|their|that)\s+(?:[\w-]+\s+)?(?:samples?|rolls?|draws?|random\s+numbers?)\b" +
+        @"|\b(?:code|data|bytes?|words?|definitions?|entries|lists?|tables?)\s+(?:stored|kept|placed|laid\s+out)\s+" +
+        @"(?:just\s+|right\s+|immediately\s+)?(?:after|before|around|past|beside|next\s+to)\b" +
+        @"|\bcode\s+that\s+(?:follows|precedes)\b" +
+        @"|\bpoint(?:s|ed|ing)?\s+(?:[\w'’-]+\s+){1,4}?at\s+(?:(?:the|its|a|an|their|one|same|shared|single|private|own" +
+        @"|common)\s+)*(?:[\w-]+\s+)?(?:reactions?|routines?|animations?|handlers?|lists?|entr(?:y|ies)|definitions?" +
+        @"|programs?|records?|tables?|segments?|instructions?|code)\b" +
+        @"|\b(?:definitions?|entries|tables?|records?)\s+(?:\w+ly\s+)?point(?:s|ed)?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A documentation comment's line break with the next line's comment prefix (#2515), which
-    /// <see cref="EnemyAndWorldRoutineBitAndReasoningProse"/> and <see cref="SamusStorageHalfWrapAndFlagProse"/> read as a
-    /// space so a phrase runs on across it.
+    /// <see cref="EnemyAndWorldRoutineBitAndReasoningProse"/>, <see cref="SamusStorageHalfWrapAndFlagProse"/> and
+    /// <see cref="EnemyUnitSampleAndProgramByteProse"/> read as a space so a phrase runs on across it.
     /// </summary>
     private static readonly Regex CommentLineBreak = new(@"\s*\r?\n\s*(?:///?|\*+)?\s*", RegexOptions.CultureInvariant);
 
@@ -2396,6 +2432,59 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             _ => null,
         };
         return name is not null && TypedMeasures.Contains(name);
+    }
+
+    /// <summary>A documentation comment's parameter element: the parameter's name and the text that documents it.</summary>
+    private static readonly Regex ParameterElement = new(
+        @"<param\s+name\s*=\s*""(?<name>[^""]+)""\s*>(?<text>.*?)</param>", RegexOptions.Singleline | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The storage unit <paramref name="trivia"/> tells on a parameter typed as one of <see cref="TypedMeasures"/>, a nullable
+    /// one included (#2533): the <see cref="TypedMeasureUnitProse"/> of a parameter element whose parameter, of the method,
+    /// constructor, delegate, indexer, local function or primary constructor the comment documents, is measured by its type
+    /// already (a crawl speed in 1/256 pixels per update on a <c>SignedEightEight</c> parameter). Null when the comment
+    /// tells no typed parameter's unit.
+    /// </summary>
+    private static string? TypedParameterUnitFinding(SyntaxTrivia trivia)
+    {
+        if (!trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia) &&
+            !trivia.IsKind(SyntaxKind.MultiLineDocumentationCommentTrivia))
+            return null;
+        SyntaxNode? member = trivia.Token.Parent?.FirstAncestorOrSelf<SyntaxNode>(node =>
+            node is MemberDeclarationSyntax or LocalFunctionStatementSyntax);
+        if (member is null || member.GetFirstToken() != trivia.Token)
+            return null;
+        BaseParameterListSyntax? parameters = member switch
+        {
+            BaseMethodDeclarationSyntax method => method.ParameterList,
+            TypeDeclarationSyntax type => type.ParameterList,
+            DelegateDeclarationSyntax delegateDeclaration => delegateDeclaration.ParameterList,
+            IndexerDeclarationSyntax indexer => indexer.ParameterList,
+            LocalFunctionStatementSyntax localFunction => localFunction.ParameterList,
+            _ => null,
+        };
+        if (parameters is null)
+            return null;
+        foreach (Match element in ParameterElement.Matches(trivia.ToFullString()))
+        {
+            ParameterSyntax? parameter = parameters.Parameters.FirstOrDefault(candidate =>
+                candidate.Identifier.ValueText == element.Groups["name"].Value);
+            TypeSyntax? type = parameter?.Type;
+            if (type is NullableTypeSyntax nullable)
+                type = nullable.ElementType;
+            string? typeName = type switch
+            {
+                QualifiedNameSyntax qualified => qualified.Right.Identifier.ValueText,
+                SimpleNameSyntax simple => simple.Identifier.ValueText,
+                _ => null,
+            };
+            if (typeName is null || !TypedMeasures.Contains(typeName))
+                continue;
+            if (TypedMeasureUnitProse.Match(CommentLineBreak.Replace(Markup.Replace(element.Groups["text"].Value, " "), " ")) is
+                { Success: true } unit)
+                return unit.Value;
+        }
+        return null;
     }
 
     /// <summary>
@@ -2719,14 +2808,15 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
                 !trivia.IsKind(SyntaxKind.MultiLineDocumentationCommentTrivia))
                 continue;
             Report(context, trivia.ToFullString(), trivia.GetLocation(), trivia.Token.Parent, codeNames, generated,
-                DocumentsTypedMeasure(trivia));
+                DocumentsTypedMeasure(trivia), TypedParameterUnitFinding(trivia));
         }
         foreach (SyntaxToken token in root.DescendantTokens())
         {
             if (token.IsKind(SyntaxKind.StringLiteralToken) || token.IsKind(SyntaxKind.InterpolatedStringTextToken) ||
                 token.IsKind(SyntaxKind.Utf8StringLiteralToken) || token.IsKind(SyntaxKind.MultiLineRawStringLiteralToken) ||
                 token.IsKind(SyntaxKind.SingleLineRawStringLiteralToken))
-                Report(context, token.ValueText, token.GetLocation(), token.Parent, codeNames: null, generated, typedMeasure: false);
+                Report(context, token.ValueText, token.GetLocation(), token.Parent, codeNames: null, generated, typedMeasure: false,
+                    typedParameterUnit: null);
         }
         if (generated)
             return;
@@ -2769,10 +2859,12 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// <paramref name="codeNames"/>, against which its compound names are read as routine labels; a string literal does not,
     /// and is not read for labels or hexadecimal literals. <paramref name="generated"/> text is not read for the review
     /// trail (<see cref="ReviewTrailProse"/>, <see cref="RelocationHistoryProse"/>), fix history or debug narration. Documentation
-    /// of a <paramref name="typedMeasure"/> member is read for a storage unit its type already states (<see cref="TypedMeasureUnitProse"/>).
+    /// of a <paramref name="typedMeasure"/> member is read for a storage unit its type already states (<see cref="TypedMeasureUnitProse"/>),
+    /// and <paramref name="typedParameterUnit"/> is the unit a documentation comment tells on a typed parameter
+    /// (<see cref="TypedParameterUnitFinding"/>).
     /// </summary>
     private static void Report(SyntaxTreeAnalysisContext context, string text, Location location, SyntaxNode? owner,
-        Lazy<ImmutableHashSet<string>>? codeNames, bool generated, bool typedMeasure)
+        Lazy<ImmutableHashSet<string>>? codeNames, bool generated, bool typedMeasure, string? typedParameterUnit)
     {
         text = AllowanceMarker.Replace(text, string.Empty);
         string? word = MachineProvenanceProse.Match(text) is { Success: true } provenance ? provenance.Value
@@ -2911,6 +3003,8 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : RuntimeLoaderAndLayerNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } loaderNarration ? loaderNarration.Value
             : EnemyAndWorldRoutineBitAndReasoningProse.Match(CommentLineBreak.Replace(Markup.Replace(text, " "), " ")) is { Success: true } enemyAndWorld ? enemyAndWorld.Value
             : SamusStorageHalfWrapAndFlagProse.Match(CommentLineBreak.Replace(Markup.Replace(text, " "), " ")) is { Success: true } samusStorage ? samusStorage.Value
+            : EnemyUnitSampleAndProgramByteProse.Match(CommentLineBreak.Replace(Markup.Replace(text, " "), " ")) is { Success: true } enemyUnit ? enemyUnit.Value
+            : typedParameterUnit is not null ? typedParameterUnit
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

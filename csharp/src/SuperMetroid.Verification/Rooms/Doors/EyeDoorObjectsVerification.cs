@@ -83,8 +83,7 @@ internal static class EyeDoorObjectsVerification
             new EyeDoorProjectileRequest(
                 EyeDoorProjectileDefinition.Sweat,
                 Facing: EyeDoorOrientation.Right,
-                RoomObjectBlock: roomObjectBlock),
-            system);
+                RoomObjectBlock: roomObjectBlock));
         EnemyProjectile sweat = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.EyeDoorSweat);
         AssertEqual((ushort)64, sweat.Velocity.X.RawValue,
@@ -96,8 +95,7 @@ internal static class EyeDoorObjectsVerification
             new EyeDoorProjectileRequest(
                 EyeDoorProjectileDefinition.ScatteredSmoke,
                 Facing: EyeDoorOrientation.Left,
-                RoomObjectBlock: roomObjectBlock),
-            system);
+                RoomObjectBlock: roomObjectBlock));
         EnemyProjectile smoke = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.EyeDoorSmoke);
         AssertTrue(smoke.Animation is DustExplosionProjectileAnimation { PlayingSegment: var smokeProgram } &&

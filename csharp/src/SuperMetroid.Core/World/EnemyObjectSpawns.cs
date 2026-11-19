@@ -35,8 +35,8 @@ internal sealed class EnemyObjectSpawns(
         noobTube.SpawnNoobTubeProjectile(request);
 
     /// <inheritdoc/>
-    public void SpawnEyeDoorProjectile(EyeDoorProjectileRequest request, SharedGameState system) =>
-        eyeDoor.SpawnEyeDoorProjectile(request, system);
+    public void SpawnEyeDoorProjectile(EyeDoorProjectileRequest request) =>
+        eyeDoor.SpawnEyeDoorProjectile(request);
 
     /// <inheritdoc/>
     public void SpawnEyeDoorAttack(EyeDoorAttackRequest request, SharedGameState system) =>

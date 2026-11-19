@@ -2077,6 +2077,33 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // a hardware owner are English.
         Expect("class P { /// <summary>Once both halves of the neck have stopped moving; the door's two halves; a fraction of a pixel; the random\n/// sample, 0 through 65535; the frame counter, 0 through 65535; a count that wraps; a flag; the phases\n/// played last to first; a whole step of the turn; a negative speed; <see cref=\"Run\"/>.</summary>\nvoid Run() { } }");
         Expect(CompatibilityService + "/// <summary>Evidence: the decrement wraps to 65535, which the negative test reads, and clears both velocity halves.</summary>\n[CompatibilityService(\"halves\")] class Halves { }");
+        // The original's storage units, random bits and program bytes, outside hardware owners and markup, read across a
+        // documentation comment's line breaks (#2533): a value counted as a number of 256ths, a random number told by its
+        // oddness or parity, code or data stored after another thing, a definition pointing a thing at a routine, and, on a
+        // parameter typed as a measure, the unit its type already states.
+        Expect("class P { /// <summary>Drops a sweat drop, accelerating twelve 256ths of a pixel each update.</summary>\nvoid Run() { } }", "('twelve 256ths')");
+        Expect("class P { /// <summary>Whether flight is below its 1023 through 2815\n/// 256ths of a pixel an update.</summary>\nbool Below => false; }", "('2815 256ths')");
+        Expect("class P { /// <summary>Advanced by 32 or 64 256ths of a mark per update.</summary>\nint Clock { get; set; } }", "('64 256ths')");
+        Expect("class P { void Run() { // The ring flies at four pixels and eighty 256ths an update.\n } }", "('eighty 256ths')");
+        Expect("class P { /// <summary>Chooses its action and faces right on an odd number.</summary>\nvoid Run() { } }", "('odd number')");
+        Expect("class P { /// <summary>Whether it climbs up: taken by an odd sample, one climb in two.</summary>\nbool Up => false; }", "('odd sample')");
+        Expect("class P { void Run() { // So an odd roll faces right.\n } }", "('odd roll')");
+        Expect("class P { /// <summary>Chosen again by whether the random number is odd.</summary>\nint Way { get; set; } }", "('random number is odd')");
+        Expect("class P { /// <summary>Whether it faces right: the parity of the roll the choice reads.</summary>\nbool Right => false; }", "('parity of the roll')");
+        Expect("class P { /// <summary>The roll past the authored launches, drifting by the code stored after them.</summary>\nvoid Run() { } }", "('code stored after')");
+        Expect("class P { void Run() { // It reads the definitions kept just past the list.\n } }", "('definitions kept just past')");
+        Expect("class P { void Run() { // The drift comes from the code that follows the launches.\n } }", "('code that follows')");
+        Expect("class P { void Run() { // The definitions intentionally point touch and shot at the same private reaction.\n } }", "('definitions intentionally point')");
+        Expect("class P { /// <summary>Points the existing caret sprite at its blinking animation.</summary>\nvoid Run() { } }", "('Points the existing caret sprite at its blinking animation')");
+        Expect(Measures + "/// <summary>Where a crawler starts.</summary>\n/// <param name=\"CrawlSpeed\">Its crawl speed on both axes, in 1/256\n/// pixels per update.</param>\nrecord Settings(SignedSixteenSixteen? CrawlSpeed);", "('1/256 pixels')");
+        Expect(Measures + "class P { /// <summary>Turns the link.</summary>\n/// <param name=\"angle\">The angle in steps, 256ths of a turn.</param>\nvoid Turn(RotationAngle angle) { } }", "('256ths of a turn')");
+        Expect(Measures + "/// <summary>A drift.</summary>\n/// <param name=\"speed\">How far it slides each frame, in pixels and 65536ths of a pixel.</param>\nclass Drift(SignedSixteenSixteen speed) { SignedSixteenSixteen Speed { get; } = speed; }", "('65536ths of a pixel')");
+        // A unit of measure, an odd number of things, odd updates, frames, columns and counts, a frame counter's parity, a
+        // thing stored alone, a thing pointing at another, a unit on a parameter typed as a number or on a typed parameter's
+        // neighbour, and a hardware owner are English.
+        Expect("class P { /// <summary>Moves in 256ths of a pixel; a 256th of a pixel; one 256th further; an odd number of hits; odd updates\n/// and odd frames; an odd column; its odd counts; the frame counter's parity; a map stored with its door; the missile\n/// points at the answer; the arrow pointing at the destination; the heading points up at zero; <see cref=\"Run\"/>.</summary>\nvoid Run() { } }");
+        Expect(Measures + "class P { /// <summary>Crawls.</summary>\n/// <param name=\"speed\">Its crawl speed, in 1/256 pixels per update.</param>\n/// <param name=\"angle\">The angle it climbs at.</param>\nvoid Crawl(int speed, RotationAngle angle) { } }");
+        Expect(CompatibilityService + "struct SignedSixteenSixteen { }\n/// <summary>Evidence: an odd sample drifts by the code stored after the launches, twelve 256ths of a pixel.</summary>\n/// <param name=\"drift\">The drift, in pixels and 65536ths of a pixel.</param>\n[CompatibilityService(\"bytes\")] class Bytes(SignedSixteenSixteen drift) { SignedSixteenSixteen Drift { get; } = drift; }");
         // The species-owner template on a type that owns no species (#2427), read on the type's own summary; a type that
         // implements or is a species owner's interface owns a species, and an entity's parameter names its owner.
         const string SpeciesOwners = "interface IEnemySpecies { }\ninterface IEnemyEntityFactory { }\n";

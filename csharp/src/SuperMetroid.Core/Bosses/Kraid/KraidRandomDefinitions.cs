@@ -39,8 +39,8 @@ internal static class KraidRandomDefinitions
     internal const int FakeKraidSpitDecisionBase = 3;
 
     /// <summary>
-    /// The random part of a falling ceiling rock's speed in Kraid's room, 0 through 63 256ths of a pixel an update added
-    /// to <see cref="CeilingRockSlowestFall"/>.
+    /// The random part of a falling ceiling rock's speed in Kraid's room added to <see cref="CeilingRockSlowestFall"/>: 0
+    /// through 63, in 256ths of a pixel an update.
     /// </summary>
     internal static readonly RandomSampleField CeilingRockFallSpeedSpread = new(0, 6);
 
@@ -62,7 +62,7 @@ internal static class KraidRandomDefinitions
 
     /// <summary>
     /// Whether a launching nail waits for the lint at its parked position instead of launching beside Kraid's body (#2479):
-    /// an odd sample waits, one launch in two, unless its sibling took the alternate spawn last.
+    /// one launch in two, unless its sibling took the alternate spawn last.
     /// </summary>
     internal static readonly RandomChance NailWaitsForLint = RandomChance.Highest(1, new RandomSampleField(0, 1));
 
@@ -76,7 +76,7 @@ internal static class KraidRandomDefinitions
     internal static readonly RandomSampleField RisingRockOffset = new(0, 6);
 
     /// <summary>
-    /// Whether a rising rock keeps its offset to the right of Kraid's body (#2479): taken by an odd sample, one rock in two;
+    /// Whether a rising rock keeps its offset to the right of Kraid's body (#2479): one rock in two;
     /// otherwise the rock rises to the left, <see cref="RisingRockLeftExtraPixels"/> further from the body than its offset.
     /// </summary>
     internal static readonly RandomChance RisingRockStartsOnRight = RandomChance.Highest(1, new RandomSampleField(0, 1));

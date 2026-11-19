@@ -158,7 +158,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         TrigonometryAngle angle,
         SignedEightEight speed)
     {
-        // The sine's coarse size is below 128 and the speed at most 2880 256ths, so the step is under six pixels.
+        // The sine's coarse size is below 128 and the speed at most eleven and a quarter pixels, so the step is under six pixels.
         SignedSixteenSixteen forward = UnsignedSixteenSixteen.ProductOfTwoFiftySixths(
             Trigonometry.CoarseSizeOfFineSine(angle), speed.InTwoHundredFiftySixthsOfPixel).AsDisplacement();
         SignedSixteenSixteen displacement = ReadBullSignedSine(angle) < 0 ? BullBackwardStep.Of(forward) : forward;

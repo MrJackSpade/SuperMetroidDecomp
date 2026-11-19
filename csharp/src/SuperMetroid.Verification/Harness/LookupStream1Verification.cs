@@ -565,7 +565,7 @@ internal static class LookupStream1Verification
                 or SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose
                 ? native[pose]
                 : unchecked((byte)native[pose]);
-            AssertEqual(expectedOrigin, SamusPoseProjectileOrigins.ReadYOffset(SamusPoseNumbering.FromNumber(pose)), "Physical projectile origin matches the native byte");
+            AssertEqual(expectedOrigin, SamusPoseTraits.Of(SamusPoseNumbering.FromNumber(pose)).ProjectileHeight, "Physical projectile origin matches the native byte");
         }
         Console.WriteLine("Body graphics origins:253 native installed origins and physical projectile origins pass.");
     }
@@ -941,7 +941,7 @@ internal static class LookupStream1Verification
             if (!SamusPoseNumbering.NamesPose(pose)) continue;
             AssertEqual(LookupStream1RomByte(rom, 0x91b629 + pose * 8), SamusPoseRecordCodecTooling.FacingByte(SamusPoseNumbering.FromNumber(pose)), "Native named-pose facing case");
             AssertEqual(LookupStream1RomByte(rom, 0x91b62a + pose * 8), SamusPoseRecordCodecTooling.MovementByte(SamusPoseNumbering.FromNumber(pose)), "Native named-pose raw movement case");
-            AssertEqual(LookupStream1RomByte(rom, 0x91b62b + pose * 8), SamusNoInputFallbackNumbers.Number(SamusPoseTraits.ReadNoInputFallback(SamusPoseNumbering.FromNumber(pose))), "Native named-pose no-input case");
+            AssertEqual(LookupStream1RomByte(rom, 0x91b62b + pose * 8), SamusNoInputFallbackNumbers.Number(SamusPoseTraits.Of(SamusPoseNumbering.FromNumber(pose)).NoInput), "Native named-pose no-input case");
         }
         Suite(nameof(VerifyLookupStream1SamusPolicyDomains), () => VerifyLookupStream1SamusPolicyDomains(rom));
         Suite(nameof(VerifyLookupStream1MetroidLayout), () => VerifyLookupStream1MetroidLayout(rom));

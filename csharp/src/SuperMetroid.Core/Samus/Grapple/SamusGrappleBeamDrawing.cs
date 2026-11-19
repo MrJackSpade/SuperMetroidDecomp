@@ -95,7 +95,7 @@ public static class SamusGrappleBeamDrawing
         var origin = GrappleFiring.Origin(grapple.FireDirection, useRunOffsets);
         var flare = SamusGrappleMovement.ReadFlareOrigin(grapple, grapple.FireDirection, useRunOffsets);
         int artOrigin = SamusPoseMetadata.ReadArtOrigin(samus);
-        int physicalYOffset = SamusPoseProjectileOrigins.ReadYOffset(samus.Pose);
+        int physicalYOffset = SamusPoseTraits.Of(samus.Pose).ProjectileHeight;
 
         // Recompute from the final pose/position, not cached launch offsets. Physical
         // Start and presentation Flare remain separate coordinate pairs.

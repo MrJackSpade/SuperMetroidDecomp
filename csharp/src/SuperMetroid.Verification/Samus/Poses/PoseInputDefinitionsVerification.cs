@@ -35,7 +35,7 @@ internal static class PoseInputDefinitionsVerification
                 if (native.Count >= 1000) throw new InvalidDataException("Native pose-input fixture does not terminate.");
                 native.Add(new PoseInputDefinitionsNative(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(address), CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((address + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((address + 4))));
             }
-            SamusPoseInputList inputList = SamusPoseInputs.InputList(pose);
+            SamusPoseInputList inputList = SamusPoseTraits.Of(pose).Inputs;
             // Poses share a list exactly when their native lists hold the same live conditions, the conditions no earlier
             // condition of the list shadows (#1929, #2457).
             string live = LiveConditions(native);

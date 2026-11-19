@@ -39,7 +39,7 @@ internal static class PoseProjectileOriginVerification
         {
             if (!SamusPoseNumbering.NamesPose(pose)) continue;
             int expected = PhysicalOrigin(rom, pose);
-            AssertEqual(expected, SamusPoseProjectileOrigins.ReadYOffset(SamusPoseNumbering.FromNumber(pose)),
+            AssertEqual(expected, SamusPoseTraits.Of(SamusPoseNumbering.FromNumber(pose)).ProjectileHeight,
                 "Every pose's byte-valued correction is compiled");
         }
         // Each artwork class is bound once and every pose and direction checked under it. Only the body's tables are

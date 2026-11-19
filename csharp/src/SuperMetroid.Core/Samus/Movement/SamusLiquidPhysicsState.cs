@@ -206,7 +206,7 @@ public sealed class SamusLiquidPhysicsState
             return SamusLiquidMedium.Air;
         // Samus's bottom boundary samples the current pose definition, even before the next
         // movement pass publishes its radius to the live collision state.
-        int bottom = CoordinateAxis.Wrap(samus.Position.Y.Whole + SamusPoseCollisionRadii.ReadVerticalRadius(samus.Pose) - 1);
+        int bottom = CoordinateAxis.Wrap(samus.Position.Y.Whole + SamusPoseMetadata.ReadPoseYRadius(samus.Pose) - 1);
         return DetermineRawMediumAtBoundary(bottom);
     }
 
@@ -270,7 +270,7 @@ public sealed class SamusLiquidPhysicsState
             return samus.SlowdownLevel;
 
         int bottomMinusOne = CoordinateAxis.Wrap(
-            samus.Position.Y.Whole + SamusPoseCollisionRadii.ReadVerticalRadius(samus.Pose) - 1);
+            samus.Position.Y.Whole + SamusPoseMetadata.ReadPoseYRadius(samus.Pose) - 1);
         SamusLiquidMedium medium = DetermineRawMediumAtBoundary(bottomMinusOne);
         return medium switch
         {
@@ -328,8 +328,7 @@ public sealed class SamusLiquidPhysicsState
 
             // Both forward-facing poses and every Gravity-Suit pose clear the
             // extra animation delay while spawning air bubbles, after all particle/audio side effects have run.
-            if (samus.Pose is SamusPoseId.ForwardFacingPowerSuitPose or
-                SamusPoseId.ForwardFacingSuitedPose || gravitySuit)
+            if (SamusPoseMetadata.IsForwardFacingPose(samus.Pose) || gravitySuit)
                 samus.ExtraAnimationDelay = 0;
             return;
         }
@@ -368,8 +367,7 @@ public sealed class SamusLiquidPhysicsState
             LiquidPhysicsType = SamusLiquidMedium.LavaOrAcid;
             samus.ExtraAnimationDelay = SamusAnimationDelayDefinitions.LavaOrAcidAnimationDelay;
             TrySpawnLavaSurfaceSpray(samus, top, frameCounter);
-            if (samus.Pose is SamusPoseId.ForwardFacingPowerSuitPose or
-                SamusPoseId.ForwardFacingSuitedPose || gravitySuit)
+            if (SamusPoseMetadata.IsForwardFacingPose(samus.Pose) || gravitySuit)
                 samus.ExtraAnimationDelay = 0;
             return;
         }
@@ -414,8 +412,7 @@ public sealed class SamusLiquidPhysicsState
         if (!cinematic && previousMovementType is
             SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
         {
-            QueueSound(previousPose is SamusPoseId.ScrewAttackRightPose or
-                    SamusPoseId.ScrewAttackLeftPose
+            QueueSound(SamusPoseMetadata.IsScrewAttackPose(previousPose)
                         ? SamusSound.ScrewAttackEnd
                         : SamusSound.SpinJumpEnd,
                 priority: SoundRequestPriority.Normal);
@@ -476,7 +473,7 @@ public sealed class SamusLiquidPhysicsState
         // The bottom boundary uses the current pose definition and includes the last
         // occupied pixel; the live collision radius can still belong to the old pose.
         int bottom = CoordinateAxis.Wrap(samus.Position.Y.Whole +
-            SamusPoseCollisionRadii.ReadVerticalRadius(samus.Pose) - 1);
+            SamusPoseMetadata.ReadPoseYRadius(samus.Pose) - 1);
 
         // Both landing particle steps suppress their particles when Samus's current
         // bottom is genuinely below active water or lava/acid. The raw-medium determination

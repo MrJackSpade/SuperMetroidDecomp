@@ -354,20 +354,13 @@ internal static class SamusAerialPoseTransitions
     {
         Ensure.NotNull(level);
 
-        bool supportedTarget = targetPose is
-            SamusPoseId.FacingRightNormalPose or SamusPoseId.FacingLeftNormalPose or
-            SamusPoseId.StandingAimUpRightPose or SamusPoseId.StandingAimUpLeftPose or
-            SamusPoseId.StandingAimDiagonalUpRightPose or SamusPoseId.StandingAimDiagonalUpLeftPose or
-            SamusPoseId.StandingAimDiagonalDownRightPose or SamusPoseId.StandingAimDiagonalDownLeftPose or
-            SamusPoseId.CrouchingRightPose or SamusPoseId.CrouchingLeftPose or
-            SamusPoseId.CrouchingAimUpRightPose or SamusPoseId.CrouchingAimUpLeftPose or
-            SamusPoseId.CrouchingAimDiagonalUpRightPose or SamusPoseId.CrouchingAimDiagonalUpLeftPose or
-            SamusPoseId.CrouchingAimDiagonalDownRightPose or SamusPoseId.CrouchingAimDiagonalDownLeftPose;
+        bool supportedTarget =
+            SamusPoseMetadata.IsRightFacingStandingPose(targetPose) || SamusPoseMetadata.IsLeftFacingStandingPose(targetPose) ||
+            SamusPoseMetadata.IsRightFacingCrouchingPose(targetPose) || SamusPoseMetadata.IsLeftFacingCrouchingPose(targetPose);
         if (!supportedTarget)
         {
-            // The poses above are every pose a grapple drop can take: exactly the
-            // standing, aimed and crouching set. Other releases take the grapple's
-            // wall jump or the swing release instead.
+            // The standing and crouching poses, unaimed and aimed, are every pose a grapple drop
+            // can take. Other releases take the grapple's wall jump or the swing release instead.
             throw new InvalidOperationException(
                 $"Grapple drop transition {samus.Pose} -> {targetPose} is not a route a grapple drop takes.");
         }
@@ -473,18 +466,14 @@ internal static class SamusAerialPoseTransitions
         SamusPoseId targetPose,
         SamusMovementType previousMovementType)
     {
-        bool right = targetPose is
-            SamusPoseId.NeutralJumpRightPose or SamusPoseId.NormalJumpAimUpRightPose or
-            SamusPoseId.NormalJumpAimDiagonalUpRightPose;
-        bool left = targetPose is
-            SamusPoseId.NeutralJumpLeftPose or SamusPoseId.NormalJumpAimUpLeftPose or
-            SamusPoseId.NormalJumpAimDiagonalUpLeftPose;
-        if ((!right && !left) || !SamusInputSnapshot.HoldsShine(samus))
+        if (!SamusPoseMetadata.BeginsShinesparkFromStoredShine(targetPose) || !SamusInputSnapshot.HoldsShine(samus))
         {
             return false;
         }
 
-        samus.Pose = right ? SamusPoseId.ShinesparkWindupRightPose : SamusPoseId.ShinesparkWindupLeftPose;
+        samus.Pose = SamusPoseMetadata.ReadFacingDirection(targetPose) == SamusFacingDirection.Right
+            ? SamusPoseId.ShinesparkWindupRightPose
+            : SamusPoseId.ShinesparkWindupLeftPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         samus.Shinespark.BeginWindup(samus);
 
@@ -716,10 +705,6 @@ internal static class SamusAerialPoseTransitions
     }
 
     /// <summary>Whether <paramref name="pose"/> is one the ordinary jump setup installs: a jump transition, neutral or aimed, or the spin jump.</summary>
-    private static bool IsOrdinaryJumpTarget(SamusPoseId pose) => pose is
-        SamusPoseId.NeutralJumpTransitionRightPose or SamusPoseId.NeutralJumpTransitionLeftPose or
-        SamusPoseId.NormalJumpTransitionAimUpRightPose or SamusPoseId.NormalJumpTransitionAimUpLeftPose or
-        SamusPoseId.NormalJumpTransitionAimDiagonalUpRightPose or SamusPoseId.NormalJumpTransitionAimDiagonalUpLeftPose or
-        SamusPoseId.NormalJumpTransitionAimDiagonalDownRightPose or SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose or
-        SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose;
+    private static bool IsOrdinaryJumpTarget(SamusPoseId pose) =>
+        SamusPoseMetadata.IsJumpTransitionPose(pose) || pose is SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose;
 }

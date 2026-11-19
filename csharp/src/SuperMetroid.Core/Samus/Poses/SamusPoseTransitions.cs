@@ -28,7 +28,7 @@ internal static class SamusPoseTransitions
             SamusPoseMetadata.IsRightFacingRunningPose(samus.Pose) || SamusPoseMetadata.IsLeftFacingRunningPose(samus.Pose) ||
             SamusPoseMetadata.IsMoonwalkingPose(samus.Pose) ||
             SamusPoseMetadata.IsMoonwalkTurnJumpPose(samus.Pose) ||
-            samus.Pose is SamusPoseId.KnockbackRightPose or SamusPoseId.KnockbackLeftPose ||
+            SamusPoseMetadata.IsKnockbackPose(samus.Pose) ||
             SamusPoseMetadata.IsRanIntoWallPose(samus.Pose) ||
             SamusPoseMetadata.IsRightFacingCrouchingPose(samus.Pose) || SamusPoseMetadata.IsLeftFacingCrouchingPose(samus.Pose);
         SamusPoseId expectedTarget = SelectFallingPoseForCurrentAim(samus);

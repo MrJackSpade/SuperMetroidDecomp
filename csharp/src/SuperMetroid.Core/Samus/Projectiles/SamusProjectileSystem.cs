@@ -104,7 +104,7 @@ public sealed class SamusProjectileSystem
         Chainsaw = new ChainsawFuse(Animation, overreads.ChainsawFuseShift);
         Shinespark = new ShinesparkEchoProjectile(Animation, Pool);
         Combos = new BeamCombos(Animation, Charge, Pool, Trails, overreads.SpaceTimeOverwrite);
-        Firing = new BeamFiring(Animation, Charge, Combos, Pool, TerrainCollision, overreads.UnauthoredBeamFiring);
+        Firing = new BeamFiring(Charge, Combos, Pool, TerrainCollision, overreads.UnauthoredBeamFiring);
         Motion = new ProjectileMotion(Animation, Pool, TerrainCollision, Trails);
     }
 
@@ -229,7 +229,7 @@ public sealed class SamusProjectileSystem
         if (glow.HasEnded)
         {
             Charge.ChargedShotGlow = null;
-            ProjectileAnimation.ShowSuitShade(colours, samus);
+            SamusSuitShade.Show(colours, samus.EquippedItems);
             return true;
         }
         if (shown is { } shade)

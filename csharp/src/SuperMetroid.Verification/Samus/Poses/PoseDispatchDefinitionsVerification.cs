@@ -69,7 +69,7 @@ internal static class PoseDispatchDefinitionsVerification
             SamusPoseId pose = SamusPoseNumbering.FromNumber(index % 253);
             checksum += SamusPoseMetadata.IsFacingLeft(pose) ? 1 : 0;
             checksum += SamusMovementTypeNativeWords.Byte(SamusPoseMetadata.ReadMovementType(pose));
-            checksum += SamusNoInputFallbackNumbers.Number(SamusPoseTraits.ReadNoInputFallback(pose));
+            checksum += SamusNoInputFallbackNumbers.Number(SamusPoseTraits.Of(pose).NoInput);
         }
         return GC.GetAllocatedBytesForCurrentThread() - before;
     }

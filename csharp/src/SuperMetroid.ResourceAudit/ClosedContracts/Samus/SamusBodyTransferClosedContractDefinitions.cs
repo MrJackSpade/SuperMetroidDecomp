@@ -12,7 +12,6 @@ internal static class SamusBodyTransferClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyArtworkContent.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseId.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseProjectileOrigins.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseAim.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusFlareAim.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusTurningAim.cs"),
@@ -29,7 +28,6 @@ internal static class SamusBodyTransferClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Spatial/PictureFlip.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Artwork/SnesBgTilemapWord.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Artwork/SpritePart.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseCollisionDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseCollisionRadii.cs")]),
+             new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseCollisionDefinitions.cs")]),
     ];
 }

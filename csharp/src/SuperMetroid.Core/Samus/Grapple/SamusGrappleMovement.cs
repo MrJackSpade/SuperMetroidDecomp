@@ -65,7 +65,7 @@ public static class SamusGrappleMovement
         var flare = ReadFlareOrigin(grapple, direction, useRunOffsets);
         int artOrigin = movingHeld ? GrappleBeamDefinitions.Firing.DraygonMovingArtOrigin : SamusPoseMetadata.ReadArtOrigin(samus);
         int physicalYOffset = movingHeld ? GrappleBeamDefinitions.Firing.DraygonMovingArtOrigin :
-            SamusPoseProjectileOrigins.ReadYOffset(samus.Pose);
+            SamusPoseTraits.Of(samus.Pose).ProjectileHeight;
 
         // The hand and flare offsets and the pose's offsets are a few pixels each, so their differences are ordinary.
         grapple.OriginOffset = new(origin.X, origin.Y - physicalYOffset);

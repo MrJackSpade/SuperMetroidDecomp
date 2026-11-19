@@ -834,7 +834,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             // vertical calculation now carries the eleven-frame Rinka arc through its apex.
             SamusKnockbackMovement.Step(level, samus, frameCounter, IntroCollisionRoomObjects.Instance);
         }
-        else if (samus.Pose is SamusPoseId.KnockbackRightPose or SamusPoseId.KnockbackLeftPose)
+        else if (SamusPoseMetadata.IsKnockbackPose(samus.Pose))
         {
             hurtEndingProbe = SamusGroundedMovement.StepKnockbackOrCrystalFlashEnding(
                 level, samus, frameCounter, IntroCollisionRoomObjects.Instance);

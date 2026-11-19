@@ -20,7 +20,7 @@ internal static class SamusPoseRecordCodecTooling
     private const byte RightFacingByte = 0x08;
 
     /// <summary>Record byte one, the pose's movement type as the cartridge's movement dispatcher indexes it: the movement byte that names the pose's movement type.</summary>
-    internal static byte MovementByte(SamusPoseId pose) => SamusMovementTypeNativeWords.Byte(SamusPoseTraits.ReadMovement(pose));
+    internal static byte MovementByte(SamusPoseId pose) => SamusMovementTypeNativeWords.Byte(SamusPoseMetadata.ReadMovementType(pose));
 
     /// <summary>Record byte zero, the pose's facing as the cartridge stores it: zero forward, four left, eight right.</summary>
     internal static byte FacingByte(SamusPoseId pose) => SamusPoseMetadata.ReadFacingDirection(pose) switch

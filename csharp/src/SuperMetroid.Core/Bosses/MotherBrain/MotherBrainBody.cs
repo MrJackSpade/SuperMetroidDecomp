@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed class MotherBrainBody
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    private readonly BossFrameResultBuilder _frameResults;
+    private readonly EnemyPassEvents _passEvents;
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>
@@ -44,7 +44,7 @@ internal sealed class MotherBrainBody
     {
         _presentation = dependencies.Presentation;
         _places = dependencies.Places;
-        _frameResults = dependencies.FrameResults;
+        _passEvents = dependencies.PassEvents;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
         _earthquake = dependencies.Earthquake;
@@ -94,7 +94,7 @@ internal sealed class MotherBrainBody
         _presentation.AttachBossBody(BossBodyParts.Hidden(BossBodyOwner.MotherBrain, state));
         // Her glass shards and tube projectiles show their own colours, MotherBrainColours.GlassAndTubes (#1544).
         // Her room's acid rises, which the room loader applies after enemy initialization.
-        _frameResults.MotherBrainAcidChange = MotherBrainRoomFxDefinitions.AcidRises;
+        _passEvents.Publish(new MotherBrainAcidChange(MotherBrainRoomFxDefinitions.AcidRises));
         SpawnMotherBrainInitialTurrets(state);
     }
 

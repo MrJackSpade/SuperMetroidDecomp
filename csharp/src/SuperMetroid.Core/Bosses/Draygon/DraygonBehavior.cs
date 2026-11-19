@@ -89,7 +89,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         Movement = new DraygonMovement(dependencies.EffectActors);
         Swoops = new DraygonSwoops(_room, Turrets, Movement);
         Goop = new DraygonGoop(_room, Turrets, Movement);
-        Grab = new DraygonGrab(dependencies.FrameResults, _room, dependencies.EffectActors, dependencies.ScrollCap, Turrets);
+        Grab = new DraygonGrab(dependencies.PassEvents, _room, dependencies.EffectActors, dependencies.ScrollCap, Turrets);
         Death = new DraygonDeath(_room, dependencies.EffectActors, dependencies.DeathsAndDrops, Parts);
         Combat = new DraygonCombat(dependencies.Projectiles, dependencies.Collision, Grab);
     }

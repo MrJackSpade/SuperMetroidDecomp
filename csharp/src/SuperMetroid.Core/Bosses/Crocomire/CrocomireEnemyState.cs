@@ -88,8 +88,8 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
     internal void RestAsCorpse() =>
         DeathStage = ListStep<CrocomireDeathStage>.At(CrocomireDeathStageDefinitions.Stages, CrocomireDeathStageDefinitions.Stages.Count - 1);
 
-    /// <summary>Whether a mouth hit is waiting for the fight AI to start a backward step.</summary>
-    public bool DamageReactionPending { get; internal set; }
+    /// <summary>The step back a mouth hit asks of his fight, waiting until the fight takes it.</summary>
+    public CrocomireAwaitedStepBack StepBack { get; } = new();
 
     /// <summary>
     /// The fight's phase, run when the body animation's fight-AI cue fires rather than once per main-AI frame (#1939). The

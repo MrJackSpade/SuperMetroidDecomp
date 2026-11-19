@@ -2,6 +2,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
@@ -14,7 +15,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal sealed class KraidRise
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    private readonly BossFrameResultBuilder _frameResults;
+    private readonly EnemyPassEvents _passEvents;
     /// <summary>Room services used throughout the Kraid fight.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns rocks, lint, and other fight projectiles.</summary>
@@ -38,7 +39,7 @@ internal sealed class KraidRise
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal KraidRise(KraidRiseDependencies dependencies)
     {
-        _frameResults = dependencies.FrameResults;
+        _passEvents = dependencies.PassEvents;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
         _earthquake = dependencies.Earthquake;
@@ -74,7 +75,8 @@ internal sealed class KraidRise
             _access.Backdrop.ShowKraidColours();
             state.BodyAppearance = KraidBodyAppearance.Hidden;
             ShowKraidRoomBackdrop();
-            _frameResults.KraidObjects.AddRange(KraidObjectDefinitions.DefeatedRoom);
+            foreach (RoomObjectSpawnRequest<KraidRoomMutation> change in KraidObjectDefinitions.DefeatedRoom)
+                _passEvents.Publish(new KraidRoomChange(change));
             // The body owns the sinking: a defeated room's body starts at hiding his body and the death's wait
             // before the fade-in. Kraid's other seven parts take their own dead setup and remain deleted.
             state.BodyState.DeathPhase = KraidDeathPhase.HideBody;
@@ -157,7 +159,7 @@ internal sealed class KraidRise
                     state.BodyState.NextCeilingRock is { } rock)
                 {
                     _background.SpawnKraidCeilingRock(rock.Entry.X);
-                    _frameResults.KraidObjects.Add(rock.Entry.Crumble);
+                    _passEvents.Publish(new KraidRoomChange(rock.Entry.Crumble));
                     state.BodyState.NextCeilingRock = rock.Following;
                 }
                 if (body.Position.Y.Whole < KraidArenaDefinitions.GrownY)

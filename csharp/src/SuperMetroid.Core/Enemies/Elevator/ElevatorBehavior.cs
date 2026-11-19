@@ -24,15 +24,15 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>The enemy pass's results, which the elevator writes.</summary>
-    private readonly EnemyFrameResultBuilder _frameResults;
+    private readonly EnemyPassEvents _passEvents;
 
     /// <summary>Samus's passage through a door, during which the elevator holds still.</summary>
     private readonly DoorPassage _doorPassage;
 
     /// <summary>Binds elevator movement to the room, audio queue, encounter state and Samus's passage through a door.</summary>
-    internal ElevatorBehavior(EnemyRoomBinding room, EnemyAudioQueue audio, EnemyFrameResultBuilder frameResults, DoorPassage doorPassage)
+    internal ElevatorBehavior(EnemyRoomBinding room, EnemyAudioQueue audio, EnemyPassEvents passEvents, DoorPassage doorPassage)
     {
-        _frameResults = frameResults;
+        _passEvents = passEvents;
         _doorPassage = doorPassage;
         _room = room;
         _audio = audio;
@@ -68,19 +68,15 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         ElevatorStatus == ElevatorActorStatus.Departing ||
         (ElevatorStatus != ElevatorActorStatus.Inactive && ElevatorTravel == ElevatorTravelDirection.Down);
 
-    /// <summary>The arriving elevator whose setup placed Samus; consumed by the door loader this update.</summary>
-    private RoomEnemyPlace? _arrivalPlacement;
+    /// <summary>The room's elevator that a ride arriving in the room started on, with Samus on it, once its setup has run.</summary>
+    private RoomEnemyPlace? _arrivedOn;
 
     /// <summary>
-    /// Returns and clears the arriving elevator whose setup
-    /// placed Samus during the room load just performed.
+    /// The elevator whose setup placed Samus on it as the room loaded for an arriving ride, while that arrival is still
+    /// beginning, before the elevator's first update starts its return (#2562); null in any other room or once it has
+    /// started. The door loader asks for it on the room's loading update.
     /// </summary>
-    public RoomEnemyPlace? ConsumeElevatorArrivalPlacement()
-    {
-        RoomEnemyPlace? elevator = _arrivalPlacement;
-        _arrivalPlacement = null;
-        return elevator;
-    }
+    public RoomEnemyPlace? ArrivalElevator => ElevatorStatus == ElevatorActorStatus.BeginArrivalReturn ? _arrivedOn : null;
 
     /// <summary>
     /// Publishes the elevator's pseudo-door collision before the next enemy pass.
@@ -133,7 +129,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
 
         place.Position = place.Position.WithWholeY(place.SpawnSettings<ElevatorSpawnSettings>().ArrivalY);
         PinSamusToElevator(place, samus);
-        _arrivalPlacement = place;
+        _arrivedOn = place;
     }
 
     /// <summary>Runs the elevator's main behaviour and its four phases.</summary>
@@ -166,7 +162,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
 
             case ElevatorActorStatus.BeginArrivalReturn:
                 ElevatorStatus = ElevatorActorStatus.ReturningToRest;
-                _frameResults.Elevator = ElevatorFrameEvent.ArrivalReturnStarted;
+                _passEvents.Publish(new ElevatorEvent(ElevatorFrameEvent.ArrivalReturnStarted));
                 MoveElevatorBackToRest(place, state, samus);
                 return;
 
@@ -201,12 +197,11 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.ElevatorDepartureSpinEndSound, priority: SoundRequestPriority.Normal);
         SamusPoseMetadata.SetupForElevator(samus);
         samusProjectiles.Reset();
-        _frameResults.ElevatorClearedProjectileData = true;
         PinSamusToElevator(place, samus);
         // The ride travels its elevator's way from its departure to its arrival in the destination room (#2531).
         ElevatorTravel = direction;
         ElevatorStatus = ElevatorActorStatus.Departing;
-        _frameResults.Elevator = ElevatorFrameEvent.DepartureStarted;
+        _passEvents.Publish(new ElevatorEvent(ElevatorFrameEvent.DepartureStarted));
     }
 
     /// <summary>Moves the departing elevator the way its ride travels.</summary>
@@ -250,7 +245,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         place.Position = place.Position.WithWholeY(state.RestingY);
         samus.Control.Unlock();
         PinSamusToElevator(place, samus);
-        _frameResults.Elevator = ElevatorFrameEvent.ArrivalCompleted;
+        _passEvents.Publish(new ElevatorEvent(ElevatorFrameEvent.ArrivalCompleted));
     }
 
     /// <summary>Moves the elevator vertically by <paramref name="velocity"/>, as it travels either way.</summary>

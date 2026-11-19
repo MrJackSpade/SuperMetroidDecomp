@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    private readonly BossFrameResultBuilder _frameResults;
+    private readonly EnemyPassEvents _passEvents;
 
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BabyMetroid];
@@ -40,10 +40,10 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
     /// <summary>Connects the Tourian Baby Metroid to room, victim, colour, audio and Zebetite owners.</summary>
-    internal ShitroidBehavior(EnemyRoomBinding room, EnemyPlaces places, SharedFadeStepCount fadeStepCount, BossFrameResultBuilder frameResults, EnemyAudioQueue audio)
+    internal ShitroidBehavior(EnemyRoomBinding room, EnemyPlaces places, SharedFadeStepCount fadeStepCount, EnemyPassEvents passEvents, EnemyAudioQueue audio)
     {
         _audio = audio;
-        _frameResults = frameResults;
+        _passEvents = passEvents;
         _fadeStepCount = fadeStepCount;
         _room = room;
         _places = places;
@@ -316,7 +316,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // Puts the camera at its arena's edge directly, then rescrolls the room's four screens as the wall entrance does: the second
         // and fourth are closed, the first and third keep the scroll they have. This is not ordinary camera
         // tracking.
-        _frameResults.CameraXOverride = ShitroidFightDefinitions.ArenaLeftX;
+        _passEvents.Publish(new ShitroidCameraMove(ShitroidFightDefinitions.ArenaLeftX));
         SetShitroidScrollPair(RoomScrollState.Closed);
         QueueShitroidWallObjects(ShitroidWallMutation.Create);
         state.Action = ShitroidAction.BeginEntranceDelay;
@@ -337,7 +337,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private void QueueShitroidWallObjects(ShitroidWallMutation mutation)
     {
         foreach (Position16<RoomBlocks> wall in ShitroidFightDefinitions.WallBlocks)
-            _frameResults.ShitroidObjects.Add(new RoomObjectSpawnRequest<ShitroidWallMutation>(wall, mutation));
+            _passEvents.Publish(new ShitroidWallChange(new RoomObjectSpawnRequest<ShitroidWallMutation>(wall, mutation)));
     }
 
     /// <summary>Accelerates to the Sidehopper's head and enters the latched feeding animation on arrival.</summary>

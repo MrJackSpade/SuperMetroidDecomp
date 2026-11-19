@@ -479,7 +479,7 @@ internal sealed class RoomLoader
         ScrollBoundaryCamera camera = _room.LoadedCamera;
         if (_doorOpeningScroll is not null)
             throw new InvalidOperationException("A door-opening scroll is already active.");
-        if (_room.LoadedScope.Enemies.Elevator.ConsumeElevatorArrivalPlacement() is { } elevator)
+        if (_room.LoadedScope.Enemies.Elevator.ArrivalElevator is { } elevator)
             _pendingLoaderSamusPlacement = new LoaderSamusPlacement(elevator, samus.Position.Whole);
 
         _doorOpeningScroll = DoorOpeningScrollState.Create(
@@ -991,9 +991,9 @@ internal sealed class RoomLoader
             Samus = loadingSamus,
         };
         EnemyRoomEffects.ApplyPendingDownwardGateProjectileRequests(effectSite);
-        _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(enemies.LastEnemyFrame.RoomEffects, effectSite);
+        _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(enemies.LastEnemyFrame, effectSite);
         // The gunship's placement starts its lights' glow after the room's own colour effects (#1733).
-        EnemyRoomEffects.StartEnemyGlow(enemies.LastEnemyFrame.Glow, effectSite);
+        EnemyRoomEffects.StartEnemyGlows(enemies.LastEnemyFrame, effectSite);
         // Only the statue room, whose setup composed the statues' room and whose enemies built the statues over it, has their
         // sequence (#2287, #2485, #2486).
         scope.TourianStatues = scope.TourianStatueRoom is { } statueRoom

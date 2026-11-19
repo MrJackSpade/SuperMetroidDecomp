@@ -287,7 +287,10 @@ internal static class NativeEnemyFamilyStateImport
         if (enemy.SpeciesState<CrocomireEnemyState>() is { } crocomireRecord)
         {
             crocomireRecord.DeathStage = CrocomireNativeWords.DeathStages.Decode(words.A, "recorded Crocomire death stage");
-            crocomireRecord.DamageReactionPending = CrocomireNativeWords.DamageReactionPending(words.B);
+            if (CrocomireNativeWords.DamageReactionPending(words.B))
+                crocomireRecord.StepBack.Ask();
+            else
+                crocomireRecord.StepBack.Forget();
             // The fight table's first entry, which no live fight selects, stands for a defeated room's corpse, which keeps its
             // constructed phase and never runs it (#1939).
             if (words.C != 0)

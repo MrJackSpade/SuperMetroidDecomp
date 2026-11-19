@@ -27,14 +27,14 @@ internal sealed class PhantoonDeath
     /// <summary>Receives the death's explosion sounds, dying cry and music change.</summary>
     private readonly EnemyAudioQueue _audio;
     /// <summary>The bosses' results of the pass, where the death asks for the restored door.</summary>
-    private readonly BossFrameResultBuilder _frameResults;
+    private readonly EnemyPassEvents _passEvents;
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal PhantoonDeath(PhantoonDeathDependencies dependencies)
     {
         _audio = dependencies.Audio;
-        _frameResults = dependencies.FrameResults;
+        _passEvents = dependencies.PassEvents;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
         _presentation = dependencies.Presentation;
@@ -215,7 +215,7 @@ internal sealed class PhantoonDeath
             _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaBoss);
             state.BossDefeatPersisted = true;
         }
-        _frameResults.PhantoonDoor = PhantoonDoorChange.RestoredDoor;
+        _passEvents.Publish(new PhantoonDoorChanged(PhantoonDoorChange.RestoredDoor));
         _audio.RequestPhantoonMusic(MusicRequest.SelectTrack(MusicTrack.Elevator));
     }
 

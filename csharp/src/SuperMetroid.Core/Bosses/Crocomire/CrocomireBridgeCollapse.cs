@@ -200,7 +200,7 @@ internal sealed class CrocomireBridgeCollapse
     internal void RunCrocomireSink(CrocomireEnemyState state, Position16<RoomPixels> camera)
     {
         CrocomireBodyLayer.LevelCrocomireMeltDistortion(state);
-        state.DamageReactionPending = false;
+        state.StepBack.Forget();
         CrocomireBodyLayer.PlaceCrocomireTongue(state);
         RoomEnemyPlace body = state.Body;
 

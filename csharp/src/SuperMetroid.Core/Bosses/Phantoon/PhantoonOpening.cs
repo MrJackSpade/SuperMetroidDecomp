@@ -15,19 +15,19 @@ internal sealed class PhantoonOpening
     /// <summary>Phantoon's fades, health colors, wave amplitude and animations, shared by every phase of the fight.</summary>
     private readonly PhantoonPresentation _presentation;
     /// <summary>The bosses' results of the pass, where the opening asks for the fight's door.</summary>
-    private readonly BossFrameResultBuilder _frameResults;
+    private readonly EnemyPassEvents _passEvents;
     /// <summary>Phantoon's combat, whose flame behaviours the intro flames are bound to.</summary>
     private readonly PhantoonCombat _combat;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal PhantoonOpening(EnemyProjectileEngine projectiles, EnemyAudioQueue audio, PhantoonPresentation presentation, BossFrameResultBuilder frameResults,
+    internal PhantoonOpening(EnemyProjectileEngine projectiles, EnemyAudioQueue audio, PhantoonPresentation presentation, EnemyPassEvents passEvents,
         PhantoonCombat combat)
     {
         _combat = combat;
         _projectiles = projectiles;
         _audio = audio;
         _presentation = presentation;
-        _frameResults = Ensure.NotNull(frameResults);
+        _passEvents = Ensure.NotNull(passEvents);
     }
 
     /// <summary>Emits the intro flames on the authored schedule before Phantoon materializes.</summary>
@@ -49,7 +49,7 @@ internal sealed class PhantoonOpening
         state.Round.Damage = 0;
         state.Phase = PhantoonPhase.WaitBeforeActivatingStartingFlames;
         state.PhaseWait.LastFor(PhantoonArenaDefinitions.StartingFlamesActivateUpdates);
-        _frameResults.PhantoonDoor = PhantoonDoorChange.FightDoor;
+        _passEvents.Publish(new PhantoonDoorChanged(PhantoonDoorChange.FightDoor));
     }
 
     /// <summary>Holds the body between intro flame spawns.</summary>

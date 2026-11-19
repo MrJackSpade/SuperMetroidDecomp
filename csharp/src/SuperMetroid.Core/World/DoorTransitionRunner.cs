@@ -77,7 +77,7 @@ internal sealed class DoorTransitionRunner
     internal void DrawDoorTransitionActors(DoorTransitionEnemyProjectiles enemyProjectiles, RoomScope room, SamusState samus)
     {
         _sprites.BeginFrame();
-        _enemyPhase.RunEnemyUpdatePhase(processingList: EnemyProcessingList.Unprepared, room.Camera.PreviousSamusPoint, room, samus);
+        _ = _enemyPhase.RunEnemyUpdatePhase(processingList: EnemyProcessingList.Unprepared, room.Camera.PreviousSamusPoint, room, samus);
         // The Samus-collision pass belongs to gameplay only.
         if (enemyProjectiles == DoorTransitionEnemyProjectiles.Run)
             RunEnemyProjectiles(room, samus);

@@ -484,8 +484,6 @@ internal sealed class SuperMetroidRuntime
         // Every gameplay update runs in a loaded room: each game's start, a saved game's load and the attract demo load
         // one before their first update, and a room load replaces the room whole.
         RoomScope room = Room.LoadedScope;
-        // The Chozo statue objects an earlier update asked for are placed at the frame's entry, before any producer runs.
-        EnemyRoomEffects.ApplyPendingChozoStatueObjects(EnemyRoomEffectSite.Of(room, samus));
         // An open message box runs its own updates inside the suspended gameplay update:
         // the frame boundary latches no input and no random number is drawn nor owner run.
         if (MessageBox.IsActive)
@@ -505,13 +503,13 @@ internal sealed class SuperMetroidRuntime
         PrepareEnemyProcessingList(room);
         RunColourEffects(room, samus);
         BeginSpriteFrame();
-        PrepareEnemiesAndEarlyEnemyUpdate(context, room, samus);
-        RunSamusAndEnemyUpdate(context, samus, room, owner.RunsLowHealthCheck);
+        EnemyFrameResult? earlyEnemyPass = PrepareEnemiesAndEarlyEnemyUpdate(context, room, samus);
+        EnemyFrameResult? lateEnemyPass = RunSamusAndEnemyUpdate(context, samus, room, owner.RunsLowHealthCheck);
         bool deathOwnsSamus = context.Samus.Mode.Movement == SamusMovementMode.Fatal;
         if (!deathOwnsSamus)
             DoorTransition.RunEnemyProjectiles(room, samus);
         RoomObjectPhase.RunObjectPhase(deathOwnsSamus, samus, room);
-        OpenGunshipPrompt(room);
+        OpenGunshipPrompt(earlyEnemyPass ?? lateEnemyPass);
         var tail = new SuspendedGameplayFrameTail(context.Samus.Mode, context.Samus.PreviousCameraPoint);
         if (SuspendTailForMessageBox(tail))
             return EndUpdateWithoutGameplayTail(start, owner, infiniteAmmoGuard, room, samus);
@@ -633,7 +631,8 @@ internal sealed class SuperMetroidRuntime
     }
 
     /// <summary>Prepares the enemy frame and runs the enemy phase before Samus when the frame has no movement to wait for.</summary>
-    private void PrepareEnemiesAndEarlyEnemyUpdate(GameplayFrameContext context, RoomScope room, SamusState samus)
+    /// <returns>What the enemy pass did when it ran before Samus, or null when it waits for her.</returns>
+    private EnemyFrameResult? PrepareEnemiesAndEarlyEnemyUpdate(GameplayFrameContext context, RoomScope room, SamusState samus)
     {
         EnemyFramePhase.PrepareEnemyFrame(room, samus);
         // Host-disabled Samus movement has no input phase to wait for. Otherwise
@@ -643,35 +642,41 @@ internal sealed class SuperMetroidRuntime
         // The enemy phase follows Samus's input mode. An actor that restores the
         // normal modes there (the gunship) affects this frame's movement phase only:
         // the locked input mode has already run, so it still sees the lock below.
-        if (frame.EnemyUpdateRanFirst)
-        {
-            bool lockedBeforeEnemyUpdate = samus.Control.InputLocked;
-            EnemyPhase.RunEnemyUpdatePhase(processingList: EnemyProcessingList.Prepared,
-                room.Camera.PreviousSamusPoint ?? context.SamusCameraPointAtFrameStart, room, samus);
-            frame.RecordEnemyUpdateReleasedInputLock(lockedBeforeEnemyUpdate && !samus.Control.InputLocked);
-        }
+        if (!frame.EnemyUpdateRanFirst)
+            return null;
+        bool lockedBeforeEnemyUpdate = samus.Control.InputLocked;
+        EnemyFrameResult pass = EnemyPhase.RunEnemyUpdatePhase(processingList: EnemyProcessingList.Prepared,
+            room.Camera.PreviousSamusPoint ?? context.SamusCameraPointAtFrameStart, room, samus);
+        frame.RecordEnemyUpdateReleasedInputLock(lockedBeforeEnemyUpdate && !samus.Control.InputLocked);
+        return pass;
     }
 
     /// <summary>Runs the input phase, the enemy phase, the resample after it and the movement phase, in the game's order.</summary>
-    private void RunSamusAndEnemyUpdate(GameplayFrameContext context, SamusState samus, RoomScope room, bool runsLowHealthCheck)
+    /// <returns>What the enemy pass did when it ran after Samus's input, or null when it ran before her or not at all.</returns>
+    private EnemyFrameResult? RunSamusAndEnemyUpdate(GameplayFrameContext context, SamusState samus, RoomScope room, bool runsLowHealthCheck)
     {
         SamusControlFrame frame = context.Samus;
         SamusPhases.RunInputPhase(frame, RunningGameState, samus, context.SamusCameraPointAtFrameStart, room);
-        if (frame.MovementEnabled && !frame.EnemyUpdateRanFirst)
-            EnemyPhase.RunEnemyUpdatePhase(processingList: EnemyProcessingList.Prepared, frame.PreviousCameraPoint, room, samus);
+        EnemyFrameResult? pass = frame.MovementEnabled && !frame.EnemyUpdateRanFirst
+            ? EnemyPhase.RunEnemyUpdatePhase(processingList: EnemyProcessingList.Prepared, frame.PreviousCameraPoint, room, samus)
+            : null;
         SamusPhases.RunPostEnemyUpdateResample(frame, samus, room);
         SamusPhases.RunMovementPhase(frame, samus, runsLowHealthCheck, room);
+        return pass;
     }
 
-    /// <summary>Opens the gunship's save prompt at the shared suspension seam after the room objects.</summary>
-    private void OpenGunshipPrompt(RoomScope room)
+    /// <summary>
+    /// Opens the gunship's save prompt at the shared suspension seam after the room objects, when the update's enemy pass,
+    /// <paramref name="enemyPass"/>, has the gunship asking for it (#2562).
+    /// </summary>
+    private void OpenGunshipPrompt(EnemyFrameResult? enemyPass)
     {
         // The gunship opens the save prompt from inside the enemy phase, after this frame's
         // ship bob and earlier owners ran. The prompt exists only while Samus is locked
         // inside the ship, so the owners between the enemy phase and here have nothing to
         // act on; the box therefore opens at this shared suspension seam, and the
         // remainder resumes after the YES/NO/completion chain returns.
-        if (room.Enemies.Gunship.SavePromptPending)
+        if (enemyPass is { } pass && pass.Reports(GunshipFrameEvent.SavePromptRequested))
         {
             if (MessageBox.IsActive)
             {
@@ -842,7 +847,7 @@ internal sealed class SuperMetroidRuntime
     {
         if (startsTimeUp)
             return GameplayUpdateTransition.TimeUp;
-        if (EnemyFrameResults.LastEnemyFrame.Gunship == GunshipFrameEvent.EscapeTakeoffCompleted)
+        if (EnemyFrameResults.LastEnemyFrame.Reports(GunshipFrameEvent.EscapeTakeoffCompleted))
             return GameplayUpdateTransition.LeavesZebes;
         // The map station's completion message pauses on the map as it closes, independently of Start or the station's
         // lock on Samus's input.

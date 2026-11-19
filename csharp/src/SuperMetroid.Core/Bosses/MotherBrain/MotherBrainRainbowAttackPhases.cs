@@ -112,11 +112,11 @@ internal sealed class MotherBrainRainbowAttackPhases
         {
             SoundAttempts.Count();
             _state.RainbowBeamSoundPlaying = true;
-            requests.SoundQueued = true;
+            requests.Start(MotherBrainStepEffect.RainbowBeamSound);
         }
 
         // Her rainbow colours are asked to step on every update; they step only on their phase of the body's update count.
-        requests.RainbowColours = true;
+        requests.Start(MotherBrainStepEffect.RainbowColours);
 
         if (growth == MotherBrainRainbowBeamGrowth.Widening)
             IncreaseWidthAndAim(samus);
@@ -245,7 +245,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     {
         if (Encounter.PhaseTimer.StepRunsOut())
         {
-            requests.ChargeSoundQueued = true; // The rainbow beam's charge sound.
+            requests.Start(MotherBrainStepEffect.ChargeSound); // The rainbow beam's charge sound.
             Encounter.RainbowPhase = MotherBrainRainbowPhase.ExtendNeckDown;
             return true;
         }
@@ -379,7 +379,7 @@ internal sealed class MotherBrainRainbowAttackPhases
             AngularWidth = MotherBrainBeamDefinitions.RainbowNarrowestWidth;
             _movement.BeginFallingAfterRainbowBeam();
             BeamActive = false;
-            requests.BeamEnded = true;
+            requests.Start(MotherBrainStepEffect.BeamEnded);
             requests.StopEarthquake();
             _state.RainbowBeamSoundPlaying = false;
             samus.Control.Unlock(); // Restores Samus's control.

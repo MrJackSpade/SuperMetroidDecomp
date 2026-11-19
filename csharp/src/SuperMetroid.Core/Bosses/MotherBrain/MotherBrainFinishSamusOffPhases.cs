@@ -134,7 +134,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
         {
             _state.RetractHead();
             _state.BabyMetroidSpawned = true;
-            requests.BabySpawnRequested = true;
+            requests.Start(MotherBrainStepEffect.BabySpawn);
             Encounter.FinishOffPhase = MotherBrainFinishOffPhase.FireFinalBeam;
             Encounter.PhaseTimer.LastFor(MotherBrainWaitDefinitions.FinalBeamFireDelayUpdates);
         }
@@ -152,7 +152,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
             Encounter.LowerNeckMovement = MotherBrainNeckMovement.Lower;
             Encounter.UpperNeckMovement = MotherBrainNeckMovement.Lower;
             Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Fast;
-            requests.FinalBeamFired = true; // The final beam's sound, and her rainbow colours start again from the first.
+            requests.Start(MotherBrainStepEffect.FinalBeamFired); // The final beam's sound, and her rainbow colours start again from the first.
             Encounter.FinishOffPhase = MotherBrainFinishOffPhase.FinalBeamHolding;
         }
         return false;

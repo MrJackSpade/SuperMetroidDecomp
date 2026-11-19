@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    private readonly BossFrameResultBuilder _frameResults;
+    private readonly EnemyPassEvents _passEvents;
 
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.SporeSpawn];
@@ -42,7 +42,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     internal SporeSpawnBehavior(SporeSpawnBehaviorDependencies dependencies)
     {
         _audio = dependencies.Audio;
-        _frameResults = dependencies.FrameResults;
+        _passEvents = dependencies.PassEvents;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
         _effectActors = dependencies.EffectActors;
@@ -260,7 +260,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Requests the arena ceiling room object at its fixed room block position.</summary>
     private void PublishSporeSpawnObject(SporeSpawnCeilingMutation mutation) =>
-        _frameResults.SporeSpawnCeiling = mutation;
+        _passEvents.Publish(new SporeSpawnCeilingChange(mutation));
 
     /// <summary>Routes accepted bomb hits on <paramref name="body"/> through his encounter's post-damage response.</summary>
     /// <param name="body">His body, whose encounter the response acts on.</param>

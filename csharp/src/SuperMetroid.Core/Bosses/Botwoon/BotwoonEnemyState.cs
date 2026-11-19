@@ -110,10 +110,6 @@ public sealed class BotwoonEnemyState
     public bool HoleLatch { get; internal set; }
     /// <summary>Set until his first crossing: it sends him on a walk without drawing his next action at random.</summary>
     public bool InitialAction { get; internal set; }
-    /// <summary>Movement completion signal, raised when a path ends or on an observed hole-state transition and consumed by the main action step.</summary>
-    public bool PathComplete { get; internal set; }
-    /// <summary>Set as his spitting animation reaches its spit; the aimed volley spits on it and clears it.</summary>
-    public bool SpitFrameReached { get; internal set; }
     /// <summary>Set by the fatal hit: he keeps on his walk until his tail has next crossed out of the wall, and then dies.</summary>
     public bool PendingDeath { get; internal set; }
     /// <summary>Set when his tail crosses the place his head crossed at while the head is outside the wall, letting a fatal hit's death begin.</summary>

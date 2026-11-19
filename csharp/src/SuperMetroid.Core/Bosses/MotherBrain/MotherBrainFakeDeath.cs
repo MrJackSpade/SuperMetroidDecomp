@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed class MotherBrainFakeDeath
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    private readonly BossFrameResultBuilder _frameResults;
+    private readonly EnemyPassEvents _passEvents;
     /// <summary>Spawns the enemies the fake death releases into the room.</summary>
     private readonly IEnemyLifecycle _lifecycle;
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
@@ -31,7 +31,7 @@ internal sealed class MotherBrainFakeDeath
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal MotherBrainFakeDeath(MotherBrainFakeDeathDependencies dependencies)
     {
-        _frameResults = dependencies.FrameResults;
+        _passEvents = dependencies.PassEvents;
         _lifecycle = dependencies.Lifecycle;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
@@ -251,7 +251,7 @@ internal sealed class MotherBrainFakeDeath
         StopMotherBrainRoomFlash(state);
         _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Vertical, EarthquakeReach.ForegroundBackgroundAndEnemies), MotherBrainTubeCollapseDefinitions.LandingShakeUpdates);
         // The fake death removes the room's liquid effects, and any X-ray cone, for the rest of the encounter.
-        _frameResults.RemoveLiquidEffects = true;
+        _passEvents.Publish(new MotherBrainTubeLanded());
         state.Head.Position = state.Head.Position.WithWholeY(MotherBrainFightDefinitions.BrainFloorY);
         state.Body.Position = state.Body.Position.WithWhole(MotherBrainFightDefinitions.StandingBodyPosition);
 

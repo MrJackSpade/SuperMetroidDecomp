@@ -32,7 +32,7 @@ internal static class FallingSparkBehaviorVerification
         (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, spark, Entry(FallingSparkSegment.Falling), 30, "falling spark flight");
         AssertTrue(!deleted, "the falling program loops until the floor");
 
-        FallingSparksBehavior.BeginFallingSparkFloorImpact(spark);
+        enemies.FallingSparksBehavior.BeginFallingSparkFloorImpact(spark);
         AssertEqual(FallingSparkSegment.HitFloor, ProgramOf(spark), "the floor impact starts the impact program");
         (deleted, int updates) = NativeEnemyProjectileParity.Compare(cartridge, enemies, spark, Entry(FallingSparkSegment.HitFloor), 30, "falling spark impact");
         AssertTrue(deleted, "the impact program deletes the spark");

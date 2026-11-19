@@ -396,6 +396,12 @@ public sealed class RoomLevelData
         return entry;
     }
 
+    /// <summary>
+    /// Forgets the pending door transition without going through it (#2534): the AUTO reserves' refill beginning later in
+    /// the update replaces the door's game state, so only a later touch of a door makes one pending again.
+    /// </summary>
+    internal void AbandonPendingDoorTransition() => PendingDoorTransition = null;
+
     /// <summary>Consumes the pending door transition once.</summary>
     public DoorDefinition? ConsumePendingDoorTransition()
     {

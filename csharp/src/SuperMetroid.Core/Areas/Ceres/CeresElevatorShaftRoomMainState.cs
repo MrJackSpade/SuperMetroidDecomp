@@ -63,8 +63,9 @@ public sealed class CeresElevatorShaftRoomMainState
     /// <param name="samus">Samus, whom the elevator trigger inspects.</param>
     /// <param name="elevatorDoorDestroyed">Whether the Ceres elevator door's destruction has released the rotation.</param>
     /// <param name="allowDeparture">
-    /// Whether Samus may leave by the elevator: only while the game is played, not during the elevator's arrival or the
-    /// blackout, when the shaft still turns but no departure starts.
+    /// Whether Samus may leave by the elevator: only while the game is still in main gameplay where room main runs (#2534),
+    /// not during the Ceres departure, the time-up's white-out or any other game state, when the shaft still turns but no
+    /// departure starts.
     /// </param>
     /// <param name="carryover">The room-main value the following room inherits, which receives every turn.</param>
     [IndependentFlag("independent room facts read from the room's data: the elevator door's state and whether departure is allowed")]

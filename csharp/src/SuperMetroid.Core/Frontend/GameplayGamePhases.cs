@@ -39,7 +39,6 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     {
         RunsLowHealthCheck = true,
         MainGameplayOwnsUpdate = false,
-        AllowCeresElevatorDeparture = false,
         EntersOutOfHealthRoute = true,
     };
 

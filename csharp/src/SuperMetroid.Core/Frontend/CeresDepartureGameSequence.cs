@@ -55,7 +55,7 @@ internal sealed class CeresDepartureGameSequence(FrontendSession session) : IGam
     {
         // The arrival descent runs in ordinary main gameplay while the elevator's enemy projectiles lock Samus; the
         // departure is only the hold and the fade.
-        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AllowCeresElevatorDeparture = false, RunsLowHealthCheck = true, ShowsHeldEscapeTimer = true, MainGameplayOwnsUpdate = false } });
+        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { RunsLowHealthCheck = true, ShowsHeldEscapeTimer = true, MainGameplayOwnsUpdate = false } });
         session.display.PublishGameplay(session.GameplayRuntime);
         session.ceresDeparture.StepHoldAfterGameplay();
     }
@@ -63,7 +63,7 @@ internal sealed class CeresDepartureGameSequence(FrontendSession session) : IGam
     /// <summary>One update of gameplay during the fade to black, which saves the checkpoint and starts Ceres's destruction once black.</summary>
     private void FadeToBlack(ControllerButton controllerInput)
     {
-        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AllowCeresElevatorDeparture = false, RunsLowHealthCheck = true, ShowsHeldEscapeTimer = true, MainGameplayOwnsUpdate = false } });
+        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { RunsLowHealthCheck = true, ShowsHeldEscapeTimer = true, MainGameplayOwnsUpdate = false } });
         session.display.PublishGameplay(session.GameplayRuntime);
         bool ceresFadeFinished = session.ceresDeparture.StepFadeAfterGameplay();
         session.SetDisplayBrightness(session.ceresDeparture.Brightness);

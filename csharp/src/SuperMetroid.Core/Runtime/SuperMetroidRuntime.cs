@@ -717,13 +717,20 @@ internal sealed class SuperMetroidRuntime
         Sprites.FinalizeFrame();
 
         UpdateHud(infiniteAmmoGuard, room, samus);
-        RunRoomMains(policy, room, samus);
+        // Every step before room main that moves the game to another state has run by now; the game is still in main
+        // gameplay at room main only when main gameplay owns the update and none of them did, and only then can the Ceres
+        // elevator take Samus (#2534).
+        bool gameInMainGameplay = policy.MainGameplayOwnsUpdate &&
+            DecideTransition(start, policy, startsTimeUp, ceresDepartureRequested: false, samus) == GameplayUpdateTransition.None;
+        RunRoomMains(gameInMainGameplay, room, samus);
         // The out-of-health check follows room main, and the game-time step follows it: a death another game state
         // withholds returns before the step (#2509, #2517). Every step that moves the game to another state has run by
-        // now. The step advances the gameplay clock before shaking. Message-box frames returned above, exactly as the
-        // suspended frame does, so item fanfare time is not counted here.
-        GameplayUpdateTransition transition = DecideTransition(start, policy, startsTimeUp, room, samus);
-        SamusOutOfHealthRoute outOfHealth = CheckSamusOutOfHealth(samus, policy, transition);
+        // now, room main's own among them: the Ceres elevator, and the Maridia elevatube's ride, which carries Samus
+        // through her collision into the tube's door. The step advances the gameplay clock before shaking. Message-box
+        // frames returned above, exactly as the suspended frame does, so item fanfare time is not counted here.
+        GameplayUpdateTransition transition = DecideTransition(start, policy, startsTimeUp,
+            room.CeresElevatorShaft is { DepartureRequestedThisFrame: true }, samus);
+        SamusOutOfHealthRoute outOfHealth = CheckSamusOutOfHealth(samus, policy, transition, room);
         if (policy.AdvanceGameTime && outOfHealth != SamusOutOfHealthRoute.DeathWithheld)
             GameTime.Step();
 
@@ -752,10 +759,11 @@ internal sealed class SuperMetroidRuntime
         RoomScope room,
         SamusState samus)
     {
-        GameplayUpdateTransition transition = DecideTransition(start, policy, startsTimeUp: false, room, samus);
+        GameplayUpdateTransition transition = DecideTransition(start, policy, startsTimeUp: false,
+            room.CeresElevatorShaft is { DepartureRequestedThisFrame: true }, samus);
         SamusOutOfHealthRoute outOfHealth = MessageBox.IsActive
             ? SamusOutOfHealthRoute.NotChecked
-            : CheckSamusOutOfHealth(samus, policy, transition);
+            : CheckSamusOutOfHealth(samus, policy, transition, room);
         infiniteAmmoGuard.Complete();
         return new RuntimeFrameOutcome(transition, outOfHealth);
     }
@@ -766,7 +774,9 @@ internal sealed class SuperMetroidRuntime
     /// update and none of its earlier steps moved the game to another state. Any other game state owns the update instead:
     /// the death is withheld, and the check returns before the update counts the play time. A game state that enters the
     /// refill or the death (<see cref="RuntimeFramePolicy.EntersOutOfHealthRoute"/>) has the check freeze gameplay time as
-    /// it begins either, before the rest of the update.
+    /// it begins either, before the rest of the update. The refill it begins replaces the game state the update's earlier
+    /// steps wrote, so a door Samus touched earlier in the update is forgotten, and she enters a door only by touching one
+    /// again (#2534).
     /// </summary>
     /// <param name="samus">The update's Samus.</param>
     /// <param name="policy">
@@ -774,11 +784,16 @@ internal sealed class SuperMetroidRuntime
     /// death.
     /// </param>
     /// <param name="transition">The game state the update's earlier steps moved the game to.</param>
-    private SamusOutOfHealthRoute CheckSamusOutOfHealth(SamusState samus, RuntimeFramePolicy policy, GameplayUpdateTransition transition)
+    /// <param name="room">The update's room, whose pending door the refill's beginning forgets.</param>
+    private SamusOutOfHealthRoute CheckSamusOutOfHealth(SamusState samus, RuntimeFramePolicy policy, GameplayUpdateTransition transition, RoomScope room)
     {
         SamusOutOfHealthRoute route = DecideSamusOutOfHealthRoute(samus, policy, transition);
-        if (policy.EntersOutOfHealthRoute && route is SamusOutOfHealthRoute.ReserveRefill or SamusOutOfHealthRoute.Death)
+        if (!policy.EntersOutOfHealthRoute)
+            return route;
+        if (route is SamusOutOfHealthRoute.ReserveRefill or SamusOutOfHealthRoute.Death)
             Freeze.GameplayTimeFrozen = true;
+        if (route == SamusOutOfHealthRoute.ReserveRefill)
+            room.LevelData.AbandonPendingDoorTransition();
         return route;
     }
 
@@ -802,10 +817,11 @@ internal sealed class SuperMetroidRuntime
     }
 
     /// <summary>
-    /// The game state the update's steps moved the game to, read where its out-of-health check runs (#2517), after every
-    /// step that can write one: the escape countdown's time-up in Samus's update, the gunship's takeoff in the enemies'
-    /// update, the map station's message closing, Samus's pause check, the Ceres elevator in room main, and a door her
-    /// movement touched. Where more than one applies the earliest listed wins.
+    /// The game state the update's steps moved the game to (#2517), after every step that can write one: the escape
+    /// countdown's time-up in Samus's update, the gunship's takeoff in the enemies' update, the map station's message
+    /// closing, Samus's pause check, the Ceres elevator in room main, and a door Samus touched. Where more than one applies
+    /// the earliest listed wins. Read before room main, it says whether the game is still in main gameplay there, which the
+    /// Ceres elevator requires (#2534).
     /// </summary>
     /// <param name="start">How the update began.</param>
     /// <param name="policy">The update's game-state policy, which says whether main gameplay owns it.</param>
@@ -813,13 +829,14 @@ internal sealed class SuperMetroidRuntime
     /// Whether this update started the time-up earlier: its countdown ran out, or it returned to the time-up the countdown
     /// started (#2518).
     /// </param>
-    /// <param name="room">The update's room.</param>
+    /// <param name="ceresDepartureRequested">Whether the update's room main took Samus onto the Ceres elevator.</param>
     /// <param name="samus">The update's Samus.</param>
+    [IndependentFlag("independent update facts: whether the countdown started the time-up and whether room main took Samus onto the Ceres elevator")]
     private GameplayUpdateTransition DecideTransition(
         GameplayUpdateStart start,
         RuntimeFramePolicy policy,
         bool startsTimeUp,
-        RoomScope room,
+        bool ceresDepartureRequested,
         SamusState samus)
     {
         if (startsTimeUp)
@@ -832,7 +849,7 @@ internal sealed class SuperMetroidRuntime
             return GameplayUpdateTransition.MapStationPause;
         if (PauseCheckAdmits(start, policy, samus))
             return GameplayUpdateTransition.Pause;
-        if (room.CeresElevatorShaft is { DepartureRequestedThisFrame: true })
+        if (ceresDepartureRequested)
             return GameplayUpdateTransition.CeresDeparture;
         // A message box opened later in the same update (a station's completion notice in the room objects' step)
         // suspends that update until it closes, so the door waits for the box's final update.
@@ -1057,13 +1074,19 @@ internal sealed class SuperMetroidRuntime
     }
 
     /// <summary>Runs the block animations and the room's main behaviour.</summary>
-    private void RunRoomMains(RuntimeFramePolicy policy, RoomScope room, SamusState samus)
+    /// <param name="gameInMainGameplay">
+    /// Whether the game is still in main gameplay where room main runs: main gameplay owns the update and none of its
+    /// earlier steps moved the game to another state (#2534).
+    /// </param>
+    /// <param name="room">The update's room.</param>
+    /// <param name="samus">The update's Samus.</param>
+    private void RunRoomMains(bool gameInMainGameplay, RoomScope room, SamusState samus)
     {
         RoomMains.RunBlockAnimations(room, samus);
 
         // The room's main runs after gameplay drawing and the HUD, and before the room shakes (#2287). The Ceres elevator
         // shaft's main publishes a tilt for the following frame's presentation and may change the outer game-state loop to
-        // the Ceres elevator state only while main gameplay runs it.
+        // the Ceres elevator state only while the game is still in main gameplay.
         room.Main?.Run(new RoomMainUpdate
         {
             Room = room,
@@ -1074,7 +1097,7 @@ internal sealed class SuperMetroidRuntime
             TimeIsFrozen = Freeze.TimeIsFrozen,
             Display = Display,
             Carryover = Room.RoomMainCarryover,
-            AllowCeresElevatorDeparture = policy.AllowCeresElevatorDeparture,
+            AllowCeresElevatorDeparture = gameInMainGameplay,
         });
     }
 

@@ -75,7 +75,7 @@ internal static class EnemyEffectMechanicsVerification
                 fixture.Call(_ => CrocomireMelting.ShowNextCrocomireMeltBand);
                 AssertEqual(band == bands ? phase.Following : phase, fixture.Actor.DeathStage,
                     "only the update after the last band advances the phase");
-                if (band < bands)
+                if (band < CrocomireMeltingDefinitions.MeltImageBandCount)
                     AssertEqual(0, fixture.MeltBandStep(band), "each band shows the unerased image on its own update");
             }
 
@@ -107,7 +107,8 @@ internal static class EnemyEffectMechanicsVerification
                 AssertEqual(Math.Min(call, CrocomireMeltingDefinitions.ColumnCount), fixture.Effect.MeltColumnsErased, "fixed erase-column cadence");
                 AssertEqual(initialSmokeObjects + (call + 5) / 6,
                     fixture.Enemies.RoomEffectActors.Count(slot => slot.IsActive), "fixed acid-smoke cadence");
-                if (call <= CrocomireMeltingDefinitions.ColumnCount)
+                // A step on the round's place past the image's six bands shows none (#2573).
+                if (call <= CrocomireMeltingDefinitions.ColumnCount && (call - 1) % bands < CrocomireMeltingDefinitions.MeltImageBandCount)
                     AssertEqual(call, fixture.MeltBandStep((call - 1) % bands), "each step shows the next band");
                 // His body shows the melt image, stored once, hiding what the steps its bands last showed have erased (#1652).
                 string meltImage = CrocomireMeltingFrameNames.Of(pass);

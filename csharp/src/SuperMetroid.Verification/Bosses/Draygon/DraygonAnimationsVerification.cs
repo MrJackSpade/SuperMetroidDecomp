@@ -93,6 +93,10 @@ internal static class DraygonAnimationsVerification
         var controls = new List<NativeEnemyControl<DraygonSegment>>();
         // The beat the reading stood before at each place it reached, the HUD-split callbacks it skips included (#2166).
         var beatAt = new Dictionary<ushort, int>();
+        // The updates of the last frame beat the native list has shown so far (#2573): the idle eye shows each picture once
+        // for its whole duration where the list shows it twice in a row, so a frame the list shows again straight after
+        // adds its duration to the same beat.
+        int shownOfLastFrame = 0;
         ushort cursor = entry;
         while (true)
         {
@@ -112,8 +116,21 @@ internal static class DraygonAnimationsVerification
             switch (NativeEnemyListDefinitions.Classify(word))
             {
                 case NativeEnemyListDefinitions.WordKind.Frame:
+                    if (beat > 0 && beats[beat - 1] is AnimationBeat<EnemyFrameId, DraygonCue>.Frame showing && shownOfLastFrame < showing.Duration)
+                    {
+                        AssertTrue(DraygonFrameToolingDefinitionsConstants2.Spritemaps(showing.Shown).Contains(operand),
+                            $"{at}: the list shows {showing.Shown} again for the rest of its beat");
+                        shownOfLastFrame += word;
+                        AssertTrue(shownOfLastFrame <= showing.Duration, $"{at}: the list's showings of {showing.Shown} fill its beat");
+                        drawn.Add(operand);
+                        cursor = unchecked((ushort)(cursor + 4));
+                        continue;
+                    }
                     var frame = AssertIs<AnimationBeat<EnemyFrameId, DraygonCue>.Frame>(Beat(beat, at), $"{at}: frame");
-                    AssertEqual(word, frame.Duration, $"{at}: duration");
+                    // A beat may show its picture over two consecutive showings of the list's (#2573).
+                    AssertTrue(word == frame.Duration || (word < frame.Duration && segment is DraygonSegment.EyeFacingLeftIdle or DraygonSegment.EyeFacingRightIdle),
+                        $"{at}: duration {word}, beat {frame.Duration}");
+                    shownOfLastFrame = word;
                     // The shut jaw shows from two roots (#2268): the list's operand is one of the shown frame's.
                     AssertTrue(DraygonFrameToolingDefinitionsConstants2.Spritemaps(frame.Shown).Contains(operand), $"{at}: spritemap ${operand:X4} shows {frame.Shown}");
                     drawn.Add(operand);

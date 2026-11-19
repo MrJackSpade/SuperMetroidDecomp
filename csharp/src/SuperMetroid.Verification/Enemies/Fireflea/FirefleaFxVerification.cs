@@ -33,7 +33,8 @@ internal static class FirefleaFxVerification
         // Independent transcription of $88:B058/$88:B070. These are deliberately not
         // generated from the production catalog or implementation.
         ushort[] flash = [0, 0x100, 0x200, 0x300, 0x400, 0x500, 0x600, 0x500, 0x400, 0x300, 0x200, 0x100];
-        ushort[] darkness = [0, 0x600, 0xC00, 0x1200, 0x1800, 0x1900, 0xC208];
+        // A sixth death's faint darkness is not kept (#2573); the deepest step holds.
+        ushort[] darkness = [0, 0x600, 0xC00, 0x1200, 0x1800, 0x1900];
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyFirefleaFlashingAlgorithm), () => VerifyFirefleaFlashingAlgorithm(rom));
         Suite(nameof(VerifyFirefleaDarknessAlgorithm), () => VerifyFirefleaDarknessAlgorithm(rom));

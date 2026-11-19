@@ -32,7 +32,7 @@ internal static class SignedLineScrollRowsVerification
             ?? throw new InvalidOperationException("A vertical heat haze describes the background's vertical scroll.");
         SampledScrollWave wrapped = GameplayEffectCapture.BuildLavaAcidBackgroundVerticalScrolls(heat, ushort.MaxValue - 2)
             ?? throw new InvalidOperationException("A vertical heat haze describes the background's vertical scroll.");
-        AssertEqual(-2, signed.BaseScroll, "the heat haze's base row above the origin is negative");
+        AssertEqual(-3, signed.BaseScroll, "the heat haze's base row, the camera's above the origin, is negative");
         AssertSequenceEqual(ScrollShapeLines.GameplayScrolls(wrapped), ScrollShapeLines.GameplayScrolls(signed),
             "the signed heat haze shows the lines the wrapped row showed");
 

@@ -93,8 +93,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         // The posts wrap across the room's coordinate seam, as the game's additions do, so a modded patrol
         // reach can straddle it; the patrol compares positions by their signed difference, which still
         // sees each post on its own side of the pirate.
-        state.RightPostX = CoordinateAxis.Wrap(place.Position.X.Whole + settings.PatrolReach);
-        state.LeftPostX = CoordinateAxis.Wrap(place.Position.X.Whole - settings.PatrolReach);
+        state.RightPostX = OffRoomPlaces.Place(place.Position.X.Whole + settings.PatrolReach);
+        state.LeftPostX = OffRoomPlaces.Place(place.Position.X.Whole - settings.PatrolReach);
     }
 
     /// <summary>Runs the walking Space Pirate's main AI.</summary>
@@ -163,7 +163,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                 place,
                 displacement: SpacePirateMotionDefinitions.WalkingLeftStep);
             if (!hitWall &&
-                CoordinateAxis.Difference(place.Position.X.Whole, state.LeftPostX) >= 0)
+                !DistanceAcrossRoomEdge.LiesBefore(place.Position.X.Whole, state.LeftPostX))
             {
                 return;
             }
@@ -202,7 +202,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                 level,
                 place,
                 displacement: SpacePirateMotionDefinitions.WalkingRightStep) &&
-            CoordinateAxis.Precedes(place.Position.X.Whole, state.RightPostX))
+            DistanceAcrossRoomEdge.LiesBefore(place.Position.X.Whole, state.RightPostX))
         {
             return;
         }
@@ -370,10 +370,10 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             : SpacePirateMotionDefinitions.WalkingFastLaserStep;
         // A laser flies through walls and leaves only through the view's edge. Flying left with the view at the room's left
         // edge, its last step takes it past the room's origin, where it continues from the space's far end, as
-        // CoordinateAxis.Wrap gives it, and the view test below deletes it.
+        // OffRoomPlaces places it, and the view test below deletes it.
         projectile.Position = projectile.Position.WithWholeX(laser.Direction == HorizontalDirection.Right
             ? projectile.Position.X.Whole + pixels
-            : CoordinateAxis.Wrap(projectile.Position.X.Whole - pixels));
+            : OffRoomPlaces.Place(projectile.Position.X.Whole - pixels));
 
         if (!EnemyView.ContainsBeforeFarEdges(projectile.Position.Whole, camera))
             projectile.Delete();
@@ -463,7 +463,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         }
         if (pirateAction == PirateHitboxShotActions.PirateHitboxShotAction.Reflect)
         {
-            c.Enemy.InvincibilityTimer = SpacePirateCollisionDefinitions.ReflectInvincibility;
+            c.Enemy.Invincibility.Restart(SpacePirateCollisionDefinitions.ReflectInvincibility);
             // A shot aimed straight left or right reflects up and away; every other aim reflects down.
             SamusProjectileDirection reflected = c.Projectile.Direction switch
             {
@@ -561,7 +561,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                 $"Space Pirate has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
         }
         // While the Pirate is frozen, touching it deals neither Samus nor the Pirate contact damage.
-        if (context.Place.FrozenTimer != 0)
+        if (context.Place.Freeze.IsRunning)
             return;
         _collision.ResolveNormalEnemyTouch(context);
     }

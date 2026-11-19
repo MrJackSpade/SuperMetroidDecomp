@@ -108,7 +108,7 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
         }
     }
     $stationAreas = @{}
-    foreach ($match in [regex]::Matches([IO.File]::ReadAllText((Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Progression/LoadStationDefinitions.cs')), 'public static LoadStation (\w+) \{ get; \} = new\(nameof\(\1\), AreaId\.(\w+)\);')) {
+    foreach ($match in [regex]::Matches([IO.File]::ReadAllText((Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Progression/LoadStationDefinitions.cs')), 'public static LoadStation (\w+) \{ get; \} = new\("\1", AreaId\.(\w+)\);')) {
         $stationAreas[$match.Groups[1].Value] = $match.Groups[2].Value
     }
     $stationsByAreaNumber = @{}
@@ -124,7 +124,7 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     $statePhrases = @{}
     $roomPhrases = @{}
     foreach ($stateFile in Get-ChildItem (Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/World/RoomStates') -Filter '*RoomStateDefinitions.cs') {
-        foreach ($match in [regex]::Matches([IO.File]::ReadAllText($stateFile.FullName), '/// <summary>The ([^<]+?)''s ([^<]+)\.</summary>\s*public static RoomStateSettings (\w+) \{ get; \} =\s*new\(nameof\(\3\)[^;]*?RoomObjectPopulationDefinitions\.(\w+)')) {
+        foreach ($match in [regex]::Matches([IO.File]::ReadAllText($stateFile.FullName), '/// <summary>The ([^<]+?)''s ([^<]+)\.</summary>\s*public static RoomStateSettings (\w+) \{ get; \} =\s*new\("\3"[^;]*?RoomObjectPopulationDefinitions\.(\w+)')) {
             $statePopulations[$match.Groups[3].Value] = $match.Groups[4].Value
             $statePhrases[$match.Groups[3].Value] = [pscustomobject]@{ Room = 'the ' + $match.Groups[1].Value; State = $match.Groups[2].Value }
         }
@@ -173,7 +173,7 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     }
     function Get-Capitalised([string] $text) { return $text.Substring(0, 1).ToUpperInvariant() + $text.Substring(1) }
     $roomScreens = @{}
-    foreach ($match in [regex]::Matches([IO.File]::ReadAllText((Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/RoomDefinitions.cs')), 'new\(nameof\((\w+)\), AreaId\.\w+, new\(\d+, \d+\), new\((\d+), (\d+)\)')) {
+    foreach ($match in [regex]::Matches([IO.File]::ReadAllText((Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/RoomDefinitions.cs')), 'public static RoomDefinition (\w+) \{ get; \} = new\("\1", AreaId\.\w+, new\(\d+, \d+\), new\((\d+), (\d+)\)')) {
         $roomScreens[$match.Groups[1].Value] = [pscustomobject]@{ Width = [int]$match.Groups[2].Value; Height = [int]$match.Groups[3].Value }
     }
     if ($roomScreens.Count -ne 261) { throw "Expected 261 retail room sizes, found $($roomScreens.Count)." }
@@ -582,7 +582,7 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
         $catalog.Add('{')
         foreach ($number in @($names.Keys | Sort-Object)) {
             $catalog.Add(('    /// <summary>{0}</summary>' -f $memberSummaries[$number]))
-            $catalog.Add(('    public static {0} {1} {{ get; }} = new(nameof({1}));' -f $typeName, $names[$number]))
+            $catalog.Add(('    public static {0} {1} {{ get; }} = new("{1}");' -f $typeName, $names[$number]))
             $catalog.Add('')
         }
         $catalog.Add(('    /// <summary>{0}</summary>' -f $allSummary))

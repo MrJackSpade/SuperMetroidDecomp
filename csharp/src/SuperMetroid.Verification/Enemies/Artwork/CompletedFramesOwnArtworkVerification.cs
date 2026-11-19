@@ -30,18 +30,18 @@ internal static class CompletedFramesOwnArtworkVerification
             string[] frames = [.. drawing.Frames.SelectMany(frame => new[] { EnemySheetDefinitions.FrameName(frame), EnemySheetDefinitions.EncounterFrameName(frame),
                     EnemySheetDefinitions.EffectActorFrameName(frame) })
                 .Concat(drawing.Projectiles.Select(EnemySheetDefinitions.ProjectileFrameName))];
-            foreach ((RoomEnemyGraphicsSetDefinition set, PopulationArtwork artwork) in sheets.BySet.Where(entry => Plays(entry.Key.Name, drawing.Encounter)))
+            foreach ((RoomEnemyGraphicsSetDefinition set, PopulationArtwork artwork) in sheets.BySet.Where(entry => Plays(entry.Key, drawing.Encounter)))
             {
                 foreach ((EnemyDefinitionId enemy, EnemyArtworkVariant<SpriteSheet> variant) in artwork.enemies)
                 {
                     checkedFrames += Check($"{set.Name} {enemy} ({variant.Name})", [.. variant.Sheet.FrameNames, .. variant.Sheet.BlankFrameNames], frames,
-                        drawing.Looks[0], findings);
+                        drawing.Looks[0].Name, findings);
                 }
                 // A variant's spawned-object pictures are on its own sheet and the common sheets (#1513).
                 foreach ((SpawnedObjectOwner owner, EnemyArtworkVariant<SpawnedObjectSheet> variant) in artwork.spawned)
                 {
                     checkedFrames += Check($"{set.Name} spawned {owner} ({variant.Name})", [.. variant.Sheet.frames.Keys, .. variant.Sheet.empty], frames,
-                        drawing.Looks[0], findings);
+                        drawing.Looks[0].Name, findings);
                 }
             }
         }
@@ -69,8 +69,8 @@ internal static class CompletedFramesOwnArtworkVerification
         return held;
     }
 
-    /// <summary>Whether the graphics set named <paramref name="set"/> plays <paramref name="encounter"/>.</summary>
-    private static bool Plays(string set, ComposedEncounter encounter) =>
+    /// <summary>Whether graphics set <paramref name="set"/> plays <paramref name="encounter"/>.</summary>
+    private static bool Plays(RoomEnemyGraphicsSetDefinition set, ComposedEncounter encounter) =>
         EncounterLookUploads.Of(RoomEnemyGraphicsSetLists.Members[set]).Contains(encounter);
 
     /// <summary>Runs the completed frames' own-artwork rule.</summary>

@@ -221,11 +221,11 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
                 case NoobTubeProjectileCueKind.FlickerReflected:
                     // The shard shows itself at its column, or its mirror image mirrored across the tube. A column past the
                     // room's left edge lies at the end of the room's axis (AdvanceNoobTubeShardX), and its mirror image
-                    // lies as far past the room's right edge, on the axis as CoordinateAxis.Wrap keeps it (#2537).
+                    // lies as far past the room's right edge, on the axis as OffRoomPlaces keeps it (#2537).
                     int column = projectile.StateOf<NoobTubeDebrisState>().X.Whole;
                     projectile.Position = projectile.Position.WithWholeX(atOwnColumn
                         ? column
-                        : CoordinateAxis.Wrap(NoobTubeDebrisDefinitions.ShardMirrorSpan - column));
+                        : OffRoomPlaces.Place(NoobTubeDebrisDefinitions.ShardMirrorSpan - column));
                     ShardAnimation(projectile).ShowsMirroredFrame = !atOwnColumn;
                     break;
                 case NoobTubeProjectileCueKind.FlickerHidden:

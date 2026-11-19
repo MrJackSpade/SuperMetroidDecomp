@@ -52,7 +52,7 @@ internal static class EnemyBombShotReactionVerification
             bool immune = kind == "immune";
             AssertTrue(bomb.IsSpent, $"{kind}: the hit marks the bomb");
             AssertEqual(immune ? 1000 : 1000 - 30, place.Health, $"{kind}: the Mellow's health after the bomb");
-            AssertEqual(immune ? 0 : place.HurtFlashFrames + 8, place.FlashTimer, $"{kind}: the Mellow's hurt flash");
+            AssertEqual(immune ? 0 : place.HurtFlashFrames + 8, place.HurtFlash.UpdatesLeft, $"{kind}: the Mellow's hurt flash");
             SoundRequest[] expected = kind switch
             {
                 "hurt" => [new SoundRequest(cry, SoundRequestPriority.Low)],
@@ -124,7 +124,7 @@ internal static class EnemyBombShotReactionVerification
         place.Position = FixedPosition<RoomPixels>.FromWhole(Place);
         place.Radius = definition.Radius;
         place.Health = 1000;
-        place.FrozenTimer = frozenTimer;
+        place.Freeze.Restart(frozenTimer);
         place.Frame = EnemyFrameId.EffectActorDudShotDot;
         return (enemies, place);
     }

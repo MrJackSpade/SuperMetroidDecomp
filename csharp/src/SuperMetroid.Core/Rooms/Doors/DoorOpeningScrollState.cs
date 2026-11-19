@@ -15,7 +15,7 @@ internal sealed class DoorOpeningScrollState
     {
         Direction = setup.Direction;
         SamusScrollStep = setup.SamusScrollStep;
-        RemainingFrames = setup.RemainingFrames;
+        Scroll = UpdateCountdown.For(setup.RemainingFrames);
         CameraPosition = setup.CameraPosition;
         BackgroundPosition = setup.BackgroundPosition;
         SamusPosition = setup.SamusPosition;
@@ -28,8 +28,11 @@ internal sealed class DoorOpeningScrollState
     /// <summary>Samus's displacement for one scroll update, along the travel axis.</summary>
     public FixedVector<RoomPixels> SamusScrollStep { get; }
 
-    /// <summary>Scroll updates still required before the scroll can snap to its destination.</summary>
-    public int RemainingFrames { get; private set; }
+    /// <summary>
+    /// The scroll's updates, counted once each update it advances: the scroll can snap to its destination once it is over,
+    /// and its age delays an upward door's layer recalculation.
+    /// </summary>
+    public UpdateCountdown Scroll { get; }
 
     /// <summary>The camera's position as the scroll carries it.</summary>
     public Position16<RoomPixels> CameraPosition { get; private set; }
@@ -45,9 +48,6 @@ internal sealed class DoorOpeningScrollState
 
     /// <summary>Whether the just-advanced update recomputes the layer scrolls; upward doors delay their first updates.</summary>
     public bool RecalculatesScrollAfterAdvance { get; private set; } = true;
-
-    /// <summary>The scroll updates advanced so far.</summary>
-    private int _updatesAdvanced;
 
     /// <summary>
     /// Builds the setup position and the scroll's trajectory from a door and its destination camera and background
@@ -133,18 +133,17 @@ internal sealed class DoorOpeningScrollState
     /// <summary>Runs one scroll update and reports whether it is the one that finishes the scroll.</summary>
     public bool Advance()
     {
-        if (RemainingFrames <= 0)
+        if (Scroll.IsOver)
             return true;
 
         CameraPosition += LayerStep<RoomPixels>(Direction);
         BackgroundPosition += LayerStep<BackgroundPixels>(Direction);
         SamusPosition = SamusPosition.Advance(SamusScrollStep);
 
-        RemainingFrames--;
-        _updatesAdvanced++;
+        bool finished = Scroll.Count();
         RecalculatesScrollAfterAdvance = Direction != DoorDirection.Up ||
-            _updatesAdvanced > DoorOpeningScrollDefinitions.UpwardUpdatesBeforeScrollRecalculation;
-        return RemainingFrames == 0;
+            Scroll.Age > DoorOpeningScrollDefinitions.UpwardUpdatesBeforeScrollRecalculation;
+        return finished;
     }
 
     /// <summary>
@@ -162,7 +161,7 @@ internal sealed class DoorOpeningScrollState
     /// </summary>
     public void SnapCameraToDestination()
     {
-        if (RemainingFrames != 0)
+        if (Scroll.IsRunning)
             throw new InvalidOperationException(
                 "A door-opening trajectory cannot snap before its final scroll update.");
 

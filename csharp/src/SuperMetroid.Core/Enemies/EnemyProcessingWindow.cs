@@ -89,7 +89,7 @@ internal sealed class EnemyProcessingWindow
     /// pipe bugs treat as on screen.
     /// </summary>
     /// <remarks>
-    /// The window measures across the room's axis, as <see cref="CoordinateAxis.Precedes"/> reads it, because it tests
+    /// The window measures across the room's axis, as <see cref="CameraPastRoomEdge.LiesBefore"/> reads it, because it tests
     /// every enemy and an enemy can lie above or left of the room's origin (#2537): a fly that has climbed through the
     /// ceiling, or a Bull braking past Samus, as <see cref="EnemyDeathsAndDrops.TendEnemyPickup"/> records. Its centre then
     /// lies at the end of the axis, and the window reads it the short way from the camera, across the axis. With the
@@ -102,10 +102,10 @@ internal sealed class EnemyProcessingWindow
     internal static bool IsWithinProcessingWindow(
         RoomEnemyPlace place,
         Position16<RoomPixels> camera) =>
-        !CoordinateAxis.Precedes(place.Radius.X + place.Position.X.Whole, camera.X) &&
-        !CoordinateAxis.Precedes(place.Radius.X + camera.X + EnemyView.Extent, place.Position.X.Whole) &&
-        !CoordinateAxis.Precedes(place.Position.Y.Whole + ProcessingWindowAboveView, camera.Y) &&
-        !CoordinateAxis.Precedes(camera.Y + EnemyView.Extent - ProcessingWindowAboveView, place.Position.Y.Whole);
+        !CameraPastRoomEdge.LiesBefore(place.Radius.X + place.Position.X.Whole, camera.X) &&
+        !CameraPastRoomEdge.LiesBefore(place.Radius.X + camera.X + EnemyView.Extent, place.Position.X.Whole) &&
+        !CameraPastRoomEdge.LiesBefore(place.Position.Y.Whole + ProcessingWindowAboveView, camera.Y) &&
+        !CameraPastRoomEdge.LiesBefore(camera.Y + EnemyView.Extent - ProcessingWindowAboveView, place.Position.Y.Whole);
 
     /// <summary>How far above the view the processing window reaches, and so how far short of its bottom edge it stops.</summary>
     private const int ProcessingWindowAboveView = 8;
@@ -120,9 +120,9 @@ internal sealed class EnemyProcessingWindow
     /// </summary>
     internal static bool EnemyIsHorizontallyOffScreen(RoomEnemyPlace place, int cameraX)
     {
-        if (CoordinateAxis.AsSigned(place.Position.X.Whole) < 0)
+        if (OffRoomPlaces.LiesBeforeRoom(place.Position.X.Whole))
             return true;
-        int fromCamera = CoordinateAxis.Wrap(place.Position.X.Whole + place.Radius.X - cameraX);
-        return CoordinateAxis.AsSigned(fromCamera) < 0 || !CoordinateAxis.Precedes(fromCamera, EnemyView.Extent + place.Radius.X);
+        int fromCamera = CameraPastRoomEdge.FromCamera(place.Position.X.Whole + place.Radius.X, cameraX);
+        return fromCamera < 0 || !CameraPastRoomEdge.LiesBefore(fromCamera, EnemyView.Extent + place.Radius.X);
     }
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Choot;
@@ -88,7 +89,7 @@ internal static class ChootPatternDefinitionsVerification
             initializeFall(fallPlace);
             ChootEnemyState fallState = (fallEnemies.ChootStates[0] ?? throw new InvalidOperationException("Verification requires fallEnemies.ChootStates[0]."));
             fallState.FallingOrigin = new(0x4000, 0x5000);
-            fallState.FallingPatternFrame = 0;
+            fallState.FallingLoop = UpdateCountdown.Lasting(ChootFalls.LoopUpdates(fallingPath));
             fallState.FallingPatternLoopCounter = 2;
 
             for (int frameIndex = 0; frameIndex < frameCounts[patternIndex] - 1; frameIndex++)
@@ -104,12 +105,12 @@ internal static class ChootPatternDefinitionsVerification
                     fallPlace.Position.Y.Whole,
                     $"Choot production fall Y {patternIndex}/{frameIndex}");
                 AssertEqual(frameIndex + 1,
-                    fallState.FallingPatternFrame,
+                    fallState.FallingLoop.Age,
                     $"Choot production fall cursor {patternIndex}/{frameIndex}");
             }
 
             runFall(fallPlace, fallState);
-            AssertEqual(0, fallState.FallingPatternFrame,
+            AssertEqual(0, fallState.FallingLoop.Age,
                 $"Choot production loop cursor reset {patternIndex}");
             AssertEqual(1, fallState.FallingPatternLoopCounter,
                 $"Choot production loop counter {patternIndex}");
@@ -117,7 +118,7 @@ internal static class ChootPatternDefinitionsVerification
                 fallState.FallingOrigin.Y,
                 $"Choot production loop Y advance {patternIndex}");
 
-            fallState.FallingPatternFrame = frameCounts[patternIndex] - 1;
+            fallState.FallingLoop = UpdateCountdownAccess.AtAge(ChootFalls.LoopUpdates(fallingPath), frameCounts[patternIndex] - 1);
             runFall(fallPlace, fallState);
             AssertEqual((ushort)0x3456, fallPlace.Position.X.Whole,
                 $"Choot production final spawn X {patternIndex}");

@@ -4651,20 +4651,20 @@ internal static class SpawnedObjectFrameDefinitions
 
     /// <summary>
     /// What each common spawner, code outside the enemy behaviours, spawns onto the shared sheet, by the spawner the import
-    /// places in the rooms whose data runs it: a type's name, or <c>Type.Member</c> for a type whose members serve unrelated rooms.
+    /// places in the rooms whose data runs it, named for a type, or for a type and member where a type's members serve unrelated rooms.
     /// </summary>
     internal static IReadOnlyList<CommonSpawnedObjects> Common { get; } =
     [
-        new("DownwardGateBehavior", new(CommonDownwardGateBehaviorProjectiles, CommonDownwardGateBehaviorEffectActors)),
-        new("EnemyDeathsAndDrops", new(CommonEnemyDeathsAndDropsProjectiles, CommonEnemyDeathsAndDropsEffectActors)),
-        new("EnemyProjectileEngine.CreateBombDudShot", new(CommonEnemyProjectileEngineCreateBombDudShotProjectiles, CommonEnemyProjectileEngineCreateBombDudShotEffectActors)),
-        new("EnemyProjectileEngine.CreateEnemyProjectileDudShot", new(CommonEnemyProjectileEngineCreateEnemyProjectileDudShotProjectiles, CommonEnemyProjectileEngineCreateEnemyProjectileDudShotEffectActors)),
-        new("EnemyProjectileEngine.SpawnDustOrExplosion", new(CommonEnemyProjectileEngineSpawnDustOrExplosionProjectiles, CommonEnemyProjectileEngineSpawnDustOrExplosionEffectActors)),
-        new("EscapeExplosionsBehavior", new(CommonEscapeExplosionsBehaviorProjectiles, CommonEscapeExplosionsBehaviorEffectActors)),
-        new("EyeDoorBehavior", new(CommonEyeDoorBehaviorProjectiles, CommonEyeDoorBehaviorEffectActors)),
-        new("OldTourianEscapeShaftWallBehavior", new(CommonOldTourianEscapeShaftWallBehaviorProjectiles, CommonOldTourianEscapeShaftWallBehaviorEffectActors)),
-        new("RidleyProjectiles", new(CommonRidleyProjectilesProjectiles, CommonRidleyProjectilesEffectActors)),
-        new("RoomMainRoutines", new(CommonRoomMainRoutinesProjectiles, CommonRoomMainRoutinesEffectActors)),
-        new("SaveStationElectricity", new(CommonSaveStationElectricityProjectiles, CommonSaveStationElectricityEffectActors)),
+        new(CommonSpawner.DownwardGateBehavior, new(CommonDownwardGateBehaviorProjectiles, CommonDownwardGateBehaviorEffectActors)),
+        new(CommonSpawner.EnemyDeathsAndDrops, new(CommonEnemyDeathsAndDropsProjectiles, CommonEnemyDeathsAndDropsEffectActors)),
+        new(CommonSpawner.EnemyProjectileEngineCreateBombDudShot, new(CommonEnemyProjectileEngineCreateBombDudShotProjectiles, CommonEnemyProjectileEngineCreateBombDudShotEffectActors)),
+        new(CommonSpawner.EnemyProjectileEngineCreateEnemyProjectileDudShot, new(CommonEnemyProjectileEngineCreateEnemyProjectileDudShotProjectiles, CommonEnemyProjectileEngineCreateEnemyProjectileDudShotEffectActors)),
+        new(CommonSpawner.EnemyProjectileEngineSpawnDustOrExplosion, new(CommonEnemyProjectileEngineSpawnDustOrExplosionProjectiles, CommonEnemyProjectileEngineSpawnDustOrExplosionEffectActors)),
+        new(CommonSpawner.EscapeExplosionsBehavior, new(CommonEscapeExplosionsBehaviorProjectiles, CommonEscapeExplosionsBehaviorEffectActors)),
+        new(CommonSpawner.EyeDoorBehavior, new(CommonEyeDoorBehaviorProjectiles, CommonEyeDoorBehaviorEffectActors)),
+        new(CommonSpawner.OldTourianEscapeShaftWallBehavior, new(CommonOldTourianEscapeShaftWallBehaviorProjectiles, CommonOldTourianEscapeShaftWallBehaviorEffectActors)),
+        new(CommonSpawner.RidleyProjectiles, new(CommonRidleyProjectilesProjectiles, CommonRidleyProjectilesEffectActors)),
+        new(CommonSpawner.RoomMainRoutines, new(CommonRoomMainRoutinesProjectiles, CommonRoomMainRoutinesEffectActors)),
+        new(CommonSpawner.SaveStationElectricity, new(CommonSaveStationElectricityProjectiles, CommonSaveStationElectricityEffectActors)),
     ];
 }

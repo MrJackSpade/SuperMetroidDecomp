@@ -23,12 +23,12 @@ public sealed class EscapeTypewriterState
     /// </summary>
     public Position16<PlanePixels> Corner { get; private set; }
     /// <summary>
-    /// The updates still to wait before the typewriter types again (#2368): none after its opening character, then
+    /// The wait before the typewriter types again (#2368): none after its opening character, then
     /// <see cref="EscapeTypewriterDefinitions.CharacterDelayFrames"/> after each later character.
     /// </summary>
-    private int _updatesBeforeNextCharacter;
+    private readonly UpdateCountdown _characterWait = UpdateCountdown.Ended();
     /// <summary>The updates that have typed a character, space or line end, and the one that found the warning complete.</summary>
-    private int _typingUpdates;
+    private readonly ElapsedUpdates _typing = new();
     /// <summary>Total non-space glyphs typed, whose count paces the clicks; spaces advance the typing position but are not counted.</summary>
     private int _glyphsWritten;
     /// <summary>True once an update ready to type passes the end of all lines; later updates report completion without typing or requesting a sound.</summary>
@@ -65,10 +65,14 @@ public sealed class EscapeTypewriterState
     public EscapeTypewriterStep Step()
     {
         if (Completed) return EscapeTypewriterStep.Complete.Instance;
-        if (_updatesBeforeNextCharacter != 0) { _updatesBeforeNextCharacter--; return EscapeTypewriterStep.NothingTyped.Instance; }
-        _updatesBeforeNextCharacter = _typingUpdates < EscapeTypewriterDefinitions.UndelayedOpeningCharacters
-            ? 0 : EscapeTypewriterDefinitions.CharacterDelayFrames;
-        _typingUpdates++;
+        if (_characterWait.IsRunning)
+        {
+            _characterWait.Count();
+            return EscapeTypewriterStep.NothingTyped.Instance;
+        }
+        _characterWait.Restart(_typing.Age < EscapeTypewriterDefinitions.UndelayedOpeningCharacters
+            ? 0 : EscapeTypewriterDefinitions.CharacterDelayFrames);
+        _typing.Count();
         return StepInstalled(installedMessage);
     }
 

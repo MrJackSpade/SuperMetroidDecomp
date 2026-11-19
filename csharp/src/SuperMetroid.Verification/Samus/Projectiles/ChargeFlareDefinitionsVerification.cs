@@ -120,7 +120,7 @@ internal static class ChargeFlareDefinitionsVerification
             {
                 // An ordinary charge the Baby's gift catches: the count still runs and each component stands where the
                 // ordinary flare left it.
-                hyper.Charge.FlareCounter = ChargeFlareAnimationDefinitions.SparksShownFrom;
+                hyper.Charge.SetFlareCount(ChargeFlareAnimationDefinitions.SparksShownFrom);
                 for (int place = 0; place < 3; place++)
                     hyper.Charge.Flare(components[place]).ShowNative(startPhases[place], WrappingCountdown.Start(startHolds[place]));
             }

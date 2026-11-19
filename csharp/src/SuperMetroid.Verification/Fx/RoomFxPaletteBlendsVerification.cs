@@ -86,20 +86,24 @@ internal static class RoomFxPaletteBlendsVerification
             File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation.MapDirectory, SceneColourFiles.FileName)),
             ArtworkJson.Options)
             ?? throw new InvalidDataException("Installed scene colour document is null.");
-        AssertEqual(PaletteRgb5.From(SceneColourFiles.StockCeresHazeBlue), stock.CeresHazeWhileRidleyLives,
+        AssertEqual(InstalledColourText.Format(SceneColourFiles.StockCeresHazeBlue), stock.CeresHazeWhileRidleyLives,
             "the import records the stock Ceres blue tint");
-        AssertEqual(PaletteRgb5.From(SceneColourFiles.StockCeresHazeRed), stock.CeresHazeAfterRidleyDies,
+        AssertEqual(InstalledColourText.Format(SceneColourFiles.StockCeresHazeRed), stock.CeresHazeAfterRidleyDies,
             "the import records the stock Ceres escape tint");
         // Each haze over a black screen in the installed tints, as the display renderer draws its line 120 (#1468, #1596).
-        var installedTints = new CeresHazeTints(stock.CeresHazeWhileRidleyLives.ToRgbColor(), stock.CeresHazeAfterRidleyDies.ToRgbColor());
+        var installedTints = new CeresHazeTints(InstalledColourText.Parse(stock.CeresHazeWhileRidleyLives, "Ceres haze while Ridley lives"),
+            InstalledColourText.Parse(stock.CeresHazeAfterRidleyDies, "Ceres haze once Ridley is dead"));
         RgbaPixel stockLine = HazeLine(GameplayEffectCapture.CaptureCeresHaze(installedTints, CeresHazeTint.WhileRidleyLives, new CeresHazeStrength(CeresHazeRenderDefinitions.MaximumComponent)));
         AssertEqual(new RgbaPixel(0, 0, 66, 255), stockLine,
             "stock Ceres blue haze retains its native scanline-eight fixed color");
         AssertEqual(new RgbaPixel(66, 0, 0, 255), HazeLine(GameplayEffectCapture.CaptureCeresHaze(installedTints, CeresHazeTint.AfterRidleyDies, new CeresHazeStrength(CeresHazeRenderDefinitions.MaximumComponent))),
             "stock Ceres escape haze retains the matching red fixed color");
         AssertThrows<InvalidDataException>(() => SceneColourFiles.Read(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
-            stock with { CeresHazeWhileRidleyLives = stock.CeresHazeWhileRidleyLives with { Green = 32 } }, ArtworkJson.Options),
-            writable: false)), "reading an invalid Ceres tint component fails loudly");
+            stock with { CeresHazeWhileRidleyLives = "#00ff0" }, ArtworkJson.Options),
+            writable: false)), "reading a Ceres tint not written as #rrggbb fails loudly");
+        AssertThrows<InvalidDataException>(() => SceneColourFiles.Read(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
+            stock with { CeresHazeWhileRidleyLives = "#000043" }, ArtworkJson.Options),
+            writable: false)), "reading a Ceres tint off the game's fade scale fails loudly");
     }
 
     /// <summary>Checks that the room-FX blend codec rejects out-of-range colours.</summary>

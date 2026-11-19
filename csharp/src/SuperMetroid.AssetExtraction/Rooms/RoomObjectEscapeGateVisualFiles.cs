@@ -12,7 +12,7 @@ public static class RoomObjectEscapeGateVisualFiles
 
     /// <summary>The gate as the import pictures it: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<MotherBrainEscapeGateDraw> Family { get; } =
-        new(VisualFileName, "Escape-gate", Layouts(), RoomObjectVisualIdDefinitions.MotherBrainEscapeGate);
+        new(VisualFileName, "Escape-gate", Layouts(), MotherBrainEscapeGateDrawKeys.Installed.ByIdentity);
 
     /// <summary>Pictures the three gate frames from the cartridge's draw lists and writes the installed file.</summary>
     /// <param name="bus">The cartridge, whose draw lists are checked against the gate's four solid cells.</param>

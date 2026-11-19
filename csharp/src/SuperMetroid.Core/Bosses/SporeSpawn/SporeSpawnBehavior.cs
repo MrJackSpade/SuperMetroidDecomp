@@ -372,7 +372,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // He reacts to whatever strikes his core while he flashes hurt, by this hit or by an earlier one whose flash still
         // shows: a bomb, which does him no damage, still sets him swaying inside a missile's flash.
-        bool flashingHurt = body.FlashTimer != 0;
+        bool flashingHurt = body.HurtFlash.IsRunning;
         if (flashingHurt)
         {
             state.Movement = SporeSpawnMovement.Moving;
@@ -409,8 +409,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.DeathStarted = true;
         state.SporeGenerationSuppressed = false;
-        body.InvincibilityTimer = 0;
-        body.FlashTimer = 0;
+        body.Invincibility.End();
+        body.HurtFlash.End();
         body.AiStates = EnemyAiStates.None;
         // The dead body stops touching Samus.
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);

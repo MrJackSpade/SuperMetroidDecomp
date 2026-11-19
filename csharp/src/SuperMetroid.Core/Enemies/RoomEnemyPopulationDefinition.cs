@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="name">The list's name.</param>
 /// <param name="placements">The list's placements in order.</param>
 /// <param name="deathQuota">The kills, zero or more, that clear a room whose population places enemies.</param>
-public sealed class RoomEnemyPopulationDefinition(string name, RoomEnemyPlacement[] placements, int deathQuota)
+public sealed class RoomEnemyPopulationDefinition([InstalledKey] string name, RoomEnemyPlacement[] placements, int deathQuota)
 {
     /// <summary>The placements in order.</summary>
     private readonly RoomEnemyPlacement[] placements = placements;

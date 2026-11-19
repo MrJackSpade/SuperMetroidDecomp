@@ -46,7 +46,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         place.SetSpeciesState(state);
         state.SpawnPosition = place.Position.Whole;
         state.EmergenceTopY = state.SpawnPosition.Y - PipeBugDefinitions.BrinstarEmergenceHeight;
-        state.RespawnDelay = PipeBugDefinitions.BrinstarRespawnWait;
+        state.RespawnDelay = UpdateCountdown.For(PipeBugDefinitions.BrinstarRespawnWait);
         state.Playback = new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(
             PipeBugAnimationChoices.Rising(KindOf(place), HorizontalDirection.Left)), AnimationPlace.StartOfAnimation);
     }
@@ -110,7 +110,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunBrinstarPipeBugFlight(place, state, camera.X);
                 return;
             case BrinstarPipeBugAction.RespawnDelay:
-                if (--state.RespawnDelay == 0)
+                if (state.RespawnDelay.StepEnds())
                     state.Action = BrinstarPipeBugAction.WaitForSamus;
                 return;
             default:
@@ -248,7 +248,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         // The flight runs until the bug leaves the screen sideways. Flying left with the camera at the room's left edge, it
         // crosses the edge and continues from the far end of the room's coordinates, which the despawn test reads as
         // left of the room, so this room wrap is the flight's end (#2373).
-        place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole +
+        place.Position = OffRoomPlaces.WithWholeX(place.Position, place.Position.X.Whole +
             (state.Flight == HorizontalDirection.Left ? -PipeBugDefinitions.BrinstarFlightStep : PipeBugDefinitions.BrinstarFlightStep));
         // The despawn tests only the horizontal screen extent.
         if (!EnemyProcessingWindow.EnemyIsHorizontallyOffScreen(place, cameraX))
@@ -258,7 +258,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             .WithY(PipeBugEmergenceRise.Respawned(state.SpawnPosition.Y));
         SelectBrinstarPipeBugAnimation(place, state, PipeBugAnimationChoices.Rising(KindOf(place), HorizontalDirection.Left));
         place.Presence = place.Presence.With(EnemyPresence.Hidden);
-        state.RespawnDelay = PipeBugDefinitions.BrinstarRespawnWait;
+        state.RespawnDelay = UpdateCountdown.For(PipeBugDefinitions.BrinstarRespawnWait);
         state.Action = BrinstarPipeBugAction.RespawnDelay;
     }
 
@@ -299,7 +299,6 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        leaderState.CountFormationTick();
         // Only the leader's animation clock restarts. The formation then changes every member's animation but leaves
         // the followers' frame timers as they are, a killed member's included.
         leader.AnimationClock.Restart();
@@ -316,6 +315,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             memberState.Action = NorfairPipeBugAction.Rise;
             memberState.Role = member.Role;
         }
+        // The launch counts one formation update of the leader's, once its role gives its wait its length.
+        leaderState.CountFormationTick();
     }
 
     /// <summary>Raises one Norfair bug until it passes Samus's Y and selects its authored post-rise action.</summary>
@@ -372,7 +373,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.HasReachedStaggerTarget)
             return;
 
-        state.FormationCounter = 0;
+        state.RestartDeparture();
         place.AnimationClock.Restart();
         state.Action = NorfairPipeBugAction.Fly;
         if (samus.Position.X.Whole >= place.Position.X.Whole)
@@ -444,14 +445,14 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         place.Presence = place.Presence.Without(EnemyPresence.Hidden);
-        state.EmergenceDelay = PipeBugDefinitions.YellowEmergenceDelay;
+        state.EmergenceDelay = UpdateCountdown.For(PipeBugDefinitions.YellowEmergenceDelay);
         state.Action = YellowPipeBugAction.EmergenceDelay;
     }
 
     /// <summary>Counts down the visible emergence delay, then flies straight toward the bug's facing with its flying animation.</summary>
     private static void RunYellowPipeBugDelay(RoomEnemyPlace place, YellowPipeBugState state)
     {
-        if (--state.EmergenceDelay != 0)
+        if (!state.EmergenceDelay.StepEnds())
             return;
         place.AnimationClock.Restart();
         state.Playback = new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(YellowPipeBugFacing(place) == HorizontalDirection.Left

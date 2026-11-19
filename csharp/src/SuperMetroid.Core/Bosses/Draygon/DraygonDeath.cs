@@ -31,8 +31,8 @@ internal sealed class DraygonDeath
     /// <summary>The direction a dying Draygon at <paramref name="body"/> drifts along, aimed across the burial drift's coarse grid.</summary>
     internal static TrigonometryAngle BurialDriftAngle(Position16<RoomPixels> body) =>
         EnemyMath.CalculateAimAngle(new(
-            CoordinateAxis.Difference(DraygonArenaDefinitions.DeathTargetX / DraygonArenaDefinitions.BurialAimCellPixels, body.X / DraygonArenaDefinitions.BurialAimCellPixels),
-            CoordinateAxis.Difference(DraygonArenaDefinitions.DeathTargetY / DraygonArenaDefinitions.BurialAimCellPixels, body.Y / DraygonArenaDefinitions.BurialAimCellPixels)));
+            DraygonArenaDefinitions.DeathTargetX / DraygonArenaDefinitions.BurialAimCellPixels - body.X / DraygonArenaDefinitions.BurialAimCellPixels,
+            DraygonArenaDefinitions.DeathTargetY / DraygonArenaDefinitions.BurialAimCellPixels - body.Y / DraygonArenaDefinitions.BurialAimCellPixels));
 
     /// <summary>Moves the dying body toward the burial point and changes its linked eye pose.</summary>
     internal void DriftDyingDraygonToBurialPoint(DraygonEnemyState state)
@@ -48,8 +48,9 @@ internal sealed class DraygonDeath
 
         DraygonMovement.MoveDraygonAtAngle(body, BurialDriftAngle(body.Position.Whole), speed: 1);
 
-        if (CoordinateAxis.Distance(body.Position.X.Whole, DraygonArenaDefinitions.DeathTargetX) >= DraygonArenaDefinitions.BurialPointTolerance ||
-            CoordinateAxis.Distance(body.Position.Y.Whole, DraygonArenaDefinitions.DeathTargetY) >= DraygonArenaDefinitions.BurialPointTolerance)
+        // The burial point and its tolerance lie inside the arena, so a place within the tolerance is so plainly.
+        if (Math.Abs(body.Position.X.Whole - DraygonArenaDefinitions.DeathTargetX) >= DraygonArenaDefinitions.BurialPointTolerance ||
+            Math.Abs(body.Position.Y.Whole - DraygonArenaDefinitions.DeathTargetY) >= DraygonArenaDefinitions.BurialPointTolerance)
         {
             return;
         }
@@ -99,8 +100,9 @@ internal sealed class DraygonDeath
         SpawnDyingDraygonSmoke(frameCounter);
         MoveDraygonDeathEvirs(state);
         RoomEnemyPlace body = state.Body;
-        body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 1);
-        if (CoordinateAxis.Difference(body.Position.Y.Whole, DraygonArenaDefinitions.BurialFinishedY) < 0)
+        // He sinks a pixel an update from the burial point, inside the arena, to the burial depth, so his height stays in the room.
+        body.Position = body.Position.WithWholeY(body.Position.Y.Whole + 1);
+        if (body.Position.Y.Whole < DraygonArenaDefinitions.BurialFinishedY)
             return;
 
         state.BodyPart.StartAnimation(DraygonSegment.Delete);

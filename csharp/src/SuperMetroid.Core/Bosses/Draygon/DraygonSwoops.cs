@@ -52,8 +52,8 @@ internal sealed class DraygonSwoops
             speed += state.SwoopAcceleration;
             // The path ends once it rises past the reset height, at most 384 pixels up, so the rising speed stays a few
             // pixels an update.
-            int candidate = CoordinateAxis.Wrap(yPosition - speed.WholePixels);
-            if (CoordinateAxis.Difference(candidate, state.LeftSideReset.Y) < 0)
+            int candidate = OffRoomPlaces.Place(yPosition - speed.WholePixels);
+            if (DistanceAcrossRoomEdge.LiesBefore(candidate, state.LeftSideReset.Y))
                 break;
 
             yPosition = candidate;
@@ -66,10 +66,10 @@ internal sealed class DraygonSwoops
         state.SwoopPath = new DraygonSwoopPath(heights.ToImmutable(), state.Body.Position.Y.Whole);
 
         // The swoop covers the whole-pixel distance to Samus in as many updates as the path has entries.
-        int distance = CoordinateAxis.Distance(
+        int distance = DistanceAcrossRoomEdge.Between(
             state.LeftSideReset.X, samus.Position.X.Whole);
         SetDraygonSwoopVelocity(state, distance, frameCount);
-        state.SwoopEntry = frameCount;
+        state.SwoopHalf = UpdateCountdown.Lasting(frameCount);
     }
 
     /// <summary>Runs the descending half of the swoop, right and left.</summary>
@@ -82,13 +82,12 @@ internal sealed class DraygonSwoops
         _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
         _movement.SpawnPeriodicDraygonBreathBubble(state);
         RoomEnemyPlace body = state.Body;
-        int entry = state.SwoopEntry;
+        int entry = state.SwoopHalf.UpdatesLeft;
         if (entry == DraygonSwoopDefinitions.ArmsReachUpdatesFromBottom)
             state.ArmsPart.StartAnimation(side.ArmsNearApex);
 
         body.Position = body.Position.WithWholeY(PathOf(state).HeightAt(entry));
-        state.SwoopEntry = entry - 1;
-        if (state.SwoopEntry == 0)
+        if (state.SwoopHalf.Count())
         {
             state.Phase = DraygonPhase.SwoopApex;
             return;
@@ -105,8 +104,10 @@ internal sealed class DraygonSwoops
         _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
         RoomEnemyPlace body = state.Body;
         int frameCount = PathOf(state).EntryCount;
-        int distance = CoordinateAxis.Wrap(DraygonArenaDefinitions.RightSideResetDistance - body.Position.X.Whole);
+        // The rightward swoop's bottom lies over Samus, inside the arena, so the distance on to the right-side place is a plain one.
+        int distance = DraygonArenaDefinitions.RightSideResetDistance - body.Position.X.Whole;
         SetDraygonSwoopVelocity(state, distance, frameCount);
+        state.SwoopHalf = UpdateCountdown.Lasting(frameCount);
         state.Phase = DraygonPhase.SwoopAscending;
     }
 
@@ -125,14 +126,12 @@ internal sealed class DraygonSwoops
         if (side.Direction != HorizontalDirection.Right)
             _movement.SpawnPeriodicDraygonBreathBubble(state);
         RoomEnemyPlace body = state.Body;
-        int entry = state.SwoopEntry;
+        int entry = state.SwoopHalf.Age;
         if (entry == DraygonSwoopDefinitions.ArmsReachUpdatesFromBottom)
             state.ArmsPart.StartAnimation(side.ArmsIdle);
 
-        DraygonSwoopPath path = PathOf(state);
-        body.Position = body.Position.WithWholeY(path.HeightAt(entry));
-        state.SwoopEntry = entry + 1;
-        if (state.SwoopEntry != path.EntryCount)
+        body.Position = body.Position.WithWholeY(PathOf(state).HeightAt(entry));
+        if (!state.SwoopHalf.Count())
         {
             DraygonMovement.MoveDraygonHorizontally(state, side.Direction);
             return;
@@ -140,7 +139,6 @@ internal sealed class DraygonSwoops
 
         if (side.Direction == HorizontalDirection.Right)
         {
-            state.SwoopEntry = 0;
             int random = _room.Random.Read();
             state.Phase = DraygonRandomDefinitions.SwoopsRatherThanSpitsGoop.IsTakenBy(random)
                 ? DraygonPhase.SwoopSetup
@@ -153,7 +151,6 @@ internal sealed class DraygonSwoops
         body.Position = body.Position.WithWholeX(state.LeftSideReset.X);
         if (DraygonRandomDefinitions.SwoopsRatherThanSpitsGoop.IsTakenBy(choice))
         {
-            state.SwoopEntry = 0;
             body.Position = body.Position.WithWholeY(state.LeftSideReset.Y);
             state.Phase = DraygonPhase.SwoopSetup;
         }
@@ -173,16 +170,16 @@ internal sealed class DraygonSwoops
         _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
         int frameCount = PathOf(state).EntryCount;
 
-        int distance = CoordinateAxis.Distance(
+        int distance = DistanceAcrossRoomEdge.Between(
             state.RightSideResetX, samus.Position.X.Whole);
         SetDraygonSwoopVelocity(state, distance, frameCount);
         state.Phase = DraygonPhase.SwoopDescending;
         state.BodyPart.StartAnimation(DraygonSegment.BodyFacingLeftReset);
         state.Facing = HorizontalDirection.Left;
-        state.SwoopEntry = frameCount;
+        state.SwoopHalf = UpdateCountdown.Lasting(frameCount);
     }
 
-    /// <summary>Aims the leftward climb at the left-side reset point, measured back from Draygon's X (<see cref="CoordinateAxis.Difference"/>).</summary>
+    /// <summary>Aims the leftward climb at the left-side reset point, measured back from Draygon's X to the place left of the arena (<see cref="DistanceAcrossRoomEdge.Apart"/>).</summary>
     internal void CrossDraygonLeftSwoopApex(
         DraygonEnemyState state,
         SamusState samus,
@@ -191,8 +188,9 @@ internal sealed class DraygonSwoops
         _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
         RoomEnemyPlace body = state.Body;
         int frameCount = PathOf(state).EntryCount;
-        int distance = CoordinateAxis.Wrap(body.Position.X.Whole - state.LeftSideReset.X);
+        int distance = DistanceAcrossRoomEdge.Apart(body.Position.X.Whole, state.LeftSideReset.X);
         SetDraygonSwoopVelocity(state, distance, frameCount);
+        state.SwoopHalf = UpdateCountdown.Lasting(frameCount);
         state.Phase = DraygonPhase.SwoopAscending;
     }
 
@@ -216,14 +214,13 @@ internal sealed class DraygonSwoops
     {
         _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
         RoomEnemyPlace body = state.Body;
-        body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - DraygonArenaDefinitions.SwoopClimbOutSpeed);
-        if (CoordinateAxis.AsSigned(body.Position.Y.Whole) >= 0)
+        body.Position = OffRoomPlaces.WithWholeY(body.Position, body.Position.Y.Whole - DraygonArenaDefinitions.SwoopClimbOutSpeed);
+        if (!OffRoomPlaces.LiesBeforeRoom(body.Position.Y.Whole))
             return;
 
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
         state.Phase = DraygonPhase.SwoopSetup;
         state.PassDirection = HorizontalDirection.Right;
-        state.SwoopEntry = 0;
         body.Position = body.Position.WithWhole(state.LeftSideReset);
     }
 }

@@ -25,8 +25,8 @@ public sealed class SaveChoiceInputCadence
     /// <summary>The updates the confirmation waits between one read and the next.</summary>
     private const int UpdatesBetweenReads = 1;
 
-    /// <summary>The waiting updates left before the next read.</summary>
-    private int _updatesBeforeRead;
+    /// <summary>The wait before the next read, over on the update that reads.</summary>
+    private readonly UpdateCountdown _readWait = UpdateCountdown.Ended();
 
     /// <summary>Whether the last read moved the choice and the next update shows it.</summary>
     private bool _movedChoicePending;
@@ -47,7 +47,7 @@ public sealed class SaveChoiceInputCadence
     /// <summary>Starts the cadence for a confirmation box that has just finished opening.</summary>
     public void Begin()
     {
-        _updatesBeforeRead = UpdatesBeforeFirstRead;
+        _readWait.Restart(UpdatesBeforeFirstRead);
         _movedChoicePending = false;
     }
 
@@ -59,12 +59,12 @@ public sealed class SaveChoiceInputCadence
             _movedChoicePending = false;
             return Update.ShowsMovedChoice;
         }
-        if (_updatesBeforeRead > 0)
+        if (_readWait.IsRunning)
         {
-            _updatesBeforeRead--;
+            _readWait.Count();
             return Update.Waits;
         }
-        _updatesBeforeRead = UpdatesBetweenReads;
+        _readWait.Restart(UpdatesBetweenReads);
         return Update.ReadsController;
     }
 

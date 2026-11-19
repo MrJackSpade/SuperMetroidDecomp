@@ -7,203 +7,203 @@ internal static class BrinstarRoomEnemyGraphicsSetDefinitions
     /// <summary>The region's lists, in table order.</summary>
     internal static RoomEnemyGraphicsSetMembers[] Build() =>
     [
-        new(nameof(RoomEnemyGraphicsSetDefinitions.BrinstarPreMap), [
+        new(RoomEnemyGraphicsSetDefinitions.BrinstarPreMap, [
             new(EnemyDefinitionId.Sidehopper),
             new(EnemyDefinitionId.Zeela),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.GreenBrinstarMap), [
+        new(RoomEnemyGraphicsSetDefinitions.GreenBrinstarMap, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.GreenBrinstarMissileRefill), [
+        new(RoomEnemyGraphicsSetDefinitions.GreenBrinstarMissileRefill, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.SporeSpawnKihunters), [
+        new(RoomEnemyGraphicsSetDefinitions.SporeSpawnKihunters, [
             new(EnemyDefinitionId.KihunterGreen),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.EtecoonSuper), [
+        new(RoomEnemyGraphicsSetDefinitions.EtecoonSuper, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.DachoraEnergyRefill), [
+        new(RoomEnemyGraphicsSetDefinitions.DachoraEnergyRefill, [
             new(EnemyDefinitionId.FaceBlock),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.SporeSpawnFarming), [
+        new(RoomEnemyGraphicsSetDefinitions.SporeSpawnFarming, [
             new(EnemyDefinitionId.Zeb),
             new(EnemyDefinitionId.Zeela),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Statues), [
+        new(RoomEnemyGraphicsSetDefinitions.Statues, [
             new(EnemyDefinitionId.TourianStatue),
             new(UnplacedEnemyArtwork.TourianStatueGhosts),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.HopperEnergyTank), [
+        new(RoomEnemyGraphicsSetDefinitions.HopperEnergyTank, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.BetaPowerBomb), [
+        new(RoomEnemyGraphicsSetDefinitions.BetaPowerBomb, [
             new(EnemyDefinitionId.YappingMaw),
             new(EnemyDefinitionId.SidehopperLarge),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WaterwayEnergyTank), [
+        new(RoomEnemyGraphicsSetDefinitions.WaterwayEnergyTank, [
             new(EnemyDefinitionId.Skultera),
             new(EnemyDefinitionId.Puyo),
             new(EnemyDefinitionId.Zero),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.ConstructionZoneWhenZebesAwake), [
+        new(RoomEnemyGraphicsSetDefinitions.ConstructionZoneWhenZebesAwake, [
             new(EnemyDefinitionId.Zoomer),
             new(EnemyDefinitionId.FaceBlock),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.BlueBrinstarEnergyTankWhenZebesAwake), [
+        new(RoomEnemyGraphicsSetDefinitions.BlueBrinstarEnergyTankWhenZebesAwake, [
             new(EnemyDefinitionId.FaceBlock),
             new(EnemyDefinitionId.Zoomer),
             new(EnemyDefinitionId.Skree),
             new(EnemyDefinitionId.Rio),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.NoobBridge), [
+        new(RoomEnemyGraphicsSetDefinitions.NoobBridge, [
             new(EnemyDefinitionId.Cacatac),
             new(EnemyDefinitionId.Zeela),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.MorphBallWhenZebesAwake), [
+        new(RoomEnemyGraphicsSetDefinitions.MorphBallWhenZebesAwake, [
             new(EnemyDefinitionId.SidehopperLarge),
             new(EnemyDefinitionId.FaceBlock),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WarehouseSave), [
+        new(RoomEnemyGraphicsSetDefinitions.WarehouseSave, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.MorphBallDefault), [
+        new(RoomEnemyGraphicsSetDefinitions.MorphBallDefault, [
             new(EnemyDefinitionId.MorphBallEye),
             new(EnemyDefinitionId.FaceBlock),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WarehouseZeela), [
+        new(RoomEnemyGraphicsSetDefinitions.WarehouseZeela, [
             new(EnemyDefinitionId.Zeela),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.RedTower), [
+        new(RoomEnemyGraphicsSetDefinitions.RedTower, [
             new(EnemyDefinitionId.Ripper),
             new(EnemyDefinitionId.Beetom),
             new(EnemyDefinitionId.Geega),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.BlueBrinstarBoulders), [
+        new(RoomEnemyGraphicsSetDefinitions.BlueBrinstarBoulders, [
             new(EnemyDefinitionId.Boulder),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.BillyMays), [
+        new(RoomEnemyGraphicsSetDefinitions.BillyMays, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.BigPinkSaveRoom), [
+        new(RoomEnemyGraphicsSetDefinitions.BigPinkSaveRoom, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.BigPink), [
+        new(RoomEnemyGraphicsSetDefinitions.BigPink, [
             new(EnemyDefinitionId.Rio),
             new(EnemyDefinitionId.Sidehopper),
             new(EnemyDefinitionId.Zeb),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.EtecoonSave), [
+        new(RoomEnemyGraphicsSetDefinitions.EtecoonSave, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.BelowSpazer), [
+        new(RoomEnemyGraphicsSetDefinitions.BelowSpazer, [
             new(EnemyDefinitionId.YappingMaw),
             new(EnemyDefinitionId.Cacatac),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.GreenBrinstarSave), [
+        new(RoomEnemyGraphicsSetDefinitions.GreenBrinstarSave, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Spazer), [
+        new(RoomEnemyGraphicsSetDefinitions.Spazer, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.PinkBrinstarPowerBombs), [
+        new(RoomEnemyGraphicsSetDefinitions.PinkBrinstarPowerBombs, [
             new(EnemyDefinitionId.ShutterShootable),
             new(EnemyDefinitionId.Metaree),
             new(EnemyDefinitionId.SidehopperLarge),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.RedTowerRefill), [
+        new(RoomEnemyGraphicsSetDefinitions.RedTowerRefill, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.KraidRefill), [
+        new(RoomEnemyGraphicsSetDefinitions.KraidRefill, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.VariaSuit), [
+        new(RoomEnemyGraphicsSetDefinitions.VariaSuit, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.RedBrinstarSave), [
+        new(RoomEnemyGraphicsSetDefinitions.RedBrinstarSave, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.BlueBrinstarEnergyTankDefault), [
+        new(RoomEnemyGraphicsSetDefinitions.BlueBrinstarEnergyTankDefault, [
             new(EnemyDefinitionId.MorphBallEye),
             new(EnemyDefinitionId.FaceBlock),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.GreenBrinstarFirefleas), [
+        new(RoomEnemyGraphicsSetDefinitions.GreenBrinstarFirefleas, [
             new(EnemyDefinitionId.Fireflea),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.GreenBrinstarBeetoms), [
+        new(RoomEnemyGraphicsSetDefinitions.GreenBrinstarBeetoms, [
             new(EnemyDefinitionId.Beetom),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.EtecoonEnergyTank), [
+        new(RoomEnemyGraphicsSetDefinitions.EtecoonEnergyTank, [
             new(EnemyDefinitionId.Zebbo),
             new(EnemyDefinitionId.Beetom),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.PinkBrinstarHoppers), [
+        new(RoomEnemyGraphicsSetDefinitions.PinkBrinstarHoppers, [
             new(EnemyDefinitionId.SidehopperLarge),
             new(EnemyDefinitionId.Sidehopper),
             new(EnemyDefinitionId.ShutterShootable),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WarehouseEnergyTank), [
+        new(RoomEnemyGraphicsSetDefinitions.WarehouseEnergyTank, [
             new(EnemyDefinitionId.Beetom),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WarehouseEntrance), [
+        new(RoomEnemyGraphicsSetDefinitions.WarehouseEntrance, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WarehouseKihunter), [
+        new(RoomEnemyGraphicsSetDefinitions.WarehouseKihunter, [
             new(EnemyDefinitionId.KihunterGreen),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.GreenBrinstarMainShaft), [
+        new(RoomEnemyGraphicsSetDefinitions.GreenBrinstarMainShaft, [
             new(EnemyDefinitionId.Etecoon),
             new(EnemyDefinitionId.Zeela),
             new(EnemyDefinitionId.JetRipper),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.SporeSpawnSuper), [
+        new(RoomEnemyGraphicsSetDefinitions.SporeSpawnSuper, [
             new(EnemyDefinitionId.Zeb),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.EarlySupers), [
+        new(RoomEnemyGraphicsSetDefinitions.EarlySupers, [
             new(EnemyDefinitionId.Sidehopper),
             new(EnemyDefinitionId.ShutterGrowing),
             new(EnemyDefinitionId.Waver),
             new(EnemyDefinitionId.Zeb),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.RedBrinstarFirefleas), [
+        new(RoomEnemyGraphicsSetDefinitions.RedBrinstarFirefleas, [
             new(EnemyDefinitionId.Fireflea),
             new(EnemyDefinitionId.Waver),
             new(EnemyDefinitionId.YappingMaw),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.ConstructionZoneDefault), [
+        new(RoomEnemyGraphicsSetDefinitions.ConstructionZoneDefault, [
             new(EnemyDefinitionId.Sbug),
             new(EnemyDefinitionId.FaceBlock),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.GreenHillZone), [
+        new(RoomEnemyGraphicsSetDefinitions.GreenHillZone, [
             new(EnemyDefinitionId.Sidehopper),
             new(EnemyDefinitionId.Geega),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Dachora), [
+        new(RoomEnemyGraphicsSetDefinitions.Dachora, [
             new(EnemyDefinitionId.Zeela),
             new(EnemyDefinitionId.Metaree),
             new(EnemyDefinitionId.Rio),
             new(EnemyDefinitionId.Dachora),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Hellway), [
+        new(RoomEnemyGraphicsSetDefinitions.Hellway, [
             new(EnemyDefinitionId.Zeela),
             new(EnemyDefinitionId.Zebbo),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.FirstMissile), [
+        new(RoomEnemyGraphicsSetDefinitions.FirstMissile, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Kraid), [
+        new(RoomEnemyGraphicsSetDefinitions.Kraid, [
             new(EnemyDefinitionId.Kraid),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.BrinstarReserveTank), [
+        new(RoomEnemyGraphicsSetDefinitions.BrinstarReserveTank, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.XrayScope), [
+        new(RoomEnemyGraphicsSetDefinitions.XrayScope, [
             new(EnemyDefinitionId.ShutterShootable),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.StatuesHallway), [
+        new(RoomEnemyGraphicsSetDefinitions.StatuesHallway, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.AlphaPowerBomb), [
+        new(RoomEnemyGraphicsSetDefinitions.AlphaPowerBomb, [
             new(EnemyDefinitionId.Boyon),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.KraidEyeDoor), [
+        new(RoomEnemyGraphicsSetDefinitions.KraidEyeDoor, [
             new(EnemyDefinitionId.Zeb),
             new(EnemyDefinitionId.Sbug),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Caterpillar), [
+        new(RoomEnemyGraphicsSetDefinitions.Caterpillar, [
             new(EnemyDefinitionId.Zero),
             new(EnemyDefinitionId.Cacatac),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.MiniKraid), [
+        new(RoomEnemyGraphicsSetDefinitions.MiniKraid, [
             new(EnemyDefinitionId.PirateGreenWalking),
             new(EnemyDefinitionId.FakeKraid),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.SporeSpawn), [
+        new(RoomEnemyGraphicsSetDefinitions.SporeSpawn, [
             new(EnemyDefinitionId.SporeSpawn),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.SkreeBoost), [
+        new(RoomEnemyGraphicsSetDefinitions.SkreeBoost, [
             new(EnemyDefinitionId.Skree),
             new(EnemyDefinitionId.Boyon),
         ]),

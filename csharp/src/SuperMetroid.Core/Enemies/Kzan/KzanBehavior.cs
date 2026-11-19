@@ -140,7 +140,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         // The top lands once it reaches its falling target.
         if (place.Position.Y.Whole >= state.FallingTargetY)
         {
-            state.RiseWaitTimer = KzanMotionDefinitions.RiseWait;
+            state.RiseWaitTimer = UpdateCountdown.For(KzanMotionDefinitions.RiseWait);
             state.Action = KzanAction.WaitingToRise;
             place.Position = place.Position.WithWholeY(state.FallingTargetY);
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.KzanLandingSoundEffect, priority: SoundRequestPriority.Normal);
@@ -154,7 +154,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Counts down the landing hold (<see cref="KzanMotionDefinitions.RiseWait"/>) before switching to ascent.</summary>
     private static void RunKzanWaitingToRise(KzanEnemyState state)
     {
-        if (--state.RiseWaitTimer == 0)
+        if (state.RiseWaitTimer.StepEnds())
             state.Action = KzanAction.Rising;
     }
 

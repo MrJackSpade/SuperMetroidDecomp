@@ -5,10 +5,10 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
-/// <summary>Reads and writes the installed enemy palette sheet document.</summary>
+/// <summary>Reads and writes an enemy's colour document, import data only the import pre-colours the enemy's sheet from (#1637).</summary>
 public static class EnemyPaletteSheetFile
 {
-    /// <summary>Sixteen RGB5 colors in a complete four-bit OBJ palette, including its color-zero entry.</summary>
+    /// <summary>The colours of the cartridge's enemy palette the import decodes: a complete four-bit OBJ palette, colour zero included.</summary>
     public const int ColorCount = 16;
 
     /// <summary>Loads a version-one palette document with exactly sixteen non-null RGB5 colors, rejecting duplicate or unknown properties and channels outside 0..31; JSON property names are matched case-insensitively.</summary>

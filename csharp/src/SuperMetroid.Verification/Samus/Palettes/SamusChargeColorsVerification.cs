@@ -60,7 +60,7 @@ internal static class SamusChargeColorsVerification
         // Charge and Hyper-shot steps name shades (#1512); the import resolves them from the installed charge colours.
         var installedSources = InstalledFixtures.SamusShadeSources with { Charge = InstalledFixtures.ImportOf(original).SamusColours.Charge };
         var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-        projectiles.Charge.FlareCounter = 60;
+        projectiles.Charge.SetFlareCount(60);
         var samusColours = new SamusColours();
         ushort[] suits = [0, 1, 0x20];
         for (int family = 0; family < 2; family++)
@@ -244,7 +244,7 @@ internal static class SamusChargeColorsVerification
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose,
             EquippedBeams = SamusBeamFlags.Charge };
         var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-        projectiles.Charge.FlareCounter = 60;
+        projectiles.Charge.SetFlareCount(60);
         ushort[] suits = [0, 1, 0x20];
         for (int family = 0; family < 2; family++)
         for (int suit = 0; suit < 3; suit++)

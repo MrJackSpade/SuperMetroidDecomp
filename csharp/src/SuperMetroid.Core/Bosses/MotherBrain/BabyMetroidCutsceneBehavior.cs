@@ -115,7 +115,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         BabyMetroidCutsceneState baby = place.RequireSpeciesState<BabyMetroidCutsceneState>();
         MotherBrainEnemyState state = baby.LateFight.Encounter;
 
-        place.ShakeTimer = 0;
+        place.Shake.End();
         if (state.PendingBabyCryCount != 0 &&
             baby.Phase is BabyMetroidCutscenePhase.HealSamusToFullHealth or
                 BabyMetroidCutscenePhase.IdleUntilNoHealth)

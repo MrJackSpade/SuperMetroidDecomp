@@ -104,12 +104,6 @@ internal static class PaletteJsonContractsFixturesVerification
             Normal = Frames(1, MotherBrainRainbowPaletteGeometry.ColorCount, MotherBrainRainbowPaletteGeometry.ColorCount, false)[0],
             FakeDeathToGrey = PaletteContractRows(MotherBrainFakeDeathFadeDefinitions.FrameCount, MotherBrainRainbowPaletteGeometry.FakeDeathColors),
         }), json => _ = MotherBrainRainbowPaletteFile.Read(json));
-        yield return new("Mother Brain beam", PaletteContractDocument(new MotherBrainBeamColourDocument
-        {
-            Version = MotherBrainBeamColourFile.Version,
-            First = PaletteContractColors(1)[0],
-            Cycle = PaletteContractColors(MotherBrainRainbowPaletteGeometry.BeamCycleColorCount),
-        }), json => _ = MotherBrainBeamColourFile.Read(json));
 
         // Only the extractor sees this constructed image. No retail ROM/file is needed
         // and the imported bytes encode colors, not runtime-readable cartridge data.

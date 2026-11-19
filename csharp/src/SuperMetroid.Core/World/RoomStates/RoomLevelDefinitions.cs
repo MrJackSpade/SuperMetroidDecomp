@@ -11,737 +11,737 @@ namespace SuperMetroid.Core.World.RoomStates;
 public static class RoomLevelDefinitions
 {
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.LandingSiteDefault"/> uses first.</summary>
-    public static RoomLevelId LandingSite { get; } = new(nameof(LandingSite));
+    public static RoomLevelId LandingSite { get; } = new("LandingSite");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.GauntletEntranceDefault"/> uses first.</summary>
-    public static RoomLevelId GauntletEntrance { get; } = new(nameof(GauntletEntrance));
+    public static RoomLevelId GauntletEntrance { get; } = new("GauntletEntrance");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.ParlorDefault"/> uses first.</summary>
-    public static RoomLevelId Parlor { get; } = new(nameof(Parlor));
+    public static RoomLevelId Parlor { get; } = new("Parlor");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.CrateriaPowerBombs"/> uses first.</summary>
-    public static RoomLevelId CrateriaPowerBombs { get; } = new(nameof(CrateriaPowerBombs));
+    public static RoomLevelId CrateriaPowerBombs { get; } = new("CrateriaPowerBombs");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.CrateriaSave"/> uses first.</summary>
-    public static RoomLevelId CrateriaSave { get; } = new(nameof(CrateriaSave));
+    public static RoomLevelId CrateriaSave { get; } = new("CrateriaSave");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.WestOcean"/> uses first.</summary>
-    public static RoomLevelId WestOcean { get; } = new(nameof(WestOcean));
+    public static RoomLevelId WestOcean { get; } = new("WestOcean");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.BowlingAlleyPath"/> uses first.</summary>
-    public static RoomLevelId BowlingAlleyPath { get; } = new(nameof(BowlingAlleyPath));
+    public static RoomLevelId BowlingAlleyPath { get; } = new("BowlingAlleyPath");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.CrateriaKihunter"/> uses first.</summary>
-    public static RoomLevelId CrateriaKihunter { get; } = new(nameof(CrateriaKihunter));
+    public static RoomLevelId CrateriaKihunter { get; } = new("CrateriaKihunter");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.ForgottenHighwayElevator"/> uses first.</summary>
-    public static RoomLevelId ForgottenHighwayElevator { get; } = new(nameof(ForgottenHighwayElevator));
+    public static RoomLevelId ForgottenHighwayElevator { get; } = new("ForgottenHighwayElevator");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.EastOcean"/> uses first.</summary>
-    public static RoomLevelId EastOcean { get; } = new(nameof(EastOcean));
+    public static RoomLevelId EastOcean { get; } = new("EastOcean");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.ForgottenHighwayKagos"/> uses first.</summary>
-    public static RoomLevelId ForgottenHighwayKagos { get; } = new(nameof(ForgottenHighwayKagos));
+    public static RoomLevelId ForgottenHighwayKagos { get; } = new("ForgottenHighwayKagos");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.CrabMaze"/> uses first.</summary>
-    public static RoomLevelId CrabMaze { get; } = new(nameof(CrabMaze));
+    public static RoomLevelId CrabMaze { get; } = new("CrabMaze");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.ForgottenHighwayElbow"/> uses first.</summary>
-    public static RoomLevelId ForgottenHighwayElbow { get; } = new(nameof(ForgottenHighwayElbow));
+    public static RoomLevelId ForgottenHighwayElbow { get; } = new("ForgottenHighwayElbow");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.CrateriaTube"/> uses first.</summary>
-    public static RoomLevelId CrateriaTube { get; } = new(nameof(CrateriaTube));
+    public static RoomLevelId CrateriaTube { get; } = new("CrateriaTube");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.Moat"/> uses first.</summary>
-    public static RoomLevelId Moat { get; } = new(nameof(Moat));
+    public static RoomLevelId Moat { get; } = new("Moat");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.RedBrinstarElevator"/> uses first.</summary>
-    public static RoomLevelId RedBrinstarElevator { get; } = new(nameof(RedBrinstarElevator));
+    public static RoomLevelId RedBrinstarElevator { get; } = new("RedBrinstarElevator");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.GauntletEnergyTank"/> uses first.</summary>
-    public static RoomLevelId GauntletEnergyTank { get; } = new(nameof(GauntletEnergyTank));
+    public static RoomLevelId GauntletEnergyTank { get; } = new("GauntletEnergyTank");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.PreBowling"/> uses first.</summary>
-    public static RoomLevelId PreBowling { get; } = new(nameof(PreBowling));
+    public static RoomLevelId PreBowling { get; } = new("PreBowling");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.ClimbDefault"/> uses first.</summary>
-    public static RoomLevelId Climb { get; } = new(nameof(Climb));
+    public static RoomLevelId Climb { get; } = new("Climb");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.PitDefault"/> uses first.</summary>
-    public static RoomLevelId Pit { get; } = new(nameof(Pit));
+    public static RoomLevelId Pit { get; } = new("Pit");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.ElevatorToBlueBrinstarDefault"/> uses first.</summary>
-    public static RoomLevelId ElevatorToBlueBrinstar { get; } = new(nameof(ElevatorToBlueBrinstar));
+    public static RoomLevelId ElevatorToBlueBrinstar { get; } = new("ElevatorToBlueBrinstar");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.BombTorizoDefault"/> uses first.</summary>
-    public static RoomLevelId BombTorizo { get; } = new(nameof(BombTorizo));
+    public static RoomLevelId BombTorizo { get; } = new("BombTorizo");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.FlywayDefault"/> uses first.</summary>
-    public static RoomLevelId Flyway { get; } = new(nameof(Flyway));
+    public static RoomLevelId Flyway { get; } = new("Flyway");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.PreMapFlyway"/> uses first.</summary>
-    public static RoomLevelId PreMapFlyway { get; } = new(nameof(PreMapFlyway));
+    public static RoomLevelId PreMapFlyway { get; } = new("PreMapFlyway");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.Terminator"/> uses first.</summary>
-    public static RoomLevelId Terminator { get; } = new(nameof(Terminator));
+    public static RoomLevelId Terminator { get; } = new("Terminator");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.GreenBrinstarElevator"/> uses first.</summary>
-    public static RoomLevelId GreenBrinstarElevator { get; } = new(nameof(GreenBrinstarElevator));
+    public static RoomLevelId GreenBrinstarElevator { get; } = new("GreenBrinstarElevator");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.LowerMushrooms"/> uses first.</summary>
-    public static RoomLevelId LowerMushrooms { get; } = new(nameof(LowerMushrooms));
+    public static RoomLevelId LowerMushrooms { get; } = new("LowerMushrooms");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.CrateriaMap"/> uses first.</summary>
-    public static RoomLevelId CrateriaMap { get; } = new(nameof(CrateriaMap));
+    public static RoomLevelId CrateriaMap { get; } = new("CrateriaMap");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.GreenPiratesShaft"/> uses first.</summary>
-    public static RoomLevelId GreenPiratesShaft { get; } = new(nameof(GreenPiratesShaft));
+    public static RoomLevelId GreenPiratesShaft { get; } = new("GreenPiratesShaft");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.CrateriaSuper"/> uses first.</summary>
-    public static RoomLevelId CrateriaSuper { get; } = new(nameof(CrateriaSuper));
+    public static RoomLevelId CrateriaSuper { get; } = new("CrateriaSuper");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.FinalMissileBombwayDefault"/> uses first.</summary>
-    public static RoomLevelId FinalMissileBombway { get; } = new(nameof(FinalMissileBombway));
+    public static RoomLevelId FinalMissileBombway { get; } = new("FinalMissileBombway");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.FinalMissileDefault"/> uses first.</summary>
-    public static RoomLevelId FinalMissile { get; } = new(nameof(FinalMissile));
+    public static RoomLevelId FinalMissile { get; } = new("FinalMissile");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.GreenBrinstarMainShaft"/> uses first.</summary>
-    public static RoomLevelId GreenBrinstarMainShaft { get; } = new(nameof(GreenBrinstarMainShaft));
+    public static RoomLevelId GreenBrinstarMainShaft { get; } = new("GreenBrinstarMainShaft");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.SporeSpawnSuper"/> uses first.</summary>
-    public static RoomLevelId SporeSpawnSuper { get; } = new(nameof(SporeSpawnSuper));
+    public static RoomLevelId SporeSpawnSuper { get; } = new("SporeSpawnSuper");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.BrinstarPreMap"/> uses first.</summary>
-    public static RoomLevelId BrinstarPreMap { get; } = new(nameof(BrinstarPreMap));
+    public static RoomLevelId BrinstarPreMap { get; } = new("BrinstarPreMap");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.EarlySupers"/> uses first.</summary>
-    public static RoomLevelId EarlySupers { get; } = new(nameof(EarlySupers));
+    public static RoomLevelId EarlySupers { get; } = new("EarlySupers");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.BrinstarReserveTank"/> uses first.</summary>
-    public static RoomLevelId BrinstarReserveTank { get; } = new(nameof(BrinstarReserveTank));
+    public static RoomLevelId BrinstarReserveTank { get; } = new("BrinstarReserveTank");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.GreenBrinstarMap"/> uses first.</summary>
-    public static RoomLevelId GreenBrinstarMap { get; } = new(nameof(GreenBrinstarMap));
+    public static RoomLevelId GreenBrinstarMap { get; } = new("GreenBrinstarMap");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.GreenBrinstarFirefleas"/> uses first.</summary>
-    public static RoomLevelId GreenBrinstarFirefleas { get; } = new(nameof(GreenBrinstarFirefleas));
+    public static RoomLevelId GreenBrinstarFirefleas { get; } = new("GreenBrinstarFirefleas");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.GreenBrinstarMissileRefill"/> uses first.</summary>
-    public static RoomLevelId GreenBrinstarMissileRefill { get; } = new(nameof(GreenBrinstarMissileRefill));
+    public static RoomLevelId GreenBrinstarMissileRefill { get; } = new("GreenBrinstarMissileRefill");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.Dachora"/> uses first.</summary>
-    public static RoomLevelId Dachora { get; } = new(nameof(Dachora));
+    public static RoomLevelId Dachora { get; } = new("Dachora");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.BigPink"/> uses first.</summary>
-    public static RoomLevelId BigPink { get; } = new(nameof(BigPink));
+    public static RoomLevelId BigPink { get; } = new("BigPink");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.SporeSpawnKihunters"/> uses first.</summary>
-    public static RoomLevelId SporeSpawnKihunters { get; } = new(nameof(SporeSpawnKihunters));
+    public static RoomLevelId SporeSpawnKihunters { get; } = new("SporeSpawnKihunters");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.SporeSpawnDefault"/> uses first.</summary>
-    public static RoomLevelId SporeSpawn { get; } = new(nameof(SporeSpawn));
+    public static RoomLevelId SporeSpawn { get; } = new("SporeSpawn");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.PinkBrinstarPowerBombs"/> uses first.</summary>
-    public static RoomLevelId PinkBrinstarPowerBombs { get; } = new(nameof(PinkBrinstarPowerBombs));
+    public static RoomLevelId PinkBrinstarPowerBombs { get; } = new("PinkBrinstarPowerBombs");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.GreenHillZone"/> uses first.</summary>
-    public static RoomLevelId GreenHillZone { get; } = new(nameof(GreenHillZone));
+    public static RoomLevelId GreenHillZone { get; } = new("GreenHillZone");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.MorphBallDefault"/> uses first.</summary>
-    public static RoomLevelId MorphBall { get; } = new(nameof(MorphBall));
+    public static RoomLevelId MorphBall { get; } = new("MorphBall");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.ConstructionZoneDefault"/> uses first.</summary>
-    public static RoomLevelId ConstructionZone { get; } = new(nameof(ConstructionZone));
+    public static RoomLevelId ConstructionZone { get; } = new("ConstructionZone");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.BlueBrinstarEnergyTankDefault"/> uses first.</summary>
-    public static RoomLevelId BlueBrinstarEnergyTank { get; } = new(nameof(BlueBrinstarEnergyTank));
+    public static RoomLevelId BlueBrinstarEnergyTank { get; } = new("BlueBrinstarEnergyTank");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.NoobBridge"/> uses first.</summary>
-    public static RoomLevelId NoobBridge { get; } = new(nameof(NoobBridge));
+    public static RoomLevelId NoobBridge { get; } = new("NoobBridge");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.GreenBrinstarBeetoms"/> uses first.</summary>
-    public static RoomLevelId GreenBrinstarBeetoms { get; } = new(nameof(GreenBrinstarBeetoms));
+    public static RoomLevelId GreenBrinstarBeetoms { get; } = new("GreenBrinstarBeetoms");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.EtecoonEnergyTank"/> uses first.</summary>
-    public static RoomLevelId EtecoonEnergyTank { get; } = new(nameof(EtecoonEnergyTank));
+    public static RoomLevelId EtecoonEnergyTank { get; } = new("EtecoonEnergyTank");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.EtecoonSuper"/> uses first.</summary>
-    public static RoomLevelId EtecoonSuper { get; } = new(nameof(EtecoonSuper));
+    public static RoomLevelId EtecoonSuper { get; } = new("EtecoonSuper");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.DachoraEnergyRefill"/> uses first.</summary>
-    public static RoomLevelId DachoraEnergyRefill { get; } = new(nameof(DachoraEnergyRefill));
+    public static RoomLevelId DachoraEnergyRefill { get; } = new("DachoraEnergyRefill");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.SporeSpawnFarming"/> uses first.</summary>
-    public static RoomLevelId SporeSpawnFarming { get; } = new(nameof(SporeSpawnFarming));
+    public static RoomLevelId SporeSpawnFarming { get; } = new("SporeSpawnFarming");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.WaterwayEnergyTank"/> uses first.</summary>
-    public static RoomLevelId WaterwayEnergyTank { get; } = new(nameof(WaterwayEnergyTank));
+    public static RoomLevelId WaterwayEnergyTank { get; } = new("WaterwayEnergyTank");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.FirstMissile"/> uses first.</summary>
-    public static RoomLevelId FirstMissile { get; } = new(nameof(FirstMissile));
+    public static RoomLevelId FirstMissile { get; } = new("FirstMissile");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.PinkBrinstarHoppers"/> uses first.</summary>
-    public static RoomLevelId PinkBrinstarHoppers { get; } = new(nameof(PinkBrinstarHoppers));
+    public static RoomLevelId PinkBrinstarHoppers { get; } = new("PinkBrinstarHoppers");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.HopperEnergyTank"/> uses first.</summary>
-    public static RoomLevelId HopperEnergyTank { get; } = new(nameof(HopperEnergyTank));
+    public static RoomLevelId HopperEnergyTank { get; } = new("HopperEnergyTank");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.BlueBrinstarBoulders"/> uses first.</summary>
-    public static RoomLevelId BlueBrinstarBoulders { get; } = new(nameof(BlueBrinstarBoulders));
+    public static RoomLevelId BlueBrinstarBoulders { get; } = new("BlueBrinstarBoulders");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.BillyMays"/> uses first.</summary>
-    public static RoomLevelId BillyMays { get; } = new(nameof(BillyMays));
+    public static RoomLevelId BillyMays { get; } = new("BillyMays");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.RedTower"/> uses first.</summary>
-    public static RoomLevelId RedTower { get; } = new(nameof(RedTower));
+    public static RoomLevelId RedTower { get; } = new("RedTower");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.RedBrinstarFirefleas"/> uses first.</summary>
-    public static RoomLevelId RedBrinstarFirefleas { get; } = new(nameof(RedBrinstarFirefleas));
+    public static RoomLevelId RedBrinstarFirefleas { get; } = new("RedBrinstarFirefleas");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.XrayScope"/> uses first.</summary>
-    public static RoomLevelId XrayScope { get; } = new(nameof(XrayScope));
+    public static RoomLevelId XrayScope { get; } = new("XrayScope");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.Hellway"/> uses first.</summary>
-    public static RoomLevelId Hellway { get; } = new(nameof(Hellway));
+    public static RoomLevelId Hellway { get; } = new("Hellway");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.Caterpillar"/> uses first.</summary>
-    public static RoomLevelId Caterpillar { get; } = new(nameof(Caterpillar));
+    public static RoomLevelId Caterpillar { get; } = new("Caterpillar");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.BetaPowerBomb"/> uses first.</summary>
-    public static RoomLevelId BetaPowerBomb { get; } = new(nameof(BetaPowerBomb));
+    public static RoomLevelId BetaPowerBomb { get; } = new("BetaPowerBomb");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.AlphaPowerBomb"/> uses first.</summary>
-    public static RoomLevelId AlphaPowerBomb { get; } = new(nameof(AlphaPowerBomb));
+    public static RoomLevelId AlphaPowerBomb { get; } = new("AlphaPowerBomb");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.SkreeBoost"/> uses first.</summary>
-    public static RoomLevelId SkreeBoost { get; } = new(nameof(SkreeBoost));
+    public static RoomLevelId SkreeBoost { get; } = new("SkreeBoost");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.BelowSpazer"/> uses first.</summary>
-    public static RoomLevelId BelowSpazer { get; } = new(nameof(BelowSpazer));
+    public static RoomLevelId BelowSpazer { get; } = new("BelowSpazer");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.Spazer"/> uses first.</summary>
-    public static RoomLevelId Spazer { get; } = new(nameof(Spazer));
+    public static RoomLevelId Spazer { get; } = new("Spazer");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.WarehouseZeela"/> uses first.</summary>
-    public static RoomLevelId WarehouseZeela { get; } = new(nameof(WarehouseZeela));
+    public static RoomLevelId WarehouseZeela { get; } = new("WarehouseZeela");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.WarehouseEnergyTank"/> uses first.</summary>
-    public static RoomLevelId WarehouseEnergyTank { get; } = new(nameof(WarehouseEnergyTank));
+    public static RoomLevelId WarehouseEnergyTank { get; } = new("WarehouseEnergyTank");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.WarehouseKihunter"/> uses first.</summary>
-    public static RoomLevelId WarehouseKihunter { get; } = new(nameof(WarehouseKihunter));
+    public static RoomLevelId WarehouseKihunter { get; } = new("WarehouseKihunter");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.MiniKraidDefault"/> uses first.</summary>
-    public static RoomLevelId MiniKraid { get; } = new(nameof(MiniKraid));
+    public static RoomLevelId MiniKraid { get; } = new("MiniKraid");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.KraidEyeDoor"/> uses first.</summary>
-    public static RoomLevelId KraidEyeDoor { get; } = new(nameof(KraidEyeDoor));
+    public static RoomLevelId KraidEyeDoor { get; } = new("KraidEyeDoor");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.KraidDefault"/> uses first.</summary>
-    public static RoomLevelId Kraid { get; } = new(nameof(Kraid));
+    public static RoomLevelId Kraid { get; } = new("Kraid");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.StatuesHallway"/> uses first.</summary>
-    public static RoomLevelId StatuesHallway { get; } = new(nameof(StatuesHallway));
+    public static RoomLevelId StatuesHallway { get; } = new("StatuesHallway");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.KraidRefill"/> uses first.</summary>
-    public static RoomLevelId KraidRefill { get; } = new(nameof(KraidRefill));
+    public static RoomLevelId KraidRefill { get; } = new("KraidRefill");
 
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.Statues"/> uses first.</summary>
-    public static RoomLevelId Statues { get; } = new(nameof(Statues));
+    public static RoomLevelId Statues { get; } = new("Statues");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.WarehouseEntrance"/> uses first.</summary>
-    public static RoomLevelId WarehouseEntrance { get; } = new(nameof(WarehouseEntrance));
+    public static RoomLevelId WarehouseEntrance { get; } = new("WarehouseEntrance");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.VariaSuit"/> uses first.</summary>
-    public static RoomLevelId VariaSuit { get; } = new(nameof(VariaSuit));
+    public static RoomLevelId VariaSuit { get; } = new("VariaSuit");
 
     /// <summary>The level the Brinstar state <see cref="BrinstarRoomStateDefinitions.WarehouseSave"/> uses first.</summary>
-    public static RoomLevelId WarehouseSave { get; } = new(nameof(WarehouseSave));
+    public static RoomLevelId WarehouseSave { get; } = new("WarehouseSave");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.IceBeamAcid"/> uses first.</summary>
-    public static RoomLevelId IceBeamAcid { get; } = new(nameof(IceBeamAcid));
+    public static RoomLevelId IceBeamAcid { get; } = new("IceBeamAcid");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.Cathedral"/> uses first.</summary>
-    public static RoomLevelId Cathedral { get; } = new(nameof(Cathedral));
+    public static RoomLevelId Cathedral { get; } = new("Cathedral");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.CathedralEntrance"/> uses first.</summary>
-    public static RoomLevelId CathedralEntrance { get; } = new(nameof(CathedralEntrance));
+    public static RoomLevelId CathedralEntrance { get; } = new("CathedralEntrance");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.BusinessCenter"/> uses first.</summary>
-    public static RoomLevelId BusinessCenter { get; } = new(nameof(BusinessCenter));
+    public static RoomLevelId BusinessCenter { get; } = new("BusinessCenter");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.IceBeamGate"/> uses first.</summary>
-    public static RoomLevelId IceBeamGate { get; } = new(nameof(IceBeamGate));
+    public static RoomLevelId IceBeamGate { get; } = new("IceBeamGate");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.IceBeamTutorial"/> uses first.</summary>
-    public static RoomLevelId IceBeamTutorial { get; } = new(nameof(IceBeamTutorial));
+    public static RoomLevelId IceBeamTutorial { get; } = new("IceBeamTutorial");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.IceBeam"/> uses first.</summary>
-    public static RoomLevelId IceBeam { get; } = new(nameof(IceBeam));
+    public static RoomLevelId IceBeam { get; } = new("IceBeam");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.IceBeamSnake"/> uses first.</summary>
-    public static RoomLevelId IceBeamSnake { get; } = new(nameof(IceBeamSnake));
+    public static RoomLevelId IceBeamSnake { get; } = new("IceBeamSnake");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.CrumbleShaft"/> uses first.</summary>
-    public static RoomLevelId CrumbleShaft { get; } = new(nameof(CrumbleShaft));
+    public static RoomLevelId CrumbleShaft { get; } = new("CrumbleShaft");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.CrocomireSpeedway"/> uses first.</summary>
-    public static RoomLevelId CrocomireSpeedway { get; } = new(nameof(CrocomireSpeedway));
+    public static RoomLevelId CrocomireSpeedway { get; } = new("CrocomireSpeedway");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.CrocomireDefault"/> uses first.</summary>
-    public static RoomLevelId Crocomire { get; } = new(nameof(Crocomire));
+    public static RoomLevelId Crocomire { get; } = new("Crocomire");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.HiJumpBoots"/> uses first.</summary>
-    public static RoomLevelId HiJumpBoots { get; } = new(nameof(HiJumpBoots));
+    public static RoomLevelId HiJumpBoots { get; } = new("HiJumpBoots");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.CrocomireEscape"/> uses first.</summary>
-    public static RoomLevelId CrocomireEscape { get; } = new(nameof(CrocomireEscape));
+    public static RoomLevelId CrocomireEscape { get; } = new("CrocomireEscape");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.HiJumpEnergyTank"/> uses first.</summary>
-    public static RoomLevelId HiJumpEnergyTank { get; } = new(nameof(HiJumpEnergyTank));
+    public static RoomLevelId HiJumpEnergyTank { get; } = new("HiJumpEnergyTank");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.PostCrocomireFarming"/> uses first.</summary>
-    public static RoomLevelId PostCrocomireFarming { get; } = new(nameof(PostCrocomireFarming));
+    public static RoomLevelId PostCrocomireFarming { get; } = new("PostCrocomireFarming");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.PostCrocomirePowerBombs"/> uses first.</summary>
-    public static RoomLevelId PostCrocomirePowerBombs { get; } = new(nameof(PostCrocomirePowerBombs));
+    public static RoomLevelId PostCrocomirePowerBombs { get; } = new("PostCrocomirePowerBombs");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.PostCrocomireShaft"/> uses first.</summary>
-    public static RoomLevelId PostCrocomireShaft { get; } = new(nameof(PostCrocomireShaft));
+    public static RoomLevelId PostCrocomireShaft { get; } = new("PostCrocomireShaft");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.PostCrocomireMissile"/> uses first.</summary>
-    public static RoomLevelId PostCrocomireMissile { get; } = new(nameof(PostCrocomireMissile));
+    public static RoomLevelId PostCrocomireMissile { get; } = new("PostCrocomireMissile");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.GrappleTutorial3"/> uses first.</summary>
-    public static RoomLevelId GrappleTutorial3 { get; } = new(nameof(GrappleTutorial3));
+    public static RoomLevelId GrappleTutorial3 { get; } = new("GrappleTutorial3");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.PostCrocomireJump"/> uses first.</summary>
-    public static RoomLevelId PostCrocomireJump { get; } = new(nameof(PostCrocomireJump));
+    public static RoomLevelId PostCrocomireJump { get; } = new("PostCrocomireJump");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.GrappleTutorial2"/> uses first.</summary>
-    public static RoomLevelId GrappleTutorial2 { get; } = new(nameof(GrappleTutorial2));
+    public static RoomLevelId GrappleTutorial2 { get; } = new("GrappleTutorial2");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.GrappleTutorial1"/> uses first.</summary>
-    public static RoomLevelId GrappleTutorial1 { get; } = new(nameof(GrappleTutorial1));
+    public static RoomLevelId GrappleTutorial1 { get; } = new("GrappleTutorial1");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.GrappleBeam"/> uses first.</summary>
-    public static RoomLevelId GrappleBeam { get; } = new(nameof(GrappleBeam));
+    public static RoomLevelId GrappleBeam { get; } = new("GrappleBeam");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.NorfairReserveTank"/> uses first.</summary>
-    public static RoomLevelId NorfairReserveTank { get; } = new(nameof(NorfairReserveTank));
+    public static RoomLevelId NorfairReserveTank { get; } = new("NorfairReserveTank");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.GreenBubblesMissiles"/> uses first.</summary>
-    public static RoomLevelId GreenBubblesMissiles { get; } = new(nameof(GreenBubblesMissiles));
+    public static RoomLevelId GreenBubblesMissiles { get; } = new("GreenBubblesMissiles");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.BubbleMountain"/> uses first.</summary>
-    public static RoomLevelId BubbleMountain { get; } = new(nameof(BubbleMountain));
+    public static RoomLevelId BubbleMountain { get; } = new("BubbleMountain");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.SpeedBoosterHall"/> uses first.</summary>
-    public static RoomLevelId SpeedBoosterHall { get; } = new(nameof(SpeedBoosterHall));
+    public static RoomLevelId SpeedBoosterHall { get; } = new("SpeedBoosterHall");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.SpeedBooster"/> uses first.</summary>
-    public static RoomLevelId SpeedBooster { get; } = new(nameof(SpeedBooster));
+    public static RoomLevelId SpeedBooster { get; } = new("SpeedBooster");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.SingleChamber"/> uses first.</summary>
-    public static RoomLevelId SingleChamber { get; } = new(nameof(SingleChamber));
+    public static RoomLevelId SingleChamber { get; } = new("SingleChamber");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.DoubleChamber"/> uses first.</summary>
-    public static RoomLevelId DoubleChamber { get; } = new(nameof(DoubleChamber));
+    public static RoomLevelId DoubleChamber { get; } = new("DoubleChamber");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.WaveBeam"/> uses first.</summary>
-    public static RoomLevelId WaveBeam { get; } = new(nameof(WaveBeam));
+    public static RoomLevelId WaveBeam { get; } = new("WaveBeam");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.SpikyPlatformsTunnel"/> uses first.</summary>
-    public static RoomLevelId SpikyPlatformsTunnel { get; } = new(nameof(SpikyPlatformsTunnel));
+    public static RoomLevelId SpikyPlatformsTunnel { get; } = new("SpikyPlatformsTunnel");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.Volcano"/> uses first.</summary>
-    public static RoomLevelId Volcano { get; } = new(nameof(Volcano));
+    public static RoomLevelId Volcano { get; } = new("Volcano");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.KronicBoost"/> uses first.</summary>
-    public static RoomLevelId KronicBoost { get; } = new(nameof(KronicBoost));
+    public static RoomLevelId KronicBoost { get; } = new("KronicBoost");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.MagdolliteTunnel"/> uses first.</summary>
-    public static RoomLevelId MagdolliteTunnel { get; } = new(nameof(MagdolliteTunnel));
+    public static RoomLevelId MagdolliteTunnel { get; } = new("MagdolliteTunnel");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.PurpleShaft"/> uses first.</summary>
-    public static RoomLevelId PurpleShaft { get; } = new(nameof(PurpleShaft));
+    public static RoomLevelId PurpleShaft { get; } = new("PurpleShaft");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.LavaDive"/> uses first.</summary>
-    public static RoomLevelId LavaDive { get; } = new(nameof(LavaDive));
+    public static RoomLevelId LavaDive { get; } = new("LavaDive");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.LowerNorfairElevator"/> uses first.</summary>
-    public static RoomLevelId LowerNorfairElevator { get; } = new(nameof(LowerNorfairElevator));
+    public static RoomLevelId LowerNorfairElevator { get; } = new("LowerNorfairElevator");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.UpperNorfairFarming"/> uses first.</summary>
-    public static RoomLevelId UpperNorfairFarming { get; } = new(nameof(UpperNorfairFarming));
+    public static RoomLevelId UpperNorfairFarming { get; } = new("UpperNorfairFarming");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.RisingTide"/> uses first.</summary>
-    public static RoomLevelId RisingTide { get; } = new(nameof(RisingTide));
+    public static RoomLevelId RisingTide { get; } = new("RisingTide");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.AcidSnakesTunnel"/> uses first.</summary>
-    public static RoomLevelId AcidSnakesTunnel { get; } = new(nameof(AcidSnakesTunnel));
+    public static RoomLevelId AcidSnakesTunnel { get; } = new("AcidSnakesTunnel");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.SpikyAcidSnakesTunnel"/> uses first.</summary>
-    public static RoomLevelId SpikyAcidSnakesTunnel { get; } = new(nameof(SpikyAcidSnakesTunnel));
+    public static RoomLevelId SpikyAcidSnakesTunnel { get; } = new("SpikyAcidSnakesTunnel");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.UpperNorfairRefill"/> uses first.</summary>
-    public static RoomLevelId UpperNorfairRefill { get; } = new(nameof(UpperNorfairRefill));
+    public static RoomLevelId UpperNorfairRefill { get; } = new("UpperNorfairRefill");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.PurpleFarming"/> uses first.</summary>
-    public static RoomLevelId PurpleFarming { get; } = new(nameof(PurpleFarming));
+    public static RoomLevelId PurpleFarming { get; } = new("PurpleFarming");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.BatCave"/> uses first.</summary>
-    public static RoomLevelId BatCave { get; } = new(nameof(BatCave));
+    public static RoomLevelId BatCave { get; } = new("BatCave");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.FrogSpeedway"/> uses first.</summary>
-    public static RoomLevelId FrogSpeedway { get; } = new(nameof(FrogSpeedway));
+    public static RoomLevelId FrogSpeedway { get; } = new("FrogSpeedway");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.RedPirateShaft"/> uses first.</summary>
-    public static RoomLevelId RedPirateShaft { get; } = new(nameof(RedPirateShaft));
+    public static RoomLevelId RedPirateShaft { get; } = new("RedPirateShaft");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.FrogSave"/> uses first.</summary>
-    public static RoomLevelId FrogSave { get; } = new(nameof(FrogSave));
+    public static RoomLevelId FrogSave { get; } = new("FrogSave");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.AcidStatue"/> uses first.</summary>
-    public static RoomLevelId AcidStatue { get; } = new(nameof(AcidStatue));
+    public static RoomLevelId AcidStatue { get; } = new("AcidStatue");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.MainHall"/> uses first.</summary>
-    public static RoomLevelId MainHall { get; } = new(nameof(MainHall));
+    public static RoomLevelId MainHall { get; } = new("MainHall");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.GoldenTorizoDefault"/> uses first.</summary>
-    public static RoomLevelId GoldenTorizo { get; } = new(nameof(GoldenTorizo));
+    public static RoomLevelId GoldenTorizo { get; } = new("GoldenTorizo");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.FastRipper"/> uses first.</summary>
-    public static RoomLevelId FastRipper { get; } = new(nameof(FastRipper));
+    public static RoomLevelId FastRipper { get; } = new("FastRipper");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.GoldenTorizoEnergyRefill"/> uses first.</summary>
-    public static RoomLevelId GoldenTorizoEnergyRefill { get; } = new(nameof(GoldenTorizoEnergyRefill));
+    public static RoomLevelId GoldenTorizoEnergyRefill { get; } = new("GoldenTorizoEnergyRefill");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.RidleyDefault"/> uses first.</summary>
-    public static RoomLevelId Ridley { get; } = new(nameof(Ridley));
+    public static RoomLevelId Ridley { get; } = new("Ridley");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.LowerNorfairFarming"/> uses first.</summary>
-    public static RoomLevelId LowerNorfairFarming { get; } = new(nameof(LowerNorfairFarming));
+    public static RoomLevelId LowerNorfairFarming { get; } = new("LowerNorfairFarming");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.FastPillarsSetup"/> uses first.</summary>
-    public static RoomLevelId FastPillarsSetup { get; } = new(nameof(FastPillarsSetup));
+    public static RoomLevelId FastPillarsSetup { get; } = new("FastPillarsSetup");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.MickeyMouse"/> uses first.</summary>
-    public static RoomLevelId MickeyMouse { get; } = new(nameof(MickeyMouse));
+    public static RoomLevelId MickeyMouse { get; } = new("MickeyMouse");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.Pillar"/> uses first.</summary>
-    public static RoomLevelId Pillar { get; } = new(nameof(Pillar));
+    public static RoomLevelId Pillar { get; } = new("Pillar");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.Plowerhouse"/> uses first.</summary>
-    public static RoomLevelId Plowerhouse { get; } = new(nameof(Plowerhouse));
+    public static RoomLevelId Plowerhouse { get; } = new("Plowerhouse");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.WorstRoomInTheGame"/> uses first.</summary>
-    public static RoomLevelId WorstRoomInTheGame { get; } = new(nameof(WorstRoomInTheGame));
+    public static RoomLevelId WorstRoomInTheGame { get; } = new("WorstRoomInTheGame");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.Amphitheatre"/> uses first.</summary>
-    public static RoomLevelId Amphitheatre { get; } = new(nameof(Amphitheatre));
+    public static RoomLevelId Amphitheatre { get; } = new("Amphitheatre");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.LowerNorfairSpringBallMaze"/> uses first.</summary>
-    public static RoomLevelId LowerNorfairSpringBallMaze { get; } = new(nameof(LowerNorfairSpringBallMaze));
+    public static RoomLevelId LowerNorfairSpringBallMaze { get; } = new("LowerNorfairSpringBallMaze");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.LowerNorfairEscapePowerBombs"/> uses first.</summary>
-    public static RoomLevelId LowerNorfairEscapePowerBombs { get; } = new(nameof(LowerNorfairEscapePowerBombs));
+    public static RoomLevelId LowerNorfairEscapePowerBombs { get; } = new("LowerNorfairEscapePowerBombs");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.RedKihunterShaft"/> uses first.</summary>
-    public static RoomLevelId RedKihunterShaft { get; } = new(nameof(RedKihunterShaft));
+    public static RoomLevelId RedKihunterShaft { get; } = new("RedKihunterShaft");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.Wasteland"/> uses first.</summary>
-    public static RoomLevelId Wasteland { get; } = new(nameof(Wasteland));
+    public static RoomLevelId Wasteland { get; } = new("Wasteland");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.MetalPirates"/> uses first.</summary>
-    public static RoomLevelId MetalPirates { get; } = new(nameof(MetalPirates));
+    public static RoomLevelId MetalPirates { get; } = new("MetalPirates");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.ThreeMusketeers"/> uses first.</summary>
-    public static RoomLevelId ThreeMusketeers { get; } = new(nameof(ThreeMusketeers));
+    public static RoomLevelId ThreeMusketeers { get; } = new("ThreeMusketeers");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.RidleyEnergyTank"/> uses first.</summary>
-    public static RoomLevelId RidleyEnergyTank { get; } = new(nameof(RidleyEnergyTank));
+    public static RoomLevelId RidleyEnergyTank { get; } = new("RidleyEnergyTank");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.ScrewAttack"/> uses first.</summary>
-    public static RoomLevelId ScrewAttack { get; } = new(nameof(ScrewAttack));
+    public static RoomLevelId ScrewAttack { get; } = new("ScrewAttack");
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.LowerNorfairFireflea"/> uses first.</summary>
-    public static RoomLevelId LowerNorfairFireflea { get; } = new(nameof(LowerNorfairFireflea));
+    public static RoomLevelId LowerNorfairFireflea { get; } = new("LowerNorfairFireflea");
 
     /// <summary>The level the WreckedShip state <see cref="WreckedShipRoomStateDefinitions.BowlingAlleyDefault"/> uses first.</summary>
-    public static RoomLevelId BowlingAlley { get; } = new(nameof(BowlingAlley));
+    public static RoomLevelId BowlingAlley { get; } = new("BowlingAlley");
 
     /// <summary>The level the WreckedShip state <see cref="WreckedShipRoomStateDefinitions.WreckedShipEntranceDefault"/> uses first.</summary>
-    public static RoomLevelId WreckedShipEntrance { get; } = new(nameof(WreckedShipEntrance));
+    public static RoomLevelId WreckedShipEntrance { get; } = new("WreckedShipEntrance");
 
     /// <summary>The level the WreckedShip state <see cref="WreckedShipRoomStateDefinitions.AtticDefault"/> uses first.</summary>
-    public static RoomLevelId AtticDefault { get; } = new(nameof(AtticDefault));
+    public static RoomLevelId AtticDefault { get; } = new("AtticDefault");
 
     /// <summary>The level the WreckedShip state <see cref="WreckedShipRoomStateDefinitions.AtticWhenAreaBossDead"/> uses first.</summary>
-    public static RoomLevelId AtticWhenAreaBossDead { get; } = new(nameof(AtticWhenAreaBossDead));
+    public static RoomLevelId AtticWhenAreaBossDead { get; } = new("AtticWhenAreaBossDead");
 
     /// <summary>The level the WreckedShip state <see cref="WreckedShipRoomStateDefinitions.AssemblyLineDefault"/> uses first.</summary>
-    public static RoomLevelId AssemblyLine { get; } = new(nameof(AssemblyLine));
+    public static RoomLevelId AssemblyLine { get; } = new("AssemblyLine");
 
     /// <summary>The level the WreckedShip state <see cref="WreckedShipRoomStateDefinitions.WreckedShipMainShaftDefault"/> uses first.</summary>
-    public static RoomLevelId WreckedShipMainShaftDefault { get; } = new(nameof(WreckedShipMainShaftDefault));
+    public static RoomLevelId WreckedShipMainShaftDefault { get; } = new("WreckedShipMainShaftDefault");
 
     /// <summary>The level the WreckedShip state <see cref="WreckedShipRoomStateDefinitions.WreckedShipMainShaftWhenAreaBossDead"/> uses first.</summary>
-    public static RoomLevelId WreckedShipMainShaftWhenAreaBossDead { get; } = new(nameof(WreckedShipMainShaftWhenAreaBossDead));
+    public static RoomLevelId WreckedShipMainShaftWhenAreaBossDead { get; } = new("WreckedShipMainShaftWhenAreaBossDead");
 
     /// <summary>The level the WreckedShip state <see cref="WreckedShipRoomStateDefinitions.SpikyDeathDefault"/> uses first.</summary>
-    public static RoomLevelId SpikyDeath { get; } = new(nameof(SpikyDeath));
+    public static RoomLevelId SpikyDeath { get; } = new("SpikyDeath");
 
     /// <summary>The level the WreckedShip state <see cref="WreckedShipRoomStateDefinitions.ElectricDeathDefault"/> uses first.</summary>
-    public static RoomLevelId ElectricDeath { get; } = new(nameof(ElectricDeath));
+    public static RoomLevelId ElectricDeath { get; } = new("ElectricDeath");
 
     /// <summary>The level the WreckedShip state <see cref="WreckedShipRoomStateDefinitions.WreckedShipEnergyTankDefault"/> uses first.</summary>
-    public static RoomLevelId WreckedShipEnergyTank { get; } = new(nameof(WreckedShipEnergyTank));
+    public static RoomLevelId WreckedShipEnergyTank { get; } = new("WreckedShipEnergyTank");
 
     /// <summary>The level the WreckedShip state <see cref="WreckedShipRoomStateDefinitions.BasementDefault"/> uses first.</summary>
-    public static RoomLevelId Basement { get; } = new(nameof(Basement));
+    public static RoomLevelId Basement { get; } = new("Basement");
 
     /// <summary>The level the WreckedShip state <see cref="WreckedShipRoomStateDefinitions.PhantoonDefault"/> uses first.</summary>
-    public static RoomLevelId Phantoon { get; } = new(nameof(Phantoon));
+    public static RoomLevelId Phantoon { get; } = new("Phantoon");
 
     /// <summary>The level the WreckedShip state <see cref="WreckedShipRoomStateDefinitions.SpongeBathDefault"/> uses first.</summary>
-    public static RoomLevelId SpongeBath { get; } = new(nameof(SpongeBath));
+    public static RoomLevelId SpongeBath { get; } = new("SpongeBath");
 
     /// <summary>The level the WreckedShip state <see cref="WreckedShipRoomStateDefinitions.WreckedShipWestSuperDefault"/> uses first.</summary>
-    public static RoomLevelId WreckedShipWestSuper { get; } = new(nameof(WreckedShipWestSuper));
+    public static RoomLevelId WreckedShipWestSuper { get; } = new("WreckedShipWestSuper");
 
     /// <summary>The level the WreckedShip state <see cref="WreckedShipRoomStateDefinitions.WreckedShipEastSuperDefault"/> uses first.</summary>
-    public static RoomLevelId WreckedShipEastSuperDefault { get; } = new(nameof(WreckedShipEastSuperDefault));
+    public static RoomLevelId WreckedShipEastSuperDefault { get; } = new("WreckedShipEastSuperDefault");
 
     /// <summary>The level the WreckedShip state <see cref="WreckedShipRoomStateDefinitions.WreckedShipEastSuperWhenAreaBossDead"/> uses first.</summary>
-    public static RoomLevelId WreckedShipEastSuperWhenAreaBossDead { get; } = new(nameof(WreckedShipEastSuperWhenAreaBossDead));
+    public static RoomLevelId WreckedShipEastSuperWhenAreaBossDead { get; } = new("WreckedShipEastSuperWhenAreaBossDead");
 
     /// <summary>The level the WreckedShip state <see cref="WreckedShipRoomStateDefinitions.GravitySuitDefault"/> uses first.</summary>
-    public static RoomLevelId GravitySuit { get; } = new(nameof(GravitySuit));
+    public static RoomLevelId GravitySuit { get; } = new("GravitySuit");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.GlassTunnelDefault"/> uses first.</summary>
-    public static RoomLevelId GlassTunnelDefault { get; } = new(nameof(GlassTunnelDefault));
+    public static RoomLevelId GlassTunnelDefault { get; } = new("GlassTunnelDefault");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.GlassTunnelWhenMaridiaNoobTubeBroken"/> uses first.</summary>
-    public static RoomLevelId GlassTunnelWhenMaridiaNoobTubeBroken { get; } = new(nameof(GlassTunnelWhenMaridiaNoobTubeBroken));
+    public static RoomLevelId GlassTunnelWhenMaridiaNoobTubeBroken { get; } = new("GlassTunnelWhenMaridiaNoobTubeBroken");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.WestTunnel"/> uses first.</summary>
-    public static RoomLevelId WestTunnel { get; } = new(nameof(WestTunnel));
+    public static RoomLevelId WestTunnel { get; } = new("WestTunnel");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.EastTunnel"/> uses first.</summary>
-    public static RoomLevelId EastTunnel { get; } = new(nameof(EastTunnel));
+    public static RoomLevelId EastTunnel { get; } = new("EastTunnel");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.MainStreet"/> uses first.</summary>
-    public static RoomLevelId MainStreet { get; } = new(nameof(MainStreet));
+    public static RoomLevelId MainStreet { get; } = new("MainStreet");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.FishTank"/> uses first.</summary>
-    public static RoomLevelId FishTank { get; } = new(nameof(FishTank));
+    public static RoomLevelId FishTank { get; } = new("FishTank");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.MamaTurtle"/> uses first.</summary>
-    public static RoomLevelId MamaTurtle { get; } = new(nameof(MamaTurtle));
+    public static RoomLevelId MamaTurtle { get; } = new("MamaTurtle");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.CrabTunnel"/> uses first.</summary>
-    public static RoomLevelId CrabTunnel { get; } = new(nameof(CrabTunnel));
+    public static RoomLevelId CrabTunnel { get; } = new("CrabTunnel");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.MtEverest"/> uses first.</summary>
-    public static RoomLevelId MtEverest { get; } = new(nameof(MtEverest));
+    public static RoomLevelId MtEverest { get; } = new("MtEverest");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.RedFish"/> uses first.</summary>
-    public static RoomLevelId RedFish { get; } = new(nameof(RedFish));
+    public static RoomLevelId RedFish { get; } = new("RedFish");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.WateringHole"/> uses first.</summary>
-    public static RoomLevelId WateringHole { get; } = new(nameof(WateringHole));
+    public static RoomLevelId WateringHole { get; } = new("WateringHole");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.NorthwestMaridiaBug"/> uses first.</summary>
-    public static RoomLevelId NorthwestMaridiaBug { get; } = new(nameof(NorthwestMaridiaBug));
+    public static RoomLevelId NorthwestMaridiaBug { get; } = new("NorthwestMaridiaBug");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.CrabShaft"/> uses first.</summary>
-    public static RoomLevelId CrabShaft { get; } = new(nameof(CrabShaft));
+    public static RoomLevelId CrabShaft { get; } = new("CrabShaft");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.PseudoPlasmaSpark"/> uses first.</summary>
-    public static RoomLevelId PseudoPlasmaSpark { get; } = new(nameof(PseudoPlasmaSpark));
+    public static RoomLevelId PseudoPlasmaSpark { get; } = new("PseudoPlasmaSpark");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.CrabHole"/> uses first.</summary>
-    public static RoomLevelId CrabHole { get; } = new(nameof(CrabHole));
+    public static RoomLevelId CrabHole { get; } = new("CrabHole");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.WestSandHallTunnel"/> uses first.</summary>
-    public static RoomLevelId WestSandHallTunnel { get; } = new(nameof(WestSandHallTunnel));
+    public static RoomLevelId WestSandHallTunnel { get; } = new("WestSandHallTunnel");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.PlasmaTutorial"/> uses first.</summary>
-    public static RoomLevelId PlasmaTutorial { get; } = new(nameof(PlasmaTutorial));
+    public static RoomLevelId PlasmaTutorial { get; } = new("PlasmaTutorial");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.Plasma"/> uses first.</summary>
-    public static RoomLevelId Plasma { get; } = new(nameof(Plasma));
+    public static RoomLevelId Plasma { get; } = new("Plasma");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.ThreadTheNeedle"/> uses first.</summary>
-    public static RoomLevelId ThreadTheNeedle { get; } = new(nameof(ThreadTheNeedle));
+    public static RoomLevelId ThreadTheNeedle { get; } = new("ThreadTheNeedle");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.MaridiaElevator"/> uses first.</summary>
-    public static RoomLevelId MaridiaElevator { get; } = new(nameof(MaridiaElevator));
+    public static RoomLevelId MaridiaElevator { get; } = new("MaridiaElevator");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.PlasmaSpark"/> uses first.</summary>
-    public static RoomLevelId PlasmaSpark { get; } = new(nameof(PlasmaSpark));
+    public static RoomLevelId PlasmaSpark { get; } = new("PlasmaSpark");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.Kassiuz"/> uses first.</summary>
-    public static RoomLevelId Kassiuz { get; } = new(nameof(Kassiuz));
+    public static RoomLevelId Kassiuz { get; } = new("Kassiuz");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.Toilet"/> uses first.</summary>
-    public static RoomLevelId Toilet { get; } = new(nameof(Toilet));
+    public static RoomLevelId Toilet { get; } = new("Toilet");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.BugSandHole"/> uses first.</summary>
-    public static RoomLevelId BugSandHole { get; } = new(nameof(BugSandHole));
+    public static RoomLevelId BugSandHole { get; } = new("BugSandHole");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.WestSandHall"/> uses first.</summary>
-    public static RoomLevelId WestSandHall { get; } = new(nameof(WestSandHall));
+    public static RoomLevelId WestSandHall { get; } = new("WestSandHall");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.Oasis"/> uses first.</summary>
-    public static RoomLevelId Oasis { get; } = new(nameof(Oasis));
+    public static RoomLevelId Oasis { get; } = new("Oasis");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.EastSandHall"/> uses first.</summary>
-    public static RoomLevelId EastSandHall { get; } = new(nameof(EastSandHall));
+    public static RoomLevelId EastSandHall { get; } = new("EastSandHall");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.WestSandHole"/> uses first.</summary>
-    public static RoomLevelId WestSandHole { get; } = new(nameof(WestSandHole));
+    public static RoomLevelId WestSandHole { get; } = new("WestSandHole");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.EastSandHole"/> uses first.</summary>
-    public static RoomLevelId EastSandHole { get; } = new(nameof(EastSandHole));
+    public static RoomLevelId EastSandHole { get; } = new("EastSandHole");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.WestAqueductQuicksand"/> uses first.</summary>
-    public static RoomLevelId WestAqueductQuicksand { get; } = new(nameof(WestAqueductQuicksand));
+    public static RoomLevelId WestAqueductQuicksand { get; } = new("WestAqueductQuicksand");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.EastAqueductQuicksand"/> uses first.</summary>
-    public static RoomLevelId EastAqueductQuicksand { get; } = new(nameof(EastAqueductQuicksand));
+    public static RoomLevelId EastAqueductQuicksand { get; } = new("EastAqueductQuicksand");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.Aqueduct"/> uses first.</summary>
-    public static RoomLevelId Aqueduct { get; } = new(nameof(Aqueduct));
+    public static RoomLevelId Aqueduct { get; } = new("Aqueduct");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.Butterfly"/> uses first.</summary>
-    public static RoomLevelId Butterfly { get; } = new(nameof(Butterfly));
+    public static RoomLevelId Butterfly { get; } = new("Butterfly");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.BotwoonHallway"/> uses first.</summary>
-    public static RoomLevelId BotwoonHallway { get; } = new(nameof(BotwoonHallway));
+    public static RoomLevelId BotwoonHallway { get; } = new("BotwoonHallway");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.Pants"/> uses first.</summary>
-    public static RoomLevelId Pants { get; } = new(nameof(Pants));
+    public static RoomLevelId Pants { get; } = new("Pants");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.EastPants"/> uses first.</summary>
-    public static RoomLevelId EastPants { get; } = new(nameof(EastPants));
+    public static RoomLevelId EastPants { get; } = new("EastPants");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.Springball"/> uses first.</summary>
-    public static RoomLevelId Springball { get; } = new(nameof(Springball));
+    public static RoomLevelId Springball { get; } = new("Springball");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.BelowBotwoonEnergyTank"/> uses first.</summary>
-    public static RoomLevelId BelowBotwoonEnergyTank { get; } = new(nameof(BelowBotwoonEnergyTank));
+    public static RoomLevelId BelowBotwoonEnergyTank { get; } = new("BelowBotwoonEnergyTank");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.Colosseum"/> uses first.</summary>
-    public static RoomLevelId Colosseum { get; } = new(nameof(Colosseum));
+    public static RoomLevelId Colosseum { get; } = new("Colosseum");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.ThePreciousDefault"/> uses first.</summary>
-    public static RoomLevelId ThePrecious { get; } = new(nameof(ThePrecious));
+    public static RoomLevelId ThePrecious { get; } = new("ThePrecious");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.BotwoonEnergyTank"/> uses first.</summary>
-    public static RoomLevelId BotwoonEnergyTank { get; } = new(nameof(BotwoonEnergyTank));
+    public static RoomLevelId BotwoonEnergyTank { get; } = new("BotwoonEnergyTank");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.MaridiaMissileRefill"/> uses first.</summary>
-    public static RoomLevelId MaridiaMissileRefill { get; } = new(nameof(MaridiaMissileRefill));
+    public static RoomLevelId MaridiaMissileRefill { get; } = new("MaridiaMissileRefill");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.PlasmaBeachQuicksand"/> uses first.</summary>
-    public static RoomLevelId PlasmaBeachQuicksand { get; } = new(nameof(PlasmaBeachQuicksand));
+    public static RoomLevelId PlasmaBeachQuicksand { get; } = new("PlasmaBeachQuicksand");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.BotwoonQuicksand"/> uses first.</summary>
-    public static RoomLevelId BotwoonQuicksand { get; } = new(nameof(BotwoonQuicksand));
+    public static RoomLevelId BotwoonQuicksand { get; } = new("BotwoonQuicksand");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.ShaktoolDefault"/> uses first.</summary>
-    public static RoomLevelId ShaktoolDefault { get; } = new(nameof(ShaktoolDefault));
+    public static RoomLevelId ShaktoolDefault { get; } = new("ShaktoolDefault");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.ShaktoolWhenShaktoolClearedPath"/> uses first.</summary>
-    public static RoomLevelId ShaktoolWhenShaktoolClearedPath { get; } = new(nameof(ShaktoolWhenShaktoolClearedPath));
+    public static RoomLevelId ShaktoolWhenShaktoolClearedPath { get; } = new("ShaktoolWhenShaktoolClearedPath");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.HalfieClimb"/> uses first.</summary>
-    public static RoomLevelId HalfieClimb { get; } = new(nameof(HalfieClimb));
+    public static RoomLevelId HalfieClimb { get; } = new("HalfieClimb");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.BotwoonDefault"/> uses first.</summary>
-    public static RoomLevelId Botwoon { get; } = new(nameof(Botwoon));
+    public static RoomLevelId Botwoon { get; } = new("Botwoon");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.SpaceJump"/> uses first.</summary>
-    public static RoomLevelId SpaceJump { get; } = new(nameof(SpaceJump));
+    public static RoomLevelId SpaceJump { get; } = new("SpaceJump");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.WestCactusAlley"/> uses first.</summary>
-    public static RoomLevelId WestCactusAlley { get; } = new(nameof(WestCactusAlley));
+    public static RoomLevelId WestCactusAlley { get; } = new("WestCactusAlley");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.EastCactusAlley"/> uses first.</summary>
-    public static RoomLevelId EastCactusAlley { get; } = new(nameof(EastCactusAlley));
+    public static RoomLevelId EastCactusAlley { get; } = new("EastCactusAlley");
 
     /// <summary>The level the Maridia state <see cref="MaridiaRoomStateDefinitions.DraygonDefault"/> uses first.</summary>
-    public static RoomLevelId Draygon { get; } = new(nameof(Draygon));
+    public static RoomLevelId Draygon { get; } = new("Draygon");
 
     /// <summary>The level the Tourian state <see cref="TourianRoomStateDefinitions.TourianFirst"/> uses first.</summary>
-    public static RoomLevelId TourianFirst { get; } = new(nameof(TourianFirst));
+    public static RoomLevelId TourianFirst { get; } = new("TourianFirst");
 
     /// <summary>The level the Tourian state <see cref="TourianRoomStateDefinitions.Metroids1Default"/> uses first.</summary>
-    public static RoomLevelId Metroids1 { get; } = new(nameof(Metroids1));
+    public static RoomLevelId Metroids1 { get; } = new("Metroids1");
 
     /// <summary>The level the Tourian state <see cref="TourianRoomStateDefinitions.Metroids2Default"/> uses first.</summary>
-    public static RoomLevelId Metroids2 { get; } = new(nameof(Metroids2));
+    public static RoomLevelId Metroids2 { get; } = new("Metroids2");
 
     /// <summary>The level the Tourian state <see cref="TourianRoomStateDefinitions.Metroids3Default"/> uses first.</summary>
-    public static RoomLevelId Metroids3 { get; } = new(nameof(Metroids3));
+    public static RoomLevelId Metroids3 { get; } = new("Metroids3");
 
     /// <summary>The level the Tourian state <see cref="TourianRoomStateDefinitions.Metroids4Default"/> uses first.</summary>
-    public static RoomLevelId Metroids4 { get; } = new(nameof(Metroids4));
+    public static RoomLevelId Metroids4 { get; } = new("Metroids4");
 
     /// <summary>The level the Tourian state <see cref="TourianRoomStateDefinitions.BlueHopperDefault"/> uses first.</summary>
-    public static RoomLevelId BlueHopper { get; } = new(nameof(BlueHopper));
+    public static RoomLevelId BlueHopper { get; } = new("BlueHopper");
 
     /// <summary>The level the Tourian state <see cref="TourianRoomStateDefinitions.DustTorizoDefault"/> uses first.</summary>
-    public static RoomLevelId DustTorizo { get; } = new(nameof(DustTorizo));
+    public static RoomLevelId DustTorizo { get; } = new("DustTorizo");
 
     /// <summary>The level the Tourian state <see cref="TourianRoomStateDefinitions.BigBoyDefault"/> uses first.</summary>
-    public static RoomLevelId BigBoy { get; } = new(nameof(BigBoy));
+    public static RoomLevelId BigBoy { get; } = new("BigBoy");
 
     /// <summary>The level the Tourian state <see cref="TourianRoomStateDefinitions.Seaweed"/> uses first.</summary>
-    public static RoomLevelId Seaweed { get; } = new(nameof(Seaweed));
+    public static RoomLevelId Seaweed { get; } = new("Seaweed");
 
     /// <summary>The level the Tourian state <see cref="TourianRoomStateDefinitions.TourianRecharge"/> uses first.</summary>
-    public static RoomLevelId TourianRecharge { get; } = new(nameof(TourianRecharge));
+    public static RoomLevelId TourianRecharge { get; } = new("TourianRecharge");
 
     /// <summary>The level the Tourian state <see cref="TourianRoomStateDefinitions.MotherBrainDefault"/> uses first.</summary>
-    public static RoomLevelId MotherBrain { get; } = new(nameof(MotherBrain));
+    public static RoomLevelId MotherBrain { get; } = new("MotherBrain");
 
     /// <summary>The level the Tourian state <see cref="TourianRoomStateDefinitions.TourianEyeDoor"/> uses first.</summary>
-    public static RoomLevelId TourianEyeDoor { get; } = new(nameof(TourianEyeDoor));
+    public static RoomLevelId TourianEyeDoor { get; } = new("TourianEyeDoor");
 
     /// <summary>The level the Tourian state <see cref="TourianRoomStateDefinitions.RinkaShaft"/> uses first.</summary>
-    public static RoomLevelId RinkaShaft { get; } = new(nameof(RinkaShaft));
+    public static RoomLevelId RinkaShaft { get; } = new("RinkaShaft");
 
     /// <summary>The level the Tourian state <see cref="TourianRoomStateDefinitions.TourianEscape1"/> uses first.</summary>
-    public static RoomLevelId TourianEscape1 { get; } = new(nameof(TourianEscape1));
+    public static RoomLevelId TourianEscape1 { get; } = new("TourianEscape1");
 
     /// <summary>The level the Tourian state <see cref="TourianRoomStateDefinitions.TourianEscape2"/> uses first.</summary>
-    public static RoomLevelId TourianEscape2 { get; } = new(nameof(TourianEscape2));
+    public static RoomLevelId TourianEscape2 { get; } = new("TourianEscape2");
 
     /// <summary>The level the Tourian state <see cref="TourianRoomStateDefinitions.TourianEscape3"/> uses first.</summary>
-    public static RoomLevelId TourianEscape3 { get; } = new(nameof(TourianEscape3));
+    public static RoomLevelId TourianEscape3 { get; } = new("TourianEscape3");
 
     /// <summary>The level the Tourian state <see cref="TourianRoomStateDefinitions.TourianEscape4"/> uses first.</summary>
-    public static RoomLevelId TourianEscape4 { get; } = new(nameof(TourianEscape4));
+    public static RoomLevelId TourianEscape4 { get; } = new("TourianEscape4");
 
     /// <summary>The level the Ceres state <see cref="CeresRoomStateDefinitions.CeresElevatorDefault"/> uses first.</summary>
-    public static RoomLevelId CeresElevator { get; } = new(nameof(CeresElevator));
+    public static RoomLevelId CeresElevator { get; } = new("CeresElevator");
 
     /// <summary>The level the Ceres state <see cref="CeresRoomStateDefinitions.FallingTileDefault"/> uses first.</summary>
-    public static RoomLevelId FallingTile { get; } = new(nameof(FallingTile));
+    public static RoomLevelId FallingTile { get; } = new("FallingTile");
 
     /// <summary>The level the Ceres state <see cref="CeresRoomStateDefinitions.MagnetStairsDefault"/> uses first.</summary>
-    public static RoomLevelId MagnetStairs { get; } = new(nameof(MagnetStairs));
+    public static RoomLevelId MagnetStairs { get; } = new("MagnetStairs");
 
     /// <summary>The level the Ceres state <see cref="CeresRoomStateDefinitions.DeadScientistDefault"/> uses first.</summary>
-    public static RoomLevelId DeadScientist { get; } = new(nameof(DeadScientist));
+    public static RoomLevelId DeadScientist { get; } = new("DeadScientist");
 
     /// <summary>The level the Ceres state <see cref="CeresRoomStateDefinitions.CeresRidleyHallwayDefault"/> uses first.</summary>
-    public static RoomLevelId CeresRidleyHallway { get; } = new(nameof(CeresRidleyHallway));
+    public static RoomLevelId CeresRidleyHallway { get; } = new("CeresRidleyHallway");
 
     /// <summary>The level the Ceres state <see cref="CeresRoomStateDefinitions.CeresRidleyDefault"/> uses first.</summary>
-    public static RoomLevelId CeresRidley { get; } = new(nameof(CeresRidley));
+    public static RoomLevelId CeresRidley { get; } = new("CeresRidley");
 }

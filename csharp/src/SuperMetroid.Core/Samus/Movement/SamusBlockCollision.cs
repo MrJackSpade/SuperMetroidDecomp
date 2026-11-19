@@ -122,17 +122,17 @@ public static class SamusBlockCollision
             // exactly how the horizontal block collision sets up its collision probe.
             int targetCenter = state.Position.X.MovedBy(acceptedDisplacement).Whole;
             int leadingBoundary = !acceptedDisplacement.IsNegative
-                ? CoordinateAxis.Wrap(state.Radius.X + targetCenter - 1)
-                : CoordinateAxis.Wrap(targetCenter - state.Radius.X);
+                ? TerrainScanEdges.Edge(state.Radius.X + targetCenter - 1)
+                : TerrainScanEdges.Edge(targetCenter - state.Radius.X);
 
-            int topBlockY = RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(state.Position.Y.Whole - state.Radius.Y));
+            int topBlockY = RoomGridConversions.PixelToBlock(TerrainScanEdges.Edge(state.Position.Y.Whole - state.Radius.Y));
             int verticalSpan = GetVerticalBlockSpan(state);
             int blockX = RoomGridConversions.PixelToBlock(leadingBoundary);
 
             for (int rowOffset = 0; rowOffset <= verticalSpan; rowOffset++)
             {
                 RoomCollisionBlock block = terrain.Level.GetCollisionBlockOrEdgeSolid(
-                    new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(topBlockY + rowOffset)));
+                    new(TerrainScanEdges.Block(blockX), TerrainScanEdges.Block(topBlockY + rowOffset)));
                 if (!TryResolveExtension(terrain.Level, ref block))
                     continue;
                 switch (block.CollisionType)
@@ -453,18 +453,18 @@ public static class SamusBlockCollision
         bool sandContact = false;
         int targetCenter = state.Position.Y.MovedBy(acceptedDisplacement).Whole;
         int leadingBoundary = !acceptedDisplacement.IsNegative
-            ? CoordinateAxis.Wrap(state.Radius.Y + targetCenter - 1)
-            : CoordinateAxis.Wrap(targetCenter - state.Radius.Y);
+            ? TerrainScanEdges.Edge(state.Radius.Y + targetCenter - 1)
+            : TerrainScanEdges.Edge(targetCenter - state.Radius.Y);
         int blockY = RoomGridConversions.PixelToBlock(leadingBoundary);
         int horizontalSpan = GetHorizontalBlockSpan(state);
         int firstBlockX = move.ScanLeftToRight
-            ? RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(state.Position.X.Whole - state.Radius.X))
-            : RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(state.Position.X.Whole + state.Radius.X - 1));
+            ? RoomGridConversions.PixelToBlock(TerrainScanEdges.Edge(state.Position.X.Whole - state.Radius.X))
+            : RoomGridConversions.PixelToBlock(TerrainScanEdges.Edge(state.Position.X.Whole + state.Radius.X - 1));
 
         for (int offset = 0; offset <= horizontalSpan; offset++)
         {
             int blockX = move.ScanLeftToRight ? firstBlockX + offset : firstBlockX - offset;
-            RoomCollisionBlock block = terrain.Level.GetCollisionBlockOrEdgeSolid(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
+            RoomCollisionBlock block = terrain.Level.GetCollisionBlockOrEdgeSolid(new(TerrainScanEdges.Block(blockX), TerrainScanEdges.Block(blockY)));
             if (!TryResolveExtension(terrain.Level, ref block))
                 continue;
             switch (block.CollisionType)
@@ -946,7 +946,7 @@ public static class SamusBlockCollision
     {
         if (displacement.IsNegative)
         {
-            int whole = CoordinateAxis.AsSigned(state.Radius.X + RoomGridConversions.BlockEnd(leadingBoundary) + 1 - state.Position.X.Whole);
+            int whole = TerrainScanEdges.Approach(state.Radius.X + RoomGridConversions.BlockEnd(leadingBoundary) + 1, state.Position.X.Whole);
             if (whole >= 0)
                 whole = 0;
             state.Position = state.Position.WithFractionX(PixelFraction.None);
@@ -954,7 +954,7 @@ public static class SamusBlockCollision
         }
         else
         {
-            int whole = CoordinateAxis.Difference(RoomGridConversions.BlockStart(leadingBoundary) - state.Radius.X, state.Position.X.Whole);
+            int whole = TerrainScanEdges.Approach(RoomGridConversions.BlockStart(leadingBoundary) - state.Radius.X, state.Position.X.Whole);
             if (whole < 0)
                 whole = 0;
             state.Position = state.Position.WithFractionX(PixelFraction.Last);
@@ -970,15 +970,15 @@ public static class SamusBlockCollision
     {
         if (displacement.IsNegative)
         {
-            int whole = CoordinateAxis.AsSigned(
-                state.Radius.X + RoomGridConversions.HalfBlockEnd(leadingBoundary) + 1 - state.Position.X.Whole);
+            int whole = TerrainScanEdges.Approach(
+                state.Radius.X + RoomGridConversions.HalfBlockEnd(leadingBoundary) + 1, state.Position.X.Whole);
             if (whole >= 0)
                 whole = 0;
             state.Position = state.Position.WithFractionX(PixelFraction.None);
             return SignedSixteenSixteen.FromWholePixels(whole);
         }
 
-        int rightWhole = CoordinateAxis.Difference(
+        int rightWhole = TerrainScanEdges.Approach(
             RoomGridConversions.HalfBlockStart(leadingBoundary) - state.Radius.X, state.Position.X.Whole);
         if (rightWhole < 0)
             rightWhole = 0;
@@ -994,7 +994,7 @@ public static class SamusBlockCollision
     {
         if (displacement.IsNegative)
         {
-            int whole = CoordinateAxis.AsSigned(state.Radius.Y + RoomGridConversions.BlockEnd(leadingBoundary) + 1 - state.Position.Y.Whole);
+            int whole = TerrainScanEdges.Approach(state.Radius.Y + RoomGridConversions.BlockEnd(leadingBoundary) + 1, state.Position.Y.Whole);
             if (whole >= 0)
                 whole = 0;
             state.Position = state.Position.WithFractionY(PixelFraction.None);
@@ -1002,7 +1002,7 @@ public static class SamusBlockCollision
         }
         else
         {
-            int whole = CoordinateAxis.Difference(RoomGridConversions.BlockStart(leadingBoundary) - state.Radius.Y, state.Position.Y.Whole);
+            int whole = TerrainScanEdges.Approach(RoomGridConversions.BlockStart(leadingBoundary) - state.Radius.Y, state.Position.Y.Whole);
             if (whole < 0)
                 whole = 0;
             state.Position = state.Position.WithFractionY(PixelFraction.Last);
@@ -1018,15 +1018,15 @@ public static class SamusBlockCollision
     {
         if (displacement.IsNegative)
         {
-            int whole = CoordinateAxis.AsSigned(
-                state.Radius.Y + RoomGridConversions.HalfBlockEnd(leadingBoundary) + 1 - state.Position.Y.Whole);
+            int whole = TerrainScanEdges.Approach(
+                state.Radius.Y + RoomGridConversions.HalfBlockEnd(leadingBoundary) + 1, state.Position.Y.Whole);
             if (whole >= 0)
                 whole = 0;
             state.Position = state.Position.WithFractionY(PixelFraction.None);
             return SignedSixteenSixteen.FromWholePixels(whole);
         }
 
-        int downWhole = CoordinateAxis.Difference(
+        int downWhole = TerrainScanEdges.Approach(
             RoomGridConversions.HalfBlockStart(leadingBoundary) - state.Radius.Y, state.Position.Y.Whole);
         if (downWhole < 0)
             downWhole = 0;
@@ -1041,15 +1041,15 @@ public static class SamusBlockCollision
     /// <summary>Counts block rows touched by Samus's current vertical collision extent.</summary>
     private static int GetVerticalBlockSpan(SamusKinematicsState state)
     {
-        int alignedTop = RoomGridConversions.BlockStart(CoordinateAxis.Wrap(state.Position.Y.Whole - state.Radius.Y));
-        return RoomGridConversions.WholeBlocksIn(CoordinateAxis.Wrap(state.Radius.Y + state.Position.Y.Whole - 1 - alignedTop));
+        int alignedTop = RoomGridConversions.BlockStart(TerrainScanEdges.Edge(state.Position.Y.Whole - state.Radius.Y));
+        return RoomGridConversions.WholeBlocksIn(TerrainScanEdges.Edge(state.Radius.Y + state.Position.Y.Whole - 1 - alignedTop));
     }
 
     /// <summary>Counts block columns touched by Samus's current horizontal collision extent.</summary>
     private static int GetHorizontalBlockSpan(SamusKinematicsState state)
     {
-        int alignedLeft = RoomGridConversions.BlockStart(CoordinateAxis.Wrap(state.Position.X.Whole - state.Radius.X));
-        return RoomGridConversions.WholeBlocksIn(CoordinateAxis.Wrap(state.Radius.X + state.Position.X.Whole - 1 - alignedLeft));
+        int alignedLeft = RoomGridConversions.BlockStart(TerrainScanEdges.Edge(state.Position.X.Whole - state.Radius.X));
+        return RoomGridConversions.WholeBlocksIn(TerrainScanEdges.Edge(state.Radius.X + state.Position.X.Whole - 1 - alignedLeft));
     }
 
     /// <summary>
@@ -1124,15 +1124,15 @@ public static class SamusBlockCollision
     /// </summary>
     private static int GrappleVerticalOverlap(RoomLevelData level, SamusKinematicsState state, VerticalDirection direction)
     {
-        int boundary = CoordinateAxis.Wrap(state.Position.Y.Whole + (direction == VerticalDirection.Down ? state.Radius.Y - 1 : -state.Radius.Y));
-        int left = CoordinateAxis.Wrap(state.Position.X.Whole - state.Radius.X);
-        int right = CoordinateAxis.Wrap(state.Position.X.Whole + state.Radius.X - 1);
+        int boundary = TerrainScanEdges.Edge(state.Position.Y.Whole + (direction == VerticalDirection.Down ? state.Radius.Y - 1 : -state.Radius.Y));
+        int left = TerrainScanEdges.Edge(state.Position.X.Whole - state.Radius.X);
+        int right = TerrainScanEdges.Edge(state.Position.X.Whole + state.Radius.X - 1);
         int firstColumn = RoomGridConversions.PixelToBlock(left);
         int lastColumn = RoomGridConversions.PixelToBlock(right);
         int maximum = 0;
         for (int column = firstColumn; column <= lastColumn; column++)
         {
-            RoomCollisionBlock block = level.GetCollisionBlockOrEdgeSolid(new(CoordinateAxis.Wrap(column), RoomGridConversions.PixelToBlock(boundary)));
+            RoomCollisionBlock block = level.GetCollisionBlockOrEdgeSolid(new(TerrainScanEdges.Block(column), RoomGridConversions.PixelToBlock(boundary)));
             // The overlap counts the pixels from the solid edge through Samus's boundary pixel, which it includes; a
             // column she does not overlap counts none.
             int overlap;

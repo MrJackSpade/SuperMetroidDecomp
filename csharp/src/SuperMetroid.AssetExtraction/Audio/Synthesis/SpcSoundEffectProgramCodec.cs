@@ -46,7 +46,7 @@ internal static class SpcSoundEffectProgramCodec
                 arguments[0] = opcode;
                 for (int index = 1; index < arguments.Length; index++)
                     arguments[index] = ReadByte(ram, written, ref cursor, address);
-                instructions.Add(new(AudioSoundInstructionOperations.PlayNote, arguments));
+                instructions.Add(new(AudioSoundOperation.PlayNote, arguments));
                 continue;
             }
 
@@ -54,35 +54,35 @@ internal static class SpcSoundEffectProgramCodec
             {
                 case SpcSoundEffectOpcode.SetAdsr:
                     instructions.Add(Read(
-                        AudioSoundInstructionOperations.SetAdsr, 4,
+                        AudioSoundOperation.SetAdsr, 4,
                         ram, written, ref cursor, address));
                     break;
                 case SpcSoundEffectOpcode.PitchSlideLegato:
                     instructions.Add(Read(
-                        AudioSoundInstructionOperations.PitchSlideLegato, 2,
+                        AudioSoundOperation.PitchSlideLegato, 2,
                         ram, written, ref cursor, address));
                     break;
                 case SpcSoundEffectOpcode.PitchSlide:
                     instructions.Add(Read(
-                        AudioSoundInstructionOperations.PitchSlide, 2,
+                        AudioSoundOperation.PitchSlide, 2,
                         ram, written, ref cursor, address));
                     break;
                 case SpcSoundEffectOpcode.End:
-                    instructions.Add(new(AudioSoundInstructionOperations.End, []));
+                    instructions.Add(new(AudioSoundOperation.End, []));
                     return new(id, address, cursor - address, instructions);
                 case SpcSoundEffectOpcode.BeginRepeat:
                     instructions.Add(Read(
-                        AudioSoundInstructionOperations.BeginRepeat, 1,
+                        AudioSoundOperation.BeginRepeat, 1,
                         ram, written, ref cursor, address));
                     break;
                 case SpcSoundEffectOpcode.RepeatForever:
-                    instructions.Add(new(AudioSoundInstructionOperations.RepeatForever, []));
+                    instructions.Add(new(AudioSoundOperation.RepeatForever, []));
                     return new(id, address, cursor - address, instructions);
                 case SpcSoundEffectOpcode.EndRepeat:
-                    instructions.Add(new(AudioSoundInstructionOperations.EndRepeat, []));
+                    instructions.Add(new(AudioSoundOperation.EndRepeat, []));
                     break;
                 case SpcSoundEffectOpcode.EnableNoise:
-                    instructions.Add(new(AudioSoundInstructionOperations.EnableNoise, []));
+                    instructions.Add(new(AudioSoundOperation.EnableNoise, []));
                     break;
                 default:
                     throw new InvalidOperationException($"Undefined SpcSoundEffectOpcode {command}.");
@@ -107,15 +107,15 @@ internal static class SpcSoundEffectProgramCodec
                     $"SPC sound program '{program.Id}' contains a null instruction at {index}.");
             (int opcode, int argumentCount, bool terminal) = instruction.Operation switch
             {
-                AudioSoundInstructionOperations.SetAdsr => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.SetAdsr), 4, false),
-                AudioSoundInstructionOperations.PitchSlideLegato => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.PitchSlideLegato), 2, false),
-                AudioSoundInstructionOperations.PitchSlide => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.PitchSlide), 2, false),
-                AudioSoundInstructionOperations.End => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.End), 0, true),
-                AudioSoundInstructionOperations.BeginRepeat => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.BeginRepeat), 1, false),
-                AudioSoundInstructionOperations.RepeatForever => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.RepeatForever), 0, true),
-                AudioSoundInstructionOperations.EndRepeat => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.EndRepeat), 0, false),
-                AudioSoundInstructionOperations.EnableNoise => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.EnableNoise), 0, false),
-                AudioSoundInstructionOperations.PlayNote => new SoundEffectOpcodeShape(0, 5, false),
+                AudioSoundOperation.SetAdsr => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.SetAdsr), 4, false),
+                AudioSoundOperation.PitchSlideLegato => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.PitchSlideLegato), 2, false),
+                AudioSoundOperation.PitchSlide => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.PitchSlide), 2, false),
+                AudioSoundOperation.End => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.End), 0, true),
+                AudioSoundOperation.BeginRepeat => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.BeginRepeat), 1, false),
+                AudioSoundOperation.RepeatForever => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.RepeatForever), 0, true),
+                AudioSoundOperation.EndRepeat => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.EndRepeat), 0, false),
+                AudioSoundOperation.EnableNoise => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.EnableNoise), 0, false),
+                AudioSoundOperation.PlayNote => new SoundEffectOpcodeShape(0, 5, false),
                 _ => throw new InvalidDataException(
                     $"SPC sound program '{program.Id}' uses unknown operation '{instruction.Operation}'."),
             };
@@ -135,7 +135,7 @@ internal static class SpcSoundEffectProgramCodec
                 throw new InvalidDataException(
                     $"SPC sound program '{program.Id}' contains instructions after its terminal operation.");
             }
-            if (instruction.Operation == AudioSoundInstructionOperations.PlayNote)
+            if (instruction.Operation == AudioSoundOperation.PlayNote)
             {
                 if (opcodes.ContainsKey(instruction.Arguments[0]))
                 {
@@ -147,7 +147,7 @@ internal static class SpcSoundEffectProgramCodec
             }
             else
                 bytes.Add(unchecked((byte)opcode));
-            int firstArgument = instruction.Operation == AudioSoundInstructionOperations.PlayNote ? 1 : 0;
+            int firstArgument = instruction.Operation == AudioSoundOperation.PlayNote ? 1 : 0;
             for (int argument = firstArgument; argument < instruction.Arguments.Count; argument++)
                 bytes.Add(instruction.Arguments[argument]);
             terminated = terminal;
@@ -165,7 +165,7 @@ internal static class SpcSoundEffectProgramCodec
 
     /// <summary>Reads a command's fixed number of arguments from uploaded APU memory.</summary>
     private static AudioSoundInstructionMetadata Read(
-        string operation,
+        AudioSoundOperation operation,
         int count,
         ReadOnlySpan<byte> ram,
         ReadOnlySpan<bool> written,

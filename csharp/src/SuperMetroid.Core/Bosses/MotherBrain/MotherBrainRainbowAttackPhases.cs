@@ -28,8 +28,10 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// </summary>
     public RotationAngle AngularWidth { get; internal set; }
 
-    /// <summary>The beam's sound attempts left, zero or more: each continuing beam step makes one until none are left (#2253).</summary>
-    public int SoundAttemptsLeft { get; internal set => field = Ensure.AtLeastZero(value); }
+    /// <summary>
+    /// The beam's sound attempts (#2253): each continuing beam step makes one and counts it, until none are left.
+    /// </summary>
+    public UpdateCountdown SoundAttempts { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>Rainbow-beam explosion timer.</summary>
     public BossCountdown ExplosionTimer { get; } = new();
@@ -58,7 +60,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         AngularWidth = MotherBrainBeamDefinitions.RainbowNarrowestWidth;
         NextExplosion = FirstExplosion;
         ExplosionTimer.LastFor(1);
-        SoundAttemptsLeft = MotherBrainBeamDefinitions.SoundAttempts;
+        SoundAttempts = UpdateCountdown.Lasting(MotherBrainBeamDefinitions.SoundAttempts);
         _state.RainbowBeamSoundPlaying = false;
         BeamActive = true;
         Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Slow;
@@ -106,9 +108,9 @@ internal sealed class MotherBrainRainbowAttackPhases
         MotherBrainRainbowBeamGrowth growth,
         MotherBrainRainbowBeamStepRequests requests)
     {
-        if (SoundAttemptsLeft > 0)
+        if (SoundAttempts.IsRunning)
         {
-            SoundAttemptsLeft--;
+            SoundAttempts.Count();
             _state.RainbowBeamSoundPlaying = true;
             requests.SoundQueued = true;
         }

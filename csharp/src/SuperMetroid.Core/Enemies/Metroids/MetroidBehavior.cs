@@ -185,11 +185,11 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Makes the escaping Metroid's next move; after its last it chases Samus.</summary>
     internal static void RunMetroidPowerBombEscape(RoomEnemyPlace place, MetroidEnemyState state)
     {
-        place.Position += MetroidReactions.EscapeDisplacement(state.EscapeMovesLeft);
+        place.Position += MetroidReactions.EscapeDisplacement(state.EscapeMovesLeft.UpdatesLeft);
         StoreMetroidXVelocity(state, SignedSixteenSixteen.Zero);
         StoreMetroidYVelocity(state, SignedSixteenSixteen.Zero);
 
-        if (--state.EscapeMovesLeft != 0)
+        if (!state.EscapeMovesLeft.Count())
             return;
 
         state.Movement = MetroidMovement.Homing;
@@ -200,10 +200,10 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void RunMetroidFrozen(RoomEnemyPlace place)
     {
         MetroidEnemyState state = place.RequireSpeciesState<MetroidEnemyState>();
-        if (state.EscapeMovesLeft != 0)
+        if (state.EscapeMovesLeft.IsRunning)
         {
-            state.EscapeMovesLeft--;
-            place.FlashTimer = MetroidBehaviorDefinitions.EscapeFlashDuration;
+            state.EscapeMovesLeft.Count();
+            place.HurtFlash.Restart(MetroidBehaviorDefinitions.EscapeFlashDuration);
         }
 
         FreezeMetroidOuterBody(state.Electricity);
@@ -217,7 +217,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void ApplyMetroidHurt(RoomEnemyPlace place)
     {
         MetroidEnemyState state = place.RequireSpeciesState<MetroidEnemyState>();
-        if (MetroidCadenceDefinitions.HurtOuterBodiesShowOwnColours.IsSetIn(place.FlashTimer))
+        if (MetroidCadenceDefinitions.HurtOuterBodiesShowOwnColours.IsSetIn(place.HurtFlash.UpdatesLeft))
         {
             state.Electricity.Graphics = state.Electricity.Graphics.In(place.Shading);
             state.Shell.Graphics = state.Shell.Graphics.In(place.Shading);
@@ -311,23 +311,23 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // hit it now. It recoils away from that origin at an eighth of its distance from it an update. That
         // projectile need not lie in the room: a shot lives on up to 64 pixels past the view's left and top edges, and
         // a Wave shot passes through the room's walls, so one beyond the room's left or top edge, with the view at
-        // that edge, still pushes the Metroid away from it the short way, as CoordinateAxis.Difference gives it.
+        // that edge, still pushes the Metroid away from it the short way, as DistanceAcrossRoomEdge.Apart gives it.
         StoreMetroidXVelocity(
             state,
-            MetroidBehaviorDefinitions.ShotRecoilPerDistance * CoordinateAxis.Difference(place.Position.X.Whole, recoilOrigin.X));
+            MetroidBehaviorDefinitions.ShotRecoilPerDistance * DistanceAcrossRoomEdge.Apart(place.Position.X.Whole, recoilOrigin.X));
         StoreMetroidYVelocity(
             state,
-            MetroidBehaviorDefinitions.ShotRecoilPerDistance * CoordinateAxis.Difference(place.Position.Y.Whole, recoilOrigin.Y));
+            MetroidBehaviorDefinitions.ShotRecoilPerDistance * DistanceAcrossRoomEdge.Apart(place.Position.Y.Whole, recoilOrigin.Y));
         state.Movement = MetroidMovement.Homing;
         SetMetroidAnimation(place, state, MetroidSegment.ChasingSamus);
 
         if (collisionProjectileType.BeamCombination.HasIce)
         {
-            place.FlashTimer = MetroidBehaviorDefinitions.IceFlashDuration;
+            place.HurtFlash.Restart(MetroidBehaviorDefinitions.IceFlashDuration);
             if (collisionProjectileDamage >= state.IceDamageToFreeze)
             {
                 state.IceDamageToFreeze = 0;
-                place.FrozenTimer = MetroidBehaviorDefinitions.FrozenDuration;
+                place.Freeze.Restart(MetroidBehaviorDefinitions.FrozenDuration);
                 place.AiStates |= EnemyAiStates.Frozen;
                 return;
             }
@@ -343,7 +343,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         MetroidEnemyState state,
         SamusState samus)
     {
-        state.EscapeMovesLeft = MetroidBehaviorDefinitions.EscapeDuration;
+        state.EscapeMovesLeft = UpdateCountdown.For(MetroidBehaviorDefinitions.EscapeDuration);
         state.Movement = MetroidMovement.PowerBombEscape;
         SetMetroidAnimation(place, state, MetroidSegment.ChasingSamus);
         samus.MetroidAttachmentShade = SamusMetroidAttachmentShade.Inactive;
@@ -423,7 +423,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal void ReactToMetroidBomb(EnemyBombContext c)
     {
-        if (c.Enemy.FrozenTimer == 0)
+        if (c.Enemy.Freeze.IsOver)
         {
             SamusProjectile recoilOrigin = MetroidRecoilOrigin.Of(c.OrdinaryProjectiles.Shots);
             ResolveMetroidNonFrozenShot(c.Enemy, c.Bomb.Type, Ensure.AtLeastZero(c.Bomb.Damage), recoilOrigin.Position.Whole, c.Samus);
@@ -456,7 +456,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal bool ResolveMetroidOrdinaryShot(in EnemyShotContext c)
     {
         RoomEnemyPlace enemy = c.Enemy;
-        if (enemy.FrozenTimer != 0)
+        if (enemy.Freeze.IsRunning)
         {
             if (c.Family is not SamusProjectileFamily.Missile and not SamusProjectileFamily.SuperMissile)
             {
@@ -475,7 +475,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             int frozenDamage = frozenVulnerability.DamageFrom(c.ProjectileDamage);
             if (!frozenVulnerability.FreezesWithoutDamage && frozenDamage != 0)
             {
-                enemy.FlashTimer = enemy.HurtFlashFrames + MetroidBehaviorDefinitions.FrozenHurtFlashExtension;
+                enemy.HurtFlash.Restart(enemy.HurtFlashFrames + MetroidBehaviorDefinitions.FrozenHurtFlashExtension);
                 enemy.AiStates |= EnemyAiStates.Hurt;
                 enemy.Health = frozenDamage >= enemy.Health
                     ? 0

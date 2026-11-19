@@ -240,7 +240,7 @@ internal sealed class EnemyProjectileEngine
         if (finalKnockbackXDirection.HasValue)
         {
             samus.KnockbackXDirection = finalKnockbackXDirection.Value;
-            samus.KnockbackTimer = EnemyCollisionDefinitions.SamusTouchKnockbackUpdates;
+            samus.KnockbackHold = UpdateCountdown.For(EnemyCollisionDefinitions.SamusTouchKnockbackUpdates);
         }
     }
 
@@ -434,12 +434,12 @@ internal sealed class EnemyProjectileEngine
         // diameter (EnemyProjectileBlockScan). The positive edge is inclusive, hence radius - 1; using +radius made
         // right/down projectiles collide one pixel earlier than their counterparts.
         // The edge wraps past the room coordinates' 65535, as the probe's block bounds check expects.
-        int movementEdge = CoordinateAxis.Wrap(nextPosition +
+        int movementEdge = TerrainScanEdges.Edge(nextPosition +
             (movingNegative ? -movementRadius : movementRadius - 1));
         var scan = EnemyProjectileBlockScan.Across(
             movementEdge,
-            CoordinateAxis.Wrap(perpendicularPosition - perpendicularRadius),
-            CoordinateAxis.Wrap(perpendicularPosition + perpendicularRadius - 1),
+            TerrainScanEdges.Edge(perpendicularPosition - perpendicularRadius),
+            TerrainScanEdges.Edge(perpendicularPosition + perpendicularRadius - 1),
             axis);
         if (collision.Stops(level, new EnemyProjectileScannedMove(projectile, scan, movingNegative, movementEdge), out int? alignedPosition))
         {
@@ -449,8 +449,8 @@ internal sealed class EnemyProjectileEngine
             // Without this correction a fast downward projectile retains its last
             // pre-collision coordinate and visibly hovers above the floor.
             int snappedPosition = alignedPosition ?? (movingNegative
-                ? CoordinateAxis.Wrap(RoomGridConversions.BlockEnd(movementEdge) + movementRadius + 1)
-                : CoordinateAxis.Wrap(RoomGridConversions.BlockStart(movementEdge) - movementRadius));
+                ? TerrainScanEdges.Edge(RoomGridConversions.BlockEnd(movementEdge) + movementRadius + 1)
+                : TerrainScanEdges.Edge(RoomGridConversions.BlockStart(movementEdge) - movementRadius));
             bool snapDoesNotMoveBackwards = alignedPosition.HasValue || (movingNegative
                 ? snappedPosition <= position
                 : snappedPosition >= position);
@@ -575,10 +575,10 @@ internal sealed class EnemyProjectileEngine
         int random = _room.Random.Generate();
         // The death actor stands where its enemy died, which can lie above or left of the room's origin (a fly that has
         // climbed through the ceiling, a Bull braking past Samus), so a sprite scattered across the origin continues from
-        // the space's far end, as CoordinateAxis.Wrap gives it.
+        // the space's far end, as OffRoomPlaces places it.
         _ = _effectActors.SpawnRoomEffectActor(new(
-            CoordinateAxis.Wrap(projectile.Position.X.Whole + spread.HorizontalScatter.Of(random) - spread.Radius),
-            CoordinateAxis.Wrap(projectile.Position.Y.Whole + spread.VerticalScatter.Of(random) - spread.Radius)),
+            OffRoomPlaces.Place(projectile.Position.X.Whole + spread.HorizontalScatter.Of(random) - spread.Radius),
+            OffRoomPlaces.Place(projectile.Position.Y.Whole + spread.VerticalScatter.Of(random) - spread.Radius)),
             kind, graphics: default);
     }
 
@@ -607,7 +607,9 @@ internal sealed class EnemyProjectileEngine
         while (xOffset < 0);
         if (EnemyProjectileScatter.XOffsetTurnsLeft.IsTakenBy(signSample))
             xOffset = -xOffset;
-        projectile.Position = projectile.Position.WithWrappedWholeX(projectile.Position.X.Whole + xOffset);
+        // The scattered projectiles burst against the room's walls and floors, a Bomb Torizo's sonic boom among them, so a
+        // scatter toward the room's left or top edge can carry one past it.
+        projectile.Position = OffRoomPlaces.WithWholeX(projectile.Position, projectile.Position.X.Whole + xOffset);
 
         int yOffset;
         do
@@ -617,7 +619,7 @@ internal sealed class EnemyProjectileEngine
         while (yOffset < 0);
         if (EnemyProjectileScatter.YOffsetTurnsUp.IsTakenBy(signSample))
             yOffset = -yOffset;
-        projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + yOffset);
+        projectile.Position = OffRoomPlaces.WithWholeY(projectile.Position, projectile.Position.Y.Whole + yOffset);
     }
 
     /// <summary>
@@ -696,9 +698,9 @@ internal sealed class EnemyProjectileEngine
         int cameraY)
     {
         // A fireball or shard that flies up past the room's top keeps a wrapped height, so its distance below the
-        // camera's top row is measured the short way, as CoordinateAxis.Difference gives it: it lies above the camera
+        // camera's top row is measured the short way, as CameraPastRoomEdge.FromCamera gives it: it lies above the camera
         // and is kept, not read as lying far below it.
-        if (CoordinateAxis.Difference(projectile.Position.Y.Whole, cameraY) >= EnemyProjectileOffScreenDefinitions.VerticalDeletionDepth)
+        if (CameraPastRoomEdge.FromCamera(projectile.Position.Y.Whole, cameraY) >= EnemyProjectileOffScreenDefinitions.VerticalDeletionDepth)
             projectile.Delete();
     }
 

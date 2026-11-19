@@ -7,195 +7,195 @@ internal static class MaridiaRoomEnemyGraphicsSetDefinitions
     /// <summary>The region's lists, in table order.</summary>
     internal static RoomEnemyGraphicsSetMembers[] Build() =>
     [
-        new(nameof(RoomEnemyGraphicsSetDefinitions.MtEverest), [
+        new(RoomEnemyGraphicsSetDefinitions.MtEverest, [
             new(EnemyDefinitionId.Powamp),
             new(EnemyDefinitionId.Sciser),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.HalfieClimb), [
+        new(RoomEnemyGraphicsSetDefinitions.HalfieClimb, [
             new(EnemyDefinitionId.Oum),
             new(EnemyDefinitionId.Mochtroid),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WateringHole), [
+        new(RoomEnemyGraphicsSetDefinitions.WateringHole, [
             new(EnemyDefinitionId.Choot),
             new(EnemyDefinitionId.Zeb),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.CrabShaft), [
+        new(RoomEnemyGraphicsSetDefinitions.CrabShaft, [
             new(EnemyDefinitionId.Sciser),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.MaridiaElevator), [
+        new(RoomEnemyGraphicsSetDefinitions.MaridiaElevator, [
             new(EnemyDefinitionId.Ripper),
             new(EnemyDefinitionId.Owtch),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Colosseum), [
+        new(RoomEnemyGraphicsSetDefinitions.Colosseum, [
             new(EnemyDefinitionId.Mochtroid),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.AqueductSave), [
+        new(RoomEnemyGraphicsSetDefinitions.AqueductSave, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.ThePrecious), [
+        new(RoomEnemyGraphicsSetDefinitions.ThePrecious, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.BotwoonEnergyTank), [
+        new(RoomEnemyGraphicsSetDefinitions.BotwoonEnergyTank, [
             new(EnemyDefinitionId.Puyo),
             new(EnemyDefinitionId.Sciser),
             new(EnemyDefinitionId.Zoa),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.DraygonSave), [
+        new(RoomEnemyGraphicsSetDefinitions.DraygonSave, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.MaridiaMissileRefill), [
+        new(RoomEnemyGraphicsSetDefinitions.MaridiaMissileRefill, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.PlasmaBeachQuicksand), [
+        new(RoomEnemyGraphicsSetDefinitions.PlasmaBeachQuicksand, [
             new(EnemyDefinitionId.Bull),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.BotwoonQuicksand), [
+        new(RoomEnemyGraphicsSetDefinitions.BotwoonQuicksand, [
             new(EnemyDefinitionId.Bull),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Shaktool), [
+        new(RoomEnemyGraphicsSetDefinitions.Shaktool, [
             new(EnemyDefinitionId.Shaktool),
             new(EnemyDefinitionId.Yard),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.DraygonDefault), [
+        new(RoomEnemyGraphicsSetDefinitions.DraygonDefault, [
             new(EnemyDefinitionId.DraygonBody),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Aqueduct), [
+        new(RoomEnemyGraphicsSetDefinitions.Aqueduct, [
             new(EnemyDefinitionId.Yard),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.RedFish), [
+        new(RoomEnemyGraphicsSetDefinitions.RedFish, [
             new(EnemyDefinitionId.Skultera),
             new(EnemyDefinitionId.Sciser),
             new(EnemyDefinitionId.Zebbo),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Plasma), [
+        new(RoomEnemyGraphicsSetDefinitions.Plasma, [
             new(EnemyDefinitionId.PirateMagentaWalking),
             new(EnemyDefinitionId.PirateMagentaWall),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.SpaceJump), [
+        new(RoomEnemyGraphicsSetDefinitions.SpaceJump, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Pants), [
+        new(RoomEnemyGraphicsSetDefinitions.Pants, [
             new(EnemyDefinitionId.MaridiaFly),
             new(EnemyDefinitionId.Puyo),
             new(EnemyDefinitionId.Tripper),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.GlassTunnelSave), [
+        new(RoomEnemyGraphicsSetDefinitions.GlassTunnelSave, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.GlassTunnel), [
+        new(RoomEnemyGraphicsSetDefinitions.GlassTunnel, [
             new(EnemyDefinitionId.NoobTubeCrack),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WestTunnel), [
+        new(RoomEnemyGraphicsSetDefinitions.WestTunnel, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.EastTunnel), [
+        new(RoomEnemyGraphicsSetDefinitions.EastTunnel, [
             new(EnemyDefinitionId.Boyon),
             new(EnemyDefinitionId.Zebbo),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.MamaTurtle), [
+        new(RoomEnemyGraphicsSetDefinitions.MamaTurtle, [
             new(EnemyDefinitionId.MamaTurtle),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.CrabTunnel), [
+        new(RoomEnemyGraphicsSetDefinitions.CrabTunnel, [
             new(EnemyDefinitionId.Sciser),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.NorthwestMaridiaBug), [
+        new(RoomEnemyGraphicsSetDefinitions.NorthwestMaridiaBug, [
             new(EnemyDefinitionId.Owtch),
             new(EnemyDefinitionId.MaridiaFly),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.PseudoPlasmaSpark), [
+        new(RoomEnemyGraphicsSetDefinitions.PseudoPlasmaSpark, [
             new(EnemyDefinitionId.Owtch),
             new(EnemyDefinitionId.Choot),
             new(EnemyDefinitionId.Skultera),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WestSandHallTunnel), [
+        new(RoomEnemyGraphicsSetDefinitions.WestSandHallTunnel, [
             new(EnemyDefinitionId.Sciser),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.PlasmaTutorial), [
+        new(RoomEnemyGraphicsSetDefinitions.PlasmaTutorial, [
             new(EnemyDefinitionId.Puyo),
             new(EnemyDefinitionId.ArmoredZoomer),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.ThreadTheNeedle), [
+        new(RoomEnemyGraphicsSetDefinitions.ThreadTheNeedle, [
             new(EnemyDefinitionId.Puyo),
             new(EnemyDefinitionId.Boyon),
             new(EnemyDefinitionId.Choot),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.PlasmaSpark), [
+        new(RoomEnemyGraphicsSetDefinitions.PlasmaSpark, [
             new(EnemyDefinitionId.Owtch),
             new(EnemyDefinitionId.Choot),
             new(EnemyDefinitionId.Skultera),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Toilet), [
+        new(RoomEnemyGraphicsSetDefinitions.Toilet, [
             new(EnemyDefinitionId.Mochtroid),
             new(EnemyDefinitionId.Puyo),
             new(EnemyDefinitionId.Sciser),
             new(EnemyDefinitionId.Yard),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WestSandHall), [
+        new(RoomEnemyGraphicsSetDefinitions.WestSandHall, [
             new(EnemyDefinitionId.Evir),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Oasis), [
+        new(RoomEnemyGraphicsSetDefinitions.Oasis, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.EastSandHall), [
+        new(RoomEnemyGraphicsSetDefinitions.EastSandHall, [
             new(EnemyDefinitionId.Evir),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WestAqueductQuicksand), [
+        new(RoomEnemyGraphicsSetDefinitions.WestAqueductQuicksand, [
             new(EnemyDefinitionId.Bull),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.EastAqueductQuicksand), [
+        new(RoomEnemyGraphicsSetDefinitions.EastAqueductQuicksand, [
             new(EnemyDefinitionId.Bull),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Butterfly), [
+        new(RoomEnemyGraphicsSetDefinitions.Butterfly, [
             new(EnemyDefinitionId.Zoa),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.BotwoonHallway), [
+        new(RoomEnemyGraphicsSetDefinitions.BotwoonHallway, [
             new(EnemyDefinitionId.Mochtroid),
             new(EnemyDefinitionId.Puyo),
             new(EnemyDefinitionId.Sciser),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.EastPants), [
+        new(RoomEnemyGraphicsSetDefinitions.EastPants, [
             new(EnemyDefinitionId.Puyo),
             new(EnemyDefinitionId.Tripper),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Springball), [
+        new(RoomEnemyGraphicsSetDefinitions.Springball, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.BelowBotwoonEnergyTank), [
+        new(RoomEnemyGraphicsSetDefinitions.BelowBotwoonEnergyTank, [
             new(EnemyDefinitionId.Zoa),
             new(EnemyDefinitionId.Owtch),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Kassiuz), [
+        new(RoomEnemyGraphicsSetDefinitions.Kassiuz, [
             new(EnemyDefinitionId.Choot),
             new(EnemyDefinitionId.Puyo),
             new(EnemyDefinitionId.Boyon),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.ForgottenHighwaySave), [
+        new(RoomEnemyGraphicsSetDefinitions.ForgottenHighwaySave, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.MaridiaEnergyRefill), [
+        new(RoomEnemyGraphicsSetDefinitions.MaridiaEnergyRefill, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.MaridiaMap), [
+        new(RoomEnemyGraphicsSetDefinitions.MaridiaMap, [
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.CrabHole), [
+        new(RoomEnemyGraphicsSetDefinitions.CrabHole, [
             new(EnemyDefinitionId.Sciser),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Botwoon), [
+        new(RoomEnemyGraphicsSetDefinitions.Botwoon, [
             new(EnemyDefinitionId.Owtch),
             new(EnemyDefinitionId.Botwoon),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.MainStreet), [
+        new(RoomEnemyGraphicsSetDefinitions.MainStreet, [
             new(EnemyDefinitionId.Skultera),
             new(EnemyDefinitionId.Sciser),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.BugSandHole), [
+        new(RoomEnemyGraphicsSetDefinitions.BugSandHole, [
             new(EnemyDefinitionId.YappingMaw),
             new(EnemyDefinitionId.Zoa),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.EastSandHole), [
+        new(RoomEnemyGraphicsSetDefinitions.EastSandHole, [
             new(EnemyDefinitionId.Boulder),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WestSandHole), [
+        new(RoomEnemyGraphicsSetDefinitions.WestSandHole, [
             new(EnemyDefinitionId.Boulder),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.WestCactusAlley), [
+        new(RoomEnemyGraphicsSetDefinitions.WestCactusAlley, [
             new(EnemyDefinitionId.Cacatac),
             new(EnemyDefinitionId.Zoa),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.EastCactusAlley), [
+        new(RoomEnemyGraphicsSetDefinitions.EastCactusAlley, [
             new(EnemyDefinitionId.Cacatac),
             new(EnemyDefinitionId.Zoa),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.FishTank), [
+        new(RoomEnemyGraphicsSetDefinitions.FishTank, [
             new(EnemyDefinitionId.Skultera),
             new(EnemyDefinitionId.PirateMagentaWalking),
         ]),

@@ -16,7 +16,7 @@ public sealed class SbugEnemyState
     public SbugAction Action { get; internal set; }
 
     /// <summary>The updates left in a forward-then-wait leg, the one it ends on included (<see cref="SbugMovementDefinitions.LegDuration"/>, #2281).</summary>
-    public int MovementTimer { get; internal set; }
+    public UpdateCountdown MovementTimer { get; internal set; } = UpdateCountdown.Ended();
 
 
 

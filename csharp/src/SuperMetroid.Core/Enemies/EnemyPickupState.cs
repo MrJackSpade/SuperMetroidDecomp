@@ -12,10 +12,6 @@ internal sealed class EnemyPickupState(EnemyPickupKind kind, int lifetime, Kille
     /// <summary>What the pickup restores.</summary>
     internal EnemyPickupKind Kind { get; } = kind;
 
-    /// <summary>Updates the pickup remains collectible; it fades on the update this reaches zero.</summary>
-    internal int Lifetime
-    {
-        get;
-        set => field = Ensure.AtLeastZero(value);
-    } = Ensure.AtLeastZero(lifetime);
+    /// <summary>The updates the pickup remains collectible, counted once each update it is tended; it fades on the update this ends.</summary>
+    internal UpdateCountdown Lifetime { get; set; } = UpdateCountdown.For(lifetime);
 }

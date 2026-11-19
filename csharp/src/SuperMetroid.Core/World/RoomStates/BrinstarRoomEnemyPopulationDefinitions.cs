@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Boulder;
 using SuperMetroid.Core.Enemies.Boyon;
@@ -25,446 +25,617 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// <summary>The enemy placement lists of the Brinstar rooms.</summary>
 internal static class BrinstarRoomEnemyPopulationDefinitions
 {
-    /// <summary>The Brinstar rooms' lists.</summary>
-    internal static RoomEnemyPopulationDefinition[] Build() =>
+    /// <summary>The enemy population of the Brinstar Pre Map room.</summary>
+    internal static RoomEnemyPopulationDefinition BrinstarPreMap { get; } = new("BrinstarPreMap",
     [
-        new(nameof(RoomEnemyPopulationDefinitions.BrinstarPreMap),
-        [
-            new(EnemyDefinitionId.Sidehopper, new(580, 59), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Ceiling)),
-            new(EnemyDefinitionId.Zeela, new(376, 88), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
-            new(EnemyDefinitionId.Zeela, new(424, 88), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
-            new(EnemyDefinitionId.Zeela, new(73, 64), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideLeft, BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 4))),
-        ], 4),
-        new(nameof(RoomEnemyPopulationDefinitions.GreenBrinstarMap),
-        [
-        ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.GreenBrinstarMissileRefill),
-        [
-        ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.SporeSpawnKihunters),
-        [
-            new(EnemyDefinitionId.KihunterGreen, new(217, 104), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterSpawnSettings(Wings: KiHunterWings.Winged)),
-            new(EnemyDefinitionId.KihunterGreenWings, new(217, 104), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
-            new(EnemyDefinitionId.KihunterGreen, new(725, 98), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterSpawnSettings(Wings: KiHunterWings.Winged)),
-            new(EnemyDefinitionId.KihunterGreenWings, new(725, 98), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
-            new(EnemyDefinitionId.KihunterGreen, new(983, 104), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterSpawnSettings(Wings: KiHunterWings.Winged)),
-            new(EnemyDefinitionId.KihunterGreenWings, new(983, 104), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
-        ], 3),
-        new(nameof(RoomEnemyPopulationDefinitions.EtecoonSuper),
-        [
-        ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.DachoraEnergyRefill),
-        [
-        ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.SporeSpawnFarming),
-        [
-            new(EnemyDefinitionId.Zeb, new(384, 184), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
-            new(EnemyDefinitionId.Zeb, new(272, 184), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
-            new(EnemyDefinitionId.Zeb, new(224, 184), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
-            new(EnemyDefinitionId.Zeela, new(128, 66), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: null)),
-            new(EnemyDefinitionId.Zeela, new(176, 66), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: null)),
-        ], 5),
-        new(nameof(RoomEnemyPopulationDefinitions.HopperEnergyTank),
-        [
-        ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.BetaPowerBomb),
-        [
-            new(EnemyDefinitionId.YappingMaw, new(368, 208), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new YappingMawSpawnSettings(ActivationDistance: 54, Attack: VerticalDirection.Up)),
-            new(EnemyDefinitionId.YappingMaw, new(240, 208), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new YappingMawSpawnSettings(ActivationDistance: 54, Attack: VerticalDirection.Up)),
-            new(EnemyDefinitionId.SidehopperLarge, new(240, 88), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Ceiling)),
-            new(EnemyDefinitionId.SidehopperLarge, new(368, 88), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Ceiling)),
-            new(EnemyDefinitionId.SidehopperLarge, new(120, 88), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Ceiling)),
-        ], 3),
-        new(nameof(RoomEnemyPopulationDefinitions.WaterwayEnergyTank),
-        [
-            new(EnemyDefinitionId.Skultera, new(320, 174), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), StartDirection: HorizontalDirection.Right, Radius: 1, AngleStep: RotationAngle.FromSteps(16))),
-            new(EnemyDefinitionId.Puyo, new(361, 179), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new PuyoSpawnSettings(HopCooldown: 2, HopDistance: 1)),
-            new(EnemyDefinitionId.Puyo, new(503, 179), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new PuyoSpawnSettings(HopCooldown: 2, HopDistance: 1)),
-            new(EnemyDefinitionId.Puyo, new(548, 181), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new PuyoSpawnSettings(HopCooldown: 2, HopDistance: 1)),
-            new(EnemyDefinitionId.Skultera, new(587, 174), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), StartDirection: HorizontalDirection.Right, Radius: 1, AngleStep: RotationAngle.FromSteps(16))),
-            new(EnemyDefinitionId.Zero, new(1072, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 4))),
-            new(EnemyDefinitionId.Zero, new(1520, 88), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 4))),
-        ], 7),
-        new(nameof(RoomEnemyPopulationDefinitions.ConstructionZoneWhenZebesAwake),
-        [
-            new(EnemyDefinitionId.Zoomer, new(88, 120), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
-            new(EnemyDefinitionId.Zoomer, new(168, 148), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
-            new(EnemyDefinitionId.FaceBlock, new(72, 136), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.FaceBlock, new(184, 136), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.FaceBlock, new(232, 278), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.FaceBlock, new(232, 358), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.FaceBlock, new(24, 278), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-        ], 2),
-        new(nameof(RoomEnemyPopulationDefinitions.BlueBrinstarEnergyTankWhenZebesAwake),
-        [
-            new(EnemyDefinitionId.Zoomer, new(168, 712), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
-            new(EnemyDefinitionId.Zoomer, new(216, 712), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
-            new(EnemyDefinitionId.Skree, new(222, 587), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.Skree, new(254, 571), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.Rio, new(496, 576), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.FaceBlock, new(56, 552), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.FaceBlock, new(56, 680), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.FaceBlock, new(744, 696), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.FaceBlock, new(616, 136), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.FaceBlock, new(648, 136), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-        ], 5),
-        new(nameof(RoomEnemyPopulationDefinitions.NoobBridge),
-        [
-            new(EnemyDefinitionId.Cacatac, new(192, 179), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 64, Speed: SignedSixteenSixteen.FromPixelFraction(3, 16))),
-            new(EnemyDefinitionId.Cacatac, new(432, 179), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 64, Speed: SignedSixteenSixteen.FromPixelFraction(3, 16))),
-            new(EnemyDefinitionId.Cacatac, new(1392, 179), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Right, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 64, Speed: SignedSixteenSixteen.FromPixelFraction(3, 16))),
-            new(EnemyDefinitionId.Cacatac, new(976, 179), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 64, Speed: SignedSixteenSixteen.FromPixelFraction(3, 16))),
-            new(EnemyDefinitionId.Zeela, new(584, 118), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 4))),
-            new(EnemyDefinitionId.Zeela, new(680, 118), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 4))),
-            new(EnemyDefinitionId.Zeela, new(768, 118), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 4))),
-            new(EnemyDefinitionId.Zeela, new(872, 118), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 4))),
-        ], 8),
-        new(nameof(RoomEnemyPopulationDefinitions.MorphBallWhenZebesAwake),
-        [
-            new(EnemyDefinitionId.Elevator, new(1408, 706), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
-            new(EnemyDefinitionId.SidehopperLarge, new(152, 678), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
-            new(EnemyDefinitionId.SidehopperLarge, new(380, 678), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
-            new(EnemyDefinitionId.SidehopperLarge, new(263, 620), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Ceiling)),
-            new(EnemyDefinitionId.FaceBlock, new(1352, 576), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.FaceBlock, new(1464, 576), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.FaceBlock, new(1160, 696), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.FaceBlock, new(1064, 696), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-        ], 3),
-        new(nameof(RoomEnemyPopulationDefinitions.WarehouseSave),
-        [
-        ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.MorphBallDefault),
-        [
-            new(EnemyDefinitionId.MorphBallEye, new(1032, 584), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MorphBallEyeMountSpawnSettings(Side: MorphBallEyeMountSide.Left)),
-            new(EnemyDefinitionId.MorphBallEye, new(1032, 584), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MorphBallEyeBodySpawnSettings(Facing: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.Elevator, new(1408, 706), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
-            new(EnemyDefinitionId.FaceBlock, new(1352, 576), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 64, Facing: HorizontalDirection.Right)),
-            new(EnemyDefinitionId.FaceBlock, new(1464, 576), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 64, Facing: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.FaceBlock, new(1160, 696), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 64, Facing: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.FaceBlock, new(1064, 696), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 64, Facing: HorizontalDirection.Right)),
-        ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.WarehouseZeela),
-        [
-            new(EnemyDefinitionId.Zeela, new(106, 64), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideLeft, BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
-            new(EnemyDefinitionId.Zeela, new(106, 104), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideLeft, BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
-            new(EnemyDefinitionId.Zeela, new(43, 232), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
-        ], 3),
-        new(nameof(RoomEnemyPopulationDefinitions.RedTower),
-        [
-            new(EnemyDefinitionId.Ripper, new(152, 520), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), Direction: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.Ripper, new(96, 232), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), Direction: HorizontalDirection.Right)),
-            new(EnemyDefinitionId.Ripper, new(152, 320), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), Direction: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.Ripper, new(104, 416), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), Direction: HorizontalDirection.Right)),
-            new(EnemyDefinitionId.Beetom, new(207, 1624), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.Ripper, new(152, 2376), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), Direction: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.Ripper, new(95, 2280), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), Direction: HorizontalDirection.Right)),
-            new(EnemyDefinitionId.Ripper, new(157, 2184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), Direction: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.Ripper, new(104, 2048), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), Direction: HorizontalDirection.Right)),
-            new(EnemyDefinitionId.Geega, new(24, 1328), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new YellowPipeBugSpawnSettings(Facing: HorizontalDirection.Right, Speed: SignedSixteenSixteen.FromWholePixels(2))),
-            new(EnemyDefinitionId.Geega, new(200, 1360), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new YellowPipeBugSpawnSettings(Facing: HorizontalDirection.Left, Speed: SignedSixteenSixteen.FromWholePixels(2))),
-        ], 11),
-        new(nameof(RoomEnemyPopulationDefinitions.BlueBrinstarBoulders),
-        [
-            new(EnemyDefinitionId.Boulder, new(344, 192), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 128, TriggerReach: 80, Start: new BoulderStart.FallsFrom(160), Roll: BoulderRoll.LeftBreakingOnImpact)),
-            new(EnemyDefinitionId.Boulder, new(240, 192), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 128, TriggerReach: 80, Start: new BoulderStart.FallsFrom(160), Roll: BoulderRoll.LeftBreakingOnImpact)),
-            new(EnemyDefinitionId.Boulder, new(144, 192), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 128, TriggerReach: 80, Start: new BoulderStart.FallsFrom(160), Roll: BoulderRoll.LeftBreakingOnImpact)),
-        ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.BillyMays),
-        [
-        ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.BigPinkSaveRoom),
-        [
-        ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.BigPink),
-        [
-            new(EnemyDefinitionId.Rio, new(744, 1144), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.Rio, new(808, 1144), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.Rio, new(821, 1449), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.Sidehopper, new(569, 252), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Ceiling)),
-            new(EnemyDefinitionId.Sidehopper, new(760, 237), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Ceiling)),
-            new(EnemyDefinitionId.Sidehopper, new(592, 1048), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
-            new(EnemyDefinitionId.Sidehopper, new(688, 1048), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
-            new(EnemyDefinitionId.Zeb, new(704, 152), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
-            new(EnemyDefinitionId.Zeb, new(688, 552), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
-            new(EnemyDefinitionId.Zeb, new(800, 1353), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
-        ], 10),
-        new(nameof(RoomEnemyPopulationDefinitions.EtecoonSave),
-        [
-        ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.BelowSpazer),
-        [
-            new(EnemyDefinitionId.YappingMaw, new(400, 456), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new YappingMawSpawnSettings(ActivationDistance: 48, Attack: VerticalDirection.Up)),
-            new(EnemyDefinitionId.YappingMaw, new(128, 456), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new YappingMawSpawnSettings(ActivationDistance: 48, Attack: VerticalDirection.Up)),
-            new(EnemyDefinitionId.Cacatac, new(264, 403), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.FromPixelFraction(1, 8))),
-        ], 1),
-        new(nameof(RoomEnemyPopulationDefinitions.GreenBrinstarSave),
-        [
-        ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.Spazer),
-        [
-        ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.PinkBrinstarPowerBombs),
-        [
-            new(EnemyDefinitionId.ShutterShootable, new(56, 400), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.FromPixelFraction(1, 2), PrimaryDirection: VerticalDirection.Up, TriggerMode: ShutterTriggerMode.RepeatableReaction, TravelDistance: 96, ProximityDistance: 0, WaitTime: 0, RestAfterMovingUp: ShutterRest.Permanent, RestAfterMovingDown: ShutterRest.Permanent)),
-            new(EnemyDefinitionId.ShutterShootable, new(408, 496), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.FromPixelFraction(1, 2), PrimaryDirection: VerticalDirection.Up, TriggerMode: ShutterTriggerMode.RepeatableReaction, TravelDistance: 64, ProximityDistance: 0, WaitTime: 0, RestAfterMovingUp: ShutterRest.Permanent, RestAfterMovingDown: ShutterRest.Permanent)),
-            new(EnemyDefinitionId.SidehopperLarge, new(241, 166), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
-            new(EnemyDefinitionId.SidehopperLarge, new(104, 100), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Ceiling)),
-        ], 2),
-        new(nameof(RoomEnemyPopulationDefinitions.RedTowerRefill),
-        [
-        ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.KraidRefill),
-        [
-        ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.VariaSuit),
-        [
-        ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.RedBrinstarSave),
-        [
-        ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.BlueBrinstarEnergyTankDefault),
-        [
-            new(EnemyDefinitionId.MorphBallEye, new(552, 616), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MorphBallEyeMountSpawnSettings(Side: MorphBallEyeMountSide.Right)),
-            new(EnemyDefinitionId.MorphBallEye, new(552, 616), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MorphBallEyeBodySpawnSettings(Facing: HorizontalDirection.Right)),
-            new(EnemyDefinitionId.FaceBlock, new(56, 552), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.FaceBlock, new(56, 680), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.FaceBlock, new(744, 696), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.FaceBlock, new(616, 136), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.FaceBlock, new(648, 136), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-        ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.GreenBrinstarFirefleas),
-        [
-            new(EnemyDefinitionId.Fireflea, new(384, 95), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Circling(AngularSpeed.FromSteps(-1)), Radius: 24)),
-            new(EnemyDefinitionId.Fireflea, new(225, 106), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Circling(AngularSpeed.FromSteps(1)), Radius: 24)),
-            new(EnemyDefinitionId.Fireflea, new(69, 91), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Circling(AngularSpeed.FromSteps(-1)), Radius: 24)),
-            new(EnemyDefinitionId.Fireflea, new(112, 280), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Bobbing(SignedSixteenSixteen.FromPixelFraction(1, 2), VerticalDirection.Up), Radius: 32)),
-            new(EnemyDefinitionId.Fireflea, new(160, 312), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Bobbing(SignedSixteenSixteen.FromPixelFraction(1, 2), VerticalDirection.Up), Radius: 40)),
-        ], 5),
-        new(nameof(RoomEnemyPopulationDefinitions.GreenBrinstarBeetoms),
-        [
-            new(EnemyDefinitionId.Beetom, new(80, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.Beetom, new(112, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.Beetom, new(144, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.Beetom, new(176, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-        ], 4),
-        new(nameof(RoomEnemyPopulationDefinitions.EtecoonEnergyTank),
-        [
-            new(EnemyDefinitionId.Zebbo, new(592, 472), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
-            new(EnemyDefinitionId.Zebbo, new(752, 472), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
-            new(EnemyDefinitionId.Zebbo, new(1072, 472), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
-            new(EnemyDefinitionId.Beetom, new(472, 408), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.Beetom, new(632, 408), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.Beetom, new(864, 424), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.Beetom, new(984, 424), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.Beetom, new(1112, 424), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-        ], 8),
-        new(nameof(RoomEnemyPopulationDefinitions.PinkBrinstarHoppers),
-        [
-            new(EnemyDefinitionId.SidehopperLarge, new(181, 437), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
-            new(EnemyDefinitionId.Sidehopper, new(248, 416), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
-            new(EnemyDefinitionId.Sidehopper, new(106, 449), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
-            new(EnemyDefinitionId.ShutterShootable, new(344, 480), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.FromPixelFraction(1, 2), PrimaryDirection: VerticalDirection.Up, TriggerMode: ShutterTriggerMode.OneShotReaction, TravelDistance: 64, ProximityDistance: 0, WaitTime: 0, RestAfterMovingUp: ShutterRest.Permanent, RestAfterMovingDown: ShutterRest.For(0))),
-            new(EnemyDefinitionId.ShutterShootable, new(344, 480), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.FromPixelFraction(1, 2), PrimaryDirection: VerticalDirection.Up, TriggerMode: ShutterTriggerMode.OneShotReaction, TravelDistance: 128, ProximityDistance: 0, WaitTime: 0, RestAfterMovingUp: ShutterRest.Permanent, RestAfterMovingDown: ShutterRest.For(0))),
-            new(EnemyDefinitionId.ShutterShootable, new(344, 480), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.FromPixelFraction(1, 2), PrimaryDirection: VerticalDirection.Up, TriggerMode: ShutterTriggerMode.OneShotReaction, TravelDistance: 192, ProximityDistance: 0, WaitTime: 0, RestAfterMovingUp: ShutterRest.Permanent, RestAfterMovingDown: ShutterRest.For(0))),
-            new(EnemyDefinitionId.ShutterShootable, new(344, 480), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.FromPixelFraction(1, 2), PrimaryDirection: VerticalDirection.Up, TriggerMode: ShutterTriggerMode.OneShotReaction, TravelDistance: 240, ProximityDistance: 0, WaitTime: 0, RestAfterMovingUp: ShutterRest.Permanent, RestAfterMovingDown: ShutterRest.For(0))),
-            new(EnemyDefinitionId.ShutterShootable, new(328, 480), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.Zero, PrimaryDirection: VerticalDirection.Up, TriggerMode: ShutterTriggerMode.Timer, TravelDistance: 0, ProximityDistance: 0, WaitTime: 0, RestAfterMovingUp: ShutterRest.For(0), RestAfterMovingDown: ShutterRest.For(0))),
-            new(EnemyDefinitionId.ShutterShootable, new(360, 480), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.Zero, PrimaryDirection: VerticalDirection.Up, TriggerMode: ShutterTriggerMode.Timer, TravelDistance: 0, ProximityDistance: 0, WaitTime: 0, RestAfterMovingUp: ShutterRest.For(0), RestAfterMovingDown: ShutterRest.For(0))),
-        ], 3),
-        new(nameof(RoomEnemyPopulationDefinitions.WarehouseEnergyTank),
-        [
-            new(EnemyDefinitionId.Beetom, new(45, 152), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.Beetom, new(71, 152), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.Beetom, new(139, 168), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.Beetom, new(96, 152), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-        ], 4),
-        new(nameof(RoomEnemyPopulationDefinitions.WarehouseEntrance),
-        [
-            new(EnemyDefinitionId.Elevator, new(128, 160), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 320)),
-        ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.WarehouseKihunter),
-        [
-            new(EnemyDefinitionId.KihunterGreen, new(361, 112), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterSpawnSettings(Wings: KiHunterWings.Winged)),
-            new(EnemyDefinitionId.KihunterGreenWings, new(361, 112), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
-            new(EnemyDefinitionId.KihunterGreen, new(649, 89), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterSpawnSettings(Wings: KiHunterWings.Winged)),
-            new(EnemyDefinitionId.KihunterGreenWings, new(649, 89), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
-            new(EnemyDefinitionId.KihunterGreen, new(510, 99), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterSpawnSettings(Wings: KiHunterWings.Winged)),
-            new(EnemyDefinitionId.KihunterGreenWings, new(510, 99), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
-            new(EnemyDefinitionId.KihunterGreen, new(578, 122), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterSpawnSettings(Wings: KiHunterWings.Winged)),
-            new(EnemyDefinitionId.KihunterGreenWings, new(578, 122), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
-        ], 4),
-        new(nameof(RoomEnemyPopulationDefinitions.GreenBrinstarMainShaft),
-        [
-            new(EnemyDefinitionId.Elevator, new(128, 706), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
-            new(EnemyDefinitionId.Zeela, new(218, 715), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideLeft, BlockSide: CrawlerSurfaceOrientation.UpsideUp, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
-            new(EnemyDefinitionId.Zeela, new(112, 920), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
-            new(EnemyDefinitionId.JetRipper, new(108, 1014), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromPixelFraction(3, 2), Direction: HorizontalDirection.Right)),
-            new(EnemyDefinitionId.Zeela, new(121, 1768), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
-            new(EnemyDefinitionId.JetRipper, new(67, 1352), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromPixelFraction(3, 2), Direction: HorizontalDirection.Right)),
-            new(EnemyDefinitionId.Zeela, new(123, 1528), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideLeft, BlockSide: CrawlerSurfaceOrientation.UpsideDown, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
-            new(EnemyDefinitionId.Zeela, new(39, 972), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideRight, BlockSide: CrawlerSurfaceOrientation.UpsideUp, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
-            new(EnemyDefinitionId.Etecoon, new(607, 2968), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen, EnemyPresence.None, false, new EtecoonSpawnSettings(Route: EtecoonRoute.RunLeftToTeachingStart)),
-            new(EnemyDefinitionId.Etecoon, new(623, 2968), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen, EnemyPresence.None, false, new EtecoonSpawnSettings(Route: EtecoonRoute.RunRightToTeachingStart)),
-            new(EnemyDefinitionId.Etecoon, new(639, 2968), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen, EnemyPresence.None, false, new EtecoonSpawnSettings(Route: EtecoonRoute.TeachAtOnce)),
-        ], 7),
-        new(nameof(RoomEnemyPopulationDefinitions.SporeSpawnSuper),
-        [
-            new(EnemyDefinitionId.Zeb, new(192, 184), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
-        ], 1),
-        new(nameof(RoomEnemyPopulationDefinitions.EarlySupers),
-        [
-            new(EnemyDefinitionId.Sidehopper, new(442, 424), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
-            new(EnemyDefinitionId.Sidehopper, new(512, 424), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
-            new(EnemyDefinitionId.ShutterGrowing, new(408, 296), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new GrowingShutterSpawnSettings(Wait: GrowingShutterWait.SamusNear, Growth: VerticalDirection.Down, ActivationDistance: 144, ActivationWait: 0, GrowthSpeed: SignedSixteenSixteen.FromPixelFraction(17, 16))),
-            new(EnemyDefinitionId.ShutterGrowing, new(552, 296), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new GrowingShutterSpawnSettings(Wait: GrowingShutterWait.SamusNear, Growth: VerticalDirection.Down, ActivationDistance: 144, ActivationWait: 0, GrowthSpeed: SignedSixteenSixteen.FromPixelFraction(17, 16))),
-            new(EnemyDefinitionId.ShutterGrowing, new(648, 296), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new GrowingShutterSpawnSettings(Wait: GrowingShutterWait.SamusNear, Growth: VerticalDirection.Down, ActivationDistance: 144, ActivationWait: 0, GrowthSpeed: SignedSixteenSixteen.FromPixelFraction(17, 16))),
-            new(EnemyDefinitionId.Waver, new(171, 75), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new WaverSpawnSettings(Facing: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.Waver, new(264, 107), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new WaverSpawnSettings(Facing: HorizontalDirection.Right)),
-            new(EnemyDefinitionId.Waver, new(529, 101), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new WaverSpawnSettings(Facing: HorizontalDirection.Right)),
-            new(EnemyDefinitionId.Waver, new(321, 86), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new WaverSpawnSettings(Facing: HorizontalDirection.Right)),
-            new(EnemyDefinitionId.Zeb, new(144, 440), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
-            new(EnemyDefinitionId.Sidehopper, new(322, 133), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
-            new(EnemyDefinitionId.Sidehopper, new(451, 132), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
-            new(EnemyDefinitionId.Sidehopper, new(387, 61), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Ceiling)),
-        ], 10),
-        new(nameof(RoomEnemyPopulationDefinitions.RedBrinstarFirefleas),
-        [
-            new(EnemyDefinitionId.Fireflea, new(1744, 144), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Bobbing(SignedSixteenSixteen.FromPixelFraction(3, 8), VerticalDirection.Up), Radius: 32)),
-            new(EnemyDefinitionId.Fireflea, new(1808, 112), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Circling(AngularSpeed.FromStepFraction(-3, 2)), Radius: 48)),
-            new(EnemyDefinitionId.Fireflea, new(1672, 96), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Circling(AngularSpeed.FromStepFraction(3, 2)), Radius: 40)),
-            new(EnemyDefinitionId.Fireflea, new(1248, 168), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Circling(AngularSpeed.FromSteps(-1)), Radius: 24)),
-            new(EnemyDefinitionId.Fireflea, new(1584, 128), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Circling(AngularSpeed.FromSteps(2)), Radius: 24)),
-            new(EnemyDefinitionId.Waver, new(1861, 80), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new WaverSpawnSettings(Facing: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.Waver, new(1680, 96), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new WaverSpawnSettings(Facing: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.Waver, new(1536, 96), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new WaverSpawnSettings(Facing: HorizontalDirection.Right)),
-            new(EnemyDefinitionId.YappingMaw, new(408, 200), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new YappingMawSpawnSettings(ActivationDistance: 80, Attack: VerticalDirection.Up)),
-            new(EnemyDefinitionId.YappingMaw, new(600, 192), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new YappingMawSpawnSettings(ActivationDistance: 80, Attack: VerticalDirection.Up)),
-            new(EnemyDefinitionId.YappingMaw, new(936, 192), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new YappingMawSpawnSettings(ActivationDistance: 80, Attack: VerticalDirection.Up)),
-        ], 8),
-        new(nameof(RoomEnemyPopulationDefinitions.ConstructionZoneDefault),
-        [
-            new(EnemyDefinitionId.Sbug, new(46, 192), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(138), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
-            new(EnemyDefinitionId.Sbug, new(222, 179), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(200), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
-            new(EnemyDefinitionId.Sbug, new(219, 183), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromSteps(248), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
-            new(EnemyDefinitionId.Sbug, new(217, 177), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromSteps(236), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
-            new(EnemyDefinitionId.Sbug, new(215, 193), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(244), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
-            new(EnemyDefinitionId.Sbug, new(179, 467), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromSteps(196), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
-            new(EnemyDefinitionId.Sbug, new(185, 475), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(208), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
-            new(EnemyDefinitionId.Sbug, new(187, 490), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(220), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
-            new(EnemyDefinitionId.Sbug, new(174, 476), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromSteps(187), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
-            new(EnemyDefinitionId.Sbug, new(213, 496), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(3), ActivationRadius: 128, Behavior: SbugActivationBehavior.MoveForward)),
-            new(EnemyDefinitionId.FaceBlock, new(72, 136), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.FaceBlock, new(184, 136), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Right)),
-            new(EnemyDefinitionId.FaceBlock, new(232, 278), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.FaceBlock, new(232, 358), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.FaceBlock, new(24, 278), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
-        ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.GreenHillZone),
-        [
-            new(EnemyDefinitionId.Sidehopper, new(1024, 672), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
-            new(EnemyDefinitionId.Sidehopper, new(1280, 768), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
-            new(EnemyDefinitionId.Sidehopper, new(1671, 950), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
-            new(EnemyDefinitionId.Geega, new(368, 288), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new YellowPipeBugSpawnSettings(Facing: HorizontalDirection.Left, Speed: SignedSixteenSixteen.FromPixelFraction(9, 4))),
-            new(EnemyDefinitionId.Geega, new(560, 480), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new YellowPipeBugSpawnSettings(Facing: HorizontalDirection.Right, Speed: SignedSixteenSixteen.FromPixelFraction(9, 4))),
-            new(EnemyDefinitionId.Geega, new(896, 544), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new YellowPipeBugSpawnSettings(Facing: HorizontalDirection.Left, Speed: SignedSixteenSixteen.FromPixelFraction(9, 4))),
-            new(EnemyDefinitionId.Geega, new(1376, 736), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new YellowPipeBugSpawnSettings(Facing: HorizontalDirection.Left, Speed: SignedSixteenSixteen.FromPixelFraction(9, 4))),
-            new(EnemyDefinitionId.Geega, new(1280, 832), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new YellowPipeBugSpawnSettings(Facing: HorizontalDirection.Right, Speed: SignedSixteenSixteen.FromPixelFraction(9, 4))),
-            new(EnemyDefinitionId.Sidehopper, new(1744, 848), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Ceiling)),
-            new(EnemyDefinitionId.Sidehopper, new(1816, 848), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Ceiling)),
-        ], 10),
-        new(nameof(RoomEnemyPopulationDefinitions.Dachora),
-        [
-            new(EnemyDefinitionId.Zeela, new(224, 184), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideRight, BlockSide: CrawlerSurfaceOrientation.UpsideUp, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
-            new(EnemyDefinitionId.Zeela, new(264, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideRight, BlockSide: CrawlerSurfaceOrientation.UpsideUp, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
-            new(EnemyDefinitionId.Metaree, new(1581, 108), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.Metaree, new(1624, 76), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.Metaree, new(1651, 76), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.Rio, new(304, 96), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.Rio, new(432, 96), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.Rio, new(744, 96), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.Dachora, new(96, 1704), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen, EnemyPresence.None, false, new DachoraSpawnSettings(Facing: HorizontalDirection.Right, Role: DachoraRole.Runner)),
-            new(EnemyDefinitionId.Dachora, new(96, 1704), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen, EnemyPresence.Hidden, false, new DachoraSpawnSettings(Facing: HorizontalDirection.Right, Role: DachoraRole.SpeedBoostEcho)),
-            new(EnemyDefinitionId.Dachora, new(96, 1704), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen, EnemyPresence.Hidden, false, new DachoraSpawnSettings(Facing: HorizontalDirection.Right, Role: DachoraRole.SpeedBoostEcho)),
-            new(EnemyDefinitionId.Dachora, new(96, 1704), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen, EnemyPresence.Hidden, false, new DachoraSpawnSettings(Facing: HorizontalDirection.Right, Role: DachoraRole.SpeedBoostEcho)),
-            new(EnemyDefinitionId.Dachora, new(96, 1704), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen, EnemyPresence.Hidden, false, new DachoraSpawnSettings(Facing: HorizontalDirection.Right, Role: DachoraRole.SpeedBoostEcho)),
-        ], 8),
-        new(nameof(RoomEnemyPopulationDefinitions.Hellway),
-        [
-            new(EnemyDefinitionId.Zeela, new(160, 152), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
-            new(EnemyDefinitionId.Zeela, new(295, 136), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
-            new(EnemyDefinitionId.Zeela, new(368, 152), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
-            new(EnemyDefinitionId.Zeela, new(447, 152), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
-            new(EnemyDefinitionId.Zebbo, new(416, 216), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
-            new(EnemyDefinitionId.Zebbo, new(256, 216), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
-            new(EnemyDefinitionId.Zebbo, new(480, 216), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
-            new(EnemyDefinitionId.Zebbo, new(128, 216), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
-        ], 8),
-        new(nameof(RoomEnemyPopulationDefinitions.FirstMissile),
-        [
-        ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.Kraid),
-        [
-            new(EnemyDefinitionId.Kraid, new(256, 536), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen, EnemyPresence.Hidden, true, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.KraidArm, new(232, 488), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.KraidLintTop, new(200, 528), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.KraidLintMiddle, new(176, 592), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.KraidLintBottom, new(178, 648), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.KraidFoot, new(256, 632), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.KraidFirstNail, new(232, 488), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.KraidSecondNail, new(232, 488), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, EnemySpawnSettings.None),
-        ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.BrinstarReserveTank),
-        [
-        ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.XrayScope),
-        [
-            new(EnemyDefinitionId.ShutterShootable, new(360, 160), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.FromPixelFraction(1, 2), PrimaryDirection: VerticalDirection.Up, TriggerMode: ShutterTriggerMode.RepeatableReaction, TravelDistance: 64, ProximityDistance: 0, WaitTime: 0, RestAfterMovingUp: ShutterRest.Permanent, RestAfterMovingDown: ShutterRest.Permanent)),
-            new(EnemyDefinitionId.ShutterShootable, new(184, 224), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.FromPixelFraction(1, 2), PrimaryDirection: VerticalDirection.Up, TriggerMode: ShutterTriggerMode.RepeatableReaction, TravelDistance: 64, ProximityDistance: 0, WaitTime: 0, RestAfterMovingUp: ShutterRest.Permanent, RestAfterMovingDown: ShutterRest.Permanent)),
-        ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.AlphaPowerBomb),
-        [
-            new(EnemyDefinitionId.Boyon, new(600, 168), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 48, TriggerDistance: 32)),
-            new(EnemyDefinitionId.Boyon, new(616, 168), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 48, TriggerDistance: 32)),
-            new(EnemyDefinitionId.Boyon, new(504, 168), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 48, TriggerDistance: 32)),
-            new(EnemyDefinitionId.Boyon, new(520, 168), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 48, TriggerDistance: 32)),
-        ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.KraidEyeDoor),
-        [
-            new(EnemyDefinitionId.Zeb, new(144, 456), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
-            new(EnemyDefinitionId.Sbug, new(310, 413), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(200), ActivationRadius: 48, Behavior: SbugActivationBehavior.MoveForward)),
-            new(EnemyDefinitionId.Sbug, new(311, 420), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(186), ActivationRadius: 48, Behavior: SbugActivationBehavior.MoveForward)),
-            new(EnemyDefinitionId.Sbug, new(317, 427), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromSteps(168), ActivationRadius: 48, Behavior: SbugActivationBehavior.MoveForward)),
-            new(EnemyDefinitionId.Sbug, new(307, 428), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(180), ActivationRadius: 48, Behavior: SbugActivationBehavior.MoveForward)),
-            new(EnemyDefinitionId.Sbug, new(315, 414), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromSteps(202), ActivationRadius: 48, Behavior: SbugActivationBehavior.MoveForward)),
-            new(EnemyDefinitionId.Sbug, new(322, 420), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(201), ActivationRadius: 48, Behavior: SbugActivationBehavior.MoveForward)),
-            new(EnemyDefinitionId.Sbug, new(325, 423), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromSteps(190), ActivationRadius: 48, Behavior: SbugActivationBehavior.MoveForward)),
-            new(EnemyDefinitionId.Sbug, new(323, 431), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(194), ActivationRadius: 48, Behavior: SbugActivationBehavior.MoveForward)),
-            new(EnemyDefinitionId.Sbug, new(311, 432), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(144), ActivationRadius: 48, Behavior: SbugActivationBehavior.MoveForward)),
-            new(EnemyDefinitionId.Sbug, new(334, 428), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromSteps(200), ActivationRadius: 32, Behavior: SbugActivationBehavior.MoveForward)),
-        ], 1),
-        new(nameof(RoomEnemyPopulationDefinitions.Caterpillar),
-        [
-            new(EnemyDefinitionId.Elevator, new(128, 706), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
-            new(EnemyDefinitionId.Zero, new(95, 1928), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 4))),
-            new(EnemyDefinitionId.Zero, new(23, 1758), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideRight, BlockSide: CrawlerSurfaceOrientation.UpsideDown, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 4))),
-            new(EnemyDefinitionId.Zero, new(120, 1679), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideLeft, BlockSide: CrawlerSurfaceOrientation.UpsideDown, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 4))),
-            new(EnemyDefinitionId.Cacatac, new(113, 1139), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Right, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.FromPixelFraction(3, 16))),
-            new(EnemyDefinitionId.Cacatac, new(192, 1283), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.FromPixelFraction(3, 16))),
-        ], 5),
-        new(nameof(RoomEnemyPopulationDefinitions.MiniKraid),
-        [
-            new(EnemyDefinitionId.PirateGreenWalking, new(217, 160), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Facing: HorizontalDirection.Left, LaserSpeed: PirateLaserSpeed.Slow, ShotWatch: WalkingSpacePirateShotWatch.FlinchesFromShots, PatrolReach: 80)),
-            new(EnemyDefinitionId.PirateGreenWalking, new(288, 160), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Facing: HorizontalDirection.Left, LaserSpeed: PirateLaserSpeed.Slow, ShotWatch: WalkingSpacePirateShotWatch.FlinchesFromShots, PatrolReach: 80)),
-            new(EnemyDefinitionId.PirateGreenWalking, new(500, 160), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Facing: HorizontalDirection.Left, LaserSpeed: PirateLaserSpeed.Slow, ShotWatch: WalkingSpacePirateShotWatch.FlinchesFromShots, PatrolReach: 80)),
-            new(EnemyDefinitionId.FakeKraid, new(1328, 160), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-        ], 4),
-        new(nameof(RoomEnemyPopulationDefinitions.SporeSpawn),
-        [
-            new(EnemyDefinitionId.SporeSpawn, new(128, 624), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
-        ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.SkreeBoost),
-        [
-            new(EnemyDefinitionId.Skree, new(328, 60), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.Skree, new(368, 60), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-        ], 2),
+        new(EnemyDefinitionId.Sidehopper, new(580, 59), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Ceiling)),
+        new(EnemyDefinitionId.Zeela, new(376, 88), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
+        new(EnemyDefinitionId.Zeela, new(424, 88), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
+        new(EnemyDefinitionId.Zeela, new(73, 64), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideLeft, BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 4))),
+    ], 4);
+
+    /// <summary>The enemy population of the Green Brinstar Map room.</summary>
+    internal static RoomEnemyPopulationDefinition GreenBrinstarMap { get; } = new("GreenBrinstarMap",
+    [
+    ], 0);
+
+    /// <summary>The enemy population of the Green Brinstar Missile Refill room.</summary>
+    internal static RoomEnemyPopulationDefinition GreenBrinstarMissileRefill { get; } = new("GreenBrinstarMissileRefill",
+    [
+    ], 0);
+
+    /// <summary>The enemy population of the Spore Spawn Kihunters room.</summary>
+    internal static RoomEnemyPopulationDefinition SporeSpawnKihunters { get; } = new("SporeSpawnKihunters",
+    [
+        new(EnemyDefinitionId.KihunterGreen, new(217, 104), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterSpawnSettings(Wings: KiHunterWings.Winged)),
+        new(EnemyDefinitionId.KihunterGreenWings, new(217, 104), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
+        new(EnemyDefinitionId.KihunterGreen, new(725, 98), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterSpawnSettings(Wings: KiHunterWings.Winged)),
+        new(EnemyDefinitionId.KihunterGreenWings, new(725, 98), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
+        new(EnemyDefinitionId.KihunterGreen, new(983, 104), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterSpawnSettings(Wings: KiHunterWings.Winged)),
+        new(EnemyDefinitionId.KihunterGreenWings, new(983, 104), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
+    ], 3);
+
+    /// <summary>The enemy population of the Etecoon Super room.</summary>
+    internal static RoomEnemyPopulationDefinition EtecoonSuper { get; } = new("EtecoonSuper",
+    [
+    ], 0);
+
+    /// <summary>The enemy population of the Dachora Energy Refill room.</summary>
+    internal static RoomEnemyPopulationDefinition DachoraEnergyRefill { get; } = new("DachoraEnergyRefill",
+    [
+    ], 0);
+
+    /// <summary>The enemy population of the Spore Spawn Farming room.</summary>
+    internal static RoomEnemyPopulationDefinition SporeSpawnFarming { get; } = new("SporeSpawnFarming",
+    [
+        new(EnemyDefinitionId.Zeb, new(384, 184), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
+        new(EnemyDefinitionId.Zeb, new(272, 184), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
+        new(EnemyDefinitionId.Zeb, new(224, 184), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
+        new(EnemyDefinitionId.Zeela, new(128, 66), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: null)),
+        new(EnemyDefinitionId.Zeela, new(176, 66), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: null)),
+    ], 5);
+
+    /// <summary>The enemy population of the Hopper Energy Tank room.</summary>
+    internal static RoomEnemyPopulationDefinition HopperEnergyTank { get; } = new("HopperEnergyTank",
+    [
+    ], 0);
+
+    /// <summary>The enemy population of the Beta Power Bomb room.</summary>
+    internal static RoomEnemyPopulationDefinition BetaPowerBomb { get; } = new("BetaPowerBomb",
+    [
+        new(EnemyDefinitionId.YappingMaw, new(368, 208), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new YappingMawSpawnSettings(ActivationDistance: 54, Attack: VerticalDirection.Up)),
+        new(EnemyDefinitionId.YappingMaw, new(240, 208), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new YappingMawSpawnSettings(ActivationDistance: 54, Attack: VerticalDirection.Up)),
+        new(EnemyDefinitionId.SidehopperLarge, new(240, 88), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Ceiling)),
+        new(EnemyDefinitionId.SidehopperLarge, new(368, 88), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Ceiling)),
+        new(EnemyDefinitionId.SidehopperLarge, new(120, 88), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Ceiling)),
+    ], 3);
+
+    /// <summary>The enemy population of the Waterway Energy Tank room.</summary>
+    internal static RoomEnemyPopulationDefinition WaterwayEnergyTank { get; } = new("WaterwayEnergyTank",
+    [
+        new(EnemyDefinitionId.Skultera, new(320, 174), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), StartDirection: HorizontalDirection.Right, Radius: 1, AngleStep: RotationAngle.FromSteps(16))),
+        new(EnemyDefinitionId.Puyo, new(361, 179), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new PuyoSpawnSettings(HopCooldown: 2, HopDistance: 1)),
+        new(EnemyDefinitionId.Puyo, new(503, 179), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new PuyoSpawnSettings(HopCooldown: 2, HopDistance: 1)),
+        new(EnemyDefinitionId.Puyo, new(548, 181), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new PuyoSpawnSettings(HopCooldown: 2, HopDistance: 1)),
+        new(EnemyDefinitionId.Skultera, new(587, 174), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), StartDirection: HorizontalDirection.Right, Radius: 1, AngleStep: RotationAngle.FromSteps(16))),
+        new(EnemyDefinitionId.Zero, new(1072, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 4))),
+        new(EnemyDefinitionId.Zero, new(1520, 88), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 4))),
+    ], 7);
+
+    /// <summary>The enemy population of the Construction Zone room once Zebes is awake.</summary>
+    internal static RoomEnemyPopulationDefinition ConstructionZoneWhenZebesAwake { get; } = new("ConstructionZoneWhenZebesAwake",
+    [
+        new(EnemyDefinitionId.Zoomer, new(88, 120), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
+        new(EnemyDefinitionId.Zoomer, new(168, 148), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
+        new(EnemyDefinitionId.FaceBlock, new(72, 136), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.FaceBlock, new(184, 136), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.FaceBlock, new(232, 278), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.FaceBlock, new(232, 358), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.FaceBlock, new(24, 278), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+    ], 2);
+
+    /// <summary>The enemy population of the Blue Brinstar Energy Tank room once Zebes is awake.</summary>
+    internal static RoomEnemyPopulationDefinition BlueBrinstarEnergyTankWhenZebesAwake { get; } = new("BlueBrinstarEnergyTankWhenZebesAwake",
+    [
+        new(EnemyDefinitionId.Zoomer, new(168, 712), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
+        new(EnemyDefinitionId.Zoomer, new(216, 712), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
+        new(EnemyDefinitionId.Skree, new(222, 587), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.Skree, new(254, 571), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.Rio, new(496, 576), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.FaceBlock, new(56, 552), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.FaceBlock, new(56, 680), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.FaceBlock, new(744, 696), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.FaceBlock, new(616, 136), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.FaceBlock, new(648, 136), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+    ], 5);
+
+    /// <summary>The enemy population of the Noob Bridge room.</summary>
+    internal static RoomEnemyPopulationDefinition NoobBridge { get; } = new("NoobBridge",
+    [
+        new(EnemyDefinitionId.Cacatac, new(192, 179), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 64, Speed: SignedSixteenSixteen.FromPixelFraction(3, 16))),
+        new(EnemyDefinitionId.Cacatac, new(432, 179), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 64, Speed: SignedSixteenSixteen.FromPixelFraction(3, 16))),
+        new(EnemyDefinitionId.Cacatac, new(1392, 179), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Right, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 64, Speed: SignedSixteenSixteen.FromPixelFraction(3, 16))),
+        new(EnemyDefinitionId.Cacatac, new(976, 179), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 64, Speed: SignedSixteenSixteen.FromPixelFraction(3, 16))),
+        new(EnemyDefinitionId.Zeela, new(584, 118), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 4))),
+        new(EnemyDefinitionId.Zeela, new(680, 118), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 4))),
+        new(EnemyDefinitionId.Zeela, new(768, 118), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 4))),
+        new(EnemyDefinitionId.Zeela, new(872, 118), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 4))),
+    ], 8);
+
+    /// <summary>The enemy population of the Morph Ball room once Zebes is awake.</summary>
+    internal static RoomEnemyPopulationDefinition MorphBallWhenZebesAwake { get; } = new("MorphBallWhenZebesAwake",
+    [
+        new(EnemyDefinitionId.Elevator, new(1408, 706), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
+        new(EnemyDefinitionId.SidehopperLarge, new(152, 678), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
+        new(EnemyDefinitionId.SidehopperLarge, new(380, 678), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
+        new(EnemyDefinitionId.SidehopperLarge, new(263, 620), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Ceiling)),
+        new(EnemyDefinitionId.FaceBlock, new(1352, 576), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.FaceBlock, new(1464, 576), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.FaceBlock, new(1160, 696), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.FaceBlock, new(1064, 696), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+    ], 3);
+
+    /// <summary>The enemy population of the Warehouse Save room.</summary>
+    internal static RoomEnemyPopulationDefinition WarehouseSave { get; } = new("WarehouseSave",
+    [
+    ], 0);
+
+    /// <summary>The enemy population of the Morph Ball room in its default state.</summary>
+    internal static RoomEnemyPopulationDefinition MorphBallDefault { get; } = new("MorphBallDefault",
+    [
+        new(EnemyDefinitionId.MorphBallEye, new(1032, 584), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MorphBallEyeMountSpawnSettings(Side: MorphBallEyeMountSide.Left)),
+        new(EnemyDefinitionId.MorphBallEye, new(1032, 584), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MorphBallEyeBodySpawnSettings(Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.Elevator, new(1408, 706), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
+        new(EnemyDefinitionId.FaceBlock, new(1352, 576), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 64, Facing: HorizontalDirection.Right)),
+        new(EnemyDefinitionId.FaceBlock, new(1464, 576), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 64, Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.FaceBlock, new(1160, 696), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 64, Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.FaceBlock, new(1064, 696), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 64, Facing: HorizontalDirection.Right)),
+    ], 0);
+
+    /// <summary>The enemy population of the Warehouse Zeela room.</summary>
+    internal static RoomEnemyPopulationDefinition WarehouseZeela { get; } = new("WarehouseZeela",
+    [
+        new(EnemyDefinitionId.Zeela, new(106, 64), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideLeft, BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
+        new(EnemyDefinitionId.Zeela, new(106, 104), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideLeft, BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
+        new(EnemyDefinitionId.Zeela, new(43, 232), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
+    ], 3);
+
+    /// <summary>The enemy population of the Red Tower room.</summary>
+    internal static RoomEnemyPopulationDefinition RedTower { get; } = new("RedTower",
+    [
+        new(EnemyDefinitionId.Ripper, new(152, 520), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), Direction: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.Ripper, new(96, 232), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), Direction: HorizontalDirection.Right)),
+        new(EnemyDefinitionId.Ripper, new(152, 320), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), Direction: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.Ripper, new(104, 416), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), Direction: HorizontalDirection.Right)),
+        new(EnemyDefinitionId.Beetom, new(207, 1624), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.Ripper, new(152, 2376), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), Direction: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.Ripper, new(95, 2280), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), Direction: HorizontalDirection.Right)),
+        new(EnemyDefinitionId.Ripper, new(157, 2184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), Direction: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.Ripper, new(104, 2048), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromWholePixels(1), Direction: HorizontalDirection.Right)),
+        new(EnemyDefinitionId.Geega, new(24, 1328), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new YellowPipeBugSpawnSettings(Facing: HorizontalDirection.Right, Speed: SignedSixteenSixteen.FromWholePixels(2))),
+        new(EnemyDefinitionId.Geega, new(200, 1360), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new YellowPipeBugSpawnSettings(Facing: HorizontalDirection.Left, Speed: SignedSixteenSixteen.FromWholePixels(2))),
+    ], 11);
+
+    /// <summary>The enemy population of the Blue Brinstar Boulders room.</summary>
+    internal static RoomEnemyPopulationDefinition BlueBrinstarBoulders { get; } = new("BlueBrinstarBoulders",
+    [
+        new(EnemyDefinitionId.Boulder, new(344, 192), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 128, TriggerReach: 80, Start: new BoulderStart.FallsFrom(160), Roll: BoulderRoll.LeftBreakingOnImpact)),
+        new(EnemyDefinitionId.Boulder, new(240, 192), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 128, TriggerReach: 80, Start: new BoulderStart.FallsFrom(160), Roll: BoulderRoll.LeftBreakingOnImpact)),
+        new(EnemyDefinitionId.Boulder, new(144, 192), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoulderSpawnSettings(TriggerHeight: 128, TriggerReach: 80, Start: new BoulderStart.FallsFrom(160), Roll: BoulderRoll.LeftBreakingOnImpact)),
+    ], 0);
+
+    /// <summary>The enemy population of the Billy Mays room.</summary>
+    internal static RoomEnemyPopulationDefinition BillyMays { get; } = new("BillyMays",
+    [
+    ], 0);
+
+    /// <summary>The enemy population of the Big Pink Save Room.</summary>
+    internal static RoomEnemyPopulationDefinition BigPinkSaveRoom { get; } = new("BigPinkSaveRoom",
+    [
+    ], 0);
+
+    /// <summary>The enemy population of the Big Pink room.</summary>
+    internal static RoomEnemyPopulationDefinition BigPink { get; } = new("BigPink",
+    [
+        new(EnemyDefinitionId.Rio, new(744, 1144), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.Rio, new(808, 1144), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.Rio, new(821, 1449), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.Sidehopper, new(569, 252), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Ceiling)),
+        new(EnemyDefinitionId.Sidehopper, new(760, 237), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Ceiling)),
+        new(EnemyDefinitionId.Sidehopper, new(592, 1048), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
+        new(EnemyDefinitionId.Sidehopper, new(688, 1048), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
+        new(EnemyDefinitionId.Zeb, new(704, 152), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
+        new(EnemyDefinitionId.Zeb, new(688, 552), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
+        new(EnemyDefinitionId.Zeb, new(800, 1353), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
+    ], 10);
+
+    /// <summary>The enemy population of the Etecoon Save room.</summary>
+    internal static RoomEnemyPopulationDefinition EtecoonSave { get; } = new("EtecoonSave",
+    [
+    ], 0);
+
+    /// <summary>The enemy population of the Below Spazer room.</summary>
+    internal static RoomEnemyPopulationDefinition BelowSpazer { get; } = new("BelowSpazer",
+    [
+        new(EnemyDefinitionId.YappingMaw, new(400, 456), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new YappingMawSpawnSettings(ActivationDistance: 48, Attack: VerticalDirection.Up)),
+        new(EnemyDefinitionId.YappingMaw, new(128, 456), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new YappingMawSpawnSettings(ActivationDistance: 48, Attack: VerticalDirection.Up)),
+        new(EnemyDefinitionId.Cacatac, new(264, 403), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.FromPixelFraction(1, 8))),
+    ], 1);
+
+    /// <summary>The enemy population of the Green Brinstar Save room.</summary>
+    internal static RoomEnemyPopulationDefinition GreenBrinstarSave { get; } = new("GreenBrinstarSave",
+    [
+    ], 0);
+
+    /// <summary>The enemy population of the Spazer room.</summary>
+    internal static RoomEnemyPopulationDefinition Spazer { get; } = new("Spazer",
+    [
+    ], 0);
+
+    /// <summary>The enemy population of the Pink Brinstar Power Bombs room.</summary>
+    internal static RoomEnemyPopulationDefinition PinkBrinstarPowerBombs { get; } = new("PinkBrinstarPowerBombs",
+    [
+        new(EnemyDefinitionId.ShutterShootable, new(56, 400), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.FromPixelFraction(1, 2), PrimaryDirection: VerticalDirection.Up, TriggerMode: ShutterTriggerMode.RepeatableReaction, TravelDistance: 96, ProximityDistance: 0, WaitTime: 0, RestAfterMovingUp: ShutterRest.Permanent, RestAfterMovingDown: ShutterRest.Permanent)),
+        new(EnemyDefinitionId.ShutterShootable, new(408, 496), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.FromPixelFraction(1, 2), PrimaryDirection: VerticalDirection.Up, TriggerMode: ShutterTriggerMode.RepeatableReaction, TravelDistance: 64, ProximityDistance: 0, WaitTime: 0, RestAfterMovingUp: ShutterRest.Permanent, RestAfterMovingDown: ShutterRest.Permanent)),
+        new(EnemyDefinitionId.SidehopperLarge, new(241, 166), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
+        new(EnemyDefinitionId.SidehopperLarge, new(104, 100), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Ceiling)),
+    ], 2);
+
+    /// <summary>The enemy population of the Red Tower Refill room.</summary>
+    internal static RoomEnemyPopulationDefinition RedTowerRefill { get; } = new("RedTowerRefill",
+    [
+    ], 0);
+
+    /// <summary>The enemy population of the Kraid Refill room.</summary>
+    internal static RoomEnemyPopulationDefinition KraidRefill { get; } = new("KraidRefill",
+    [
+    ], 0);
+
+    /// <summary>The enemy population of the Varia Suit room.</summary>
+    internal static RoomEnemyPopulationDefinition VariaSuit { get; } = new("VariaSuit",
+    [
+    ], 0);
+
+    /// <summary>The enemy population of the Red Brinstar Save room.</summary>
+    internal static RoomEnemyPopulationDefinition RedBrinstarSave { get; } = new("RedBrinstarSave",
+    [
+    ], 0);
+
+    /// <summary>The enemy population of the Blue Brinstar Energy Tank room in its default state.</summary>
+    internal static RoomEnemyPopulationDefinition BlueBrinstarEnergyTankDefault { get; } = new("BlueBrinstarEnergyTankDefault",
+    [
+        new(EnemyDefinitionId.MorphBallEye, new(552, 616), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MorphBallEyeMountSpawnSettings(Side: MorphBallEyeMountSide.Right)),
+        new(EnemyDefinitionId.MorphBallEye, new(552, 616), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new MorphBallEyeBodySpawnSettings(Facing: HorizontalDirection.Right)),
+        new(EnemyDefinitionId.FaceBlock, new(56, 552), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.FaceBlock, new(56, 680), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.FaceBlock, new(744, 696), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.FaceBlock, new(616, 136), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.FaceBlock, new(648, 136), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+    ], 0);
+
+    /// <summary>The enemy population of the Green Brinstar Firefleas room.</summary>
+    internal static RoomEnemyPopulationDefinition GreenBrinstarFirefleas { get; } = new("GreenBrinstarFirefleas",
+    [
+        new(EnemyDefinitionId.Fireflea, new(384, 95), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Circling(AngularSpeed.FromSteps(-1)), Radius: 24)),
+        new(EnemyDefinitionId.Fireflea, new(225, 106), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Circling(AngularSpeed.FromSteps(1)), Radius: 24)),
+        new(EnemyDefinitionId.Fireflea, new(69, 91), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Circling(AngularSpeed.FromSteps(-1)), Radius: 24)),
+        new(EnemyDefinitionId.Fireflea, new(112, 280), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Bobbing(SignedSixteenSixteen.FromPixelFraction(1, 2), VerticalDirection.Up), Radius: 32)),
+        new(EnemyDefinitionId.Fireflea, new(160, 312), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Bobbing(SignedSixteenSixteen.FromPixelFraction(1, 2), VerticalDirection.Up), Radius: 40)),
+    ], 5);
+
+    /// <summary>The enemy population of the Green Brinstar Beetoms room.</summary>
+    internal static RoomEnemyPopulationDefinition GreenBrinstarBeetoms { get; } = new("GreenBrinstarBeetoms",
+    [
+        new(EnemyDefinitionId.Beetom, new(80, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.Beetom, new(112, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.Beetom, new(144, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.Beetom, new(176, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+    ], 4);
+
+    /// <summary>The enemy population of the Etecoon Energy Tank room.</summary>
+    internal static RoomEnemyPopulationDefinition EtecoonEnergyTank { get; } = new("EtecoonEnergyTank",
+    [
+        new(EnemyDefinitionId.Zebbo, new(592, 472), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
+        new(EnemyDefinitionId.Zebbo, new(752, 472), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
+        new(EnemyDefinitionId.Zebbo, new(1072, 472), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
+        new(EnemyDefinitionId.Beetom, new(472, 408), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.Beetom, new(632, 408), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.Beetom, new(864, 424), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.Beetom, new(984, 424), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.Beetom, new(1112, 424), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+    ], 8);
+
+    /// <summary>The enemy population of the Pink Brinstar Hoppers room.</summary>
+    internal static RoomEnemyPopulationDefinition PinkBrinstarHoppers { get; } = new("PinkBrinstarHoppers",
+    [
+        new(EnemyDefinitionId.SidehopperLarge, new(181, 437), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
+        new(EnemyDefinitionId.Sidehopper, new(248, 416), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
+        new(EnemyDefinitionId.Sidehopper, new(106, 449), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
+        new(EnemyDefinitionId.ShutterShootable, new(344, 480), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.FromPixelFraction(1, 2), PrimaryDirection: VerticalDirection.Up, TriggerMode: ShutterTriggerMode.OneShotReaction, TravelDistance: 64, ProximityDistance: 0, WaitTime: 0, RestAfterMovingUp: ShutterRest.Permanent, RestAfterMovingDown: ShutterRest.For(0))),
+        new(EnemyDefinitionId.ShutterShootable, new(344, 480), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.FromPixelFraction(1, 2), PrimaryDirection: VerticalDirection.Up, TriggerMode: ShutterTriggerMode.OneShotReaction, TravelDistance: 128, ProximityDistance: 0, WaitTime: 0, RestAfterMovingUp: ShutterRest.Permanent, RestAfterMovingDown: ShutterRest.For(0))),
+        new(EnemyDefinitionId.ShutterShootable, new(344, 480), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.FromPixelFraction(1, 2), PrimaryDirection: VerticalDirection.Up, TriggerMode: ShutterTriggerMode.OneShotReaction, TravelDistance: 192, ProximityDistance: 0, WaitTime: 0, RestAfterMovingUp: ShutterRest.Permanent, RestAfterMovingDown: ShutterRest.For(0))),
+        new(EnemyDefinitionId.ShutterShootable, new(344, 480), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.FromPixelFraction(1, 2), PrimaryDirection: VerticalDirection.Up, TriggerMode: ShutterTriggerMode.OneShotReaction, TravelDistance: 240, ProximityDistance: 0, WaitTime: 0, RestAfterMovingUp: ShutterRest.Permanent, RestAfterMovingDown: ShutterRest.For(0))),
+        new(EnemyDefinitionId.ShutterShootable, new(328, 480), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.Zero, PrimaryDirection: VerticalDirection.Up, TriggerMode: ShutterTriggerMode.Timer, TravelDistance: 0, ProximityDistance: 0, WaitTime: 0, RestAfterMovingUp: ShutterRest.For(0), RestAfterMovingDown: ShutterRest.For(0))),
+        new(EnemyDefinitionId.ShutterShootable, new(360, 480), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.Zero, PrimaryDirection: VerticalDirection.Up, TriggerMode: ShutterTriggerMode.Timer, TravelDistance: 0, ProximityDistance: 0, WaitTime: 0, RestAfterMovingUp: ShutterRest.For(0), RestAfterMovingDown: ShutterRest.For(0))),
+    ], 3);
+
+    /// <summary>The enemy population of the Warehouse Energy Tank room.</summary>
+    internal static RoomEnemyPopulationDefinition WarehouseEnergyTank { get; } = new("WarehouseEnergyTank",
+    [
+        new(EnemyDefinitionId.Beetom, new(45, 152), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.Beetom, new(71, 152), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.Beetom, new(139, 168), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.Beetom, new(96, 152), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+    ], 4);
+
+    /// <summary>The enemy population of the Warehouse Entrance room.</summary>
+    internal static RoomEnemyPopulationDefinition WarehouseEntrance { get; } = new("WarehouseEntrance",
+    [
+        new(EnemyDefinitionId.Elevator, new(128, 160), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 320)),
+    ], 0);
+
+    /// <summary>The enemy population of the Warehouse Kihunter room.</summary>
+    internal static RoomEnemyPopulationDefinition WarehouseKihunter { get; } = new("WarehouseKihunter",
+    [
+        new(EnemyDefinitionId.KihunterGreen, new(361, 112), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterSpawnSettings(Wings: KiHunterWings.Winged)),
+        new(EnemyDefinitionId.KihunterGreenWings, new(361, 112), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
+        new(EnemyDefinitionId.KihunterGreen, new(649, 89), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterSpawnSettings(Wings: KiHunterWings.Winged)),
+        new(EnemyDefinitionId.KihunterGreenWings, new(649, 89), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
+        new(EnemyDefinitionId.KihunterGreen, new(510, 99), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterSpawnSettings(Wings: KiHunterWings.Winged)),
+        new(EnemyDefinitionId.KihunterGreenWings, new(510, 99), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
+        new(EnemyDefinitionId.KihunterGreen, new(578, 122), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterSpawnSettings(Wings: KiHunterWings.Winged)),
+        new(EnemyDefinitionId.KihunterGreenWings, new(578, 122), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
+    ], 4);
+
+    /// <summary>The enemy population of the Green Brinstar Main Shaft room.</summary>
+    internal static RoomEnemyPopulationDefinition GreenBrinstarMainShaft { get; } = new("GreenBrinstarMainShaft",
+    [
+        new(EnemyDefinitionId.Elevator, new(128, 706), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
+        new(EnemyDefinitionId.Zeela, new(218, 715), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideLeft, BlockSide: CrawlerSurfaceOrientation.UpsideUp, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
+        new(EnemyDefinitionId.Zeela, new(112, 920), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
+        new(EnemyDefinitionId.JetRipper, new(108, 1014), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromPixelFraction(3, 2), Direction: HorizontalDirection.Right)),
+        new(EnemyDefinitionId.Zeela, new(121, 1768), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
+        new(EnemyDefinitionId.JetRipper, new(67, 1352), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromPixelFraction(3, 2), Direction: HorizontalDirection.Right)),
+        new(EnemyDefinitionId.Zeela, new(123, 1528), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideLeft, BlockSide: CrawlerSurfaceOrientation.UpsideDown, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
+        new(EnemyDefinitionId.Zeela, new(39, 972), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideRight, BlockSide: CrawlerSurfaceOrientation.UpsideUp, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
+        new(EnemyDefinitionId.Etecoon, new(607, 2968), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen, EnemyPresence.None, false, new EtecoonSpawnSettings(Route: EtecoonRoute.RunLeftToTeachingStart)),
+        new(EnemyDefinitionId.Etecoon, new(623, 2968), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen, EnemyPresence.None, false, new EtecoonSpawnSettings(Route: EtecoonRoute.RunRightToTeachingStart)),
+        new(EnemyDefinitionId.Etecoon, new(639, 2968), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen, EnemyPresence.None, false, new EtecoonSpawnSettings(Route: EtecoonRoute.TeachAtOnce)),
+    ], 7);
+
+    /// <summary>The enemy population of the Spore Spawn Super room.</summary>
+    internal static RoomEnemyPopulationDefinition SporeSpawnSuper { get; } = new("SporeSpawnSuper",
+    [
+        new(EnemyDefinitionId.Zeb, new(192, 184), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
+    ], 1);
+
+    /// <summary>The enemy population of the Early Supers room.</summary>
+    internal static RoomEnemyPopulationDefinition EarlySupers { get; } = new("EarlySupers",
+    [
+        new(EnemyDefinitionId.Sidehopper, new(442, 424), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
+        new(EnemyDefinitionId.Sidehopper, new(512, 424), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
+        new(EnemyDefinitionId.ShutterGrowing, new(408, 296), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new GrowingShutterSpawnSettings(Wait: GrowingShutterWait.SamusNear, Growth: VerticalDirection.Down, ActivationDistance: 144, ActivationWait: 0, GrowthSpeed: SignedSixteenSixteen.FromPixelFraction(17, 16))),
+        new(EnemyDefinitionId.ShutterGrowing, new(552, 296), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new GrowingShutterSpawnSettings(Wait: GrowingShutterWait.SamusNear, Growth: VerticalDirection.Down, ActivationDistance: 144, ActivationWait: 0, GrowthSpeed: SignedSixteenSixteen.FromPixelFraction(17, 16))),
+        new(EnemyDefinitionId.ShutterGrowing, new(648, 296), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new GrowingShutterSpawnSettings(Wait: GrowingShutterWait.SamusNear, Growth: VerticalDirection.Down, ActivationDistance: 144, ActivationWait: 0, GrowthSpeed: SignedSixteenSixteen.FromPixelFraction(17, 16))),
+        new(EnemyDefinitionId.Waver, new(171, 75), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new WaverSpawnSettings(Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.Waver, new(264, 107), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new WaverSpawnSettings(Facing: HorizontalDirection.Right)),
+        new(EnemyDefinitionId.Waver, new(529, 101), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new WaverSpawnSettings(Facing: HorizontalDirection.Right)),
+        new(EnemyDefinitionId.Waver, new(321, 86), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new WaverSpawnSettings(Facing: HorizontalDirection.Right)),
+        new(EnemyDefinitionId.Zeb, new(144, 440), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
+        new(EnemyDefinitionId.Sidehopper, new(322, 133), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
+        new(EnemyDefinitionId.Sidehopper, new(451, 132), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
+        new(EnemyDefinitionId.Sidehopper, new(387, 61), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Ceiling)),
+    ], 10);
+
+    /// <summary>The enemy population of the Red Brinstar Firefleas room.</summary>
+    internal static RoomEnemyPopulationDefinition RedBrinstarFirefleas { get; } = new("RedBrinstarFirefleas",
+    [
+        new(EnemyDefinitionId.Fireflea, new(1744, 144), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Bobbing(SignedSixteenSixteen.FromPixelFraction(3, 8), VerticalDirection.Up), Radius: 32)),
+        new(EnemyDefinitionId.Fireflea, new(1808, 112), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Circling(AngularSpeed.FromStepFraction(-3, 2)), Radius: 48)),
+        new(EnemyDefinitionId.Fireflea, new(1672, 96), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Circling(AngularSpeed.FromStepFraction(3, 2)), Radius: 40)),
+        new(EnemyDefinitionId.Fireflea, new(1248, 168), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Circling(AngularSpeed.FromSteps(-1)), Radius: 24)),
+        new(EnemyDefinitionId.Fireflea, new(1584, 128), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new FirefleaSpawnSettings(Flight: new FirefleaFlight.Circling(AngularSpeed.FromSteps(2)), Radius: 24)),
+        new(EnemyDefinitionId.Waver, new(1861, 80), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new WaverSpawnSettings(Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.Waver, new(1680, 96), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new WaverSpawnSettings(Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.Waver, new(1536, 96), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new WaverSpawnSettings(Facing: HorizontalDirection.Right)),
+        new(EnemyDefinitionId.YappingMaw, new(408, 200), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new YappingMawSpawnSettings(ActivationDistance: 80, Attack: VerticalDirection.Up)),
+        new(EnemyDefinitionId.YappingMaw, new(600, 192), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new YappingMawSpawnSettings(ActivationDistance: 80, Attack: VerticalDirection.Up)),
+        new(EnemyDefinitionId.YappingMaw, new(936, 192), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new YappingMawSpawnSettings(ActivationDistance: 80, Attack: VerticalDirection.Up)),
+    ], 8);
+
+    /// <summary>The enemy population of the Construction Zone room in its default state.</summary>
+    internal static RoomEnemyPopulationDefinition ConstructionZoneDefault { get; } = new("ConstructionZoneDefault",
+    [
+        new(EnemyDefinitionId.Sbug, new(46, 192), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(138), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
+        new(EnemyDefinitionId.Sbug, new(222, 179), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(200), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
+        new(EnemyDefinitionId.Sbug, new(219, 183), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromSteps(248), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
+        new(EnemyDefinitionId.Sbug, new(217, 177), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromSteps(236), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
+        new(EnemyDefinitionId.Sbug, new(215, 193), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(244), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
+        new(EnemyDefinitionId.Sbug, new(179, 467), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromSteps(196), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
+        new(EnemyDefinitionId.Sbug, new(185, 475), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(208), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
+        new(EnemyDefinitionId.Sbug, new(187, 490), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(220), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
+        new(EnemyDefinitionId.Sbug, new(174, 476), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromSteps(187), ActivationRadius: 80, Behavior: SbugActivationBehavior.MoveForward)),
+        new(EnemyDefinitionId.Sbug, new(213, 496), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(3), ActivationRadius: 128, Behavior: SbugActivationBehavior.MoveForward)),
+        new(EnemyDefinitionId.FaceBlock, new(72, 136), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.FaceBlock, new(184, 136), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Right)),
+        new(EnemyDefinitionId.FaceBlock, new(232, 278), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.FaceBlock, new(232, 358), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+        new(EnemyDefinitionId.FaceBlock, new(24, 278), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
+    ], 0);
+
+    /// <summary>The enemy population of the Green Hill Zone room.</summary>
+    internal static RoomEnemyPopulationDefinition GreenHillZone { get; } = new("GreenHillZone",
+    [
+        new(EnemyDefinitionId.Sidehopper, new(1024, 672), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
+        new(EnemyDefinitionId.Sidehopper, new(1280, 768), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
+        new(EnemyDefinitionId.Sidehopper, new(1671, 950), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Floor)),
+        new(EnemyDefinitionId.Geega, new(368, 288), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new YellowPipeBugSpawnSettings(Facing: HorizontalDirection.Left, Speed: SignedSixteenSixteen.FromPixelFraction(9, 4))),
+        new(EnemyDefinitionId.Geega, new(560, 480), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new YellowPipeBugSpawnSettings(Facing: HorizontalDirection.Right, Speed: SignedSixteenSixteen.FromPixelFraction(9, 4))),
+        new(EnemyDefinitionId.Geega, new(896, 544), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new YellowPipeBugSpawnSettings(Facing: HorizontalDirection.Left, Speed: SignedSixteenSixteen.FromPixelFraction(9, 4))),
+        new(EnemyDefinitionId.Geega, new(1376, 736), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new YellowPipeBugSpawnSettings(Facing: HorizontalDirection.Left, Speed: SignedSixteenSixteen.FromPixelFraction(9, 4))),
+        new(EnemyDefinitionId.Geega, new(1280, 832), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new YellowPipeBugSpawnSettings(Facing: HorizontalDirection.Right, Speed: SignedSixteenSixteen.FromPixelFraction(9, 4))),
+        new(EnemyDefinitionId.Sidehopper, new(1744, 848), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Ceiling)),
+        new(EnemyDefinitionId.Sidehopper, new(1816, 848), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Surface: HopperSurface.Ceiling)),
+    ], 10);
+
+    /// <summary>The enemy population of the Dachora room.</summary>
+    internal static RoomEnemyPopulationDefinition Dachora { get; } = new("Dachora",
+    [
+        new(EnemyDefinitionId.Zeela, new(224, 184), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideRight, BlockSide: CrawlerSurfaceOrientation.UpsideUp, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
+        new(EnemyDefinitionId.Zeela, new(264, 184), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideRight, BlockSide: CrawlerSurfaceOrientation.UpsideUp, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
+        new(EnemyDefinitionId.Metaree, new(1581, 108), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.Metaree, new(1624, 76), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.Metaree, new(1651, 76), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.Rio, new(304, 96), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.Rio, new(432, 96), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.Rio, new(744, 96), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.Dachora, new(96, 1704), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen, EnemyPresence.None, false, new DachoraSpawnSettings(Facing: HorizontalDirection.Right, Role: DachoraRole.Runner)),
+        new(EnemyDefinitionId.Dachora, new(96, 1704), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen, EnemyPresence.Hidden, false, new DachoraSpawnSettings(Facing: HorizontalDirection.Right, Role: DachoraRole.SpeedBoostEcho)),
+        new(EnemyDefinitionId.Dachora, new(96, 1704), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen, EnemyPresence.Hidden, false, new DachoraSpawnSettings(Facing: HorizontalDirection.Right, Role: DachoraRole.SpeedBoostEcho)),
+        new(EnemyDefinitionId.Dachora, new(96, 1704), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen, EnemyPresence.Hidden, false, new DachoraSpawnSettings(Facing: HorizontalDirection.Right, Role: DachoraRole.SpeedBoostEcho)),
+        new(EnemyDefinitionId.Dachora, new(96, 1704), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen, EnemyPresence.Hidden, false, new DachoraSpawnSettings(Facing: HorizontalDirection.Right, Role: DachoraRole.SpeedBoostEcho)),
+    ], 8);
+
+    /// <summary>The enemy population of the Hellway room.</summary>
+    internal static RoomEnemyPopulationDefinition Hellway { get; } = new("Hellway",
+    [
+        new(EnemyDefinitionId.Zeela, new(160, 152), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
+        new(EnemyDefinitionId.Zeela, new(295, 136), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
+        new(EnemyDefinitionId.Zeela, new(368, 152), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
+        new(EnemyDefinitionId.Zeela, new(447, 152), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromPixelFraction(3, 4))),
+        new(EnemyDefinitionId.Zebbo, new(416, 216), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
+        new(EnemyDefinitionId.Zebbo, new(256, 216), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
+        new(EnemyDefinitionId.Zebbo, new(480, 216), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
+        new(EnemyDefinitionId.Zebbo, new(128, 216), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
+    ], 8);
+
+    /// <summary>The enemy population of the First Missile room.</summary>
+    internal static RoomEnemyPopulationDefinition FirstMissile { get; } = new("FirstMissile",
+    [
+    ], 0);
+
+    /// <summary>The enemy population of the Kraid room.</summary>
+    internal static RoomEnemyPopulationDefinition Kraid { get; } = new("Kraid",
+    [
+        new(EnemyDefinitionId.Kraid, new(256, 536), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen, EnemyPresence.Hidden, true, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.KraidArm, new(232, 488), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.KraidLintTop, new(200, 528), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.KraidLintMiddle, new(176, 592), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.KraidLintBottom, new(178, 648), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.KraidFoot, new(256, 632), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.KraidFirstNail, new(232, 488), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.KraidSecondNail, new(232, 488), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, EnemySpawnSettings.None),
+    ], 0);
+
+    /// <summary>The enemy population of the Brinstar Reserve Tank room.</summary>
+    internal static RoomEnemyPopulationDefinition BrinstarReserveTank { get; } = new("BrinstarReserveTank",
+    [
+    ], 0);
+
+    /// <summary>The enemy population of the X-Ray Scope room.</summary>
+    internal static RoomEnemyPopulationDefinition XrayScope { get; } = new("XrayScope",
+    [
+        new(EnemyDefinitionId.ShutterShootable, new(360, 160), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.FromPixelFraction(1, 2), PrimaryDirection: VerticalDirection.Up, TriggerMode: ShutterTriggerMode.RepeatableReaction, TravelDistance: 64, ProximityDistance: 0, WaitTime: 0, RestAfterMovingUp: ShutterRest.Permanent, RestAfterMovingDown: ShutterRest.Permanent)),
+        new(EnemyDefinitionId.ShutterShootable, new(184, 224), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.FromPixelFraction(1, 2), PrimaryDirection: VerticalDirection.Up, TriggerMode: ShutterTriggerMode.RepeatableReaction, TravelDistance: 64, ProximityDistance: 0, WaitTime: 0, RestAfterMovingUp: ShutterRest.Permanent, RestAfterMovingDown: ShutterRest.Permanent)),
+    ], 0);
+
+    /// <summary>The enemy population of the Alpha Power Bomb room.</summary>
+    internal static RoomEnemyPopulationDefinition AlphaPowerBomb { get; } = new("AlphaPowerBomb",
+    [
+        new(EnemyDefinitionId.Boyon, new(600, 168), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 48, TriggerDistance: 32)),
+        new(EnemyDefinitionId.Boyon, new(616, 168), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 48, TriggerDistance: 32)),
+        new(EnemyDefinitionId.Boyon, new(504, 168), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 48, TriggerDistance: 32)),
+        new(EnemyDefinitionId.Boyon, new(520, 168), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new BoyonSpawnSettings(SpeedMultiplier: 8, JumpHeight: 48, TriggerDistance: 32)),
+    ], 0);
+
+    /// <summary>The enemy population of the Kraid Eye Door room.</summary>
+    internal static RoomEnemyPopulationDefinition KraidEyeDoor { get; } = new("KraidEyeDoor",
+    [
+        new(EnemyDefinitionId.Zeb, new(144, 456), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.Hidden | EnemyPresence.RespawnsIfKilled, false, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
+        new(EnemyDefinitionId.Sbug, new(310, 413), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(200), ActivationRadius: 48, Behavior: SbugActivationBehavior.MoveForward)),
+        new(EnemyDefinitionId.Sbug, new(311, 420), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(186), ActivationRadius: 48, Behavior: SbugActivationBehavior.MoveForward)),
+        new(EnemyDefinitionId.Sbug, new(317, 427), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromSteps(168), ActivationRadius: 48, Behavior: SbugActivationBehavior.MoveForward)),
+        new(EnemyDefinitionId.Sbug, new(307, 428), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(180), ActivationRadius: 48, Behavior: SbugActivationBehavior.MoveForward)),
+        new(EnemyDefinitionId.Sbug, new(315, 414), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromSteps(202), ActivationRadius: 48, Behavior: SbugActivationBehavior.MoveForward)),
+        new(EnemyDefinitionId.Sbug, new(322, 420), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(201), ActivationRadius: 48, Behavior: SbugActivationBehavior.MoveForward)),
+        new(EnemyDefinitionId.Sbug, new(325, 423), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromSteps(190), ActivationRadius: 48, Behavior: SbugActivationBehavior.MoveForward)),
+        new(EnemyDefinitionId.Sbug, new(323, 431), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(194), ActivationRadius: 48, Behavior: SbugActivationBehavior.MoveForward)),
+        new(EnemyDefinitionId.Sbug, new(311, 432), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(144), ActivationRadius: 48, Behavior: SbugActivationBehavior.MoveForward)),
+        new(EnemyDefinitionId.Sbug, new(334, 428), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 2, InitialAngle: RotationAngle.FromSteps(200), ActivationRadius: 32, Behavior: SbugActivationBehavior.MoveForward)),
+    ], 1);
+
+    /// <summary>The enemy population of the Caterpillar room.</summary>
+    internal static RoomEnemyPopulationDefinition Caterpillar { get; } = new("Caterpillar",
+    [
+        new(EnemyDefinitionId.Elevator, new(128, 706), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
+        new(EnemyDefinitionId.Zero, new(95, 1928), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 4))),
+        new(EnemyDefinitionId.Zero, new(23, 1758), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideRight, BlockSide: CrawlerSurfaceOrientation.UpsideDown, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 4))),
+        new(EnemyDefinitionId.Zero, new(120, 1679), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideLeft, BlockSide: CrawlerSurfaceOrientation.UpsideDown, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 4))),
+        new(EnemyDefinitionId.Cacatac, new(113, 1139), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Right, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.FromPixelFraction(3, 16))),
+        new(EnemyDefinitionId.Cacatac, new(192, 1283), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.FromPixelFraction(3, 16))),
+    ], 5);
+
+    /// <summary>The enemy population of the Mini Kraid room.</summary>
+    internal static RoomEnemyPopulationDefinition MiniKraid { get; } = new("MiniKraid",
+    [
+        new(EnemyDefinitionId.PirateGreenWalking, new(217, 160), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Facing: HorizontalDirection.Left, LaserSpeed: PirateLaserSpeed.Slow, ShotWatch: WalkingSpacePirateShotWatch.FlinchesFromShots, PatrolReach: 80)),
+        new(EnemyDefinitionId.PirateGreenWalking, new(288, 160), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Facing: HorizontalDirection.Left, LaserSpeed: PirateLaserSpeed.Slow, ShotWatch: WalkingSpacePirateShotWatch.FlinchesFromShots, PatrolReach: 80)),
+        new(EnemyDefinitionId.PirateGreenWalking, new(500, 160), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Facing: HorizontalDirection.Left, LaserSpeed: PirateLaserSpeed.Slow, ShotWatch: WalkingSpacePirateShotWatch.FlinchesFromShots, PatrolReach: 80)),
+        new(EnemyDefinitionId.FakeKraid, new(1328, 160), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+    ], 4);
+
+    /// <summary>The enemy population of the Spore Spawn room.</summary>
+    internal static RoomEnemyPopulationDefinition SporeSpawn { get; } = new("SporeSpawn",
+    [
+        new(EnemyDefinitionId.SporeSpawn, new(128, 624), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
+    ], 0);
+
+    /// <summary>The enemy population of the Skree Boost room.</summary>
+    internal static RoomEnemyPopulationDefinition SkreeBoost { get; } = new("SkreeBoost",
+    [
+        new(EnemyDefinitionId.Skree, new(328, 60), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+        new(EnemyDefinitionId.Skree, new(368, 60), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+    ], 2);
+
+    /// <summary>The Brinstar rooms' lists, in their authored order.</summary>
+    internal static RoomEnemyPopulationDefinition[] Lists { get; } =
+    [
+        BrinstarPreMap,
+        GreenBrinstarMap,
+        GreenBrinstarMissileRefill,
+        SporeSpawnKihunters,
+        EtecoonSuper,
+        DachoraEnergyRefill,
+        SporeSpawnFarming,
+        HopperEnergyTank,
+        BetaPowerBomb,
+        WaterwayEnergyTank,
+        ConstructionZoneWhenZebesAwake,
+        BlueBrinstarEnergyTankWhenZebesAwake,
+        NoobBridge,
+        MorphBallWhenZebesAwake,
+        WarehouseSave,
+        MorphBallDefault,
+        WarehouseZeela,
+        RedTower,
+        BlueBrinstarBoulders,
+        BillyMays,
+        BigPinkSaveRoom,
+        BigPink,
+        EtecoonSave,
+        BelowSpazer,
+        GreenBrinstarSave,
+        Spazer,
+        PinkBrinstarPowerBombs,
+        RedTowerRefill,
+        KraidRefill,
+        VariaSuit,
+        RedBrinstarSave,
+        BlueBrinstarEnergyTankDefault,
+        GreenBrinstarFirefleas,
+        GreenBrinstarBeetoms,
+        EtecoonEnergyTank,
+        PinkBrinstarHoppers,
+        WarehouseEnergyTank,
+        WarehouseEntrance,
+        WarehouseKihunter,
+        GreenBrinstarMainShaft,
+        SporeSpawnSuper,
+        EarlySupers,
+        RedBrinstarFirefleas,
+        ConstructionZoneDefault,
+        GreenHillZone,
+        Dachora,
+        Hellway,
+        FirstMissile,
+        Kraid,
+        BrinstarReserveTank,
+        XrayScope,
+        AlphaPowerBomb,
+        KraidEyeDoor,
+        Caterpillar,
+        MiniKraid,
+        SporeSpawn,
+        SkreeBoost,
     ];
 }

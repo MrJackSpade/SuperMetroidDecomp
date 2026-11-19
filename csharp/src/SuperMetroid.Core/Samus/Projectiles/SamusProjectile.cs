@@ -86,15 +86,11 @@ public sealed class SamusProjectile
     public ProjectileSpriteId? Sprite { get; internal set; }
 
     /// <summary>
-    /// The updates left before the shot next leaves a trail (#2458): set when a trailing shot is fired or a special attack's
-    /// particle starts to trail, counted down by its flight, and set again to the flight's interval on each update it leaves
-    /// one; null for a shot that leaves no trail, as the Hyper Beam's.
+    /// The wait before the shot next leaves a trail (#2458): started when a trailing shot is fired or a special attack's
+    /// particle starts to trail, counted by its flight, and started again with the flight's interval on each update it
+    /// leaves one; null for a shot that leaves no trail, as the Hyper Beam's.
     /// </summary>
-    public int? TrailUpdatesLeft
-    {
-        get;
-        internal set => field = value is { } updates ? Ensure.BetweenInclusive(1, int.MaxValue, updates) : null;
-    }
+    public UpdateCountdown? Trail { get; internal set; }
 
     /// <summary>
     /// Counts one update of the shot's flight toward its next trail: whether the shot leaves one on this update, after which
@@ -103,14 +99,9 @@ public sealed class SamusProjectile
     /// <param name="interval">The updates from this trail to the next, at least one.</param>
     internal bool CountsDownToTrail(int interval)
     {
-        if (TrailUpdatesLeft is not { } left)
+        if (Trail is not { } trail || !trail.Count())
             return false;
-        if (left > 1)
-        {
-            TrailUpdatesLeft = left - 1;
-            return false;
-        }
-        TrailUpdatesLeft = interval;
+        trail.Restart(Ensure.BetweenInclusive(1, int.MaxValue, interval));
         return true;
     }
 
@@ -133,11 +124,7 @@ public sealed class SamusProjectile
     /// burns it down (<see cref="ChainsawFuse"/>); every other beam, its reflection and its explosion keep it for a beam
     /// fired over it in turn. None for every other projectile, whose kind keeps its own count.
     /// </summary>
-    internal int BeamFuse
-    {
-        get;
-        set => field = Ensure.AtLeastZero(value);
-    }
+    internal UpdateCountdown BeamFuse { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// What a beam fired into this projectile's place finds there (#2524), from which <see cref="BeamFiredOverLastShot"/>
@@ -148,7 +135,7 @@ public sealed class SamusProjectile
     /// <exception cref="InvalidOperationException">The projectile keeps an undefined kind state or ignition.</exception>
     internal BeamFiredOverLastShot.ReplacedShot AsReplacedByBeam => !IsOccupied ? new BeamFiredOverLastShot.ReplacedShot.FreePlace() : KindState switch
     {
-        null => new BeamFiredOverLastShot.ReplacedShot.Beam(BeamFuse),
+        null => new BeamFiredOverLastShot.ReplacedShot.Beam(BeamFuse.UpdatesLeft),
         MissileShotState missile => missile.Ignition switch
         {
             SamusMissileIgnition.Pending => new BeamFiredOverLastShot.ReplacedShot.UnignitedMissile(),
@@ -214,9 +201,9 @@ public sealed class SamusProjectile
         Radius = Extent16<RoomPixels>.Zero;
         Animation = null;
         Sprite = null;
-        TrailUpdatesLeft = null;
+        Trail = null;
         Behavior = null;
         KindState = null;
-        BeamFuse = 0;
+        BeamFuse = UpdateCountdown.Ended();
     }
 }

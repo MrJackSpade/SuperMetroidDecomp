@@ -3,7 +3,10 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
-/// <summary>Editable JSON schema for four auxiliary enemy palette families; runtime AI retains palette destination, update cadence, drain-stage progression, and health-band selection.</summary>
+/// <summary>
+/// The import's four auxiliary enemy colour families (#1637), import data only the import pre-colours their sheets' shades
+/// from; runtime AI retains update cadence, drain-stage progression, and health-band selection.
+/// </summary>
 public sealed record EnemyAuxiliaryColorDocument
 {
     /// <summary>Schema revision, which must equal <see cref="EnemyAuxiliaryColorFormat.Version"/>.</summary>

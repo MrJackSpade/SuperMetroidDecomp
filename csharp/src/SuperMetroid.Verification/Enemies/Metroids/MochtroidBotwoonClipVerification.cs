@@ -107,7 +107,7 @@ internal static class MochtroidBotwoonClipVerification
             place.Clear();
         }
         mochtroid.Position = FixedPosition<RoomPixels>.FromWhole(expected.Enemy);
-        mochtroid.FrozenTimer = 1000;
+        mochtroid.Freeze.Restart(1000);
         mochtroid.AiStates = EnemyAiStates.Frozen;
 
         ushort minimumY = samus.Position.Y.Whole;

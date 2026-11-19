@@ -24,8 +24,8 @@ public sealed class FileSelectMapWindow
     private SignedSixteenSixteen top;
     /// <summary>The bottom edge: the first screen line past the rectangle, in pixels and fractions of one from the screen's top.</summary>
     private SignedSixteenSixteen bottom;
-    /// <summary>The updates the edges still move on; the reveal completes on the last.</summary>
-    private int movesLeft;
+    /// <summary>The updates the edges move on, counted once each; the reveal completes on the last.</summary>
+    private UpdateCountdown moves;
 
     /// <summary>Starts the area-to-room reveal at the installed label of <paramref name="area"/>, with the area's authored reveal motion; editable labels move the rectangle's start, not its motion.</summary>
     /// <param name="area">One of the six Zebes areas.</param>
@@ -43,7 +43,7 @@ public sealed class FileSelectMapWindow
         this.motion = motion;
         left = right = SignedSixteenSixteen.FromWholePixels(label.X);
         top = bottom = SignedSixteenSixteen.FromWholePixels(label.Y);
-        movesLeft = Ensure.BetweenInclusive(1, int.MaxValue, motion.MovingUpdates);
+        moves = UpdateCountdown.Lasting(motion.MovingUpdates);
     }
 
     /// <summary>The first screen column inside the rectangle.</summary>
@@ -75,7 +75,7 @@ public sealed class FileSelectMapWindow
     public static FileSelectMapWindow CreateReturn(AreaId area, WorldMapLabelPositions labels)
     {
         var window = new FileSelectMapWindow(area, labels) { IsReturning = true };
-        window.movesLeft = Ensure.BetweenInclusive(1, int.MaxValue, window.movesLeft - FileSelectMapDefinitions.ReturnWindowTimerReduction);
+        window.moves = UpdateCountdown.Lasting(window.moves.Length - FileSelectMapDefinitions.ReturnWindowTimerReduction);
         int inset = FileSelectMapDefinitions.ReturnWindowInset;
         window.left = window.top = SignedSixteenSixteen.FromWholePixels(inset);
         window.right = SignedSixteenSixteen.FromWholePixels(ScreenGeometry.ScreenWidthPixels - inset);
@@ -105,7 +105,7 @@ public sealed class FileSelectMapWindow
             top = OnScreen(top + motion.Top, ScreenGeometry.ScreenHeightPixels);
             bottom = OnScreen(bottom + motion.Bottom, ScreenGeometry.ScreenHeightPixels);
         }
-        IsComplete = --movesLeft == 0;
+        IsComplete = moves.StepEnds();
         return IsComplete;
     }
 

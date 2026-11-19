@@ -39,7 +39,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         {
             Facing = HorizontalDirection.Right,
             ShowsSpawnIdle = true,
-            AttackCooldown = MaridiaLargeSnailMotionDefinitions.InitialAttackCooldown,
+            AttackCooldown = UpdateCountdown.Lasting(MaridiaLargeSnailMotionDefinitions.InitialAttackCooldown),
             Heading = HorizontalDirection.Right,
             RemainingBounces = MaridiaLargeSnailMotionDefinitions.SettlingBounces,
         };
@@ -142,9 +142,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             return;
 
         // The cooldown lasts its whole duration and then stays run out until Oum attacks (#2340).
-        if (state.AttackCooldown > 0)
-            state.AttackCooldown--;
-        if (state.AttackCooldown == 0)
+        if (state.AttackCooldown.Step())
         {
             bool mayAttack = Math.Abs(samus.Position.X.Whole - place.Position.X.Whole) < MaridiaLargeSnailMotionDefinitions.AttackReach &&
                 state.AttackAllowsRotation &&
@@ -152,7 +150,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             if (mayAttack)
             {
                 state.Heading = SamusSide(samus, place);
-                state.AttackCooldown = MaridiaLargeSnailMotionDefinitions.InitialAttackCooldown;
+                state.AttackCooldown = UpdateCountdown.For(MaridiaLargeSnailMotionDefinitions.InitialAttackCooldown);
                 state.Facing = state.Heading;
                 StartMaridiaLargeSnailAnimation(place, state, MaridiaLargeSnailAnimationChoices.Attacking(state.Facing));
                 state.Action = MaridiaLargeSnailAction.Attacking;

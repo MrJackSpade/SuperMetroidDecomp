@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -36,7 +37,7 @@ internal static class WreckedShipGhostBobbingVerification
             var state = new WreckedShipGhostEnemyState(WreckedShipGhostAction.InitialInvisibleDelay)
             {
                 Action = WreckedShipGhostAction.BobbingWhileVisible,
-                VisibleTimer = 120,
+                VisibleTimer = UpdateCountdown.For(120),
                 BobbingOriginY = originY,
                 VerticalVelocity = SignedSixteenSixteen.FromParts(whole, 0),
             };

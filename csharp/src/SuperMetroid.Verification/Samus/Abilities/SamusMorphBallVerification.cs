@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Bosses;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Verification.Rooms.RoomObjects;
@@ -128,7 +130,7 @@ floor, SamusPoseId.MorphingTransitionRightPose, frameCounter: 0, roomObjects: Sa
         Pose = SamusPoseId.FallingAimDownLeftPose,
         EquippedItems = SamusEquipmentFlags.MorphBall,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 40)),
-        BombSpreadChargeTimeoutCounter = 52,
+        BombSpreadCharge = UpdateCountdownAccess.AtAge(SuperMetroid.Core.Samus.Projectiles.MorphBallBombDefinitions.DownChargeTimeoutUpdates, 52),
     }.WithBeamChargeCount(0x003c);
     SamusPoseMetadata.RefreshCollisionRadii(fallingMorph);
     fallingMorph.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
@@ -149,7 +151,7 @@ floor, SamusPoseId.MorphingTransitionLeftPose, frameCounter: 1, roomObjects: Sam
         "command-seven nine-pixel request clips to three pixels at the floor");
     AssertEqual(SamusAccelerationMode.Turning, fallingMorph.HorizontalSpeed.AccelerationMode,
         "non-spin aerial morph retains acceleration mode");
-    AssertEqual(0, fallingMorph.BombSpreadChargeTimeoutCounter,
+    AssertEqual(0, fallingMorph.BombSpreadCharge.Age,
         "morph initializer clears bomb-spread timeout");
     AssertEqual(0x003c, fallingMorph.BeamCharge.FlareCounter,
         "morph initializer does not clear arm-cannon charge counter");
@@ -624,7 +626,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
         "first normal bomb uses physical slot zero");
     AssertEqual(1, bombs.BombCounter, "placement increments native bomb counter");
     AssertEqual(0x0010, bombs.CooldownTimer, "normal bomb loads cooldown table entry five");
-    AssertEqual(59, bombs.Bombs[0].FuseUpdatesLeft, "placement frame immediately decrements timer 60 to 59");
+    AssertEqual(59, bombs.Bombs[0].Fuse.UpdatesLeft, "placement frame immediately decrements timer 60 to 59");
     AssertEqual(0x001e, bombs.Bombs[0].Damage, "bomb damage follows bank-$93 data pointer");
     AssertEqual(0xad45, bombs.Bombs[0].SpritemapPointer, "first instruction selects ROM bomb spritemap");
     ProjectileDrawArtwork bombArtwork = InstalledFixtures.ProjectileArtwork();
@@ -659,7 +661,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
         SamusPoseMetadata.RefreshCollisionRadii(fixtureSamus);
         var fixtureSystem = CreateBombFixture();
         fixtureSystem.StepFrame(new SamusTerrain { Level = fixtureFloor, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, fixtureSamus, GameplayAction.Shoot, GameplayAction.Shoot);
-        while (fixtureSystem.Bombs[0].FuseUpdatesLeft > 9)
+        while (fixtureSystem.Bombs[0].Fuse.UpdatesLeft > 9)
             fixtureSystem.StepFrame(new SamusTerrain { Level = fixtureFloor, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, fixtureSamus, 0, 0);
         return new MakeDirectionFixtureResult(fixtureSystem, fixtureSamus);
     }
@@ -684,11 +686,11 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     // Continue the original straight fixture through timer zero. It must enter fast art at
     // fifteen, publish direction at eight, emit a five-block no-op reaction cross at zero,
     // animate all five explosion records, execute delete, and decrement BombCounter.
-    while (bombs.Bombs[0].FuseUpdatesLeft > 15)
+    while (bombs.Bombs[0].Fuse.UpdatesLeft > 15)
         bombs.StepFrame(new SamusTerrain { Level = floor, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, bombProjectileSamus, 0, 0);
     AssertTrue(bombs.Bombs[0].InstructionPointer >= 0x9fe3,
         "timer fifteen advances the live instruction pointer into fast animation");
-    while (bombs.Bombs[0].FuseUpdatesLeft > 8)
+    while (bombs.Bombs[0].Fuse.UpdatesLeft > 8)
         bombs.StepFrame(new SamusTerrain { Level = floor, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, bombProjectileSamus, 0, 0);
     AssertEqual(SamusBombJumpRequest.Published(SamusBombJumpDirection.Straight), bombProjectileSamus.BombJumpRequest,
         "same-X timer-eight overlap publishes straight direction");
@@ -739,7 +741,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     spreadBombs.StepFrame(new SamusTerrain { Level = empty, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, spreadSamus, (GameplayAction.Shoot | GameplayAction.Down), 0);
     AssertTrue(spreadBombs.Bombs.All(slot => !slot.IsActive),
         "held Down charges bomb spread without spawning");
-    AssertEqual(1, spreadSamus.BombSpreadChargeTimeoutCounter,
+    AssertEqual(1, spreadSamus.BombSpreadCharge.Age,
         "held Down advances native bomb-spread timeout");
 
     spreadBombs.AudioRequests.BeginRecordedUpdate();
@@ -760,7 +762,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
         "bomb spread selects non-beam cooldown entry five");
     AssertEqual(0, spreadSamus.BeamCharge.FlareCounter,
         "bomb spread clears mirrored flare counter");
-    AssertEqual(0, spreadSamus.BombSpreadChargeTimeoutCounter,
+    AssertEqual(0, spreadSamus.BombSpreadCharge.Age,
         "bomb spread clears its timeout counter");
 
     // `$90:BF9D` gives selected HUD item three priority over `$90:C0AB`. A charge
@@ -798,7 +800,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
         SamusBomb slot = spreadBombs.Bombs[index];
         AssertTrue(slot.IsBombSpread, $"spread slot {index} selects spread pre-instruction");
         AssertEqual(SamusBombProjectileSystem.NormalBombType, slot.Type, $"spread slot {index} holds a bomb");
-        AssertEqual(expectedSpreadTimers[index], slot.FuseUpdatesLeft,
+        AssertEqual(expectedSpreadTimers[index], slot.Fuse.UpdatesLeft,
             $"spread slot {index} consumes first ROM fuse tick");
         AssertEqual(expectedSpreadX[index], slot.Position.X.Whole,
             $"spread slot {index} applies encoded X velocity");
@@ -835,14 +837,14 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
         Pose = SamusPoseId.MorphBallGroundRightPose,
         EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
         Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)),
-        BombSpreadChargeTimeoutCounter = 0x00bf,
+        BombSpreadCharge = UpdateCountdownAccess.AtAge(SuperMetroid.Core.Samus.Projectiles.MorphBallBombDefinitions.DownChargeTimeoutUpdates, 0x00bf),
     }.WithBeamChargeCount(BeamChargeDefinitions.FullyChargedCounter);
     SamusPoseMetadata.RefreshCollisionRadii(timeoutSamus);
     var timeoutBombs = CreateBombFixture();
     timeoutBombs.StepFrame(new SamusTerrain { Level = empty, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, timeoutSamus, (GameplayAction.Shoot | GameplayAction.Down), 0);
     AssertTrue(timeoutBombs.Bombs.All(slot => !slot.IsActive),
         "timeout `$BF` advances to `$C0` before forced launch");
-    AssertEqual(0x00c0, timeoutSamus.BombSpreadChargeTimeoutCounter,
+    AssertEqual(0x00c0, timeoutSamus.BombSpreadCharge.Age,
         "last held charging frame reaches timeout threshold");
     timeoutBombs.StepFrame(new SamusTerrain { Level = empty, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, timeoutSamus, (GameplayAction.Shoot | GameplayAction.Down), 0);
     AssertTrue(timeoutBombs.Bombs.All(slot => slot.IsActive && slot.IsBombSpread),
@@ -904,7 +906,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
         "negative power-bomb flag rejects a second placement");
     AssertEqual(1, powerBombs.BombCounter,
         "armed rejection preserves bomb aggregate");
-    while (powerBombs.Bombs[0].FuseUpdatesLeft > 15)
+    while (powerBombs.Bombs[0].Fuse.UpdatesLeft > 15)
         powerBombs.StepFrame(new SamusTerrain { Level = floor, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, powerBombSamus, 0, 0);
     AssertTrue(powerBombs.Bombs[0].InstructionPointer >= 0x9fa3,
         "power-bomb timer fifteen enters retail fast list");
@@ -918,7 +920,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
         powerBombs.AudioRequests.BeginRecordedUpdate();
         powerBombs.StepFrame(new SamusTerrain { Level = floor, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, powerBombSamus, 0, 0);
     }
-    AssertEqual(0, powerBombs.Bombs[0].FuseUpdatesLeft,
+    AssertEqual(0, powerBombs.Bombs[0].Fuse.UpdatesLeft,
         "the fuse has run out once the explosion starts");
     AssertEqual(PowerBombExplosionPhase.PendingPreExplosionSetup,
         powerBombs.PowerBombExplosion.Blast.Phase,

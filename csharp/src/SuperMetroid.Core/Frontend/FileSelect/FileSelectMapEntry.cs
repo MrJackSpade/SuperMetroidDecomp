@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// </summary>
 public sealed class FileSelectMapEntry
 {
-    /// <summary>Updates left of the entry's black hold, one fewer each update until the reveal starts.</summary>
-    private int blackHoldUpdatesLeft = FileSelectMapDefinitions.EntryBlackHoldUpdates;
+    /// <summary>The entry's black hold, counted once each update; the reveal starts on its last.</summary>
+    private readonly UpdateCountdown blackHold = UpdateCountdown.Lasting(FileSelectMapDefinitions.EntryBlackHoldUpdates);
     /// <summary>Number of eight-pixel expansion updates applied to the centered reveal.</summary>
     private int revealSteps;
 
@@ -35,7 +35,7 @@ public sealed class FileSelectMapEntry
         switch (Phase)
         {
             case FileSelectMapEntryPhase.BlackHold:
-                if (--blackHoldUpdatesLeft == 0)
+                if (blackHold.StepEnds())
                     Phase = FileSelectMapEntryPhase.Revealing;
                 break;
             case FileSelectMapEntryPhase.Revealing:

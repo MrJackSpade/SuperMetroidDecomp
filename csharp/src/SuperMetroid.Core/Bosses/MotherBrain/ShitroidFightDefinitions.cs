@@ -59,7 +59,7 @@ internal static class ShitroidFightDefinitions
     internal const int HoldBeforeReleaseUpdates = 257;
 
     /// <summary>The point left of the room it leaves to.</summary>
-    internal static readonly Position16<RoomPixels> ExitPoint = Position16<RoomPixels>.Wrapped(-128, 64);
+    internal static readonly Position16<RoomPixels> ExitPoint = OffRoomPlaces.Placed(new Offset16<RoomPixels>(-128, 64));
 
     /// <summary>How near its exit point, on each axis, it must come before it is gone.</summary>
     internal static readonly Extent16<RoomPixels> ExitReach = new(8, 8);
@@ -69,6 +69,12 @@ internal static class ShitroidFightDefinitions
 
     /// <summary>The lock its hover builds before it chases Samus.</summary>
     internal const int HoverLockToChase = 256;
+
+    /// <summary>How far its horizontal lock builds on each update it keeps within reach of its target's X.</summary>
+    internal const int LockRise = 2;
+
+    /// <summary>How far its horizontal lock decays, never below none, on each update it strays from its target's X.</summary>
+    internal const int LockDecay = 1;
 
     /// <summary>The updates it hovers at Samus's height once its hover restarts, from the update after the restart.</summary>
     internal const int HoverUpdates = 32;

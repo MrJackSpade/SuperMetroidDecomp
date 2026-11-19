@@ -90,11 +90,11 @@ public sealed class MessageBoxPauses
     /// <summary>The pause running now, one entry per update.</summary>
     private ImmutableArray<MessageBoxFrameAudio> _pause = [];
 
-    /// <summary>The updates of <see cref="_pause"/> already run.</summary>
-    private int _updatesRun;
+    /// <summary>The run of <see cref="_pause"/>, one update per entry: its age is the updates already run.</summary>
+    private UpdateCountdown _pauseRun = UpdateCountdown.Ended();
 
     /// <summary>Whether every update of the current pause has run: the box opens, or gameplay resumes.</summary>
-    public bool IsOver => _updatesRun == _pause.Length;
+    public bool IsOver => _pauseRun.IsOver;
 
     /// <summary>Starts the pause before an ordinary box opens; the gameplay update that opened the box was its first.</summary>
     public void BeginBeforeOpening() => Begin(BeforeOpening);
@@ -111,13 +111,15 @@ public sealed class MessageBoxPauses
     {
         if (IsOver)
             throw new InvalidOperationException("The message box's pause has already ended.");
-        return _pause[_updatesRun++];
+        MessageBoxFrameAudio update = _pause[_pauseRun.Age];
+        _pauseRun.Count();
+        return update;
     }
 
     /// <summary>Starts <paramref name="pause"/> from its first update.</summary>
     private void Begin(ImmutableArray<MessageBoxFrameAudio> pause)
     {
         _pause = pause;
-        _updatesRun = 0;
+        _pauseRun = UpdateCountdown.For(pause.Length);
     }
 }

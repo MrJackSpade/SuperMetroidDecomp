@@ -37,10 +37,10 @@ public sealed class SamusSuitPickupState
     public bool IsActive { get; private set; }
 
     /// <summary>
-    /// Updates left before the light beam's first stage runs: the light beam starts on the pickup's third update
+    /// The wait before the light beam's first stage runs: the light beam starts on the pickup's third update
     /// (<see cref="SuitPickupBeamDefinitions.UpdatesBeforeLightBeam"/>).
     /// </summary>
-    private int _updatesBeforeLightBeam;
+    private readonly UpdateCountdown _lightBeamWait = UpdateCountdown.Ended();
 
     /// <summary>The suit the pickup equips and reveals.</summary>
     public SamusSuitPickupKind Kind { get; private set; }
@@ -102,7 +102,7 @@ public sealed class SamusSuitPickupState
         _lightBeamLines = 0;
         _lightBeamLeft = 0;
         _lightBeamRight = 0;
-        _updatesBeforeLightBeam = SuitPickupBeamDefinitions.UpdatesBeforeLightBeam;
+        _lightBeamWait.Restart(SuitPickupBeamDefinitions.UpdatesBeforeLightBeam);
         LeaveProgress(samus);
         _lightBeamSpeed = SuitPickupBeamDefinitions.InitialWideningSpeed;
         Beam = SamusSuitPickupBeam.None;
@@ -153,9 +153,9 @@ public sealed class SamusSuitPickupState
         Ensure.NotNull(colours);
         if (!IsActive)
             return;
-        if (_updatesBeforeLightBeam != 0)
+        if (_lightBeamWait.IsRunning)
         {
-            _updatesBeforeLightBeam--;
+            _lightBeamWait.Count();
             return;
         }
 

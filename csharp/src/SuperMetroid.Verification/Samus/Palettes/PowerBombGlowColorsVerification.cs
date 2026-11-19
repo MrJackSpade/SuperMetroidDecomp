@@ -57,7 +57,7 @@ internal static class PowerBombGlowColorsVerification
         AssertThrows<InvalidDataException>(() => PowerBombGlowColorFile.Read(
             new MemoryStream(Encoding.UTF8.GetBytes("{\"version\":1,\"version\":1}"))),
             "duplicate Power Bomb color field fails loudly");
-        Console.WriteLine($"  Power Bomb glow colours: {compared} native RGB5 triplets and guarded Power Bomb/Crystal Flash lifecycles pass.");
+        Console.WriteLine($"  Power Bomb glow colours: {compared} native fixed-colour triplets and guarded Power Bomb/Crystal Flash lifecycles pass.");
     }
 
     /// <summary>Compares native and guarded explosion phases, radii, completion, and glow colours frame by frame.</summary>
@@ -116,8 +116,12 @@ internal static class PowerBombGlowColorsVerification
             ?? throw new InvalidDataException("Stock Power Bomb color document is null.");
         AssertThrows<InvalidDataException>(() => PowerBombGlowColorFile.Read(new MemoryStream(PowerBombGlowColorFile.Write(document with
         {
-            PreExplosion = [document.PreExplosion[0] with { Red = 32 }, .. document.PreExplosion.Skip(1)],
-        }))), "out-of-range Power Bomb color fails loudly");
+            PreExplosion = ["#fffffff", .. document.PreExplosion.Skip(1)],
+        }))), "a Power Bomb colour not written as #rrggbb fails loudly");
+        AssertThrows<InvalidDataException>(() => PowerBombGlowColorFile.Read(new MemoryStream(PowerBombGlowColorFile.Write(document with
+        {
+            PreExplosion = ["#fefefe", .. document.PreExplosion.Skip(1)],
+        }))), "a Power Bomb colour off the game's fade scale fails loudly");
     }
 
     /// <summary>Forbids all authored fixed-color source ranges during installed explosion updates.</summary>

@@ -16,7 +16,7 @@ public sealed class MetareeEnemyState
     /// The updates left of the burrow: <see cref="MetareeMotionDefinitions.BurrowLifetime"/> as the Metaree strikes the
     /// ground, counted down while it burrows; it is gone on the update the count reaches zero.
     /// </summary>
-    public int BurrowTimer { get; internal set; }
+    public UpdateCountdown BurrowTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>The idle, preparing, diving or burrowing behaviour.</summary>
     public MetareeAction Action { get; internal set; }

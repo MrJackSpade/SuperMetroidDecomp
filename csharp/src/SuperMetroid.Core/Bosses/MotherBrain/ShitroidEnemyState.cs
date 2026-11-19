@@ -62,11 +62,8 @@ public sealed class ShitroidEnemyState
     /// </summary>
     public BossCountdown? SamusHeightHover { get; internal set; }
 
-    /// <summary>
-    /// Horizontal-lock accumulator: gains two each update the Shitroid is horizontally
-    /// aligned with its target and loses one, never below zero, otherwise.
-    /// </summary>
-    public int HorizontalLockAccumulator { get; internal set; }
+    /// <summary>The Shitroid's horizontal lock on its target, built while it keeps aligned with it.</summary>
+    public ShitroidHorizontalLock HorizontalLock { get; } = new();
 
     /// <summary>Whether the periodic Shitroid cry is enabled.</summary>
     public bool CryEnabled { get; internal set; }

@@ -119,14 +119,14 @@ public sealed class SamusKinematicsState
     /// Exclusive bottom collision boundary. Unlike the occupied bottom pixel returned by
     /// the bottom-boundary check, this does not subtract one. It wraps in room space.
     /// </summary>
-    public int BottomBoundary => CoordinateAxis.Wrap(Position.Y.Whole + Radius.Y);
+    public int BottomBoundary => TerrainScanEdges.Edge(Position.Y.Whole + Radius.Y);
 
     /// <summary>
     /// Bottom-centre occupied point: Samus's whole X and the last pixel row her collision box
     /// covers, one above the exclusive bottom boundary, wrapping in room space.
     /// </summary>
     public Position16<RoomPixels> BottomPixel =>
-        new(Position.X.Whole, CoordinateAxis.Wrap(BottomBoundary - 1));
+        new(Position.X.Whole, TerrainScanEdges.Edge(BottomBoundary - 1));
 
     /// <summary>Publishes the result of one directional solid-enemy probe: the enemy met, or null.</summary>
     internal void RecordSolidEnemyCollision(

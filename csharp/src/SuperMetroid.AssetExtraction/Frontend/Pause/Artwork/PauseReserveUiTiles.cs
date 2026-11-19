@@ -4,21 +4,11 @@ using static SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseReserveUiD
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>
-/// The pause screen's reserve-tank labels' keys and widths and the digit tiles the import extracts
-/// (<see cref="PauseReserveUiDefinitions"/>).
+/// The pause screen's reserve-tank labels' widths and the digit tiles the import extracts
+/// (<see cref="PauseReserveUiDefinitions"/>); <see cref="PauseReserveLabelKeys"/> keys the labels.
 /// </summary>
 public static class PauseReserveUiTiles
 {
-    /// <summary>The JSON key of a reserve label.</summary>
-    public static string Name(PauseReserveLabel label) => label switch
-    {
-        PauseReserveLabel.Mode => "Mode",
-        PauseReserveLabel.ReserveTank => "ReserveTank",
-        PauseReserveLabel.Manual => "Manual",
-        PauseReserveLabel.Auto => "Auto",
-        _ => throw new ArgumentOutOfRangeException(nameof(label)),
-    };
-
     /// <summary>MODE and RESERVE TANK occupy seven cells; MANUAL and AUTO occupy four replacement cells.</summary>
     internal static int LabelCellCount(PauseReserveLabel label) => label switch
     {

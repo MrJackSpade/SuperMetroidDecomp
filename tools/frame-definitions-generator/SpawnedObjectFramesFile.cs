@@ -112,7 +112,7 @@ internal static class SpawnedObjectFramesFile
             "",
             "    /// <summary>",
             "    /// What each common spawner, code outside the enemy behaviours, spawns onto the shared sheet, by the spawner the import",
-            "    /// places in the rooms whose data runs it: a type's name, or <c>Type.Member</c> for a type whose members serve unrelated rooms.",
+            "    /// places in the rooms whose data runs it, named for a type, or for a type and member where a type's members serve unrelated rooms.",
             "    /// </summary>",
             "    internal static IReadOnlyList<CommonSpawnedObjects> Common { get; } =",
             "    [",
@@ -120,7 +120,7 @@ internal static class SpawnedObjectFramesFile
         foreach (string spawner in commonSpawners)
         {
             string name = Identifier(spawner);
-            lines.Add($"        new(\"{spawner}\", new(Common{name}Projectiles, Common{name}EffectActors)),");
+            lines.Add($"        new(CommonSpawner.{name}, new(Common{name}Projectiles, Common{name}EffectActors)),");
         }
         lines.AddRange(
         [

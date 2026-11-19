@@ -135,7 +135,8 @@ internal static class MotherBrainSourceDefinitions
     {
         /// <summary>
         /// Where each sheet's characters begin: $B7:9000 (legs, eight pages), $B1:8800 (Baby Metroid, four), $B7:A000
-        /// (attack, four) and $AB:F400 (exploded door, two). The installed manifest names each sheet's hash by its source.
+        /// (attack, four) and $AB:F400 (exploded door, two). The import reads each sheet from its source; its manifest names
+        /// each sheet's hash by the sheet's file name (#2548).
         /// </summary>
         internal static readonly IReadOnlyDictionary<MotherBrainSpriteSheet, int> Sources =
             new Dictionary<MotherBrainSpriteSheet, int>

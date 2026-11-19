@@ -31,7 +31,7 @@ internal static class CrocomireMouthShotHoldVerification
                 var state = new CrocomireEnemyState(body) { Phase = phase };
                 body.SetSpeciesState(state);
                 body.AnimationClock.HoldFor(StartingHold);
-                body.FlashTimer = 0;
+                body.HurtFlash.End();
 
                 SamusProjectileType superMissile = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile);
                 var camera = new Position16<RoomPixels>(cameraX, 0);
@@ -70,7 +70,7 @@ internal static class CrocomireMouthShotHoldVerification
         {
             state.DamageReactionPending = false;
             body.AnimationClock.HoldFor(StartingHold);
-            body.FlashTimer = 0;
+            body.HurtFlash.End();
             enemies.CrocomireBehavior.Combat.ReactToCrocomireBomb(new EnemyBombContext(body, bomb, ordinaryProjectiles, RoomEnemyFrameFixtures.StandaloneSamus(),
                 CrocomireReactions.MouthShot, UsesFrameHitboxes: true, new Position16<RoomPixels>(cameraX, 0))
             {

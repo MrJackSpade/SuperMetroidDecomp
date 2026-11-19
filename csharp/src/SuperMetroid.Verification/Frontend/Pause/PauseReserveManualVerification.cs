@@ -82,7 +82,7 @@ internal static class PauseReserveManualVerification
                 {
                     // The capture names the installed content by path, as a host's store does, instead of copying it (#1532).
                     var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(pause);
-                    AssertEqual(15, restored.ReserveRefillSoundDelay, "debugger state preserves pending transfer delay");
+                    AssertEqual(15, restored.ReserveRefillSound?.UpdatesLeft, "debugger state preserves pending transfer delay");
                 }
             }
             AssertEqual(0, samus.ReserveEnergy, "retail consumes all reserves on exhaustion or max health");

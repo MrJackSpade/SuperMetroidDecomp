@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -104,7 +105,7 @@ internal static class YardTurnDefinitionsVerification
                 Playback = new(YardAnimations.StartingWith(YardSegment.HidingUpsideUpMovingLeft), AnimationPlace.StartOfAnimation),
                 Movement = YardMovement.Crawling,
                 Crawl = movement,
-                TurnSuppressionPassesLeft = suppressed ? YardMotionDefinitions.TurnSuppressionPasses : 0,
+                TurnSuppressionPassesLeft = UpdateCountdown.For(suppressed ? YardMotionDefinitions.TurnSuppressionPasses : 0),
                 CrawlingVelocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256)),
             };
 
@@ -112,7 +113,7 @@ internal static class YardTurnDefinitionsVerification
 
             AssertEqual(new AnimationPlayback<YardSegment>(YardAnimations.StartingWith(expectedProgram), AnimationPlace.StartOfAnimation), state.Playback,
                 $"{context} production instruction");
-            AssertEqual(YardMotionDefinitions.TurnSuppressionPasses, state.TurnSuppressionPassesLeft,
+            AssertEqual(YardMotionDefinitions.TurnSuppressionPasses, state.TurnSuppressionPassesLeft.UpdatesLeft,
                 $"{context} suppresses turns for a whole run of slope-free passes");
         }
     }

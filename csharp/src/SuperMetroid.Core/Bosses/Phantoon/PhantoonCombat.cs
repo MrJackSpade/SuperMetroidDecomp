@@ -246,7 +246,7 @@ internal sealed class PhantoonCombat
 
         RoomEnemyPlace body = state.Body;
         if (CommonEnemyEmptyFrames.ShotsPass(body) ||
-            body.InvincibilityTimer != 0 ||
+            body.Invincibility.IsRunning ||
             body.Presence.HasAny(EnemyPresence.Deleted) ||
             body.Contact.HasAny(EnemyContact.IgnoresSamus))
         {
@@ -515,11 +515,13 @@ internal sealed class PhantoonCombat
     internal static int ReadPhantoonFlameComponent(TrigonometryAngle angle, int radius) =>
         UnitComponent.SineOf(angle).ReachOf(ShortCircleProduct.RadiusInUse(radius));
 
-    /// <summary>Switches a flame to its delete animation after leaving the room bounds.</summary>
+    /// <summary>
+    /// Switches a flame to its delete animation after leaving the room bounds: a place before the room, counted back from
+    /// the far end of the room's coordinates (<see cref="OffRoomPlaces"/>), lies past the room's far edges too.
+    /// </summary>
     private static void DeletePhantoonFlameOutsideRoom(EnemyProjectile flame)
     {
-        if (CoordinateAxis.AsSigned(flame.Position.X.Whole) < 0 || flame.Position.X.Whole >= PhantoonArenaDefinitions.RoomSize ||
-            CoordinateAxis.AsSigned(flame.Position.Y.Whole) < 0 || flame.Position.Y.Whole >= PhantoonArenaDefinitions.RoomSize)
+        if (flame.Position.X.Whole >= PhantoonArenaDefinitions.RoomSize || flame.Position.Y.Whole >= PhantoonArenaDefinitions.RoomSize)
         {
             flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.Delete));
         }

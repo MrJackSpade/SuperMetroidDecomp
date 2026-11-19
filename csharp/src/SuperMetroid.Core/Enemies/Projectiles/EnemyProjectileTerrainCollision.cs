@@ -66,8 +66,8 @@ internal sealed class EnemyProjectileTerrainCollision : EnemyProjectileBlockColl
                 // boundary before the collision's full-block clamp.
                 int radius = (axis == Axis.Horizontal) ? projectile.Radius.X : projectile.Radius.Y;
                 alignedPosition = move.MovingNegative
-                    ? CoordinateAxis.Wrap(RoomGridConversions.HalfBlockEnd(targetEdge) + radius + 1)
-                    : CoordinateAxis.Wrap(RoomGridConversions.HalfBlockStart(targetEdge) - radius);
+                    ? TerrainScanEdges.Edge(RoomGridConversions.HalfBlockEnd(targetEdge) + radius + 1)
+                    : TerrainScanEdges.Edge(RoomGridConversions.HalfBlockStart(targetEdge) - radius);
                 return true;
             }
             return false;
@@ -109,8 +109,8 @@ internal sealed class EnemyProjectileTerrainCollision : EnemyProjectileBlockColl
 
             int blockTop = block.ToRoomPixels().Y;
             alignedPosition = movingUp
-                ? CoordinateAxis.Wrap(RoomGridConversions.BlockEnd(blockTop) + 1 - height + projectile.Radius.Y)
-                : CoordinateAxis.Wrap(blockTop + height - projectile.Radius.Y);
+                ? TerrainScanEdges.Edge(RoomGridConversions.BlockEnd(blockTop) + 1 - height + projectile.Radius.Y)
+                : TerrainScanEdges.Edge(blockTop + height - projectile.Radius.Y);
             return true;
         }
 

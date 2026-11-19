@@ -106,7 +106,7 @@ internal static class SpawnedObjectFixtures
         foreach (ComposedEncounter encounter in Enum.GetValues<ComposedEncounter>())
         {
             if (EncounterLookUploads.ShownAs(encounter) is EncounterArtwork shown && drawings.For(encounter) is { Looks: [int first and > 0, ..] })
-                enemies.Presentation.Looks.Show(new EncounterLook(shown, EncounterLookUploads.Looks(encounter)[first]));
+                enemies.Presentation.Looks.Show(new EncounterLook(shown, EncounterLookUploads.Looks(encounter)[first].Name));
         }
     }
 

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Bosses;
+using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 using SuperMetroid.Core.Assets;
@@ -244,7 +246,7 @@ internal static void VerifyDoorOpeningTrajectories()
             3 => 55,
             _ => throw new InvalidOperationException(),
         };
-        AssertEqual(expectedFrames, trajectory.RemainingFrames,
+        AssertEqual(expectedFrames, trajectory.Scroll.UpdatesLeft,
             $"door direction {direction} remaining IRQ calls after setup");
         AssertEqual(direction switch
         {
@@ -320,7 +322,7 @@ internal static void VerifyDoorOpeningTrajectories()
             $"door direction {direction} final camera snap");
         AssertEqual(finalBackground, trajectory.BackgroundPosition,
             $"door direction {direction} snap leaves layer two at its streamed endpoint");
-        AssertEqual(0, trajectory.RemainingFrames,
+        AssertEqual(0, trajectory.Scroll.UpdatesLeft,
             $"door direction {direction} exhausts IRQ frame count");
         AssertTrue(trajectory.SamusPosition != postNudge,
             $"door direction {direction} leaves $82:E6A2 nudge for its later phase");

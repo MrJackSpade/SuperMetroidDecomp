@@ -542,8 +542,10 @@ internal sealed class PhantoonPatterns
         int targetX = swoop.TargetX;
 
         // Each pull stops past its threshold, so the swoop's speeds stay within about eight pixels an update either way.
+        // The swoop holds him as far as 64 pixels left of the room, so his place and its bounds are compared across the
+        // room's left edge, and a target above Samus can lie above the room's top.
         SignedEightEight swoopX = swoop.Velocity.X;
-        if (CoordinateAxis.Difference(targetX, body.Position.X.Whole) < 0)
+        if (DistanceAcrossRoomEdge.LiesBefore(targetX, body.Position.X.Whole))
         {
             if (swoopX >= PhantoonMotionDefinitions.SwoopNegativeXThreshold)
                 swoopX -= PhantoonMotionDefinitions.SwoopHorizontalPull;
@@ -554,14 +556,14 @@ internal sealed class PhantoonPatterns
         }
         swoop.Velocity = swoop.Velocity.WithX(swoopX);
         body.Position = body.Position.AdvanceX(swoop.Velocity.X.ToSixteenSixteenDelta());
-        if (CoordinateAxis.Difference(body.Position.X.Whole, PhantoonMotionDefinitions.SwoopMinimumX) < 0)
-            body.Position = body.Position.WithWholeX(CoordinateAxis.Wrap(PhantoonMotionDefinitions.SwoopMinimumX));
-        else if (CoordinateAxis.Difference(body.Position.X.Whole, PhantoonMotionDefinitions.SwoopMaximumX) >= 0)
+        if (DistanceAcrossRoomEdge.LiesBefore(body.Position.X.Whole, PhantoonMotionDefinitions.SwoopMinimumX))
+            body.Position = OffRoomPlaces.WithWholeX(body.Position, PhantoonMotionDefinitions.SwoopMinimumX);
+        else if (!DistanceAcrossRoomEdge.LiesBefore(body.Position.X.Whole, PhantoonMotionDefinitions.SwoopMaximumX))
             body.Position = body.Position.WithWholeX(PhantoonMotionDefinitions.SwoopMaximumX);
 
-        int targetY = target == PhantoonSwoopTarget.DeathHeight ? PhantoonArenaDefinitions.DeathSwoopY : CoordinateAxis.Wrap(samus.Position.Y.Whole - PhantoonArenaDefinitions.SwoopAboveSamus);
+        int targetY = target == PhantoonSwoopTarget.DeathHeight ? PhantoonArenaDefinitions.DeathSwoopY : OffRoomPlaces.Place(samus.Position.Y.Whole - PhantoonArenaDefinitions.SwoopAboveSamus);
         SignedEightEight swoopY = swoop.Velocity.Y;
-        if (CoordinateAxis.Difference(targetY, body.Position.Y.Whole) < 0)
+        if (DistanceAcrossRoomEdge.LiesBefore(targetY, body.Position.Y.Whole))
         {
             if (swoopY >= PhantoonMotionDefinitions.SwoopNegativeYThreshold)
                 swoopY -= PhantoonMotionDefinitions.SwoopVerticalPull;
@@ -572,9 +574,9 @@ internal sealed class PhantoonPatterns
         }
         swoop.Velocity = swoop.Velocity.WithY(swoopY);
         body.Position = body.Position.AdvanceY(swoop.Velocity.Y.ToSixteenSixteenDelta());
-        if (CoordinateAxis.Difference(body.Position.Y.Whole, PhantoonMotionDefinitions.SwoopMinimumY) < 0)
+        if (DistanceAcrossRoomEdge.LiesBefore(body.Position.Y.Whole, PhantoonMotionDefinitions.SwoopMinimumY))
             body.Position = body.Position.WithWholeY(PhantoonMotionDefinitions.SwoopMinimumY);
-        else if (CoordinateAxis.Difference(body.Position.Y.Whole, PhantoonMotionDefinitions.SwoopMaximumY) >= 0)
+        else if (!DistanceAcrossRoomEdge.LiesBefore(body.Position.Y.Whole, PhantoonMotionDefinitions.SwoopMaximumY))
             body.Position = body.Position.WithWholeY(PhantoonMotionDefinitions.SwoopMaximumY);
     }
 

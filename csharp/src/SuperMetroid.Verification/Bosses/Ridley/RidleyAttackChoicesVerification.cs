@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Bosses.Ridley;
@@ -98,7 +99,7 @@ internal static class RidleyAttackChoicesVerification
             AssertEqual(1, advances, "Selector advances RNG exactly once");
             AssertEqual(referenceReads, actualReads, "Chosen setup reads the same current RNG word");
             AssertEqual(expected.Phase, state.Phase, "Native chosen callback executes on the selection frame");
-            AssertEqual(expected.PhaseTimer.Count, state.PhaseTimer.Count, "Same-frame selected timer");
+            AssertEqual(expected.PhaseTimer.CartridgeCount, state.PhaseTimer.CartridgeCount, "Same-frame selected timer");
             AssertEqual(expected.Flight.Velocity.X.RawValue, state.Flight.Velocity.X.RawValue, "Same-frame selected X motion");
             AssertEqual(expected.Flight.Velocity.Y.RawValue, state.Flight.Velocity.Y.RawValue, "Same-frame selected Y motion");
             AssertEqual(expected.ZeroHealthLungeCount, state.ZeroHealthLungeCount, "Only a zero-health selection counts a lunge; spin takes priority");

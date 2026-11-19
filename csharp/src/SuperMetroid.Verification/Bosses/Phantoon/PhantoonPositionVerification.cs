@@ -46,7 +46,7 @@ internal static class PhantoonPositionVerification
             PhantoonEnemyState boundaryState = state ?? throw new InvalidOperationException("Verification requires state.");
             boundaryState.Phase = PhantoonPhase.MoveInFigureEightThenOpenEye;
             // The cartridge's count from which the eye opens on this update, or below that, on its next update.
-            PrivateState.Set(boundaryState.Round.EyeClosedWait, nameof(BossCountdown.Count), timer - 1);
+            boundaryState.Round.EyeClosedWait.SetCartridgeCount(timer - 1);
             boundary.StepFrame(0);
             AssertEqual(timer == 2 ? PhantoonPhase.MoveInFigureEightThenOpenEye : PhantoonPhase.WaitingOnEye,
                 boundaryState.Phase, $"Native figure-eight DEC/BEQ/BPL boundary from {timer}");

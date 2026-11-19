@@ -69,7 +69,7 @@ internal static class ResumeChargingSoundCancelVerification
     private static void VerifyChargedReleasesCancel()
     {
         var fired = new Fixture(SamusPoseId.NormalJumpGunExtendedLeftPose, JumpingPosition, SamusBeamFlags.Charge | SamusBeamFlags.Wave);
-        fired.Charge.FlareCounter = BeamChargeDefinitions.FullyChargedCounter;
+        fired.Charge.SetFlareCount(BeamChargeDefinitions.FullyChargedCounter);
         fired.Samus.PendingTransitionShot = new SamusTransitionShot(SamusProjectileDirection.Left);
         fired.Samus.ResumeChargingBeamSoundPending = true;
         fired.Fire(new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.None, ControllerPreviousNewInput = GameplayAction.None });
@@ -78,7 +78,7 @@ internal static class ResumeChargingSoundCancelVerification
         // A running cooldown rejects the release; with the charge past the charging sound's start, the rejection clears
         // the request and then silences the charge.
         var rejected = new Fixture(SamusPoseId.NormalJumpGunExtendedLeftPose, JumpingPosition, SamusBeamFlags.Charge | SamusBeamFlags.Wave);
-        rejected.Charge.FlareCounter = BeamChargeDefinitions.FullyChargedCounter;
+        rejected.Charge.SetFlareCount(BeamChargeDefinitions.FullyChargedCounter);
         rejected.Samus.PendingTransitionShot = new SamusTransitionShot(SamusProjectileDirection.Left);
         rejected.Bombs.SetSharedCooldown(5);
         rejected.Samus.ResumeChargingBeamSoundPending = true;

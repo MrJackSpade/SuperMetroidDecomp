@@ -117,8 +117,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private RotationAngle angle;
     /// <summary>The screen's brightness, black at first, and its slow fades, one level on every second update.</summary>
     private readonly ScreenFade fade = new(0, stepDelay: 1, firstWait: 1);
-    /// <summary>Phase-specific hold countdown.</summary>
-    private int phaseTimer;
+    /// <summary>The hold of the phase holding: after the explosion, then on close Zebes.</summary>
+    private UpdateCountdown phaseHold = UpdateCountdown.Ended();
     /// <summary>
     /// The width of the square blocks the Zebes reveal draws its planet picture in (#1774), which also counts the reveal
     /// down: every fourth update of the reveal's fade-in and of the removal that follows, the blocks narrow by one pixel,
@@ -130,11 +130,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     [IntegerQuantity("pixelation block width in screen pixels, one through sixteen")]
     private int revealBlockWidth = 1;
     /// <summary>
-    /// The updates the scene still waits, black, before it sets the station up, counted down to none from
-    /// <see cref="CeresDestructionSceneDefinitions.InitialFrameWaits"/> (#2488): the update that finds none left sets the
-    /// scene up; null once it is set up.
+    /// The scene's wait, black, before it sets the station up, of <see cref="CeresDestructionSceneDefinitions.InitialFrameWaits"/>
+    /// updates (#2488): the update after it is over sets the scene up; null once it is set up.
     /// </summary>
-    private int? openingWaitsLeft = CeresDestructionSceneDefinitions.InitialFrameWaits;
+    private UpdateCountdown? openingWait = UpdateCountdown.Lasting(CeresDestructionSceneDefinitions.InitialFrameWaits);
     /// <summary>
     /// Cinematic updates elapsed, incremented after the cinematic phase runs and before the actors step. Only its phase
     /// within a four-update cycle is read, which a wider counter preserves exactly.
@@ -178,7 +177,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// update, which takes its first wait, until the update that sets it up.
     /// </summary>
     internal bool IsWaitingOutDisplayFrame =>
-        openingWaitsLeft is { } waitsLeft && waitsLeft < CeresDestructionSceneDefinitions.InitialFrameWaits;
+        openingWait is { IsUncounted: false };
 
     /// <summary>Binds the installed station-blast colors when the game is bound to its installed content.</summary>
     internal void BindGlowColors(InstalledPowerBombGlowColors colors) => glowColors = Ensure.NotNull(colors);
@@ -209,14 +208,14 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         // The cinematic first waits out its opening waits (CeresDestructionSceneDefinitions.InitialFrameWaits) with the
         // screen black, each one update that continues it. After the last it sets up the scene and goes on with the cinematic
         // phase, whose objects and update count then advance once.
-        if (openingWaitsLeft is { } waitsLeft)
+        if (openingWait is { } wait)
         {
-            if (waitsLeft > 0)
+            if (wait.IsRunning)
             {
-                openingWaitsLeft = waitsLeft - 1;
+                wait.Count();
                 return;
             }
-            openingWaitsLeft = null;
+            openingWait = null;
             SetupCeresDestruction();
             // Setup queues the cinematic music and the state's own track last.
             audio.QueueMusic(MusicRequest.Stop);
@@ -282,7 +281,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 angle = angle.TurnedBySteps(CeresDestructionSceneDefinitions.Motion.FlyAwayTurnSteps);
                 if (Zoom < CeresDestructionSceneDefinitions.Motion.MinimumZoom)
                 {
-                    phaseTimer = CeresDestructionSceneDefinitions.Timing.ExplosionHoldFrames;
+                    phaseHold = UpdateCountdown.Lasting(CeresDestructionSceneDefinitions.Timing.ExplosionHoldFrames);
                     Phase = CeresDestructionPhase.HoldAfterExplosion;
                 }
                 else
@@ -292,7 +291,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 break;
 
             case CeresDestructionPhase.HoldAfterExplosion:
-                if (--phaseTimer <= 0)
+                if (phaseHold.Step())
                 {
                     fade.StepEvery(CeresDestructionSceneDefinitions.Timing.FadeUpdatesPerStep);
                     Phase = CeresDestructionPhase.FadeOutCeres;
@@ -368,7 +367,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                     // The game hides the ship's turning floor before the hold, not
                     // when the later pan starts. The planet and star sprites stay shown.
                     View = CeresDestructionView.ZebesClose;
-                    phaseTimer = CeresDestructionSceneDefinitions.Timing.ZebesHoldFrames;
+                    phaseHold = UpdateCountdown.Lasting(CeresDestructionSceneDefinitions.Timing.ZebesHoldFrames);
                     Phase = CeresDestructionPhase.HoldCloseZebes;
                 }
                 StepZebesActors(motion: ZebesActorsMotion.Holding);
@@ -376,7 +375,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
 
             case CeresDestructionPhase.HoldCloseZebes:
                 StepZebesActors(motion: ZebesActorsMotion.Holding);
-                if (--phaseTimer <= 0)
+                if (phaseHold.Step())
                     Phase = CeresDestructionPhase.SlideZebesSceneAway;
                 break;
 

@@ -198,8 +198,8 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         // its animation (RoomEnemyPlace.FoundState).
         NorfairRioEnemyState parentState = parent.FoundState<NorfairRioEnemyState>() ?? throw new InvalidOperationException(
             $"Rio flame follower {follower.Ordinal} finds no Rio in its parent's place {parent.Ordinal}.");
-        follower.FrozenTimer = parent.FrozenTimer;
-        if (parent.FrozenTimer != 0 || parentState.Idles)
+        follower.Freeze.Restart(parent.Freeze.UpdatesLeft);
+        if (parent.Freeze.IsRunning || parentState.Idles)
         {
             follower.Presence = follower.Presence.With(EnemyPresence.Hidden);
             return;

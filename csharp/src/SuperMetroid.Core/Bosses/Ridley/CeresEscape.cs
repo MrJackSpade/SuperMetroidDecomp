@@ -89,7 +89,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
         _status.CeresStatus = CeresEscapeStatus.RidleyEscaped;
         Stage = CeresEscapeStage.Getaway;
         Floor.Active = true;
-        Floor.GetawayUpdate = 0;
+        Floor.Flight = UpdateCountdown.Lasting(CeresRidleyGetawayCurve.Duration);
         Floor.Angle = CeresRidleyGetawayDefinitions.InitialAngle;
         Floor.Offset = CeresRidleyGetawayDefinitions.InitialFloorOffset;
         Floor.Zoom = CeresRidleyGetawayDefinitions.InitialZoom;
@@ -112,8 +112,9 @@ internal sealed class CeresEscape : IGameplayShadingSource
     {
         if (Stage != CeresEscapeStage.Getaway)
             return;
-        int update = Floor.GetawayUpdate;
-        Floor.GetawayUpdate = update + 1;
+        int update = Floor.Flight.Age;
+        bool flown = Floor.Flight.IsOver;
+        Floor.Flight.Step();
 
         // The getaway requests the departure sound on its first update only.
         if (update == 0)
@@ -125,7 +126,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
             samus.CeresRidleyEjection.Request(samus);
 
         // The update after the curves' last ends the getaway.
-        if (update == CeresRidleyGetawayCurve.Duration)
+        if (flown)
         {
             // The getaway's end restores the ordinary view and clears all rotation and scroll values, so the
             // self-destruct warning shows over the room, not the turning floor.

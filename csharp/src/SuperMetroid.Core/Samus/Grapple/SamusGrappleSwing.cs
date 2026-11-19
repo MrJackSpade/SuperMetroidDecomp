@@ -265,7 +265,7 @@ public static class SamusGrappleSwing
         // The kick reads Jump, not Dash. That test must agree with the release-window
         // check, or tight anchors become inescapable using Jump even though the
         // unrelated Dash accidentally supplies the kick.
-        if (grapple.CollisionBounceTimer != 0 &&
+        if (grapple.CollisionBounceTimer.IsRunning &&
             (newlyPressedInput & GameplayAction.Jump) != GameplayAction.None)
         {
             AngularSpeed impulse = grapple.Submerged
@@ -332,7 +332,7 @@ public static class SamusGrappleSwing
                 }
                 else
                 {
-                    grapple.CollisionBounceTimer = GrappleBeamDefinitions.Physics.CollisionBounceFrames;
+                    grapple.CollisionBounceTimer = UpdateCountdown.For(GrappleBeamDefinitions.Physics.CollisionBounceFrames);
                     grapple.AngularVelocity = ReversedAtHalfSpeed(grapple.AngularVelocity);
                     grapple.JumpImpulse = ReversedAtHalfSpeed(grapple.JumpImpulse);
                 }
@@ -353,7 +353,7 @@ public static class SamusGrappleSwing
         grapple.MirroredAngle = targetAngle;
         grapple.CloseCollision = false;
 
-        grapple.CollisionBounceTimer = Math.Max(0, grapple.CollisionBounceTimer - 1);
+        grapple.CollisionBounceTimer.Step();
 
         // The angular movement damps the temporary jump impulse toward zero after a successful
         // angle step. This impulse is separate from angular velocity and must not be folded in.
@@ -534,7 +534,7 @@ public static class SamusGrappleSwing
 
         samus.PeriodicDamage.Accumulate(EnergyAmount.FromEnergy(damage));
         samus.InvincibilityTimer = WrappingCountdown.Start(SpikeHazardDefinitions.InvincibilityFrames);
-        samus.KnockbackTimer = SpikeHazardDefinitions.KnockbackFrames;
+        samus.KnockbackHold = UpdateCountdown.For(SpikeHazardDefinitions.KnockbackFrames);
     }
 
 /// <summary>

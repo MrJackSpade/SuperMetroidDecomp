@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// are found (<see cref="ScrollCellsPastRoomScreens{TCell}"/>).</param>
 /// <param name="Cells">An explicit list's cells: the room's own screens, row by row; empty for an implicit layout.</param>
 /// <param name="ImplicitBottomRow">An implicit layout's bottom-row state, or null for an explicit list.</param>
-public sealed record RoomScrollDefinition(string Name, IReadOnlyList<RoomScrollState> Cells, RoomScrollState? ImplicitBottomRow = null)
+public sealed record RoomScrollDefinition([InstalledKey] string Name, IReadOnlyList<RoomScrollState> Cells, RoomScrollState? ImplicitBottomRow = null)
 {
     /// <summary>An implicit layout: the camera scrolls over every cell except the bottom row, which is <paramref name="bottomRow"/>.</summary>
-    public static RoomScrollDefinition Implicit(string name, RoomScrollState bottomRow) => new(name, [], bottomRow);
+    public static RoomScrollDefinition Implicit([InstalledKey] string name, RoomScrollState bottomRow) => new(name, [], bottomRow);
 }

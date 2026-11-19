@@ -45,7 +45,7 @@ internal static class BabyMetroidGradualAcceleration
     {
         Ensure.NotNull(isVaguelyOffScreen);
         var run = new SeekingVelocityRun(velocity, position, target);
-        int distance = CoordinateAxis.Difference(position, target);
+        int distance = DistanceAcrossRoomEdge.Apart(position, target);
         if (distance == 0)
             return velocity;
         if (distance < 0)
@@ -94,7 +94,7 @@ internal static class BabyMetroidGradualAcceleration
     public static SignedEightEight AccelerateVertically(int position, int target, SignedEightEight velocity, int divisor)
     {
         var run = new SeekingVelocityRun(velocity, position, target);
-        int distance = CoordinateAxis.Difference(position, target);
+        int distance = DistanceAcrossRoomEdge.Apart(position, target);
         if (distance == 0)
             return velocity;
         if (distance < 0)

@@ -318,7 +318,7 @@ internal sealed class CrocomireBridgeCollapse
         state.Tongue.Presence = state.Tongue.Presence.With(EnemyPresence.Deleted);
         _access.PublishCrocomireObject(CrocomireArenaDefinitions.BridgeWallBlock, CrocomireArenaMutation.ClearInvisibleWall);
         _cameraDistance.Request(CameraDistanceMode.NormalTracking);
-        state.Death.SkeletonBaringElapsed = 0;
+        state.Death.SkeletonBaring = UpdateCountdown.Lasting(CrocomireSkeletonLookDefinitions.BaringDuration);
     }
 
     /// <summary>Picks the next crumbling bridge column and runs the bridge fragment's setup.</summary>

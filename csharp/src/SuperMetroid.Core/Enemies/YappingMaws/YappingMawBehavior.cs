@@ -88,7 +88,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             Action = YappingMawAction.WaitingForSamus,
             Origin = place.Position.Whole,
-            RetractedDelayTimer = YappingMawAttackDefinitions.RetractedHold,
+            RetractedDelayTimer = UpdateCountdown.Lasting(YappingMawAttackDefinitions.RetractedHold),
             Links = [.. bodies.Select(body => new YappingMawLink(body))],
             // The root's kind follows the Maw's attack direction; the Maw holds the root it spawned.
             RootEffectActor = _effectActors.SpawnRoomEffectActor(
@@ -218,21 +218,21 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? TrigonometryAngle.HalfTurn.TurnedBySteps(multiple)
                 : TrigonometryAngle.HalfTurn.TurnedBySteps(-multiple);
 
-            int rawX = CoordinateAxis.Wrap(CalculateYappingMawX(linkAngle, state.SegmentRadius) - state.Baseline.X);
-            int rawY = CoordinateAxis.Wrap(CalculateYappingMawY(linkAngle, state.SegmentRadius / 2) - state.Baseline.Y);
+            int rawX = YappingMawBendChain.Held(CalculateYappingMawX(linkAngle, state.SegmentRadius) - state.Baseline.X);
+            int rawY = YappingMawBendChain.Held(CalculateYappingMawY(linkAngle, state.SegmentRadius / 2) - state.Baseline.Y);
 
             // The curl rotates a correction whose length is the link's X offset for both components, which gives the
             // curve its lopsided shape.
-            int correctionX = CoordinateAxis.Wrap(
+            int correctionX = YappingMawBendChain.Held(
                 CalculateYappingMawX(state.CurlAngle.ToTrigonometryAngle(), rawX) -
                 CalculateYappingMawX(RotationAngle.Zero.ToTrigonometryAngle(), rawX));
-            int correctionY = CoordinateAxis.Wrap(
+            int correctionY = YappingMawBendChain.Held(
                 CalculateYappingMawY(state.CurlAngle.ToTrigonometryAngle(), rawX) -
                 CalculateYappingMawY(RotationAngle.Zero.ToTrigonometryAngle(), rawX));
             int segmentX = chain.Corrected(rawX, correctionX);
             int segmentY = chain.Corrected(rawY, correctionY);
             state.Links[segment].Offset = new Offset16<RoomPixels>(
-                CoordinateAxis.AsSigned(segmentX), CoordinateAxis.AsSigned(segmentY));
+                YappingMawBendChain.Offset(segmentX), YappingMawBendChain.Offset(segmentY));
         }
 
         place.Position = place.Position.WithWhole(YappingMawLinkPosition(state, 3));
@@ -313,15 +313,13 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             PositionSamusInYappingMaw(mouth, state, samus);
 
         // A hold that has run out stays at zero while Samus's death keeps the Maw waiting.
-        if (state.RetractedDelayTimer > 0)
-            state.RetractedDelayTimer--;
-        if (state.RetractedDelayTimer > 0 || samus.DeathSequence.IsActive)
+        if (!state.RetractedDelayTimer.Step() || samus.DeathSequence.IsActive)
             return;
 
         samus.Control.Unlock();
         state.HasGrabbedSamus = false;
         state.GrabCooldown = YappingMawGrabCooldown.Started(YappingMawAttackDefinitions.GrabCooldown);
-        state.RetractedDelayTimer = YappingMawAttackDefinitions.RetractedHold;
+        state.RetractedDelayTimer = UpdateCountdown.Lasting(YappingMawAttackDefinitions.RetractedHold);
         state.Action = YappingMawAction.WaitingForSamus;
     }
 
@@ -380,7 +378,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (place.Health != 0)
         {
-            if (place.FrozenTimer == 0)
+            if (place.Freeze.IsOver)
                 return;
 
             ReleaseSamusFromYappingMaw(state, samus);
@@ -410,7 +408,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         PictureShading shading = SelectYappingMawFrozenShading(
             place.Shading,
-            place.FrozenTimer);
+            place.Freeze.UpdatesLeft);
         foreach (YappingMawLink link in state.Links)
             link.Body.Graphics = link.Body.Graphics.In(shading);
 

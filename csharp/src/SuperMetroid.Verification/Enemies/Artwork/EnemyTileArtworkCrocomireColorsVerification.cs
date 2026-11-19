@@ -78,7 +78,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         AssertTrue(state.Colours.ShowsFightBody && !state.Colours.HurtFlash, "a hurt update shows the restored fight body");
         IReadOnlyList<SheetShade> bodyShades = BossSheetShades.Body(BossBodyOwner.Crocomire, bosses, [], []);
         AssertBand(bodyShades, CrocomireShades.FightBody, CrocomireColorDefinitions.FightBodyCount, colors.ResolveFightBody, "restored fight-body");
-        body.FlashTimer = 1;
+        body.HurtFlash.Restart(1);
         enemies.FrameContext.SeedEnemyPassCount(2);
         enemies.CrocomireBehavior.Combat.ApplyCrocomireHurtFlash(body, state);
         AssertTrue(state.Colours.HurtFlash, "a flashing hurt update shows the white hurt flash");

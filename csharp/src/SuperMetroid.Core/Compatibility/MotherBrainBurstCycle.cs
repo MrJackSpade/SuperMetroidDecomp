@@ -30,8 +30,14 @@ public sealed class MotherBrainBurstCycle
     /// </summary>
     public int Place { get; private set; }
 
-    /// <summary>Updates left of the interval before the next burst is due; a burst is due once it runs below zero.</summary>
-    public int Interval { get; private set; }
+    /// <summary>The update a burst is due on, after its interval's updates have passed.</summary>
+    private const int DueUpdate = 1;
+
+    /// <summary>
+    /// The wait for the next burst: the interval's updates left and the update the burst is due on, over on that update.
+    /// A cycle not yet run is due at once.
+    /// </summary>
+    private readonly UpdateCountdown burstWait = UpdateCountdown.Lasting(DueUpdate);
 
     /// <summary>
     /// Steps to the bursting effect's next burst and returns its entry of <paramref name="shown"/>, the effect's list in
@@ -58,9 +64,9 @@ public sealed class MotherBrainBurstCycle
     /// <returns>Whether a burst is due on this update.</returns>
     public bool IntervalRunsOut(int interval)
     {
-        if (--Interval >= 0)
+        if (!burstWait.Count())
             return false;
-        Interval = interval;
+        burstWait.Restart(interval + DueUpdate);
         return true;
     }
 
@@ -68,6 +74,6 @@ public sealed class MotherBrainBurstCycle
     public void Restart()
     {
         Place = 0;
-        Interval = 0;
+        burstWait.Restart(DueUpdate);
     }
 }

@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Rooms;
 /// <param name="RisingCameraOffset">How many pixels above Samus the camera aims its top while she moves up, leading the view above her as she rises (#2482); zero or more.</param>
 /// <param name="DoorTransition">How door transitions into or out of this room draw the screen.</param>
 public sealed record RoomDefinition(
-    string Name,
+    [InstalledKey] string Name,
     AreaId Area,
     Position16<MapTiles> MapPosition,
     Extent16<RoomScreens> Size,

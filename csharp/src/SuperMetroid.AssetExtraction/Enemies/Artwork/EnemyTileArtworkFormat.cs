@@ -16,9 +16,11 @@ public static class EnemyTileArtworkFormat
     /// 84 binds them no more, as the burst is Samus's weapon effect, composed with her projectile pictures (#1713); 85
     /// extracts no artwork for the Reflec, which nothing shows, keeps the artwork three graphics sets load for no enemy apart
     /// from the enemies' and binds no Stoke frame (#1686); 86 keeps the Ceres door header's artwork apart from the
-    /// station's doors and walls, each its own actor (#1989); 87 names each frame for what its picture shows (#2069).
+    /// station's doors and walls, each its own actor (#1989); 87 names each frame for what its picture shows (#2069); 88 files
+    /// each sheet under its enemy's or unplaced artwork's key and Mother Brain's special sheets under their file names,
+    /// never a header pointer or a cartridge address (#2548).
     /// </summary>
-    public const int Version = 87;
+    public const int Version = 88;
     /// <summary>Stable, source-address-free name for a gunship takeoff character chunk.</summary>
     public static string GunshipLiftoffFileName(int index) =>
         $"gunship-liftoff-{index + 1}-tiles.png";
@@ -26,6 +28,6 @@ public static class EnemyTileArtworkFormat
     public const int RetailDefinitionCount = 117;
     /// <summary>All distinct artworks the pinned retail graphics sets load for no enemy (#1686).</summary>
     public const int RetailUnplacedArtworkCount = 4;
-    /// <summary>The import-data manifest's entries: one per enemy and per unplaced artwork, each keyed by its header.</summary>
+    /// <summary>The import-data manifest's entries: one per enemy and per unplaced artwork, each keyed by its key.</summary>
     public const int RetailEntryCount = RetailDefinitionCount + RetailUnplacedArtworkCount;
 }

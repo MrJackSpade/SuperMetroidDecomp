@@ -19,19 +19,19 @@ internal static class FixtureGraphicsSetMembers
     {
         ArgumentNullException.ThrowIfNull(set);
         ArgumentNullException.ThrowIfNull(records);
-        if (!members.TryAdd(set, new RoomEnemyGraphicsSetMembers(set.Name, [.. records])))
+        if (!members.TryAdd(set, new RoomEnemyGraphicsSetMembers(set, [.. records])))
             throw new InvalidDataException($"Fixture graphics set {set.Name}'s members are already recorded.");
     }
 
     /// <summary>
-    /// The members a sheet composed under <paramref name="set"/> is composed from, by set name: the set's recorded members
+    /// The members a sheet composed under <paramref name="set"/> is composed from, by set: the set's recorded members
     /// when a fixture recorded them, and otherwise the retail catalogue, which names every retail set's.
     /// </summary>
-    internal static IReadOnlyDictionary<string, RoomEnemyGraphicsSetMembers> CatalogueFor(RoomEnemyGraphicsSetDefinition set)
+    internal static IReadOnlyDictionary<RoomEnemyGraphicsSetDefinition, RoomEnemyGraphicsSetMembers> CatalogueFor(RoomEnemyGraphicsSetDefinition set)
     {
         ArgumentNullException.ThrowIfNull(set);
         return members.TryGetValue(set, out RoomEnemyGraphicsSetMembers? recorded)
-            ? new Dictionary<string, RoomEnemyGraphicsSetMembers>(StringComparer.Ordinal) { [set.Name] = recorded }
+            ? new Dictionary<RoomEnemyGraphicsSetDefinition, RoomEnemyGraphicsSetMembers> { [set] = recorded }
             : RoomEnemyGraphicsSetLists.Members;
     }
 

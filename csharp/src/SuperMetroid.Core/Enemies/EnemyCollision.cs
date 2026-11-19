@@ -137,7 +137,7 @@ internal sealed class EnemyCollision
 
         // On the ordinary radius path a frozen enemy never reacts to Samus's touch, except a place awaiting its enemy's
         // respawn. The extended-hitbox path has no such gate.
-        if (!usesFrameHitboxes && place.FrozenTimer != 0 &&
+        if (!usesFrameHitboxes && place.Freeze.IsRunning &&
             !place.AwaitsRespawn)
         {
             return false;
@@ -185,7 +185,7 @@ internal sealed class EnemyCollision
         // skipped.
         if (enemy.Entity is IEnemyShotAdmission admission && !admission.AdmitsShots() ||
             CommonEnemyEmptyFrames.ShotsPass(enemy) ||
-            enemy.InvincibilityTimer != 0 ||
+            enemy.Invincibility.IsRunning ||
             enemy.Presence.HasAny(EnemyPresence.Deleted) ||
             enemy.Contact.HasAny(EnemyContact.IgnoresSamus) ||
             (enemy.Entity as IEnemyShotReaction)?.ShotReaction is not { } reaction)
@@ -395,27 +395,27 @@ internal sealed class EnemyCollision
             return NormalShotHit.Dud;
         }
 
-        enemy.FlashTimer = enemy.HurtFlashFrames + EnemyCollisionDefinitions.WeaponHurtFlashExtension;
+        enemy.HurtFlash.Restart(enemy.HurtFlashFrames + EnemyCollisionDefinitions.WeaponHurtFlashExtension);
         enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
         // The common shot reaction queues the definition's cry before subtracting health,
         // including lethal hits. Frozen targets suppress this cry; death
         // explosion animations retain their separate, later sound owner. The
         // same test, made here before a lethal Ice hit freezes the enemy, decides
         // the hit burst, which shows whether or not the enemy has a cry.
-        bool hurtUnfrozen = enemy.FrozenTimer == 0;
+        bool hurtUnfrozen = enemy.Freeze.IsOver;
         if (hurtUnfrozen && enemy.Definition.HurtSoundEffect is SoundEffectId cry)
             _audio.QueueEnemySound(cry, SoundRequestPriority.Low);
         // Every plasma-family hit gives sixteen invincibility frames.
         // Only a beam combining Plasma gives this; other projectile
         // families never count as Plasma.
         if (projectileType.BeamCombination.HasPlasma)
-            enemy.InvincibilityTimer = EnemyCollisionDefinitions.PlasmaShotInvincibilityUpdates;
+            enemy.Invincibility.Restart(EnemyCollisionDefinitions.PlasmaShotInvincibilityUpdates);
 
         bool lethal = damage >= enemy.Health;
         bool freezeInsteadOfKilling = lethal &&
             projectileType.BeamCombination.HasIce &&
             !shotVulnerability.PreventsLethalFreeze &&
-            enemy.FrozenTimer == 0;
+            enemy.Freeze.IsOver;
         if (freezeInsteadOfKilling)
         {
             // A lethal Ice-bearing beam leaves health unchanged and freezes the
@@ -477,7 +477,7 @@ internal sealed class EnemyCollision
         if ((!usesCommonShot && !usesIgnoringShot &&
                 !usesPrivateShot && !admittedByOccupant) ||
             enemy.Frame is null ||
-            enemy.InvincibilityTimer != 0 ||
+            enemy.Invincibility.IsRunning ||
             enemy.Presence.HasAny(EnemyPresence.Deleted) ||
             definitionWithholdsFrameHitboxShots ||
             usesFrameHitboxes &&
@@ -611,11 +611,11 @@ internal sealed class EnemyCollision
             return NormalBombHit.Dud;
         }
 
-        enemy.FlashTimer = enemy.HurtFlashFrames + EnemyCollisionDefinitions.WeaponHurtFlashExtension;
+        enemy.HurtFlash.Restart(enemy.HurtFlashFrames + EnemyCollisionDefinitions.WeaponHurtFlashExtension);
         enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
         // The common shot reaction a bomb runs queues the definition's cry before subtracting health, lethal hits
         // included, as it does for a beam or a missile; a frozen enemy makes no cry.
-        bool hurtUnfrozen = enemy.FrozenTimer == 0;
+        bool hurtUnfrozen = enemy.Freeze.IsOver;
         if (hurtUnfrozen && enemy.Definition.HurtSoundEffect is SoundEffectId cry)
             _audio.QueueEnemySound(cry, SoundRequestPriority.Low);
         enemy.Health = damage >= enemy.Health
@@ -689,7 +689,7 @@ internal sealed class EnemyCollision
             horizontalRadius = _powerBombRadius.HorizontalRadius(horizontalRadius);
             // A place with no enemy, a place awaiting its enemy's respawn among them, is passed.
             if (enemy.DefinitionId == EnemyDefinitionId.None ||
-                enemy.InvincibilityTimer != 0 ||
+                enemy.Invincibility.IsRunning ||
                 enemy.Presence.HasAny(EnemyPresence.Deleted))
             {
                 continue;
@@ -703,9 +703,9 @@ internal sealed class EnemyCollision
 
             // The blast lies in the room, but an enemy it reaches need not: a fly that has climbed through the ceiling or a
             // Bull braking past Samus can lie above or left of the room's origin, and the blast reaches one the short way,
-            // as CoordinateAxis.Distance gives it.
-            int xDistance = CoordinateAxis.Distance(explosionCenter.X, enemy.Position.X.Whole);
-            int yDistance = CoordinateAxis.Distance(explosionCenter.Y, enemy.Position.Y.Whole);
+            // as DistanceAcrossRoomEdge.Between gives it.
+            int xDistance = DistanceAcrossRoomEdge.Between(explosionCenter.X, enemy.Position.X.Whole);
+            int yDistance = DistanceAcrossRoomEdge.Between(explosionCenter.Y, enemy.Position.Y.Whole);
             if (xDistance >= horizontalRadius || yDistance >= verticalRadius)
                 continue;
 
@@ -728,8 +728,8 @@ internal sealed class EnemyCollision
 
             // The common reaction damages the enemy by a Power Bomb's damage, and then it keeps updating off screen.
             int damage = vulnerability.DamageFrom(SamusProjectileDamage.Read(SamusProjectileKind.PowerBomb));
-            enemy.InvincibilityTimer = EnemyCollisionDefinitions.PowerBombInvincibilityUpdates;
-            enemy.FlashTimer = enemy.HurtFlashFrames + EnemyCollisionDefinitions.WeaponHurtFlashExtension;
+            enemy.Invincibility.Restart(EnemyCollisionDefinitions.PowerBombInvincibilityUpdates);
+            enemy.HurtFlash.Restart(enemy.HurtFlashFrames + EnemyCollisionDefinitions.WeaponHurtFlashExtension);
             enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
             enemy.Health = damage >= enemy.Health
                 ? 0
@@ -801,13 +801,13 @@ internal sealed class EnemyCollision
         // The direct-freeze vulnerability refreshes the timer even on an already frozen
         // actor, but only a newly frozen actor queues audio. Lethal-Ice substitution
         // reaches this step only with an initially zero clock.
-        if (enemy.FrozenTimer == 0)
+        if (enemy.Freeze.IsOver)
             _audio.QueueEnemySound(RoomSound.EnemyFrozen, priority: SoundRequestPriority.Low);
-        enemy.FrozenTimer = roomArea == AreaId.Norfair
+        enemy.Freeze.Restart(roomArea == AreaId.Norfair
             ? EnemyCollisionDefinitions.NorfairFreezeUpdates
-            : EnemyCollisionDefinitions.FreezeUpdates;
+            : EnemyCollisionDefinitions.FreezeUpdates);
         enemy.AiStates = enemy.AiStates | EnemyAiStates.Frozen;
-        enemy.InvincibilityTimer = EnemyCollisionDefinitions.FreezeInvincibilityUpdates;
+        enemy.Invincibility.Restart(EnemyCollisionDefinitions.FreezeInvincibilityUpdates);
     }
 
     /// <summary>Selects the enemy's response to the projectile's beam combination or weapon family.</summary>
@@ -983,7 +983,7 @@ internal sealed class EnemyCollision
         // Touch damage shows the hurt flash alone, unlike projectile and
         // power-bomb damage, which add their own visible flash. Samus's timers are also
         // cleared, because Samus touching it this way is Samus attacking the enemy.
-        enemy.FlashTimer = enemy.HurtFlashFrames;
+        enemy.HurtFlash.Restart(enemy.HurtFlashFrames);
         enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
         samus.ClearHurtTimers();
         enemy.Health = damage >= enemy.Health
@@ -1003,7 +1003,7 @@ internal sealed class EnemyCollision
 
     /// <summary>Uses the strict radius test, excluding contact where either axis is only tangent.</summary>
     /// <remarks>
-    /// Each axis's distance is a <see cref="CoordinateAxis.Distance"/>, the short way between the two. The test meets every
+    /// Each axis's distance is a <see cref="DistanceAcrossRoomEdge.Between"/>, the short way between the two. The test meets every
     /// enemy with Samus, her shots and her bombs, and either side can lie past the room's origin: a fly that has climbed
     /// through the ceiling or a Bull braking past Samus lies above or left of it, and a shot lives on up to 64 pixels past
     /// the view's left and top edges, a Wave shot passing through walls.
@@ -1013,8 +1013,8 @@ internal sealed class EnemyCollision
         Extent16<RoomPixels> firstRadius,
         Position16<RoomPixels> secondPosition,
         Extent16<RoomPixels> secondRadius) =>
-        CoordinateAxis.Distance(firstPosition.X, secondPosition.X) < firstRadius.X + secondRadius.X &&
-        CoordinateAxis.Distance(firstPosition.Y, secondPosition.Y) < firstRadius.Y + secondRadius.Y;
+        DistanceAcrossRoomEdge.Between(firstPosition.X, secondPosition.X) < firstRadius.X + secondRadius.X &&
+        DistanceAcrossRoomEdge.Between(firstPosition.Y, secondPosition.Y) < firstRadius.Y + secondRadius.Y;
 
     /// <summary>Applies suit reduction and health loss, then publishes the hurt direction and invincibility window.</summary>
     internal static void ApplyNormalEnemyTouchDamage(

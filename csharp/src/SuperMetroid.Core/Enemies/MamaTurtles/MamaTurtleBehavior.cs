@@ -311,7 +311,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             samus.Kinematics.ExtraDisplacement -= new Offset16<RoomPixels>(0, MamaTurtleMotionDefinitions.RiseToHoverSpeed);
         }
 
-        if (--state.ActionTimer != 0)
+        if (!state.ActionTimer.StepEnds())
             return;
 
         // She hovers off from rest toward Samus's side, speeding up a sixteenth of a pixel each update.
@@ -400,7 +400,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         ResolveMamaTurtleExpandedContact(mama, samus, pseudoScrew);
         if (mama.Position.Y.Whole < MamaTurtleMotionDefinitions.RiddenAscentPeak)
         {
-            state.ActionTimer = MamaTurtleMotionDefinitions.PeakPause;
+            state.ActionTimer = UpdateCountdown.For(MamaTurtleMotionDefinitions.PeakPause);
             state.Action = MamaTurtleAction.HoveringAtPeak;
             state.Velocity = state.Velocity.WithY(SignedSixteenSixteen.Zero);
             return;
@@ -425,7 +425,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         PseudoScrewCharge pseudoScrew)
     {
         ResolveMamaTurtleExpandedContact(mama, samus, pseudoScrew);
-        if (--state.ActionTimer == 0)
+        if (state.ActionTimer.StepEnds())
             state.Action = MamaTurtleAction.Falling;
     }
 
@@ -474,7 +474,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (EnemyCollision.IsSamusStandingOn(baby, samus))
                 {
                     state.Action = BabyTurtleAction.HidingCarryingSamus;
-                    state.NotCarryingSamusReactionTimer = MamaTurtleMotionDefinitions.BabyRiderLeftDelay;
+                    state.NotCarryingSamusReactionTimer = UpdateCountdown.For(MamaTurtleMotionDefinitions.BabyRiderLeftDelay);
                     StartTurtleAnimation(
                         baby,
                         state,
@@ -487,13 +487,13 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             case BabyTurtleAction.HidingCarryingSamus:
                 if (EnemyCollision.IsSamusStandingOn(baby, samus))
                 {
-                    state.NotCarryingSamusReactionTimer = MamaTurtleMotionDefinitions.BabyRiderLeftDelay;
+                    state.NotCarryingSamusReactionTimer = UpdateCountdown.For(MamaTurtleMotionDefinitions.BabyRiderLeftDelay);
                     return;
                 }
-                if (--state.NotCarryingSamusReactionTimer == 0)
+                if (state.NotCarryingSamusReactionTimer.StepEnds())
                 {
                     state.Action = BabyTurtleAction.HidingNotCarryingSamus;
-                    state.ActionTimer = MamaTurtleMotionDefinitions.BabyHideDuration;
+                    state.ActionTimer = UpdateCountdown.For(MamaTurtleMotionDefinitions.BabyHideDuration);
                 }
                 return;
 
@@ -511,7 +511,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                     state.SpinFallSpeed = MamaTurtleMotionDefinitions.BabySpinVelocity.Y;
                     return;
                 }
-                if (--state.ActionTimer == 0)
+                if (state.ActionTimer.StepEnds())
                 {
                     StartBabyTurtleCrawlingAnimation(baby, state);
                     state.Action = BabyTurtleAction.CrawlingNotCarryingSamus;
@@ -623,7 +623,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Velocity = state.Velocity.WithX(state.Velocity.X.WithWholePixelsOf(direction == HorizontalDirection.Right
             ? MamaTurtleMotionDefinitions.RiseToHoverDrift
             : -MamaTurtleMotionDefinitions.RiseToHoverDrift));
-        state.ActionTimer = MamaTurtleMotionDefinitions.RiseToHoverDuration;
+        state.ActionTimer = UpdateCountdown.For(MamaTurtleMotionDefinitions.RiseToHoverDuration);
     }
 
     /// <summary>

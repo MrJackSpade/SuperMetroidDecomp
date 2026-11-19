@@ -12,18 +12,18 @@ public static class PowerBombGlowColorFile
 {
     /// <summary>
     /// Supported schema revision, fixing the sixteen- and thirty-two-entry sequence dimensions; 2 names the file for the
-    /// explosion's glow (#1631).
+    /// explosion's glow (#1631), and 3 writes each colour as <c>#rrggbb</c> (#2564).
     /// </summary>
-    public const int Version = 2;
+    public const int Version = 3;
 
-    /// <summary>JSON resource filename containing the pre-explosion and explosion RGB5 sequences.</summary>
+    /// <summary>JSON resource filename containing the pre-explosion and explosion colour sequences.</summary>
     public const string FileName = "power-bomb-glow-colors.json";
 
-    /// <summary>Validates the installed glow colour JSON and keeps both complete RGB5 sequences as installed, without changing phase or radius mechanics.</summary>
+    /// <summary>Validates the installed glow colour JSON and keeps both complete colour sequences as installed, without changing phase or radius mechanics.</summary>
     /// <param name="json">UTF-8 JSON source consumed from its current position and left open.</param>
     /// <returns>Every colour of both sequences, detached from the document arrays.</returns>
     /// <exception cref="ArgumentNullException">The source stream is null.</exception>
-    /// <exception cref="InvalidDataException">The JSON contains duplicate or unknown properties, an unsupported version, incorrect sequence lengths, null colors, or channels outside 0..31.</exception>
+    /// <exception cref="InvalidDataException">The JSON contains duplicate or unknown properties, an unsupported version, incorrect sequence lengths, or a colour not written as <c>#rrggbb</c> or off the game's fade scale.</exception>
     public static InstalledPowerBombGlowColors Read(Stream json)
     {
         Ensure.NotNull(json);
@@ -37,25 +37,19 @@ public static class PowerBombGlowColorFile
     }
 
     /// <summary>Serializes the editable sequences to indented camel-case UTF-8 JSON.</summary>
-    /// <param name="document">The two complete RGB5 color sequences to serialize; the writer does not retain their collections.</param>
+    /// <param name="document">The two complete colour sequences to serialize; the writer does not retain their collections.</param>
     /// <returns>JSON bytes for <see cref="FileName"/>.</returns>
     public static byte[] Write(PowerBombGlowColorDocument document) =>
         JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
 
-    /// <summary>Checks a sequence's length and RGB5 channels before packing its colours.</summary>
-    private static RgbColor[] Compile(PaletteRgb5[]? source, int count, string name)
+    /// <summary>Checks a sequence's length and reads each colour, which lies on the game's fade scale.</summary>
+    private static RgbColor[] Compile(string[]? source, int count, string name)
     {
         if (source is null || source.Length != count)
-            throw new InvalidDataException($"Power Bomb {name} requires {count} RGB5 colors.");
+            throw new InvalidDataException($"Power Bomb {name} requires {count} colours.");
         var colors = new RgbColor[source.Length];
         for (int index = 0; index < source.Length; index++)
-        {
-            PaletteRgb5? color = source[index];
-            if (color is null || (uint)color.Red > 31 ||
-                (uint)color.Green > 31 || (uint)color.Blue > 31)
-                throw new InvalidDataException($"Power Bomb {name} color {index} requires components from zero through 31.");
-            colors[index] = new FadeLevelColour(color.Red, color.Green, color.Blue).ToColour();
-        }
+            colors[index] = InstalledColourText.ParseOnFadeScale(source[index], $"Power Bomb {name} colour {index}");
         return colors;
     }
 }

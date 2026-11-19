@@ -548,7 +548,7 @@ modular absolute difference`, `modular Y proximity`); a coordinate's wraparound 
 move `wrapping within the coordinate range`; installing or loading art (`installs crawling art`, `installs hop art for
 its heading`); the game storing, checking or subtracting a value (`the game subtracts one mark`); a `completion call` or
 `draining calls`; `table multipliers`; and a value `of 0 through 255`. Core says how far apart two things lie and which
-way, citing `CoordinateAxis`, the encoding owner that states the wrap once; which animation starts; what the game does
+way, citing the compatibility service that reproduces the wrap (`DistanceAcrossRoomEdge`, SME6463); which animation starts; what the game does
 with the value and on which update. A thing wrapped around, a turn's wrap, installed art and loading installed art, a
 table, a multiplier and a range alone stay English.
 
@@ -664,7 +664,7 @@ across the room's wrap`, `on either side of the wrap`); a distance measured as a
 across the room as CoordinateAxis.Difference measures it`); `clearing stores` or writes; a thing that issues calls
 (`leaving the room issues both calls`); and `overlapping writes` or stores. Core says what the game does: an Atomic
 moves towards Samus, Samus lies to the block's left or right, the drain cancels her invincibility and knockback, leaving
-queues the departure sound and then the spin-end sound, the release leaves five screens closed; `CoordinateAxis` states
+queues the departure sound and then the spin-end sound, the release leaves five screens closed; a compatibility service states
 the wrap once. A turn's wrap, a thing wrapped across something, clearing a thing, an issue, a call and overlapping things
 that are not writes stay English.
 
@@ -916,6 +916,18 @@ document properties that carry names are marked. SME6462 reports an identity key
 enum member's name made a dictionary's or set's key (`Add`, `TryGetValue`, `ContainsKey`, an indexer, a key selector),
 `Enum.Parse`, `Enum.TryParse`, `Enum.GetNames` and `JsonStringEnumConverter` in any form. Diagnostic text, exception
 messages and an import run's own fingerprints and content identities, which nothing installs, stay free to name members.
+
+#2548 widens both rules to every source name. A `nameof` of any member, a property, field, method or event, or of a type
+is that member's or type's source name, and a name handed to a parameter of the same assembly is followed into whatever
+the parameter's references reach, through the parameters and helpers it is handed on to; a record's positional parameter
+reaches whatever its property's reads reach. So a catalog property found again by its own name (`Find(nameof(Parlor))`
+into a dictionary keyed by the definitions' names) and a definition named by its member (`new(nameof(LandingSite), ...)`
+into a marked or looked-up name) are reported. Each catalog property is its definition, built where it is declared with
+its key written out (`RoomDefinitions.LandingSite` is `new("LandingSite", ...)`, the authored list gathered from the
+properties); a pairing table is keyed by the definition or the identity itself (`RoomStateEnemyGraphicsSetDefinitions.ByState`
+by the room state, the palette rows and members by the graphics set); and an installed name is never an address
+(`music-xx-phrase-NNN` names a phrase by its place, a track repeats from the place of one of its instructions, enemy-tile
+import data files a sheet under its enemy's key).
 
 SME6465 (#2555) keeps measures in named units. Outside the type that declares the factory and outside an
 `[EncodingOwner]` type, Core passes no constant to a raw-unit factory (`FromTwoHundredFiftySixths…`, `FromSixteenths…`,

@@ -26,19 +26,19 @@ internal static class CommonSpawners
     /// <summary>Every common spawner, in the generator's order and then the arrival.</summary>
     internal static IReadOnlyList<CommonSpawnedObjects> All => [.. Placed.Value.Select(spawner => spawner.Spawned)];
 
-    /// <summary>The common spawner named <paramref name="spawner"/>, as a manifest names it.</summary>
-    /// <exception cref="InvalidDataException">No common spawner is named so.</exception>
-    internal static PlacedCommonSpawner Named(string spawner)
+    /// <summary>Common spawner <paramref name="spawner"/>, placed by its presence.</summary>
+    /// <exception cref="InvalidDataException">The frame generator found the spawner no single time.</exception>
+    internal static PlacedCommonSpawner Named(CommonSpawner spawner)
     {
         PlacedCommonSpawner[] found = [.. Placed.Value.Where(placed => placed.Spawned.Spawner == spawner)];
-        return found.Length == 1 ? found[0] : throw new InvalidDataException($"No single common spawner is named {spawner}.");
+        return found.Length == 1 ? found[0] : throw new InvalidDataException($"The common spawner {spawner} is not found exactly once.");
     }
 
     /// <summary>Pairs every generated spawner with its presence, failing with every spawner that has none.</summary>
     private static IReadOnlyList<PlacedCommonSpawner> Place()
     {
         CommonSpawnedObjects[] spawners = [.. SpawnedObjectFrameDefinitions.Common, CeresElevatorArrivalCommonSpawner.Spawned];
-        string[] unplaced = [.. spawners.Select(spawned => spawned.Spawner)
+        CommonSpawner[] unplaced = [.. spawners.Select(spawned => spawned.Spawner)
             .Where(spawner => !CommonSpawnerPresenceDefinitions.Presences.ContainsKey(spawner))];
         if (unplaced.Length > 0)
             throw new InvalidDataException("Common spawners with no presence in CommonSpawnerPresenceDefinitions, whose objects no room could hold: "

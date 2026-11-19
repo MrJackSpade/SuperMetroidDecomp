@@ -11,8 +11,10 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
-/// The installed stock artwork Samus's projectile, grapple, body and overlay sheets compose from (#1392), loaded once for
-/// all of them, with the colour tables every one of her sheets is pre-coloured from (#1512).
+/// The stock artwork Samus's projectile, grapple, body and overlay sheets compose from (#1392), loaded once for all of
+/// them, with the colour tables every one of her sheets is pre-coloured from (#1512): the import data's characters and
+/// colour rows, which only the import reads, laid out at the sprite colour rows the cartridge loads them to so the
+/// composed sheets' inks match the cartridge's; the installation keeps only the composed pictures and their shades by colour.
 /// </summary>
 /// <param name="Projectiles">Compositions, beam palettes, trail and grapple appearances, and the beam, trail and grapple characters.</param>
 /// <param name="StandardObjects">The standard OBJ sheet as a page.</param>

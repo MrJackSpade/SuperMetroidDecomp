@@ -67,7 +67,7 @@ public static class RoomObjectMotherBrainFakeDeathVisualFiles
             ids.Add(draw, id);
         }
         void AddFrame(MotherBrainFakeDeathDraw frame) =>
-            Add(MotherBrainFakeDeathDraws.Family, MotherBrainFakeDeathDraws.Family.Of(frame), runs[frame], RoomObjectVisualIdDefinitions.MotherBrainFakeDeath[frame]);
+            Add(MotherBrainFakeDeathDraws.Family, MotherBrainFakeDeathDraws.Family.Of(frame), runs[frame], MotherBrainFakeDeathDrawKeys.Installed.Of(frame));
 
         AddFrame(MotherBrainFakeDeathDraw.FillWall);
         AddFrame(MotherBrainFakeDeathDraw.EscapeDoor);

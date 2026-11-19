@@ -16,7 +16,7 @@ public sealed class LibraryBackground
     /// <param name="view">What the player sees on the background of a room that loads it.</param>
     /// <param name="pictureDoors">The entry doors that each show their own picture, in the order the list names them.</param>
     /// <exception cref="ArgumentException">The name is empty, the view is undefined, or a door is named twice.</exception>
-    public LibraryBackground(string name, LibraryBackgroundView view, IEnumerable<DoorDefinition> pictureDoors)
+    public LibraryBackground([InstalledKey] string name, LibraryBackgroundView view, IEnumerable<DoorDefinition> pictureDoors)
     {
         ArgumentException.ThrowIfNullOrEmpty(name);
         if (!Enum.IsDefined(view))

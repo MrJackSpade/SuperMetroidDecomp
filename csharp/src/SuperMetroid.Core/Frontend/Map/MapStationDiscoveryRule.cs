@@ -3,7 +3,10 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.Map;
 
 /// <summary>A map station marker's identity and the map cell whose exploration shows it, independent of where the marker is drawn.</summary>
-/// <param name="Id">The name of the room the station stands in, the key its editable marker drawing position is installed under.</param>
+/// <param name="Id">
+/// The key the marker's editable drawing position is installed under, the name of the room the station stands in, written
+/// out in <see cref="MapStationDiscoveryRules"/> so renaming a room never changes it (#2548).
+/// </param>
 /// <param name="Area">Area whose saved exploration bits govern this marker's visibility.</param>
 /// <param name="Cell">The map cell whose exploration shows the marker: the cell its map position lies in.</param>
-public readonly record struct MapStationDiscoveryRule(string Id, AreaId Area, Position16<MapTiles> Cell);
+public readonly record struct MapStationDiscoveryRule([InstalledKey] string Id, AreaId Area, Position16<MapTiles> Cell);

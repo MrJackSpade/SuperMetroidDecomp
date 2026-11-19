@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Powamp;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -43,7 +44,7 @@ internal static class PowampOwnedStateVerification
         AssertEqual(PowampAction.DeflatedResting, bodyState.Action, "the body starts resting");
 
         bodyState.Action = PowampAction.Inflating;
-        bodyState.ActionTimer = 1;
+        bodyState.ActionTimer = UpdateCountdown.For(1);
         enemies.PowampBehavior.RunPowampMain(body, bodyState, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(PowampAction.InflatedRiseToTargetHeight, bodyState.Action, "inflation finishes");
         AssertEqual(SignedSixteenSixteen.FromParts(-1, 0x8000), bodyState.YVelocity, "the body rises half a pixel per update");

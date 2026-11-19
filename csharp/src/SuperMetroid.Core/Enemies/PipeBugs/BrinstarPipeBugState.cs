@@ -34,5 +34,5 @@ public sealed class BrinstarPipeBugState
     /// The respawn countdown, in AI updates: started at 48 when the bug leaves the screen, and expiring when a decrement
     /// reaches zero.
     /// </summary>
-    public int RespawnDelay { get; internal set; }
+    public UpdateCountdown RespawnDelay { get; internal set; } = UpdateCountdown.Ended();
 }

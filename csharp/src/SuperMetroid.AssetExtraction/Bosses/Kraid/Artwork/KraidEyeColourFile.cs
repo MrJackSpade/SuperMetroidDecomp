@@ -17,8 +17,8 @@ public static class KraidEyeColourFile
     /// <summary>The installed document's file name, beside the enemy compositions.</summary>
     public const string FileName = "kraid-eye-colours.json";
 
-    /// <summary>Supported schema revision.</summary>
-    public const int Version = 1;
+    /// <summary>Supported schema revision: 2 writes each colour as <c>#rrggbb</c> (#2564).</summary>
+    public const int Version = 2;
 
     /// <summary>The document holding <paramref name="eyes"/>.</summary>
     /// <param name="eyes">The eyes' colours under the hurt flash and each health band.</param>
@@ -29,16 +29,16 @@ public static class KraidEyeColourFile
         return JsonSerializer.SerializeToUtf8Bytes(new KraidEyeColourDocument
         {
             Version = Version,
-            HurtFlash = Levels(eyes.Hurt),
-            HealthBands = [.. KraidHealthBandDefinitions.MostHurtFirst.Select(band => Levels(eyes.Of(band)))],
+            HurtFlash = Written(eyes.Hurt),
+            HealthBands = [.. KraidHealthBandDefinitions.MostHurtFirst.Select(band => Written(eyes.Of(band)))],
         }, JsonOptions);
 
-        static PaletteRgb5[] Levels(ReadOnlySpan<RgbColor> colours)
+        static string[] Written(ReadOnlySpan<RgbColor> colours)
         {
-            var levels = new PaletteRgb5[colours.Length];
+            var written = new string[colours.Length];
             for (int eye = 0; eye < colours.Length; eye++)
-                levels[eye] = PaletteRgb5.From(colours[eye]);
-            return levels;
+                written[eye] = InstalledColourText.Format(colours[eye]);
+            return written;
         }
     }
 
@@ -47,7 +47,7 @@ public static class KraidEyeColourFile
     /// <returns>The eyes' colours under the hurt flash and each health band.</returns>
     /// <exception cref="InvalidDataException">
     /// The JSON has duplicate or unknown properties, another version, a set other than one colour per eye, other than eight
-    /// health bands, or channels outside 0..31.
+    /// health bands, or a colour not written as <c>#rrggbb</c> or off the game's fade scale.
     /// </exception>
     public static KraidEyeColours Read(Stream json)
     {
@@ -62,20 +62,15 @@ public static class KraidEyeColourFile
             Enumerable.Range(0, bands.Count).ToDictionary(place => bands[place], place => (IReadOnlyList<RgbColor>)Compile(healthBands[place], $"{bands[place]} health band")));
     }
 
-    /// <summary>One eye colour set's colours, one per eye, each channel 0..31.</summary>
-    /// <exception cref="InvalidDataException">The set does not hold one colour per eye, or a channel is out of range.</exception>
-    private static RgbColor[] Compile(PaletteRgb5[]? set, string name)
+    /// <summary>One eye colour set's colours, one per eye, each on the game's fade scale.</summary>
+    /// <exception cref="InvalidDataException">The set does not hold one colour per eye, or a colour is not written as <c>#rrggbb</c> or is off the scale.</exception>
+    private static RgbColor[] Compile(string[]? set, string name)
     {
         if (set is not { Length: KraidEyeGlow.Eyes })
             throw new InvalidDataException($"Kraid's {name} eye colours require one colour for each of his {KraidEyeGlow.Eyes} eyes.");
         var colours = new RgbColor[set.Length];
         for (int eye = 0; eye < set.Length; eye++)
-        {
-            PaletteRgb5? levels = set[eye];
-            if (levels is null || (uint)levels.Red > 31 || (uint)levels.Green > 31 || (uint)levels.Blue > 31)
-                throw new InvalidDataException($"Kraid's {name} eye {eye} colour requires channels 0..31.");
-            colours[eye] = levels.ToRgbColor();
-        }
+            colours[eye] = InstalledColourText.ParseOnFadeScale(set[eye], $"Kraid's {name} eye {eye} colour");
         return colours;
     }
 

@@ -20,9 +20,11 @@ public static class MapArrowFile
         catch (JsonException error) { throw new InvalidDataException("Invalid map arrow JSON.", error); }
         if (document.Version != MapArrowFormat.Version || document.Arrows is null || document.Arrows.Count != MapScrollControls.Directions.Length)
             throw new InvalidDataException($"Map arrows require version {MapArrowFormat.Version} and Left/Right/Up/Down definitions.");
-        return new(Require("Left"), Require("Right"), Require("Up"), Require("Down"));
-        MapArrowVisual Require(string name)
+        return new(Require(MapScrollDirection.Left), Require(MapScrollDirection.Right), Require(MapScrollDirection.Up),
+            Require(MapScrollDirection.Down));
+        MapArrowVisual Require(MapScrollDirection direction)
         {
+            string name = MapScrollDirectionKeys.Installed.Of(direction);
             if (!document.Arrows.TryGetValue(name, out var entry) || entry is null || entry.X is < 0 or > 255 || entry.Y is < 0 or > 223)
                 throw new InvalidDataException($"Map arrow {name} requires screen X=0..255/Y=0..223.");
             return new(entry.Position);

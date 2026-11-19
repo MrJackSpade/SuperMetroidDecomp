@@ -21,13 +21,13 @@ public sealed class WreckedShipGhostEnemyState
     /// its first delay once placed, and its reappearance delay after each vanishing. The update it runs out on starts the
     /// watch.
     /// </summary>
-    public int InvisibleDelay { get; internal set; }
+    public UpdateCountdown InvisibleDelay { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// The updates left before the flicker's next step starts while the ghost brightens and fades in (#2512): the update it
     /// runs out on starts the step. Zero once the last step has run out, when the flicker has ended.
     /// </summary>
-    public int FlickerTimer { get; internal set; }
+    public UpdateCountdown FlickerTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// The flicker step that starts when <see cref="FlickerTimer"/> runs out (#2451); none once the last step has started,
@@ -36,18 +36,18 @@ public sealed class WreckedShipGhostEnemyState
     public WreckedShipGhostFlickerStep? NextFlickerStep { get; internal set; }
 
     /// <summary>Whether the appearance's flicker still runs: its last step has not yet run out.</summary>
-    internal bool IsFlickering => FlickerTimer != 0;
+    internal bool IsFlickering => FlickerTimer.IsRunning;
 
     /// <summary>
     /// The updates left of the ghost's visible bob (<see cref="WreckedShipGhostAction.BobbingWhileVisible"/>): the update it
     /// runs out on starts the ghost vanishing.
     /// </summary>
-    public int VisibleTimer { get; internal set; }
+    public UpdateCountdown VisibleTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// The room Y about which the visible ghost oscillates, where it appeared: 64 pixels above a rising Samus near a
     /// room's top it can lie a few pixels above the room's origin, and the bob compares with it the short way, as
-    /// <see cref="CoordinateAxis.Precedes"/> compares rows.
+    /// <see cref="DistanceAcrossRoomEdge.LiesBefore"/> compares rows.
     /// </summary>
     public int BobbingOriginY { get; internal set; }
 
@@ -68,10 +68,10 @@ public sealed class WreckedShipGhostEnemyState
     public Position16<RoomPixels> SamusUpperBound { get; internal set; }
 
     /// <summary>Counts down from <see cref="WreckedShipGhostAppearanceDefinitions.StillPositionDuration"/> while Samus remains nearly still.</summary>
-    public int StablePositionTimer { get; internal set; }
+    public UpdateCountdown StablePositionTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>Counts down from <see cref="WreckedShipGhostAppearanceDefinitions.SteadyFacingDuration"/> while Samus keeps one direction.</summary>
-    public int StableDirectionTimer { get; internal set; }
+    public UpdateCountdown StableDirectionTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// The ghost's fading colours and the target its fade moves toward (#1512, #1552): the compatibility value the ghost

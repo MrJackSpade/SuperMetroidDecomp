@@ -150,11 +150,11 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
             case DeadSidehopperAction.BeginPostLandingDelay:
                 state.Action = DeadSidehopperAction.PostLandingDelay;
-                state.StateTimer = DeadSidehopperVictimDefinitions.PostLandingPause;
+                state.PostLandingPause = UpdateCountdown.Lasting(DeadSidehopperVictimDefinitions.PostLandingPause);
                 return;
 
             case DeadSidehopperAction.PostLandingDelay:
-                if (--state.StateTimer > 0)
+                if (!state.PostLandingPause.Step())
                     return;
 
                 if (state.HasBegunDraining)
@@ -178,8 +178,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
                 return;
 
             case DeadSidehopperAction.PreRotDelay:
-                state.CountPreRotDelayUpdate();
-                if (state.PreRotDelayCounter >= CorpseRotScheduleDefinitions.PreRotDelayUpdates)
+                if (state.PreRotDelay.Step())
                 {
                     state.Action = DeadSidehopperAction.Rotting;
                     place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
@@ -276,11 +275,10 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         RoomEnemyPlace place,
         DeadSidehopperEnemyState state)
     {
-        state.DrainStepUpdates++;
-        if (state.DrainStepUpdates < DeadSidehopperVictimDefinitions.DrainUpdatesPerStage)
+        if (!state.DrainStageWait.Count())
             return;
 
-        state.DrainStepUpdates = 0;
+        state.DrainStageWait.Restart(DeadSidehopperVictimDefinitions.DrainUpdatesPerStage);
 
         // Only the victim drains: a corpse placed already dead never reaches its drain.
         state.DrainStage = (state.DrainStage ?? throw new InvalidOperationException("A Sidehopper corpse placed already dead never drains.")).Next;

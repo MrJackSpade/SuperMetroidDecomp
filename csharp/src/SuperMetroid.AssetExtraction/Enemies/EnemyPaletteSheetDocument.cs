@@ -2,7 +2,10 @@ using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
-/// <summary>Editable JSON schema for one enemy's sixteen-color palette; room selection, destination assignment, and animation are separate engine behavior.</summary>
+/// <summary>
+/// One enemy's sixteen colours as the cartridge stores them (#1637), import data only the import pre-colours the enemy's
+/// sheet from; the installation holds the pre-coloured sheet.
+/// </summary>
 public sealed record EnemyPaletteSheetDocument
 {
     /// <summary>Schema revision, which must be 1 for this loader.</summary>

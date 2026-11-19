@@ -164,7 +164,7 @@ internal static class ProjectileCompositionsVerification
             var bomb = bombs.Bombs[0];
             bomb.Animation = ProjectileFixturePlaybacks.Active(); bomb.SpritemapPointer = id;
             bomb.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type); bomb.PicturedBeams = pictured; bomb.Position = bomb.Position.WithWhole(new(coordinate, coordinate));
-            bomb.FuseUpdatesLeft = 1;
+            bomb.Fuse = UpdateCountdown.For(1);
             {
                 var native = new SpriteFrameBuffer(); var extracted = new SpriteFrameBuffer();
                 native.BeginFrame(); extracted.BeginFrame();
@@ -184,7 +184,7 @@ internal static class ProjectileCompositionsVerification
             }
             if (type == 0x300)
             {
-                bomb.FuseUpdatesLeft = 0;
+                bomb.Fuse = UpdateCountdown.For(0);
                 var hidden = new SpriteFrameBuffer();
                 hidden.BeginFrame();
                 bombs.Draw(hidden, Position16<RoomPixels>.Zero, artwork);

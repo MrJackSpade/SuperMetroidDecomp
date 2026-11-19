@@ -23,17 +23,20 @@ public sealed class NorfairPipeBugState
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
 
     /// <summary>
-    /// The member's stagger count, the updates it has risen and waited. It returns to zero only when the member departs
-    /// on reaching its <see cref="Role"/>'s target, so a member reset off screen keeps its count into the next rise; it
-    /// never passes the largest target by more than its rise (#1846).
+    /// The member's wait before it departs, lasting its <see cref="Role"/>'s target: its age is the updates it has risen
+    /// and waited. It starts again only when the member departs, so a member reset off screen keeps its count into the
+    /// next rise (#1846).
     /// </summary>
-    public int FormationCounter { get; internal set; }
+    public UpdateCountdown Departure { get; private set; } = UpdateCountdown.Ended();
 
     /// <summary>Counts one formation update.</summary>
-    internal void CountFormationTick() => FormationCounter++;
+    internal void CountFormationTick() => Departure.Step();
 
-    /// <summary>Whether the member's count has reached its <see cref="Role"/>'s target.</summary>
-    internal bool HasReachedStaggerTarget => FormationCounter >= Role.StaggerTarget;
+    /// <summary>Whether the member's wait has reached its <see cref="Role"/>'s target.</summary>
+    internal bool HasReachedStaggerTarget => Departure.IsOver;
+
+    /// <summary>Starts the member's wait again, as it departs.</summary>
+    internal void RestartDeparture() => Departure.Restart(Role.StaggerTarget);
 
     /// <summary>The room Y at which the member's rise ended. Its stagger moves are measured from it.</summary>
     public int RiseEndY { get; internal set; }
@@ -47,6 +50,10 @@ public sealed class NorfairPipeBugState
     internal NorfairPipeBugRole Role
     {
         get => field ?? throw new InvalidOperationException("A Norfair Pipe Bug's role is assigned when its formation launches it.");
-        set => field = Ensure.NotNull(value);
+        set
+        {
+            field = Ensure.NotNull(value);
+            Departure.LastFor(value.StaggerTarget);
+        }
     }
 }

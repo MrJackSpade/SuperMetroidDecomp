@@ -111,6 +111,9 @@ internal static class NorfairRidleyMotionDefinitions
     /// <summary>How much of the hurt carry lag each ordinary update takes off.</summary>
     internal const int HurtCarryLagRecovery = 4;
 
+    /// <summary>How much of the hurt carry lag each hurt update builds.</summary>
+    internal const int HurtCarryLagRise = 1;
+
     /// <summary>
     /// The health below which his attacks take no account of where Samus stands or whether he can grab her: below it,
     /// half his choices pogo and half swoop.

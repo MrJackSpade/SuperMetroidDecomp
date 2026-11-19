@@ -527,8 +527,11 @@ internal static class MapPresentationVerification
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(beam with { Cycle = [] }, ArtworkJson.Options))),
             "reject a Mother Brain beam without a cycle colour");
         AssertThrows<InvalidDataException>(() => MotherBrainBeamColourFile.Read(
-            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(beam with { First = beam.First with { Blue = 32 } }, ArtworkJson.Options))),
-            "reject a Mother Brain beam colour channel outside 0..31");
+            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(beam with { First = "blue" }, ArtworkJson.Options))),
+            "reject a Mother Brain beam colour not written as #rrggbb");
+        AssertThrows<InvalidDataException>(() => MotherBrainBeamColourFile.Read(
+            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(beam with { First = "#010203" }, ArtworkJson.Options))),
+            "reject a Mother Brain beam colour off the game's fade scale");
         AssertThrows<InvalidDataException>(() => MotherBrainBeamColourFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(beam with { Version = MotherBrainBeamColourFile.Version + 1 }, ArtworkJson.Options))),
             "reject another Mother Brain beam colour version");

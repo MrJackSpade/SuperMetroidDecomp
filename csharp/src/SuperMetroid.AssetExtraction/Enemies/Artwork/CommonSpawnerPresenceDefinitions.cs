@@ -1,30 +1,15 @@
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.Core.Areas.Ceres;
-using SuperMetroid.Core.Areas.Escape;
-using SuperMetroid.Core.Areas.Tourian;
-using SuperMetroid.Core.Bosses.Crocomire;
-using SuperMetroid.Core.Bosses.Phantoon;
-using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Corpses;
-using SuperMetroid.Core.Enemies.EyeDoor;
-using SuperMetroid.Core.Enemies.FallingSparks;
-using SuperMetroid.Core.Enemies.Gunship;
-using SuperMetroid.Core.Enemies.NoobTube;
-using SuperMetroid.Core.Enemies.OldTourianWall;
-using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Enemies.SaveStation;
-using SuperMetroid.Core.Enemies.Skree;
-using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>
-/// The room data each common spawner's code runs under (#1513), by the spawner the frame generator names it by
-/// (<see cref="SpawnedObjectFrameDefinitions.Common"/>): the PLMs, room mains and setups that run it, and the enemies whose
+/// The room data each common spawner's code runs under (#1513), by the spawner (<see cref="CommonSpawner"/>) the frame
+/// generator names (<see cref="SpawnedObjectFrameDefinitions.Common"/>): the PLMs, room mains and setups that run it, and the enemies whose
 /// code calls it. A set's shared sheet holds a spawner's objects only when the set's rooms run it.
 /// </summary>
 internal static class CommonSpawnerPresenceDefinitions
@@ -98,43 +83,40 @@ internal static class CommonSpawnerPresenceDefinitions
     /// <summary>Code every enemy runs: its death, its drop, its collision with shots.</summary>
     private static readonly CommonSpawnerPresence EveryEnemy = new() { AnyEnemy = true };
 
-    /// <summary>Each common spawner's presence, by the name the frame generator gives it.</summary>
-    internal static IReadOnlyDictionary<string, CommonSpawnerPresence> Presences { get; } = new Dictionary<string, CommonSpawnerPresence>(StringComparer.Ordinal)
+    /// <summary>Each common spawner's presence.</summary>
+    internal static IReadOnlyDictionary<CommonSpawner, CommonSpawnerPresence> Presences { get; } = new Dictionary<CommonSpawner, CommonSpawnerPresence>
     {
-        [nameof(EscapeExplosionsBehavior)] = EscapeExplosions,
-        [nameof(ZebesEscapeExplosionDefinitions)] = EscapeExplosions,
-        [nameof(TourianStatueActors)] = StatueUnlocking,
-        [nameof(EnemyDeathsAndDrops)] = EveryEnemy,
-        [nameof(EnemyCollision)] = EveryEnemy,
-        [nameof(EyeDoorBehavior)] = new() { RoomObjects = EyeDoors },
-        [nameof(FallingSparksBehavior)] = new() { Enemies = [EnemyDefinitionId.Spark] },
-        [nameof(NoobTubeBehavior)] = new() { RoomObjects = [RoomObjectKind.NoobTube], Shades = [CommonSpawnerShades.TubeCracks] },
-        [nameof(OldTourianEscapeShaftWallBehavior)] = new() { Setups = [RoomSetupBehavior.AutoDestroyWallDuringEscape] },
-        [nameof(DownwardGateBehavior)] = new() { RoomObjects = Gates },
-        [nameof(SaveStationElectricity)] = new() { RoomObjects = [RoomObjectKind.SaveStation] },
-        [Engine(nameof(EnemyProjectileEngine.CreateEnemyProjectileDudShot))] = EveryEnemy,
-        [Engine(nameof(EnemyProjectileEngine.CreateBombDudShot))] = EveryEnemy,
-        [Engine(nameof(EnemyProjectileEngine.SpawnRandomEnemyDeathSprite))] = EveryEnemy,
-        [Engine(nameof(EnemyProjectileEngine.SpawnDustOrExplosion))] = new()
+        [CommonSpawner.EscapeExplosionsBehavior] = EscapeExplosions,
+        [CommonSpawner.ZebesEscapeExplosionDefinitions] = EscapeExplosions,
+        [CommonSpawner.TourianStatueActors] = StatueUnlocking,
+        [CommonSpawner.EnemyDeathsAndDrops] = EveryEnemy,
+        [CommonSpawner.EnemyCollision] = EveryEnemy,
+        [CommonSpawner.EyeDoorBehavior] = new() { RoomObjects = EyeDoors },
+        [CommonSpawner.FallingSparksBehavior] = new() { Enemies = [EnemyDefinitionId.Spark] },
+        [CommonSpawner.NoobTubeBehavior] = new() { RoomObjects = [RoomObjectKind.NoobTube], Shades = [CommonSpawnerShades.TubeCracks] },
+        [CommonSpawner.OldTourianEscapeShaftWallBehavior] = new() { Setups = [RoomSetupBehavior.AutoDestroyWallDuringEscape] },
+        [CommonSpawner.DownwardGateBehavior] = new() { RoomObjects = Gates },
+        [CommonSpawner.SaveStationElectricity] = new() { RoomObjects = [RoomObjectKind.SaveStation] },
+        [CommonSpawner.EnemyProjectileEngineCreateEnemyProjectileDudShot] = EveryEnemy,
+        [CommonSpawner.EnemyProjectileEngineCreateBombDudShot] = EveryEnemy,
+        [CommonSpawner.EnemyProjectileEngineSpawnRandomEnemyDeathSprite] = EveryEnemy,
+        [CommonSpawner.EnemyProjectileEngineSpawnDustOrExplosion] = new()
         {
             Enemies = DustRaisers, Mains = FallingDebris, Shades = [CommonSpawnerShades.CeresDoorLooks],
         },
-        [nameof(CeresFallingTiles)] = CeresDebris,
-        [nameof(GunshipLiftoffDust)] = new() { Enemies = [EnemyDefinitionId.ShipTop, EnemyDefinitionId.ShipBottomEntrance] },
-        [nameof(SkreeMetareeParticles)] = new() { Enemies = [EnemyDefinitionId.Skree, EnemyDefinitionId.Metaree] },
-        [nameof(RoomMainRoutines)] = new()
+        [CommonSpawner.CeresFallingTiles] = CeresDebris,
+        [CommonSpawner.GunshipLiftoffDust] = new() { Enemies = [EnemyDefinitionId.ShipTop, EnemyDefinitionId.ShipBottomEntrance] },
+        [CommonSpawner.SkreeMetareeParticles] = new() { Enemies = [EnemyDefinitionId.Skree, EnemyDefinitionId.Metaree] },
+        [CommonSpawner.RoomMainRoutines] = new()
         {
             Mains = [.. FallingDebris, .. CeresElevator], Shades = [CommonSpawnerShades.CeresDoorLooks, CommonSpawnerShades.CeresElevatorConcealer],
         },
-        [nameof(CeresElevatorArrivalState)] = ElevatorArrival,
-        [nameof(RidleyProjectiles)] = RidleyFire,
-        [nameof(RidleyTail)] = RidleyGetaway,
-        [nameof(CeresRidleyBehavior)] = RidleyGetaway,
-        [nameof(CrocomireEncounterAccess)] = new() { Enemies = [EnemyDefinitionId.Crocomire, EnemyDefinitionId.CrocomireTongue] },
-        [nameof(CorpseRowDust)] = new() { Enemies = Corpses },
-        [nameof(PrePhantoonRoomBehavior)] = new() { Setups = [RoomSetupBehavior.HoldPrePhantoonProjectilePlace] },
+        [CommonSpawner.CeresElevatorArrivalState] = ElevatorArrival,
+        [CommonSpawner.RidleyProjectiles] = RidleyFire,
+        [CommonSpawner.RidleyTail] = RidleyGetaway,
+        [CommonSpawner.CeresRidleyBehavior] = RidleyGetaway,
+        [CommonSpawner.CrocomireEncounterAccess] = new() { Enemies = [EnemyDefinitionId.Crocomire, EnemyDefinitionId.CrocomireTongue] },
+        [CommonSpawner.CorpseRowDust] = new() { Enemies = Corpses },
+        [CommonSpawner.PrePhantoonRoomBehavior] = new() { Setups = [RoomSetupBehavior.HoldPrePhantoonProjectilePlace] },
     };
-
-    /// <summary>The name of the enemy projectile engine's spawn service <paramref name="member"/>.</summary>
-    private static string Engine(string member) => $"{nameof(EnemyProjectileEngine)}.{member}";
 }

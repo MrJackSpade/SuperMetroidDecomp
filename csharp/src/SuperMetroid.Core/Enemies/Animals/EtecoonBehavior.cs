@@ -64,9 +64,9 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         // An earthquake suspends the Etecoon for 128 updates; its route is kept.
-        if (state.QuakePauseFrames != 0)
+        if (state.QuakePauseFrames.IsRunning)
         {
-            state.QuakePauseFrames--;
+            state.QuakePauseFrames.Count();
             return;
         }
 
@@ -159,7 +159,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(EtecoonAnimations.Flexing, AnimationPlace.StartOfAnimation);
         place.AnimationClock.StepOnNextUpdate();
         state.Action = EtecoonAction.Flexing;
-        state.ActionTimer = EtecoonTimingDefinitions.FlexDuration;
+        state.ActionTimer = UpdateCountdown.For(EtecoonTimingDefinitions.FlexDuration);
     }
 
     /// <summary>Counts the flex down, then crouches for the Etecoon's first hop.</summary>
@@ -173,7 +173,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         StartEtecoonAnimation(place, state, EtecoonSegment.HoppingFacingLeft);
         state.Action = EtecoonAction.PreJumpCountdown;
-        state.ActionTimer = EtecoonTimingDefinitions.HopCrouch;
+        state.ActionTimer = UpdateCountdown.For(EtecoonTimingDefinitions.HopCrouch);
     }
 
     /// <summary>Expires the wake pause, installs the first jump speed, and gates its sound by Samus's X.</summary>
@@ -217,12 +217,12 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
                     StartEtecoonAnimation(place, state, EtecoonSegment.LookLeftAtSamusAndRunRight);
                     state.Head(side: HorizontalDirection.Right);
                 }
-                state.ActionTimer = EtecoonTimingDefinitions.FaceSamusPause;
+                state.ActionTimer = UpdateCountdown.For(EtecoonTimingDefinitions.FaceSamusPause);
                 state.Action = EtecoonAction.FaceSamusPause;
             }
             else
             {
-                state.ActionTimer = EtecoonTimingDefinitions.HopCrouch;
+                state.ActionTimer = UpdateCountdown.For(EtecoonTimingDefinitions.HopCrouch);
                 state.Action = EtecoonAction.PreJumpCountdown;
                 StartEtecoonAnimation(place, state, EtecoonSegment.HoppingFacingLeft);
             }
@@ -312,7 +312,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Head(side: HorizontalDirection.Right);
             }
             state.Action = EtecoonAction.WallPause;
-            state.ActionTimer = EtecoonTimingDefinitions.WallPause;
+            state.ActionTimer = UpdateCountdown.For(EtecoonTimingDefinitions.WallPause);
             if (SamusHearsEtecoon(samus))
                 _audio.QueueEnemySound(EnemySoundEffectDefinitions.EtecoonWallSound, priority: SoundRequestPriority.Normal);
             return;
@@ -327,7 +327,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Heading == HorizontalDirection.Right
                 ? EtecoonSegment.HoppingFacingLeft
                 : EtecoonSegment.HoppingFacingRight);
-        state.ActionTimer = EtecoonTimingDefinitions.HopCrouch;
+        state.ActionTimer = UpdateCountdown.For(EtecoonTimingDefinitions.HopCrouch);
         state.Action = EtecoonAction.RouteAfterLanding;
         SetEtecoonVerticalVelocity(state, EtecoonMotionDefinitions.HopSpeed);
     }
@@ -399,7 +399,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (place.Position.X.Whole >= EtecoonRouteDefinitions.FirstTeachingX)
             return;
 
-        state.ActionTimer = EtecoonTimingDefinitions.HopCrouch;
+        state.ActionTimer = UpdateCountdown.For(EtecoonTimingDefinitions.HopCrouch);
         state.Action = EtecoonAction.IdleBetweenTeachingJumps;
         StartEtecoonAnimation(place, state, EtecoonSegment.HoppingFacingLeft);
     }
@@ -414,7 +414,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (place.Position.X.Whole < EtecoonRouteDefinitions.RunStartX)
             return;
 
-        state.ActionTimer = EtecoonTimingDefinitions.HopCrouch;
+        state.ActionTimer = UpdateCountdown.For(EtecoonTimingDefinitions.HopCrouch);
         state.Action = EtecoonAction.IdleBetweenTeachingJumps;
         StartEtecoonAnimation(place, state, EtecoonSegment.HoppingFacingLeft);
     }
@@ -476,7 +476,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!MoveEtecoonVertically(place, state, samus, level))
             return;
 
-        state.ActionTimer = EtecoonTimingDefinitions.HopCrouch;
+        state.ActionTimer = UpdateCountdown.For(EtecoonTimingDefinitions.HopCrouch);
         StartEtecoonAnimation(place, state, EtecoonSegment.HoppingFacingLeft);
         state.Action = EtecoonAction.IdleBetweenTeachingJumps;
     }
@@ -494,7 +494,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (!state.Velocity.Y.IsNegative)
         {
-            state.ActionTimer = EtecoonTimingDefinitions.HopCrouch;
+            state.ActionTimer = UpdateCountdown.For(EtecoonTimingDefinitions.HopCrouch);
             StartEtecoonAnimation(place, state, EtecoonSegment.HoppingFacingLeft);
             state.Action = place.SpawnSettings<EtecoonSpawnSettings>().Route == EtecoonRoute.TeachAtOnce &&
                 place.Position.X.Whole < EtecoonRouteDefinitions.LongRunMaximumX
@@ -608,7 +608,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!_earthquake.IsShaking)
             return;
 
-        state.QuakePauseFrames = EtecoonQuakeDefinitions.QuakePauseFrames;
+        state.QuakePauseFrames = UpdateCountdown.Lasting(EtecoonQuakeDefinitions.QuakePauseFrames);
         place.AnimationClock.Extend(EtecoonQuakeDefinitions.QuakePauseFrames);
     }
 
@@ -647,8 +647,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Counts one update off the current behaviour's wait and reports whether the wait is over: a wait started at N ends on its Nth update.</summary>
     private static bool DecrementEtecoonTimerAndTestExpired(EtecoonEnemyState state)
     {
-        state.ActionTimer--;
-        return state.ActionTimer == 0;
+        return state.ActionTimer.Count();
     }
 
     /// <summary>Whether Samus lies less than <paramref name="distance"/> pixels from the Etecoon horizontally.</summary>

@@ -14,10 +14,11 @@ public sealed class HeldButtonRepeat
     private ControllerButton _previousHeld;
 
     /// <summary>
-    /// The updates in a row the held buttons have stayed unchanged, counting stops one past the delay, where the repeat
-    /// fires on every further update.
+    /// The repeat delay, counted on each update the held buttons stay unchanged and lasting the delay and the update after
+    /// it; none until such an update and again whenever the held buttons change. Once it is over the held buttons repeat on
+    /// every further update.
     /// </summary>
-    private int _unchangedUpdates;
+    private UpdateCountdown? _repeatWait;
 
     /// <summary>The held buttons that repeat on this update; none until the delay has passed.</summary>
     public ControllerButton Repeating { get; private set; }
@@ -32,7 +33,13 @@ public sealed class HeldButtonRepeat
         ControllerButton held = buttonsDown & ~newlyPressed;
         bool unchanged = held == _previousHeld;
         _previousHeld = held;
-        _unchangedUpdates = unchanged ? Math.Min(_unchangedUpdates + 1, delay + 1) : 0;
-        Repeating = _unchangedUpdates > delay ? held : ControllerButton.None;
+        if (unchanged)
+        {
+            _repeatWait ??= UpdateCountdown.Lasting(delay + 1);
+            _repeatWait.Step();
+        }
+        else
+            _repeatWait = null;
+        Repeating = _repeatWait is { IsOver: true } ? held : ControllerButton.None;
     }
 }

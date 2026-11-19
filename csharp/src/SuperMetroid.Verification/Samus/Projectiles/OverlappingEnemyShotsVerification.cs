@@ -64,8 +64,8 @@ internal static class OverlappingEnemyShotsVerification
         foreach (var enemy in enemies.Places.InUpdateOrder.Take(3))
         {
             enemy.AiStates = EnemyAiStates.None;
-            enemy.FlashTimer = 0;
-            enemy.InvincibilityTimer = 0;
+            enemy.HurtFlash.End();
+            enemy.Invincibility.End();
         }
         AssertEqual(0, enemies.ResolveShotsOnInteractiveEnemies(shots, bombs, SuperMetroid.Core.Progression.AreaId.Crateria, samus),
             "removed projectile cannot damage the stack on the next pass");

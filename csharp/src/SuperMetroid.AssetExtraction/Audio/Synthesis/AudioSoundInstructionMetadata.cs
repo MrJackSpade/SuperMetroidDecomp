@@ -1,6 +1,8 @@
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
-/// <summary>One named operation and its documented byte operands.</summary>
+/// <summary>One decoded sound-effect operation and its documented byte operands (#2548).</summary>
+/// <param name="Operation">The operation, decoded once from its bytes.</param>
+/// <param name="Arguments">Its byte operands.</param>
 public sealed record AudioSoundInstructionMetadata(
-    string Operation,
+    AudioSoundOperation Operation,
     IReadOnlyList<byte> Arguments);

@@ -94,7 +94,7 @@ internal static class CrocomireNativeWords
         }
         else
         {
-            PrivateState.Set(state.DeathStageWait, nameof(BossCountdown.Count), (int)wordD);
+            state.DeathStageWait.SetCartridgeCount((int)wordD);
             state.VerticalAcceleration = SignedSixteenSixteen.FromParts(0, wordD);
         }
         state.VerticalSpeed = new SignedEightEight(wordE);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
@@ -63,7 +64,7 @@ internal static class KraidReportedCollisionsVerification
         {
             samus.Position = samus.Position.WithWhole(new(x, y));
             samus.Health = 999; samus.EquippedItems = 0;
-            samus.KnockbackTimer = 0;
+            samus.KnockbackHold = UpdateCountdown.Ended();
             samus.InvincibilityTimer = WrappingCountdown.Start(0);
             samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.None;
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(new(0, 0));

@@ -4,7 +4,9 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// Where Samus's colourings lie among her sheets' inks (#1512): the import composes her sheets with her suit in the
 /// fifth sprite colour group, her grapple flare as the sixth group's last colour, her beams in the seventh and her body
 /// without the suit in the eighth, as the cartridge's sprite palettes place them. An ink is its group's place times
-/// sixteen plus its colour.
+/// sixteen plus its colour. Inks are the composed pixels' indices only the import sees: the installation keys each pixel by
+/// the colour it shows (<see cref="SuperMetroid.AssetExtraction.Artwork.InstalledSheetConversion"/>), so nothing installed
+/// names an ink.
 /// </summary>
 internal static class SamusSheetInks
 {

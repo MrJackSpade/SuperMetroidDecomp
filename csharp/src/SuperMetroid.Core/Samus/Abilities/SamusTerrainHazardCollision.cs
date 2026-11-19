@@ -98,7 +98,7 @@ public static class SamusTerrainHazardCollision
     {
         samus.PeriodicDamage.Accumulate(EnergyAmount.FromEnergy(wholeDamage));
         samus.InvincibilityTimer = WrappingCountdown.Start(SpikeHazardDefinitions.InvincibilityFrames);
-        samus.KnockbackTimer = SpikeHazardDefinitions.KnockbackFrames;
+        samus.KnockbackHold = UpdateCountdown.For(SpikeHazardDefinitions.KnockbackFrames);
 
         // A right-facing pose is knocked left, and every other pose, front-facing ones included, is knocked right.
         samus.KnockbackXDirection = SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Right

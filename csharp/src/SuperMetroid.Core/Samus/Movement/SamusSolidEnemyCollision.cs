@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// <remarks>
 /// This is a probe, not an enemy simulation. It reads the current interactive enemies in the room's order, and
 /// that order matters: the first enemy that stops the move is returned, not the geometrically nearest one. Room
-/// coordinates wrap past either end of the room's space (<see cref="CoordinateAxis"/>), so an enemy that lies just past
+/// coordinates are measured the short way across the room's space (<see cref="DistanceAcrossRoomEdge"/>), so an enemy that lies just past
 /// the room's edge from Samus is still close to her, and the gaps are distances either way across that space.
 /// </remarks>
 public static class SamusSolidEnemyCollision
@@ -61,14 +61,14 @@ public static class SamusSolidEnemyCollision
             // tell an approaching gap from an enemy Samus is already embedded in: a negative gap skips that enemy.
             int gap = direction switch
             {
-                SamusCollisionDirection.Left => CoordinateAxis.AsSigned(
-                    state.Position.X.Whole - state.Radius.X - enemy.Position.X - enemy.Radius.X),
-                SamusCollisionDirection.Right => CoordinateAxis.AsSigned(
-                    enemy.Position.X - enemy.Radius.X - state.Position.X.Whole - state.Radius.X),
-                SamusCollisionDirection.Up => CoordinateAxis.AsSigned(
-                    state.Position.Y.Whole - state.Radius.Y - enemy.Position.Y - enemy.Radius.Y),
-                SamusCollisionDirection.Down => CoordinateAxis.AsSigned(
-                    enemy.Position.Y - enemy.Radius.Y - state.Position.Y.Whole - state.Radius.Y),
+                SamusCollisionDirection.Left => DistanceAcrossRoomEdge.Apart(
+                    state.Position.X.Whole - state.Radius.X, enemy.Position.X + enemy.Radius.X),
+                SamusCollisionDirection.Right => DistanceAcrossRoomEdge.Apart(
+                    enemy.Position.X - enemy.Radius.X, state.Position.X.Whole + state.Radius.X),
+                SamusCollisionDirection.Up => DistanceAcrossRoomEdge.Apart(
+                    state.Position.Y.Whole - state.Radius.Y, enemy.Position.Y + enemy.Radius.Y),
+                SamusCollisionDirection.Down => DistanceAcrossRoomEdge.Apart(
+                    enemy.Position.Y - enemy.Radius.Y, state.Position.Y.Whole + state.Radius.Y),
                 // Probe rejected the non-directional probe above. Keep a throwing arm anyway so this switch stays honest
                 // if the public enum later grows.
                 SamusCollisionDirection.NonDirectionalProbe => throw new InvalidOperationException("Unreachable collision direction."),
@@ -130,5 +130,5 @@ public static class SamusSolidEnemyCollision
         int firstRadius,
         int secondPosition,
         int secondRadius) =>
-        CoordinateAxis.Distance(secondPosition, firstPosition) < firstRadius + secondRadius;
+        DistanceAcrossRoomEdge.Between(secondPosition, firstPosition) < firstRadius + secondRadius;
 }

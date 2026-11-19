@@ -63,7 +63,7 @@ internal static class CinematicSpriteAnimationsVerification
         updates += CompareFamily(cartridge, IntroBabyAnimations.Laboratory, LaboratoryCues, Pictures, compared);
         updates += CompareFamily(cartridge, IntroEggEffectAnimations.Effects, NativeCinematicCues<NoAnimationCue>.None, Pictures, compared);
         updates += CompareFamily(cartridge, IntroRinkaAnimations.Rinka, RinkaCues, Pictures, compared);
-        updates += CompareFamily(cartridge, IntroRinkaAnimations.Spawner, RinkaSpawnerCues, Pictures, compared);
+        updates += CompareRinkaLaunches(cartridge);
         updates += CompareFamily(cartridge, IntroNarrationAnimations.Narration, NativeCinematicCues<NoAnimationCue>.None, Pictures, compared);
         updates += CompareFamily(cartridge, CeresAnimations.Scenes, CeresCues, Pictures, compared);
         updates += CompareFamily(cartridge, CeresAnimations.ExplosionSpawner, ExplosionSpawnerCues, Pictures, compared);
@@ -76,6 +76,35 @@ internal static class CinematicSpriteAnimationsVerification
         AssertTrue(Starts.Keys.All(compared.Contains) && compared.All(Starts.ContainsKey),
             "every native start is an animation an actor of some family starts, and every such animation has its native start");
         Console.WriteLine($"  cinematic sprite animations: {compared.Count} animations ({updates} played updates) match bank $8B.");
+    }
+
+    /// <summary>
+    /// The flashback's Rinka waves launch on the updates the original's spawner list raised them (#2561): the scene's
+    /// schedule, stepped beside an independent reader of the list, launches each pair on the update the list's cue does,
+    /// and launches none on any other; returns the updates.
+    /// </summary>
+    private static int CompareRinkaLaunches(IImportCartridgeSource cartridge)
+    {
+        var system = new IntroRinkaSystem();
+        var samus = new SuperMetroid.Core.Samus.SamusState(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.FramesBeyondAnimation,
+            new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(),
+            new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
+        {
+            Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0100)),
+        };
+        var native = new NativeReader<NativeRinkaSpawnerCue>(cartridge, RinkaSpawnerList, RinkaSpawnerCues);
+        int launched = 0;
+        int update = 0;
+        for (; native.Active && update < PlaybackUpdates; update++)
+        {
+            int before = system.LiveRinkas.Count;
+            system.Step(samus, motherBrainExploding: false, explosionsAllocated: false);
+            native.Step();
+            AssertEqual(native.Cues.Count * 2, system.LiveRinkas.Count - before, $"Rinka launch update {update}: the pairs the spawner's list launches");
+            launched += system.LiveRinkas.Count - before;
+        }
+        AssertEqual(IntroRinkaDefinitions.RinkaCount, launched, "the schedule launches every Rinka the spawner's list does");
+        return update;
     }
 
     /// <summary>Whether the native spritemap word <paramref name="native"/> draws <paramref name="pose"/>.</summary>

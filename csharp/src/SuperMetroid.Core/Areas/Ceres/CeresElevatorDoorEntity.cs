@@ -44,9 +44,9 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
                     // Entering the destruction starts its three counters, but deliberately does not run its first step
                     // until the following enemy frame.
                     state.Phase = CeresElevatorDoorPhase.Exploding;
-                    state.RumbleUpdatesLeft = RumbleDuration;
+                    state.Rumble = UpdateCountdown.Lasting(RumbleDuration);
                     // The first explosion bursts on the destruction's first update.
-                    state.ExplosionIntervalLeft = 1;
+                    state.ExplosionWait = UpdateCountdown.Lasting(1);
                     state.NextExplosion = CyclingSequence<Offset16<RoomPixels>>.StartOf(CeresDoorRumbleGeometryDefinitions.ExplosionOffsets);
                 }
                 return;
@@ -71,7 +71,7 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
     private void Explode()
     {
         CeresElevatorDoorState state = Place.RequireSpeciesState<CeresElevatorDoorState>();
-        if (--state.RumbleUpdatesLeft == 0)
+        if (state.Rumble.Count())
         {
             // The last update ends the destruction: the door hides, keeps cycling the glow and platform from the next update
             // on, and publishes its destruction so the room's turning floor begins the rotation after Ridley's escape.
@@ -82,10 +82,10 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
             return;
         }
 
-        if (--state.ExplosionIntervalLeft != 0)
+        if (!state.ExplosionWait.Count())
             return;
 
-        state.ExplosionIntervalLeft = RumbleInterval;
+        state.ExplosionWait.Restart(RumbleInterval);
         Position16<RoomPixels> explosion = Place.Position.Whole + state.NextExplosion.Current;
         state.NextExplosion = state.NextExplosion.Next;
 

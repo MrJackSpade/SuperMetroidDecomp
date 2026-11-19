@@ -33,7 +33,7 @@ public sealed class SamusCrystalFlashState
     /// The rise's updates left, the one it finishes on included: <see cref="CrystalFlashDefinitions.RaiseUpdates"/> when
     /// it starts, one for each two-pixel step.
     /// </summary>
-    public int RaiseUpdatesLeft { get; private set; }
+    public UpdateCountdown RaiseUpdatesLeft { get; private set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// The ammunition the drain is consuming: missiles at activation, then super missiles and power bombs as each
@@ -158,7 +158,7 @@ public sealed class SamusCrystalFlashState
         // instead of reproducing the documented adjacent timing that frees the stun.
         SamusMovementHandOver.To(samus, SamusMovementOwner.CrystalFlash);
         samus.InputSnapshot.CrystalFlashPoseInputLocked = true;
-        RaiseUpdatesLeft = CrystalFlashDefinitions.RaiseUpdates;
+        RaiseUpdatesLeft = UpdateCountdown.For(CrystalFlashDefinitions.RaiseUpdates);
         DrainingAmmo = CrystalFlashAmmoKind.Missiles;
         _ammoCountdown.StartAmmoCountdown(CrystalFlashDefinitions.AmmunitionPerKind);
         RaisedHeight = 0;
@@ -169,7 +169,7 @@ public sealed class SamusCrystalFlashState
         BubbleEffectRequested = false;
         // Activation discards existing hit immunity; Crystal Flash is not a damage shield.
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
-        samus.KnockbackTimer = 0;
+        samus.KnockbackHold = UpdateCountdown.Ended();
         samus.KnockbackDirection = Movement.SamusKnockbackDirection.None;
         samus.KnockbackActive = false;
         Phase = CrystalFlashPhase.Raising;
@@ -203,7 +203,7 @@ public sealed class SamusCrystalFlashState
                 // The main phase clears both values after each ammunition drain,
                 // including its seven no-drain frames and the final phase-changing update.
                 samus.InvincibilityTimer = WrappingCountdown.Start(0);
-                samus.KnockbackTimer = 0;
+                samus.KnockbackHold = UpdateCountdown.Ended();
                 break;
 
             case CrystalFlashPhase.Finishing:
@@ -227,7 +227,7 @@ public sealed class SamusCrystalFlashState
         samus.Position -= new Offset16<RoomPixels>(0, CrystalFlashDefinitions.RaiseStep);
 
         // The rise's last update starts the main bubble phase after completing its rise.
-        if (--RaiseUpdatesLeft != 0)
+        if (!RaiseUpdatesLeft.StepEnds())
             return;
 
         // The delay animation is already on its raise loop, but the raise forces
@@ -239,7 +239,7 @@ public sealed class SamusCrystalFlashState
         // The raise becomes the main phase with one essential-priority request that silences the room library.
         samus.AudioRequests.QueueSound(RoomSound.Silence, SoundRequestPriority.Essential);
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
-        samus.KnockbackTimer = 0;
+        samus.KnockbackHold = UpdateCountdown.Ended();
         samus.KnockbackActive = false;
     }
 
@@ -311,7 +311,7 @@ public sealed class SamusCrystalFlashState
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
         // Normal-input completion clears the same hit timers as the return path.
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
-        samus.KnockbackTimer = 0;
+        samus.KnockbackHold = UpdateCountdown.Ended();
         samus.KnockbackActive = false;
         Phase = CrystalFlashPhase.Inactive;
     }

@@ -18,7 +18,7 @@ internal sealed class EndingShootingStars
             EndingShootingStarDefinition definition = definitions[index];
             stars[index] = Started(definition);
             if (definition.Delay == 0) continue;
-            stars[index].DelayLeft = definition.Delay;
+            stars[index].Delay = UpdateCountdown.Lasting(definition.Delay);
         }
     }
 
@@ -28,14 +28,14 @@ internal sealed class EndingShootingStars
         for (int index = 0; index < stars.Length; index++)
         {
             ref EndingShootingStar star = ref stars[index];
-            if (star.DelayLeft is { } delayLeft)
+            if (star.Delay is { } delay)
             {
-                if (delayLeft > 0)
+                if (delay.IsRunning)
                 {
-                    star.DelayLeft = delayLeft - 1;
+                    delay.Count();
                     continue;
                 }
-                star.DelayLeft = null;
+                star.Delay = null;
                 star.Flight.Show(EndingShootingStarAnimations.Flight(Pace(star.Definition)), EndingShootingStarDefinitions.LeadInDuration);
                 // Expiring delay skips motion, but joins the same update's drawing pass.
             }

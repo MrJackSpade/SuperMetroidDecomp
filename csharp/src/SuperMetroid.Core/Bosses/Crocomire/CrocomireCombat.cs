@@ -36,7 +36,7 @@ internal sealed class CrocomireCombat
     /// <summary>Runs Crocomire's eight-color body hurt flash.</summary>
     internal void ApplyCrocomireHurtFlash(RoomEnemyPlace body, CrocomireEnemyState state)
     {
-        bool white = body.FlashTimer != 0 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(_frameContext.EnemyPassCount);
+        bool white = body.HurtFlash.IsRunning && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(_frameContext.EnemyPassCount);
         // His body shows its fight colours or the white flash as the import's shades of them (#1512).
         state.Colours.ShowBody(white);
     }
@@ -273,7 +273,7 @@ internal sealed class CrocomireCombat
         Position16<RoomPixels> projectile,
         Position16<RoomPixels> camera)
     {
-        body.InvincibilityTimer = 0;
+        body.Invincibility.End();
 
         // A hit while Crocomire's body is off screen skips choosing the projectile's family and still records the
         // pending hit. The body is on screen while its left edge lies left of the camera's right edge, 256 pixels past
@@ -313,7 +313,7 @@ internal sealed class CrocomireCombat
             state.DamageReactionPending = true;
         }
 
-        body.FlashTimer += CrocomireFightDefinitions.MouthShotFlash;
+        body.HurtFlash.Lengthen(CrocomireFightDefinitions.MouthShotFlash);
         body.AiStates |= EnemyAiStates.Hurt;
     }
 
@@ -338,7 +338,7 @@ internal sealed class CrocomireCombat
         if (state.Phase == CrocomirePhase.PowerBombCharge)
             return;
 
-        body.FlashTimer += CrocomireFightDefinitions.PowerBombFlash;
+        body.HurtFlash.Lengthen(CrocomireFightDefinitions.PowerBombFlash);
         body.AiStates |= EnemyAiStates.Hurt;
         state.Phase = CrocomirePhase.PowerBombCharge;
 

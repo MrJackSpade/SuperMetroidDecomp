@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms;
+
 
 namespace SuperMetroid.Core.Frontend.Map;
 
@@ -12,28 +12,28 @@ public static class MapStationDiscoveryRules
     /// <summary>The Brinstar and Maridia missile station cells.</summary>
     private static readonly MapStationDiscoveryRule[] missile =
     [
-        new(nameof(RoomDefinitions.GreenBrinstarMissileRefill), AreaId.Brinstar, new(5, 8)),
-        new(nameof(RoomDefinitions.MaridiaMissileRefill), AreaId.Maridia, new(38, 9)),
+        new("GreenBrinstarMissileRefill", AreaId.Brinstar, new(5, 8)),
+        new("MaridiaMissileRefill", AreaId.Maridia, new(38, 9)),
     ];
     /// <summary>The Brinstar, Norfair, Maridia and Tourian energy station cells.</summary>
     private static readonly MapStationDiscoveryRule[] energy =
     [
-        new(nameof(RoomDefinitions.DachoraEnergyRefill), AreaId.Brinstar, new(9, 13)),
-        new(nameof(RoomDefinitions.RedTowerRefill), AreaId.Brinstar, new(32, 19)),
-        new(nameof(RoomDefinitions.KraidRefill), AreaId.Brinstar, new(54, 19)),
-        new(nameof(RoomDefinitions.UpperNorfairRefill), AreaId.Norfair, new(20, 10)),
-        new(nameof(RoomDefinitions.GoldenTorizoEnergyRefill), AreaId.Norfair, new(21, 16)),
-        new(nameof(RoomDefinitions.MaridiaEnergyRefill), AreaId.Maridia, new(42, 7)),
-        new(nameof(RoomDefinitions.TourianRecharge), AreaId.Tourian, new(11, 17)),
+        new("DachoraEnergyRefill", AreaId.Brinstar, new(9, 13)),
+        new("RedTowerRefill", AreaId.Brinstar, new(32, 19)),
+        new("KraidRefill", AreaId.Brinstar, new(54, 19)),
+        new("UpperNorfairRefill", AreaId.Norfair, new(20, 10)),
+        new("GoldenTorizoEnergyRefill", AreaId.Norfair, new(21, 16)),
+        new("MaridiaEnergyRefill", AreaId.Maridia, new(42, 7)),
+        new("TourianRecharge", AreaId.Tourian, new(11, 17)),
     ];
     /// <summary>The five map station exploration cells.</summary>
     private static readonly MapStationDiscoveryRule[] map =
     [
-        new(nameof(RoomDefinitions.CrateriaMap), AreaId.Crateria, new(23, 8)),
-        new(nameof(RoomDefinitions.GreenBrinstarMap), AreaId.Brinstar, new(5, 5)),
-        new(nameof(RoomDefinitions.NorfairMap), AreaId.Norfair, new(9, 5)),
-        new(nameof(RoomDefinitions.WreckedShipMap), AreaId.WreckedShip, new(13, 20)),
-        new(nameof(RoomDefinitions.MaridiaMap), AreaId.Maridia, new(17, 18)),
+        new("CrateriaMap", AreaId.Crateria, new(23, 8)),
+        new("GreenBrinstarMap", AreaId.Brinstar, new(5, 5)),
+        new("NorfairMap", AreaId.Norfair, new(9, 5)),
+        new("WreckedShipMap", AreaId.WreckedShip, new(13, 20)),
+        new("MaridiaMap", AreaId.Maridia, new(17, 18)),
     ];
 
     /// <summary>Selects an area's marker family without testing exploration or consulting editable drawing positions.</summary>

@@ -25,6 +25,18 @@ internal struct YappingMawBendChain
     private bool previousPassedEnd;
 
     /// <summary>
+    /// An offset or correction as the chain holds it, 0 through 65535: a backward one as its complement within the
+    /// coordinate space. A link's held offset is also the length its own correction turns, which the short product takes
+    /// within its span (<see cref="ShortCircleProduct.RadiusInUse"/>), so a backward offset's correction turns that complement.
+    /// </summary>
+    /// <param name="offset">The signed offset or correction, in pixels.</param>
+    internal static int Held(int offset) => CoordinateAxis.Wrap(offset);
+
+    /// <summary>The signed offset, in pixels, that a corrected offset the chain holds stands for, -32768 through 32767.</summary>
+    /// <param name="held">The corrected offset as the chain holds it (<see cref="Corrected"/>).</param>
+    internal static int Offset(int held) => CoordinateAxis.AsSigned(held);
+
+    /// <summary>
     /// The offset <paramref name="offset"/> becomes when moved by <paramref name="correction"/>, and by one pixel more
     /// when the previous offset of the chain passed the end of the coordinate space; records whether this one does.
     /// </summary>

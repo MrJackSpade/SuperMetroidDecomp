@@ -56,9 +56,9 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             case FlyAction.Retreat:
                 MoveFlyAccordingToVelocities(place, state);
-                if (--state.RetreatUpdatesLeft == 0)
+                if (state.RetreatUpdatesLeft.Count())
                 {
-                    state.CooldownUpdatesLeft = FlyMotionDefinitions.AttackCooldown;
+                    state.CooldownUpdatesLeft = UpdateCountdown.For(FlyMotionDefinitions.AttackCooldown);
                     state.Action = FlyAction.Circling;
                     state.Rotation = RotationDirection.Clockwise;
                 }
@@ -75,9 +75,9 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         FlyEnemyState state,
         SamusState samus)
     {
-        if (state.CooldownUpdatesLeft != 0)
+        if (state.CooldownUpdatesLeft.IsRunning)
         {
-            state.CooldownUpdatesLeft--;
+            state.CooldownUpdatesLeft.Count();
         }
         else if (Math.Abs(place.Position.X.Whole - samus.Position.X.Whole) <
             FlyMotionDefinitions.AttackHorizontalRange)
@@ -104,13 +104,13 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // A fly retreats one update longer than it dives, so each attack leaves it a step higher, and nothing stops it
         // rising through the ceiling: one that has climbed above the room's top keeps a wrapped height and dives down
-        // the short way to Samus, as CoordinateAxis.Difference gives it. Across, a dive ends above Samus and a circle is a few pixels wide, so
+        // the short way to Samus, as DistanceAcrossRoomEdge.Apart gives it. Across, a dive ends above Samus and a circle is a few pixels wide, so
         // it never passes the room's left edge.
         TrigonometryAngle angle = EnemyMath.CalculateAimAngle(
-            new(samus.Position.X.Whole - place.Position.X.Whole, CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole)));
+            new(samus.Position.X.Whole - place.Position.X.Whole, DistanceAcrossRoomEdge.Apart(samus.Position.Y.Whole, place.Position.Y.Whole)));
         state.Velocity = DiveVelocity(angle);
         state.TargetY = samus.Position.Y.Whole;
-        state.DiveUpdates = 0;
+        state.Dive.Restart();
         state.Action = FlyAction.AttackSamus;
     }
 
@@ -118,7 +118,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RunFlyAttack(RoomEnemyPlace place, FlyEnemyState state)
     {
         MoveFlyAccordingToVelocities(place, state);
-        state.DiveUpdates++;
+        state.Dive.Count();
 
         bool crossedTarget = state.Velocity.Y.IsNegative
             ? place.Position.Y.Whole < state.TargetY
@@ -127,7 +127,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.Velocity = state.Velocity.ReversedY();
-        state.RetreatUpdatesLeft = state.DiveUpdates + FlyMotionDefinitions.RetreatBeyondDive;
+        state.RetreatUpdatesLeft = UpdateCountdown.For(state.Dive.Age + FlyMotionDefinitions.RetreatBeyondDive);
         state.Action = FlyAction.Retreat;
     }
 

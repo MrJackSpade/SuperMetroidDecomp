@@ -33,8 +33,8 @@ public sealed class DeadSidehopperEnemyState
     /// </summary>
     internal CyclingSequence<PixelVelocity<RoomPixels>> NextHop { get; set; } = CyclingSequence<PixelVelocity<RoomPixels>>.StartOf(DeadSidehopperLaunchDefinitions.Launches);
 
-    /// <summary>Draining AI updates since the drain last stepped, 0..7; the eighth steps the drain and restarts the count.</summary>
-    public int DrainStepUpdates { get; internal set; }
+    /// <summary>The drain's current stage, counted once each draining AI update: the update it ends on steps the drain.</summary>
+    public UpdateCountdown DrainStageWait { get; internal set; } = UpdateCountdown.Lasting(DeadSidehopperVictimDefinitions.DrainUpdatesPerStage);
 
     /// <summary>
     /// How far Shitroid's drain has gone (#2369); absent for a corpse placed already dead, which has no drain and is
@@ -70,22 +70,15 @@ public sealed class DeadSidehopperEnemyState
     public PixelVelocity<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>
-    /// Pre-rot AI updates counted since Samus first stood on the corpse, from zero: the update that counts
-    /// <see cref="CorpseRotScheduleDefinitions.PreRotDelayUpdates"/> starts rotting, and the corpse never returns to the
-    /// delay, so the count stops there.
+    /// The wait before rotting, counted once each pre-rot AI update from Samus first standing on the corpse: the update it
+    /// ends on, the <see cref="CorpseRotScheduleDefinitions.PreRotDelayUpdates"/>th, starts rotting, and the corpse never
+    /// returns to the delay.
     /// </summary>
-    public int PreRotDelayCounter
-    {
-        get;
-        internal set => field = Ensure.AtLeastZero(value);
-    }
+    public UpdateCountdown PreRotDelay { get; internal set; } = UpdateCountdown.Lasting(CorpseRotScheduleDefinitions.PreRotDelayUpdates);
 
     /// <summary>
-    /// The updates left in the post-landing pause, the one it ends on included: it starts at
-    /// <see cref="DeadSidehopperVictimDefinitions.PostLandingPause"/> and the step that takes it to zero ends the pause (#2281).
+    /// The post-landing pause, lasting <see cref="DeadSidehopperVictimDefinitions.PostLandingPause"/>: the update it ends on
+    /// ends the pause (#2281).
     /// </summary>
-    public int StateTimer { get; internal set; }
-
-    /// <summary>Counts one pre-rot AI update.</summary>
-    internal void CountPreRotDelayUpdate() => PreRotDelayCounter++;
+    public UpdateCountdown PostLandingPause { get; internal set; } = UpdateCountdown.Ended();
 }

@@ -29,46 +29,50 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("Samus's breath bubbles and lava spray wait for the splashes, dust and spray that shared their places to run out")]
 public sealed class BreathBubbleAndLavaSprayWaits
 {
+    /// <summary>The wait for the effect holding up the next breath bubble to run out; over when none does.</summary>
+    private readonly UpdateCountdown bubbleWait = UpdateCountdown.Ended();
+
+    /// <summary>The wait for the effect holding up the next lava spray to run out; over when none does.</summary>
+    private readonly UpdateCountdown sprayWait = UpdateCountdown.Ended();
+
     /// <summary>Updates until the effect holding up the next breath bubble runs out; zero when none does.</summary>
-    public int BubbleWaitUpdates { get; private set => field = Ensure.AtLeastZero(value); }
+    public int BubbleWaitUpdates => bubbleWait.UpdatesLeft;
 
     /// <summary>Updates until the effect holding up the next lava spray runs out; zero when none does.</summary>
-    public int SprayWaitUpdates { get; private set => field = Ensure.AtLeastZero(value); }
+    public int SprayWaitUpdates => sprayWait.UpdatesLeft;
 
     /// <summary>Whether a breath bubble may form.</summary>
-    public bool BubbleCanForm => BubbleWaitUpdates == 0;
+    public bool BubbleCanForm => bubbleWait.IsOver;
 
     /// <summary>Whether a lava spray may start.</summary>
-    public bool SprayCanStart => SprayWaitUpdates == 0;
+    public bool SprayCanStart => sprayWait.IsOver;
 
     /// <summary>Holds up breath bubbles while an effect taking the bubble's place is shown.</summary>
     /// <param name="updates">The updates the effect is shown, one or more.</param>
-    public void HoldBubbles(int updates) => BubbleWaitUpdates = Positive(updates);
+    public void HoldBubbles(int updates) => bubbleWait.Restart(Positive(updates));
 
     /// <summary>Ends the bubbles' wait, as a landing that shows no effect does.</summary>
-    public void ReleaseBubbles() => BubbleWaitUpdates = 0;
+    public void ReleaseBubbles() => bubbleWait.End();
 
     /// <summary>Holds up lava spray while an effect that holds it up takes the spray's leading place.</summary>
     /// <param name="updates">The updates the effect is shown, one or more.</param>
-    public void HoldSpray(int updates) => SprayWaitUpdates = Positive(updates);
+    public void HoldSpray(int updates) => sprayWait.Restart(Positive(updates));
 
     /// <summary>Ends the spray's wait, as a water splash or a wet footstep taking its leading place does.</summary>
-    public void ReleaseSpray() => SprayWaitUpdates = 0;
+    public void ReleaseSpray() => sprayWait.End();
 
     /// <summary>Counts one update of Samus's effects toward the end of each wait.</summary>
     public void Advance()
     {
-        if (BubbleWaitUpdates > 0)
-            BubbleWaitUpdates--;
-        if (SprayWaitUpdates > 0)
-            SprayWaitUpdates--;
+        bubbleWait.Step();
+        sprayWait.Step();
     }
 
     /// <summary>Ends both waits, as room setup does.</summary>
     public void Clear()
     {
-        BubbleWaitUpdates = 0;
-        SprayWaitUpdates = 0;
+        bubbleWait.End();
+        sprayWait.End();
     }
 
     /// <summary>A wait's length, which an effect that is shown at all makes one update or more.</summary>

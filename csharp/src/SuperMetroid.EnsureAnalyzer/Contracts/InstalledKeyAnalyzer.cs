@@ -27,6 +27,13 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// text inside such a helper (<c>RoomBlockPictureNames.OfCollectible</c>'s) is therefore an installed key's.
 /// </para>
 /// <para>
+/// #2548 widens both to every source name: a <c>nameof</c> of any member, a property, field, method or event, or of a type,
+/// is the member's or the type's source name, and a name handed to a parameter of the same assembly is followed into
+/// whatever that parameter's references reach, through the parameters it is handed on to; a record's positional
+/// parameter reaches whatever its property's reads reach. A definition found again by its own name (a <c>Find(nameof(X))</c>
+/// into a dictionary keyed by the definitions' names) is reported where the name is spelled.
+/// </para>
+/// <para>
 /// Its sibling SME6462 reports an identity keyed or read by its members' names: an enum member's name made a
 /// dictionary's or set's key (an <c>Add</c>, <c>TryGetValue</c>, <c>ContainsKey</c> or indexer key, or a
 /// <c>ToDictionary</c> key selector), <c>Enum.Parse</c>, <c>Enum.TryParse</c> and <c>Enum.GetNames</c>, and
@@ -55,14 +62,15 @@ public sealed class InstalledKeyAnalyzer : DiagnosticAnalyzer
     private static readonly DiagnosticDescriptor Rule = new(
         EnumNameInKeyId,
         "An enum member's name is written into an installed key",
-        "'{0}' writes the name of a '{1}' member into the installed key '{2}'; write the key out, as a literal or in a " +
+        "'{0}' writes the name of {1} into the installed key '{2}'; write the key out, as a literal or in a " +
             "table of the identity's keys, so renaming the member never changes a name on disk",
         "Design",
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "An installed key is the name the import writes into the installation and the game looks content up by. " +
             "Spelling it from an enum member's source name ties the installation to an identifier: renaming the member " +
-            "changes the key without a format change, and installed content stops matching. Each key is written out, as " +
+            "changes the key without a format change, and installed content stops matching. A nameof of any member or type, " +
+            "and a name handed through a parameter, spell a key so too (#2548). Each key is written out, as " +
             "RidleyShades.BabyKeys, TorizoLook's key table and the identities' InstalledKeys tables do (#2409, #2472, #2511, #2520).",
         customTags: [WellKnownDiagnosticTags.CompilationEnd]);
 
@@ -113,41 +121,77 @@ public sealed class InstalledKeyAnalyzer : DiagnosticAnalyzer
         var called = new ConcurrentDictionary<ILocalSymbol, ConcurrentBag<ISymbol>>(SymbolEqualityComparer.Default);
         var keyed = new ConcurrentDictionary<ILocalSymbol, KeyDestination>(SymbolEqualityComparer.Default);
         var returned = new ConcurrentDictionary<ILocalSymbol, ISymbol>(SymbolEqualityComparer.Default);
+        var handed = new ConcurrentDictionary<ILocalSymbol, IParameterSymbol>(SymbolEqualityComparer.Default);
         block.RegisterOperationAction(operation =>
         {
             if (NameWrite(operation.Operation) is not { } write)
                 return;
-            KeyDestination? key = Destination(write.Text, operation.ContainingSymbol, marker, out ILocalSymbol? local, out ISymbol? result);
+            KeyDestination? key = Destination(write.Text, operation.ContainingSymbol, marker, assembly, out ILocalSymbol? local, out ISymbol? result,
+                out IParameterSymbol? parameter);
             if (key is { } destination)
                 Report(operation.ReportDiagnostic, write, destination);
             else if (local is not null)
                 written.GetOrAdd(local, _ => []).Add(write);
             else if (result is not null)
                 helpers.Returns(result, write);
+            else if (parameter is not null)
+                helpers.PassesTo(parameter, write);
         }, OperationKind.Interpolation, OperationKind.InterpolatedStringAppendFormatted, OperationKind.Invocation,
             OperationKind.Binary, OperationKind.NameOf);
         block.RegisterOperationAction(operation =>
         {
             if (NameHelper(operation.Operation, assembly) is not { } helper)
                 return;
-            KeyDestination? key = Destination(operation.Operation, operation.ContainingSymbol, marker, out ILocalSymbol? local, out ISymbol? result);
+            KeyDestination? key = Destination(operation.Operation, operation.ContainingSymbol, marker, assembly, out ILocalSymbol? local, out ISymbol? result,
+                out IParameterSymbol? parameter);
             if (key is { } destination)
                 helpers.Feeds(helper, destination);
             else if (local is not null)
                 called.GetOrAdd(local, _ => []).Add(helper);
             else if (result is not null)
                 helpers.ReturnsResultOf(result, helper);
+            else if (parameter is not null)
+                helpers.HandsOn(helper, parameter);
         }, OperationKind.Invocation, OperationKind.PropertyReference);
         block.RegisterOperationAction(operation =>
         {
             var reference = (ILocalReferenceOperation)operation.Operation;
-            if (Destination(reference, operation.ContainingSymbol, marker, out _, out ISymbol? result) is { } key)
+            if (Destination(reference, operation.ContainingSymbol, marker, assembly, out _, out ISymbol? result, out IParameterSymbol? parameter) is { } key)
                 keyed.TryAdd(reference.Local, key);
             else if (result is not null)
                 returned.TryAdd(reference.Local, result);
+            else if (parameter is not null)
+                handed.TryAdd(reference.Local, parameter);
         }, OperationKind.LocalReference);
+        block.RegisterOperationAction(operation =>
+        {
+            // A parameter's value reaches what its references reach: a key, or a parameter it is handed on to. A helper returning
+            // its parameter, such as Ensure.NotNull, is not followed: its result reaches a key at some calls and not others.
+            var reference = (IParameterReferenceOperation)operation.Operation;
+            if (!SymbolEqualityComparer.Default.Equals(reference.Parameter.ContainingAssembly, assembly))
+                return;
+            KeyDestination? key = Destination(reference, operation.ContainingSymbol, marker, assembly, out _, out _,
+                out IParameterSymbol? parameter);
+            if (key is { } destination)
+                helpers.Feeds(reference.Parameter.OriginalDefinition, destination);
+            else if (parameter is not null)
+                helpers.HandsOn(reference.Parameter, parameter);
+        }, OperationKind.ParameterReference);
         block.RegisterOperationBlockEndAction(end =>
         {
+            foreach (KeyValuePair<ILocalSymbol, IParameterSymbol> entry in handed)
+            {
+                if (written.TryGetValue(entry.Key, out ConcurrentBag<EnumNameWrite>? writes))
+                {
+                    foreach (EnumNameWrite write in writes)
+                        helpers.PassesTo(entry.Value, write);
+                }
+                if (called.TryGetValue(entry.Key, out ConcurrentBag<ISymbol>? feeding))
+                {
+                    foreach (ISymbol helper in feeding)
+                        helpers.HandsOn(helper, entry.Value);
+                }
+            }
             foreach (KeyValuePair<ILocalSymbol, KeyDestination> entry in keyed)
             {
                 if (written.TryGetValue(entry.Key, out ConcurrentBag<EnumNameWrite>? writes))
@@ -196,7 +240,7 @@ public sealed class InstalledKeyAnalyzer : DiagnosticAnalyzer
     private static void Report(Action<Diagnostic> report, EnumNameWrite write, KeyDestination key) =>
         report(key.IsCollection
             ? Diagnostic.Create(KeyedRule, write.Text.Syntax.GetLocation(), write.Text.Syntax.ToString(), "keys the collection " + key.Name, write.Enum.Name)
-            : Diagnostic.Create(Rule, write.Text.Syntax.GetLocation(), write.Text.Syntax.ToString(), write.Enum.Name, key.Name));
+            : Diagnostic.Create(Rule, write.Text.Syntax.GetLocation(), write.Text.Syntax.ToString(), write.Named, key.Name));
 
     /// <summary>
     /// Reports <c>Enum.Parse</c>, <c>Enum.TryParse</c>, <c>Enum.GetNames</c> and each construction or <c>typeof</c> of a
@@ -242,7 +286,7 @@ public sealed class InstalledKeyAnalyzer : DiagnosticAnalyzer
     private static string ConvertedName(ITypeSymbol? converter) =>
         converter is INamedTypeSymbol { TypeArguments.Length: > 0 } generic ? generic.TypeArguments[0].Name : "enum";
 
-    /// <summary>The enum name an operation writes into text, or null when it writes none.</summary>
+    /// <summary>The source name an operation writes into text, or null when it writes none.</summary>
     private static EnumNameWrite? NameWrite(IOperation operation) => operation switch
     {
         IInterpolationOperation hole => NamedEnum(hole.Expression, hole.FormatString) is { } type ? new EnumNameWrite(hole, type) : null,
@@ -253,10 +297,30 @@ public sealed class InstalledKeyAnalyzer : DiagnosticAnalyzer
         IBinaryOperation { OperatorKind: BinaryOperatorKind.Add, Type.SpecialType: SpecialType.System_String } concatenation =>
             (EnumOf(Unconverted(concatenation.LeftOperand).Type) ?? EnumOf(Unconverted(concatenation.RightOperand).Type)) is { } type
                 ? new EnumNameWrite(concatenation, type) : null,
-        INameOfOperation { Argument: IFieldReferenceOperation { Field.ContainingType: { TypeKind: TypeKind.Enum } type } } name =>
-            new EnumNameWrite(name, type),
+        INameOfOperation name => NameOfWrite(name),
         _ => null,
     };
+
+    /// <summary>
+    /// The source name a <c>nameof</c> writes (#2548): an enum member's, any other member's (a property, field, method or
+    /// event of a type), or a type's own; null for a local, a parameter, a namespace or a type parameter, whose name is no
+    /// identity's.
+    /// </summary>
+    private static EnumNameWrite? NameOfWrite(INameOfOperation name)
+    {
+        if (name.Argument is IFieldReferenceOperation { Field.ContainingType: { TypeKind: TypeKind.Enum } enumType })
+            return new EnumNameWrite(name, enumType);
+        if (name.SemanticModel is not { } model)
+            return null;
+        SymbolInfo info = model.GetSymbolInfo(name.Argument.Syntax);
+        ISymbol? named = info.Symbol ?? info.CandidateSymbols.FirstOrDefault();
+        return named switch
+        {
+            INamedTypeSymbol type => new EnumNameWrite(name, type, NamesType: true),
+            IFieldSymbol or IPropertySymbol or IMethodSymbol or IEventSymbol when named.ContainingType is { } owner => new EnumNameWrite(name, owner),
+            _ => null,
+        };
+    }
 
     /// <summary>
     /// The enum name a call writes: an enum's <c>ToString</c> without a numeric format, <c>Enum.GetName</c>, or an enum
@@ -306,14 +370,17 @@ public sealed class InstalledKeyAnalyzer : DiagnosticAnalyzer
 
     /// <summary>
     /// The installed key or collection keys <paramref name="text"/> becomes part of, or null when it reaches none; a text
-    /// first held in a local is given as <paramref name="local"/>, and a text that becomes the result of an unmarked member,
-    /// a name helper whose callers may hand it on to a key, as <paramref name="result"/>.
+    /// first held in a local is given as <paramref name="local"/>, a text that becomes the result of an unmarked member, a
+    /// name helper whose callers may hand it on to a key, as <paramref name="result"/>, and a text handed to an unmarked
+    /// parameter of <paramref name="assembly"/>, whose references may hand it on to a key (#2548), as
+    /// <paramref name="handed"/>.
     /// </summary>
-    private static KeyDestination? Destination(IOperation text, ISymbol owner, INamedTypeSymbol? marker, out ILocalSymbol? local,
-        out ISymbol? result)
+    private static KeyDestination? Destination(IOperation text, ISymbol owner, INamedTypeSymbol? marker, IAssemblySymbol assembly,
+        out ILocalSymbol? local, out ISymbol? result, out IParameterSymbol? handed)
     {
         local = null;
         result = null;
+        handed = null;
         IOperation current = text;
         IOperation? parent = current.Parent;
         while (parent is not null)
@@ -344,9 +411,13 @@ public sealed class InstalledKeyAnalyzer : DiagnosticAnalyzer
                         _ => null,
                     }, marker);
                 case IArgumentOperation { Parameter: { } parameter } argument:
-                    return Writes(argument) ? new KeyDestination(((IInvocationOperation)argument.Parent!).TargetMethod.Name, false)
-                        : IsKey(parameter, marker) ? new KeyDestination(parameter.Name, false)
-                        : null;
+                    if (Writes(argument) && argument.Parent is IInvocationOperation writer)
+                        return new KeyDestination(writer.TargetMethod.Name, false);
+                    if (IsKey(parameter, marker))
+                        return new KeyDestination(parameter.Name, false);
+                    if (SymbolEqualityComparer.Default.Equals(parameter.ContainingAssembly, assembly))
+                        handed = parameter.OriginalDefinition;
+                    return null;
                 case IReturnOperation:
                     if (SelectorOf(parent) is { } selector)
                     {

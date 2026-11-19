@@ -28,14 +28,14 @@ internal sealed class GrappleBehavior : IGrappleTargets
     {
         foreach (RoomEnemyPlace enemy in _lifecycle.InteractiveEnemies)
         {
-            if (enemy.InvincibilityTimer != 0)
+            if (enemy.Invincibility.IsRunning)
                 continue;
 
             // The endpoint tested lies in the room's grid, but an interactive enemy need not: a fly that has climbed through
             // the ceiling or a Bull braking past Samus can lie above or left of the room's origin, and the beam measures its
-            // distance to one the short way, as CoordinateAxis.Distance gives it.
-            int xDistance = CoordinateAxis.Distance(enemy.Position.X.Whole, endpoint.X);
-            int yDistance = CoordinateAxis.Distance(enemy.Position.Y.Whole, endpoint.Y);
+            // distance to one the short way, as DistanceAcrossRoomEdge.Between gives it.
+            int xDistance = DistanceAcrossRoomEdge.Between(enemy.Position.X.Whole, endpoint.X);
+            int yDistance = DistanceAcrossRoomEdge.Between(enemy.Position.Y.Whole, endpoint.Y);
             if (xDistance >= enemy.Radius.X + GrappleTargetDefinitions.BeamPointRadius || yDistance >= enemy.Radius.Y + GrappleTargetDefinitions.BeamPointRadius)
                 continue;
 
@@ -66,19 +66,19 @@ internal sealed class GrappleBehavior : IGrappleTargets
         {
             case GrappleEnemyReaction.None:
                 enemy.AiStates = EnemyAiStates.None;
-                enemy.InvincibilityTimer = 0;
-                enemy.FrozenTimer = 0;
-                enemy.ShakeTimer = 0;
+                enemy.Invincibility.End();
+                enemy.Freeze.End();
+                enemy.Shake.End();
                 return true;
 
             case GrappleEnemyReaction.Attach:
-                if (enemy.FrozenTimer != 0)
+                if (enemy.Freeze.IsRunning)
                 {
                     enemy.AiStates = EnemyAiStates.Frozen;
                 }
                 else
                 {
-                    enemy.FlashTimer = enemy.HurtFlashFrames;
+                    enemy.HurtFlash.Restart(enemy.HurtFlashFrames);
                     enemy.AiStates = EnemyAiStates.None;
                 }
                 return true;
@@ -96,7 +96,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
                 return true;
 
             case GrappleEnemyReaction.AttachWithoutInvincibility:
-                if (enemy.FrozenTimer != 0)
+                if (enemy.Freeze.IsRunning)
                 {
                     enemy.AiStates = EnemyAiStates.Frozen;
                     return true;
@@ -110,7 +110,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
                 return true;
 
             case GrappleEnemyReaction.AttachAndParalyze:
-                enemy.FlashTimer = enemy.HurtFlashFrames;
+                enemy.HurtFlash.Restart(enemy.HurtFlashFrames);
                 enemy.AiStates = EnemyAiStates.None;
                 return true;
 

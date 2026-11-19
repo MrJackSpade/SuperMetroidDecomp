@@ -10,14 +10,10 @@ public sealed class FuneEnemyState : FuneNamiheEnemyState
     public FuneAction Action { get; internal set; }
 
     /// <summary>
-    /// The count of waiting updates, reset to zero when the wait ends: it counts up to its spawn settings' cooldown time
-    /// (#2045, #2476).
+    /// The wait between spits, counted once each waiting update and started again when it ends: it lasts its spawn
+    /// settings' cooldown time (#2045, #2476, <see cref="FuneNamiheBehavior.CooldownOf"/>).
     /// </summary>
-    public int CooldownTimer
-    {
-        get;
-        internal set => field = Ensure.AtLeastZero(value);
-    }
+    public UpdateCountdown Cooldown { get; internal set; } = UpdateCountdown.Ended();
 
     /// <inheritdoc/>
     internal override int MouthDrop => 0;

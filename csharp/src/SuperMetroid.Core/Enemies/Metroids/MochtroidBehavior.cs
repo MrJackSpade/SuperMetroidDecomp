@@ -156,7 +156,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MovementMode = MochtroidMovementMode.TouchingSamus;
         SetMochtroidAnimation(
             place, state, MochtroidSegment.Attached);
-        state.CountAttachedUpdate();
+        state.DrainPeriod.Step();
 
         bool applyCommonTouch = samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None;
         if (!applyCommonTouch)
@@ -165,9 +165,9 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
             if (MetroidCadenceDefinitions.DrainSoundEveryEighthEnemyPass.IsDue(_frameContext.EnemyPassCount) && samus.Health >= MetroidBehaviorDefinitions.DrainSoundLeastHealth)
                 _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Normal);
 
-            if (state.HasReachedDamagePeriod(MochtroidBehaviorDefinitions.AttachedDrainPeriod))
+            if (state.DrainPeriod.IsOver)
             {
-                state.AttachmentDamageTimer = 0;
+                state.DrainPeriod = UpdateCountdown.Lasting(MochtroidBehaviorDefinitions.AttachedDrainPeriod);
                 applyCommonTouch = true;
             }
         }

@@ -134,7 +134,7 @@ internal static class EndingShootingStarsTests
         // Whether two stars fly alike: where they are and how fast, their delay, and where their pictures stand.
         static bool SameFlight(EndingShootingStar star, EndingShootingStar restored) =>
             star.Position == restored.Position && star.Velocity == restored.Velocity && star.Delayed == restored.Delayed &&
-            star.DelayLeft == restored.DelayLeft && star.Look == restored.Look && star.Flight.UpdatesLeft == restored.Flight.UpdatesLeft &&
+            star.Delay?.UpdatesLeft == restored.Delay?.UpdatesLeft && star.Look == restored.Look && star.Flight.UpdatesLeft == restored.Flight.UpdatesLeft &&
             star.Flight.Playback.Place == restored.Flight.Playback.Place;
         static void Require(bool value, string message) { if (!value) throw new InvalidDataException(message); }
     }

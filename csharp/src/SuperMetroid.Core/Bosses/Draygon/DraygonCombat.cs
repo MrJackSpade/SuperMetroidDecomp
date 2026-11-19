@@ -67,7 +67,7 @@ internal sealed class DraygonCombat
         DraygonEnemyState state,
         SamusState samus)
     {
-        bool whiteFrame = DraygonCadenceDefinitions.HurtWhiteFlashShown.IsSetIn(body.FlashTimer);
+        bool whiteFrame = DraygonCadenceDefinitions.HurtWhiteFlashShown.IsSetIn(body.HurtFlash.UpdatesLeft);
         // A hurt update shows his material colours with his band, or their white flash, as the import's shades (#1512).
         state.Colours.ShowHurt(whiteFrame);
         if (!whiteFrame)
@@ -199,10 +199,10 @@ internal sealed class DraygonCombat
             foreach (EnemyCollisionHitbox hitbox in component.Hitboxes)
             {
                 if (!probe.Overlaps(
-                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left),
-                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Top),
-                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right),
-                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom)))
+                        componentOrigin.X + hitbox.Left,
+                        componentOrigin.Y + hitbox.Top,
+                        componentOrigin.X + hitbox.Right,
+                        componentOrigin.Y + hitbox.Bottom))
                     continue;
                 reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
                 return true;

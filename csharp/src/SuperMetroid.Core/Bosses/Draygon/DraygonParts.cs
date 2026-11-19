@@ -239,8 +239,8 @@ internal sealed class DraygonParts
         // as one of the room's dust and explosion effects.
         if (DraygonCadenceDefinitions.EyeBreathBubbleEvery128thUpdate.IsDue(eye.FrameCounter))
             _projectiles.SpawnDustOrExplosion(
-                new(CoordinateAxis.Wrap(eye.Position.X.Whole + (facing == HorizontalDirection.Right
-                    ? DraygonEyeEffects.HorizontalOffset : -DraygonEyeEffects.HorizontalOffset)), CoordinateAxis.Wrap(eye.Position.Y.Whole + DraygonEyeEffects.VerticalOffset)),
+                new(OffRoomPlaces.Place(eye.Position.X.Whole + (facing == HorizontalDirection.Right
+                    ? DraygonEyeEffects.HorizontalOffset : -DraygonEyeEffects.HorizontalOffset)), OffRoomPlaces.Place(eye.Position.Y.Whole + DraygonEyeEffects.VerticalOffset)),
                 DraygonEyeEffects.DustVariant);
         Position16<RoomPixels> gaze = eye.Position.Whole +
             TowardFacing(new(DraygonEyeEffects.HorizontalOffset, DraygonEyeEffects.VerticalOffset), facing);

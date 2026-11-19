@@ -33,7 +33,7 @@ internal sealed class TorizoCombat
         if (c.SelectedShot == TorizoReactions.StandUpSitDownShot)
             return;
         // The reaction returns during the hurt flash, and rejects the bomb while the animation is locked.
-        if (torizo.FlashTimer != 0 || state.AnimationLocked)
+        if (torizo.HurtFlash.IsRunning || state.AnimationLocked)
             return;
         DamageByNormalBomb(torizo, state, c.Bomb);
     }
@@ -49,12 +49,12 @@ internal sealed class TorizoCombat
         TorizoEnemyState state = torizo.RequireSpeciesState<TorizoEnemyState>();
         if (c.SelectedShot == TorizoReactions.StandUpSitDownShot)
         {
-            if (torizo.FlashTimer != 0 || state.AnimationLocked)
+            if (torizo.HurtFlash.IsRunning || state.AnimationLocked)
                 return;
             DamageByNormalBomb(torizo, state, c.Bomb);
             return;
         }
-        if (torizo.FlashTimer != 0)
+        if (torizo.HurtFlash.IsRunning)
             return;
         // A bomb is neither Missile nor Super Missile, so it stuns him before the common damage, whether or not he has
         // caught a Super Missile; while his animation is locked it does the common damage alone.
@@ -91,7 +91,7 @@ internal sealed class TorizoCombat
     {
         _body.MaybeSpawnLowHealthDrool(torizo);
         TorizoEnemyState state = torizo.RequireSpeciesState<TorizoEnemyState>();
-        if (!TorizoCadenceDefinitions.HurtWhiteShown.IsSetIn(torizo.FlashTimer))
+        if (!TorizoCadenceDefinitions.HurtWhiteShown.IsSetIn(torizo.HurtFlash.UpdatesLeft))
             unflashed(state);
         else
             TorizoBody.LoadTorizoBodyColours(torizo, state, new TorizoLook(TorizoLookKind.White));
@@ -157,7 +157,7 @@ internal sealed class TorizoCombat
     {
         RoomEnemyPlace enemy = c.Enemy;
         TorizoEnemyState torizoState = enemy.RequireSpeciesState<TorizoEnemyState>();
-        if (c.HitboxShot == TorizoReactions.StandUpSitDownShot || enemy.FlashTimer != 0 || torizoState.AnimationLocked)
+        if (c.HitboxShot == TorizoReactions.StandUpSitDownShot || enemy.HurtFlash.IsRunning || torizoState.AnimationLocked)
         {
             c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
             return true;
@@ -176,13 +176,13 @@ internal sealed class TorizoCombat
         // The stand-up and sit-down frames admit common no-death damage only while the flash timer is zero and the body's
         // animation is unlocked, and never reach the catches: missiles are not caught, Supers are not reflected, and the
         // counterattack is not armed through these transitional body rectangles.
-        if (c.HitboxShot == TorizoReactions.StandUpSitDownShot && (enemy.FlashTimer != 0 || torizoState.AnimationLocked))
+        if (c.HitboxShot == TorizoReactions.StandUpSitDownShot && (enemy.HurtFlash.IsRunning || torizoState.AnimationLocked))
         {
             c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
             return true;
         }
         // The reaction returns during a damage flash; a locked animation instead routes through common damage below.
-        if (enemy.FlashTimer != 0)
+        if (enemy.HurtFlash.IsRunning)
         {
             c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
             return true;
@@ -240,7 +240,7 @@ internal sealed class TorizoCombat
         reaction = null;
 
         // The body's rectangles lie about Torizo's position; the probe meets their edges as every room position is
-        // compared, by CoordinateAxis.Precedes, also an edge reaching past either end of the room.
+        // compared, by DistanceAcrossRoomEdge.LiesBefore, also an edge reaching past either end of the room.
         Position16<RoomPixels> origin = enemy.Position.Whole;
         IReadOnlyList<EnemyCollisionHitbox> rectangles = TorizoCollision.HitboxesAt(enemy.Frame).Rectangles;
         for (int index = 0; index < rectangles.Count; index++)

@@ -23,10 +23,10 @@ public static class SceneColourFiles
     public const string FileName = "scene-colours.json";
 
     /// <summary>
-    /// Revision 2 of the scene colour document, the only revision the reader accepts: 2 names the backdrop the menus share
-    /// for the menus, not for file select (#2203).
+    /// Revision 3 of the scene colour document, the only revision the reader accepts: 2 names the backdrop the menus share
+    /// for the menus, not for file select (#2203), and 3 writes each colour as <c>#rrggbb</c> (#2564).
     /// </summary>
-    public const int Version = 2;
+    public const int Version = 3;
 
     /// <summary>The stock tint the Ceres haze fades in to while Ceres Ridley lives.</summary>
     public static RgbColor StockCeresHazeBlue => StockCeresHaze(CeresHazeColor.Blue);
@@ -59,12 +59,12 @@ public static class SceneColourFiles
         return JsonSerializer.SerializeToUtf8Bytes(new SceneColourDocument
         {
             Version = Version,
-            TitleBackdrop = PaletteRgb5.From(title.Backdrop),
-            PauseBackdrop = PaletteRgb5.From(backdrops.Pause),
-            MenusBackdrop = PaletteRgb5.From(backdrops.Menus),
-            WorldMapBackdrops = ZebesAreas().ToDictionary(area => AreaIdKeys.Installed.Of(area), area => PaletteRgb5.From(backdrops.World(area))),
-            CeresHazeWhileRidleyLives = PaletteRgb5.From(StockCeresHazeBlue),
-            CeresHazeAfterRidleyDies = PaletteRgb5.From(StockCeresHazeRed),
+            TitleBackdrop = InstalledColourText.Format(title.Backdrop),
+            PauseBackdrop = InstalledColourText.Format(backdrops.Pause),
+            MenusBackdrop = InstalledColourText.Format(backdrops.Menus),
+            WorldMapBackdrops = ZebesAreas().ToDictionary(area => AreaIdKeys.Installed.Of(area), area => InstalledColourText.Format(backdrops.World(area))),
+            CeresHazeWhileRidleyLives = InstalledColourText.Format(StockCeresHazeBlue),
+            CeresHazeAfterRidleyDies = InstalledColourText.Format(StockCeresHazeRed),
         }, ArtworkJson.Options);
     }
 
@@ -72,7 +72,7 @@ public static class SceneColourFiles
     /// <param name="json">The installed document, read from its current position.</param>
     /// <exception cref="InvalidDataException">
     /// The document is invalid or names another version, a Zebes area's world-map backdrop is missing or another area is
-    /// named, or a colour is missing or has a channel outside 0..31.
+    /// named, or a colour is missing, is not written as <c>#rrggbb</c> or lies off the game's fade scale.
     /// </exception>
     public static SceneColours Read(Stream json)
     {
@@ -85,7 +85,7 @@ public static class SceneColourFiles
         var world = new Dictionary<AreaId, RgbColor>();
         foreach (AreaId area in areas)
         {
-            if (!document.WorldMapBackdrops.TryGetValue(AreaIdKeys.Installed.Of(area), out PaletteRgb5? backdrop))
+            if (!document.WorldMapBackdrops.TryGetValue(AreaIdKeys.Installed.Of(area), out string? backdrop))
                 throw new InvalidDataException($"Scene colours are missing the world map's backdrop for {area}.");
             world.Add(area, Colour(backdrop, $"world map's {area} backdrop"));
         }
@@ -94,10 +94,7 @@ public static class SceneColourFiles
             new CeresHazeTints(Colour(document.CeresHazeWhileRidleyLives, "Ceres haze while Ridley lives"),
                 Colour(document.CeresHazeAfterRidleyDies, "Ceres haze once Ridley is dead")));
 
-        static RgbColor Colour(PaletteRgb5? colour, string name) =>
-            colour is { Red: >= 0 and <= FadeLevelColour.FullLevel, Green: >= 0 and <= FadeLevelColour.FullLevel, Blue: >= 0 and <= FadeLevelColour.FullLevel }
-                ? colour.ToRgbColor()
-                : throw new InvalidDataException($"Scene colours: the {name} requires red, green and blue in 0..{FadeLevelColour.FullLevel}.");
+        static RgbColor Colour(string? colour, string name) => InstalledColourText.ParseOnFadeScale(colour, $"Scene colours' {name}");
     }
 
     /// <summary>The six Zebes areas, whose world maps each have a backdrop.</summary>

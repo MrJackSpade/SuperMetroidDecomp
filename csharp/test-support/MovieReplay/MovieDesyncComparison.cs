@@ -1,4 +1,5 @@
 using SuperMetroid.Diagnostics.Input;
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.Core.Frontend.Options;
@@ -57,12 +58,12 @@ internal static class MovieDesyncComparison
             $"vs={samus.Kinematics.YSpeed.Whole:X4}.{samus.Kinematics.YSpeed.Fraction:X4} total={samus.HorizontalSpeed.TotalSpeed.Whole:X4}.{samus.HorizontalSpeed.TotalSpeed.Fraction:X4} slope={(samus.Kinematics.PositionAdjustedBySlope ? 1 : 0)} base={samus.HorizontalSpeed.BaseSpeed.Whole:X4}.{samus.HorizontalSpeed.BaseSpeed.Fraction:X4} extra={samus.HorizontalSpeed.ExtraRunSpeed.Whole:X4}.{samus.HorizontalSpeed.ExtraRunSpeed.Fraction:X4} accel={SamusAccelerationModeCodec.ToNative(samus.HorizontalSpeed.AccelerationMode):X4} anim={samus.AnimationFrame:X4}/{samus.AnimationFrameTimer.RawValue:X4} ydir={samus.Kinematics.YDirection} drained={samus.Drained.Phase} movement={SamusPoseMetadata.ReadMovementType(samus)}");
         Console.WriteLine($"  native pose={Native(MovieDesyncMemory.SamusPose)} X={Native(MovieDesyncMemory.SamusX)}.{Native(MovieDesyncMemory.SamusXFraction)} Y={Native(MovieDesyncMemory.SamusY)}.{Native(MovieDesyncMemory.SamusYFraction)} " +
             $"vs={Native(0x0b2e)}.{Native(0x0b2c)} total={Native(0x0dbc)}.{Native(0x0dbe)} slope={Native(0x0dba)} base={Native(0x0b46)}.{Native(0x0b48)} extra={Native(0x0b42)}.{Native(0x0b44)} accel={Native(0x0b4a)} anim={Native(0x0a96)}/{Native(0x0a94)}");
-        Console.WriteLine($"  hurt port inv={samus.InvincibilityTimer.RawValue:X4} kb={samus.KnockbackTimer:X4} div={samus.SlowdownLevel:X4} hp={samus.Health:X4}");
+        Console.WriteLine($"  hurt port inv={samus.InvincibilityTimer.RawValue:X4} kb={samus.KnockbackHold.UpdatesLeft:X4} div={samus.SlowdownLevel:X4} hp={samus.Health:X4}");
         if (game.CeresDestructionForVerification is { } boom)
             Console.WriteLine($"  cinematic port={boom.Phase} native={Native(0x1f51)}");
         if (game.Session.ScreenAs<PauseMenuState>() is { } pause)
             Console.WriteLine($"  pause port mode={pause.ScreenMode} control={pause.SelectedControl} transition={pause.IsPageTransitionActive} " +
-                $"held cur={GameplayActionWordCodec.ToJoypadWord(game.Session.GameplayRuntime.PlayerActions.Current):X4} new={GameplayActionWordCodec.ToJoypadWord(game.Session.GameplayRuntime.PlayerActions.NewlyPressed):X4} hp={ControllerWordCodec.ToJoypadWord(PrivateState.Field<SuperMetroid.Core.Input.HeldButtonRepeat, SuperMetroid.Core.Input.ControllerButton>(game.Session.GameplayRuntime.PauseHeldButtonRepeat, "_previousHeld")):X4} unchanged={PrivateState.Field<SuperMetroid.Core.Input.HeldButtonRepeat, int>(game.Session.GameplayRuntime.PauseHeldButtonRepeat, "_unchangedUpdates")} th={ControllerWordCodec.ToJoypadWord(game.Session.GameplayRuntime.PauseHeldButtonRepeat.Repeating):X4}");
+                $"held cur={GameplayActionWordCodec.ToJoypadWord(game.Session.GameplayRuntime.PlayerActions.Current):X4} new={GameplayActionWordCodec.ToJoypadWord(game.Session.GameplayRuntime.PlayerActions.NewlyPressed):X4} hp={ControllerWordCodec.ToJoypadWord(PrivateState.Field<SuperMetroid.Core.Input.HeldButtonRepeat, SuperMetroid.Core.Input.ControllerButton>(game.Session.GameplayRuntime.PauseHeldButtonRepeat, "_previousHeld")):X4} unchanged={(PrivateState.Field<SuperMetroid.Core.Input.HeldButtonRepeat, UpdateCountdown?>(game.Session.GameplayRuntime.PauseHeldButtonRepeat, "_repeatWait")?.Age ?? 0)} th={ControllerWordCodec.ToJoypadWord(game.Session.GameplayRuntime.PauseHeldButtonRepeat.Repeating):X4}");
         Console.WriteLine($"  nmi port={(game.RuntimeForVerification?.Clock.Counter ?? game.MenuNmiFrameCounterForVerification):X4} native={Native(0x05b6)}");
         if (game.RuntimeForVerification?.EscapeTimer is { } escape)
             Console.WriteLine($"  escape port={escape.Phase}/{escape.IsActive} {escape.Readout.Minutes:D2}:{escape.Readout.Seconds:D2}.{escape.Readout.Centiseconds:D2} " +
@@ -125,7 +126,7 @@ internal static class MovieDesyncComparison
             // $7E:2020: seven ten-word tail records; X/Y at +12/+14.
             string Port(int index) => $"{ridley.Tail.Links[index].Position.X:X4}/{ridley.Tail.Links[index].Position.Y:X4}";
             string NativeTail(int index) => $"{Native(0x2020 + index * 20 + 12)}/{Native(0x2020 + index * 20 + 14)}";
-            Console.WriteLine("  tail port   " + string.Join(" ", Enumerable.Range(0, 7).Select(Port)) + $" fn={ridley.PhaseName()} tailfn={SuperMetroid.Core.Bosses.Ridley.RidleyNativeWords.TailActions.Word(ridley.Tail.Action):X4} v={ridley.Flight.Velocity.X.RawValue:X4}/{ridley.Flight.Velocity.Y.RawValue:X4} getaway-frame={ridleyRuntime.Enemies.CeresEscape.Floor.GetawayUpdate}");
+            Console.WriteLine("  tail port   " + string.Join(" ", Enumerable.Range(0, 7).Select(Port)) + $" fn={ridley.PhaseName()} tailfn={SuperMetroid.Core.Bosses.Ridley.RidleyNativeWords.TailActions.Word(ridley.Tail.Action):X4} v={ridley.Flight.Velocity.X.RawValue:X4}/{ridley.Flight.Velocity.Y.RawValue:X4} getaway-frame={ridleyRuntime.Enemies.CeresEscape.Floor.Flight.Age}");
             // $7E:8026 holds the getaway frame as a byte offset into its word-sized tables: twice the frame.
             Console.WriteLine("  tail native " + string.Join(" ", Enumerable.Range(0, 7).Select(NativeTail)) + $" fn={Native(0x0fa8)} tailfn={Native(0x2000)} v={Native(0x0faa)}/{Native(0x0fac)} getaway-frame={Word(memory, 0x8026) / 2}");
         }
@@ -276,7 +277,7 @@ internal static class MovieDesyncComparison
     /// </summary>
     private static Position16<RoomPixels> NativeWholePosition(RoomEnemyPlace actor) =>
         actor.SpeciesState<SuperMetroid.Core.Bosses.Phantoon.PhantoonPart>() is { Phantoon: { Phase: SuperMetroid.Core.Bosses.Phantoon.PhantoonPhase.Dead } phantoon } &&
-        (ReferenceEquals(actor, phantoon.Body) || phantoon.PhaseWait.Count != ClearedPhantoonPowerDelay)
+        (ReferenceEquals(actor, phantoon.Body) || phantoon.PhaseWait.CartridgeCount != ClearedPhantoonPowerDelay)
             ? ClearedPhantoonNativePlace
             : actor.Position.Whole;
 

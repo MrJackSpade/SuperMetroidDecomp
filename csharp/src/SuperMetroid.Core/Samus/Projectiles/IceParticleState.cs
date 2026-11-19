@@ -13,5 +13,5 @@ internal sealed class IceParticleState(SpecialAttackParticle part, TrigonometryA
     /// The updates the particle orbits before it turns outward: <see cref="BeamComboDefinitions.IceOrbitLifetime"/> when
     /// the attack starts, counted down each update while it orbits. It turns outward on its last.
     /// </summary>
-    internal SpecialAttackLifetime Lifetime { get; } = new(BeamComboDefinitions.IceOrbitLifetime);
+    internal UpdateCountdown Lifetime { get; } = UpdateCountdown.Lasting(BeamComboDefinitions.IceOrbitLifetime);
 }

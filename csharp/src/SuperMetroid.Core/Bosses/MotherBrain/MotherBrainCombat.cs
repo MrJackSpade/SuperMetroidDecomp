@@ -110,9 +110,9 @@ internal sealed class MotherBrainCombat
         // The flash step deliberately alternates odd/even flash parity when a second hit
         // arrives during the existing flash. Common no-death normal-shot damage (#2255) then owns
         // health, hurt-AI, and the final authored hurt duration.
-        head.FlashTimer = head.FlashTimer != 0 && MotherBrainCadenceDefinitions.HurtFlashWhite.IsSetIn(head.FlashTimer)
+        head.HurtFlash.Restart(head.HurtFlash.IsRunning && MotherBrainCadenceDefinitions.HurtFlashWhite.IsSetIn(head.HurtFlash.UpdatesLeft)
             ? MotherBrainFightDefinitions.HurtFlashKeepingPhase
-            : MotherBrainFightDefinitions.HurtFlash;
+            : MotherBrainFightDefinitions.HurtFlash);
 
         _ = _collision.ApplyNormalShotDamage(head, projectile, projectileType, projectileDamage, _room.Area);
     }
@@ -208,9 +208,9 @@ internal sealed class MotherBrainCombat
         // the head's visible flash length between its two hurt flashes; every other movement type returns without changing either actor.
         RoomEnemyPlace place = context.Place;
         if (SamusPoseMetadata.ReadMovementType(context.Samus) == SamusMovementType.SpinJumping)
-            place.FlashTimer = place.FlashTimer != 0 && MotherBrainCadenceDefinitions.HurtFlashWhite.IsSetIn(place.FlashTimer)
+            place.HurtFlash.Restart(place.HurtFlash.IsRunning && MotherBrainCadenceDefinitions.HurtFlashWhite.IsSetIn(place.HurtFlash.UpdatesLeft)
                 ? MotherBrainFightDefinitions.HurtFlashKeepingPhase
-                : MotherBrainFightDefinitions.HurtFlash;
+                : MotherBrainFightDefinitions.HurtFlash);
     }
 
     /// <summary>

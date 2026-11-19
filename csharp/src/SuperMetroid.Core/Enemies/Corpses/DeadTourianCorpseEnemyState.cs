@@ -23,14 +23,11 @@ public sealed class DeadTourianCorpseEnemyState
     /// <summary>The corpse's own pixel rows as its rot has left them, which its frames are drawn through (#1539).</summary>
     internal RottingCorpseRows Rows { get; }
     /// <summary>
-    /// Pre-rot AI updates counted after solid Samus collision, from zero; the sixteenth switches to rotting and the corpse
-    /// never returns to the delay, so the count stops at sixteen. Touch/shot reactions enter rotting directly.
+    /// The wait before rotting, counted once each pre-rot AI update after solid Samus collision: the sixteenth switches to
+    /// rotting and the corpse never returns to the delay. Touch/shot reactions enter rotting directly.
     /// </summary>
-    public int PreRotDelayCounter { get; internal set; }
+    public UpdateCountdown PreRotDelay { get; internal set; } = UpdateCountdown.Lasting(CorpseRotScheduleDefinitions.PreRotDelayUpdates);
 
     /// <summary>The species whose corpse it is.</summary>
     internal DeadTourianCorpseSpecies Species { get; }
-
-    /// <summary>Counts one update of the wait before the rot.</summary>
-    internal void CountPreRotDelayUpdate() => PreRotDelayCounter++;
 }

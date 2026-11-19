@@ -28,8 +28,7 @@ internal static class MotherBrainBeamWindowVerification
             RepositoryInstallation.Installation.MapDirectory, MotherBrainBeamColourFile.FileName)));
         var cycle = new JsonArray();
         for (int frame = 0; frame < MotherBrainRainbowPaletteGeometry.BeamCycleColorCount; frame++)
-            cycle.Add(new JsonObject { ["red"] = frame % 2 == 0 ? 31 : 0,
-                ["green"] = frame % 2 == 0 ? 0 : 31, ["blue"] = 0 });
+            cycle.Add(frame % 2 == 0 ? "#ff0000" : "#00ff00");
         paletteDocument["cycle"] = cycle;
         MotherBrainRainbowBeamColours installedColours = MotherBrainBeamColourFile.Read(new MemoryStream(
             System.Text.Encoding.UTF8.GetBytes(paletteDocument.ToJsonString())));

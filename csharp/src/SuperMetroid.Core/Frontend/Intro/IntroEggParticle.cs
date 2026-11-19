@@ -14,10 +14,11 @@ internal sealed class IntroEggParticle
     private readonly IntroEggShellFragment fragment;
 
     /// <summary>
-    /// The frames the fragment has fallen: its step along the fall's gravity curve, then past it. A plain count (#1781):
-    /// every fragment reaches the floor within its curve or the installed steps past it, and a later step throws.
+    /// The fragment's fall, counted once each update it flies: its age is its step along the fall's gravity curve, then
+    /// past it (#1781). Every fragment reaches the floor within its curve or the installed steps past it, and a later step
+    /// throws.
     /// </summary>
-    private int framesFallen;
+    private readonly UpdateCountdown fall;
 
     /// <summary>The installed steps the fragment falls by once it has fallen past its gravity curve.</summary>
     private readonly ShellFragmentFallPastCurve fallPastCurve;
@@ -28,6 +29,7 @@ internal sealed class IntroEggParticle
     public IntroEggParticle(IntroEggShellFragment fragment, ShellFragmentFallPastCurve fallPastCurve)
     {
         this.fallPastCurve = Ensure.NotNull(fallPastCurve);
+        fall = UpdateCountdown.Lasting(IntroEggMotionDefinitions.ShellFall.Updates + fallPastCurve.Updates);
         CinematicActorDefinition<IntroEggEffectAnimation> definition = IntroEggParticleActors.Particle(fragment);
         this.fragment = fragment;
         sprite = new(IntroEggMotion.FragmentInitialPosition(fragment), IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors),
@@ -42,7 +44,7 @@ internal sealed class IntroEggParticle
 
         // The piece flies sideways at its own speed and vertically at its fall's speed for the updates it has flown.
         sprite.Position = WithVelocity(sprite.Position, Axis.Horizontal, IntroEggMotion.FragmentX(fragment));
-        sprite.Position = WithVelocity(sprite.Position, Axis.Vertical, IntroEggMotion.FragmentFallSpeed(framesFallen, fallPastCurve));
+        sprite.Position = WithVelocity(sprite.Position, Axis.Vertical, IntroEggMotion.FragmentFallSpeed(fall.Age, fallPastCurve));
         if (sprite.ScreenPlace.Y >= IntroEggMotionDefinitions.FragmentFloorY)
         {
             // The landed piece is gone from this update on.
@@ -50,7 +52,7 @@ internal sealed class IntroEggParticle
         }
         else
         {
-            framesFallen++;
+            fall.Count();
         }
 
         sprite.Step();

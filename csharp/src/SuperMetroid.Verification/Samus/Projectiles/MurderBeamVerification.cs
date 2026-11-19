@@ -119,22 +119,22 @@ internal static class MurderBeamVerification
         AssertEqual(0, shot.InstructionPointer,
             "Murder Beam remains zero-list after enemy impact");
 
-        target.InvincibilityTimer = 0;
+        target.Invincibility.End();
         AssertEqual(1, combat.System.ResolveShotsOnInteractiveEnemies(
             projectiles, shared, SuperMetroid.Core.Progression.AreaId.Crateria, samus),
             "persistent Murder Beam can damage again after invincibility");
         AssertEqual(600, target.Health,
             "second Murder Beam contact repeats the native damage");
 
-        target.InvincibilityTimer = 0;
-        target.FrozenTimer = 0;
+        target.Invincibility.End();
+        target.Freeze.End();
         target.Health = 100;
         AssertEqual(1, combat.System.ResolveShotsOnInteractiveEnemies(
             projectiles, shared, SuperMetroid.Core.Progression.AreaId.Crateria, samus),
             "lethal Murder Beam contact reaches Ice substitution");
         AssertEqual(100, target.Health,
             "lethal Ice-bearing Murder Beam preserves health while freezing");
-        AssertEqual(400, target.FrozenTimer,
+        AssertEqual(400, target.Freeze.UpdatesLeft,
             "Murder Beam freezes a vulnerable non-Norfair enemy");
 
         var phaseBoundary = MotherBrainLateFightFixtures.NewSequence();

@@ -10,20 +10,20 @@ public sealed class FlyEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<FlySegment> Playback { get; set; }
 
-    /// <summary>How many updates the fly's dive has lasted (#2369), counted from the update it starts on.</summary>
-    public int DiveUpdates { get; internal set; }
+    /// <summary>The updates the fly's dive has lasted (#2369), counted from the update it starts on.</summary>
+    public ElapsedUpdates Dive { get; } = new();
 
     /// <summary>
-    /// The retreat's updates left (#2369): its dive's and <see cref="FlyMotionDefinitions.RetreatBeyondDive"/> more, the
-    /// last the one it turns back to circling on, where the count reaches zero.
+    /// The retreat (#2369): its dive's updates and <see cref="FlyMotionDefinitions.RetreatBeyondDive"/> more, the last the
+    /// one it turns back to circling on.
     /// </summary>
-    public int RetreatUpdatesLeft { get; internal set => field = Ensure.AtLeastZero(value); }
+    public UpdateCountdown RetreatUpdatesLeft { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// The circling updates left before the fly can dive again (#2369): <see cref="FlyMotionDefinitions.AttackCooldown"/>
     /// after each retreat, none before its first dive.
     /// </summary>
-    public int CooldownUpdatesLeft { get; internal set; }
+    public UpdateCountdown CooldownUpdatesLeft { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// Attack and retreat velocity in room pixels per update: X sampled from Samus's attack-start angle

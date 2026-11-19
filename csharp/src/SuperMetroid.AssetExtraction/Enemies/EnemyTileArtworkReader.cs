@@ -68,7 +68,9 @@ internal sealed class EnemyTileArtworkReader
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
                 StringComparison.OrdinalIgnoreCase) ||
             manifest.Entries is null ||
-            manifest.Entries.Count != EnemyTileArtworkFormat.RetailEntryCount ||
+            manifest.Entries.Count != EnemyTileArtworkFormat.RetailDefinitionCount ||
+            manifest.UnplacedEntries is null ||
+            manifest.UnplacedEntries.Count != EnemyTileArtworkFormat.RetailUnplacedArtworkCount ||
             string.IsNullOrWhiteSpace(manifest.CrocomireFirstSha256) ||
             string.IsNullOrWhiteSpace(manifest.CrocomireSecondSha256) ||
             string.IsNullOrWhiteSpace(manifest.CrocomireFirstTilemapSha256) ||
@@ -122,7 +124,11 @@ internal sealed class EnemyTileArtworkReader
             string.IsNullOrWhiteSpace(manifest.NorfairRidleyColorsSha256) ||
             string.IsNullOrWhiteSpace(manifest.TourianStatueColorsSha256))
             throw new InvalidDataException($"Enemy tile manifest {manifestPath} does not describe this installation.");
-        EnemyTileArtworkFiles.ValidateDefinitionIds(manifest.Entries.Keys);
+        if (!manifest.Entries.Keys.Order(StringComparer.Ordinal).SequenceEqual(
+                EnemyTileSourceDefinitions.All.Select(source => EnemyDefinitionIdKeys.Installed.Of(source.DefinitionId)).Order(StringComparer.Ordinal)) ||
+            !manifest.UnplacedEntries.Keys.Order(StringComparer.Ordinal).SequenceEqual(
+                EnemyTileSourceDefinitions.Unplaced.Select(UnplacedEnemyArtworkKeys.Installed.Of).Order(StringComparer.Ordinal)))
+            throw new InvalidDataException("Enemy tile manifest omits or substitutes a retail graphics definition.");
         // The compiled graphics sets must name the same pinned identities the installation was built from.
         EnemyTileArtworkFiles.ValidateDefinitionIds(EnemyTileSourceDefinitions.All.Select(source => (int)EnemyDefinitionIds.HeaderPointer(source.DefinitionId))
             .Concat(EnemyTileSourceDefinitions.Unplaced.Select(artwork => (int)EnemyHeaderWords.UnplacedArtworkHeaders.WordsByIdentity[artwork].Single())));
@@ -227,40 +233,43 @@ internal sealed class EnemyTileArtworkReader
         var palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>();
         var unplacedSheets = new Dictionary<UnplacedEnemyArtwork, RoomCharacterAtlas>();
         var unplacedPalettes = new Dictionary<UnplacedEnemyArtwork, EnemyPaletteSheet>();
-        foreach ((int manifestKey, EnemyTileArtworkFiles.EnemyTileFileEntry entry) in manifest.Entries)
+        foreach ((string manifestKey, EnemyTileArtworkFiles.EnemyTileFileEntry entry) in manifest.Entries)
         {
-            bool isEnemy = EnemyDefinitionIds.TryFromHeaderPointer(manifestKey, out EnemyDefinitionId definitionPointer);
-            UnplacedEnemyArtwork unplaced = default;
-            if (!isEnemy && !EnemyHeaderWords.UnplacedArtworkHeaders.TryDecode(manifestKey, out unplaced))
-                throw new InvalidDataException($"Enemy tile manifest keys ${manifestKey:X4}, which names no enemy and no unplaced artwork.");
-            int byteCount = isEnemy ? EnemyTileSetDefinitions.ByteCounts[definitionPointer] : EnemyTileSetDefinitions.UnplacedByteCounts[unplaced];
-            if (entry.NativeByteCount != byteCount)
-                throw new InvalidDataException(
-                    $"Enemy ${manifestKey:X4} manifest tile size differs from retail.");
-            RoomCharacterAtlasFormat.ValidateTileCount(entry.NativeByteCount);
-            RoomCharacterAtlas sheet = TilePage(importData, manifestKey, entry.NativeByteCount);
-            EnemyPaletteSheet palette = Colours(importData, manifestKey);
-            if (isEnemy)
-            {
-                sheets.Add(definitionPointer, sheet);
-                palettes.Add(definitionPointer, palette);
-            }
-            else
-            {
-                unplacedSheets.Add(unplaced, sheet);
-                unplacedPalettes.Add(unplaced, palette);
-            }
+            if (!EnemyDefinitionIdKeys.Installed.TryParse(manifestKey, out EnemyDefinitionId enemy))
+                throw new InvalidDataException($"Enemy tile manifest keys '{manifestKey}', which names no enemy.");
+            RequireRetailSize(entry, EnemyTileSetDefinitions.ByteCounts[enemy], manifestKey);
+            string stem = EnemyTileArtworkFiles.SheetStem(enemy);
+            sheets.Add(enemy, TilePage(importData, stem, entry.NativeByteCount));
+            palettes.Add(enemy, Colours(importData, stem));
+        }
+        foreach ((string manifestKey, EnemyTileArtworkFiles.EnemyTileFileEntry entry) in manifest.UnplacedEntries)
+        {
+            if (!UnplacedEnemyArtworkKeys.Installed.TryParse(manifestKey, out UnplacedEnemyArtwork unplaced))
+                throw new InvalidDataException($"Enemy tile manifest keys '{manifestKey}', which names no artwork a graphics set loads for no enemy.");
+            RequireRetailSize(entry, EnemyTileSetDefinitions.UnplacedByteCounts[unplaced], manifestKey);
+            string stem = EnemyTileArtworkFiles.SheetStem(unplaced);
+            unplacedSheets.Add(unplaced, TilePage(importData, stem, entry.NativeByteCount));
+            unplacedPalettes.Add(unplaced, Colours(importData, stem));
         }
         if (!unplacedSheets.Keys.Order().SequenceEqual(EnemyTileSourceDefinitions.Unplaced))
             throw new InvalidDataException("Enemy tile manifest omits or substitutes artwork a graphics set loads for no enemy.");
         return new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes, UnplacedSheets = unplacedSheets, UnplacedPalettes = unplacedPalettes };
     }
 
-    /// <summary>The character page of the header at <paramref name="headerPointer"/>, holding <paramref name="byteCount"/> bytes.</summary>
-    /// <exception cref="InvalidDataException">The page is invalid.</exception>
-    private static RoomCharacterAtlas TilePage(string importData, int headerPointer, int byteCount)
+    /// <summary>Requires <paramref name="entry"/>'s page to hold the retail <paramref name="byteCount"/> bytes.</summary>
+    /// <exception cref="InvalidDataException">The size differs from retail, or is no whole number of tiles.</exception>
+    private static void RequireRetailSize(EnemyTileArtworkFiles.EnemyTileFileEntry entry, int byteCount, string key)
     {
-        string tilePath = Path.Combine(importData, EnemyTileArtworkFiles.FileName(headerPointer));
+        if (entry.NativeByteCount != byteCount)
+            throw new InvalidDataException($"Enemy tile manifest entry '{key}' tile size differs from retail.");
+        RoomCharacterAtlasFormat.ValidateTileCount(entry.NativeByteCount);
+    }
+
+    /// <summary>The character page filed under <paramref name="stem"/>, holding <paramref name="byteCount"/> bytes.</summary>
+    /// <exception cref="InvalidDataException">The page is invalid.</exception>
+    private static RoomCharacterAtlas TilePage(string importData, string stem, int byteCount)
+    {
+        string tilePath = Path.Combine(importData, EnemyTileArtworkFiles.FileName(stem));
         try
         {
             return RoomCharacterAtlasPng.Read(new MemoryStream(File.ReadAllBytes(tilePath), writable: false), byteCount);
@@ -271,11 +280,11 @@ internal sealed class EnemyTileArtworkReader
         }
     }
 
-    /// <summary>The colour document of the header at <paramref name="headerPointer"/>.</summary>
+    /// <summary>The colour document filed under <paramref name="stem"/>.</summary>
     /// <exception cref="InvalidDataException">The document is invalid.</exception>
-    private static EnemyPaletteSheet Colours(string importData, int headerPointer)
+    private static EnemyPaletteSheet Colours(string importData, string stem)
     {
-        string palettePath = Path.Combine(importData, EnemyTileArtworkFiles.PaletteFileName(headerPointer));
+        string palettePath = Path.Combine(importData, EnemyTileArtworkFiles.PaletteFileName(stem));
         try
         {
             return EnemyPaletteSheetFile.Read(new MemoryStream(File.ReadAllBytes(palettePath), writable: false));
@@ -606,8 +615,7 @@ internal sealed class EnemyTileArtworkReader
         foreach (MotherBrainSpecialSpriteSheetDefinition sheet in
                  MotherBrainSpecialSpriteSheetDefinitions.All)
         {
-            if (!manifest.MotherBrainSpecialSpritesSha256.TryGetValue(
-                    MotherBrainSourceDefinitions.SpecialSprites.Sources[sheet.Sheet], out string? expectedHash) ||
+            if (!manifest.MotherBrainSpecialSpritesSha256.TryGetValue(sheet.FileName, out string? expectedHash) ||
                 string.IsNullOrWhiteSpace(expectedHash))
                 throw new InvalidDataException(
                     $"Enemy tile manifest omits {sheet.FileName}.");

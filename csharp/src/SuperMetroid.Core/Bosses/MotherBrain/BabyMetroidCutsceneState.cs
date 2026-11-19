@@ -75,7 +75,7 @@ public sealed class BabyMetroidCutsceneState
     /// Where the Baby lies from the room's origin: flying the wrong way off screen it may pass above or left of the room,
     /// where it lies at a negative height or column. Every comparison of its place reads this.
     /// </summary>
-    internal Offset16<RoomPixels> SignedPlace => new(CoordinateAxis.AsSigned(Position.X.Whole), CoordinateAxis.AsSigned(Position.Y.Whole));
+    internal Offset16<RoomPixels> SignedPlace => OffRoomPlaces.Signed(Position.Whole);
 
     /// <summary>Velocity in pixels per update.</summary>
     public PixelVelocity<RoomPixels> Velocity { get; internal set; }

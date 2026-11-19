@@ -44,7 +44,7 @@ public sealed class GrowingShutterEnemyState
     /// The timer-mode activation updates left, the one it grows on included: the placement's wait and the call it runs out on
     /// (<see cref="EnemyWaitDefinitions.RunOutUpdate"/>), so a wait of N grows on call N + 1 (#2281).
     /// </summary>
-    public int ActivationTimer { get; internal set; }
+    public UpdateCountdown ActivationTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// The origin row of the section grown at <paramref name="level"/>, derived from the spawn row (#2183): level 0 is the

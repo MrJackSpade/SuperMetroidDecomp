@@ -5,6 +5,13 @@ namespace SuperMetroid.Core.Fx;
 /// holds each phase for its phase's length of updates, then shows the next, returning to the cycle's start after its last
 /// phase.
 /// </summary>
+/// <remarks>
+/// The wave keeps the updates it has shown its phase, not a countdown started with the phase's length (#2561): each update
+/// compares them with the length its owner passes for that update, which follows the room's liquid as it stands then (a
+/// lava or acid haze's length is its direction's), so a liquid that changes in the middle of a phase moves the phase on
+/// at the new length, as the game's haze step does. A countdown or an <see cref="IntervalClock"/> fixes the length when
+/// the phase starts and would not.
+/// </remarks>
 /// <param name="Phase">The phase of the cycle the wave shows.</param>
 /// <param name="UpdatesShown">The updates the wave has shown its phase, zero before its first update.</param>
 internal readonly record struct WaveCycle(int Phase, int UpdatesShown)
@@ -18,6 +25,8 @@ internal readonly record struct WaveCycle(int Phase, int UpdatesShown)
     /// </summary>
     /// <param name="phaseLength">The updates the wave shows each phase, at least one.</param>
     /// <param name="phases">The phases in one cycle, at least one.</param>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6464:Wait stepped by hand",
+        Justification = "The wave compares the updates it has shown its phase with the length its owner passes on each update, which follows the room's liquid as it stands then; a countdown or IntervalClock fixes the length when the phase starts and would move a haze whose liquid changes mid-phase on at the old length.")]
     internal WaveCycle Advanced(int phaseLength, int phases) =>
         UpdatesShown < Ensure.BetweenInclusive(1, int.MaxValue, phaseLength)
             ? this with { UpdatesShown = UpdatesShown + 1 }

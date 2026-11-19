@@ -153,11 +153,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         private void StepKagoBugSound(EnemyProjectile projectile)
         {
             KagoBugState bug = projectile.StateOf<KagoBugState>();
-            if (bug.SoundDelay == 0)
-                return;
-
-            bug.SoundDelay--;
-            if (bug.SoundDelay == 0)
+            if (bug.SoundDelay.StepEnds())
                 audio.QueueEnemySound(EnemySoundEffectDefinitions.KagoBugSoundEffect, priority: SoundRequestPriority.Normal);
         }
 
@@ -168,7 +164,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             EnableKagoBugShotCollisionWhenSeparated(projectile);
 
             KagoBugState bug = projectile.StateOf<KagoBugState>();
-            if (--bug.GroundWait != 0)
+            if (!bug.GroundWait.Count())
                 return;
 
             projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileSegment.JumpStart));
@@ -260,7 +256,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         /// <summary>Landed-animation cue: returns the bug to idle.</summary>
         private void StartKagoBugIdle(EnemyProjectile projectile)
         {
-            projectile.StateOf<KagoBugState>().GroundWait = KagoDefinitions.ShortestGroundWait + KagoDefinitions.LandedIdleFrames.Of(room.Random.Read());
+            projectile.StateOf<KagoBugState>().GroundWait = UpdateCountdown.Lasting(KagoDefinitions.ShortestGroundWait + KagoDefinitions.LandedIdleFrames.Of(room.Random.Read()));
             projectile.StartMotion(KagoBugMotion.Waiting);
         }
 
@@ -312,8 +308,8 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         int firstGroundWait = KagoDefinitions.ShortestGroundWait + KagoDefinitions.FirstIdleFrames.Of(ReadKagoRandomNumber());
         projectile.State = new KagoBugState(source)
         {
-            GroundWait = firstGroundWait,
-            SoundDelay = firstGroundWait + KagoDefinitions.FirstSoundPastFirstHop,
+            GroundWait = UpdateCountdown.Lasting(firstGroundWait),
+            SoundDelay = UpdateCountdown.Lasting(firstGroundWait + KagoDefinitions.FirstSoundPastFirstHop),
         };
         projectile.StartMotion(KagoBugMotion.Waiting);
         projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileSegment.Waiting));

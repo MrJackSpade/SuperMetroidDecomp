@@ -7,13 +7,13 @@ internal sealed class CeresElevatorDoorState
     public CeresElevatorDoorPhase Phase { get; internal set; }
 
     /// <summary>
-    /// Updates left in the door's destruction rumble, the one it ends on included: 49 when it starts, and the update that takes
-    /// it to zero ends the destruction, which never counts it again (#2281).
+    /// The door's destruction rumble (#2281): 49 updates when it starts, and the update that ends it ends the destruction,
+    /// which never counts it again.
     /// </summary>
-    public int RumbleUpdatesLeft { get; internal set; }
+    public UpdateCountdown Rumble { get; internal set; } = UpdateCountdown.Ended();
 
-    /// <summary>Updates left before the next destruction explosion, the one it bursts on included; reloaded as it bursts (#2281).</summary>
-    public int ExplosionIntervalLeft { get; internal set; }
+    /// <summary>The wait before the next destruction explosion, over on the update it bursts and restarted as it bursts (#2281).</summary>
+    public UpdateCountdown ExplosionWait { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// Where the next destruction burst goes off (#2424): a place of

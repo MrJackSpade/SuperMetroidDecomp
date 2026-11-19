@@ -15,8 +15,8 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// </remarks>
 public sealed class MapScroll
 {
-    /// <summary>Updates taken so far of the accepted eight-update step.</summary>
-    private int tick;
+    /// <summary>The accepted eight-update step, counted once each update it runs: its age moves the map at its pulse.</summary>
+    private readonly UpdateCountdown step = UpdateCountdown.Lasting(MapScrollDefinitions.StepTicks);
 
     /// <summary>The scroll at <paramref name="scroll"/> on a screen framed by <paramref name="framing"/>.</summary>
     /// <param name="framing">How the screen frames the map.</param>
@@ -101,13 +101,14 @@ public sealed class MapScroll
         if (Direction == MapScrollDirection.Down && !CanScroll(Direction))
         {
             Direction = MapScrollDirection.None;
-            tick = 0;
+            step.Restart(MapScrollDefinitions.StepTicks);
         }
         if (Direction == MapScrollDirection.None) return false;
-        if (++tick == MapScrollDefinitions.PulseTick)
+        bool stepped = step.Count();
+        if (step.Age == MapScrollDefinitions.PulseTick)
             Scroll += MapScrollControls.StepOffset(Direction);
-        if (tick != MapScrollDefinitions.StepTicks) return false;
-        tick = 0;
+        if (!stepped) return false;
+        step.Restart(MapScrollDefinitions.StepTicks);
         Direction = MapScrollDirection.None;
         return true;
     }

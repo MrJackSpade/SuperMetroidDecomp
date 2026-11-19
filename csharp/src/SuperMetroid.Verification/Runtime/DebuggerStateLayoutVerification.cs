@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Collections.Frozen;
 using System.Collections.Immutable;
@@ -21,9 +22,9 @@ internal static class DebuggerStateLayoutVerification
     /// </summary>
     internal static void VerifyDebuggerStateRejectsStaleLayouts()
     {
-        var state = new SamusGrappleState(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { PoseChangeAutoFireTimer = 7 };
+        var state = new SamusGrappleState(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { PoseChangeAutoFireTimer = UpdateCountdown.Lasting(7) };
         byte[] current = SerializeDebuggerGraph(state);
-        AssertEqual(7, DeserializeDebuggerGraph<SamusGrappleState>(current).PoseChangeAutoFireTimer,
+        AssertEqual(7, DeserializeDebuggerGraph<SamusGrappleState>(current).PoseChangeAutoFireTimer.UpdatesLeft,
             "a current-layout graph round-trips");
 
         // Same-length replacements keep every length prefix valid, so only the identity changes.

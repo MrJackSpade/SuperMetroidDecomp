@@ -62,7 +62,7 @@ internal static class EnemySheetComposer
         for (int index = 0; index < drawnSets.Length; index++)
         {
             SetLayouts laid = setLayouts[index];
-            laidSets.Add(new LaidGraphicsSet(drawnSets[index].Name,
+            laidSets.Add(new LaidGraphicsSet(drawnSets[index],
                 [.. laid.Sources.Enemies.Select((source, sheet) => new LaidEnemySheet(source.Enemy, Laid(laid.Enemies[sheet], layouts, layoutOf),
                     source.LookChanges, source.CorpsePictures))],
                 [.. laid.Sources.Spawned.Select((source, sheet) => new LaidSpawnedSheet(source.Plan, Laid(laid.Spawned[sheet], spawnedLayouts, spawnedLayoutOf),
@@ -78,11 +78,11 @@ internal static class EnemySheetComposer
         var names = new SheetNames();
         var variants = new VariantNames<EnemyVariantDocument>(document => JsonSerializer.Serialize(document));
         var spawnedVariants = new VariantNames<SpawnedObjectSheetDocument>(document => JsonSerializer.Serialize(document));
-        var setArtwork = new Dictionary<string, PopulationArtworkDocument>(StringComparer.Ordinal);
+        var setArtwork = new Dictionary<RoomEnemyGraphicsSetDefinition, PopulationArtworkDocument>();
         // The session start's variants are named first, as each owner's standard variant.
-        foreach (LaidGraphicsSet set in laidSets.OrderBy(set => set.Name == RoomEnemyGraphicsSetDefinitions.SessionStart.Name ? 0 : 1))
+        foreach (LaidGraphicsSet set in laidSets.OrderBy(set => set.Set == RoomEnemyGraphicsSetDefinitions.SessionStart ? 0 : 1))
         {
-            bool standard = set.Name == RoomEnemyGraphicsSetDefinitions.SessionStart.Name;
+            bool standard = set.Set == RoomEnemyGraphicsSetDefinitions.SessionStart;
             var enemies = new Dictionary<string, string>(StringComparer.Ordinal);
             foreach (LaidEnemySheet sheet in set.Enemies)
             {
@@ -96,7 +96,7 @@ internal static class EnemySheetComposer
                 }, standard);
                 // A set that lists an enemy twice loads it once into each record's row; both must show alike.
                 if (enemies.TryGetValue(enemy, out string? listed) && listed != variant)
-                    throw new InvalidDataException($"Enemy graphics set {set.Name} colours {sheet.Enemy} two ways.");
+                    throw new InvalidDataException($"Enemy graphics set {set.Set} colours {sheet.Enemy} two ways.");
                 enemies[enemy] = variant;
             }
             var owners = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -122,7 +122,7 @@ internal static class EnemySheetComposer
                     Owner = SpawnedObjectOwnerNames.Name(plan.Owner),
                     Spawners = [.. plan.Spawners.Select(EnemyDefinitionIdKeys.Installed.Of)],
                     SharedSpawners = [.. plan.SharedSpawners.Select(EnemyDefinitionIdKeys.Installed.Of)],
-                    Common = [.. plan.Common.Select(common => common.Spawner)],
+                    Common = [.. plan.Common.Select(common => CommonSpawnerKeys.Installed.Of(common.Spawner))],
                     Empty = [.. sheet.Empty.Order(StringComparer.Ordinal)],
                     LookChanges = sheet.LookChanges.Count > 0 ? Document(sheet.LookChanges) : null,
                     CorpsePictures = sheet.CorpsePictures.Count > 0 ? Document(sheet.CorpsePictures) : null,
@@ -131,16 +131,16 @@ internal static class EnemySheetComposer
                 foreach (string owner in plan.AlsoOwnedBy.Prepend(plan.Owner).Select(SpawnedObjectOwnerNames.Name))
                     owners.Add(owner, variant);
             }
-            setArtwork.Add(set.Name, new PopulationArtworkDocument { Enemies = enemies, Spawned = owners });
+            setArtwork.Add(set.Set, new PopulationArtworkDocument { Enemies = enemies, Spawned = owners });
         }
         return new EnemySheetComposition(names.Sheets, new EnemySheetManifestDocument
         {
             Version = EnemySheetFiles.ManifestVersion,
             Variants = variants.Documents,
             SpawnedVariants = spawnedVariants.Documents,
-            Standard = setArtwork[RoomEnemyGraphicsSetDefinitions.SessionStart.Name],
+            Standard = setArtwork[RoomEnemyGraphicsSetDefinitions.SessionStart],
             Populations = RoomEnemyGraphicsSetLists.PopulationSets.ToDictionary(population => population.Key,
-                population => setArtwork[population.Value.Name], StringComparer.Ordinal),
+                population => setArtwork[population.Value], StringComparer.Ordinal),
         });
     }
 
@@ -178,10 +178,10 @@ internal static class EnemySheetComposer
     private sealed record SetLayouts(GraphicsSetSheetSources Sources, SpriteSheetLayout[] Enemies, SpriteSheetLayout[] Spawned);
 
     /// <summary>A graphics set's sheets, each by the distinct layout it paints.</summary>
-    /// <param name="Name">The set's name.</param>
+    /// <param name="Set">The set.</param>
     /// <param name="Enemies">Each enemy's sheet, in the order the set's sources list them.</param>
     /// <param name="Spawned">Each spawned-object sheet, in the order the set's sources list them.</param>
-    private sealed record LaidGraphicsSet(string Name, IReadOnlyList<LaidEnemySheet> Enemies, IReadOnlyList<LaidSpawnedSheet> Spawned);
+    private sealed record LaidGraphicsSet(RoomEnemyGraphicsSetDefinition Set, IReadOnlyList<LaidEnemySheet> Enemies, IReadOnlyList<LaidSpawnedSheet> Spawned);
 
     /// <summary>One enemy's sheet under a graphics set.</summary>
     /// <param name="Enemy">The enemy.</param>
@@ -408,11 +408,11 @@ internal static class EnemySheetComposer
 
     /// <summary>
     /// The common spawners whose objects graphics set <paramref name="set"/>'s shared sheet holds: those its rooms run
-    /// (#1513), its members as <paramref name="members"/> names them by set name.
+    /// (#1513), its members as <paramref name="members"/> holds them by set.
     /// </summary>
     /// <exception cref="InvalidDataException">A common spawner has no presence, or the set's members are not catalogued.</exception>
     internal static IReadOnlyList<CommonSpawnedObjects> CommonSpawnersOf(RoomEnemyGraphicsSetDefinition set,
-        IReadOnlyDictionary<string, RoomEnemyGraphicsSetMembers> members)
+        IReadOnlyDictionary<RoomEnemyGraphicsSetDefinition, RoomEnemyGraphicsSetMembers> members)
     {
         Ensure.NotNull(set);
         return CommonSpawners.RunningIn(StatesOf(set),

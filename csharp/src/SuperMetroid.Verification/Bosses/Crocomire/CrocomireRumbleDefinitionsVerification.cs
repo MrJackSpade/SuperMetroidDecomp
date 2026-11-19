@@ -1,3 +1,5 @@
+using SuperMetroid.Core;
+using SuperMetroid.Core.Bosses;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Bosses;
@@ -86,7 +88,7 @@ internal static class CrocomireRumbleDefinitionsVerification
         state.JoinFixtureTongue(enemies.Places.InUpdateOrder[1]);
         CrocomireDeathState death = state.Death;
         death.RumbleYOffset = 0;
-        death.RumbleRepeatsLeft = CrocomireRumbleDefinitions.Oscillations[0].Repeats;
+        death.RumbleRepeatsLeft = UpdateCountdown.For(CrocomireRumbleDefinitions.Oscillations[0].Repeats);
 
         // The reference model keeps the cartridge's words; production keeps signed pixel quantities, which the
         // comparisons read back as words.
@@ -121,7 +123,7 @@ internal static class CrocomireRumbleDefinitionsVerification
             // the rumble ends at the next step; production loads no next phase there, so the comparison stops once the marker is loaded.
             if (referenceDelta != 0x8080)
             {
-                AssertEqual(referenceCooldown, death.RumbleRepeatsLeft,
+                AssertEqual(referenceCooldown, death.RumbleRepeatsLeft.UpdatesLeft,
                     $"Crocomire rumble frame {frames} repeats left");
                 AssertEqual(referenceDelta, CrocomireRumbleDefinitions.Oscillations[state.RumbleOscillation].Speed,
                     $"Crocomire rumble frame {frames} speed");
@@ -131,7 +133,7 @@ internal static class CrocomireRumbleDefinitionsVerification
         }
 
         AssertTrue(frames < 2048, "Crocomire rumble production sequence terminates");
-        AssertEqual(0x0080, state.DeathStageWait.Count,
+        AssertEqual(0x0080, state.DeathStageWait.CartridgeCount,
             "Crocomire rumble production terminator handoff");
 
         // The termination loads the wall spikes' colours, which the import pre-colours his sprites in (#1512).

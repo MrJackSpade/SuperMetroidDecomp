@@ -36,7 +36,7 @@ public sealed class BeetomEnemyState
     /// The updates left in the idle or crawl, the one it runs out on included: a step that takes it to zero ends the idle or
     /// crawl, and one at zero ends it on its next step (#2281).
     /// </summary>
-    public int ActionTimer { get; internal set; }
+    public UpdateCountdown ActionTimer { get; internal set; } = UpdateCountdown.Ended();
     /// <summary>Remaining controller changes needed to escape attachment, restarted at 64 by the initial touch.</summary>
     public int ButtonCounter { get; internal set; }
     /// <summary>The player's actions last observed by initialization or the attached counter; any differing actions, including releases, decrement <see cref="ButtonCounter"/>.</summary>

@@ -808,7 +808,7 @@ internal sealed class MotherBrainProjectiles
     /// negative height or column.
     /// </summary>
     private static Offset16<RoomPixels> SignedPlace(EnemyProjectile projectile) =>
-        new(CoordinateAxis.AsSigned(projectile.Position.X.Whole), CoordinateAxis.AsSigned(projectile.Position.Y.Whole));
+        OffRoomPlaces.Signed(projectile.Position.Whole);
 
     /// <summary>Turns the turret one direction the way it turns, or back the other way when that leaves its arc.</summary>
     internal static void SelectNextMotherBrainTurretDirection(EnemyProjectile turret)

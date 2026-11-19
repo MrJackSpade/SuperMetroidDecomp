@@ -17,16 +17,16 @@ internal static class DraygonArenaDefinitions
     internal const int RightSwoopSetupX = 592;
 
     /// <summary>
-    /// The X Draygon parks at off the left edge (80 pixels left of it); a goop pass leftwards ends once
-    /// the body crosses it.
+    /// The X Draygon parks at off the left edge, 80 pixels left of it, which his place keeps as <see cref="OffRoomPlaces"/>
+    /// does; a goop pass leftwards ends once the body crosses it.
     /// </summary>
-    internal static readonly int OffscreenLeftX = CoordinateAxis.Wrap(-80);
+    internal const int OffscreenLeftX = -80;
 
     /// <summary>
-    /// The Y Draygon parks at above the room after a goop pass (80 pixels above it), from which his
-    /// next swoop starts.
+    /// The Y Draygon parks at above the room after a goop pass, 80 pixels above it, which his place keeps as
+    /// <see cref="OffRoomPlaces"/> does; his next swoop starts from there.
     /// </summary>
-    internal static readonly int OffscreenAboveY = CoordinateAxis.Wrap(-80);
+    internal const int OffscreenAboveY = -80;
 
     /// <summary>How far right of the left-side reset place the right-side one lies: 672 pixels.</summary>
     internal const int RightSideResetDistance = 672;

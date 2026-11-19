@@ -129,11 +129,11 @@ internal sealed class ProjectileTerrainCollision
         SamusProjectile shot,
         ISamusRoomObjects roomObjects)
     {
-        int topBlock = RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(shot.Position.Y.Whole - shot.Radius.Y));
-        int bottomBlock = RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(shot.Position.Y.Whole + shot.Radius.Y - 1));
+        int topBlock = RoomGridConversions.PixelToBlock(TerrainScanEdges.Edge(shot.Position.Y.Whole - shot.Radius.Y));
+        int bottomBlock = RoomGridConversions.PixelToBlock(TerrainScanEdges.Edge(shot.Position.Y.Whole + shot.Radius.Y - 1));
         int targetX = shot.Velocity.X.IsNegative
-            ? CoordinateAxis.Wrap(shot.Position.X.Whole - shot.Radius.X)
-            : CoordinateAxis.Wrap(shot.Position.X.Whole + shot.Radius.X - 1);
+            ? TerrainScanEdges.Edge(shot.Position.X.Whole - shot.Radius.X)
+            : TerrainScanEdges.Edge(shot.Position.X.Whole + shot.Radius.X - 1);
         int blockX = RoomGridConversions.PixelToBlock(targetX);
 
         if (blockX >= level.Size.X || topBlock >= level.Size.Y || bottomBlock >= level.Size.Y)
@@ -160,11 +160,11 @@ internal sealed class ProjectileTerrainCollision
         SamusProjectile shot,
         ISamusRoomObjects roomObjects)
     {
-        int leftBlock = RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(shot.Position.X.Whole - shot.Radius.X));
-        int rightBlock = RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(shot.Position.X.Whole + shot.Radius.X - 1));
+        int leftBlock = RoomGridConversions.PixelToBlock(TerrainScanEdges.Edge(shot.Position.X.Whole - shot.Radius.X));
+        int rightBlock = RoomGridConversions.PixelToBlock(TerrainScanEdges.Edge(shot.Position.X.Whole + shot.Radius.X - 1));
         int targetY = shot.Velocity.Y.IsNegative
-            ? CoordinateAxis.Wrap(shot.Position.Y.Whole - shot.Radius.Y)
-            : CoordinateAxis.Wrap(shot.Position.Y.Whole + shot.Radius.Y - 1);
+            ? TerrainScanEdges.Edge(shot.Position.Y.Whole - shot.Radius.Y)
+            : TerrainScanEdges.Edge(shot.Position.Y.Whole + shot.Radius.Y - 1);
         int blockY = RoomGridConversions.PixelToBlock(targetY);
 
         if (blockY >= level.Size.Y || leftBlock >= level.Size.X || rightBlock >= level.Size.X)
@@ -505,14 +505,14 @@ internal sealed class ProjectileTerrainCollision
         RoomLevelData level, SamusProjectile shot, ISamusRoomObjects roomObjects, StraddledTerrain<RoomTerrainBlock> straddledTerrain)
     {
         Ensure.NotNull(straddledTerrain);
-        int top = CoordinateAxis.Wrap(shot.Position.Y.Whole - shot.Radius.Y);
-        int bottom = CoordinateAxis.Wrap(shot.Position.Y.Whole + shot.Radius.Y - 1);
-        int span = RoomGridConversions.WholeBlocksIn(CoordinateAxis.Wrap(bottom - RoomGridConversions.BlockStart(top)));
-        int targetX = CoordinateAxis.Wrap(shot.Velocity.X.IsNegative
+        int top = TerrainScanEdges.Edge(shot.Position.Y.Whole - shot.Radius.Y);
+        int bottom = TerrainScanEdges.Edge(shot.Position.Y.Whole + shot.Radius.Y - 1);
+        int span = RoomGridConversions.WholeBlocksIn(TerrainScanEdges.Edge(bottom - RoomGridConversions.BlockStart(top)));
+        int targetX = TerrainScanEdges.Edge(shot.Velocity.X.IsNegative
             ? shot.Position.X.Whole - shot.Radius.X : shot.Position.X.Whole + shot.Radius.X - 1);
         // A shot whose centre lies above the room's top edge reacts to no block, nor one whose span is too tall or whose
         // centre or leading edge lies past the room's last screen.
-        if (span > SamusProjectileMotionDefinitions.WaveScanLongestReach || CoordinateAxis.AsSigned(shot.Position.Y.Whole) < 0 ||
+        if (span > SamusProjectileMotionDefinitions.WaveScanLongestReach || OffRoomPlaces.LiesBeforeRoom(shot.Position.Y.Whole) ||
             RoomGridConversions.PixelToScreen(shot.Position.Y.Whole) >= RoomGridConversions.ScreensCovering(level.Size.Y) ||
             RoomGridConversions.PixelToScreen(targetX) >= RoomGridConversions.ScreensCovering(level.Size.X))
             return;
@@ -546,11 +546,11 @@ internal sealed class ProjectileTerrainCollision
     internal static void ScanVerticalWaveShotReactions(
         RoomLevelData level, SamusProjectile shot, ISamusRoomObjects roomObjects)
     {
-        int left = CoordinateAxis.Wrap(shot.Position.X.Whole - shot.Radius.X);
-        int right = CoordinateAxis.Wrap(shot.Position.X.Whole + shot.Radius.X - 1);
-        int span = RoomGridConversions.WholeBlocksIn(CoordinateAxis.Wrap(right - RoomGridConversions.BlockStart(left)));
+        int left = TerrainScanEdges.Edge(shot.Position.X.Whole - shot.Radius.X);
+        int right = TerrainScanEdges.Edge(shot.Position.X.Whole + shot.Radius.X - 1);
+        int span = RoomGridConversions.WholeBlocksIn(TerrainScanEdges.Edge(right - RoomGridConversions.BlockStart(left)));
         if (span > SamusProjectileMotionDefinitions.WaveScanLongestReach) return;
-        int targetY = CoordinateAxis.Wrap(shot.Velocity.Y.IsNegative
+        int targetY = TerrainScanEdges.Edge(shot.Velocity.Y.IsNegative
             ? shot.Position.Y.Whole - shot.Radius.Y
             : shot.Position.Y.Whole + shot.Radius.Y - 1);
         int centerScreenX = RoomGridConversions.PixelToScreen(shot.Position.X.Whole);
@@ -560,7 +560,7 @@ internal sealed class ProjectileTerrainCollision
 
         // The span's blocks follow the room's reading order from the target row. Its X is not clipped to the room's
         // width: a span past the right edge carries on into the next row, and a span starting left of the room's edge
-        // starts on the last column of the coordinate's cycle (CoordinateAxis.Wrap) while its centre stays inside the room;
+        // starts on the last column of the coordinate's cycle (TerrainScanEdges) while its centre stays inside the room;
         // only the blocks inside the room react.
         Position16<RoomBlocks> firstBlock = Position16<RoomPixels>.Of(left, targetY).ToRoomBlock();
         for (int step = 0; step <= span; step++)

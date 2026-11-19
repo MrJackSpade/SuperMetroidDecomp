@@ -159,7 +159,7 @@ internal static class MorphBallEyeBehaviorVerification
         samus.CollectedItems = SamusEquipmentFlags.MorphBall;
         samus.Position = eye.Position;
         state.Action = MorphBallEyeAction.Activating;
-        state.ActionTimer = 1;
+        state.ActionTimer = UpdateCountdown.For(1);
         var frame = new ClockedEnemyAiFrame(RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Samus = samus }, new FrameCounters(0));
         enemies.MorphBallEyeBehavior.RunMorphBallEyeMainAi(eye, frame);
         AssertEqual(MorphBallEyeAction.Active, state.Action, "the eye has opened");

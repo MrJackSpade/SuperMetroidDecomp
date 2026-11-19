@@ -8,10 +8,10 @@ internal struct EndingShootingStar
     /// <summary>How the star flies: its acceleration, its pictures' pace and its start delay (#2541).</summary>
     internal EndingShootingStarDefinition Definition;
     /// <summary>
-    /// The updates of its authored start delay the star still waits, counted down to none, after which its next update
-    /// starts it (#2488); null once it flies.
+    /// The star's authored start delay, counted once each update it waits; the update after it is over starts the star
+    /// (#2488); null once it flies.
     /// </summary>
-    internal int? DelayLeft;
+    internal UpdateCountdown? Delay;
     /// <summary>The star's pictures through its flight (<see cref="EndingShootingStarAnimations"/>).</summary>
     internal AnimationPlayer<EndingShootingStarPace, EndingShootingStarLook, NoAnimationCue> Flight;
     /// <summary>
@@ -26,5 +26,5 @@ internal struct EndingShootingStar
     internal readonly EndingShootingStarLook Look => Flight.Showing;
 
     /// <summary>Whether the star is still waiting out its authored start delay.</summary>
-    internal readonly bool Delayed => DelayLeft is not null;
+    internal readonly bool Delayed => Delay is not null;
 }

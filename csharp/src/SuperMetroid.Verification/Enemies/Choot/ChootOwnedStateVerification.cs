@@ -35,7 +35,7 @@ internal static class ChootOwnedStateVerification
         }
         AssertEqual(initial / 2 + 1, jumpingUpdates, "the apex is the update that takes the index below zero");
         AssertEqual(QuadraticSpeedCurvePlace.FromMarks(-2), state.YSpeedCurvePlace, "the index stays below zero through the fall");
-        AssertEqual(0, state.FallingPatternFrame, "the fall starts at its first frame");
+        AssertEqual(0, state.FallingLoop.Age, "the fall starts at its first frame");
         Console.WriteLine("Choot owned state: the apex underflow matches.");
     }
 

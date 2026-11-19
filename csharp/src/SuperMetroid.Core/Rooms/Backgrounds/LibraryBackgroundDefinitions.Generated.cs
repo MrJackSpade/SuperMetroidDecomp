@@ -7,189 +7,189 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 public static partial class LibraryBackgroundDefinitions
 {
     /// <summary>The scrolling sky's rows, shown behind the blocks of <see cref="RoomDefinitions.LandingSite"/>; 6 of its entry doors each show a picture of their own.</summary>
-    public static LibraryBackground ScrollingSkyLandingSite { get; } = new(nameof(ScrollingSkyLandingSite), LibraryBackgroundView.SkyRows, [CrateriaDoorDefinitions.GauntletEntranceToLandingSite, CrateriaDoorDefinitions.ParlorToLandingSite, CrateriaDoorDefinitions.CrateriaPowerBombsToLandingSite, CrateriaDoorDefinitions.CrateriaTubeToLandingSite, CrateriaDoorDefinitions.LandingSiteLandingCutscene, DoorDefinitions.LandingSiteDemoEntry]);
+    public static LibraryBackground ScrollingSkyLandingSite { get; } = new("ScrollingSkyLandingSite", LibraryBackgroundView.SkyRows, [CrateriaDoorDefinitions.GauntletEntranceToLandingSite, CrateriaDoorDefinitions.ParlorToLandingSite, CrateriaDoorDefinitions.CrateriaPowerBombsToLandingSite, CrateriaDoorDefinitions.CrateriaTubeToLandingSite, CrateriaDoorDefinitions.LandingSiteLandingCutscene, DoorDefinitions.LandingSiteDemoEntry]);
 
     /// <summary>The scrolling sky's rows, shown behind the blocks of <see cref="RoomDefinitions.WestOcean"/>; 6 of its entry doors each show a picture of their own.</summary>
-    public static LibraryBackground ScrollingSkyWreckedShipEntrance { get; } = new(nameof(ScrollingSkyWreckedShipEntrance), LibraryBackgroundView.SkyRows, [CrateriaDoorDefinitions.BowlingAlleyPathToWestOcean, CrateriaDoorDefinitions.MoatToWestOcean, WreckedShipDoorDefinitions.BowlingAlleyToWestOcean, WreckedShipDoorDefinitions.WreckedShipEntranceToWestOcean, WreckedShipDoorDefinitions.AtticToWestOcean, WreckedShipDoorDefinitions.GravitySuitToWestOcean]);
+    public static LibraryBackground ScrollingSkyWreckedShipEntrance { get; } = new("ScrollingSkyWreckedShipEntrance", LibraryBackgroundView.SkyRows, [CrateriaDoorDefinitions.BowlingAlleyPathToWestOcean, CrateriaDoorDefinitions.MoatToWestOcean, WreckedShipDoorDefinitions.BowlingAlleyToWestOcean, WreckedShipDoorDefinitions.WreckedShipEntranceToWestOcean, WreckedShipDoorDefinitions.AtticToWestOcean, WreckedShipDoorDefinitions.GravitySuitToWestOcean]);
 
     /// <summary>The scrolling sky's rows, shown behind the blocks of <see cref="RoomDefinitions.EastOcean"/>; 2 of its entry doors each show a picture of their own.</summary>
-    public static LibraryBackground ScrollingSkyEastOcean { get; } = new(nameof(ScrollingSkyEastOcean), LibraryBackgroundView.SkyRows, [CrateriaDoorDefinitions.ForgottenHighwayKagosToEastOcean, WreckedShipDoorDefinitions.ElectricDeathToEastOcean]);
+    public static LibraryBackground ScrollingSkyEastOcean { get; } = new("ScrollingSkyEastOcean", LibraryBackgroundView.SkyRows, [CrateriaDoorDefinitions.ForgottenHighwayKagosToEastOcean, WreckedShipDoorDefinitions.ElectricDeathToEastOcean]);
 
     /// <summary>The scrolling sky's rows, shown behind the blocks of <see cref="RoomDefinitions.PreBowling"/>.</summary>
-    public static LibraryBackground ScrollingSkyBowlingAlley { get; } = new(nameof(ScrollingSkyBowlingAlley), LibraryBackgroundView.SkyRows, []);
+    public static LibraryBackground ScrollingSkyBowlingAlley { get; } = new("ScrollingSkyBowlingAlley", LibraryBackgroundView.SkyRows, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.Kraid"/>.</summary>
-    public static LibraryBackground BrinstarKraidUpperLower { get; } = new(nameof(BrinstarKraidUpperLower), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground BrinstarKraidUpperLower { get; } = new("BrinstarKraidUpperLower", LibraryBackgroundView.Picture, []);
 
     /// <summary>No picture: nothing is shown behind the blocks of <see cref="RoomDefinitions.Kraid"/>, <see cref="RoomDefinitions.Phantoon"/>, <see cref="RoomDefinitions.Draygon"/> and <see cref="RoomDefinitions.CeresElevator"/>.</summary>
-    public static LibraryBackground Cleared { get; } = new(nameof(Cleared), LibraryBackgroundView.Nothing, []);
+    public static LibraryBackground Cleared { get; } = new("Cleared", LibraryBackgroundView.Nothing, []);
 
     /// <summary>The body of the room's boss, which the boss draws behind the blocks of <see cref="RoomDefinitions.Crocomire"/>, <see cref="RoomDefinitions.Phantoon"/> and <see cref="RoomDefinitions.Draygon"/>.</summary>
-    public static LibraryBackground BossBody { get; } = new(nameof(BossBody), LibraryBackgroundView.BossBody, []);
+    public static LibraryBackground BossBody { get; } = new("BossBody", LibraryBackgroundView.BossBody, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.ForgottenHighwayKagos"/> and <see cref="RoomDefinitions.ForgottenHighwayElbow"/>.</summary>
-    public static LibraryBackground CrateriaVerticalPatternRocks { get; } = new(nameof(CrateriaVerticalPatternRocks), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground CrateriaVerticalPatternRocks { get; } = new("CrateriaVerticalPatternRocks", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.GauntletEntrance"/>, <see cref="RoomDefinitions.BowlingAlleyPath"/> and <see cref="RoomDefinitions.GauntletEnergyTank"/>.</summary>
-    public static LibraryBackground CrateriaHorizontalPatternRocks { get; } = new(nameof(CrateriaHorizontalPatternRocks), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground CrateriaHorizontalPatternRocks { get; } = new("CrateriaHorizontalPatternRocks", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.Parlor"/>, <see cref="RoomDefinitions.CrateriaPowerBombs"/>, <see cref="RoomDefinitions.CrateriaKihunter"/>, <see cref="RoomDefinitions.CrabMaze"/> and <see cref="RoomDefinitions.Moat"/>.</summary>
-    public static LibraryBackground CrateriaRocks { get; } = new(nameof(CrateriaRocks), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground CrateriaRocks { get; } = new("CrateriaRocks", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.Terminator"/> and <see cref="RoomDefinitions.LowerMushrooms"/>.</summary>
-    public static LibraryBackground CrateriaPurpleRocks { get; } = new(nameof(CrateriaPurpleRocks), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground CrateriaPurpleRocks { get; } = new("CrateriaPurpleRocks", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.Flyway"/>.</summary>
-    public static LibraryBackground CrateriaBrickRoomWallArtDark { get; } = new(nameof(CrateriaBrickRoomWallArtDark), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground CrateriaBrickRoomWallArtDark { get; } = new("CrateriaBrickRoomWallArtDark", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.Climb"/>, <see cref="RoomDefinitions.Pit"/>, <see cref="RoomDefinitions.BombTorizo"/>, <see cref="RoomDefinitions.FinalMissile"/> and <see cref="RoomDefinitions.CrateriaSuper"/>.</summary>
-    public static LibraryBackground CrateriaMechanical { get; } = new(nameof(CrateriaMechanical), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground CrateriaMechanical { get; } = new("CrateriaMechanical", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.PreMapFlyway"/>.</summary>
-    public static LibraryBackground CrateriaBrickRoomWallArt { get; } = new(nameof(CrateriaBrickRoomWallArt), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground CrateriaBrickRoomWallArt { get; } = new("CrateriaBrickRoomWallArt", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.ForgottenHighwayElevator"/> and <see cref="RoomDefinitions.RedBrinstarElevator"/>.</summary>
-    public static LibraryBackground CrateriaElevator { get; } = new(nameof(CrateriaElevator), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground CrateriaElevator { get; } = new("CrateriaElevator", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.FinalMissileBombway"/> and <see cref="RoomDefinitions.GreenPiratesShaft"/>.</summary>
-    public static LibraryBackground CrateriaBrickRoom { get; } = new(nameof(CrateriaBrickRoom), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground CrateriaBrickRoom { get; } = new("CrateriaBrickRoom", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.GreenBrinstarMainShaft"/>.</summary>
-    public static LibraryBackground BrinstarVerticalGlowPatches { get; } = new(nameof(BrinstarVerticalGlowPatches), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground BrinstarVerticalGlowPatches { get; } = new("BrinstarVerticalGlowPatches", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.SporeSpawnKihunters"/>, <see cref="RoomDefinitions.NoobBridge"/>, <see cref="RoomDefinitions.GreenBrinstarBeetoms"/>, <see cref="RoomDefinitions.EtecoonEnergyTank"/> and <see cref="RoomDefinitions.EtecoonSuper"/>.</summary>
-    public static LibraryBackground BrinstarHorizontalGlowPatches { get; } = new(nameof(BrinstarHorizontalGlowPatches), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground BrinstarHorizontalGlowPatches { get; } = new("BrinstarHorizontalGlowPatches", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.BrinstarReserveTank"/>.</summary>
-    public static LibraryBackground BrinstarLargeHorizontalPattern { get; } = new(nameof(BrinstarLargeHorizontalPattern), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground BrinstarLargeHorizontalPattern { get; } = new("BrinstarLargeHorizontalPattern", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.BrinstarPreMap"/>.</summary>
-    public static LibraryBackground BrinstarMediumHorizontalPattern { get; } = new(nameof(BrinstarMediumHorizontalPattern), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground BrinstarMediumHorizontalPattern { get; } = new("BrinstarMediumHorizontalPattern", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.EarlySupers"/>, <see cref="RoomDefinitions.PinkBrinstarPowerBombs"/>, <see cref="RoomDefinitions.WaterwayEnergyTank"/> and <see cref="RoomDefinitions.PinkBrinstarHoppers"/>.</summary>
-    public static LibraryBackground BrinstarThinHorizontalPattern { get; } = new(nameof(BrinstarThinHorizontalPattern), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground BrinstarThinHorizontalPattern { get; } = new("BrinstarThinHorizontalPattern", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.ConstructionZone"/>, <see cref="RoomDefinitions.SporeSpawnSuper"/> and <see cref="RoomDefinitions.FirstMissile"/>.</summary>
-    public static LibraryBackground BrinstarSmallPattern { get; } = new(nameof(BrinstarSmallPattern), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground BrinstarSmallPattern { get; } = new("BrinstarSmallPattern", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.GreenHillZone"/>.</summary>
-    public static LibraryBackground BrinstarSpheresPattern { get; } = new(nameof(BrinstarSpheresPattern), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground BrinstarSpheresPattern { get; } = new("BrinstarSpheresPattern", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.MorphBall"/>, <see cref="RoomDefinitions.BlueBrinstarEnergyTank"/>, <see cref="RoomDefinitions.BlueBrinstarBoulders"/> and <see cref="RoomDefinitions.BillyMays"/>.</summary>
-    public static LibraryBackground BrinstarVariedSmallPattern { get; } = new(nameof(BrinstarVariedSmallPattern), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground BrinstarVariedSmallPattern { get; } = new("BrinstarVariedSmallPattern", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.BigPink"/>.</summary>
-    public static LibraryBackground BrinstarDarkPattern { get; } = new(nameof(BrinstarDarkPattern), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground BrinstarDarkPattern { get; } = new("BrinstarDarkPattern", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.Statues"/>.</summary>
-    public static LibraryBackground TourianStatues { get; } = new(nameof(TourianStatues), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground TourianStatues { get; } = new("TourianStatues", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.RedTower"/>.</summary>
-    public static LibraryBackground BrinstarWideVerticalTowerBrick { get; } = new(nameof(BrinstarWideVerticalTowerBrick), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground BrinstarWideVerticalTowerBrick { get; } = new("BrinstarWideVerticalTowerBrick", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.Hellway"/>.</summary>
-    public static LibraryBackground BrinstarVerticalTower { get; } = new(nameof(BrinstarVerticalTower), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground BrinstarVerticalTower { get; } = new("BrinstarVerticalTower", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.BetaPowerBomb"/> and <see cref="RoomDefinitions.SkreeBoost"/>.</summary>
-    public static LibraryBackground BrinstarNarrowVerticalTowerBrick { get; } = new(nameof(BrinstarNarrowVerticalTowerBrick), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground BrinstarNarrowVerticalTowerBrick { get; } = new("BrinstarNarrowVerticalTowerBrick", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.BelowSpazer"/>.</summary>
-    public static LibraryBackground BrinstarVerticalBrick { get; } = new(nameof(BrinstarVerticalBrick), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground BrinstarVerticalBrick { get; } = new("BrinstarVerticalBrick", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.XrayScope"/>.</summary>
-    public static LibraryBackground BrinstarMechanicalRoomSpikeFloor { get; } = new(nameof(BrinstarMechanicalRoomSpikeFloor), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground BrinstarMechanicalRoomSpikeFloor { get; } = new("BrinstarMechanicalRoomSpikeFloor", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.WarehouseEntrance"/>.</summary>
-    public static LibraryBackground BrinstarMechanicalRoom { get; } = new(nameof(BrinstarMechanicalRoom), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground BrinstarMechanicalRoom { get; } = new("BrinstarMechanicalRoom", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.MiniKraid"/>.</summary>
-    public static LibraryBackground BrinstarNarrowVerticalTowerBrickVines { get; } = new(nameof(BrinstarNarrowVerticalTowerBrickVines), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground BrinstarNarrowVerticalTowerBrickVines { get; } = new("BrinstarNarrowVerticalTowerBrickVines", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.StatuesHallway"/>.</summary>
-    public static LibraryBackground StatuesHallwayGreyTowerBrick { get; } = new(nameof(StatuesHallwayGreyTowerBrick), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground StatuesHallwayGreyTowerBrick { get; } = new("StatuesHallwayGreyTowerBrick", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.AlphaPowerBomb"/> and <see cref="RoomDefinitions.Spazer"/>.</summary>
-    public static LibraryBackground BrinstarBlueGridBlocks { get; } = new(nameof(BrinstarBlueGridBlocks), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground BrinstarBlueGridBlocks { get; } = new("BrinstarBlueGridBlocks", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.IceBeamAcid"/>, <see cref="RoomDefinitions.IceBeamTutorial"/>, <see cref="RoomDefinitions.HiJumpBoots"/>, <see cref="RoomDefinitions.SpeedBooster"/> and <see cref="RoomDefinitions.FrogSpeedway"/>.</summary>
-    public static LibraryBackground NorfairSmallPatternBrownPurpleBright { get; } = new(nameof(NorfairSmallPatternBrownPurpleBright), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground NorfairSmallPatternBrownPurpleBright { get; } = new("NorfairSmallPatternBrownPurpleBright", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.IceBeamGate"/>, <see cref="RoomDefinitions.IceBeam"/>, <see cref="RoomDefinitions.IceBeamSnake"/>, <see cref="RoomDefinitions.CrocomireSpeedway"/>, <see cref="RoomDefinitions.GrappleTutorial3"/>, <see cref="RoomDefinitions.SpeedBoosterHall"/>, <see cref="RoomDefinitions.LavaDive"/>, <see cref="RoomDefinitions.Amphitheatre"/> and <see cref="RoomDefinitions.RedKihunterShaft"/>.</summary>
-    public static LibraryBackground NorfairSmallPatternBrownPurple { get; } = new(nameof(NorfairSmallPatternBrownPurple), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground NorfairSmallPatternBrownPurple { get; } = new("NorfairSmallPatternBrownPurple", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.FastPillarsSetup"/>.</summary>
-    public static LibraryBackground NorfairVerticalPatternBrick { get; } = new(nameof(NorfairVerticalPatternBrick), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground NorfairVerticalPatternBrick { get; } = new("NorfairVerticalPatternBrick", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.PostCrocomirePowerBombs"/>, <see cref="RoomDefinitions.PostCrocomireMissile"/>, <see cref="RoomDefinitions.GrappleTutorial1"/>, <see cref="RoomDefinitions.WaveBeam"/>, <see cref="RoomDefinitions.SpikyPlatformsTunnel"/>, <see cref="RoomDefinitions.MagdolliteTunnel"/>, <see cref="RoomDefinitions.LowerNorfairElevator"/>, <see cref="RoomDefinitions.RisingTide"/>, <see cref="RoomDefinitions.AcidSnakesTunnel"/> and <see cref="RoomDefinitions.SpikyAcidSnakesTunnel"/>.</summary>
-    public static LibraryBackground NorfairCavernStalactites { get; } = new(nameof(NorfairCavernStalactites), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground NorfairCavernStalactites { get; } = new("NorfairCavernStalactites", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.BusinessCenter"/>, <see cref="RoomDefinitions.CrumbleShaft"/>, <see cref="RoomDefinitions.PostCrocomireShaft"/>, <see cref="RoomDefinitions.GrappleTutorial2"/>, <see cref="RoomDefinitions.GrappleBeam"/> and <see cref="RoomDefinitions.RedPirateShaft"/>.</summary>
-    public static LibraryBackground NorfairCavernVertical { get; } = new(nameof(NorfairCavernVertical), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground NorfairCavernVertical { get; } = new("NorfairCavernVertical", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.WorstRoomInTheGame"/>.</summary>
-    public static LibraryBackground NorfairCavernHorizontalRuins { get; } = new(nameof(NorfairCavernHorizontalRuins), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground NorfairCavernHorizontalRuins { get; } = new("NorfairCavernHorizontalRuins", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.MainHall"/>, <see cref="RoomDefinitions.FastRipper"/> and <see cref="RoomDefinitions.Pillar"/>.</summary>
-    public static LibraryBackground NorfairCavernVerticalRuins { get; } = new(nameof(NorfairCavernVerticalRuins), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground NorfairCavernVerticalRuins { get; } = new("NorfairCavernVerticalRuins", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.Ridley"/>, <see cref="RoomDefinitions.AcidStatue"/>, <see cref="RoomDefinitions.LowerNorfairEscapePowerBombs"/>, <see cref="RoomDefinitions.Wasteland"/>, <see cref="RoomDefinitions.RidleyEnergyTank"/> and <see cref="RoomDefinitions.ScrewAttack"/>.</summary>
-    public static LibraryBackground NorfairCavernRoomPillars { get; } = new(nameof(NorfairCavernRoomPillars), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground NorfairCavernRoomPillars { get; } = new("NorfairCavernRoomPillars", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.LowerNorfairFarming"/>, <see cref="RoomDefinitions.Plowerhouse"/> and <see cref="RoomDefinitions.MetalPirates"/>.</summary>
-    public static LibraryBackground NorfairRoomStatues { get; } = new(nameof(NorfairRoomStatues), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground NorfairRoomStatues { get; } = new("NorfairRoomStatues", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.NorfairReserveTank"/>, <see cref="RoomDefinitions.PurpleShaft"/>, <see cref="RoomDefinitions.PurpleFarming"/>, <see cref="RoomDefinitions.MickeyMouse"/>, <see cref="RoomDefinitions.LowerNorfairSpringBallMaze"/> and <see cref="RoomDefinitions.ThreeMusketeers"/>.</summary>
-    public static LibraryBackground NorfairPurplePatches { get; } = new(nameof(NorfairPurplePatches), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground NorfairPurplePatches { get; } = new("NorfairPurplePatches", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.GreenBubblesMissiles"/> and <see cref="RoomDefinitions.BubbleMountain"/>.</summary>
-    public static LibraryBackground NorfairBubbles { get; } = new(nameof(NorfairBubbles), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground NorfairBubbles { get; } = new("NorfairBubbles", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.WreckedShipEntrance"/>.</summary>
-    public static LibraryBackground WreckedShipEntranceHall { get; } = new(nameof(WreckedShipEntranceHall), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground WreckedShipEntranceHall { get; } = new("WreckedShipEntranceHall", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.SpikyDeath"/> and <see cref="RoomDefinitions.Basement"/>.</summary>
-    public static LibraryBackground WreckedShipColumnsTubes { get; } = new(nameof(WreckedShipColumnsTubes), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground WreckedShipColumnsTubes { get; } = new("WreckedShipColumnsTubes", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.Attic"/>.</summary>
-    public static LibraryBackground WreckedShipExperimentRoom { get; } = new(nameof(WreckedShipExperimentRoom), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground WreckedShipExperimentRoom { get; } = new("WreckedShipExperimentRoom", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.SpongeBath"/>, <see cref="RoomDefinitions.WreckedShipWestSuper"/>, <see cref="RoomDefinitions.WreckedShipEastSuper"/> and <see cref="RoomDefinitions.GravitySuit"/>.</summary>
-    public static LibraryBackground WreckedShipPanelsVents { get; } = new(nameof(WreckedShipPanelsVents), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground WreckedShipPanelsVents { get; } = new("WreckedShipPanelsVents", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.WreckedShipMainShaft"/>, <see cref="RoomDefinitions.ElectricDeath"/> and <see cref="RoomDefinitions.WreckedShipEastSuper"/>.</summary>
-    public static LibraryBackground WreckedShipPanelsVentsHorizontal { get; } = new(nameof(WreckedShipPanelsVentsHorizontal), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground WreckedShipPanelsVentsHorizontal { get; } = new("WreckedShipPanelsVentsHorizontal", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.AssemblyLine"/>.</summary>
-    public static LibraryBackground WreckedShipPanelsVentsVertical { get; } = new(nameof(WreckedShipPanelsVentsVertical), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground WreckedShipPanelsVentsVertical { get; } = new("WreckedShipPanelsVentsVertical", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.CrabTunnel"/>.</summary>
-    public static LibraryBackground MaridiaBrownWall { get; } = new(nameof(MaridiaBrownWall), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground MaridiaBrownWall { get; } = new("MaridiaBrownWall", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.WestSandHall"/> and <see cref="RoomDefinitions.EastSandHall"/>.</summary>
-    public static LibraryBackground MaridiaGreenWall { get; } = new(nameof(MaridiaGreenWall), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground MaridiaGreenWall { get; } = new("MaridiaGreenWall", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.Metroids2"/>, <see cref="RoomDefinitions.Metroids4"/> and <see cref="RoomDefinitions.TourianFirst"/>.</summary>
-    public static LibraryBackground TourianMechanicalRoom { get; } = new(nameof(TourianMechanicalRoom), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground TourianMechanicalRoom { get; } = new("TourianMechanicalRoom", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.Metroids1"/> and <see cref="RoomDefinitions.Metroids3"/>.</summary>
-    public static LibraryBackground TourianMechanicalRoomLetterbox { get; } = new(nameof(TourianMechanicalRoomLetterbox), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground TourianMechanicalRoomLetterbox { get; } = new("TourianMechanicalRoomLetterbox", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.BlueHopper"/>, <see cref="RoomDefinitions.DustTorizo"/>, <see cref="RoomDefinitions.BigBoy"/>, <see cref="RoomDefinitions.Seaweed"/> and <see cref="RoomDefinitions.TourianEyeDoor"/>.</summary>
-    public static LibraryBackground TourianVerticalStructures { get; } = new(nameof(TourianVerticalStructures), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground TourianVerticalStructures { get; } = new("TourianVerticalStructures", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.TourianEscape1"/>.</summary>
-    public static LibraryBackground TourianPipeRoomLetterbox { get; } = new(nameof(TourianPipeRoomLetterbox), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground TourianPipeRoomLetterbox { get; } = new("TourianPipeRoomLetterbox", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.RinkaShaft"/> and <see cref="RoomDefinitions.TourianEscape2"/>.</summary>
-    public static LibraryBackground TourianPipeRoomVerticalSeparation { get; } = new(nameof(TourianPipeRoomVerticalSeparation), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground TourianPipeRoomVerticalSeparation { get; } = new("TourianPipeRoomVerticalSeparation", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.TourianEscape3"/> and <see cref="RoomDefinitions.TourianEscape4"/>.</summary>
-    public static LibraryBackground TourianPipeRoom { get; } = new(nameof(TourianPipeRoom), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground TourianPipeRoom { get; } = new("TourianPipeRoom", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.MotherBrain"/>.</summary>
-    public static LibraryBackground TourianPipeRoomDark { get; } = new(nameof(TourianPipeRoomDark), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground TourianPipeRoomDark { get; } = new("TourianPipeRoomDark", LibraryBackgroundView.Picture, []);
 
     /// <summary>The picture shown behind the blocks of <see cref="RoomDefinitions.FallingTile"/>, <see cref="RoomDefinitions.MagnetStairs"/> and <see cref="RoomDefinitions.CeresRidleyHallway"/>.</summary>
-    public static LibraryBackground CeresCapsuleHall { get; } = new(nameof(CeresCapsuleHall), LibraryBackgroundView.Picture, []);
+    public static LibraryBackground CeresCapsuleHall { get; } = new("CeresCapsuleHall", LibraryBackgroundView.Picture, []);
 
 }

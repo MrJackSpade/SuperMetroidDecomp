@@ -1,6 +1,6 @@
 namespace SuperMetroid.AssetExtraction.Enemies;
 
-/// <summary>One BG2 tile reference, palette and visual flip/priority selection.</summary>
+/// <summary>One cell of a Crocomire melt layout as the cartridge packs it, import data only the import composes pictures from (#1638).</summary>
 public sealed record CrocomireMeltingTilemapCell
 {
     /// <summary>BG character selector from 0 through 1023, encoded in the low ten bits; blank glyphs and repeated references remain independent presentation choices.</summary>

@@ -23,15 +23,11 @@ public sealed class MetroidEnemyState
     public FixedVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>
-    /// The moves left of the escape a bomb shakes the Metroid loose into, none when it is not escaping: the escape makes
-    /// one an update, and while the Metroid is frozen it spends them straining against the ice, flashing. A freeze always
+    /// The escape a bomb shakes the Metroid loose into, at most <see cref="MetroidBehaviorDefinitions.EscapeDuration"/>
+    /// moves and over when it is not escaping: the escape makes one an update, and while the Metroid is frozen it spends them straining against the ice, flashing. A freeze always
     /// turns the Metroid to chase Samus, so one thawed with none left chases rather than escaping on (#2373).
     /// </summary>
-    public int EscapeMovesLeft
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, MetroidBehaviorDefinitions.EscapeDuration, value);
-    }
+    public UpdateCountdown EscapeMovesLeft { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>The step of the Metroid's movement it is in, one of four; not an AI behaviour.</summary>
     public MetroidMovement Movement { get; internal set; }

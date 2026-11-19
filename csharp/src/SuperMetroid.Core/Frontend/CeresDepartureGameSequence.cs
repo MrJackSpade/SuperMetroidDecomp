@@ -25,7 +25,7 @@ internal sealed class CeresDepartureGameSequence(FrontendSession session) : IGam
 
     /// <inheritdoc/>
     public string Name => session.ceresDeparture.Phase == CeresDeparturePhase.HoldingOnElevator
-        ? $"Ceres elevator departure ({session.ceresDeparture.HoldFramesRemaining})"
+        ? $"Ceres elevator departure ({session.ceresDeparture.Hold.UpdatesLeft})"
         : $"Ceres blackout (brightness {session.ceresDeparture.Brightness})";
 
     /// <inheritdoc/>

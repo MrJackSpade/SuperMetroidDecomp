@@ -668,14 +668,14 @@ empty, screwRepeat, GameplayAction.Jump, 0, GameplayAction.Jump, roomObjects: Sa
     // final tick, emits the literal library-one sound $2F instead.
     SamusState chargedSpin = CreateFallingSpin(
         SamusPoseId.SpaceJumpRightPose, 0x0200, speed: 3, subspeed: 0);
-    chargedSpin.BeamCharge.FlareCounter = 0x003c;
+    chargedSpin.BeamCharge.SetFlareCount(0x003c);
     SamusAerialMovement.StepSpinJump(empty, chargedSpin, 0, 0, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(SamusBodyAttack.PseudoScrew, chargedSpin.HorizontalSpeed.BodyAttack,
         "fully charged dry spin publishes the pseudo Screw Attack");
 
     SamusState submergedSpin = CreateFallingSpin(
         SamusPoseId.SpaceJumpRightPose, 0x0200, speed: 3, subspeed: 0);
-    submergedSpin.BeamCharge.FlareCounter = 0x003c;
+    submergedSpin.BeamCharge.SetFlareCount(0x003c);
     SamusPresentation.InitializeAnimation(submergedSpin, submergedSpin.PoseFrameNumbered(0));
     for (int tick = 0; tick < 3; tick++)
     {
@@ -1239,7 +1239,7 @@ internal static void VerifySamusAtmosphericEffects()
     AssertEqual(2, runnerParticles.Count, "boost-stage-four foot contact creates a pair");
     AssertTrue(runnerParticles.All(particle => particle.Kind == SamusParticleKind.Dust),
         "boost-stage-four foot contact creates dust");
-    AssertEqual(2, runnerParticles[0].HiddenUpdatesLeft, "first foot effect shows one update late");
+    AssertEqual(2, runnerParticles[0].Hidden.UpdatesLeft, "first foot effect shows one update late");
     AssertEqual(3, runnerParticles[1].StepUpdatesLeft, "second foot effect starts immediately");
     AssertEqual(17, runner.LiquidPhysics.EffectWaits.SprayWaitUpdates,
         "the leading boosted dust holds up lava spray for the 17 updates it shows");

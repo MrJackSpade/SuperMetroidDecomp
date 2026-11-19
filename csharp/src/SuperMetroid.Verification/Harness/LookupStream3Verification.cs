@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Menus;
 using System.Collections.Immutable;
@@ -1006,7 +1007,7 @@ internal static class LookupStream3Verification
             scatter.Encounter.Body.Position = FixedPosition<RoomPixels>.FromWhole(new(320, 192));
             for (int burst = 0; burst < 8; burst++)
             {
-                PrivateState.Set(bursts, nameof(MotherBrainBurstCycle.Interval), 0);
+                PrivateState.SetField(bursts, "burstWait", UpdateCountdown.For(1));
                 int calls = 0;
                 Func<int> random = () => { calls++; return ushort.MaxValue; };
                 var requests = new List<MotherBrainDeathExplosionRequest>();
@@ -1083,7 +1084,7 @@ internal static class LookupStream3Verification
             // As the stagger's setup does before each walk: the stage selects its speed.
             sequence.DrainedByBaby.PainfulWalkingSpeed = stages[stage].Speed;
             sequence.DrainedByBaby.StepPainfulWalking();
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9c049 + 2 * stage) - 1, sequence.DrainedByBaby.PainfulWalkingPause?.Count,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9c049 + 2 * stage) - 1, sequence.DrainedByBaby.PainfulWalkingPause?.CartridgeCount,
                 "stream 3 real stagger pause after each stage's walk");
         }
     }
@@ -1095,7 +1096,7 @@ internal static class LookupStream3Verification
     /// </summary>
     private static void VerifyStream3EscapeGeometry(ISnesAddressSpace rom)
     {
-        EncounterArtworkUpload[] Copies(params string[] looks) => [.. looks.SelectMany(look => EncounterLookUploads.Uploads(ComposedEncounter.MotherBrain,
+        EncounterArtworkUpload[] Copies(params ComposedLook[] looks) => [.. looks.SelectMany(look => EncounterLookUploads.Uploads(ComposedEncounter.MotherBrain,
             EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, look), InstalledPageResolver))];
         foreach (bool timerList in new[] { true, false })
         {
@@ -1265,10 +1266,11 @@ internal static class LookupStream3Verification
             ToGrey = drain, FromGrey = revival,
             FakeDeathToGrey = fake, Normal = ReadFull(0xa99474, 0xa99494),
         };
+        ushort[] beamWords = [.. Enumerable.Range(0, 38).Select(index => CartridgeImportSource.Require(rom).ReadCartridgeWord((0x88e833 + 4 * index)))];
         var beamDocument = new MotherBrainBeamColourDocument
         {
-            Version = MotherBrainBeamColourFile.Version, First = Color(0x3ce0),
-            Cycle = Enumerable.Range(0, 38).Select(index => Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x88e833 + 4 * index)))).ToArray(),
+            Version = MotherBrainBeamColourFile.Version, First = InstalledColourText.Format(RgbColor.FromWord(0x3ce0)),
+            Cycle = [.. beamWords.Select(word => InstalledColourText.Format(RgbColor.FromWord(word)))],
         };
         InstalledMotherBrainRainbowPalette Load(MotherBrainRainbowPaletteDocument value) => MotherBrainRainbowPaletteFile.Read(
             new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(value, ArtworkJson.Options)));
@@ -1295,7 +1297,7 @@ internal static class LookupStream3Verification
         void CheckBeam(MotherBrainRainbowBeamColours palette)
         {
             for (int index = 0; index < 38; index++)
-                AssertEqual(RgbColor.FromWord(Word(beamDocument.Cycle[index])), palette.BeamCycle[index],
+                AssertEqual(RgbColor.FromWord(beamWords[index]), palette.BeamCycle[index],
                     "stream 3 beam wheel matches every native sampled color");
             AssertEqual(38, palette.BeamCycle.Count, "stream 3 beam cycle ends after its last colour");
             AssertEqual(0x3ce0, palette.BeamInitialColor, "stream 3 beam initial fixed color unchanged");

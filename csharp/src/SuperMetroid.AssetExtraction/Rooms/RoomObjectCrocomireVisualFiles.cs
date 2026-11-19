@@ -75,5 +75,5 @@ public static class RoomObjectCrocomireVisualFiles
 
     /// <summary>Maps an arena draw to the published bridge or wall artwork key.</summary>
     internal static string VisualId(RoomObjectDraw draw) =>
-        RoomObjectVisualIdDefinitions.CrocomireArena[RoomObjectDrawIdentity.FrameOf<CrocomireArenaDraw>(draw, "Crocomire arena")];
+        CrocomireArenaDrawKeys.Installed.Of(RoomObjectDrawIdentity.FrameOf<CrocomireArenaDraw>(draw, "Crocomire arena"));
 }

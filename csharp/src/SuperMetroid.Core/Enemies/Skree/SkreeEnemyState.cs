@@ -14,7 +14,7 @@ public sealed class SkreeEnemyState
     /// The updates left of the burrow, the one the Skree is gone on included: started at
     /// <see cref="SkreeMotionDefinitions.BurrowDuration"/> as the dive meets the floor (#2454).
     /// </summary>
-    public int BurrowTimer { get; internal set; }
+    public UpdateCountdown BurrowTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>The current action.</summary>
     public SkreeAction Action { get; internal set; }

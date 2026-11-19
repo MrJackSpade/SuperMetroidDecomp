@@ -206,6 +206,42 @@ internal static class InstalledKeyAnalyzerTests
             "public override void Write(System.Text.Json.Utf8JsonWriter writer, Glow value, System.Text.Json.JsonSerializerOptions options) => writer.WriteStringValue(\"Dim\"); }",
             count: 0);
         ExpectKeyed(Types + "class Tests { Glow Of(string name) => System.Enum.Parse<Glow>(name); }", count: 0, assemblyName: "SuperMetroid.Verification");
+
+        // #2548: a nameof of any member or type spells a key by the source name: a property, a field, a method, a type.
+        Expect(Types + "static class Rooms { public static Shade Parlor { get; } = new(nameof(Parlor), 0); }",
+            "'nameof(Parlor)' writes the name of a 'Rooms' member into the installed key 'Effect'" + Advice);
+        Expect(Types + "static class Rooms { static readonly int Count = 1; static Shade Of() => new(nameof(Count), 0); }", "a 'Rooms' member");
+        Expect(Types + "static class Rooms { static void Spawn() { } static Shade Of() => new(nameof(Spawn), 0); }", "a 'Rooms' member");
+        Expect(Types + "sealed class Spawner; static class Rooms { static Shade Of() => new(nameof(Spawner), 0); }",
+            "writes the name of the type 'Spawner' into the installed key 'Effect'");
+        Expect(Types + "static class Rooms { static Shade Of() => new($\"{nameof(Rooms)}.{nameof(Of)}\", 0); }", count: 2);
+        // A name handed to a parameter reaches what the parameter's references reach: a marked parameter it is handed on to.
+        Expect(Types + "static class Doors { static Shade Door(string name) => new(name, 0); static Shade Left => Door(nameof(Left)); }",
+            "'nameof(Left)' writes the name of a 'Doors' member into the installed key 'Effect'");
+        Expect(Types + "static class Doors { static Shade Door(string name) => Named(name); static Shade Named(string text) => new(text, 0); " +
+            "static Shade Left => Door(nameof(Left)); }", "into the installed key 'Effect'");
+        Expect(Types + "static class Doors { static Shade Door(string name) => new(name, 0); static Shade Left { get { string key = nameof(Left); return Door(key); } } }",
+            "'nameof(Left)'");
+        // SME6462: a definition found again by its own name, through a lookup keyed by names or a record's positional name.
+        ExpectKeyed(Usings + Types + "static class Rooms { static readonly Dictionary<string, int> ByName = new() { [\"Parlor\"] = 1 }; " +
+            "static int Find(string name) => ByName[name]; static int Parlor => Find(nameof(Parlor)); }",
+            "'nameof(Parlor)' keys the collection of 'ByName': it spells a 'Rooms' by its members' names");
+        ExpectKeyed(Usings + Types + "record Room(string Name); static class Rooms { static readonly Room[] All = [new(nameof(Parlor))]; " +
+            "static readonly Dictionary<string, Room> ByName = All.ToDictionary(room => room.Name); static Room Parlor => ByName[\"Parlor\"]; }",
+            "'nameof(Parlor)' keys the collection of");
+        ExpectKeyed(Usings + Types + "static class Rooms { static readonly Dictionary<string, int> ByName = []; static int Parlor => ByName[nameof(Parlor)]; }",
+            "'nameof(Parlor)' keys the collection of 'ByName'");
+        // Written-out keys, a parameter's or a local's name, and a name only ever shown in a message reach no key.
+        Expect(Types + "static class Doors { static Shade Door(string name) => new(name, 0); static Shade Left => Door(\"Left\"); }", count: 0);
+        Expect(Types + "static class Doors { static Shade Of(string name) => name.Length == 0 ? throw new System.ArgumentException(\"empty\", nameof(name)) : new(\"Left\", 0); }",
+            count: 0);
+        Expect(Types + "static class Doors { static void Log(string text) => System.Console.WriteLine(text); static void Run() => Log(nameof(Run)); }", count: 0);
+        // A helper handing its parameter back, as a null check does, reaches a key at some calls only: it is not followed.
+        Expect(Types + "static class Check { public static string NotNull(string value) => value; } " +
+            "sealed class Marked { [SuperMetroid.Core.InstalledKey] public string Key { get; } = Check.NotNull(\"key\"); } " +
+            "sealed class Plain(string name) { public string Name { get; } = Check.NotNull(name); static Plain Of() => new(nameof(Of)); }", count: 0);
+        ExpectKeyed(Usings + Types + "record Room(string Name); static class Rooms { static Room Parlor { get; } = new(nameof(Parlor)); " +
+            "static string Show() => Parlor.Name; }", count: 0);
     }
 
     /// <summary>Compiles one source and compares the SME6460 count and an optional message fragment.</summary>

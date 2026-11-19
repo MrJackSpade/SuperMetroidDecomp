@@ -114,14 +114,14 @@ internal sealed class SetCharacters
         FrameLookPart[] changing = [.. parts.Where(part => part.ShownAs is not null)];
         FrameLookChange[] changes = [.. changing.Select(part => new FrameLookChange(
             part.ShownAs ?? throw new InvalidOperationException($"Frame {name}'s changing part names no shown encounter."),
-            [.. part.Looks.Select(look => EncounterLookUploads.Looks(part.Encounter.Encounter)[look])])).OrderBy(change => change.Encounter)];
+            [.. part.Looks.Select(look => EncounterLookUploads.Looks(part.Encounter.Encounter)[look].Name)])).OrderBy(change => change.Encounter)];
         var sources = new List<SheetFrameSource>();
         var blank = new List<string>();
         var placements = new Dictionary<string, CorpsePicturePlacement>(StringComparer.Ordinal);
         foreach (int[] combination in Combinations(parts))
         {
             string picture = EncounterLook.PictureName(name, parts.Select((part, index) => part.ShownAs is EncounterArtwork shown
-                ? new EncounterLook(shown, EncounterLookUploads.Looks(part.Encounter.Encounter)[combination[index]]) : (EncounterLook?)null)
+                ? new EncounterLook(shown, EncounterLookUploads.Looks(part.Encounter.Encounter)[combination[index]].Name) : (EncounterLook?)null)
                 .OfType<EncounterLook>().OrderBy(look => look.Encounter));
             byte[] characters = Characters(parts, combination);
             if (ShowsNothing(characters, read))

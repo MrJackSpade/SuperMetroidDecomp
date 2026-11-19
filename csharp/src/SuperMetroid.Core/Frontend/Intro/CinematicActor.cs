@@ -23,10 +23,10 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     private readonly CinematicAnimations<TAnimation, TFrame, TCue> animations;
 
     /// <summary>
-    /// Updates before the animation plays on to its next frame, one or more while it plays; setup may stagger the first
-    /// frame (#1974).
+    /// The frame's hold, counted once each update; the update it ends on plays the animation on to its next frame. Setup
+    /// may stagger the first frame (#1974).
     /// </summary>
-    private int frameHold = 1;
+    private readonly UpdateCountdown frameHold = UpdateCountdown.Lasting(1);
 
     /// <summary>Whether the animation has come to rest for good, so it plays on no further until its owner starts another.</summary>
     private bool held;
@@ -84,7 +84,7 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     public void Start(TAnimation animation)
     {
         Playback = new AnimationPlayback<TAnimation>(animations.StartingWith(animation), AnimationPlace.StartOfAnimation);
-        frameHold = 1;
+        frameHold.Restart(1);
         held = false;
     }
 
@@ -96,7 +96,7 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     {
         if (frames < 1)
             throw new ArgumentOutOfRangeException(nameof(frames), "A frame hold lasts at least one update.");
-        frameHold = frames;
+        frameHold.Restart(frames);
     }
 
     /// <summary>Retires the actor and clears its visible frame.</summary>
@@ -112,7 +112,7 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     /// </summary>
     public void Step(Action<TCue>? ownerCue = null)
     {
-        if (!IsActive || held || --frameHold > 0)
+        if (!IsActive || held || !frameHold.Step())
             return;
 
         Animation<TAnimation> animation = Playback.Animation;
@@ -123,7 +123,7 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
         switch (shown)
         {
             case AnimationShown<TAnimation, TFrame>.Frame frame:
-                frameHold = frame.Duration;
+                frameHold.Restart(frame.Duration);
                 Shown = frame.Shown;
                 return;
             case AnimationShown<TAnimation, TFrame>.HeldFrame rested:

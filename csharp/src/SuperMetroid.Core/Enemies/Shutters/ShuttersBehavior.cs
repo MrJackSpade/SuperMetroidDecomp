@@ -89,20 +89,15 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         GrowingShutterSpawnSettings settings = place.SpawnSettings<GrowingShutterSpawnSettings>();
 
-        // The setup selects its first action from the way it grows and what it waits for.
-        VerticalDirection growth = settings.Growth;
+        // The setup selects its first action from what it waits for; the way it grows is the shutter's own.
         GrowingShutterAction action = settings.Wait switch
         {
-            GrowingShutterWait.Timer => growth == VerticalDirection.Up
-                ? GrowingShutterAction.WaitToGrowUpForTimer
-                : GrowingShutterAction.WaitToGrowDownForTimer,
-            GrowingShutterWait.SamusNear => growth == VerticalDirection.Up
-                ? GrowingShutterAction.WaitToGrowUpForProximity
-                : GrowingShutterAction.WaitToGrowDownForProximity,
+            GrowingShutterWait.Timer => GrowingShutterAction.WaitForTimer,
+            GrowingShutterWait.SamusNear => GrowingShutterAction.WaitForProximity,
             _ => throw new InvalidOperationException($"Growing shutter wait {settings.Wait} is not a wait."),
         };
         // Its sections' origins follow from the spawn row, each eight pixels further along the growth.
-        var state = new GrowingShutterEnemyState(action, place.Position.Y.Whole, growth)
+        var state = new GrowingShutterEnemyState(action, place.Position.Y.Whole, settings.Growth)
         {
             ActivationTimer = settings.ActivationWait + EnemyWaitDefinitions.RunOutUpdate,
         };
@@ -128,32 +123,22 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         switch (state.Action)
         {
-            case GrowingShutterAction.WaitToGrowDownForTimer:
+            case GrowingShutterAction.WaitForTimer:
                 if (AdvanceGrowingShutterTimer(state))
-                    ActivateGrowingShutter(place, state, direction: VerticalDirection.Down, camera);
+                    ActivateGrowingShutter(place, state, camera);
                 return;
 
-            case GrowingShutterAction.WaitToGrowUpForTimer:
-                if (AdvanceGrowingShutterTimer(state))
-                    ActivateGrowingShutter(place, state, direction: VerticalDirection.Up, camera);
-                return;
-
-            case GrowingShutterAction.WaitToGrowDownForProximity:
+            case GrowingShutterAction.WaitForProximity:
                 if (IsSamusWithinShutterHorizontalDistance(place, samus, place.SpawnSettings<GrowingShutterSpawnSettings>().ActivationDistance))
-                    ActivateGrowingShutter(place, state, direction: VerticalDirection.Down, camera);
+                    ActivateGrowingShutter(place, state, camera);
                 return;
 
-            case GrowingShutterAction.WaitToGrowUpForProximity:
-                if (IsSamusWithinShutterHorizontalDistance(place, samus, place.SpawnSettings<GrowingShutterSpawnSettings>().ActivationDistance))
-                    ActivateGrowingShutter(place, state, direction: VerticalDirection.Up, camera);
-                return;
-
-            case GrowingShutterAction.GrowDown:
-                GrowShutterDown(place, state);
-                return;
-
-            case GrowingShutterAction.GrowUp:
+            case GrowingShutterAction.Grow when state.Growth == VerticalDirection.Up:
                 GrowShutterUp(place, state, samus);
+                return;
+
+            case GrowingShutterAction.Grow:
+                GrowShutterDown(place, state);
                 return;
 
             default:
@@ -169,12 +154,9 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ActivateGrowingShutter(
         RoomEnemyPlace place,
         GrowingShutterEnemyState state,
-        VerticalDirection direction,
         Position16<RoomPixels> camera)
     {
-        state.Action = direction == VerticalDirection.Up
-            ? GrowingShutterAction.GrowUp
-            : GrowingShutterAction.GrowDown;
+        state.Action = GrowingShutterAction.Grow;
         QueueShutterActivationSoundIfOnScreen(place, camera);
     }
 
@@ -203,17 +185,17 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.IsFullyGrown)
             return;
 
-        state.PreviousY = place.Position.Y.Whole;
+        int previousY = place.Position.Y.Whole;
         place.Position = place.Position.AdvanceY(UpwardGrowthVelocity(place.SpawnSettings<GrowingShutterSpawnSettings>().GrowthSpeed));
         int targetY = state.OriginYForLevel() - GrowingShutterDefinitions.SectionLength;
         if (targetY < place.Position.Y.Whole)
         {
-            CarrySamusWithGrowingShutter(place, state, samus);
+            CarrySamusWithGrowingShutter(place, samus, previousY);
             return;
         }
 
         FinishGrowingShutterSection(place, state, targetY, direction: VerticalDirection.Up);
-        CarrySamusWithGrowingShutter(place, state, samus);
+        CarrySamusWithGrowingShutter(place, samus, previousY);
     }
 
     /// <summary>
@@ -222,16 +204,19 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static SignedSixteenSixteen UpwardGrowthVelocity(SignedSixteenSixteen growthSpeed) =>
         SignedSixteenSixteen.Zero - growthSpeed;
 
-    /// <summary>Adds upward displacement only while Samus is riding the growing platform.</summary>
+    /// <summary>
+    /// Adds upward displacement only while Samus is riding the growing platform: the whole pixels it rose this update from
+    /// <paramref name="previousY"/>, its row before the move (#2178), as it only ever moves vertically.
+    /// </summary>
     private static void CarrySamusWithGrowingShutter(
         RoomEnemyPlace place,
-        GrowingShutterEnemyState state,
-        SamusState samus)
+        SamusState samus,
+        int previousY)
     {
         if (!EnemyCollision.IsSamusStandingOn(place, samus))
             return;
 
-        int wholeDelta = place.Position.Y.Whole - state.PreviousY;
+        int wholeDelta = place.Position.Y.Whole - previousY;
         if (wholeDelta < 0)
         {
             samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, wholeDelta);
@@ -427,7 +412,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             state.UpperEndpointY = spawnY - settings.TravelDistance;
         }
 
-        state.MovingSamus = false;
         state.ShotActivated = false;
         place.CollidesByFrameHitboxes = false;
         place.AnimationClock.ShowsNewFrame = false;
@@ -548,10 +532,12 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         VerticalDirection direction)
     {
-        state.PreviousY = place.Position.Y.Whole;
-        state.MovingSamus = EnemyCollision.IsSamusStandingOn(place, samus);
+        // The riding test reads where the shutter stood before it moves; a rider is carried by the move's whole pixels.
+        int previousY = place.Position.Y.Whole;
+        bool carriesSamus = EnemyCollision.IsSamusStandingOn(place, samus);
         place.Position = place.Position.AdvanceY(VerticalShutterVelocity(place, direction));
-        CarrySamusVertically(place, state, samus);
+        if (carriesSamus)
+            CarrySamusVertically(place, samus, previousY);
 
         int beforeEndpoint = direction == VerticalDirection.Up
             ? state.UpperEndpointY - place.Position.Y.Whole
@@ -561,17 +547,16 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         StopVerticalShutter(place, state, direction);
     }
 
-    /// <summary>Publishes the shutter's whole-pixel Y delta to Samus's extra displacement.</summary>
+    /// <summary>
+    /// Publishes the shutter's whole-pixel Y delta from <paramref name="previousY"/>, its row before this update's move
+    /// (#2178), to the riding Samus's extra displacement: a vertical shutter only moves vertically.
+    /// </summary>
     private static void CarrySamusVertically(
         RoomEnemyPlace place,
-        VerticalShutterEnemyState state,
-        SamusState samus)
-    {
-        if (!state.MovingSamus)
-            return;
+        SamusState samus,
+        int previousY) =>
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(
-            place.Position.Y.Whole - state.PreviousY);
-    }
+            place.Position.Y.Whole - previousY);
 
     /// <summary>Enters a timed rest or permanent stop at the endpoint the shutter reached moving toward <paramref name="moved"/>.</summary>
     private static void StopVerticalShutter(RoomEnemyPlace place, VerticalShutterEnemyState state, VerticalDirection moved)

@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Fx;
@@ -9,9 +10,33 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 internal static class BlockAnimationFrames
 {
+    /// <summary>
+    /// The installed name of each block animation (#2511), written out so renaming an animation's identity never changes a
+    /// name on disk.
+    /// </summary>
+    private static readonly FrozenDictionary<BlockAnimation, string> Keys =
+        new Dictionary<BlockAnimation, string>
+        {
+            [BlockAnimation.None] = "None block animation",
+            [BlockAnimation.TourianStatuePhantoon] = "TourianStatuePhantoon block animation",
+            [BlockAnimation.TourianStatueRidley] = "TourianStatueRidley block animation",
+            [BlockAnimation.TourianStatueKraid] = "TourianStatueKraid block animation",
+            [BlockAnimation.TourianStatueDraygon] = "TourianStatueDraygon block animation",
+            [BlockAnimation.HorizontalSpikes] = "HorizontalSpikes block animation",
+            [BlockAnimation.MaridiaSandCeiling] = "MaridiaSandCeiling block animation",
+            [BlockAnimation.MaridiaSandFalling] = "MaridiaSandFalling block animation",
+            [BlockAnimation.WreckedShipTreadmillRightwards] = "WreckedShipTreadmillRightwards block animation",
+            [BlockAnimation.WreckedShipTreadmillLeftwards] = "WreckedShipTreadmillLeftwards block animation",
+            [BlockAnimation.Lava] = "Lava block animation",
+            [BlockAnimation.Acid] = "Acid block animation",
+            [BlockAnimation.Rain] = "Rain block animation",
+            [BlockAnimation.Spores] = "Spores block animation",
+        }.ToFrozenDictionary();
+
     /// <summary>The animation <paramref name="animation"/> shows.</summary>
-    internal static ArtworkAnimation Of(BlockAnimation animation) => new($"{animation} block animation");
+    /// <exception cref="ArgumentOutOfRangeException">The animation has no installed name.</exception>
+    internal static ArtworkAnimation Of(BlockAnimation animation) => new(Ensure.Listed(Keys, animation));
 
     /// <summary>The frame of <paramref name="animation"/> named <paramref name="name"/>.</summary>
-    internal static ArtworkFrame Frame(BlockAnimation animation, string name) => new(Of(animation), Ensure.NotNull(name));
+    internal static ArtworkFrame Frame(BlockAnimation animation, [InstalledKey] string name) => new(Of(animation), Ensure.NotNull(name));
 }

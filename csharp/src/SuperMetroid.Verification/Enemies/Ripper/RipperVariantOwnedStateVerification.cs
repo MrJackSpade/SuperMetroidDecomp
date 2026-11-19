@@ -28,9 +28,10 @@ internal static class RipperVariantOwnedStateVerification
         SignedSixteenSixteen positive = EnemyLinearSpeedTable.Speed(speedRecord);
         SignedSixteenSixteen negative = -positive;
         AssertEqual(positive, place.SpawnSettings<RipperSpawnSettings>().Speed, "the selected speed");
-        AssertEqual(negative, RipperBehavior.FlyingVelocity(place, state), "the negative half is loaded");
+        SignedSixteenSixteen speed = place.SpawnSettings<RipperSpawnSettings>().Speed;
+        AssertEqual(negative, RipperBehavior.FlyingVelocity(speed, state.Heading), "the negative half is loaded");
         RipperBehavior.ReverseRipperVariant(place);
-        AssertEqual(positive, RipperBehavior.FlyingVelocity(place, state), "a reversal loads the positive half");
+        AssertEqual(positive, RipperBehavior.FlyingVelocity(speed, state.Heading), "a reversal loads the positive half");
         Console.WriteLine("Ripper variant owned state: the record's velocity halves and the reversal match.");
     }
 

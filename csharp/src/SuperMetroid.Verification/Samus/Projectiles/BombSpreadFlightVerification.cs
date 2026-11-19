@@ -90,7 +90,7 @@ internal static class BombSpreadFlightVerification
 
         SamusBombProjectileSystem bombs = InstalledFixtures.CreateBombSystem();
         bombs.SpawnBombSpread(samus);
-        _ = bombs.HandleBombs(terrain, samus, BombJumpOverlapPublication.Immediate);
+        bombs.HandleBombs(terrain, samus, BombJumpOverlapPublication.Immediate);
 
         foreach (int place in new[] { 1, 2, 3 })
         {
@@ -106,7 +106,7 @@ internal static class BombSpreadFlightVerification
         }
 
         // The centre's rise of 1.5 pixels less gravity's 0.109375 kept 0.609375 pixels; gravity adds to it again.
-        _ = bombs.HandleBombs(terrain, samus, BombJumpOverlapPublication.Immediate);
+        bombs.HandleBombs(terrain, samus, BombJumpOverlapPublication.Immediate);
         SamusBomb centre = bombs.Bombs[2];
         AssertEqual(SignedSixteenSixteen.FromParts(0, 0xb800), centre.SpreadFlight!.VerticalVelocity, "the centre bomb's fall gathers gravity after the ceiling");
         AssertEqual(FixedCoordinate.Of(48, 0xb800), FixedCoordinate.Of(centre.Position.Y.Whole, centre.Position.Y.Fraction), "the centre bomb falls 0.71875 pixels the next update");
@@ -136,7 +136,7 @@ internal static class BombSpreadFlightVerification
 
         foreach (string update in new[] { "on the update its fuse runs out", "on the update after" })
         {
-            _ = bombs.HandleBombs(terrain, samus, BombJumpOverlapPublication.Immediate);
+            bombs.HandleBombs(terrain, samus, BombJumpOverlapPublication.Immediate);
             AssertTrue(bomb.HasBurnedOut && bomb.HasReactedToTerrain, $"the bomb has exploded {update}");
             AssertEqual(inBlock.X.Whole, bomb.Position.X.Whole, $"the exploding bomb stays inside the block {update}");
             AssertEqual(0, (int)bomb.Position.X.Fraction, $"the exploding bomb is not moved back a step {update}");

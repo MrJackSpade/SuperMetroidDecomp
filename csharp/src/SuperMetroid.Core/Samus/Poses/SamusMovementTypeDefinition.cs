@@ -17,6 +17,10 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <param name="GrappleFiring">Whether firing the Grapple fires or is cancelled.</param>
 /// <param name="HudSelection">How the HUD's selected item fires.</param>
 /// <param name="Knockback">How she takes a hit's knockback.</param>
+/// <param name="LookupFailureSetup">
+/// The setup the pose update runs when her input chooses no new pose and her pose names none
+/// (<see cref="SamusLookupFailureSetups"/>).
+/// </param>
 internal sealed record SamusMovementTypeDefinition(
     SamusMomentumResponse LookupFailureResponse,
     SamusBombJumpSetup BombJump,
@@ -24,4 +28,5 @@ internal sealed record SamusMovementTypeDefinition(
     WaterSplashKind Splash,
     GrappleFiringResponse GrappleFiring,
     SamusHudSelectionMode HudSelection,
-    SamusKnockbackResponse Knockback);
+    SamusKnockbackResponse Knockback,
+    SamusLookupFailureSetup LookupFailureSetup = SamusLookupFailureSetup.None);

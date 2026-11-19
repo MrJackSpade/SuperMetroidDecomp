@@ -55,7 +55,6 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             : SkulteraSegment.SwimmingRight), AnimationPlace.StartOfAnimation);
 
         state.Angle = RotationAngle.Zero;
-        state.CurrentYOffset = 0;
         state.PreviousYOffset = EnemyMath.CircleNegativeSinePixels(state.Angle.ToTrigonometryAngle(), settings.Radius);
     }
 
@@ -95,15 +94,14 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
                 place,
                 horizontalDisplacement))
         {
-            BeginSkulteraTurn(place, state, direction);
             // A wall turns the Skultera before it bobs: its vertical offset stays the previous update's.
-            state.PreviousYOffset = state.CurrentYOffset;
+            BeginSkulteraTurn(place, state, direction);
             return;
         }
 
-        state.CurrentYOffset = EnemyMath.CircleNegativeSinePixels(state.Angle.ToTrigonometryAngle(), settings.Radius);
+        int currentYOffset = EnemyMath.CircleNegativeSinePixels(state.Angle.ToTrigonometryAngle(), settings.Radius);
         // Both offsets lie within the radius either way, so their difference never wraps.
-        int yDifference = state.CurrentYOffset - state.PreviousYOffset;
+        int yDifference = currentYOffset - state.PreviousYOffset;
         if (_terrain.MoveEnemyVertically(level, place, SignedSixteenSixteen.FromWholePixels(yDifference)))
         {
             BeginSkulteraTurn(place, state, direction);
@@ -116,7 +114,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The new offset stands whether the vertical move succeeded or hit terrain, so a blocked step is not taken
         // again after the turn.
-        state.PreviousYOffset = state.CurrentYOffset;
+        state.PreviousYOffset = currentYOffset;
     }
 
     /// <summary>Switches swimming AI, swimming toward <paramref name="swimming"/>, to its opposite-facing turn animation after a terrain collision.</summary>

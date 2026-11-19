@@ -120,7 +120,7 @@ internal static class EscapeTimerSamusHeldVerification
     /// A game in main gameplay in a Brinstar room, its Samus standing under her normal movement mode and its escape timer
     /// counting down in its corner from <paramref name="centiseconds"/>.
     /// </summary>
-    private static (SuperMetroidGame Game, SuperMetroidRuntime Runtime, SamusState Samus) GameplayWithEscapeTimer(int centiseconds)
+    internal static (SuperMetroidGame Game, SuperMetroidRuntime Runtime, SamusState Samus) GameplayWithEscapeTimer(int centiseconds)
     {
         var random = new SuperMetroid.Core.Compatibility.SharedRandom();
         var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),

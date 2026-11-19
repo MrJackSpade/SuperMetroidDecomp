@@ -43,8 +43,11 @@ public sealed class YappingMawEnemyState
     /// <summary><see cref="AimAngle"/> as a rotation; rotates the curled link corrections.</summary>
     public RotationAngle CurlAngle { get; internal set; }
 
-    /// <summary>Whether the tongue bends the mirrored way, which it does when the curl angle lies in the turn's second half.</summary>
-    public bool MirroredBend { get; internal set; }
+    /// <summary>
+    /// Whether the tongue bends the mirrored way, which it does when the curl angle lies in the turn's second half: a fact
+    /// of <see cref="CurlAngle"/> (#2512).
+    /// </summary>
+    public bool MirroredBend => CurlAngle >= RotationAngle.HalfTurn;
 
     /// <summary>
     /// The uncurled tongue's offsets, subtracted from each link before the curl's correction: X a half turn along at the

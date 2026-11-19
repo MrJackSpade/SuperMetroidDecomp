@@ -805,6 +805,15 @@ does, which way it faces, which pictures it passes through and for how long, wha
 left opening its jaw wide to spit goop with its sound, then shutting it.`). A summary holding a `see` reference is not
 read.
 
+SME6460 (#2511) keeps installed keys written out. Text marked `[InstalledKey]` (a shade's effect, an artwork animation's
+or frame's name, an encounter look's name, a boss band's or fade's key, and the helpers that hand such text on) is a name
+the import writes into the installation and the game looks content up by. In Core and AssetExtraction no enum member's
+name is written into it: an interpolation hole, `ToString()`, a concatenation, a `string.Concat`, `Format` or `Join`
+argument, `Enum.GetName` or a `nameof` of an enum member, followed through interpolation, concatenation, string
+transforms such as `ToLowerInvariant()`, conditional branches, switch-expression arms and one local. Renaming the member
+would change the key without a format change. Each key is a literal or an entry of a table of the identity's keys
+(`RidleyShades.BabyKeys`, `TorizoLook`'s keys, `WorkRobotShades`' glow keys).
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

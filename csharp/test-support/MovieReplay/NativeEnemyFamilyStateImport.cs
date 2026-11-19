@@ -530,7 +530,12 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.SpeciesState<GrowingShutterEnemyState>() is { } growingShutterRecord)
         {
-            growingShutterRecord.Action = ShuttersNativeWords.GrowingShutterActions.Decode(words.A, "recorded GrowingShutterAction");
+            // Each routine names the way the shutter grows, which is the placement's (#2512).
+            (GrowingShutterAction growingAction, VerticalDirection recordedGrowth) =
+                ShuttersNativeWords.GrowingShutterActions.Decode(words.A, "recorded GrowingShutterAction");
+            if (recordedGrowth != growingShutterRecord.Growth)
+                throw new InvalidDataException($"Recorded growing shutter routine ${words.A:X4} grows {recordedGrowth}, not its placement's {growingShutterRecord.Growth}.");
+            growingShutterRecord.Action = growingAction;
             // The record keeps every section's origin; Core derives them from the first, the spawn row (#2183), and the
             // recorded origins must be the ones it derives.
             growingShutterRecord.SpawnY = words.B;
@@ -804,8 +809,33 @@ internal static class NativeEnemyFamilyStateImport
         if (enemy.DefinitionId == EnemyDefinitionId.Coven && enemy.SpeciesState<WreckedShipGhostEnemyState>() is { } ghost)
         {
             ghost.Action = WreckedShipNativeWords.WreckedShipGhostActions.Decode(words.A, "recorded WreckedShipGhostAction");
-            ghost.PhaseTimer = unchecked((short)words.B);
-            ghost.NextFlickerStep = WreckedShipGhostFlickerStepOf(words.C);
+            // Word B is the one timer the cartridge keeps for every phase; the port keeps a countdown for each timed phase
+            // (#2512). Watching Samus, the word holds the flicker's start, which the port's appearance sets; fading away, the
+            // bob's run-out.
+            int ghostTimer = unchecked((short)words.B);
+            switch (ghost.Action)
+            {
+                case WreckedShipGhostAction.InitialInvisibleDelay:
+                    ghost.InvisibleDelay = ghostTimer;
+                    break;
+                case WreckedShipGhostAction.BrighteningAndFlickering or WreckedShipGhostAction.FadingToGhostColours:
+                    ghost.FlickerTimer = ghostTimer;
+                    ghost.NextFlickerStep = WreckedShipGhostFlickerStepOf(words.C);
+                    break;
+                case WreckedShipGhostAction.BobbingWhileVisible:
+                    ghost.VisibleTimer = ghostTimer;
+                    break;
+                case WreckedShipGhostAction.TrackingSamusForSpawn:
+                    if (ghostTimer != WreckedShipGhostAppearanceDefinitions.FlickerFirstStepDelay)
+                        throw new InvalidDataException($"Recorded watching Wrecked Ship ghost's timer {ghostTimer} is not its flicker's start.");
+                    break;
+                case WreckedShipGhostAction.WaitingForWhiteFade:
+                    if (ghostTimer != 0)
+                        throw new InvalidDataException($"Recorded vanishing Wrecked Ship ghost's timer {ghostTimer} is not its bob's run-out.");
+                    break;
+                default:
+                    throw new InvalidDataException($"Undefined {nameof(WreckedShipGhostAction)} {ghost.Action}.");
+            }
         }
         if (enemy.EntityState<WalkingSpacePirateEntity, WalkingSpacePirateEnemyState>() is { } walkingPirate)
         {
@@ -1043,7 +1073,11 @@ internal static class NativeEnemyFamilyStateImport
             ripperVariant.Heading = unchecked((short)words.D) < 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
             // The Ripper flies its placement's speed (#2450), which the recording's must be.
             EnemyLinearSpeed recordedRipperSpeed = SuperMetroid.AssetExtraction.Enemies.EnemySpeedTableCodec.LinearSpeedAtOffset(words.E);
-            SignedSixteenSixteen ripperRightward = RipperBehavior.FlyingVelocity(enemy, new RipperEnemyState { Heading = HorizontalDirection.Right });
+            // A grapple Ripper's placement keeps its patrol bounds beside its speed (#2512).
+            SignedSixteenSixteen placementRipperSpeed = enemy.DefinitionId == EnemyDefinitionId.GrappleRipper
+                ? enemy.SpawnSettings<GrappleRipperSpawnSettings>().Speed
+                : enemy.SpawnSettings<RipperSpawnSettings>().Speed;
+            SignedSixteenSixteen ripperRightward = RipperBehavior.FlyingVelocity(placementRipperSpeed, HorizontalDirection.Right);
             if (recordedRipperSpeed.Speed != ripperRightward)
                 throw new InvalidDataException($"Recorded Ripper speed {recordedRipperSpeed.Speed} is not its placement's {ripperRightward}.");
         }
@@ -1092,7 +1126,8 @@ internal static class NativeEnemyFamilyStateImport
 
     /// <summary>
     /// Translates the family facts some enemies keep among their extra variables rather than their record words (#2473):
-    /// a Ki-Hunter body's swipe and wingless flags, a hopper's falling flag and a Kago's hits left.
+    /// a Ki-Hunter body's swipe and wingless flags, a hopper's and a Puyo's falling flags, a Wrecked Ship ghost's watch timers
+    /// and a Kago's hits left (#2512).
     /// </summary>
     /// <param name="enemy">The imported slot, its record words already imported.</param>
     /// <param name="words">The enemy's six recorded record words.</param>
@@ -1119,6 +1154,19 @@ internal static class NativeEnemyFamilyStateImport
                 (var other, true) => throw new InvalidDataException($"Recorded hopper {other} has its falling flag set."),
             };
         }
+        if (enemy.SpeciesState<PuyoEnemyState>() is { Action: PuyoAction.Rising } puyo && extraWord(PuyoFallingFlagOffset) != 0)
+        {
+            // The falling flag ($7E:7806) is the airborne Puyo's having passed its hop's apex (#2512); a grounded Puyo keeps
+            // the last hop's, which its next hop clears.
+            puyo.Action = PuyoAction.Falling;
+        }
+        if (enemy.DefinitionId == EnemyDefinitionId.Coven && enemy.SpeciesState<WreckedShipGhostEnemyState>() is { } ghost)
+        {
+            // The lock-on timer ($7E:781A) counts Samus's keeping still, the directed movement timer ($7E:781C) her keeping
+            // her direction; the appearance sets both, which the ghost keeps until it watches her again (#2512).
+            ghost.StablePositionTimer = extraWord(CovenLockOnTimerOffset);
+            ghost.StableDirectionTimer = extraWord(CovenDirectedMovementTimerOffset);
+        }
         if (enemy.EntityState<KagoEntity, KagoEnemyState>() is { } kago)
         {
             // The hit counter ($7E:7808) counts the shots left before the one that kills, from the placement's hit count; the
@@ -1137,6 +1185,15 @@ internal static class NativeEnemyFamilyStateImport
 
     /// <summary>The byte offset of a hopper's falling flag among its extra variables ($7E:7806).</summary>
     private const int HopperFallingFlagOffset = 0x06;
+
+    /// <summary>The byte offset of a Wrecked Ship ghost's lock-on timer among its extra variables ($7E:781A).</summary>
+    private const int CovenLockOnTimerOffset = 0x1a;
+
+    /// <summary>The byte offset of a Wrecked Ship ghost's directed movement timer among its extra variables ($7E:781C).</summary>
+    private const int CovenDirectedMovementTimerOffset = 0x1c;
+
+    /// <summary>The byte offset of a Puyo's falling flag among its extra variables ($7E:7806).</summary>
+    private const int PuyoFallingFlagOffset = 0x06;
 
     /// <summary>The byte offset of a Kago's hit counter among its extra variables ($7E:7808).</summary>
     private const int KagoHitCounterOffset = 0x08;
@@ -1291,17 +1348,20 @@ internal static class NativeEnemyFamilyStateImport
     /// <summary>
     /// Decodes a Wrecked Ship ghost's recorded flicker-table byte offset into its next flicker step. The steps are the
     /// table's entries after its first, two bytes each, so offset two is the first step; the terminator's offset and zero,
-    /// which the game writes when the flicker ends, are no step: the last has started (#2451).
+    /// which the game writes when the flicker ends, are no step: the last has started (#2451). Each step leads to the next
+    /// (#2512), so the step at an offset is that many steps on from the first.
     /// </summary>
     /// <param name="word">The recorded byte offset.</param>
     private static WreckedShipGhostFlickerStep? WreckedShipGhostFlickerStepOf(ushort word)
     {
-        IReadOnlyList<WreckedShipGhostFlickerStep> steps = WreckedShipGhostFlickerStep.All;
         if (word == 0)
             return null;
-        if (word % 2 != 0 || word / 2 - 1 > steps.Count)
+        if (word % 2 != 0)
             throw new InvalidDataException($"Recorded Wrecked Ship ghost flicker offset {word} is not a flicker step.");
-        return word / 2 - 1 == steps.Count ? null : steps[word / 2 - 1];
+        WreckedShipGhostFlickerStep? step = WreckedShipGhostFlickerStep.First;
+        for (int passed = 0; passed < word / 2 - 1; passed++)
+            step = (step ?? throw new InvalidDataException($"Recorded Wrecked Ship ghost flicker offset {word} is not a flicker step.")).Next;
+        return step;
     }
 
     /// <summary>Decodes a recorded index word that the family's updates keep within 0 through <paramref name="maximum"/>.</summary>

@@ -16,7 +16,7 @@ public sealed class HiddenPicturePixels
     /// <exception cref="ArgumentException">The marks are not one for each pixel of the picture.</exception>
     public HiddenPicturePixels(Extent16<ImagePixels> size, ImmutableArray<bool> hidden)
     {
-        Ensure.LengthEqual(hidden.AsSpan(), size.X * size.Y);
+        Ensure.LengthEqual(hidden.AsSpan(), size.Area);
         Size = size;
         this.hidden = hidden;
     }
@@ -26,6 +26,7 @@ public sealed class HiddenPicturePixels
 
     /// <summary>Whether the picture's pixel at <paramref name="pixel"/> shows nothing.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The pixel lies outside the picture.</exception>
-    public bool Hides(Position16<ImagePixels> pixel) =>
-        hidden[(Ensure.BetweenInclusive(0, Size.Y - 1, pixel.Y) * Size.X) + Ensure.BetweenInclusive(0, Size.X - 1, pixel.X)];
+    public bool Hides(Position16<ImagePixels> pixel) => Size.Contains(pixel)
+        ? hidden[Size.RowMajorIndex(pixel)]
+        : throw new ArgumentOutOfRangeException(nameof(pixel), pixel, $"The pixel lies outside the {Size.X} by {Size.Y} picture.");
 }

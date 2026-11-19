@@ -19,6 +19,7 @@ using SuperMetroid.Verification.Frontend.CeresCinematics;
 using SuperMetroid.Verification.Fx.PaletteFx;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Verification.Enemies.Gunship;
 

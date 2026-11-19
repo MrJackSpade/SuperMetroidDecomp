@@ -2,16 +2,16 @@ namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// The value of the game's shared random sequence: one value, 0 through 65535, every random consumer draws from.
-/// Advancing it and swapping its two halves, each 0 through 255, are its only operations; a sample is the state read as
-/// an int, and the game often draws two independent random halves from one sample, one per axis or choice. Which value
-/// each consumer draws is gameplay-observable, so the advance is the game's exactly.
+/// Advancing it and swapping its two halves, each 0 through 255, are its only operations, and a sample is the state read
+/// as an int (<see cref="RandomSampleField"/> draws its parts). Which value each consumer draws is gameplay-observable,
+/// so the advance and the swap are the game's exactly.
 /// </summary>
 /// <remarks>
 /// Held by the session's <see cref="SharedRandom"/>, which advances it whenever a consumer draws. Evidence: the original's
 /// random routine (<c>$80:8111</c>) and the SMV replays, which compare the random value on every update (the Ridley
 /// full-movie check across door transitions).
 /// </remarks>
-[EncodingOwner("shared random state and the two random halves of a sample")]
+[EncodingOwner("shared random state and its two halves")]
 [CompatibilityService("the shared random sequence's value: how each value follows the last, and the swap of its two halves, exactly as the game made them")]
 public readonly record struct SharedRandomState
 {
@@ -42,15 +42,11 @@ public readonly record struct SharedRandomState
     /// <summary>The state as a sample, 0 through 65535.</summary>
     public int Value { get; }
 
-    /// <summary>The lower random half, 0 through 255, of a sample, 0 through 65535: its remainder past a multiple of 256.</summary>
-    public static byte LowerHalf(int sample) => unchecked((byte)RequireSample(sample));
+    /// <summary>The lower half, 0 through 255, of a value, 0 through 65535: its remainder past a multiple of 256.</summary>
+    private static int LowerHalf(int value) => RequireSample(value) % HalfSpan;
 
-    /// <summary>
-    /// The upper random half, 0 through 255, of a sample, 0 through 65535: how many whole 256s it holds; a second draw
-    /// independent of
-    /// <see cref="LowerHalf"/>, which the game uses for another axis or another choice.
-    /// </summary>
-    public static byte UpperHalf(int sample) => unchecked((byte)(RequireSample(sample) >> HalfBits));
+    /// <summary>The upper half, 0 through 255, of a value, 0 through 65535: how many whole 256s it holds.</summary>
+    private static int UpperHalf(int value) => RequireSample(value) >> HalfBits;
 
     /// <summary>
     /// The state after one advance: roughly the state times five plus 273. Each half of the state is multiplied by five on

@@ -12,13 +12,13 @@ internal enum NorfairRioSegment
     /// Its wings flattening, lifting and sweeping up as it starts to swoop down, its flames moving with them.
     /// </summary>
     StartDescending,
-    /// <summary>Diving down, its flames trailing it, repeating.</summary>
+    /// <summary>Diving down, its flames placed to trail it, held in its one pose (#2512).</summary>
     Descending,
     /// <summary>
     /// Its wings sweeping down from swept up to drooping as it starts to rise again, its flames moving with them.
     /// </summary>
     StartAscending,
-    /// <summary>Climbing, its flames trailing it, repeating.</summary>
+    /// <summary>Climbing, its flames placed to trail it, held in its one pose (#2512).</summary>
     Ascending,
     /// <summary>Its flames flickering large, medium and small as it rises, repeating.</summary>
     FlamesAscending,

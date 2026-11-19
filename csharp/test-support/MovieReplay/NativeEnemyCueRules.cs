@@ -38,6 +38,11 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// record's duration, or, where the list shows the record for good, ends holding; null when every frame the owner's lists
 /// show can be seen.
 /// </param>
+/// <param name="Restates">
+/// Whether a cue only sets again what it set, nothing else writing it (#2512: the Norfair Rio's flame placement, which only
+/// its cues and its setup write), so a list that replays it before a frame it shows again and again shows that frame for
+/// good, the replayed cue changing nothing; null when no cue does.
+/// </param>
 internal sealed record NativeEnemyCueRules<TCue>(
     Func<ushort, int?> OperandWords,
     Action<ushort, ushort[], TCue, string> CompareCue,
@@ -47,5 +52,6 @@ internal sealed record NativeEnemyCueRules<TCue>(
     Func<ushort, bool>? ShowsPoseAgain = null,
     Func<ushort, ushort>? PicturedAt = null,
     Func<ushort, bool>? OwnerLeavesAt = null,
-    Func<ushort, bool>? ShownUnseen = null)
+    Func<ushort, bool>? ShownUnseen = null,
+    Func<TCue, bool>? Restates = null)
     where TCue : notnull;

@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
@@ -8,6 +9,20 @@ namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
 /// </summary>
 public static class GameOverBabyShades
 {
+    /// <summary>
+    /// The installed name of each colouring's shade (#2511), written out so renaming a colouring's identity never changes a
+    /// name on disk.
+    /// </summary>
+    private static readonly FrozenDictionary<GameOverBabyColouring, string> ColourKeys =
+        new Dictionary<GameOverBabyColouring, string>
+        {
+            [GameOverBabyColouring.Idle] = "GameOverBabyIdle",
+            [GameOverBabyColouring.ClosedCry] = "GameOverBabyClosedCry",
+            [GameOverBabyColouring.MiddleCry] = "GameOverBabyMiddleCry",
+            [GameOverBabyColouring.OpenCry] = "GameOverBabyOpenCry",
+        }.ToFrozenDictionary();
+
     /// <summary>The Baby shown in its <paramref name="colours"/> colours.</summary>
-    public static PictureShade Colours(GameOverBabyColouring colours) => new($"GameOverBaby{colours}", 0);
+    /// <exception cref="ArgumentOutOfRangeException">The colouring has no installed name.</exception>
+    public static PictureShade Colours(GameOverBabyColouring colours) => new(Ensure.Listed(ColourKeys, colours), 0);
 }

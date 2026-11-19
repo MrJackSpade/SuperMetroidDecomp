@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 [IndependentFlag("whether the matched rule has conditions, a fact of the match")]
 internal readonly record struct SamusPoseInputMatch(SamusPoseTransition? Transition, bool HasConditions)
 {
-    /// <summary>The same decision for the mirrored list: a selected pose faces the other way.</summary>
+    /// <summary>The same decision for the mirrored list: a selected pose faces the other way, set up the same way.</summary>
     internal SamusPoseInputMatch Mirrored() =>
-        Transition is { } transition ? this with { Transition = new(SamusPoseMirror.Of(transition.ProspectivePose)) } : this;
+        Transition is { } transition ? this with { Transition = transition with { ProspectivePose = SamusPoseMirror.Of(transition.ProspectivePose) } } : this;
 }

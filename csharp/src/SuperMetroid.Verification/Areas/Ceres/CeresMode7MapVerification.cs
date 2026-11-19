@@ -73,7 +73,7 @@ internal static class CeresMode7MapVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         LayeredScene captured = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var mode7 = (TurningRoomLayer)captured.Layers[0];
-        AssertTrue(mode7.Map.Equals(second), "the floor layer draws the published floor");
+        AssertTrue(mode7.Floor.Equals(second), "the floor layer draws the published floor");
         Console.WriteLine("  Ceres floor: the tileset floor publishes, drawn pictures reach the next NMI, and the floor layer draws it.");
     }
 

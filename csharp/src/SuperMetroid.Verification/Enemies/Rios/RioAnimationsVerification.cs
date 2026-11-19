@@ -22,7 +22,8 @@ internal static class RioAnimationsVerification
                     AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
                 }),
-            onlyRunOnInto: new HashSet<RioSegment> { RioSegment.HangingWingbeat });
+            onlyRunOnInto: new HashSet<RioSegment> { RioSegment.HangingWingbeat },
+            repeatEntryStarts: [new NativeRepeatEntryStart<RioSegment>("the post-swoop hover", RioAnimations.PostSwoopHover, RioSegment.TuckedWingbeat, PostSwoopHoverEntry)]);
         Console.WriteLine($"  Rio animations: {Entries.Length} segments ({beats} beats) and {RioAnimations.StartingAt.Count} animations match bank $A2.");
     }
 }

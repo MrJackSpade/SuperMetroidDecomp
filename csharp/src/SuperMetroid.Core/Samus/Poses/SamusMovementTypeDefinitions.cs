@@ -4,13 +4,14 @@ using Selection = SuperMetroid.Core.Samus.Hud.SamusHudSelectionMode;
 using Knockback = SuperMetroid.Core.Samus.Movement.SamusKnockbackResponse;
 using Move = SuperMetroid.Core.Samus.Movement.SamusMovementType;
 using Response = SuperMetroid.Core.Samus.SamusMomentumResponse;
+using Setup = SuperMetroid.Core.Samus.Poses.SamusLookupFailureSetup;
 using Splash = SuperMetroid.Core.Samus.Movement.WaterSplashKind;
 using Xray = SuperMetroid.Core.Samus.Abilities.XrayPosture;
 
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>
-/// What each way Samus moves does (#2323, #2445).
+/// What each way Samus moves does (#2323, #2445, #2506).
 /// <list type="bullet">
 /// <item>With no new pose from her input: standing and crouching take the forward jump unless time is frozen; running,
 /// falling, the compact air poses, moonwalking, wall jumps, wall stops and the Grapple take it always; the balls and
@@ -24,6 +25,8 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <item>A hit knocks an upright Samus back in the knockback pose, a ball back in its own pose and the glitch ball back in
 /// its knockback pose; knockback, turns, posture changes, the Grapple, damage boosts, Draygon's hold and the special poses
 /// refuse it.</item>
+/// <item>When her input chooses no new pose and her pose names no setup of its own, the ground turn stops her momentum and
+/// the normal jump takes its fallback's aim and slows down; every other movement sets nothing up.</item>
 /// </list>
 /// </summary>
 internal static class SamusMovementTypeDefinitions
@@ -36,7 +39,7 @@ internal static class SamusMovementTypeDefinitions
         [Move.Running] = new(Response.Decelerate, Bomb.ForwardJump, Xray.Standing, Splash.Diving,
             Firing.Fires, Selection.Standard, Knockback.Upright),
         [Move.NormalJumping] = new(Response.Decelerate, Bomb.TurnedDown, Xray.Disallowed, Splash.Diving,
-            Firing.Fires, Selection.Standard, Knockback.Upright),
+            Firing.Fires, Selection.Standard, Knockback.Upright, Setup.ContinueNormalJump),
         [Move.SpinJumping] = new(Response.None, Bomb.TurnedDown, Xray.Disallowed, Splash.Diving,
             Firing.Cancelled, Selection.Jump, Knockback.Upright),
         [Move.MorphBallGround] = new(Response.KillXSpeed, Bomb.KeepPose, Xray.Disallowed, Splash.GroundedPair,
@@ -56,7 +59,7 @@ internal static class SamusMovementTypeDefinitions
         [Move.CompactAirborne] = new(Response.KillXSpeed, Bomb.ForwardJump, Xray.Disallowed, Splash.Diving,
             Firing.Cancelled, Selection.Jump, Knockback.Upright),
         [Move.TurningOnGround] = new(Response.Stop, Bomb.TurnedDown, Xray.Disallowed, Splash.GroundedPair,
-            Firing.Cancelled, Selection.Turning, Knockback.Refused),
+            Firing.Cancelled, Selection.Turning, Knockback.Refused, Setup.StopTurn),
         [Move.PostureTransition] = new(Response.Stop, Bomb.TurnedDown, Xray.Disallowed, Splash.GroundedPair,
             Firing.Cancelled, Selection.Transition, Knockback.Refused),
         [Move.Moonwalking] = new(Response.Stop, Bomb.ForwardJump, Xray.Disallowed, Splash.GroundedPair,

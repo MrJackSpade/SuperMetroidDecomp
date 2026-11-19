@@ -31,10 +31,13 @@ internal static class PuyoNativeWords
         [PuyoHopType.DroppedBig] = 48,
     });
 
-    /// <summary>The routine word naming each <see cref="PuyoAction"/>.</summary>
-    internal static readonly NativeWordIdentities<PuyoAction> PuyoActions = new(new Dictionary<PuyoAction, ushort>
+    /// <summary>
+    /// The routine word naming each <see cref="PuyoAction"/>: the airborne routine names the rise, the first half of the
+    /// hop; the cartridge's falling flag tells the fall from it (#2512).
+    /// </summary>
+    internal static readonly NativeWordIdentities<PuyoAction> PuyoActions = new(new Dictionary<ushort, PuyoAction>
     {
-        [PuyoAction.Grounded] = 0x9b65,
-        [PuyoAction.Airborne] = 0x9b81,
+        [0x9b65] = PuyoAction.Grounded,
+        [0x9b81] = PuyoAction.Rising,
     });
 }

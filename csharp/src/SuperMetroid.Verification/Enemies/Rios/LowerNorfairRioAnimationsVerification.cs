@@ -22,7 +22,7 @@ internal static class LowerNorfairRioAnimationsVerification
                     AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
                 }),
-            onlyRunOnInto: new HashSet<LowerNorfairRioSegment> { LowerNorfairRioSegment.IdleWingbeat, LowerNorfairRioSegment.AscendingWingbeat });
+            onlyRunOnInto: new HashSet<LowerNorfairRioSegment> { LowerNorfairRioSegment.IdleWingbeat });
         Console.WriteLine($"  Lower Norfair Rio animations: {Entries.Length} segments ({beats} beats) and {LowerNorfairRioAnimations.StartingAt.Count} animations match bank $A2.");
     }
 }

@@ -61,7 +61,7 @@ internal static class XrayInputVerification
                 {
                     AssertTrue(((GameplayBlendLayer)startup.Layers[0]).Window.IsClosed,
                         "setup keeps the beam closed while copying tilemaps");
-                    AssertEqual(frame == 7 ? XrayRoomDisplayRules.ActiveBackdrop : RgbColor.Black, startup.Paint.Backdrop,
+                    AssertEqual(frame == 7 ? XrayWindowRenderDefinitions.ActiveBackdrop : RgbColor.Black, startup.Paint.Backdrop,
                         "only setup stage eight installs the X-ray backdrop");
                 }
             }
@@ -94,7 +94,7 @@ internal static class XrayInputVerification
         AssertEqual(BlendOperation.Add, reveal.Blend.Operation, "a reveal room's blend adds");
         AssertEqual(reveal.OverlayBehind is not null, reveal.Blend.Halved,
             "a reveal room halves toward its liquid lying behind, and adds the X-ray's colour whole where none lies behind");
-        AssertEqual(XrayRoomDisplayRules.ActiveBackdrop, captured.Paint.Backdrop, "setup backdrop reaches the packet");
+        AssertEqual(XrayWindowRenderDefinitions.ActiveBackdrop, captured.Paint.Backdrop, "setup backdrop reaches the packet");
         // The background shows the reveal over the room's own blocks (#1403, #1431, #1514).
         XrayRevealPlane shownReveal = reveal.Gameplay.Rooms.XrayReveal
             ?? throw new InvalidOperationException("The captured X-ray frame shows no reveal.");

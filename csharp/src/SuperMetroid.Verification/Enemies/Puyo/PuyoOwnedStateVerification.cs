@@ -15,22 +15,22 @@ internal static class PuyoOwnedStateVerification
     internal static void VerifyPuyoOwnedState()
     {
         static QuadraticSpeedCurvePlace Place(int twoHundredFiftySixths) => QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(twoHundredFiftySixths);
-        var hop = new PuyoEnemyState(PuyoAction.Grounded) { YSpeedCurvePlace = Place(0x0200) };
+        var hop = new PuyoEnemyState(PuyoAction.Rising) { YSpeedCurvePlace = Place(0x0200) };
         hop.StepAirbornePlace(Place(0x0200));
-        AssertEqual(new VerifyPuyoOwnedStateCase(0, false), new VerifyPuyoOwnedStateCase(hop.YSpeedCurvePlace.InTwoHundredFiftySixthsOfMark, hop.Falling), "a rising step landing on zero keeps rising");
+        AssertEqual(new VerifyPuyoOwnedStateCase(0, PuyoAction.Rising), new VerifyPuyoOwnedStateCase(hop.YSpeedCurvePlace.InTwoHundredFiftySixthsOfMark, hop.Action), "a rising step landing on zero keeps rising");
         hop.StepAirbornePlace(Place(0x0200));
-        AssertEqual(new VerifyPuyoOwnedStateCase(0, true), new VerifyPuyoOwnedStateCase(hop.YSpeedCurvePlace.InTwoHundredFiftySixthsOfMark, hop.Falling), "a rising step below zero is the apex");
+        AssertEqual(new VerifyPuyoOwnedStateCase(0, PuyoAction.Falling), new VerifyPuyoOwnedStateCase(hop.YSpeedCurvePlace.InTwoHundredFiftySixthsOfMark, hop.Action), "a rising step below zero is the apex");
         hop.StepAirbornePlace(Place(0x01c0));
-        AssertEqual(new VerifyPuyoOwnedStateCase(0x01c0, true), new VerifyPuyoOwnedStateCase(hop.YSpeedCurvePlace.InTwoHundredFiftySixthsOfMark, hop.Falling), "a falling step accumulates");
+        AssertEqual(new VerifyPuyoOwnedStateCase(0x01c0, PuyoAction.Falling), new VerifyPuyoOwnedStateCase(hop.YSpeedCurvePlace.InTwoHundredFiftySixthsOfMark, hop.Action), "a falling step accumulates");
         hop.YSpeedCurvePlace = Place(0x7f00);
         hop.StepAirbornePlace(Place(0x0100));
-        AssertEqual(new VerifyPuyoOwnedStateCase(0, true), new VerifyPuyoOwnedStateCase(hop.YSpeedCurvePlace.InTwoHundredFiftySixthsOfMark, hop.Falling), "a falling step reaching the sign bit restarts the fall");
+        AssertEqual(new VerifyPuyoOwnedStateCase(0, PuyoAction.Falling), new VerifyPuyoOwnedStateCase(hop.YSpeedCurvePlace.InTwoHundredFiftySixthsOfMark, hop.Action), "a falling step reaching the sign bit restarts the fall");
         hop.YSpeedCurvePlace = Place(0x7e00);
         hop.StepAirbornePlace(Place(0x0100));
-        AssertEqual(new VerifyPuyoOwnedStateCase(0x7f00, true), new VerifyPuyoOwnedStateCase(hop.YSpeedCurvePlace.InTwoHundredFiftySixthsOfMark, hop.Falling), "a falling step below the sign bit keeps falling");
+        AssertEqual(new VerifyPuyoOwnedStateCase(0x7f00, PuyoAction.Falling), new VerifyPuyoOwnedStateCase(hop.YSpeedCurvePlace.InTwoHundredFiftySixthsOfMark, hop.Action), "a falling step below the sign bit keeps falling");
         hop.YSpeedCurvePlace = Place(0x7f00);
         hop.StepAirbornePlace(Place(0x00ff));
-        AssertEqual(new VerifyPuyoOwnedStateCase(0x7fff, true), new VerifyPuyoOwnedStateCase(hop.YSpeedCurvePlace.InTwoHundredFiftySixthsOfMark, hop.Falling), "a falling step to the last place before the sign bit keeps falling");
+        AssertEqual(new VerifyPuyoOwnedStateCase(0x7fff, PuyoAction.Falling), new VerifyPuyoOwnedStateCase(hop.YSpeedCurvePlace.InTwoHundredFiftySixthsOfMark, hop.Action), "a falling step to the last place before the sign bit keeps falling");
         Console.WriteLine("Puyo owned state: the apex and the overlong-fall restart match.");
     }
 

@@ -10,7 +10,7 @@ public sealed class KraidHealthBand
     /// <summary>Defines a band.</summary>
     /// <param name="minimumEighths">The least health in the band, as eighths of his initial health, or null for the lowest band.</param>
     /// <param name="key">The band's name in its shade's name.</param>
-    internal KraidHealthBand(int? minimumEighths, string key)
+    internal KraidHealthBand(int? minimumEighths, [InstalledKey] string key)
     {
         MinimumEighths = minimumEighths;
         Key = key;

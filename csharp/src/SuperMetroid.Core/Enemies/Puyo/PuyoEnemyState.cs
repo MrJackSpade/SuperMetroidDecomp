@@ -22,7 +22,7 @@ public sealed class PuyoEnemyState
     /// </summary>
     public int HopCooldownTimer { get; internal set; }
 
-    /// <summary>Whether the Puyo is grounded or airborne.</summary>
+    /// <summary>Whether the Puyo is grounded, or airborne rising or falling (#2512).</summary>
     public PuyoAction Action { get; internal set; }
 
     /// <summary>The current hop's airborne behaviour, chosen as each hop starts.</summary>
@@ -39,9 +39,6 @@ public sealed class PuyoEnemyState
 
     /// <summary>The direction of the current hop.</summary>
     public HorizontalDirection Direction { get; internal set; }
-
-    /// <summary>Selects the curve's downward speeds.</summary>
-    public bool Falling { get; internal set; }
 
     /// <summary>
     /// The way the next hop goes after a wall, or a ceiling that turns it back, cut this one short: the way back from the
@@ -61,19 +58,27 @@ public sealed class PuyoEnemyState
     /// starts again from rest (<see cref="PuyoFallRestart"/>).
     /// </summary>
     /// <param name="delta">The hop's step along the curve, at most three whole marks.</param>
+    /// <exception cref="InvalidOperationException">The Puyo is grounded.</exception>
     internal void StepAirbornePlace(QuadraticSpeedCurvePlace delta)
     {
-        if (Falling)
+        switch (Action)
         {
-            YSpeedCurvePlace += delta;
-            if (PuyoFallRestart.StartsOver(YSpeedCurvePlace.InTwoHundredFiftySixthsOfMark))
+            case PuyoAction.Falling:
+                YSpeedCurvePlace += delta;
+                if (PuyoFallRestart.StartsOver(YSpeedCurvePlace.InTwoHundredFiftySixthsOfMark))
+                    YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
+                return;
+            case PuyoAction.Rising:
+                YSpeedCurvePlace -= delta;
+                if (!YSpeedCurvePlace.IsNegative)
+                    return;
+                Action = PuyoAction.Falling;
                 YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
-            return;
+                return;
+            case PuyoAction.Grounded:
+                throw new InvalidOperationException("A grounded Puyo has no airborne place to step.");
+            default:
+                throw new InvalidDataException($"Undefined {nameof(PuyoAction)} {Action}.");
         }
-        YSpeedCurvePlace -= delta;
-        if (!YSpeedCurvePlace.IsNegative)
-            return;
-        Falling = true;
-        YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
     }
 }

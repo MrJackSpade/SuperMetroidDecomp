@@ -2,7 +2,7 @@ using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.Samus.Poses;
 
-/// <summary>One authored pose of Samus's (#2323), as <see cref="SamusPoseDefinitions"/> lists it.</summary>
+/// <summary>One authored pose of Samus's (#2323, #2506), as <see cref="SamusPoseDefinitions"/> lists it.</summary>
 /// <param name="Facing">The way the pose faces; the front views face neither way.</param>
 /// <param name="Movement">How she moves in the pose.</param>
 /// <param name="NoInput">What the pose falls back to when no input transition applies.</param>
@@ -11,6 +11,10 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <param name="VerticalRadius">The pose's vertical collision radius, in pixels.</param>
 /// <param name="Aim">What the pose does with the arm cannon.</param>
 /// <param name="ProjectileHeight">How far above her centre the pose's shots and Grapple start, in pixels.</param>
+/// <param name="LookupFailureSetup">
+/// The setup the pose update runs when her input chooses no new pose from this one; none for a pose whose movement names
+/// it (<see cref="SamusLookupFailureSetups"/>) or that sets nothing up.
+/// </param>
 internal sealed record SamusPoseDefinition(
     SamusFacingDirection Facing,
     SamusMovementType Movement,
@@ -19,4 +23,5 @@ internal sealed record SamusPoseDefinition(
     SamusPoseInputList Inputs,
     int VerticalRadius,
     SamusPoseAim Aim,
-    int ProjectileHeight);
+    int ProjectileHeight,
+    SamusLookupFailureSetup LookupFailureSetup = SamusLookupFailureSetup.None);

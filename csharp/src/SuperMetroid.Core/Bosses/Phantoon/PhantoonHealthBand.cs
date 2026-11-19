@@ -10,7 +10,7 @@ public sealed class PhantoonHealthBand
     /// <summary>Defines a band.</summary>
     /// <param name="minimumHealth">The least health in the band, or null for the lowest band.</param>
     /// <param name="key">The band's name in its shades' names.</param>
-    internal PhantoonHealthBand(int? minimumHealth, string key)
+    internal PhantoonHealthBand(int? minimumHealth, [InstalledKey] string key)
     {
         MinimumHealth = minimumHealth;
         Key = key;

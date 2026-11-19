@@ -44,7 +44,7 @@ internal static class GrowingShutterDefinitionsVerification
                     place.Position = place.Position.WithWholeY(296);
                     initialize(place);
                     GrowingShutterEnemyState state = (enemies.GrowingShutterStates[0] ?? throw new InvalidOperationException("Verification requires enemies.GrowingShutterStates[0]."));
-                    AssertEqual(Word(0xa2ea4e + selector * 2), ShuttersNativeWords.GrowingShutterActions.Word(state.Action), "Shutter real dispatch without bus");
+                    AssertEqual(Word(0xa2ea4e + selector * 2), ShuttersNativeWords.GrowingShutterActions.Word((state.Action, state.Growth)), "Shutter real dispatch without bus");
                     AssertEqual(unchecked((short)Word(0xa2ea56 + speed * 4)), place.SpawnSettings<GrowingShutterSpawnSettings>().GrowthSpeed.WholePixels, "Shutter native whole speed");
                     AssertEqual(Word(0xa2ea58 + speed * 4), place.SpawnSettings<GrowingShutterSpawnSettings>().GrowthSpeed.Fraction, "Shutter native fractional speed");
                     int direction = selector < 2 ? 1 : -1;

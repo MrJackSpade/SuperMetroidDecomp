@@ -19,14 +19,14 @@ internal static class EscapeTimeUpOutcomeVerification
         SuperMetroidRuntime runtime = CeresRuntimeWithTimerAt(EscapeTimerClock.Time(0, 0, 1), preventEscapeTimeout: false);
         FixedVector<ScreenPixels> corner = runtime.EscapeTimer.Position;
 
-        AssertEqual(RuntimeFrameOutcome.TimeUp, runtime.StepFrame(0, new RuntimeFrameRequest()),
+        AssertTrue(runtime.StepFrame(0, new RuntimeFrameRequest()).StartsTimeUp,
             "the update whose countdown step reaches zero reports the time-up");
         AssertEqual(EscapeTimerPhase.Expired, runtime.EscapeTimer.Phase, "the countdown that ran out is expired");
         AssertTrue(runtime.EscapeTimer.IsActive, "the expired timer is still running for its drawing");
         AssertEqual(0, runtime.EscapeTimer.RemainingCentiseconds, "the expired countdown shows zero");
         AssertTrue(TimerDrawn(runtime), "the expiring update draws the timer");
 
-        AssertEqual(RuntimeFrameOutcome.Ordinary, runtime.StepFrame(0, new RuntimeFrameRequest()),
+        AssertTrue(!runtime.StepFrame(0, new RuntimeFrameRequest()).StartsTimeUp,
             "the update after the expiry reports no second time-up");
         AssertEqual(EscapeTimerPhase.Expired, runtime.EscapeTimer.Phase, "the expired timer stays expired");
         AssertEqual(0, runtime.EscapeTimer.RemainingCentiseconds, "the expired countdown never counts again");
@@ -37,12 +37,12 @@ internal static class EscapeTimeUpOutcomeVerification
         AssertTrue(!runtime.EscapeTimer.IsActive, "the stopped timer is no longer running");
         AssertEqual(0, runtime.EscapeTimer.RemainingCentiseconds, "the stop keeps the countdown");
         AssertEqual(corner, runtime.EscapeTimer.Position, "the stop keeps the timer's place");
-        AssertEqual(RuntimeFrameOutcome.Ordinary, runtime.StepFrame(0, new RuntimeFrameRequest()),
+        AssertTrue(!runtime.StepFrame(0, new RuntimeFrameRequest()).StartsTimeUp,
             "a stopped timer reports no time-up");
         AssertTrue(!TimerDrawn(runtime), "the stopped timer is not drawn");
 
         SuperMetroidRuntime held = CeresRuntimeWithTimerAt(EscapeTimerClock.Time(0, 0, 1), preventEscapeTimeout: true);
-        AssertEqual(RuntimeFrameOutcome.Ordinary, held.StepFrame(0, new RuntimeFrameRequest()),
+        AssertTrue(!held.StepFrame(0, new RuntimeFrameRequest()).StartsTimeUp,
             "the hold-at-one-second assist reports no time-up");
         AssertEqual(EscapeTimerPhase.InPlace, held.EscapeTimer.Phase, "the held countdown keeps counting in its corner");
         AssertEqual(EscapeTimerClock.Time(0, 1, 0), held.EscapeTimer.RemainingCentiseconds, "the assist holds the countdown at one second");

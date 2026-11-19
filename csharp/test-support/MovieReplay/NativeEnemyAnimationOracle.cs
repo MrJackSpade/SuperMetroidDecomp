@@ -50,6 +50,10 @@ internal static class NativeEnemyAnimationOracle
     /// those entries.
     /// </param>
     /// <param name="onlyRunOnInto">The segments no owner starts, which animations only run on into (#1948, #2061).</param>
+    /// <param name="repeatEntryStarts">
+    /// The animations the family's owners start at one of a segment's repeats continuing elsewhere (#2512), compared from
+    /// those repeats' entries.
+    /// </param>
     internal static int CompareAll<TSegment, TFrame, TEvent>(
         IImportCartridgeSource cartridge,
         byte bank,
@@ -60,7 +64,8 @@ internal static class NativeEnemyAnimationOracle
         NativeEnemyCueRules<TEvent> rules,
         IReadOnlyDictionary<TSegment, AnimationContinuation<TSegment>>? countDownContinuations = null,
         IReadOnlyList<NativeCountedEntry<TSegment>>? countedEntries = null,
-        IReadOnlySet<TSegment>? onlyRunOnInto = null)
+        IReadOnlySet<TSegment>? onlyRunOnInto = null,
+        IReadOnlyList<NativeRepeatEntryStart<TSegment>>? repeatEntryStarts = null)
         where TSegment : struct, Enum
         where TFrame : struct
         where TEvent : notnull
@@ -68,8 +73,31 @@ internal static class NativeEnemyAnimationOracle
         Dictionary<TSegment, NativeEnemyList<TSegment>> lists = Lists(cartridge, bank, entries, segments, spritemap, rules);
         CompareAnimations(lists, startingAt, onlyRunOnInto: onlyRunOnInto,
             countedStarts: CountedStarts(cartridge, bank, entries, countedEntries ?? [], rules));
+        CompareRepeatEntryStarts(lists, repeatEntryStarts ?? []);
         CompareCountDownContinuations(lists, startingAt, countDownContinuations ?? new Dictionary<TSegment, AnimationContinuation<TSegment>>());
         return lists.Values.Sum(list => list.BeatAddresses.Length);
+    }
+
+    /// <summary>
+    /// Checks that each animation an owner starts at one of a segment's repeats (#2512) plays the phases and end the native
+    /// lists play from that repeat's entry: the Rio's hover after a swoop starts at the post-swoop list, which repeats the
+    /// idle's tucked wingbeat and continues elsewhere.
+    /// </summary>
+    internal static void CompareRepeatEntryStarts<TSegment>(
+        IReadOnlyDictionary<TSegment, NativeEnemyList<TSegment>> lists, IReadOnlyList<NativeRepeatEntryStart<TSegment>> starts)
+        where TSegment : struct, Enum
+    {
+        Ensure.NotNull(lists);
+        Ensure.NotNull(starts);
+        foreach (NativeRepeatEntryStart<TSegment> start in starts)
+        {
+            VerificationAssertions.AssertTrue(lists[start.Segment].Repeats.Any(repeat => repeat.Entry == start.Entry),
+                $"{start.Name} starts at ${start.Entry:X4}, one of {start.Segment}'s repeats continuing elsewhere");
+            (List<AnimationPhase<TSegment>> phases, AnimationEnd end) = Linearize(lists, start.Segment, startEntry: start.Entry);
+            VerificationAssertions.AssertTrue(start.Animation.Phases.SequenceEqual(phases),
+                $"{start.Name}'s phases follow its native lists from ${start.Entry:X4}: typed [{string.Join(", ", start.Animation.Phases)}], native [{string.Join(", ", phases)}]");
+            VerificationAssertions.AssertEqual(end, start.Animation.End, $"{start.Name}'s end follows its native lists");
+        }
     }
 
     /// <summary>
@@ -709,7 +737,7 @@ internal static class NativeEnemyAnimationOracle
     {
         (Func<ushort, int?> operandWords, Action<ushort, ushort[], TEvent, string> compareCue, Func<TEvent, bool>? endsList, Func<ushort, IReadOnlyList<ushort>, bool>? omitted,
             Func<ushort, ushort?>? goesTo, Func<ushort, bool>? showsPoseAgain, Func<ushort, ushort>? picturedAt, Func<ushort, bool>? ownerLeavesAt,
-            Func<ushort, bool>? shownUnseen) = rules;
+            Func<ushort, bool>? shownUnseen, Func<TEvent, bool>? restates) = rules;
         var addresses = new List<ushort>();
         var controls = new List<NativeEnemyControl<TSegment>>();
         var continuedAt = new HashSet<ushort>();
@@ -802,16 +830,33 @@ internal static class NativeEnemyAnimationOracle
                     // at the goto, as at a sleep, whether the frame follows beats before it or is its list's one record,
                     // which the goto returns to (#2353). It stands too for a frame after which the owner always leaves the list
                     // (#2439: the Morph Ball eye's half-open lid, which its tracking replaces on the next update): the list's
-                    // play never reaches what follows, so the frame shows until the owner plays another.
+                    // play never reaches what follows, so the frame shows until the owner plays another. The frame may be a run
+                    // of records picturing it, one frame of their durations (#2276), ahead of that goto (#2512: the Lower
+                    // Norfair Rio's climb shows its swept wings from three records again and again); and the goto may return to
+                    // the list's entry where every beat before the frame is a cue that only restates what it set (#2512: the
+                    // Norfair Rio's dive and climb place their flames again each time round), the replay changing nothing.
                     VerificationAssertions.AssertEqual(pictured, spritemap(held.Shown), $"{at}: held frame's spritemap");
+                    ushort heldCursor = cursor;
                     ushort afterHeldCursor = unchecked((ushort)(cursor + 4));
+                    if (ownerLeavesAt?.Invoke(afterHeldCursor) != true)
+                    {
+                        while (!entries.Any(item => item.Entry == afterHeldCursor)
+                            && NativeEnemyListDefinitions.Classify(cartridge.ReadCartridgeWord((int)new SnesAddress(bank, afterHeldCursor))) == NativeEnemyListDefinitions.WordKind.Frame
+                            && Pictured(cartridge.ReadCartridgeWord((int)new SnesAddress(bank, afterHeldCursor) + 2)) == pictured)
+                        {
+                            afterHeldCursor = unchecked((ushort)(afterHeldCursor + 4));
+                        }
+                    }
                     int afterHeld = (int)new SnesAddress(bank, afterHeldCursor);
                     NativeEnemyListDefinitions.WordKind followedBy = NativeEnemyListDefinitions.Classify(cartridge.ReadCartridgeWord(afterHeld));
-                    bool loopsOnItself = followedBy == NativeEnemyListDefinitions.WordKind.GoTo && cartridge.ReadCartridgeWord(afterHeld + 2) == cursor;
+                    ushort? goesBackTo = followedBy == NativeEnemyListDefinitions.WordKind.GoTo ? cartridge.ReadCartridgeWord(afterHeld + 2) : null;
+                    bool loopsOnItself = goesBackTo == heldCursor
+                        || (goesBackTo == entry && beat > 0 && Enumerable.Range(0, beat).All(before =>
+                            beats[before] is AnimationBeat<TFrame, TEvent>.Event cue && restates?.Invoke(cue.Raised) == true));
                     VerificationAssertions.AssertTrue(followedBy == NativeEnemyListDefinitions.WordKind.Sleep || loopsOnItself
                             || ownerLeavesAt?.Invoke(afterHeldCursor) == true,
-                        $"{at}: a held frame's native frame is followed by its sleep, by a goto back to the frame, or by where the owner leaves the list");
-                    addresses.Add(cursor);
+                        $"{at}: a held frame's native frame is followed by its sleep, by a goto back to the frame or past restated cues, or by where the owner leaves the list");
+                    addresses.Add(heldCursor);
                     cursor = afterHeldCursor;
                     if (loopsOnItself)
                     {
@@ -974,6 +1019,19 @@ internal static class NativeEnemyAnimationOracle
         }
     }
 }
+
+/// <summary>
+/// An animation an owner starts at one of a segment's repeats continuing elsewhere (#2512): the native list at
+/// <paramref name="Entry"/> holds the segment's beats again and goes on otherwise than the segment's first list, as the
+/// Rio's post-swoop list repeats its idle's tucked wingbeat and its hover follows.
+/// </summary>
+/// <typeparam name="TSegment">The segment identity.</typeparam>
+/// <param name="Name">The owner's identity for the animation, for failure messages.</param>
+/// <param name="Animation">The animation.</param>
+/// <param name="Segment">The segment whose repeat it starts at.</param>
+/// <param name="Entry">The repeat's native entry.</param>
+internal readonly record struct NativeRepeatEntryStart<TSegment>(string Name, Animation<TSegment> Animation, TSegment Segment, ushort Entry)
+    where TSegment : struct, Enum;
 
 /// <summary>
 /// An animation an owner starts at a native entry that is no segment's list (#2044): the entry only loads the loop counter

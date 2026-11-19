@@ -16,6 +16,7 @@ namespace SuperMetroid.Verification.Rooms.Doors;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Reproduces enemy sound ordering on the first door-entry update.</summary>
 internal static class DoorEntryEnemySoundVerification
@@ -58,7 +59,7 @@ internal static class DoorEntryEnemySoundVerification
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            level.ResolveDoorCollision(block, samus.Pose.ForRoomCollision(), true);
+            runtime.MeetDoorBlock(block, samus.Pose.ForRoomCollision());
             selected = true;
         }
         AssertTrue(selected, "the Ki Hunter room has an exit");

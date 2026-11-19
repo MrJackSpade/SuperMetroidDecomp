@@ -85,6 +85,12 @@ public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
     /// <summary>The room's scroll triggers and extensions.</summary>
     internal ScrollObjects Scrolls { get; }
 
+    /// <summary>
+    /// The room's door contacts (#2545): the door Samus entered, until the door transition goes through it, and her stand at
+    /// the elevator's door, which the elevator takes on the next update. They live with the room, as its room objects do.
+    /// </summary>
+    internal RoomDoorContacts DoorContacts { get; } = new();
+
     /// <summary>Handles Draygon arena cannon room objects and their block changes.</summary>
     internal DraygonCannonObjects DraygonCannons { get; }
 
@@ -269,4 +275,7 @@ public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
 
     /// <inheritdoc/>
     IChozoStatueHand ISamusRoomObjects.ChozoStatueHand => ChozoStatue;
+
+    /// <inheritdoc/>
+    RoomDoorContacts ISamusRoomObjects.DoorContacts => DoorContacts;
 }

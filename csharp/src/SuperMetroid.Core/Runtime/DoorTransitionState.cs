@@ -52,13 +52,13 @@ internal sealed class DoorTransitionState
     public bool LeavesDestinationLoadRunning =>
         Phase is DoorTransitionPhase.LoadDestinationRoom or DoorTransitionPhase.WaitForDoorOpeningScroll;
 
-    /// <summary>Captures the pending door and starts the ordinary-room transition sequence.</summary>
-    /// <param name="runtime">The runtime whose pending door, player, colour, and enemy state are prepared.</param>
+    /// <summary>Captures the door Samus entered and starts the ordinary-room transition sequence.</summary>
+    /// <param name="runtime">The runtime whose entered door, player, colour, and enemy state are prepared.</param>
     public void Begin(SuperMetroidRuntime runtime)
     {
         Ensure.NotNull(runtime);
-        DoorDefinition door = runtime.RoomLoader.PendingDoorTransition
-            ?? throw new InvalidOperationException("A door transition requires a pending door.");
+        DoorDefinition door = runtime.Room.LoadedScope.RoomObjects.DoorContacts.EnteredDoor
+            ?? throw new InvalidOperationException("A door transition requires a door Samus entered.");
         if (IsActive)
             throw new InvalidOperationException("A door transition is already active.");
 

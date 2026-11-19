@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.World;
 internal sealed class CeresElevatorShaftMain(CeresElevatorShaftRoomMainState shaft) : IRoomMain
 {
     /// <inheritdoc/>
-    public void Run(RoomMainUpdate update)
+    public RoomMainOutcome Run(RoomMainUpdate update)
     {
         CeresElevatorShaftRoomMainResult result = shaft.Step(
             update.Player.IntroducedSamus,
@@ -22,5 +22,6 @@ internal sealed class CeresElevatorShaftMain(CeresElevatorShaftRoomMainState sha
             update.Carryover);
         if (result.TiltChanged)
             update.Display.ActiveTurningFloor = result.Transform;
+        return result.ElevatorTookSamus ? RoomMainOutcome.CeresElevatorTookSamus : RoomMainOutcome.None;
     }
 }

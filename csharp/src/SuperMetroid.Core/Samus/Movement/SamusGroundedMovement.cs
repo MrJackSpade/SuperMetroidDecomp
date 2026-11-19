@@ -29,14 +29,19 @@ public static class SamusGroundedMovement
     /// moves her one pixel down through the downward block collision. The elevator actor remains a separate producer of the status,
     /// and of the platform art; this method holds the complete Samus-side consumer.
     /// </remarks>
-    [IndependentFlag("Elevator motion and door side-effect publication are independent states of the frame.")]
+    /// <param name="level">The room's level the elevator carries her through.</param>
+    /// <param name="samus">Samus, in a front-facing pose.</param>
+    /// <param name="frameCounter">The update's frame counter, whose parity picks the scan's column order.</param>
+    /// <param name="elevatorIsMoving">Whether an elevator carries her this update.</param>
+    /// <param name="roomObjects">The room's room objects and door contacts her scan reaches.</param>
+    /// <param name="doorBlocks">What the door blocks the elevator carries her through do to her (#2545).</param>
     internal static BlockMoveResult? StepFacingForward(
         RoomLevelData level,
         SamusState samus,
         int frameCounter,
         bool elevatorIsMoving,
         ISamusRoomObjects roomObjects,
-        bool publishDoorSideEffects)
+        DoorBlockMeeting doorBlocks)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
@@ -53,7 +58,7 @@ public static class SamusGroundedMovement
             // the game sets first is read by nothing before the next move sets its own. That move deliberately skips
             // solid-enemy collision but retains ordinary room-block and behaviour scanning and the
             // alternating left/right order selected from the frame counter's parity.
-            vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromParts(1, 0), ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), IncludeSolidEnemies = false, PublishDoorSideEffects = publishDoorSideEffects });
+            vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromParts(1, 0), ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), IncludeSolidEnemies = false, DoorBlocks = doorBlocks });
         }
 
         // Clearing the vertical collision result is all front-view movement does without a moving elevator. In

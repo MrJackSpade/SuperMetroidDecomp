@@ -57,6 +57,9 @@ internal sealed class IntroCollisionRoomObjects : ISamusRoomObjects
     /// <inheritdoc/>
     public bool EveryPlaceHeld => throw Reached(nameof(EveryPlaceHeld));
 
+    /// <inheritdoc/>
+    public RoomDoorContacts DoorContacts => throw Reached(nameof(DoorContacts));
+
     /// <summary>The failure of a touch that reached <paramref name="family"/>, which the intro's rooms do not have.</summary>
     private static InvalidOperationException Reached(string family) =>
         new($"The opening cinematic's collision rooms hold no room objects, but a touched block reached {family}.");

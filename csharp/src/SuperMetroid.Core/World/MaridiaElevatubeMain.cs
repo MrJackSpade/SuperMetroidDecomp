@@ -9,7 +9,10 @@ namespace SuperMetroid.Core.World;
 internal sealed class MaridiaElevatubeMain(MaridiaElevatubeRoomMainState tube) : IRoomMain
 {
     /// <inheritdoc/>
-    public void Run(RoomMainUpdate update) =>
+    public RoomMainOutcome Run(RoomMainUpdate update)
+    {
         tube.Step(update.Room.LevelData, update.Player.IntroducedSamus, update.FrameCounter, update.Room.RoomObjects,
             update.Carryover);
+        return RoomMainOutcome.None;
+    }
 }

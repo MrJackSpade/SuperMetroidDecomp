@@ -209,14 +209,14 @@ internal static class OutOfHealthGameStateVerification
         game.Step(0);
         AssertEqual(0, samus.Health, "the periodic damage takes Samus's last energy on the update she touches the door");
         AssertEqual(SuperMetroidGameState.ReserveTankRefill, game.GameState, "the AUTO reserves' refill takes the update from the door");
-        AssertTrue(!runtime.RoomLoader.HasPendingDoorTransition, "the refill's game state replaces the door's: the door hit is forgotten");
+        AssertTrue(runtime.EnteredDoor is null, "the refill's game state replaces the door's: the door hit is forgotten");
 
         // The refill holds Samus; placed back where the completion update's one spark step stays short of the door, she does
         // not touch it again.
         samus.Position = samus.Position.WithWholeX(64);
         game.Step(0);
         AssertEqual(0, samus.ReserveEnergy, "the refill's update moves the last reserve unit");
-        AssertTrue(!runtime.RoomLoader.HasPendingDoorTransition, "the completion update's spark stays short of the door");
+        AssertTrue(runtime.EnteredDoor is null, "the completion update's spark stays short of the door");
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the refill's completion update, with no door touched, stays in main gameplay");
 
         Console.WriteLine("A door touched on the update the refill begins: the refill replaces the door, which is entered only if touched again.");
@@ -378,7 +378,7 @@ internal static class OutOfHealthGameStateVerification
         samus.Position = samus.Position.WithWhole(new(128, 128));
         game.Session.Enter(SuperMetroidGameState.MainGameplay);
         game.Step(0);
-        AssertTrue(!runtime.RoomLoader.HasPendingDoorTransition, "the spark's first update is short of the door");
+        AssertTrue(runtime.EnteredDoor is null, "the spark's first update is short of the door");
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the spark's first update stays in main gameplay");
         return (game, runtime, samus);
     }

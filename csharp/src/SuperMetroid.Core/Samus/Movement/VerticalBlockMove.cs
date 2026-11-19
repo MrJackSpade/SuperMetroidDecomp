@@ -15,8 +15,8 @@ public sealed record VerticalBlockMove
     /// <summary>Whether solid enemies stop the move as blocks do.</summary>
     public bool IncludeSolidEnemies { get; init; } = true;
 
-    /// <summary>Whether a door block the move touches publishes its door transition and other side effects.</summary>
-    public bool PublishDoorSideEffects { get; init; } = true;
+    /// <summary>What the door blocks the move meets do to Samus beyond stopping her or letting her pass (#2545).</summary>
+    public DoorBlockMeeting DoorBlocks { get; init; } = DoorBlockMeeting.Contacts;
 
     /// <summary>
     /// The direction the touched blocks react to, or null to take the move's own; the nondirectional probe suppresses

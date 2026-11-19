@@ -162,18 +162,21 @@ internal static class CeresEscapeHandoffVerification
         SamusState samus = CreateSamus(
             SamusPoseId.FacingRightNormalPose,
             position: new(113, 75));
-        trigger.Step(samus, elevatorDoorDestroyed: true, allowDeparture: false, triggerCarryover);
-        AssertTrue(!trigger.DepartureRequested, "non-gameplay dispatcher cannot trigger departure");
+        CeresElevatorShaftRoomMainResult refused =
+            trigger.Step(samus, elevatorDoorDestroyed: true, allowDeparture: false, triggerCarryover);
+        AssertTrue(!refused.ElevatorTookSamus, "non-gameplay dispatcher cannot trigger departure");
+        AssertTrue(!samus.Control.InputLocked, "a refused departure leaves Samus free");
 
         CeresElevatorShaftRoomMainResult requested =
             trigger.Step(samus, elevatorDoorDestroyed: true, allowDeparture: true, triggerCarryover);
-        AssertTrue(requested.DepartureRequestedThisFrame, "inclusive lower Y/exclusive lower X trigger admits Samus");
+        AssertTrue(requested.ElevatorTookSamus, "inclusive lower Y/exclusive lower X trigger admits Samus");
         AssertTrue(samus.Control.InputLocked, "departure trigger installs SamusCode_00 lock");
         AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose, "departure keeps right-facing standing pose");
 
-        CeresElevatorShaftRoomMainResult repeated =
-            trigger.Step(samus, elevatorDoorDestroyed: true, allowDeparture: true, triggerCarryover);
-        AssertTrue(!repeated.DepartureRequestedThisFrame, "departure request is a one-frame publication");
+        // The update that took Samus moved the game to the departure, whose own updates leave main gameplay (#2545).
+        CeresElevatorShaftRoomMainResult departing =
+            trigger.Step(samus, elevatorDoorDestroyed: true, allowDeparture: false, triggerCarryover);
+        AssertTrue(!departing.ElevatorTookSamus, "the departure's own updates do not take Samus again");
     }
 
     /// <summary>Checks the exact 60-call departure hold and 15 visible fade steps before forced blank renders black.</summary>

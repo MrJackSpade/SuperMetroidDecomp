@@ -15,6 +15,7 @@ namespace SuperMetroid.Verification.Rooms.Doors;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>Checks that a station notice delays dispatch of a door transition discovered in the same gameplay update.</summary>
 internal static class DoorWaitsForMessageBoxVerification
@@ -44,7 +45,7 @@ internal static class DoorWaitsForMessageBoxVerification
         game.Session.Enter(SuperMetroidGameState.MainGameplay);
 
         // The gameplay call's movement published the door; its PLM handler opened the notice.
-        PrivateState.Set(runtime.Room.LoadedLevelData, nameof(SuperMetroid.Core.Rooms.LevelData.RoomLevelData.PendingDoorTransition), door);
+        runtime.DoorContacts.Meet(DoorContact.Of(DoorBlockExit.Physical(door), SamusCollisionPose.StandingNormal));
         runtime.MessageBox.Begin(GameplayMessageId.MissileRechargeCompleted, 0, SuperMetroid.Core.Input.ControllerBindings.Default);
         game.Step(0);
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the open box holds the door's state");

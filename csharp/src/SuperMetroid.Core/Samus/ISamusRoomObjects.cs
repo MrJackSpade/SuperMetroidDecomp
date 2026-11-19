@@ -46,6 +46,12 @@ internal interface ISamusRoomObjects
     IChozoStatueHand ChozoStatueHand { get; }
 
     /// <summary>
+    /// The room's door contacts, which Samus's collision with a door block meets (#2545): the door she enters and her
+    /// stand at the elevator's door.
+    /// </summary>
+    RoomDoorContacts DoorContacts { get; }
+
+    /// <summary>
     /// True when every one of the room's room-object places is held. A block contact whose reaction would take a place then
     /// runs none of its setup, so even a block whose setup would stop Samus lets her pass.
     /// </summary>

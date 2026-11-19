@@ -9,5 +9,6 @@ internal interface IRoomMain
 {
     /// <summary>Runs the main once.</summary>
     /// <param name="update">The room and the session owners the update runs it against.</param>
-    void Run(RoomMainUpdate update);
+    /// <returns>What the main did that the update acts on (#2545).</returns>
+    RoomMainOutcome Run(RoomMainUpdate update);
 }

@@ -176,15 +176,10 @@ public static class SamusBlockCollision
                         break;
 
                     case RoomCollisionType.DoorBlock:
-                        // A door block leads somewhere. A normal destination publishes the door, enters
-                        // the door-transition game state, and reports no collision, so this scan must allow
-                        // Samus into the doorway. Elevator pseudo-destinations are not doors
-                        // and clip her as an ordinary solid block does.
-                        DoorBlockExit horizontalDoor = terrain.Level.ResolveDoorCollision(
-                            block,
-                            pose.ForRoomCollision(),
-                            publishDoorSideEffects: true);
-                        if (horizontalDoor.IsElevatorPseudoDoor)
+                        // A door block leads somewhere. Samus enters a door it leads through, which reports no
+                        // collision, so this scan allows her into the doorway. The elevator's door is not a door
+                        // and clips her as an ordinary solid block does.
+                        if (MeetDoorBlock(terrain, block, pose, DoorBlockMeeting.Contacts))
                         {
                             acceptedDisplacement = ClipHorizontalToSolid(
                                 state,
@@ -420,7 +415,7 @@ public static class SamusBlockCollision
             // Only a terrain move of some distance clears this latch. A solid-enemy
             // stop skips the terrain, and a zero movement does not clear it either.
             state.PositionAdjustedBySlope = false;
-            VerticalTerrainScan scan = ScanVerticalTerrain(terrain, state, owner, pose, new VerticalTerrainProbe { Displacement = acceptedDisplacement, ScanLeftToRight = move.ScanLeftToRight, CanBreakBombBlocks = move.CanBreakBombBlocks, PublishDoorSideEffects = move.PublishDoorSideEffects, BlockReactionDirection = move.BlockReactionDirection });
+            VerticalTerrainScan scan = ScanVerticalTerrain(terrain, state, owner, pose, new VerticalTerrainProbe { Displacement = acceptedDisplacement, ScanLeftToRight = move.ScanLeftToRight, CanBreakBombBlocks = move.CanBreakBombBlocks, DoorBlocks = move.DoorBlocks, BlockReactionDirection = move.BlockReactionDirection });
             acceptedDisplacement = scan.AcceptedDisplacement;
             collided = scan.Collided;
             sandContact = scan.SandContact;
@@ -530,14 +525,8 @@ public static class SamusBlockCollision
                     break;
 
                 case RoomCollisionType.DoorBlock:
-                    // A door block reacts to a vertical move as it does to a horizontal one. Its collision
-                    // result is kept here; the room-level owner publishes the same
-                    // door entry for the frontend game-state loop to consume.
-                    DoorBlockExit verticalDoor = terrain.Level.ResolveDoorCollision(
-                        block,
-                        pose.ForRoomCollision(),
-                        move.PublishDoorSideEffects);
-                    if (verticalDoor.IsElevatorPseudoDoor)
+                    // A door block reacts to a vertical move as it does to a horizontal one.
+                    if (MeetDoorBlock(terrain, block, pose, move.DoorBlocks))
                     {
                         acceptedDisplacement = ClipVerticalToSolid(
                             state,
@@ -730,9 +719,33 @@ public static class SamusBlockCollision
     {
         Ensure.NotNull(level);
         Ensure.NotNull(state);
-        VerticalTerrainScan scan = ScanVerticalTerrain(new SamusTerrain { Level = level, RoomObjects = roomObjects }, state, owner, pose, new VerticalTerrainProbe { Displacement = displacement, ScanLeftToRight = scanLeftToRight, CanBreakBombBlocks = false, PublishDoorSideEffects = true, BlockReactionDirection = SamusCollisionDirection.NonDirectionalProbe });
+        VerticalTerrainScan scan = ScanVerticalTerrain(new SamusTerrain { Level = level, RoomObjects = roomObjects }, state, owner, pose, new VerticalTerrainProbe { Displacement = displacement, ScanLeftToRight = scanLeftToRight, CanBreakBombBlocks = false, DoorBlocks = DoorBlockMeeting.Contacts, BlockReactionDirection = SamusCollisionDirection.NonDirectionalProbe });
         state.Position = state.Position.AdvanceY(scan.AcceptedDisplacement);
         return new BlockMoveResult(scan.AcceptedDisplacement, scan.Collided);
+    }
+
+    /// <summary>
+    /// Samus's collision meeting a door block (#2545): the contact she makes with it, which the room's door contacts act
+    /// on unless an elevator carries her past it; returns whether the block stops her as a solid block does.
+    /// </summary>
+    /// <param name="terrain">The room's level, where the block leads, and its door contacts.</param>
+    /// <param name="block">The door block she met.</param>
+    /// <param name="pose">Her pose, which decides whether the elevator's door arms the elevator.</param>
+    /// <param name="meeting">Whether the move contacts door blocks or is carried past them.</param>
+    private static bool MeetDoorBlock(SamusTerrain terrain, RoomCollisionBlock block, SamusPoseId? pose, DoorBlockMeeting meeting)
+    {
+        DoorContact contact = DoorContact.Of(terrain.Level.DoorExitAt(block), pose.ForRoomCollision());
+        switch (meeting)
+        {
+            case DoorBlockMeeting.Contacts:
+                terrain.RoomObjects.DoorContacts.Meet(contact);
+                break;
+            case DoorBlockMeeting.CarriedPastByElevator:
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(DoorBlockMeeting)} {meeting}.");
+        }
+        return contact.Blocks;
     }
 
     /// <summary>

@@ -37,12 +37,6 @@ public sealed class CeresElevatorShaftRoomMainState
     /// </summary>
     public CeresShaftSweep Sweep { get; private set; }
 
-    /// <summary>True after the elevator bounds have admitted Samus once.</summary>
-    public bool DepartureRequested { get; private set; }
-
-    /// <summary>One-frame publication consumed by the outer game-state loop.</summary>
-    public bool DepartureRequestedThisFrame { get; private set; }
-
     /// <summary>The shaft's most recently published tilt.</summary>
     public TurningFloorTransform Transform { get; private set; } = CreateInitialTransform();
 
@@ -65,9 +59,10 @@ public sealed class CeresElevatorShaftRoomMainState
     /// <param name="allowDeparture">
     /// Whether Samus may leave by the elevator: only while the game is still in main gameplay where room main runs (#2534),
     /// not during the Ceres departure, the time-up's white-out or any other game state, when the shaft still turns but no
-    /// departure starts.
+    /// departure starts. The update that takes her moves the game to the departure, so no later update allows it again.
     /// </param>
     /// <param name="carryover">The room-main value the following room inherits, which receives every turn.</param>
+    /// <returns>The update's turn, and whether the elevator took Samus, which the gameplay update acts on (#2545).</returns>
     [IndependentFlag("independent room facts read from the room's data: the elevator door's state and whether departure is allowed")]
     public CeresElevatorShaftRoomMainResult Step(
         SamusState samus,
@@ -77,17 +72,15 @@ public sealed class CeresElevatorShaftRoomMainState
     {
         Ensure.NotNull(samus);
         Ensure.NotNull(carryover);
-        DepartureRequestedThisFrame = false;
 
         // The room code is entirely dormant until the Ceres door's destruction publishes
         // its escape status. In particular, the initial elevator descent stays level instead of prematurely consuming the
         // turn.
         if (!elevatorDoorDestroyed)
-            return new(Transform, TiltChanged: false, DepartureRequestedThisFrame);
+            return new(Transform, TiltChanged: false, ElevatorTookSamus: false);
 
-        if (allowDeparture &&
-            !DepartureRequested &&
-            IsInsideDepartureTrigger(samus))
+        bool elevatorTookSamus = allowDeparture && IsInsideDepartureTrigger(samus);
+        if (elevatorTookSamus)
         {
             // Reaching the Ceres elevator turns Samus to the standing pose for the way she faces, with its size and
             // animation, and locks out the player; the wait before Samus leaves Ceres is the game state's, which reads
@@ -99,14 +92,12 @@ public sealed class CeresElevatorShaftRoomMainState
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             samus.Control.LockOutPlayer();
-            DepartureRequested = true;
-            DepartureRequestedThisFrame = true;
         }
 
         if (HoldFramesLeft > 0)
         {
             HoldFramesLeft--;
-            return new(Transform, TiltChanged: false, DepartureRequestedThisFrame);
+            return new(Transform, TiltChanged: false, elevatorTookSamus);
         }
 
         // Both sweeps show the current tilt.
@@ -136,7 +127,7 @@ public sealed class CeresElevatorShaftRoomMainState
         }
         LeaveTurnStep(carryover);
 
-        return new(Transform, TiltChanged: true, DepartureRequestedThisFrame);
+        return new(Transform, TiltChanged: true, elevatorTookSamus);
     }
 
     /// <summary>

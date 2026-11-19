@@ -97,12 +97,12 @@ internal static class CeresElevatorDoorSealVerification
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Kinematics.Position = samus.Kinematics.Position.WithWhole(new(224, 640));
         samus.Kinematics.Radius = new(5, 16);
-        for (int pixel = 0; pixel < 32 && level.PendingDoorTransition is null; pixel++)
+        for (int pixel = 0; pixel < 32 && runtime.RoomObjects.DoorContacts.EnteredDoor is null; pixel++)
         {
             SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = runtime.RoomObjects }, samus.Kinematics,
                 samus, samus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1) });
         }
         rightmostPixel = samus.Kinematics.Position.X.Whole + samus.Kinematics.Radius.X - 1;
-        return level.ConsumePendingDoorTransition();
+        return runtime.RoomObjects.DoorContacts.EnteredDoor;
     }
 }

@@ -112,7 +112,7 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
         // The finished fade moves on from what this update started: the pause preparation,
         // or the next step of a door hit or time-up gameplay wrote on this final fade update.
         // A time-up written after a door hit on the same update takes precedence.
-        bool doorEntered = session.GameplayRuntime.RoomLoader.HasPendingDoorTransition;
+        bool doorEntered = session.GameplayRuntime.Room.LoadedScope.RoomObjects.DoorContacts.EnteredDoor is not null;
         if (doorEntered)
             session.Enter(DoorTransitionStep.EnteringDoor);
         bool timeUp = outcome.StartsTimeUp;

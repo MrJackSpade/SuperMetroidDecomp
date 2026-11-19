@@ -14,10 +14,11 @@ namespace SuperMetroid.Core.World;
 internal sealed class ScrollingSkyMain(ScrollingSkyState sky, EscapeExplosionSite? explosions) : IRoomMain
 {
     /// <inheritdoc/>
-    public void Run(RoomMainUpdate update)
+    public RoomMainOutcome Run(RoomMainUpdate update)
     {
         sky.ProcessFrame(update.Room.Camera.PixelPosition, timeIsFrozen: update.TimeIsFrozen);
         if (explosions is { } site)
             update.Escape.StepEscapeRoom(update.Room, site, null);
+        return RoomMainOutcome.None;
     }
 }

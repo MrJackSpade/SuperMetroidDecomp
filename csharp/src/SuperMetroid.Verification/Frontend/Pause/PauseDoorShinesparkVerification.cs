@@ -67,7 +67,7 @@ internal static class PauseDoorShinesparkVerification
             game.Session.Enter(SuperMetroidGameState.MainGameplay);
             game.Step(ControllerButton.Start);
             AssertTrue(game.IsAt(PauseStep.DarkeningGameplay), "Start begins darkening before reaching the open door");
-            AssertTrue(!runtime.RoomLoader.HasPendingDoorTransition, "initial Start frame is short of the door");
+            AssertTrue(runtime.EnteredDoor is null, "initial Start frame is short of the door");
             if (scenario.Brightening)
                 game.Session.Enter(PauseStep.BrighteningGameplay);
             // The pause's fade keeps its step delay with no update left to wait, so the next update steps.
@@ -76,7 +76,7 @@ internal static class PauseDoorShinesparkVerification
             // Put the leading edge immediately before the door for the next real mover call.
             samus.Position = samus.Position.WithWholeX((ushort)(160 - samus.Kinematics.Radius.X - 1));
             game.Step(0);
-            AssertTrue(runtime.RoomLoader.HasPendingDoorTransition, "horizontal shinespark actually touches the open door during the fade");
+            AssertTrue(runtime.EnteredDoor is not null, "horizontal shinespark actually touches the open door during the fade");
             AssertEqual(ShinesparkPhase.Horizontal, samus.Shinespark.Phase, "door contact does not crash the shinespark");
             bool publishedExpected = scenario.Terminal
                 ? scenario.Brightening ? game.GameState == SuperMetroidGameState.MainGameplay : game.IsAt(DoorTransitionStep.BeginningTransition)

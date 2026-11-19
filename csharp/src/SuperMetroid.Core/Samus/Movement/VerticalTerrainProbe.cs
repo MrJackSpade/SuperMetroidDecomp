@@ -15,8 +15,8 @@ internal readonly record struct VerticalTerrainProbe
     /// <summary>Whether bomb blocks along the probe break.</summary>
     public required bool CanBreakBombBlocks { get; init; }
 
-    /// <summary>Whether touched door blocks publish their side effects.</summary>
-    public required bool PublishDoorSideEffects { get; init; }
+    /// <summary>What the door blocks the probe meets do to Samus beyond stopping her or letting her pass (#2545).</summary>
+    public required DoorBlockMeeting DoorBlocks { get; init; }
 
     /// <summary>The direction reported to block reactions, or none.</summary>
     public required SamusCollisionDirection? BlockReactionDirection { get; init; }

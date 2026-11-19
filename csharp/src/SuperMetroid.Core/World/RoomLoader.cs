@@ -347,15 +347,6 @@ internal sealed class RoomLoader
     }
 
     /// <summary>
-    /// True after a door block's reaction has selected a normal destination door and
-    /// before the frontend's door-transition states consume it.
-    /// </summary>
-    public bool HasPendingDoorTransition => _room.LevelData?.PendingDoorTransition is not null;
-
-    /// <summary>The unconsumed door selected by a door block's collision reaction.</summary>
-    public DoorDefinition? PendingDoorTransition => _room.LevelData?.PendingDoorTransition;
-
-    /// <summary>
     /// Takes one update of the source room's alignment at the start of a door transition. Horizontal doors move the
     /// camera's Y toward the nearest screen boundary; vertical doors move X, one pixel per update: a camera past the middle
     /// of its screen moves on to the next screen's edge and one before it back to its own, so one pixel either side of
@@ -653,9 +644,9 @@ internal sealed class RoomLoader
     {
         SamusState samus = _player.IntroducedSamus;
 
-        RoomLevelData sourceLevel = _room.LoadedLevelData;
-        DoorDefinition door = sourceLevel.PendingDoorTransition
-            ?? throw new InvalidOperationException("No door block's collision has chosen a door to go through.");
+        RoomDoorContacts sourceDoors = _room.LoadedScope.RoomObjects.DoorContacts;
+        DoorDefinition door = sourceDoors.EnteredDoor
+            ?? throw new InvalidOperationException("Samus's collision has entered no door to go through.");
         DoorTransitionPlacement placement = CalculateDoorTransitionPlacement(door, sourceSamus);
         SelectedRoom room = LoadSelectedRoom(door.DestinationRoom);
 
@@ -664,18 +655,10 @@ internal sealed class RoomLoader
         // therefore begins in indirect G-Mode and cannot create a visible gate actor.
         samus.Xray.TransitionDirectGModeToIndirect();
 
-        // The destination's assets load before the source room's pending door is consumed, so a destination that
-        // fails to load leaves the door still pending.
+        // The destination's assets load before the transition goes through the source room's entered door, so a
+        // destination that fails to load leaves the door entered.
         LoadedRoomAssets assets = LoadedRoomAssets.Load(_scrollCells, room, RequireRoomAssetCatalogs());
-        DoorDefinition consumedDoor = sourceLevel.ConsumePendingDoorTransition()
-            ?? throw new InvalidOperationException(
-                "Pending door disappeared while its destination assets were prepared.");
-        if (consumedDoor != door)
-        {
-            throw new InvalidOperationException(
-                $"Pending door changed from {door.Name} to " +
-                $"{consumedDoor.Name} while its destination assets were prepared.");
-        }
+        sourceDoors.GoThroughEnteredDoor(door);
 
         // A door that exchanges explored maps stores the live map as the departed area's,
         // then, with the destination's definition loaded, loads the live map from the entered area's.

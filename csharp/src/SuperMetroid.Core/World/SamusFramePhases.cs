@@ -836,9 +836,7 @@ internal sealed class SamusFramePhases
             elevatorIsMoving:
                 room.Enemies.Elevator.ElevatorStatus != ElevatorActorStatus.Inactive,
             roomObjects: room.RoomObjects,
-            publishDoorSideEffects:
-                RoomMainRoutines.ShouldPublishFacingForwardElevatorDoorSideEffects(
-                    room.Enemies.Elevator.ElevatorStatus));
+            doorBlocks: RoomMainRoutines.FacingForwardDoorBlocks(room.Enemies.Elevator.ElevatorStatus));
     }
 
     /// <summary>Runs the knockback movement type's normal movement: the one-frame grounding probe before the knockback ending's target.</summary>

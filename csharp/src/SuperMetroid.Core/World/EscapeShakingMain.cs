@@ -10,5 +10,9 @@ namespace SuperMetroid.Core.World;
 internal sealed class EscapeShakingMain(EscapeExplosionSite site, EscapeDiagonalQuake? diagonal) : IRoomMain
 {
     /// <inheritdoc/>
-    public void Run(RoomMainUpdate update) => update.Escape.StepEscapeRoom(update.Room, site, diagonal);
+    public RoomMainOutcome Run(RoomMainUpdate update)
+    {
+        update.Escape.StepEscapeRoom(update.Room, site, diagonal);
+        return RoomMainOutcome.None;
+    }
 }

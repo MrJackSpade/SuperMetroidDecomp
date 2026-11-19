@@ -16,6 +16,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Reproduces special Rinka placement during the door scroll into Mother Brain's room.</summary>
 internal static class MotherBrainRinkaDoorSpawnVerification
@@ -54,10 +55,10 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock ||
-                level.ResolveDoorCollision(block, samus.Pose.ForRoomCollision(), publishDoorSideEffects: false)
+                level.DoorExitAt(block)
                     .Door?.DestinationRoom != RoomDefinitions.MotherBrain)
                 continue;
-            level.ResolveDoorCollision(block, samus.Pose.ForRoomCollision(), publishDoorSideEffects: true);
+            runtime.MeetDoorBlock(block, samus.Pose.ForRoomCollision());
             selected = true;
         }
         AssertTrue(selected, "the shaft has a door into Mother Brain's room");

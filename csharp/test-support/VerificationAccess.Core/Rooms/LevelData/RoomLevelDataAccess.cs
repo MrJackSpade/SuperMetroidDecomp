@@ -39,7 +39,7 @@ internal static class RoomLevelDataAccess
 
         /// <summary>
         /// Returns this level to <paramref name="source"/>'s complete state in place: every plane, the terrain beyond the
-        /// room and the pending door flags. Both levels must share one layout.
+        /// room. Both levels must share one layout; the room's door contacts are its room objects', not its level's (#2545).
         /// </summary>
         internal void RestoreFrom(RoomLevelData source)
         {
@@ -69,8 +69,6 @@ internal static class RoomLevelDataAccess
                 self.BeyondRoom.SetTerrain(beyond, source.BeyondRoom.TerrainAt(beyond));
                 self.BeyondRoom.SetBehavior(beyond, source.BeyondRoom.BehaviorAt(beyond));
             }
-            PrivateState.Set(self, nameof(RoomLevelData.PendingDoorTransition), source.PendingDoorTransition);
-            PrivateState.Set(self, nameof(RoomLevelData.ElevatorDoorContactPending), source.ElevatorDoorContactPending);
         }
     }
 

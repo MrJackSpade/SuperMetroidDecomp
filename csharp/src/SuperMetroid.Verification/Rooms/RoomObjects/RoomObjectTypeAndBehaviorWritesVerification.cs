@@ -43,8 +43,7 @@ internal static class RoomObjectTypeAndBehaviorWritesVerification
             new MotherBrainMutationRequest(origin, MotherBrainRoomMutation.EscapeDoor)), "the escape door's room change takes a place");
         AssertEqual(Solid.WithCollision(RoomCollisionType.DoorBlock), level.GetCollisionBlock(origin).Terrain,
             "the escape door's block becomes a door block keeping its terrain's picture");
-        AssertEqual(TourianDoorDefinitions.MotherBrainToTourianEscape1, level.ResolveDoorCollision(level.GetCollisionBlock(origin),
-            SamusPoseId.ForwardFacingPowerSuitPose.ForRoomCollision(), publishDoorSideEffects: false).Door,
+        AssertEqual(TourianDoorDefinitions.MotherBrainToTourianEscape1, level.DoorExitAt(level.GetCollisionBlock(origin)).Door,
             "the escape door's block leads into the escape's first room");
         for (int row = 1; row < blocks.Length; row++)
         {

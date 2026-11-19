@@ -51,11 +51,11 @@ internal static class RetailElevatorDepartureTests
         Compare("departure start");
         if (runtime.Enemies.LastEnemyFrame.Elevator != ElevatorFrameEvent.DepartureStarted)
             throw new InvalidOperationException("Downward elevator did not accept the input edge.");
-        while (!runtime.RoomLoader.HasPendingDoorTransition && departure < 240)
+        while (runtime.EnteredDoor is null && departure < 240)
         {
             runtime.StepFrame(0); departure++; Compare("departure");
         }
-        if (!runtime.RoomLoader.HasPendingDoorTransition) throw new InvalidOperationException("Elevator never reached its exit.");
+        if (runtime.EnteredDoor is null) throw new InvalidOperationException("Elevator never reached its exit.");
         var transition = new DoorTransitionState();
         var audio = AudioQueues.Standalone();
         transition.Begin(runtime);

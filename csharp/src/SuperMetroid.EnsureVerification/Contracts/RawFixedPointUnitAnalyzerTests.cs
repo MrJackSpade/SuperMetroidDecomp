@@ -8,7 +8,7 @@ using SuperMetroid.EnsureVerification.Harness;
 
 namespace SuperMetroid.EnsureVerification.Contracts;
 
-/// <summary>Checks the #2555 raw fixed-point unit rule, SME6463.</summary>
+/// <summary>Checks the #2555 raw fixed-point unit rule, SME6465.</summary>
 internal static class RawFixedPointUnitAnalyzerTests
 {
     /// <summary>The advice a raw-part finding ends with.</summary>
@@ -111,7 +111,7 @@ internal static class RawFixedPointUnitAnalyzerTests
         }
         """;
 
-    /// <summary>Compiles one source and compares the SME6463 count and an optional message fragment.</summary>
+    /// <summary>Compiles one source and compares the SME6465 count and an optional message fragment.</summary>
     private static void Expect(string source, string? message = null, int count = 1, string assemblyName = CoreLayerAnalyzer.CoreAssembly)
     {
         var tree = CSharpSyntaxTree.ParseText(source, new CSharpParseOptions(LanguageVersion.Preview),

@@ -9,7 +9,7 @@ using SuperMetroid.EnsureAnalyzer.Modules;
 namespace SuperMetroid.EnsureAnalyzer.Contracts;
 
 /// <summary>
-/// Speeds, accelerations, distances and turns are written in named units, never raw fixed-point parts (SME6463, #2555): in
+/// Speeds, accelerations, distances and turns are written in named units, never raw fixed-point parts (SME6465, #2555): in
 /// <c>SuperMetroid.Core</c>, outside the type that declares the factory and outside an <c>[EncodingOwner]</c> type, a
 /// constant passed to a raw-unit factory (any <c>FromTwoHundredFiftySixths…</c>, <c>FromSixteenths…</c>,
 /// <c>FromParts</c>, <c>FromFractionsOfStep</c>, <c>FromEighthsOfStep</c>, <c>FromHalfSteps</c> or <c>FromFraction</c>) or
@@ -25,7 +25,7 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 public sealed class RawFixedPointUnitAnalyzer : DiagnosticAnalyzer
 {
     /// <summary>Core writes a measure in raw fixed-point parts or shifts a value by a literal count.</summary>
-    public const string RawFixedPointUnitId = "SME6463";
+    public const string RawFixedPointUnitId = "SME6465";
 
     /// <summary>The attribute that marks the single owner of an encoding.</summary>
     private const string EncodingOwnerAttribute = "SuperMetroid.Core.EncodingOwnerAttribute";

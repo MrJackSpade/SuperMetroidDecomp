@@ -917,7 +917,7 @@ enum member's name made a dictionary's or set's key (`Add`, `TryGetValue`, `Cont
 `Enum.Parse`, `Enum.TryParse`, `Enum.GetNames` and `JsonStringEnumConverter` in any form. Diagnostic text, exception
 messages and an import run's own fingerprints and content identities, which nothing installs, stay free to name members.
 
-SME6463 (#2555) keeps measures in named units. Outside the type that declares the factory and outside an
+SME6465 (#2555) keeps measures in named units. Outside the type that declares the factory and outside an
 `[EncodingOwner]` type, Core passes no constant to a raw-unit factory (`FromTwoHundredFiftySixths…`, `FromSixteenths…`,
 `FromParts`, `FromFractionsOfStep`, `FromEighthsOfStep`, `FromHalfSteps`, `FromFraction`) or to a parameter counting a
 raw fraction (`fraction`, `twoHundredFiftySixths`, `sixteenths`, `fractionsOfStep`, `subposition`), writes no constant

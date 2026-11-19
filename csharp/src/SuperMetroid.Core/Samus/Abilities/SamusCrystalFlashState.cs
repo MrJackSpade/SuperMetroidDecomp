@@ -212,7 +212,6 @@ public sealed class SamusCrystalFlashState
         }
 
         return new CrystalFlashMovementResult(
-            phaseAtStart,
             BubbleStarted: phaseAtStart == CrystalFlashPhase.Raising && Phase == CrystalFlashPhase.DrainingAmmo);
     }
 

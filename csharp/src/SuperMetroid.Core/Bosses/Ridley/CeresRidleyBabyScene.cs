@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;

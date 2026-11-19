@@ -40,9 +40,6 @@ public readonly record struct Offset16<TSpace> : System.Numerics.IUnaryNegationO
     /// <summary>One unit down, toward increasing Y, and no horizontal displacement.</summary>
     public static Offset16<TSpace> OneDown => new(0, 1);
 
-    /// <summary>One unit left, toward decreasing X, and no vertical displacement.</summary>
-    public static Offset16<TSpace> OneLeft => new(-1, 0);
-
     /// <summary>One unit right, toward increasing X, and no vertical displacement.</summary>
     public static Offset16<TSpace> OneRight => new(1, 0);
 

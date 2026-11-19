@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
@@ -60,9 +59,6 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
 
     /// <summary>The strike on the cannon's block it has yet to take (#2562).</summary>
     private readonly StrikeAwaitingRoomObject<ResidentObjectProjectileHit> _strike = new();
-
-    /// <summary>The strike on the cannon's block it has yet to take, or null for none.</summary>
-    internal ResidentObjectProjectileHit? AwaitingStrike => _strike.Awaiting;
 
     /// <summary>
     /// The play of what the cannon shows (#2401): its shield, its hit flash or its sparks, each picture with the updates it

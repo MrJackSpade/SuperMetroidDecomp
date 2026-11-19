@@ -5,6 +5,13 @@ namespace SuperMetroid.Core.Fx;
 /// holds each phase for its phase's length of updates, then shows the next, returning to the cycle's start after its last
 /// phase.
 /// </summary>
+/// <remarks>
+/// The wave keeps the updates it has shown its phase, not a countdown started with the phase's length (#2561): each update
+/// compares them with the length its owner passes for that update, which follows the room's liquid as it stands then (a
+/// lava or acid haze's length is its direction's), so a liquid that changes in the middle of a phase moves the phase on
+/// at the new length, as the game's haze step does. A countdown or an <see cref="IntervalClock"/> fixes the length when
+/// the phase starts and would not.
+/// </remarks>
 /// <param name="Phase">The phase of the cycle the wave shows.</param>
 /// <param name="UpdatesShown">The updates the wave has shown its phase, zero before its first update.</param>
 internal readonly record struct WaveCycle(int Phase, int UpdatesShown)

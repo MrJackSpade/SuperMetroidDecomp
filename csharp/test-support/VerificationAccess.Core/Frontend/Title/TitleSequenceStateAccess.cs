@@ -18,7 +18,7 @@ internal static class TitleSequenceStateAccess
         /// NTSC demo countdown. Retail initializes this to $0384 (900 frames); PAL uses $02D0
         /// so both revisions hold the title for approximately fifteen seconds.
         /// </summary>
-        internal int TitleScreenFramesRemaining => self.Phase == TitleSequencePhase.TitleScreen ? self.PhaseTimer : 0;
+        internal int TitleScreenFramesRemaining => self.Phase == TitleSequencePhase.TitleScreen ? self.IdleTimeout.UpdatesLeft : 0;
 
         /// <summary>
         /// Shows <paramref name="sprite"/> or the typed card <paramref name="card"/> at <paramref name="origin"/> in

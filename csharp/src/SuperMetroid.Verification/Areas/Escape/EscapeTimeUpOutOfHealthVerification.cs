@@ -40,7 +40,7 @@ internal static class EscapeTimeUpOutOfHealthVerification
         // From a shared fade step count at zero the white-out steps once at each count through its last step, and
         // completes on the update after.
         AssertTrue(!runtime.FadeStepCount.IsPastStart, "no other fade has advanced the shared fade step count");
-        for (int update = 0; update < TimeUpDefinitions.WhiteOutLastStep + 2; update++)
+        for (int update = 0; update < TimeUpDefinitions.WhiteOutParts + 2; update++)
         {
             AssertEqual(TimeUpStep.WhiteningOut, game.Session.TimeUpStep, "the white-out runs until its fade completes");
             game.Step(0);

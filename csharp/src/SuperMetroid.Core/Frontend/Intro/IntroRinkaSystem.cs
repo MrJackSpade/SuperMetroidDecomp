@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// The four Rinkas (the ring-shaped “Cheerios”) fired during the Mother Brain flashback.
 /// </summary>
 /// <remarks>
-/// This models the Rinka and spawner definitions and their animations.
+/// This models the Rinka definitions, their animations and the scene's two waves of launches.
 /// Only the first Rinka launched is scripted to strike Samus; the other three deliberately miss.
 /// The hit step does not subtract health in the cinematic. It publishes eleven
 /// frames of invincibility and knockback, which makes Samus flash and visibly react.
@@ -19,25 +19,19 @@ internal sealed class IntroRinkaSystem
 {
     /// <summary>The live Rinkas, in spawn order; a deleted Rinka leaves the list at the end of the pass that deletes it.</summary>
     internal readonly List<IntroRinka> rinkas = [];
-    /// <summary>Invisible actor whose animation schedules the two spawn pairs.</summary>
-    private readonly CinematicActor<IntroRinkaAnimation, CinematicSpritePose, IntroRinkaSpawnerCue> spawner;
-    /// <summary>Whether Mother Brain's explosions have started, after which the spawner's animation has no spawn left.</summary>
+    /// <summary>The waves of launches still to come, the next first (<see cref="IntroRinkaDefinitions.Launches"/>).</summary>
+    private readonly Queue<IntroRinkaLaunchWave> waves = new(IntroRinkaDefinitions.Launches);
+    /// <summary>The next wave's wait, counted once each update; the update it ends on launches the wave.</summary>
+    private UpdateCountdown launchWait = UpdateCountdown.Lasting(IntroRinkaDefinitions.Launches[0].Wait);
+    /// <summary>Whether Mother Brain's explosions have started, after which no wave is left to launch.</summary>
     private bool spawnsForbidden;
 
-    /// <summary>Creates the invisible spawner before its timed animation runs.</summary>
-    public IntroRinkaSystem()
-    {
-        // The spawner's animation times both launches (IntroRinkaAnimations.Spawner).
-        spawner = new(new(0, 0), IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors), IntroRinkaAnimations.Spawner,
-            IntroRinkaDefinitions.SpawnerActor.Animation);
-    }
-
-    /// <summary>One update of the spawner, then of every Rinka.</summary>
+    /// <summary>One update of the launch schedule, then of every Rinka.</summary>
     /// <param name="samus">Samus, whose X position a hitting Rinka crosses before applying its knockback.</param>
     /// <param name="motherBrainExploding">True once Mother Brain's exploding step deletes the Rinkas.</param>
     /// <param name="explosionsAllocated">
-    /// True once Mother Brain's explosions have started. The spawner's animation spawns every Rinka before then, so a
-    /// spawn after it is a fault in the cinematic's script.
+    /// True once Mother Brain's explosions have started. The schedule launches every Rinka before then, so a launch after it
+    /// is a fault in the cinematic's script.
     /// </param>
     [IndependentFlag("Mother Brain exploding and her explosions having started are separate intro states read each frame.")]
     public void Step(SamusState samus, bool motherBrainExploding,
@@ -46,10 +40,14 @@ internal sealed class IntroRinkaSystem
         Ensure.NotNull(samus);
 
         spawnsForbidden = explosionsAllocated;
-        // The spawner updates before the Rinkas, so a Rinka it spawns runs its first flight check and animation step in
-        // this same update.
-        if (spawner.IsActive)
-            spawner.Step(HandleSpawnerCue);
+        // The schedule runs before the Rinkas, so a Rinka it launches runs its first flight check and animation step in this
+        // same update.
+        if (waves.Count != 0 && launchWait.Count())
+        {
+            Spawn(waves.Dequeue().Pair);
+            if (waves.TryPeek(out IntroRinkaLaunchWave? next))
+                launchWait = UpdateCountdown.Lasting(next.Wait);
+        }
 
         foreach (IntroRinka rinka in rinkas)
         {
@@ -67,24 +65,6 @@ internal sealed class IntroRinkaSystem
     {
         foreach (IntroRinka rinka in rinkas)
             rinka.Sprite.Draw(screenSprites, installedArt: installedArt);
-    }
-
-    /// <summary>Handles the two spawner cues, launching the striking pair or the missing pair.</summary>
-    private void HandleSpawnerCue(IntroRinkaSpawnerCue cue)
-    {
-        switch (cue)
-        {
-            case IntroRinkaSpawnerCue.SpawnStrikingPair:
-                Spawn(IntroRinkaDefinitions.StrikingPair);
-                return;
-
-            case IntroRinkaSpawnerCue.SpawnMissingPair:
-                Spawn(IntroRinkaDefinitions.MissingPair);
-                return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(IntroRinkaSpawnerCue)} {cue}.");
-        }
     }
 
     /// <summary>Starts a Rinka's movement, selecting the hit route for the Rinka that strikes Samus and the miss route for the others.</summary>
@@ -108,7 +88,7 @@ internal sealed class IntroRinkaSystem
         if (spawnsForbidden)
         {
             throw new InvalidOperationException(
-                "The intro Rinka spawner spawned a Rinka after Mother Brain's explosions started.");
+                "The intro Rinka schedule launched a Rinka after Mother Brain's explosions started.");
         }
 
         foreach (IntroRinkaLaunch launch in pair)

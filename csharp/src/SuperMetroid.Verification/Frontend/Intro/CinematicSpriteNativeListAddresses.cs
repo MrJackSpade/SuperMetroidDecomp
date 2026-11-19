@@ -58,7 +58,6 @@ internal static class CinematicSpriteNativeListAddresses
         [IntroMotherBrainExplosionAnimation.Big] = 0xcdab,
         [IntroMotherBrainExplosionAnimation.Small] = 0xcdcb,
         [IntroRinkaAnimation.Rinka] = 0xcdeb,
-        [IntroRinkaAnimation.Spawner] = 0xce0d,
         [CeresAnimation.StationBlast] = 0xce1b,
         [CeresAnimation.ExplosionSpawner] = 0xce35,
         [CeresAnimation.LargeAsteroid] = 0xce4b,
@@ -136,10 +135,25 @@ internal static class CinematicSpriteNativeListAddresses
     internal static NativeCinematicCues<IntroRinkaCue> RinkaCues { get; } = new(
         new Dictionary<ushort, IntroRinkaCue> { [0xb8c5] = IntroRinkaCue.StartMoving }, new Dictionary<ushort, IntroRinkaCue>());
 
+    /// <summary>
+    /// The original's invisible intro Rinka spawner list (#2561): the port launches the flashback's Rinkas on a schedule of
+    /// waits instead (<see cref="IntroRinkaDefinitions.Launches"/>), which the list's cues time.
+    /// </summary>
+    internal const ushort RinkaSpawnerList = 0xce0d;
+
+    /// <summary>What the original's intro Rinka spawner list has its owner do: launch the striking pair, then the missing pair.</summary>
+    internal enum NativeRinkaSpawnerCue
+    {
+        /// <summary>Launches the pair whose first Rinka strikes Samus.</summary>
+        SpawnStrikingPair,
+        /// <summary>Launches the pair that both miss Samus.</summary>
+        SpawnMissingPair,
+    }
+
     /// <summary>What the intro Rinka spawner's list has its owner do.</summary>
-    internal static NativeCinematicCues<IntroRinkaSpawnerCue> RinkaSpawnerCues { get; } = new(
-        new Dictionary<ushort, IntroRinkaSpawnerCue> { [0xba21] = IntroRinkaSpawnerCue.SpawnStrikingPair, [0xba36] = IntroRinkaSpawnerCue.SpawnMissingPair },
-        new Dictionary<ushort, IntroRinkaSpawnerCue>());
+    internal static NativeCinematicCues<NativeRinkaSpawnerCue> RinkaSpawnerCues { get; } = new(
+        new Dictionary<ushort, NativeRinkaSpawnerCue> { [0xba21] = NativeRinkaSpawnerCue.SpawnStrikingPair, [0xba36] = NativeRinkaSpawnerCue.SpawnMissingPair },
+        new Dictionary<ushort, NativeRinkaSpawnerCue>());
 
     /// <summary>What the Ceres scenes' lists have their owner do: the PLANET ZEBES title's cues.</summary>
     internal static NativeCinematicCues<CeresCue> CeresCues { get; } = new(

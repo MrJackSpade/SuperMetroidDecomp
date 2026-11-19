@@ -180,19 +180,19 @@ internal static class ScreenTilePicturesVerification
         // The ending waits on its music queue, which the game drains after every dispatch.
         var audio = AudioQueues.Standalone();
         EndingCreditsState ending = CreateRetailEndingFixture(audio, 10, 59);
-        for (int tick = 0; ending.Stage.Phase != EndingCreditsPhase.SeeYouNextMission
-            && (afterCredits || ending.Stage.Phase < EndingCreditsPhase.Credits); tick++)
+        for (int tick = 0; ending.Phase != EndingCreditsPhase.SeeYouNextMission
+            && (afterCredits || ending.Phase < EndingCreditsPhase.Credits); tick++)
         {
             // A phase is checked once, so its scene is only built until then, every few updates.
-            if (tick % PhaseSampleUpdates == 0 && (ending.Stage.Phase > EndingCreditsPhase.Credits) == afterCredits
-                && !sampled.Contains($"{ending.Stage.Phase}"))
+            if (tick % PhaseSampleUpdates == 0 && (ending.Phase > EndingCreditsPhase.Credits) == afterCredits
+                && !sampled.Contains($"{ending.Phase}"))
             {
                 LayeredScene scene = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
                 if (ShowsFloor(scene))
                 {
-                    sampled.Add($"{ending.Stage.Phase}");
+                    sampled.Add($"{ending.Phase}");
                     byte[] shownEnding = ending.ShownVram();
-                    layers += AssertFloorsDrawnFromCharacters(scene, shownEnding, $"ending {ending.Stage.Phase}");
+                    layers += AssertFloorsDrawnFromCharacters(scene, shownEnding, $"ending {ending.Phase}");
                 }
             }
             ending.Step();

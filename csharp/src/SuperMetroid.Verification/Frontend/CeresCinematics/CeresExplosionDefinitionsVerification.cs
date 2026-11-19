@@ -69,17 +69,16 @@ internal static class CeresExplosionDefinitionsVerification
     /// <summary>Compares the repeating blasts' eight places and the final wave's heights with the cartridge's placement words.</summary>
     internal static void VerifyCeresBurstLayout(ISnesAddressSpace retail)
     {
-        AssertEqual(6, CeresExplosionDefinitions.RepeatingBlasts.Count, "the spawner's six repeating blasts take the first six of the cartridge's eight places");
-        for (int index = 0; index < CeresExplosionDefinitions.RepeatingBlasts.Count; index++)
+        AssertEqual(6, CeresExplosionDefinitions.RepeatingBlastPlaces.Count, "the spawner's six repeating blasts take the first six of the cartridge's eight places");
+        for (int index = 0; index < CeresExplosionDefinitions.RepeatingBlastPlaces.Count; index++)
         {
-            CeresExplosionPlacement placement = CeresExplosionDefinitions.RepeatingBlasts[index];
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((0x8bc4eb + index * 4)), unchecked((ushort)placement.Offset.X),
+            Offset16<ScreenPixels> offset = CeresExplosionDefinitions.RepeatingBlastPlaces[index];
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((0x8bc4eb + index * 4)), unchecked((ushort)offset.X),
                 $"repeating explosion {index} X offset");
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((0x8bc4ed + index * 4)), unchecked((ushort)placement.Offset.Y),
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((0x8bc4ed + index * 4)), unchecked((ushort)offset.Y),
                 $"repeating explosion {index} Y offset");
-            AssertEqual(1, placement.DelayFrames,
-                $"repeating explosion {index} initial instruction delay");
         }
+        AssertEqual(1, CeresExplosionDefinitions.RepeatingBlastDelayFrames, "every repeating explosion's initial instruction delay");
 
         for (int index = 0; index < CeresExplosionDefinitions.FinalWave.Count; index++)
         {

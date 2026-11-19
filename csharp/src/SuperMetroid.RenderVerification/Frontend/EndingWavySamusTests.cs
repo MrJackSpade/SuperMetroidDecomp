@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
@@ -28,15 +29,18 @@ internal static class EndingWavySamusTests
                 SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingObjects));
         scene.InstalledArtwork.LoadCreditsAndPostCreditsAssets();
         scene.CreditsRoll.SetupPostCreditsBlank();
-        scene.Stage.Phase = EndingCreditsPhase.PostCreditsShootingStars;
-        scene.Stage.PhaseTimer = 1;
+        // The ending stands on the backdrop fade's last update.
+        var lastFadeUpdate = UpdateCountdown.Lasting(EndingSequenceDefinitions.Timing.WaitingBackdropFadeFrames);
+        PrivateState.Set(lastFadeUpdate, nameof(UpdateCountdown.Age), EndingSequenceDefinitions.Timing.WaitingBackdropFadeFrames - 1);
+        PrivateState.Set(scene, nameof(EndingCreditsState.Phase), EndingCreditsPhase.PostCreditsShootingStars);
+        PrivateState.Set(scene, nameof(EndingCreditsState.PhaseHold), lastFadeUpdate);
         scene.Stage.Fade.Show(DisplayBrightness.Full);
         Require(!EndingCreditsPresentation.CaptureRenderSnapshot(scene).LayersOf<AddedPicturedPlaneLayer>().Any(), "Wave must not start during the palette fade");
         scene.Step();
         RgbaPixel[]? previous = null;
         for (int age = 0; age < 180; age++)
         {
-            Require(scene.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop, "Native wave lasts exactly the 180-frame hold");
+            Require(scene.Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop, "Native wave lasts exactly the 180-frame hold");
             var snapshot = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
             var added = snapshot.LayersOf<AddedPicturedPlaneLayer>().Single();
             Require(added.VerticalScroll == age * 2, $"Native vertical scroll age {age}");
@@ -65,7 +69,7 @@ internal static class EndingWavySamusTests
             }
             scene.Step();
         }
-        Require(scene.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingSamus, "Result panel replaces the wave after its wait");
+        Require(scene.Phase == EndingCreditsPhase.PostCreditsWaitingSamus, "Result panel replaces the wave after its wait");
         Require(!EndingCreditsPresentation.CaptureRenderSnapshot(scene).LayersOf<AddedPicturedPlaneLayer>().Any(), "Result panel disables BG3 addition");
         Console.WriteLine($"{device.Kind}: ending wave description and native line scrolls, moving blue pixels and 180-frame lifecycle passed.");
 

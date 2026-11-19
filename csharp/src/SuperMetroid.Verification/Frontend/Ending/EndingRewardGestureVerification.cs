@@ -89,7 +89,7 @@ internal static class EndingRewardGestureVerification
                     firstMotion = true;
                 }
                 minimumY = Math.Min(minimumY, jump.BodyY);
-                if (!switched && jump.Falling)
+                if (!switched && jump.FellBack)
                 {
                     AssertTrue(jump.BodyY < -80, "Samus falls back only once beyond the upper screen edge");
                     switched = true;

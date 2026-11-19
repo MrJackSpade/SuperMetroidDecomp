@@ -17,7 +17,7 @@ internal abstract class EndingSprite
         Definition = EndingSpriteRoleDefinitions.Roles.TryGetValue(role, out EndingSpriteRoleDefinition? definition)
             ? definition
             : throw new ArgumentOutOfRangeException(nameof(role), role, "Undefined ending sprite role.");
-        Motion = Definition.Motion?.Invoke();
+        Motion = Definition.Motion();
     }
 
     /// <summary>What the actor shows.</summary>
@@ -26,11 +26,14 @@ internal abstract class EndingSprite
     /// <summary>What the actor's role draws from, the sprite layer it shows on and the motion it starts with.</summary>
     public EndingSpriteRoleDefinition Definition { get; }
 
-    /// <summary>How the actor moves, with whatever state its motion keeps (#2489), or null for one with no motion of its own.</summary>
-    public EndingActorMotion? Motion { get; }
+    /// <summary>How the actor moves, with whatever state its motion keeps (#2489); an actor with no motion of its own stands still (#2541).</summary>
+    public EndingActorMotion Motion { get; }
 
     /// <summary>The actor: where it stands, whether it is alive, and its animation's next update.</summary>
     public abstract ICinematicActor<EndingSceneCue> Sprite { get; }
+
+    /// <summary>Runs the actor's own motion for this update in <paramref name="scene"/>, before its animation steps (#2489).</summary>
+    internal void StepMotion(IEndingActorScene scene) => Motion.Step(Sprite, scene);
 
     /// <summary>
     /// Draws what the actor shows from <paramref name="art"/> without advancing it: a picture from its family's

@@ -35,11 +35,11 @@ internal static class EndingRewardIconArtworkVerification
         var installedScene = CreateRetailEndingFixture(installedAudio, 3, 0);
         int jumpFrames = 0;
         for (int frame = 0; frame < 60_000 &&
-            nativeScene.Stage.Phase != EndingCreditsPhase.PostCreditsShot; frame++)
+            nativeScene.Phase != EndingCreditsPhase.PostCreditsShot; frame++)
         {
-            AssertEqual(nativeScene.Stage.Phase, installedScene.Stage.Phase,
+            AssertEqual(nativeScene.Phase, installedScene.Phase,
                 $"reward icon installed/native phase at frame {frame}");
-            if (nativeScene.Stage.Phase == EndingCreditsPhase.PostCreditsJump)
+            if (nativeScene.Phase == EndingCreditsPhase.PostCreditsJump)
             {
                 jumpFrames++;
                 LayeredScene expected = EndingCreditsPresentation.CaptureRenderSnapshot(nativeScene);
@@ -58,9 +58,9 @@ internal static class EndingRewardIconArtworkVerification
             nativeAudio.AdvanceFrame(default);
             installedAudio.AdvanceFrame(default);
         }
-        AssertEqual(EndingCreditsPhase.PostCreditsShot, nativeScene.Stage.Phase,
+        AssertEqual(EndingCreditsPhase.PostCreditsShot, nativeScene.Phase,
             "native reward reaches Mode-7 shot");
-        AssertEqual(EndingCreditsPhase.PostCreditsShot, installedScene.Stage.Phase,
+        AssertEqual(EndingCreditsPhase.PostCreditsShot, installedScene.Phase,
             "installed reward reaches Mode-7 shot");
         AssertTrue(jumpFrames >= 200,
             "reward icon integration covers the full native jump and the icon's reveal");

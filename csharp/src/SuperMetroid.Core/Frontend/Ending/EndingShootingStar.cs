@@ -2,9 +2,11 @@ using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>Mutable position, velocity, start delay and pictures of one post-credits star.</summary>
+/// <summary>One post-credits star: its own flight's definition, and its position, velocity, start delay and pictures.</summary>
 internal struct EndingShootingStar
 {
+    /// <summary>How the star flies: its acceleration, its pictures' pace and its start delay (#2541).</summary>
+    internal EndingShootingStarDefinition Definition;
     /// <summary>
     /// The updates of its authored start delay the star still waits, counted down to none, after which its next update
     /// starts it (#2488); null once it flies.

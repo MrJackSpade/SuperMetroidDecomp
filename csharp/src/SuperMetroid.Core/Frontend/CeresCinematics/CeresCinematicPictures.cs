@@ -39,12 +39,10 @@ public static class CeresCinematicPictures
     }
 
     /// <summary>
-    /// The Zebes reveal's plane: the planet once <paramref name="revealed"/>, in its own colours (#1544), nothing before.
-    /// The gunship engine's flicker is the gunship's colour effect, which the planet does not show.
+    /// The Zebes reveal's plane: the planet, in its own colours (#1544). The gunship engine's flicker is the gunship's
+    /// colour effect, which the planet does not show.
     /// </summary>
-    internal static PicturedPlane Zebes(InstalledSpriteSheets sheets, bool revealed) => new(
-        revealed
-            ? [new PlacedPlanePicture(Ensure.NotNull(sheets).Get(SpriteSheetId.CeresCinematicPictures).Frame(ZebesPlanet), default,
-                PictureShading.Standard)]
-            : []);
+    internal static PicturedPlane Zebes(InstalledSpriteSheets sheets) => new(
+        [new PlacedPlanePicture(Ensure.NotNull(sheets).Get(SpriteSheetId.CeresCinematicPictures).Frame(ZebesPlanet), default,
+            PictureShading.Standard)]);
 }

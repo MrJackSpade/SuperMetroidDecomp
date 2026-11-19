@@ -106,8 +106,8 @@ internal static class CoreAccess
         internal int Brightness => ending.Stage.Brightness;
         /// <summary>Cinematic calls the ending has made so far.</summary>
         internal int CinematicFrame => PrivateState.Field<EndingCreditsState, int>(ending, "cinematicFrame");
-        /// <summary>Whole-pixel vertical credits scroll position, or zero before credits exist.</summary>
-        internal int CreditsVerticalScroll => ending.CreditsRoll.CurrentCredits?.ScrolledPixels ?? 0;
+        /// <summary>Whole-pixel vertical credits scroll position while the staff credits show, or zero in every other scene.</summary>
+        internal int CreditsVerticalScroll => ending.Scene is EndingCreditsRollScene { Scroll: var scroll } ? scroll.ScrolledPixels : 0;
     }
 
     /// <summary>Exposes pause page transition, map scroll, and displayed map cell state.</summary>

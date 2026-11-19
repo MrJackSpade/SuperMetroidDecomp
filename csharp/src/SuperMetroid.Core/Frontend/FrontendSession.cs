@@ -331,10 +331,23 @@ internal sealed class FrontendSession
     }
 
     /// <summary>Enters Ceres's destruction with <paramref name="outcome"/>.</summary>
-    internal void Enter(CeresDestructionOutcome outcome)
+    private void Enter(CeresDestructionOutcome outcome)
     {
         Enter(SuperMetroidGameState.CeresDestruction);
         CeresDestructionOutcome = outcome;
+    }
+
+    /// <summary>
+    /// Shows Ceres's destruction cinematic with <paramref name="outcome"/>, in the loaded game's text language, and enters
+    /// it (#2541): each way in, the elevator's departure, a saved game resumed at the destruction and the escape's time-up
+    /// with Samus aboard, has a gameplay runtime loaded.
+    /// </summary>
+    internal void BeginCeresDestruction(CeresDestructionOutcome outcome)
+    {
+        Show(new CeresDestructionCinematicState(
+            audio, Artwork.ScreenContent.PowerBombGlowColors, Artwork.IntroCinematicArt, Artwork.SpriteSheets,
+            outcome, japaneseText: GameplayRuntime.JapaneseText));
+        Enter(outcome);
     }
 
     /// <summary>Enters the time-up at <paramref name="step"/>.</summary>

@@ -92,15 +92,17 @@ internal static class EndingShootingStarsTests
                 SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingObjects));
         scene.InstalledArtwork.LoadCreditsAndPostCreditsAssets();
         scene.CreditsRoll.SetupPostCreditsBlank();
+        PrivateState.Set(scene, nameof(EndingCreditsState.Phase), EndingCreditsPhase.PostCreditsBlank);
+        PrivateState.Set(scene, nameof(EndingCreditsState.PhaseHold), UpdateCountdown.Lasting(EndingSequenceDefinitions.Timing.PostCreditsBlankFrames));
         var seen = new HashSet<EndingCreditsPhase>();
         for (int tick = 0; tick < 400; tick++)
         {
             scene.Step();
-            if (scene.Brightness == 0 || !seen.Add(scene.Stage.Phase)) continue;
+            if (scene.Brightness == 0 || !seen.Add(scene.Phase)) continue;
             var snapshot = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
             byte[] snapshotVram = scene.ShownVram();
             // The text-only screen covers the stars, so it draws none (#1514); every other post-credits screen shows them.
-            bool hidden = scene.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingSamus;
+            bool hidden = scene.Phase == EndingCreditsPhase.PostCreditsWaitingSamus;
             Require(hidden || snapshot.SpriteDraws.Length > 0, "Post-credits owner emits its stars where they show");
             // The stars are their own sprite layer behind the waiting backdrop and share the actors' layer otherwise (#1514).
             SpriteDraw[] starDraws = [.. EndingCreditsPresentation.PrepareSprites(scene, EndingSpriteLayer.Stars).Draws];
@@ -120,8 +122,8 @@ internal static class EndingShootingStarsTests
         // A later logo owner must append stars after its own actors, including after
         // the icon's actor program completes and the final text remains on screen.
         var logo = new EndingLogo(scene.Stage, () => { });
-        PrivateState.Set(scene.CreditsRoll, nameof(EndingCreditsRoll.CurrentEndingLogo), logo);
-        scene.Stage.Phase = EndingCreditsPhase.PostCreditsLogo;
+        PrivateState.Set(scene, nameof(EndingCreditsState.Scene), new EndingLogoScene(logo));
+        PrivateState.Set(scene, nameof(EndingCreditsState.Phase), EndingCreditsPhase.PostCreditsLogo);
         PrivateState.Set(logo, nameof(EndingLogo.Completed), true);
         PrivateState.Set(logo, nameof(EndingLogo.CrossfadeStarted), true);
         var final = EndingCreditsPresentation.CaptureRenderSnapshot(scene);

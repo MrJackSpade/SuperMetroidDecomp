@@ -30,7 +30,7 @@ internal static class CeresSpawnerScheduleVerification
                     repeatingUpdates.Add(update);
             });
         }
-        AssertEqual(CeresExplosionDefinitions.RepeatingBlasts.Count, repeatingUpdates.Count, "the spawner spawns one repeating blast per place");
+        AssertEqual(CeresExplosionDefinitions.RepeatingBlastPlaces.Count, repeatingUpdates.Count, "the spawner spawns one repeating blast per place");
 
         var audio = AudioQueues.Standalone();
         CeresDestructionCinematicState state = CreateRetailDestructionFixture(audio);

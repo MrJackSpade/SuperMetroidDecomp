@@ -183,11 +183,11 @@ internal static class EndingObjectArtworkVerification
         installed.InstalledArtwork.BindFixtureObjectArtwork(stock);
         var phases = new HashSet<EndingCreditsPhase>();
         for (int frame = 0; frame < 12000 &&
-            native.Stage.Phase != EndingCreditsPhase.FadeOutToCredits; frame++)
+            native.Phase != EndingCreditsPhase.FadeOutToCredits; frame++)
         {
-            AssertEqual(native.Stage.Phase, installed.Stage.Phase,
+            AssertEqual(native.Phase, installed.Phase,
                 $"installed ending OBJ art preserves phase at frame {frame}");
-            if (phases.Add(native.Stage.Phase) || frame % 211 == 0)
+            if (phases.Add(native.Phase) || frame % 211 == 0)
             {
                 LayeredScene expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
                 RgbColor[] expectedColours = EndingShownColours.Of(native);
@@ -205,9 +205,9 @@ internal static class EndingObjectArtworkVerification
             nativeAudio.AdvanceFrame(default);
             installedAudio.AdvanceFrame(default);
         }
-        AssertEqual(EndingCreditsPhase.FadeOutToCredits, native.Stage.Phase,
+        AssertEqual(EndingCreditsPhase.FadeOutToCredits, native.Phase,
             "ending OBJ fixture reaches the completed-time credits handoff");
-        AssertEqual(EndingCreditsPhase.FadeOutToCredits, installed.Stage.Phase,
+        AssertEqual(EndingCreditsPhase.FadeOutToCredits, installed.Phase,
             "installed OBJ art retains the native completed-time credits handoff");
         AssertTrue(phases.Contains(EndingCreditsPhase.WaitForEscapeMusic) &&
                 phases.Contains(EndingCreditsPhase.FadeInTopAndBottomCloudEscape) &&

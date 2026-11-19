@@ -18,7 +18,7 @@ internal sealed class EndingEscapeScenes
     private readonly EndingScreen screen ;
     /// <summary>The ending's actors in their running order, in which they step and draw (<see cref="EndingCastOrderDefinitions"/>).</summary>
     private readonly List<EndingSprite> sprites ;
-    /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, colours, the shared sprites and stars, and the artwork they share.</summary>
+    /// <summary>What every ending scene draws on: brightness, the turning-floor view, colours, the shared sprites and stars, and the artwork they share.</summary>
     private readonly EndingStage _stage;
     /// <summary>The ending's installed artwork: its text, font, staff credits, turning floor, sprite and colour assets.</summary>
     private readonly EndingArtwork _artwork;
@@ -44,9 +44,7 @@ internal sealed class EndingEscapeScenes
         _stage.SpawnSprite(EndingActorDefinitions.SideCloudLeftLeading, EndingSpriteRole.SideCloudLeftLeading);
         _stage.SpawnSprite(EndingActorDefinitions.SideCloudRightTrailing, EndingSpriteRole.SideCloudRightTrailing);
         _stage.SpawnSprite(EndingActorDefinitions.SideCloudLeftTrailing, EndingSpriteRole.SideCloudLeftTrailing);
-        _stage.FloorPosition = new(_stage.FloorPosition.X.WithWholePixels(0), default);
-        _stage.FloorZoom = EndingMotionDefinitions.EscapeInitialZoom;
-        _stage.FloorAngle = EndingMotionDefinitions.EscapeInitialAngle.ToAngle();
+        _stage.Floor.SetUp(Offset16<FloorPixels>.Zero, EndingMotionDefinitions.EscapeInitialZoom, EndingMotionDefinitions.EscapeInitialAngle.ToAngle());
         _stage.Fade.Show(0);
         _artwork.PostCreditsText.Drop = 0;
         audio.QueueMusic(MusicRequest.Stop);
@@ -54,7 +52,6 @@ internal sealed class EndingEscapeScenes
         audio.ScheduleMusic(
             MusicRequest.SelectTrack(EndingSequenceDefinitions.Music.EscapeSong),
             EndingSequenceDefinitions.Music.CreditsSongDelay);
-        _stage.Phase = EndingCreditsPhase.WaitForEscapeMusic;
     }
 
     /// <summary>Installs the top-and-bottom-cloud escape and its grey-cloud colour effect before its fade-in.</summary>
@@ -67,28 +64,28 @@ internal sealed class EndingEscapeScenes
         _stage.SpawnSprite(EndingActorDefinitions.TopCloudEdge, EndingSpriteRole.TopCloudEdge);
         _stage.SpawnSprite(EndingActorDefinitions.BottomCloudEdge, EndingSpriteRole.BottomCloudEdge);
         _stage.SpawnSprite(EndingActorDefinitions.BottomCloudPattern, EndingSpriteRole.BottomCloudPattern);
-        _stage.FloorPosition = new(_stage.FloorPosition.X.WithWholePixels(0), default);
-        _stage.FloorZoom = EndingMotionDefinitions.EscapeInitialZoom;
-        _stage.FloorAngle = EndingMotionDefinitions.EscapeInitialAngle.ToAngle();
+        _stage.Floor.SetUp(Offset16<FloorPixels>.Zero, EndingMotionDefinitions.EscapeInitialZoom, EndingMotionDefinitions.EscapeInitialAngle.ToAngle());
         _stage.Fade.Show(0);
         _stage.StartFastFade();
-        _stage.Phase = EndingCreditsPhase.FadeInTopAndBottomCloudEscape;
     }
 
     /// <summary>
-    /// Runs the live actors in running order, each its own motion and then its animation (#2489): the escapes' clouds,
-    /// the explosion's actors, the completion text and the reward. An actor a step spawns after the running one runs later
-    /// in this same pass; one spawned before it waits for the next pass.
+    /// Runs the live actors in running order in <paramref name="scene"/>, each its own motion and then its animation
+    /// (#2489), whose cues go to <paramref name="handleCue"/>: the escapes' clouds, the explosion's actors, the completion
+    /// text and the reward. An actor a step spawns after the running one runs later in this same pass; one spawned before it
+    /// waits for the next pass.
     /// </summary>
     /// <exception cref="InvalidOperationException">An actor's own step replaced it.</exception>
-    internal void StepSprites()
+    internal void StepSprites(IEndingActorScene scene, Action<EndingSprite, EndingSceneCue> handleCue)
     {
+        Ensure.NotNull(scene);
+        Ensure.NotNull(handleCue);
         for (int place = 0; place < sprites.Count; place++)
         {
             EndingSprite wrapper = sprites[place];
             if (!wrapper.Sprite.IsActive) continue;
-            _stage.StepEndingSpriteMotion(wrapper);
-            wrapper.Sprite.Step(cue => HandleSpriteCue(wrapper, cue));
+            wrapper.StepMotion(scene);
+            wrapper.Sprite.Step(cue => handleCue(wrapper, cue));
             place = sprites.IndexOf(wrapper);
             if (place < 0)
                 throw new InvalidOperationException($"The ending's {wrapper.Role} actor was replaced by its own step.");
@@ -96,15 +93,19 @@ internal sealed class EndingEscapeScenes
         sprites.RemoveAll(wrapper => !wrapper.Sprite.IsActive);
     }
 
-    /// <summary>Carries out the ending sprite animations' cues that spawn actors, start the stars' wait, trigger colour effects or advance the cinematic phase.</summary>
-    private void HandleSpriteCue(EndingSprite wrapper, EndingSceneCue cue)
+    /// <summary>
+    /// Answers the ending sprite animations' cues that spawn actors, start the stars' wait or trigger colour effects; the
+    /// cues that end a phase are the ending's own (<see cref="EndingCreditsState"/>).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The cue is one the ending's own update answers, or undefined.</exception>
+    internal void HandleSpriteCue(EndingSprite wrapper, EndingSceneCue cue)
     {
+        Ensure.NotNull(wrapper);
         switch (cue)
         {
             case EndingSceneCue.WaitForFlyaway:
-                // The right-hand stars wait for the flyaway to carry them away.
-                (wrapper.Motion as EndingFlyawayStarsMotion ?? throw new InvalidOperationException(
-                    $"The ending's {wrapper.Role} actor, which no flyaway moves, waited for the flyaway.")).WaitForFlyaway();
+                // The right-hand stars wait for the flyaway to carry them away: the cue goes to the motion their role gives them.
+                wrapper.Motion.TakeCue(cue);
                 return;
 
             case EndingSceneCue.FadeExplosionColours:
@@ -120,7 +121,7 @@ internal sealed class EndingEscapeScenes
                 return;
 
             case EndingSceneCue.StartZebesExplosion:
-                ExplosionBurstDisplay = true;
+                ExplosionDisplay = EndingExplosionDisplay.Burst;
                 _stage.ColourEffects.StartScreen(EndingColourEffectDefinitions.Supernova);
                 _stage.ColourEffects.StartScreen(EndingColourEffectDefinitions.Explosion);
                 _stage.ColourEffects.StartScreen(EndingColourEffectDefinitions.WideExplosion);
@@ -133,19 +134,11 @@ internal sealed class EndingEscapeScenes
                 return;
 
             case EndingSceneCue.ExplosionFinale:
-                ExplosionFinaleDisplay = true;
+                ExplosionDisplay = EndingExplosionDisplay.Finale;
                 _stage.ColourEffects.StartScreen(EndingColourEffectDefinitions.SupernovaFinale);
                 _stage.SpawnSprite(
                     EndingActorDefinitions.ExplosionAfterglow,
                     EndingSpriteRole.ExplosionAfterglow);
-                return;
-
-            case EndingSceneCue.EndZebesExplosion:
-                // The scene hides the sprite layer without deleting the actors: the stars must still
-                // advance and become visible again when the flyaway starts.
-                screen.Colours.Flash(EndingFlash.ExplosionWhiteout, RgbColor.White);
-                _stage.PhaseTimer = EndingSequenceDefinitions.Timing.PlanetEscapeMusicWaitFrames;
-                _stage.Phase = EndingCreditsPhase.WaitForPlanetEscapeMusic;
                 return;
 
             case EndingSceneCue.SpawnCompletedText:
@@ -182,10 +175,9 @@ internal sealed class EndingEscapeScenes
                 SpawnDigit(gameTimeMinutes % 10, EndingResultTextLayout.MinutesUnitsX);
                 return;
 
+            case EndingSceneCue.EndZebesExplosion:
             case EndingSceneCue.TransitionToCredits:
-                _stage.StartFastFade();
-                _stage.Phase = EndingCreditsPhase.FadeOutToCredits;
-                return;
+                throw new InvalidOperationException($"The {cue} cue of the {wrapper.Role} actor changes the ending's phase, which its own update answers.");
 
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EndingSceneCue)} {cue}.");
@@ -215,9 +207,6 @@ internal sealed class EndingEscapeScenes
             _stage.SpawnSprite(actor, EndingSpriteRole.RewardSamus);
     }
 
-    /// <summary>Whether the explosion installed its finale arrangement.</summary>
-    internal bool ExplosionFinaleDisplay { get; private set; }
-
-    /// <summary>Whether the explosion installed its initial burst arrangement.</summary>
-    internal bool ExplosionBurstDisplay { get; private set; }
+    /// <summary>How the explosion shows: not yet, as its burst, or as its finale, as its cues move it on.</summary>
+    internal EndingExplosionDisplay ExplosionDisplay { get; private set; }
 }

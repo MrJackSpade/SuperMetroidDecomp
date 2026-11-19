@@ -8,17 +8,12 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// </summary>
 internal static class CeresDestructionPhaseGroups
 {
-    /// <summary>The approach to the explosion, before the gunship flies away from it.</summary>
-    internal static readonly FrozenSet<CeresDestructionPhase> BeforeFlyingAway = new[]
+    /// <summary>The phases that show Ceres: the approach to the explosion, the flight away from it and its fade out.</summary>
+    internal static readonly FrozenSet<CeresDestructionPhase> CeresScene = new[]
     {
         CeresDestructionPhase.WaitForMusicQueue, CeresDestructionPhase.FadeInAndDrift, CeresDestructionPhase.ApproachExplosion,
-    }.ToFrozenSet();
-
-    /// <summary>The phases that show Ceres, through its fade out.</summary>
-    internal static readonly FrozenSet<CeresDestructionPhase> CeresScene = BeforeFlyingAway.Concat(new[]
-    {
         CeresDestructionPhase.FlyingAwayFromExplosion, CeresDestructionPhase.HoldAfterExplosion, CeresDestructionPhase.FadeOutCeres,
-    }).ToFrozenSet();
+    }.ToFrozenSet();
 
     /// <summary>The Ceres scene and the first frame of the flight to Zebes, which still use the Ceres flight colours.</summary>
     internal static readonly FrozenSet<CeresDestructionPhase> ThroughFlightToZebesStart = CeresScene.Concat(new[]

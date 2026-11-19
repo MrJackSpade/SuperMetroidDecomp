@@ -4,7 +4,11 @@ using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>The staff credits and what follows them: the reward copyright and fades, the white flash and the post-credits logo.</summary>
+/// <summary>
+/// The staff credits and what follows them: the shooting stars, the reward's copyright and colours, the white flash and
+/// the post-credits logo. It sets each scene up and returns the actors the scene owns; the ending's state shows them with
+/// its phase (#2541).
+/// </summary>
 [RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed class EndingCreditsRoll
 {
@@ -16,7 +20,7 @@ internal sealed class EndingCreditsRoll
     private readonly EndingScreen screen ;
     /// <summary>The ending's actors in their running order, in which they step and draw (<see cref="EndingCastOrderDefinitions"/>).</summary>
     private readonly List<EndingSprite> sprites ;
-    /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, colours, the shared sprites and stars, and the artwork they share.</summary>
+    /// <summary>What every ending scene draws on: brightness, the turning-floor view, colours, the shared sprites and stars, and the artwork they share.</summary>
     private readonly EndingStage _stage;
     /// <summary>The ending's installed artwork: its text, font, staff credits, turning floor, sprite and colour assets.</summary>
     private readonly EndingArtwork _artwork;
@@ -32,66 +36,47 @@ internal sealed class EndingCreditsRoll
         _artwork = artwork;
     }
 
-    /// <summary>Background star animation retained into the post-credits scene.</summary>
-    internal EndingShootingStars? ShootingStars { get; set; }
+    /// <summary>
+    /// The shooting stars, which fly through every post-credits scene (#2541). They are seeded as the ending starts and
+    /// fly from the first post-credits update on.
+    /// </summary>
+    internal EndingShootingStars ShootingStars { get; } = new();
 
-    /// <summary>Post-credits reward jump and landing actor.</summary>
-    internal EndingRewardJump? CurrentRewardJump { get; set; }
-
-    /// <summary>Final shot-into-camera actor and its drawing state.</summary>
-    internal EndingPostShot? CurrentPostShot { get; set; }
-
-    /// <summary>The staff credits' scroll, which exists from the credits' setup on.</summary>
-    internal CreditsScroll? CurrentCredits { get; private set; }
-
-    /// <summary>The final logo's actor, which exists from the end of the white flash on.</summary>
-    internal EndingLogo? CurrentEndingLogo { get; private set; }
-
-    /// <summary>Replaces planet actors with the staff scroll, shooting stars and no post-credits text.</summary>
-    internal void SetupCredits()
+    /// <summary>Replaces planet actors with the staff scroll and no post-credits text.</summary>
+    /// <returns>The staff credits' scroll.</returns>
+    internal CreditsScroll SetupCredits()
     {
-        ShootingStars = new EndingShootingStars();
         // The credits' setup stops every colour effect before loading the credits' and rewards' colours.
         _stage.ResetColourEffects();
         _artwork.LoadCreditsAndPostCreditsAssets();
-        CurrentCredits = new CreditsScroll();
         _artwork.PostCreditsText.Clear();
         sprites.Clear();
         _stage.Fade.Show(DisplayBrightness.Full);
-        _stage.Phase = EndingCreditsPhase.Credits;
+        return new CreditsScroll();
     }
 
-    /// <summary>Shows the post-credits scenes' own colours (#1544) and holds a blank screen for sixty updates.</summary>
+    /// <summary>Shows the post-credits scenes' own colours (#1544) on a blank screen.</summary>
     internal void SetupPostCreditsBlank()
     {
-        // The credits' end starts the post-credits scenes in their own colours, blanks the screen and holds for sixty updates.
+        // The credits' end starts the post-credits scenes in their own colours and blanks the screen.
         _stage.LoadColours(EndingColourLoad.PostCredits);
         _stage.Fade.Show(0);
-        _stage.PhaseTimer = EndingSequenceDefinitions.Timing.PostCreditsBlankFrames;
-        _stage.Phase = EndingCreditsPhase.PostCreditsBlank;
     }
 
-    /// <summary>Replaces the producer result rows with the copyright panel and starts its authored hold.</summary>
-    internal void ShowRewardCopyright()
-    {
-        // The copyright panel replaces the producer panel. The text alone is shown until the copyright's hold ends.
-        _artwork.PostCreditsText.ReplaceResultWithCopyright();
-        RewardCopyrightShown = true;
-        _stage.PhaseTimer = EndingSequenceDefinitions.Timing.CopyrightHoldFrames;
-        _stage.Phase = EndingCreditsPhase.PostCreditsCopyright;
-    }
+    /// <summary>Replaces the producer result rows with the copyright panel.</summary>
+    internal void ShowRewardCopyright() => _artwork.PostCreditsText.ReplaceResultWithCopyright();
+
+    /// <summary>Whether the reward copyright is showing, which it does from the reveal's first half's end on.</summary>
+    internal bool RewardCopyrightShown => _artwork.PostCreditsText.Panel == EndingPostCreditsPanel.Copyright;
 
     /// <summary>Fades the post-credits waiting backdrop toward its authored colours.</summary>
     internal void FadeWaitingBackdrop(int step) => screen.Colours.Fade(EndingFade.WaitingBackdrop, step);
 
-    /// <summary>The reward's colour fade, which the reward has from its start.</summary>
-    private PacedFadeSteps RewardFade { get => field ?? throw new InvalidOperationException("The reward's colour fade has not started."); set; }
-
-    /// <summary>Crossfades waiting colors into the selected non-armored reward colours.</summary>
-    private void ShowRewardFade()
+    /// <summary>Crossfades waiting colors into the selected non-armored reward colours by <paramref name="fade"/>.</summary>
+    private void ShowRewardFade(PacedFadeSteps fade)
     {
         if (_stage.EndingReward == EndingReward.Armored) return;
-        int step = RewardFade.Taken;
+        int step = fade.Taken;
         FadeWaitingBackdrop(EndingSequenceDefinitions.Timing.WaitingBackdropFadeFrames - step);
         screen.Colours.Fade(EndingFade.SuitlessSamus, step);
         if (_stage.EndingReward == EndingReward.Helmetless)
@@ -100,73 +85,55 @@ internal sealed class EndingCreditsRoll
         // brightness, rounded down, the level the import pre-colours (#1512).
     }
 
-    /// <summary>
-    /// The white wash of the brief transition into the final logo (<see cref="WhiteWash"/>): full white as it begins, a
-    /// step fewer each update, fading to none, where it stays.
-    /// </summary>
-    internal WhiteWash WhiteFlash { get => field ?? throw new InvalidOperationException("The post-credits white flash has not begun."); private set; }
+    /// <summary>Starts the reward colour fade from its start and shows it there.</summary>
+    /// <returns>The fade, which the reward's reveal owns.</returns>
+    internal PacedFadeSteps StartRewardFade()
+    {
+        var fade = new PacedFadeSteps(EndingCadenceDefinitions.RewardColourFadeSteps, EndingCadenceDefinitions.RewardColourUpdatesPerStep,
+            firstStepUpdate: EndingCadenceDefinitions.RewardColourUpdatesPerStep);
+        ShowRewardFade(fade);
+        return fade;
+    }
 
-    /// <summary>One update of the transition's white wash: a step fewer, stopping at none.</summary>
-    internal void FadeWhiteFlash() => WhiteFlash.Fade();
-
-    /// <summary>The state of the ending logo, which exists while that phase runs.</summary>
-    internal EndingLogo EndingLogo => CurrentEndingLogo ??
-        throw new InvalidOperationException("The ending logo is not running.");
+    /// <summary>One update of the reward's colour fade <paramref name="fade"/>: on its due updates it takes its next step and shows it.</summary>
+    internal void StepRewardFade(PacedFadeSteps fade)
+    {
+        if (Ensure.NotNull(fade).Advance())
+            ShowRewardFade(fade);
+    }
 
     /// <summary>Restores the shooting colours, clears the copyright, puts the text back at the top and begins the white transition.</summary>
-    internal void BeginPostCreditsWhiteFlash()
+    /// <returns>The transition's white wash: full white as it begins, a step fewer each update.</returns>
+    internal WhiteWash BeginPostCreditsWhiteFlash()
     {
-        CurrentPostShot = null;
         _stage.LoadColours(EndingColourLoad.RestoredShot);
         _artwork.PostCreditsText.Drop = 0;
         _artwork.PostCreditsText.ClearCopyright();
-        WhiteFlash = WhiteWash.FullWhite(updatesPerStep: 1, firstStepUpdate: 1);
-        _stage.PhaseTimer = EndingPostShotDefinitions.FadeFrames;
-        _stage.Phase = EndingCreditsPhase.PostCreditsWhiteFlash;
+        return WhiteWash.FullWhite(updatesPerStep: 1, firstStepUpdate: 1);
     }
 
-    /// <summary>Installs the final logo actor.</summary>
-    internal void FinishPostCreditsWhiteFlash()
+    /// <summary>Clears the landed Samus and installs the final logo actor.</summary>
+    /// <returns>The logo's actor.</returns>
+    internal EndingLogo FinishPostCreditsWhiteFlash()
     {
-        CurrentRewardJump = null;
         sprites.Clear();
-        CurrentEndingLogo = new EndingLogo(_stage,
+        return new EndingLogo(_stage,
             () => _stage.ColourEffects.StartScreen(EndingLogoDefinitions.LandingColourEffect));
-        _stage.Phase = EndingCreditsPhase.PostCreditsLogo;
     }
 
-    /// <summary>Advances logo cues and starts the item-percentage text once the logo completes.</summary>
-    internal void StepPostCreditsLogo()
-    {
-        EndingLogo.Step(screen.Colours);
-        if (!EndingLogo.Completed) return;
-        _artwork.PostCreditsText.StartItemPercentage(TypewriterSetup());
-        _stage.Phase = EndingCreditsPhase.ItemPercentage;
-    }
+    /// <summary>Starts the item-percentage text below the completed logo.</summary>
+    /// <returns>The text, which types from the next update on.</returns>
+    internal EndingTypewriter StartItemPercentage() => _artwork.PostCreditsText.StartItemPercentage(TypewriterSetup());
+
+    /// <summary>Starts the final message above the moved-down item percentage.</summary>
+    /// <returns>The text, which types from the next update on.</returns>
+    internal EndingTypewriter StartFinalMessage() => _artwork.PostCreditsText.StartFinalMessage(TypewriterSetup());
 
     /// <summary>What the post-credits typed texts type from and count.</summary>
-    internal EndingTypewriterSetup TypewriterSetup() => new()
+    private EndingTypewriterSetup TypewriterSetup() => new()
     {
         Inventory = inventory,
         JapaneseText = japaneseText,
         Text = _artwork.EndingText,
     };
-
-    /// <summary>Whether the reward copyright is showing.</summary>
-    internal bool RewardCopyrightShown { get; private set; }
-
-    /// <summary>Starts the reward colour fade from its start and shows it there.</summary>
-    internal void StartRewardFade()
-    {
-        RewardFade = new PacedFadeSteps(EndingCadenceDefinitions.RewardColourFadeSteps, EndingCadenceDefinitions.RewardColourUpdatesPerStep,
-            firstStepUpdate: EndingCadenceDefinitions.RewardColourUpdatesPerStep);
-        ShowRewardFade();
-    }
-
-    /// <summary>One update of the reward's colour fade: on its due updates it takes its next step and shows it.</summary>
-    internal void StepRewardFade()
-    {
-        if (RewardFade.Advance())
-            ShowRewardFade();
-    }
 }

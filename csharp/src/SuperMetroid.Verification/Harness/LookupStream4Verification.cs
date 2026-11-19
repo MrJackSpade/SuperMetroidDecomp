@@ -538,11 +538,13 @@ internal static class LookupStream4Verification
             int count = sequence.Count, address = fast ? 0x8BDD02 : 0x8BDDAD;
             var state = new EndingCreditsState(SuperMetroid.Core.Audio.AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0, Inventory = default, JapaneseText = false, CrittersEscaped = false },
                 InstalledFixtures.Maps.EndingText, InstalledFixtures.EndingBackdrops, InstalledFixtures.SpriteSheets);
-            state.Stage.FloorPosition = state.Stage.FloorPosition.WithX(SignedSixteenSixteen.FromParts(100, 0xC000));
-            state.Stage.FloorZoom = FloorZoom.FromFloorPixelsPerScreenPixel(12); state.Stage.PhaseTimer = 100;
-            state.Stage.Phase = fast ? EndingCreditsPhase.PlanetEscapeFast : EndingCreditsPhase.PlanetEscapeSlow;
+            EndingTurningFloor floor = state.Stage.Floor;
+            PrivateState.Set(floor, nameof(EndingTurningFloor.Position), floor.Position.WithX(SignedSixteenSixteen.FromParts(100, 0xC000)));
+            PrivateState.Set(floor, nameof(EndingTurningFloor.Zoom), FloorZoom.FromFloorPixelsPerScreenPixel(12));
+            PrivateState.Set(state, nameof(EndingCreditsState.Phase), fast ? EndingCreditsPhase.PlanetEscapeFast : EndingCreditsPhase.PlanetEscapeSlow);
             PrivateState.Set(state.Flyaway, nameof(EndingFlyaway.ShipShake), EndingShipShakeCursor.StartOf(sequence));
-            Action step = fast ? state.Flyaway.StepPlanetEscapeFast : state.Flyaway.StepPlanetEscapeSlow;
+            // The ending's own update runs the leg and makes its handoff.
+            Action step = state.Step;
             uint expected = 100u << 16 | 0xC000;
             int expectedAngle = 0, expectedZoom = 0xC00;
             for (int frame = 0; frame <= count; frame++)
@@ -551,23 +553,23 @@ internal static class LookupStream4Verification
                 if (fast || expectedAngle != 0xe0) expectedAngle = unchecked((byte)(expectedAngle - (fast ? 4 : 1)));
                 expectedZoom -= fast ? 8 : 2;
                 step();
-                AssertEqual(RotationAngle.FromSteps((byte)expectedAngle), state.Stage.FloorAngle, "rotation context advances independently of selected signs");
-                AssertEqual(FloorZoom.FromTwoHundredFiftySixths(expectedZoom), state.Stage.FloorZoom, "zoom context advances independently of selected signs");
-                AssertEqual((ushort)SixteenSixteenWords.WholeOf(expected), state.Stage.FloorPosition.X.UnsignedWholePixels, "production shake whole position follows the authored sequence");
-                AssertEqual((ushort)expected, state.Stage.FloorPosition.X.Fraction, "production shake fraction preserves carry/borrow");
+                AssertEqual(RotationAngle.FromSteps((byte)expectedAngle), floor.Angle, "rotation context advances independently of selected signs");
+                AssertEqual(FloorZoom.FromTwoHundredFiftySixths(expectedZoom), floor.Zoom, "zoom context advances independently of selected signs");
+                AssertEqual((ushort)SixteenSixteenWords.WholeOf(expected), floor.Position.X.UnsignedWholePixels, "production shake whole position follows the authored sequence");
+                AssertEqual((ushort)expected, floor.Position.X.Fraction, "production shake fraction preserves carry/borrow");
                 AssertEqual((frame + 1) % count, state.Flyaway.ShipShake.Place, "production shake moves on after each displacement and starts again after the last");
             }
             EndingShipShakeCursor last = EndingShipShakeCursor.StartOf(sequence);
             for (int place = 0; place < count - 1; place++)
                 last = last.Advanced();
-            state.Stage.FloorZoom = fast ? EndingMotionDefinitions.PlanetFastEndZoom : EndingMotionDefinitions.PlanetSlowEndZoom;
+            PrivateState.Set(floor, nameof(EndingTurningFloor.Zoom), fast ? EndingMotionDefinitions.PlanetFastEndZoom : EndingMotionDefinitions.PlanetSlowEndZoom);
             PrivateState.Set(state.Flyaway, nameof(EndingFlyaway.ShipShake), last);
-            state.Stage.FloorPosition = state.Stage.FloorPosition.WithX(SignedSixteenSixteen.FromParts(0, 0x4000));
+            PrivateState.Set(floor, nameof(EndingTurningFloor.Position), floor.Position.WithX(SignedSixteenSixteen.FromParts(0, 0x4000)));
             step();
             uint finalPosition = unchecked(0x4000u + (uint)Native(address + (count - 1) * 4));
-            AssertEqual((ushort)SixteenSixteenWords.WholeOf(finalPosition), state.Stage.FloorPosition.X.UnsignedWholePixels, "terminal negative displacement wraps whole position before handoff");
-            AssertEqual((ushort)finalPosition, state.Stage.FloorPosition.X.Fraction, "terminal fraction is preserved before handoff");
-            AssertEqual(fast ? EndingCreditsPhase.PlanetEscapeSlow : EndingCreditsPhase.PlanetEscapeAccelerating, state.Stage.Phase, "native zoom boundary chooses next phase after selected motion");
+            AssertEqual((ushort)SixteenSixteenWords.WholeOf(finalPosition), floor.Position.X.UnsignedWholePixels, "terminal negative displacement wraps whole position before handoff");
+            AssertEqual((ushort)finalPosition, floor.Position.X.Fraction, "terminal fraction is preserved before handoff");
+            AssertEqual(fast ? EndingCreditsPhase.PlanetEscapeSlow : EndingCreditsPhase.PlanetEscapeAccelerating, state.Phase, "native zoom boundary chooses next phase after selected motion");
             if (fast)
             {
                 AssertTrue(ReferenceEquals(EndingShipShake.Slow, state.Flyaway.ShipShake.Sequence), "fast handoff starts the slow shake");

@@ -24,7 +24,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
         // head's orientation chooses (#2284).
         for (ushort bucket = 0; bucket <= 0x00e0; bucket += 0x0020)
         {
-            CompassDirection aim = new Bearing(bucket).DirectionOfEighth();
+            CompassDirection aim = AimAngleConstants.FromClockwiseSteps(bucket).DirectionOfEighth();
             AssertEqual(ShaktoolNativeListAddresses.AimedSpritemap(CartridgeImportSource.Require(rom), bucket),
                 ShaktoolFrameToolingDefinitions.Spritemap(ShaktoolHeadPictures.Aiming(aim)),
                 $"Shaktool orientation picture {bucket:X2}");
@@ -51,9 +51,9 @@ internal static class ShaktoolInstructionDefinitionsVerification
             centerState.ResetOrientation();
             nextState.OrbitAngle = RotationAngleConstants.FromRaw(midpoint);
             orient(center, centerState);
-            AssertEqual(new Bearing(bucket).DirectionOfEighth(), centerState.Orientation,
+            AssertEqual(AimAngleConstants.FromClockwiseSteps(bucket).DirectionOfEighth(), centerState.Orientation,
                 $"Shaktool production orientation bucket {bucket:X2}");
-            AssertEqual<EnemyFrameId?>(ShaktoolHeadPictures.Aiming(new Bearing(bucket).DirectionOfEighth()), center.Frame,
+            AssertEqual<EnemyFrameId?>(ShaktoolHeadPictures.Aiming(AimAngleConstants.FromClockwiseSteps(bucket).DirectionOfEighth()), center.Frame,
                 $"Shaktool production orientation picture {bucket:X2}");
             AssertTrue(center.AnimationClock.IsStopped, $"the head's animation takes no step while its orientation {bucket:X2} shows its picture");
         }

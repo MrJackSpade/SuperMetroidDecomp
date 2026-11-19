@@ -37,8 +37,8 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
     internal static void CalculateRidleyFireballVelocity(RoomEnemyPlace ridley, RidleyFlightState state, SamusState samus)
     {
         Position16<RoomPixels> muzzle = Muzzle(ridley, state);
-        TrigonometryAngle angle = EnemyMath.CalculateBearing(
-            samus.Position.Whole - muzzle).ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
+        TrigonometryAngle angle = EnemyMath.CalculateAimAngle(
+            samus.Position.Whole - muzzle).TurnedBy(TrigonometryAngle.QuarterTurn);
 
         // Each facing keeps its aim within its own arc; an aim beyond the arc's far end, up to the split, takes that
         // end, and any other aim outside it takes the near end.

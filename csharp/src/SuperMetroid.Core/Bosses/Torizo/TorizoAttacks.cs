@@ -800,12 +800,13 @@ internal sealed class TorizoAttacks
         SamusState samus,
         bool awayFromSamus)
     {
-        TrigonometryAngle bearing = EnemyMath.CalculateBearing(
-            samus.Position.Whole - projectile.Position.Whole).ToMirroredTrigonometryAngle();
-        TrigonometryAngle angle = awayFromSamus ? bearing.InSecondHalfTurn() : bearing.InFirstHalfTurn();
+        TrigonometryAngle aim = EnemyMath.CalculateAimAngle(samus.Position.Whole - projectile.Position.Whole);
+        TrigonometryAngle angle = awayFromSamus ? aim.InLeftHalfTurn() : aim.InRightHalfTurn();
 
-        // The angle is measured from straight up: the missile's X speed follows its sine and its Y speed its negative cosine.
-        projectile.Velocity = VelocityAlong(TorizoMotionDefinitions.ThrownSuperMissileSpeed, angle);
+        // The missile's X speed follows the angle's cosine and its Y speed its negative sine.
+        projectile.Velocity = new(
+            Trigonometry.MultiplySignedSine(TorizoMotionDefinitions.ThrownSuperMissileSpeed, angle + TrigonometryAngle.QuarterTurn),
+            Trigonometry.MultiplySignedSine(TorizoMotionDefinitions.ThrownSuperMissileSpeed, angle + TrigonometryAngle.HalfTurn));
     }
 
     /// <summary>Selects wall or floor impact artwork when the eye beam strikes terrain.</summary>

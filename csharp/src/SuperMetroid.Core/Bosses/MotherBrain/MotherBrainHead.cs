@@ -377,7 +377,7 @@ internal sealed class MotherBrainHead
     {
         RoomEnemyPlace head = state.Head;
         Position16<RoomPixels> mouth = head.Position.Whole + MotherBrainFightDefinitions.MouthOffset;
-        TrigonometryAngle angle = EnemyMath.CalculateBearing(target - mouth).ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
+        TrigonometryAngle angle = EnemyMath.CalculateAimAngle(target - mouth).TurnedBy(TrigonometryAngle.QuarterTurn);
 
         // The clamp splits the turn in two halves. The
         // half from three quarters of a turn round past zero maps to the lowest aim; the opposite half maps

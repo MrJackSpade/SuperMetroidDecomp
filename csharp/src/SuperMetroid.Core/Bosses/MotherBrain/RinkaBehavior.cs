@@ -188,8 +188,8 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                 place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
                 place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
 
-                TrigonometryAngle velocityAngle = EnemyMath.CalculateBearing(
-                    new(CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole))).ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
+                TrigonometryAngle velocityAngle = EnemyMath.CalculateAimAngle(
+                    new(CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole))).TurnedBy(TrigonometryAngle.QuarterTurn);
                 state.Velocity = new(
                     EnemyMath.SineSpeed(RinkaLifeDefinitions.Speed, velocityAngle),
                     EnemyMath.SineSpeed(

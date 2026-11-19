@@ -278,8 +278,9 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.ResetOrientation();
         RoomEnemyPlace owner = chain.LeadingSaw;
-        RotationAngle bearing = EnemyMath.CalculateBearing(
-            new(place.Position.X.Whole - owner.Position.X.Whole, place.Position.Y.Whole - owner.Position.Y.Whole)).ToMirroredTrigonometryAngle().ToAngle();
+        // The chain measures its orbit clockwise from straight up, as its orbit's sine across reads it.
+        RotationAngle bearing = (TrigonometryAngle.QuarterTurn - EnemyMath.CalculateAimAngle(
+            new(place.Position.X.Whole - owner.Position.X.Whole, place.Position.Y.Whole - owner.Position.Y.Whole))).ToAngle();
         chain.TargetAngle = chain.Motion.OrbitDirection == RotationDirection.Clockwise
             ? bearing + RotationAngle.QuarterTurn
             : bearing - RotationAngle.QuarterTurn;

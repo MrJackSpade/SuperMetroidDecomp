@@ -12,9 +12,9 @@ internal static class DraygonBurialDriftVerification
     /// <summary>Compares the drift bearing with the quartered-coordinate bearing for every coordinate on each axis.</summary>
     internal static void VerifyDraygonBurialDrift()
     {
-        static TrigonometryAngle Quartered(int x, int y) => EnemyMath.CalculateBearing(new(
+        static TrigonometryAngle Quartered(int x, int y) => EnemyMath.CalculateAimAngle(new(
             CoordinateAxis.Difference(64, x >> 2),
-            CoordinateAxis.Difference(120, y >> 2))).ToTrigonometryAngle();
+            CoordinateAxis.Difference(120, y >> 2)));
 
         int mismatches = 0;
         foreach (int fixedCoordinate in new[] { 0, 255, 256, 257, 479, 480, 481, ushort.MaxValue })

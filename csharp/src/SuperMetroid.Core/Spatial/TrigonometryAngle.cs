@@ -109,6 +109,59 @@ public readonly record struct TrigonometryAngle : IComparable<TrigonometryAngle>
     /// </summary>
     public TrigonometryAngle InSecondHalfTurn() => new(RawValue % HalfTurn.RawValue + HalfTurn.RawValue);
 
+    /// <summary>
+    /// This angle carried into the half turn on the right, from just past straight down up to straight up (#2555),
+    /// keeping its direction's height: an angle on the left is reflected across the vertical, as an aim turned toward the
+    /// right is.
+    /// </summary>
+    public TrigonometryAngle InRightHalfTurn() => QuarterTurn - (QuarterTurn - this).InFirstHalfTurn();
+
+    /// <summary>
+    /// This angle carried into the half turn on the left, from just past straight up down to straight down (#2555),
+    /// keeping its direction's height: an angle on the right is reflected across the vertical.
+    /// </summary>
+    public TrigonometryAngle InLeftHalfTurn() => QuarterTurn - (QuarterTurn - this).InSecondHalfTurn();
+
+    /// <summary>
+    /// The steps from straight up round to this angle, turning clockwise as the screen shows it (#2555): the order the
+    /// compass directions an aim picks are counted in, up first.
+    /// </summary>
+    private int StepsClockwiseFromUp => (QuarterTurn.RawValue - RawValue + StepsPerTurn) % StepsPerTurn;
+
+    /// <summary>The steps of a whole turn.</summary>
+    private const int StepsPerTurn = 256;
+
+    /// <summary>The eight compass directions in clockwise order from up, each an eighth of the turn on from the last.</summary>
+    internal static readonly CompassDirection[] DirectionsClockwise =
+    [
+        CompassDirection.Up, CompassDirection.UpRight, CompassDirection.Right, CompassDirection.DownRight,
+        CompassDirection.Down, CompassDirection.DownLeft, CompassDirection.Left, CompassDirection.UpLeft,
+    ];
+
+    /// <summary>The four straight directions in clockwise order from up, each a quarter of the turn on from the last.</summary>
+    private static readonly CompassDirection[] StraightDirectionsClockwise =
+        [CompassDirection.Up, CompassDirection.Right, CompassDirection.Down, CompassDirection.Left];
+
+    /// <summary>
+    /// The compass direction opening the eighth of the turn that holds the angle: each direction's eighth runs from it
+    /// clockwise up to the next, so an angle takes the direction it has last turned past, clockwise.
+    /// </summary>
+    public CompassDirection DirectionOfEighth() => DirectionsClockwise[StepsClockwiseFromUp / (StepsPerTurn / 8)];
+
+    /// <summary>
+    /// The compass direction nearest the angle: the one whose eighth of the turn, centred on it, holds the angle. An angle
+    /// exactly halfway between two takes the later one clockwise.
+    /// </summary>
+    public CompassDirection NearestDirection() =>
+        DirectionsClockwise[(StepsClockwiseFromUp + StepsPerTurn / 16) % StepsPerTurn / (StepsPerTurn / 8)];
+
+    /// <summary>
+    /// The straight direction, up, right, down or left, nearest the angle: the one whose quarter of the turn, centred on
+    /// it, holds the angle. An angle exactly halfway between two takes the later one clockwise.
+    /// </summary>
+    public CompassDirection NearestStraightDirection() =>
+        StraightDirectionsClockwise[(StepsClockwiseFromUp + StepsPerTurn / 8) % StepsPerTurn / (StepsPerTurn / 4)];
+
     /// <summary>This angle as the whole steps of an 8.8 <see cref="RotationAngle"/>.</summary>
     public RotationAngle ToAngle() => RotationAngle.FromSteps(RawValue);
 

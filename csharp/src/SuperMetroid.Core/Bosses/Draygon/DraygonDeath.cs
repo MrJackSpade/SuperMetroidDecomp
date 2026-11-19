@@ -28,11 +28,11 @@ internal sealed class DraygonDeath
         _parts = parts;
     }
 
-    /// <summary>The bearing a dying Draygon at <paramref name="body"/> drifts along, aimed across the burial drift's coarse grid.</summary>
+    /// <summary>The direction a dying Draygon at <paramref name="body"/> drifts along, aimed across the burial drift's coarse grid.</summary>
     internal static TrigonometryAngle BurialDriftAngle(Position16<RoomPixels> body) =>
-        EnemyMath.CalculateBearing(new(
+        EnemyMath.CalculateAimAngle(new(
             CoordinateAxis.Difference(DraygonArenaDefinitions.DeathTargetX / DraygonArenaDefinitions.BurialAimCellPixels, body.X / DraygonArenaDefinitions.BurialAimCellPixels),
-            CoordinateAxis.Difference(DraygonArenaDefinitions.DeathTargetY / DraygonArenaDefinitions.BurialAimCellPixels, body.Y / DraygonArenaDefinitions.BurialAimCellPixels))).ToTrigonometryAngle();
+            CoordinateAxis.Difference(DraygonArenaDefinitions.DeathTargetY / DraygonArenaDefinitions.BurialAimCellPixels, body.Y / DraygonArenaDefinitions.BurialAimCellPixels)));
 
     /// <summary>Moves the dying body toward the burial point and changes its linked eye pose.</summary>
     internal void DriftDyingDraygonToBurialPoint(DraygonEnemyState state)

@@ -277,10 +277,9 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // Samus's bearing from the spit, zero up and clockwise, aims the spit's speed along the circle
-        // (EnemyMath.CircleSine).
-        TrigonometryAngle transformedAngle = EnemyMath.CalculateBearing(
-            new(samus.Position.X.Whole - projectile.Position.X.Whole, samus.Position.Y.Whole - projectile.Position.Y.Whole)).ToTrigonometryAngle();
+        // Samus's direction from the spit aims the spit's speed along the circle (EnemyMath.CircleSine).
+        TrigonometryAngle transformedAngle = EnemyMath.CalculateAimAngle(
+            new(samus.Position.X.Whole - projectile.Position.X.Whole, samus.Position.Y.Whole - projectile.Position.Y.Whole));
         SignedSixteenSixteen x = EnemyMath.CircleCosine(
             transformedAngle,
             EvirMotionDefinitions.SpitSpeed);

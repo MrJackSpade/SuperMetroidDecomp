@@ -37,8 +37,8 @@ public sealed class YappingMawEnemyState
     /// <summary>Half of the capped target distance in room pixels, 16 through 32, used as the tongue's X radius.</summary>
     public int SegmentRadius { get; internal set; }
 
-    /// <summary>The bearing from the maw to Samus as it aims its bite.</summary>
-    public Bearing AimAngle { get; internal set; }
+    /// <summary>The direction from the maw to Samus as it aims its bite: straight up before its first aim.</summary>
+    public TrigonometryAngle AimAngle { get; internal set; } = TrigonometryAngle.QuarterTurn;
 
     /// <summary><see cref="AimAngle"/> as a rotation; rotates the curled link corrections.</summary>
     public RotationAngle CurlAngle { get; internal set; }

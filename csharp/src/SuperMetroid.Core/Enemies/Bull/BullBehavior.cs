@@ -90,9 +90,9 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     /// and must still turn back toward her the short way.
     /// </remarks>
     private static RotationAngle CalculateBullAngleToSamus(RoomEnemyPlace place, SamusState samus) =>
-        (EnemyMath.CalculateBearing(
-            new(CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole)))
-            .ToMirroredTrigonometryAngle() - TrigonometryAngle.QuarterTurn).ToAngle();
+        // The Bull measures its heading clockwise from right, the screen's Y pointing down: the aim reversed.
+        (TrigonometryAngle.Zero - EnemyMath.CalculateAimAngle(
+            new(CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole)))).ToAngle();
 
     /// <summary>Increases acceleration and speed only when the configured interval expires.</summary>
     private static void AccelerateBull(RoomEnemyPlace place, BullEnemyState state)

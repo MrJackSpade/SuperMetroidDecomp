@@ -131,7 +131,7 @@ internal sealed class CrocomireCombat
 
             // The shot keeps the gradient its volley fires it along. The angle starts at up, not right: Y uses negative cosine.
             int gradient = projectile.StateOf<CrocomireProjectileState>().Gradient;
-            projectile.Velocity = CalculateCrocomireProjectileVelocity(EnemyMath.CalculateBearing(new(-CrocomireProjectileDefinitions.AimReachLeft, gradient)));
+            projectile.Velocity = CalculateCrocomireProjectileVelocity(EnemyMath.CalculateAimAngle(new(-CrocomireProjectileDefinitions.AimReachLeft, gradient)));
             projectile.StartMotion(CrocomireProjectileMotion.ShotFlying);
         }
 
@@ -366,15 +366,10 @@ internal sealed class CrocomireCombat
         }
     }
 
-    /// <summary>Projects a projectile angle into its sideways and vertical speeds: its sine and negative cosine at the volley's speed.</summary>
-    internal static PixelVelocity<RoomPixels> CalculateCrocomireProjectileVelocity(Bearing bearing)
-    {
-        // The bearing is used as a heading without conversion, so X is its sine and Y its negative cosine.
-        TrigonometryAngle heading = bearing.ToMirroredTrigonometryAngle();
-        return new(
-            EnemyMath.SineVelocity(heading, CrocomireProjectileDefinitions.VolleySpeed),
-            EnemyMath.SineVelocity(heading - TrigonometryAngle.QuarterTurn, CrocomireProjectileDefinitions.VolleySpeed));
-    }
+    /// <summary>Projects a projectile's direction into its sideways and vertical speeds: its cosine and negative sine at the volley's speed.</summary>
+    internal static PixelVelocity<RoomPixels> CalculateCrocomireProjectileVelocity(TrigonometryAngle aim) => new(
+        EnemyMath.SineVelocity(aim + TrigonometryAngle.QuarterTurn, CrocomireProjectileDefinitions.VolleySpeed),
+        EnemyMath.SineVelocity(aim + TrigonometryAngle.HalfTurn, CrocomireProjectileDefinitions.VolleySpeed));
 
     /// <summary>Runs bridge-fragment vertical collision and gravity.</summary>
     internal static void RunCrocomireBridgeFragment(

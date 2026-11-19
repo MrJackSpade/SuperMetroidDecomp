@@ -161,7 +161,7 @@ internal sealed class RidleyTail
                 Math.Abs((projectile.Position.Whole - tip.Position).Y) - projectile.Radius.Y < RidleyTailDefinitions.MissileWhipReach);
         if (missile is not null)
             aim = missile.Position.Whole;
-        TrigonometryAngle targetDirection = EnemyMath.CalculateBearing(aim - root.Position).ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
+        TrigonometryAngle targetDirection = EnemyMath.CalculateAimAngle(aim - root.Position).TurnedBy(TrigonometryAngle.QuarterTurn);
 
         if (state.Flight.FacingDirection == RidleyFacing.Left)
         {

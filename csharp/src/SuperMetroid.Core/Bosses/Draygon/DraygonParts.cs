@@ -244,14 +244,14 @@ internal sealed class DraygonParts
                 DraygonEyeEffects.DustVariant);
         Position16<RoomPixels> gaze = eye.Position.Whole +
             TowardFacing(new(DraygonEyeEffects.HorizontalOffset, DraygonEyeEffects.VerticalOffset), facing);
-        Bearing bearing = EnemyMath.CalculateBearing(samus.Position.Whole - gaze);
+        TrigonometryAngle aim = EnemyMath.CalculateAimAngle(samus.Position.Whole - gaze);
         DraygonEyeState eyeState = state.EyeTracking;
-        if (bearing == eyeState.LookAngle)
+        if (aim == eyeState.LookAngle)
             return;
 
-        eyeState.LookAngle = bearing;
-        // The straight direction nearest the bearing, up, right, down or left, chooses the look.
-        CompassDirection direction = bearing.NearestStraightDirection();
+        eyeState.LookAngle = aim;
+        // The straight direction nearest the aim, up, right, down or left, chooses the look.
+        CompassDirection direction = aim.NearestStraightDirection();
         DraygonSegment look = direction switch
         {
             CompassDirection.Up => facing == HorizontalDirection.Right

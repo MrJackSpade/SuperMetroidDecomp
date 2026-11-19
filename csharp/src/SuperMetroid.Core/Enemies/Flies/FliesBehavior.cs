@@ -106,8 +106,8 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         // rising through the ceiling: one that has climbed above the room's top keeps a wrapped height and dives down
         // the short way to Samus, as CoordinateAxis.Difference gives it. Across, a dive ends above Samus and a circle is a few pixels wide, so
         // it never passes the room's left edge.
-        TrigonometryAngle angle = EnemyMath.CalculateBearing(
-            new(samus.Position.X.Whole - place.Position.X.Whole, CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole))).ToMirroredTrigonometryAngle();
+        TrigonometryAngle angle = EnemyMath.CalculateAimAngle(
+            new(samus.Position.X.Whole - place.Position.X.Whole, CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole)));
         state.Velocity = DiveVelocity(angle);
         state.TargetY = samus.Position.Y.Whole;
         state.DiveUpdates = 0;
@@ -136,8 +136,8 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     /// across along its sine and its speed down along its sine a quarter turn behind (the negative cosine).
     /// </summary>
     internal static PixelVelocity<RoomPixels> DiveVelocity(TrigonometryAngle angle) => new(
-        EnemyMath.SineVelocity(angle, FlyMotionDefinitions.DiveAcrossSpeed),
-        EnemyMath.SineVelocity(angle - TrigonometryAngle.QuarterTurn, FlyMotionDefinitions.DiveDownSpeed));
+        EnemyMath.SineVelocity(angle + TrigonometryAngle.QuarterTurn, FlyMotionDefinitions.DiveAcrossSpeed),
+        EnemyMath.SineVelocity(angle + TrigonometryAngle.HalfTurn, FlyMotionDefinitions.DiveDownSpeed));
 
     /// <summary>
     /// One update's step around the circle at <paramref name="angle"/>: one pixel along its sine across and one along its

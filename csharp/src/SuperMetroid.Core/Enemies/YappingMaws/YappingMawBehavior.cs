@@ -150,7 +150,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         YappingMawEnemyState state,
         SamusState samus)
     {
-        (int distance, Bearing bearing) = CalculateYappingMawTarget(
+        (int distance, TrigonometryAngle bearing) = CalculateYappingMawTarget(
             state.Origin,
             samus.Position.Whole);
         state.DistanceToSamus = distance;
@@ -181,7 +181,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
         state.CurlPhase = YappingMawCurlPhase.Extending;
         state.SegmentRadius = state.DistanceToSamus / 2;
-        state.CurlAngle = state.AimAngle.ToTrigonometryAngle().ToAngle();
+        state.CurlAngle = state.AimAngle.ToAngle();
 
         state.Baseline = new Offset16<RoomPixels>(
             CalculateYappingMawX(TrigonometryAngle.HalfTurn, state.SegmentRadius),
@@ -475,26 +475,26 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         int deltaX = samus.X - origin.X;
         int absoluteX = Math.Abs(deltaX);
         if (absoluteX >= ShortProductReach)
-            return new YappingMawTarget(absoluteX, default);
+            return new YappingMawTarget(absoluteX, TrigonometryAngle.QuarterTurn);
 
         int deltaY = samus.Y - origin.Y;
         int absoluteY = Math.Abs(deltaY);
         if (absoluteY >= ShortProductReach)
-            return new YappingMawTarget(absoluteY, default);
+            return new YappingMawTarget(absoluteY, TrigonometryAngle.QuarterTurn);
 
-        TrigonometryAngle positiveQuadrantAngle = EnemyMath.CalculateBearing(new(absoluteX, absoluteY)).ToMirroredTrigonometryAngle();
+        TrigonometryAngle positiveQuadrantAngle = EnemyMath.CalculateAimAngle(new(absoluteX, absoluteY));
         int distance =
-            Math.Abs(EnemyMath.CircleNegativeSinePixels(positiveQuadrantAngle, absoluteX)) +
-            Math.Abs(EnemyMath.CircleCosinePixels(positiveQuadrantAngle, absoluteY));
-        return new YappingMawTarget(distance, EnemyMath.CalculateBearing(new(deltaX, deltaY)));
+            Math.Abs(EnemyMath.CircleSinePixels(positiveQuadrantAngle - TrigonometryAngle.QuarterTurn, absoluteX)) +
+            Math.Abs(EnemyMath.CircleSinePixels(positiveQuadrantAngle, absoluteY));
+        return new YappingMawTarget(distance, EnemyMath.CalculateAimAngle(new(deltaX, deltaY)));
     }
 
     /// <summary>
     /// Which of the eight aims the bearing <paramref name="aim"/> points in: eight equal sectors in the aims' clockwise
     /// order from up, each centred on its direction, so the aim is turned on half a sector before its sector is read.
     /// </summary>
-    internal static YappingMawAim AimOf(Bearing aim) => YappingMawAnimationDefinitions.Aims.At(
-        aim.TurnedBySteps(RotationAngle.StepsPerTurn / 16).Sector(8));
+    internal static YappingMawAim AimOf(TrigonometryAngle aim) => YappingMawAnimationDefinitions.Aims.At(
+        Array.IndexOf(TrigonometryAngle.DirectionsClockwise, aim.NearestDirection()));
 
     /// <summary>X is the Y offset a quarter turn behind.</summary>
     internal static int CalculateYappingMawX(TrigonometryAngle angle, int length) =>

@@ -178,8 +178,9 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The eye's bearing to Samus, from her distance on each axis.</summary>
     private static RotationAngle CalculateMorphBallEyeAngle(RoomEnemyPlace eye, SamusState samus) =>
-        EnemyMath.CalculateBearing(
-            new(samus.Position.X.Whole - eye.Position.X.Whole, samus.Position.Y.Whole - eye.Position.Y.Whole)).ToMirroredTrigonometryAngle().ToAngle();
+        // The eye's beam measures its direction clockwise from straight up, as its window cone does.
+        (TrigonometryAngle.QuarterTurn - EnemyMath.CalculateAimAngle(
+            new(samus.Position.X.Whole - eye.Position.X.Whole, samus.Position.Y.Whole - eye.Position.Y.Whole))).ToAngle();
 
     /// <summary>
     /// Schedules the room-global beam to appear next frame, following <paramref name="eye"/>, the eye that opened (#2342):

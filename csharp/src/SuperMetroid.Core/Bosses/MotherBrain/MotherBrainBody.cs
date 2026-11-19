@@ -318,8 +318,8 @@ internal sealed class MotherBrainBody
 
         state.HandBeamNextPosition = FixedPosition<RoomPixels>.FromWhole(beam.Position.Whole);
 
-        TrigonometryAngle angle = EnemyMath.CalculateBearing(samus.Position.Whole - beam.Position.Whole)
-            .ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
+        TrigonometryAngle angle = EnemyMath.CalculateAimAngle(samus.Position.Whole - beam.Position.Whole)
+            .TurnedBy(TrigonometryAngle.QuarterTurn);
         state.HandBeamNextAngle = angle;
         state.HandBeamNextVelocity = new PixelVelocity<RoomPixels>(
             EnemyMath.SineSpeed(MotherBrainHandBeamDefinitions.Speed, angle),

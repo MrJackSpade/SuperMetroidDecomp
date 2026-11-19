@@ -18,7 +18,7 @@ internal static class EnemyAngleDivisionVerification
         {
             string[] fields = row.Split(',');
             short x = short.Parse(fields[0]), y = short.Parse(fields[1]);
-            byte actual = EnemyMath.CalculateBearing(new Offset16<RoomPixels>(x, y)).RawValue;
+            byte actual = checked((byte)AimAngleConstants.ClockwiseSteps(EnemyMath.CalculateAimAngle(new Offset16<RoomPixels>(x, y))));
             AssertEqual(byte.Parse(fields[2]), actual, $"Native enemy angle ({x},{y})");
         }
     }

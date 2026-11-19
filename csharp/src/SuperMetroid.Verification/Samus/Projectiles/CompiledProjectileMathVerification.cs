@@ -37,7 +37,7 @@ internal static class CompiledProjectileMathVerification
         var shaktool = new Func<int, int>(index => ShaktoolBehavior.SineVelocity(TrigonometryAngle.Wrapped(index - 64)).RawValue);
         var phantoon = new Func<ushort, ushort, int>((angle, radius) => PhantoonCombat.ReadPhantoonFlameComponent(new TrigonometryAngle(unchecked((byte)angle)), radius));
         var arc = new Action<EnemyProjectile, int>(NoobTubeBehavior.MoveNoobTubeProjectileHorizontallyAlongArc);
-        var crocomire = new Func<byte, PixelVelocity<RoomPixels>>(bearing => CrocomireCombat.CalculateCrocomireProjectileVelocity(new Bearing(bearing)));
+        var crocomire = new Func<byte, PixelVelocity<RoomPixels>>(bearing => CrocomireCombat.CalculateCrocomireProjectileVelocity(AimAngleConstants.FromClockwiseSteps(bearing)));
         var echo = new Func<RotationAngle, int, Offset16<RoomPixels>>(SamusShinesparkState.OffsetAlong);
 
         // Every angle high byte (with zero, mid and saturated fractions, which the reader

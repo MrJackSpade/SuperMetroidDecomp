@@ -1063,7 +1063,7 @@ internal static class LookupStream5Verification
         }
         for (ushort angle = 0; angle < 256; angle++)
         {
-            state.AimAngle = new Bearing(checked((byte)angle));
+            state.AimAngle = AimAngleConstants.FromClockwiseSteps(angle);
             begin(place, state);
             int direction = unchecked((byte)(angle + 16)) >> 5;
             AssertEqual(YappingMawAnimationDefinitions.Aims.At(direction), state.Aim,

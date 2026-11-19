@@ -26,10 +26,10 @@ internal static class EnemyMath
         SignedSixteenSixteen.FromWholePixels(distance).DividedInTwoFiftySixths(HomingPullShare);
 
     /// <summary>
-    /// Calculates the bearing of an offset. Zero points upward and the
-    /// result turns clockwise, as every enemy's aim reads it.
+    /// The direction of an offset, as every enemy aims along one (#2555): zero points right and a quarter turn up, the
+    /// angle the game's sine and cosine take.
     /// </summary>
-    internal static Bearing CalculateBearing(Offset16<RoomPixels> delta)
+    internal static TrigonometryAngle CalculateAimAngle(Offset16<RoomPixels> delta)
     {
         // The distances are taken as whole numbers, so the farthest offset either way keeps its full size.
         int absoluteX = Math.Abs((int)delta.X);
@@ -38,18 +38,20 @@ internal static class EnemyMath
         bool up = delta.Y < 0;
 
         // Each octant turns from its nearer compass direction toward the other axis's direction by the slope's eighth:
-        // clockwise from right toward down and from left toward up, so from up or down the other way round.
+        // clockwise, toward decreasing angles, from right toward down and from left toward up, so from up or down the
+        // other way round.
         bool turnsClockwiseFromSide = left == up;
         if (absoluteY < absoluteX)
         {
             // The octant is chosen from the full distances; the slope keeps the game's limits, so offsets
             // beyond 255 pixels bend the angle (AimAngleSlope).
             int turn = AimAngleSlope.TurnSteps(absoluteY, absoluteX);
-            return (left ? Bearing.Left : Bearing.Right).TurnedBySteps(turnsClockwiseFromSide ? turn : -turn);
+            return (left ? TrigonometryAngle.HalfTurn : TrigonometryAngle.Zero).TurnedBySteps(turnsClockwiseFromSide ? -turn : turn);
         }
 
         int inverseTurn = AimAngleSlope.TurnSteps(absoluteX, absoluteY);
-        return (up ? Bearing.Up : Bearing.Down).TurnedBySteps(turnsClockwiseFromSide ? -inverseTurn : inverseTurn);
+        return (up ? TrigonometryAngle.QuarterTurn : TrigonometryAngle.Zero - TrigonometryAngle.QuarterTurn)
+            .TurnedBySteps(turnsClockwiseFromSide ? inverseTurn : -inverseTurn);
     }
 
     /// <summary>

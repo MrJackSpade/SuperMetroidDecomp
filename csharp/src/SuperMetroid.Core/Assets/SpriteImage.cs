@@ -60,11 +60,16 @@ public sealed class SpriteImage
             Ensure.LengthEqual(blending, pixels);
         var places = new Dictionary<ColourKey, int>();
         var keys = ImmutableArray.CreateBuilder<ColourKey>();
-        // A clear pixel is never keyed: no shade recolours it, and a layer drawn opaque shows its stored colour.
+        // A clear pixel is never keyed: no shade recolours it, and a layer drawn opaque shows its stored colour. A visible
+        // pixel of the colour and recolour region of the visible pixel keyed last holds a key already found, so it is passed
+        // over: an image's pixels run in stretches of one colour, and a whole turning floor holds a million of them.
+        int keyed = -1;
         for (int pixel = 0; pixel < pixels; pixel++)
         {
-            if (decoded.Pixels[pixel].A != 0)
-                Add(KeyAt(decoded, pixel), places, keys);
+            if (decoded.Pixels[pixel].A == 0 || (keyed >= 0 && SameKey(decoded, pixel, keyed)))
+                continue;
+            Add(KeyAt(decoded, pixel), places, keys);
+            keyed = pixel;
         }
         if (Backdrop is { } backdrop)
             Add(backdrop, places, keys);
@@ -76,6 +81,14 @@ public sealed class SpriteImage
     {
         RgbaPixel shown = decoded.Pixels[pixel];
         return new ColourKey(new RgbColor(shown.R, shown.G, shown.B), decoded.RecolourRegions?[pixel] ?? 0);
+    }
+
+    /// <summary>Whether pixels <paramref name="pixel"/> and <paramref name="other"/> of <paramref name="decoded"/> hold one colour in one recolour region, so one key.</summary>
+    private static bool SameKey(SpriteImagePixels decoded, int pixel, int other)
+    {
+        RgbaPixel first = decoded.Pixels[pixel], second = decoded.Pixels[other];
+        return first.R == second.R && first.G == second.G && first.B == second.B
+            && (decoded.RecolourRegions is not { } regions || regions[pixel] == regions[other]);
     }
 
     /// <summary>Adds <paramref name="key"/> to the keys found so far where it is new.</summary>

@@ -23,8 +23,10 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// <c>foreach</c> over it has no ordered effect. A loop's ordered effects are a <c>yield return</c>, a <c>break</c> or a
 /// <c>return</c> out of the loop (the first match wins), an <c>Add</c>, <c>Insert</c>, <c>Push</c>, <c>Enqueue</c>,
 /// <c>Append</c> or <c>Write</c> on a collection or writer that is not a set or a dictionary and outlives the iteration,
-/// such a collection or writer handed to a call, and an assignment, compound assignment or increment of a variable
-/// that outlives the iteration.
+/// such a collection or writer handed to a call, and, of a variable that outlives the iteration, an assignment of a
+/// computed value or a compound assignment or increment the loop's body also reads (a running offset; a count only
+/// accumulated is order-free). A dictionary handed whole to a callee as a dictionary, a serializer among them, is the
+/// callee's to enumerate and is not followed.
 /// </para>
 /// <para>
 /// Everything else feeds an order and is reported: an array or list built from it, a member or method result exposing
@@ -345,18 +347,39 @@ public sealed class EnumerationOrderAnalyzer : DiagnosticAnalyzer
                     break;
                 case IArgumentOperation { Value: var value } when IsAccumulator(Unwrapped(value).Type) && Outlives(Referenced(Unwrapped(value))):
                     return true;
-                case ICompoundAssignmentOperation compound when Outlives(Referenced(compound.Target)):
+                case ICompoundAssignmentOperation compound when Outlives(Referenced(compound.Target)) &&
+                    (compound.Type?.SpecialType == SpecialType.System_String || ReadElsewhere(loop, compound)):
                     return true;
-                case IIncrementOrDecrementOperation step when Outlives(Referenced(step.Target)):
+                case IIncrementOrDecrementOperation step when Outlives(Referenced(step.Target)) && ReadElsewhere(loop, step):
                     return true;
                 case ISimpleAssignmentOperation { Target: ILocalReferenceOperation or IFieldReferenceOperation or IParameterReferenceOperation } assignment
-                    when Outlives(Referenced(assignment.Target)):
+                    when Outlives(Referenced(assignment.Target)) && !assignment.Value.ConstantValue.HasValue:
                     return true;
                 default:
                     break;
             }
         }
         return false;
+    }
+
+    /// <summary>
+    /// Whether the variable <paramref name="write"/> accumulates into is read anywhere else in the loop's body: a running
+    /// count or offset an iteration reads depends on the iterations before it, while one only accumulated does not.
+    /// </summary>
+    private static bool ReadElsewhere(IForEachLoopOperation loop, IOperation write)
+    {
+        ISymbol? written = write switch
+        {
+            ICompoundAssignmentOperation compound => Referenced(compound.Target),
+            IIncrementOrDecrementOperation step => Referenced(step.Target),
+            _ => null,
+        };
+        if (written is null)
+            return false;
+        var own = new HashSet<IOperation>(write.DescendantsAndSelf());
+        return loop.Body.DescendantsAndSelf().Any(other => !own.Contains(other) &&
+            other is ILocalReferenceOperation or IParameterReferenceOperation or IFieldReferenceOperation or IPropertyReferenceOperation &&
+            SymbolEqualityComparer.Default.Equals(Referenced(other), written));
     }
 
     /// <summary>Whether a return lies in a lambda or local function nested in the loop, and so does not leave it.</summary>

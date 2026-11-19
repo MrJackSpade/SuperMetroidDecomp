@@ -204,6 +204,12 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// fanfare, pause, wait, blank or delay counted by number, a thing that waits, holds, delays, pauses or lasts a number of
 /// updates, an animation frame's duration by number, a duration's value restated after its meaning and a count seeded
 /// with a number.
+/// #2552 adds, in every type, the original's tables, routines, labels and storage spelled as a declared name: its Shitroid,
+/// misc dust, Norfair Rio, Maridia large snail and Norfair lava-jumping enemy labels, its crawlers' upside surfaces, its
+/// routines, prologues, epilogues, phase heads and tails, input fallbacks, flare counter, shared projectiles, speed
+/// accumulators, elevator, boss and event flags, loading game state, FX motion, subpositions, liquid physics type, one-in-four
+/// branch, normal enemy touch and shot, collision prelude, pseudo-doors, initialization AI and the like
+/// (<see cref="OriginalLabelNameWord"/>).
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -2628,6 +2634,31 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     private static readonly Regex MainLoopNameWord = new(@"(?:^|_|(?<=[a-z0-9])(?=[A-Z]))[Mm]ainLoops?(?![a-z])", RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// A camel-case word of a declared name that spells the original's tables, routines, labels or storage (#2552), read in
+    /// every type, hardware owners included, at any word boundary: the original's labels for the Baby Metroid
+    /// (<c>ShitroidBehavior</c>), the dust explosion (<c>MiscDustSpark</c>), the Geruta, Holtz, Oum and Squeept and a
+    /// crawler's surfaces (<c>UpsideRight</c>); its routines and their parts (<c>RoomMainRoutines</c>,
+    /// <c>RunDoorSoundWaitPrologue</c>, <c>PauseInputEpilogue</c>, <c>RunInputPhaseHead</c>, <c>RespawnTail</c>,
+    /// <c>RunTorizoInitializationAi</c>, <c>SetupBrainToBeDrawn</c>, <c>RunHudProducer</c>); and its storage
+    /// (<c>FlareCounter</c>, <c>SharedProjectiles</c>, <c>TravelSpeedAccumulator</c>, <c>ElevatorFlags</c>,
+    /// <c>IAreaBossFlags</c>, <c>IGlobalEventFlags</c>, <c>SaveLoadingGameState</c>, <c>IRoomFxMotion</c>,
+    /// <c>RetainSubpositions</c>, <c>LiquidPhysicsType</c>, <c>ResetProjectileEchoStorage</c>), branches and shared
+    /// routines (<c>OneInFourBranch</c>, <c>NormalEnemyTouch</c>, <c>ApplyEnemyCollisionPrelude</c>,
+    /// <c>ApplyStoppedInputFallback</c>, <c>ElevatorPseudoDoor</c>). Core names what each is in the game: the Baby Metroid,
+    /// a crawler on the left wall, the charge's held updates, Samus's bombs.
+    /// </summary>
+    private static readonly Regex OriginalLabelNameWord = new(
+        @"(?:^|_|(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z]))(?:[Ss]hitroids?|[Uu]pside(?:Right|Left|Up)|[Mm]iscDust" +
+        @"|[Nn]orfairRios?|[Mm]aridiaLargeSnails?|[Nn]orfairLavaJumping|[Rr]outines?|[Pp]rologues?|[Ee]pilogues?|[Ii]nputFallbacks?" +
+        @"|[Ff]lareCounters?|[Ss]haredProjectiles?|[Ss]peedAccumulators?|[Ee]levatorFlags|[Jj]ourneyFlags?|[Bb]ossFlags?" +
+        @"|[Gg]lobalEventFlags|[Ll]oadingGameState|[Ff]xMotion|[Ss]ubpositions?|[Ll]iquidPhysicsType|[Oo]neInFourBranch" +
+        @"|[Nn]ormalEnemy(?:Touch|Shot)|[Cc]ollisionPrelude|[Pp]seudoDoors?|[Ii]nitializationAi|[Mm]outhControls" +
+        @"|(?:Phase|Wrapper|Frozen|Respawn|NoDrop)Tail|[Pp]haseHead|[Tt]oBeDrawn|[Ll]owPowerMode|[Tt]imeBombSet" +
+        @"|[Ff]irstSecondDamage|[Ee]choStorage|[Hh]udProducer|[Dd]ecelerationDisallowed|[Cc]aptureRenderSnapshot" +
+        @"|[Rr]enderSnapshotCapture|[Dd]ecideActionSamus)(?![a-z])",
+        RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A camel-case word of a declared name that tells the port as a translation (#2398): Translated or Untranslated at
     /// any word boundary (<c>CaptureTranslatedRenderSnapshot</c>, <c>hasTranslatedBodyChange</c>). Core names what the
     /// member captures, collects or tests.
@@ -2945,8 +2976,9 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         foreach (SyntaxNode node in root.DescendantNodes())
         {
             if (DeclaredName(node) is { } name &&
-                (CallNameWord.IsMatch(name.ValueText) || ExecutionCounterNameWord.IsMatch(name.ValueText) ||
-                    TranslatedNameWord.IsMatch(name.ValueText) || MainLoopNameWord.IsMatch(name.ValueText)) && !IsInHardwareOwner(node))
+                (OriginalLabelNameWord.IsMatch(name.ValueText) ||
+                    ((CallNameWord.IsMatch(name.ValueText) || ExecutionCounterNameWord.IsMatch(name.ValueText) ||
+                        TranslatedNameWord.IsMatch(name.ValueText) || MainLoopNameWord.IsMatch(name.ValueText)) && !IsInHardwareOwner(node))))
                 context.ReportDiagnostic(Diagnostic.Create(Rule, name.GetLocation(), name.ValueText));
         }
     }

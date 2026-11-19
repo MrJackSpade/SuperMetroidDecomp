@@ -648,6 +648,19 @@ bits`); and `save bits`. Core says what the game does: the update draws its rand
 one colour black, the random number chooses one of rain's four winds, nothing is marked explored. The middle of a room,
 the upper half of the screen, a tint's colours, a bit and a save stay English.
 
+#2552 widens SME6454, in every type, hardware owners included, to the original's tables, routines, labels and storage
+spelled as a word of a declared name: its labels for the Baby Metroid (`Shitroid`), the dust explosion (`MiscDust`), the
+Geruta, Holtz, Oum and Squeept (`NorfairRio`, `MaridiaLargeSnail`, `NorfairLavaJumping`) and a crawler's surfaces
+(`UpsideRight`, `UpsideLeft`, `UpsideUp`); its routines and their parts (`Routines`, `Prologue`, `Epilogue`, a phase's
+head or tail, a respawn, no-drop, frozen or wrapper tail, `InitializationAi`, `ToBeDrawn`, `HudProducer`,
+`DecideActionSamus`, `CaptureRenderSnapshot`); its storage (`FlareCounter`, `SharedProjectiles`, `SpeedAccumulator`,
+`ElevatorFlags`, `JourneyFlag`, `BossFlags`, `GlobalEventFlags`, `LoadingGameState`, `FxMotion`, `Subpositions`,
+`LiquidPhysicsType`, `EchoStorage`); and its branches and shared routines (`OneInFourBranch`, `NormalEnemyTouch`,
+`NormalEnemyShot`, `CollisionPrelude`, `InputFallback`, `PseudoDoor`, `MouthControls`, `LowPowerMode`, `TimeBombSet`,
+`FirstSecondDamage`, `DecelerationDisallowed`). Core names what each is in the game: the Baby Metroid, a crawler on the
+left wall (`OnLeftWall`), the charge's held updates (`UpdatesHeld`), Samus's bombs (`SamusBombs`), an enemy's setup
+(`SetUpEnemy`). Installed keys stay as their key tables write them; an upside-down Cacatac stays English.
+
 #2427 widens SME6454, outside hardware owners, to the original's setup and storage as area prose tells them: a setup,
 initialization or spawn that selects colours (`the setup selects the enemy projectiles' colours`, `statue initialization
 selects the common sprite colours`), and a value named by its hyphenated 1/65536-pixel storage (`Samus's 1/65536-pixel

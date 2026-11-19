@@ -427,7 +427,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             Encounter.DeathPhase = MotherBrainDeathPhase.TypeOutZebesEscapeText;
-            requests.Start(MotherBrainStepEffect.TimeBombSetSubtitle);
+            requests.Start(MotherBrainStepEffect.EscapeSubtitle);
         }
         return true;
     }

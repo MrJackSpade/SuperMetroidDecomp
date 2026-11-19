@@ -116,7 +116,7 @@ internal sealed class MotherBrainRainbowAndDeath
         if (step.EscapeDoorObject is { } doorObject)
             _access.RequestMotherBrainObject(doorObject.Block, doorObject.RoomObject);
         foreach (var request in step.EscapeDoorParticleSpawns) SpawnMotherBrainDoorFragment(request.Fragment);
-        if (step.Starts(MotherBrainStepEffect.TimeBombSetSubtitle))
+        if (step.Starts(MotherBrainStepEffect.EscapeSubtitle))
         {
             var subtitle = _projectiles.AllocateEnemyProjectile();
             if (subtitle is not null)

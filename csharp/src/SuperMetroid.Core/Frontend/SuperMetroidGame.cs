@@ -147,13 +147,13 @@ public sealed class SuperMetroidGame
         // Music processing runs before any phase, so a phase that waits on HasQueuedMusic
         // sees this update's queue; sound processing runs after the phase returns. A
         // message box's updates run only the box's own audio processing (below).
-        bool prologueMusicDispatch = runsAudioProcessing && !messageWasActive &&
+        bool musicRunsBeforePhase = runsAudioProcessing && !messageWasActive &&
             (!doorAudioUpdate || phaseAudio != GamePhaseAudio.DoorTransitionSoundsDisabled || !continuesDoorLoad);
-        IReadOnlyList<AudioRequest> prologueMusicRequests = prologueMusicDispatch
+        IReadOnlyList<AudioRequest> musicRequestsBeforePhase = musicRunsBeforePhase
             ? Session.audio.AdvanceMusicDispatch() : Array.Empty<AudioRequest>();
         // Frames pass on the frame counters while a door loads a new music data set
         // (IDoorMusicLoadFrames); nothing between this update's frame boundary and the load reads them.
-        if (doorAudioUpdate && prologueMusicRequests.Any(request => request is AudioRequest.ChangeMusicDataSet))
+        if (doorAudioUpdate && musicRequestsBeforePhase.Any(request => request is AudioRequest.ChangeMusicDataSet))
             Session.GameplayRuntime.Clock.CountDoorMusicLoad(Session.HostServices.DoorMusicLoadFrames);
         FrameNumber = checked(FrameNumber + 1);
         Session.display.BeginUpdate(FrameNumber);
@@ -189,8 +189,8 @@ public sealed class SuperMetroidGame
         IReadOnlyList<AudioRequest> trailingAudioRequests = Session.audio.AdvanceFrame(Session.HostServices.SoundAcceptance.ForNextUpdate(Session.audioSession.Acknowledgements, Session.audio.SentSoundRequests),
             advanceMusicQueue: runsMusicQueue,
             soundQueuePasses: soundQueuePasses);
-        IReadOnlyList<AudioRequest> audioRequests = prologueMusicRequests.Count == 0 ? trailingAudioRequests
-            : [.. prologueMusicRequests, .. trailingAudioRequests];
+        IReadOnlyList<AudioRequest> audioRequests = musicRequestsBeforePhase.Count == 0 ? trailingAudioRequests
+            : [.. musicRequestsBeforePhase, .. trailingAudioRequests];
         // The sound acceptance clock acts on this update's requests during the update's own
         // samples; its acknowledgements become visible to the next update's sound queues.
         AudioFrameEvents audio = new(Session.audioSession.Advance(audioRequests));

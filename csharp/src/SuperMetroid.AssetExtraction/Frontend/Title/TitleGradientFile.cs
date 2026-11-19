@@ -24,7 +24,7 @@ public static class TitleGradientFile
 
     /// <summary>Every gradient blend by its exact name.</summary>
     private static readonly Dictionary<string, GradientBlend> BlendsByName =
-        Enum.GetValues<GradientBlend>().ToDictionary(blend => blend.ToString(), StringComparer.Ordinal);
+        Enum.GetValues<GradientBlend>().ToDictionary(blend => GradientBlendKeys.Installed.Of(blend), StringComparer.Ordinal);
 
     /// <summary>Validates all sixteen authored zoom variants and compiles their stops.</summary>
     /// <param name="json">UTF-8 JSON read from its current position to the end and left open for the caller.</param>
@@ -104,7 +104,7 @@ public static class TitleGradientFile
         Green = stop.Colour.FadeLevels.Green,
         Blue = stop.Colour.FadeLevels.Blue,
         Blend = Enum.IsDefined(stop.Blend)
-            ? stop.Blend.ToString()
+            ? GradientBlendKeys.Installed.Of(stop.Blend)
             : throw new InvalidDataException($"Title gradient stop blends in undefined way {stop.Blend}."),
     };
 

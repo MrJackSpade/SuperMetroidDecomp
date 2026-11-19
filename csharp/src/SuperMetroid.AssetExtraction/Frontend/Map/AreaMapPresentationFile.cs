@@ -33,7 +33,7 @@ public static class AreaMapPresentationFile
         {
             throw new InvalidDataException($"Invalid map presentation JSON: {error.Message}", error);
         }
-        if (document.Version != MapPresentationFormat.Version || document.Area != rules.Area.ToString())
+        if (document.Version != MapPresentationFormat.Version || document.Area != AreaIdKeys.Installed.Of(rules.Area))
             throw new InvalidDataException($"Map presentation requires version {MapPresentationFormat.Version} and area {rules.Area}.");
         int count = AreaMapSize.WidthInMapTiles * AreaMapSize.HeightInMapTiles;
         if (document.Cells is null || document.Cells.Length != count)
@@ -71,7 +71,7 @@ public static class AreaMapPresentationFile
         }
         JsonSerializer.Serialize(json, new MapPresentationDocument
         {
-            Version = MapPresentationFormat.Version, Area = map.Area.ToString(), Cells = cells
+            Version = MapPresentationFormat.Version, Area = AreaIdKeys.Installed.Of(map.Area), Cells = cells
         }, ArtworkJson.Options);
     }
 }

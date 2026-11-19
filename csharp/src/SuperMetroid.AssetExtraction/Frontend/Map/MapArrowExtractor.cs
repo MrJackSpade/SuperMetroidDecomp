@@ -46,7 +46,7 @@ public static class MapArrowExtractor
                 // a shape offset. All four retail arrows use their one fixed shape.
                 if (bus.ReadCartridgeByte(address + 2) != 0) throw new InvalidDataException("Unexpected varying map arrow shape.");
             }
-            arrows.Add(direction.ToString(), new() { X = Read(record), Y = Read(record + 2) - 1 });
+            arrows.Add(MapScrollDirectionKeys.Installed.Of(direction), new() { X = Read(record), Y = Read(record + 2) - 1 });
         }
         using var stream = new MemoryStream();
         MapArrowFile.Write(stream, new() { Version = MapArrowFormat.Version, Arrows = arrows });

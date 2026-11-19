@@ -15,5 +15,6 @@ public readonly record struct SamusBodyFrame(SamusPoseId Pose, SamusAnimationFra
     /// The picture's name on the body sheet: its pose and its frame's name in the pose's animation, the segment and the frame
     /// within it, as the installation names it (#2048).
     /// </summary>
-    public string Name => $"{Pose}.{SamusAnimationDelays.AnimationForPose(Pose).NameOf(PictureFrame)}";
+    [InstalledKey]
+    public string Name => $"{SamusPoseIdKeys.Installed.Of(Pose)}.{SamusAnimationDelays.AnimationForPose(Pose).NameOf(PictureFrame)}";
 }

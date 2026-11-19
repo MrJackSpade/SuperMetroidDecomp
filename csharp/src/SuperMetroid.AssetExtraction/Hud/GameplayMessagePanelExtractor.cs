@@ -64,7 +64,7 @@ public static class GameplayMessagePanelExtractor
                 return GameplayMessageTitlePresentation.DecodeGlyph(cell);
             }).ToArray());
             int leadingSpaces = paddedTitle.Length - paddedTitle.TrimStart().Length;
-            panels.Add(id.ToString(), new()
+            panels.Add(GameplayMessageIdKeys.Installed.Of(id), new()
             {
                 Title = paddedTitle.Trim(),
                 Palette = palette,

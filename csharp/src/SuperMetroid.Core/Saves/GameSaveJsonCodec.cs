@@ -1,9 +1,10 @@
-using System.Globalization;
+using System.Collections.Frozen;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Map;
+using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Saves;
 
@@ -144,7 +145,7 @@ public static class GameSaveJsonCodec
     /// <summary>Lists each set of <paramref name="progress"/> by its identities.</summary>
     private static SaveProgressionJsonDocument CaptureProgression(PersistentProgress progress) => new()
     {
-        Events = [.. progress.Events.Members.Select(storyEvent => storyEvent.ToString())],
+        Events = [.. progress.Events.Members.Select(StoryEventKeys.Installed.Of)],
         ZebetitesDestroyed = progress.ZebetitesDestroyed,
         DefeatedBosses = [.. SavedAreas.Select(area => new SaveAreaBossesJsonDocument(area, progress.BossesDefeatedIn(area)))],
         CollectedItems = [.. progress.CollectedItems.Members.Select(location => location.Name)],
@@ -302,7 +303,10 @@ public static class GameSaveJsonCodec
             throw new InvalidDataException($"slots[{expectedSlot}].{property} {value} is outside [{minimum}, {maximum}]");
     }
 
-    /// <summary>Configures strict enum names, property handling, and stable save JSON formatting.</summary>
+    /// <summary>
+    /// Configures strict enum names, each identity's written-out keys in camel case (#2520), property handling, and stable save
+    /// JSON formatting.
+    /// </summary>
     private static JsonSerializerOptions CreateOptions()
     {
         var options = new JsonSerializerOptions
@@ -311,7 +315,14 @@ public static class GameSaveJsonCodec
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         };
-        options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, allowIntegerValues: false));
+        options.Converters.Add(new SaveKeyJsonConverter<ReserveTankMode>(ReserveTankModeKeys.Installed));
+        options.Converters.Add(new SaveKeyJsonConverter<HudItem>(HudItemKeys.Installed));
+        options.Converters.Add(new SaveKeyJsonConverter<SaveLoadingGameState>(SaveLoadingGameStateKeys.Installed));
+        options.Converters.Add(new SaveKeyJsonConverter<AreaId>(AreaIdKeys.Installed));
+        options.Converters.Add(new SaveFlagsJsonConverter<ControllerButton>(ControllerButtonKeys.Installed, (left, right) => left | right));
+        options.Converters.Add(new SaveFlagsJsonConverter<SamusEquipmentFlags>(SamusEquipmentFlagsKeys.Installed, (left, right) => left | right));
+        options.Converters.Add(new SaveFlagsJsonConverter<SamusBeamFlags>(SamusBeamFlagsKeys.Installed, (left, right) => left | right));
+        options.Converters.Add(new SaveFlagsJsonConverter<DefeatedBosses>(DefeatedBossesKeys.Installed, (left, right) => left | right));
         return options;
     }
 
@@ -395,6 +406,10 @@ public static class GameSaveJsonCodec
         return listed;
     }
 
+    /// <summary>Every story event by its installed key, its case ignored as saves have always been read (#2520).</summary>
+    private static readonly FrozenDictionary<string, StoryEvent> StoryEventsByKey =
+        Enum.GetValues<StoryEvent>().ToFrozenDictionary(StoryEventKeys.Installed.Of, StringComparer.OrdinalIgnoreCase);
+
     /// <summary>
     /// Records the story events <paramref name="events"/> names as happened, rejecting an unknown name, a duplicate and
     /// any name out of the order <see cref="StoryEvent"/> declares.
@@ -406,8 +421,7 @@ public static class GameSaveJsonCodec
         for (int index = 0; index < events.Length; index++)
         {
             string value = events[index] ?? throw new InvalidDataException($"{property}[{index}] is null");
-            if (!Enum.TryParse(value, ignoreCase: true, out StoryEvent storyEvent) || !Enum.IsDefined(storyEvent) ||
-                int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out _))
+            if (!StoryEventsByKey.TryGetValue(value, out StoryEvent storyEvent))
                 throw new InvalidDataException($"{property}[{index}] '{value}' names no story event");
             int place = Array.IndexOf(order, storyEvent);
             if (place <= previous)

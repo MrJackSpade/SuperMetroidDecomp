@@ -13,10 +13,12 @@ namespace SuperMetroid.Core.Frontend.Map;
 internal static class AreaMapPictures
 {
     /// <summary>The frame name of the picture of <paramref name="shown"/>'s cell in its shade.</summary>
-    internal static string FrameName(ShownMapCell shown) => $"Map.Cell.{shown.Cell.Name}.{shown.Shade}";
+    [InstalledKey]
+    internal static string FrameName(ShownMapCell shown) => $"Map.Cell.{shown.Cell.Name}.{MapCellShadeKeys.Installed.Of(shown.Shade)}";
 
     /// <summary>The frame name of <paramref name="area"/>'s room-map frame page.</summary>
-    internal static string RoomFrameName(AreaId area) => $"Map.RoomFrame.{area}";
+    [InstalledKey]
+    internal static string RoomFrameName(AreaId area) => $"Map.RoomFrame.{AreaIdKeys.Installed.Of(area)}";
 
     /// <summary>The frame name of the world map's foreground page in an area's world-map sheet.</summary>
     internal const string WorldForegroundFrame = "World.Foreground";

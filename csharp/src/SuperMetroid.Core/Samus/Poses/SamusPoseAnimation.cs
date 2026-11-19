@@ -70,10 +70,11 @@ internal sealed class SamusPoseAnimation
     /// <paramref name="frame"/>'s name, as the installation keys a frame of this animation: its segment's name and the frame
     /// within the segment.
     /// </summary>
+    [InstalledKey]
     internal string NameOf(SamusAnimationFrame frame)
     {
         SamusAnimationFrame named = Require(frame);
-        return $"{named.Segment}.{named.Frame.ToString(CultureInfo.InvariantCulture)}";
+        return $"{SamusAnimationSegmentNameKeys.Installed.Of(named.Segment)}.{named.Frame.ToString(CultureInfo.InvariantCulture)}";
     }
 
     /// <summary>The frame of this animation the installation names <paramref name="name"/> (<see cref="NameOf"/>).</summary>
@@ -81,8 +82,7 @@ internal sealed class SamusPoseAnimation
     internal SamusAnimationFrame FrameNamed(string? name)
     {
         int separator = name?.LastIndexOf('.') ?? -1;
-        if (name is null || separator <= 0 || char.IsDigit(name[0]) ||
-            !Enum.TryParse(name.AsSpan(0, separator), ignoreCase: false, out SamusAnimationSegmentName segment) || !Enum.IsDefined(segment) ||
+        if (name is null || separator <= 0 || !SamusAnimationSegmentNameKeys.Installed.TryParse(name[..separator], out SamusAnimationSegmentName segment) ||
             !int.TryParse(name.AsSpan(separator + 1), NumberStyles.None, CultureInfo.InvariantCulture, out int frame))
             throw new InvalidDataException($"'{name}' names no animation frame.");
         return Array.Exists(segments, candidate => candidate.Name == segment)

@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 public sealed record PauseBackdropCell
 {
     /// <summary>The 256-character page of the loaded pause graphics the cell reads.</summary>
-    [JsonConverter(typeof(JsonStringEnumConverter<PauseAtlas>))]
+    [JsonConverter(typeof(PauseAtlasJsonConverter))]
     public required PauseAtlas Atlas { get; init; }
     /// <summary>Zero-based column 0..31 of an eight-pixel tile within the selected atlas, not its destination tilemap column.</summary>
     public required int TileColumn { get; init; }

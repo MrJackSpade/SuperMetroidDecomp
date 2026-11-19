@@ -42,7 +42,7 @@ internal static class MapStaticPalettesExtractor
                 }
                 if (!terminated) throw new InvalidDataException("World-map palette copy program has no terminator.");
             }
-            world.Add(selected.ToString(), ToRgb(colors));
+            world.Add(AreaIdKeys.Installed.Of(selected), ToRgb(colors));
         }
         using var json = new MemoryStream();
         MapStaticPalettesFile.Write(json, new() { Version = MapStaticPalettesFormat.Version, Pause = ToRgb(pause), FileSelect = ToRgb(file), World = world });

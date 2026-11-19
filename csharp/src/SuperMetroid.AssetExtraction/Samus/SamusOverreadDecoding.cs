@@ -62,7 +62,7 @@ internal static class SamusOverreadDecoding
                 positions.Add(position.ToString(System.Globalization.CultureInfo.InvariantCulture),
                     [.. Enumerable.Range(0, SamusProjectileSystem.PlaceCount).Select(slot => SpaceTimeOverwrite(cartridge, place, slot))]);
             }
-            result.Add(program.ToString(), positions);
+            result.Add(SamusProjectileSegmentKeys.Installed.Of(program), positions);
         }
         return result;
     }
@@ -153,10 +153,10 @@ internal static class SamusOverreadDecoding
         }
         BitTablePrefix events = ProgressionTableCodec.PrefixOverwrite(Leading(ProgressionSliceLayout.EventsOffset, ProgressionSliceLayout.BossBitsOffset));
         return new SamusOverreadDocument.Overwrite(
-            Named(ProgressionTableCodec.StoryEventsOf(events), Enum.GetValues<StoryEvent>(), storyEvent => storyEvent.ToString()),
+            Named(ProgressionTableCodec.StoryEventsOf(events), Enum.GetValues<StoryEvent>(), StoryEventKeys.Installed.Of),
             ProgressionTableCodec.ZebetitesDestroyedOf(events),
             ProgressionTableCodec.AreaBossesPrefix(Leading(ProgressionSliceLayout.BossBitsOffset, ProgressionSliceLayout.RoomChozoBitsOffset))
-                .ToDictionary(area => area.Key.ToString(), area => (IReadOnlyList<string>)[.. BossFlagNames(area.Value)]),
+                .ToDictionary(area => AreaIdKeys.Installed.Of(area.Key), area => (IReadOnlyList<string>)[.. BossFlagNames(area.Value)]),
             Named(ProgressionTableCodec.CollectedItemsOf(ProgressionTableCodec.PrefixOverwrite(
                 Leading(ProgressionSliceLayout.CollectedItemBitsOffset, ProgressionSliceLayout.OpenedDoorBitsOffset))), ItemLocationDefinitions.All, location => location.Name),
             Named(ProgressionTableCodec.OpenedDoorsOf(ProgressionTableCodec.PrefixOverwrite(
@@ -164,8 +164,8 @@ internal static class SamusOverreadDecoding
             Named(ProgressionTableCodec.UsedStationsOf(ProgressionTableCodec.UsedStationsPrefix(
                 Leading(ProgressionSliceLayout.UsedSaveStationsOffset, ProgressionSliceLayout.MapStationsOffset))), LoadStationDefinitions.Usable, station => station.Name),
             ProgressionTableCodec.AreaMapsPrefix(Leading(ProgressionSliceLayout.MapStationsOffset, ProgressionSliceLayout.LoadingGameStateOffset))
-                .ToDictionary(area => area.Key.ToString(), area => area.Value),
-            loadingState is int word ? SaveLoadingGameStateCodec.Route(word).ToString() : null);
+                .ToDictionary(area => AreaIdKeys.Installed.Of(area.Key), area => area.Value),
+            loadingState is int word ? SaveLoadingGameStateKeys.Installed.Of(SaveLoadingGameStateCodec.Route(word)) : null);
     }
 
     /// <summary>
@@ -177,9 +177,10 @@ internal static class SamusOverreadDecoding
         new([.. kind.Where(decided.Decided.Contains).Select(name)], [.. kind.Where(decided.Set.Contains).Select(name)]);
 
     /// <summary>The names of the boss flags <paramref name="bosses"/> holds.</summary>
+    [InstalledKey]
     private static IEnumerable<string> BossFlagNames(DefeatedBosses bosses) =>
         Enum.GetValues<DefeatedBosses>().Where(flag => flag != DefeatedBosses.None && bosses.HasFlag(flag))
-            .Select(flag => flag.ToString());
+            .Select(DefeatedBossesKeys.Installed.Of);
 
     /// <summary>
     /// Where the Chainsaw fuse's fast-list offset moves every animation position that lands on one; a position whose move
@@ -197,9 +198,9 @@ internal static class SamusOverreadDecoding
                     SamusOverreadSourceDefinitions.FastAnimationOffset));
                 if (landing != 0 && lists.TryPlaceAt(landing, out SamusProjectileSegmentBeat landed))
                     landings.Add(position.ToString(System.Globalization.CultureInfo.InvariantCulture),
-                        new SamusOverreadDocument.Cursor(landed.Segment.ToString(), landed.Beat));
+                        new SamusOverreadDocument.Cursor(SamusProjectileSegmentKeys.Installed.Of(landed.Segment), landed.Beat));
             }
-            result.Add(program.ToString(), landings);
+            result.Add(SamusProjectileSegmentKeys.Installed.Of(program), landings);
         }
         return result;
     }
@@ -212,7 +213,7 @@ internal static class SamusOverreadDecoding
         Enum.GetValues<SamusPoseId>()
             .Where(pose => SamusPoseMetadata.PostureTransitionAdmission(pose) == SamusPostureTransitionAdmission.AnsweredBeyondTransitions)
             .OrderBy(SamusPoseNumbers.Number)
-            .ToDictionary(pose => pose.ToString(), pose =>
+            .ToDictionary(pose => SamusPoseIdKeys.Installed.Of(pose), pose =>
                 cartridge.ReadCartridgeByte(SamusOverreadSourceDefinitions.HudPostureFlagsForPoseZero + SamusPoseNumbers.Number(pose)) == 0);
 
     /// <summary>
@@ -223,7 +224,7 @@ internal static class SamusOverreadDecoding
     private static Dictionary<string, SamusOverreadDocument.LaunchSpeeds> UnauthoredBeamLaunchSpeeds(IImportCartridgeSource cartridge) =>
         Enum.GetValues<SamusBeamCombination>()
             .Where(beams => !beams.CanBeEquipped)
-            .ToDictionary(beams => beams.ToString(), beams =>
+            .ToDictionary(beams => SamusBeamCombinationKeys.Installed.Of(beams), beams =>
             {
                 int row = SamusOverreadSourceDefinitions.BeamSpeedTable + beams.TableIndex * 2 * sizeof(ushort);
                 return new SamusOverreadDocument.LaunchSpeeds(
@@ -239,7 +240,7 @@ internal static class SamusOverreadDecoding
     private static Dictionary<string, SamusOverreadDocument.Cooldowns> UnauthoredBeamCooldowns(IImportCartridgeSource cartridge) =>
         Enum.GetValues<SamusBeamCombination>()
             .Where(beams => !beams.CanBeEquipped)
-            .ToDictionary(beams => beams.ToString(), beams => new SamusOverreadDocument.Cooldowns(
+            .ToDictionary(beams => SamusBeamCombinationKeys.Installed.Of(beams), beams => new SamusOverreadDocument.Cooldowns(
                 cartridge.ReadCartridgeByte(SamusOverreadSourceDefinitions.UnchargedCooldowns + beams.TableIndex),
                 cartridge.ReadCartridgeByte(SamusOverreadSourceDefinitions.ChargedCooldowns + beams.TableIndex),
                 cartridge.ReadCartridgeByte(SamusOverreadSourceDefinitions.HeldFireCooldowns + beams.TableIndex)));
@@ -249,7 +250,7 @@ internal static class SamusOverreadDecoding
     /// the pose's distance from the first crash pose, so a drained pose reads past the table's six pairs.
     /// </summary>
     private static Dictionary<string, SamusOverreadDocument.CrashDepartures> DrainedCrashDepartures(IImportCartridgeSource cartridge) =>
-        DrainedCrashPoses.ToDictionary(pose => pose.ToString(), pose =>
+        DrainedCrashPoses.ToDictionary(pose => SamusPoseIdKeys.Installed.Of(pose), pose =>
         {
             int pair = SamusOverreadSourceDefinitions.CrashDepartureTable +
                 (SamusPoseNumbers.Number(pose) - SamusPoseNumbers.Number(SamusPoseId.ShinesparkHorizontalRightPose)) * 2;

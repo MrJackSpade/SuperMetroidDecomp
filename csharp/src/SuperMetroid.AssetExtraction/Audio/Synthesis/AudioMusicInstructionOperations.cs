@@ -1,3 +1,5 @@
+using SuperMetroid.Core;
+
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>Stable JSON operation names for decoded SPC music content.</summary>
@@ -22,20 +24,8 @@ public static class AudioMusicInstructionOperations
     /// <summary>Track repeat record with a nonzero low-byte count in <c>Value</c> (excluding <c>$80/$81</c>) and a required APU RAM track target in <c>Target</c>; distinct from a channel pattern-call effect.</summary>
     public const string Repeat = "repeat";
 
-    /// <summary>Maps driver effect identities to stable camel-case manifest operations.</summary>
-    private static readonly Dictionary<SpcMusicEffect, string> effectOperations =
-        Enum.GetValues<SpcMusicEffect>().Distinct().ToDictionary(effect => effect, effect =>
-        {
-            string name = effect.ToString();
-            return char.ToLowerInvariant(name[0]) + name[1..];
-        });
-
     /// <summary>Uses stable camel-case operation names for SPC effects, including unknown numeric values.</summary>
-    internal static string ForEffect(SpcMusicEffect effect)
-    {
-        if (effectOperations.TryGetValue(effect, out string? operation))
-            return operation;
-        string name = effect.ToString();
-        return char.ToLowerInvariant(name[0]) + name[1..];
-    }
+    [InstalledKey]
+    internal static string ForEffect(SpcMusicEffect effect) =>
+        Enum.IsDefined(effect) ? SpcMusicEffectKeys.Installed.Of(effect) : effect.ToString("D");
 }

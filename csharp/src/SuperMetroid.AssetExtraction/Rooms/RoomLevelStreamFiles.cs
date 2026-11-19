@@ -110,9 +110,9 @@ public static class RoomLevelStreamFiles
         }
         RoomDoorBlockFiles.Extract(directory, doorLinks);
         using var kinds = new FileStream(Path.Combine(directory, CollisionKindsFileName), FileMode.CreateNew, FileAccess.Write);
-        JsonSerializer.Serialize(kinds, new CollisionKindDocument(FormatVersion, [.. CollisionKinds.Select(kind => kind.ToString())],
-            Families.ToDictionary(family => family.ToString(),
-                family => BlockReactionFamilies.Reactions(family).Select(reaction => reaction.ToString()).ToArray()),
+        JsonSerializer.Serialize(kinds, new CollisionKindDocument(FormatVersion, [.. CollisionKinds.Select(RoomCollisionTypeKeys.Installed.Of)],
+            Families.ToDictionary(family => BlockReactionFamilyKeys.Installed.Of(family),
+                family => BlockReactionFamilies.Reactions(family).Select(BlockReactionFamilies.KeyOf).ToArray()),
             [.. SlopeShapes.Select(shape => shape.Name)]),
             JsonOptions);
     }
@@ -379,7 +379,7 @@ public static class RoomLevelStreamFiles
         var kinds = new RoomCollisionType[names.Length];
         for (int index = 0; index < names.Length; index++)
         {
-            if (!Enum.TryParse(names[index], ignoreCase: false, out kinds[index]) || !Enum.IsDefined(kinds[index]))
+            if (!RoomCollisionTypeKeys.Installed.TryParse(names[index], out kinds[index]))
                 throw new InvalidDataException($"Room-level collision kinds {kindsPath} name unknown collision kind '{names[index]}'.");
         }
         if (kinds.Distinct().Count() != kinds.Length)
@@ -399,13 +399,13 @@ public static class RoomLevelStreamFiles
         foreach (BlockReactionFamily family in Families)
         {
             IReadOnlyList<Enum> all = BlockReactionFamilies.Reactions(family);
-            if (!names.TryGetValue(family.ToString(), out string[]? familyNames) || familyNames is null ||
+            if (!names.TryGetValue(BlockReactionFamilyKeys.Installed.Of(family), out string[]? familyNames) || familyNames is null ||
                 familyNames.Length != all.Count)
                 throw new InvalidDataException($"Room-level collision kinds {kindsPath} do not name the {all.Count} {family} reactions.");
             var named = new Enum[familyNames.Length];
             for (int index = 0; index < familyNames.Length; index++)
             {
-                named[index] = all.FirstOrDefault(reaction => string.Equals(reaction.ToString(), familyNames[index], StringComparison.Ordinal)) ??
+                named[index] = all.FirstOrDefault(reaction => string.Equals(BlockReactionFamilies.KeyOf(reaction), familyNames[index], StringComparison.Ordinal)) ??
                     throw new InvalidDataException($"Room-level collision kinds {kindsPath} name unknown {family} reaction '{familyNames[index]}'.");
             }
             if (named.Distinct().Count() != named.Length)
@@ -466,6 +466,6 @@ public static class RoomLevelStreamFiles
     /// The collision kinds, each reaction family's reactions, and the slope shapes, by the position the level files write
     /// them at, under the document's schema revision.
     /// </summary>
-    private sealed record CollisionKindDocument(int Version, string[] CollisionKinds, Dictionary<string, string[]> Reactions,
+    private sealed record CollisionKindDocument(int Version, [InstalledKey] string[] CollisionKinds, [InstalledKey] Dictionary<string, string[]> Reactions,
         string[] SlopeShapes);
 }

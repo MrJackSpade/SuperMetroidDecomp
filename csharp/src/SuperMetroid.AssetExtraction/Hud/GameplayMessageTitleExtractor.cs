@@ -61,7 +61,7 @@ public static class GameplayMessageTitleExtractor
                         $"Gameplay message {id} mixes palettes inside its editable title at visible column {column}: {cell} versus palette {palette}.");
                 return GameplayMessageTitlePresentation.DecodeGlyph(cell);
             }).ToArray());
-            titles.Add(id.ToString(), new() { Text = text.Trim(), Palette = palette });
+            titles.Add(GameplayMessageIdKeys.Installed.Of(id), new() { Text = text.Trim(), Palette = palette });
         }
 
         var border = new BackgroundTile[GameplayMessageTilemapDefinitions.TilemapWidth];

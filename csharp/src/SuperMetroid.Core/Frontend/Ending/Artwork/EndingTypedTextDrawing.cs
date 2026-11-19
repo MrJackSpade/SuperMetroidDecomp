@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
@@ -10,7 +11,9 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 public static class EndingTypedTextDrawing
 {
     /// <summary>The sheet's frame for the letter <paramref name="typed"/> types: the last of its text's letters it shows.</summary>
-    public static string LetterFrameName(EndingTextTyping typed) => $"{EndingTextAnimations.Family}.{typed.Text}.Letter{typed.Letters}";
+    [InstalledKey]
+    public static string LetterFrameName(EndingTextTyping typed) =>
+        $"{CinematicSpriteFamilyKeys.Installed.Of(EndingTextAnimations.Family)}.{EndingTypedTextKeys.Installed.Of(typed.Text)}.Letter{typed.Letters}";
 
     /// <summary>Places <paramref name="typed"/>'s letters at <paramref name="origin"/>, first letter first, in <paramref name="shading"/>.</summary>
     public static void DrawText(SpriteSheet sheet, EndingTextTyping typed, ScreenSprites sprites, Offset16<ScreenPixels> origin,

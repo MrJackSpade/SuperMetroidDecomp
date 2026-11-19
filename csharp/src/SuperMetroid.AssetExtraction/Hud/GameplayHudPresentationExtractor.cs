@@ -25,7 +25,7 @@ public static class GameplayHudPresentationExtractor
         {
             HudIcon icon = GameplayHudStockDefinitions.IconSourceOrder[item];
             int count = GameplayHudStockDefinitions.IconWidths[icon] * GameplayHudIcon.Height;
-            icons.Add(icon.ToString(), new()
+            icons.Add(HudIconKeys.Installed.Of(icon), new()
             {
                 Anchor = Point(GameplayHudStockCells.ItemCell(item)),
                 Cells = ReadCells(bus, HudSourceDefinitions.Icons + sourceWord * sizeof(ushort), count),

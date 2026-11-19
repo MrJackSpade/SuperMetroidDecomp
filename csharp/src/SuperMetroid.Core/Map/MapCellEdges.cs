@@ -14,8 +14,11 @@ public readonly record struct MapCellEdges(MapCellEdge Top, MapCellEdge Bottom, 
     /// The edges as a picture's name spells them: each edge that is not open, top, bottom, left then right, as a
     /// <c>.</c>-led segment naming the side and what bounds it; empty when every edge is open.
     /// </summary>
+    [InstalledKey]
     public string Name => string.Concat(Segment("Top", Top), Segment("Bottom", Bottom), Segment("Left", Left), Segment("Right", Right));
 
     /// <summary>The name segment of the edge on <paramref name="side"/>; empty for an open edge.</summary>
-    private static string Segment(string side, MapCellEdge edge) => edge == MapCellEdge.Open ? "" : $".{side}{edge}";
+    [InstalledKey]
+    private static string Segment(string side, MapCellEdge edge) =>
+        edge == MapCellEdge.Open ? "" : $".{side}{MapCellEdgeKeys.Installed.Of(edge)}";
 }

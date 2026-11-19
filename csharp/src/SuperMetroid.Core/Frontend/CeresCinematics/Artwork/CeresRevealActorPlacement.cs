@@ -9,7 +9,7 @@ public sealed record CeresRevealActorPlacement
     public Offset16<ScreenPixels> Place => Offset16<ScreenPixels>.Of(X, Y);
 
     /// <summary>The actor the placement places, by what it shows (#1768): its installed key.</summary>
-    [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<ZebesRevealActorRole>))]
+    [System.Text.Json.Serialization.JsonConverter(typeof(ZebesRevealActorRoleJsonConverter))]
     public required ZebesRevealActorRole Role { get; init; }
     /// <summary>Initial horizontal screen-pixel coordinate, -32768 through 32767, negative left of the screen (#1627); not a room-world or block coordinate.</summary>
     public required int X { get; init; }

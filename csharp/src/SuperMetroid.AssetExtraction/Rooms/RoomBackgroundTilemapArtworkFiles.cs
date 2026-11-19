@@ -26,8 +26,9 @@ public static class RoomBackgroundTilemapArtworkFiles
     private const int FormatVersion = 3;
 
     /// <summary>The import-data JSON file name of <paramref name="tilemap"/>, named for the background it pictures (#1414).</summary>
+    [InstalledKey]
     public static string FileName(RoomBackgroundTilemap tilemap) =>
-        $"room-background-{InstalledArtworkNames.Hyphenated(tilemap.ToString())}.json";
+        $"room-background-{InstalledArtworkNames.Hyphenated(RoomBackgroundTilemapKeys.Installed.Of(tilemap))}.json";
 
     /// <summary>Creates one tilemap JSON file per background tilemap in the component's import data and records its provenance.</summary>
     /// <param name="bus">Non-null cartridge import address space supplying the compressed background tilemaps.</param>
@@ -52,7 +53,7 @@ public static class RoomBackgroundTilemapArtworkFiles
             RoomBackgroundTilemapFormat.ValidatePageCount(byteCount);
             using (var output = new FileStream(Path.Combine(importData, name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(json);
-            entries.Add(name, new RoomBackgroundFileEntry(tilemap.ToString(), byteCount,
+            entries.Add(name, new RoomBackgroundFileEntry(RoomBackgroundTilemapKeys.Installed.Of(tilemap), byteCount,
                 Convert.ToHexString(SHA256.HashData(json))));
         }
         using var manifest = new FileStream(Path.Combine(importData, ManifestFileName),
@@ -84,8 +85,8 @@ public static class RoomBackgroundTilemapArtworkFiles
         var tilemaps = new Dictionary<RoomBackgroundTilemap, RoomBackgroundTilemapAtlas>();
         foreach ((string name, RoomBackgroundFileEntry entry) in manifest.Entries)
         {
-            if (entry is null || !Enum.TryParse(entry.Tilemap, ignoreCase: false, out RoomBackgroundTilemap tilemap) ||
-                !Enum.IsDefined(tilemap) || name != FileName(tilemap))
+            if (entry is null || !RoomBackgroundTilemapKeys.Installed.TryParse(entry.Tilemap, out RoomBackgroundTilemap tilemap) ||
+                name != FileName(tilemap))
                 throw new InvalidDataException($"Room background manifest {manifestPath} has an invalid tilemap entry.");
             RoomBackgroundTilemapFormat.ValidatePageCount(entry.ByteCount);
             string path = Path.Combine(importData, name);
@@ -117,7 +118,7 @@ public static class RoomBackgroundTilemapArtworkFiles
     };
 
     /// <summary>One stock tilemap's name, decompressed length in bytes, and JSON digest.</summary>
-    private sealed record RoomBackgroundFileEntry(string Tilemap, int ByteCount, string Sha256);
+    private sealed record RoomBackgroundFileEntry([InstalledKey] string Tilemap, int ByteCount, string Sha256);
     /// <summary>Records cartridge provenance and complete stock background tilemap coverage.</summary>
     private sealed record RoomBackgroundFileManifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, RoomBackgroundFileEntry> Entries);

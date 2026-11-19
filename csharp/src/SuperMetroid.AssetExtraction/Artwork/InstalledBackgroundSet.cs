@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// manifest (#1512); only the import pipeline knows where each set lies among the cartridge's colours, and Core's
 /// installed images never name a set.
 /// </summary>
-[JsonConverter(typeof(JsonStringEnumConverter<InstalledBackgroundSet>))]
+[JsonConverter(typeof(InstalledBackgroundSetJsonConverter))]
 public enum InstalledBackgroundSet
 {
     /// <summary>

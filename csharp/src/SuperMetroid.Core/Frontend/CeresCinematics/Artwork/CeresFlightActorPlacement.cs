@@ -9,7 +9,7 @@ public sealed record CeresFlightActorPlacement
     public Offset16<ScreenPixels> Place => Offset16<ScreenPixels>.Of(X, Y);
 
     /// <summary>The actor the placement places, by what it shows (#1768): its installed key, not an editable animation or behavior selector.</summary>
-    [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<CeresRearViewActorRole>))]
+    [System.Text.Json.Serialization.JsonConverter(typeof(CeresRearViewActorRoleJsonConverter))]
     public required CeresRearViewActorRole Role { get; init; }
     /// <summary>Initial whole-pixel screen X, -32768 through 32767: negative lies left of the screen, such as -32 (#1627).</summary>
     public required int X { get; init; }

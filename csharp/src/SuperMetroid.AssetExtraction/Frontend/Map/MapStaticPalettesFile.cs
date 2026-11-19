@@ -22,7 +22,7 @@ public static class MapStaticPalettesFile
         var world = new Dictionary<AreaId, RgbColor[]>();
         foreach (AreaId area in AreaIds.Zebes)
         {
-            if (!document.World.TryGetValue(area.ToString(), out var colors))
+            if (!document.World.TryGetValue(AreaIdKeys.Installed.Of(area), out var colors))
                 throw new InvalidDataException($"Map palettes are missing world selection {area}.");
             world.Add(area, Compile(colors, area.ToString()));
         }

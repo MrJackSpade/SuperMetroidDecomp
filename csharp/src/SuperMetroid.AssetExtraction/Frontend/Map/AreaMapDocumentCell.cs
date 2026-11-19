@@ -11,26 +11,26 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 public sealed record AreaMapDocumentCell
 {
     /// <summary>The kind of place the cell shows.</summary>
-    [JsonConverter(typeof(JsonStringEnumConverter<MapCellKind>))]
+    [JsonConverter(typeof(MapCellKindJsonConverter))]
     public required MapCellKind Kind { get; init; }
 
     /// <summary>The piece of a sloped hallway the cell shows, or <see cref="MapCellSlope.None"/>.</summary>
-    [JsonConverter(typeof(JsonStringEnumConverter<MapCellSlope>))]
+    [JsonConverter(typeof(MapCellSlopeJsonConverter))]
     public required MapCellSlope Slope { get; init; }
 
     /// <summary>What bounds the cell's top edge.</summary>
-    [JsonConverter(typeof(JsonStringEnumConverter<MapCellEdge>))]
+    [JsonConverter(typeof(MapCellEdgeJsonConverter))]
     public required MapCellEdge Top { get; init; }
 
     /// <summary>What bounds the cell's bottom edge.</summary>
-    [JsonConverter(typeof(JsonStringEnumConverter<MapCellEdge>))]
+    [JsonConverter(typeof(MapCellEdgeJsonConverter))]
     public required MapCellEdge Bottom { get; init; }
 
     /// <summary>What bounds the cell's left edge.</summary>
-    [JsonConverter(typeof(JsonStringEnumConverter<MapCellEdge>))]
+    [JsonConverter(typeof(MapCellEdgeJsonConverter))]
     public required MapCellEdge Left { get; init; }
 
     /// <summary>What bounds the cell's right edge.</summary>
-    [JsonConverter(typeof(JsonStringEnumConverter<MapCellEdge>))]
+    [JsonConverter(typeof(MapCellEdgeJsonConverter))]
     public required MapCellEdge Right { get; init; }
 }

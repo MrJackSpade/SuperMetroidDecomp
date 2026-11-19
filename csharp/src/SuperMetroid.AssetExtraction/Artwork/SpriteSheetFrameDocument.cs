@@ -23,7 +23,7 @@ public sealed record SpriteSheetFrameDocument
     /// Where a gameplay draw of an actor's frame sits among the room's layers (#1514), by name, as the import decides it from
     /// the game's own drawing of the frame; absent for a frame that is not an actor's, and for an empty frame.
     /// </summary>
-    [JsonConverter(typeof(JsonStringEnumConverter<ActorDepth>))]
+    [JsonConverter(typeof(ActorDepthJsonConverter))]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ActorDepth? Depth { get; init; }
 }

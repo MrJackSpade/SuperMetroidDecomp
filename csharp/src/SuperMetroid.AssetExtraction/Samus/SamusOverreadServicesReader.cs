@@ -16,7 +16,7 @@ internal static class SamusOverreadServicesReader
 {
     /// <summary>Every story event by its name.</summary>
     private static readonly IReadOnlyDictionary<string, StoryEvent> StoryEventsByName =
-        Enum.GetValues<StoryEvent>().ToDictionary(storyEvent => storyEvent.ToString(), StringComparer.Ordinal);
+        Enum.GetValues<StoryEvent>().ToDictionary(storyEvent => StoryEventKeys.Installed.Of(storyEvent), StringComparer.Ordinal);
 
     /// <summary>Every item location by its name.</summary>
     private static readonly IReadOnlyDictionary<string, ItemLocation> ItemLocationsByName =
@@ -80,7 +80,7 @@ internal static class SamusOverreadServicesReader
         var animationCueValues = new Dictionary<SamusAnimationName, IReadOnlyDictionary<SamusAnimationFrame, SamusPoseAnimationStep>>();
         foreach (SamusPoseAnimation animation in animations)
         {
-            if (!cueValueSteps.TryGetValue(animation.Name.ToString(), out IReadOnlyDictionary<string, SamusOverreadDocument.CueValueStep>? steps))
+            if (!cueValueSteps.TryGetValue(SamusAnimationNameKeys.Installed.Of(animation.Name), out IReadOnlyDictionary<string, SamusOverreadDocument.CueValueStep>? steps))
                 throw new InvalidDataException($"Samus overread file has no cue-value steps for the {animation.Name} animation.");
             animationCueValues.Add(animation.Name, Require(steps, $"cue-value steps for the {animation.Name} animation").ToDictionary(
                 pair => NoStepOf(animation, animation.FrameNamed(pair.Key), "cue-value frame"),
@@ -89,7 +89,7 @@ internal static class SamusOverreadServicesReader
         var animationFramesAfterCues = new Dictionary<SamusAnimationName, IReadOnlyDictionary<SamusAnimationFrame, SamusAnimationFrame>>();
         foreach (SamusPoseAnimation animation in animations)
         {
-            if (!framesAfterCues.TryGetValue(animation.Name.ToString(), out IReadOnlyDictionary<string, string>? frames))
+            if (!framesAfterCues.TryGetValue(SamusAnimationNameKeys.Installed.Of(animation.Name), out IReadOnlyDictionary<string, string>? frames))
                 throw new InvalidDataException($"Samus overread file has no frames after the {animation.Name} animation's cues.");
             animationFramesAfterCues.Add(animation.Name, Require(frames, $"frames after the {animation.Name} animation's cues").ToDictionary(
                 pair => PastCueOf(animation, animation.FrameNamed(pair.Key)), pair => animation.FrameNamed(pair.Value)));
@@ -100,7 +100,7 @@ internal static class SamusOverreadServicesReader
         var animationReads = new Dictionary<SamusAnimationName, IReadOnlyDictionary<SamusAnimationFrame, SamusFramesBeyondAnimation.Read>>();
         foreach (SamusPoseAnimation animation in animations)
         {
-            if (!readsPast.TryGetValue(animation.Name.ToString(), out IReadOnlyDictionary<string, SamusOverreadDocument.ReadPast>? entries))
+            if (!readsPast.TryGetValue(SamusAnimationNameKeys.Installed.Of(animation.Name), out IReadOnlyDictionary<string, SamusOverreadDocument.ReadPast>? entries))
                 throw new InvalidDataException($"Samus overread file has no reads past the {animation.Name} animation.");
             animationReads.Add(animation.Name, Require(entries, $"reads past the {animation.Name} animation").ToDictionary(
                 pair => StepAt(animation, animation.FrameNamed(pair.Key)) is null
@@ -109,7 +109,7 @@ internal static class SamusOverreadServicesReader
                 pair =>
                 {
                     SamusOverreadDocument.ReadPast entry = Require(pair.Value, $"{animation.Name} read past its end");
-                    SamusAnimationName reached = Parse<SamusAnimationName>(entry.Animation, "animation read past into");
+                    SamusAnimationName reached = Parse(SamusAnimationNameKeys.Installed, entry.Animation, "animation read past into");
                     SamusPoseAnimation readAnimation = SamusAnimationDelays.AnimationNamed(reached);
                     SamusAnimationFrame frame = readAnimation.FrameNamed(entry.Frame);
                     if (StepAt(readAnimation, frame) is null)
@@ -121,12 +121,12 @@ internal static class SamusOverreadServicesReader
         var places = new Dictionary<SamusAnimationPlaceName, IReadOnlyDictionary<SamusAnimationName, SamusAnimationFrame>>();
         foreach (SamusAnimationPlace place in SamusAnimationPlaces.All)
         {
-            if (!landings.TryGetValue(place.Name.ToString(), out IReadOnlyDictionary<string, string>? frames))
+            if (!landings.TryGetValue(SamusAnimationPlaceNameKeys.Installed.Of(place.Name), out IReadOnlyDictionary<string, string>? frames))
                 throw new InvalidDataException($"Samus overread file has no landings of place {place.Name}.");
             SamusPoseAnimation[] met = [.. animations.Where(animation => !ReferenceEquals(animation, place.Animation))];
             if (Require(frames, $"landings of place {place.Name}").Count != met.Length)
                 throw new InvalidDataException($"Samus overread file holds landings of place {place.Name} in {frames.Count} animations, not {met.Length}.");
-            places.Add(place.Name, met.ToDictionary(animation => animation.Name, animation => frames.TryGetValue(animation.Name.ToString(), out string? frame)
+            places.Add(place.Name, met.ToDictionary(animation => animation.Name, animation => frames.TryGetValue(SamusAnimationNameKeys.Installed.Of(animation.Name), out string? frame)
                 ? animation.FrameNamed(frame)
                 : throw new InvalidDataException($"Samus overread file has no landing of place {place.Name} in the {animation.Name} animation.")));
         }
@@ -161,10 +161,10 @@ internal static class SamusOverreadServicesReader
     {
         Ensure.NotNull(animation);
         Ensure.NotNull(step);
-        SamusOverreadDocument.CueValueStepKind kind = Parse<SamusOverreadDocument.CueValueStepKind>(step.Kind, "cue-value step kind");
+        SamusOverreadDocument.CueValueStepKind kind = Parse(CueValueStepKindKeys.Installed, step.Kind, "cue-value step kind");
         SamusPoseId Pose(int index, int count) =>
             Require(step.Poses, $"{kind} poses") is { } poses && poses.Count == count
-                ? Parse<SamusPoseId>(poses[index], $"{kind} pose")
+                ? Parse(SamusPoseIdKeys.Installed, poses[index], $"{kind} pose")
                 : throw new InvalidDataException($"Samus overread file's {kind} cue-value step names {step.Poses?.Count} poses, not {count}.");
         SamusAnimationFrame Frame(int index, int count)
         {
@@ -174,7 +174,7 @@ internal static class SamusOverreadServicesReader
             return animation.FrameNamed(frames[index]);
         }
         SamusEquipmentFlags Items() => Require(step.Items, $"{kind} items")
-            .Aggregate(SamusEquipmentFlags.None, (items, name) => items | Parse<SamusEquipmentFlags>(name, "cue-value step item"));
+            .Aggregate(SamusEquipmentFlags.None, (items, name) => items | Parse(SamusEquipmentFlagsKeys.Installed, name, "cue-value step item"));
         return kind switch
         {
             SamusOverreadDocument.CueValueStepKind.Delay => step.Ticks is >= 0 and < SamusOverreadSourceDefinitions.FirstAnimationInstructionByte
@@ -203,7 +203,7 @@ internal static class SamusOverreadServicesReader
         var result = new Dictionary<SamusProjectileSegmentBeat, IReadOnlyList<ProgressionOverwrite?>>();
         foreach ((string programName, IReadOnlyDictionary<string, IReadOnlyList<SamusOverreadDocument.Overwrite?>> positions) in overwrites)
         {
-            SamusProjectileSegment program = Parse<SamusProjectileSegment>(programName, "SpaceTime program");
+            SamusProjectileSegment program = Parse(SamusProjectileSegmentKeys.Installed, programName, "SpaceTime program");
             // A segment's places: before each beat, and at its end.
             int steps = SamusProjectileAnimations.Segments.Beats(program).Count + 1;
             if (positions.Count != steps)
@@ -237,14 +237,14 @@ internal static class SamusOverreadServicesReader
                 : throw new InvalidDataException(
                     $"Samus overread file's SpaceTime overwrite leaves {overwrite.ZebetitesDestroyed} Zebetites destroyed, not 0 through {PersistentProgress.ZebetiteCount}."),
             Require(overwrite.AreaBosses, nameof(overwrite.AreaBosses)).ToDictionary(
-                area => Parse<AreaId>(area.Key, "SpaceTime boss area"),
-                area => area.Value.Aggregate(DefeatedBosses.None, (bosses, name) => bosses | Parse<DefeatedBosses>(name, "SpaceTime boss"))),
+                area => Parse(AreaIdKeys.Installed, area.Key, "SpaceTime boss area"),
+                area => area.Value.Aggregate(DefeatedBosses.None, (bosses, name) => bosses | Parse(DefeatedBossesKeys.Installed, name, "SpaceTime boss"))),
             Decided(Require(overwrite.CollectedItems, nameof(overwrite.CollectedItems)), ItemLocationsByName, "SpaceTime item location"),
             Decided(Require(overwrite.OpenedDoors, nameof(overwrite.OpenedDoors)), LockedDoorsByName, "SpaceTime door"),
             Decided(Require(overwrite.UsedStations, nameof(overwrite.UsedStations)), UsedStationsByName, "SpaceTime used station"),
             Require(overwrite.AreaMaps, nameof(overwrite.AreaMaps)).ToDictionary(
-                area => Parse<AreaId>(area.Key, "SpaceTime map area"), area => area.Value),
-            overwrite.SavedStartupRoute is null ? null : Parse<SaveLoadingGameState>(overwrite.SavedStartupRoute, "SpaceTime startup route"));
+                area => Parse(AreaIdKeys.Installed, area.Key, "SpaceTime map area"), area => area.Value),
+            overwrite.SavedStartupRoute is null ? null : Parse(SaveLoadingGameStateKeys.Installed, overwrite.SavedStartupRoute, "SpaceTime startup route"));
 
     /// <summary>What an overwrite decides for one kind of progress, its members found by name.</summary>
     /// <exception cref="InvalidDataException">A name names nothing of the kind, is listed twice, or is left on without being decided.</exception>
@@ -277,7 +277,7 @@ internal static class SamusOverreadServicesReader
         var result = new Dictionary<SamusProjectileSegmentBeat, SamusProjectileSegmentBeat>();
         foreach ((string programName, IReadOnlyDictionary<string, SamusOverreadDocument.Cursor> positions) in landings)
         {
-            SamusProjectileSegment program = Parse<SamusProjectileSegment>(programName, "Chainsaw program");
+            SamusProjectileSegment program = Parse(SamusProjectileSegmentKeys.Installed, programName, "Chainsaw program");
             foreach ((string positionName, SamusOverreadDocument.Cursor landing) in positions)
                 result.Add(new(program, ParseCount(positionName, $"{program} step")), Cursor(landing));
         }
@@ -290,7 +290,7 @@ internal static class SamusOverreadServicesReader
     private static SamusProjectileSegmentBeat Cursor(SamusOverreadDocument.Cursor cursor)
     {
         Ensure.NotNull(cursor);
-        SamusProjectileSegment animation = Parse<SamusProjectileSegment>(cursor.Animation, "animation position's animation");
+        SamusProjectileSegment animation = Parse(SamusProjectileSegmentKeys.Installed, cursor.Animation, "animation position's animation");
         return (uint)cursor.Position <= (uint)SamusProjectileAnimations.Segments.Beats(animation).Count
             ? new(animation, cursor.Position)
             : throw new InvalidDataException($"Samus overread file names step {cursor.Position} of {animation}, which it does not have.");
@@ -301,7 +301,7 @@ internal static class SamusOverreadServicesReader
     {
         if (admissions.Count == 0)
             throw new InvalidDataException("Samus overread file holds no posture admissions.");
-        return new(admissions.ToDictionary(pair => Parse<SamusPoseId>(pair.Key, "posture-admission pose"), pair => pair.Value));
+        return new(admissions.ToDictionary(pair => Parse(SamusPoseIdKeys.Installed, pair.Key, "posture-admission pose"), pair => pair.Value));
     }
 
     /// <summary>The launch speeds and cooldowns of every Spazer and Plasma combination, which the firing tables do not author.</summary>
@@ -314,12 +314,12 @@ internal static class SamusOverreadServicesReader
         var waits = new Dictionary<SamusBeamCombination, BeamShotCooldowns>();
         foreach (SamusBeamCombination beams in Enum.GetValues<SamusBeamCombination>().Where(beams => !beams.CanBeEquipped))
         {
-            if (!speeds.TryGetValue(beams.ToString(), out SamusOverreadDocument.LaunchSpeeds? pair) || pair is null ||
+            if (!speeds.TryGetValue(SamusBeamCombinationKeys.Installed.Of(beams), out SamusOverreadDocument.LaunchSpeeds? pair) || pair is null ||
                 pair.Cardinal is < short.MinValue or > short.MaxValue || pair.Diagonal is < short.MinValue or > short.MaxValue)
                 throw new InvalidDataException($"Samus overread file holds no valid launch speeds for {beams}.");
             cardinal.Add(beams, pair.Cardinal);
             diagonal.Add(beams, pair.Diagonal);
-            if (!cooldowns.TryGetValue(beams.ToString(), out SamusOverreadDocument.Cooldowns? wait) || wait is null ||
+            if (!cooldowns.TryGetValue(SamusBeamCombinationKeys.Installed.Of(beams), out SamusOverreadDocument.Cooldowns? wait) || wait is null ||
                 wait.Uncharged is < 0 or > byte.MaxValue || wait.Charged is < 0 or > byte.MaxValue || wait.HeldFire is < 0 or > byte.MaxValue)
                 throw new InvalidDataException($"Samus overread file holds no valid cooldowns for {beams}.");
             waits.Add(beams, new BeamShotCooldowns(wait.Uncharged, wait.Charged, wait.HeldFire));
@@ -338,7 +338,7 @@ internal static class SamusOverreadServicesReader
         var result = new Dictionary<SamusPoseId, ShinesparkDepartureAngles>();
         foreach (SamusPoseId pose in SamusOverreadDecoding.DrainedCrashPoses)
         {
-            if (!departures.TryGetValue(pose.ToString(), out SamusOverreadDocument.CrashDepartures? pair) || pair is null ||
+            if (!departures.TryGetValue(SamusPoseIdKeys.Installed.Of(pose), out SamusOverreadDocument.CrashDepartures? pair) || pair is null ||
                 pair.First is < 0 or > byte.MaxValue || pair.Second is < 0 or > byte.MaxValue)
                 throw new InvalidDataException($"Samus overread file holds no valid crash departures for {pose}.");
             result.Add(pose, ShinesparkEchoDefinitions.Departure(pair.First, pair.Second));
@@ -352,9 +352,9 @@ internal static class SamusOverreadServicesReader
     private static T Require<T>(T? value, string name) where T : class =>
         value ?? throw new InvalidDataException($"Samus overread file has no {name}.");
 
-    /// <summary>Parses a defined enum member by its exact name.</summary>
-    private static T Parse<T>(string? name, string what) where T : struct, Enum =>
-        name is { Length: > 0 } && !char.IsDigit(name[0]) && Enum.TryParse(name, ignoreCase: false, out T value) && Enum.IsDefined(value)
+    /// <summary>Parses the member <paramref name="keys"/> spells <paramref name="name"/> by.</summary>
+    private static T Parse<T>(InstalledKeys<T> keys, string? name, string what) where T : struct, Enum =>
+        keys.TryParse(name, out T value)
             ? value
             : throw new InvalidDataException($"Samus overread file names no {what} '{name}'.");
 

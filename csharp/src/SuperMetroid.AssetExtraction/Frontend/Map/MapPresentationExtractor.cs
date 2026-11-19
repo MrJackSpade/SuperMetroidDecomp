@@ -72,7 +72,7 @@ public static class MapPresentationExtractor
             using var buffer = new MemoryStream();
             var map = AreaMapImporter.Load(bus, area);
             AreaMapPresentationFile.Write(buffer, map);
-            stationCells.Add(area.ToString(), Enumerable.Range(0, AreaMapSize.WidthInMapTiles * AreaMapSize.HeightInMapTiles)
+            stationCells.Add(AreaIdKeys.Installed.Of(area), Enumerable.Range(0, AreaMapSize.WidthInMapTiles * AreaMapSize.HeightInMapTiles)
                 .Where(i => map.IsRevealedByMapStation(new(checked((ushort)(i % AreaMapSize.WidthInMapTiles)), checked((ushort)(i / AreaMapSize.WidthInMapTiles))))).ToArray());
             byte[] bytes = buffer.ToArray();
             string name = AreaMapCatalogFormat.FileName(area);
@@ -126,7 +126,7 @@ public static class MapPresentationExtractor
         foreach (AreaId area in AreaIds.Zebes)
         {
             int address = MapSourceDefinitions.FileSelectMap.LabelPositions + AreaNumberCodec.Encode(area) * 4;
-            labelPoints.Add(area.ToString(), new(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address),
+            labelPoints.Add(AreaIdKeys.Installed.Of(area), new(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address),
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2)));
         }
         using var labels = new MemoryStream();

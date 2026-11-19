@@ -62,7 +62,7 @@ public static class SceneColourFiles
             TitleBackdrop = PaletteRgb5.From(title.Backdrop),
             PauseBackdrop = PaletteRgb5.From(backdrops.Pause),
             MenusBackdrop = PaletteRgb5.From(backdrops.Menus),
-            WorldMapBackdrops = ZebesAreas().ToDictionary(area => area.ToString(), area => PaletteRgb5.From(backdrops.World(area))),
+            WorldMapBackdrops = ZebesAreas().ToDictionary(area => AreaIdKeys.Installed.Of(area), area => PaletteRgb5.From(backdrops.World(area))),
             CeresHazeWhileRidleyLives = PaletteRgb5.From(StockCeresHazeBlue),
             CeresHazeAfterRidleyDies = PaletteRgb5.From(StockCeresHazeRed),
         }, ArtworkJson.Options);
@@ -85,7 +85,7 @@ public static class SceneColourFiles
         var world = new Dictionary<AreaId, RgbColor>();
         foreach (AreaId area in areas)
         {
-            if (!document.WorldMapBackdrops.TryGetValue(area.ToString(), out PaletteRgb5? backdrop))
+            if (!document.WorldMapBackdrops.TryGetValue(AreaIdKeys.Installed.Of(area), out PaletteRgb5? backdrop))
                 throw new InvalidDataException($"Scene colours are missing the world map's backdrop for {area}.");
             world.Add(area, Colour(backdrop, $"world map's {area} backdrop"));
         }

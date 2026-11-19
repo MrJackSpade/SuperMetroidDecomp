@@ -42,7 +42,7 @@ public sealed class PauseWireframePresentation
         var frames = new Dictionary<PauseWireframeKind, BackgroundTile[]>();
         foreach (PauseWireframeKind kind in Enum.GetValues<PauseWireframeKind>())
         {
-            if (!document.Frames.TryGetValue(kind.ToString(), out var cells) || cells is null || cells.Length != PauseWireframeDefinitions.Cells)
+            if (!document.Frames.TryGetValue(PauseWireframeKindKeys.Installed.Of(kind), out var cells) || cells is null || cells.Length != PauseWireframeDefinitions.Cells)
                 throw new InvalidDataException($"Pause wireframe {kind} requires 136 cells in eight-column row order.");
             frames.Add(kind, PauseTileGrid.Compile(cells, kind.ToString()));
         }

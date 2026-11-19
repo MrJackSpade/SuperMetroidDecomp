@@ -37,7 +37,7 @@ public sealed class RoomFxLayer3Pages
 
         BackgroundTile[] Compile(RoomFxType type)
         {
-            if (!document.Pages.TryGetValue(type.ToString(), out RoomBackgroundTilemapCell[]? cells) ||
+            if (!document.Pages.TryGetValue(RoomFxTypeKeys.Installed.Of(type), out RoomBackgroundTilemapCell[]? cells) ||
                 cells is null || cells.Length != RoomFxLayer3TilemapFormat.CellsPerPage)
                 throw new InvalidDataException(
                     $"Room-FX BG3 {type} must contain {RoomFxLayer3TilemapFormat.CellsPerPage} cells.");

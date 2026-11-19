@@ -99,7 +99,8 @@ internal static class BossBodySheetComposer
     }
 
     /// <summary>The installed sheet name of <paramref name="owner"/>'s body sheet.</summary>
-    internal static string SheetNameOf(BossBodyOwner owner) => $"BossBody.{owner}";
+    [InstalledKey]
+    internal static string SheetNameOf(BossBodyOwner owner) => $"BossBody.{BossBodyOwnerKeys.Installed.Of(owner)}";
 
     /// <summary>The tile <paramref name="owner"/> clears its body layer with.</summary>
     internal static BackgroundTile BlankOf(BossBodyOwner owner) => owner switch

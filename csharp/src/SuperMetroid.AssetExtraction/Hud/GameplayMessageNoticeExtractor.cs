@@ -79,7 +79,7 @@ public static class GameplayMessageNoticeExtractor
                 yes = ReadSelection(bus, HudSourceDefinitions.Messages.SaveSelectionYesSourceWord);
                 no = ReadSelection(bus, HudSourceDefinitions.Messages.SaveSelectionNoSourceWord);
             }
-            notices.Add(id.ToString(), new()
+            notices.Add(GameplayMessageIdKeys.Installed.Of(id), new()
             {
                 RowCount = rowCount,
                 Template = template,

@@ -46,7 +46,7 @@ public static class IntroNarrationFile
         IntroNarrationPageId[] expected = Enum.GetValues<IntroNarrationPageId>();
         if (document.Version != Version || document.Pages is null ||
             document.Pages.Count != expected.Length ||
-            expected.Any(page => !document.Pages.ContainsKey(page.ToString())))
+            expected.Any(page => !document.Pages.ContainsKey(IntroNarrationPageIdKeys.Installed.Of(page))))
         {
             throw new InvalidDataException(
                 "Opening narration requires version 1 and the exact six-page name set.");
@@ -55,7 +55,7 @@ public static class IntroNarrationFile
         var pages = new Dictionary<IntroNarrationPageId, IntroNarrationPresentation.NarrationPage>();
         foreach (IntroNarrationPageId page in expected)
         {
-            IntroNarrationPage value = document.Pages[page.ToString()]
+            IntroNarrationPage value = document.Pages[IntroNarrationPageIdKeys.Installed.Of(page)]
                 ?? throw new InvalidDataException($"Opening-narration {page} is null.");
             if (value.Lines is null || value.Lines.Length == 0)
                 throw new InvalidDataException($"Opening-narration {page} has no lines.");

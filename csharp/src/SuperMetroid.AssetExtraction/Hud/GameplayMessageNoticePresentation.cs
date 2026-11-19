@@ -121,7 +121,7 @@ public sealed class GameplayMessageNoticePresentation
         }
 
         string[] expected = GameplayMessageNoticeDefinitions.MessageIds
-            .SelectToArray(static id => id.ToString());
+            .SelectToArray(static id => GameplayMessageIdKeys.Installed.Of(id));
         if (document.Notices.Count != expected.Length ||
             expected.Any(name => !document.Notices.ContainsKey(name)))
         {
@@ -132,7 +132,7 @@ public sealed class GameplayMessageNoticePresentation
         var compiled = new Dictionary<GameplayMessageId, CompiledNotice>();
         foreach (GameplayMessageId id in GameplayMessageNoticeDefinitions.MessageIds)
         {
-            GameplayMessageNotice value = document.Notices[id.ToString()]
+            GameplayMessageNotice value = document.Notices[GameplayMessageIdKeys.Installed.Of(id)]
                 ?? throw new InvalidDataException($"Gameplay-message notice {id} is null.");
             int rowCount = GameplayMessageNotices.ContentRows(id);
             int expectedWords = rowCount * GameplayMessageTilemapDefinitions.TilemapWidth;

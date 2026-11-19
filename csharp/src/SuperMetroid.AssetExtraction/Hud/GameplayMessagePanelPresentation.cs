@@ -99,7 +99,7 @@ public sealed class GameplayMessagePanelPresentation
         }
 
         string[] expected = GameplayMessagePanelDefinitions.MessageIds
-            .SelectToArray(static id => id.ToString());
+            .SelectToArray(static id => GameplayMessageIdKeys.Installed.Of(id));
         if (document.Panels.Count != expected.Length ||
             expected.Any(name => !document.Panels.ContainsKey(name)))
         {
@@ -110,7 +110,7 @@ public sealed class GameplayMessagePanelPresentation
         var compiled = new Dictionary<GameplayMessageId, CompiledPanel>();
         foreach (GameplayMessageId id in GameplayMessagePanelDefinitions.MessageIds)
         {
-            GameplayMessagePanel value = document.Panels[id.ToString()]
+            GameplayMessagePanel value = document.Panels[GameplayMessageIdKeys.Installed.Of(id)]
                 ?? throw new InvalidDataException($"Gameplay-message panel {id} is null.");
             if (string.IsNullOrEmpty(value.Title) ||
                 value.Title.Length > GameplayMessagePanelDefinitions.VisibleColumns ||

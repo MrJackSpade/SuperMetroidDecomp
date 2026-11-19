@@ -405,7 +405,7 @@ public static class MapPresentationFiles
             var stationCells = new Dictionary<AreaId, HashSet<int>>();
             foreach (AreaId area in AreaIds.All)
             {
-                if (!masks.TryGetValue(area.ToString(), out int[]? cells) || cells is null ||
+                if (!masks.TryGetValue(AreaIdKeys.Installed.Of(area), out int[]? cells) || cells is null ||
                     cells.Any(cell => (uint)cell >= AreaMapSize.WidthInMapTiles * AreaMapSize.HeightInMapTiles) ||
                     cells.Distinct().Count() != cells.Length)
                     throw new InvalidDataException($"Invalid or duplicate station reveal cells for {area}.");

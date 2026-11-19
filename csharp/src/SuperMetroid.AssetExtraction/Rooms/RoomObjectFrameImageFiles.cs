@@ -33,7 +33,7 @@ internal static class RoomObjectFrameImageFiles
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
         WriteIndented = true,
-        Converters = { new JsonStringEnumConverter() },
+        Converters = { new BlockMirroringJsonConverter() },
     };
 
     /// <summary>

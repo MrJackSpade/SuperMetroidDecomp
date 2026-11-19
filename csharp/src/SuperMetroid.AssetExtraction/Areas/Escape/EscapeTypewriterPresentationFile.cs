@@ -31,7 +31,7 @@ public static class EscapeTypewriterPresentationFile
 
         EscapeTypewriterMessageId[] expected = Enum.GetValues<EscapeTypewriterMessageId>();
         if (document.Messages.Count != expected.Length ||
-            expected.Any(id => !document.Messages.ContainsKey(id.ToString())))
+            expected.Any(id => !document.Messages.ContainsKey(EscapeTypewriterMessageIdKeys.Installed.Of(id))))
         {
             throw new InvalidDataException(
                 "Escape typewriter content requires exactly the Ceres and Zebes messages.");
@@ -40,7 +40,7 @@ public static class EscapeTypewriterPresentationFile
         var messages = new Dictionary<EscapeTypewriterMessageId, EscapeTypewriterMessage>();
         foreach (EscapeTypewriterMessageId id in expected)
         {
-            EscapeTypewriterMessageDocument message = document.Messages[id.ToString()]
+            EscapeTypewriterMessageDocument message = document.Messages[EscapeTypewriterMessageIdKeys.Installed.Of(id)]
                 ?? throw new InvalidDataException($"Escape typewriter message {id} is null.");
             if (message.Lines is null || message.Lines.Length == 0)
                 throw new InvalidDataException($"Escape typewriter message {id} has no lines.");

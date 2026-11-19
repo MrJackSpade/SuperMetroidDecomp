@@ -11,7 +11,9 @@ namespace SuperMetroid.Core.Escape;
 public readonly record struct EscapeTypewriterGlyph(Position16<PlanePixels> Corner, string Picture)
 {
     /// <summary>The name of the picture of <paramref name="character"/> as <paramref name="message"/>'s typewriter types it.</summary>
-    public static string PictureOf(EscapeTypewriterMessageId message, char character) => $"{message}Typed.{character}";
+    [InstalledKey]
+    public static string PictureOf(EscapeTypewriterMessageId message, char character) =>
+        $"{EscapeTypewriterMessageIdKeys.Installed.Of(message)}Typed.{character}";
 
     /// <summary>Whether typing <paramref name="character"/> writes a glyph; a space only moves the typing position right.</summary>
     public static bool Types(char character) => character != ' ';

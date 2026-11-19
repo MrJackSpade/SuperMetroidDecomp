@@ -11,5 +11,5 @@ public sealed record HudMinimapCellImage(MapCell Cell, MinimapShade Shade) : Hud
     public static HudMinimapCellImage Of(MinimapMapCell cell) => new(Ensure.NotNull(cell).Cell, cell.Shade);
 
     /// <inheritdoc/>
-    public override string FrameName => $"Hud.Minimap.{Cell.Name}.{Shade}";
+    public override string FrameName => $"Hud.Minimap.{Cell.Name}.{MinimapShadeKeys.Installed.Of(Shade)}";
 }

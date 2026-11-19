@@ -63,3 +63,4 @@ SME6458 | Design | Error | LiteralZeroEnumAnalyzer
 SME6459 | Documentation | Error | AnimationSegmentSummaryAnalyzer
 SME6460 | Design | Error | InstalledKeyAnalyzer
 SME6461 | Design | Error | RandomSampleSelectionAnalyzer
+SME6462 | Design | Error | InstalledKeyAnalyzer

@@ -37,14 +37,15 @@ public sealed class RoomBlockSheet
     public RoomBlockAppearances Inputs { get; }
 
     /// <summary>The installed name of tileset <paramref name="tileset"/>'s block sheet.</summary>
-    public static string NameOf(TilesetDefinition tileset) => tileset.GraphicsSet.ToString();
+    [InstalledKey]
+    public static string NameOf(TilesetDefinition tileset) => RoomGraphicsSetKeys.Installed.Of(tileset.GraphicsSet);
 
     /// <summary>
     /// The picture named <paramref name="name"/>, as its part drawn behind the actors passing in front of the room's back
     /// tiles and its part drawn in front of them (#1634); either part, or both, may show nothing.
     /// </summary>
     /// <exception cref="InvalidDataException">The sheet holds no such picture, or a part is not one block.</exception>
-    public LayeredPicture Picture(string name)
+    public LayeredPicture Picture([InstalledKey] string name)
     {
         LayeredPicture picture = Sheet.Picture(name);
         foreach (SpriteSheetFrame part in picture.Parts)

@@ -845,6 +845,18 @@ transforms such as `ToLowerInvariant()`, conditional branches, switch-expression
 would change the key without a format change. Each key is a literal or an entry of a table of the identity's keys
 (`RidleyShades.BabyKeys`, `TorizoLook`'s keys, `WorkRobotShades`' glow keys).
 
+#2520 finishes that shape. An identity whose members the installation, an installed document or a save names has one
+codec, its `<Identity>Keys.Installed` table (`InstalledKeys<TIdentity>`): every member's key written out, `Of` to spell
+a member, `Parse` and `TryParse` to read one back, and `<Identity>JsonConverter` (`InstalledKeyJsonConverter`) for a
+document's values and dictionary keys; a save spells the same keys in camel case through `SaveKeyJsonConverter` and
+`SaveFlagsJsonConverter`. SME6460 also reads a member overriding a marked one, a value typed `System.Enum`, a
+`Utf8JsonWriter`'s written text, and a LINQ or span query's selector result and the collections gathered from it; the
+sheet lookups (`SpriteSheet.Frame`, `Picture`, `ShowsNothing`, `HoldsPicture`), the frame and sheet name helpers and the
+document properties that carry names are marked. SME6462 reports an identity keyed or read by its members' names: an
+enum member's name made a dictionary's or set's key (`Add`, `TryGetValue`, `ContainsKey`, an indexer, a key selector),
+`Enum.Parse`, `Enum.TryParse`, `Enum.GetNames` and `JsonStringEnumConverter` in any form. Diagnostic text, exception
+messages and an import run's own fingerprints and content identities, which nothing installs, stay free to name members.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

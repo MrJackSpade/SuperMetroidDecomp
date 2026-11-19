@@ -12,7 +12,7 @@ public sealed record GameplayMessageTextRegion
     /// <summary>Gets the field width in tilemap cells.</summary>
     public required int Width { get; init; }
     /// <summary>Gets where the text sits within the field.</summary>
-    [JsonConverter(typeof(JsonStringEnumConverter<GameplayMessageTextAlignment>))]
+    [JsonConverter(typeof(GameplayMessageTextAlignmentJsonConverter))]
     public required GameplayMessageTextAlignment Alignment { get; init; }
     /// <summary>Gets the text rendered in this field.</summary>
     public required string Text { get; init; }

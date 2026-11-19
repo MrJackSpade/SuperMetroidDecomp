@@ -24,10 +24,11 @@ public readonly record struct EncounterLook(EncounterArtwork Encounter, [Install
     /// The name of the finished picture of <paramref name="frame"/> that shows each look of <paramref name="shown"/>, the
     /// looks of the encounters that change the frame, in their encounters' order: the frame's own name when none does.
     /// </summary>
-    public static string PictureName(string frame, IEnumerable<EncounterLook> shown)
+    [InstalledKey]
+    public static string PictureName([InstalledKey] string frame, IEnumerable<EncounterLook> shown)
     {
         ArgumentException.ThrowIfNullOrEmpty(frame);
-        return frame + string.Concat(Ensure.NotNull(shown).Select(look => $"|{look.Encounter}={look.Name}"));
+        return frame + string.Concat(Ensure.NotNull(shown).Select(look => $"|{EncounterArtworkKeys.Installed.Of(look.Encounter)}={look.Name}"));
     }
 
     /// <summary>Names the look for diagnostics.</summary>

@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -22,6 +23,6 @@ internal static class RoomScrollOverreadFormat
         PropertyNameCaseInsensitive = true,
         WriteIndented = false,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-        Converters = { new JsonStringEnumConverter(allowIntegerValues: false) },
+        Converters = { new RoomScrollStateJsonConverter() },
     };
 }

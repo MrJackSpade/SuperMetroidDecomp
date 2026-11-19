@@ -251,6 +251,6 @@ public static class RoomBlockSheetFiles
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
         WriteIndented = false,
-        Converters = { new JsonStringEnumConverter<WrittenPictureLayer>(allowIntegerValues: false) },
+        Converters = { new WrittenPictureLayerJsonConverter() },
     };
 }

@@ -23,7 +23,7 @@ public static class WorldMapLabelFile
             throw new InvalidDataException("World-map labels require version 1 and exactly the six Zebes areas.");
         Offset16<ScreenPixels> RequireArea(AreaId area)
         {
-            string name = area.ToString();
+            string name = AreaIdKeys.Installed.Of(area);
             if (!document.Areas.TryGetValue(name, out var point) ||
                 point.X is < 1 or > 255 || point.Y is < 1 or > 223)
                 throw new InvalidDataException($"World-map label {name} requires X=1..255 and Y=1..223.");

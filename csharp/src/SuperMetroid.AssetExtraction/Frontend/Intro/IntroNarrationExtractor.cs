@@ -22,7 +22,7 @@ public static class IntroNarrationExtractor
         Ensure.NotNull(bus);
         var pages = new Dictionary<string, IntroNarrationPage>(StringComparer.Ordinal);
         foreach (IntroNarrationScriptPage source in IntroNarrationScriptSources.Pages)
-            pages.Add(source.Id.ToString(), ExtractPage(bus, source));
+            pages.Add(IntroNarrationPageIdKeys.Installed.Of(source.Id), ExtractPage(bus, source));
 
         using var output = new MemoryStream();
         IntroNarrationFile.Write(output, new()

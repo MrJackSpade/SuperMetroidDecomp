@@ -15,10 +15,12 @@ public static class IntroScenePictures
     public const string Portrait = "portrait";
 
     /// <summary>The name of scene page <paramref name="page"/>'s picture.</summary>
-    internal static string Page(IntroScenePage page) => $"page-{page}";
+    [InstalledKey]
+    internal static string Page(IntroScenePage page) => $"page-{IntroScenePageKeys.Installed.Of(page)}";
 
     /// <summary>The name of eye frame <paramref name="frame"/>'s picture.</summary>
-    internal static string Eye(IntroEyeFrame frame) => $"eye-{frame}";
+    [InstalledKey]
+    internal static string Eye(IntroEyeFrame frame) => $"eye-{IntroEyeFrameKeys.Installed.Of(frame)}";
 
     /// <summary>The plane showing scene page <paramref name="page"/> in <paramref name="shading"/> (#1512).</summary>
     internal static PicturedPlane PagePlane(InstalledSpriteSheets sheets, IntroScenePage page, PictureShading shading) =>

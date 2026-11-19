@@ -62,6 +62,7 @@ public static class SamusBodyArtworkFiles
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         RespectRequiredConstructorParameters = true,
         WriteIndented = true,
+        Converters = { new SamusPoseIdJsonConverter() },
     };
 
     /// <summary>

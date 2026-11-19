@@ -158,7 +158,7 @@ internal sealed class SamusAnimationLayout
     /// </summary>
     /// <exception cref="InvalidDataException">A cue that continues into the next segment has frames laid out after it.</exception>
     internal Dictionary<string, IReadOnlyDictionary<string, string>> FramesAfterCues() =>
-        programs.ToDictionary(animation => animation.Name.ToString(), animation =>
+        programs.ToDictionary(animation => SamusAnimationNameKeys.Installed.Of(animation.Name), animation =>
         {
             var after = new Dictionary<string, string>(StringComparer.Ordinal);
             int start = 0;
@@ -217,7 +217,7 @@ internal sealed class SamusAnimationLayout
 
     /// <summary>Every program's cue-value steps as the installation holds them, by the animation's name and frame name.</summary>
     internal Dictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.CueValueStep>> DocumentCueValueSteps() =>
-        programs.ToDictionary(animation => animation.Name.ToString(), animation => documentCueValueSteps[animation], StringComparer.Ordinal);
+        programs.ToDictionary(animation => SamusAnimationNameKeys.Installed.Of(animation.Name), animation => documentCueValueSteps[animation], StringComparer.Ordinal);
 
     /// <summary>
     /// What every frame past an animation's end that Samus's animation can reach reads, by the animation's name and the
@@ -255,7 +255,7 @@ internal sealed class SamusAnimationLayout
             foreach (int next in Following(at.Animation, at.Offset, read.Step))
                 Visit(at.Animation, next);
         }
-        return programs.ToDictionary(animation => animation.Name.ToString(), animation =>
+        return programs.ToDictionary(animation => SamusAnimationNameKeys.Installed.Of(animation.Name), animation =>
             (IReadOnlyDictionary<string, SamusOverreadDocument.ReadPast>)reads[animation].ToDictionary(
                 pair => animation.NameOf(FrameAt(animation, pair.Key)), pair => pair.Value, StringComparer.Ordinal),
             StringComparer.Ordinal);
@@ -266,9 +266,9 @@ internal sealed class SamusAnimationLayout
     /// animation's layout as the place lies into its own, by place name and the animation's name (#2048).
     /// </summary>
     internal Dictionary<string, IReadOnlyDictionary<string, string>> PlaceLandings() =>
-        SamusAnimationPlaces.All.ToDictionary(place => place.Name.ToString(), place => (IReadOnlyDictionary<string, string>)programs
+        SamusAnimationPlaces.All.ToDictionary(place => SamusAnimationPlaceNameKeys.Installed.Of(place.Name), place => (IReadOnlyDictionary<string, string>)programs
             .Where(animation => !ReferenceEquals(animation, place.Animation))
-            .ToDictionary(animation => animation.Name.ToString(), animation => animation.NameOf(FrameAt(animation, Offset(place))),
+            .ToDictionary(animation => SamusAnimationNameKeys.Installed.Of(animation.Name), animation => animation.NameOf(FrameAt(animation, Offset(place))),
                 StringComparer.Ordinal), StringComparer.Ordinal);
 
     /// <summary>
@@ -315,7 +315,7 @@ internal sealed class SamusAnimationLayout
             SamusAnimationFrame named = readAnimation.Require(target);
             moves[readAnimation.NameOf(named)] = animation.NameOf(FrameAt(animation, Offset(readAnimation, named) + read.Shift));
         }
-        return new SamusOverreadDocument.ReadPast(readAnimation.Name.ToString(), readAnimation.NameOf(FrameAt(readAnimation, read.Frame)), moves);
+        return new SamusOverreadDocument.ReadPast(SamusAnimationNameKeys.Installed.Of(readAnimation.Name), readAnimation.NameOf(FrameAt(readAnimation, read.Frame)), moves);
     }
 
     /// <summary>The step <paramref name="frame"/> frames into <paramref name="animation"/>'s program names itself: one of its own, or a value one of its cues carries.</summary>
@@ -325,7 +325,7 @@ internal sealed class SamusAnimationLayout
 
     /// <summary>A decoded cue value's step as the installation holds it, the frames it selects named in <paramref name="animation"/>.</summary>
     private static SamusOverreadDocument.CueValueStep Named(SamusPoseAnimation animation, SamusAnimationCueValueDecoding.DecodedStep step) =>
-        new(step.Kind.ToString(), step.Ticks,
+        new(CueValueStepKindKeys.Installed.Of(step.Kind), step.Ticks,
             step.Frames is { } frames
                 ? [.. frames.Select(frame => frame >= 0
                     ? animation.NameOf(FrameAt(animation, frame))

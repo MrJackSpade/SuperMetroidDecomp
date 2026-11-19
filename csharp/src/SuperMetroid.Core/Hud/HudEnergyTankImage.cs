@@ -5,5 +5,5 @@ namespace SuperMetroid.Core.Hud;
 public sealed record HudEnergyTankImage(HudEnergyTank Tank) : HudImage
 {
     /// <inheritdoc/>
-    public override string FrameName => $"Hud.EnergyTank.{Tank}";
+    public override string FrameName => $"Hud.EnergyTank.{HudEnergyTankKeys.Installed.Of(Tank)}";
 }

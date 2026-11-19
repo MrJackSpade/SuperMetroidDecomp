@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.AssetExtraction.Samus;
@@ -19,5 +20,6 @@ public static class ProjectileFrameBindingFormat
     /// <summary>Formats a timed record as the canonical JSON key: its frame's name, such as PowerUp for the Power beam fired up.</summary>
     /// <param name="record">The timed record's frame.</param>
     /// <returns>The frame's name.</returns>
-    internal static string FrameName(SamusProjectileFrameId record) => record.ToString();
+    [InstalledKey]
+    internal static string FrameName(SamusProjectileFrameId record) => SamusProjectileFrameIdKeys.Installed.Of(record);
 }

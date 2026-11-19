@@ -103,7 +103,7 @@ public sealed class GameplayMessageTitlePresentation
         }
 
         string[] expected = GameplayMessageTitleDefinitions.MessageIds
-            .SelectToArray(static id => id.ToString());
+            .SelectToArray(static id => GameplayMessageIdKeys.Installed.Of(id));
         if (document.Titles.Count != expected.Length ||
             expected.Any(name => !document.Titles.ContainsKey(name)))
         {
@@ -114,7 +114,7 @@ public sealed class GameplayMessageTitlePresentation
         var compiled = new Dictionary<GameplayMessageId, CompiledTitle>();
         foreach (GameplayMessageId id in GameplayMessageTitleDefinitions.MessageIds)
         {
-            GameplayMessageTitle value = document.Titles[id.ToString()]
+            GameplayMessageTitle value = document.Titles[GameplayMessageIdKeys.Installed.Of(id)]
                 ?? throw new InvalidDataException($"Gameplay-message title {id} is null.");
             if (string.IsNullOrEmpty(value.Text) ||
                 value.Text.Length > GameplayMessageTitleDefinitions.VisibleColumns ||

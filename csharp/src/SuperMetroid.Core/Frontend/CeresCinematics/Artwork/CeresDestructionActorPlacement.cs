@@ -9,7 +9,7 @@ public sealed record CeresDestructionActorPlacement
     public Offset16<ScreenPixels> Place => Offset16<ScreenPixels>.Of(X, Y);
 
     /// <summary>The actor the placement places, by what it shows (#1768): its installed key, not an editable behavior selector.</summary>
-    [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<CeresDestructionActorRole>))]
+    [System.Text.Json.Serialization.JsonConverter(typeof(CeresDestructionActorRoleJsonConverter))]
     public required CeresDestructionActorRole Role { get; init; }
     /// <summary>Initial whole-pixel screen X, -32768 through 32767: negative lies left of the screen (#1627); whether the actor drifts round the drift loop is not installed.</summary>
     public required int X { get; init; }

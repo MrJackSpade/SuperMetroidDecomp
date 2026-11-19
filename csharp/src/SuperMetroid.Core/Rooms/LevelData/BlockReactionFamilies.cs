@@ -19,6 +19,20 @@ public static class BlockReactionFamilies
         _ => throw new InvalidOperationException($"Undefined collision kind {kind}."),
     };
 
+    /// <summary>The installed key of <paramref name="reaction"/>, a reaction of one of the families (#2520).</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The value is no family's reaction.</exception>
+    [InstalledKey]
+    public static string KeyOf(Enum reaction) => reaction switch
+    {
+        ShootableReaction shootable => ShootableReactionKeys.Installed.Of(shootable),
+        BombableReaction bombable => BombableReactionKeys.Installed.Of(bombable),
+        SpecialBlockReaction special => SpecialBlockReactionKeys.Installed.Of(special),
+        SpecialAirReaction specialAir => SpecialAirReactionKeys.Installed.Of(specialAir),
+        SpikeReaction spike => SpikeReactionKeys.Installed.Of(spike),
+        GrappleReaction grapple => GrappleReactionKeys.Installed.Of(grapple),
+        _ => throw new ArgumentOutOfRangeException(nameof(reaction), reaction, "The value is no block reaction."),
+    };
+
     /// <summary>Every reaction of <paramref name="family"/>, in its declaration order.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="family"/> is undefined.</exception>
     public static IReadOnlyList<Enum> Reactions(BlockReactionFamily family) => family switch

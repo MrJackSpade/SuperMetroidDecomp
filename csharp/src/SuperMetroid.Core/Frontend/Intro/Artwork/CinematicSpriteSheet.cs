@@ -22,7 +22,9 @@ internal sealed class CinematicSpriteSheet(SpriteSheet sheet, CinematicSpriteFam
     }
 
     /// <summary>The sheet's frame for <paramref name="family"/>'s composition of <paramref name="pose"/>.</summary>
-    internal static string FrameName(CinematicSpriteFamily family, CinematicSpritePose pose) => $"{family}.{pose}";
+    [InstalledKey]
+    internal static string FrameName(CinematicSpriteFamily family, CinematicSpritePose pose) =>
+        $"{CinematicSpriteFamilyKeys.Installed.Of(family)}.{CinematicSpritePoseKeys.Installed.Of(pose)}";
 
     /// <summary>Draws <paramref name="pose"/>'s frame at <paramref name="place"/> in its drawn shade's shading (#1512).</summary>
     public void Draw(CinematicSpritePose pose, ScreenSprites screenSprites, Offset16<ScreenPixels> place, PictureShade drawn) =>

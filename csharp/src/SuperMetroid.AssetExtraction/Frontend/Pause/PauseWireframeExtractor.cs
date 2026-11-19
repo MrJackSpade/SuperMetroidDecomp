@@ -36,7 +36,7 @@ public static class PauseWireframeExtractor
                     FlipY = (word.Mirroring & PictureFlip.Vertical) != PictureFlip.None,
                 };
             }
-            frames.Add(kind.ToString(), cells);
+            frames.Add(PauseWireframeKindKeys.Installed.Of(kind), cells);
         }
         using var output = new MemoryStream();
         PauseWireframePresentation.Write(output, new() { Version = PauseWireframeDefinitions.Version, Frames = frames });

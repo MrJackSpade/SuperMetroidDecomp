@@ -53,7 +53,7 @@ public static class RoomFxLayer3TilemapExtractor
                     FlipY = word.FlipVertically,
                 };
             }
-            pages.Add(type.ToString(), cells);
+            pages.Add(RoomFxTypeKeys.Installed.Of(type), cells);
         }
         using var output = new MemoryStream();
         RoomFxLayer3Pages.Write(output, new RoomFxLayer3TilemapDocument

@@ -33,7 +33,7 @@ public static class RoomObjectSetupBlockFiles
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
         WriteIndented = true,
-        Converters = { new JsonStringEnumConverter() },
+        Converters = { new BlockMirroringJsonConverter() },
     };
 
     /// <summary>Pictures every setup block from the level words its setups write and writes the installed file.</summary>

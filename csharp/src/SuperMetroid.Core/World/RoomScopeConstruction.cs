@@ -26,10 +26,10 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 [RoomLifetime]
 internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom room, LoadedRoomAssets assets,
-    LoadStation? loadStation, RoomMainCarryover carryover) : IDoorEventLoad
+    LoadStation? loadStation, RoomMainHandOvers handOvers) : IDoorEventLoad
 {
-    /// <summary>The working value the previous room's main left, which the main the room composes adopts or replaces.</summary>
-    private readonly RoomMainCarryover _carryover = Ensure.NotNull(carryover);
+    /// <summary>What the previous room's main handed on, each hand-over given only to the main that carries it.</summary>
+    private readonly RoomMainHandOvers _handOvers = Ensure.NotNull(handOvers);
 
     /// <summary>The destination door.</summary>
     public DoorDefinition Door { get; } = Ensure.NotNull(door);
@@ -138,12 +138,12 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <param name="diagonal">How the room's shaking turns diagonal, or null for a room whose shaking never does.</param>
     internal void ComposeEscapeMain(EscapeExplosionSite site, EscapeDiagonalShaking? diagonal) =>
         Main = new EscapeShakingMain(site,
-            diagonal is { } shaking ? new EscapeDiagonalQuake(shaking, new EscapeDiagonalQuakeState(_carryover)) : null);
+            diagonal is { } shaking ? new EscapeDiagonalQuake(shaking, _handOvers.EscapeQuake) : null);
 
     /// <summary>Composes the Maridia elevatube's main and its ride, which the tube's doors start (#2287).</summary>
     internal void ComposeElevatubeMain()
     {
-        var tube = new MaridiaElevatubeRoomMainState(_carryover);
+        var tube = new MaridiaElevatubeRoomMainState(_handOvers.ElevatubeFraction);
         MaridiaElevatube = tube;
         Main = new MaridiaElevatubeMain(tube);
     }
@@ -159,7 +159,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// </remarks>
     public void ShowShaftLevelAndStartTurn()
     {
-        var shaft = new CeresElevatorShaftRoomMainState(_carryover);
+        var shaft = new CeresElevatorShaftRoomMainState(_handOvers.ShaftTurnToDebris);
         CeresElevatorShaft = shaft;
         ShownTurningFloor = shaft.Transform;
     }
@@ -180,7 +180,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
 
     /// <summary>Composes the Ceres pre-elevator hall's main and its debris countdown, carried from the previous room's main (#2287).</summary>
     internal void ComposeFallingDebrisMain() =>
-        Main = new CeresFallingDebrisMain(new CeresFallingDebrisRoomMainState(_carryover));
+        Main = new CeresFallingDebrisMain(new CeresFallingDebrisRoomMainState(_handOvers.ShaftTurnToDebris));
 
     /// <summary>Composes Ceres Ridley's arena's main, his getaway over the arena's turning <paramref name="floor"/> (#2287).</summary>
     internal void ComposeRidleyGetawayMain(RoomFloor floor) => Main = new CeresRidleyGetawayMain(floor);

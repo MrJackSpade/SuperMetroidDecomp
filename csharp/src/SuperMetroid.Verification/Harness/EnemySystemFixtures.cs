@@ -81,7 +81,7 @@ internal static class EnemySystemFixtures
         IRoomEnemyDefinitionSource? definitions = null, IRoomEnemyServices? services = null, BossSourceArtwork? installedBosses = null) =>
         New(session, compatibility, definitions, services, installedBosses,
             floor: RoomBackgroundsFixtures.CeresFloor(), statueRoom: new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0),
-            shaftTurn: new CeresElevatorShaftRoomMainState(new RoomMainCarryover()));
+            shaftTurn: new CeresElevatorShaftRoomMainState(new RoomMainHandOvers().ShaftTurnToDebris));
 
     /// <summary>The Tourian statue scene of <paramref name="enemies"/>, which the check built for the statue room.</summary>
     /// <exception cref="InvalidOperationException">The check built the enemies for another room.</exception>

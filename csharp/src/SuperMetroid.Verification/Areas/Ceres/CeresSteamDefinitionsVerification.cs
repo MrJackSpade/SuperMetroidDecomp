@@ -35,7 +35,7 @@ internal static class CeresSteamDefinitionsVerification
                 $"Ceres steam {variant} function");
 
             // The rotating-elevator vents ride the turn of the shaft they stand in, which only the shaft's room has (#2426).
-            var shaft = new CeresElevatorShaftRoomMainState(new RoomMainCarryover());
+            var shaft = new CeresElevatorShaftRoomMainState(new RoomMainHandOvers().ShaftTurnToDebris);
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null),
                 shaftTurn: shaft);
             enemies.VerificationServices().NextRandom = () => 0x001f;

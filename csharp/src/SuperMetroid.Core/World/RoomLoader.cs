@@ -973,7 +973,7 @@ internal sealed class RoomLoader
         {
             Enemies = enemies,
             System = _system,
-            Carryover = _room.RoomMainCarryover,
+            EscapeQuake = _room.RoomMainHandOvers.EscapeQuake,
         });
         // Gate setup runs while the room-object population is constructed, but Enemies.Load
         // subsequently clears the shared projectile pool. Consume those setup

@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <remarks>
 /// The elevator door's setup starts the shaft level, with its hold before the first turn, before the shaft becomes visible. The room's
 /// main behaviour later sweeps the tilt clockwise and back. The turn it last reached is what the following room's main
-/// inherits (<see cref="RoomMainCarryover"/>).
+/// inherits: the pre-elevator hall reads it as its first wait for falling debris (<see cref="ShaftTurnSetsDebrisWait"/>).
 /// </remarks>
 [RoomLifetime]
 public sealed class CeresElevatorShaftRoomMainState
@@ -37,6 +37,9 @@ public sealed class CeresElevatorShaftRoomMainState
     /// </summary>
     public CeresShaftSweep Sweep { get; private set; }
 
+    /// <summary>The hand-over the shaft leaves each turn step in for the following room's main.</summary>
+    private readonly ShaftTurnSetsDebrisWait _handOver;
+
     /// <summary>The shaft's most recently published tilt.</summary>
     public TurningFloorTransform Transform { get; private set; } = CreateInitialTransform();
 
@@ -44,12 +47,12 @@ public sealed class CeresElevatorShaftRoomMainState
     /// Builds the shaft's turn for the shaft entered through its elevator door, whose setup starts the turn place and timer
     /// (#2287); the shaft entered otherwise never turns, and has no turn.
     /// </summary>
-    /// <param name="carryover">The room-main value the following room inherits, which receives the starting turn.</param>
-    public CeresElevatorShaftRoomMainState(RoomMainCarryover carryover)
+    /// <param name="handOver">The hand-over the following room inherits the shaft's turn from, which receives the starting turn.</param>
+    public CeresElevatorShaftRoomMainState(ShaftTurnSetsDebrisWait handOver)
     {
-        Ensure.NotNull(carryover);
+        _handOver = Ensure.NotNull(handOver);
         Tilt = CeresShaftTilt.Level;
-        LeaveTurnStep(carryover);
+        LeaveTurnStep();
         HoldFramesLeft = CeresShaftRotationDefinitions.LevelHoldFrames;
     }
 
@@ -61,17 +64,14 @@ public sealed class CeresElevatorShaftRoomMainState
     /// not during the Ceres departure, the time-up's white-out or any other game state, when the shaft still turns but no
     /// departure starts. The update that takes her moves the game to the departure, so no later update allows it again.
     /// </param>
-    /// <param name="carryover">The room-main value the following room inherits, which receives every turn.</param>
     /// <returns>The update's turn, and whether the elevator took Samus, which the gameplay update acts on (#2545).</returns>
     [IndependentFlag("independent room facts read from the room's data: the elevator door's state and whether departure is allowed")]
     public CeresElevatorShaftRoomMainResult Step(
         SamusState samus,
         bool elevatorDoorDestroyed,
-        bool allowDeparture,
-        RoomMainCarryover carryover)
+        bool allowDeparture)
     {
         Ensure.NotNull(samus);
-        Ensure.NotNull(carryover);
 
         // The room code is entirely dormant until the Ceres door's destruction publishes
         // its escape status. In particular, the initial elevator descent stays level instead of prematurely consuming the
@@ -125,7 +125,7 @@ public sealed class CeresElevatorShaftRoomMainState
             default:
                 throw new InvalidOperationException($"Undefined {nameof(CeresShaftSweep)} {Sweep}.");
         }
-        LeaveTurnStep(carryover);
+        LeaveTurnStep();
 
         return new(Transform, TiltChanged: true, elevatorTookSamus);
     }
@@ -146,8 +146,8 @@ public sealed class CeresElevatorShaftRoomMainState
     /// Leaves the shaft's turn for the following room's main: its tilt counted from the full anticlockwise tilt, and its
     /// sweep.
     /// </summary>
-    private void LeaveTurnStep(RoomMainCarryover carryover) =>
-        carryover.LeaveTurnStep(Tilt.StepsFromFullAnticlockwise, backward: Sweep == CeresShaftSweep.Backward);
+    private void LeaveTurnStep() =>
+        _handOver.LeaveTurnStep(Tilt.StepsFromFullAnticlockwise, backward: Sweep == CeresShaftSweep.Backward);
 
     /// <summary>Starts the shaft level, as the elevator door's setup leaves it, about its fixed rotation center.</summary>
     private static TurningFloorTransform CreateInitialTransform() => TurningFloorTransform.Level(CeresShaftRotationDefinitions.RotationCenter);

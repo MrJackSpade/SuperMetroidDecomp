@@ -4,6 +4,7 @@ using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -19,11 +20,25 @@ namespace SuperMetroid.Verification.Rooms.RoomObjects;
 /// <summary>#1292: the n00b tube's crack, glass shards and released-air bubbles run typed programs through their lifetimes.</summary>
 internal static class NoobTubeProjectileBehaviorVerification
 {
+    /// <summary>The random sample whose sway-start field is the last of its range: a falling shard's sway starts there.</summary>
+    private const int LastSwayStartSample = byte.MaxValue << 8;
+
+    /// <summary>
+    /// The tube's block column in the Glass Tunnel, two blocks from the room's left edge, two rows from the room's top so
+    /// the fixture camera at the room's corner keeps a shard above its deletion depth.
+    /// </summary>
+    private static Position16<RoomBlocks> GlassTunnelTubeBlockNearTop =>
+        new(RoomObjectPopulationDefinitions.GlassTunnel.Placements.ToArray().Single(placement => placement.Kind == RoomObjectKind.NoobTube).Block.X, 2);
+
+    /// <summary>The Glass Tunnel's blocks: one screen wide and three tall.</summary>
+    private static Extent16<RoomBlocks> GlassTunnelSize => new(16, 48);
+
     /// <summary>
     /// The real burst producers start each crack, shard and bubble on its typed program; each lives as long as its native
     /// list, every shown frame draws as its native spritemap does, each shard flicker picks the pose and column its frame
-    /// parity selects, and all sixty-nine pictures are shown from all ninety of the lists' operands, some of which store a
-    /// picture again (#2273), with the lists' bytes forbidden.
+    /// parity selects, a shard swaying past the room's left edge mirrors past its right edge (#2537), and all sixty-nine
+    /// pictures are shown from all ninety of the lists' operands, some of which store a picture again (#2273), with the
+    /// lists' bytes forbidden.
     /// </summary>
     internal static void VerifyNoobTubeProjectileBehavior(CartridgeImportAddressSpace rom)
     {
@@ -54,6 +69,37 @@ internal static class NoobTubeProjectileBehaviorVerification
                 $"n00b-tube shard {piece} completes both counted flicker phases");
         }
 
+        // #2537: the Glass Tunnel's tube block lies two blocks from the room's left edge, and the shard that flies up and
+        // out, its fall's sway drawn from the end of its range, sways past that edge as the projectile pass moves it: its
+        // column lies at the end of the room's axis, and its mirror image as far past the room's right edge. Two rows from
+        // the room's top keep it above the fixture camera's deletion depth for its whole life.
+        RoomEnemySystem edgeSystem = NewSystem();
+        edgeSystem.VerificationServices().NextRandom = () => LastSwayStartSample;
+        NoobTubePiece upOutward = NoobTubeDebrisDefinitions.Shards[Array.IndexOf(shards, NoobTubeShard.UpOutward)];
+        EnemyProjectile edgeShard = Spawn(edgeSystem, RoomEnemyProjectileKind.NoobTubeShard, upOutward, GlassTunnelTubeBlockNearTop);
+        int tunnelBlocks = GlassTunnelSize.X * GlassTunnelSize.Y;
+        var tunnel = new RoomLevelData(GlassTunnelSize,
+            new RoomLevelPlanes(new RoomTerrainBlock[tunnelBlocks], new RoomBlockBehavior[tunnelBlocks], new RoomBlockAppearance[tunnelBlocks]),
+            RoomLevelData.NothingBeyondGrid(), []);
+        SamusState standingSamus = RoomEnemyFrameFixtures.StandaloneSamus();
+        bool passedLeftEdge = false;
+        bool mirroredPastRightEdge = false;
+        for (int step = 1; step <= 320 && edgeShard.IsActive; step++)
+        {
+            edgeSystem.StepEnemyProjectiles(tunnel, standingSamus, frameCounterByte: step & byte.MaxValue);
+            if (!edgeShard.IsActive)
+                break;
+            int column = edgeShard.StateOf<NoobTubeDebrisState>().X.Whole;
+            passedLeftEdge |= column > CoordinateAxis.LastNonNegative;
+            if (edgeShard.Animation is not NoobTubeProjectileAnimation { ShowsMirroredFrame: true })
+                continue;
+            AssertEqual(unchecked((ushort)(NoobTubeDebrisDefinitions.ShardMirrorSpan - column)), edgeShard.Position.X.Whole,
+                $"step {step}: the shard's mirror image lies across the tube from its column {column}");
+            mirroredPastRightEdge |= edgeShard.Position.X.Whole > NoobTubeDebrisDefinitions.ShardMirrorSpan;
+        }
+        AssertTrue(passedLeftEdge, "the up-and-outward shard with the latest sway start sways past the room's left edge");
+        AssertTrue(mirroredPastRightEdge, "the up-and-outward shard past the room's left edge mirrors past its right edge");
+
         for (int piece = 0; piece < NoobTubeDebrisDefinitions.Bubbles.Length; piece++)
         {
             RoomEnemySystem bubbleSystem = NewSystem();
@@ -79,7 +125,8 @@ internal static class NoobTubeProjectileBehaviorVerification
                 $"production shows n00b-tube presentation $86:{EnemyProjectileProgramFrameSources.Operand(frame):X4}");
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the n00b tube's native list bytes");
         Console.WriteLine("  N00b-tube behavior: the crack, all ten shards and six bubbles live their native lifetimes, " +
-            "every shard flicker picks its parity's frame, column and visibility, and all ninety native poses draw as their native spritemaps.");
+            "every shard flicker picks its parity's frame, column and visibility, a shard past the room's left edge mirrors past its right edge, " +
+            "and all ninety native poses draw as their native spritemaps.");
 
         RoomEnemySystem NewSystem()
         {
@@ -88,10 +135,10 @@ internal static class NoobTubeProjectileBehaviorVerification
             return system;
         }
 
-        EnemyProjectile Spawn(RoomEnemySystem system, RoomEnemyProjectileKind kind, NoobTubePiece piece)
+        EnemyProjectile Spawn(RoomEnemySystem system, RoomEnemyProjectileKind kind, NoobTubePiece piece, Position16<RoomBlocks>? block = null)
         {
             system.NoobTubeBehavior.SpawnNoobTubeProjectile(
-                new NoobTubeProjectileRequest(piece, RoomObjectBlock: new(10, 2)));
+                new NoobTubeProjectileRequest(piece, RoomObjectBlock: block ?? new(10, 2)));
             return system.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == kind);
         }
 

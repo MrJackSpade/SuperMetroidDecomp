@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Stateless enemy arithmetic shared by the species: bearings, whole-pixel velocity steps, points on circles of short
+/// Stateless enemy arithmetic shared by the species: bearings, whole-pixel velocity clamps, points on circles of short
 /// radius (<see cref="ShortCircleProduct"/>) and the parts of a speed along an angle's sine and cosine.
 /// </summary>
 internal static class EnemyMath
@@ -60,13 +60,6 @@ internal static class EnemyMath
     }
 
     /// <summary>
-    /// <paramref name="position"/> moved by one update's <paramref name="velocity"/>, a signed speed in 256ths of a pixel,
-    /// wrapping around the room's coordinate span.
-    /// </summary>
-    internal static FixedCoordinate AddVelocity(FixedCoordinate position, SignedEightEight velocity) =>
-        velocity.ToSixteenSixteenDelta().AddTo(position.Whole, position.Fraction);
-
-    /// <summary>
     /// The whole pixels of the sine distance of the point <paramref name="radius"/> pixels along <paramref name="angle"/>
     /// (<see cref="CircleSine"/>): in the turn's second half the reversed whole pixels of the first half's distance, as
     /// <see cref="ShortCircleProduct.Reversed"/> leaves them, so <c>Math.Sin</c> or a reversal of the whole distance would
@@ -93,20 +86,19 @@ internal static class EnemyMath
 
     /// <summary>
     /// The sine distance of the point <paramref name="radius"/> pixels along <paramref name="angle"/>, in whole pixels and
-    /// fraction: the coarse half-wave (<see cref="Trigonometry.CoarseHalfWave"/>), 0 through 255, times the radius the
-    /// short circle product uses, in 256ths of a pixel, reversed in the turn's second half as
-    /// <see cref="ShortCircleProduct"/> reverses it. Evir needs both parts for its spit's motion; an enemy that only needs
-    /// pixels uses the sine distances above.
+    /// fraction (#2537): the exact reach (<see cref="UnitComponent.ExactReachOf"/>) of the coarse half-wave's share
+    /// (<see cref="UnitComponent.CoarseHalfWaveOf"/>) along the radius the short circle product uses, reversed in the
+    /// turn's second half as <see cref="ShortCircleProduct"/> reverses it. Evir needs both parts for its spit's motion; an
+    /// enemy that only needs pixels uses the sine distances above.
     /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="radius"/> is negative.</exception>
     internal static SignedSixteenSixteen CircleSine(
         TrigonometryAngle angle,
         int radius)
     {
-        // A half-wave value below 256 times a radius below 256 is below 65,536, so the product needs no wrap.
-        int sample = Trigonometry.CoarseHalfWave(angle.StepsIntoHalfTurn);
-        SignedSixteenSixteen product = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(
-            sample * ShortCircleProduct.RadiusInUse(radius));
-        return angle.IsInSecondHalf ? ShortCircleProduct.Reversed(product) : product;
+        // The share is under one and the radius in use under 256 pixels, so the reach is under 256 pixels.
+        SignedSixteenSixteen reach = UnitComponent.CoarseHalfWaveOf(angle).ExactReachOf(ShortCircleProduct.RadiusInUse(radius));
+        return angle.IsInSecondHalf ? ShortCircleProduct.Reversed(reach) : reach;
     }
 
     /// <summary>The point's cosine distance: <see cref="CircleSine"/> a quarter turn ahead, keeping its second-half reversal.</summary>

@@ -88,6 +88,17 @@ internal sealed class EnemyProcessingWindow
     /// selects the enemies an update processes, and also the enemies the draw pass reaches and the enemies Rios and
     /// pipe bugs treat as on screen.
     /// </summary>
+    /// <remarks>
+    /// The window measures across the room's axis, as <see cref="CoordinateAxis.Precedes"/> reads it, because it tests
+    /// every enemy and an enemy can lie above or left of the room's origin (#2537): a fly that has climbed through the
+    /// ceiling, or a Bull braking past Samus, as <see cref="EnemyDeathsAndDrops.TendEnemyPickup"/> records. Its centre then
+    /// lies at the end of the axis, and the window reads it the short way from the camera, across the axis. With the
+    /// camera at or near the room's left edge, a body whose centre lies past that edge but whose radius reaches back past
+    /// the camera is processed and drawn; with the camera at or near the room's top, so is a centre above that edge and no
+    /// more than eight pixels above the camera. A plain difference would read either centre as far right of or below the
+    /// view. The camera lies inside its room, at most 12575 pixels along either axis (#2441), so the wrap changes nothing
+    /// for a centre inside the room.
+    /// </remarks>
     internal static bool IsWithinProcessingWindow(
         RoomEnemyPlace place,
         Position16<RoomPixels> camera) =>

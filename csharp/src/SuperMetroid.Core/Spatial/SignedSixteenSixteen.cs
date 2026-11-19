@@ -121,6 +121,12 @@ public readonly record struct SignedSixteenSixteen : IComparable<SignedSixteenSi
     public int InTwoFiftySixths => RawValue >> NearReadingShift;
 
     /// <summary>
+    /// The displacement read in 256ths of a pixel and kept at that precision (#2537): its fraction finer than a 256th
+    /// dropped toward negative infinity, as <see cref="InTwoFiftySixths"/> drops it.
+    /// </summary>
+    public SignedSixteenSixteen RoundedDownToTwoFiftySixths() => new(RawValue & ~FinerThanTwoFiftySixth);
+
+    /// <summary>
     /// The displacement scaled by <paramref name="share"/>, as grounded slope movement scales Samus's horizontal travel:
     /// the displacement is first counted in 256ths of a pixel (<see cref="InTwoFiftySixths"/>), then multiplied by the
     /// share's 256ths. The product must fit the type; a displacement whose scaled amount does not fails loudly.

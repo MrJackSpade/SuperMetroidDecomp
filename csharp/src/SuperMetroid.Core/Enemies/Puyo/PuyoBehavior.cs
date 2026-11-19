@@ -145,7 +145,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         do
         {
             place += hop.LaunchSearchStep;
-            risen += SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(place.Speed.CoarseToward(EnemySpeedSign.Positive));
+            risen += place.Speed.CoarseRise;
         }
         while (risen <= height);
 

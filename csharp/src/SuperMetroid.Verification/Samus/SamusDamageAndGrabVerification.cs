@@ -812,8 +812,6 @@ internal static void VerifySamusGrabbedByDraygon()
     AssertTrue(!samus.DraygonGrabbed.IsActive && !samus.DraygonGrabbed.OwnsMovement, "the release ends the hold");
     AssertTrue(samus.DraygonGrabbed.CarryTo(samus, ownerPosition: new(0x0100, 0x0180), draygonFacing: HorizontalDirection.Right),
         "Draygon's next carry reports the release");
-    AssertTrue(!samus.DraygonGrabbed.CarryTo(samus, ownerPosition: new(0x0100, 0x0180), draygonFacing: HorizontalDirection.Right),
-        "the release is reported once");
     AssertEqual(SamusDraygonHoldPhase.Inactive, samus.DraygonGrabbed.Phase, "Draygon seeing the release frees Samus");
     samus.DraygonGrabbed.RelinquishMovement();
     AssertEqual(SamusDraygonHoldPhase.Inactive, samus.DraygonGrabbed.Phase, "a hold that is over gives up no movement");

@@ -33,8 +33,6 @@ internal static class HyperBeamFxColorArtworkVerification
         var extracted = new HyperBeamColourEffectState();
         var extractedColours = new SamusColours();
         SamusShadeSources stockSources = InstalledFixtures.SamusShadeSources with { HyperBeamCycle = colours };
-
-        extracted.Spawn();
         for (int call = 0; call < HyperBeamFxColorFormat.FrameCount *
             HyperBeamPaletteFxColorDefinitionsConstants.FrameDuration + 1; call++)
         {

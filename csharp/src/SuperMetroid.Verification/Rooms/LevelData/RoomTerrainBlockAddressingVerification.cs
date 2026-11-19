@@ -138,7 +138,7 @@ internal static class RoomTerrainBlockAddressingVerification
     /// <summary>
     /// Compares a shot's block reaction, from every block of each fixture room, horizontal and vertical, with the place
     /// walk of its extension links: an ending link lets the shot pass, a block of a solid kind stops it, a link outside the
-    /// grid fails and a chain of sixteen blocks fails as unterminated.
+    /// grid fails and a chain as long as the grid fails as cyclic (#2529).
     /// </summary>
     internal static void VerifyShotExtensionResolution()
     {
@@ -303,12 +303,12 @@ internal static class RoomTerrainBlockAddressingVerification
         /// <summary>
         /// The place walk of a shot's extension resolution from <paramref name="start"/>: the place the chain ends at and
         /// whether the shot stops there (an ending link lets it pass, a solid kind stops it), or null when a link leads
-        /// outside the grid or sixteen blocks are all links.
+        /// outside the grid or a chain as long as the grid is all links, as Samus's walk does.
         /// </summary>
         internal (int? Reached, bool Stops) WalkShotExtension(int start)
         {
             int place = start;
-            for (int link = 0; link < 16; link++)
+            for (int link = 0; link < terrain.Length; link++)
             {
                 if (LinkFrom(place) is not { } offset)
                     return (place, !IsExtension(place) && terrain[place].Collision.IsSolidKind());

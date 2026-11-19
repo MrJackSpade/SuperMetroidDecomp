@@ -126,7 +126,7 @@ internal static class SamusGroundedPoseTransitions
     /// </summary>
     public static SamusPoseId SelectRanIntoWallPose(SamusPoseId sourcePose)
     {
-        return SamusPoseMetadata.ReadAim(sourcePose).Direction is { } direction &&
+        return SamusPoseMetadata.ReadAim(sourcePose) is SamusPoseAim.Aiming { Direction: var direction } &&
             SamusAimedPoseChoiceDefinitions.WallStops.TryGetValue(direction, out SamusPoseId wallStop)
             ? wallStop
             : throw new InvalidDataException(
@@ -441,7 +441,7 @@ internal static class SamusGroundedPoseTransitions
                 ? SamusAimedPoseChoiceDefinitions.CrouchingTurns
                 : SamusAimedPoseChoiceDefinitions.StandingTurns;
             // Grounded and crouched poses never aim straight down, nor outside their eight aims.
-            selectedTurnPose = aim.Direction is { } direction && turns.TryGetValue(direction, out SamusPoseId turn)
+            selectedTurnPose = aim is SamusPoseAim.Aiming { Direction: var direction } && turns.TryGetValue(direction, out SamusPoseId turn)
                 ? turn
                 : throw new InvalidDataException($"{(wasCrouching ? "Crouched" : "Grounded")} turn aim {aim} is invalid.");
         }

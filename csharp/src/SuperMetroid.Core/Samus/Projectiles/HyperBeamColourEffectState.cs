@@ -5,8 +5,8 @@ using SuperMetroid.Core.Samus.Colours;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// The Hyper Beam colour effect, the projectile colour cycle
-/// started when Samus receives the Hyper Beam.
+/// The Hyper Beam colour effect, the projectile colour cycle started when Samus receives the Hyper Beam (#2529): equipping
+/// the Hyper Beam creates it, and it plays from then on.
 /// </summary>
 /// <remarks>
 /// The effect plays the beams' colour cycle through the shared animation player (#2458), which counts each shade's
@@ -15,16 +15,11 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 public sealed class HyperBeamColourEffectState
 {
     /// <summary>
-    /// The play of the Hyper Beam's colour cycle: the shade it shows and the updates that shade has left; null until
-    /// equipping the Hyper Beam starts the effect.
+    /// The play of the Hyper Beam's colour cycle: the shade it shows and the updates that shade has left. No colour is
+    /// shown until the effect's first update (<see cref="Step"/>), which shows the cycle's first shade.
     /// </summary>
-    internal AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue>? Cycle { get; private set; }
-
-    /// <summary>
-    /// Starts the Hyper Beam's colour effect. No colour is shown until its first update
-    /// (<see cref="Step"/>), which shows the cycle's first shade.
-    /// </summary>
-    public void Spawn() => Cycle = SamusGlowPlay.Starting(SamusGlowSegment.HyperBeamCycle);
+    internal AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Cycle { get; } =
+        SamusGlowPlay.Starting(SamusGlowSegment.HyperBeamCycle);
 
     /// <summary>
     /// Runs one update of the Hyper Beam's colour effect: once the shade shown has held its updates, the next shade is laid
@@ -34,12 +29,9 @@ public sealed class HyperBeamColourEffectState
     public void Step(SamusColours colours)
     {
         Ensure.NotNull(colours);
-        if (Cycle is not { } cycle)
-            return;
-
-        if (cycle.StepToNewFrame() is { } shade)
+        if (Cycle.StepToNewFrame() is { } shade)
             colours.LayOverBeams(shade);
-        if (cycle.IsResting)
+        if (Cycle.IsResting)
             throw new InvalidOperationException("The Hyper Beam's colour cycle came to rest; it only shows shades, for ever.");
     }
 }

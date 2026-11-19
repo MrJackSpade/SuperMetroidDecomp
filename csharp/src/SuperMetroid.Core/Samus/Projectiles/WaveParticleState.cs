@@ -9,7 +9,7 @@ internal sealed class WaveParticleState(SpecialAttackParticle part) : SpecialAtt
 {
     /// <summary>
     /// The updates the particle has left: <see cref="BeamComboDefinitions.WaveLifetime"/> when the attack starts, counted
-    /// down each update. The particle ends when it reaches zero, so it never passes it.
+    /// down each update it homes. The particle ends on its last.
     /// </summary>
-    internal int Lifetime { get; set => field = Ensure.AtLeastZero(value); } = BeamComboDefinitions.WaveLifetime;
+    internal SpecialAttackLifetime Lifetime { get; } = new(BeamComboDefinitions.WaveLifetime);
 }

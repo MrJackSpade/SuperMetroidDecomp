@@ -213,9 +213,11 @@ level, SamusRoomObjectFixtures.Uninstalled, right, unchecked((ushort)(frame + 1)
         "controller three sets hyper beam flag");
     AssertTrue(left.Drained.HyperBeamPaletteFxRequested,
         "controller three spawns Hyper Beam palette-FX object");
-    AssertEqual(1, left.Drained.HyperBeamColourEffect.FrameHold,
+    HyperBeamColourEffectState hyperBeamColours = left.Drained.HyperBeamColourEffect
+        ?? throw new InvalidOperationException("Receiving the Hyper Beam starts its colour effect.");
+    AssertEqual(1, hyperBeamColours.FrameHold,
         "palette-FX spawn installs native timer one");
-    AssertEqual(SuperMetroid.Core.Animation.AnimationPlace.StartOfAnimation, left.Drained.HyperBeamColourEffect.Cycle!.Playback.Place,
+    AssertEqual(SuperMetroid.Core.Animation.AnimationPlace.StartOfAnimation, hyperBeamColours.Cycle.Playback.Place,
         "palette-FX spawn starts the object's program");
 
     // Seed both neighboring colors so the test can distinguish the exact eight-color
@@ -227,8 +229,8 @@ level, SamusRoomObjectFixtures.Uninstalled, right, unchecked((ushort)(frame + 1)
     for (int call = 0; call < 21; call++)
     {
         // `$8D:C552` writes a palette record only when its pre-decrement timer is one.
-        bool paletteWritten = left.Drained.HyperBeamColourEffect.FrameHold == 1;
-        left.Drained.HyperBeamColourEffect.Step(drainedColours);
+        bool paletteWritten = hyperBeamColours.FrameHold == 1;
+        hyperBeamColours.Step(drainedColours);
         int expectedFrame = (call / 2) % HyperBeamColourEffectState.FrameCount;
         AssertEqual(expectedFrame, drainedColours.ShownHyperBeamCycleShade,
             $"Hyper Beam palette-FX call {call + 1} frame index");

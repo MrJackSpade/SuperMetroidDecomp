@@ -101,7 +101,7 @@ internal static class BeamFiredOverLastShotVerification
         missile.Type = SamusProjectileType.Of(SamusProjectileFamily.Missile);
         missile.Direction = SamusProjectileDirection.Right;
         missile.Damage = SamusProjectileDamage.Read(SamusProjectileSelection.NonBeam(SamusProjectileFamily.Missile));
-        var ignition = new MissileShotState(SamusMissileIgnition.Pending);
+        var ignition = new MissileShotState(new SamusMissileIgnition.Pending());
         ignition.Ignite(SamusProjectileMotionDefinitions.MissileIgnitionSpeed);
         missile.Install(SamusShotBehaviors.Missile, ignition);
         CountShots(projectiles, LastPlace);
@@ -160,28 +160,28 @@ internal static class BeamFiredOverLastShotVerification
 
         (string Holder, Action<SamusProjectileSystem> Hold, int Expected)[] cases =
         [
-            ("a missile not yet ignited", projectiles => _ = Missile(projectiles, SamusMissileIgnition.Pending, null), 0),
+            ("a missile not yet ignited", projectiles => _ = Missile(projectiles, new SamusMissileIgnition.Pending(), null), 0),
             ("a reflected missile waiting to re-ignite",
-                projectiles => _ = Missile(projectiles, SamusMissileIgnition.PendingAfterReflection, null), reflectionWord),
-            ("an ignited missile", projectiles => _ = Missile(projectiles, SamusMissileIgnition.Pending,
+                projectiles => _ = Missile(projectiles, new SamusMissileIgnition.PendingAfterReflection(), null), reflectionWord),
+            ("an ignited missile", projectiles => _ = Missile(projectiles, new SamusMissileIgnition.Pending(),
                 SamusProjectileMotionDefinitions.MissileIgnitionSpeed), ignitedWord),
             ("a missile re-ignited after a reflection", projectiles => _ = Missile(projectiles,
-                SamusMissileIgnition.PendingAfterReflection, SamusProjectileMotionDefinitions.ReflectedMissileIgnitionSpeed),
+                new SamusMissileIgnition.PendingAfterReflection(), SamusProjectileMotionDefinitions.ReflectedMissileIgnitionSpeed),
                 ignitedWord + reflectionWord),
             ("an ignited missile's explosion", projectiles =>
             {
-                SamusProjectile exploding = Missile(projectiles, SamusMissileIgnition.Pending,
+                SamusProjectile exploding = Missile(projectiles, new SamusMissileIgnition.Pending(),
                     SamusProjectileMotionDefinitions.MissileIgnitionSpeed);
                 exploding.Type = exploding.Type.AsFamily(SamusProjectileFamily.MissileExplosion);
                 exploding.Behavior = null;
             }, ignitedWord),
             ("an ignited Super Missile naming its link's place", projectiles => _ = SuperMissile(projectiles,
-                SamusMissileIgnition.Pending, UnlinkedSuperMissileLink.Place, linkPlace), linkedWord),
+                new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place, linkPlace), linkedWord),
             ("an ignited Super Missile that found no place for its link", projectiles => _ = SuperMissile(projectiles,
-                SamusMissileIgnition.Pending, UnlinkedSuperMissileLink.Place, UnlinkedSuperMissileLink.Place),
+                new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place, UnlinkedSuperMissileLink.Place),
                 ignitedWord & 0xFF00),
             ("a reflected Super Missile re-ignited with no place for its link", projectiles => _ = SuperMissile(projectiles,
-                SamusMissileIgnition.PendingAfterReflection, linkPlace: null, ignitedLinkPlace: null),
+                new SamusMissileIgnition.PendingAfterReflection(), linkPlace: null, ignitedLinkPlace: null),
                 ignitedWord + reflectionWord),
             ("a Super Missile's link", projectiles =>
             {
@@ -189,7 +189,7 @@ internal static class BeamFiredOverLastShotVerification
                 link.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile);
                 link.Damage = SamusProjectileDamage.Read(SamusProjectileKind.SuperMissileLink);
                 link.Install(SamusShotBehaviors.SuperMissileLink,
-                    new SuperMissileShotState(SamusMissileIgnition.Pending, UnlinkedSuperMissileLink.Place));
+                    new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place));
             }, 0),
             ("a crash echo", projectiles =>
             {
@@ -269,7 +269,7 @@ internal static class BeamFiredOverLastShotVerification
         missile.Direction = SamusProjectileDirection.Right;
         missile.Damage = SamusProjectileDamage.Read(SamusProjectileSelection.NonBeam(SamusProjectileFamily.SuperMissile));
         var state = new SuperMissileShotState(ignition, linkPlace);
-        state.Ignite(ignition == SamusMissileIgnition.PendingAfterReflection
+        state.Ignite(ignition is SamusMissileIgnition.PendingAfterReflection
             ? SamusProjectileMotionDefinitions.ReflectedMissileIgnitionSpeed
             : SamusProjectileMotionDefinitions.MissileIgnitionSpeed);
         state.LinkPlace = ignitedLinkPlace;

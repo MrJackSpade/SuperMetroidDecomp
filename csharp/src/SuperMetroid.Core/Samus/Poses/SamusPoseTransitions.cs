@@ -211,7 +211,7 @@ internal static class SamusPoseTransitions
         bool shotHeld = (controllerInput & GameplayAction.Shoot) != GameplayAction.None;
         // The straight-down aims are consumed by TryApplyCompactAerialLanding, because the 10 -> 21 expansion needs room
         // collision data.
-        SamusLandingChoice landing = aim.Direction is { } direction &&
+        SamusLandingChoice landing = aim is SamusPoseAim.Aiming { Direction: var direction } &&
             SamusAimedPoseChoiceDefinitions.Landings.TryGetValue(direction, out SamusLandingChoice? choice)
             ? choice
             : throw new InvalidOperationException(

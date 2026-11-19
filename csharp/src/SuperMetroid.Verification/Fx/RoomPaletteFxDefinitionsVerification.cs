@@ -120,7 +120,6 @@ internal static class RoomPaletteFxDefinitionsVerification
         }
 
         var hyperBeam = new HyperBeamColourEffectState();
-        hyperBeam.Spawn();
         var hyperBeamColours = new SamusColours();
         hyperBeam.Step(hyperBeamColours);
         AssertEqual(0, hyperBeamColours.ShownHyperBeamCycleShade,

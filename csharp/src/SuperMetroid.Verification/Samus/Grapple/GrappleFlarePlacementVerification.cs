@@ -34,7 +34,7 @@ internal static class GrappleFlarePlacementVerification
         foreach (bool running in new[] { false, true })
         foreach (SamusProjectileDirection direction in SamusProjectileDirectionCodec.InAimOrder)
         {
-            var offset = stock.Resolve(running, SamusFlareAim.AtMuzzle(direction));
+            var offset = stock.Resolve(running, new SamusFlareAim.AtMuzzle(direction));
             int x = running ? SamusSourceDefinitions.GrappleRunningFlareX.Value : SamusSourceDefinitions.GrappleDefaultFlareX.Value;
             int y = running ? SamusSourceDefinitions.GrappleRunningFlareY.Value : SamusSourceDefinitions.GrappleDefaultFlareY.Value;
             AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), x + direction.ToAimIndex() * 2)), offset.X, "Extracted Grapple flare X including adjacent rows");

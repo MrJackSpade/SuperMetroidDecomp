@@ -48,9 +48,12 @@ internal static class SamusProjectileDirectionCodec
     /// </summary>
     /// <exception cref="ArgumentException">The flare aim names neither a muzzle nor a turn.</exception>
     internal static int FlarePlacementRow(SamusFlareAim aim) =>
-        aim.Muzzle is { } muzzle ? muzzle.ToAimIndex()
-        : aim.Turning is { } turning ? Count + PlaceIn(TurningPlacementOrder, turning)
-        : throw new ArgumentException("A flare is placed at a muzzle or while turning.", nameof(aim));
+        aim switch
+        {
+            SamusFlareAim.AtMuzzle muzzle => muzzle.Direction.ToAimIndex(),
+            SamusFlareAim.WhileTurning turning => Count + PlaceIn(TurningPlacementOrder, turning.HeldAim),
+            _ => throw new ArgumentException("A flare is placed at a muzzle or while turning.", nameof(aim)),
+        };
 
     /// <summary>Where <paramref name="value"/> stands in <paramref name="order"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The order does not hold the value.</exception>

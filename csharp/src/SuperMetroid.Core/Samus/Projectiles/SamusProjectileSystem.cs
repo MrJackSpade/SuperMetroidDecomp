@@ -523,7 +523,7 @@ public sealed class SamusProjectileSystem
         Pool.ClearAll();
         Trails.Clear();
         Pool.ShotCount.Clear();
-        Firing.ProjectileInvincibilityTimer = 0;
+        Firing.InteractionImmunityUpdatesLeft = 0;
         LastFrameResult = default;
     }
 

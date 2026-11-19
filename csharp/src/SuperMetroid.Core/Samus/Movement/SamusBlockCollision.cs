@@ -1045,6 +1045,13 @@ public static class SamusBlockCollision
     /// Each link leads on in the room's reading order (<see cref="RoomReadingOrder"/>), so a horizontal link past a
     /// row's end continues on the next row. A zero behaviour reports no collision immediately and therefore behaves as air.
     /// </summary>
+    /// <remarks>
+    /// The one extension follower (#2529): Samus's collision and inside reactions, her shots' block reactions, her missiles'
+    /// point reactions and her bombs' reactions all follow links here, as the original's reactions share one horizontal and
+    /// one vertical extension step. Those go back into the reaction until a block that is no extension or an extension
+    /// whose behaviour is zero, with no bound; a chain of as many links as the room has blocks must revisit one, a cycle the
+    /// original never leaves, and is reported as malformed room data.
+    /// </remarks>
     /// <exception cref="InvalidDataException">A link leads outside the room's grid, or the chain is cyclic.</exception>
     internal static bool TryResolveExtension(
         RoomLevelData level,

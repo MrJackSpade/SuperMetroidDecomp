@@ -109,11 +109,11 @@ internal sealed class ProjectileEnemyImpacts
         shot.Radius = SamusProjectilePlayback.InitialRadius(segment);
 
         if (family == SamusProjectileFamily.Missile)
-            shot.Install(SamusShotBehaviors.Missile, new MissileShotState(SamusMissileIgnition.PendingAfterReflection));
+            shot.Install(SamusShotBehaviors.Missile, new MissileShotState(new SamusMissileIgnition.PendingAfterReflection()));
         else if (family == SamusProjectileFamily.SuperMissile)
         {
             shot.Install(SamusShotBehaviors.SuperMissile,
-                new SuperMissileShotState(SamusMissileIgnition.PendingAfterReflection, linkPlace: null));
+                new SuperMissileShotState(new SamusMissileIgnition.PendingAfterReflection(), linkPlace: null));
         }
         else
         {

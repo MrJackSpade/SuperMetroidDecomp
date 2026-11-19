@@ -217,7 +217,7 @@ internal static class NativeSnapshotImport
         PrivateState.Set(samus.HorizontalSpeed, nameof(SamusHorizontalSpeedState.TotalSpeed), new UnsignedSixteenSixteen(W(NativeSnapshotMemory.TotalHorizontalSpeed), W(NativeSnapshotMemory.TotalHorizontalSubspeed)));
         runtime.Projectiles.Pool.ShotCount.Restore(W(NativeSnapshotMemory.ProjectileCount));
         runtime.Projectiles.Charge.PreviousCharge = SamusSnapshotWords.DecodeBeamCharge(W(NativeSnapshotMemory.PreviousCharge));
-        runtime.Projectiles.Firing.ProjectileInvincibilityTimer = W(NativeSnapshotMemory.ProjectileInteractionImmunity);
+        runtime.Projectiles.Firing.InteractionImmunityUpdatesLeft = W(NativeSnapshotMemory.ProjectileInteractionImmunity);
         runtime.Projectiles.Charge.ChargedShotGlow = SamusSnapshotWords.DecodeChargedShotGlow(W(NativeSnapshotMemory.ChargedShotGlow));
         int chargePaletteByteOffset = W(NativeSnapshotMemory.ChargePaletteIndex);
         runtime.Projectiles.Charge.ChargeGlowStep = (chargePaletteByteOffset & 1) == 0

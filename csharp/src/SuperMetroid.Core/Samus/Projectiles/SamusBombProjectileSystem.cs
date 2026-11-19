@@ -268,10 +268,12 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>Runs the bomb subset of the post-input-phase Samus/projectile interaction pass.</summary>
-    public void ResolveSamusOverlap(SamusState samus, int projectileInvincibilityTimer)
+    /// <param name="samus">Samus, whom a bomb's blast may launch.</param>
+    /// <param name="shotsSuppressInteraction">Whether a shot just fired keeps Samus from interacting with her own projectiles.</param>
+    public void ResolveSamusOverlap(SamusState samus, bool shotsSuppressInteraction)
     {
         Ensure.NotNull(samus);
-        if (projectileInvincibilityTimer == 0 && samus.HorizontalSpeed.BodyAttack == SamusBodyAttack.None)
+        if (!shotsSuppressInteraction && samus.HorizontalSpeed.BodyAttack == SamusBodyAttack.None)
             PublishBombJumpOverlap(samus);
     }
 

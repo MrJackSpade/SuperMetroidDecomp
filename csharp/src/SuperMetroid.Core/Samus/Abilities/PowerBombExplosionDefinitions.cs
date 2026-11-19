@@ -14,25 +14,19 @@ public static class PowerBombExplosionDefinitions
     /// <summary>The explosion's acceleration: its speed rises by three sixteenths of a pixel an update each update it grows.</summary>
     public static readonly PowerBombRadius ExplosionAcceleration = PowerBombRadius.FromFraction(48);
     /// <summary>
-    /// The updates the yellow pre-explosion lasts (#1927): it shows one of <see cref="YellowOvalRadii"/> each update, and
-    /// the damaging explosion starts after the last.
+    /// The fade steps a Power Bomb's afterglow takes after its white explosion, one each update (#2529); the update after
+    /// its last ends the blast, so the afterglow lasts thirty-two updates.
     /// </summary>
-    public const int PreExplosionYellowUpdates = 4;
+    public const int AfterglowFades = 31;
     /// <summary>
-    /// The updates the white explosion lasts (#1927): it shows one of <see cref="WhiteOvalRadii"/> each update, and the
-    /// afterglow starts after the last.
-    /// </summary>
-    public const int ExplosionWhiteUpdates = 17;
-    /// <summary>The fade steps a Power Bomb's afterglow runs after its white explosion, one each update.</summary>
-    public const int AfterglowSteps = 32;
-    /// <summary>
-    /// The horizontal radius, in pixels, of the oval the yellow pre-explosion shows on each of its updates. The ovals are
-    /// authored: they run close to the flash's own radius but are not it (the flash reaches 240 pixels and holds there).
+    /// The horizontal radius, in pixels, of the oval the yellow pre-explosion shows on each of its updates (#1927): it lasts
+    /// one update for each, and the damaging explosion starts after the last. The ovals are authored: they run close to the
+    /// flash's own radius but are not it (the flash reaches 240 pixels and holds there).
     /// </summary>
     public static IReadOnlyList<int> YellowOvalRadii { get; } = [146, 193, 239, 255];
     /// <summary>
-    /// The horizontal radius, in pixels, of the oval the white explosion shows on each of its updates. The ovals are
-    /// authored: they run close to the explosion's own radius but are not it (the explosion starts them at 135 pixels
+    /// The horizontal radius, in pixels, of the oval the white explosion shows on each of its updates (#1927): it lasts one
+    /// update for each, and the afterglow starts after the last. The ovals are authored: they run close to the explosion's own radius but are not it (the explosion starts them at 135 pixels
     /// and holds at 250).
     /// </summary>
     public static IReadOnlyList<int> WhiteOvalRadii { get; } =

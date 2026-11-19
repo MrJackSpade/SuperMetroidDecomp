@@ -164,8 +164,8 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
 
 
     /// <summary>
-    /// The health band his colours show (#2266): the band his health starts in, which his setup shows (#2304), until a
-    /// reaction finds his health in another.
+    /// The health band his colours show (#2266): the band his health starts in (#2304), until a reaction finds his health
+    /// in another. His body layer shows it from his first hurt update or that reaction, never from his setup (#2547).
     /// </summary>
     public DraygonHealthBand HealthBand { get; internal set => field = Ensure.NotNull(value); }
 

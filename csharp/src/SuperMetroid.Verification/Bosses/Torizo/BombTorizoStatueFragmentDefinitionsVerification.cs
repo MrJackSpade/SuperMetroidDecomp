@@ -50,7 +50,7 @@ internal static class BombTorizoStatueFragmentDefinitionsVerification
                 $"Bomb Torizo statue fragment {index} production Y");
             AssertEqual(expected.InitialFallSpeed, projectile.Velocity.Y,
                 $"Bomb Torizo statue fragment {index} production velocity");
-            AssertEqual(expected.Acceleration, projectile.StateOf<BombTorizoStatueFragmentState>().Acceleration,
+            AssertEqual(expected.Acceleration, enemies.TorizoBehavior.Attacks.TorizoProjectiles.StatueFragments.Of(projectile).Acceleration,
                 $"Bomb Torizo statue fragment {index} production acceleration");
         }
 

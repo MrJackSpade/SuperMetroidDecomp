@@ -47,7 +47,7 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
                 $"production Mother Brain death explosion X {parameter}");
             AssertEqual(0x0209, projectile.Position.Y.Whole,
                 $"production Mother Brain death explosion Y {parameter}");
-            AssertEqual(new Offset16<RoomPixels>(-7, 9), projectile.StateOf<MotherBrainBodyExplosionState>().Offset,
+            AssertEqual(new Offset16<RoomPixels>(-7, 9), enemies.MotherBrainBehavior.Projectiles.Projectile.BodyExplosions.Of(projectile).Offset,
                 $"production Mother Brain death explosion offset {parameter}");
             // The place's velocity words hold the offset, which the place's next occupant inherits.
             AssertEqual(unchecked((ushort)-7), projectile.Velocity.X.RawValue,

@@ -42,13 +42,13 @@ internal static class EnemyPickupDefinitionsVerification
             };
             EnemyDeathsAndDropsConstants.BeginEnemyPickup(enemies.DeathsAndDrops, projectile, kind);
             EnemyPickupAnimationDefinition expected = EnemyPickups.Animation(kind);
-            AssertEqual(kind, projectile.StateOf<EnemyPickupState>().Kind,
+            AssertEqual(kind, enemies.DeathsAndDrops.Pickups.Of(projectile).Kind,
                 $"production pickup kind {kind}");
             AssertEqual(expected.Animation, ProgramOf(projectile),
                 $"production pickup program {kind}");
             AssertEqual(1, projectile.FrameHold.RawValue,
                 $"production pickup instruction timer {kind}");
-            AssertEqual(400, projectile.StateOf<EnemyPickupState>().Lifetime.UpdatesLeft,
+            AssertEqual(400, enemies.DeathsAndDrops.Pickups.Of(projectile).Lifetime.UpdatesLeft,
                 $"production pickup lifetime {kind}");
             AssertEqual<Enum?>(SingleMotion.Moving,
                 projectile.MotionValue,

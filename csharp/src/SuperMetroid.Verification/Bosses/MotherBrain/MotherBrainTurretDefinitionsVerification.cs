@@ -61,7 +61,7 @@ internal static class MotherBrainTurretDefinitionsVerification
                 $"production Mother Brain turret kind {parameter}");
             AssertEqual(definition.Position, turret.Position.Whole,
                 $"production Mother Brain turret position {parameter}");
-            MotherBrainTurretState turretState = turret.StateOf<MotherBrainTurretState>();
+            MotherBrainTurretState turretState = enemies.MotherBrainBehavior.Projectiles.Projectile.Turrets.Of(turret);
             AssertEqual(definition, turretState.Turret,
                 $"production Mother Brain turret identity {parameter}");
             AssertEqual(definition.InitialDirection, turretState.Direction,
@@ -97,8 +97,8 @@ internal static class MotherBrainTurretDefinitionsVerification
                     ? candidate
                     : unchecked((byte)(current + expectedDelta));
 
-                MotherBrainProjectiles.SelectNextMotherBrainTurretDirection(rotation);
-                MotherBrainTurretState rotated = rotation.StateOf<MotherBrainTurretState>();
+                MotherBrainProjectiles.SelectNextMotherBrainTurretDirection(enemies.MotherBrainBehavior.Projectiles.Projectile, rotation);
+                MotherBrainTurretState rotated = enemies.MotherBrainBehavior.Projectiles.Projectile.Turrets.Of(rotation);
                 AssertEqual(MotherBrainTurretDefinitions.Ring.At(expectedDirection), rotated.Direction,
                     $"production Mother Brain turret rotation {parameter}/{current}/{delta}");
                 AssertEqual(expectedDelta > 0 ? RotationDirection.Counterclockwise : RotationDirection.Clockwise, rotated.Turning,

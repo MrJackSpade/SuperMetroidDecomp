@@ -45,7 +45,7 @@ internal static class KiHunterAcidSpitBehaviorVerification
         left.Position = left.Position.WithWhole(new(64, 63));
         left.Radius = new(2, 2);
         left.Velocity = left.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256));
-        KiHunterBehavior.RunKiHunterAcidMovement(KiHunterBehavior.Acid, left, level);
+        KiHunterBehavior.RunKiHunterAcidMovement(enemies.KiHunterBehavior.Acid, left, level);
         AssertEqual(KiHunterAcidSpitSegment.HitFloor, ProgramOf(left), "a floor collision starts the splash program");
         (bool splashed, int updates) = NativeEnemyProjectileParity.Compare(cartridge, enemies, left, Entry(KiHunterAcidSpitSegment.HitFloor), 60, "acid splash");
         AssertTrue(splashed, "the splash deletes the spit");

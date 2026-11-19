@@ -634,7 +634,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     EnemyProjectile ripperDeath = enemies.Projectiles.ProjectileInPlace(17);
     AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, ripperDeath.Kind,
         "Ripper zero health allocates the shared F345 death actor");
-    AssertEqual(definitionPointer, ripperDeath.StateOf<EnemyDeathExplosionState>().DropDefinitionId,
+    AssertEqual(definitionPointer, enemies.DeathsAndDrops.Explosions.Of(ripperDeath).DropDefinitionId,
         "Ripper death actor retains its header for EEAF drop selection");
     AssertEqual(1, enemies.RoomStatus.EnemiesKilled, "Ripper death increments room kill count");
 

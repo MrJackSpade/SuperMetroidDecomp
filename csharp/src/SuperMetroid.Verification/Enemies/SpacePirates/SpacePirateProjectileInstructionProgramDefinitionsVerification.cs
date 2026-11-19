@@ -76,7 +76,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
             RunForcedTick(enemies, laser);
             AssertEqual<Enum?>(movement, laser.MotionValue,
                 "laser program installs its facing movement callback");
-            AssertEqual(movingRight ? HorizontalDirection.Right : HorizontalDirection.Left, laser.StateOf<PirateLaserState>().Direction,
+            AssertEqual(movingRight ? HorizontalDirection.Right : HorizontalDirection.Left, enemies.WalkingSpacePirateBehavior.Laser.Lasers.Of(laser).Direction,
                 "the laser flies the way its producer chose");
             AssertEqual(expectedX, laser.Position.X.Whole,
                 "laser callback executes immediately on installation");
@@ -108,7 +108,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
             RunForcedTick(enemies, claw);
             AssertEqual<Enum?>(movement, claw.MotionValue,
                 "claw program installs its facing movement callback");
-            AssertEqual(direction != 0 ? HorizontalDirection.Right : HorizontalDirection.Left, claw.StateOf<NinjaPirateClawState>().Thrown,
+            AssertEqual(direction != 0 ? HorizontalDirection.Right : HorizontalDirection.Left, enemies.NinjaSpacePirateBehavior.Claw.Claws.Of(claw).Thrown,
                 "the claw flies along the throw its producer chose");
             RunForcedTicks(enemies, claw, 8);
             AssertEqual(unchecked((ushort)(loop + 4)), NativePointer(claw),

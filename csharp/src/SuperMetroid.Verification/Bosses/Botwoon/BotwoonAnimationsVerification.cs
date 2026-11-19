@@ -121,7 +121,7 @@ internal static class BotwoonAnimationsVerification
             int[] expectedDirections = [unchecked((byte)(spitAngle - 16)), spitAngle, unchecked((byte)(spitAngle + 16))];
             int[] actualDirections = volleyEnemies.Projectiles.EnemyProjectiles
                 .Where(projectile => projectile.Kind == RoomEnemyProjectileKind.BotwoonSpit)
-                .Select(projectile => (int)projectile.StateOf<AngledFlightState>().Heading.RawValue)
+                .Select(projectile => (int)volleyEnemies.BotwoonBehavior.Spits.Of(projectile).Heading.RawValue)
                 .Order()
                 .ToArray();
             AssertTrue(expectedDirections.Order().SequenceEqual(actualDirections),
@@ -181,16 +181,16 @@ internal static class BotwoonAnimationsVerification
         var state = new BotwoonEnemyState(body: []);
         head.SetSpeciesState(state);
         // A changed selector restarts the segment; an unchanged one keeps running.
-        Action<EnemyProjectile, int> animate = BotwoonBehavior.AnimateBotwoonBodySegment;
+        Action<EnemyProjectile, int> animate = enemies.BotwoonBehavior.AnimateBotwoonBodySegment;
         var segment = new EnemyProjectile(1, default) { Kind = RoomEnemyProjectileKind.BotwoonBody };
         var segmentAnimation = new BotwoonSegmentAnimation(BotwoonSegmentSelectorCodec.Program(0));
-        segment.State = new BotwoonSegmentState(head, 1, segment, segmentAnimation);
+        enemies.BotwoonBehavior.Segments.Start(segment, new BotwoonSegmentState(head, 1, segment, segmentAnimation));
         segment.StartAnimation(segmentAnimation);
         Pass(segment);
         Pass(segment);
         animate(segment, 0);
         AssertEqual((ushort)7, segment.FrameHold.RawValue, "an unchanged Botwoon segment program keeps its timer");
-        segment.StateOf<BotwoonSegmentState>().Pose = BotwoonSegmentSelectorCodec.Program(2);
+        enemies.BotwoonBehavior.Segments.Of(segment).Pose = BotwoonSegmentSelectorCodec.Program(2);
         animate(segment, 0);
         AssertEqual((ushort)1, segment.FrameHold.RawValue, "a changed Botwoon segment program restarts");
         Pass(segment);
@@ -215,7 +215,7 @@ internal static class BotwoonAnimationsVerification
             expected = expected.AdvanceY(QuadraticSpeedCurve.AtMark(rows).Positive);
             runBody(body, 0);
             AssertEqual(expected, body.Position, $"a falling Botwoon segment's update {update} falls by row {rows}");
-            AssertEqual(QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(192 * update), body.StateOf<BotwoonSegmentState>().FallPlace,
+            AssertEqual(QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(192 * update), enemies.BotwoonBehavior.Segments.Of(body).FallPlace,
                 $"a falling Botwoon segment's place after update {update}");
         }
         body.Position = body.Position.WithWholeY(200);

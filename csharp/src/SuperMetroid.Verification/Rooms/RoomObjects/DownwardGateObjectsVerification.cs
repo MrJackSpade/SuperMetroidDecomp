@@ -167,7 +167,7 @@ internal static class DownwardGateObjectsVerification
         EnemyProjectile actor = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
         AssertEqual(RoomEnemyProjectileKind.DownwardGateClosed, actor.Kind,
             "bank-$86 pool owns the closed gate actor");
-        AssertEqual(level.BlockAt(gateBlockIndex), actor.StateOf<DownwardGateState>().RoomObjectBlock,
+        AssertEqual(level.BlockAt(gateBlockIndex), enemies.DownwardGateBehavior.Gate.Gates.Of(actor).RoomObjectBlock,
             "gate actor is tied to its gate's PLM block");
         AssertEqual((ushort)96, actor.Position.Y.Whole,
             "closed gate actor begins four tiles beneath a row-two PLM origin");

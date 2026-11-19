@@ -261,7 +261,7 @@ internal static class MotherBrainAnimationsVerification
         EnemyProjectile beam = enemies.Projectiles.ProjectileInPlace(17);
         FamilyProjectileStarts.Initialize(enemies, beam, RoomEnemyProjectileKind.MotherBrainHandBeamCharging, default);
         // The charging beam holds the encounter that spawned it, as its spawn gives it (#2218).
-        beam.State = new MotherBrainProjectileState(state);
+        enemies.MotherBrainBehavior.Projectiles.Projectile.MotherBrains.Start(beam, new MotherBrainProjectileState(state));
         beam.StartAnimation(new MotherBrainHandBeamAnimation(enemies.MotherBrainBehavior.Projectiles.Projectile));
         var native = new NativeEnemyProjectileListReader(HandBeamProgram, beam.FrameHold.RawValue);
         int spawns = 0;

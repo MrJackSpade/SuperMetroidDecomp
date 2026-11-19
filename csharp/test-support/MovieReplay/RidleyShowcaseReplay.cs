@@ -888,7 +888,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     case RoomEnemyProjectileKind.RidleyFireball:
                         // $86:940E consumes F only as a zero/nonzero afterburn gate.
                         // The caller may leave a noncanonical nonzero parameter (e.g. $E).
-                        if ((projectile.StateOf<RidleyAfterburnChainState>().Remaining != 0) !=
+                        if ((runtime.Enemies.RidleyProjectiles.Afterburns.Of(projectile).Remaining != 0) !=
                             (W(NativeSnapshotMemory.EnemyProjectileVariableF + index) == 0))
                             mismatches.Add(owner + " fireball afterburn gate differs");
                         break;
@@ -898,7 +898,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                         // The native chain count is a byte stepped past zero by the afterburn that ends the chain, which
                         // leaves it at $FF; the port's count of afterburns left stays at zero.
                         int nativeRemainingAfterburns = W(NativeSnapshotMemory.EnemyProjectileVariableE + index);
-                        CheckValue(owner + " remaining afterburns", projectile.StateOf<RidleyAfterburnChainState>().Remaining,
+                        CheckValue(owner + " remaining afterburns", runtime.Enemies.RidleyProjectiles.Afterburns.Of(projectile).Remaining,
                             nativeRemainingAfterburns == 0xff ? 0 : nativeRemainingAfterburns);
                         // The cartridge stores the kind a directional afterburn's successor takes, its own (#2245); a centre stores
                         // none. Each way's afterburn is one of its axis's kind's definitions (#2378).
@@ -1018,12 +1018,12 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     // caller X ($86:EF3E/F118), not allocated-slot Y, and never read it
                     // again. Their retained per-slot word is not a live source identity, and the port's explosion drops
                     // it once it has rolled its drop (#2455).
-                    if (projectile.State is EnemyDeathExplosionState explosion)
-                        Check(owner + " source enemy header", SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(explosion.DropDefinitionId), NativeSnapshotMemory.EnemyProjectileEnemyHeader + index);
+                    if (projectile.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion)
+                        Check(owner + " source enemy header", SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(runtime.Enemies.DeathsAndDrops.Explosions.Of(projectile).DropDefinitionId), NativeSnapshotMemory.EnemyProjectileEnemyHeader + index);
                     // The native word holds the killed slot's table offset, bit 15 for a respawn, $FFFF for none; a
                     // cleared projectile's names the first slot. Only a direct drop is made a pickup from the start: a
                     // death's pickup is its explosion's.
-                    KilledEnemy killed = projectile.State is EnemyDeathAndDropState dropped ? dropped.KilledEnemy : KilledEnemy.None;
+                    KilledEnemy killed = runtime.Enemies.DeathsAndDrops.KilledEnemyOf(projectile);
                     Check(owner + " killed enemy index", projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup ? 0xffff
                         : SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(killed.Enemy?.Ordinal ?? 0) | (killed.Respawns ? 0x8000 : 0),
                         NativeSnapshotMemory.EnemyProjectileKilledEnemy + index);

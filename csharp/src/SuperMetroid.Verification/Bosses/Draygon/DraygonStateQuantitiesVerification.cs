@@ -45,10 +45,10 @@ internal static class DraygonStateQuantitiesVerification
         AssertEqual(256, DraygonArenaDefinitions.GoopAttachedLifetime, "the goop stays the 256 updates the game counted");
         for (int update = 1; update < DraygonArenaDefinitions.GoopAttachedLifetime; update++)
         {
-            DraygonShots.DraygonShotBehavior.RunAttachedDraygonGoop(goop, samus, powerBomb);
+            enemies.DraygonBehavior.Shots.Goop.RunAttachedDraygonGoop(goop, samus, powerBomb);
             AssertTrue(goop.IsActive, $"the attached goop stays on update {update} of its lifetime");
         }
-        DraygonShots.DraygonShotBehavior.RunAttachedDraygonGoop(goop, samus, powerBomb);
+        enemies.DraygonBehavior.Shots.Goop.RunAttachedDraygonGoop(goop, samus, powerBomb);
         AssertTrue(!goop.IsActive, "the goop falls off on its lifetime's last update");
         AssertEqual(0, samus.SlowdownLevel, "the goop that falls off restores one X-speed divisor step");
     }
@@ -59,7 +59,7 @@ internal static class DraygonStateQuantitiesVerification
         EnemyProjectile goop = enemies.Projectiles.ProjectileInPlace(17);
         goop.Kind = RoomEnemyProjectileKind.DraygonGoop;
         goop.StartMotion(enemies.DraygonBehavior.Shots.Goop, DraygonShotMotion.GoopStuckToSamus);
-        goop.State = new DraygonGoopAttachedState(stackPosition: 1);
+        enemies.DraygonBehavior.Shots.Goop.Attached.Start(goop, new DraygonGoopAttachedState(stackPosition: 1));
         return goop;
     }
 

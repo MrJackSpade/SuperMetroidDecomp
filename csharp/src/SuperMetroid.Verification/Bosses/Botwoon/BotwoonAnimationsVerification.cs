@@ -137,12 +137,12 @@ internal static class BotwoonAnimationsVerification
         head.AnimationClock.HoldFor(7);
         state.HeadHistory[3] = new Position16<RoomPixels>(1000, 1000);
         animateHead(head, state);
-        AssertEqual((ushort)7, head.AnimationClock.Hold, "reinstalling Botwoon's unchanged head program keeps it running");
+        AssertEqual(7, head.AnimationClock.Hold, "reinstalling Botwoon's unchanged head program keeps it running");
         state.InsideHole = true;
         state.HeadHistory[3] = new Position16<RoomPixels>(1000, 1000);
         animateHead(head, state);
         AssertTrue(PlaysHead(state, BotwoonHeadAnimationSegment.Hidden), "Botwoon's head hides inside the wall");
-        AssertEqual((ushort)1, head.AnimationClock.Hold, "a changed Botwoon head program restarts on the next update");
+        AssertEqual(1, head.AnimationClock.Hold, "a changed Botwoon head program restarts on the next update");
 
         for (ushort selector = 0; selector < 64; selector += 2)
         {

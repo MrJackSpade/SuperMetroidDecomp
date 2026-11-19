@@ -237,7 +237,7 @@ internal static class DraygonAnimationsVerification
         AssertEqual(Started(DraygonSegment.TailFacingRightIdle), state.TailPart.Playback, "the reset starts the tail");
         AssertEqual(Started(DraygonSegment.ArmsFacingRightIdle), state.ArmsPart.Playback, "the reset starts the arms");
         foreach (RoomEnemyPlace part in new[] { state.Eye, state.Tail, state.Arms })
-            AssertEqual((ushort)1, part.AnimationClock.Hold, "the reset's started parts run on their next update");
+            AssertEqual(1, part.AnimationClock.Hold, "the reset's started parts run on their next update");
         AssertEqual(new AnimationPlayback<DraygonSegment>(DraygonAnimations.StartingWith(DraygonSegment.BodyFacingRightReset), new AnimationPlace(0, 3)),
             state.BodyPart.Playback, "the body's own frame keeps it in the reset, after its frame");
         AssertEqual(DraygonFrameToolingDefinitions.Spritemap(EnemyFrameId.DraygonBodyFacingRightJawShut), state.Body.SpritemapPointer, "the reset shows the right-facing body frame");

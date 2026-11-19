@@ -105,7 +105,7 @@ internal static class KraidMovementChoicesVerification
                     new AnimationPlayback<KraidPartSegment>(KraidAnimations.StartingWith(right ? KraidPartSegment.FootWalkingBackward : KraidPartSegment.FootWalkingForward), AnimationPlace.StartOfAnimation),
                     state.FootState.Playback,
                     "Chosen direction starts matching animation");
-                AssertEqual((ushort)1, foot.AnimationClock.Hold, "Choice restarts animation timer");
+                AssertEqual(1, foot.AnimationClock.Hold, "Choice restarts animation timer");
                 AssertEqual(1, reads, "Choice reads current RNG once");
             }
             part.ThinkTimer = raw;

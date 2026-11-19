@@ -36,8 +36,7 @@ public static class TitleGradientFile
         {
             document = JsonAssetDocument.Read<TitleGradientDocument>(
                 json,
-                ArtworkJson.Options)
-                ?? throw new InvalidDataException("Title gradient presentation is null.");
+                ArtworkJson.Options);
         }
         catch (JsonException error)
         {

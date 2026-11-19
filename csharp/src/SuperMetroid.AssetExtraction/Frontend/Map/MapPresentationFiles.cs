@@ -350,8 +350,7 @@ public static class MapPresentationFiles
             try
             {
                 manifest = JsonAssetDocument.Read<AreaMapCatalogManifest>(
-                    File.ReadAllBytes(Path.Combine(importData, AreaMapCatalogFormat.ManifestFile)), ArtworkJson.Options)
-                    ?? throw new InvalidDataException("Map catalog manifest is null.");
+                    File.ReadAllBytes(Path.Combine(importData, AreaMapCatalogFormat.ManifestFile)), ArtworkJson.Options);
             }
             catch (JsonException error) { throw new InvalidDataException($"Invalid map catalog manifest in {importData}.", error); }
             if (manifest.Version != AreaMapCatalogFormat.Version || manifest.Sha256 is null || manifest.Sha256.Count != AreaIds.All.Count + AreaMapCatalogFormat.SharedResourceCount)

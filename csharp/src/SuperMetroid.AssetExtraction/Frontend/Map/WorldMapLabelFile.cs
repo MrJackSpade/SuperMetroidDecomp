@@ -16,8 +16,7 @@ public static class WorldMapLabelFile
     public static WorldMapLabelPositions Read(Stream json)
     {
         WorldMapLabelDocument document;
-        try { document = JsonAssetDocument.Read<WorldMapLabelDocument>(json, ArtworkJson.Options)
-            ?? throw new InvalidDataException("World-map label layout is null."); }
+        try { document = JsonAssetDocument.Read<WorldMapLabelDocument>(json, ArtworkJson.Options); }
         catch (JsonException error) { throw new InvalidDataException("Invalid world-map label layout JSON.", error); }
         if (document.Version != WorldMapLabelFormat.Version || document.Areas is null || document.Areas.Count != 6)
             throw new InvalidDataException("World-map labels require version 1 and exactly the six Zebes areas.");

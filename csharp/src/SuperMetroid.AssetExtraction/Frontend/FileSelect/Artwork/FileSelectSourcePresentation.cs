@@ -185,8 +185,7 @@ public sealed class FileSelectSourcePresentation
         FileSelectArtworkDocument document;
         try
         {
-            document = JsonAssetDocument.Read<FileSelectArtworkDocument>(artworkBytes, ArtworkJson.Options) ??
-                throw new InvalidDataException("File-select artwork document is null.");
+            document = JsonAssetDocument.Read<FileSelectArtworkDocument>(artworkBytes, ArtworkJson.Options);
         }
         catch (JsonException error)
         {
@@ -278,8 +277,7 @@ public sealed class FileSelectSourcePresentation
         FileSelectLayoutDocument document;
         try
         {
-            document = JsonAssetDocument.Read<FileSelectLayoutDocument>(bytes, ArtworkJson.Options) ??
-                throw new InvalidDataException("File-select presentation document is null.");
+            document = JsonAssetDocument.Read<FileSelectLayoutDocument>(bytes, ArtworkJson.Options);
         }
         catch (JsonException error)
         {

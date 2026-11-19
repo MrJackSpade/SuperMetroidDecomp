@@ -82,8 +82,7 @@ public sealed class GameOverSourcePresentation
         try
         {
             document = JsonAssetDocument.Read<GameOverPresentationDocument>(
-                bytes, ArtworkJson.Options) ??
-                throw new InvalidDataException("Game-over presentation document is null.");
+                bytes, ArtworkJson.Options);
         }
         catch (JsonException error)
         {

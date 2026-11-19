@@ -54,8 +54,7 @@ public sealed class MapSpriteArtwork : MapSpriteCompositions
     private static Dictionary<MapSpriteId, SpriteComposition> Compile(Stream json)
     {
         MapSpriteDocument document;
-        try { document = JsonAssetDocument.Read<MapSpriteDocument>(json, ArtworkJson.Options)
-            ?? throw new InvalidDataException("Map sprite document is null."); }
+        try { document = JsonAssetDocument.Read<MapSpriteDocument>(json, ArtworkJson.Options); }
         catch (JsonException error) { throw new InvalidDataException("Invalid map sprite JSON.", error); }
         if (document.Version != MapSpriteFormat.Version || document.Frames is null || document.Frames.Count != MapSpriteFormat.FrameCount)
             throw new InvalidDataException("Map sprite content requires version 1 and all 26 named frames.");

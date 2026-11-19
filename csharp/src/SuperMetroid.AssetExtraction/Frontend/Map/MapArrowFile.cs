@@ -15,8 +15,7 @@ public static class MapArrowFile
     public static MapArrowPresentation Read(Stream json)
     {
         MapArrowDocument document;
-        try { document = JsonAssetDocument.Read<MapArrowDocument>(json, ArtworkJson.Options)
-            ?? throw new InvalidDataException("Map arrow presentation is null."); }
+        try { document = JsonAssetDocument.Read<MapArrowDocument>(json, ArtworkJson.Options); }
         catch (JsonException error) { throw new InvalidDataException("Invalid map arrow JSON.", error); }
         if (document.Version != MapArrowFormat.Version || document.Arrows is null || document.Arrows.Count != MapScrollControls.Directions.Length)
             throw new InvalidDataException($"Map arrows require version {MapArrowFormat.Version} and Left/Right/Up/Down definitions.");

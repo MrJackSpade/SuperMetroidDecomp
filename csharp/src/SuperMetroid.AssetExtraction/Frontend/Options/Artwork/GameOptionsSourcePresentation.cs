@@ -212,8 +212,7 @@ public sealed class GameOptionsSourcePresentation
         try
         {
             document = JsonAssetDocument.Read<GameOptionsPresentationDocument>(
-                bytes, ArtworkJson.Options) ??
-                throw new InvalidDataException("Options presentation document is null.");
+                bytes, ArtworkJson.Options);
         }
         catch (JsonException error)
         {

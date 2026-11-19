@@ -103,8 +103,7 @@ public sealed class GameplayMessageNoticePresentation
         try
         {
             document = JsonAssetDocument.Read<GameplayMessageNoticeDocument>(
-                source, ArtworkJson.Options)
-                ?? throw new InvalidDataException("Gameplay-message notice document is null.");
+                source, ArtworkJson.Options);
         }
         catch (JsonException error)
         {

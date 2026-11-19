@@ -26,8 +26,7 @@ public static class AreaMapPresentationFile
         MapPresentationDocument document;
         try
         {
-            document = JsonAssetDocument.Read<MapPresentationDocument>(json, ArtworkJson.Options)
-                ?? throw new InvalidDataException("Map presentation document is null.");
+            document = JsonAssetDocument.Read<MapPresentationDocument>(json, ArtworkJson.Options);
         }
         catch (JsonException error)
         {

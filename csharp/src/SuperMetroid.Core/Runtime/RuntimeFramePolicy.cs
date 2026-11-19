@@ -7,14 +7,6 @@ public sealed record RuntimeFramePolicy
     public static RuntimeFramePolicy Gameplay { get; } = new();
 
     /// <summary>
-    /// Allows the Ceres shaft room-main trigger to request departure; the outer game-state loop disables it in the
-    /// elevator-hold and blackout departure states and in the reserve refill's own updates, which the elevator takes Samus
-    /// from only once the refill's completion has returned the game to main gameplay (#2526). Shaft rotation still advances
-    /// independently.
-    /// </summary>
-    public bool AllowCeresElevatorDeparture { get; init; } = true;
-
-    /// <summary>
     /// Whether the normal frame tail advances the play time (<see cref="SuperMetroid.Core.Progression.GameTimeState"/>); disabling it does
     /// not suppress the frame boundary, the random draw, or gameplay-owner updates.
     /// </summary>
@@ -37,9 +29,10 @@ public sealed record RuntimeFramePolicy
     /// Whether main gameplay owns the update, rather than a game state that runs main gameplay's update behind its own
     /// work (#2509, #2517): the fade-in, the pause's darkening and brightening, the time-up's white-out, the Ceres
     /// departure, the death, leaving Zebes, the attract demo and the reserve refill's own updates. Only main gameplay's own
-    /// update, which the update the refill completes on is (#2526), admits Samus's pause check and begins her death; under
-    /// any other the out-of-health check withholds the death of a Samus out of health without reserves, and that update does
-    /// not count the play time. The AUTO reserves' refill begins under any of them.
+    /// update, which the update the refill completes on is (#2526), admits Samus's pause check, lets the Ceres elevator
+    /// take her (#2534) and begins her death; under any other the out-of-health check withholds the death of a Samus out of
+    /// health without reserves, and that update does not count the play time. The AUTO reserves' refill begins under any of
+    /// them.
     /// </summary>
     public bool MainGameplayOwnsUpdate { get; init; } = true;
 

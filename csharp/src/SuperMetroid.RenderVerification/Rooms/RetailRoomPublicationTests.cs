@@ -71,7 +71,7 @@ internal static class RetailRoomPublicationTests
                     throw new InvalidOperationException("Heat packet lost the three-valued vertical distortion table.");
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                     $"{device.Kind}: room {room.Name} publication {tick}");
-                runtime.StepFrame(0, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AllowCeresElevatorDeparture = false } });
+                runtime.StepFrame(0, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { MainGameplayOwnsUpdate = false } });
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                     $"{device.Kind}: room {room.Name} retained publication {tick}");
             }

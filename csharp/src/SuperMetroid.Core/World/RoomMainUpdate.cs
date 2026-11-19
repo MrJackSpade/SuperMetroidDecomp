@@ -32,6 +32,9 @@ internal sealed record RoomMainUpdate
     /// <summary>The working value room mains leave for the following room's.</summary>
     public required RoomMainCarryover Carryover { get; init; }
 
-    /// <summary>Whether this update may take Samus to the Ceres elevator: only main gameplay does.</summary>
+    /// <summary>
+    /// Whether this update may take Samus to the Ceres elevator: only while the game is still in main gameplay where room
+    /// main runs, main gameplay owning the update and none of its earlier steps having moved the game on (#2534).
+    /// </summary>
     public required bool AllowCeresElevatorDeparture { get; init; }
 }

@@ -191,6 +191,38 @@ internal static class OutOfHealthGameStateVerification
     }
 
     /// <summary>
+    /// Samus touching a door on the update periodic damage empties her into the AUTO reserves' refill (#2534): the refill's
+    /// game state (1Bh, $82:DB89) replaces the door's (9, $94:93B8) written earlier in that update, so the door hit is
+    /// forgotten, and the update the refill completes on, whose Samus does not touch the door again, stays in main gameplay.
+    /// </summary>
+    internal static void VerifyReserveRefillReplacesDoorHit()
+    {
+        (SuperMetroidGame game, SuperMetroidRuntime runtime, SamusState samus) = MainGameplaySparkingTowardADoor();
+        samus.MaxHealth = 999;
+        samus.ReserveEnergy = 1;
+        samus.MaxReserveEnergy = 100;
+        samus.ReserveTankMode = ReserveTankMode.Auto;
+
+        // The next update's spark reaches the door, and the periodic damage Samus's movement applies after it empties her.
+        PlaceJustShortOfTheDoor(samus);
+        samus.PeriodicDamage.Accumulate(new UnsignedSixteenSixteen(999, 0));
+        game.Step(0);
+        AssertEqual(0, samus.Health, "the periodic damage takes Samus's last energy on the update she touches the door");
+        AssertEqual(SuperMetroidGameState.ReserveTankRefill, game.GameState, "the AUTO reserves' refill takes the update from the door");
+        AssertTrue(!runtime.RoomLoader.HasPendingDoorTransition, "the refill's game state replaces the door's: the door hit is forgotten");
+
+        // The refill holds Samus; placed back where the completion update's one spark step stays short of the door, she does
+        // not touch it again.
+        samus.Position = samus.Position.WithWholeX(64);
+        game.Step(0);
+        AssertEqual(0, samus.ReserveEnergy, "the refill's update moves the last reserve unit");
+        AssertTrue(!runtime.RoomLoader.HasPendingDoorTransition, "the completion update's spark stays short of the door");
+        AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the refill's completion update, with no door touched, stays in main gameplay");
+
+        Console.WriteLine("A door touched on the update the refill begins: the refill replaces the door, which is entered only if touched again.");
+    }
+
+    /// <summary>
     /// Samus reaching the Ceres elevator on the update she runs out of health without reserves: the elevator's departure
     /// takes the update, and neither it nor its hold kills her or counts the play time.
     /// </summary>

@@ -239,7 +239,7 @@ internal sealed class SuperMetroidRuntime
         RoomLoader = new RoomLoader(new RoomLoaderDependencies { AudioRequests = AudioRequests, EnemySession = EnemySession, BossArtwork = BossArtwork, ColourEffectSession = ColourEffectSession, TourianStatueDependencies = TourianStatueDependencies, RoomObjectVisuals = RoomObjectVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, PlayerActions = PlayerActions, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads, ScrollCellsPastRoomScreens = artwork.ScrollCellsPastRoomScreens, UnauthoredBoostCadence = UnauthoredBoostCadence, CameraFractions = CameraFractions, FadeStepCount = FadeStepCount, YardKickDistance = YardKickDistance });
         AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { AttractSession = AttractSession, PlayerActions = PlayerActions, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System });
         DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player});
-        MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { AudioRequests = AudioRequests, Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, SuitPickup = SuitPickup, System = System });
+        MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { AudioRequests = AudioRequests, Freeze = Freeze, Hud = Hud, SuitPickup = SuitPickup, System = System });
         RoomObjectPhase = new RoomObjectFramePhase(new RoomObjectFramePhaseDependencies { PlayerActions = PlayerActions, PlayerButtons = PlayerButtons, Options = Options, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, SuitPickup = SuitPickup});
         RoomMains = new RoomMainRoutines(new RoomMainRoutinesDependencies { BackgroundScroll = BackgroundScroll, System = System });
         SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { AttractDemo = AttractDemo, PlayerActions = PlayerActions, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Assists = Assists, Player = Player, System = System, DoorPassage = DoorTransition.Passage });
@@ -1080,7 +1080,10 @@ internal sealed class SuperMetroidRuntime
     /// One update of an open message box. Its completion returns into the suspended
     /// gameplay update, whose remaining owners already ran when the box opened.
     /// </summary>
-    /// <returns>The resumed update's outcome when the box closed into it, otherwise the waiting update's out-of-health check.</returns>
+    /// <returns>
+    /// The resumed update's outcome when the box closed into it, otherwise the waiting update's out-of-health check; either
+    /// carries the save the box's close completed.
+    /// </returns>
     private RuntimeFrameOutcome StepMessageBoxFrame(
         ControllerButton playerInput,
         RuntimeFramePolicy policy,
@@ -1089,26 +1092,29 @@ internal sealed class SuperMetroidRuntime
         SamusState samus)
     {
         // The box reads the controller directly; the frame boundary latches none.
-        MessageBox.Step(playerInput);
+        MessageBoxStep step = MessageBox.Step(playerInput);
         if (MessageBox.LastFrameAudio.AdvancesLiquidWaveAndStatueDescent)
         {
             // One update of the box's pause after closing advances the liquid wave and the statues too.
             LiquidWaveAndStatueDescent.Advance(room.RoomObjects, room);
             room.BombProjectiles.AdvancePowerBombExplosion(samus, PlayerActions.Current, RunningGameState);
         }
-        if (MessageBox.ConfirmationSelectionChangedThisFrame)
+        if (step is MessageBoxStep.ChoiceMoved)
             MessageBoxes.SaveChoiceMoved();
-        if (MessageBox.IsActive)
+        if (step is MessageBoxStep.SavingSoundStarted)
+            MessageBoxes.GunshipSavingSoundStarted();
+        if (step is not MessageBoxStep.Closed closing)
             return EndUpdateWithoutGameplayTail(policy, infiniteAmmoGuard, samus);
 
-        MessageBoxes.ResolveClosedMessageBox(frameSuspended: _suspendedFrameTail is not null, room, samus);
+        SaveStationPersistenceRequest? completedSave =
+            MessageBoxes.ResolveClosedMessageBox(closing, frameSuspended: _suspendedFrameTail is not null, room, samus);
         // The room objects' step returns once the box and its item's step finish; the
         // parked remainder of that gameplay frame runs now, in this same update.
         if (!MessageBox.IsActive && _suspendedFrameTail is { } tail)
         {
             _suspendedFrameTail = null;
-            return FinishGameplayFrame(tail, policy, infiniteAmmoGuard, room, samus);
+            return FinishGameplayFrame(tail, policy, infiniteAmmoGuard, room, samus) with { CompletedSave = completedSave };
         }
-        return EndUpdateWithoutGameplayTail(policy, infiniteAmmoGuard, samus);
+        return EndUpdateWithoutGameplayTail(policy, infiniteAmmoGuard, samus) with { CompletedSave = completedSave };
     }
 }

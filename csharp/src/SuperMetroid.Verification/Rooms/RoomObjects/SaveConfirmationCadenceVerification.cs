@@ -37,8 +37,7 @@ internal static class SaveConfirmationCadenceVerification
 
         // The frame after the toggling read is the redraw's wait: no audio queue passes, and the
         // selection sound is queued there.
-        box.Step(0);
-        AssertTrue(box.ConfirmationSelectionChangedThisFrame, "the selection sound follows the redraw wait");
+        AssertTrue(box.Step(0) is MessageBoxStep.ChoiceMoved, "the selection sound follows the redraw wait");
         AssertEqual(0, box.LastFrameAudio.MusicQueuePasses, "the redraw wait processes no music queue");
         AssertEqual(0, box.LastFrameAudio.SoundQueuePasses, "the redraw wait processes no sound queue");
 

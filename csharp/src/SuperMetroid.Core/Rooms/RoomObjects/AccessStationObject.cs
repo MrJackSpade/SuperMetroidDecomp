@@ -147,7 +147,7 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
         switch (cue)
         {
             case StationAccessCue.Activates:
-                Activate(stations, samus);
+                Activate(stations, samus, context.Outcome);
                 // The recharges release Samus right after their message, before the arm retracts. The map leaves her
                 // locked for leaving the map screen to release.
                 if (Rule.Refill is not null)
@@ -162,10 +162,10 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
     }
 
     /// <summary>
-    /// Gives the station's reward, the refill or the area's map, and publishes its message; the station shows its completed
-    /// animation from this update's step.
+    /// Gives the station's reward, the refill or the area's map, and its message joins the step's
+    /// <paramref name="outcome"/>; the station shows its completed animation from this update's step.
     /// </summary>
-    private void Activate(StationObjects stations, IRoomSamus samus)
+    private void Activate(StationObjects stations, IRoomSamus samus, RoomObjectStepOutcome outcome)
     {
         if (Rule.Refill is { } refill)
             refill.Fill(samus);
@@ -173,7 +173,7 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
             stations.System.SetAreaMapAcquired(Area);
         ShownAnimation = CompletedAnimation;
         _animation.Start(StationAnimationDefinitions.Animations[ShownAnimation]);
-        stations.Publish(new StationCompleted(Rule.CompletedMessage));
+        outcome.StationActed(new StationCompleted(Rule.CompletedMessage));
     }
 
     /// <summary>Draws the access arm at the access Samus used, in <paramref name="pose"/>.</summary>

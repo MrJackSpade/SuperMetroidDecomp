@@ -178,15 +178,15 @@ public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
     /// Steps the room objects with the buttons newly pressed at the frame boundary.
     /// Resident room objects such as the n00b tube consume edges, not held input.
     /// </summary>
-    public void Step(RoomLevelData level, RoomObjectFrameInputs frame)
+    /// <returns>
+    /// The step's own outcome (#2514): the items it collected, the stations' actions and the projectiles its room objects
+    /// threw, for the update that ran it to act on.
+    /// </returns>
+    public RoomObjectStepOutcome Step(RoomLevelData level, RoomObjectFrameInputs frame)
     {
         Ensure.NotNull(level);
-        Stations.BeginFrame();
-        MotherBrainGlass.BeginMotherBrainGlassFrame();
-        CollectibleObjects.BeginCollectibleFrame();
-        BombTorizoHand.BeginBombTorizoHandFrame();
-
-        var context = new RoomObjectStepContext(this, level, frame);
+        var outcome = new RoomObjectStepOutcome();
+        var context = new RoomObjectStepContext(this, level, frame, outcome);
         // Each typed room object advances by its own steps, at its place in the update order; a place that holds no
         // typed object (one whose setup did all its work) stays idle until it is freed.
         foreach (RoomObjectPlace place in Places.InUpdateOrder)
@@ -194,7 +194,7 @@ public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
             if (place.Active && place.Behaviour is { } behaviour)
                 behaviour.Update(place, context);
         }
-
+        return outcome;
     }
 
     /// <summary>

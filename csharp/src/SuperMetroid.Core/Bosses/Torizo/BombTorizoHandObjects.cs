@@ -26,15 +26,8 @@ internal sealed class BombTorizoHandObjects
         _samus = samus;
         _sounds = Ensure.NotNull(sounds);
     }
-    /// <summary>Statue-fragment spawns queued by the hand's breaking cue for this frame.</summary>
-    private readonly List<BombTorizoStatueProjectileRequest>
-        _bombTorizoStatueProjectileRequests = [];
     /// <summary>The room objects' audio requests, which the hand's music joins.</summary>
     private readonly RoomObjectSoundQueue _sounds;
-
-    /// <summary>Statue fragment projectiles emitted during the latest room-object pass.</summary>
-    public IReadOnlyList<BombTorizoStatueProjectileRequest>
-        BombTorizoStatueProjectileRequests => _bombTorizoStatueProjectileRequests;
 
     /// <summary>
     /// Whether the statue's hand still stands in the room: from its setup until it leaves after its crumble. Bomb Torizo
@@ -62,20 +55,12 @@ internal sealed class BombTorizoHandObjects
         _handPlace = place;
     }
 
-    /// <summary>Discards the previous room-object pass's fragment requests before the next pass.</summary>
-    internal void BeginBombTorizoHandFrame()
-    {
-        _bombTorizoStatueProjectileRequests.Clear();
-    }
-
     /// <summary>Whether Samus has Bombs, which wakes the resting hand.</summary>
     internal bool SamusHasBombs() =>
         _samus.Current.CollectedItems.HasAny(SamusEquipmentFlags.Bombs);
-    /// <summary>Spawns statue fragment <paramref name="fragment"/> at the hand's block.</summary>
-    internal void SpawnFragment(RoomObjectPlace place, BombTorizoStatueFragment fragment) =>
-        _bombTorizoStatueProjectileRequests.Add(new BombTorizoStatueProjectileRequest(
-            fragment,
-            place.Block));
+    /// <summary>Throws statue fragment <paramref name="fragment"/> from the hand's block into the step's <paramref name="outcome"/>.</summary>
+    internal static void ThrowFragment(RoomObjectPlace place, BombTorizoStatueFragment fragment, RoomObjectStepOutcome outcome) =>
+        Ensure.NotNull(outcome).Threw(new BombTorizoStatueProjectileRequest(fragment, Ensure.NotNull(place).Block));
 
     /// <summary>
     /// Queues the Torizo's awakening music now, after the shortest wait a queued song takes.

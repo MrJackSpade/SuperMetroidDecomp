@@ -4,10 +4,10 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The room's stations' service (#1554): their setup, the touch that triggers one, the save a station asks the frontend for,
-/// the room-entry save lockout, and the activation events an update publishes. Each station is a typed room object that
-/// holds and advances its own state: a save station (<see cref="SaveStationObject"/>), or a map, energy or missile
-/// station used through its access arm (<see cref="AccessStationObject"/>, #2484).
+/// The room's stations' service (#1554): their setup, the touch that triggers one, the save a station asks the frontend for
+/// and the room-entry save lockout. Each station is a typed room object that holds and advances its own state: a save
+/// station (<see cref="SaveStationObject"/>), or a map, energy or missile station used through its access arm
+/// (<see cref="AccessStationObject"/>, #2484). What a station does in a room-object step joins that step's outcome (#2514).
 /// </summary>
 [RoomLifetime]
 internal sealed class StationObjects
@@ -30,15 +30,10 @@ internal sealed class StationObjects
         _places = places;
         _sounds = sounds;
     }
-    /// <summary>Messages and frontend actions produced in the current room-object update.</summary>
-    private readonly List<StationActivationEvent> _stationActivationEvents = [];
     /// <summary>The map stations the room's population placed, which stay in the room for as long as it is loaded.</summary>
     private readonly List<AccessStationObject> _mapStations = [];
     /// <summary>Blocks repeated save confirmation during the current room entry.</summary>
     internal bool SaveStationLockedOut { get; private set; }
-
-    /// <summary>Frame start: drops the previous pass's activation events.</summary>
-    internal void BeginFrame() => _stationActivationEvents.Clear();
 
     /// <summary>
     /// The map station's side of gameplay resume. Ending the map access sequence does
@@ -50,10 +45,6 @@ internal sealed class StationObjects
         foreach (AccessStationObject station in _mapStations)
             station.ResumeAfterMapUnpause();
     }
-
-    /// <summary>Station messages/actions emitted by the most recent room-object step.</summary>
-    public IReadOnlyList<StationActivationEvent> StationActivationEvents =>
-        _stationActivationEvents;
 
     /// <summary>
     /// Sets the room-entry lockout used when loading directly onto a save
@@ -318,7 +309,4 @@ internal sealed class StationObjects
 
     /// <summary>The game's progression, which the stations read and change.</summary>
     internal SharedGameState System { get; }
-
-    /// <summary>Publishes a station's message or frontend action for this update.</summary>
-    internal void Publish(StationActivationEvent activation) => _stationActivationEvents.Add(activation);
 }

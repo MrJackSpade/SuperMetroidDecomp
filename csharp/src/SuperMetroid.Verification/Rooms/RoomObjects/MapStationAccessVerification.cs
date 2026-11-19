@@ -114,8 +114,7 @@ internal static class MapStationAccessVerification
         int completions = 0;
         for (int update = 0; update < UpdatesPerUse; update++)
         {
-            roomObjects.Step(level);
-            completions += roomObjects.Stations.StationActivationEvents.OfType<StationCompleted>()
+            completions += roomObjects.Step(level).StationActivations.OfType<StationCompleted>()
                 .Count(completed => completed.Message == GameplayMessageId.MapDataAccessCompleted);
         }
         return completions;

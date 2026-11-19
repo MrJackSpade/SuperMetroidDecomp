@@ -97,6 +97,7 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
         // moving until the pause begins.
         RuntimeFrameOutcome outcome = session.GameplayRuntime.StepFrame(controllerInput,
             new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { RunsLowHealthCheck = true } });
+        session.WriteCompletedSave(outcome);
         session.display.PublishGameplay(session.GameplayRuntime);
         // The finished fade moves on from what this update started: the pause preparation,
         // or the next step of a door hit or time-up gameplay wrote on this final fade update.

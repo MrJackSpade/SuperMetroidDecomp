@@ -78,7 +78,7 @@ internal sealed class MotherBrainGlassObject(MotherBrainGlassObjects owner) : Ro
                 ShowStage(place, context, Stage);
                 return;
             case MotherBrainGlassPhase.Holding when Stage.Entry.Burst is { } burst:
-                _owner.SpawnShards(place, burst.First);
+                _owner.ThrowShards(place, burst.First, context.Outcome);
                 _burstSecondShards = burst.Second;
                 Show(place, context, Stage.Following?.Entry.Image ?? MotherBrainGlassStageDefinitions.ShatteredImage,
                     MotherBrainGlassStageDefinitions.BurstFrameDuration, MotherBrainGlassPhase.Bursting);
@@ -88,7 +88,7 @@ internal sealed class MotherBrainGlassObject(MotherBrainGlassObjects owner) : Ro
                 ShowStage(place, context, following);
                 return;
             case MotherBrainGlassPhase.Bursting:
-                _owner.SpawnShards(place, _burstSecondShards);
+                _owner.ThrowShards(place, _burstSecondShards, context.Outcome);
                 if (Stage.Following is { } next)
                     ShowStage(place, context, next);
                 else

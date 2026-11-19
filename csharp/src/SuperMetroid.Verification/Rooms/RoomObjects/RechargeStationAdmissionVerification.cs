@@ -40,8 +40,8 @@ internal static class RechargeStationAdmissionVerification
                 Axis.Horizontal, movingPositive: !right);
             AssertTrue(Touch(), "full recharge station remains solid");
             AssertTrue(!samus.Control.InputLocked, "full resource must be rejected before station input lock");
-            roomObjects.Step(level);
-            AssertTrue(!samus.Control.InputLocked && roomObjects.Stations.StationActivationEvents.Count == 0,
+            RoomObjectStepOutcome rejected = roomObjects.Step(level);
+            AssertTrue(!samus.Control.InputLocked && rejected.StationActivations.Count == 0,
                 "rejected recharge starts no operation and leaves controller enabled");
 
             if (missile) samus.Missiles--; else samus.Health--;
@@ -49,8 +49,7 @@ internal static class RechargeStationAdmissionVerification
             // The first access-list instruction rechecks fullness and explicitly
             // restores movement before deleting an access that no longer needs refill.
             if (missile) samus.Missiles = samus.MaxMissiles; else samus.Health = samus.MaxHealth;
-            roomObjects.Step(level);
-            AssertEqual(0, roomObjects.Stations.StationActivationEvents.Count, "full-resource access-list exit skips recharge");
+            AssertEqual(0, roomObjects.Step(level).StationActivations.Count, "full-resource access-list exit skips recharge");
             AssertTrue(!samus.Control.InputLocked, "full-resource access-list exit immediately restores controller input");
             AssertTrue(Touch() && !samus.Control.InputLocked, "touching completed station cannot relock input at full resource");
             if (missile) samus.Missiles = 1; else samus.Health = 25;

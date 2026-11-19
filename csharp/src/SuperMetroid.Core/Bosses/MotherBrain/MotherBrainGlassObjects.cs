@@ -24,17 +24,10 @@ internal sealed class MotherBrainGlassObjects
         _events = events;
         _sounds = sounds;
     }
-    /// <summary>Four shard spawns emitted by the most recent shatter.</summary>
-    private readonly List<MotherBrainGlassProjectileRequest>
-        _motherBrainGlassProjectileRequests = new();
     /// <summary>The place of the live glass room object, or null after deletion.</summary>
     private RoomObjectPlace? _motherBrainGlassPlace;
     /// <summary>Whether the current room loaded the glass room object before head damage can update it.</summary>
     internal bool MotherBrainGlassWasLoaded { get; private set; }
-
-    /// <summary>Shard actors requested by the most recent room-object pass.</summary>
-    public IReadOnlyList<MotherBrainGlassProjectileRequest> MotherBrainGlassProjectileRequests =>
-        _motherBrainGlassProjectileRequests;
 
     /// <summary>Runs the glass setup against the place room population gave it.</summary>
     internal void SetupMotherBrainGlass(RoomLevelData level, RoomObjectPlace place)
@@ -65,9 +58,6 @@ internal sealed class MotherBrainGlassObjects
             glass.CountHeadShot();
     }
 
-    /// <summary>Clears shard spawn requests before processing the next room frame.</summary>
-    internal void BeginMotherBrainGlassFrame() => _motherBrainGlassProjectileRequests.Clear();
-
     /// <summary>Whether Mother Brain, the area boss, is dead.</summary>
     internal bool IsBossDead() => _bosses.IsDefeated(DefeatedBosses.AreaBoss);
 
@@ -75,15 +65,19 @@ internal sealed class MotherBrainGlassObjects
     internal bool IsGlassDestroyed() => _events.Has(StoryEvent.MotherBrainGlassDestroyed);
 
     /// <summary>
-    /// Queues the shatter sound and spawns a burst of four shard projectiles at the glass's block.
+    /// Queues the shatter sound and throws a burst of shard projectiles from the glass's block into the step's
+    /// <paramref name="outcome"/>.
     /// </summary>
-    internal void SpawnShards(RoomObjectPlace place, IReadOnlyList<MotherBrainGlassShard> shards)
+    internal void ThrowShards(RoomObjectPlace place, IReadOnlyList<MotherBrainGlassShard> shards, RoomObjectStepOutcome outcome)
     {
+        Ensure.NotNull(place);
+        Ensure.NotNull(shards);
+        Ensure.NotNull(outcome);
         _sounds.Queue(RoomSound.MotherBrainGlassShatter, Priority: ShatterSoundPriority);
         // The shards spawn from the glass's block.
         Position16<RoomBlocks> glassBlock = place.Block;
         foreach (MotherBrainGlassShard shard in shards)
-            _motherBrainGlassProjectileRequests.Add(new MotherBrainGlassProjectileRequest(shard, glassBlock));
+            outcome.Threw(new MotherBrainGlassProjectileRequest(shard, glassBlock));
     }
 
     /// <summary>Sets the glass-destroyed event.</summary>

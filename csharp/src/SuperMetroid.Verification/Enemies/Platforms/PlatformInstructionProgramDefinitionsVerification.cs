@@ -185,7 +185,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             ushort right = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | (isKamer ? (ushort)0x9cb6 : (ushort)0x9cca));
             foreach (HorizontalDirection direction in Enum.GetValues<HorizontalDirection>())
                 AssertEqual(NativeEnemyAnimationOracle.SegmentOf(PlatformNativeListAddresses.Entries, direction == HorizontalDirection.Left ? left : right),
-                    PlatformAnimationChoices.SelectAnimation(isKamer ? PlatformKind.SuspensorPlatform : PlatformKind.Tripper, Axis.Horizontal, direction),
+                    PlatformAnimationChoices.SelectAnimation(isKamer ? PlatformKind.SuspensorPlatform : PlatformKind.Tripper, PlatformVerticalArt.Still, direction),
                     $"platform initial program faces {direction}");
         }
     }
@@ -207,7 +207,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             ushort right = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | rightOperand);
             foreach (HorizontalDirection direction in Enum.GetValues<HorizontalDirection>())
                 AssertEqual(NativeEnemyAnimationOracle.SegmentOf(PlatformNativeListAddresses.Entries, direction == HorizontalDirection.Left ? left : right),
-                    PlatformAnimationChoices.SelectAnimation(isKamer ? PlatformKind.SuspensorPlatform : PlatformKind.Tripper, moving ? Axis.Vertical : Axis.Horizontal, direction),
+                    PlatformAnimationChoices.SelectAnimation(isKamer ? PlatformKind.SuspensorPlatform : PlatformKind.Tripper, moving ? PlatformVerticalArt.Moving : PlatformVerticalArt.Still, direction),
                     $"platform animation program uses species, motion and direction {direction}");
         }
     }

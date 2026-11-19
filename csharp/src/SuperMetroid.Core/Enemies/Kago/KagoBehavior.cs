@@ -80,8 +80,9 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             }
         }
 
-        // The eleventh, lethal hit still spawns a bug, after Kago's death animation starts. With no place left for the
-        // bug, none spawns, and the hit still counts, shakes the room and changes the animation.
+        // The lethal hit, the one past the shots its placement names, still spawns a bug, after Kago's death animation
+        // starts. With no place left for the bug, none spawns, and the hit still counts, shakes the room and changes the
+        // animation.
         SpawnKagoBug(place);
     }
 

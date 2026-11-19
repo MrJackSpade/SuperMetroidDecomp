@@ -2093,6 +2093,15 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // and a hardware owner are English.
         Expect("class P { /// <summary>The timer; the cooldown; the countdown; a one-update wait; a one-frame timer; a one-update\n/// delay; a wait of sixteen updates; the calculation; <see cref=\"Run\"/>.</summary>\nvoid Run() { } }");
         Expect(CompatibilityService + "/// <summary>Evidence: the leftward calculator holds its 21-frame cooldown.</summary>\n[CompatibilityService(\"waits\")] class Waits { }");
+        // A random number's oddness told through a pronoun, outside hardware owners and markup, read across a documentation
+        // comment's line breaks (#2536): a random number, sample, roll or draw that chooses by whether it is odd or even.
+        Expect("enum P { /// <summary>Takes a random number that chooses a small or a big hop by whether it is odd.</summary>\nA }",
+            "('random number that chooses a small or a big hop by whether it is odd')");
+        Expect("class P { /// <summary>Takes a sample and turns left by\n/// whether it is even.</summary>\nvoid Run() { } }", "('sample and turns left by whether it is even')");
+        Expect("class P { void Run() { // Two rolls pick the side by whether they are odd.\n } }", "('rolls pick the side by whether they are odd')");
+        // A random number alone, a count's oddness, a sentence that ends before the choice and a hardware owner are English.
+        Expect("class P { /// <summary>Takes a random number. It turns by whether it is odd; whether the count is odd; one hop in\n/// two; <see cref=\"Run\"/>.</summary>\nvoid Run() { } }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the random number picks the hop by whether it is odd.</summary>\n[CompatibilityService(\"hops\")] class Hops { }");
         // The species-owner template on a type that owns no species (#2427), read on the type's own summary; a type that
         // implements or is a species owner's interface owns a species, and an entity's parameter names its owner.
         const string SpeciesOwners = "interface IEnemySpecies { }\ninterface IEnemyEntityFactory { }\n";

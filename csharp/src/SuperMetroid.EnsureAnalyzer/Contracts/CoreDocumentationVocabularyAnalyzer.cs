@@ -188,6 +188,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// calculators, read across a documentation comment's line breaks: a cooldown, timer, countdown, lifetime, charge or
 /// afterglow counted in frames, updates, ticks or steps by number, a delay or wait counted in updates, ticks or steps by
 /// number and a calculator.
+/// #2536 adds, outside hardware owners, a random number's oddness told through a pronoun, read across a documentation
+/// comment's line breaks: a random number, sample, roll or draw that chooses by whether it is odd or even.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -2368,9 +2370,22 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// A random number's oddness told through a pronoun (#2536), outside hardware owners and markup, read across a
+    /// documentation comment's line breaks: a random number, sample, roll or draw, then within its sentence a choice by
+    /// whether it, or they, is odd or even (takes a random number that chooses a small or a big hop by whether it is odd).
+    /// The original chose between two outcomes by a random number's lowest bit; Core says how often each outcome comes:
+    /// one time in two. English stays legal: a random number alone, a count's oddness (whether the count is odd), a sentence
+    /// that ends before the pronoun's choice, and a hardware owner, which describes the encoding it keeps.
+    /// </summary>
+    private static readonly Regex RandomOddnessByPronounProse = new(
+        @"\b(?:random\s+numbers?|samples?|rolls?|draws?)\b[^.;:]{0,120}?\bwhether\s+(?:it|they)\s+(?:is|are|was|were|comes?\s+up|lands?)\s+(?:odd|even)\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A documentation comment's line break with the next line's comment prefix (#2515), which
-    /// <see cref="EnemyAndWorldRoutineBitAndReasoningProse"/>, <see cref="SamusStorageHalfWrapAndFlagProse"/> and
-    /// <see cref="CountedWaitAndCalculatorProse"/> read as a space so a phrase runs on across it.
+    /// <see cref="EnemyAndWorldRoutineBitAndReasoningProse"/>, <see cref="SamusStorageHalfWrapAndFlagProse"/>,
+    /// <see cref="CountedWaitAndCalculatorProse"/> and <see cref="RandomOddnessByPronounProse"/> read as a space so a phrase
+    /// runs on across it.
     /// </summary>
     private static readonly Regex CommentLineBreak = new(@"\s*\r?\n\s*(?:///?|\*+)?\s*", RegexOptions.CultureInvariant);
 
@@ -2939,6 +2954,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : EnemyAndWorldRoutineBitAndReasoningProse.Match(CommentLineBreak.Replace(Markup.Replace(text, " "), " ")) is { Success: true } enemyAndWorld ? enemyAndWorld.Value
             : SamusStorageHalfWrapAndFlagProse.Match(CommentLineBreak.Replace(Markup.Replace(text, " "), " ")) is { Success: true } samusStorage ? samusStorage.Value
             : CountedWaitAndCalculatorProse.Match(CommentLineBreak.Replace(Markup.Replace(text, " "), " ")) is { Success: true } countedWait ? countedWait.Value
+            : RandomOddnessByPronounProse.Match(CommentLineBreak.Replace(Markup.Replace(text, " "), " ")) is { Success: true } randomOddness ? randomOddness.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

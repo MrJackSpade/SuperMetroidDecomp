@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies.Magdollite.Artwork;
+using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
@@ -22,7 +23,7 @@ public static class MagdollitePaletteCycleExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var frames = new PaletteRgb5[MagdolliteShades.GlowFrames][];
+        var frames = new PaletteRgb5[MagdolliteGlowAnimations.Cycle.Count][];
         for (int frame = 0; frame < frames.Length; frame++)
         {
             frames[frame] = new PaletteRgb5[MagdollitePaletteCycle.AnimatedColorCount];

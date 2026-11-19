@@ -30,7 +30,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
     {
         MagdollitePaletteCycle native = stock.Enemies.MagdollitePaletteCycle ??
             throw new InvalidDataException("Installed enemy art has no Magdollite palette cycle.");
-        for (int frame = 0; frame < MagdolliteShades.GlowFrames; frame++)
+        for (int frame = 0; frame < MagdolliteGlowAnimations.Cycle.Count; frame++)
         for (int color = 0; color < MagdollitePaletteCycle.AnimatedColorCount; color++)
         {
             int address = EnemySpeciesSourceDefinitions.Magdollite.CycleColors +
@@ -80,7 +80,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
             }
             else
             {
-                int frame = (tick + 1) / 8 & (MagdolliteShades.GlowFrames - 1);
+                int frame = (tick + 1) / 8 & (MagdolliteGlowAnimations.Cycle.Count - 1);
                 AssertEqual(PictureShading.Shaded(MagdolliteShades.Glow(MagdolliteGlowAnimations.Cycle[frame])), enemies.MagdolliteBehavior.Glow,
                     $"Magdollite glow tick {tick + 1} glow frame");
                 AssertGlowShownOnPartsOnly($"glow tick {tick + 1}");

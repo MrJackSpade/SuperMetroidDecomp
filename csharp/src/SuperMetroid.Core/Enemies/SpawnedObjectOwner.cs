@@ -44,7 +44,7 @@ public readonly record struct SpawnedObjectOwner
     /// <summary>Whether the sheet is the one Mother Brain's tank glass draws from, apart from her other objects.</summary>
     public bool IsMotherBrainTankGlass => Kind == SheetKind.MotherBrainTankGlass;
 
-    /// <summary>Names the owner for diagnostics and installed sheet names.</summary>
+    /// <summary>Names the owner for diagnostics.</summary>
     public override string ToString() => IsMotherBrainTankGlass ? "MotherBrainTankGlass"
         : Spawner is { } spawner ? spawner.ToString() : "Shared";
 }

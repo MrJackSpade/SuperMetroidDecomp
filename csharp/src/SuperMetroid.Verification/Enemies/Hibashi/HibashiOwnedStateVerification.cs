@@ -10,7 +10,8 @@ internal static class HibashiOwnedStateVerification
 {
     /// <summary>
     /// Initializes a graphics part and its collision part and confirms the part selector, the graphics part's spawn height,
-    /// and that a finished eruption rests for parameter one's full word and the update it runs out on (#2439).
+    /// that a new flame waits its first wait and erupts on its first update (#2536), and that a finished eruption rests for
+    /// parameter one's full word and the update it runs out on (#2439).
     /// </summary>
     internal static void VerifyHibashiOwnedState()
     {
@@ -31,6 +32,10 @@ internal static class HibashiOwnedStateVerification
             "parameter two selects the collision part, which keeps only its animation");
         AssertEqual(0x0120, graphicsState.SpawnY, "the graphics part keeps its spawn height");
         AssertEqual(HibashiAction.Inactive, graphicsState.Action, "the graphics part starts inactive");
+        AssertEqual(HibashiDefinitions.FirstWait, graphicsState.InactiveTimer, "a new flame starts at its first wait");
+        enemies.HibashiBehavior.RunHibashiMainAi(graphics,
+            new ClockedEnemyAiFrame(RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0), new FrameCounters(0)));
+        AssertEqual(HibashiAction.Active, graphicsState.Action, "a new flame erupts on its first update");
         graphicsState.Action = HibashiAction.Finished;
         HibashiBehavior.RestHibashi(graphics, graphicsState);
         AssertEqual((HibashiAction.Inactive, ushort.MaxValue + EnemyWaitDefinitions.RunOutUpdate), (graphicsState.Action, graphicsState.InactiveTimer),

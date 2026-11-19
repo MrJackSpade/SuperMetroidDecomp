@@ -19,7 +19,7 @@ public static class PhantoonWaveDefinitions
     public static SignedSixteenSixteen IntroAmplitude { get; } = SignedSixteenSixteen.FromWholePixels(12);
 
     /// <summary>The change in the introduction's wave's amplitude each update: a quarter of a pixel.</summary>
-    public static SignedSixteenSixteen IntroAmplitudeChange { get; } = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(64);
+    public static SignedSixteenSixteen IntroAmplitudeChange { get; } = SignedSixteenSixteen.FromPixelFraction(1, 4);
 
     /// <summary>The change in the final death's wave's amplitude each update: a pixel, from none.</summary>
     public static SignedSixteenSixteen DeathAmplitudeChange { get; } = SignedSixteenSixteen.FromWholePixels(1);

@@ -85,7 +85,7 @@ internal static class CeresRidleyArenaDefinitions
     internal const int BabyFloorY = 192;
 
     /// <summary>The gravity the dropped Baby's fall gains each update.</summary>
-    internal static readonly SignedEightEight BabyFallGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(8);
+    internal static readonly SignedEightEight BabyFallGravity = SignedEightEight.FromPixelFraction(1, 32);
 
     /// <summary>The Baby's anchor in Ridley's arms before the fake retreat.</summary>
     internal static readonly Offset16<RoomPixels> BabyArmsAnchor = new(-16, 22);

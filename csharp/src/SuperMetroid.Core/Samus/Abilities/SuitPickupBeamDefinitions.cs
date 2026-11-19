@@ -26,13 +26,13 @@ public static class SuitPickupBeamDefinitions
     /// <summary>Edges spanning the whole screen line.</summary>
     public static readonly SuitPickupBeamEdges FullScreenEdges = new(0, RightmostColumn);
     /// <summary>Initial widening speed: one pixel per update.</summary>
-    public static readonly SignedEightEight InitialWideningSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256);
+    public static readonly SignedEightEight InitialWideningSpeed = SignedEightEight.FromPixels(1);
     /// <summary>Per-update widening acceleration: three eighths of a pixel per update.</summary>
-    public static readonly SignedEightEight WideningAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(96);
+    public static readonly SignedEightEight WideningAcceleration = SignedEightEight.FromPixelFraction(3, 8);
     /// <summary>Per-update shrinking deceleration: an eighth of a pixel per update.</summary>
-    public static readonly SignedEightEight ShrinkingDeceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32);
+    public static readonly SignedEightEight ShrinkingDeceleration = SignedEightEight.FromPixelFraction(1, 8);
     /// <summary>Minimum shrinking speed: one pixel per update.</summary>
-    public static readonly SignedEightEight MinimumShrinkingSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256);
+    public static readonly SignedEightEight MinimumShrinkingSpeed = SignedEightEight.FromPixels(1);
     /// <summary>The curved widening's initial asymmetric edge pair.</summary>
     public static readonly SuitPickupBeamEdges CurvedWideningStart = new(108, 132);
     /// <summary>The final narrowing's starting edge pair, whose left edge comes round to the screen's left on the first narrowing (<see cref="SuitPickupClosingLineWrap"/>).</summary>

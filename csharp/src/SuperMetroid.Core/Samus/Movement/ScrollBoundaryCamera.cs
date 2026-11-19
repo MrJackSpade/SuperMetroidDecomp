@@ -597,7 +597,7 @@ public sealed class ScrollBoundaryCamera
     }
 
     /// <summary>The whole pixel the distance moved gains.</summary>
-    private static readonly SignedSixteenSixteen OnePixel = SignedSixteenSixteen.FromParts(1, 0);
+    private static readonly SignedSixteenSixteen OnePixel = SignedSixteenSixteen.FromWholePixels(1);
 
     /// <summary>Writes only the horizontal whole camera position, preserving its fraction and vertical axis.</summary>
     private void SetWholeX(int x) => Position = Position.WithX(Position.X.WithWhole(x));

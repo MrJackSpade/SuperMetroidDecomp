@@ -32,7 +32,7 @@ internal static class MorphBallEyeBeamDefinitions
     ];
 
     /// <summary>How much faster the widening beam's half-width grows each update: a quarter step.</summary>
-    internal static RotationAngle WidthGrowthStep { get; } = RotationAngle.FromSteps(0, 64);
+    internal static RotationAngle WidthGrowthStep { get; } = RotationAngle.FromStepFraction(1, 4);
 
     /// <summary>The half-width at which a widening beam is full: four whole steps either side of its centre.</summary>
     internal static RotationAngle FullHalfWidth { get; } = RotationAngle.FromSteps(4);

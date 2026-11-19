@@ -25,5 +25,5 @@ internal static class GrappleSlowScrollDefinitions
     /// Swing angular speed, a quarter of a step an update either way, from which the swing sets the flag; slower
     /// swings clear it.
     /// </summary>
-    public static readonly AngularSpeed FastSwingAngularSpeed = AngularSpeed.FromFractionsOfStep(64);
+    public static readonly AngularSpeed FastSwingAngularSpeed = AngularSpeed.FromStepFraction(1, 4);
 }

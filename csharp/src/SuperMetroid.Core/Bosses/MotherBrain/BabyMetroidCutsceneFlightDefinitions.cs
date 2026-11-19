@@ -16,7 +16,7 @@ internal static class BabyMetroidCutsceneFlightDefinitions
     internal static readonly SignedEightEight BrainDrainAcceleration = SignedEightEight.FromPixels(2);
 
     /// <summary>How fast it pulls itself onto Samus to heal her, each update: a sixteenth of a pixel an update.</summary>
-    internal static readonly SignedEightEight SamusLatchAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(16);
+    internal static readonly SignedEightEight SamusLatchAcceleration = SignedEightEight.FromPixelFraction(1, 16);
 
     /// <summary>The whole room pixel the Baby arrives at and waits on before its dash: X 320, Y 96.</summary>
     internal static readonly Position16<RoomPixels> ArrivalPoint = new(320, 96);
@@ -28,7 +28,7 @@ internal static class BabyMetroidCutsceneFlightDefinitions
     internal static readonly RotationAngle CurveTargetHeading = RotationAngle.FromSteps(176);
 
     /// <summary>How far the curve's heading turns clockwise each update: a step and a half.</summary>
-    internal static readonly RotationAngle CurveTurn = RotationAngle.FromSteps(1, 128);
+    internal static readonly RotationAngle CurveTurn = RotationAngle.FromStepFraction(3, 2);
 
     /// <summary>The heading the Baby's last rush into Mother Brain's face turns to.</summary>
     internal static readonly RotationAngle FaceTargetHeading = RotationAngle.FromSteps(130);
@@ -43,7 +43,7 @@ internal static class BabyMetroidCutsceneFlightDefinitions
     internal static readonly SignedEightEight FaceSpeed = SignedEightEight.FromPixels(14);
 
     /// <summary>How much the curve's speed changes each update toward its target: an eighth of a pixel an update.</summary>
-    internal static readonly SignedEightEight CurveSpeedStep = SignedEightEight.FromSixteenthsOfPixel(2);
+    internal static readonly SignedEightEight CurveSpeedStep = SignedEightEight.FromPixelFraction(1, 8);
 
     /// <summary>
     /// The extra speed a reversal adds while the Baby is off screen on its approaches to Mother Brain, the ceiling, Samus
@@ -55,7 +55,7 @@ internal static class BabyMetroidCutsceneFlightDefinitions
     /// The extra speed a reversal adds while the Baby is off screen as it stares Mother Brain down and flies to the final
     /// charge's start: a sixteenth of a pixel an update.
     /// </summary>
-    internal static readonly SignedEightEight StagingWrongWaySpeed = SignedEightEight.FromSixteenthsOfPixel(1);
+    internal static readonly SignedEightEight StagingWrongWaySpeed = SignedEightEight.FromPixelFraction(1, 16);
 
     /// <summary>
     /// What a gentle approach divides the remaining distance by: sixteen, the pull of its approaches to Mother Brain, the
@@ -97,8 +97,8 @@ internal static class BabyMetroidCutsceneFlightDefinitions
     internal static readonly Offset16<RoomPixels> SamusLatchOffset = new(0, -20);
 
     /// <summary>The drag the Baby's death fall takes from its sideways speed each update.</summary>
-    internal static readonly SignedEightEight DeathFallDrag = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32);
+    internal static readonly SignedEightEight DeathFallDrag = SignedEightEight.FromPixelFraction(1, 8);
 
     /// <summary>The gravity the Baby's death fall adds to its vertical speed each update.</summary>
-    internal static readonly SignedEightEight DeathFallGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(2);
+    internal static readonly SignedEightEight DeathFallGravity = SignedEightEight.FromPixelFraction(1, 128);
 }

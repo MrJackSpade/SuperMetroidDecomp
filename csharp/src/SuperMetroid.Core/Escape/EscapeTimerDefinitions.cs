@@ -43,8 +43,8 @@ internal static class EscapeTimerDefinitions
     internal const int SettledY = 48;
 
     /// <summary>How far right the timer moves each update while moving into place.</summary>
-    internal static readonly SignedEightEight RightwardSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(224);
+    internal static readonly SignedEightEight RightwardSpeed = SignedEightEight.FromPixelFraction(7, 8);
 
     /// <summary>How far up the timer moves each update while moving into place.</summary>
-    internal static readonly SignedEightEight UpwardSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(193);
+    internal static readonly SignedEightEight UpwardSpeed = SignedEightEight.FromPixelFraction(193, 256);
 }

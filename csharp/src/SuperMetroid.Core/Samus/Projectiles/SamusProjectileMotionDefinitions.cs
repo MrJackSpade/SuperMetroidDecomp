@@ -8,7 +8,7 @@ internal static class SamusProjectileMotionDefinitions
     /// <summary>
     /// The horizontal and vertical speed every beam combination launches at: four pixels an update.
     /// </summary>
-    internal static readonly SignedEightEight CardinalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1024);
+    internal static readonly SignedEightEight CardinalSpeed = SignedEightEight.FromPixels(4);
 
     /// <summary>The most rows below its top row a Wave shot's leading edge may reach and still scan terrain: one reaching further scans none.</summary>
     internal const int WaveScanLongestReach = 15;
@@ -23,14 +23,14 @@ internal static class SamusProjectileMotionDefinitions
     /// </summary>
     internal const int MovementWindowFarEdge = 320;
     /// <summary>The diagonal speed every beam combination launches at, each update.</summary>
-    internal static readonly SignedEightEight DiagonalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(683);
+    internal static readonly SignedEightEight DiagonalSpeed = SignedEightEight.FromPixelFraction(683, 256);
     /// <summary>The base speed a fired missile ignites at: one pixel per update.</summary>
     internal static readonly SignedEightEight MissileIgnitionSpeed = SignedEightEight.FromPixels(1);
     /// <summary>
     /// The base speed a reflected missile re-ignites at: one pixel per update plus the 240/256 head start the
     /// reflection leaves.
     /// </summary>
-    internal static readonly SignedEightEight ReflectedMissileIgnitionSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(496);
+    internal static readonly SignedEightEight ReflectedMissileIgnitionSpeed = SignedEightEight.FromPixelFraction(31, 16);
 
     /// <summary>
     /// What each of the ten firing directions adds to a projectile's velocity on every update, in 256ths of a pixel
@@ -42,44 +42,44 @@ internal static class SamusProjectileMotionDefinitions
         new Dictionary<SamusProjectileDirection, SamusDirectionAccelerations>
         {
             [SamusProjectileDirection.UpFacingRight] = new(
-                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, -16),
-                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, -64),
-                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, -256)),
+                new EightEightVector<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixelFraction(-1, 16)),
+                new EightEightVector<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixelFraction(-1, 4)),
+                new EightEightVector<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixels(-1))),
             [SamusProjectileDirection.UpRight] = new(
-                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(16, -16),
-                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(54, -54),
-                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(182, -182)),
+                new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(1, 16), SignedEightEight.FromPixelFraction(-1, 16)),
+                new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(27, 128), SignedEightEight.FromPixelFraction(-27, 128)),
+                new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(91, 128), SignedEightEight.FromPixelFraction(-91, 128))),
             [SamusProjectileDirection.Right] = new(
-                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(16, 0),
-                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(64, 0),
-                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(256, 0)),
+                new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(1, 16), SignedEightEight.Zero),
+                new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(1, 4), SignedEightEight.Zero),
+                new EightEightVector<RoomPixels>(SignedEightEight.FromPixels(1), SignedEightEight.Zero)),
             [SamusProjectileDirection.DownRight] = new(
-                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(16, 16),
-                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(54, 54),
-                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(182, 182)),
+                new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(1, 16), SignedEightEight.FromPixelFraction(1, 16)),
+                new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(27, 128), SignedEightEight.FromPixelFraction(27, 128)),
+                new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(91, 128), SignedEightEight.FromPixelFraction(91, 128))),
             [SamusProjectileDirection.DownFacingRight] = new(
-                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 16),
-                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 64),
-                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 256)),
+                new EightEightVector<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixelFraction(1, 16)),
+                new EightEightVector<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixelFraction(1, 4)),
+                new EightEightVector<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixels(1))),
             [SamusProjectileDirection.DownFacingLeft] = new(
-                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 16),
-                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 64),
-                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 256)),
+                new EightEightVector<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixelFraction(1, 16)),
+                new EightEightVector<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixelFraction(1, 4)),
+                new EightEightVector<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixels(1))),
             [SamusProjectileDirection.DownLeft] = new(
-                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-16, 16),
-                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-54, 54),
-                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-182, 182)),
+                new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-1, 16), SignedEightEight.FromPixelFraction(1, 16)),
+                new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-27, 128), SignedEightEight.FromPixelFraction(27, 128)),
+                new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-91, 128), SignedEightEight.FromPixelFraction(91, 128))),
             [SamusProjectileDirection.Left] = new(
-                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-16, 0),
-                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-64, 0),
-                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-256, 0)),
+                new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-1, 16), SignedEightEight.Zero),
+                new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-1, 4), SignedEightEight.Zero),
+                new EightEightVector<RoomPixels>(SignedEightEight.FromPixels(-1), SignedEightEight.Zero)),
             [SamusProjectileDirection.UpLeft] = new(
-                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-16, -16),
-                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-54, -54),
-                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-182, -182)),
+                new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-1, 16), SignedEightEight.FromPixelFraction(-1, 16)),
+                new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-27, 128), SignedEightEight.FromPixelFraction(-27, 128)),
+                new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-91, 128), SignedEightEight.FromPixelFraction(-91, 128))),
             [SamusProjectileDirection.UpFacingLeft] = new(
-                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, -16),
-                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, -64),
-                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, -256)),
+                new EightEightVector<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixelFraction(-1, 16)),
+                new EightEightVector<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixelFraction(-1, 4)),
+                new EightEightVector<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixels(-1))),
         }.ToFrozenDictionary();
 }

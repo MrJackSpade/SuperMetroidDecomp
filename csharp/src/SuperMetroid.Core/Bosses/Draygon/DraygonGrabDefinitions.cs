@@ -19,10 +19,10 @@ internal static class DraygonGrabDefinitions
     internal static readonly RotationAngle InitialSpiralAngleDelta = RotationAngle.FromSteps(8);
 
     /// <summary>How much the spiral's turn each frame slows every frame: the finest slowing an angle keeps.</summary>
-    internal static readonly RotationAngle SpiralTurnSlowing = RotationAngle.FromSteps(0, 1);
+    internal static readonly RotationAngle SpiralTurnSlowing = RotationAngle.FromStepFraction(1, 256);
 
     /// <summary>The carry spiral's per-frame radius growth: one eighth of a pixel.</summary>
-    internal static readonly SignedSixteenSixteen SpiralRadiusGrowth = SignedSixteenSixteen.FromSixteenthsOfPixel(2);
+    internal static readonly SignedSixteenSixteen SpiralRadiusGrowth = SignedSixteenSixteen.FromPixelFraction(1, 8);
 
     /// <summary>Largest radius reached by the expanding carry spiral.</summary>
     internal const int MaximumSpiralRadius = 160;
@@ -31,7 +31,7 @@ internal static class DraygonGrabDefinitions
     internal const int MinimumSpiralCenterY = 64;
 
     /// <summary>The spiral center's per-frame lift, a quarter pixel upward.</summary>
-    internal static readonly SignedSixteenSixteen SpiralCenterLift = -SignedSixteenSixteen.FromSixteenthsOfPixel(4);
+    internal static readonly SignedSixteenSixteen SpiralCenterLift = -SignedSixteenSixteen.FromPixelFraction(1, 4);
 
     /// <summary>
     /// The updates Draygon's tail whip pauses his spiral for; his tail starts its whip on the pause's first update.

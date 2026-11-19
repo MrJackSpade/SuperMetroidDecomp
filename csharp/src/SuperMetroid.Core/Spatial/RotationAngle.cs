@@ -56,6 +56,17 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>
         new(checked((ushort)(Ensure.BetweenInclusive(0, StepsPerTurn - 1, steps) * FractionsPerStep +
             Ensure.BetweenInclusive(0, FractionsPerStep - 1, fraction))));
 
+    /// <summary>
+    /// The angle <paramref name="numerator"/> <paramref name="denominator"/>ths of a step round from zero (#2555), the
+    /// denominator a power of two from 1 through 256 so the fraction is kept exactly: an eighth of a step, a step and a half.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The denominator is no power of two from 1 through 256, or the angle lies outside one turn.
+    /// </exception>
+    public static RotationAngle FromStepFraction(int numerator, int denominator) =>
+        new(checked((ushort)Ensure.BetweenInclusive(0, StepsPerTurn * FractionsPerStep - 1,
+            PowerOfTwoFraction.InFinestUnits(numerator, denominator, FractionsPerStep))));
+
     /// <summary>The angle halfway through whole step <paramref name="step"/>: the step with half a step's fraction.</summary>
     public static RotationAngle MiddleOfStep(TrigonometryAngle step) => FromSteps(step.RawValue, FractionsPerStep / 2);
 

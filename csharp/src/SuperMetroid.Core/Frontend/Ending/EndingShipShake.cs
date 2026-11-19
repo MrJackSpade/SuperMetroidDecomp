@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 public static class EndingShipShake
 {
     /// <summary>Half a pixel to the right.</summary>
-    private static readonly SignedSixteenSixteen HalfRight = SignedSixteenSixteen.FromSixteenthsOfPixel(8);
+    private static readonly SignedSixteenSixteen HalfRight = SignedSixteenSixteen.FromPixelFraction(1, 2);
 
     /// <summary>Half a pixel to the left.</summary>
     private static readonly SignedSixteenSixteen HalfLeft = -HalfRight;

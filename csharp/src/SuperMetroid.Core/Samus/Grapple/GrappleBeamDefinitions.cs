@@ -43,17 +43,17 @@ public static class GrappleBeamDefinitions
         /// </summary>
         public const int LongestRopeLength = FiringCancelLength - 1 + FiringExtension;
         /// <summary>Per-update downward angular acceleration: 24/256 of a step.</summary>
-        public static readonly AngularSpeed GravityMagnitude = AngularSpeed.FromFractionsOfStep(24);
+        public static readonly AngularSpeed GravityMagnitude = AngularSpeed.FromStepFraction(3, 32);
         /// <summary>Per-update angular acceleration contributed by directional input: 12/256 of a step.</summary>
-        public static readonly AngularSpeed DirectionInputMagnitude = AngularSpeed.FromFractionsOfStep(12);
+        public static readonly AngularSpeed DirectionInputMagnitude = AngularSpeed.FromStepFraction(3, 64);
         /// <summary>Correction applied when velocity opposes the current swing direction: 5/256 of a step.</summary>
-        public static readonly AngularSpeed VelocityCorrectionMagnitude = AngularSpeed.FromFractionsOfStep(5);
+        public static readonly AngularSpeed VelocityCorrectionMagnitude = AngularSpeed.FromStepFraction(5, 256);
         /// <summary>The fastest the swing turns either way: four and a half steps an update.</summary>
-        public static readonly AngularSpeed MaximumAngularVelocity = AngularSpeed.FromFractionsOfStep(1152);
+        public static readonly AngularSpeed MaximumAngularVelocity = AngularSpeed.FromStepFraction(9, 2);
         /// <summary>Angular impulse applied by Jump during a swing: three steps an update.</summary>
         public static readonly AngularSpeed JumpImpulseMagnitude = AngularSpeed.FromSteps(3);
         /// <summary>How much of the Jump impulse each sweep that meets nothing takes away, toward zero: 6/256 of a step.</summary>
-        public static readonly AngularSpeed JumpImpulseDecay = AngularSpeed.FromFractionsOfStep(6);
+        public static readonly AngularSpeed JumpImpulseDecay = AngularSpeed.FromStepFraction(3, 128);
         /// <summary>The angular velocity a motionless pendulum hanging straight down is kicked to by a held direction: a step an update.</summary>
         public static readonly AngularSpeed MotionlessPumpKick = AngularSpeed.FromSteps(1);
         /// <summary>A pendulum hanging straight down slower than this, a step an update, stops.</summary>

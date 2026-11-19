@@ -7,13 +7,13 @@ public static class AtmosphereDriftDefinitions
     public static SignedEightEight RainFallSpeed { get; } = SignedEightEight.FromPixels(6);
 
     /// <summary>Spores rise a quarter pixel a frame.</summary>
-    public static SignedEightEight SporesRiseSpeed { get; } = SignedEightEight.FromSixteenthsOfPixel(4);
+    public static SignedEightEight SporesRiseSpeed { get; } = SignedEightEight.FromPixelFraction(1, 4);
 
     /// <summary>Fog rises a quarter pixel a frame.</summary>
-    public static SignedEightEight FogRiseSpeed { get; } = SignedEightEight.FromSixteenthsOfPixel(4);
+    public static SignedEightEight FogRiseSpeed { get; } = SignedEightEight.FromPixelFraction(1, 4);
 
     /// <summary>Fog drifts right five sixteenths of a pixel a frame.</summary>
-    public static SignedEightEight FogDriftSpeed { get; } = SignedEightEight.FromSixteenthsOfPixel(5);
+    public static SignedEightEight FogDriftSpeed { get; } = SignedEightEight.FromPixelFraction(5, 16);
 
     /// <summary>
     /// The wind a rainy room's load chooses from the shared random number (#2510): four rolls of the number take a strong

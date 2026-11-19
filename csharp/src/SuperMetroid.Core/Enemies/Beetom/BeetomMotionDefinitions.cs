@@ -29,10 +29,10 @@ internal static class BeetomMotionDefinitions
     internal const int LedgeProbeDrop = 1;
 
     /// <summary>How fast a Beetom crawls: a quarter pixel an update.</summary>
-    internal static SignedSixteenSixteen CrawlSpeed { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(4);
+    internal static SignedSixteenSixteen CrawlSpeed { get; } = SignedSixteenSixteen.FromPixelFraction(1, 4);
 
     /// <summary>How fast a hopping Beetom moves sideways: a quarter pixel an update.</summary>
-    internal static SignedSixteenSixteen HopSpeed { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(4);
+    internal static SignedSixteenSixteen HopSpeed { get; } = SignedSixteenSixteen.FromPixelFraction(1, 4);
 
     /// <summary>How fast a lunging Beetom moves sideways: three pixels an update.</summary>
     internal static SignedSixteenSixteen LungeSpeed { get; } = SignedSixteenSixteen.FromWholePixels(3);

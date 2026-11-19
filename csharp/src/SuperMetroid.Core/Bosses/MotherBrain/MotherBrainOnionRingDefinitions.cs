@@ -9,7 +9,7 @@ internal static class MotherBrainOnionRingDefinitions
     internal const int MouthWaitUpdates = 9;
 
     /// <summary>The speed an onion ring flies at along its aim: four and five sixteenths pixels an update.</summary>
-    internal static readonly SignedEightEight Speed = SignedEightEight.FromParts(4, 80);
+    internal static readonly SignedEightEight Speed = SignedEightEight.FromPixelFraction(69, 16);
 
     /// <summary>The height above which a flying onion ring bursts against the ceiling.</summary>
     internal const int ArenaTopY = 32;

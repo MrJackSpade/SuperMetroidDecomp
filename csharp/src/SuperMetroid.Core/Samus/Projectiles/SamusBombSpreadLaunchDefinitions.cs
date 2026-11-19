@@ -10,7 +10,7 @@ internal static class SamusBombSpreadLaunchDefinitions
 
     /// <summary>The bomb left of centre: a 110-frame fuse, half a pixel per frame to the left and a rise of one pixel per frame.</summary>
     internal static BombSpreadLaunchDefinition NearLeft { get; } = new(110,
-        SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(-128),
+        SignedSixteenSixteen.FromPixelFraction(-1, 2),
         SignedSixteenSixteen.FromWholePixels(-1));
 
     /// <summary>
@@ -18,11 +18,11 @@ internal static class SamusBombSpreadLaunchDefinitions
     /// </summary>
     internal static BombSpreadLaunchDefinition Centre { get; } = new(100,
         SignedSixteenSixteen.Zero,
-        SignedSixteenSixteen.FromSixteenthsOfPixel(-24));
+        SignedSixteenSixteen.FromPixelFraction(-3, 2));
 
     /// <summary>The bomb right of centre: a 110-frame fuse, half a pixel per frame to the right and a rise of one pixel per frame.</summary>
     internal static BombSpreadLaunchDefinition NearRight { get; } = new(110,
-        SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(128),
+        SignedSixteenSixteen.FromPixelFraction(1, 2),
         SignedSixteenSixteen.FromWholePixels(-1));
 
     /// <summary>The rightmost bomb: the longest fuse, 120 frames, one pixel per frame to the right and no rise.</summary>

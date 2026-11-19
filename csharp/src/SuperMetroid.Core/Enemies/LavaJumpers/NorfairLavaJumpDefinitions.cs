@@ -9,17 +9,17 @@ internal static class NorfairLavaJumpDefinitions
     /// </summary>
     internal static readonly WeightedRandomChoice<SignedEightEight> Launch = WeightedRandomChoice<SignedEightEight>.InTurn(
         new RandomSampleField(9, 2),
-        -SignedEightEight.FromParts(8, 1),
-        -SignedEightEight.FromParts(7, 2),
-        -SignedEightEight.FromParts(6, 65),
-        -SignedEightEight.FromParts(5, 1));
+        -SignedEightEight.FromPixelFraction(2049, 256),
+        -SignedEightEight.FromPixelFraction(897, 128),
+        -SignedEightEight.FromPixelFraction(1601, 256),
+        -SignedEightEight.FromPixelFraction(1281, 256));
 
     /// <summary>How much the jumper's vertical velocity grows downward after each moving update (#2339).</summary>
-    internal static SignedEightEight Gravity { get; } = SignedEightEight.FromParts(0, 56);
+    internal static SignedEightEight Gravity { get; } = SignedEightEight.FromPixelFraction(7, 32);
 
     /// <summary>
     /// The rising velocity, four pixels an update upward, at and above which a still-rising jumper switches to its visible
     /// jump animation (#2339).
     /// </summary>
-    internal static SignedEightEight AnimationSwitchVelocity { get; } = -SignedEightEight.FromParts(4, 0);
+    internal static SignedEightEight AnimationSwitchVelocity { get; } = -SignedEightEight.FromPixels(4);
 }

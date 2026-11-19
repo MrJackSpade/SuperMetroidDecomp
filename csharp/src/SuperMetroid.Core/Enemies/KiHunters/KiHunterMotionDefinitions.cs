@@ -10,7 +10,7 @@ public static class KiHunterMotionDefinitions
     public const int SwoopLeastDepth = 32;
 
     /// <summary>Seven eighths of a pixel per frame squared, added by both falling and hopping.</summary>
-    public static SignedSixteenSixteen Gravity { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(14);
+    public static SignedSixteenSixteen Gravity { get; } = SignedSixteenSixteen.FromPixelFraction(7, 8);
     /// <summary>The way a flying Ki-Hunter first flies (#2338).</summary>
     public const HorizontalDirection PatrolStartHeading = HorizontalDirection.Left;
 
@@ -69,13 +69,13 @@ public static class KiHunterMotionDefinitions
     public const int SpitRange = 96;
 
     /// <summary>How fast spat acid flies sideways, three pixels an update, toward the way it was spat (#2339).</summary>
-    public static SignedEightEight AcidHorizontalSpeed { get; } = SignedEightEight.FromParts(3, 0);
+    public static SignedEightEight AcidHorizontalSpeed { get; } = SignedEightEight.FromPixels(3);
 
     /// <summary>How much faster falling acid falls each update: a sixteenth of a pixel (#2339).</summary>
-    public static SignedEightEight AcidGravity { get; } = SignedEightEight.FromParts(0, 16);
+    public static SignedEightEight AcidGravity { get; } = SignedEightEight.FromPixelFraction(1, 16);
 
     /// <summary>The fastest acid falls: two pixels an update (#2339).</summary>
-    public static SignedEightEight AcidFastestFall { get; } = SignedEightEight.FromParts(2, 0);
+    public static SignedEightEight AcidFastestFall { get; } = SignedEightEight.FromPixels(2);
 
     /// <summary>
     /// The place along the speed curve, mark one, a slowing detached wing lands on when its next step would take it before
@@ -150,5 +150,5 @@ public static class KiHunterMotionDefinitions
     /// half a pass, at which the coarse speeds passed sum to 32 pixels.
     /// </summary>
     internal static QuadraticCurveClimb DetachedWingClimb { get; } =
-        new(SignedSixteenSixteen.FromWholePixels(32), QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(384));
+        new(SignedSixteenSixteen.FromWholePixels(32), QuadraticSpeedCurvePlace.FromMarkFraction(3, 2));
 }

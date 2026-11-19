@@ -32,10 +32,10 @@ internal static class PolypLaunchDefinitions
     /// </summary>
     internal static readonly WeightedRandomChoice<SignedEightEight> XVelocity = WeightedRandomChoice<SignedEightEight>.InTurn(
         LaunchSelector,
-        SignedEightEight.FromParts(0, 96), SignedEightEight.FromParts(0, 112), SignedEightEight.FromParts(0, 128), SignedEightEight.FromParts(0, 144),
-        SignedEightEight.FromParts(0, 160), SignedEightEight.FromParts(0, 176), SignedEightEight.FromParts(0, 192), SignedEightEight.FromParts(0, 208),
-        -SignedEightEight.FromParts(0, 96), -SignedEightEight.FromParts(0, 112), -SignedEightEight.FromParts(0, 128), -SignedEightEight.FromParts(0, 144),
-        -SignedEightEight.FromParts(0, 160), -SignedEightEight.FromParts(0, 176), -SignedEightEight.FromParts(0, 192), -SignedEightEight.FromParts(0, 208));
+        SignedEightEight.FromPixelFraction(3, 8), SignedEightEight.FromPixelFraction(7, 16), SignedEightEight.FromPixelFraction(1, 2), SignedEightEight.FromPixelFraction(9, 16),
+        SignedEightEight.FromPixelFraction(5, 8), SignedEightEight.FromPixelFraction(11, 16), SignedEightEight.FromPixelFraction(3, 4), SignedEightEight.FromPixelFraction(13, 16),
+        -SignedEightEight.FromPixelFraction(3, 8), -SignedEightEight.FromPixelFraction(7, 16), -SignedEightEight.FromPixelFraction(1, 2), -SignedEightEight.FromPixelFraction(9, 16),
+        -SignedEightEight.FromPixelFraction(5, 8), -SignedEightEight.FromPixelFraction(11, 16), -SignedEightEight.FromPixelFraction(3, 4), -SignedEightEight.FromPixelFraction(13, 16));
 
     /// <summary>How close on each axis Samus comes, in pixels, for a Polyp to launch a rock.</summary>
     internal const int LaunchReach = 64;

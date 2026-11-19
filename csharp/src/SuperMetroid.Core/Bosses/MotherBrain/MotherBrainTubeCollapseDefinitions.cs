@@ -52,7 +52,7 @@ internal static class MotherBrainTubeCollapseDefinitions
     ];
 
     /// <summary>The gravity a falling tube gains each update.</summary>
-    internal static readonly SignedEightEight TubeGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(6);
+    internal static readonly SignedEightEight TubeGravity = SignedEightEight.FromPixelFraction(3, 128);
 
     /// <summary>The floor a falling ceiling tube smokes and is removed at.</summary>
     internal const int CeilingTubeFloorY = 208;

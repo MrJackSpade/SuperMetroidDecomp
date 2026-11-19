@@ -20,10 +20,10 @@ internal static class GunshipMotionDefinitions
     internal const int SlowDescentY = 768;
 
     /// <summary>The descending ship's speed above <see cref="SlowDescentY"/>: four and a half pixels an update.</summary>
-    internal static readonly SignedSixteenSixteen FastDescentSpeed = SignedSixteenSixteen.FromSixteenthsOfPixel(72);
+    internal static readonly SignedSixteenSixteen FastDescentSpeed = SignedSixteenSixteen.FromPixelFraction(9, 2);
 
     /// <summary>The descending ship's speed below <see cref="SlowDescentY"/>: two and a half pixels an update.</summary>
-    internal static readonly SignedSixteenSixteen SlowDescentSpeed = SignedSixteenSixteen.FromSixteenthsOfPixel(40);
+    internal static readonly SignedSixteenSixteen SlowDescentSpeed = SignedSixteenSixteen.FromPixelFraction(5, 2);
 
     /// <summary>The landed top hull's Y, where the descent clamps.</summary>
     internal const int LandedTopY = 1119;
@@ -59,7 +59,7 @@ internal static class GunshipMotionDefinitions
     internal static readonly SignedEightEight EscapeStartVelocity = SignedEightEight.FromPixels(2);
 
     /// <summary>The escaping ship's acceleration each update: a quarter pixel an update.</summary>
-    internal static readonly SignedEightEight EscapeAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(64);
+    internal static readonly SignedEightEight EscapeAcceleration = SignedEightEight.FromPixelFraction(1, 4);
 
     /// <summary>The whole pixels an update the escaping speed's whole part reaches when the cap applies: ten.</summary>
     internal const int EscapeVelocityCapTriggerPixels = 10;

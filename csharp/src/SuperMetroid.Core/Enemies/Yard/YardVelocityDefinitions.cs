@@ -6,7 +6,7 @@ public static class YardVelocityDefinitions
     /// <summary>
     /// The speed a kicked Yard crawls at after it lands, two and a quarter pixels per update.
     /// </summary>
-    internal static readonly SignedEightEight AggressiveCrawlSpeed = SignedEightEight.FromParts(2, 64);
+    internal static readonly SignedEightEight AggressiveCrawlSpeed = SignedEightEight.FromPixelFraction(9, 4);
 
     /// <summary>The heading of each direction's crawl.</summary>
     internal static readonly Dictionary<YardDirection, YardCrawlHeading> Headings = new()

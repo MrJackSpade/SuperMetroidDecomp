@@ -53,14 +53,14 @@ internal static class PowampMotionDefinitions
     internal static readonly IReadOnlyDictionary<CompassDirection, EightEightVector<RoomPixels>> SpikeAccelerations =
         new Dictionary<CompassDirection, EightEightVector<RoomPixels>>
         {
-            [CompassDirection.Up] = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, -32),
-            [CompassDirection.UpRight] = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(32, -32),
-            [CompassDirection.Right] = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(32, 0),
-            [CompassDirection.DownRight] = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(32, 32),
-            [CompassDirection.Down] = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 32),
-            [CompassDirection.DownLeft] = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-32, 32),
-            [CompassDirection.Left] = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-32, 0),
-            [CompassDirection.UpLeft] = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-32, -32),
+            [CompassDirection.Up] = new EightEightVector<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixelFraction(-1, 8)),
+            [CompassDirection.UpRight] = new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(1, 8), SignedEightEight.FromPixelFraction(-1, 8)),
+            [CompassDirection.Right] = new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(1, 8), SignedEightEight.Zero),
+            [CompassDirection.DownRight] = new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(1, 8), SignedEightEight.FromPixelFraction(1, 8)),
+            [CompassDirection.Down] = new EightEightVector<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixelFraction(1, 8)),
+            [CompassDirection.DownLeft] = new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-1, 8), SignedEightEight.FromPixelFraction(1, 8)),
+            [CompassDirection.Left] = new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-1, 8), SignedEightEight.Zero),
+            [CompassDirection.UpLeft] = new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-1, 8), SignedEightEight.FromPixelFraction(-1, 8)),
         };
 
     /// <summary>
@@ -92,8 +92,8 @@ internal static class PowampMotionDefinitions
     internal const int FirstWiggleStepWait = 1;
 
     /// <summary>The speed the body rises at once its balloon has inflated: half a pixel an update, upward.</summary>
-    internal static SignedSixteenSixteen RiseVelocity { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(-8);
+    internal static SignedSixteenSixteen RiseVelocity { get; } = SignedSixteenSixteen.FromPixelFraction(-1, 2);
 
     /// <summary>The speed the body sinks back to its spawn height at once its balloon has deflated: a pixel an update.</summary>
-    internal static SignedSixteenSixteen SinkVelocity { get; } = SignedSixteenSixteen.FromParts(1, 0);
+    internal static SignedSixteenSixteen SinkVelocity { get; } = SignedSixteenSixteen.FromWholePixels(1);
 }

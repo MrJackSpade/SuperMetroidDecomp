@@ -37,13 +37,8 @@ public readonly record struct SignedSixteenSixteen : IComparable<SignedSixteenSi
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The denominator is no power of two from 1 through 65536.</exception>
     /// <exception cref="OverflowException">The displacement lies outside the type's range.</exception>
-    public static SignedSixteenSixteen FromPixelFraction(int numerator, int denominator)
-    {
-        int fractionsEach = FractionsPerPixel / Ensure.BetweenInclusive(1, FractionsPerPixel, denominator);
-        if (fractionsEach * denominator != FractionsPerPixel)
-            throw new ArgumentOutOfRangeException(nameof(denominator), denominator, "The denominator must be a power of two from 1 through 65536.");
-        return new(checked(numerator * fractionsEach));
-    }
+    public static SignedSixteenSixteen FromPixelFraction(int numerator, int denominator) =>
+        new(PowerOfTwoFraction.InFinestUnits(numerator, denominator, FractionsPerPixel));
 
     /// <summary>The fractions of a pixel the displacement counts: 65536 to the pixel.</summary>
     private const int FractionsPerPixel = 65536;

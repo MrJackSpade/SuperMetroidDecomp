@@ -47,7 +47,7 @@ internal static class KraidRandomDefinitions
     internal static readonly RandomSampleField CeilingRockFallSpeedSpread = new(0, 6);
 
     /// <summary>The slowest a ceiling rock falls in Kraid's room: a quarter pixel an update.</summary>
-    internal static readonly SignedEightEight CeilingRockSlowestFall = SignedEightEight.FromSixteenthsOfPixel(4);
+    internal static readonly SignedEightEight CeilingRockSlowestFall = SignedEightEight.FromPixelFraction(1, 4);
 
     /// <summary>
     /// Kraid's thinking delay in steps of <see cref="KraidArenaDefinitions.ThinkingDelayStepUpdates"/>, chosen from eight rolls (#2510): a roll of one through seven takes that

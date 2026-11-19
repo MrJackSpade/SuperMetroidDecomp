@@ -376,13 +376,13 @@ internal sealed class IntroBabyDiscoveryState
     }
 
     /// <summary>The hatched baby's fastest vertical speed either way.</summary>
-    private static readonly SignedEightEight VerticalSpeedLimit = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(544);
+    private static readonly SignedEightEight VerticalSpeedLimit = SignedEightEight.FromPixelFraction(17, 8);
 
     /// <summary>The dancing baby's fastest horizontal speed either way.</summary>
-    private static readonly SignedEightEight HorizontalSpeedLimit = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(640);
+    private static readonly SignedEightEight HorizontalSpeedLimit = SignedEightEight.FromPixelFraction(5, 2);
 
     /// <summary>How much the baby's speed changes toward its target on each update.</summary>
-    private static readonly SignedEightEight BabyAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32);
+    private static readonly SignedEightEight BabyAcceleration = SignedEightEight.FromPixelFraction(1, 8);
 
     /// <summary>
     /// Adjusts a velocity toward a target by one acceleration step without passing <paramref name="limit"/> either

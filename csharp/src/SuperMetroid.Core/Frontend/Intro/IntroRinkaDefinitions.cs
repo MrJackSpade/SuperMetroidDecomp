@@ -23,15 +23,15 @@ internal static class IntroRinkaDefinitions
     /// <summary>The first pair the spawner launches, in launch order: the Rinka that strikes Samus, then one that flies past her.</summary>
     internal static IReadOnlyList<IntroRinkaLaunch> StrikingPair { get; } =
     [
-        new(new(112, 72), SignedSixteenSixteen.FromSixteenthsOfPixel(8), IntroRinkaFlight.StrikesSamus),
-        new(new(192, 56), SignedSixteenSixteen.FromSixteenthsOfPixel(-8), IntroRinkaFlight.MissesSamus),
+        new(new(112, 72), SignedSixteenSixteen.FromPixelFraction(1, 2), IntroRinkaFlight.StrikesSamus),
+        new(new(192, 56), SignedSixteenSixteen.FromPixelFraction(-1, 2), IntroRinkaFlight.MissesSamus),
     ];
 
     /// <summary>The second pair the spawner launches, in launch order: both fly past Samus.</summary>
     internal static IReadOnlyList<IntroRinkaLaunch> MissingPair { get; } =
     [
-        new(new(128, 48), SignedSixteenSixteen.FromSixteenthsOfPixel(8), IntroRinkaFlight.MissesSamus),
-        new(new(232, 80), SignedSixteenSixteen.FromSixteenthsOfPixel(-8), IntroRinkaFlight.MissesSamus),
+        new(new(128, 48), SignedSixteenSixteen.FromPixelFraction(1, 2), IntroRinkaFlight.MissesSamus),
+        new(new(232, 80), SignedSixteenSixteen.FromPixelFraction(-1, 2), IntroRinkaFlight.MissesSamus),
     ];
 
     /// <summary>
@@ -53,5 +53,5 @@ internal static class IntroRinkaDefinitions
     public const int MissBottomY = 208;
 
     /// <summary>How far every Rinka moves down each update: half a pixel.</summary>
-    public static SignedSixteenSixteen DownwardDrift { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(8);
+    public static SignedSixteenSixteen DownwardDrift { get; } = SignedSixteenSixteen.FromPixelFraction(1, 2);
 }

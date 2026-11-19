@@ -27,6 +27,19 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>
     public static SignedEightEight FromSixteenthsOfPixel(int sixteenths) =>
         FromTwoHundredFiftySixthsOfPixel(Ensure.BetweenInclusive(-2048, 2047, sixteenths) * 16);
 
+    /// <summary>
+    /// A speed of <paramref name="numerator"/> <paramref name="denominator"/>ths of a pixel an update (#2555), the denominator
+    /// a power of two from 1 through 256 so the fraction is kept exactly: three eighths of a pixel, a pixel and a half.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The denominator is no power of two from 1 through 256, or the speed lies outside the type's range.
+    /// </exception>
+    public static SignedEightEight FromPixelFraction(int numerator, int denominator) =>
+        FromTwoHundredFiftySixthsOfPixel(PowerOfTwoFraction.InFinestUnits(numerator, denominator, FractionsPerPixel));
+
+    /// <summary>The fractions of a pixel the speed counts: 256 to the pixel.</summary>
+    private const int FractionsPerPixel = 256;
+
     /// <summary>A speed of <paramref name="pixels"/> whole pixels an update, -128 through 127, with no fraction.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The speed lies outside the type's range.</exception>
     public static SignedEightEight FromPixels(int pixels) => FromParts(pixels, 0);

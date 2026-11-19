@@ -86,7 +86,7 @@ public static class WreckedShipGhostAppearanceDefinitions
     internal static SignedSixteenSixteen BobStartSpeed { get; } = SignedSixteenSixteen.FromWholePixels(1);
 
     /// <summary>The bobbing ghost's vertical acceleration, three thirty-seconds of a pixel an update.</summary>
-    internal static SignedSixteenSixteen BobAcceleration { get; } = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(24);
+    internal static SignedSixteenSixteen BobAcceleration { get; } = SignedSixteenSixteen.FromPixelFraction(3, 32);
 
     /// <summary>How far Samus may move on each axis, in pixels, and still count as nearly still.</summary>
     internal static Offset16<RoomPixels> StillMargin { get; } = new(1, 1);

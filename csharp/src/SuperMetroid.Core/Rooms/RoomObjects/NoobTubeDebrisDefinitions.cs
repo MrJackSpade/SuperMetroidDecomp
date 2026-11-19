@@ -11,7 +11,7 @@ public static class NoobTubeDebrisDefinitions
     private static readonly Offset16<RoomPixels> CrackOffset = new(96, 48);
 
     /// <summary>The bubbles' initial vertical speed: five pixels upward per update.</summary>
-    public static SignedEightEight BubbleInitialYVelocity { get; } = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1280);
+    public static SignedEightEight BubbleInitialYVelocity { get; } = SignedEightEight.FromPixels(-5);
 
     /// <summary>The tube's crack, which spreads across the glass where the tube cracks.</summary>
     public static NoobTubePiece Crack { get; } =
@@ -22,16 +22,16 @@ public static class NoobTubeDebrisDefinitions
     /// </summary>
     public static ImmutableArray<NoobTubePiece> Shards { get; } =
     [
-        Shard(new(-56, 8), EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-384, 320), S.DownOutward),
-        Shard(new(-64, -12), EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-384, -256), S.UpOutward),
-        Shard(new(-20, -26), EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-160, -416), S.UpSteep),
-        Shard(new(-40, -24), EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-288, -288), S.UpDiagonalInner),
-        Shard(new(-64, -32), EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-288, -288), S.UpDiagonalOuter),
-        Shard(new(-48, 28), EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-320, 448), S.DownDiagonal),
-        Shard(new(-24, 16), EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-96, 576), S.DownOuter),
-        Shard(new(-40, -8), EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-352, -96), S.Outward),
-        Shard(new(0, -24), EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, -288), S.Up),
-        Shard(new(-8, 16), EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-64, 384), S.DownInner),
+        Shard(new(-56, 8), new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-3, 2), SignedEightEight.FromPixelFraction(5, 4)), S.DownOutward),
+        Shard(new(-64, -12), new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-3, 2), SignedEightEight.FromPixels(-1)), S.UpOutward),
+        Shard(new(-20, -26), new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-5, 8), SignedEightEight.FromPixelFraction(-13, 8)), S.UpSteep),
+        Shard(new(-40, -24), new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-9, 8), SignedEightEight.FromPixelFraction(-9, 8)), S.UpDiagonalInner),
+        Shard(new(-64, -32), new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-9, 8), SignedEightEight.FromPixelFraction(-9, 8)), S.UpDiagonalOuter),
+        Shard(new(-48, 28), new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-5, 4), SignedEightEight.FromPixelFraction(7, 4)), S.DownDiagonal),
+        Shard(new(-24, 16), new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-3, 8), SignedEightEight.FromPixelFraction(9, 4)), S.DownOuter),
+        Shard(new(-40, -8), new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-11, 8), SignedEightEight.FromPixelFraction(-3, 8)), S.Outward),
+        Shard(new(0, -24), new EightEightVector<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixelFraction(-9, 8)), S.Up),
+        Shard(new(-8, 16), new EightEightVector<RoomPixels>(SignedEightEight.FromPixelFraction(-1, 4), SignedEightEight.FromPixelFraction(3, 2)), S.DownInner),
     ];
 
     /// <summary>The six released-air bubbles in the order they appear, each placed from the tube's block.</summary>
@@ -52,10 +52,10 @@ public static class NoobTubeDebrisDefinitions
     public const int ShardMirrorSpan = 256;
 
     /// <summary>The released crack's downward speed: three quarters of a pixel per update.</summary>
-    public static SignedEightEight CrackFallVelocity { get; } = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(192);
+    public static SignedEightEight CrackFallVelocity { get; } = SignedEightEight.FromPixelFraction(3, 4);
 
     /// <summary>The downward speed a glass shard takes when it enters its falling arc: three quarters of a pixel per update.</summary>
-    public static SignedEightEight ShardFallYVelocity { get; } = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(192);
+    public static SignedEightEight ShardFallYVelocity { get; } = SignedEightEight.FromPixelFraction(3, 4);
 
     /// <summary>
     /// The random choice of the angle a glass shard's or air bubble's swaying fall starts at, any of the turn's 256 steps.

@@ -13,7 +13,7 @@ internal sealed class CrocomireSpikeWallPieceState(CrocomireSpikeWallPiece piece
     internal CrocomireSpikeWallPiece Piece { get; } = Ensure.NotNull(piece);
 
     /// <summary>The piece's starting vertical speed: four and fifteen thirty-seconds pixels per update upward (#1936, #2181).</summary>
-    private static readonly SignedSixteenSixteen LaunchFallSpeed = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(-1144);
+    private static readonly SignedSixteenSixteen LaunchFallSpeed = SignedSixteenSixteen.FromPixelFraction(-143, 32);
 
     /// <summary>
     /// The piece's sideways acceleration, in pixels per update per update, of which its velocity takes the whole 256ths of a

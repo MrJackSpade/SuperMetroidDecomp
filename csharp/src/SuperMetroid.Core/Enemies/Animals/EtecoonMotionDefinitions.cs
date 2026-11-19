@@ -4,19 +4,19 @@ namespace SuperMetroid.Core.Enemies.Animals;
 internal static class EtecoonMotionDefinitions
 {
     /// <summary>The vertical speed an ordinary hop starts at: three pixels per update upward.</summary>
-    internal static readonly SignedSixteenSixteen HopSpeed = SignedSixteenSixteen.FromParts(-3, 0);
+    internal static readonly SignedSixteenSixteen HopSpeed = SignedSixteenSixteen.FromWholePixels(-3);
 
     /// <summary>The vertical speed the long demonstration jump starts at: four pixels per update upward.</summary>
-    internal static readonly SignedSixteenSixteen LongJumpSpeed = SignedSixteenSixteen.FromParts(-4, 0);
+    internal static readonly SignedSixteenSixteen LongJumpSpeed = SignedSixteenSixteen.FromWholePixels(-4);
 
     /// <summary>The vertical speed of the hop that lands the long route: a pixel per update upward.</summary>
-    internal static readonly SignedSixteenSixteen LongJumpLandingSpeed = SignedSixteenSixteen.FromParts(-1, 0);
+    internal static readonly SignedSixteenSixteen LongJumpLandingSpeed = SignedSixteenSixteen.FromWholePixels(-1);
 
     /// <summary>The horizontal speed of a rightward run: two pixels per update.</summary>
-    internal static readonly SignedSixteenSixteen RightRunSpeed = SignedSixteenSixteen.FromParts(2, 0);
+    internal static readonly SignedSixteenSixteen RightRunSpeed = SignedSixteenSixteen.FromWholePixels(2);
 
     /// <summary>The horizontal speed of a leftward run: two pixels per update.</summary>
-    internal static readonly SignedSixteenSixteen LeftRunSpeed = SignedSixteenSixteen.FromParts(-2, 0);
+    internal static readonly SignedSixteenSixteen LeftRunSpeed = SignedSixteenSixteen.FromWholePixels(-2);
 
     /// <summary>How far ahead, in pixels, a rightward run looks for the wall it jumps at.</summary>
     internal static readonly SignedSixteenSixteen RightWallLookahead = SignedSixteenSixteen.FromWholePixels(32);

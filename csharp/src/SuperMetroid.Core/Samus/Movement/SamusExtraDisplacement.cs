@@ -49,7 +49,7 @@ internal static class SamusExtraDisplacement
     }
 
     /// <summary>One whole pixel downward: the grounded bias and the slope-adjusted probe.</summary>
-    private static readonly SignedSixteenSixteen OnePixel = SignedSixteenSixteen.FromParts(1, 0);
+    private static readonly SignedSixteenSixteen OnePixel = SignedSixteenSixteen.FromWholePixels(1);
 
     /// <summary>
     /// Computes the transition vertical movement, used by jump-transition frames that accept external Y movement

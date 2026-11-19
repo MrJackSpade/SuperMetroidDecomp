@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Bull;
 public static class BullMovementDefinitions
 {
     /// <summary>How much each acceleration or deceleration tick changes a Bull's acceleration.</summary>
-    internal static readonly SignedEightEight AccelerationStep = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(24);
+    internal static readonly SignedEightEight AccelerationStep = SignedEightEight.FromPixelFraction(3, 32);
 
     /// <summary>The acceleration an immune shot's kick starts the Bull's braking with: a pixel an update.</summary>
     internal static readonly SignedEightEight ShotKickAcceleration = SignedEightEight.FromPixels(1);

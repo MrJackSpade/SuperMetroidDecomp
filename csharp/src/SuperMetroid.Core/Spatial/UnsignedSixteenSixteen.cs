@@ -63,6 +63,9 @@ public readonly record struct UnsignedSixteenSixteen
         FromRaw(checked((uint)Ensure.BetweenInclusive(0, int.MaxValue, wholePixels) *
             (uint)Ensure.BetweenInclusive(0, int.MaxValue, share)));
 
+    /// <summary>No speed or distance at all.</summary>
+    public static UnsignedSixteenSixteen Zero => default;
+
     /// <summary>A distance of <paramref name="wholePixels"/> whole pixels and no fraction, 0 through 65535.</summary>
     public static UnsignedSixteenSixteen FromWholePixels(int wholePixels) => new(wholePixels, 0);
 
@@ -82,13 +85,8 @@ public readonly record struct UnsignedSixteenSixteen
     /// The numerator is negative, or the denominator is no power of two from 1 through 65536.
     /// </exception>
     /// <exception cref="OverflowException">The speed lies outside the type's range.</exception>
-    public static UnsignedSixteenSixteen FromPixelFraction(int numerator, int denominator)
-    {
-        int fractionsEach = FractionsPerPixel / Ensure.BetweenInclusive(1, FractionsPerPixel, denominator);
-        if (fractionsEach * denominator != FractionsPerPixel)
-            throw new ArgumentOutOfRangeException(nameof(denominator), denominator, "The denominator must be a power of two from 1 through 65536.");
-        return FromRaw(checked((uint)Ensure.AtLeastZero(numerator) * (uint)fractionsEach));
-    }
+    public static UnsignedSixteenSixteen FromPixelFraction(int numerator, int denominator) =>
+        FromRaw((uint)PowerOfTwoFraction.InFinestUnits(Ensure.AtLeastZero(numerator), denominator, FractionsPerPixel));
 
     /// <summary>The fractions of a pixel the speed counts: 65536 to the pixel.</summary>
     private const int FractionsPerPixel = 65536;

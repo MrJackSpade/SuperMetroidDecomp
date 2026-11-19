@@ -20,7 +20,7 @@ internal static class CrocomireBridgeFragmentDefinitions
     /// therefore stays below 50 pixels an update, and the game's restart of a fall reaching 64 pixels an update is never
     /// reached (#1795).
     /// </summary>
-    internal static readonly SignedEightEight Gravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(24);
+    internal static readonly SignedEightEight Gravity = SignedEightEight.FromPixelFraction(3, 32);
 
     /// <summary>The number of bridge fragments the collapse launches, one per column.</summary>
     internal static int FragmentCount => CrumbleXPositions.Length;
@@ -29,7 +29,7 @@ internal static class CrocomireBridgeFragmentDefinitions
     internal const int Y = 187;
 
     /// <summary>The slowest a fragment starts falling, a quarter of a pixel an update, to which its random speed adds (#2182, #2299).</summary>
-    internal static readonly SignedEightEight SlowestFall = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(64);
+    internal static readonly SignedEightEight SlowestFall = SignedEightEight.FromPixelFraction(1, 4);
 
     /// <summary>Where the <paramref name="fragment"/>th fragment the collapse launches starts.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The collapse launches no such fragment.</exception>

@@ -7,5 +7,5 @@ internal static class ChozoStatueFxData
     public const int LoweringDelay = 32;
 
     /// <summary>The acid's downward speed while the statue lowers it: a quarter pixel an update.</summary>
-    public static readonly SignedEightEight LoweringVelocity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(64);
+    public static readonly SignedEightEight LoweringVelocity = SignedEightEight.FromPixelFraction(1, 4);
 }

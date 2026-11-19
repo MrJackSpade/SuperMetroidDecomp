@@ -7,5 +7,5 @@ internal static class TourianStatueSoulDefinitions
     internal static readonly SignedEightEight LaunchSpeed = SignedEightEight.FromPixels(-4);
 
     /// <summary>The upward speed a rising soul gains each update: half a pixel per update.</summary>
-    internal static readonly SignedEightEight RiseAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(128);
+    internal static readonly SignedEightEight RiseAcceleration = SignedEightEight.FromPixelFraction(1, 2);
 }

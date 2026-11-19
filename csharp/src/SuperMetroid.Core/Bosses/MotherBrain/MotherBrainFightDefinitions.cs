@@ -115,7 +115,7 @@ internal static class MotherBrainFightDefinitions
     internal const int SilentBabyAttackCount = 11;
 
     /// <summary>The gravity her drool gains each update as it falls.</summary>
-    internal static readonly SignedEightEight DroolGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(12);
+    internal static readonly SignedEightEight DroolGravity = SignedEightEight.FromPixelFraction(3, 64);
 
     /// <summary>The height her falling drool splashes at, on the floor.</summary>
     internal const int DroolFloorY = 215;

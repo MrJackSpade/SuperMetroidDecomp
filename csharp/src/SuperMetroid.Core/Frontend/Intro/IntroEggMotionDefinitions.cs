@@ -21,12 +21,12 @@ internal static class IntroEggMotionDefinitions
     internal static readonly IReadOnlyDictionary<IntroEggShellFragment, SignedSixteenSixteen> FragmentXVelocities =
         new Dictionary<IntroEggShellFragment, SignedSixteenSixteen>
         {
-            [IntroEggShellFragment.UpperLeft] = SignedSixteenSixteen.FromSixteenthsOfPixel(-12),
-            [IntroEggShellFragment.UpperRight] = SignedSixteenSixteen.FromSixteenthsOfPixel(4),
-            [IntroEggShellFragment.Left] = SignedSixteenSixteen.FromSixteenthsOfPixel(-8),
-            [IntroEggShellFragment.Centre] = SignedSixteenSixteen.FromSixteenthsOfPixel(-14),
-            [IntroEggShellFragment.Right] = SignedSixteenSixteen.FromSixteenthsOfPixel(8),
-            [IntroEggShellFragment.Lower] = SignedSixteenSixteen.FromSixteenthsOfPixel(2),
+            [IntroEggShellFragment.UpperLeft] = SignedSixteenSixteen.FromPixelFraction(-3, 4),
+            [IntroEggShellFragment.UpperRight] = SignedSixteenSixteen.FromPixelFraction(1, 4),
+            [IntroEggShellFragment.Left] = SignedSixteenSixteen.FromPixelFraction(-1, 2),
+            [IntroEggShellFragment.Centre] = SignedSixteenSixteen.FromPixelFraction(-7, 8),
+            [IntroEggShellFragment.Right] = SignedSixteenSixteen.FromPixelFraction(1, 2),
+            [IntroEggShellFragment.Lower] = SignedSixteenSixteen.FromPixelFraction(1, 8),
         };
 
     /// <summary>
@@ -74,9 +74,9 @@ internal static class IntroEggMotionDefinitions
     /// </summary>
     internal static IReadOnlyList<IntroEggSlimeLaunch> SlimeLaunches { get; } =
     [
-        new(SignedSixteenSixteen.FromSixteenthsOfPixel(-16), SteepSlimeFall),
-        new(SignedSixteenSixteen.FromSixteenthsOfPixel(-8), ShallowSlimeFall),
-        new(SignedSixteenSixteen.FromSixteenthsOfPixel(16), SteepSlimeFall),
-        new(SignedSixteenSixteen.FromSixteenthsOfPixel(8), ShallowSlimeFall),
+        new(SignedSixteenSixteen.FromWholePixels(-1), SteepSlimeFall),
+        new(SignedSixteenSixteen.FromPixelFraction(-1, 2), ShallowSlimeFall),
+        new(SignedSixteenSixteen.FromWholePixels(1), SteepSlimeFall),
+        new(SignedSixteenSixteen.FromPixelFraction(1, 2), ShallowSlimeFall),
     ];
 }

@@ -14,9 +14,9 @@ internal static class SamusVerticalMotionDefinitions
     internal static readonly IReadOnlyDictionary<SamusLiquidMedium, UnsignedSixteenSixteen> BombJumpSpeeds =
         new Dictionary<SamusLiquidMedium, UnsignedSixteenSixteen>
     {
-        [SamusLiquidMedium.Air] = UnsignedSixteenSixteen.FromSixteenthsOfPixel(44),
-        [SamusLiquidMedium.Water] = UnsignedSixteenSixteen.FromSixteenthsOfPixel(1),
-        [SamusLiquidMedium.LavaOrAcid] = UnsignedSixteenSixteen.FromSixteenthsOfPixel(1),
+        [SamusLiquidMedium.Air] = UnsignedSixteenSixteen.FromPixelFraction(11, 4),
+        [SamusLiquidMedium.Water] = UnsignedSixteenSixteen.FromPixelFraction(1, 16),
+        [SamusLiquidMedium.LavaOrAcid] = UnsignedSixteenSixteen.FromPixelFraction(1, 16),
     };
 
     /// <summary>The knockback's initial vertical speeds: hurt launch ignores jump equipment and dash speed,
@@ -24,9 +24,9 @@ internal static class SamusVerticalMotionDefinitions
     internal static readonly IReadOnlyDictionary<SamusLiquidMedium, UnsignedSixteenSixteen> KnockbackSpeeds =
         new Dictionary<SamusLiquidMedium, UnsignedSixteenSixteen>
     {
-        [SamusLiquidMedium.Air] = UnsignedSixteenSixteen.FromSixteenthsOfPixel(80),
-        [SamusLiquidMedium.Water] = UnsignedSixteenSixteen.FromSixteenthsOfPixel(32),
-        [SamusLiquidMedium.LavaOrAcid] = UnsignedSixteenSixteen.FromSixteenthsOfPixel(32),
+        [SamusLiquidMedium.Air] = UnsignedSixteenSixteen.FromWholePixels(5),
+        [SamusLiquidMedium.Water] = UnsignedSixteenSixteen.FromWholePixels(2),
+        [SamusLiquidMedium.LavaOrAcid] = UnsignedSixteenSixteen.FromWholePixels(2),
     };
 
     /// <summary>
@@ -36,12 +36,12 @@ internal static class SamusVerticalMotionDefinitions
     internal static readonly IReadOnlyDictionary<SamusLaunchSpeedKey, UnsignedSixteenSixteen> HighJumpLaunchSpeeds =
         new Dictionary<SamusLaunchSpeedKey, UnsignedSixteenSixteen>
     {
-        [new(SamusLiquidMedium.Air, SamusLaunchKind.WallJump)] = UnsignedSixteenSixteen.FromSixteenthsOfPixel(88),
-        [new(SamusLiquidMedium.Air, SamusLaunchKind.Jump)] = UnsignedSixteenSixteen.FromSixteenthsOfPixel(96),
-        [new(SamusLiquidMedium.Water, SamusLaunchKind.WallJump)] = UnsignedSixteenSixteen.FromSixteenthsOfPixel(8),
-        [new(SamusLiquidMedium.Water, SamusLaunchKind.Jump)] = UnsignedSixteenSixteen.FromSixteenthsOfPixel(40),
-        [new(SamusLiquidMedium.LavaOrAcid, SamusLaunchKind.WallJump)] = UnsignedSixteenSixteen.FromSixteenthsOfPixel(56),
-        [new(SamusLiquidMedium.LavaOrAcid, SamusLaunchKind.Jump)] = UnsignedSixteenSixteen.FromSixteenthsOfPixel(56),
+        [new(SamusLiquidMedium.Air, SamusLaunchKind.WallJump)] = UnsignedSixteenSixteen.FromPixelFraction(11, 2),
+        [new(SamusLiquidMedium.Air, SamusLaunchKind.Jump)] = UnsignedSixteenSixteen.FromWholePixels(6),
+        [new(SamusLiquidMedium.Water, SamusLaunchKind.WallJump)] = UnsignedSixteenSixteen.FromPixelFraction(1, 2),
+        [new(SamusLiquidMedium.Water, SamusLaunchKind.Jump)] = UnsignedSixteenSixteen.FromPixelFraction(5, 2),
+        [new(SamusLiquidMedium.LavaOrAcid, SamusLaunchKind.WallJump)] = UnsignedSixteenSixteen.FromPixelFraction(7, 2),
+        [new(SamusLiquidMedium.LavaOrAcid, SamusLaunchKind.Jump)] = UnsignedSixteenSixteen.FromPixelFraction(7, 2),
     };
 
     /// <summary>
@@ -51,12 +51,12 @@ internal static class SamusVerticalMotionDefinitions
     internal static readonly IReadOnlyDictionary<SamusLaunchSpeedKey, UnsignedSixteenSixteen> UnassistedLaunchSpeeds =
         new Dictionary<SamusLaunchSpeedKey, UnsignedSixteenSixteen>
     {
-        [new(SamusLiquidMedium.Air, SamusLaunchKind.WallJump)] = UnsignedSixteenSixteen.FromSixteenthsOfPixel(74),
-        [new(SamusLiquidMedium.Air, SamusLaunchKind.Jump)] = UnsignedSixteenSixteen.FromSixteenthsOfPixel(78),
-        [new(SamusLiquidMedium.Water, SamusLaunchKind.WallJump)] = UnsignedSixteenSixteen.FromSixteenthsOfPixel(4),
-        [new(SamusLiquidMedium.Water, SamusLaunchKind.Jump)] = UnsignedSixteenSixteen.FromSixteenthsOfPixel(28),
-        [new(SamusLiquidMedium.LavaOrAcid, SamusLaunchKind.WallJump)] = UnsignedSixteenSixteen.FromSixteenthsOfPixel(42),
-        [new(SamusLiquidMedium.LavaOrAcid, SamusLaunchKind.Jump)] = UnsignedSixteenSixteen.FromSixteenthsOfPixel(44),
+        [new(SamusLiquidMedium.Air, SamusLaunchKind.WallJump)] = UnsignedSixteenSixteen.FromPixelFraction(37, 8),
+        [new(SamusLiquidMedium.Air, SamusLaunchKind.Jump)] = UnsignedSixteenSixteen.FromPixelFraction(39, 8),
+        [new(SamusLiquidMedium.Water, SamusLaunchKind.WallJump)] = UnsignedSixteenSixteen.FromPixelFraction(1, 4),
+        [new(SamusLiquidMedium.Water, SamusLaunchKind.Jump)] = UnsignedSixteenSixteen.FromPixelFraction(7, 4),
+        [new(SamusLiquidMedium.LavaOrAcid, SamusLaunchKind.WallJump)] = UnsignedSixteenSixteen.FromPixelFraction(21, 8),
+        [new(SamusLiquidMedium.LavaOrAcid, SamusLaunchKind.Jump)] = UnsignedSixteenSixteen.FromPixelFraction(11, 4),
     };
 
     /// <summary>
@@ -66,19 +66,19 @@ internal static class SamusVerticalMotionDefinitions
     internal static readonly IReadOnlyDictionary<SamusLiquidMedium, UnsignedSixteenSixteen> Gravities =
         new Dictionary<SamusLiquidMedium, UnsignedSixteenSixteen>
     {
-        [SamusLiquidMedium.Air] = UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(28),
-        [SamusLiquidMedium.Water] = UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(8),
-        [SamusLiquidMedium.LavaOrAcid] = UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(9),
+        [SamusLiquidMedium.Air] = UnsignedSixteenSixteen.FromPixelFraction(7, 64),
+        [SamusLiquidMedium.Water] = UnsignedSixteenSixteen.FromPixelFraction(1, 32),
+        [SamusLiquidMedium.LavaOrAcid] = UnsignedSixteenSixteen.FromPixelFraction(9, 256),
     };
 
     /// <summary>The slowest fall in air from which Space Jump restarts the spin jump: two and a half pixels per update.</summary>
-    internal static UnsignedSixteenSixteen SpaceJumpAirMinimumFallingSpeed { get; } = UnsignedSixteenSixteen.FromSixteenthsOfPixel(40);
+    internal static UnsignedSixteenSixteen SpaceJumpAirMinimumFallingSpeed { get; } = UnsignedSixteenSixteen.FromPixelFraction(5, 2);
 
     /// <summary>
     /// The slowest fall in a liquid from which Space Jump restarts the spin jump: half a pixel per update, the medium
     /// being the one the preceding animation pass remembered.
     /// </summary>
-    internal static UnsignedSixteenSixteen SpaceJumpLiquidMinimumFallingSpeed { get; } = UnsignedSixteenSixteen.FromSixteenthsOfPixel(8);
+    internal static UnsignedSixteenSixteen SpaceJumpLiquidMinimumFallingSpeed { get; } = UnsignedSixteenSixteen.FromPixelFraction(1, 2);
 
     /// <summary>The falling speed at and above which Space Jump no longer restarts the spin jump: five pixels per update.</summary>
     internal static UnsignedSixteenSixteen SpaceJumpFallingSpeedLimit { get; } = new(5, 0);

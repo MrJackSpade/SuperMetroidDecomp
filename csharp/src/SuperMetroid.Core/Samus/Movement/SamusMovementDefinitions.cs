@@ -40,6 +40,6 @@ public static class SamusMovementDefinitions
     public static class HorizontalMotion
     {
         /// <summary>Per-frame extra-run acceleration while charging the Speed Booster: a sixteenth of a pixel.</summary>
-        public static readonly UnsignedSixteenSixteen ExtraRunAcceleration = UnsignedSixteenSixteen.FromSixteenthsOfPixel(1);
+        public static readonly UnsignedSixteenSixteen ExtraRunAcceleration = UnsignedSixteenSixteen.FromPixelFraction(1, 16);
     }
 }

@@ -13,10 +13,10 @@ public static class CeresRidleyGetawayDefinitions
     internal static Offset16<FloorPixels> InitialFloorCentre { get; } = new(64, 64);
 
     /// <summary>The getaway floor's angle as it is set up: the finest turn past none.</summary>
-    internal static RotationAngle InitialAngle { get; } = RotationAngle.FromSteps(0, 1);
+    internal static RotationAngle InitialAngle { get; } = RotationAngle.FromStepFraction(1, 256);
 
     /// <summary>How far the getaway turns its floor each update: three sixteenths of a step.</summary>
-    internal static RotationAngle TurnPerFrame { get; } = RotationAngle.FromSteps(0, 48);
+    internal static RotationAngle TurnPerFrame { get; } = RotationAngle.FromStepFraction(3, 16);
 
     /// <summary>
     /// The update of the getaway on which Ridley's shove takes Samus's movement, so the turning boss image cannot overlap
@@ -25,10 +25,10 @@ public static class CeresRidleyGetawayDefinitions
     internal const int SamusShoveUpdate = 104;
 
     /// <summary>The zoom curve's slow narrowing each update.</summary>
-    private static FloorZoomStep SlowNarrowing { get; } = FloorZoomStep.FromTwoHundredFiftySixths(16);
+    private static FloorZoomStep SlowNarrowing { get; } = FloorZoomStep.FromFloorPixelsPerScreenPixel(1, 16);
 
     /// <summary>The zoom curve's fast narrowing each update.</summary>
-    private static FloorZoomStep FastNarrowing { get; } = FloorZoomStep.FromTwoHundredFiftySixths(32);
+    private static FloorZoomStep FastNarrowing { get; } = FloorZoomStep.FromFloorPixelsPerScreenPixel(1, 8);
 
     /// <summary>
     /// The getaway's zoom, 112 updates: it holds eight floor pixels per screen pixel, then narrows slowly, then fast, with
@@ -36,15 +36,15 @@ public static class CeresRidleyGetawayDefinitions
     /// </summary>
     internal static IReadOnlyList<CeresRidleyGetawayZoomStretch> ZoomCurve { get; } =
     [
-        CeresRidleyGetawayZoomStretch.Hold(FloorZoom.FromTwoHundredFiftySixths(2048), updates: 32),
-        CeresRidleyGetawayZoomStretch.Narrowing(FloorZoom.FromTwoHundredFiftySixths(2032), SlowNarrowing, updates: 16),
-        CeresRidleyGetawayZoomStretch.Narrowing(FloorZoom.FromTwoHundredFiftySixths(1760), FastNarrowing, updates: 22),
-        CeresRidleyGetawayZoomStretch.Hold(FloorZoom.FromTwoHundredFiftySixths(1072), updates: 1),
-        CeresRidleyGetawayZoomStretch.Narrowing(FloorZoom.FromTwoHundredFiftySixths(1024), FastNarrowing, updates: 15),
-        CeresRidleyGetawayZoomStretch.Hold(FloorZoom.FromTwoHundredFiftySixths(560), updates: 1),
-        CeresRidleyGetawayZoomStretch.Narrowing(FloorZoom.FromTwoHundredFiftySixths(512), FastNarrowing, updates: 9),
-        CeresRidleyGetawayZoomStretch.Narrowing(FloorZoom.FromTwoHundredFiftySixths(240), SlowNarrowing, updates: 14),
-        CeresRidleyGetawayZoomStretch.Hold(FloorZoom.FromTwoHundredFiftySixths(32), updates: 2),
+        CeresRidleyGetawayZoomStretch.Hold(FloorZoom.FromFloorPixelsPerScreenPixel(8), updates: 32),
+        CeresRidleyGetawayZoomStretch.Narrowing(FloorZoom.FromFloorPixelsPerScreenPixel(127, 16), SlowNarrowing, updates: 16),
+        CeresRidleyGetawayZoomStretch.Narrowing(FloorZoom.FromFloorPixelsPerScreenPixel(55, 8), FastNarrowing, updates: 22),
+        CeresRidleyGetawayZoomStretch.Hold(FloorZoom.FromFloorPixelsPerScreenPixel(67, 16), updates: 1),
+        CeresRidleyGetawayZoomStretch.Narrowing(FloorZoom.FromFloorPixelsPerScreenPixel(4), FastNarrowing, updates: 15),
+        CeresRidleyGetawayZoomStretch.Hold(FloorZoom.FromFloorPixelsPerScreenPixel(35, 16), updates: 1),
+        CeresRidleyGetawayZoomStretch.Narrowing(FloorZoom.FromFloorPixelsPerScreenPixel(2), FastNarrowing, updates: 9),
+        CeresRidleyGetawayZoomStretch.Narrowing(FloorZoom.FromFloorPixelsPerScreenPixel(15, 16), SlowNarrowing, updates: 14),
+        CeresRidleyGetawayZoomStretch.Hold(FloorZoom.FromFloorPixelsPerScreenPixel(1, 8), updates: 2),
     ];
 
     /// <summary>

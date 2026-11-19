@@ -13,9 +13,9 @@ internal static class MotherBrainDoorFragmentDefinitions
         Fragment(-32, SignedEightEight.FromPixels(-2)),
         Fragment(-24, SignedEightEight.FromPixels(-1)),
         Fragment(-16, SignedEightEight.FromPixels(-1)),
-        Fragment(-8, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-128)),
-        Fragment(0, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-128)),
-        Fragment(8, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(128)),
+        Fragment(-8, SignedEightEight.FromPixelFraction(-1, 2)),
+        Fragment(0, SignedEightEight.FromPixelFraction(-1, 2)),
+        Fragment(8, SignedEightEight.FromPixelFraction(1, 2)),
         Fragment(16, SignedEightEight.FromPixels(-1)),
         Fragment(24, SignedEightEight.FromPixels(2)),
     ];

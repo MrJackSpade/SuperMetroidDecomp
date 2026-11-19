@@ -8,10 +8,10 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainBombBounceDefinitions
 {
     /// <summary>The ordinary fall gravity, used before the first bounce.</summary>
-    internal static readonly SignedEightEight FallAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(7);
+    internal static readonly SignedEightEight FallAcceleration = SignedEightEight.FromPixelFraction(7, 256);
 
     /// <summary>The bomb's sideways speed as it leaves her mouth: seven eighths of a pixel an update, rightward.</summary>
-    internal static readonly SignedEightEight LaunchSpeedX = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(224);
+    internal static readonly SignedEightEight LaunchSpeedX = SignedEightEight.FromPixelFraction(7, 8);
 
     /// <summary>The bomb's vertical speed as it leaves her mouth: a pixel an update, downward.</summary>
     internal static readonly SignedEightEight LaunchSpeedY = SignedEightEight.FromPixels(1);
@@ -26,21 +26,21 @@ internal static class MotherBrainBombBounceDefinitions
     internal const int FloorY = 208;
 
     /// <summary>The drag taken from the bomb's sideways speed on every update of its first fall, stopping at rest.</summary>
-    internal static readonly SignedEightEight FallDrag = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(2);
+    internal static readonly SignedEightEight FallDrag = SignedEightEight.FromPixelFraction(1, 128);
 
     /// <summary>The sideways speed a Mother Brain bomb's floor bounce restores, without its direction.</summary>
-    internal static readonly SignedEightEight BounceSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(112);
+    internal static readonly SignedEightEight BounceSpeed = SignedEightEight.FromPixelFraction(7, 16);
 
     /// <summary>The gravity after each bounce, from the first to the eighth and last, in 256ths of a pixel an update.</summary>
     internal static readonly SignedEightEight[] BounceAccelerations =
     [
-        SignedEightEight.FromTwoHundredFiftySixthsOfPixel(16),
-        SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32),
-        SignedEightEight.FromTwoHundredFiftySixthsOfPixel(64),
-        SignedEightEight.FromTwoHundredFiftySixthsOfPixel(112),
-        SignedEightEight.FromTwoHundredFiftySixthsOfPixel(176),
-        SignedEightEight.FromTwoHundredFiftySixthsOfPixel(240),
-        SignedEightEight.FromTwoHundredFiftySixthsOfPixel(304),
-        SignedEightEight.FromTwoHundredFiftySixthsOfPixel(368),
+        SignedEightEight.FromPixelFraction(1, 16),
+        SignedEightEight.FromPixelFraction(1, 8),
+        SignedEightEight.FromPixelFraction(1, 4),
+        SignedEightEight.FromPixelFraction(7, 16),
+        SignedEightEight.FromPixelFraction(11, 16),
+        SignedEightEight.FromPixelFraction(15, 16),
+        SignedEightEight.FromPixelFraction(19, 16),
+        SignedEightEight.FromPixelFraction(23, 16),
     ];
 }

@@ -47,7 +47,7 @@ internal static class MotherBrainGlassShardDefinitions
     internal const int TopScreenBottomY = 256;
 
     /// <summary>The gravity a falling shard gains each update: an eighth of a pixel an update.</summary>
-    internal static readonly SignedEightEight ShardGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32);
+    internal static readonly SignedEightEight ShardGravity = SignedEightEight.FromPixelFraction(1, 8);
 
     /// <summary>
     /// Graphics installed by the shard and sparkle setups: from the sheet of her tank glass's pieces, in

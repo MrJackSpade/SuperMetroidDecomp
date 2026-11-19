@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal static class EndingExplosionFadeDefinitions
 {
     /// <summary>How far the explosion widens the turning floor's zoom each update.</summary>
-    public static FloorZoomStep ZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(4);
+    public static FloorZoomStep ZoomStep { get; } = FloorZoomStep.FromFloorPixelsPerScreenPixel(1, 64);
     /// <summary>The crossfade's thirty-two colour steps, one every second update, over its sixty-four updates.</summary>
     public const int Steps = 32;
     /// <summary>

@@ -40,7 +40,7 @@ internal static class KraidArenaDefinitions
     internal const int RisenY = 457;
 
     /// <summary>How far Kraid's body rises each update while it raises itself: half a pixel upward.</summary>
-    internal static readonly SignedSixteenSixteen RisingBodyLift = SignedSixteenSixteen.FromSixteenthsOfPixel(-8);
+    internal static readonly SignedSixteenSixteen RisingBodyLift = SignedSixteenSixteen.FromPixelFraction(-1, 2);
 
     /// <summary>The height the rocks thrown up during the rise start from.</summary>
     internal const int RisingRockY = 432;

@@ -19,16 +19,16 @@ internal static class MotherBrainRainbowBeamPushDefinitions
     internal const int MiddleOfWallY = 124;
 
     /// <summary>The speed the push draws Samus toward the middle of the wall at: a quarter of a pixel an update.</summary>
-    internal static readonly SignedEightEight MiddleOfWallSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(64);
+    internal static readonly SignedEightEight MiddleOfWallSpeed = SignedEightEight.FromPixelFraction(1, 4);
 
     /// <summary>The leftward speed Samus's fall from the beam starts at: a pixel an update.</summary>
     internal static readonly SignedEightEight FallStartSpeed = SignedEightEight.FromPixels(-1);
 
     /// <summary>How much the leftward push slows on each update of Samus's fall from the beam.</summary>
-    internal static readonly SignedEightEight FallingPushSlowing = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(2);
+    internal static readonly SignedEightEight FallingPushSlowing = SignedEightEight.FromPixelFraction(1, 128);
 
     /// <summary>The gravity Samus's fall from the beam adds to her speed each update, downward.</summary>
-    internal static readonly EightEightVector<RoomPixels> FallGravity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 24);
+    internal static readonly EightEightVector<RoomPixels> FallGravity = new EightEightVector<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixelFraction(3, 32));
 
     /// <summary>The arena's ceiling: the least whole Y the forced movement leaves Samus at.</summary>
     internal const int Ceiling = 48;

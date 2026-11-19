@@ -73,8 +73,8 @@ internal static class RidleyExplosionDefinitions
         }.ToFrozenDictionary();
 
     /// <summary>The drag a breakup fragment's sideways speed loses each update, stopping at rest.</summary>
-    internal static readonly SignedEightEight BreakupFragmentDrag = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(4);
+    internal static readonly SignedEightEight BreakupFragmentDrag = SignedEightEight.FromPixelFraction(1, 64);
 
     /// <summary>The gravity a breakup fragment's fall gains each update.</summary>
-    internal static readonly SignedEightEight BreakupFragmentGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(4);
+    internal static readonly SignedEightEight BreakupFragmentGravity = SignedEightEight.FromPixelFraction(1, 64);
 }

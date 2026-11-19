@@ -30,6 +30,14 @@ public readonly record struct FloorZoom : IComparable<FloorZoom>
     public static FloorZoom FromFloorPixelsPerScreenPixel(int floorPixels) =>
         new(checked(Ensure.AtLeastZero(floorPixels) * TwoHundredFiftySixthsPerFloorPixel));
 
+    /// <summary>
+    /// A zoom of <paramref name="numerator"/> <paramref name="denominator"/>ths of a floor pixel per screen pixel (#2555),
+    /// zero or more, the denominator a power of two from 1 through 256: one and a half floor pixels to each screen pixel.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The zoom is negative, or the denominator is no power of two from 1 through 256.</exception>
+    public static FloorZoom FromFloorPixelsPerScreenPixel(int numerator, int denominator) =>
+        new(PowerOfTwoFraction.InFinestUnits(numerator, denominator, TwoHundredFiftySixthsPerFloorPixel));
+
     /// <summary>The whole floor pixels one screen pixel spans, the fraction dropped.</summary>
     [IntegerQuantity("whole floor pixels per screen pixel of a turning-floor zoom")]
     public int WholeFloorPixelsPerScreenPixel => TwoHundredFiftySixths / TwoHundredFiftySixthsPerFloorPixel;

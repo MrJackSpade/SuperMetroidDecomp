@@ -74,8 +74,5 @@ public static class RoomObjectBombTorizoHandVisualFiles
         VisualId(RoomObjectDrawIdentity.FrameOf<BombTorizoHandDraw>(request, "Bomb Torizo hand draw with a visual ID"));
 
     /// <summary>Maps an intact or cleared hand draw to its stable artwork ID.</summary>
-    internal static string VisualId(BombTorizoHandDraw frame) =>
-        RoomObjectVisualIdDefinitions.BombTorizoHand.TryGetValue(frame, out string? id)
-            ? id
-            : throw new InvalidOperationException($"Undefined BombTorizoHandDraw {frame}.");
+    internal static string VisualId(BombTorizoHandDraw frame) => BombTorizoHandDrawKeys.Installed.Of(frame);
 }

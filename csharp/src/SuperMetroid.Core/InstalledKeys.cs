@@ -39,6 +39,9 @@ public sealed class InstalledKeys<TIdentity>
             StringComparer.Ordinal);
     }
 
+    /// <summary>Every member's key, by member: the table a family keyed member by member reads its names from.</summary>
+    public IReadOnlyDictionary<TIdentity, string> ByIdentity => keys;
+
     /// <summary>The installed key of <paramref name="identity"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The identity is no member of <typeparamref name="TIdentity"/>.</exception>
     [InstalledKey]

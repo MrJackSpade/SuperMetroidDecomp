@@ -79,8 +79,5 @@ public static class RoomObjectChozoStatueVisualFiles
 
     /// <summary>Names the cleared hand or blocked/clear slope layout without changing collision ownership.</summary>
     internal static string VisualId(RoomObjectDraw request) =>
-        RoomObjectVisualIdDefinitions.ChozoStatue.TryGetValue(
-            RoomObjectDrawIdentity.FrameOf<ChozoStatueDraw>(request, "Chozo statue draw with a visual ID"), out string? id)
-            ? id
-            : throw new InvalidOperationException($"Undefined {nameof(ChozoStatueDraw)} {request}.");
+        ChozoStatueDrawKeys.Installed.Of(RoomObjectDrawIdentity.FrameOf<ChozoStatueDraw>(request, "Chozo statue draw with a visual ID"));
 }

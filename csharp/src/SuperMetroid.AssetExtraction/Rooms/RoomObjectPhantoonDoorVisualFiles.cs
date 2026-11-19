@@ -14,7 +14,7 @@ public static class RoomObjectPhantoonDoorVisualFiles
 
     /// <summary>The door as the import pictures it: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<PhantoonDoorDraw> Family { get; } =
-        new(VisualFileName, "Phantoon door", Layouts(), RoomObjectVisualIdDefinitions.PhantoonDoor);
+        new(VisualFileName, "Phantoon door", Layouts(), PhantoonDoorDrawKeys.Installed.ByIdentity);
 
     /// <summary>Pictures the door frames from the cartridge's draw lists and writes the installed file.</summary>
     /// <param name="bus">The cartridge, whose draw lists are checked against the door's geometry and collision.</param>

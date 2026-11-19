@@ -459,7 +459,7 @@ internal static class LookupStream2Verification
         int words = 0;
         foreach (PauseReserveLabel id in PauseReserveUiDefinitions.Labels)
         {
-            string name = PauseReserveUiTiles.Name(id);
+            string name = PauseReserveLabelKeys.Installed.Of(id);
             PauseReserveLabelVisual label = document.Labels[name];
             BackgroundTile[] native = PauseTileGrid.Compile(label.Cells, name);
             int nativeCell = label.Anchor.Row * 32 + label.Anchor.Column;

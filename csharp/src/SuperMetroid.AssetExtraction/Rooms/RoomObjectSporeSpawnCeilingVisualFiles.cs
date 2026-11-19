@@ -47,10 +47,7 @@ public static class RoomObjectSporeSpawnCeilingVisualFiles
         VisualId(RoomObjectDrawIdentity.FrameOf<SporeSpawnCeilingDraw>(request, "Spore Spawn ceiling draw with a visual ID"));
 
     /// <summary>Names the clear layout and the three successive crumble appearances for visual editing.</summary>
-    internal static string VisualId(SporeSpawnCeilingDraw frame) =>
-        RoomObjectVisualIdDefinitions.SporeSpawnCeiling.TryGetValue(frame, out string? id)
-            ? id
-            : throw new InvalidOperationException($"Undefined SporeSpawnCeilingDraw {frame}.");
+    internal static string VisualId(SporeSpawnCeilingDraw frame) => SporeSpawnCeilingDrawKeys.Installed.Of(frame);
 
     /// <summary>
     /// The draw list of a clear or crumble frame as the cartridge writes it: the square's two rows, top row first, each

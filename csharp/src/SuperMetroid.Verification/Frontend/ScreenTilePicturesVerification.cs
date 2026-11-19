@@ -92,14 +92,16 @@ internal static class ScreenTilePicturesVerification
     {
         var sampled = new HashSet<string>();
         int layers = 0;
+        var floors = new FloorChecks();
         void Check(LayeredScene scene, byte[] vram, string name)
         {
             sampled.Add(name);
-            layers += AssertFloorsDrawnFromCharacters(scene, vram, name);
+            layers += floors.Add(scene, vram, name);
         }
         if (!intro)
         {
             VerifyDestructionFloors(Check);
+            floors.AssertDrawnFromCharacters();
             Console.WriteLine($"Screen tile pictures: {sampled.Count} Ceres destruction phases draw all {layers} of their floor layers from their pictures, as their characters do.");
             return;
         }
@@ -126,6 +128,7 @@ internal static class ScreenTilePicturesVerification
             introState.Step(tick % 47 == 0 ? ControllerButton.A : 0);
             audio.AdvanceFrame(default);
         }
+        floors.AssertDrawnFromCharacters();
         AssertTrue(captionPictured, "the Ceres flight's caption draws its pictures");
         Console.WriteLine($"Screen tile pictures: {sampled.Count} opening cinematic phases draw all {layers} of their floor layers from their pictures, as their characters do.");
     }
@@ -177,6 +180,7 @@ internal static class ScreenTilePicturesVerification
     {
         var sampled = new HashSet<string>();
         int layers = 0;
+        var floors = new FloorChecks();
         // The ending waits on its music queue, which the game drains after every dispatch.
         var audio = AudioQueues.Standalone();
         EndingCreditsState ending = CreateRetailEndingFixture(audio, 10, 59);
@@ -192,12 +196,13 @@ internal static class ScreenTilePicturesVerification
                 {
                     sampled.Add($"{ending.Phase}");
                     byte[] shownEnding = ending.ShownVram();
-                    layers += AssertFloorsDrawnFromCharacters(scene, shownEnding, $"ending {ending.Phase}");
+                    layers += floors.Add(scene, shownEnding, $"ending {ending.Phase}");
                 }
             }
             ending.Step();
             audio.AdvanceFrame(default);
         }
+        floors.AssertDrawnFromCharacters();
         Console.WriteLine($"Screen tile pictures: {sampled.Count} ending phases {(afterCredits ? "after" : "before")} the credits draw all {layers} of their floor layers from their tiles, as their characters do.");
         AssertTrue(sampled.Count > 0, $"the ending shows its floor {(afterCredits ? "after" : "before")} the credits");
     }
@@ -264,29 +269,80 @@ internal static class ScreenTilePicturesVerification
     }
 
     /// <summary>
-    /// Asserts each turning floor of <paramref name="scene"/> draws from its pictures what its characters draw: the scene
-    /// matches it drawn with each floor composed instead from the scene's own floor map and tile characters in
-    /// <paramref name="vram"/> in the colours each floor shows, naming the first differing pixel; returns the floors checked.
+    /// One suite's checks that each turning floor of each scene it samples draws from its pictures what its characters draw:
+    /// the scene matches it drawn with each floor composed instead from the scene's own floor map and tile characters in its
+    /// memory image, in the colours each floor shows, naming the first differing pixel. Each scene is drawn from its
+    /// pictures as it is sampled; its scene of characters is drawn once every scene is sampled. The renderer lays a floor's
+    /// whole image again whenever the floor it draws changes, so drawing the two kinds apart lays each floor once for the
+    /// scenes in a row that show it, instead of twice for every scene. A floor composed from the same memory image in the
+    /// same colours is the same floor, so it is composed once (<see cref="CharacterFloors"/>).
     /// </summary>
-    private static int AssertFloorsDrawnFromCharacters(LayeredScene scene, byte[] vram, string name)
+    private sealed class FloorChecks
     {
-        int layers = 0;
-        var fromCharacters = new List<DisplayLayer>();
-        foreach (DisplayLayer layer in scene.Layers)
+        /// <summary>The floors composed from characters so far.</summary>
+        private readonly CharacterFloors floors = new();
+
+        /// <summary>Each sampled scene's name, its pixels drawn from its pictures, and its scene of characters.</summary>
+        private readonly List<(string Name, RgbaPixel[] Pictured, LayeredScene Characters)> checks = [];
+
+        /// <summary>
+        /// Draws <paramref name="scene"/> from its pictures and records it for <see cref="AssertDrawnFromCharacters"/>
+        /// against its floors composed from <paramref name="vram"/>'s characters; returns the floors checked.
+        /// </summary>
+        internal int Add(LayeredScene scene, byte[] vram, string name)
         {
-            if (layer is TurningFloorLayer floor)
+            int layers = 0;
+            var fromCharacters = new List<DisplayLayer>();
+            foreach (DisplayLayer layer in scene.Layers)
             {
-                layers++;
-                fromCharacters.Add(floor with { Floor = FromCharacters(vram, floor.Floor) });
+                if (layer is TurningFloorLayer floor)
+                {
+                    layers++;
+                    fromCharacters.Add(floor with { Floor = floors.Of(vram, floor.Floor) });
+                }
+                else
+                    fromCharacters.Add(layer);
             }
-            else
-                fromCharacters.Add(layer);
+            AssertTrue(layers > 0, $"{name} draws a floor");
+            checks.Add((name, RenderNamed(scene, name), new LayeredScene(scene.Paint, [.. fromCharacters], scene.Brightness)));
+            return layers;
         }
-        AssertTrue(layers > 0, $"{name} draws a floor");
-        RgbaPixel[] pictured = RenderNamed(scene, name);
-        RgbaPixel[] characters = DisplayRendering.Render(new LayeredScene(scene.Paint, [.. fromCharacters], scene.Brightness)).ToArray();
-        AssertSamePixels(pictured, characters, $"{name}: drawn from its pictures, its floor matches its characters");
-        return layers;
+
+        /// <summary>Asserts each recorded scene, drawn from its characters, shows the pixels it showed drawn from its pictures.</summary>
+        internal void AssertDrawnFromCharacters()
+        {
+            foreach ((string name, RgbaPixel[] pictured, LayeredScene characters) in checks)
+                AssertSamePixels(pictured, DisplayRendering.Render(characters).ToArray(), $"{name}: drawn from its pictures, its floor matches its characters");
+        }
+    }
+
+    /// <summary>
+    /// The floors one suite composes from memory images' characters (<see cref="FromCharacters"/>), each composed once: a
+    /// floor is a function of the memory image and the colours it is composed in, and the phases a suite samples share a
+    /// few of each.
+    /// </summary>
+    private sealed class CharacterFloors
+    {
+        /// <summary>Each floor composed so far, with the memory image and the colours it was composed from.</summary>
+        private readonly List<(byte[] Vram, RgbColor[] Colours, AffineFloor Floor)> composed = [];
+
+        /// <summary>
+        /// The floor <paramref name="vram"/>'s floor map and tile characters compose in the native colours
+        /// <paramref name="shown"/>'s picture shows under its shading, as <see cref="FromCharacters"/> composes it.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">The shown floor names no shading.</exception>
+        internal AffineFloor Of(byte[] vram, AffineFloor shown)
+        {
+            RgbColor[] colours = ShownColours(shown);
+            foreach ((byte[] composedVram, RgbColor[] composedColours, AffineFloor floor) in composed)
+            {
+                if (composedVram.AsSpan().SequenceEqual(vram) && composedColours.AsSpan().SequenceEqual(colours))
+                    return floor;
+            }
+            AffineFloor fromCharacters = FromCharacters(vram, colours);
+            composed.Add((vram, colours, fromCharacters));
+            return fromCharacters;
+        }
     }
 
     /// <summary>
@@ -346,11 +402,22 @@ internal static class ScreenTilePicturesVerification
     /// colours <paramref name="shown"/>'s picture shows under its shading (#1512), drawn in its standard shading.
     /// </summary>
     /// <exception cref="InvalidOperationException">The shown floor names no shading.</exception>
-    private static AffineFloor FromCharacters(ReadOnlySpan<byte> vram, AffineFloor shown)
+    private static AffineFloor FromCharacters(ReadOnlySpan<byte> vram, AffineFloor shown) => FromCharacters(vram, ShownColours(shown));
+
+    /// <summary>
+    /// The turning floor the cartridge's floor map and tile characters in <paramref name="vram"/> compose in
+    /// <paramref name="colours"/>, drawn in its standard shading.
+    /// </summary>
+    private static AffineFloor FromCharacters(ReadOnlySpan<byte> vram, ReadOnlySpan<RgbColor> colours) =>
+        AffineFloorFixtures.Floor(vram, colours).Shaded(PictureShading.Standard);
+
+    /// <summary>The native colours <paramref name="shown"/>'s picture shows under its shading (#1512).</summary>
+    /// <exception cref="InvalidOperationException">The shown floor names no shading.</exception>
+    private static RgbColor[] ShownColours(AffineFloor shown)
     {
         PictureShading shading = shown.Shading
             ?? throw new InvalidOperationException($"Floor {shown.Image.Sheet.Name} names the shading it shows in.");
-        return AffineFloorFixtures.Floor(vram, NativeColouredPictures.ShownIn(shown.Image.Sheet, shading)).Shaded(PictureShading.Standard);
+        return NativeColouredPictures.ShownIn(shown.Image.Sheet, shading);
     }
 
     /// <summary>A tilemap the cartridge lays out for a pictured layer, as that layer shows it.</summary>

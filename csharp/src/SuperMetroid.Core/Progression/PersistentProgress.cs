@@ -21,7 +21,7 @@ public sealed class PersistentProgress
     /// <summary>Each area's explored map cells.</summary>
     private readonly Dictionary<AreaId, ExploredMapCells> _explored = AreaIds.All.ToDictionary(area => area, _ => new ExploredMapCells());
 
-    /// <summary>Every story event, in the order the game lists them.</summary>
+    /// <summary>Every story event; a save lists them in its own written-out order (<see cref="StoryEventKeys.SavedOrder"/>).</summary>
     private static readonly StoryEvent[] StoryEvents = Enum.GetValues<StoryEvent>();
 
     /// <summary>The story events that have happened.</summary>

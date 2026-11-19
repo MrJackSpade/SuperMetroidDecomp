@@ -6,7 +6,10 @@ namespace SuperMetroid.Core.Saves;
 /// <summary>A save slot's persistent progress, each set listed by its own identities (schema three, #1475).</summary>
 public sealed record SaveProgressionJsonDocument
 {
-    /// <summary>The story events that have happened, by name, in the order the game lists them (schema six, #1553).</summary>
+    /// <summary>
+    /// The story events that have happened, by name (schema six, #1553), written in the order the save lists them and read
+    /// in any order (#2543).
+    /// </summary>
     [InstalledKey]
     public required string[] Events { get; init; }
 
@@ -16,15 +19,21 @@ public sealed record SaveProgressionJsonDocument
     /// <summary>Each area's defeated bosses, one entry per area in area order.</summary>
     public required SaveAreaBossesJsonDocument[] DefeatedBosses { get; init; }
 
-    /// <summary>The item locations collected, by name, in the order <see cref="ItemLocationDefinitions.All"/> lists them (schema six, #1553).</summary>
+    /// <summary>
+    /// The item locations collected, by name, written in the order <see cref="ItemLocationDefinitions.All"/> lists them
+    /// (schema six, #1553) and read in any order (#2543).
+    /// </summary>
     public required string[] CollectedItems { get; init; }
 
-    /// <summary>The doors opened for good, by name, in the order <see cref="LockedDoorDefinitions.All"/> lists them (schema six, #1553).</summary>
+    /// <summary>
+    /// The doors opened for good, by name, written in the order <see cref="LockedDoorDefinitions.All"/> lists them
+    /// (schema six, #1553) and read in any order (#2543).
+    /// </summary>
     public required string[] OpenedDoors { get; init; }
 
     /// <summary>
-    /// The save stations and elevators used, by name, in the order <see cref="LoadStationDefinitions.Usable"/> lists them
-    /// (schema nine, #1723).
+    /// The save stations and elevators used, by name, written in the order <see cref="LoadStationDefinitions.Usable"/>
+    /// lists them (schema nine, #1723) and read in any order (#2543).
     /// </summary>
     public required string[] UsedStations { get; init; }
 

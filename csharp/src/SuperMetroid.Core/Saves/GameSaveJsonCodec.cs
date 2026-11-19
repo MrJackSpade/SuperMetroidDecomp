@@ -145,7 +145,7 @@ public static class GameSaveJsonCodec
     /// <summary>Lists each set of <paramref name="progress"/> by its identities.</summary>
     private static SaveProgressionJsonDocument CaptureProgression(PersistentProgress progress) => new()
     {
-        Events = [.. progress.Events.Members.Select(StoryEventKeys.Installed.Of)],
+        Events = [.. SavedEventOrder.Where(progress.HasEvent).Select(StoryEventKeys.Installed.Of)],
         ZebetitesDestroyed = progress.ZebetitesDestroyed,
         DefeatedBosses = [.. SavedAreas.Select(area => new SaveAreaBossesJsonDocument(area, progress.BossesDefeatedIn(area)))],
         CollectedItems = [.. progress.CollectedItems.Members.Select(location => location.Name)],
@@ -406,39 +406,38 @@ public static class GameSaveJsonCodec
         return listed;
     }
 
+    /// <summary>The order a save lists the story events that have happened in, which lists every event once (#2543).</summary>
+    private static readonly IReadOnlyList<StoryEvent> SavedEventOrder = Ensure.EveryMemberOnce(StoryEventKeys.SavedOrder);
+
     /// <summary>Every story event by its installed key, its case ignored as saves have always been read (#2520).</summary>
     private static readonly FrozenDictionary<string, StoryEvent> StoryEventsByKey =
         Enum.GetValues<StoryEvent>().ToFrozenDictionary(StoryEventKeys.Installed.Of, StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
-    /// Records the story events <paramref name="events"/> names as happened, rejecting an unknown name, a duplicate and
-    /// any name out of the order <see cref="StoryEvent"/> declares.
+    /// Records the story events <paramref name="events"/> names as happened, in whatever order it lists them (#2543), so
+    /// reordering <see cref="StoryEvent"/>'s members never stops a save loading; rejects an unknown name and a duplicate.
     /// </summary>
     private static void DecodeEvents(string[] events, ProgressSet<StoryEvent> happened, string property)
     {
-        StoryEvent[] order = Enum.GetValues<StoryEvent>();
-        int previous = -1;
         for (int index = 0; index < events.Length; index++)
         {
             string value = events[index] ?? throw new InvalidDataException($"{property}[{index}] is null");
             if (!StoryEventsByKey.TryGetValue(value, out StoryEvent storyEvent))
                 throw new InvalidDataException($"{property}[{index}] '{value}' names no story event");
-            int place = Array.IndexOf(order, storyEvent);
-            if (place <= previous)
-                throw new InvalidDataException($"{property} must list each event once, in the order the game lists them");
+            if (happened.Contains(storyEvent))
+                throw new InvalidDataException($"{property}[{index}] '{value}' lists an event listed before it");
             happened.Add(storyEvent);
-            previous = place;
         }
     }
 
     /// <summary>
-    /// Records the members of <paramref name="kind"/> that <paramref name="names"/> lists as happened, rejecting an unknown
-    /// name, a duplicate and any name out of the kind's order.
+    /// Records the members of <paramref name="kind"/> that <paramref name="names"/> lists as happened, in whatever order it
+    /// lists them (#2543), so reordering the kind's listing never stops a save loading; rejects an unknown name and a
+    /// duplicate.
     /// </summary>
     private static void DecodeNamed<T>(string[] names, IReadOnlyList<T> kind, Func<T, string> nameOf, ProgressSet<T> happened, string property)
         where T : notnull
     {
-        int previous = -1;
         for (int index = 0; index < names.Length; index++)
         {
             string name = names[index] ?? throw new InvalidDataException($"{property}[{index}] is null");
@@ -450,10 +449,9 @@ public static class GameSaveJsonCodec
             }
             if (place < 0)
                 throw new InvalidDataException($"{property}[{index}] '{name}' names nothing the game places");
-            if (place <= previous)
-                throw new InvalidDataException($"{property} must list each once, in the order the game lists them");
+            if (happened.Contains(kind[place]))
+                throw new InvalidDataException($"{property}[{index}] '{name}' lists a name listed before it");
             happened.Add(kind[place]);
-            previous = place;
         }
     }
 }

@@ -140,10 +140,35 @@ public sealed class SamusProjectile
     }
 
     /// <summary>
-    /// The Power Bomb fuse, in updates, a beam fired over this projectile while it holds its place starts with
-    /// (<see cref="BeamFiredOverLastShot"/>): the count its kind leaves, or for a beam or an explosion the fuse it carries.
+    /// What a beam fired into this projectile's place finds there (#2524), from which <see cref="BeamFiredOverLastShot"/>
+    /// gives the beam its Power Bomb fuse: a free place once the projectile has ended, or its kind with the ignition,
+    /// ignition speed, link place, departure angle or carried fuse that kind keeps. A beam, the Hyper Beam's shot and their
+    /// explosions keep no kind state and carry their fuse; a missile's explosion keeps its missile's.
     /// </summary>
-    internal int FuseLeftForBeamFiredOver => KindState?.FuseLeftForBeamFiredOver ?? BeamFuse;
+    /// <exception cref="InvalidOperationException">The projectile is an ignited missile that keeps no speed it ignited at.</exception>
+    internal BeamFiredOverLastShot.ReplacedShot AsReplacedByBeam => !IsOccupied ? new BeamFiredOverLastShot.ReplacedShot.FreePlace() : KindState switch
+    {
+        null => new BeamFiredOverLastShot.ReplacedShot.Beam(BeamFuse),
+        MissileShotState missile => missile.Ignition switch
+        {
+            SamusMissileIgnition.Pending => new BeamFiredOverLastShot.ReplacedShot.UnignitedMissile(),
+            SamusMissileIgnition.PendingAfterReflection => new BeamFiredOverLastShot.ReplacedShot.ReflectedMissile(ReflectionHeadStart),
+            SamusMissileIgnition.Ignited => new BeamFiredOverLastShot.ReplacedShot.IgnitedMissile(
+                missile.IgnitionSpeed ?? throw new InvalidOperationException("An ignited missile keeps the speed it ignited at."),
+                (missile as SuperMissileShotState)?.LinkPlace),
+            _ => throw new InvalidOperationException($"Undefined {nameof(SamusMissileIgnition)} {missile.Ignition}."),
+        },
+        ShinesparkEchoShotState echo => new BeamFiredOverLastShot.ReplacedShot.CrashEcho(echo.Angle),
+        SpecialAttackParticleState => new BeamFiredOverLastShot.ReplacedShot.SpecialAttackParticle(),
+        _ => throw new InvalidOperationException($"Undefined {nameof(SamusShotKindState)} {KindState.GetType().Name}."),
+    };
+
+    /// <summary>
+    /// The head start a reflection gives a missile toward the speed it re-ignites at: what that speed exceeds a fired
+    /// missile's by.
+    /// </summary>
+    private static SignedEightEight ReflectionHeadStart =>
+        SamusProjectileMotionDefinitions.ReflectedMissileIgnitionSpeed - SamusProjectileMotionDefinitions.MissileIgnitionSpeed;
 
     /// <summary>
     /// Gives the projectile its kind's behaviour with the state the kind starts with: firing, a special attack, an

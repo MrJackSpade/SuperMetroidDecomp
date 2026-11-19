@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using SuperMetroid.Core.Enemies.Magdollite;
 using System.Text.Json;
 using SuperMetroid.Core;

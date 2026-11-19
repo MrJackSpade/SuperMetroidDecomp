@@ -79496,6 +79496,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.PipeBugs.NorfairPipeBugFollowerSpawnSettings",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/PipeBugs/NorfairPipeBugFollowerSpawnSettings.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.PipeBugs.NorfairPipeBugFormation",
       "kind": "record",
       "scope": "product",
@@ -79504,6 +79517,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/PipeBugs/NorfairPipeBugFormation.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.PipeBugs.NorfairPipeBugLeaderSpawnSettings",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/PipeBugs/NorfairPipeBugLeaderSpawnSettings.cs"
       ],
       "partial": "none",
       "disposition": "record"

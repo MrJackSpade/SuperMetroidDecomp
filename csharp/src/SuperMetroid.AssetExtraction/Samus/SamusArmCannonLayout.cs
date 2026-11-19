@@ -40,9 +40,9 @@ public sealed class SamusArmCannonLayout
         foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses)
         {
             SamusArmCannonPlacement placement = placements[pose];
-            content.AppendName("draw order", placement.DrawOrder.ToString());
-            content.AppendName("first direction", placement.FirstDirection.ToString());
-            content.AppendName("later direction", placement.LaterDirection?.ToString() ?? string.Empty);
+            content.AppendName("draw order", SamusArmCannonDrawOrderKeys.Installed.Of(placement.DrawOrder));
+            content.AppendName("first direction", SamusProjectileDirectionKeys.Installed.Of(placement.FirstDirection));
+            content.AppendName("later direction", placement.LaterDirection is { } later ? SamusProjectileDirectionKeys.Installed.Of(later) : string.Empty);
             content.Append("displacement count", placement.Offsets.Count);
             SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(pose);
             foreach ((SamusAnimationFrame frame, Offset16<RoomPixels> offset) in placement.Offsets.OrderBy(pair => pair.Key, animation.FrameOrder))

@@ -30,12 +30,14 @@ public static class OffRoomPlaces
     /// <param name="coordinate">The place computed, in room pixels, which may lie before the room.</param>
     public static int Place(int coordinate) => CoordinateAxis.Wrap(coordinate);
 
-    /// <summary>The place an actor stands at when it is placed at <paramref name="x"/> and <paramref name="y"/>, each as <see cref="Place"/> keeps it.</summary>
+    /// <summary>
+    /// The place an actor stands at when the room places it at <paramref name="signedPlace"/>, a place that may lie above
+    /// or left of the room, each axis as <see cref="Place"/> keeps it.
+    /// </summary>
     /// <typeparam name="TSpace">The place's coordinate space.</typeparam>
-    /// <param name="x">The horizontal place computed, which may lie left of the room.</param>
-    /// <param name="y">The vertical place computed, which may lie above the room.</param>
-    public static Position16<TSpace> Placed<TSpace>(int x, int y)
-        where TSpace : ISpatialSpace => Position16<TSpace>.Wrapped(x, y);
+    /// <param name="signedPlace">The place, negative above or left of the room's origin.</param>
+    public static Position16<TSpace> Placed<TSpace>(Offset16<TSpace> signedPlace)
+        where TSpace : ISpatialSpace => Position16<TSpace>.Wrapped(signedPlace.X, signedPlace.Y);
 
     /// <summary>
     /// <paramref name="position"/> with its whole horizontal place moved to <paramref name="whole"/>, which may lie left of

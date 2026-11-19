@@ -62,7 +62,7 @@ public sealed class BackgroundScrollState
     public void BeginDoorOpeningViews(Position16<RoomPixels> openingForeground)
     {
         ForegroundScroll = SignedView(openingForeground);
-        BackgroundScroll = CameraPastRoomEdge.SignedScroll<BackgroundPixels>(openingForeground.X, openingForeground.Y);
+        BackgroundScroll = new(CameraPastRoomEdge.Signed(openingForeground.X), CameraPastRoomEdge.Signed(openingForeground.Y));
     }
 
     /// <summary>
@@ -124,7 +124,7 @@ public sealed class BackgroundScrollState
     public void CalculateLayerScrolls()
     {
         ForegroundScroll = SignedView(ForegroundPosition);
-        BackgroundScroll = CameraPastRoomEdge.SignedScroll<BackgroundPixels>(BackgroundPosition.X, BackgroundPosition.Y);
+        BackgroundScroll = new(CameraPastRoomEdge.Signed(BackgroundPosition.X), CameraPastRoomEdge.Signed(BackgroundPosition.Y));
     }
 
     /// <summary>
@@ -132,5 +132,5 @@ public sealed class BackgroundScrollState
     /// past the room's top or left edge, as a door's opening view does, lies a small negative distance from the origin.
     /// </summary>
     private static Offset16<RoomPixels> SignedView(Position16<RoomPixels> position) =>
-        CameraPastRoomEdge.SignedScroll<RoomPixels>(position.X, position.Y);
+        new(CameraPastRoomEdge.Signed(position.X), CameraPastRoomEdge.Signed(position.Y));
 }

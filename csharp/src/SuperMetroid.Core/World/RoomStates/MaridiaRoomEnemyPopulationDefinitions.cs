@@ -143,10 +143,10 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
         ], 3),
         new(nameof(RoomEnemyPopulationDefinitions.DraygonDefault),
         [
-            new(EnemyDefinitionId.DraygonBody, OffRoomPlaces.Placed<RoomPixels>(-80, -80), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.DraygonEye, OffRoomPlaces.Placed<RoomPixels>(-80, -80), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.DraygonTail, OffRoomPlaces.Placed<RoomPixels>(-80, -80), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.DraygonArms, OffRoomPlaces.Placed<RoomPixels>(-80, -80), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
+            new(EnemyDefinitionId.DraygonBody, OffRoomPlaces.Placed(new Offset16<RoomPixels>(-80, -80)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
+            new(EnemyDefinitionId.DraygonEye, OffRoomPlaces.Placed(new Offset16<RoomPixels>(-80, -80)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
+            new(EnemyDefinitionId.DraygonTail, OffRoomPlaces.Placed(new Offset16<RoomPixels>(-80, -80)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
+            new(EnemyDefinitionId.DraygonArms, OffRoomPlaces.Placed(new Offset16<RoomPixels>(-80, -80)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, true, EnemySpawnSettings.None),
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.Aqueduct),
         [

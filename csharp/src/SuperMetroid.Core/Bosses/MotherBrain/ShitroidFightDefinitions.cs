@@ -59,7 +59,7 @@ internal static class ShitroidFightDefinitions
     internal const int HoldBeforeReleaseUpdates = 257;
 
     /// <summary>The point left of the room it leaves to.</summary>
-    internal static readonly Position16<RoomPixels> ExitPoint = OffRoomPlaces.Placed<RoomPixels>(-128, 64);
+    internal static readonly Position16<RoomPixels> ExitPoint = OffRoomPlaces.Placed(new Offset16<RoomPixels>(-128, 64));
 
     /// <summary>How near its exit point, on each axis, it must come before it is gone.</summary>
     internal static readonly Extent16<RoomPixels> ExitReach = new(8, 8);

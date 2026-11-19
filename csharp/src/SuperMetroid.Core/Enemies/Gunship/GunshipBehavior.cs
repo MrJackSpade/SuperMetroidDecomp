@@ -153,7 +153,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
 
         if (place.SpawnSettings<GunshipSpawnSettings>().Part == GunshipBottomPiece.EntrancePad)
         {
-            // The hull the pad borrows its height from can stand above the room's top, after Ceres.
+            // The hull the pad takes its height from can stand above the room's top, after Ceres.
             place.Position = OffRoomPlaces.WithWholeY(place.Position, GunshipPadBorrowedHeight.Start(
                 distance => _places.ListedBefore(place, distance).Position.Y.Whole));
         }

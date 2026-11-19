@@ -576,9 +576,9 @@ internal sealed class EnemyProjectileEngine
         // The death actor stands where its enemy died, which can lie above or left of the room's origin (a fly that has
         // climbed through the ceiling, a Bull braking past Samus), so a sprite scattered across the origin continues from
         // the space's far end, as OffRoomPlaces places it.
-        _ = _effectActors.SpawnRoomEffectActor(OffRoomPlaces.Placed<RoomPixels>(
-            projectile.Position.X.Whole + spread.HorizontalScatter.Of(random) - spread.Radius,
-            projectile.Position.Y.Whole + spread.VerticalScatter.Of(random) - spread.Radius),
+        _ = _effectActors.SpawnRoomEffectActor(new(
+            OffRoomPlaces.Place(projectile.Position.X.Whole + spread.HorizontalScatter.Of(random) - spread.Radius),
+            OffRoomPlaces.Place(projectile.Position.Y.Whole + spread.VerticalScatter.Of(random) - spread.Radius)),
             kind, graphics: default);
     }
 

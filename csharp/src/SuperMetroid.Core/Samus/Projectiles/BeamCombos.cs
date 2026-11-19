@@ -101,7 +101,7 @@ internal sealed class BeamCombos
                 {
                     // A Wave particle starts 128 pixels from Samus on each axis, so near the room's top or left edge it
                     // starts above or left of the room's origin, a place OffRoomPlaces gives it.
-                    shot.Position = shot.Position.WithWhole(OffRoomPlaces.Placed<RoomPixels>(samus.Position.X.Whole + part.WaveStart.X, samus.Position.Y.Whole + part.WaveStart.Y));
+                    shot.Position = shot.Position.WithWhole(new(OffRoomPlaces.Place(samus.Position.X.Whole + part.WaveStart.X), OffRoomPlaces.Place(samus.Position.Y.Whole + part.WaveStart.Y)));
                 }
                 if (kind == SamusComboKind.Spazer && part.SpazerTrail) shot.Type = SamusProjectileType.EchoOf(SamusBeamEcho.SpazerComboTrail);
                 InitializeComboShot(shot, kind == SamusComboKind.Ice ? BeamComboShotKind.Charged
@@ -254,7 +254,7 @@ internal sealed class BeamCombos
         Offset16<RoomPixels> orbit = SamusComboMechanics.GetSineOffset(ring.Angle, ring.Radius);
         // A Plasma ring grows as far as 192 pixels round Samus, so near the room's top or left edge it passes above or left
         // of the room's origin, places OffRoomPlaces gives it.
-        shot.Position = shot.Position.WithWhole(OffRoomPlaces.Placed<RoomPixels>(orbit.X + samus.Position.X.Whole, orbit.Y + samus.Position.Y.Whole));
+        shot.Position = shot.Position.WithWhole(new(OffRoomPlaces.Place(orbit.X + samus.Position.X.Whole), OffRoomPlaces.Place(orbit.Y + samus.Position.Y.Whole)));
         ring.Turn();
         switch (ring.Phase)
         {
@@ -395,8 +395,8 @@ internal sealed class BeamCombos
         int centreHeight = spazer.Phase == SpazerComboPhase.Circling ? 0 : BeamComboDefinitions.SpazerFlightCentreHeight;
         // A Spazer particle circles Samus 40 pixels out, then as far as 160 round a point 114 above her, so near the room's
         // top or left edge it passes above or left of the room's origin, places OffRoomPlaces gives it.
-        shot.Position = shot.Position.WithWhole(OffRoomPlaces.Placed<RoomPixels>(samus.Position.X.Whole + orbit.X,
-            samus.Position.Y.Whole + orbit.Y - centreHeight));
+        shot.Position = shot.Position.WithWhole(new(OffRoomPlaces.Place(samus.Position.X.Whole + orbit.X),
+            OffRoomPlaces.Place(samus.Position.Y.Whole + orbit.Y - centreHeight)));
     }
 
     /// <summary>Moves a circling Spazer particle outward and switches its beam pair to falling echo artwork.</summary>

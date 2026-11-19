@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// Consulted by the camera's tracking, its scroll-zone handling and its grapple slow scroll on every update that moves
 /// it, after Samus's movement; by the background's scroll as it follows the foreground; and by every view and
 /// processing-window test, deletion test and screen place that measures from the camera, in the update of the actor
-/// tested. Evidence: the original's scroll-zone handlers (<c>$80:A528</c>, <c>$80:A641</c>, <c>$80:A6BB</c>,
+/// tested. Evidence: the original's scroll-zone checks (<c>$80:A528</c>, <c>$80:A641</c>, <c>$80:A6BB</c>,
 /// <c>$80:A731</c>, <c>$80:A893</c>, <c>$80:A936</c>) clear the layer's position only when its word reads negative and
 /// compare each proposed position with a scroll boundary by a sixteen-bit subtraction's sign; the enemy and projectile
 /// view tests subtract the layer's position from the actor's as words; the Ridley full-movie and 100% recorded movies
@@ -66,10 +66,4 @@ public static class CameraPastRoomEdge
     /// <param name="coordinate">The scroll coordinate computed, which may lie past either end of the coordinates.</param>
     public static int Signed(int coordinate) => CoordinateAxis.AsSigned(coordinate);
 
-    /// <summary>A scroll of <paramref name="x"/> and <paramref name="y"/>, each read as <see cref="Signed"/> reads it.</summary>
-    /// <typeparam name="TSpace">The scroll's coordinate space.</typeparam>
-    /// <param name="x">The horizontal scroll computed.</param>
-    /// <param name="y">The vertical scroll computed.</param>
-    public static Offset16<TSpace> SignedScroll<TSpace>(int x, int y)
-        where TSpace : ISpatialSpace => Offset16<TSpace>.Wrapped(x, y);
 }

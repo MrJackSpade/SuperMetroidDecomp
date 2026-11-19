@@ -451,10 +451,10 @@ internal sealed class BeamFiring
         samusBombs.SetSharedCooldown(isSuperMissile
             ? SamusProjectileCooldownDefinitions.SuperMissileShot
             : SamusProjectileCooldownDefinitions.MissileShot);
-        if (samus.AutoCancelledItem != HudItem.Beam)
+        if (samus.AutoCancelledItem is not null)
         {
             samus.SelectedHudItem = HudItem.Beam;
-            samus.AutoCancelledItem = HudItem.Beam;
+            samus.AutoCancelledItem = null;
         }
         else if ((isSuperMissile ? samus.SuperMissiles : samus.Missiles) == 0)
             samus.SelectedHudItem = HudItem.Beam;

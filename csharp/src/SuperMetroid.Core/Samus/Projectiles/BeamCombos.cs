@@ -122,7 +122,8 @@ internal sealed class BeamCombos
                 : throw new InvalidOperationException($"Undefined combo {kind}.");
         }
         if (samus.PowerBombs == 0)
-            samus.SelectedHudItem = samus.AutoCancelledItem = HudItem.Beam;
+            samus.SelectedHudItem = HudItem.Beam;
+            samus.AutoCancelledItem = null;
         return activated;
     }
 

@@ -253,7 +253,9 @@ internal static class NativeSnapshotImport
         PrivateState.Set(samus, nameof(SamusState.EnergyFraction), SuperMetroid.Core.Compatibility.PeriodicDamageEnergyFraction.Holding(W(NativeSnapshotMemory.SubunitHealth)));
         samus.SelectedHudItem = SaveSlotNumbering.SavedHudItem(W(NativeSnapshotMemory.SelectedHudItem));
         PrivateState.Set(samus.ArmCannon, nameof(SamusArmCannonState.PreviousSelectedHudItem), samus.SelectedHudItem);
-        samus.AutoCancelledItem = SaveSlotNumbering.SavedHudItem(W(NativeSnapshotMemory.AutoCancelHudItemIndex));
+        // The cartridge records no auto-cancel as the beams' index.
+        samus.AutoCancelledItem = SaveSlotNumbering.SavedHudItem(W(NativeSnapshotMemory.AutoCancelHudItemIndex)) is var autoCancelled &&
+            autoCancelled != HudItem.Beam ? autoCancelled : null;
         samus.ReserveTankMode = SaveSlotNumbering.SavedReserveMode(W(NativeSnapshotMemory.ReserveMode));
         samus.MaxReserveEnergy = SamusCountWords.Decode(W(NativeSnapshotMemory.MaxReserve));
         samus.ReserveEnergy = SamusCountWords.Decode(W(NativeSnapshotMemory.Reserve));

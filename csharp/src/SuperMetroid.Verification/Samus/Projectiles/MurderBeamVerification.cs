@@ -230,7 +230,7 @@ internal static class MurderBeamVerification
             "auto-cancel setup fires one Missile");
         AssertEqual(HudItem.Beam, samus.SelectedHudItem,
             "successful Missile auto-cancels back to beams");
-        AssertEqual(HudItem.Beam, samus.AutoCancelledItem,
+        AssertEqual<HudItem?>(null, samus.AutoCancelledItem,
             "successful Missile consumes its auto-cancel request");
 
         HoldCharge(level, samus, projectiles, shared, shootAlreadyHeld: true);

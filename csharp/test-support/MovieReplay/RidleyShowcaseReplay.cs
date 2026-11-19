@@ -433,7 +433,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             Check("Samus hurt palette/audio recovery countdown", checked((ushort)samus.HurtFlash.Count), NativeSnapshotMemory.HurtFlashCounter);
             Check("Samus fractional health word", checked((ushort)samus.EnergyFraction.Parts), NativeSnapshotMemory.SubunitHealth);
             Check("Samus selected HUD weapon", samus.SelectedHudItem.SavedNumber(), NativeSnapshotMemory.SelectedHudItem);
-            Check("Samus auto-cancel HUD selection", samus.AutoCancelledItem.SavedNumber(), NativeSnapshotMemory.AutoCancelHudItemIndex);
+            Check("Samus auto-cancel HUD selection", (samus.AutoCancelledItem ?? HudItem.Beam).SavedNumber(), NativeSnapshotMemory.AutoCancelHudItemIndex);
             Check("Samus acceleration mode", SamusAccelerationModeCodec.ToNative(samus.HorizontalSpeed.AccelerationMode), NativeSnapshotMemory.AccelerationMode);
             Check("Samus maximum health", SamusCountWords.Encode(samus.MaxHealth), NativeSnapshotMemory.MaxHealth);
             // The native item words keep a bit no item uses; the import's codec drops it, so the words compare as decoded.

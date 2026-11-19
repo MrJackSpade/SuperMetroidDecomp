@@ -321,15 +321,15 @@ public sealed class SamusState
 
     /// <summary>
     /// The item chosen for auto-cancel, by pressing Select while Item Cancel is held: the HUD returns to the beam when its
-    /// use ends. <see cref="HudItem.Beam"/> when no item was chosen that way.
+    /// use ends. Null when no item was chosen that way.
     /// </summary>
-    public HudItem AutoCancelledItem { get; set; }
+    public HudItem? AutoCancelledItem { get; set; }
 
     /// <summary>Returns the HUD to the beam, with no item chosen for auto-cancel.</summary>
     public void SelectBeam()
     {
         SelectedHudItem = HudItem.Beam;
-        AutoCancelledItem = HudItem.Beam;
+        AutoCancelledItem = null;
     }
 
     /// <summary>

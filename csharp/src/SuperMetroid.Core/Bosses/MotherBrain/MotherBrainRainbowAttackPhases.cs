@@ -192,7 +192,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         if (samus.SelectedHudItem == selectedItem)
             samus.SelectedHudItem = HudItem.Beam;
 
-        samus.AutoCancelledItem = HudItem.Beam;
+        samus.AutoCancelledItem = null;
         return 0;
     }
 

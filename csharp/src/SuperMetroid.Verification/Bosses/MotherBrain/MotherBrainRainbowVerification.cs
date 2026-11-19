@@ -308,7 +308,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     AssertEqual(0, low.PowerBombs,
         "power bombs reach the shared literal-zero reset regardless of HUD selection");
     AssertEqual(HudItem.Beam, low.SelectedHudItem, "selected depleted item clears HUD selection");
-    AssertEqual(HudItem.Beam, low.AutoCancelledItem, "ammo depletion resets auto-cancel index");
+    AssertEqual<HudItem?>(null, low.AutoCancelledItem, "ammo depletion resets auto-cancel index");
 
     Console.WriteLine("  Mother Brain actor: rainbow drain, ammo depletion and HUD selection agree.");
 }

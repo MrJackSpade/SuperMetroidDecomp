@@ -63,7 +63,7 @@ internal static class PipeBugBehaviorVerification
             Initialize(enemies, place, EnemyDefinitionId.Gamet, 0);
             NorfairPipeBugState state = place.RequireSpeciesState<NorfairPipeBugState>();
             state.Action = NorfairPipeBugAction.WaitForStagger;
-            state.Role = new NorfairPipeBugRole(StaggerTarget: 72, Stagger: null);
+            state.Role = new NorfairPipeBugRole.Leader(StaggerTarget: 72);
             PrivateState.Set(state, nameof(NorfairPipeBugState.Departure), UpdateCountdownAccess.AtAge(72, before));
             enemies.PipeBugsBehavior.RunNorfairPipeBugMainAi(place, Frame(new(200, 128)));
             AssertEqual(after, state.Departure.Age, $"Norfair Pipe Bug count after {before}");
@@ -137,7 +137,8 @@ internal static class PipeBugBehaviorVerification
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
             Initialize(enemies, slot, EnemyDefinitionId.Gamet, 0);
             NorfairPipeBugState state = slot.RequireSpeciesState<NorfairPipeBugState>();
-            NorfairPipeBugStagger stagger = role.Stagger ?? throw new InvalidOperationException("Every member but the leader staggers.");
+            NorfairPipeBugStagger stagger = role is NorfairPipeBugRole.Follower { Stagger: var moves } ? moves
+                : throw new InvalidOperationException("Every member but the leader staggers.");
             // The member's place in the formation, from where its rise ended: up is toward smaller Y (#2473).
             int offset = stagger.Direction == VerticalDirection.Up ? -stagger.Distance : stagger.Distance;
             AssertEqual(NorfairPipeBugAction.Stagger, role.PostRiseAction, $"the member {offset} pixels from the leader staggers by its offset");

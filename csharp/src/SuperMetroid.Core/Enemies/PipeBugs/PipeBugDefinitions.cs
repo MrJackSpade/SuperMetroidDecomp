@@ -11,19 +11,19 @@ internal static class PipeBugDefinitions
     internal const int BrinstarFlightStep = 2;
 
     /// <summary>The leader: it holds its height after rising and departs at 104.</summary>
-    internal static readonly NorfairPipeBugRole LeaderRole = new(104, Stagger: null);
+    internal static readonly NorfairPipeBugRole LeaderRole = new NorfairPipeBugRole.Leader(104);
 
     /// <summary>The member just above the leader: it rises 16 pixels further and departs at 96.</summary>
-    internal static readonly NorfairPipeBugRole UpperNearRole = new(96, new NorfairPipeBugStagger(VerticalDirection.Up, 16));
+    internal static readonly NorfairPipeBugRole UpperNearRole = new NorfairPipeBugRole.Follower(96, new NorfairPipeBugStagger(VerticalDirection.Up, 16));
 
     /// <summary>The member farthest above the leader: it rises 32 pixels further and departs at 88.</summary>
-    internal static readonly NorfairPipeBugRole UpperFarRole = new(88, new NorfairPipeBugStagger(VerticalDirection.Up, 32));
+    internal static readonly NorfairPipeBugRole UpperFarRole = new NorfairPipeBugRole.Follower(88, new NorfairPipeBugStagger(VerticalDirection.Up, 32));
 
     /// <summary>The member just below the leader: it sinks 16 pixels back and departs at 112.</summary>
-    internal static readonly NorfairPipeBugRole LowerNearRole = new(112, new NorfairPipeBugStagger(VerticalDirection.Down, 16));
+    internal static readonly NorfairPipeBugRole LowerNearRole = new NorfairPipeBugRole.Follower(112, new NorfairPipeBugStagger(VerticalDirection.Down, 16));
 
     /// <summary>The member farthest below the leader: it sinks 32 pixels back and departs at 120.</summary>
-    internal static readonly NorfairPipeBugRole LowerFarRole = new(120, new NorfairPipeBugStagger(VerticalDirection.Down, 32));
+    internal static readonly NorfairPipeBugRole LowerFarRole = new NorfairPipeBugRole.Follower(120, new NorfairPipeBugStagger(VerticalDirection.Down, 32));
 
     /// <summary>How far a Brinstar Pipe Bug rises above where it spawned before it flies, in pixels.</summary>
     internal const int BrinstarEmergenceHeight = 16;

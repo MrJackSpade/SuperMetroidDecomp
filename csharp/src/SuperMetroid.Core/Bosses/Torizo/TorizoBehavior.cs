@@ -260,7 +260,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.StopMoving }:
-                state.Motion = null;
+                state.Motion = TorizoBodyMotion.HoldingStill;
                 return null;
 
             case TorizoCue.SetPhase setPhase:

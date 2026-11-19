@@ -64,7 +64,7 @@ internal sealed class TorizoMovement
         torizo.Shading = state.Colours.Shading;
         torizo.Frame = definition.InitialFrame;
 
-        state.Motion = null;
+        state.Motion = TorizoBodyMotion.HoldingStill;
         state.Velocity = PixelVelocity<RoomPixels>.Zero;
         state.FallAtRestingSpeed();
 
@@ -112,7 +112,7 @@ internal sealed class TorizoMovement
     {
         switch (state.Motion)
         {
-            case null:
+            case TorizoBodyMotion.HoldingStill:
                 return;
             case TorizoBodyMotion.Walking:
                 Walk(torizo, state, level);

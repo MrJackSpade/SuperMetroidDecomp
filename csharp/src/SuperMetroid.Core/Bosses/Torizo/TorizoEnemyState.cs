@@ -139,8 +139,8 @@ public sealed class TorizoEnemyState
     /// <summary>The main phase the Torizo runs each frame; it starts settling under gravity as it wakes.</summary>
     public TorizoPhase Phase { get; internal set; } = TorizoPhase.Falling;
 
-    /// <summary>How the body moves itself each update while it fights, or null while it holds still (#1931).</summary>
-    internal TorizoBodyMotion? Motion { get; set; }
+    /// <summary>How the body moves itself each update while it fights (#1931).</summary>
+    internal TorizoBodyMotion Motion { get; set; }
 
     /// <summary>Whether the Torizo has started dying: lethal damage starts its death once, and it stays dying while it lasts.</summary>
     public bool DeathStarted { get; internal set; }

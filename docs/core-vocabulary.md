@@ -961,6 +961,14 @@ velocity up away from rest (`SpedUpBy`) or dragging it toward rest (`DraggedBy`)
 `SamusVerticalVelocity`. Where the original's unsigned-magnitude arithmetic is observable, a compatibility service
 reproduces it (`SpeedAlongAngle`, `MultiviolaLeftOrUpSpeed`, `BullBackwardStep`).
 
+SME6476 (#2558) keeps magic values from standing for a role or absence. In Core and the import pipeline no array or
+sequence is filled with minus one or `int.MaxValue` (`Array.Fill(places, -1)`), no choice gives one beside a computed
+value (`found ? index : -1`, `index ?? -1`), no method returns one, no field or property is seeded with one, and no local
+is seeded with one that its body then tests against zero or minus one. An identity enum (`…Id`) has no `None`, `Empty`,
+`Blank` or `Nothing` member, and an identity or type value (`…Id`, `…Type`) no static of that name. Absence is a typed
+optional (`int?`, a nullable reference, a `TryGet`) or a closed type's case, and a role is a named member. A named
+constant, a sign beside another constant, a comparison's order and a library's own result are not sentinels.
+
 SME6472 (#2575) keeps definition data in domain catalogs. Outside a catalog file, Core builds no value of a Core type
 wholly from constants with a nonzero numeric literal among them (`new Offset16<RoomPixels>(1, 0)`,
 `SignedSixteenSixteen.FromWholePixels(1)`, `UpdateCountdown.Lasting(1)`) and passes no nonzero numeric literal by name

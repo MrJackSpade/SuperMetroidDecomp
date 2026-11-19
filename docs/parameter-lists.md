@@ -29,11 +29,11 @@ Exemptions are declared on the member, never per project:
   accepts only its own narrow contract: `RoomEnemyFrame : IEnemyAiFrame`, `IRoomEnemyServices :
   IChozoStatueRoomServices, IMotherBrainRoomServices`, `IRoomObjectEnemyEffects :
   INoobTubeProjectileSpawner, ...`. Where a private child would see only one implementation, compose
-  a narrow concrete value (`PaletteFxConditions`, `RuntimeFramePolicy`, `VerticalTerrainProbe`)
+  a narrow concrete value (`PaletteFxConditions`, `GameplayUpdateOwner`, `VerticalTerrainProbe`)
   instead of passing the whole parent.
 - Required capabilities are non-null and validated at construction (`RoomObjectRoom`).
   Optional behaviour is a named scenario or null object (a default `RuntimeFrameRequest`,
-  `RuntimeFramePolicy.Gameplay`, `HostGameplayOverrides.None`), not a nullable delegate.
+  `GameplayUpdateOwner.RuntimeOnlyHost`, `HostGameplayOverrides.None`), not a nullable delegate.
 - A cluster of callbacks that represents one service becomes one interface (`IDemoInputProgram`,
   `IRoomSamusAccess`, `IRoomEarthquakeWriter`).
 - Reuse existing domain values before adding new ones (`Mode7RenderRegisters`,

@@ -60,7 +60,7 @@ internal sealed class EndingGameSequence(FrontendSession session) : IGamePhase
         // Leaving Zebes runs the complete main-gameplay update before
         // the fade-out. The fleeing gunship, room animations, and sound publishers
         // therefore continue behind every darkening frame, and each counts the play time (#2517).
-        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { RunsLowHealthCheck = true, MainGameplayOwnsUpdate = false } });
+        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.LeavingZebes });
         session.display.PublishGameplay(session.GameplayRuntime);
         // The fade-out reloads the counter from the screen fade's delay, which
         // the gunship zeroed, so the brightness falls one step on every update.

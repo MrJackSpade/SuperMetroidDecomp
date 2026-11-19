@@ -39,7 +39,7 @@ internal static class GrappleDemoTrajectoryVerification
         {
             input.Step(titleLeaving: false, SamusPoseMetadata.ReadMovementType(samus));
             if ((input.Script.NewlyPressed & ControllerWordCodec.ToJoypadWord(ControllerButton.X)) != 0) scriptedShots++;
-            runtime.StepFrame(0, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false } });
+            runtime.StepFrame(0, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.AttractDemo });
             if (frame == 164)
                 AssertEqual(SamusPoseId.NormalJumpAimDiagonalUpRightPose, samus.Pose,
                     "held shoulder aim survives independent grapple-release movement ownership");

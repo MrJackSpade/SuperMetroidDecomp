@@ -66,5 +66,6 @@ SME6461 | Design | Error | RandomSampleSelectionAnalyzer
 SME6462 | Design | Error | InstalledKeyAnalyzer
 SME6463 | Design | Error | CoordinateWrapAnalyzer
 SME6464 | Design | Error | HandRunCountdownAnalyzer
+SME6465 | Design | Error | RawFixedPointUnitAnalyzer
 SME6466 | Design | Error | CarriedValueAnalyzer
 SME6470 | Design | Error | OneUpdateRequestAnalyzer

@@ -40,7 +40,7 @@ public sealed class RidleyFlightState
     /// </summary>
     public bool HitRoomBoundary { get; internal set; }
     /// <summary>Gets Ridley's velocity, each axis held unchanged.</summary>
-    public EightEightVector<RoomPixels> Velocity { get; internal set; }
+    public PixelVelocity<RoomPixels> Velocity { get; internal set; }
     /// <summary>His wing beat: the pose his wings show and the countdown to the next, paced by his flight speed (#2329).</summary>
     public RidleyWingBeat Wings { get; }
     /// <summary>Gets the swoop's heading, which wraps around the full turn; its whole step selects the sine sample.</summary>
@@ -60,5 +60,5 @@ public sealed class RidleyFlightState
     /// <summary>Gets whether Ridley's animation has enabled the roar presentation.</summary>
     public bool Roaring { get; internal set; }
     /// <summary>Gets the velocity his body animation's aim computed from the clamped fireball aim angle.</summary>
-    public EightEightVector<RoomPixels> FireballVelocity { get; internal set; }
+    public PixelVelocity<RoomPixels> FireballVelocity { get; internal set; }
 }

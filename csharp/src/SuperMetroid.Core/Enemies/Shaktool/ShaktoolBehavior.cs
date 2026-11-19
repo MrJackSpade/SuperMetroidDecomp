@@ -153,8 +153,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// (<see cref="ShaktoolOrbitDefinitions.OrbitSine"/>) at the angle across, and at the angle a quarter turn behind down.
     /// </summary>
     internal static FixedVector<RoomPixels> OrbitDisplacement(TrigonometryAngle angle) => new(
-        SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(ShaktoolOrbitDefinitions.OrbitSine.At(angle)),
-        SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(ShaktoolOrbitDefinitions.OrbitSine.At(angle - TrigonometryAngle.QuarterTurn)));
+        ShaktoolOrbitDefinitions.OrbitSine.At(angle), ShaktoolOrbitDefinitions.OrbitSine.At(angle - TrigonometryAngle.QuarterTurn));
 
     /// <summary>
     /// Places the segment on its orbit and turns the orbit on its chain's way round, by the segment's own angular speed, or
@@ -279,8 +278,9 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.ResetOrientation();
         RoomEnemyPlace owner = chain.LeadingSaw;
-        RotationAngle bearing = EnemyMath.CalculateBearing(
-            new(place.Position.X.Whole - owner.Position.X.Whole, place.Position.Y.Whole - owner.Position.Y.Whole)).ToMirroredTrigonometryAngle().ToAngle();
+        // The chain measures its orbit clockwise from straight up, as its orbit's sine across reads it.
+        RotationAngle bearing = (TrigonometryAngle.QuarterTurn - EnemyMath.CalculateAimAngle(
+            new(place.Position.X.Whole - owner.Position.X.Whole, place.Position.Y.Whole - owner.Position.Y.Whole))).ToAngle();
         chain.TargetAngle = chain.Motion.OrbitDirection == RotationDirection.Clockwise
             ? bearing + RotationAngle.QuarterTurn
             : bearing - RotationAngle.QuarterTurn;

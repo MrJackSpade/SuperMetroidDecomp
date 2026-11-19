@@ -19,7 +19,7 @@ public sealed class PhantoonFigureEightState
     /// His speed in path places per update: zero or more forward, zero or less while he runs the path backwards, and
     /// never more than seven places from rest.
     /// </summary>
-    public SignedSixteenSixteen Speed { get; internal set; }
+    public PhantoonPathSpeed Speed { get; internal set; }
 
     /// <summary>The stage of the speed change he is in.</summary>
     public PhantoonFigureEightStage Stage { get; internal set; }

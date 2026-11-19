@@ -234,11 +234,11 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
                     projectile.StateOf<NoobTubeDebrisState>().IsHidden = !atOwnColumn;
                     break;
                 case NoobTubeProjectileCueKind.AssignShardFallingAngle:
-                    projectile.StateOf<NoobTubeDebrisState>().StartSway(room.Random.Next(NoobTubeDebrisDefinitions.FallingSwayStart));
+                    projectile.StateOf<NoobTubeDebrisState>().StartSway(NoobTubeDebrisDefinitions.FallingSwayStart.Of(room.Random.Generate()));
                     projectile.Velocity = projectile.Velocity.WithY(NoobTubeDebrisDefinitions.ShardFallYVelocity);
                     break;
                 case NoobTubeProjectileCueKind.AssignBubbleFallingAngle:
-                    projectile.StateOf<NoobTubeDebrisState>().StartSway(room.Random.Next(NoobTubeDebrisDefinitions.FallingSwayStart));
+                    projectile.StateOf<NoobTubeDebrisState>().StartSway(NoobTubeDebrisDefinitions.FallingSwayStart.Of(room.Random.Generate()));
                     break;
                 case NoobTubeProjectileCueKind.StartCrackFlicker:
                     projectile.StartMotion(NoobTubePieceMotion.CrackFlickering);

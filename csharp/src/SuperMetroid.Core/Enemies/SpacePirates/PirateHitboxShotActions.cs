@@ -64,7 +64,7 @@ internal static class PirateHitboxShotActions
                 $"Gold Ninja projectile family {family} has no vulnerability field."),
         };
         // The Gold Ninja reflects what does it no damage, freezing beams included.
-        return vulnerability.Multiplier != 0 && !vulnerability.FreezesWithoutDamage
+        return !vulnerability.Multiplier.IsNone && !vulnerability.FreezesWithoutDamage
             ? PirateHitboxShotAction.Normal
             : PirateHitboxShotAction.Reflect;
     }

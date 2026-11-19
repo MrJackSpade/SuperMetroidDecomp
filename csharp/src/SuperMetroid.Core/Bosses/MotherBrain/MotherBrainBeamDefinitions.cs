@@ -36,5 +36,5 @@ public static class MotherBrainBeamDefinitions
     public static readonly RotationAngle RainbowWidestWidth = RotationAngle.FromSteps(12);
 
     /// <summary>How far one widening or narrowing of the rainbow beam changes its width: one and a half steps.</summary>
-    public static readonly RotationAngle RainbowWidthStep = RotationAngle.FromSteps(1, 128);
+    public static readonly RotationAngle RainbowWidthStep = RotationAngle.FromStepFraction(3, 2);
 }

@@ -65,7 +65,7 @@ internal sealed class TorizoMovement
         torizo.Frame = definition.InitialFrame;
 
         state.Motion = null;
-        state.Velocity = EightEightVector<RoomPixels>.Zero;
+        state.Velocity = PixelVelocity<RoomPixels>.Zero;
         state.FallAtRestingSpeed();
 
         // Both statues show the colours they share with their own body colours over them (#1512).
@@ -201,7 +201,7 @@ internal sealed class TorizoMovement
                 ? TorizoAnimation.FacingRightFalling
                 : TorizoAnimation.FacingLeftFalling));
             // The fall starts at the resting speed, so a Torizo whose ground returns at once lands without a quake.
-            state.Velocity = EightEightVector<RoomPixels>.Zero;
+            state.Velocity = PixelVelocity<RoomPixels>.Zero;
             state.FallAtRestingSpeed();
         }
     }

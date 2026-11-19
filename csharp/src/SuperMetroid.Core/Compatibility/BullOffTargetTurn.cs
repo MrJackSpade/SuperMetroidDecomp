@@ -15,10 +15,10 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("a charging Bull reckons the turn to Samus the long way round when her bearing lies more than half a turn behind its heading")]
 public static class BullOffTargetTurn
 {
-    /// <summary>The turn, in 256ths of a turn, a Bull heading at <paramref name="heading"/> reckons to <paramref name="bearing"/>.</summary>
-    public static int Of(TrigonometryAngle heading, TrigonometryAngle bearing)
+    /// <summary>The turn a Bull heading at <paramref name="heading"/> reckons to <paramref name="bearing"/>.</summary>
+    public static TrigonometryAngle Of(TrigonometryAngle heading, TrigonometryAngle bearing)
     {
         int turn = bearing.RawValue - heading.RawValue;
-        return turn >= TrigonometryAngle.HalfTurn.RawValue ? RotationAngle.StepsPerTurn - turn : Math.Abs(turn);
+        return new(turn >= TrigonometryAngle.HalfTurn.RawValue ? RotationAngle.StepsPerTurn - turn : Math.Abs(turn));
     }
 }

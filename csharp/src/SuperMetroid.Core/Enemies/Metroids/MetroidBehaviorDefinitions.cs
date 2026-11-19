@@ -29,16 +29,16 @@ internal static class MetroidBehaviorDefinitions
     internal const int ClosingSpeedPerDistance = 32;
 
     /// <summary>
-    /// How fast a Metroid a body attack throws off moves away from Samus on each axis, in sixteenths of a pixel an update
-    /// for each pixel between them: a quarter of their distance an update (#2339).
+    /// How fast a Metroid a body attack throws off moves away from Samus on each axis for each pixel between them: a
+    /// quarter of a pixel an update, a quarter of their distance an update (#2339).
     /// </summary>
-    internal const int BodyAttackThrowPerDistance = 4;
+    internal static readonly SignedSixteenSixteen BodyAttackThrowPerDistance = SignedSixteenSixteen.FromPixelFraction(1, 4);
 
     /// <summary>
-    /// How fast a shot Metroid recoils from where the shots it took came from on each axis, in sixteenths of a pixel an
-    /// update for each pixel between them: an eighth of their distance an update (#2339).
+    /// How fast a shot Metroid recoils from where the shots it took came from on each axis for each pixel between them:
+    /// an eighth of a pixel an update, an eighth of their distance an update (#2339).
     /// </summary>
-    internal const int ShotRecoilPerDistance = 2;
+    internal static readonly SignedSixteenSixteen ShotRecoilPerDistance = SignedSixteenSixteen.FromPixelFraction(1, 8);
 
     /// <summary>How long a frozen Metroid flashes each update it strains against the ice, in updates.</summary>
     internal const int EscapeFlashDuration = 2;
@@ -55,17 +55,14 @@ internal static class MetroidBehaviorDefinitions
     /// </summary>
     internal const int DrainSoundLeastHealth = 30;
 
-    /// <summary>A sixteenth of an energy, in the parts the drain counts an energy in.</summary>
-    private const int SixteenthHealth = FractionalEnergyDrain.PartsPerEnergy / 16;
-
     /// <summary>Gravity Suit Samus's drain fraction, an energy taken each time it exceeds what the drain holds over: three sixteenths.</summary>
-    internal const int GravityDrainFraction = 3 * SixteenthHealth;
+    internal static readonly EnergyAmount GravityDrainFraction = EnergyAmount.FromEnergyFraction(3, 16);
 
     /// <summary>Varia Suit Samus's drain fraction: six sixteenths.</summary>
-    internal const int VariaDrainFraction = 6 * SixteenthHealth;
+    internal static readonly EnergyAmount VariaDrainFraction = EnergyAmount.FromEnergyFraction(3, 8);
 
     /// <summary>Suitless Samus's drain fraction: twelve sixteenths.</summary>
-    internal const int PowerSuitDrainFraction = 12 * SixteenthHealth;
+    internal static readonly EnergyAmount PowerSuitDrainFraction = EnergyAmount.FromEnergyFraction(3, 4);
 
     /// <summary>How long a Metroid whose ice threshold is exhausted stays frozen, in updates.</summary>
     internal const int FrozenDuration = 400;
@@ -75,6 +72,9 @@ internal static class MetroidBehaviorDefinitions
 
     /// <summary>The fastest a chasing Metroid moves on each axis, in whole pixels an update.</summary>
     internal const int FastestChase = 3;
+
+    /// <summary>The fastest a homing Metroid flies on each axis: three pixels an update.</summary>
+    internal static readonly SignedSixteenSixteen FastestHoming = SignedSixteenSixteen.FromWholePixels(FastestChase);
 
     /// <summary>How many drops a frozen Metroid leaves when it dies, each chosen at random.</summary>
     internal const int FrozenDeathDropCount = 5;

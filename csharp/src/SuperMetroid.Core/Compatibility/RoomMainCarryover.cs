@@ -23,12 +23,9 @@ namespace SuperMetroid.Core.Compatibility;
 public sealed class RoomMainCarryover
 {
     /// <summary>The value the last main left, 0 through 65535.</summary>
-    private int _held;
-
-    /// <summary>The value the last main left, 0 through 65535.</summary>
-    public int Value => _held;
+    public int Value { get; private set; }
 
     /// <summary>Leaves <paramref name="value"/> for the next main that reads the shared value.</summary>
     /// <param name="value">The value, 0 through 65535.</param>
-    public void Leave(int value) => _held = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    public void Leave(int value) => Value = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
 }

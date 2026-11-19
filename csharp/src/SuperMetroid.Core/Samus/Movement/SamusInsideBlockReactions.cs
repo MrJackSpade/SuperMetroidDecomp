@@ -82,9 +82,8 @@ public static class SamusInsideBlockReactions
                             break;
                         case SamusVerticalDirection.Up:
                             SignedSixteenSixteen limit = physics.UpwardSpeedLimit;
-                            // The game compares the speed and limit in 256ths of a pixel, then
-                            // replaces the speed's whole pixels and fraction with the limit's.
-                            if (body.YSpeed.InTwoFiftySixths > limit.InTwoFiftySixths)
+                            // A speed past the limit takes the limit's whole pixels and fraction.
+                            if (body.YSpeed.IsFasterInTwoFiftySixthsThan(limit))
                             {
                                 body.YSpeed = UnsignedSixteenSixteen.FromDisplacement(limit);
                             }
@@ -120,8 +119,7 @@ public static class SamusInsideBlockReactions
                 return;
             // Only whole pixels of Y speed stop the carry: fractional vertical motion does
             // not. This replaces external X displacement, never adds to it.
-            body.ExtraDisplacement = body.ExtraDisplacement.WithX(SignedSixteenSixteen.FromParts(
-                rightward ? ConveyorBlockDefinitions.RightwardCarry : ConveyorBlockDefinitions.LeftwardCarry, 0));
+            body.ExtraDisplacement = body.ExtraDisplacement.WithX(rightward ? ConveyorBlockDefinitions.RightwardCarry : ConveyorBlockDefinitions.LeftwardCarry);
         }
         void SetExtra(SignedSixteenSixteen displacement)
         {
@@ -197,13 +195,19 @@ public static class SamusInsideBlockReactions
             displacement = SignedSixteenSixteen.Zero;
             return SpecialAirCollisionOutcome.Blocks;
         }
-        // A stationary Samus's probe is limited to the surface limit counted in 256ths of a pixel, keeping its finer
-        // fraction. The probe here moves down (only a scan's own downward displacement reaches this for a stationary
-        // Samus; the pose-observation probe passed through above) and by far less than 256 pixels, so counting it in
-        // 256ths of a pixel loses nothing but its finer fraction.
+        // The probe here moves down (only a scan's own downward displacement reaches this for a stationary Samus; the
+        // pose-observation probe passed through above) and by far less than 256 pixels.
         if (body.YDirection == SamusVerticalDirection.None)
-            displacement = displacement.WithTwoFiftySixthsAtMost(QuicksandDefinitions.StationarySurfaceProbeLimit);
+            displacement = HeldAtQuicksandSurface(displacement);
         surfaceContact = true;
         return SpecialAirCollisionOutcome.PassesThrough;
     }
+
+    /// <summary>
+    /// A stationary Samus's downward <paramref name="probe"/> held at the quicksand surface (#2555): sunk no further than
+    /// <see cref="QuicksandDefinitions.StationarySurfaceProbeLimit"/>, compared at the precision of the game's speeds, the
+    /// probe's finer fraction kept as it was (<see cref="SignedSixteenSixteen.WithTwoFiftySixthsAtMost"/>).
+    /// </summary>
+    private static SignedSixteenSixteen HeldAtQuicksandSurface(SignedSixteenSixteen probe) =>
+        probe.WithTwoFiftySixthsAtMost(QuicksandDefinitions.StationarySurfaceProbeLimit);
 }

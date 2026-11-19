@@ -36,7 +36,7 @@ public sealed class TitleGradientPresentation
         }
         // The ranges follow one another from no zoom up, each one range width past the last, and together end at the
         // floor's own size, so a zoom below it lies in exactly one.
-        FloorZoom rangeEnd = FloorZoom.FromTwoHundredFiftySixths(0);
+        FloorZoom rangeEnd = FloorZoom.FromFloorPixelsPerScreenPixel(0);
         foreach (ScreenGradient variant in variants)
         {
             rangeEnd = rangeEnd.Widened(TitleGradientFormat.ZoomRangeWidth);

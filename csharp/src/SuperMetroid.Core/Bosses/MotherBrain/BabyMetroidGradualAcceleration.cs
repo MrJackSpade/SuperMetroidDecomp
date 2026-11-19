@@ -12,8 +12,14 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal static class BabyMetroidGradualAcceleration
 {
-    /// <summary>Extra speed adjustment while reversing direction toward the target.</summary>
-    private const int ReversalStep = 8;
+    /// <summary>Extra speed adjustment while reversing direction toward the target: a thirty-second of a pixel an update.</summary>
+    private static readonly SignedEightEight ReversalStep = SignedEightEight.FromPixelFraction(1, 32);
+
+    /// <summary>
+    /// How much more an off-screen reversal raises the velocity than its matching lowering: the finest step a speed
+    /// takes.
+    /// </summary>
+    private static readonly SignedEightEight OffScreenRaiseExtra = SignedEightEight.FromPixelFraction(1, 256);
     /// <summary>Horizontal signed-velocity clamp applied after the run: eight pixels an update either way.</summary>
     private static readonly SignedEightEight MaxXSpeed = SignedEightEight.FromPixels(8);
     /// <summary>Vertical signed-velocity clamp, smaller than the horizontal limit: five pixels an update either way.</summary>
@@ -44,7 +50,7 @@ internal static class BabyMetroidGradualAcceleration
             return velocity;
         if (distance < 0)
         {
-            int step = Step(-distance, divisor);
+            SignedEightEight step = Step(-distance, divisor);
             if (velocity.IsNegative)
             {
                 // Off screen, a reversal first pushes the mover by its off-screen speed, raising by one unit more
@@ -52,7 +58,7 @@ internal static class BabyMetroidGradualAcceleration
                 if (isVaguelyOffScreen())
                 {
                     run.StartFresh();
-                    run.Raise(wrongWayOffScreenSpeed.InTwoHundredFiftySixthsOfPixel + 1);
+                    run.Raise(wrongWayOffScreenSpeed + OffScreenRaiseExtra);
                 }
                 run.StartFresh();
                 run.Raise(ReversalStep);
@@ -63,13 +69,13 @@ internal static class BabyMetroidGradualAcceleration
         }
         else
         {
-            int step = Step(distance, divisor);
+            SignedEightEight step = Step(distance, divisor);
             if (!velocity.IsNegative)
             {
                 if (isVaguelyOffScreen())
                 {
                     run.StartFresh();
-                    run.Lower(wrongWayOffScreenSpeed.InTwoHundredFiftySixthsOfPixel);
+                    run.Lower(wrongWayOffScreenSpeed);
                 }
                 run.StartFresh();
                 run.Lower(ReversalStep);
@@ -93,7 +99,7 @@ internal static class BabyMetroidGradualAcceleration
             return velocity;
         if (distance < 0)
         {
-            int step = Step(-distance, divisor);
+            SignedEightEight step = Step(-distance, divisor);
             if (velocity.IsNegative)
             {
                 run.StartFresh();
@@ -105,7 +111,7 @@ internal static class BabyMetroidGradualAcceleration
         }
         else
         {
-            int step = Step(distance, divisor);
+            SignedEightEight step = Step(distance, divisor);
             if (!velocity.IsNegative)
             {
                 run.StartFresh();
@@ -117,12 +123,12 @@ internal static class BabyMetroidGradualAcceleration
         }
     }
 
-    /// <summary>Models the distance division, replacing a zero quotient with one.</summary>
-    private static int Step(int distance, int divisor)
+    /// <summary>The step for the distance divided by the divisor, a zero quotient replaced with one (<see cref="SeekingVelocityRun.StepFor"/>).</summary>
+    private static SignedEightEight Step(int distance, int divisor)
     {
         if (divisor is < 1 or > 16)
             throw new ArgumentOutOfRangeException(nameof(divisor), "The divisor is 16 down to 1.");
         int quotient = distance / divisor;
-        return quotient == 0 ? 1 : quotient;
+        return SeekingVelocityRun.StepFor(quotient == 0 ? 1 : quotient);
     }
 }

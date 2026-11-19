@@ -46,13 +46,13 @@ public static class SamusBlockCollision
         // whole X is unchanged; without it, movement away from the wall would gather fractional speed during the
         // wall-check pose.
         if (result.Collided && result.EnemyCollision is null)
-            state.Position = state.Position.WithFractionX(probe.Position.X.Fraction);
+            state.Position = state.Position.WithFractionX(probe.Position.X.FractionOfPixel);
 
         // The step preceding the block scan has a separate
         // real side effect: its touching path clears Samus's vertical fraction of a pixel. Copy that single
         // write back without committing the probe's X movement or slope alignment.
         if (result.EnemyCollision is { WasTouching: true })
-            state.Position = state.Position.WithFractionY(0);
+            state.Position = state.Position.WithFractionY(PixelFraction.None);
 
         return result;
     }
@@ -949,7 +949,7 @@ public static class SamusBlockCollision
             int whole = TerrainScanEdges.Approach(state.Radius.X + RoomGridConversions.BlockEnd(leadingBoundary) + 1, state.Position.X.Whole);
             if (whole >= 0)
                 whole = 0;
-            state.Position = state.Position.WithFractionX(0);
+            state.Position = state.Position.WithFractionX(PixelFraction.None);
             return SignedSixteenSixteen.FromWholePixels(whole);
         }
         else
@@ -957,7 +957,7 @@ public static class SamusBlockCollision
             int whole = TerrainScanEdges.Approach(RoomGridConversions.BlockStart(leadingBoundary) - state.Radius.X, state.Position.X.Whole);
             if (whole < 0)
                 whole = 0;
-            state.Position = state.Position.WithFractionX(FixedCoordinate.LastFraction);
+            state.Position = state.Position.WithFractionX(PixelFraction.Last);
             return SignedSixteenSixteen.FromWholePixels(whole);
         }
     }
@@ -974,7 +974,7 @@ public static class SamusBlockCollision
                 state.Radius.X + RoomGridConversions.HalfBlockEnd(leadingBoundary) + 1, state.Position.X.Whole);
             if (whole >= 0)
                 whole = 0;
-            state.Position = state.Position.WithFractionX(0);
+            state.Position = state.Position.WithFractionX(PixelFraction.None);
             return SignedSixteenSixteen.FromWholePixels(whole);
         }
 
@@ -982,7 +982,7 @@ public static class SamusBlockCollision
             RoomGridConversions.HalfBlockStart(leadingBoundary) - state.Radius.X, state.Position.X.Whole);
         if (rightWhole < 0)
             rightWhole = 0;
-        state.Position = state.Position.WithFractionX(FixedCoordinate.LastFraction);
+        state.Position = state.Position.WithFractionX(PixelFraction.Last);
         return SignedSixteenSixteen.FromWholePixels(rightWhole);
     }
 
@@ -997,7 +997,7 @@ public static class SamusBlockCollision
             int whole = TerrainScanEdges.Approach(state.Radius.Y + RoomGridConversions.BlockEnd(leadingBoundary) + 1, state.Position.Y.Whole);
             if (whole >= 0)
                 whole = 0;
-            state.Position = state.Position.WithFractionY(0);
+            state.Position = state.Position.WithFractionY(PixelFraction.None);
             return SignedSixteenSixteen.FromWholePixels(whole);
         }
         else
@@ -1005,7 +1005,7 @@ public static class SamusBlockCollision
             int whole = TerrainScanEdges.Approach(RoomGridConversions.BlockStart(leadingBoundary) - state.Radius.Y, state.Position.Y.Whole);
             if (whole < 0)
                 whole = 0;
-            state.Position = state.Position.WithFractionY(FixedCoordinate.LastFraction);
+            state.Position = state.Position.WithFractionY(PixelFraction.Last);
             return SignedSixteenSixteen.FromWholePixels(whole);
         }
     }
@@ -1022,7 +1022,7 @@ public static class SamusBlockCollision
                 state.Radius.Y + RoomGridConversions.HalfBlockEnd(leadingBoundary) + 1, state.Position.Y.Whole);
             if (whole >= 0)
                 whole = 0;
-            state.Position = state.Position.WithFractionY(0);
+            state.Position = state.Position.WithFractionY(PixelFraction.None);
             return SignedSixteenSixteen.FromWholePixels(whole);
         }
 
@@ -1030,7 +1030,7 @@ public static class SamusBlockCollision
             RoomGridConversions.HalfBlockStart(leadingBoundary) - state.Radius.Y, state.Position.Y.Whole);
         if (downWhole < 0)
             downWhole = 0;
-        state.Position = state.Position.WithFractionY(FixedCoordinate.LastFraction);
+        state.Position = state.Position.WithFractionY(PixelFraction.Last);
 
         // Only the downward square-slope clip writes this flag. The no-speed vertical move consumes it to use
         // a one-pixel grounding probe instead of total-horizontal-speed-plus-one.

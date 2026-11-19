@@ -15,7 +15,7 @@ public static class TourianStatueSequenceDefinitions
     public const int DescentDelay = 301;
 
     /// <summary>How far the statue lowers each update: a quarter of a pixel.</summary>
-    public static readonly SignedSixteenSixteen DescentStep = SignedSixteenSixteen.FromSixteenthsOfPixel(4);
+    public static readonly SignedSixteenSixteen DescentStep = SignedSixteenSixteen.FromPixelFraction(1, 4);
 
     /// <summary>The pixels the statue lowers before the descent completes.</summary>
     public const int DescentDistance = 240;

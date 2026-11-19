@@ -57,7 +57,7 @@ internal static class RefillCompletionTransitionVerification
         samus.MaxReserveEnergy = 100;
         samus.ReserveTankMode = ReserveTankMode.Auto;
         samus.Position = samus.Position.WithWholeX(64);
-        samus.PeriodicDamage.Accumulate(new UnsignedSixteenSixteen(999, 0));
+        samus.PeriodicDamage.Accumulate(EnergyAmount.FromEnergy(999));
         game.Step(0);
         AssertEqual(SuperMetroidGameState.ReserveTankRefill, game.GameState, "Samus's emptied energy enters the refill");
         AssertTrue(runtime.EnteredDoor is null, "the spark is still short of the door as the refill begins");

@@ -44,7 +44,7 @@ public sealed class ProjectileLaunchInheritance
     private const int FirstNegativeVelocityWhole = VelocityWholeCycle / 2;
 
     /// <summary>A quarter of the inherited velocity's range, 64 pixels an update: the rising quarter's shift.</summary>
-    private static readonly SignedEightEight QuarterVelocityRange = SignedEightEight.FromParts(VelocityWholeCycle / 4, 0);
+    private static readonly SignedEightEight QuarterVelocityRange = SignedEightEight.FromPixels(VelocityWholeCycle / 4);
 
     /// <summary>The share of the inherited velocity an upward shot adds.</summary>
     private const int RisingShareDivisor = 4;
@@ -53,14 +53,10 @@ public sealed class ProjectileLaunchInheritance
     private readonly SignedSixteenSixteen[] _distances = new SignedSixteenSixteen[4];
 
     /// <summary>
-    /// The camera's vertical subspeed, the fraction of its vertical speed in 65536ths of a pixel, 0 through 65535. The
-    /// camera records it at the end of its update; a leftward launch inherits its top part as its fraction.
+    /// The camera's vertical speed as it tracked Samus on its last update (#2555). The camera records it at the end of its
+    /// update; a leftward launch inherits the top part of its fraction of a pixel as its own fraction.
     /// </summary>
-    public int CameraYSubspeed
-    {
-        get;
-        set => field = Ensure.BetweenInclusive(0, FractionSteps - 1, value);
-    }
+    public SignedSixteenSixteen CameraVerticalSpeed { get; set; }
 
     /// <summary>Records one horizontal movement update's signed distance, replacing the last one in <paramref name="direction"/>.</summary>
     public void Record(HorizontalDirection direction, SignedSixteenSixteen distance) => _distances[Place(direction)] = distance;
@@ -71,7 +67,7 @@ public sealed class ProjectileLaunchInheritance
     /// <summary>The last distance recorded in <paramref name="direction"/>; zero once cleared.</summary>
     public SignedSixteenSixteen Distance(VerticalDirection direction) => _distances[Place(direction)];
 
-    /// <summary>Clears the four recorded distances, keeping the camera subspeed.</summary>
+    /// <summary>Clears the four recorded distances, keeping the camera's vertical speed.</summary>
     public void ClearMovement() => Array.Clear(_distances);
 
     /// <summary>The velocity a shot launched in <paramref name="direction"/> inherits, in 8.8 pixels per update.</summary>
@@ -97,12 +93,12 @@ public sealed class ProjectileLaunchInheritance
 
     /// <summary>
     /// The inherited velocity of the distance at <paramref name="place"/>: its whole pixels within their 256-pixel cycle,
-    /// and the 256ths of the fraction recorded before it, the camera subspeed before the first distance.
+    /// and the 256ths of the fraction recorded before it, the camera's vertical speed's before the first distance.
     /// </summary>
     private SignedEightEight InheritedVelocity(int place)
     {
         int whole = WholePixelsInCycle(_distances[place]);
-        int precedingFraction = place == 0 ? CameraYSubspeed : _distances[place - 1].Fraction;
+        int precedingFraction = (place == 0 ? CameraVerticalSpeed : _distances[place - 1]).Fraction;
         int fraction = precedingFraction / (FractionSteps / VelocityFractionSteps);
         return SignedEightEight.FromParts(whole, fraction);
     }

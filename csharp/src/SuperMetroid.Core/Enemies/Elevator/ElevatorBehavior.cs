@@ -261,7 +261,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         // downward probe meets: Samus's feet reach the top row once her centre has risen above the room's top, so her
         // height wraps for the last updates before the door.
         samus.Position = OffRoomPlaces.WithWholeY(samus.Position, place.Position.Y.Whole - ElevatorActorDefinitions.SamusYOffset);
-        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0);
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(PixelFraction.None);
         samus.Position = samus.Position.WithWholeX(place.Position.X.Whole);
         samus.Kinematics.YSpeed = default;
     }

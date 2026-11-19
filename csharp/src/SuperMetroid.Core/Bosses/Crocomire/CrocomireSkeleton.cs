@@ -167,8 +167,7 @@ internal sealed class CrocomireSkeleton
         if (state.Body.Position.X.Whole < CrocomireSkeletonDefinitions.BreakOutEndX)
         {
             state.SkeletonVelocity = AccelerateCrocomireSkeleton(state.SkeletonVelocity, CrocomireSkeletonDefinitions.BreakOut);
-            state.Body.Position = state.Body.Position.WithX(
-                state.SkeletonVelocity.AddTo(state.Body.Position.X.Whole, state.Body.Position.X.Fraction));
+            state.Body.Position = state.Body.Position.WithX(state.Body.Position.X.MovedBy(state.SkeletonVelocity));
         }
 
         if (death.SkeletonFallWait.StepKeepsRunning())
@@ -182,10 +181,8 @@ internal sealed class CrocomireSkeleton
     internal void RunCrocomireSkeletonArc(CrocomireEnemyState state)
     {
         state.SkeletonVelocity = AccelerateCrocomireSkeleton(state.SkeletonVelocity, CrocomireSkeletonDefinitions.Arc);
-        state.Body.Position = state.Body.Position.WithY(
-            CrocomireSkeletonDefinitions.ArcFallSpeed.AddTo(state.Body.Position.Y.Whole, state.Body.Position.Y.Fraction));
-        state.Body.Position = state.Body.Position.WithX(
-            state.SkeletonVelocity.AddTo(state.Body.Position.X.Whole, state.Body.Position.X.Fraction));
+        state.Body.Position = state.Body.Position.WithY(state.Body.Position.Y.MovedBy(CrocomireSkeletonDefinitions.ArcFallSpeed));
+        state.Body.Position = state.Body.Position.WithX(state.Body.Position.X.MovedBy(state.SkeletonVelocity));
         if (state.Body.Position.X.Whole < CrocomireSkeletonDefinitions.ArcEndX)
             return;
 
@@ -287,9 +284,9 @@ internal sealed class CrocomireSkeleton
             projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileSegment.SpikeWallPiece));
             projectile.Position = projectile.Position.WithWhole(CrocomireSkeletonDefinitions.SpikeWallTop
                 + new Offset16<RoomPixels>(0, piece.Depth));
-            projectile.Velocity = EightEightVector<RoomPixels>.Zero;
+            projectile.Velocity = PixelVelocity<RoomPixels>.Zero;
             projectile.State = new CrocomireSpikeWallPieceState(piece);
-            projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);
+            projectile.Position = projectile.Position.WithoutFractions();
         }
     }
 }

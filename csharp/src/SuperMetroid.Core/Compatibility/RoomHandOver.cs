@@ -32,24 +32,23 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("a room's shots and enemy projectiles start from what the room before left: the shots' horizontal sub-pixel positions and the enemy projectiles' positions and velocities")]
 public sealed class RoomHandOver
 {
-    /// <summary>The sub-pixel part of each shot place's horizontal position, in place order; empty until a room leaves them.</summary>
-    private ImmutableArray<int> _shotHorizontalFractions = [];
+    /// <summary>The fraction of a pixel of each shot place's horizontal position, in place order; empty until a room leaves them.</summary>
+    private ImmutableArray<PixelFraction> _shotHorizontalFractions = [];
 
     /// <summary>What each enemy projectile place held, in place order; empty until a room leaves them.</summary>
     private ImmutableArray<EnemyProjectileHandOver> _enemyProjectiles = [];
 
     /// <summary>Records what the outgoing room's shot places leave: each one's horizontal sub-pixel position.</summary>
-    /// <param name="horizontalFractions">Each place's fraction, in place order, 0 through <see cref="FixedCoordinate.LastFraction"/>.</param>
-    public void LeaveShots(IEnumerable<int> horizontalFractions) =>
-        _shotHorizontalFractions = [.. Ensure.NotNull(horizontalFractions).Select(fraction =>
-            Ensure.BetweenInclusive(0, FixedCoordinate.LastFraction, fraction))];
+    /// <param name="horizontalFractions">Each place's fraction of a pixel, in place order.</param>
+    public void LeaveShots(IEnumerable<PixelFraction> horizontalFractions) =>
+        _shotHorizontalFractions = [.. Ensure.NotNull(horizontalFractions)];
 
     /// <summary>
     /// The horizontal sub-pixel position shot place <paramref name="place"/> starts the room with: what the room before
     /// left, or zero before any room has left one.
     /// </summary>
-    public int ShotHorizontalFraction(int place) =>
-        _shotHorizontalFractions.IsEmpty ? 0 : _shotHorizontalFractions[place];
+    public PixelFraction ShotHorizontalFraction(int place) =>
+        _shotHorizontalFractions.IsEmpty ? PixelFraction.None : _shotHorizontalFractions[place];
 
     /// <summary>Records what the outgoing room's enemy projectile places leave.</summary>
     /// <param name="places">Each place's position and velocity, in place order.</param>

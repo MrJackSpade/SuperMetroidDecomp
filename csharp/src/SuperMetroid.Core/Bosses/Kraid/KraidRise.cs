@@ -246,7 +246,7 @@ internal sealed class KraidRise
         if (!KraidRandomDefinitions.RisingRockStartsOnRight.IsTakenBy(random))
             randomOffset = -(randomOffset + KraidRandomDefinitions.RisingRockLeftExtraPixels);
         rock.Position = FixedPosition<RoomPixels>.FromWhole(new(body.Position.X.Whole + randomOffset, KraidArenaDefinitions.RisingRockY));
-        rock.Velocity = new(SignedEightEight.FromSixteenthsOfPixel(KraidRandomDefinitions.RisingRockXSpeedSixteenths.Of(random)), KraidRockLaunchDefinitions.RisingRockRise);
+        rock.Velocity = new(KraidRandomDefinitions.RisingRockXSpeed.Of(random), KraidRockLaunchDefinitions.RisingRockRise);
         _access.RequestKraidSound(KraidSoundDefinitions.RockSpit);
     }
 

@@ -15,7 +15,7 @@ public readonly record struct FixedVector<TSpace>(SignedSixteenSixteen X, Signed
 
     /// <summary>A displacement of whole pixels only.</summary>
     public static FixedVector<TSpace> FromWholePixels(Offset16<TSpace> offset) =>
-        new(SignedSixteenSixteen.FromParts(offset.X, 0), SignedSixteenSixteen.FromParts(offset.Y, 0));
+        new(SignedSixteenSixteen.FromWholePixels(offset.X), SignedSixteenSixteen.FromWholePixels(offset.Y));
 
     /// <summary>Both axes' whole pixels, -32768 through 32767, as a signed whole-pixel offset.</summary>
     public Offset16<TSpace> Whole => new(X.WholePixels, Y.WholePixels);
@@ -35,9 +35,6 @@ public readonly record struct FixedVector<TSpace>(SignedSixteenSixteen X, Signed
 
     /// <summary>Replaces only the Y whole pixels, as game code that sets only the whole pixels does.</summary>
     public FixedVector<TSpace> WithWholeY(int wholePixels) => WithY(Y.WithWholePixels(wholePixels));
-
-    /// <summary>Replaces only the Y fraction, as game code that sets only the fraction does.</summary>
-    public FixedVector<TSpace> WithFractionY(int fraction) => WithY(Y.WithFraction(fraction));
 
     /// <summary>Adds two displacements, carrying fractions and wrapping each axis at 65536 whole pixels.</summary>
     public static FixedVector<TSpace> operator +(FixedVector<TSpace> left, FixedVector<TSpace> right) =>

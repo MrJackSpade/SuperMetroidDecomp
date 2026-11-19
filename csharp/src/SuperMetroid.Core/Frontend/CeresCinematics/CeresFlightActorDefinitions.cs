@@ -12,7 +12,7 @@ internal static class CeresFlightActorDefinitions
     ];
 
     /// <summary>The acceleration applied to the opening star field on each update.</summary>
-    public static readonly SignedEightEight FrontStarAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(128);
+    public static readonly SignedEightEight FrontStarAcceleration = SignedEightEight.FromPixelFraction(1, 2);
 
     /// <summary>Where the opening star field starts; the rear view's actors start at their installed placements.</summary>
     public static readonly Offset16<ScreenPixels> FrontStarsStart = new(112, 87);
@@ -37,21 +37,21 @@ internal static class CeresFlightActorDefinitions
     /// its animation is the large-asteroid loop. The destruction scene substitutes its own definition and animation.</summary>
     internal static CeresFlightActorDefinition LargeAsteroids =>
         new(CeresAnimation.LargeAsteroid,
-            CeresSpriteColouring.SpaceObjects, SignedEightEight.Zero, SignedSixteenSixteen.FromSixteenthsOfPixel(4), true);
+            CeresSpriteColouring.SpaceObjects, SignedEightEight.Zero, SignedSixteenSixteen.FromPixelFraction(1, 4), true);
 
     /// <summary>The space station under attack.
     /// It is coloured in the station's colours; it drifts right a sixteenth of a pixel each update round the scenes' drift loop;
     /// its animation is the station-under-attack loop.</summary>
     internal static CeresFlightActorDefinition StationUnderAttack =>
         new(CeresAnimation.StationUnderAttack,
-            CeresSpriteColouring.Station, SignedEightEight.Zero, SignedSixteenSixteen.FromSixteenthsOfPixel(1), true);
+            CeresSpriteColouring.Station, SignedEightEight.Zero, SignedSixteenSixteen.FromPixelFraction(1, 16), true);
 
     /// <summary>The small asteroids around Ceres.
     /// It is coloured in the space objects' colours; it drifts right a thirty-second of a pixel each update round the scenes' drift loop;
     /// its animation is the small-asteroid loop. Both Ceres scenes share this identity.</summary>
     internal static CeresFlightActorDefinition SmallAsteroids =>
         new(CeresAnimation.SmallAsteroid,
-            CeresSpriteColouring.SpaceObjects, SignedEightEight.Zero, SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(8), true);
+            CeresSpriteColouring.SpaceObjects, SignedEightEight.Zero, SignedSixteenSixteen.FromPixelFraction(1, 32), true);
 
     /// <summary>The moving purple space vortex.
     /// It is coloured in the space objects' colours and keeps moving;
@@ -69,5 +69,5 @@ internal static class CeresFlightActorDefinitions
     };
 
     /// <summary>The vortex's drift: an eighth of a pixel leftward each update, never coming round the drift loop.</summary>
-    private static SignedSixteenSixteen VortexHorizontalDelta { get; } = -SignedSixteenSixteen.FromSixteenthsOfPixel(2);
+    private static SignedSixteenSixteen VortexHorizontalDelta { get; } = -SignedSixteenSixteen.FromPixelFraction(1, 8);
 }

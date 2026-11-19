@@ -18,7 +18,7 @@ public static class ShinesparkDefinitions
     public const int WindupFrames = 30;
 
     /// <summary>The acceleration a shinespark windup starts its upward motion with: seven pixels an update.</summary>
-    internal static readonly SignedSixteenSixteen WindupInitialVerticalAcceleration = SignedSixteenSixteen.FromParts(7, 0);
+    internal static readonly SignedSixteenSixteen WindupInitialVerticalAcceleration = SignedSixteenSixteen.FromWholePixels(7);
 
     /// <summary>How long the shinesparking shade lasts from the windup's start if nothing renews it.</summary>
     public const int WindupShadeFrames = 60;
@@ -52,23 +52,26 @@ public static class ShinesparkDefinitions
         [SamusPoseId.ShinesparkDiagonalLeftPose] = ShinesparkPhase.Diagonal,
     };
 
-    /// <summary>The steps of a 256-step turn the crash's orbiting copies turn by on each orbiting update.</summary>
-    public const int CrashOrbitTurnSteps = 4;
+    /// <summary>How far the crash's orbiting copies turn on each orbiting update: four steps.</summary>
+    public static readonly RotationAngle CrashOrbitTurn = RotationAngle.FromSteps(4);
 
     /// <summary>The run speed the windup gives Samus, which the launch carries: eight pixels an update.</summary>
-    public static readonly UnsignedSixteenSixteen WindupRunSpeed = new(8, 0);
+    public static readonly UnsignedSixteenSixteen WindupRunSpeed = UnsignedSixteenSixteen.FromWholePixels(8);
 
-    /// <summary>The fastest a horizontal or diagonal spark runs, in whole pixels an update; its fraction is dropped there.</summary>
-    public const int MostRunSpeed = 15;
-
-    /// <summary>The most whole pixels a vertical or diagonal spark rises in an update, its fraction kept; its speed keeps growing.</summary>
-    public const int MostRiseStep = 14;
+    /// <summary>The fastest a horizontal or diagonal spark runs: fifteen pixels an update, its fraction dropped there.</summary>
+    public static readonly UnsignedSixteenSixteen MostRunSpeed = UnsignedSixteenSixteen.FromWholePixels(15);
 
     /// <summary>
-    /// The most whole pixels a rising spark's move, outside forces included, carries Samus up toward terrain and enemies in
-    /// an update, its fraction kept.
+    /// The most a vertical or diagonal spark rises in an update: fourteen whole pixels, its fraction kept; its speed keeps
+    /// growing.
     /// </summary>
-    public const int MostRiseCollisionStep = 15;
+    public static readonly UnsignedSixteenSixteen MostRiseStep = UnsignedSixteenSixteen.FromWholePixels(14);
+
+    /// <summary>
+    /// The most a rising spark's move, outside forces included, carries Samus up toward terrain and enemies in an update:
+    /// fifteen whole pixels, its fraction kept.
+    /// </summary>
+    public static readonly SignedSixteenSixteen MostRiseCollisionStep = SignedSixteenSixteen.FromWholePixels(15);
 
     /// <summary>The farthest, in pixels, the previous horizontal position may lag behind Samus after a spark's horizontal move.</summary>
     public const int MostPreviousXLag = 15;

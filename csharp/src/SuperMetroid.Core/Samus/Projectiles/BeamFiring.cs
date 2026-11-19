@@ -497,8 +497,7 @@ internal sealed class BeamFiring
         bool diagonal = SamusProjectileDirectionDefinitions.Axes(projectile.Direction).IsDiagonal;
         SamusBeamCombination beams = projectile.Type.BeamCombination;
         SignedEightEight authoredSpeed = diagonal ? SamusProjectileMotionDefinitions.DiagonalSpeed : SamusProjectileMotionDefinitions.CardinalSpeed;
-        // An unauthored combination's speed is the one its unauthored firing gives, which the launch adds as a wrapping velocity.
-        SignedEightEight speed = beams.CanBeEquipped ? authoredSpeed : SignedEightEight.Wrapped(unauthoredFiring.Speed(beams, diagonal));
+        SignedEightEight speed = beams.CanBeEquipped ? authoredSpeed : unauthoredFiring.Speed(beams, diagonal);
 
         InitializeDirectionalVelocity(inheritance, projectile, speed);
     }
@@ -509,7 +508,7 @@ internal sealed class BeamFiring
         SamusProjectile projectile,
         SignedEightEight baseSpeed)
     {
-        projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);
+        projectile.Position = projectile.Position.WithoutFractions();
         projectile.Velocity = LaunchVelocity(inheritance, projectile.Direction, baseSpeed);
     }
 
@@ -518,7 +517,7 @@ internal sealed class BeamFiring
     /// pixels per update: the base speed along the direction plus the motion it inherits from Samus. Each axis wraps as
     /// a velocity does, so an unauthored speed that passes the end of the range continues from the other end.
     /// </summary>
-    internal static EightEightVector<RoomPixels> LaunchVelocity(
+    internal static PixelVelocity<RoomPixels> LaunchVelocity(
         ProjectileLaunchInheritance inheritance,
         SamusProjectileDirection direction,
         SignedEightEight baseSpeed)

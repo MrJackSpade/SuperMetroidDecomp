@@ -4,7 +4,6 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidContourCaseMappingsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidHeadCommandMappingVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;

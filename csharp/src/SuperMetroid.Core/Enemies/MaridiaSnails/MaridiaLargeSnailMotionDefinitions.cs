@@ -7,7 +7,7 @@ internal static class MaridiaLargeSnailMotionDefinitions
     /// How far toward Samus the snail reaches while it pushes her, in pixels: its move tests the terrain that much
     /// further ahead, then draws back.
     /// </summary>
-    internal const int PushReach = 16;
+    internal static readonly SignedSixteenSixteen PushReach = SignedSixteenSixteen.FromWholePixels(16);
 
     /// <summary>How far the snail shoves Samus sideways when she touches it, in pixels.</summary>
     internal const int ShoveDistance = 4;
@@ -31,7 +31,7 @@ internal static class MaridiaLargeSnailMotionDefinitions
     internal const int SettlingBounces = 3;
 
     /// <summary>How far each update moves the snail's vertical place along the quadratic speed curve, a mark and a half.</summary>
-    internal static QuadraticSpeedCurvePlace BounceAcceleration { get; } = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(384);
+    internal static QuadraticSpeedCurvePlace BounceAcceleration { get; } = QuadraticSpeedCurvePlace.FromMarkFraction(3, 2);
 
     /// <summary>The place along the quadratic speed curve the snail's fall stops accelerating at before its next impact.</summary>
     internal static QuadraticSpeedCurvePlace FastestFallPlace { get; } = QuadraticSpeedCurvePlace.FromMarks(64);

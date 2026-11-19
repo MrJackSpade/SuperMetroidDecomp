@@ -90,7 +90,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
 
                 // The same random number picks the dive's fast or slow downward launch.
-                state.Velocity = new EightEightVector<RoomPixels>(
+                state.Velocity = new PixelVelocity<RoomPixels>(
                     RioLaunchDefinitions.NorfairXVelocity,
                     RioLaunches.NorfairYVelocity(random));
                 if (samus.Position.X.Whole < place.Position.X.Whole)

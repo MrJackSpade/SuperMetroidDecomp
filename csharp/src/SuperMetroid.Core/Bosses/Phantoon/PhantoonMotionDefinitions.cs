@@ -4,22 +4,22 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 public static class PhantoonMotionDefinitions
 {
     /// <summary>The horizontal swoop velocity, about eight pixels an update leftward, below which the leftward pull stops.</summary>
-    public static SignedEightEight SwoopNegativeXThreshold { get; } = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-2047);
+    public static SignedEightEight SwoopNegativeXThreshold { get; } = SignedEightEight.FromPixelFraction(-2047, 256);
 
     /// <summary>The horizontal swoop velocity, eight pixels an update, at which the rightward pull stops.</summary>
     public static SignedEightEight SwoopPositiveXLimit { get; } = SignedEightEight.FromPixels(8);
 
     /// <summary>The speed his figure-eight starts from along its path: one place an update.</summary>
-    public static SignedSixteenSixteen FigureEightStartSpeed { get; } = SignedSixteenSixteen.FromWholePixels(1);
+    public static PhantoonPathSpeed FigureEightStartSpeed { get; } = PhantoonPathSpeed.FromPlaces(1);
 
     /// <summary>The vertical swoop velocity, six pixels an update, at which the downward pull stops.</summary>
     public static SignedEightEight SwoopPositiveYLimit { get; } = SignedEightEight.FromPixels(6);
 
     /// <summary>The swoop's horizontal pull toward its target, each update.</summary>
-    public static SignedEightEight SwoopHorizontalPull { get; } = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32);
+    public static SignedEightEight SwoopHorizontalPull { get; } = SignedEightEight.FromPixelFraction(1, 8);
 
     /// <summary>The swoop's vertical pull toward its target, each update.</summary>
-    public static SignedEightEight SwoopVerticalPull { get; } = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(64);
+    public static SignedEightEight SwoopVerticalPull { get; } = SignedEightEight.FromPixelFraction(1, 4);
     /// <summary>The swoop target's far X position: once the target reaches it, the target counts back toward zero.</summary>
     public const int SwoopTargetTurnX = 256;
     /// <summary>The leftmost swoop X position, 64 pixels left of the room's origin.</summary>
@@ -27,17 +27,17 @@ public static class PhantoonMotionDefinitions
     /// <summary>The rightmost swoop X position.</summary>
     public const int SwoopMaximumX = 448;
     /// <summary>The vertical swoop velocity, about six pixels an update upward, below which the upward pull stops.</summary>
-    public static SignedEightEight SwoopNegativeYThreshold { get; } = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1535);
+    public static SignedEightEight SwoopNegativeYThreshold { get; } = SignedEightEight.FromPixelFraction(-1535, 256);
     /// <summary>
     /// The figure-eight's speed change each update while it eases in, in path places per update, in either direction
     /// (#1936): three 128ths of a place.
     /// </summary>
-    public static SignedSixteenSixteen SlowSpeedChange { get; } = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(6);
+    public static PhantoonPathSpeed SlowSpeedChange { get; } = PhantoonPathSpeed.FromPlaceFraction(3, 128);
     /// <summary>
     /// The figure-eight's speed change each update while it surges and settles, in path places per update, in either
     /// direction (#1936): a sixteenth of a place.
     /// </summary>
-    public static SignedSixteenSixteen FastSpeedChange { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(1);
+    public static PhantoonPathSpeed FastSpeedChange { get; } = PhantoonPathSpeed.FromPlaceFraction(1, 16);
     /// <summary>The whole speed, in path places per update, at which a forward figure-eight stops easing in and surges.</summary>
     public const int ForwardSlowCap = 2;
     /// <summary>The whole speed at which a forward figure-eight stops surging and settles: seven places per update.</summary>
@@ -49,13 +49,13 @@ public static class PhantoonMotionDefinitions
     /// <summary>The whole speed at which a returning figure-eight stops surging and settles: seven places per update back.</summary>
     public const int ReverseFastCap = -7;
     /// <summary>The speed a forward figure-eight surges from once it has eased in: a place an update.</summary>
-    public static SignedSixteenSixteen ForwardSurgeStart { get; } = SignedSixteenSixteen.FromWholePixels(ForwardSlowCap - 1);
+    public static PhantoonPathSpeed ForwardSurgeStart { get; } = PhantoonPathSpeed.FromPlaces(ForwardSlowCap - 1);
     /// <summary>The speed a forward figure-eight eases in from again once it has settled: a place an update.</summary>
-    public static SignedSixteenSixteen ForwardEaseStart { get; } = SignedSixteenSixteen.FromWholePixels(ForwardMinimum + 1);
+    public static PhantoonPathSpeed ForwardEaseStart { get; } = PhantoonPathSpeed.FromPlaces(ForwardMinimum + 1);
     /// <summary>The speed a returning figure-eight surges from once it has eased in: at rest.</summary>
-    public static SignedSixteenSixteen ReverseSurgeStart { get; } = SignedSixteenSixteen.FromWholePixels(ReverseSlowCap + 2);
+    public static PhantoonPathSpeed ReverseSurgeStart { get; } = PhantoonPathSpeed.FromPlaces(ReverseSlowCap + 2);
     /// <summary>The speed a returning figure-eight settles from once it has surged: six places an update back.</summary>
-    public static SignedSixteenSixteen ReverseSettleStart { get; } = SignedSixteenSixteen.FromWholePixels(ReverseFastCap + 1);
+    public static PhantoonPathSpeed ReverseSettleStart { get; } = PhantoonPathSpeed.FromPlaces(ReverseFastCap + 1);
     /// <summary>The highest his swoop carries him.</summary>
     public const int SwoopMinimumY = 64;
     /// <summary>The lowest his swoop carries him.</summary>

@@ -241,8 +241,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private static void ResolveWorkRobotTouch(RoomEnemyPlace robot, SamusState samus)
     {
-        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(SignedSixteenSixteen.FromParts(
-            robot.Position.X.Whole < samus.Position.X.Whole ? WorkRobotMotionDefinitions.TouchPush : -WorkRobotMotionDefinitions.TouchPush, 0));
+        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(SignedSixteenSixteen.FromWholePixels(
+            robot.Position.X.Whole < samus.Position.X.Whole ? WorkRobotMotionDefinitions.TouchPush : -WorkRobotMotionDefinitions.TouchPush));
     }
 
     /// <summary>
@@ -381,9 +381,9 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Every laser starts at the muzzle ahead of the robot, the way it faces, and above it.
         int ahead = WorkRobotLaserDefinitions.MuzzleAhead;
-        projectile.Position = new(new(robot.Position.X.Whole +
-            (state.Facing == HorizontalDirection.Left ? -ahead : ahead), 0),
-            new(robot.Position.Y.Whole - WorkRobotLaserDefinitions.MuzzleAbove, 0));
+        projectile.Position = new(FixedCoordinate.FromWhole(robot.Position.X.Whole +
+            (state.Facing == HorizontalDirection.Left ? -ahead : ahead)),
+            FixedCoordinate.FromWhole(robot.Position.Y.Whole - WorkRobotLaserDefinitions.MuzzleAbove));
 
         if (WorkRobotLaserSoundRange.RequestsSound(robot.Position.Whole, robot.Radius, camera))
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.WorkRobotLaserSound, priority: SoundRequestPriority.Normal);

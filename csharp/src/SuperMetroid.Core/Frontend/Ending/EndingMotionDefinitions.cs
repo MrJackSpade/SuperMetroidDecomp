@@ -15,37 +15,37 @@ public static class EndingMotionDefinitions
     public static TrigonometryAngle EscapeInitialAngle { get; } = new(32);
 
     /// <summary>The escape and explosion scenes' initial zoom: a quarter floor pixel per screen pixel.</summary>
-    public static FloorZoom EscapeInitialZoom { get; } = FloorZoom.FromTwoHundredFiftySixths(64);
+    public static FloorZoom EscapeInitialZoom { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(1, 4);
 
     /// <summary>The zoom at which the side-cloud and top-and-bottom-cloud escapes begin fading out: one and a half floor pixels per screen pixel.</summary>
-    public static FloorZoom EscapeEndZoom { get; } = FloorZoom.FromTwoHundredFiftySixths(384);
+    public static FloorZoom EscapeEndZoom { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(3, 2);
 
     /// <summary>The side-cloud escape's zoom change each update.</summary>
-    public static FloorZoomStep SideCloudEscapeZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(2);
+    public static FloorZoomStep SideCloudEscapeZoomStep { get; } = FloorZoomStep.FromFloorPixelsPerScreenPixel(1, 128);
 
     /// <summary>The top-and-bottom-cloud escape's zoom change each update.</summary>
-    public static FloorZoomStep TopAndBottomCloudEscapeZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(3);
+    public static FloorZoomStep TopAndBottomCloudEscapeZoomStep { get; } = FloorZoomStep.FromFloorPixelsPerScreenPixel(3, 256);
 
     /// <summary>The zoom enabling the side clouds' motion in the side-cloud escape.</summary>
-    public static FloorZoom CloudMotionStartZoom { get; } = FloorZoom.FromTwoHundredFiftySixths(96);
+    public static FloorZoom CloudMotionStartZoom { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(3, 8);
 
     /// <summary>The zoom below which the top-and-bottom-cloud escape's clouds keep moving.</summary>
-    public static FloorZoom TopAndBottomCloudZoomLimit { get; } = FloorZoom.FromTwoHundredFiftySixths(176);
+    public static FloorZoom TopAndBottomCloudZoomLimit { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(11, 16);
 
     /// <summary>The space view's initial zoom for the gunship's emergence: twelve floor pixels per screen pixel.</summary>
     public static FloorZoom PlanetEscapeInitialZoom { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(12);
 
     /// <summary>The zoom below which fast spinning gives way to the slower emergence.</summary>
-    public static FloorZoom PlanetFastEndZoom { get; } = FloorZoom.FromTwoHundredFiftySixths(1456);
+    public static FloorZoom PlanetFastEndZoom { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(91, 16);
 
     /// <summary>The zoom below which the accelerating fly-to-camera phase starts.</summary>
-    public static FloorZoom PlanetSlowEndZoom { get; } = FloorZoom.FromTwoHundredFiftySixths(1184);
+    public static FloorZoom PlanetSlowEndZoom { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(37, 8);
 
     /// <summary>The fly-to-camera zoom below which the ship turns toward its exit angle on every fourth update.</summary>
-    public static FloorZoom PlanetTurnStartZoom { get; } = FloorZoom.FromTwoHundredFiftySixths(384);
+    public static FloorZoom PlanetTurnStartZoom { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(3, 2);
 
     /// <summary>The fly-to-camera zoom below which gunship colours are restored and the operation-success message begins.</summary>
-    public static FloorZoom PlanetExitZoom { get; } = FloorZoom.FromTwoHundredFiftySixths(32);
+    public static FloorZoom PlanetExitZoom { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(1, 8);
 
     /// <summary>The space view's floor scroll as the gunship's emergence starts: horizontally, in pixels.</summary>
     public const int PlanetEscapeFloorX = -72;
@@ -72,28 +72,28 @@ public static class EndingMotionDefinitions
     public const int PlanetExitTurnSteps = 2;
 
     /// <summary>The fast emergence's zoom change each update.</summary>
-    public static FloorZoomStep PlanetFastZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(8);
+    public static FloorZoomStep PlanetFastZoomStep { get; } = FloorZoomStep.FromFloorPixelsPerScreenPixel(1, 32);
 
     /// <summary>The slow emergence's zoom change each update.</summary>
-    public static FloorZoomStep PlanetSlowZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(2);
+    public static FloorZoomStep PlanetSlowZoomStep { get; } = FloorZoomStep.FromFloorPixelsPerScreenPixel(1, 128);
 
     /// <summary>The fly-to-camera phase's zoom change each update.</summary>
-    public static FloorZoomStep PlanetFlyToCameraZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(4);
+    public static FloorZoomStep PlanetFlyToCameraZoomStep { get; } = FloorZoomStep.FromFloorPixelsPerScreenPixel(1, 64);
 
     /// <summary>The fly-to-camera phase's initial horizontal velocity: half a pixel per update.</summary>
-    public static SignedSixteenSixteen PlanetInitialVelocity => SignedSixteenSixteen.FromSixteenthsOfPixel(8);
+    public static SignedSixteenSixteen PlanetInitialVelocity => SignedSixteenSixteen.FromPixelFraction(1, 2);
 
     /// <summary>The fly-to-camera phase's velocity decrease each update.</summary>
-    public static SignedSixteenSixteen PlanetAcceleration => SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(1);
+    public static SignedSixteenSixteen PlanetAcceleration => SignedSixteenSixteen.FromPixelFraction(1, 256);
 
     /// <summary>The starfield's flyaway speed when the fast planet escape starts it: a quarter pixel an update to the right.</summary>
-    public static SignedSixteenSixteen StarsFlyawayInitialVelocity => SignedSixteenSixteen.FromSixteenthsOfPixel(4);
+    public static SignedSixteenSixteen StarsFlyawayInitialVelocity => SignedSixteenSixteen.FromPixelFraction(1, 4);
 
     /// <summary>The starfield's flyaway slowing each update, applied before it moves.</summary>
     public static SignedSixteenSixteen StarsFlyawayDeceleration => SignedSixteenSixteen.FromPixelFraction(1, 2048);
 
     /// <summary>The credits' vertical scroll per update: half a pixel.</summary>
-    public static SignedSixteenSixteen CreditsScrollVelocity => SignedSixteenSixteen.FromSixteenthsOfPixel(8);
+    public static SignedSixteenSixteen CreditsScrollVelocity => SignedSixteenSixteen.FromPixelFraction(1, 2);
 
     /// <summary>The angle the slow-spinning gunship approaches one unit per update.</summary>
     public static RotationAngle PlanetSlowTargetAngle => RotationAngle.FromSteps(224);

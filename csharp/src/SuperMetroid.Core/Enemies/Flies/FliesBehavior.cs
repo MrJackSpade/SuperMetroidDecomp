@@ -106,8 +106,8 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         // rising through the ceiling: one that has climbed above the room's top keeps a wrapped height and dives down
         // the short way to Samus, as DistanceAcrossRoomEdge.Apart gives it. Across, a dive ends above Samus and a circle is a few pixels wide, so
         // it never passes the room's left edge.
-        TrigonometryAngle angle = EnemyMath.CalculateBearing(
-            new(samus.Position.X.Whole - place.Position.X.Whole, DistanceAcrossRoomEdge.Apart(samus.Position.Y.Whole, place.Position.Y.Whole))).ToMirroredTrigonometryAngle();
+        TrigonometryAngle angle = EnemyMath.CalculateAimAngle(
+            new(samus.Position.X.Whole - place.Position.X.Whole, DistanceAcrossRoomEdge.Apart(samus.Position.Y.Whole, place.Position.Y.Whole)));
         state.Velocity = DiveVelocity(angle);
         state.TargetY = samus.Position.Y.Whole;
         state.Dive.Restart();
@@ -132,25 +132,25 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The dive toward Samus along <paramref name="angle"/>, the mirrored trigonometry angle of her bearing: the dive's speed
-    /// across along its sine and its speed down along its sine a quarter turn behind (the negative cosine).
+    /// The dive toward Samus along <paramref name="angle"/>, her aim: the dive's speed across along its cosine and its speed
+    /// down along its negative sine (the sine a half turn ahead), since the aim counts up and rooms count down.
     /// </summary>
-    internal static EightEightVector<RoomPixels> DiveVelocity(TrigonometryAngle angle) => new(
-        EnemyMath.SineVelocity(angle, FlyMotionDefinitions.DiveAcrossSpeed),
-        EnemyMath.SineVelocity(angle - TrigonometryAngle.QuarterTurn, FlyMotionDefinitions.DiveDownSpeed));
+    internal static PixelVelocity<RoomPixels> DiveVelocity(TrigonometryAngle angle) => new(
+        EnemyMath.SineVelocity(angle + TrigonometryAngle.QuarterTurn, FlyMotionDefinitions.DiveAcrossSpeed),
+        EnemyMath.SineVelocity(angle + TrigonometryAngle.HalfTurn, FlyMotionDefinitions.DiveDownSpeed));
 
     /// <summary>
     /// One update's step around the circle at <paramref name="angle"/>: one pixel along its sine across and one along its
     /// sine a quarter turn behind (the negative cosine) down.
     /// </summary>
-    internal static EightEightVector<RoomPixels> CircleStep(TrigonometryAngle angle) => new(
+    internal static PixelVelocity<RoomPixels> CircleStep(TrigonometryAngle angle) => new(
         EnemyMath.SineVelocity(angle, 1),
         EnemyMath.SineVelocity(angle - TrigonometryAngle.QuarterTurn, 1));
 
     /// <summary>Steps the fly around its circle at its angle, across before down.</summary>
     private static void MoveFlyAccordingToAngle(RoomEnemyPlace place, FlyEnemyState state)
     {
-        EightEightVector<RoomPixels> step = CircleStep(state.Angle.ToTrigonometryAngle());
+        PixelVelocity<RoomPixels> step = CircleStep(state.Angle.ToTrigonometryAngle());
         place.Position = place.Position.AdvanceX(step.X.ToSixteenSixteenDelta());
         place.Position = place.Position.AdvanceY(step.Y.ToSixteenSixteenDelta());
     }
@@ -158,7 +158,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Moves the fly by its dive or retreat velocity, to a fraction of a pixel.</summary>
     private static void MoveFlyAccordingToVelocities(RoomEnemyPlace place, FlyEnemyState state)
     {
-        place.Position = place.Position.Advance(state.Velocity.ToSixteenSixteen());
+        place.Position = place.Position.Advance(state.Velocity.ToDisplacement());
     }
 
     /// <summary>Advances Flies's typed animation.</summary>

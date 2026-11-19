@@ -698,7 +698,7 @@ internal sealed class EnemyCollision
             // The radius actor takes the Power Bomb response, not the ordinary bomb's: every
             // enemy whose bomb and Power Bomb vulnerabilities differ depends on it.
             EnemyWeaponVulnerability vulnerability = EnemyVulnerabilities.Of(enemy.Definition).Ordnance.PowerBomb;
-            if (vulnerability.Multiplier == 0)
+            if (vulnerability.Multiplier.IsNone)
                 continue;
 
             // The blast lies in the room, but an enemy it reaches need not: a fly that has climbed through the ceiling or a
@@ -776,13 +776,13 @@ internal sealed class EnemyCollision
         if (beam.FreezesWithoutDamage)
         {
             return new NormalShotVulnerability(
-                Multiplier: 0,
+                Multiplier: WeaponDamageFactor.None,
                 FreezeImmediately: true,
                 PreventsLethalFreeze: beam.PreventsLethalFreeze);
         }
 
         // A charged shot takes the charged-beam multiplier instead; zero makes the shot a dud.
-        int multiplier = projectileType.IsChargedBeam ? vulnerabilities.ChargedBeam.Multiplier : beam.Multiplier;
+        WeaponDamageFactor multiplier = projectileType.IsChargedBeam ? vulnerabilities.ChargedBeam.Multiplier : beam.Multiplier;
         return new NormalShotVulnerability(
             multiplier,
             FreezeImmediately: false,
@@ -841,15 +841,15 @@ internal sealed class EnemyCollision
     /// </summary>
     [IndependentFlag("independent facts of an ordinary shot's vulnerability: immediate freeze, and lethal-freeze prevention")]
     internal readonly record struct NormalShotVulnerability(
-        int Multiplier,
+        WeaponDamageFactor Multiplier,
         bool FreezeImmediately,
         bool PreventsLethalFreeze)
     {
         /// <summary>
         /// The damage a shot of <paramref name="weaponDamage"/>, zero or more, deals by <see cref="Multiplier"/>, the rule
-        /// every weapon response takes (<see cref="EnemyWeaponVulnerability.DamageFrom(int, int)"/>).
+        /// every weapon response takes (<see cref="WeaponDamageFactor.DamageFrom"/>).
         /// </summary>
-        internal int DamageFrom(int weaponDamage) => EnemyWeaponVulnerability.DamageFrom(weaponDamage, Multiplier);
+        internal int DamageFrom(int weaponDamage) => Multiplier.DamageFrom(weaponDamage);
     }
 
     /// <summary>

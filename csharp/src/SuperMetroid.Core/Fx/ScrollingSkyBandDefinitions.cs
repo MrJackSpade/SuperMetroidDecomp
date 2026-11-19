@@ -13,16 +13,16 @@ public static class ScrollingSkyBandDefinitions
     public static SkyDrift Still { get; } = new(SignedSixteenSixteen.Zero);
 
     /// <summary>The slowest drift, seven sixteenths of a pixel a frame.</summary>
-    public static SkyDrift Slowest { get; } = new(SignedSixteenSixteen.FromSixteenthsOfPixel(7));
+    public static SkyDrift Slowest { get; } = new(SignedSixteenSixteen.FromPixelFraction(7, 16));
 
     /// <summary>The slow drift, half a pixel a frame.</summary>
-    public static SkyDrift Slow { get; } = new(SignedSixteenSixteen.FromSixteenthsOfPixel(8));
+    public static SkyDrift Slow { get; } = new(SignedSixteenSixteen.FromPixelFraction(1, 2));
 
     /// <summary>The fast drift, three quarters of a pixel a frame.</summary>
-    public static SkyDrift Fast { get; } = new(SignedSixteenSixteen.FromSixteenthsOfPixel(12));
+    public static SkyDrift Fast { get; } = new(SignedSixteenSixteen.FromPixelFraction(3, 4));
 
     /// <summary>The fastest drift, a pixel and a quarter a frame, which two bands share.</summary>
-    public static SkyDrift Fastest { get; } = new(SignedSixteenSixteen.FromSixteenthsOfPixel(20));
+    public static SkyDrift Fastest { get; } = new(SignedSixteenSixteen.FromPixelFraction(5, 4));
 
     /// <summary>Every drift the sky's bands move with.</summary>
     public static ImmutableArray<SkyDrift> Drifts { get; } = [Still, Slowest, Slow, Fast, Fastest];

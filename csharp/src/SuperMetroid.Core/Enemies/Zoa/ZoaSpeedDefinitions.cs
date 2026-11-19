@@ -7,17 +7,17 @@ namespace SuperMetroid.Core.Enemies.Zoa;
 public static class ZoaSpeedDefinitions
 {
     /// <summary>The launch's first speed, half a pixel per frame.</summary>
-    public static SignedSixteenSixteen SlowLaunchSpeed { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(8);
+    public static SignedSixteenSixteen SlowLaunchSpeed { get; } = SignedSixteenSixteen.FromPixelFraction(1, 2);
 
     /// <summary>The launch's second speed, five eighths of a pixel per frame.</summary>
-    public static SignedSixteenSixteen MiddleLaunchSpeed { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(10);
+    public static SignedSixteenSixteen MiddleLaunchSpeed { get; } = SignedSixteenSixteen.FromPixelFraction(5, 8);
 
     /// <summary>The launch's last speed, two pixels per frame.</summary>
-    public static SignedSixteenSixteen FastLaunchSpeed { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(32);
+    public static SignedSixteenSixteen FastLaunchSpeed { get; } = SignedSixteenSixteen.FromWholePixels(2);
 
     /// <summary>How close horizontally Samus comes, in pixels and exclusive, for a hidden Zoa to rise.</summary>
     internal const int ActivationDistance = 128;
 
     /// <summary>How fast a Zoa rises toward Samus's height, half a pixel an update.</summary>
-    internal static SignedSixteenSixteen RisingSpeed { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(8);
+    internal static SignedSixteenSixteen RisingSpeed { get; } = SignedSixteenSixteen.FromPixelFraction(1, 2);
 }

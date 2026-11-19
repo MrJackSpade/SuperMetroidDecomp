@@ -412,11 +412,10 @@ public sealed class SamusLiquidPhysicsState
                 priority: SoundRequestPriority.Normal);
         }
 
-        // A nonzero whole speed that reads as reaching the hard landing's is a hard landing. Anything else, including a whole
-        // speed so large that it reads as having passed zero, falls to the sub-speed test: with no sub-speed it
-        // returns before both sound and graphics, and otherwise it is a soft landing.
-        bool hardLanding = impactYSpeed.Whole != 0 && SamusSpeedMagnitude.IsAtLeast(impactYSpeed.Whole, SamusMovementDefinitions.HardLandingWholeSpeed);
-        if (!hardLanding && impactYSpeed.Fraction == 0)
+        // A landing that is not hard and has no fraction of speed returns before both sound and graphics; otherwise it
+        // is a soft landing.
+        bool hardLanding = SamusSpeedMagnitude.IsHardLanding(impactYSpeed, SamusMovementDefinitions.HardLandingSpeed);
+        if (!hardLanding && impactYSpeed.IsWholePixels)
             return;
 
         if (!cinematic)

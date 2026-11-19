@@ -92,7 +92,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         int adjustedHalfSpan = covered.WholePixels;
         state.RightPostX = state.PostsMidpointX + adjustedHalfSpan;
         state.LeftPostX = state.PostsMidpointX - adjustedHalfSpan;
-        place.Position = place.Position.WithX(new(startsAtLeft ? state.LeftPostX : state.RightPostX, 0));
+        place.Position = place.Position.WithX(FixedCoordinate.FromWhole(startsAtLeft ? state.LeftPostX : state.RightPostX));
         state.SpawnPosition = place.Position.Whole;
     }
 

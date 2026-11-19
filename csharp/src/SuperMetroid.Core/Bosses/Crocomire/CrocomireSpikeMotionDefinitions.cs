@@ -7,7 +7,7 @@ internal static class CrocomireSpikeMotionDefinitions
     internal const int LandingY = 168;
 
     /// <summary>The speed a falling piece gains downward each update: three sixteenths of a pixel per update.</summary>
-    internal static readonly SignedSixteenSixteen PieceGravity = SignedSixteenSixteen.FromSixteenthsOfPixel(3);
+    internal static readonly SignedSixteenSixteen PieceGravity = SignedSixteenSixteen.FromPixelFraction(3, 16);
 
     /// <summary>
     /// Each piece's greatest sideways acceleration is this many times its acceleration's growth. The top piece's held

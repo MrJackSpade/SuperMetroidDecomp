@@ -266,9 +266,9 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         BotwoonHoleDefinition hole =
             BotwoonNavigation.Hole(state.TargetHole);
         Offset16<RoomPixels> delta = hole.Target - head.Position.Whole;
-        Bearing bearing = EnemyMath.CalculateBearing(new(
+        TrigonometryAngle aim = EnemyMath.CalculateAimAngle(new(
             ClampBotwoonTargetDelta(delta.X), ClampBotwoonTargetDelta(delta.Y)));
-        state.MovementAngle = bearing.ToTrigonometryAngle().ToAngle();
+        state.MovementAngle = aim.ToAngle();
 
         if (state.InsideHole == state.PreviousInsideHole)
         {
@@ -410,7 +410,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
             BotwoonBodyAnimationSegmentKind kind = segment.InsideHole ? BotwoonBodyAnimationSegmentKind.Hidden
                 : segment.IsTail ? BotwoonBodyAnimationSegmentKind.Tail
                 : BotwoonBodyAnimationSegmentKind.Body;
-            segment.Pose = BotwoonBodyAnimationSegment.Toward(kind, EnemyMath.CalculateBearing(toLeader));
+            segment.Pose = BotwoonBodyAnimationSegment.Toward(kind, EnemyMath.CalculateAimAngle(toLeader));
         }
     }
 
@@ -486,7 +486,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
             {
                 // Collision is restored once the head is outside.
                 head.Contact = head.Contact.Without(EnemyContact.IgnoresSamus);
-                segment = BotwoonHeadAnimationSegment.MovingToward(EnemyMath.CalculateBearing(moved));
+                segment = BotwoonHeadAnimationSegment.MovingToward(EnemyMath.CalculateAimAngle(moved));
             }
             StartBotwoonHeadAnimation(head, state, segment);
         }
@@ -504,10 +504,10 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         BotwoonEnemyState state,
         SamusState samus)
     {
-        Bearing bearing = EnemyMath.CalculateBearing(
+        TrigonometryAngle aim = EnemyMath.CalculateAimAngle(
             new(samus.Position.X.Whole - head.Position.X.Whole, samus.Position.Y.Whole - head.Position.Y.Whole));
-        StartBotwoonHeadAnimation(head, state, BotwoonHeadAnimationSegment.SpittingToward(bearing));
-        state.SpitAngle = bearing.ToTrigonometryAngle().ToAngle();
+        StartBotwoonHeadAnimation(head, state, BotwoonHeadAnimationSegment.SpittingToward(aim));
+        state.SpitAngle = aim.ToAngle();
         state.HeadAction = state.Phase == BotwoonPhase.SpitWhileHidden
             ? BotwoonHeadAction.WaitForSpitFrame
             : BotwoonHeadAction.SpawnImmediateVolley;

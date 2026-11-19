@@ -282,12 +282,11 @@ public sealed class SamusState
     /// (<see cref="PeriodicDamageEnergyFraction.Borrows"/>); the whole damage and that one energy then come off
     /// <see cref="Health"/>. A result below zero energy leaves no energy and no fraction instead.
     /// </summary>
-    /// <param name="damage">The damage, in energy and its <see cref="PeriodicDamageEnergyFraction.PartsPerEnergy"/>ths.</param>
-    internal void TakeFractionalEnergyDamage(UnsignedSixteenSixteen damage)
+    /// <param name="damage">The damage, in whole energy and a fraction of one.</param>
+    internal void TakeFractionalEnergyDamage(EnergyAmount damage)
     {
-        int fraction = damage.Fraction;
-        bool borrows = EnergyFraction.Borrows(fraction);
-        int health = Health - damage.Whole - (borrows ? 1 : 0);
+        bool borrows = EnergyFraction.Borrows(damage);
+        int health = Health - damage.WholeEnergy - (borrows ? 1 : 0);
         if (health < 0)
         {
             EnergyFraction = PeriodicDamageEnergyFraction.None;
@@ -295,7 +294,7 @@ public sealed class SamusState
             return;
         }
 
-        EnergyFraction = EnergyFraction.After(fraction);
+        EnergyFraction = EnergyFraction.After(damage);
         Health = health;
     }
 
@@ -761,7 +760,7 @@ public sealed class SamusState
             probe.Radius = probe.Radius.WithY(radius);
             SolidEnemyCollisionResult result = SamusSolidEnemyCollision.Probe(
                 probe, probe.InteractiveEnemies, direction, UnsignedSixteenSixteen.FromWholePixels(distance));
-            Kinematics.Position = Kinematics.Position.WithFractionY(probe.Position.Y.Fraction);
+            Kinematics.Position = Kinematics.Position.WithFractionY(probe.Position.Y.FractionOfPixel);
             return result;
         }
     }
@@ -815,7 +814,7 @@ public sealed class SamusState
             // changed-pose observation; the probe's whole-pixel movement never
             // becomes hers.
             if (result.Collided)
-                Kinematics.Position = Kinematics.Position.WithFractionY(probe.Position.Y.Fraction);
+                Kinematics.Position = Kinematics.Position.WithFractionY(probe.Position.Y.FractionOfPixel);
             return result;
         }
     }

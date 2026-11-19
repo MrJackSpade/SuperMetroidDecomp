@@ -96,7 +96,7 @@ internal sealed class BeamCombos
                 if (kind is SamusComboKind.Wave or SamusComboKind.Ice || (kind == SamusComboKind.Spazer && part.SpazerTrail))
                     shot.Trail = UpdateCountdown.Lasting(ProjectileTimingDefinitions.TrailInterval);
                 if (kind is SamusComboKind.Wave or SamusComboKind.Spazer)
-                    shot.Position = shot.Position.WithFractionX(0).WithFractionY(0);
+                    shot.Position = shot.Position.WithoutFractions();
                 if (kind == SamusComboKind.Wave)
                 {
                     // A Wave particle starts 128 pixels from Samus on each axis, so near the room's top or left edge it

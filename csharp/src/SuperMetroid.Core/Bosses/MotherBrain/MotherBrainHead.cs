@@ -386,7 +386,7 @@ internal sealed class MotherBrainHead
     {
         RoomEnemyPlace head = state.Head;
         Position16<RoomPixels> mouth = head.Position.Whole + MotherBrainFightDefinitions.MouthOffset;
-        TrigonometryAngle angle = EnemyMath.CalculateBearing(target - mouth).ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
+        TrigonometryAngle angle = EnemyMath.CalculateAimAngle(target - mouth).TurnedBy(TrigonometryAngle.QuarterTurn);
 
         // The clamp splits the turn in two halves. The
         // half from three quarters of a turn round past zero maps to the lowest aim; the opposite half maps
@@ -414,7 +414,7 @@ internal sealed class MotherBrainHead
         bomb.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.Bomb));
         RoomEnemyPlace head = state.Head;
         bomb.Position = bomb.Position.WithWhole(head.Position.Whole + MotherBrainFightDefinitions.BombOffset);
-        bomb.Position = bomb.Position.WithFractionX(0).WithFractionY(0);
+        bomb.Position = bomb.Position.WithoutFractions();
         bomb.Velocity = new(MotherBrainBombBounceDefinitions.LaunchSpeedX, MotherBrainBombBounceDefinitions.LaunchSpeedY);
         bomb.State = new MotherBrainBombState(state, MotherBrainBombBounceDefinitions.BounceSpeed, afterburnCount);
         state.RecordBombSpawned();
@@ -529,8 +529,8 @@ internal sealed class MotherBrainHead
             graphics: default);
         projectile.State = new MotherBrainProjectileState(state);
         projectile.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.RainbowBeamCharging));
-        projectile.Velocity = EightEightVector<RoomPixels>.Zero;
-        projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);
+        projectile.Velocity = PixelVelocity<RoomPixels>.Zero;
+        projectile.Position = projectile.Position.WithoutFractions();
         MotherBrainProjectiles.MotherBrainProjectileBehavior.PinMotherBrainRainbowCharge(projectile);
     }
 }

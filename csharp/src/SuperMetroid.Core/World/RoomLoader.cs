@@ -324,7 +324,7 @@ internal sealed class RoomLoader
         // hurt check from it. The Ceres start's control setup locks the player out.
         samus.Health = samus.MaxHealth;
         samus.PreviousHealthForHurtCheck = samus.Health;
-        samus.Kinematics.Position = samus.Kinematics.Position.WithX(new FixedCoordinate(station.Placement.SamusPosition.X, 0)).WithY(new FixedCoordinate(station.Placement.SamusPosition.Y, 0));
+        samus.Kinematics.Position = samus.Kinematics.Position.WithX(FixedCoordinate.FromWhole(station.Placement.SamusPosition.X)).WithY(FixedCoordinate.FromWhole(station.Placement.SamusPosition.Y));
         samus.Control.LockOutPlayer();
 
         // The arrival moves the game to Crateria and loads the live explored map from

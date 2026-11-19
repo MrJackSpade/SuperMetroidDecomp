@@ -106,7 +106,7 @@ internal static class YardTurnDefinitionsVerification
                 Movement = YardMovement.Crawling,
                 Crawl = movement,
                 TurnSuppressionPassesLeft = UpdateCountdown.For(suppressed ? YardMotionDefinitions.TurnSuppressionPasses : 0),
-                CrawlingVelocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(256, 256),
+                CrawlingVelocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256)),
             };
 
             run(place, state, level);

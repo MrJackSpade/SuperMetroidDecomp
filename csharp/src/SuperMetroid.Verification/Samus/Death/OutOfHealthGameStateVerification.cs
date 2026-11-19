@@ -144,7 +144,7 @@ internal static class OutOfHealthGameStateVerification
         AssertEqual(SuperMetroidGameState.ReserveTankRefill, game.GameState, "zero health with AUTO reserves enters the refill");
 
         // The refill's next update moves the last reserve unit and completes; its unfrozen gameplay applies the damage.
-        samus.PeriodicDamage.Accumulate(new UnsignedSixteenSixteen(999, 0));
+        samus.PeriodicDamage.Accumulate(EnergyAmount.FromEnergy(999));
         game.Step(0);
         AssertEqual(0, samus.ReserveEnergy, "the refill's update moves the last reserve unit");
         AssertEqual(0, samus.Health, "the completion update's gameplay applies the periodic damage");
@@ -165,7 +165,7 @@ internal static class OutOfHealthGameStateVerification
 
         // The next update's spark reaches the door, and the periodic damage Samus's movement applies after it empties her.
         PlaceJustShortOfTheDoor(samus);
-        samus.PeriodicDamage.Accumulate(new UnsignedSixteenSixteen(999, 0));
+        samus.PeriodicDamage.Accumulate(EnergyAmount.FromEnergy(999));
         GameClockReading beforeDoor = runtime.GameTime.Reading;
         game.Step(0);
         AssertEqual(0, samus.Health, "the periodic damage takes Samus's last energy on the update she touches the door");
@@ -205,7 +205,7 @@ internal static class OutOfHealthGameStateVerification
 
         // The next update's spark reaches the door, and the periodic damage Samus's movement applies after it empties her.
         PlaceJustShortOfTheDoor(samus);
-        samus.PeriodicDamage.Accumulate(new UnsignedSixteenSixteen(999, 0));
+        samus.PeriodicDamage.Accumulate(EnergyAmount.FromEnergy(999));
         game.Step(0);
         AssertEqual(0, samus.Health, "the periodic damage takes Samus's last energy on the update she touches the door");
         AssertEqual(SuperMetroidGameState.ReserveTankRefill, game.GameState, "the AUTO reserves' refill takes the update from the door");

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses;
 using SuperMetroid.Verification.Fx.PaletteFx;
 using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -660,7 +659,7 @@ internal static class LookupStream2Verification
     /// <summary>Checks native crawler/Yard speed ramps through actual velocity resets.</summary>
     internal static void VerifyLookupStream2CrawlerRamps(CartridgeImportAddressSpace rom)
     {
-        Func<CrawlerSurfaceOrientation, SignedEightEight?, EightEightVector<RoomPixels>, EightEightVector<RoomPixels>> reset = CrawlersBehavior.ResetCrawlerVelocities;
+        Func<CrawlerSurfaceOrientation, SignedEightEight?, PixelVelocity<RoomPixels>, PixelVelocity<RoomPixels>> reset = CrawlersBehavior.ResetCrawlerVelocities;
         Action<YardEnemyState, YardDirection> setYard = YardEnemyBehavior.SetYardCrawlingVelocities;
         var yard = new YardEnemyState(YardMovement.HoldingStill);
         SignedEightEight? crawlSpeed;
@@ -674,7 +673,7 @@ internal static class LookupStream2Verification
             for (ushort property = 0; property < 4; property++)
             {
                 // The block side is the crawler's two low property bits in the cartridge.
-                EightEightVector<RoomPixels> velocity = reset(SuperMetroid.AssetExtraction.Enemies.CrawlerOrientationOrder.Orientations.At(property), crawlSpeed, default);
+                PixelVelocity<RoomPixels> velocity = reset(SuperMetroid.AssetExtraction.Enemies.CrawlerOrientationOrder.Orientations.At(property), crawlSpeed, default);
                 AssertEqual(property == 0 ? unchecked((ushort)-expected) : expected, velocity.X.RawValue,
                     "Actual crawler reset X magnitude");
                 AssertEqual(property == 2 ? unchecked((ushort)-expected) : expected, velocity.Y.RawValue,

@@ -29,7 +29,7 @@ public sealed class FlyEnemyState
     /// Attack and retreat velocity in room pixels per update: X sampled from Samus's attack-start angle
     /// and retained during retreat; Y, whose sign reverses when the saved target height is crossed.
     /// </summary>
-    public EightEightVector<RoomPixels> Velocity { get; internal set; }
+    public PixelVelocity<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>Samus's whole room-pixel Y captured when the attack begins. It determines the turnaround rather than tracking Samus's later movement.</summary>
     public int TargetY { get; internal set; }

@@ -36,7 +36,7 @@ public static class GrappleExtensionStepCarryover
     private static readonly SpeedShare SubstepShare = SpeedShare.Of(1, Substeps);
 
     /// <summary>The parts of a pixel's fraction in each 256th of a pixel, the finest step an extension speed takes.</summary>
-    private static readonly int FractionPartsPerSpeedStep = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(1).Fraction;
+    private static readonly int FractionPartsPerSpeedStep = SignedSixteenSixteen.FromPixelFraction(1, 256).Fraction;
 
     /// <summary>
     /// One substep of the rope's extension on one axis: a quarter of <paramref name="speed"/>, rounded toward negative

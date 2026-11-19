@@ -11,4 +11,16 @@ internal static class FixedPositionAccess
         internal static SuperMetroid.Core.Spatial.FixedPosition<TSpace> FromStoredParts(ushort xWhole, ushort xFraction, ushort yWhole, ushort yFraction) =>
             new(new SuperMetroid.Core.Spatial.FixedCoordinate(xWhole, xFraction), new SuperMetroid.Core.Spatial.FixedCoordinate(yWhole, yFraction));
     }
+
+    /// <summary>Sets one axis's stored fraction word, as verifier fixtures state a position's state.</summary>
+    extension<TSpace>(SuperMetroid.Core.Spatial.FixedPosition<TSpace> position) where TSpace : SuperMetroid.Core.Spatial.ISpatialSpace
+    {
+        /// <summary>Replaces only the X fraction with the stored word <paramref name="fraction"/>, 0 through 65535.</summary>
+        internal SuperMetroid.Core.Spatial.FixedPosition<TSpace> WithFractionX(int fraction) =>
+            position.WithX(new SuperMetroid.Core.Spatial.FixedCoordinate(position.X.Whole, fraction));
+
+        /// <summary>Replaces only the Y fraction with the stored word <paramref name="fraction"/>, 0 through 65535.</summary>
+        internal SuperMetroid.Core.Spatial.FixedPosition<TSpace> WithFractionY(int fraction) =>
+            position.WithY(new SuperMetroid.Core.Spatial.FixedCoordinate(position.Y.Whole, fraction));
+    }
 }

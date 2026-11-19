@@ -30,10 +30,10 @@ internal readonly record struct BotwoonBodyAnimationSegment
 
     /// <summary>
     /// The segment animation of <paramref name="kind"/> facing the direction opening the eighth of the turn that holds
-    /// <paramref name="toLeader"/>, the bearing to the segment ahead; a hidden segment faces no way.
+    /// <paramref name="toLeader"/>, the direction to the segment ahead; a hidden segment faces no way.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="kind"/> is undefined.</exception>
-    internal static BotwoonBodyAnimationSegment Toward(BotwoonBodyAnimationSegmentKind kind, Bearing toLeader) => kind switch
+    internal static BotwoonBodyAnimationSegment Toward(BotwoonBodyAnimationSegmentKind kind, TrigonometryAngle toLeader) => kind switch
     {
         BotwoonBodyAnimationSegmentKind.Body => Link(toLeader.DirectionOfEighth()),
         BotwoonBodyAnimationSegmentKind.Tail => TailCap(toLeader.DirectionOfEighth()),

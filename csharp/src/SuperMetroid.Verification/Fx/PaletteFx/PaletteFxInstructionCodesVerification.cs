@@ -1538,7 +1538,7 @@ internal static class PaletteFxInstructionCodesVerification
     /// <see cref="VerifyNorfairHeatPaletteHandshake"/> confirms the accumulated damage bit for bit.
     /// </summary>
     private static void AssertPaletteFxHeatDefinitions() =>
-        AssertEqual(new UnsignedSixteenSixteen(0, 0x4000), ColourEffectHeatData.DamagePerUpdate,
+        AssertEqual(EnergyAmount.FromStoredParts(0, 0x4000), ColourEffectHeatData.DamagePerUpdate,
             "the heat deals the cartridge's quarter energy each unprotected update");
 
     /// <summary>Runs the palette-FX instruction-catalog verification command.</summary>

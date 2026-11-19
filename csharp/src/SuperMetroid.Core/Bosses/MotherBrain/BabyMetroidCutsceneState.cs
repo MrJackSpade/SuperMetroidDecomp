@@ -84,7 +84,7 @@ public sealed class BabyMetroidCutsceneState
     internal Offset16<RoomPixels> SignedPlace => OffRoomPlaces.Signed(Position.Whole);
 
     /// <summary>Velocity in pixels per update.</summary>
-    public EightEightVector<RoomPixels> Velocity { get; internal set; }
+    public PixelVelocity<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>The curved entrance's speed, zero through fourteen pixels an update.</summary>
     public SignedEightEight Speed { get; private set; }
@@ -558,7 +558,7 @@ public sealed class BabyMetroidCutsceneState
                 // The cutscene's shake first adds -1 to the Y velocity,
                 // which the common mover then applies, and places the Baby at the saved origin
                 // plus the undoubled shaking offsets.
-                Velocity = Velocity.WithY(Velocity.Y - SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1));
+                Velocity = Velocity.WithY(Velocity.Y - SignedEightEight.FromPixelFraction(1, 256));
                 int shakingIndex = MotherBrainCadenceDefinitions.BabyShakeStep.Of(enemyFrameCounter);
                 Position = Position.WithWhole(FatalBlowOrigin + MotherBrainShakeDefinitions.Offsets[shakingIndex]);
                 if (PhaseTimer.StepRunsOut())
@@ -816,7 +816,7 @@ public sealed class BabyMetroidCutsceneState
     {
         // The velocity moves the position in 256ths of a pixel: a fraction past a whole pixel
         // carries into the whole pixels, and the position's finer part is unchanged.
-        Position = Position.Advance(Velocity.ToSixteenSixteen());
+        Position = Position.Advance(Velocity.ToDisplacement());
     }
 
     /// <summary>

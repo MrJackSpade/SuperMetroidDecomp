@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal static class EndingWavySamusDefinitions
 {
     /// <summary>The wavy Samus effect: the wave's peak displacement, 64 pixels.</summary>
-    internal static UnsignedSixteenSixteen Amplitude { get; } = new(64, 0);
+    internal static UnsignedSixteenSixteen Amplitude { get; } = UnsignedSixteenSixteen.FromWholePixels(64);
     /// <summary>
     /// The wavy Samus effect: the sine steps the wave's angle advances each frame, so the ripple travels up
     /// the screen.

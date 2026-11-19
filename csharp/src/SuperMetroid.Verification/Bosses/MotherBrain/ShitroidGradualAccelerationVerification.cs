@@ -126,14 +126,14 @@ internal static class ShitroidGradualAccelerationVerification
         };
         var velocities = new[]
         {
-            new EightEightVector<RoomPixels>(SignedEightEight.FromPixels(2), SignedEightEight.FromPixels(1)),
-            new EightEightVector<RoomPixels>(SignedEightEight.FromPixels(-2), SignedEightEight.FromPixels(-1)),
+            new PixelVelocity<RoomPixels>(SignedEightEight.FromPixels(2), SignedEightEight.FromPixels(1)),
+            new PixelVelocity<RoomPixels>(SignedEightEight.FromPixels(-2), SignedEightEight.FromPixels(-1)),
         };
         // From the camera at 512 the Shitroid at 700 is on screen; from the room's corner it is off screen to the right.
         var cameras = new[] { new Position16<RoomPixels>(0x0200, 0x0000), new Position16<RoomPixels>(0x0000, 0x0000) };
         int checks = 0;
         foreach (var flight in flights)
-        foreach (EightEightVector<RoomPixels> velocity in velocities)
+        foreach (PixelVelocity<RoomPixels> velocity in velocities)
         foreach (Position16<RoomPixels> camera in cameras)
         {
             state.Action = flight.Action;

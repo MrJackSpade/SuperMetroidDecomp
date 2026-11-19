@@ -136,7 +136,7 @@ internal static class NativeEnemyFamilyStateImport
                 phantoon.FigureEight.PathPlace = PhantoonPath.At(words.A);
                 phantoon.Death.ExplosionPasses = words.A;
                 phantoon.StartingFlames.Orbiting = words.B != 0;
-                phantoon.FigureEight.Speed = SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(words.C), words.B);
+                phantoon.FigureEight.Speed = new PhantoonPathSpeed(SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(words.C), words.B));
                 phantoon.FigureEight.Stage = PhantoonFigureEightStageWords.Decode(words.D);
                 if (words.F != 0)
                     phantoon.Phase = PhantoonNativeWords.Phases.Decode(words.F, "recorded PhantoonPhase");
@@ -282,7 +282,7 @@ internal static class NativeEnemyFamilyStateImport
                     draygonEyeRecord.Facing = facing;
             }
             // The game compares only the look angle's low byte, the bearing it stored.
-            draygonEyeRecord.LookAngle = new Bearing(words.F & byte.MaxValue);
+            draygonEyeRecord.LookAngle = AimAngleConstants.FromClockwiseSteps(words.F & byte.MaxValue);
         }
         if (enemy.SpeciesState<CrocomireEnemyState>() is { } crocomireRecord)
         {
@@ -644,7 +644,7 @@ internal static class NativeEnemyFamilyStateImport
             // The cartridge counts both in walk steps left: the walk turns on the step its count reaches zero, and the spit
             // count stops at zero.
             fakeKraidRecord.WalkTurnWait.SetCartridgeCount(words.D - 1);
-            fakeKraidRecord.SpitWait.SetUpdatesLeft((int)words.E);
+            fakeKraidRecord.SpitWait.SetUpdatesLeft(words.E);
         }
         if (enemy.SpeciesState<MaridiaLargeSnailEnemyState>() is { } maridiaLargeSnailRecord)
         {
@@ -1278,7 +1278,7 @@ internal static class NativeEnemyFamilyStateImport
             case KraidBodyState body:
             {
                 // The cartridge holds the head's pose while its count is above zero, and holds at zero.
-                body.Kraid.HeadHold.SetUpdatesLeft((int)words.C);
+                body.Kraid.HeadHold.SetUpdatesLeft(words.C);
                 bool deathWait = KraidNativeWords.DeathWaitUpdatesLeft.TryGetValue(words.A, out int deathWaitLeft);
                 if (deathWait)
                     body.DeathPhase = KraidDeathPhase.WaitBeforeFadeIn;
@@ -1359,7 +1359,7 @@ internal static class NativeEnemyFamilyStateImport
                 if ((bucket & 0x1f) != 0 || bucket > 0xe0)
                     throw new InvalidDataException($"Recorded Shaktool centre orientation ${word:X4} has no heading bucket.");
                 // The recorded bucket is the bearing of the direction the head aims, a whole number of eighths of a turn.
-                segment.Orientation = new Bearing(bucket).DirectionOfEighth();
+                segment.Orientation = AimAngleConstants.FromClockwiseSteps(bucket).DirectionOfEighth();
                 return;
             case 6:
                 segment.CurlProgress = RotationAngleConstants.FromRaw(Index(word, 0xf3fb, "Shaktool curl progress"));

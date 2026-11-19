@@ -27,6 +27,35 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>
     public static SignedEightEight FromSixteenthsOfPixel(int sixteenths) =>
         FromTwoHundredFiftySixthsOfPixel(Ensure.BetweenInclusive(-2048, 2047, sixteenths) * 16);
 
+    /// <summary>
+    /// A speed of <paramref name="numerator"/> <paramref name="denominator"/>ths of a pixel an update (#2555), the denominator
+    /// a power of two from 1 through 256 so the fraction is kept exactly: three eighths of a pixel, a pixel and a half.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The denominator is no power of two from 1 through 256, or the speed lies outside the type's range.
+    /// </exception>
+    public static SignedEightEight FromPixelFraction(int numerator, int denominator) =>
+        FromTwoHundredFiftySixthsOfPixel(PowerOfTwoFraction.InFinestUnits(numerator, denominator, FractionsPerPixel));
+
+    /// <summary>The fractions of a pixel the speed counts: 256 to the pixel.</summary>
+    private const int FractionsPerPixel = 256;
+
+    /// <summary>The speed in pixels an update, its fraction kept exactly: the amount an installed file states (#2555).</summary>
+    public decimal Pixels => InTwoHundredFiftySixthsOfPixel / (decimal)FractionsPerPixel;
+
+    /// <summary>
+    /// The speed of <paramref name="pixels"/> pixels an update (#2555), as an installed file states it: an amount the type
+    /// keeps exactly, a whole number of its finest fractions of a pixel, within its range.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The type cannot keep the amount exactly.</exception>
+    public static SignedEightEight FromPixels(decimal pixels)
+    {
+        decimal fractions = pixels * FractionsPerPixel;
+        if (fractions != decimal.Truncate(fractions) || fractions < short.MinValue || fractions > short.MaxValue)
+            throw new ArgumentOutOfRangeException(nameof(pixels), pixels, "The speed cannot keep this amount of pixels exactly.");
+        return FromTwoHundredFiftySixthsOfPixel((int)fractions);
+    }
+
     /// <summary>A speed of <paramref name="pixels"/> whole pixels an update, -128 through 127, with no fraction.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The speed lies outside the type's range.</exception>
     public static SignedEightEight FromPixels(int pixels) => FromParts(pixels, 0);
@@ -71,6 +100,13 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>
     [IntegerQuantity("whole-pixel part of a signed 8.8 velocity")]
     public int WholePixels => InTwoHundredFiftySixthsOfPixel >> 8;
 
+    /// <summary>
+    /// The velocity's speed, whichever way it points, counted in its finest steps, a 256th of a pixel an update each
+    /// (#2555): the count a Torizo's ground probe reads as whole pixels.
+    /// </summary>
+    [IntegerQuantity("finest steps of a signed 8.8 speed's magnitude")]
+    public int MagnitudeInFinestSteps => Math.Abs(InTwoHundredFiftySixthsOfPixel);
+
     /// <summary>The whole pixels of the velocity's speed, whichever way it points: its magnitude, the fraction dropped.</summary>
     [IntegerQuantity("whole-pixel part of a signed 8.8 speed")]
     public int MagnitudeWholePixels => Math.Abs(InTwoHundredFiftySixthsOfPixel) >> 8;
@@ -84,6 +120,20 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>
     /// </summary>
     public static SignedEightEight operator +(SignedEightEight velocity, SignedEightEight acceleration) =>
         Wrapped(velocity.RawValue + acceleration.RawValue);
+
+    /// <summary>
+    /// The velocity scaled by a whole <paramref name="factor"/>, as the game's velocity arithmetic multiplies it: a product
+    /// past the largest positive value continues from the most negative one and the reverse (<see cref="Wrapped"/>).
+    /// </summary>
+    public static SignedEightEight operator *(SignedEightEight velocity, int factor) =>
+        Wrapped(velocity.InTwoHundredFiftySixthsOfPixel * factor);
+
+    /// <summary>
+    /// The velocity scaled by a whole <paramref name="factor"/> (#2555), for a velocity whose owner keeps the product far
+    /// inside the type's range: a product outside the range fails instead of continuing from the other end.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The product lies outside the type's range.</exception>
+    public SignedEightEight Times(int factor) => FromTwoHundredFiftySixthsOfPixel(checked(InTwoHundredFiftySixthsOfPixel * factor));
 
     /// <summary>
     /// The velocity after one update's <paramref name="acceleration"/>, for a velocity whose owner keeps it far inside the

@@ -17,7 +17,7 @@ internal static class TypedDirectionBucketsVerification
         {
             // The replaced arithmetic: the bearing turned on an eighth of a turn, then its quarter of the turn.
             int quarter = ((units + 32) & 255) * 4 / 256;
-            AssertEqual(quarters[quarter], new Bearing(units).NearestStraightDirection(), $"bearing {units} nearest straight direction");
+            AssertEqual(quarters[quarter], AimAngleConstants.FromClockwiseSteps(units).NearestStraightDirection(), $"bearing {units} nearest straight direction");
         }
 
         for (int raw = 0; raw <= ushort.MaxValue; raw++)

@@ -10,9 +10,9 @@ public static class PowerBombExplosionDefinitions
     /// <summary>Initial pre-explosion radial speed: forty-eight pixels per update.</summary>
     public static readonly PowerBombRadius InitialPreExplosionSpeed = PowerBombRadius.FromWholePixels(48);
     /// <summary>The pre-explosion flash's slowing: its speed drops by half a pixel an update each update it grows.</summary>
-    public static readonly PowerBombRadius PreExplosionSlowing = PowerBombRadius.FromFraction(128);
+    public static readonly PowerBombRadius PreExplosionSlowing = PowerBombRadius.FromPixelFraction(1, 2);
     /// <summary>The explosion's acceleration: its speed rises by three sixteenths of a pixel an update each update it grows.</summary>
-    public static readonly PowerBombRadius ExplosionAcceleration = PowerBombRadius.FromFraction(48);
+    public static readonly PowerBombRadius ExplosionAcceleration = PowerBombRadius.FromPixelFraction(3, 16);
     /// <summary>
     /// The fade steps a Power Bomb's afterglow takes after its white explosion, one each update (#2529); the update after
     /// its last ends the blast, so the afterglow lasts one update longer than its steps.

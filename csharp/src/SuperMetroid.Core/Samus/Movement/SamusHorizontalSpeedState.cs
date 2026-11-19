@@ -205,9 +205,9 @@ public sealed class SamusHorizontalSpeedState
                 SpeedBoostCounter = new SamusSpeedBoostCounter(stage: 0, countdown: SamusRunningCadences.CountdownAfterAdvance(SamusRunningCadence.BoostStage0));
             }
 
-            if (SamusSpeedMagnitude.ReadsAtCap(ExtraRunSpeed, BoostedExtraRunSpeedCap))
+            if (SamusSpeedMagnitude.ReadsAtCap(ExtraRunSpeed, SamusHorizontalSpeedDefinitions.BoostedExtraRunSpeedCap))
             {
-                ExtraRunSpeed = BoostedExtraRunSpeedCap;
+                ExtraRunSpeed = SamusHorizontalSpeedDefinitions.BoostedExtraRunSpeedCap;
                 PublishBoostContactDamage();
                 return;
             }
@@ -226,9 +226,9 @@ public sealed class SamusHorizontalSpeedState
         // The cap test reads the whole pixels and the fraction each on their own (SamusSpeedMagnitude.ReadsAtCap). The
         // cap has no fraction, so a normal progression reaches exactly two pixels and is held there on the following
         // update before another sixteenth of a pixel can be added.
-        if (SamusSpeedMagnitude.ReadsAtCap(ExtraRunSpeed, UnboostedExtraRunSpeedCap))
+        if (SamusSpeedMagnitude.ReadsAtCap(ExtraRunSpeed, SamusHorizontalSpeedDefinitions.UnboostedExtraRunSpeedCap))
         {
-            ExtraRunSpeed = UnboostedExtraRunSpeedCap;
+            ExtraRunSpeed = SamusHorizontalSpeedDefinitions.UnboostedExtraRunSpeedCap;
             PublishBoostContactDamage();
             return;
         }
@@ -236,12 +236,6 @@ public sealed class SamusHorizontalSpeedState
         AddExtraRunAcceleration();
         PublishBoostContactDamage();
     }
-
-    /// <summary>The extra run speed the Speed Booster's dash is held at: seven pixels an update.</summary>
-    private static readonly UnsignedSixteenSixteen BoostedExtraRunSpeedCap = new(7, 0);
-
-    /// <summary>The extra run speed a dash without the Speed Booster is held at: two pixels an update.</summary>
-    private static readonly UnsignedSixteenSixteen UnboostedExtraRunSpeedCap = new(2, 0);
 
     /// <summary>
     /// Takes the cue that closes the run for an equipped Speed Booster when the running

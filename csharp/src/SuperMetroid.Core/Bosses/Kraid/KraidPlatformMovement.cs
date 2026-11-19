@@ -7,7 +7,7 @@ internal static class KraidPlatformMovement
     /// The lint's horizontal displacement each firing update, three and a half pixels leftward, which also carries Samus
     /// while she rides it.
     /// </summary>
-    public static SignedSixteenSixteen FiringDisplacement { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(-56);
+    public static SignedSixteenSixteen FiringDisplacement { get; } = SignedSixteenSixteen.FromPixelFraction(-7, 2);
 
     /// <summary>
     /// Minimum whole-pixel extra Samus X displacement. The game

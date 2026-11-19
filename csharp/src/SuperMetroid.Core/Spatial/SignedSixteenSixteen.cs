@@ -37,16 +37,27 @@ public readonly record struct SignedSixteenSixteen : IComparable<SignedSixteenSi
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The denominator is no power of two from 1 through 65536.</exception>
     /// <exception cref="OverflowException">The displacement lies outside the type's range.</exception>
-    public static SignedSixteenSixteen FromPixelFraction(int numerator, int denominator)
-    {
-        int fractionsEach = FractionsPerPixel / Ensure.BetweenInclusive(1, FractionsPerPixel, denominator);
-        if (fractionsEach * denominator != FractionsPerPixel)
-            throw new ArgumentOutOfRangeException(nameof(denominator), denominator, "The denominator must be a power of two from 1 through 65536.");
-        return new(checked(numerator * fractionsEach));
-    }
+    public static SignedSixteenSixteen FromPixelFraction(int numerator, int denominator) =>
+        new(PowerOfTwoFraction.InFinestUnits(numerator, denominator, FractionsPerPixel));
 
     /// <summary>The fractions of a pixel the displacement counts: 65536 to the pixel.</summary>
     private const int FractionsPerPixel = 65536;
+
+    /// <summary>The displacement in pixels, its fraction kept exactly: the amount an installed file states (#2555).</summary>
+    public decimal Pixels => RawValue / (decimal)FractionsPerPixel;
+
+    /// <summary>
+    /// The displacement of <paramref name="pixels"/> pixels (#2555), as an installed file states it: an amount the type
+    /// keeps exactly, a whole number of its finest fractions of a pixel, within its range.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The type cannot keep the amount exactly.</exception>
+    public static SignedSixteenSixteen FromPixels(decimal pixels)
+    {
+        decimal fractions = pixels * FractionsPerPixel;
+        if (fractions != decimal.Truncate(fractions) || fractions < int.MinValue || fractions > int.MaxValue)
+            throw new ArgumentOutOfRangeException(nameof(pixels), pixels, "The displacement cannot keep this amount of pixels exactly.");
+        return new((int)fractions);
+    }
 
     /// <summary>The zero displacement.</summary>
     public static SignedSixteenSixteen Zero => default;
@@ -67,6 +78,30 @@ public readonly record struct SignedSixteenSixteen : IComparable<SignedSixteenSi
     /// <summary>Replaces only the fraction and keeps the whole pixels, as the game does when it sets a position's fraction alone.</summary>
     public SignedSixteenSixteen WithFraction(int fraction) => FromParts(WholePixels, fraction);
 
+    /// <summary>
+    /// The displacement with its whole pixels replaced by <paramref name="speed"/>'s and its own fraction kept (#2555), as
+    /// the game sets only a speed's whole pixels and lets the fraction it held carry on.
+    /// </summary>
+    public SignedSixteenSixteen WithWholePixelsOf(SignedSixteenSixteen speed) => WithWholePixels(speed.WholePixels);
+
+    /// <summary>
+    /// The displacement with its whole pixels reversed and its fraction kept (#2555), as the game negates only a speed's
+    /// whole pixels when it bounces.
+    /// </summary>
+    public SignedSixteenSixteen WithWholePixelsReversed() => WithWholePixels(-WholePixels);
+
+    /// <summary>
+    /// Whether the displacement's whole pixels reach <paramref name="speed"/>'s whole pixels whichever way it points
+    /// (#2555), as a cap that tests only a speed's whole pixels compares them.
+    /// </summary>
+    public bool WholePixelsReachEitherWay(SignedSixteenSixteen speed) => Math.Abs(WholePixels) >= speed.WholePixels;
+
+    /// <summary>
+    /// The part of a pixel the displacement holds past its whole pixels, its whole pixels cleared (#2555): none up to the
+    /// finest step short of a pixel, the whole pixels taken toward decreasing coordinates for a negative displacement.
+    /// </summary>
+    public SignedSixteenSixteen WithoutWholePixels() => FromParts(0, Fraction);
+
     /// <summary>The displacement with no fraction: its whole pixels, the fraction dropped.</summary>
     public SignedSixteenSixteen WithoutFraction() => FromParts(WholePixels, 0);
 
@@ -83,6 +118,18 @@ public readonly record struct SignedSixteenSixteen : IComparable<SignedSixteenSi
     /// </summary>
     public SignedSixteenSixteen WithWholePixelsAtLeast(int minimumWhole) =>
         WholePixels < minimumWhole ? WithWholePixels(minimumWhole) : this;
+
+    /// <summary>
+    /// The displacement with its whole pixels lowered to <paramref name="most"/>'s when they lie above them, its fraction
+    /// kept (#2555), as the game limits only a displacement's whole pixels.
+    /// </summary>
+    public SignedSixteenSixteen WithWholePixelsAtMost(SignedSixteenSixteen most) => WithWholePixelsAtMost(most.WholePixels);
+
+    /// <summary>
+    /// The displacement with its whole pixels raised to <paramref name="least"/>'s when they lie below them, its fraction
+    /// kept (#2555), as the game limits only a displacement's whole pixels.
+    /// </summary>
+    public SignedSixteenSixteen WithWholePixelsAtLeast(SignedSixteenSixteen least) => WithWholePixelsAtLeast(least.WholePixels);
 
     /// <summary>Adds two displacements, carrying the fraction and wrapping at 32 bits.</summary>
     public static SignedSixteenSixteen operator +(SignedSixteenSixteen left, SignedSixteenSixteen right) =>
@@ -190,8 +237,4 @@ public readonly record struct SignedSixteenSixteen : IComparable<SignedSixteenSi
 
     /// <summary>Whether <paramref name="left"/> is no less than <paramref name="right"/>, read signed.</summary>
     public static bool operator >=(SignedSixteenSixteen left, SignedSixteenSixteen right) => left.CompareTo(right) >= 0;
-
-    /// <summary>Adds this delta to an unsigned wrapped 16.16 world-position pair, each word 0 through 65535.</summary>
-    public FixedCoordinate AddTo(int wholePosition, int subposition) =>
-        FixedCoordinate.Of(wholePosition, subposition).MovedBy(this);
 }

@@ -35,7 +35,7 @@ public sealed class NorfairRioEnemyState
     internal NorfairRioFlames Flames { get; set; }
 
     /// <summary>The Norfair Rio's velocity each update, positive right and down.</summary>
-    public EightEightVector<RoomPixels> Velocity { get; internal set; }
+    public PixelVelocity<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>The behaviour the parent runs.</summary>
     public NorfairRioAction Action { get; internal set; }

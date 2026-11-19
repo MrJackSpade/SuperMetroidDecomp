@@ -37,7 +37,7 @@ internal static class MagdolliteMotionDefinitions
     internal const int AttackPollWait = 1;
 
     /// <summary>How fast thrown lava flies sideways, three pixels an update, toward the side it is thrown.</summary>
-    internal static SignedEightEight LavaThrowSpeed { get; } = SignedEightEight.FromParts(3, 0);
+    internal static SignedEightEight LavaThrowSpeed { get; } = SignedEightEight.FromPixels(3);
 
     /// <summary>How long each frame of the room's lava glow every Magdollite shows lasts, in updates.</summary>
     internal const int GlowFrameDuration = 8;

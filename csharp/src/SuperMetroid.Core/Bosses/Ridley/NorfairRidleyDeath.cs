@@ -65,7 +65,7 @@ internal sealed class NorfairRidleyDeath
         if (!state.PhaseTimer.StepRunsOut())
             return;
 
-        state.Flight.Velocity = EightEightVector<RoomPixels>.Zero;
+        state.Flight.Velocity = PixelVelocity<RoomPixels>.Zero;
         RidleyLiquidMotion.Publish(_roomFx, RidleyLiquidDefinitions.DrainedHeight,
             RidleyLiquidDefinitions.DrainVelocity, RidleyLiquidDefinitions.DrainDelay);
         state.DeathExplosionTimer.LastFor(1);
@@ -92,7 +92,7 @@ internal sealed class NorfairRidleyDeath
         if (state.GrabState != RidleyGrabState.Released)
             ReleaseNorfairRidleyGrab(state, samus);
         state.Phase = NorfairRidleyPhase.DeathBreakup;
-        state.Flight.Velocity = EightEightVector<RoomPixels>.Zero;
+        state.Flight.Velocity = PixelVelocity<RoomPixels>.Zero;
         SpawnNorfairRidleyBreakupActors(body, state);
     }
 
@@ -211,8 +211,7 @@ internal sealed class NorfairRidleyDeath
         fragment.Shading = state.Colours.SpriteShading(flashing: false);
         int random = _room.Random.Generate();
         SignedEightEight horizontalSpeed =
-            SignedEightEight.FromSixteenthsOfPixel(RidleyExplosionDefinitions.FragmentSpeedSixteenths.Of(random)) +
-            SignedEightEight.FromPixels(RidleyExplosionDefinitions.FragmentSpeedWholePixel.Of(random));
+            RidleyExplosionDefinitions.FragmentSpeedFraction.Of(random) + RidleyExplosionDefinitions.FragmentSpeedWholePixel.Of(random);
         // Tail fragments start from their tail link; the body fragments start from the body.
         EnemyFrameId picture;
         if (RidleyBreakup.TailLinkBecoming(part, state.Tail) is { } link)
@@ -246,7 +245,7 @@ internal sealed class NorfairRidleyDeath
 
         RidleyExplosionFragmentState fragmentState = fragment.RequireSpeciesState<RidleyExplosionFragmentState>();
         // A fragment falls only for its part's authored lifetime, so its gravity adds a few pixels an update at most.
-        var velocity = new EightEightVector<RoomPixels>(
+        var velocity = new PixelVelocity<RoomPixels>(
             fragmentState.Velocity.X.SlowedBy(RidleyExplosionDefinitions.BreakupFragmentDrag),
             fragmentState.Velocity.Y + RidleyExplosionDefinitions.BreakupFragmentGravity);
         fragmentState.Velocity = velocity;

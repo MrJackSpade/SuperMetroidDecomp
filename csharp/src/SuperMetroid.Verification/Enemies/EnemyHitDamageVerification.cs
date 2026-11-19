@@ -21,8 +21,9 @@ internal static class EnemyHitDamageVerification
         string? firstMismatch = null;
         for (int multiplier = 0; multiplier <= LargestAuthoredMultiplier; multiplier++)
         {
-            var response = new EnemyWeaponVulnerability(multiplier, EnemyIceResponse.FreezesOnLethalHit);
-            var shot = new EnemyCollision.NormalShotVulnerability(multiplier, FreezeImmediately: false, PreventsLethalFreeze: false);
+            WeaponDamageFactor factor = WeaponDamageFactor.FromStoredHalves(multiplier);
+            var response = new EnemyWeaponVulnerability(factor, EnemyIceResponse.FreezesOnLethalHit);
+            var shot = new EnemyCollision.NormalShotVulnerability(factor, FreezeImmediately: false, PreventsLethalFreeze: false);
             for (int weaponDamage = 0; weaponDamage <= ushort.MaxValue; weaponDamage++)
             {
                 int expected = (weaponDamage >> 1) * multiplier;

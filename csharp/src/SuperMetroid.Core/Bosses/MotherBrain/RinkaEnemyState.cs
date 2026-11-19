@@ -30,7 +30,7 @@ public sealed class RinkaEnemyState
     public RinkaAction Action { get; internal set; }
 
     /// <summary>Velocity, aimed at where Samus stood as the aim delay ran out.</summary>
-    public EightEightVector<RoomPixels> Velocity { get; internal set; }
+    public PixelVelocity<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>
     /// The spawn point a special Mother Brain Rinka holds, which no other Rinka can take until it is released; null

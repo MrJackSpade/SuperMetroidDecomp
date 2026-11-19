@@ -43,7 +43,7 @@ internal sealed class EndingShootingStars
             {
                 int multiplier = star.Look is EndingShootingStarLook.LeadIn or EndingShootingStarLook.FaintSpeck ? 1 : 2;
                 star.Velocity += star.Definition.Acceleration * multiplier;
-                star.Position += star.Velocity.ToSixteenSixteen();
+                star.Position += star.Velocity.ToDisplacement();
             }
 
             Offset16<ScreenPixels> whole = star.Position.Whole;

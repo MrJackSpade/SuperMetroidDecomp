@@ -88,7 +88,7 @@ public sealed class SamusCeresRidleyEjectionState
             PushDirection = screenX < ScreenGeometry.ScreenWidthPixels / 2
                 ? CeresRidleyShoveDirection.Left
                 : CeresRidleyShoveDirection.Right;
-            samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(SamusVerticalMotionDefinitions.CeresRidleyShoveFallingSpeed, 0);
+            samus.Kinematics.YSpeed = SamusVerticalMotionDefinitions.CeresRidleyShoveFallingSpeed;
 
             // Only the shove's state is set up on this update. The shove does not
             // perform the first collision/movement pass until the following frame.
@@ -128,7 +128,7 @@ public sealed class SamusCeresRidleyEjectionState
 
         // Her fall speeds up only while its whole pixels are below five, and she falls by that speed alone, without the
         // extra pixel an ordinary fall adds.
-        if (samus.Kinematics.YSpeed.Whole < SamusVerticalMotionDefinitions.CeresRidleyShoveFallingSpeed)
+        if (samus.Kinematics.YSpeed.IsSlowerThan(SamusVerticalMotionDefinitions.CeresRidleyShoveFallingSpeed))
             samus.Kinematics.YSpeed += samus.Kinematics.YAcceleration;
         SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = samus.Kinematics.YSpeed.AsDisplacement(), ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
     }

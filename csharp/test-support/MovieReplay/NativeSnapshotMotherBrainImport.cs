@@ -141,7 +141,7 @@ internal static class NativeSnapshotMotherBrainImport
         state.HandBeamNextPosition = FixedPosition<RoomPixels>.FromStoredParts(
             W(MotherBrainMemory.DeathBeamNext + 2), W(MotherBrainMemory.DeathBeamNext),
             W(MotherBrainMemory.DeathBeamNext + 6), W(MotherBrainMemory.DeathBeamNext + 4));
-        state.HandBeamNextVelocity = new EightEightVector<RoomPixels>(
+        state.HandBeamNextVelocity = new PixelVelocity<RoomPixels>(
             new SignedEightEight(W(MotherBrainMemory.DeathBeamNext + 8)),
             new SignedEightEight(W(MotherBrainMemory.DeathBeamNext + 10)));
         // The game reads only the low byte of each aim angle, the byte angle it stored.

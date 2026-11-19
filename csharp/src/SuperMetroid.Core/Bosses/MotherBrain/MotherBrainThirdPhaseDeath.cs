@@ -254,7 +254,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         // The brain gains fall speed each update and falls the speed's whole pixels.
         // Reaching the floor clamps the head and starts the brain's landing earthquake.
         _state.BrainFallSpeed += MotherBrainDeathDefinitions.BrainFallAcceleration;
-        int fallingDisplacement = _state.BrainFallSpeed.UnsignedWholePixels;
+        int fallingDisplacement = _state.BrainFallSpeed.WholePixels;
         Position16<RoomPixels> candidate = _state.BrainPosition + new Offset16<RoomPixels>(0, fallingDisplacement);
         if (candidate.Y >= MotherBrainFightDefinitions.BrainFloorY)
         {

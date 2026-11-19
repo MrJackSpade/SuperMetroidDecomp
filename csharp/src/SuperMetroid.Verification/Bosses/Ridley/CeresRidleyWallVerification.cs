@@ -46,7 +46,7 @@ internal static class CeresRidleyWallVerification
         // repeated wall contacts refreshing its timer: the retreat's delay holds him still while it counts down.
         ridley.Phase = CeresRidleyPhase.RetreatDelay;
         ridley.PhaseTimer.LastFor(65);
-        ridley.Flight.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
+        ridley.Flight.Velocity = new PixelVelocity<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
         for (int remaining = 10; remaining >= 0; remaining--)
         {
             runtime.StepFrame(0);

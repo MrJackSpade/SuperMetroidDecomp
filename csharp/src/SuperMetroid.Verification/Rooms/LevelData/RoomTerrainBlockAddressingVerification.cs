@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 
@@ -199,8 +198,8 @@ internal static class RoomTerrainBlockAddressingVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(block.X * 16 + 8, block.Y * 16 + 8)),
             Radius = new(1, 1),
             Velocity = vertical
-                ? EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 1)
-                : EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(1, 0),
+                ? new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1))
+                : new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0)),
         };
         return vertical
             ? ProjectileTerrainCollision.ScanVerticalShotReactions(level, shot, roomObjects: SamusRoomObjectFixtures.Uninstalled)

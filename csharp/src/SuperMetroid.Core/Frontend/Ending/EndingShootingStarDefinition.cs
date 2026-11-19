@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// </param>
 /// <param name="Delay">Initial invisible delay; zero starts immediately.</param>
 internal readonly record struct EndingShootingStarDefinition(
-    EightEightVector<ScreenPixels> Acceleration, int? Period, int Delay)
+    PixelVelocity<ScreenPixels> Acceleration, int? Period, int Delay)
 {
     /// <summary>A star whose picture animates, each frame lasting <paramref name="period"/> updates.</summary>
-    internal static EndingShootingStarDefinition Animated(EightEightVector<ScreenPixels> acceleration, int period, int delay) =>
+    internal static EndingShootingStarDefinition Animated(PixelVelocity<ScreenPixels> acceleration, int period, int delay) =>
         new(acceleration, period, delay);
 
     /// <summary>A still star, which keeps its first visible frame for the whole of every flight.</summary>
-    internal static EndingShootingStarDefinition Still(EightEightVector<ScreenPixels> acceleration, int delay) =>
+    internal static EndingShootingStarDefinition Still(PixelVelocity<ScreenPixels> acceleration, int delay) =>
         new(acceleration, null, delay);
 }

@@ -109,7 +109,7 @@ internal static class RoomScopeVerification
             "an enemy projectile slot's whole coordinates survive the load; its fractions clear");
         VerificationAssertions.AssertEqual(sourceProjectile.Velocity, carried.Velocity,
             "an enemy projectile slot's velocity survives the load");
-        VerificationAssertions.AssertEqual(0x4321, destination.Projectiles.Pool.LeftBeamStart.Kept(2),
+        VerificationAssertions.AssertEqual(new FixedCoordinate(0, 0x4321).FractionOfPixel, destination.Projectiles.Pool.LeftBeamStart.Kept(2),
             "a shot place keeps for its next projectile the horizontal sub-pixel position of the outgoing room's shot in it (RoomHandOver, LeftBeamStartFromLastShot)");
         VerificationAssertions.AssertEqual(FixedPosition<RoomPixels>.Zero, destination.Projectiles.Pool.Shots[2].Position,
             "nothing else of the outgoing shot reaches the next room: the place reads as at rest at the origin");

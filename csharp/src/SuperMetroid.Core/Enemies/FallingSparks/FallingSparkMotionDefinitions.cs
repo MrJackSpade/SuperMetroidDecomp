@@ -7,7 +7,7 @@ internal static class FallingSparkMotionDefinitions
     internal const int SpawnBelowSource = 8;
 
     /// <summary>How much a falling spark's vertical speed gains each falling update: a quarter pixel an update.</summary>
-    internal static SignedSixteenSixteen Gravity { get; } = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(64);
+    internal static SignedSixteenSixteen Gravity { get; } = SignedSixteenSixteen.FromPixelFraction(1, 4);
 
     /// <summary>The whole-pixel vertical speed a falling spark's speed stops rising at.</summary>
     internal const int TerminalWholeSpeed = 4;
@@ -16,7 +16,7 @@ internal static class FallingSparkMotionDefinitions
     internal const int ImpactDriftScale = 4;
 
     /// <summary>The vertical speed a spark bounces up at when it hits the floor: half a pixel upward.</summary>
-    internal static SignedSixteenSixteen ImpactBounce { get; } = -SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(128);
+    internal static SignedSixteenSixteen ImpactBounce { get; } = -SignedSixteenSixteen.FromPixelFraction(1, 2);
 
     /// <summary>How far a spark is lifted off the floor as it hits it, in pixels.</summary>
     internal const int ImpactLift = 2;

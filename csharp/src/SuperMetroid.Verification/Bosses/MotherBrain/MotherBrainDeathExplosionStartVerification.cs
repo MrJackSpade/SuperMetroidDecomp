@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses;
 using SuperMetroid.Verification.Bosses.Botwoon;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Runtime;

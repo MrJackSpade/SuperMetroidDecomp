@@ -10,12 +10,12 @@ public static class FallingSparkLaunchDefinitions
     /// </summary>
     internal static readonly WeightedRandomChoice<FallingSparkLaunch> Launch = WeightedRandomChoice<FallingSparkLaunch>.InTurn(
         new RandomSampleField(2, 3),
-        new FallingSparkLaunch.Authored(SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(-72)),
-        new FallingSparkLaunch.Authored(SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(-64)),
-        new FallingSparkLaunch.Authored(SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(-32)),
-        new FallingSparkLaunch.Authored(SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(-1)),
-        new FallingSparkLaunch.Authored(SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(1)),
-        new FallingSparkLaunch.Authored(SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(32)),
-        new FallingSparkLaunch.Authored(SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(64)),
+        new FallingSparkLaunch.Authored(SignedSixteenSixteen.FromPixelFraction(-9, 32)),
+        new FallingSparkLaunch.Authored(SignedSixteenSixteen.FromPixelFraction(-1, 4)),
+        new FallingSparkLaunch.Authored(SignedSixteenSixteen.FromPixelFraction(-1, 8)),
+        new FallingSparkLaunch.Authored(SignedSixteenSixteen.FromPixelFraction(-1, 256)),
+        new FallingSparkLaunch.Authored(SignedSixteenSixteen.FromPixelFraction(1, 256)),
+        new FallingSparkLaunch.Authored(SignedSixteenSixteen.FromPixelFraction(1, 8)),
+        new FallingSparkLaunch.Authored(SignedSixteenSixteen.FromPixelFraction(1, 4)),
         FallingSparkLaunch.PastAuthored.Instance);
 }

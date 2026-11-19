@@ -310,8 +310,8 @@ internal static class EnemyTerrainBlockAddressingVerification
             : FixedPosition<RoomPixels>.FromWhole(new(spanCenter, moveCenter));
         ScannedProjectile.Radius = edge == Axis.Horizontal ? new(1, spanRadius) : new(spanRadius, 1);
         ScannedProjectile.Velocity = edge == Axis.Horizontal
-            ? EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(256, 0)
-            : EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 256);
+            ? new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0))
+            : new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256));
         return EnemyProjectileEngine.MoveProjectileAxis(ScannedProjectile, level, edge);
     }
 

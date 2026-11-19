@@ -182,8 +182,8 @@ internal sealed class SamusPresentation
             samus.AnimationFrameTimer = WrappingCountdown.Start(SamusAnimationDelayDefinitions.NeutralJumpRiseExtension);
         }
 
-        // A held frame (SamusAnimationHold) leaves its expired timer at zero. Its next decrement wraps to 65535, which
-        // the negative test reads as expired, so the hold costs exactly one more update before the following frame.
+        // A held frame (SamusAnimationHold) leaves its timer expired, and the next update's count expires it again,
+        // so the held frame lasts exactly one more update before the following frame.
         samus.AnimationFrameTimer = samus.AnimationFrameTimer.Decrement().Remaining;
         if (!samus.AnimationFrameTimer.IsZero && !samus.AnimationFrameTimer.IsNegative)
             return;
@@ -289,7 +289,7 @@ internal sealed class SamusPresentation
         switch (step)
         {
             case SamusAnimationHold:
-                // The frame and timer stay as they are: the expired timer wraps on the next tick, which then moves on to
+                // The frame and timer stay as they are, so the frame lasts one more tick and the next tick moves on to
                 // the frame after this one. The aimed falling poses spend that extra tick before their held frame.
                 return;
 

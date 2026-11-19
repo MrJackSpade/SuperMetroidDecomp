@@ -40,7 +40,7 @@ internal static class IntroSamusDemoMovement
             if (SamusPoseMetadata.IsLeftFacingRunningPose(samus.Pose))
             {
                 // Running deceleration preserves the running pose and consults
-                // the pose's no-input fallback only once both base-speed halves reach exact zero.
+                // the pose's no-input fallback only once her base speed has stopped completely.
                 fallback = samus.HorizontalSpeed.HasBaseSpeed
                     ? samus.Pose
                     : SamusPoseMetadata.ReadNoInputFallback(samus).From(samus.Pose);

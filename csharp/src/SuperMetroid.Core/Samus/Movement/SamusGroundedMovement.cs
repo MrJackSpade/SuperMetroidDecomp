@@ -231,8 +231,8 @@ public static class SamusGroundedMovement
             liquidImpeded: liquidMedium != SamusLiquidMedium.Air);
 
         // The turning-on-ground or turning-while-jumping speeds supply the
-        // deceleration. If subtraction crosses below zero,
-        // the calculation clears both speed halves AND mode before the direction selector chooses direction.
+        // deceleration. If it takes the speed below zero, the speed stops and the
+        // acceleration mode returns to accelerating before the direction is chosen.
         UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(movementType);
 
         // The turn's direction comes from the pose's facing rather than its name; the acceleration mode then chooses

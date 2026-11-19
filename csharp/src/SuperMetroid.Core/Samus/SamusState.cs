@@ -845,7 +845,7 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// Absolute previous whole-pixel Y, 0 through 65535, written by a pose-collision correction this frame; null when
+    /// Samus's previous whole-pixel Y in the room, written by a pose-collision correction this frame; null when
     /// nothing wrote it. Only <see cref="WritePreviousYPosition"/> stores it, and its readers wrap its sum with the
     /// alignment delta around the room, as the room coordinate does.
     /// </summary>
@@ -853,7 +853,7 @@ public sealed class SamusState
     /// <summary>Relative previous-Y correction accumulated while preserving feet across a pose change.</summary>
     private int _poseAlignmentPreviousYDelta;
     /// <summary>
-    /// Absolute previous whole-pixel X, 0 through 65535, written by a room or pose owner this frame; null when nothing
+    /// Samus's previous whole-pixel X in the room, written by a room or pose owner this frame; null when nothing
     /// wrote it. Only <see cref="WritePreviousXPosition"/> stores it.
     /// </summary>
     private int? _previousXPositionWrite;

@@ -695,12 +695,9 @@ public sealed class SamusShinesparkState
             samus.Kinematics,
             -displacementSpeed.AsDisplacement());
 
-        // The upward move temporarily negates the signed result, clamps only a positive
-        // upward magnitude at 15 whole pixels while preserving its fraction, then negates
-        // it back before the room move. If external Y is strong enough to reverse motion
-        // downward, the temporary value is negative and deliberately bypasses this clamp.
-        // The spark's speed is capped at fourteen pixels, so the magnitude stays far inside the range where the game's
-        // wrapping comparison is this ordinary one.
+        // A rise meets the room's blocks over at most 15 whole pixels, keeping its fraction. A move that outside
+        // forces reverse downward is not capped. The spark's speed never passes fourteen pixels, so every rise is
+        // far short of a distance the cap could misjudge.
         SignedSixteenSixteen collisionMagnitude = -upwardDisplacement;
         if (collisionMagnitude.WholePixels >= ShinesparkDefinitions.MostRiseCollisionStep)
         {

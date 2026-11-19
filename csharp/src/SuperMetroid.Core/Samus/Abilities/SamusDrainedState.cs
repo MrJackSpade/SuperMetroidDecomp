@@ -289,9 +289,9 @@ public sealed class SamusDrainedState
 
         if (vertical.Collided)
         {
-            // The landing ends the fall, jumps directly to the held crouch's landing
-            // frame for eight ticks, and clears both velocity halves. It does not
-            // clear Y direction and it does not select a new pose.
+            // The landing ends the fall, shows the held crouch's landing frame for
+            // eight ticks and stops her vertical speed. It keeps her vertical
+            // direction and does not select a new pose.
             SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.LandingFrame,
                 timer: SamusDrainedAnimationDefinitions.LandingTimer);
             samus.Kinematics.YSpeed = default;
@@ -388,7 +388,7 @@ public sealed class SamusDrainedState
         Phase = DrainedSamusPhase.RainbowBeamLocked;
     }
 
-    /// <summary>Erases horizontal base speed and both halves of vertical speed during drained pose changes.</summary>
+    /// <summary>Stops Samus's horizontal base speed and her vertical speed during drained pose changes.</summary>
     private static void ClearBaseAndVerticalSpeed(SamusState samus)
     {
         samus.HorizontalSpeed.BaseSpeed = default;

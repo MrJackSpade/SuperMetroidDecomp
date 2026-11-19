@@ -1,0 +1,16 @@
+namespace SuperMetroid.Core.Hud;
+
+/// <summary>
+/// The installed key of each <see cref="MinimapShade"/> (#2520), written out so renaming a member never changes a name
+/// the installation, an installed document or a save spells it by.
+/// </summary>
+internal static class MinimapShadeKeys
+{
+    /// <summary>Each MinimapShade member's installed key.</summary>
+    internal static InstalledKeys<MinimapShade> Installed { get; } = new(new Dictionary<MinimapShade, string>
+    {
+        [MinimapShade.Unexplored] = "Unexplored",
+        [MinimapShade.Explored] = "Explored",
+        [MinimapShade.SamusLocation] = "SamusLocation",
+    });
+}

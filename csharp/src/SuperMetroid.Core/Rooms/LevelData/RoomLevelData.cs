@@ -218,6 +218,46 @@ public sealed class RoomLevelData
     internal RoomCollisionBlock LinkedBlockOrEdgeSolid(RoomCollisionBlock extension) =>
         GridBlockStepped(extension.At, extension.ExtensionLink) is { } reached ? GetCollisionBlock(reached) : EdgeSolid();
 
+    /// <summary>
+    /// The block <paramref name="block"/> stands for, as Samus's body, her shots, missiles and bombs collide with and react
+    /// to it (<see cref="ContinuedBlocks"/>): the block itself, or the block a continuing cell's links lead to; null when the
+    /// cell behaves as air.
+    /// </summary>
+    /// <param name="block">A block the read found in the grid.</param>
+    /// <exception cref="InvalidDataException">A link leads outside the room's grid, or the chain is cyclic.</exception>
+    internal RoomCollisionBlock? BlockStoodFor(RoomCollisionBlock block) =>
+        ContinuedBlocks.StoodFor(block, Size.Area, Continues, cell => cell.Behavior.EndsExtension,
+            cell => GetCollisionBlock(GridBlockStepped(cell.At, cell.ExtensionLink) ?? throw new InvalidDataException(
+                $"Continuing block {cell.Position} type {cell.CollisionType}/behaviour ({cell.Behavior}) leads outside the room's grid.")));
+
+    /// <summary>
+    /// Replaces <paramref name="block"/> with the block it stands for (<see cref="BlockStoodFor"/>), returning false when it
+    /// behaves as air.
+    /// </summary>
+    /// <param name="block">A block the read found in the grid; the block it stands for once the call returns true.</param>
+    /// <exception cref="InvalidDataException">A link leads outside the room's grid, or the chain is cyclic.</exception>
+    internal bool TryReachBlockStoodFor(ref RoomCollisionBlock block)
+    {
+        if (BlockStoodFor(block) is not { } stoodFor)
+            return false;
+        block = stoodFor;
+        return true;
+    }
+
+    /// <summary>
+    /// The block <paramref name="block"/> stands for as the grapple beam's checks read it (<see cref="ContinuedBlocks"/>): a
+    /// link that leads outside the room's grid reads the edge-solid block a probe outside the room reads; null when the
+    /// cell behaves as air.
+    /// </summary>
+    /// <param name="block">A block the read found in the grid.</param>
+    /// <exception cref="InvalidDataException">The chain is cyclic.</exception>
+    internal RoomCollisionBlock? GrappleBlockStoodFor(RoomCollisionBlock block) =>
+        ContinuedBlocks.StoodFor(block, Size.Area, Continues, cell => cell.Behavior.EndsExtension, LinkedBlockOrEdgeSolid);
+
+    /// <summary>Whether <paramref name="block"/> continues a block of several cells, its link leading to the block it stands for.</summary>
+    private static bool Continues(RoomCollisionBlock block) =>
+        block.CollisionType is RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension;
+
     /// <summary>Reads a room object's block, inside the grid or in the terrain beyond the room.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The block is past the terrain beyond the room.</exception>
     internal RoomCollisionBlock GetObjectCollisionBlock(Position16<RoomBlocks> block) =>

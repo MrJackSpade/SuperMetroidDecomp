@@ -119,11 +119,11 @@ internal static class RoomTerrainBlockAddressingVerification
                 RoomCollisionBlock block = room.Level.GetCollisionBlock(BlockAtPlace(start, width));
                 if (reached is not { } place)
                 {
-                    AssertThrows<InvalidDataException>(() => SamusBlockCollision.TryResolveExtension(room.Level, ref block), context);
+                    AssertThrows<InvalidDataException>(() => room.Level.TryReachBlockStoodFor(ref block), context);
                     continue;
                 }
 
-                bool resolved = SamusBlockCollision.TryResolveExtension(room.Level, ref block);
+                bool resolved = room.Level.TryReachBlockStoodFor(ref block);
                 if (resolved != collides || block != room.Read(place))
                 {
                     AssertEqual(collides, resolved, $"{context}: whether it collides");

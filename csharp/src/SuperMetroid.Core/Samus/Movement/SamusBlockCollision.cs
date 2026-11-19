@@ -133,7 +133,7 @@ public static class SamusBlockCollision
             {
                 RoomCollisionBlock block = terrain.Level.GetCollisionBlockOrEdgeSolid(
                     new(TerrainScanEdges.Block(blockX), TerrainScanEdges.Block(topBlockY + rowOffset)));
-                if (!TryResolveExtension(terrain.Level, ref block))
+                if (!terrain.Level.TryReachBlockStoodFor(ref block))
                     continue;
                 switch (block.CollisionType)
                 {
@@ -465,7 +465,7 @@ public static class SamusBlockCollision
         {
             int blockX = move.ScanLeftToRight ? firstBlockX + offset : firstBlockX - offset;
             RoomCollisionBlock block = terrain.Level.GetCollisionBlockOrEdgeSolid(new(TerrainScanEdges.Block(blockX), TerrainScanEdges.Block(blockY)));
-            if (!TryResolveExtension(terrain.Level, ref block))
+            if (!terrain.Level.TryReachBlockStoodFor(ref block))
                 continue;
             switch (block.CollisionType)
             {
@@ -1050,55 +1050,6 @@ public static class SamusBlockCollision
     {
         int alignedLeft = RoomGridConversions.BlockStart(TerrainScanEdges.Edge(state.Position.X.Whole - state.Radius.X));
         return RoomGridConversions.WholeBlocksIn(TerrainScanEdges.Edge(state.Radius.X + state.Position.X.Whole - 1 - alignedLeft));
-    }
-
-    /// <summary>
-    /// Follows collision-extension blocks exactly as block collision does: a horizontal extension
-    /// moves its signed behaviour in blocks along the row; a vertical extension moves it in rows.
-    /// Each link leads on in the room's reading order (<see cref="RoomReadingOrder"/>), so a horizontal link past a
-    /// row's end continues on the next row. A zero behaviour reports no collision immediately and therefore behaves as air.
-    /// </summary>
-    /// <remarks>
-    /// The one extension follower (#2529): Samus's collision and inside reactions, her shots' block reactions, her missiles'
-    /// point reactions and her bombs' reactions all follow links here, sharing one horizontal and one vertical extension
-    /// step. Those go back into the reaction until a block that is no extension or an extension
-    /// whose behaviour is zero, with no bound; a chain of as many links as the room has blocks must revisit one, a cycle the
-    /// game never leaves, and is reported as malformed room data.
-    /// </remarks>
-    /// <exception cref="InvalidDataException">A link leads outside the room's grid, or the chain is cyclic.</exception>
-    internal static bool TryResolveExtension(
-        RoomLevelData level,
-        ref RoomCollisionBlock block)
-    {
-        int blockCount = level.Size.Area;
-        for (int hops = 0; hops < blockCount; hops++)
-        {
-            switch (block.CollisionType)
-            {
-                case RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension when block.Behavior.EndsExtension:
-                    return false;
-                case RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension:
-                    break;
-                case RoomCollisionType.Air or RoomCollisionType.Slope or RoomCollisionType.SpikeAir or
-                    RoomCollisionType.SpecialAir or RoomCollisionType.ShootableAir or RoomCollisionType.UnrevealedAir or
-                    RoomCollisionType.BombableAir or RoomCollisionType.SolidBlock or RoomCollisionType.DoorBlock or
-                    RoomCollisionType.SpikeBlock or RoomCollisionType.SpecialBlock or
-                    RoomCollisionType.ShootableBlock or RoomCollisionType.GrappleBlock or
-                    RoomCollisionType.BombableBlock:
-                    return true;
-                default:
-                    throw new InvalidOperationException($"Undefined RoomCollisionType {block.CollisionType}.");
-            }
-
-            Position16<RoomBlocks> target = level.GridBlockStepped(block.At, block.ExtensionLink) ??
-                throw new InvalidDataException(
-                    $"Collision extension block {block.Position} type {block.CollisionType}/" +
-                    $"behaviour ({block.Behavior}) resolves outside the room's grid.");
-            block = level.GetCollisionBlock(target);
-        }
-
-        throw new InvalidDataException(
-            $"Collision extension chain beginning at block {block.Position} contains a cycle.");
     }
 
     /// <summary>

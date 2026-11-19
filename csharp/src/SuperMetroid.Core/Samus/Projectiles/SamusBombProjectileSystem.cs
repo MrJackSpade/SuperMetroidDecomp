@@ -700,7 +700,10 @@ public sealed class SamusBombProjectileSystem
         flight.ReverseAtWall();
     }
 
-    /// <summary>Tests the bomb center against room bounds, extension parents, solid blocks and the game's non-square slope heights.</summary>
+    /// <summary>
+    /// Tests the bomb center against room bounds, the block its cell stands for (<see cref="ContinuedBlocks"/>), solid blocks
+    /// and the game's non-square slope heights.
+    /// </summary>
     internal static bool BombSpreadCollides(
         RoomLevelData level,
         SamusBomb bomb)
@@ -711,7 +714,7 @@ public sealed class SamusBombProjectileSystem
             return true;
 
         RoomCollisionBlock block = level.GetCollisionBlock(new(blockX, blockY));
-        if (!SamusBlockCollision.TryResolveExtension(level, ref block))
+        if (!level.TryReachBlockStoodFor(ref block))
             return false;
 
         if (block.CollisionType != RoomCollisionType.Slope)
@@ -823,7 +826,10 @@ public sealed class SamusBombProjectileSystem
         }
     }
 
-    /// <summary>Resolves a bombed block through extension, item, door and special-block reactions, including synchronous room-object changes.</summary>
+    /// <summary>
+    /// Reacts to the block a bombed cell stands for (<see cref="ContinuedBlocks"/>): its item, door, special-block or ordinary
+    /// reaction, including synchronous room-object changes.
+    /// </summary>
     internal static void ReactToBombedBlock(
         RoomLevelData level,
         Position16<RoomBlocks> bombedBlock,
@@ -834,9 +840,9 @@ public sealed class SamusBombProjectileSystem
         int y = bombedBlock.Y;
         RoomCollisionBlock visitedBlock = level.GetCollisionBlock(bombedBlock);
 
-        // A bombed extension block reacts as the block it leads to, across or by whole rows; one that leads nowhere is air.
+        // A bombed cell reacts as the block it stands for, at that block; one that stands for nothing is air.
         RoomCollisionBlock block = visitedBlock;
-        if (!SamusBlockCollision.TryResolveExtension(level, ref block))
+        if (!level.TryReachBlockStoodFor(ref block))
             return;
 
         // A bombed item block, special or shootable, tells the item room object at it of the hit, and no other reaction
@@ -963,9 +969,8 @@ public sealed class SamusBombProjectileSystem
             return;
         }
 
-        // Every collision type is handled above; a horizontal or vertical extension either
-        // resolves to its parent or returned before this step, so reaching here means a
-        // collision type was added without a bomb reaction.
+        // Every collision type is handled above; a continuing cell either reached the block it stands for or returned
+        // before this step, so reaching here means a collision type was added without a bomb reaction.
         throw new InvalidDataException(
             $"Bombed block reaction reached impossible type {block.CollisionType}/" +
             $"behaviour ({block.Behavior}) at ({x},{y}).");

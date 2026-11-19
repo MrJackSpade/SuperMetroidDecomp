@@ -8,7 +8,6 @@ internal static class StationObjectDraws
 {
     /// <summary>The stations' frames, pictured by the installed station frames.</summary>
     internal static RoomObjectDrawFamily<StationDraw> Family { get; } =
-        RoomObjectDrawFamily<StationDraw>.Pictured<InstalledRoomObjectStationVisuals>("station",
-            frame => RoomObjectDrawFamily<StationDraw>.Defined(StationObjectDrawDefinitions.Shapes, frame),
-            (visuals, draw) => visuals.Image(draw));
+        new RoomObjectDrawFamily<StationDraw>("station",
+            frame => RoomObjectDrawFamily<StationDraw>.Defined(StationObjectDrawDefinitions.Shapes, frame));
 }

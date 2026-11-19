@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Torizo.Artwork;
 /// The installed pictures of Bomb Torizo's hand frames (#1557). The frames' draw geometry and terrain, the Bombs gate,
 /// the debris cadence and the music stay the game's.
 /// </summary>
-public sealed class InstalledRoomObjectBombTorizoHandVisuals
+public sealed class InstalledRoomObjectBombTorizoHandVisuals : IRoomObjectFamilyPictures
 {
     /// <summary>Holds the pictures the import made of every hand frame.</summary>
     /// <param name="images">Every hand frame's picture, keyed by its draw.</param>
@@ -14,6 +14,10 @@ public sealed class InstalledRoomObjectBombTorizoHandVisuals
 
     /// <summary>Every hand frame's picture, keyed by its draw.</summary>
     internal RoomObjectFrameImages<RoomObjectDraw> Images { get; }
+
+    /// <inheritdoc/>
+    IEnumerable<KeyValuePair<RoomObjectDraw, RoomObjectFrameImage>> IRoomObjectFamilyPictures.Pictures =>
+        Images.All;
 
     /// <summary>The picture <paramref name="draw"/> shows.</summary>
     /// <exception cref="InvalidDataException">The installation lacks the frame.</exception>

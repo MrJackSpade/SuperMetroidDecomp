@@ -25,13 +25,13 @@ internal static class LinkedRestoreObjectFamily
 
     /// <summary>The bomb blocks' restorations, pictured by the installed linked restorations.</summary>
     internal static RoomObjectDrawFamily<BombBlockRestoreDraw> BombBlockDraws { get; } =
-        RoomObjectDrawFamily<BombBlockRestoreDraw>.Pictured<InstalledRoomObjectLinkedRestoreVisuals>("linked restoration",
-            frame => frame.Blocks, (visuals, draw) => visuals.Image(draw));
+        new RoomObjectDrawFamily<BombBlockRestoreDraw>("linked restoration",
+            frame => frame.Blocks);
 
     /// <summary>The contact crumble blocks' restorations, pictured by the installed linked restorations.</summary>
     internal static RoomObjectDrawFamily<ContactCrumbleRestoreDraw> ContactCrumbleDraws { get; } =
-        RoomObjectDrawFamily<ContactCrumbleRestoreDraw>.Pictured<InstalledRoomObjectLinkedRestoreVisuals>("linked restoration",
-            frame => frame.Blocks, (visuals, draw) => visuals.Image(draw));
+        new RoomObjectDrawFamily<ContactCrumbleRestoreDraw>("linked restoration",
+            frame => frame.Blocks);
 
     /// <summary>
     /// The blocks a restoration of each arrangement but a single block rebuilds: the top-left block carries

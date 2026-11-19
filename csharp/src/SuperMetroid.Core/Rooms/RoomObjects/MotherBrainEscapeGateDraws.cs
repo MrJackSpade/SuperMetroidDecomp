@@ -8,7 +8,6 @@ internal static class MotherBrainEscapeGateDraws
 {
     /// <summary>The gate's three frames, pictured by the installed escape-gate frames.</summary>
     internal static RoomObjectDrawFamily<MotherBrainEscapeGateDraw> Family { get; } =
-        RoomObjectDrawFamily<MotherBrainEscapeGateDraw>.Pictured<InstalledEscapeGateFrames>("Mother Brain escape gate",
-            frame => RoomObjectDrawFamily<MotherBrainEscapeGateDraw>.Defined(MotherBrainEscapeGateObjectDrawDefinitions.Shapes, frame),
-            (frames, draw) => frames.Images.Image(draw.Frame));
+        new RoomObjectDrawFamily<MotherBrainEscapeGateDraw>("Mother Brain escape gate",
+            frame => RoomObjectDrawFamily<MotherBrainEscapeGateDraw>.Defined(MotherBrainEscapeGateObjectDrawDefinitions.Shapes, frame));
 }

@@ -11,7 +11,6 @@ internal static class SporeSpawnCeilingDraws
 {
     /// <summary>The ceiling's four frames, pictured by the installed ceiling frames.</summary>
     internal static RoomObjectDrawFamily<SporeSpawnCeilingDraw> Family { get; } =
-        RoomObjectDrawFamily<SporeSpawnCeilingDraw>.Pictured<InstalledRoomObjectSporeSpawnCeilingVisuals>("Spore Spawn ceiling",
-            frame => RoomObjectDrawFamily<SporeSpawnCeilingDraw>.Defined(SporeSpawnCeilingObjectDrawDefinitions.Shapes, frame),
-            (visuals, draw) => visuals.Image(draw));
+        new RoomObjectDrawFamily<SporeSpawnCeilingDraw>("Spore Spawn ceiling",
+            frame => RoomObjectDrawFamily<SporeSpawnCeilingDraw>.Defined(SporeSpawnCeilingObjectDrawDefinitions.Shapes, frame));
 }

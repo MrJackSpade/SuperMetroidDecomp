@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// cleared passage of Crateria's main street escape, the opened wall of the old Tourian escape shaft and the four frames
 /// of the escape animals' rescue wall. Their terrain stays the game's; only what each cell shows comes from here.
 /// </summary>
-public sealed class InstalledRoomObjectRevealAndWallVisuals
+public sealed class InstalledRoomObjectRevealAndWallVisuals : IRoomObjectFamilyPictures
 {
     /// <summary>Holds the pictures the import made of every reveal and wall frame.</summary>
     /// <param name="images">Every reveal and wall frame's picture, keyed by its draw.</param>
@@ -13,6 +13,10 @@ public sealed class InstalledRoomObjectRevealAndWallVisuals
 
     /// <summary>Every reveal and wall frame's picture, keyed by its draw.</summary>
     internal RoomObjectFrameImages<RoomObjectDraw> Images { get; }
+
+    /// <inheritdoc/>
+    IEnumerable<KeyValuePair<RoomObjectDraw, RoomObjectFrameImage>> IRoomObjectFamilyPictures.Pictures =>
+        Images.All;
 
     /// <summary>The picture <paramref name="draw"/> shows.</summary>
     /// <exception cref="InvalidDataException">The installation holds no picture of the draw.</exception>

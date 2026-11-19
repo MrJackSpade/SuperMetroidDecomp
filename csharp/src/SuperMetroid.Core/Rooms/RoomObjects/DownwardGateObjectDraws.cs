@@ -16,8 +16,8 @@ internal static class DownwardGateObjectDraws
 
     /// <summary>The gate's column and trigger frames (#2034), pictured by the installed downward gate frames.</summary>
     internal static RoomObjectDrawFamily<DownwardGateDraw> Family { get; } =
-        RoomObjectDrawFamily<DownwardGateDraw>.Pictured<InstalledRoomObjectDownwardGateVisuals>("downward gate",
-            gate => Describe(gate).Blocks, (visuals, draw) => visuals.Image(draw));
+        new RoomObjectDrawFamily<DownwardGateDraw>("downward gate",
+            gate => Describe(gate).Blocks);
 
     /// <summary>The part of the gate <paramref name="gate"/> writes.</summary>
     /// <exception cref="InvalidOperationException">The draw is undefined.</exception>

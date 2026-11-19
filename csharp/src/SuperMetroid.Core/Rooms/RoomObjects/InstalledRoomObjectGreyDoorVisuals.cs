@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// The installed pictures of the grey caps' frames and their shared clear frames (#1557). The caps' terrain, waits and
 /// timing stay the game's.
 /// </summary>
-public sealed class InstalledRoomObjectGreyDoorVisuals
+public sealed class InstalledRoomObjectGreyDoorVisuals : IRoomObjectFamilyPictures
 {
     /// <summary>Holds the pictures the import made of every grey-cap frame.</summary>
     /// <param name="images">Every grey-cap frame's picture, keyed by its draw.</param>
@@ -12,6 +12,10 @@ public sealed class InstalledRoomObjectGreyDoorVisuals
 
     /// <summary>Every grey-cap frame's picture, keyed by its draw.</summary>
     internal RoomObjectFrameImages<RoomObjectDraw> Images { get; }
+
+    /// <inheritdoc/>
+    IEnumerable<KeyValuePair<RoomObjectDraw, RoomObjectFrameImage>> IRoomObjectFamilyPictures.Pictures =>
+        Images.All;
 
     /// <summary>The picture <paramref name="draw"/> shows.</summary>
     /// <exception cref="InvalidDataException">The installation lacks the frame.</exception>

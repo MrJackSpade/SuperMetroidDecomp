@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// The installed pictures of the bomb and contact-crumble restoration frames (#1557). The frames' terrain keeps its
 /// linked parent and child collision.
 /// </summary>
-public sealed class InstalledRoomObjectLinkedRestoreVisuals
+public sealed class InstalledRoomObjectLinkedRestoreVisuals : IRoomObjectFamilyPictures
 {
     /// <summary>Holds the pictures the import made of every restoration frame.</summary>
     /// <param name="images">Every restoration frame's picture, keyed by its draw.</param>
@@ -12,6 +12,10 @@ public sealed class InstalledRoomObjectLinkedRestoreVisuals
 
     /// <summary>Every restoration frame's picture, keyed by its draw.</summary>
     internal RoomObjectFrameImages<RoomObjectDraw> Images { get; }
+
+    /// <inheritdoc/>
+    IEnumerable<KeyValuePair<RoomObjectDraw, RoomObjectFrameImage>> IRoomObjectFamilyPictures.Pictures =>
+        Images.All;
 
     /// <summary>The picture <paramref name="draw"/> shows.</summary>
     /// <exception cref="InvalidDataException">The installation lacks the frame.</exception>

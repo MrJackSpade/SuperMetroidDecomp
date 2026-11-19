@@ -9,6 +9,9 @@ internal static class AlcoonWalkDefinitions
     /// </summary>
     internal static readonly WeightedRandomChoice<int> WalkCycles = WeightedRandomChoice<int>.InTurn(new RandomSampleField(0, 2), 2, 1, 2, 3);
 
+    /// <summary>How many walk cycles an Alcoon that has just emerged walks before its first volley: one.</summary>
+    internal const int EmergedWalkCycles = 1;
+
     /// <summary>How far an Alcoon walking either way moves each stride: two pixels.</summary>
     internal static SignedSixteenSixteen StrideDistance { get; } = SignedSixteenSixteen.FromWholePixels(2);
 }

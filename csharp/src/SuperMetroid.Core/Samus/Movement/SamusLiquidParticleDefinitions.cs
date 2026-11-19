@@ -38,6 +38,18 @@ internal static class SamusLiquidParticleDefinitions
     /// <summary>The pixels either side of Samus at which the lava spray's two outer particles start.</summary>
     internal const int LavaSprayOuterOffset = 6;
 
+    /// <summary>
+    /// The pixels a lava spray particle drifts sideways on each update it shows: the first two drift right by it, the last
+    /// two left.
+    /// </summary>
+    internal const int LavaSprayDrift = 1;
+
+    /// <summary>The first particle of a running footstep pair and the middle particles of a lava spray show one update late.</summary>
+    internal static SamusParticleStart OneUpdateLate { get; } = SamusParticleStart.Hidden(2);
+
+    /// <summary>Splashes, bubbles, spray and dust otherwise show their first step for three updates.</summary>
+    internal static SamusParticleStart AtOnce { get; } = SamusParticleStart.Shown(3);
+
     /// <summary>The pixels ahead of a running Samus at which her leading footstep particle starts.</summary>
     internal const int FootstepLeadingAhead = 12;
 

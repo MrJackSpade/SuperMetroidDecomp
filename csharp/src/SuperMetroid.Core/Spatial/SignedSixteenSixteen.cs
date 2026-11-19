@@ -70,6 +70,9 @@ public readonly record struct SignedSixteenSixteen : IComparable<SignedSixteenSi
     /// <summary>The zero displacement.</summary>
     public static SignedSixteenSixteen Zero => default;
 
+    /// <summary>One whole pixel toward increasing coordinates, and no fraction.</summary>
+    public static SignedSixteenSixteen OnePixel => FromWholePixels(1);
+
     /// <summary>
     /// The velocity toward increasing coordinates that covers <paramref name="wholePixels"/> pixels in
     /// <paramref name="updates"/> updates (#2569): the distance in 65536ths of a pixel divided by the updates, the remainder

@@ -222,7 +222,7 @@ internal sealed class KraidProjectiles
 
         part.AlternateSpawn = true;
         nail.Position = nail.Position.WithWhole(KraidArenaDefinitions.AlternateNailStart);
-        part.NailVelocity = FixedVector<RoomPixels>.FromWholePixels(new Offset16<RoomPixels>(1, 0));
+        part.NailVelocity = KraidNailLaunchDefinitions.Parked;
         part.Phase = KraidNailPhase.WaitForLint;
         nail.Contact = nail.Contact.With(EnemyContact.IgnoresSamus);
         nail.Presence = nail.Presence.With(EnemyPresence.Hidden);

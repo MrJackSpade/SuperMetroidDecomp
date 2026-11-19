@@ -21,9 +21,6 @@ public sealed class GameplayHudPresentation
     }
 
 
-    /// <summary>The minimap's size: five area-map squares across and three down.</summary>
-    public static Extent16<MapTiles> MinimapSize => new(5, 3);
-
     /// <summary>The static top row, across the HUD's top.</summary>
     public static PlacedHudImage TopRow => new(HudTopRowImage.Instance, Position16<ScreenPixels>.Zero);
 
@@ -57,7 +54,7 @@ public sealed class GameplayHudPresentation
     /// <summary>The two-digit energy count.</summary>
     /// <param name="remainder">The energy beyond full tanks, 0 through 99.</param>
     public IEnumerable<PlacedHudImage> EnergyCount(int remainder) =>
-        Digits(remainder, parts.HealthAnchor, 2).Select(digit => new PlacedHudImage(new HudEnergyDigitImage(digit.Numeral), digit.Corner));
+        Digits(remainder, parts.HealthAnchor, GameplayHudDefinitions.EnergyCountDigits).Select(digit => new PlacedHudImage(new HudEnergyDigitImage(digit.Numeral), digit.Corner));
 
     /// <summary>The ammunition count <paramref name="counter"/> shows.</summary>
     /// <param name="counter">The ammunition counter.</param>
@@ -66,9 +63,9 @@ public sealed class GameplayHudPresentation
     {
         HudAmmoField field = counter switch
         {
-            HudAmmoCounter.Missiles => new HudAmmoField(parts.MissileAmmoAnchor, 3),
-            HudAmmoCounter.SuperMissiles => new HudAmmoField(parts.SuperMissileAmmoAnchor, 2),
-            HudAmmoCounter.PowerBombs => new HudAmmoField(parts.PowerBombAmmoAnchor, 2),
+            HudAmmoCounter.Missiles => new HudAmmoField(parts.MissileAmmoAnchor, GameplayHudDefinitions.MissileDigits),
+            HudAmmoCounter.SuperMissiles => new HudAmmoField(parts.SuperMissileAmmoAnchor, GameplayHudDefinitions.SuperMissileDigits),
+            HudAmmoCounter.PowerBombs => new HudAmmoField(parts.PowerBombAmmoAnchor, GameplayHudDefinitions.PowerBombDigits),
             _ => throw new ArgumentOutOfRangeException(nameof(counter), counter, "Undefined ammunition counter."),
         };
         // A count the game has drained below zero shows as CountsRunBelowZero.HudShown describes.
@@ -86,7 +83,7 @@ public sealed class GameplayHudPresentation
     /// <param name="cell">What the minimap square shows.</param>
     public PlacedHudImage MinimapCell(Position16<MapTiles> output, MinimapCell cell)
     {
-        if (!MinimapSize.Contains(output)) throw new ArgumentOutOfRangeException(nameof(output));
+        if (!GameplayHudDefinitions.MinimapSize.Contains(output)) throw new ArgumentOutOfRangeException(nameof(output));
         HudImage image = Ensure.NotNull(cell) switch
         {
             MinimapHiddenCell => HudMinimapHiddenImage.Instance,

@@ -333,8 +333,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, mama, state.Velocity.X))
         {
             ReverseMamaTurtleAtWall(state);
-            _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Horizontal, EarthquakeReach.Foreground),
-                MamaTurtleMotionDefinitions.WallQuakeDuration);
+            _earthquake.Start(MamaTurtleMotionDefinitions.WallQuake, MamaTurtleMotionDefinitions.WallQuakeDuration);
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.MamaTurtleWallSound, priority: SoundRequestPriority.Normal);
             return;
         }

@@ -109,7 +109,7 @@ internal sealed class EndingCreditsRoll
         _stage.LoadColours(EndingColourLoad.RestoredShot);
         _artwork.PostCreditsText.Drop = 0;
         _artwork.PostCreditsText.ClearCopyright();
-        return WhiteWash.FullWhite(updatesPerStep: 1, firstStepUpdate: 1);
+        return WhiteWash.FullWhite(EndingCadenceDefinitions.PostCreditsFlashUpdatesPerStep, EndingCadenceDefinitions.PostCreditsFlashFirstStepUpdate);
     }
 
     /// <summary>Clears the landed Samus and installs the final logo actor.</summary>

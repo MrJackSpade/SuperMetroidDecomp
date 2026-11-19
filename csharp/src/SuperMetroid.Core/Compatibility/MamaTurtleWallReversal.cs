@@ -37,6 +37,6 @@ internal static class MamaTurtleWallReversal
     internal static SignedSixteenSixteen ReversedAcceleration(SignedSixteenSixteen acceleration, SignedSixteenSixteen velocity)
     {
         SignedSixteenSixteen reversed = PartwiseReversal.WholeComplementedFractionNegated(acceleration);
-        return velocity.WholePixels == UnderAPixelLeftward ? reversed - SignedSixteenSixteen.FromWholePixels(1) : reversed;
+        return velocity.WholePixels == UnderAPixelLeftward ? reversed - SignedSixteenSixteen.OnePixel : reversed;
     }
 }

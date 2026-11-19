@@ -420,7 +420,7 @@ internal sealed class ProjectileTerrainCollision
     /// The horizontal velocity a shot fired straight left starts its first block scan with: the smallest leftward
     /// velocity there is, so the scan samples the left radius.
     /// </summary>
-    private static readonly SignedEightEight LeftScanVelocity = SignedEightEight.FromPixelFraction(-1, 256);
+    private static readonly SignedEightEight LeftScanVelocity = -SignedEightEight.FinestStep;
 
     /// <summary>
     /// Kills a beam as block collision does: the
@@ -527,7 +527,7 @@ internal sealed class ProjectileTerrainCollision
             if (read.StraddlesNext)
             {
                 // The straddled block is the next one in the room's reading order, on the next row past a row's end.
-                Position16<RoomBlocks> nextBlock = level.GridBlockStepped(readBlock, Offset16<RoomBlocks>.Of(1, 0)) ??
+                Position16<RoomBlocks> nextBlock = level.GridBlockStepped(readBlock, Offset16<RoomBlocks>.OneRight) ??
                     throw new NotSupportedException("A straddled Wave collision read crosses the room's grid.");
                 RoomTerrainBlock next = level.GetCollisionBlock(nextBlock).Terrain;
                 // The reaction consumes the straddled block; the behaviour and room-object setup

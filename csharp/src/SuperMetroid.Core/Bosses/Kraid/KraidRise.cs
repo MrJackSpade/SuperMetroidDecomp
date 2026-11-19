@@ -101,7 +101,7 @@ internal sealed class KraidRise
         // The rocks' colours are the import's shade of them (#1512); his eyes start from his band's colours.
         state.Colours.ShowBandEyes(_head.BandEyes(KraidHead.InitialBand(body, state)));
         // The setup gives the room its rise shake; the rise runs it on later, with whatever shake the room has by then.
-        _earthquake.ChangeShake(new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground));
+        _earthquake.ChangeShake(KraidRiseDefinitions.RiseShake);
     }
 
     /// <summary>Switches the arena scrolls between the small and grown boss layouts.</summary>

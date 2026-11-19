@@ -124,7 +124,7 @@ internal sealed class EyeDoorObjects
     {
         RoomBlockBehavior facing = RoomBlockBehavior.Reacting(
             BlockReactionDefinitions.BlueDoorCaps.ReactionFor(EyeDoorDraws.BlueCapFacing(orientation)));
-        place.Block += new Offset16<RoomBlocks>(0, -1);
+        place.Block += Offset16<RoomBlocks>.OneUp;
         level.SetObjectCollisionAndBehavior(place.Block, RoomCollisionType.ShootableBlock, facing);
         WriteExtensionRows(level, place.Block, EyeDoorDefinitions.BlueDoorExtensionCount);
     }

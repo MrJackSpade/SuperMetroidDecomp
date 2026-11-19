@@ -948,6 +948,17 @@ velocity up away from rest (`SpedUpBy`) or dragging it toward rest (`DraggedBy`)
 `SamusVerticalVelocity`. Where the original's unsigned-magnitude arithmetic is observable, a compatibility service
 reproduces it (`SpeedAlongAngle`, `MultiviolaLeftOrUpSpeed`, `BullBackwardStep`).
 
+SME6472 (#2575) keeps definition data in domain catalogs. Outside a catalog file, Core builds no value of a Core type
+wholly from constants with a nonzero numeric literal among them (`new Offset16<RoomPixels>(1, 0)`,
+`SignedSixteenSixteen.FromWholePixels(1)`, `UpdateCountdown.Lasting(1)`) and passes no nonzero numeric literal by name
+(`count: 5`, `ticks: 1`). Behaviour code is every member of an instance type, its static fields included, and every
+member of a static type that decides something; a static type's member that holds no decision or procedure is a table
+of data. The duration, speed, distance, count or shape is a member of the domain's catalog with its meaning on the
+member's summary (`DachoraMotionDefinitions.WaitingFloorProbe`, `GoldNinjaSpacePirateDefinitions.DropScatterCount`). A
+value type names its own units (`SignedSixteenSixteen.OnePixel`, `SignedEightEight.FinestStep`, `Offset16<T>.OneDown`,
+`UpdateCountdown.LastingOneUpdate()`); zero, a literal beside computed state and a literal passed by position are not
+definitions.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

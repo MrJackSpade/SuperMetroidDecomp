@@ -27,7 +27,7 @@ internal sealed class BombTorizoHandObject(BombTorizoHandObjects owner) : RoomOb
     internal ListStep<BombTorizoHandCrumbleStep>? CrumbleStep { get; private set; }
 
     /// <summary>How long the hand holds before its next step: its first update, then each step's own updates.</summary>
-    private readonly BossCountdown _holdBeforeNextStep = BossCountdown.Lasting(1);
+    private readonly BossCountdown _holdBeforeNextStep = BossCountdown.LastingOneUpdate();
 
     /// <inheritdoc/>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)

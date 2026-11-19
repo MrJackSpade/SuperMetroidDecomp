@@ -41,4 +41,8 @@ internal static class MaridiaLargeSnailMotionDefinitions
 
     /// <summary>The speed the snail rolls at, one pixel an update.</summary>
     internal static SignedSixteenSixteen RollSpeed { get; } = SignedSixteenSixteen.FromWholePixels(1);
+
+
+    /// <summary>How far a snail that has stopped bouncing probes down each update for the floor: one pixel.</summary>
+    internal static SignedSixteenSixteen FloorProbe { get; } = SignedSixteenSixteen.FromWholePixels(1);
 }

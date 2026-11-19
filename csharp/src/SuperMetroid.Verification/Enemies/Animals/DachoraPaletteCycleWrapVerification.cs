@@ -12,7 +12,7 @@ internal static class DachoraPaletteCycleWrapVerification
     internal static void VerifyDachoraPaletteCycleWrap()
     {
         var speed = new DachoraEnemyState(DachoraAction.WaitingForSamus);
-        speed.SetGlowCycle(frame: 0, ticks: 0);
+        speed.SetGlowCycle(SuperMetroid.Core.Compatibility.DachoraGlowCycle.At(0, 0));
         AssertTrue(!speed.TickGlowCycle(), "a tick from a cleared cycle does not reach zero ticks");
         AssertEqual(255, speed.GlowFrame, "a tick from a cleared cycle borrows to frame 255");
         AssertEqual(255, speed.GlowTicks, "a tick from a cleared cycle leaves 255 ticks");
@@ -21,7 +21,7 @@ internal static class DachoraPaletteCycleWrapVerification
         AssertEqual(15, speed.GlowTicks, "the speed step from the top of the word keeps the wrapped ticks");
 
         var shine = new DachoraEnemyState(DachoraAction.WaitingForSamus);
-        shine.SetGlowCycle(frame: 0, ticks: 0);
+        shine.SetGlowCycle(SuperMetroid.Core.Compatibility.DachoraGlowCycle.At(0, 0));
         _ = shine.TickGlowCycle();
         shine.AdvanceShineGlow();
         AssertEqual(0, shine.GlowFrame, "the shine step from the top of the word wraps to frame zero");

@@ -7,6 +7,9 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// </remarks>
 public static class SamusMovementDefinitions
 {
+    /// <summary>How far a moving elevator carries Samus down each update: one whole pixel.</summary>
+    public static SignedSixteenSixteen ElevatorCarry { get; } = SignedSixteenSixteen.FromWholePixels(1);
+
     /// <summary>Ball landing: the least whole pixels an update of falling speed that make the first automatic bounce.</summary>
     public const int FirstBallBounceMinimumSpeed = 3;
 

@@ -351,7 +351,7 @@ internal sealed class EnemyProjectileEngine
         projectile.Bind(kind, behavior);
         // The spawn starts the animation timer at one, so the first step runs on the first pass. The spawner then starts
         // the animation it chooses.
-        projectile.FrameHold = WrappingCountdown.Start(1);
+        projectile.FrameHold = WrappingCountdown.OneFrame;
 
         // The spawn shows the blank frame before the first animation tick. It is intentionally not the animation's first
         // frame; advances to that on its own pass.
@@ -605,7 +605,7 @@ internal sealed class EnemyProjectileEngine
             xOffset = _room.Random.Next(xRange) - xCenter;
         }
         while (xOffset < 0);
-        if (EnemyProjectileScatter.XOffsetTurnsLeft.IsTakenBy(signSample))
+        if (EnemyProjectileScatterDefinitions.XOffsetTurnsLeft.IsTakenBy(signSample))
             xOffset = -xOffset;
         // The scattered projectiles burst against the room's walls and floors, a Bomb Torizo's sonic boom among them, so a
         // scatter toward the room's left or top edge can carry one past it.
@@ -617,7 +617,7 @@ internal sealed class EnemyProjectileEngine
             yOffset = _room.Random.Next(yRange) - yCenter;
         }
         while (yOffset < 0);
-        if (EnemyProjectileScatter.YOffsetTurnsUp.IsTakenBy(signSample))
+        if (EnemyProjectileScatterDefinitions.YOffsetTurnsUp.IsTakenBy(signSample))
             yOffset = -yOffset;
         projectile.Position = OffRoomPlaces.WithWholeY(projectile.Position, projectile.Position.Y.Whole + yOffset);
     }

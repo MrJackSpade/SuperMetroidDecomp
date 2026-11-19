@@ -178,7 +178,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
                 NorfairRidleyCombat.TickNorfairRidleySwoopPhase(
                     state,
                     SwoopTurn(state, NorfairRidleyMotionDefinitions.SwoopTurnUpTurn),
-                    SwoopTarget(state, RidleyFlight.SwoopClimbTarget),
+                    SwoopTarget(state, RidleyFlightDefinitions.SwoopClimbTarget),
                     NorfairRidleyMotionDefinitions.SwoopClimbSpeed,
                     NorfairRidleyPhase.SwoopClimb,
                     NorfairRidleyMotionDefinitions.SwoopClimbUpdates);
@@ -188,7 +188,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
                 if (NorfairRidleyCombat.TickNorfairRidleySwoopPhase(
                         state,
                         SwoopTurn(state, NorfairRidleyMotionDefinitions.SwoopClimbTurn),
-                        SwoopTarget(state, RidleyFlight.SwoopClimbTarget),
+                        SwoopTarget(state, RidleyFlightDefinitions.SwoopClimbTarget),
                         NorfairRidleyMotionDefinitions.SwoopClimbSpeed,
                         NorfairRidleyPhase.SwoopRecover,
                         NorfairRidleyMotionDefinitions.SwoopRecoveryUpdates))

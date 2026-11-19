@@ -29,7 +29,7 @@ internal sealed class EndingCloudDrift : EndingActorMotion
     /// the right clouds drift left and up, the left clouds right and down, two pixels down for one across.
     /// </summary>
     internal static EndingCloudDrift SideCloud(HorizontalDirection drift) => new(
-        drift == HorizontalDirection.Left ? new Offset16<ScreenPixels>(-1, -2) : new Offset16<ScreenPixels>(1, 2),
+        drift == HorizontalDirection.Left ? EndingMotionDefinitions.RightSideCloudDrift : EndingMotionDefinitions.LeftSideCloudDrift,
         zoom => zoom >= EndingMotionDefinitions.CloudMotionStartZoom);
 
     /// <summary>

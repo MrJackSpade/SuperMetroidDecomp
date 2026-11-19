@@ -26,4 +26,8 @@ internal static class CrystalFlashDefinitions
     /// spent, shows for: the flash sets each picture directly rather than waiting for its animation to reach it.
     /// </summary>
     public const int PhasePictureHold = 3;
+
+
+    /// <summary>How far Samus's whole vertical position steps down each update it differs from the raised height: one pixel.</summary>
+    internal static Offset16<RoomPixels> SettleStep { get; } = new(0, 1);
 }

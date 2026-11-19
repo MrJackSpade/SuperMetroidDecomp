@@ -353,7 +353,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.SpeciesState<DachoraEnemyState>() is { } dachoraRecord)
         {
-            dachoraRecord.SetGlowCycle(frame: LittleEndianBytes.HighByte(words.E), ticks: LittleEndianBytes.LowByte(words.E));
+            dachoraRecord.SetGlowCycle(SuperMetroid.Core.Compatibility.DachoraGlowCycle.At(LittleEndianBytes.HighByte(words.E), LittleEndianBytes.LowByte(words.E)));
             dachoraRecord.Action = AnimalsNativeWords.DachoraActions.Decode(words.F, "recorded DachoraAction");
             // The cartridge keeps the speed's whole pixels and the countdowns in variable A and the acceleration's fraction
             // in variable D; each is read here as the meaning the recorded phase gives it.

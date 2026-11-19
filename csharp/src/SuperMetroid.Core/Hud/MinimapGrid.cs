@@ -17,7 +17,7 @@ public sealed class MinimapGrid
 
     /// <summary>The columns either side of Samus's cell and the rows above and below it that the minimap shows.</summary>
     public static Offset16<MapTiles> Reach =>
-        new((GameplayHudPresentation.MinimapSize.X - 1) / 2, (GameplayHudPresentation.MinimapSize.Y - 1) / 2);
+        new((GameplayHudDefinitions.MinimapSize.X - 1) / 2, (GameplayHudDefinitions.MinimapSize.Y - 1) / 2);
 
     /// <summary>Samus's own cell, in the minimap's middle.</summary>
     public static Offset16<MapTiles> SamusCell => Offset16<MapTiles>.Zero;

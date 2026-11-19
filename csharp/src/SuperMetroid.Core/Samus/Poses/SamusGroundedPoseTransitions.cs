@@ -171,13 +171,13 @@ internal static class SamusGroundedPoseTransitions
                 ? SamusCollisionDirection.Left
                 : SamusCollisionDirection.Right;
             SolidEnemyCollisionResult enemyProbe = SamusSolidEnemyCollision.Probe(
-                samus.Kinematics, samus.Kinematics.InteractiveEnemies, direction, UnsignedSixteenSixteen.FromWholePixels(1));
+                samus.Kinematics, samus.Kinematics.InteractiveEnemies, direction, UnsignedSixteenSixteen.OnePixel);
             samus.Kinematics.RecordSolidEnemyCollision(direction, enemyProbe.Enemy);
             if (enemyProbe.Collided)
                 return SelectRanIntoWallPose(target);
         }
 
-        SignedSixteenSixteen onePixelForward = SignedSixteenSixteen.FromWholePixels(1).Toward(facingLeft ? HorizontalDirection.Left : HorizontalDirection.Right);
+        SignedSixteenSixteen onePixelForward = SignedSixteenSixteen.OnePixel.Toward(facingLeft ? HorizontalDirection.Left : HorizontalDirection.Right);
         onePixelProbe = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = onePixelForward, AlignToSlopeAfterMovement = false });
         return onePixelProbe.Value.Collided
             ? SelectRanIntoWallPose(target)

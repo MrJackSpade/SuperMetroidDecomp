@@ -12,6 +12,15 @@ internal static class DachoraMotionDefinitions
     /// <summary>The vertical distance, in pixels, Samus must come strictly within to wake a waiting Dachora.</summary>
     internal const int ActivationYDistance = 64;
 
+    /// <summary>How far a waiting Dachora probes down each update to stay on the floor: one pixel.</summary>
+    internal static readonly SignedSixteenSixteen WaitingFloorProbe = SignedSixteenSixteen.FromWholePixels(1);
+
+    /// <summary>
+    /// How far a running Dachora presses itself down each update before its speed changes, keeping it on the room's slopes:
+    /// one pixel.
+    /// </summary>
+    internal static readonly SignedSixteenSixteen RunningFloorPress = SignedSixteenSixteen.FromWholePixels(1);
+
     /// <summary>The run's speed cap: eight pixels per update.</summary>
     internal static readonly SignedSixteenSixteen MaximumSpeed = SignedSixteenSixteen.FromWholePixels(8);
 

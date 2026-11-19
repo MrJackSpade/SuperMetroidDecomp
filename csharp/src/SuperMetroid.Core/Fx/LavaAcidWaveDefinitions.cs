@@ -40,4 +40,11 @@ public static class LavaAcidWaveDefinitions
 
     /// <summary>The request priority of lava's ambient sound.</summary>
     public static readonly SoundRequestPriority AmbientSoundPriority = SoundRequestPriority.Normal;
+
+
+    /// <summary>
+    /// Where lava's and acid's heat haze starts as their room loads: its first phase, counted as shown for one update, since
+    /// the game's first haze step set that phase and started its wait.
+    /// </summary>
+    internal static WaveCycle HazeStart { get; } = new(Phase: 0, UpdatesShown: 1);
 }

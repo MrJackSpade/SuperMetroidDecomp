@@ -285,7 +285,7 @@ internal sealed class IntroCeresFlightState
 
         // The flash washes the rear view, sprites and backdrop toward white. It begins fully white and takes one step
         // off the wash per frame, from the next, until none is left.
-        rearViewFlash = WhiteWash.FullWhite(updatesPerStep: 1, firstStepUpdate: 1);
+        rearViewFlash = WhiteWash.FullWhite(CeresFlightSceneDefinitions.RearViewFlashUpdatesPerStep, CeresFlightSceneDefinitions.RearViewFlashFirstStepUpdate);
         Phase = IntroCeresFlightPhase.FlyingTowardCeres;
         // The rear view's setup starts the gunship engine's flicker, then the station's blinking navigation lights (#1733).
         ColourEffects.StartScreen(CeresFlightSceneDefinitions.GunshipEngineFlicker);

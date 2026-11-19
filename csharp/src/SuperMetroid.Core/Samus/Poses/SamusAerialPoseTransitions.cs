@@ -404,7 +404,7 @@ internal static class SamusAerialPoseTransitions
     /// </remarks>
     public static void ApplyWallContactAnimationRewind(SamusState samus)
     {
-        samus.AnimationFrameTimer = WrappingCountdown.Start(1);
+        samus.AnimationFrameTimer = WrappingCountdown.OneFrame;
 
         // Contact rewinds the spin to its end, whose next frame, after the one-update wait, is its first
         // wall-jump-ready frame. Screw Attack's spin is longer than the ordinary spin and Space Jump's.
@@ -482,7 +482,7 @@ internal static class SamusAerialPoseTransitions
         // the result becomes both current and previous Y, so this frame's vertical scroll sees no motion.
         if (previousMovementType == SamusMovementType.NormalJumping)
         {
-            samus.Kinematics.Position -= new Offset16<RoomPixels>(0, 1);
+            samus.Kinematics.Position -= SamusPoseCollisionDefinitions.NormalJumpLift;
             samus.WritePreviousYPosition(samus.Kinematics.Position.Y.Whole);
         }
 

@@ -42,7 +42,7 @@ internal sealed class FrontendDisplay
     }
 
     /// <summary>The solid color a blank frame shows.</summary>
-    private static RgbaPixel Black => new(0, 0, 0, 255);
+    private static RgbaPixel Black => new(0, 0, 0);
 
     /// <summary>Starts an update: every frame published until the next one carries <paramref name="number"/>.</summary>
     /// <param name="number">The number of the update now running.</param>

@@ -593,11 +593,8 @@ public sealed class ScrollBoundaryCamera
         SignedSixteenSixteen distance = !CameraPastRoomEdge.LiesBefore(current.Whole, previous.Whole)
             ? current - previous
             : previous - current;
-        return distance + OnePixel;
+        return distance + SignedSixteenSixteen.OnePixel;
     }
-
-    /// <summary>The whole pixel the distance moved gains.</summary>
-    private static readonly SignedSixteenSixteen OnePixel = SignedSixteenSixteen.FromWholePixels(1);
 
     /// <summary>Writes only the horizontal whole camera position, preserving its fraction and vertical axis.</summary>
     private void SetWholeX(int x) => Position = Position.WithX(Position.X.WithWhole(x));

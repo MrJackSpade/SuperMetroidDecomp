@@ -171,7 +171,7 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
 
     /// <summary>The second slope block, to the right of the first.</summary>
     private static Position16<RoomBlocks> SecondSlopeBlock =>
-        ChozoStatueRoomDefinitions.FirstSlopeBlock + new Offset16<RoomBlocks>(1, 0);
+        ChozoStatueRoomDefinitions.FirstSlopeBlock + Offset16<RoomBlocks>.OneRight;
 
     /// <summary>Moves the Lower Norfair acid to its lowered height.</summary>
     internal void SetLoweredAcidHeight() => _roomFx.SetLiquidLevel(ChozoStatueRoomDefinitions.LoweredAcidY);

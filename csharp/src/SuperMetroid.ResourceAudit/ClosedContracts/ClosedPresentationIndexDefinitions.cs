@@ -34,8 +34,8 @@ internal static class ClosedPresentationIndexDefinitions
     internal static ProviderIndexDomain? Get(string type, string method, string parameter) => new ClosedPresentationIndexGetCase(type, method, parameter) switch
     {
         ("GameplayHudPresentation", "EnergyTank", "tank") => new(0, GameplayHudDefinitions.EnergyTankCount),
-        ("GameplayHudPresentation", "MinimapCell", "output.X") => new(0, GameplayHudPresentation.MinimapSize.X),
-        ("GameplayHudPresentation", "MinimapCell", "output.Y") => new(0, GameplayHudPresentation.MinimapSize.Y),
+        ("GameplayHudPresentation", "MinimapCell", "output.X") => new(0, GameplayHudDefinitions.MinimapSize.X),
+        ("GameplayHudPresentation", "MinimapCell", "output.Y") => new(0, GameplayHudDefinitions.MinimapSize.Y),
         ("FileSelectPresentation", "Slot" or "DrawHelmet", "slot") => new(0, 3),
         ("FileSelectPresentation", "DrawCursor", "frame") => new(0, 4),
         ("FileSelectPresentation", "DrawHelmet", "frame") => new(0, 8),

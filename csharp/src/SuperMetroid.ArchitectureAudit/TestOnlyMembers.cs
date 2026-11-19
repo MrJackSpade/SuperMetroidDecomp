@@ -6,21 +6,21 @@ using SuperMetroid.ReachabilityAudit.SolutionLoading;
 namespace SuperMetroid.ArchitectureAudit;
 
 /// <summary>
-/// The test-only-member check (#2570): production holds no member, and no accessor, that is wider than its production
-/// use only so that checks can reach it. A product member (field, property accessor, method, constructor or event) that
-/// is not private, that a check reaches, and that no shipped or developer-tool code outside its own type reaches the same
-/// way, is a finding: it is made private (checks observe it through public behaviour, a test-support access extension or
-/// <c>PrivateState</c>) or removed. A site where that is impossible, or a false positive of the check, is justified on the
-/// member itself with <c>[ArchitectureReview("test-only-member", reason)]</c>; nothing outside the member can justify it.
+/// The test-only-member census (#2570): every product member, and every accessor, wider than its production use only so
+/// that checks can reach it. A product member (field, property accessor, method, constructor or event) that is not
+/// private, that a check reaches, and that no shipped or developer-tool code outside its own type reaches the same way,
+/// is listed: it is made private (checks observe it through public behaviour, a test-support access extension or
+/// <c>PrivateState</c>) or removed.
 /// <para>
 /// Checks are the verification projects, the audits and the shared test-support sources. Code a member's own type (or a
 /// type nested in it) runs is not counted, since a private member serves it. A member no production code reaches at all
-/// is reported too; the reachability audit removes such a member only once no check names it.
+/// is listed too; the reachability audit removes such a member only once no check names it. The census lists; it is not
+/// part of the push gate until the sites it lists are fixed.
 /// </para>
 /// </summary>
 internal static class TestOnlyMembers
 {
-    /// <summary>The finding kind, and the name its review gives.</summary>
+    /// <summary>The finding kind each listed site is reported under.</summary>
     internal const string Finding = "test-only-member";
 
     /// <summary>A member reached as a whole: a field, method, constructor or event.</summary>
@@ -32,8 +32,11 @@ internal static class TestOnlyMembers
     /// <summary>A property or indexer reached through its setter or init accessor.</summary>
     private const string Write = "write";
 
-    /// <summary>Collects every finding, every justified finding and every stale member review across the solution.</summary>
-    public static MemberAudit Collect(LoadedSolution solution)
+    /// <summary>A site that both reads and writes: a compound assignment, an increment or a <c>ref</c> argument.</summary>
+    private const string ReadWrite = "read-write";
+
+    /// <summary>Lists every test-only member of the solution's product assemblies, one line each, in file order.</summary>
+    public static List<string> Collect(LoadedSolution solution)
     {
         var trees = FirstCompilations(solution);
         SemanticModels.Bind(trees.Select(tree => (tree.Compilation, tree.Tree)));
@@ -41,19 +44,17 @@ internal static class TestOnlyMembers
         var declaring = trees.Select(tree => tree.Tree).ToHashSet();
         var uses = new Dictionary<string, MemberUses>(StringComparer.Ordinal);
         var names = new HashSet<string>(StringComparer.Ordinal);
-        var reviews = new List<(ISymbol Member, ArchitectureReview Review)>();
         foreach (var (project, compilation) in solution.Projects)
         {
-            bool product = ProjectScope.IsProduct(project.AssemblyName);
+            if (!ProjectScope.IsProduct(project.AssemblyName))
+                continue;
             foreach (INamedTypeSymbol type in SourceTypes(compilation.Assembly.GlobalNamespace))
             {
                 var implementations = InterfaceImplementations(type);
                 foreach (ISymbol member in type.GetMembers())
                 {
-                    if (!member.Locations.Any(location => location.SourceTree is { } tree && declaring.Contains(tree)))
-                        continue;
-                    reviews.AddRange(Reviews(member).Select(review => (member, review)));
-                    if (!product || !IsCandidate(member, implementations))
+                    if (!member.Locations.Any(location => location.SourceTree is { } tree && declaring.Contains(tree)) ||
+                        !IsCandidate(member, implementations))
                         continue;
                     foreach (string way in Ways(member))
                         uses.TryAdd(Key(member, way), new MemberUses(member, way));
@@ -64,7 +65,10 @@ internal static class TestOnlyMembers
 
         foreach (var (compilation, tree, file, check) in trees)
             Walk(compilation, tree, file, check, uses, names);
-        return Report(solution.RepositoryRoot, uses, reviews);
+        return [.. uses.Values.Where(use => use.Checks != 0 && use.Production == 0)
+            .Select(use => $"{Describe(solution.RepositoryRoot, use.Member)} is flagged [{Finding}]: no product code outside " +
+                $"{use.Member.ContainingType.Name} {Verb(use.Way)} it, but {use.Checks} check site(s) do, first {use.FirstCheck}.")
+            .Order(StringComparer.Ordinal)];
     }
 
     /// <summary>
@@ -162,9 +166,6 @@ internal static class TestOnlyMembers
         _ => [Use],
     };
 
-    /// <summary>A site that both reads and writes: a compound assignment, an increment or a <c>ref</c> argument.</summary>
-    private const string ReadWrite = "read-write";
-
     /// <summary>The ways a candidate member can be reached, each of which is checked on its own.</summary>
     private static IEnumerable<string> Ways(ISymbol member)
     {
@@ -180,7 +181,7 @@ internal static class TestOnlyMembers
     }
 
     /// <summary>
-    /// Whether <paramref name="member"/> is one whose width the check judges: a non-private field, property, ordinary
+    /// Whether <paramref name="member"/> is one whose width the census judges: a non-private field, property, ordinary
     /// method, constructor or event that nothing outside the repository's own calls demands be wide (an override, an
     /// interface implementation, a virtual or abstract member, an operator, a serializer constructor, an entry point).
     /// </summary>
@@ -294,36 +295,6 @@ internal static class TestOnlyMembers
         return false;
     }
 
-    /// <summary>The problems, the count of justified findings and the stale member reviews.</summary>
-    private static MemberAudit Report(string root, Dictionary<string, MemberUses> uses, List<(ISymbol Member, ArchitectureReview Review)> reviews)
-    {
-        var flagged = uses.Values.Where(use => use.Checks != 0 && use.Production == 0)
-            .GroupBy(use => use.Member, SymbolEqualityComparer.Default).ToList();
-        var reviewed = reviews.ToLookup(review => review.Member, review => review.Review, SymbolEqualityComparer.Default);
-        var problems = new List<string>();
-        foreach (var (member, review) in reviews.Where(review => string.IsNullOrWhiteSpace(review.Review.Reason)))
-            problems.Add($"{Describe(root, member)}: [ArchitectureReview(\"{review.Finding}\")] needs a reason specific to this member.");
-        int justified = 0;
-        foreach (var finding in flagged.OrderBy(finding => Describe(root, finding.Key!), StringComparer.Ordinal))
-        {
-            ISymbol member = finding.Key!;
-            if (reviewed[member].Any(review => review.Finding == Finding && !string.IsNullOrWhiteSpace(review.Reason)))
-            {
-                justified++;
-                continue;
-            }
-            foreach (MemberUses use in finding.OrderBy(use => use.Way, StringComparer.Ordinal))
-                problems.Add($"{Describe(root, member)} is flagged [{Finding}]: no product code outside {member.ContainingType.Name} " +
-                    $"{Verb(use.Way)} it, but {use.Checks} check site(s) do, first {use.FirstCheck}. Make it private (checks observe " +
-                    $"public behaviour, a test-support access extension or PrivateState) or remove it, or justify this one member " +
-                    $"with [ArchitectureReview(\"{Finding}\", reason)].");
-        }
-        var flaggedMembers = flagged.Select(finding => finding.Key!).ToHashSet(SymbolEqualityComparer.Default);
-        var stale = reviews.Where(review => review.Review.Finding != Finding || !flaggedMembers.Contains(review.Member))
-            .Select(review => new StaleReview(Describe(root, review.Member), review.Review)).ToList();
-        return new MemberAudit(problems, justified, stale);
-    }
-
     /// <summary>What a site does to a member that is reached the given way.</summary>
     private static string Verb(string way) => way switch
     {
@@ -339,15 +310,6 @@ internal static class TestOnlyMembers
         return $"{Relative(root, location.SourceTree!.FilePath)}:{location.GetLineSpan().StartLinePosition.Line + 1}: " +
             member.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat);
     }
-
-    /// <summary>The <c>[ArchitectureReview]</c> attributes declared on a member.</summary>
-    private static IEnumerable<ArchitectureReview> Reviews(ISymbol member) => member.GetAttributes()
-        .Where(attribute => attribute.AttributeClass?.Name == TypeInventory.ReviewAttributeName && attribute.ConstructorArguments.Length == 2)
-        .Select(attribute => new ArchitectureReview(
-            attribute.ConstructorArguments[0].Value as string ?? "",
-            attribute.ConstructorArguments[1].Value as string ?? "",
-            attribute.ApplicationSyntaxReference ??
-                throw new InvalidOperationException($"{member}: an [ArchitectureReview] has no source location.")));
 
     /// <summary>
     /// A member's key in one way of reaching it, the same in every compilation that sees it: its documentation id and

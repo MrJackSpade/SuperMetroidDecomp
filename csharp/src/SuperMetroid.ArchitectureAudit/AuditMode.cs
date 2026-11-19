@@ -17,4 +17,10 @@ internal enum AuditMode
 
     /// <summary>Deletes from the source every review whose finding its type no longer has.</summary>
     PruneStaleReviews,
+
+    /// <summary>
+    /// Lists every product member wider than its production use only so that checks reach it (#2570), failing when there
+    /// is any; a census, not part of the push gate until the sites it lists are fixed.
+    /// </summary>
+    TestOnlyMembers,
 }

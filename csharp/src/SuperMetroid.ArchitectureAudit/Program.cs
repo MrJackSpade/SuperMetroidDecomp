@@ -23,7 +23,7 @@ internal static class Program
 {
     /// <summary>Requires an explicit solution path and at most one mode flag.</summary>
     private const string Usage = "Usage: SuperMetroid.ArchitectureAudit --solution <SuperMetroid.Full.slnx> " +
-        "[--write | --findings | --prune-stale-reviews]";
+        "[--write | --findings | --prune-stale-reviews | --test-only-members]";
 
     /// <summary>Stable camel-case JSON settings shared by the inventory documents.</summary>
     private static readonly JsonSerializerOptions Json = new()
@@ -45,6 +45,7 @@ internal static class Program
                 ["--solution", var path, "--write"] => new AuditArguments(path, AuditMode.Write),
                 ["--solution", var path, "--findings"] => new AuditArguments(path, AuditMode.Findings),
                 ["--solution", var path, "--prune-stale-reviews"] => new AuditArguments(path, AuditMode.PruneStaleReviews),
+                ["--solution", var path, "--test-only-members"] => new AuditArguments(path, AuditMode.TestOnlyMembers),
                 _ => throw new ArgumentException(Usage),
             };
             using var workspace = await SolutionLoader.OpenAsync(Path.GetFullPath(solutionPath));
@@ -68,14 +69,15 @@ internal static class Program
     /// <summary>Runs the chosen mode on a compiled solution; returns the exit code.</summary>
     private static int Run(LoadedSolution solution, AuditMode mode)
     {
+        if (mode == AuditMode.TestOnlyMembers)
+            return Report(TestOnlyMembers.Collect(solution), "Test-only member census: no product member is wider than its production use for checks.");
         var entries = TypeInventory.Collect(solution);
-        MemberAudit members = TestOnlyMembers.Collect(solution);
         return mode switch
         {
-            AuditMode.PruneStaleReviews => StaleReviewPruner.Prune([.. StaleReviews(entries), .. members.Stale], solution.RepositoryRoot),
-            AuditMode.Findings => CheckFindings(solution, entries, members),
-            AuditMode.Check => CheckInventories(solution, entries, members, write: false),
-            AuditMode.Write => CheckInventories(solution, entries, members, write: true),
+            AuditMode.PruneStaleReviews => StaleReviewPruner.Prune(StaleReviews(entries), solution.RepositoryRoot),
+            AuditMode.Findings => CheckFindings(solution, entries),
+            AuditMode.Check => CheckInventories(solution, entries, write: false),
+            AuditMode.Write => CheckInventories(solution, entries, write: true),
             _ => throw new InvalidOperationException($"Unknown audit mode {mode}."),
         };
     }
@@ -84,11 +86,11 @@ internal static class Program
     /// The full check, or the regeneration: generates both inventories and either writes them or fails on a stale one,
     /// and fails on every judgment problem, every stale review and every Core module cycle.
     /// </summary>
-    private static int CheckInventories(LoadedSolution solution, IReadOnlyList<TypeEntry> entries, MemberAudit members, bool write)
+    private static int CheckInventories(LoadedSolution solution, IReadOnlyList<TypeEntry> entries, bool write)
     {
         string inventoryPath = Path.Combine(solution.RepositoryRoot, "docs", "architecture-inventory.json");
-        var problems = JudgmentProblems(entries, members);
-        problems.AddRange(StaleReviews(entries).Concat(members.Stale).Select(stale =>
+        var problems = JudgmentProblems(entries);
+        problems.AddRange(StaleReviews(entries).Select(stale =>
             $"Stale review: {stale.Type} justifies \"{stale.Review.Finding}\" but has no such finding; remove the attribute " +
             "(--prune-stale-reviews does)."));
         string document = JsonSerializer.Serialize(new
@@ -112,19 +114,19 @@ internal static class Program
             }
         }
         return Report(problems, $"Architecture audit passed: {entries.Count} types, " +
-            $"{entries.Count(entry => entry.Flags.Count != 0) + members.Justified} findings justified at their sites.");
+            $"{entries.Count(entry => entry.Flags.Count != 0)} findings justified at their sites.");
     }
 
     /// <summary>
     /// The push gate: fails only on what needs judgment. The module inventory is generated for its Core cycles but not
     /// compared, and stale reviews are not reported; the asynchronous cleanup regenerates and prunes both.
     /// </summary>
-    private static int CheckFindings(LoadedSolution solution, IReadOnlyList<TypeEntry> entries, MemberAudit members)
+    private static int CheckFindings(LoadedSolution solution, IReadOnlyList<TypeEntry> entries)
     {
-        var problems = JudgmentProblems(entries, members);
+        var problems = JudgmentProblems(entries);
         _ = ModuleInventory.Collect(solution, problems);
         return Report(problems, $"Architecture findings passed: {entries.Count} types, " +
-            $"{entries.Count(entry => entry.Flags.Count != 0) + members.Justified} findings justified at their sites, no Core module cycle.");
+            $"{entries.Count(entry => entry.Flags.Count != 0)} findings justified at their sites, no Core module cycle.");
     }
 
     /// <summary>Prints every problem to standard error and fails, or prints the pass line.</summary>
@@ -139,12 +141,12 @@ internal static class Program
     }
 
     /// <summary>
-    /// The problems only a person can resolve: each finding needs a review on its own type (or, for a test-only member,
-    /// on the member) naming that finding, and every review needs a reason. Nothing outside the site can justify its finding.
+    /// The problems only a person can resolve: each finding needs a review on its own type naming that finding, and
+    /// every review needs a reason. Nothing outside the type can justify its finding.
     /// </summary>
-    private static List<string> JudgmentProblems(IReadOnlyList<TypeEntry> entries, MemberAudit members)
+    private static List<string> JudgmentProblems(IReadOnlyList<TypeEntry> entries)
     {
-        var problems = new List<string>(members.Problems);
+        var problems = new List<string>();
         foreach (TypeEntry entry in entries)
         {
             foreach (ArchitectureReview review in entry.Reviews.Where(review => string.IsNullOrWhiteSpace(review.Reason)))

@@ -19,7 +19,6 @@ internal sealed class ColoredDoorObject : DoorCapObject, IShootableRoomObject
     internal ColoredDoorObject(ColoredDoorVariant variant, PlacedDoor door)
         : base(variant.Orientation, ColoredDoorDefinitions.Colors[variant.Color].Paint)
     {
-        Color = variant.Color;
         Door = Ensure.NotNull(door);
         _rules = ColoredDoorDefinitions.Colors[variant.Color];
         _sequences = ColoredDoorDefinitions.Sequences[variant];
@@ -32,8 +31,6 @@ internal sealed class ColoredDoorObject : DoorCapObject, IShootableRoomObject
     public override bool StaysOpenBehindSamus(Func<LockedDoor, bool> openedForGood) =>
         Door.IsOpenedForGood(openedForGood);
 
-    /// <summary>The cap's colour, which selects the projectile that opens it.</summary>
-    internal ColoredDoorColor Color { get; }
 
     /// <summary>What the cap is doing.</summary>
     internal ColoredDoorPhase Phase { get; private set; } = ColoredDoorPhase.Waiting;

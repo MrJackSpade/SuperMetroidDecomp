@@ -198,7 +198,7 @@ internal static class RoomPaletteFxDefinitionsVerification
     {
         var system = new ColourEffectSystem(new ColourEffectSessionState(), SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         system.Start(ColourEffectId.SporeSpawnBlueBackgroundSpores, 0, areaMiniBossDefeated: false);
-        RoomColourEffect spores = system.effects.Single();
+        RoomColourEffect spores = system.RunningEffects.Single();
         AssertEqual(ColourEffectColours.BrinstarBlueSpores, spores.Colours, "the spores' colours are their definition's from the start");
         AssertEqual<ColourEffectCondition?>(ColourEffectCondition.EndsWhenAreaMiniBossDies.Instance, spores.Condition,
             "the spores' condition is their definition's from the start");
@@ -228,7 +228,7 @@ internal static class RoomPaletteFxDefinitionsVerification
         system.StartScreen(ColourEffectId.TitleScreenFlickeringDisplays);
         system.StartScreen(ColourEffectId.FadeInSuperMetroidTitleLogo);
         system.StartScreen(ColourEffectId.TitleScreenBabyMetroidTubeLight);
-        AssertTrue(system.effects.Select(effect => effect.Effect).SequenceEqual(
+        AssertTrue(system.RunningEffects.Select(effect => effect.Effect).SequenceEqual(
             [ColourEffectId.TitleScreenFlickeringDisplays, ColourEffectId.FadeInSuperMetroidTitleLogo, ColourEffectId.TitleScreenBabyMetroidTubeLight]),
             "effects take turns in start order");
 
@@ -239,12 +239,12 @@ internal static class RoomPaletteFxDefinitionsVerification
             AssertTrue(++updates <= 64, "the title logo's fade ends");
             system.StepScreen();
         }
-        AssertTrue(system.effects.Select(effect => effect.Effect).SequenceEqual(
+        AssertTrue(system.RunningEffects.Select(effect => effect.Effect).SequenceEqual(
             [ColourEffectId.TitleScreenFlickeringDisplays, ColourEffectId.TitleScreenBabyMetroidTubeLight]),
             "an ended effect leaves the turns");
 
         system.StartScreen(ColourEffectId.FadeInNintendoCopyright);
-        AssertTrue(system.effects.Select(effect => effect.Effect).SequenceEqual(
+        AssertTrue(system.RunningEffects.Select(effect => effect.Effect).SequenceEqual(
             [ColourEffectId.TitleScreenFlickeringDisplays, ColourEffectId.TitleScreenBabyMetroidTubeLight, ColourEffectId.FadeInNintendoCopyright]),
             "a later start joins after every running effect");
         system.StepScreen();
@@ -260,7 +260,7 @@ internal static class RoomPaletteFxDefinitionsVerification
         var many = new ColourEffectSystem(new ColourEffectSessionState(), SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         for (int started = 0; started < 9; started++)
             many.StartScreen(ColourEffectId.TitleScreenFlickeringDisplays);
-        AssertEqual(9, many.effects.Count, "any number of effects run at once");
+        AssertEqual(9, many.RunningEffects.Count, "any number of effects run at once");
     }
 
     /// <summary>
@@ -317,9 +317,9 @@ internal static class RoomPaletteFxDefinitionsVerification
     }
 
     /// <summary>The one effect running after a production start or room load.</summary>
-    private static RoomColourEffect ActiveColourEffect(ColourEffectSystem system) => system.effects is [RoomColourEffect effect]
+    private static RoomColourEffect ActiveColourEffect(ColourEffectSystem system) => system.RunningEffects is [RoomColourEffect effect]
         ? effect
-        : throw new InvalidOperationException($"Expected one running colour effect, found {system.effects.Count}.");
+        : throw new InvalidOperationException($"Expected one running colour effect, found {system.RunningEffects.Count}.");
 
     /// <summary>Rejects runtime reads of compiled definition and area-list metadata bytes.</summary>
     internal static CartridgeReadGuard NewRoomPaletteFxDefinitionGuard(ISnesAddressSpace source, HashSet<int> forbidden) =>

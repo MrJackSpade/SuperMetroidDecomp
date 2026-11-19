@@ -47,14 +47,14 @@ internal static class EndingShootingStarFieldVerification
                 continue;
             still++;
             var stars = new EndingShootingStars();
-            AssertTrue(!stars.stars[index].Delayed, $"still star {index} flies from the start");
+            AssertTrue(!stars.Stars[index].Delayed, $"still star {index} flies from the start");
             int updates = 0;
             bool returned = false;
             while (!returned && updates < CartridgeStillStarPeriod)
             {
                 stars.Step();
                 updates++;
-                EndingShootingStar star = stars.stars[index];
+                EndingShootingStar star = stars.Stars[index];
                 returned = star.Look == EndingShootingStarLook.LeadIn && star.Flight.UpdatesLeft == EndingShootingStarDefinitions.LeadInDuration;
                 AssertTrue(star.Look is EndingShootingStarLook.LeadIn or EndingShootingStarLook.FaintSpeck,
                     $"still star {index} shows no picture past its first, update {updates}");
@@ -62,7 +62,7 @@ internal static class EndingShootingStarFieldVerification
                     AssertEqual(EndingShootingStarLook.FaintSpeck, star.Look, $"still star {index} shows its first visible picture after its lead-in, update {updates}");
             }
             AssertTrue(returned, $"still star {index} returns to the origin within the cartridge's {CartridgeStillStarPeriod}-update period");
-            AssertEqual(EndingShootingStarLook.LeadIn, stars.stars[index].Look, $"still star {index} restarts its lead-in when it returns");
+            AssertEqual(EndingShootingStarLook.LeadIn, stars.Stars[index].Look, $"still star {index} restarts its lead-in when it returns");
         }
         AssertEqual(12, still, "the post-credits sky holds twelve still stars");
     }
@@ -71,9 +71,9 @@ internal static class EndingShootingStarFieldVerification
     private static void StepStar(int index, Offset16<ScreenPixels> start, Offset16<ScreenPixels> expected, string context)
     {
         var stars = new EndingShootingStars();
-        AssertTrue(!stars.stars[index].Delayed, $"star {index} flies from the start");
-        stars.stars[index].Position = FixedVector<ScreenPixels>.FromWholePixels(start);
+        AssertTrue(!stars.Stars[index].Delayed, $"star {index} flies from the start");
+        stars.Stars[index].Position = FixedVector<ScreenPixels>.FromWholePixels(start);
         stars.Step();
-        AssertEqual(expected, stars.stars[index].Position.Whole, context);
+        AssertEqual(expected, stars.Stars[index].Position.Whole, context);
     }
 }

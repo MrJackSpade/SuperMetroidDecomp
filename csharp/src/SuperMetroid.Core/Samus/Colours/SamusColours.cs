@@ -18,10 +18,10 @@ namespace SuperMetroid.Core.Samus.Colours;
 public sealed class SamusColours
 {
     /// <summary>The shades laid over the suit's, in the order they were laid; the last covers the others.</summary>
-    internal readonly List<PictureShade> suitOverlays = [];
+    private readonly List<PictureShade> suitOverlays = [];
 
     /// <summary>The shades laid over the beams', in the order they were laid; the last covers the others.</summary>
-    internal readonly List<PictureShade> beamOverlays = [];
+    private readonly List<PictureShade> beamOverlays = [];
 
     /// <summary>The shade the suit shows.</summary>
     public PictureShade Suit { get; private set; } = SamusShades.StartingSuit;

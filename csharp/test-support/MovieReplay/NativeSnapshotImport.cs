@@ -104,7 +104,7 @@ internal static class NativeSnapshotImport
         // Each live native object becomes a running colour effect. The handler visits its objects from the last down, so
         // the effects join in that order and take their turns in it (ColourEffectSystem.effects); the effects the room load
         // started are replaced by the recorded ones.
-        var importedEffects = runtime.RoomPaletteFx.effects;
+        var importedEffects = runtime.RoomPaletteFx.RunningEffects;
         importedEffects.Clear();
         Dictionary<ushort, PaletteFxNativeList>? paletteFxLists = null;
         for (int visit = 0; visit < NativeSnapshotMemory.PaletteFxObjectCount; visit++)
@@ -461,7 +461,7 @@ internal static class NativeSnapshotImport
     private static void ImportShownPaletteFxFrames(SuperMetroidRuntime runtime)
     {
         // Native slot order is the reverse of the order the effects take their turns in.
-        foreach (RoomColourEffect effect in Enumerable.Reverse(runtime.RoomPaletteFx.effects))
+        foreach (RoomColourEffect effect in Enumerable.Reverse(runtime.RoomPaletteFx.RunningEffects))
         {
             ColourEffectColours colours = effect.Colours;
             if (LastShownFrame(effect.FramesOf, effect.Animation, effect.Place) is not { } frame)

@@ -32,7 +32,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// that burns Samus, the heat glow that paces it and the beacon that sounds, are all started by the room's effect as
     /// the room loads and run until the room ends.
     /// </summary>
-    internal readonly List<RoomColourEffect> effects = [];
+    private readonly List<RoomColourEffect> effects = [];
     /// <summary>
     /// The effects whose animations ran to their end (#1597), in the order they settled: each keeps its final frame on its
     /// colours, without taking a turn, until an effect showing the same colours settles after it or the room ends.

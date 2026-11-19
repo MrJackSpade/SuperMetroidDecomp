@@ -39,8 +39,6 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     public RoomVisorAnimation VisorAnimation { get; private set; }
 
-    /// <summary>The effect whose pictures the room's effect overlay shows, chosen when the room loaded; null when it shows none.</summary>
-    public RoomFxType? OverlayEffect { get; private set; }
 
     /// <summary>
     /// The tint the last effect loaded selected for the effect overlay's blend colours (#1512), or null while no effect
@@ -254,9 +252,6 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             Fireflea = new FirefleaFxState();
         if (!IsRenderable)
             return;
-
-        // The room shows this effect on its overlay until Samus leaves it.
-        OverlayEffect = Type;
 
         if (RoomFxTypes.UsesWater(Type))
         {

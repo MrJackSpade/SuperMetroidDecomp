@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Saves;
 public sealed class SaveSlotStore
 {
     /// <summary>Each saved slot's decoded record; a slot with no entry is empty or invalid.</summary>
-    internal readonly Dictionary<SaveSlot, SuperMetroidSaveSlot> slots = [];
+    private readonly Dictionary<SaveSlot, SuperMetroidSaveSlot> slots = [];
 
     /// <summary>The file-select menu's persistent selection.</summary>
     private SaveSlot selectedSlot;

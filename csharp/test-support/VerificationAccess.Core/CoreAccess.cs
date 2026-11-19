@@ -126,8 +126,8 @@ internal static class CoreAccess
     /// <summary>Reads the shooting-star array in its native update order.</summary>
     extension(EndingShootingStars shootingStars)
     {
-        /// <summary>Current private star array in its native update order.</summary>
-        internal ReadOnlySpan<EndingShootingStar> Stars => shootingStars.stars;
+        /// <summary>Current private star array in its native update order, which a check may place a star in.</summary>
+        internal Span<EndingShootingStar> Stars => PrivateState.Field<EndingShootingStars, EndingShootingStar[]>(shootingStars, "stars");
     }
 
     /// <summary>Observes canonical sample totals and source mappings after audio extraction.</summary>
@@ -158,7 +158,7 @@ internal static class CoreAccess
     extension(ColourEffectSystem fx)
     {
         /// <summary>The colour effects running.</summary>
-        internal int ActiveCount => fx.effects.Count;
+        internal int ActiveCount => fx.RunningEffects.Count;
     }
 
 

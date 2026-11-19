@@ -103,7 +103,10 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // The body starts asking for no flame rain; no reader consumes it before a phase sets it (#1472).
         state.NextPattern = PhantoonPatternChoice.FigureEight;
         body.SetSpeciesState(state.BodyPart);
-        ResetPhantoonMouthControls(state);
+        // The encounter starts asking to hide his body, with no casual-flame burst, which the fight only starts much later;
+        // his parts set up in the same pass, before anything reads either.
+        state.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.Hide;
+        state.CasualFlames.NextFlame = null;
     }
 
     /// <summary>
@@ -138,12 +141,8 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         JoinPhantoon(state.MouthPart);
     }
 
-    /// <summary>Ends a drawing part's setup: the part holds its part of the encounter, and its setup resets the mouth's controls.</summary>
-    private static void JoinPhantoon(PhantoonPart part)
-    {
-        part.Place.SetSpeciesState(part);
-        ResetPhantoonMouthControls(part.Phantoon);
-    }
+    /// <summary>Ends a drawing part's setup: the part holds its part of the encounter.</summary>
+    private static void JoinPhantoon(PhantoonPart part) => part.Place.SetSpeciesState(part);
 
     /// <summary>
     /// Gives a drawing part the body's colours and runs the animation it was made playing (#2319), its first step on the
@@ -155,16 +154,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Frame = EnemyFrameId.Empty;
         place.AnimationClock.Restart();
         place.Shading = part.Phantoon.Body.Shading;
-    }
-
-    /// <summary>
-    /// Every part's setup, the body's included, asks to hide Phantoon's body and ends any casual-flame burst, which the
-    /// fight only starts much later.
-    /// </summary>
-    private static void ResetPhantoonMouthControls(PhantoonEnemyState state)
-    {
-        state.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.Hide;
-        state.CasualFlames.NextFlame = null;
     }
 
     /// <summary>Runs Phantoon's encounter phase for one update.</summary>

@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.World;
 
@@ -11,8 +12,11 @@ internal sealed record RoomMainUpdate
     /// <summary>The loaded room.</summary>
     public required RoomScope Room { get; init; }
 
-    /// <summary>The room mains' work that reads the session: the Crocomire rumble's layers and the falling debris's random number.</summary>
-    public required RoomMainRoutines Mains { get; init; }
+    /// <summary>Where the layers stand, which Crocomire's hidden-wall rumble shakes.</summary>
+    public required BackgroundScrollState BackgroundScroll { get; init; }
+
+    /// <summary>The random number this update has already drawn, which the Ceres falling debris samples without drawing another.</summary>
+    public required int RandomNumber { get; init; }
 
     /// <summary>The escape rooms' explosions and shaking.</summary>
     public required EscapeRoomEffects Escape { get; init; }

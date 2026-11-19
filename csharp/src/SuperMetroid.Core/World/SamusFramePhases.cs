@@ -208,8 +208,8 @@ internal sealed class SamusFramePhases
     }
 
     /// <summary>
-    /// Runs the input phase: the head, then, when Samus movement is enabled,
-    /// the tail. The enable flag is captured once here for every later gate of the frame.
+    /// Runs the input phase: the pose her input chooses, then, when Samus movement is enabled, her HUD, bomb, grapple
+    /// and projectile input. The enable flag is captured once here for every later gate of the frame.
     /// </summary>
     internal void RunInputPhase(SamusControlFrame frame, SuperMetroid.Core.Progression.SuperMetroidGameState gameState, SamusState samus,
         FixedPosition<RoomPixels> cameraPointAtFrameStart, RoomScope room)
@@ -221,8 +221,7 @@ internal sealed class SamusFramePhases
     }
 
     /// <summary>
-    /// Runs the movement phase: movement when Samus movement is enabled, then
-    /// the tail.
+    /// Runs the movement phase: movement when Samus movement is enabled, then her animation and settling.
     /// </summary>
     /// <param name="frame">The frame's Samus control.</param>
     /// <param name="samus">Samus.</param>
@@ -236,7 +235,7 @@ internal sealed class SamusFramePhases
     }
 
     /// <summary>
-    /// Runs the input phase's tail once movement is enabled: environment gravity, terrain hazards, inside-block reactions, HUD
+    /// Runs her HUD and projectile input once movement is enabled: environment gravity, terrain hazards, inside-block reactions, HUD
     /// selection, X-ray admission, bombs, grapple and projectiles, then the end-of-input-phase movement snapshot.
     /// </summary>
     private void RunHudAndProjectileInput(SamusControlFrame frame, SuperMetroid.Core.Progression.SuperMetroidGameState gameState, SamusState samus,
@@ -822,7 +821,7 @@ internal sealed class SamusFramePhases
             elevatorIsMoving:
                 room.Enemies.Elevator.ElevatorStatus != ElevatorActorStatus.Inactive,
             roomObjects: room.RoomObjects,
-            doorBlocks: RoomMainRoutines.FacingForwardDoorBlocks(room.Enemies.Elevator.ElevatorStatus));
+            doorBlocks: ElevatorDoorBlocks.FacingForward(room.Enemies.Elevator.ElevatorStatus));
     }
 
     /// <summary>Runs the knockback movement type's normal movement: the one-frame grounding probe before the knockback ending's target.</summary>
@@ -851,7 +850,7 @@ internal sealed class SamusFramePhases
     }
 
     /// <summary>
-    /// Runs the input phase's head: X-ray's beam, the frame's camera point, the frame-start captures, the live radius
+    /// Chooses Samus's pose from her input: X-ray's beam, the frame's camera point, the frame-start captures, the live radius
     /// refresh, the pose her input chooses and the fallback pose when it chooses none.
     /// </summary>
     private void ChooseSamusPoseFromInput(SamusControlFrame frame, SamusState samus,
@@ -956,7 +955,7 @@ internal sealed class SamusFramePhases
     }
 
     /// <summary>
-    /// Runs the normal movement phase's tail after movement: the speed echo, landing effects, the checks that run after
+    /// Animates and settles Samus after her movement: the speed echo, landing effects, the checks that run after
     /// her movement (the drained get-up and Draygon's escape), animation or the death sequence, the pose transitions, and
     /// periodic damage with the low-energy check.
     /// </summary>

@@ -4489,15 +4489,15 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The room effect actors <c>RidleyProjectiles</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
     private static readonly RoomEffectActorKind[] CommonRidleyProjectilesEffectActors = [];
 
-    /// <summary>The projectile frames <c>RoomMainRoutines</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
-    private static readonly EnemyProjectileFrameId[] CommonRoomMainRoutinesProjectiles =
+    /// <summary>The projectile frames the rooms' own behaviour spawns onto the shared sheet of the sets whose rooms run it.</summary>
+    private static readonly EnemyProjectileFrameId[] CommonRoomMainProjectiles =
     [
         EnemyProjectileFrameId.CeresFallingDebrisLight,
         EnemyProjectileFrameId.CeresFallingDebrisDark,
     ];
 
-    /// <summary>The room effect actors <c>RoomMainRoutines</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
-    private static readonly RoomEffectActorKind[] CommonRoomMainRoutinesEffectActors = [];
+    /// <summary>The room effect actors the rooms' own behaviour spawns onto the shared sheet of the sets whose rooms run it.</summary>
+    private static readonly RoomEffectActorKind[] CommonRoomMainEffectActors = [];
 
     /// <summary>The projectile frames <c>SaveStationElectricity</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
     private static readonly EnemyProjectileFrameId[] CommonSaveStationElectricityProjectiles =
@@ -4664,7 +4664,7 @@ internal static class SpawnedObjectFrameDefinitions
         new(CommonSpawner.EyeDoorBehavior, new(CommonEyeDoorBehaviorProjectiles, CommonEyeDoorBehaviorEffectActors)),
         new(CommonSpawner.OldTourianEscapeShaftWallBehavior, new(CommonOldTourianEscapeShaftWallBehaviorProjectiles, CommonOldTourianEscapeShaftWallBehaviorEffectActors)),
         new(CommonSpawner.RidleyProjectiles, new(CommonRidleyProjectilesProjectiles, CommonRidleyProjectilesEffectActors)),
-        new(CommonSpawner.RoomMainRoutines, new(CommonRoomMainRoutinesProjectiles, CommonRoomMainRoutinesEffectActors)),
+        new(CommonSpawner.RoomMains, new(CommonRoomMainProjectiles, CommonRoomMainEffectActors)),
         new(CommonSpawner.SaveStationElectricity, new(CommonSaveStationElectricityProjectiles, CommonSaveStationElectricityEffectActors)),
     ];
 }

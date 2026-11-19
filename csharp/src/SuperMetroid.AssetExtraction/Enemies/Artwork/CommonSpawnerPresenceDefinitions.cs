@@ -105,7 +105,7 @@ internal static class CommonSpawnerPresenceDefinitions
         [CommonSpawner.CeresFallingTiles] = CeresDebris,
         [CommonSpawner.GunshipLiftoffDust] = new() { Enemies = [EnemyDefinitionId.ShipTop, EnemyDefinitionId.ShipBottomEntrance] },
         [CommonSpawner.SkreeMetareeParticles] = new() { Enemies = [EnemyDefinitionId.Skree, EnemyDefinitionId.Metaree] },
-        [CommonSpawner.RoomMainRoutines] = new()
+        [CommonSpawner.RoomMains] = new()
         {
             Mains = [.. FallingDebris, .. CeresElevator], Shades = [CommonSpawnerShades.CeresDoorLooks, CommonSpawnerShades.CeresElevatorConcealer],
         },

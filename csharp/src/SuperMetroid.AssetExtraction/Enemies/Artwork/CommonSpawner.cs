@@ -62,7 +62,7 @@ internal enum CommonSpawner
     SkreeMetareeParticles,
 
     /// <summary>The room main routines' debris and the Ceres elevator's concealer.</summary>
-    RoomMainRoutines,
+    RoomMains,
 
     /// <summary>The Ceres elevator's arrival pad and platform (#2425).</summary>
     CeresElevatorArrivalState,

@@ -725,10 +725,10 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             Draw(PauseReserveTankVisual.Empty, tank);
         Draw(PauseReserveTankVisual.EndCap, tank);
 
-        void Draw(PauseReserveTankVisual map, int index)
+        void Draw(PauseReserveTankVisual visual, int index)
         {
             screenContent
-                .PauseReserveTanks.Draw(screen.Sprites, PauseSheet, map, index);
+                .PauseReserveTanks.Draw(screen.Sprites, PauseSheet, visual, index);
         }
     }
 

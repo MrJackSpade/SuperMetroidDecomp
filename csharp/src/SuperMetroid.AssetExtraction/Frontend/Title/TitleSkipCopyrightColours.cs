@@ -11,6 +11,6 @@ internal static class TitleSkipCopyrightColours
     /// <summary>The copyright's white on the skipped-to title screen.</summary>
     internal static RgbColor White => RgbColor.White;
 
-    /// <summary>The skip-only copyright colour, kept under its historical Red name.</summary>
+    /// <summary>The copyright glyph's tint the skip restores.</summary>
     internal static RgbColor Tint => new(0, 99, 255);
 }

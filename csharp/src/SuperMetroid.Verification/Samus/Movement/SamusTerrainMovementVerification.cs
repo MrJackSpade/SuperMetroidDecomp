@@ -581,13 +581,13 @@ internal static void VerifySamusGroundedMovement()
     // Every nonzero status executes `$90:A392`'s scan; destination shaft scroll PLMs rely
     // on that collision pass while the actor pins Samus. The collapsed host transition must
     // suppress only the redundant pseudo-door publication during statuses two/three.
-    AssertEqual(DoorBlockMeeting.Contacts, RoomMainRoutines.FacingForwardDoorBlocks(ElevatorActorStatus.Departing),
+    AssertEqual(DoorBlockMeeting.Contacts, ElevatorDoorBlocks.FacingForward(ElevatorActorStatus.Departing),
         "departing elevator publishes forward pseudo-door contact");
-    AssertEqual(DoorBlockMeeting.CarriedPastByElevator, RoomMainRoutines.FacingForwardDoorBlocks(ElevatorActorStatus.Inactive),
+    AssertEqual(DoorBlockMeeting.CarriedPastByElevator, ElevatorDoorBlocks.FacingForward(ElevatorActorStatus.Inactive),
         "inactive elevator suppresses pseudo-door contact");
-    AssertEqual(DoorBlockMeeting.CarriedPastByElevator, RoomMainRoutines.FacingForwardDoorBlocks(ElevatorActorStatus.BeginArrivalReturn),
+    AssertEqual(DoorBlockMeeting.CarriedPastByElevator, ElevatorDoorBlocks.FacingForward(ElevatorActorStatus.BeginArrivalReturn),
         "arrival setup suppresses repeated pseudo-door contact");
-    AssertEqual(DoorBlockMeeting.CarriedPastByElevator, RoomMainRoutines.FacingForwardDoorBlocks(ElevatorActorStatus.ReturningToRest),
+    AssertEqual(DoorBlockMeeting.CarriedPastByElevator, ElevatorDoorBlocks.FacingForward(ElevatorActorStatus.ReturningToRest),
         "arrival return suppresses repeated pseudo-door contact");
 
     Console.WriteLine("  Samus movement: forward/elevator, standing, and running speed/X/slope/grounding order agree.");

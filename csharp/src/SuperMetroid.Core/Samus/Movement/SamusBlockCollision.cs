@@ -1056,11 +1056,11 @@ public static class SamusBlockCollision
     public static void EjectAfterGrapple(RoomLevelData level, SamusKinematicsState state)
     {
         // The overlap probes above and below Samus only measure distances; the check moves her at most by the
-        // overlap above. These probes do not trigger room objects, doors, damage, or enemies.
-        int up = GrappleVerticalOverlap(level, state, direction: VerticalDirection.Down);
-        int down = GrappleVerticalOverlap(level, state, direction: VerticalDirection.Up);
-        if (up == 0 || down != 0) return;
-        state.Position -= new Offset16<RoomPixels>(0, up);
+        // overlap below. These probes do not trigger room objects, doors, damage, or enemies.
+        int below = GrappleVerticalOverlap(level, state, direction: VerticalDirection.Down);
+        int above = GrappleVerticalOverlap(level, state, direction: VerticalDirection.Up);
+        if (below == 0 || above != 0) return;
+        state.Position -= new Offset16<RoomPixels>(0, below);
         // A body whose radius reaches a block's height may overlap two rows. The check repeats once, not until clear.
         if (state.Radius.Y >= RoomGridConversions.BlockPixels)
             state.Position = state.Position.WithWholeY(state.Position.Y.Whole - GrappleVerticalOverlap(level, state, direction: VerticalDirection.Down));

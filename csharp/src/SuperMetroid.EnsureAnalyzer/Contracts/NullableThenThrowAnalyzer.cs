@@ -11,7 +11,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// <c>SuperMetroid.AssetExtraction</c>, a value the repository's own source declares nullable is not read through a throw
 /// on its absence. A field, property, parameter, local, source method result, downcast or collection element tested for
 /// null only to throw (<c>value ?? throw</c>, <c>if (value is null) throw</c>, <c>value is { } v ? v : throw</c>,
-/// <c>case null: throw</c>) says the value is always present while its type says it may be absent: a value that is
+/// <c>case null: throw</c>) says the value is always present while its type says it may be absent; a value whose type
+/// the source declares present is not held nullable, whatever its test: a value that is
 /// always present is non-nullable from construction, and an absent case is a named member of the choice its owner
 /// holds. An installed document's required member is <c>required</c> and non-nullable, so the deserializer rejects its
 /// absence where the file is read.
@@ -114,7 +115,7 @@ public sealed class NullableThenThrowAnalyzer : DiagnosticAnalyzer
     /// <summary>Reports the tested value when the source declares its nullability.</summary>
     private static void Report(OperationAnalysisContext context, IOperation tested, IAssemblySymbol source, SyntaxNode at)
     {
-        if (!DeclaredBySource(tested, source))
+        if (!DeclaredBySource(tested, source) || !MayBeAbsent(Unconverted(tested)))
             return;
         string text = Unconverted(tested).Syntax.ToString();
         if (text.Length > 60)
@@ -179,8 +180,8 @@ public sealed class NullableThenThrowAnalyzer : DiagnosticAnalyzer
     /// <summary>Whether a pattern's type is the tested value's own type, so matching it only tests for presence.</summary>
     private static bool IsInputType(ITypeSymbol matched, ITypeSymbol input) =>
         SymbolEqualityComparer.Default.Equals(matched, input) ||
-        (input is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T, TypeArguments: [var underlying] } &&
-            SymbolEqualityComparer.Default.Equals(matched, underlying));
+        (input is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T, TypeArguments.Length: 1 } nullable &&
+            SymbolEqualityComparer.Default.Equals(matched, nullable.TypeArguments[0]));
 
     /// <summary>The constant <c>null</c>, through any conversion.</summary>
     private static bool IsNullConstant(IOperation operation) =>
@@ -192,7 +193,7 @@ public sealed class NullableThenThrowAnalyzer : DiagnosticAnalyzer
         IThrowOperation => true,
         IConversionOperation { Operand: var operand } => IsThrow(operand),
         IExpressionStatementOperation { Operation: var inner } => IsThrow(inner),
-        IBlockOperation { Operations: [var only] } => IsThrow(only),
+        IBlockOperation { Operations.Length: 1 } block => IsThrow(block.Operations[0]),
         _ => false,
     };
 
@@ -232,6 +233,17 @@ public sealed class NullableThenThrowAnalyzer : DiagnosticAnalyzer
                 return true;
         }
     }
+
+    /// <summary>
+    /// Whether the source's types say the tested value may be absent: a nullable value type, or a reference whose nullable
+    /// flow state is not known to be present. A value the source declares present and tests for null anyway is not held
+    /// nullable: its type already rules the absence out, and the test checks outside data the type is written for, such as
+    /// a document element its deserializer does not hold to the element's annotation.
+    /// </summary>
+    private static bool MayBeAbsent(IOperation value) =>
+        value.Type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T } ||
+        value.SemanticModel is not { } model ||
+        model.GetTypeInfo(value.Syntax).Nullability.FlowState != NullableFlowState.NotNull;
 
     /// <summary>Whether a member is declared in the analyzed assembly.</summary>
     private static bool IsSource(ISymbol member, IAssemblySymbol source) =>

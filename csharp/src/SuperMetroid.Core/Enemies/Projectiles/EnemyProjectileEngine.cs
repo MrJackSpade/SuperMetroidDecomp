@@ -434,12 +434,12 @@ internal sealed class EnemyProjectileEngine
         // diameter (EnemyProjectileBlockScan). The positive edge is inclusive, hence radius - 1; using +radius made
         // right/down projectiles collide one pixel earlier than their counterparts.
         // The edge wraps past the room coordinates' 65535, as the probe's block bounds check expects.
-        int movementEdge = CoordinateAxis.Wrap(nextPosition +
+        int movementEdge = TerrainScanEdges.Edge(nextPosition +
             (movingNegative ? -movementRadius : movementRadius - 1));
         var scan = EnemyProjectileBlockScan.Across(
             movementEdge,
-            CoordinateAxis.Wrap(perpendicularPosition - perpendicularRadius),
-            CoordinateAxis.Wrap(perpendicularPosition + perpendicularRadius - 1),
+            TerrainScanEdges.Edge(perpendicularPosition - perpendicularRadius),
+            TerrainScanEdges.Edge(perpendicularPosition + perpendicularRadius - 1),
             axis);
         if (collision.Stops(level, new EnemyProjectileScannedMove(projectile, scan, movingNegative, movementEdge), out int? alignedPosition))
         {
@@ -449,8 +449,8 @@ internal sealed class EnemyProjectileEngine
             // Without this correction a fast downward projectile retains its last
             // pre-collision coordinate and visibly hovers above the floor.
             int snappedPosition = alignedPosition ?? (movingNegative
-                ? CoordinateAxis.Wrap(RoomGridConversions.BlockEnd(movementEdge) + movementRadius + 1)
-                : CoordinateAxis.Wrap(RoomGridConversions.BlockStart(movementEdge) - movementRadius));
+                ? TerrainScanEdges.Edge(RoomGridConversions.BlockEnd(movementEdge) + movementRadius + 1)
+                : TerrainScanEdges.Edge(RoomGridConversions.BlockStart(movementEdge) - movementRadius));
             bool snapDoesNotMoveBackwards = alignedPosition.HasValue || (movingNegative
                 ? snappedPosition <= position
                 : snappedPosition >= position);
@@ -696,9 +696,9 @@ internal sealed class EnemyProjectileEngine
         int cameraY)
     {
         // A fireball or shard that flies up past the room's top keeps a wrapped height, so its distance below the
-        // camera's top row is measured the short way, as CoordinateAxis.Difference gives it: it lies above the camera
+        // camera's top row is measured the short way, as CameraPastRoomEdge.FromCamera gives it: it lies above the camera
         // and is kept, not read as lying far below it.
-        if (CoordinateAxis.Difference(projectile.Position.Y.Whole, cameraY) >= EnemyProjectileOffScreenDefinitions.VerticalDeletionDepth)
+        if (CameraPastRoomEdge.FromCamera(projectile.Position.Y.Whole, cameraY) >= EnemyProjectileOffScreenDefinitions.VerticalDeletionDepth)
             projectile.Delete();
     }
 

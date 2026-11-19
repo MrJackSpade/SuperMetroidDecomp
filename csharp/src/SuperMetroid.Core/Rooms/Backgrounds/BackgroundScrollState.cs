@@ -62,7 +62,7 @@ public sealed class BackgroundScrollState
     public void BeginDoorOpeningViews(Position16<RoomPixels> openingForeground)
     {
         ForegroundScroll = SignedView(openingForeground);
-        BackgroundScroll = Offset16<BackgroundPixels>.Wrapped(openingForeground.X, openingForeground.Y);
+        BackgroundScroll = CameraPastRoomEdge.SignedScroll<BackgroundPixels>(openingForeground.X, openingForeground.Y);
     }
 
     /// <summary>
@@ -107,13 +107,13 @@ public sealed class BackgroundScrollState
         if (BackgroundScrollModes.Horizontal.BackgroundPositionFor(ForegroundPosition.X) is int backgroundX)
         {
             BackgroundPosition = BackgroundPosition.WithX(backgroundX);
-            BackgroundScroll = BackgroundScroll.WithX(CoordinateAxis.AsSigned(backgroundX));
+            BackgroundScroll = BackgroundScroll.WithX(CameraPastRoomEdge.Signed(backgroundX));
         }
 
         if (BackgroundScrollModes.Vertical.BackgroundPositionFor(ForegroundPosition.Y) is int backgroundY)
         {
             BackgroundPosition = BackgroundPosition.WithY(backgroundY);
-            BackgroundScroll = BackgroundScroll.WithY(CoordinateAxis.AsSigned(backgroundY));
+            BackgroundScroll = BackgroundScroll.WithY(CameraPastRoomEdge.Signed(backgroundY));
         }
     }
 
@@ -124,7 +124,7 @@ public sealed class BackgroundScrollState
     public void CalculateLayerScrolls()
     {
         ForegroundScroll = SignedView(ForegroundPosition);
-        BackgroundScroll = Offset16<BackgroundPixels>.Wrapped(BackgroundPosition.X, BackgroundPosition.Y);
+        BackgroundScroll = CameraPastRoomEdge.SignedScroll<BackgroundPixels>(BackgroundPosition.X, BackgroundPosition.Y);
     }
 
     /// <summary>
@@ -132,5 +132,5 @@ public sealed class BackgroundScrollState
     /// past the room's top or left edge, as a door's opening view does, lies a small negative distance from the origin.
     /// </summary>
     private static Offset16<RoomPixels> SignedView(Position16<RoomPixels> position) =>
-        Offset16<RoomPixels>.Wrapped(position.X, position.Y);
+        CameraPastRoomEdge.SignedScroll<RoomPixels>(position.X, position.Y);
 }

@@ -226,7 +226,7 @@ internal sealed class BeamCombos
     /// a room's breadth of the view and its distance from the view's edge is an ordinary one.
     /// </summary>
     private static bool LeftViewHorizontally(SamusProjectile shot, Position16<RoomPixels> camera) =>
-        CoordinateAxis.Difference(shot.Position.X.Whole, camera.X) is
+        CameraPastRoomEdge.FromCamera(shot.Position.X.Whole, camera.X) is
             < -BeamComboDefinitions.ViewLeftMargin or >= BeamComboDefinitions.ViewRightReach;
 
     /// <summary>
@@ -234,7 +234,7 @@ internal sealed class BeamCombos
     /// edge, or at its bottom reach or below.
     /// </summary>
     private static bool LeftViewVertically(SamusProjectile shot, Position16<RoomPixels> camera) =>
-        CoordinateAxis.Difference(shot.Position.Y.Whole, camera.Y) is
+        CameraPastRoomEdge.FromCamera(shot.Position.Y.Whole, camera.Y) is
             < BeamComboDefinitions.ViewTopReach or >= BeamComboDefinitions.ViewBottomReach;
 
     /// <summary>The Plasma ring update: the ring grows, shrinks and grows again by its phase.</summary>
@@ -325,7 +325,7 @@ internal sealed class BeamCombos
                 break;
             case SpazerComboPhase.FlyingUpTowardsPoint:
                 PlaceSpazerParticle(samus, shot, spazer);
-                if (CoordinateAxis.Difference(shot.Position.Y.Whole, cameraY) < BeamComboDefinitions.SpazerFallScreenLine)
+                if (CameraPastRoomEdge.FromCamera(shot.Position.Y.Whole, cameraY) < BeamComboDefinitions.SpazerFallScreenLine)
                     BeginSpazerFall(shot, spazer);
                 else
                 {
@@ -345,7 +345,7 @@ internal sealed class BeamCombos
                 break;
             case SpazerComboPhase.FlyingUpAwayFromPoint:
                 PlaceSpazerParticle(samus, shot, spazer);
-                if (CoordinateAxis.Difference(shot.Position.Y.Whole, cameraY) < BeamComboDefinitions.SpazerFallScreenLine)
+                if (CameraPastRoomEdge.FromCamera(shot.Position.Y.Whole, cameraY) < BeamComboDefinitions.SpazerFallScreenLine)
                     BeginSpazerFall(shot, spazer);
                 else
                 {
@@ -357,7 +357,7 @@ internal sealed class BeamCombos
             case SpazerComboPhase.Falling:
                 shot.Position += new Offset16<RoomPixels>(0, BeamComboDefinitions.SpazerFallSpeed);
                 // The particle falls from beside Samus, within a room's height of the view.
-                if (CoordinateAxis.Difference(shot.Position.Y.Whole, cameraY) >= BeamComboDefinitions.SpazerFallEndBelowCameraTop)
+                if (CameraPastRoomEdge.FromCamera(shot.Position.Y.Whole, cameraY) >= BeamComboDefinitions.SpazerFallEndBelowCameraTop)
                 {
                     _animation.ClearProjectile(shot);
                     return null;

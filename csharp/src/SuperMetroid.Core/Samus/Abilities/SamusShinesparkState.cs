@@ -575,8 +575,8 @@ public sealed class SamusShinesparkState
         flight.Radius += ShinesparkDefinitions.EchoRadiusStep;
         Position16<RoomPixels> point = samus.Position.Whole +
             OffsetAlong(flight.Angle.ToAngle(), ShinesparkEchoReturn.PlacementRadius(flight.Radius));
-        bool onScreen = CoordinateAxis.Difference(point.X, cameraPosition.X) is >= 0 and < ShinesparkDefinitions.EchoScreenReach &&
-            CoordinateAxis.Difference(point.Y, cameraPosition.Y) is >= 0 and < ShinesparkDefinitions.EchoScreenReach;
+        bool onScreen = CameraPastRoomEdge.FromCamera(point.X, cameraPosition.X) is >= 0 and < ShinesparkDefinitions.EchoScreenReach &&
+            CameraPastRoomEdge.FromCamera(point.Y, cameraPosition.Y) is >= 0 and < ShinesparkDefinitions.EchoScreenReach;
 
         if (echo == FirstReleasedEcho)
         {

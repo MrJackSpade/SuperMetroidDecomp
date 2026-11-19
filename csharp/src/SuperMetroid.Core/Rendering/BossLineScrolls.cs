@@ -22,7 +22,7 @@ public static class BossLineScrolls
     /// <param name="camera">The frame's camera, the room pixel at the screen's top-left.</param>
     /// <param name="placement">Where his body is placed, the room pixel each of its frames lies against.</param>
     public static ScrollWave Of(PhantoonWave wave, Position16<RoomPixels> camera, Position16<RoomPixels> placement) =>
-        new(CoordinateAxis.Difference(camera.X, placement.X), Ensure.NotNull(wave).Amplitude, wave.Phase, wave.Period, 0,
+        new(CameraPastRoomEdge.CameraPast(camera.X, placement.X), Ensure.NotNull(wave).Amplitude, wave.Phase, wave.Period, 0,
             ScreenGeometry.ScreenHeightPixels);
 
     /// <summary>
@@ -40,5 +40,5 @@ public static class BossLineScrolls
     /// <paramref name="camera"/>, a signed row (#2308): negative while the body's row lies below the screen's top.
     /// </summary>
     private static int BodyRowAtScreenTop(int top, Position16<RoomPixels> camera) =>
-        GameplaySceneView.LayerRowAtScreenTop(CoordinateAxis.Difference(camera.Y, top));
+        GameplaySceneView.LayerRowAtScreenTop(CameraPastRoomEdge.CameraPast(camera.Y, top));
 }

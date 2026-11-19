@@ -66,15 +66,15 @@ internal sealed class EnemyTerrain
         // The movers move every terrain-bound family, and not every one is established to keep its body inside the room's
         // left and top edges (#2532): the centres the families' facts bound (#2430, #2438, #2449) do not bound their spans,
         // and a room's first column and row are open in places. An edge past either stays on the room's axis, as
-        // CoordinateAxis.Wrap keeps it, and the scan numbers its blocks as BlockScanCycle and EnemyMovePastRoom do, so the
+        // TerrainScanEdges.Edge keeps it, and the scan numbers its blocks as BlockScanCycle and EnemyMovePastRoom do, so the
         // edges, the span and the alignment against the block met keep the wrap.
         int targetEdge = movingLeft
-            ? CoordinateAxis.Wrap(targetCenter - place.Radius.X)
-            : CoordinateAxis.Wrap(targetCenter + place.Radius.X - 1);
+            ? TerrainScanEdges.Edge(targetCenter - place.Radius.X)
+            : TerrainScanEdges.Edge(targetCenter + place.Radius.X - 1);
 
-        int topPixel = CoordinateAxis.Wrap(place.Position.Y.Whole - place.Radius.Y);
-        int bottomPixel = CoordinateAxis.Wrap(place.Position.Y.Whole + place.Radius.Y - 1);
-        int lastBlock = RoomGridConversions.WholeBlocksIn(CoordinateAxis.Wrap(bottomPixel - RoomGridConversions.BlockStart(topPixel)));
+        int topPixel = TerrainScanEdges.Edge(place.Position.Y.Whole - place.Radius.Y);
+        int bottomPixel = TerrainScanEdges.Edge(place.Position.Y.Whole + place.Radius.Y - 1);
+        int lastBlock = RoomGridConversions.WholeBlocksIn(TerrainScanEdges.Edge(bottomPixel - RoomGridConversions.BlockStart(topPixel)));
         // The scan walks down the target column from the top row, as the block scan cycle counts it.
         Position16<RoomBlocks> firstBlock = Position16<RoomPixels>.Of(targetEdge, topPixel).ToRoomBlock();
         bool collided = false;
@@ -103,14 +103,14 @@ internal sealed class EnemyTerrain
         // center. That prevents a large corrupt displacement from snapping through a wall.
         if (movingLeft)
         {
-            int aligned = CoordinateAxis.Wrap(RoomGridConversions.BlockEnd(targetEdge) + place.Radius.X + 1);
+            int aligned = TerrainScanEdges.Edge(RoomGridConversions.BlockEnd(targetEdge) + place.Radius.X + 1);
             if (aligned <= place.Position.X.Whole)
                 place.Position = place.Position.WithWholeX(aligned);
             place.Position = place.Position.WithFractionX(0);
         }
         else
         {
-            int aligned = CoordinateAxis.Wrap(RoomGridConversions.BlockStart(targetEdge) - place.Radius.X);
+            int aligned = TerrainScanEdges.Edge(RoomGridConversions.BlockStart(targetEdge) - place.Radius.X);
             if (aligned >= place.Position.X.Whole)
                 place.Position = place.Position.WithWholeX(aligned);
             place.Position = place.Position.WithFractionX(FixedCoordinate.LastFraction);
@@ -132,12 +132,12 @@ internal sealed class EnemyTerrain
         bool movingUp = displacement.IsNegative;
         // The edges, the span and the alignment keep the wrap for the reason the horizontal mover gives (#2532).
         int targetEdge = movingUp
-            ? CoordinateAxis.Wrap(targetCenter - place.Radius.Y)
-            : CoordinateAxis.Wrap(targetCenter + place.Radius.Y - 1);
+            ? TerrainScanEdges.Edge(targetCenter - place.Radius.Y)
+            : TerrainScanEdges.Edge(targetCenter + place.Radius.Y - 1);
 
-        int leftPixel = CoordinateAxis.Wrap(place.Position.X.Whole - place.Radius.X);
-        int rightPixel = CoordinateAxis.Wrap(place.Position.X.Whole + place.Radius.X - 1);
-        int lastBlock = RoomGridConversions.WholeBlocksIn(CoordinateAxis.Wrap(rightPixel - RoomGridConversions.BlockStart(leftPixel)));
+        int leftPixel = TerrainScanEdges.Edge(place.Position.X.Whole - place.Radius.X);
+        int rightPixel = TerrainScanEdges.Edge(place.Position.X.Whole + place.Radius.X - 1);
+        int lastBlock = RoomGridConversions.WholeBlocksIn(TerrainScanEdges.Edge(rightPixel - RoomGridConversions.BlockStart(leftPixel)));
         // The scan walks along the target row from the left column, as the block scan cycle counts it.
         Position16<RoomBlocks> firstBlock = Position16<RoomPixels>.Of(leftPixel, targetEdge).ToRoomBlock();
         bool collided = false;
@@ -160,14 +160,14 @@ internal sealed class EnemyTerrain
         // The outer step performs this conditional coarse alignment afterward.
         if (movingUp)
         {
-            int aligned = CoordinateAxis.Wrap(RoomGridConversions.BlockEnd(targetEdge) + place.Radius.Y + 1);
+            int aligned = TerrainScanEdges.Edge(RoomGridConversions.BlockEnd(targetEdge) + place.Radius.Y + 1);
             if (aligned <= place.Position.Y.Whole)
                 place.Position = place.Position.WithWholeY(aligned);
             place.Position = place.Position.WithFractionY(0);
         }
         else
         {
-            int aligned = CoordinateAxis.Wrap(RoomGridConversions.BlockStart(targetEdge) - place.Radius.Y);
+            int aligned = TerrainScanEdges.Edge(RoomGridConversions.BlockStart(targetEdge) - place.Radius.Y);
             if (aligned >= place.Position.Y.Whole)
                 place.Position = place.Position.WithWholeY(aligned);
             place.Position = place.Position.WithFractionY(FixedCoordinate.LastFraction);
@@ -226,14 +226,14 @@ internal sealed class EnemyTerrain
         int targetCenter = place.Position.X.MovedBy(displacement).Whole;
         bool movingLeft = displacement.IsNegative;
         // Its users are the Etecoons and the Yards, whose bodies are not established to stay inside the room's left and
-        // top edges (#2532): an edge past either stays on the room's axis, as CoordinateAxis.Wrap keeps it, so a column
+        // top edges (#2532): an edge past either stays on the room's axis, as TerrainScanEdges.Edge keeps it, so a column
         // past the left edge or a span from above the top meets the rows and columns the wrapped pixels name.
         int targetEdge = movingLeft
-            ? CoordinateAxis.Wrap(targetCenter - place.Radius.X)
-            : CoordinateAxis.Wrap(targetCenter + place.Radius.X - 1);
+            ? TerrainScanEdges.Edge(targetCenter - place.Radius.X)
+            : TerrainScanEdges.Edge(targetCenter + place.Radius.X - 1);
 
-        int topPixel = CoordinateAxis.Wrap(place.Position.Y.Whole - place.Radius.Y);
-        int bottomPixel = CoordinateAxis.Wrap(place.Position.Y.Whole + place.Radius.Y - 1);
+        int topPixel = TerrainScanEdges.Edge(place.Position.Y.Whole - place.Radius.Y);
+        int bottomPixel = TerrainScanEdges.Edge(place.Position.Y.Whole + place.Radius.Y - 1);
         int firstRow = RoomGridConversions.PixelToBlock(topPixel);
         int lastRow = RoomGridConversions.PixelToBlock(bottomPixel);
         int column = RoomGridConversions.PixelToBlock(targetEdge);
@@ -257,15 +257,15 @@ internal sealed class EnemyTerrain
     {
         int center = place.Position.Y.MovedBy(displacement).Whole;
         // The Yard's probe keeps the wrap (#2532): an edge above the room's top stays on the room's axis, as
-        // CoordinateAxis.Wrap keeps it, a row past the room's height, which stops the Yard; and a Yard's centre stays in
+        // TerrainScanEdges.Edge keeps it, a row past the room's height, which stops the Yard; and a Yard's centre stays in
         // the room (#2449) but its body is not established to stay right of the room's left edge, where the wrapped span
         // tests no column.
         int edge = displacement.IsNegative
-            ? CoordinateAxis.Wrap(center - place.Radius.Y)
-            : CoordinateAxis.Wrap(center + place.Radius.Y - 1);
+            ? TerrainScanEdges.Edge(center - place.Radius.Y)
+            : TerrainScanEdges.Edge(center + place.Radius.Y - 1);
         int blockY = RoomGridConversions.PixelToBlock(edge);
-        int firstBlockX = RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(place.Position.X.Whole - place.Radius.X));
-        int lastBlockX = RoomGridConversions.PixelToBlock(CoordinateAxis.Wrap(place.Position.X.Whole + place.Radius.X - 1));
+        int firstBlockX = RoomGridConversions.PixelToBlock(TerrainScanEdges.Edge(place.Position.X.Whole - place.Radius.X));
+        int lastBlockX = RoomGridConversions.PixelToBlock(TerrainScanEdges.Edge(place.Position.X.Whole + place.Radius.X - 1));
         if (blockY >= level.Size.Y) return true;
         for (int blockX = firstBlockX; blockX <= lastBlockX; blockX++)
         {
@@ -518,7 +518,7 @@ internal sealed class EnemyTerrain
             if (adjustment > 0)
                 return false;
             // The vertical mover's centres keep the wrap for the reason the horizontal mover gives (#2532).
-            place.Position = place.Position.WithY(new(CoordinateAxis.Wrap(targetCenter - adjustment), 0));
+            place.Position = place.Position.WithY(new(TerrainScanEdges.Edge(targetCenter - adjustment), 0));
             return true;
         }
 
@@ -528,7 +528,7 @@ internal sealed class EnemyTerrain
         int downwardAdjustment = height - bottomWithinBlock - 1;
         if (height - bottomWithinBlock != 1 && downwardAdjustment >= 0)
             return false;
-        place.Position = place.Position.WithY(new(CoordinateAxis.Wrap(targetCenter + downwardAdjustment), FixedCoordinate.LastFraction));
+        place.Position = place.Position.WithY(new(TerrainScanEdges.Edge(targetCenter + downwardAdjustment), FixedCoordinate.LastFraction));
         return true;
     }
 
@@ -546,11 +546,11 @@ internal sealed class EnemyTerrain
     {
         // Not every aligning family, the Torizos and the Chozo statue among them, is established to keep its centre below
         // the room's top (#2532): a centre above it lies at the end of the room's axis, and its floor sample stays on the
-        // axis, as CoordinateAxis.Wrap keeps it, in the room's first rows.
+        // axis, as TerrainScanEdges.Edge keeps it, in the room's first rows.
         bool adjustedFloor = AlignAgainstSlopeAtPixel(
             level,
             place,
-            new(place.Position.X.Whole, CoordinateAxis.Wrap(place.Position.Y.Whole + place.Radius.Y - 1)),
+            new(place.Position.X.Whole, TerrainScanEdges.Edge(place.Position.Y.Whole + place.Radius.Y - 1)),
             surface: SlopeSurface.Top);
         // A top above the room's top meets no slope: the room's grid starts at its top (#2532).
         int top = place.Position.Y.Whole - place.Radius.Y;
@@ -596,7 +596,7 @@ internal sealed class EnemyTerrain
         // its sample gives.
         place.Position = place.Position.WithWholeY(surface == SlopeSurface.Underside
             ? place.Position.Y.Whole - adjustment
-            : CoordinateAxis.Wrap(place.Position.Y.Whole + adjustment));
+            : TerrainScanEdges.Edge(place.Position.Y.Whole + adjustment));
         return true;
     }
 

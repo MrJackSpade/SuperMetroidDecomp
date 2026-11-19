@@ -13,8 +13,8 @@ public static class SamusInsideBlockSamplePoints
     public static void Visit(int yPosition, int yRadius, Action<int, SamusInsideBlockPoint> visit)
     {
         Ensure.NotNull(visit);
-        int bottom = CoordinateAxis.Wrap(yPosition + yRadius - 1);
-        int top = CoordinateAxis.Wrap(yPosition - yRadius);
+        int bottom = TerrainScanEdges.Edge(yPosition + yRadius - 1);
+        int top = TerrainScanEdges.Edge(yPosition - yRadius);
         visit(bottom, SamusInsideBlockPoint.Bottom);
         if (RoomGridConversions.BlockStart(yPosition) != RoomGridConversions.BlockStart(bottom))
             visit(yPosition, SamusInsideBlockPoint.Center);

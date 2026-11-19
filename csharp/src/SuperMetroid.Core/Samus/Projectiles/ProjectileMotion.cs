@@ -255,8 +255,8 @@ internal sealed class ProjectileMotion
         SamusProjectile shot,
         Position16<RoomPixels> cameraPosition)
     {
-        int screenX = CoordinateAxis.Difference(shot.Position.X.Whole, cameraPosition.X);
-        int screenY = CoordinateAxis.Difference(shot.Position.Y.Whole, cameraPosition.Y);
+        int screenX = CameraPastRoomEdge.FromCamera(shot.Position.X.Whole, cameraPosition.X);
+        int screenY = CameraPastRoomEdge.FromCamera(shot.Position.Y.Whole, cameraPosition.Y);
         bool outside =
             screenX < -SamusProjectileMotionDefinitions.MovementWindowApron ||
             screenX >= SamusProjectileMotionDefinitions.MovementWindowFarEdge ||

@@ -55,38 +55,37 @@ internal static class CeresFloorDrawings
     }
 
     /// <summary>
-    /// The floor cells the actors shown on the floor stand on (#2573), each actor's whole picture's rectangle, once the floor
-    /// whose cells, row by row, are <paramref name="map"/>, is checked to picture each actor's resting picture there.
+    /// The picture each actor rests in on the floor whose cells, row by row, are <paramref name="map"/> (#2573): the first of
+    /// its pictures the map shows where the actor stands; an actor whose place shows none of them does not rest on the floor.
     /// </summary>
-    /// <exception cref="InvalidDataException">The map does not show an actor's resting picture where the actor stands.</exception>
-    internal static IReadOnlySet<int> ActorPlaces(ReadOnlySpan<byte> map)
+    internal static IReadOnlyDictionary<CeresFloorActor, CeresFloorActorPicture> Resting(ReadOnlySpan<byte> map)
     {
-        var places = new HashSet<int>();
-        foreach ((CeresFloorActor actor, CeresFloorActorPicture resting) in CeresFloorActors.RestingPictures)
+        byte[] floor = map.ToArray();
+        var resting = new Dictionary<CeresFloorActor, CeresFloorActorPicture>();
+        foreach (CeresFloorActorPicture picture in Enum.GetValues<CeresFloorActorPicture>())
         {
-            IReadOnlyDictionary<int, int> written = Cells(resting);
-            foreach ((int cell, int tile) in written)
-            {
-                if (map[cell] != tile)
-                {
-                    string shown = string.Join(", ", Enum.GetValues<CeresFloorActorPicture>()
-                        .Where(picture => CeresFloorActors.Of(picture) == actor && Cells(picture).All(pair => map[pair.Key] == pair.Value)));
-                    throw new InvalidDataException($"The floor's map does not show {actor} as {resting}; it shows {(shown.Length == 0 ? "none of its pictures" : shown)}.");
-                }
-            }
-            int left = written.Keys.Min(cell => cell % FloorSheetComposer.Side), right = written.Keys.Max(cell => cell % FloorSheetComposer.Side);
-            int top = written.Keys.Min(cell => cell / FloorSheetComposer.Side), bottom = written.Keys.Max(cell => cell / FloorSheetComposer.Side);
-            for (int row = top; row <= bottom; row++)
-            {
-                for (int column = left; column <= right; column++)
-                    places.Add(row * FloorSheetComposer.Side + column);
-            }
+            CeresFloorActor actor = CeresFloorActors.Of(picture);
+            if (!resting.ContainsKey(actor) && Cells(picture).All(pair => floor[pair.Key] == pair.Value))
+                resting.Add(actor, picture);
         }
-        return places;
+        return resting;
+    }
+
+    /// <summary>The floor cells <paramref name="picture"/> covers: its whole picture's rectangle (#2573).</summary>
+    internal static IEnumerable<int> Covered(CeresFloorActorPicture picture)
+    {
+        IReadOnlyDictionary<int, int> written = Cells(picture);
+        int left = written.Keys.Min(cell => cell % FloorSheetComposer.Side), right = written.Keys.Max(cell => cell % FloorSheetComposer.Side);
+        int top = written.Keys.Min(cell => cell / FloorSheetComposer.Side), bottom = written.Keys.Max(cell => cell / FloorSheetComposer.Side);
+        for (int row = top; row <= bottom; row++)
+        {
+            for (int column = left; column <= right; column++)
+                yield return row * FloorSheetComposer.Side + column;
+        }
     }
 
     /// <summary>The picture of <paramref name="frame"/>'s runs written over <paramref name="map"/>.</summary>
-    private static FloorSheetComposer.FloorPicture Picture(CeresFloorActorPicture frame, ReadOnlySpan<byte> map, byte[] tilePixels)
+    internal static FloorSheetComposer.FloorPicture Picture(CeresFloorActorPicture frame, ReadOnlySpan<byte> map, byte[] tilePixels)
     {
         IReadOnlyDictionary<int, int> written = Cells(frame);
         int left = written.Keys.Min(cell => cell % FloorSheetComposer.Side), right = written.Keys.Max(cell => cell % FloorSheetComposer.Side);

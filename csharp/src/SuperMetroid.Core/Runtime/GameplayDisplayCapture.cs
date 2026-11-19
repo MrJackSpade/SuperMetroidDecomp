@@ -167,7 +167,7 @@ public static class GameplayDisplayCapture
         LatchedScrollingSky? sky = latched.Scene.ScrollingSky;
         ScrollBands? skyX = SkyHorizontalScrolls(live, shake);
         // Lava, water or the sky moves the background's lines.
-        (LineScroll? backgroundHorizontal, LineScroll? backgroundVertical) = LiquidLineScrolls(latched.RoomFxOverlay, backgroundScroll, skyX);
+        BackgroundLineScrolls backgroundLines = LiquidLineScrolls(latched.RoomFxOverlay, backgroundScroll, skyX);
         // A boss's body shows whole where it lies (#1873); while it is hidden, once Draygon is deleted or while Mother Brain's
         // death flicker hides hers, it shows nothing.
         ScreenLayers displayedLayers = bosses.Hidden
@@ -182,7 +182,7 @@ public static class GameplayDisplayCapture
         // A sky room shows the sky's rows on the background (#1347). A boss's body is its own layer (#2573), its pictures
         // placed where they show against its placement (#1466, #1514, #2031); while Mother Brain rises, the floor's band hides
         // what lies below its top (MotherBrainAscentDisplay).
-        var layer = new GameplaySceneLayer(view, latched.Rooms, new BackgroundLineScrolls { Horizontal = backgroundHorizontal, Vertical = backgroundVertical },
+        var layer = new GameplaySceneLayer(view, latched.Rooms, backgroundLines,
             live.DoorTransitionShownLayers is null && live.MotherBrainAscentShowing
                 ? MotherBrainAscentDisplay.Bands : default)
         {
@@ -208,12 +208,12 @@ public static class GameplayDisplayCapture
         // scroll puts it.
         Offset16<BackgroundPixels> scroll = (bosses.Placement is { } placement ? BossBodyPlacement.Shown(placement, camera) : latched.Scrolls.BackgroundScroll)
             + shake.Background;
-        (LineScroll? liquidHorizontal, LineScroll? liquidVertical) = LiquidLineScrolls(latched.RoomFxOverlay, scroll, skyX);
+        BackgroundLineScrolls liquid = LiquidLineScrolls(latched.RoomFxOverlay, scroll, skyX);
         return new BossBodyView(body, RoomView.Shown(scroll))
         {
             // Phantoon's wave ripples his body about where it lies, and Crocomire's melt sags his.
-            Horizontal = latched.Phantoon is { Wave: { } wave } phantoon ? BossLineScrolls.Of(wave, camera, phantoon.BodyPlacement) : liquidHorizontal,
-            Vertical = live.CrocomireMelt is { } melt ? BossLineScrolls.Of(melt, camera) : liquidVertical,
+            Horizontal = latched.Phantoon is { Wave: { } wave } phantoon ? BossLineScrolls.Of(wave, camera, phantoon.BodyPlacement) : liquid.Horizontal,
+            Vertical = live.CrocomireMelt is { } melt ? BossLineScrolls.Of(melt, camera) : liquid.Vertical,
             Pixelation = latched.Phantoon is { } phantoonDisplay ? new BackgroundPixelation(phantoonDisplay.PixelationBlockSize) : default,
         };
     }
@@ -223,7 +223,7 @@ public static class GameplayDisplayCapture
     /// <paramref name="scroll"/> (#1468): lava's, acid's or water's horizontal waves before the sky's, and lava's or acid's
     /// vertical haze.
     /// </summary>
-    private static (LineScroll? Horizontal, LineScroll? Vertical) LiquidLineScrolls(RoomFxOverlayRenderSnapshot? fx,
+    private static BackgroundLineScrolls LiquidLineScrolls(RoomFxOverlayRenderSnapshot? fx,
         Offset16<BackgroundPixels> scroll, ScrollBands? skyX)
     {
         SampledScrollWave? waterX = fx is { } water
@@ -232,7 +232,7 @@ public static class GameplayDisplayCapture
             ? GameplayEffectCapture.BuildLavaAcidBackgroundHorizontalScrolls(lava, scroll) : null;
         SampledScrollWave? lavaY = fx is { } vertical
             ? GameplayEffectCapture.BuildLavaAcidBackgroundVerticalScrolls(vertical, scroll.Y) : null;
-        return (lavaX ?? waterX ?? (LineScroll?)skyX, lavaY);
+        return new BackgroundLineScrolls { Horizontal = lavaX ?? waterX ?? (LineScroll?)skyX, Vertical = lavaY };
     }
 
     /// <summary>

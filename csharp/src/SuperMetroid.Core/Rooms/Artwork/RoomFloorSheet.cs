@@ -29,7 +29,25 @@ public sealed class RoomFloorSheet
         Sheet = Ensure.NotNull(sheet);
         Floor = new AffineFloor(sheet.Frame(FloorFrameName));
         pictures = Enum.GetValues<CeresFloorActorPicture>().ToDictionary(frame => frame, frame => sheet.Frame(PictureNameOf(frame)));
+        Resting = Enum.GetValues<CeresFloorActorPicture>().Where(frame => sheet.HoldsPicture(RestingNameOf(frame)))
+            .ToDictionary(CeresFloorActors.Of, frame => frame);
     }
+
+    /// <summary>
+    /// The picture each actor rests in on this floor as a room loads (#2573), where the floor has it rest; the floor shows
+    /// nothing where a resting actor stands, and its own look where an actor that does not rest on it would.
+    /// </summary>
+    public IReadOnlyDictionary<CeresFloorActor, CeresFloorActorPicture> Resting { get; }
+
+    /// <summary>
+    /// The name under which a floor's sheet marks <paramref name="frame"/> as the picture its actor rests in on the floor
+    /// (#2573), the picture <paramref name="frame"/> shows.
+    /// </summary>
+    /// <exception cref="InvalidDataException"><paramref name="frame"/> is not a picture of the floor's actors.</exception>
+    [InstalledKey]
+    public static string RestingNameOf(CeresFloorActorPicture frame) => Enum.IsDefined(frame)
+        ? $"Ceres.Resting.{CeresFloorActorPictureKeys.Installed.Of(frame)}"
+        : throw new InvalidDataException($"Unknown Ceres floor actor picture {frame}.");
 
     /// <summary>The Ceres tileset.</summary>
     public TilesetDefinition Tileset { get; }

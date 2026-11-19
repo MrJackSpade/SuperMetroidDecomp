@@ -531,6 +531,9 @@ internal static class RoomBlockPicturesVerification
                 int tile = map[y / 8 * (FloorSheetComposer.SidePixels / 8) + x / 8];
                 int expected = pixels[tile * 64 + y % 8 * 8 + x % 8];
                 checkedPixels++;
+                // Where an actor rests on the floor, the actor's own picture shows there and the floor is clear (#2573).
+                if (shown.DrawnOver.Any(over => x >= -over.Origin.X && x < -over.Origin.X + over.Size.X && y >= -over.Origin.Y && y < -over.Origin.Y + over.Size.Y))
+                    continue;
                 if (x < left || x >= left + shown.Image.Size.X || y < top || y >= top + shown.Image.Size.Y)
                 {
                     if (expected != 0)

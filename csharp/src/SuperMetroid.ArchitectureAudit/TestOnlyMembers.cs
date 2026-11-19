@@ -20,6 +20,11 @@ namespace SuperMetroid.ArchitectureAudit;
 /// test-support with what it reaches, reaching private state through the same private-access members (#2570), so the
 /// census leaves it to the prune. The architecture audit's push gate fails on every finding.
 /// </para>
+/// <para>
+/// A private member, or a private accessor, is listed too when a check names it: a check binds to it only when nothing
+/// stands in for it, so its generated private-access member is missing, and the fix regenerates that member. The
+/// generated classes can therefore be deleted and rebuilt from the checks that name them.
+/// </para>
 /// </summary>
 internal static class TestOnlyMembers
 {
@@ -157,9 +162,9 @@ internal static class TestOnlyMembers
                     break;
                 case CommonForEachStatementSyntax loop:
                     ForEachStatementInfo each = SemanticModels.At(compilation, tree, loop).GetForEachStatementInfo(loop);
-                    Record(each.GetEnumeratorMethod, loop, Use);
-                    Record(each.MoveNextMethod, loop, Use);
-                    Record(each.CurrentProperty, loop, Read);
+                    Record(each.GetEnumeratorMethod, loop, Use, reaches: true);
+                    Record(each.MoveNextMethod, loop, Use, reaches: true);
+                    Record(each.CurrentProperty, loop, Read, reaches: true);
                     break;
                 case InitializerExpressionSyntax initializer when initializer.IsKind(SyntaxKind.CollectionInitializerExpression):
                     foreach (ExpressionSyntax element in initializer.Expressions)
@@ -172,18 +177,20 @@ internal static class TestOnlyMembers
 
         void RecordAll(SymbolInfo info, SyntaxNode site, string access)
         {
-            Record(info.Symbol, site, access);
+            Record(info.Symbol, site, access, reaches: true);
             foreach (ISymbol candidate in info.CandidateSymbols)
-                Record(candidate, site, access);
+                Record(candidate, site, access, reaches: info.CandidateReason == CandidateReason.Inaccessible);
         }
 
-        void Record(ISymbol? symbol, SyntaxNode site, string access)
+        // A site reaches a symbol it binds to, or the inaccessible candidate a check binds to for want of the private-access
+        // member standing in for it; a candidate of an overload or ambiguity failure reaches a private way of nothing.
+        void Record(ISymbol? symbol, SyntaxNode site, string access, bool reaches)
         {
             if (Normalize(symbol) is not { } member || !names.Contains(member.Name))
                 return;
             foreach (string way in WaysReached(member, access))
             {
-                if (!uses.TryGetValue(Key(member, way), out MemberUses? reached))
+                if (!uses.TryGetValue(Key(member, way), out MemberUses? reached) || !reaches && IsPrivate(member, way))
                     continue;
                 if (check)
                 {
@@ -219,7 +226,7 @@ internal static class TestOnlyMembers
         _ => [Use],
     };
 
-    /// <summary>The ways a candidate member can be reached, each of which is checked on its own.</summary>
+    /// <summary>The ways a candidate member can be reached, private ones included, each of which is checked on its own.</summary>
     private static IEnumerable<string> Ways(ISymbol member)
     {
         if (member is not IPropertySymbol property)
@@ -227,16 +234,25 @@ internal static class TestOnlyMembers
             yield return Use;
             yield break;
         }
-        if (property.GetMethod is { DeclaredAccessibility: not Accessibility.Private })
+        if (property.GetMethod is not null)
             yield return Read;
-        if (property.SetMethod is { DeclaredAccessibility: not Accessibility.Private })
+        if (property.SetMethod is not null)
             yield return Write;
     }
 
+    /// <summary>Whether a way of reaching a member is private: the member itself, or the accessor the way names.</summary>
+    private static bool IsPrivate(ISymbol member, string way) => way switch
+    {
+        Read => ((IPropertySymbol)member).GetMethod!.DeclaredAccessibility == Accessibility.Private,
+        Write => ((IPropertySymbol)member).SetMethod!.DeclaredAccessibility == Accessibility.Private,
+        _ => member.DeclaredAccessibility == Accessibility.Private,
+    };
+
     /// <summary>
-    /// Whether <paramref name="member"/> is one whose width the census judges: a non-private field, property, ordinary
-    /// method, constructor or event that nothing outside the repository's own calls demands be wide (an override, an
-    /// interface implementation, a virtual or abstract member, an operator, a serializer constructor, an entry point).
+    /// Whether <paramref name="member"/> is one whose width the census judges: a field, property, ordinary method,
+    /// constructor or event, private ones included (a check naming one lacks its private-access member), that nothing
+    /// outside the repository's own calls demands be wide (an override, an interface implementation, a virtual or
+    /// abstract member, an operator, a serializer constructor, an entry point).
     /// </summary>
     private static bool IsCandidate(ISymbol member, HashSet<ISymbol> implementations)
     {
@@ -248,13 +264,12 @@ internal static class TestOnlyMembers
             return false;
         return member switch
         {
-            IFieldSymbol field => field.DeclaredAccessibility != Accessibility.Private && field.AssociatedSymbol is null,
+            IFieldSymbol field => field.AssociatedSymbol is null,
             // A record's components are its value: its synthesized equality, hashing and deconstruction read them.
-            IPropertySymbol property => property.ExplicitInterfaceImplementations.IsEmpty && Ways(property).Any() &&
+            IPropertySymbol property => property.ExplicitInterfaceImplementations.IsEmpty &&
                 property.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax() is not ParameterSyntax,
-            IEventSymbol @event => @event.DeclaredAccessibility != Accessibility.Private && @event.ExplicitInterfaceImplementations.IsEmpty,
-            IMethodSymbol method => method.DeclaredAccessibility != Accessibility.Private &&
-                method.MethodKind is MethodKind.Ordinary or MethodKind.Constructor && method.Name != "Main" &&
+            IEventSymbol @event => @event.ExplicitInterfaceImplementations.IsEmpty,
+            IMethodSymbol method => method.MethodKind is MethodKind.Ordinary or MethodKind.Constructor && method.Name != "Main" &&
                 method.ExplicitInterfaceImplementations.IsEmpty,
             _ => false,
         };

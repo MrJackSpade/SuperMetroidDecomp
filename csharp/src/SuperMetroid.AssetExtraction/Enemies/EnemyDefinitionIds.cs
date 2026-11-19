@@ -11,13 +11,6 @@ internal static class EnemyDefinitionIds
 {
 
     /// <summary>
-    /// The species a stored bank-$A0 header pointer names, when it names one. A header several actors share
-    /// (<see cref="EnemyHeaderWords.SharedHeaders"/>) names none of them alone: its placement's parameters select the actor.
-    /// </summary>
-    internal static bool TryFromHeaderPointer(int pointer, out EnemyDefinitionId id) =>
-        EnemyHeaderWords.Headers.TryDecode(pointer, out id) && id != EnemyDefinitionId.None;
-
-    /// <summary>
     /// The bank-$A0 header pointer of <paramref name="id"/>: its own, or the header it shares with the other actors the
     /// cartridge places by it (<see cref="EnemyHeaderWords.SharedHeaders"/>); zero for the cleared slot.
     /// </summary>

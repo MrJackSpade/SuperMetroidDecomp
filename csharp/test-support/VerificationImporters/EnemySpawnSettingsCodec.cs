@@ -252,7 +252,7 @@ internal static class EnemySpawnSettingsCodec
     /// </summary>
     /// <exception cref="InvalidDataException">The pointer names no placeable header, or its parameter selects no actor.</exception>
     public static EnemyDefinitionId PlacedActor(int headerPointer, int parameter1) =>
-        EnemyDefinitionIds.TryFromHeaderPointer(headerPointer, out EnemyDefinitionId enemy) ? enemy
+        EnemyDefinitionIdsConstants2.TryFromHeaderPointer(headerPointer, out EnemyDefinitionId enemy) ? enemy
         : SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWords.UnplacedArtworkHeaders.TryDecode(headerPointer, out UnplacedEnemyArtwork shared)
             && shared == UnplacedEnemyArtwork.CeresDoors
             ? CeresDoorHeaderPlacement(parameter1).Actor

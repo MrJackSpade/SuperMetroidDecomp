@@ -116,7 +116,7 @@ internal static class TorizoSwapArtworkVerification
         ShowTorizoArtwork(goldenEnemies, goldenPlace, EncounterArtwork.GoldenTorizo, goldenAwakening);
         EncounterLook goldenLook = goldenAwakening.Of(EncounterArtwork.GoldenTorizo);
         AssertTrue(goldenEnemies.Presentation.Looks.Shows(goldenLook), "Golden Torizo's first look is its awakening");
-        AssertEqual(1, EncounterLookUploads.IndexOf(ComposedEncounter.GoldenTorizo, goldenLook),
+        AssertEqual(1, EncounterLookUploadsConstants.IndexOf(ComposedEncounter.GoldenTorizo, goldenLook),
             "Golden Torizo's awakening is the first look after its room's load");
         EncounterArtworkUpload awakening = UploadsOf(goldenLook, stock).Single();
         AssertEqual((0x6d00 - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2, awakening.FirstByte,
@@ -133,7 +133,7 @@ internal static class TorizoSwapArtworkVerification
     private static IReadOnlyList<EncounterArtworkUpload> UploadsOf(EncounterLook look, ImportEnemyArtwork stock)
     {
         ComposedEncounter torizo = look.Encounter == EncounterArtwork.GoldenTorizo ? ComposedEncounter.GoldenTorizo : ComposedEncounter.BombTorizo;
-        return EncounterLookUploads.Uploads(torizo, EncounterLookUploads.IndexOf(torizo, look), new EnemyTileTransfers(stock));
+        return EncounterLookUploads.Uploads(torizo, EncounterLookUploadsConstants.IndexOf(torizo, look), new EnemyTileTransfers(stock));
     }
 
     /// <summary>Shows artwork look <paramref name="look"/> through the production cue of <paramref name="torizo"/>, whose programs make it.</summary>

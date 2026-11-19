@@ -33,9 +33,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Rio.</summary>
     internal static void InitializeRio(RoomEnemyPlace place)
     {
-        var state = new RioEnemyState(RioAction.WaitingForSamus)
-        {
-        };
+        var state = new RioEnemyState(RioAction.WaitingForSamus);
         place.SetSpeciesState(state);
 
         // The Rio rests in its idle animation until its first swoop starts another.

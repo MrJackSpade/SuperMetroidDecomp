@@ -7,6 +7,6 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// cut from (#1467); the game selects the composed sheets by scene state and keeps no transfer history.
 /// </summary>
 /// <param name="Kind">The transfer.</param>
-/// <param name="Chunk">The post-shot part a <see cref="EndingTransferKind.PostShotPart"/> transfer makes; zero otherwise.</param>
+/// <param name="PostShotPart">The post-shot part a <see cref="EndingTransferKind.PostShotPart"/> transfer makes; null otherwise.</param>
 /// <param name="Fragment">The explosion map an <see cref="EndingTransferKind.ExplosionMap"/> transfer loads; null otherwise.</param>
-internal sealed record EndingTransfer(EndingTransferKind Kind, int Chunk = 0, EndingExplosionPicture? Fragment = null);
+internal sealed record EndingTransfer(EndingTransferKind Kind, int? PostShotPart = null, EndingExplosionPicture? Fragment = null);

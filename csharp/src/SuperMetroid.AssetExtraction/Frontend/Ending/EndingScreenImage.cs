@@ -45,7 +45,8 @@ internal static class EndingScreenImage
                 ExecuteCreditsCharacterArt(ending, artwork);
                 break;
             case EndingTransferKind.PostShotPart:
-                ExecutePostShotPart(vram, transfer.Chunk, artwork);
+                ExecutePostShotPart(vram, transfer.PostShotPart ?? throw new InvalidOperationException("A post-shot transfer names its part."),
+                    artwork);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(transfer), transfer.Kind, "Undefined ending transfer.");
@@ -60,9 +61,13 @@ internal static class EndingScreenImage
         ending.WaitingCharacters.Load(waiting[..EndingTransferExtentDefinitions.WaitingCharacterBytes]);
         ending.PostCreditsObjects.Load(objects.ShootingScreen.Characters.Span[..EndingTransferExtentDefinitions.ShootingCharacterBytes]);
         ending.WaitingTilemap.Load(MapBytes(objects.WaitingTilemap).AsSpan(0, EndingTransferExtentDefinitions.WaitingTilemapBytes));
-        // Function 126 selects suitless (<3h) or suited (>=3h) art; the latter reuses the waiting-scene sheet.
-        ReadOnlySpan<byte> reward = artwork.Reward == EndingReward.Suitless ? objects.SuitlessSamus.Characters.Span : waiting;
-        ending.RewardCharacters.Load(reward[..EndingArtworkExtentDefinitions.FloorBytes]);
+        // Function 126 selects suitless (<3h) or suited (>=3h) art; the latter reuses the waiting-scene sheet. A page that
+        // shows no reward leaves the reward's characters unloaded.
+        if (artwork.Reward is EndingReward shown)
+        {
+            ReadOnlySpan<byte> reward = shown == EndingReward.Suitless ? objects.SuitlessSamus.Characters.Span : waiting;
+            ending.RewardCharacters.Load(reward[..EndingArtworkExtentDefinitions.FloorBytes]);
+        }
         ending.PostCreditsFragmentA.Load(objects.PostCreditsFragmentA.Characters.Span[..EndingTransferExtentDefinitions.PostCreditsFragmentABytes]);
         ending.PostCreditsFragmentB.Load(MapBytes(objects.PostCreditsFragmentB).AsSpan(0, EndingTransferExtentDefinitions.ObjectFragmentBytes));
     }

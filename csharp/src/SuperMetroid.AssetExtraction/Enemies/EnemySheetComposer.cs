@@ -59,8 +59,8 @@ internal static class EnemySheetComposer
         {
             GraphicsSetSheetSources setSources = Sources(inputs, drawnSets[index]);
             setLayouts[index] = new SetLayouts(setSources,
-                [.. setSources.Enemies.Select(source => new SpriteSheetLayout(source.Sources, 0, 0))],
-                [.. setSources.Spawned.Select(source => new SpriteSheetLayout(source.Sources, 0, 0))]);
+                [.. setSources.Enemies.Select(source => new SpriteSheetLayout(source.Sources, EnemySheetShades.SheetRow, 0))],
+                [.. setSources.Spawned.Select(source => new SpriteSheetLayout(source.Sources, EnemySheetShades.SheetRow, 0))]);
         });
         for (int index = 0; index < drawnSets.Length; index++)
         {

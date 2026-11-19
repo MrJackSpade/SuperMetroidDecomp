@@ -7,4 +7,4 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// <param name="Objects">The ending's OBJ sheets, maps and post-credits art.</param>
 /// <param name="Font">The ending font.</param>
 /// <param name="Reward">The post-credits reward, which selects the reward characters.</param>
-internal sealed record EndingTransferArtwork(ImportEndingObjectArtwork? Objects, EndingFontCharacters? Font, EndingReward Reward);
+internal sealed record EndingTransferArtwork(ImportEndingObjectArtwork? Objects, EndingFontCharacters? Font, EndingReward? Reward);

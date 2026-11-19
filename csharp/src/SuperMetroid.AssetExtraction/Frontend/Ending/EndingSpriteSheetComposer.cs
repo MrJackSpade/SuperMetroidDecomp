@@ -202,9 +202,9 @@ internal static class EndingSpriteSheetComposer
     {
         return sheet switch
         {
-            SpriteSheetId.EndingCloudSprites => new(EndingReward.Armored, [new EndingTransfer(EndingTransferKind.EscapeClouds)],
+            SpriteSheetId.EndingCloudSprites => new(null, [new EndingTransfer(EndingTransferKind.EscapeClouds)],
                 [CinematicSpriteFamily.EndingCloud], Logo: false, EscapeColours),
-            SpriteSheetId.EndingExplosionSprites => new(EndingReward.Armored,
+            SpriteSheetId.EndingExplosionSprites => new(null,
                 [
                     new EndingTransfer(EndingTransferKind.ExplosionObjects),
                     .. EndingObjectArtworkFormat.ExplosionPictures.Select(fragment => new EndingTransfer(EndingTransferKind.ExplosionMap, Fragment: fragment)),
@@ -253,9 +253,9 @@ internal static class EndingSpriteSheetComposer
 
     /// <summary>
     /// The shooting scene: the falling, landing and shooting Samus and the stars over the post-credits art, and the logo
-    /// the scene ends on over its own characters. The reward's characters lie outside this page, so any reward shows it.
+    /// the scene ends on over its own characters. The reward's characters lie outside this page, so it dresses none.
     /// </summary>
-    private static EndingPage Shooting => new(EndingReward.Armored,
+    private static EndingPage Shooting => new(null,
         [new EndingTransfer(EndingTransferKind.CreditsCharacterArt)], [CinematicSpriteFamily.EndingReward], Logo: true, PostCreditsColours);
 
     /// <summary>The escape scenes' sprite colours.</summary>
@@ -268,10 +268,10 @@ internal static class EndingSpriteSheetComposer
     private static RgbColor[] SpritesOf(EndingPaletteSet palettes, EndingPaletteId palette) => palettes[palette].Sprites.ToArray();
 
     /// <summary>
-    /// A scene of the ending: the reward the scene's transfers dress, those transfers in order, the families it shows over them, whether it also holds the logo over the logo's own characters, and the
+    /// A scene of the ending: the reward the scene's transfers dress, null for a scene that shows none, those transfers in order, the families it shows over them, whether it also holds the logo over the logo's own characters, and the
     /// sprite colours its scene loads.
     /// </summary>
-    private sealed record EndingPage(EndingReward Reward, IReadOnlyList<EndingTransfer> Transfers,
+    private sealed record EndingPage(EndingReward? Reward, IReadOnlyList<EndingTransfer> Transfers,
         IReadOnlyList<CinematicSpriteFamily> Families, bool Logo,
         Func<EndingPaletteSet, RgbColor[]> SpriteColours);
 }

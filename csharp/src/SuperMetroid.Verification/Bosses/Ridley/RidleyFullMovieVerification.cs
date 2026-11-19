@@ -654,7 +654,7 @@ internal static class RidleyFullMovieVerification
             {
                 menu.Step(0, 0);
                 AssertEqual(update / 2, menu.TransitionBrightness, "native delay-one fade-in brightness");
-                AssertEqual(update == 30, menu.Transition == PauseMenuTransition.None,
+                AssertEqual(update == 30, menu.Transition is null,
                     "input returns only after the thirtieth fade-in update");
             }
         }

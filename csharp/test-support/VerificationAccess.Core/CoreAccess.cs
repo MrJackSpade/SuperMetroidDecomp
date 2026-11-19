@@ -114,7 +114,7 @@ internal static class CoreAccess
     extension(PauseMenuState pause)
     {
         /// <summary>True while an L/R page switch is fading out, loading or fading in.</summary>
-        internal bool PageTransitionActive => pause.Transition != PauseMenuTransition.None;
+        internal bool PageTransitionActive => pause.Transition is not null;
         /// <summary>Map-space scroll point currently displayed by the pause menu.</summary>
         internal Offset16<MapPixels> MapScroll => pause.MapScrollPosition;
 

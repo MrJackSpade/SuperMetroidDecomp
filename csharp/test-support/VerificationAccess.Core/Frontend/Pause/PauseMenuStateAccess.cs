@@ -40,7 +40,7 @@ internal static class PauseMenuStateAccess
             self.FrameMap(new MapScroll(self.ActiveMapScroll.Framing, self.ActiveMapScroll.Limits, scroll));
 
         /// <summary>True while a map/equipment page change is fading or loading; page input waits for it.</summary>
-        internal bool IsPageTransitionActive => self.Transition != default;
+        internal bool IsPageTransitionActive => self.Transition is not null;
 
         /// <summary>The column the cursor is in: its selected control's category.</summary>
         internal PauseEquipmentCategory SelectedCategory => self.SelectedControl.Category;

@@ -20,26 +20,10 @@ internal static class EndingCreditsPresentation
         if (ending.UsesExplosionFinaleDisplay) return ending.CaptureExplosionFinale();
         var layers = new List<DisplayLayer>();
         FramePaint paint = Paint(ending);
-        switch (ending.Scene)
-        {
-            case EndingLogoScene { Logo: var logo }:
-                return CaptureLogo(ending, logo, paint);
-            case EndingTypingScene { Logo: var logo }:
-                return CaptureLogo(ending, logo, paint);
-            case EndingPostShotScene { Shot: var shot }:
-                // The reward's shot scene lies behind the turning planet, which darkens where the sprites lie behind it.
-                layers.Add(Sprites(ending));
-                if (ending.Floor() is { } floor) layers.Add(new TurningFloorLayer(PostShotTransform(shot), floor, FloorColorBlend.SubtractSprites));
-                return new(paint, layers.ToArray(), ending.Stage.Brightness);
-            case EndingCreditsRollScene { Scroll: var scroll }:
-                // Credits intentionally do not run the sprite draw step.
-                layers.Add(new PicturedPlaneLayer(ending.CreditsPlane(), Offset16<PlanePixels>.Of(0, scroll.ScrolledPixels)));
-                return new(paint, layers.ToArray(), ending.Stage.Brightness);
-            case EndingCastScene or EndingRewardRevealScene or EndingRewardGestureScene or EndingRewardJumpScene or EndingWhiteFlashScene:
-                break;
-            default:
-                throw new InvalidOperationException($"The ending's presentation draws no {ending.Scene.GetType().Name}.");
-        }
+        // The credits intentionally do not run the sprite draw step; the logo, its typed texts and the reward's shot draw
+        // their own screens too.
+        if (ending.Scene.CaptureOwnScreen(ending, paint) is { } own)
+            return own;
         bool waiting = ending.Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop;
         RgbColor? skyWhite = FlyawaySkyWhite(ending)?.Colour;
         if (EndingCreditsPhaseGroups.PostCredits.Contains(ending.Phase))
@@ -93,10 +77,20 @@ internal static class EndingCreditsPresentation
     }
 
     /// <summary>
+    /// The reward's shot screen: the shot scene lies behind the turning planet, which darkens where the sprites lie behind it.
+    /// </summary>
+    internal static LayeredScene CapturePostShot(EndingCreditsState ending, EndingPostShot shot, FramePaint paint)
+    {
+        var layers = new List<DisplayLayer> { Sprites(ending) };
+        if (ending.Floor() is { } floor) layers.Add(new TurningFloorLayer(PostShotTransform(shot), floor, FloorColorBlend.SubtractSprites));
+        return new(paint, layers.ToArray(), ending.Stage.Brightness);
+    }
+
+    /// <summary>
     /// The final logo's screen: while the logo's picture fades in, the picture with the logo's sprites glowing over it; then
     /// the post-credits text in front.
     /// </summary>
-    private static LayeredScene CaptureLogo(EndingCreditsState ending, EndingLogo logo, FramePaint paint)
+    internal static LayeredScene CaptureLogo(EndingCreditsState ending, EndingLogo logo, FramePaint paint)
     {
         var layers = new List<DisplayLayer>();
         bool crossfading = logo.CrossfadeStarted;
@@ -191,56 +185,38 @@ internal static class EndingCreditsPresentation
         var sprites = new ScreenSprites();
         sprites.BeginFrame();
         // A scene's own actors show on the actors' layer; the cast's each on its own role's layer.
-        bool showsActors = Shows(EndingSpriteLayer.Actors);
-        switch (ending.Scene)
-        {
-            case EndingLogoScene { Logo: var logo }:
-                if (showsActors) logo.Draw(sprites, Family(CinematicSpriteFamily.EndingLogo));
-                break;
-            case EndingTypingScene { Logo: var logo }:
-                if (showsActors) logo.Draw(sprites, Family(CinematicSpriteFamily.EndingLogo));
-                break;
-            case EndingRewardGestureScene { Gesture: var gesture }:
-                if (showsActors) gesture.Draw(sprites, Family(CinematicSpriteFamily.EndingReward));
-                break;
-            case EndingRewardJumpScene { Jump: var jump }:
-                if (showsActors) DrawJump(jump);
-                break;
-            case EndingPostShotScene { Jump: var jump }:
-                if (showsActors) DrawJump(jump);
-                break;
-            case EndingWhiteFlashScene { Jump: var jump }:
-                if (showsActors) DrawJump(jump);
-                break;
-            case EndingCastScene or EndingRewardRevealScene or EndingCreditsRollScene:
-                var art = new EndingSpriteArt(Family, Sheet(EndingSpriteSheets.Of(EndingTextAnimations.Family, ending.Stage.EndingReward)),
-                    ending.screen.Colours.Drawn);
-                foreach (EndingSprite wrapper in ending.sprites)
-                {
-                    if (Shows(wrapper.Definition.Layer))
-                        wrapper.Draw(sprites, art);
-                }
-                break;
-            default:
-                throw new InvalidOperationException($"The ending's presentation draws no {ending.Scene.GetType().Name}.");
-        }
+        ending.Scene.DrawActors(ending, sprites, Shows);
         if (EndingCreditsPhaseGroups.PostCredits.Contains(ending.Phase) && Shows(EndingSpriteLayer.Stars))
-            ending.CreditsRoll.ShootingStars.Draw(sprites, Sheet(EndingSpriteSheets.Reward(ending.Stage.EndingReward)),
+            ending.CreditsRoll.ShootingStars.Draw(sprites, Sheet(ending, EndingSpriteSheets.Reward(ending.Stage.EndingReward)),
                 ending.screen.Colours.Drawn(EndingShades.Drawn(EndingShootingStarDefinitions.Colouring)));
         sprites.FinishFrame();
         return sprites;
 
-        // The jumping Samus's frames, and the falling Samus's once she falls back.
-        void DrawJump(EndingRewardJump jump) => jump.Draw(sprites, Family(CinematicSpriteFamily.EndingReward),
-            new CinematicSpriteSheet(Sheet(EndingSpriteSheets.FallingSamusAndLogo), CinematicSpriteFamily.EndingReward, ending.screen.Colours.Drawn));
-
         // Whether the sprites of the layer are placed.
         bool Shows(EndingSpriteLayer layer) => only is null || only == layer;
-
-        // A family's frames from the sheet they lie on, drawn in the ending's colours under the colouring each actor names.
-        IIntroCinematicSpritePresentation Family(CinematicSpriteFamily family) =>
-            new CinematicSpriteSheet(Sheet(EndingSpriteSheets.Of(family, ending.Stage.EndingReward)), family, ending.screen.Colours.Drawn);
-
-        SpriteSheet Sheet(SpriteSheetId sheet) => ending.InstalledArtwork.SpriteSheet(sheet);
     }
+
+    /// <summary>Places the ending's cast, each actor on its own role's layer when <paramref name="shows"/> that layer.</summary>
+    internal static void DrawCast(EndingCreditsState ending, ScreenSprites sprites, Func<EndingSpriteLayer, bool> shows)
+    {
+        var art = new EndingSpriteArt(family => ActorArt(ending, family),
+            Sheet(ending, EndingSpriteSheets.Of(EndingTextAnimations.Family, ending.Stage.EndingReward)), ending.screen.Colours.Drawn);
+        foreach (EndingSprite wrapper in ending.sprites)
+        {
+            if (shows(wrapper.Definition.Layer))
+                wrapper.Draw(sprites, art);
+        }
+    }
+
+    /// <summary>Places the jumping Samus's frames, and the falling Samus's once she falls back.</summary>
+    internal static void DrawJump(EndingCreditsState ending, ScreenSprites sprites, EndingRewardJump jump) =>
+        jump.Draw(sprites, ActorArt(ending, CinematicSpriteFamily.EndingReward),
+            new CinematicSpriteSheet(Sheet(ending, EndingSpriteSheets.FallingSamusAndLogo), CinematicSpriteFamily.EndingReward, ending.screen.Colours.Drawn));
+
+    /// <summary>A family's frames from the sheet they lie on, drawn in the ending's colours under the colouring each actor names.</summary>
+    internal static IIntroCinematicSpritePresentation ActorArt(EndingCreditsState ending, CinematicSpriteFamily family) =>
+        new CinematicSpriteSheet(Sheet(ending, EndingSpriteSheets.Of(family, ending.Stage.EndingReward)), family, ending.screen.Colours.Drawn);
+
+    /// <summary>One of the installed sprite sheets the ending draws from.</summary>
+    private static SpriteSheet Sheet(EndingCreditsState ending, SpriteSheetId sheet) => ending.InstalledArtwork.SpriteSheet(sheet);
 }

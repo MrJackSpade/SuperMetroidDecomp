@@ -1,3 +1,8 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>The reward's gesture (#2541): the suitless or helmet-removal actors, until they ask for the jump.</summary>
@@ -6,4 +11,18 @@ internal sealed class EndingRewardGestureScene(EndingRewardGesture gesture) : En
 {
     /// <summary>The gesture's actors.</summary>
     internal EndingRewardGesture Gesture { get; } = Ensure.NotNull(gesture);
+
+    /// <inheritdoc/>
+    internal override bool Step(EndingCreditsState ending)
+    {
+        ending.StepGesture(this);
+        return true;
+    }
+
+    /// <inheritdoc/>
+    internal override void DrawActors(EndingCreditsState ending, ScreenSprites sprites, Func<EndingSpriteLayer, bool> shows)
+    {
+        if (shows(EndingSpriteLayer.Actors))
+            Gesture.Draw(sprites, EndingCreditsPresentation.ActorArt(ending, CinematicSpriteFamily.EndingReward));
+    }
 }

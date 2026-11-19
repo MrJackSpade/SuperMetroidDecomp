@@ -137,59 +137,8 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     /// <exception cref="InvalidOperationException">The phase is not one the scene showing runs.</exception>
     public void Step()
     {
-        switch (Scene)
-        {
-            case EndingCastScene:
-                // Each setup wait ends the update inside the setup phase, before the phase's own work; the update after the
-                // last wait runs the scene setup.
-                if (!StepCast())
-                    return;
-                break;
-            case EndingCreditsRollScene { Scroll: var scroll }:
-                StepCredits(scroll);
-                break;
-            case EndingRewardRevealScene reveal:
-                StepRewardReveal(reveal);
-                break;
-            case EndingRewardGestureScene { Gesture: var gesture }:
-                RequirePhase(EndingCreditsPhase.PostCreditsGesture);
-                if (gesture.Step())
-                    Show(EndingCreditsPhase.PostCreditsJump, new EndingRewardJumpScene(new EndingRewardJump(Stage.EndingReward)));
-                break;
-            case EndingRewardJumpScene { Jump: var jump }:
-                RequirePhase(EndingCreditsPhase.PostCreditsJump);
-                if (jump.Step())
-                {
-                    Show(EndingCreditsPhase.PostCreditsShot, new EndingPostShotScene(jump, new EndingPostShot()));
-                    audio.QueueSound(EndingPostShotDefinitions.ShotSound, EndingPostShotDefinitions.ShotSoundPriority);
-                }
-                break;
-            case EndingPostShotScene { Jump: var jump, Shot: var shot }:
-                RequirePhase(EndingCreditsPhase.PostCreditsShot);
-                // The cinematic phase runs before actors; colour fades and queued
-                // picture replacements therefore precede the next sprite cue.
-                shot.Step(screen);
-                jump.Step();
-                if (shot.ReadyForWhiteFlash)
-                    Show(EndingCreditsPhase.PostCreditsWhiteFlash, new EndingWhiteFlashScene(jump, CreditsRoll.BeginPostCreditsWhiteFlash()),
-                        EndingPostShotDefinitions.FadeFrames);
-                break;
-            case EndingWhiteFlashScene { Jump: var jump, Flash: var flash }:
-                RequirePhase(EndingCreditsPhase.PostCreditsWhiteFlash);
-                flash.Fade();
-                jump.Step();
-                if (PhaseHold.Count())
-                    Show(EndingCreditsPhase.PostCreditsLogo, new EndingLogoScene(CreditsRoll.FinishPostCreditsWhiteFlash()));
-                break;
-            case EndingLogoScene logo:
-                StepLogo(logo);
-                break;
-            case EndingTypingScene typing:
-                StepTyping(typing);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined ending scene {Scene.GetType().Name}.");
-        }
+        if (!Scene.Step(this))
+            return;
 
         // The cinematic runs its colour effects after actors; the ending's colours show the frame each shows (#1512, #1597).
         // The screen binds no audio requests, so an effect that made a sound would fail loudly (#2057).
@@ -199,6 +148,51 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
         if (EndingCreditsPhaseGroups.PostCredits.Contains(Phase))
             CreditsRoll.ShootingStars.Step();
         cinematicFrame++;
+    }
+
+    /// <summary>Runs one update of the reward's gesture, which hands over to its jump as the gesture ends.</summary>
+    internal void StepGesture(EndingRewardGestureScene scene)
+    {
+        RequirePhase(EndingCreditsPhase.PostCreditsGesture);
+        if (scene.Gesture.Step())
+            Show(EndingCreditsPhase.PostCreditsJump, new EndingRewardJumpScene(new EndingRewardJump(Stage.EndingReward)));
+    }
+
+    /// <summary>Runs one update of the reward's jump, which hands over to its shot, with the shot's sound, as Samus lands.</summary>
+    internal void StepJump(EndingRewardJumpScene scene)
+    {
+        RequirePhase(EndingCreditsPhase.PostCreditsJump);
+        EndingRewardJump jump = scene.Jump;
+        if (jump.Step())
+        {
+            Show(EndingCreditsPhase.PostCreditsShot, new EndingPostShotScene(jump, new EndingPostShot()));
+            audio.QueueSound(EndingPostShotDefinitions.ShotSound, EndingPostShotDefinitions.ShotSoundPriority);
+        }
+    }
+
+    /// <summary>Runs one update of the reward's shot over the landed Samus, which hands over to the white flash.</summary>
+    internal void StepPostShot(EndingPostShotScene scene)
+    {
+        RequirePhase(EndingCreditsPhase.PostCreditsShot);
+        EndingRewardJump jump = scene.Jump;
+        EndingPostShot shot = scene.Shot;
+        // The cinematic phase runs before actors; colour fades and queued
+        // picture replacements therefore precede the next sprite cue.
+        shot.Step(screen);
+        jump.Step();
+        if (shot.ReadyForWhiteFlash)
+            Show(EndingCreditsPhase.PostCreditsWhiteFlash, new EndingWhiteFlashScene(jump, CreditsRoll.BeginPostCreditsWhiteFlash()),
+                EndingPostShotDefinitions.FadeFrames);
+    }
+
+    /// <summary>Runs one update of the white flash over the landed Samus, which hands over to the final logo as its hold ends.</summary>
+    internal void StepWhiteFlash(EndingWhiteFlashScene scene)
+    {
+        RequirePhase(EndingCreditsPhase.PostCreditsWhiteFlash);
+        scene.Flash.Fade();
+        scene.Jump.Step();
+        if (PhaseHold.Count())
+            Show(EndingCreditsPhase.PostCreditsLogo, new EndingLogoScene(CreditsRoll.FinishPostCreditsWhiteFlash()));
     }
 
     /// <summary>Fails unless the ending runs <paramref name="phase"/>, a phase of the scene showing.</summary>
@@ -215,7 +209,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     /// </summary>
     /// <returns>Whether the update goes on past the phase to the ending's colour effects and stars: false for a setup wait.</returns>
     /// <exception cref="InvalidOperationException">The phase is not one the cast shows.</exception>
-    private bool StepCast()
+    internal bool StepCast()
     {
         switch (Phase)
         {
@@ -491,7 +485,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     }
 
     /// <summary>One update of the staff credits, whose end blanks the screen for the post-credits scenes' first hold.</summary>
-    private void StepCredits(CreditsScroll scroll)
+    internal void StepCredits(CreditsScroll scroll)
     {
         RequirePhase(EndingCreditsPhase.Credits);
         scroll.Step();
@@ -506,7 +500,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     /// showing the copyright alone, and the second half's end starts the reward's gesture.
     /// </summary>
     /// <exception cref="InvalidOperationException">The phase is not one the reveal runs.</exception>
-    private void StepRewardReveal(EndingRewardRevealScene reveal)
+    internal void StepRewardReveal(EndingRewardRevealScene reveal)
     {
         if (Phase == EndingCreditsPhase.PostCreditsCopyright)
         {
@@ -541,7 +535,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     /// percentage's move down, whose end starts the final message.
     /// </summary>
     /// <exception cref="InvalidOperationException">The phase is not one the logo runs.</exception>
-    private void StepLogo(EndingLogoScene scene)
+    internal void StepLogo(EndingLogoScene scene)
     {
         if (Phase == EndingCreditsPhase.ItemPercentageScrollDown)
         {
@@ -563,7 +557,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     /// the final message, which the ending stays on.
     /// </summary>
     /// <exception cref="InvalidOperationException">The phase is not one a typed text runs.</exception>
-    private void StepTyping(EndingTypingScene scene)
+    internal void StepTyping(EndingTypingScene scene)
     {
         if (Phase == EndingCreditsPhase.SeeYouNextMission)
         {

@@ -60,7 +60,7 @@ internal static class ProjectileFrameBindingsVerification
                 "native inventory contains timed records");
             shots.Animation.AdvanceProjectileAnimation(installedShot);
             AssertEqual(false, !installedShot.IsActive,
-                "installed projectile frame survives"));
+                "installed projectile frame survives");
             AssertEqual(nativeShot.SpritemapPointer, installedShot.SpritemapPointer,
                 "installed projectile frame selects the native sprite");
             AssertEqual<int?>(still ? null : nativeShot.NativeFrameHold, installedShot.NativeFrameHold,
@@ -75,7 +75,7 @@ internal static class ProjectileFrameBindingsVerification
                 continue;
             bombs.AdvanceProjectileAnimation(installedBomb);
             AssertEqual(false, !installedBomb.IsActive,
-                "installed bomb frame survives"));
+                "installed bomb frame survives");
             AssertEqual(nativeBomb.SpritemapPointer, installedBomb.SpritemapPointer,
                 "installed bomb frame selects the native sprite");
             AssertEqual(nativeBomb.NativeFrameHold, installedBomb.NativeFrameHold,

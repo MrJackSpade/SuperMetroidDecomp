@@ -174,7 +174,7 @@ public static class SpcAudioAssetExtractor
             int loop = ReadWord(ram, directory + 2);
             if (start == 0 || !written[start])
                 continue;
-            if (!TryDecodeBrr(ram, written, start, loop, out short[] pcm, out _, out int? loopSample))
+            if (!TryDecodeBrr(ram, written, start, loop, out short[] pcm, out int? loopSample))
                 continue;
 
             string sampleId = canonicalSamples.Add(
@@ -267,7 +267,6 @@ public static class SpcAudioAssetExtractor
         int start,
         int loop,
         out short[] pcm,
-        out int blockCount,
         out int? loopSampleIndex)
     {
         List<short> samples = [];
@@ -277,7 +276,7 @@ public static class SpcAudioAssetExtractor
         int old = 0;
         int older = 0;
         bool followingLoop = false;
-        blockCount = 0;
+        int blockCount = 0;
         while (samples.Count < BrrExtractionLimits.MaximumDecodedLoopSamples)
         {
             if (!followingLoop && blockCount >= MaximumBrrBlocks)

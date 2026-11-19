@@ -150,11 +150,11 @@ internal static class ProjectileInstructionsVerification
                     }
                 }
                 system.Animation.AdvanceProjectileAnimation(slot);
-                AssertEqual(deleted, !slot.IsActive, "Native delete/timed outcome"));
+                AssertEqual(deleted, !slot.IsActive, "Native delete/timed outcome");
                 if (bombPlays)
                 {
                     bombs.AdvanceProjectileAnimation(bomb);
-                    AssertEqual(deleted, !bomb.IsActive, "Bomb native delete/timed outcome"));
+                    AssertEqual(deleted, !bomb.IsActive, "Bomb native delete/timed outcome");
                 }
                 frames++;
                 if (deleted)

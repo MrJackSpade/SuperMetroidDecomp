@@ -141,9 +141,10 @@ internal static class SpeedBoosterObjectProgramsVerification
             CreateSpeedBoosterBlockFixture(RoomBlockBehaviorCodec.Decode(AreaId.Brinstar, 0x82),
                 AreaId.Brinstar);
         var bombGuard = NewSpeedBoosterObjectReadGuard(bombBus);
-        AssertTrue(bombObjects.BlockReactions.TrySpawnBombedSpecialBlock(bombLevel, bombLevel.BlockAt(bombBlock),
-                RoomBlockBehaviorCodec.Decode(AreaId.Brinstar, 0x82), SamusProjectileType.Of(SamusProjectileFamily.Bomb)),
-            "normal bomb allocates the Speed Booster reveal PLM");
+        int activeBeforeBomb = bombObjects.Places.ActiveCount;
+        bombObjects.BlockReactions.TrySpawnBombedSpecialBlock(bombLevel, bombLevel.BlockAt(bombBlock),
+            RoomBlockBehaviorCodec.Decode(AreaId.Brinstar, 0x82), SamusProjectileType.Of(SamusProjectileFamily.Bomb));
+        AssertEqual(activeBeforeBomb + 1, bombObjects.Places.ActiveCount, "normal bomb allocates the Speed Booster reveal PLM");
         bombObjects.Step(bombLevel);
         AssertEqual(RoomTerrainBlock.Of(0x0b6, BlockMirroring.None, RoomCollisionType.SpecialBlock),
             bombLevel.GetCollisionBlockByIndex(bombBlock).Terrain,

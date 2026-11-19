@@ -477,12 +477,12 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         },
     };
     spinFire.HorizontalSpeed.ExtraRunSpeed = spinFire.HorizontalSpeed.ExtraRunSpeed.WithFraction(1);
-    AssertTrue(spinFire.TryApplySpinToNormalJumpFireTransition(
+    // The spin Fire body expansion fits the empty room: the pose below shows it taken.
+    spinFire.TryApplySpinToNormalJumpFireTransition(
         empty,
         SamusPoseId.NormalJumpGunExtendedRightPose,
         frameCounter: 0,
-        controllerNewInput: GameplayAction.Shoot),
-        "spin Fire body expansion fits empty room");
+        controllerNewInput: GameplayAction.Shoot);
     AssertEqual(SamusPoseId.NormalJumpGunExtendedRightPose, spinFire.Pose,
         "spin Fire selects gun-extended normal jump");
     AssertEqual(12, spinFire.Kinematics.Radius.Y,

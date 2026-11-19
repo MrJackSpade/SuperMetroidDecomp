@@ -34,6 +34,13 @@ public readonly record struct AngularSpeed : IComparable<AngularSpeed>, System.N
         new(Ensure.BetweenInclusive(-MostWholeSteps, MostWholeSteps - 1, steps) * FractionsPerStep);
 
     /// <summary>
+    /// A speed of <paramref name="fractionsOfStep"/> 256ths of a step an update, -32768 through 32767: the precision a
+    /// rotation angle turns at.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The speed turns half a turn or more an update.</exception>
+    public static AngularSpeed FromFractionsOfStep(int fractionsOfStep) => new(fractionsOfStep);
+
+    /// <summary>
     /// The turning speed of one step an update for each pixel of <paramref name="speed"/> (#2555), its fraction turning
     /// likewise: a 256th of a step for each 256th of a pixel, the speed's finer fraction dropped, toward decreasing angles
     /// for a speed toward decreasing coordinates.

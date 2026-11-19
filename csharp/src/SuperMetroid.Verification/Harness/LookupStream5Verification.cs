@@ -807,11 +807,11 @@ internal static class LookupStream5Verification
         {
             native[i] = ControllerWordCodec.FromJoypadWord(ReadVerificationWord(rom, MapSourceDefinitions.FileSelectMap.ScrollArrows + i * 10 + 6), "native map arrow mask");
             AssertEqual(i + 1, (int)ReadVerificationWord(rom, MapSourceDefinitions.FileSelectMap.ScrollArrows + i * 10 + 8), "Native direction identity");
-            AssertEqual(native[i], MapScrollControls.ButtonFor((MapScrollDirection)(i + 1)), "Native directional mask");
+            AssertEqual(native[i], MapScrollControls.ButtonFor((MapScrollDirection)i), "Native directional mask");
             AssertEqual(native[i], MapScrollControls.Buttons[i], "Calculated ordered view");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => MapScrollControls.ButtonFor(MapScrollDirection.None), "No direction has no binding");
-        AssertThrows<ArgumentOutOfRangeException>(() => MapScrollControls.ButtonFor((MapScrollDirection)5), "Invalid direction");
+        AssertThrows<ArgumentOutOfRangeException>(() => MapScrollControls.ButtonFor((MapScrollDirection)(-1)), "No direction has no binding");
+        AssertThrows<ArgumentOutOfRangeException>(() => MapScrollControls.ButtonFor((MapScrollDirection)4), "Invalid direction");
         var state = new SharedGameState(new SharedRandom());
         state.MarkExploredMapTile(AreaId.Crateria, new(0, 0));
         state.MarkExploredMapTile(AreaId.Crateria, new(63, 31));
@@ -826,7 +826,7 @@ internal static class LookupStream5Verification
                 int delta = tick >= 4 ? 8 : 0;
                 AssertEqual(startX + (selected == 0 ? -delta : selected == 1 ? delta : 0), (int)stock.Scroll.X, "Horizontal pulse");
                 AssertEqual(startY + (selected == 2 ? -delta : selected == 3 ? delta : 0), (int)stock.Scroll.Y, "Vertical pulse");
-                AssertEqual(tick == 8 ? MapScrollDirection.None : (MapScrollDirection)(selected + 1), stock.Direction, "Accepted direction survives release");
+                AssertEqual(tick == 8 ? null : (MapScrollDirection?)(MapScrollDirection)selected, stock.Direction, "Accepted direction survives release");
             }
         }
         var priority = MapScroll.Centred(MapFramingDefinitions.FileSelect, MapScrollLimits.OfRevealedPlane(map, state), new(240, 128));

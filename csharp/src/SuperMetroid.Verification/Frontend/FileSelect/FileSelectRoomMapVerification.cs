@@ -446,7 +446,7 @@ internal static class FileSelectRoomMapVerification
                     "map scroll vertical exact pulse frame");
                 AssertEqual(frame == 8, sound, "map scroll sound occurs at completion, not displacement");
             }
-            AssertEqual(MapScrollDirection.None, scroll.Direction, "released direction completes its accepted step");
+            AssertEqual<MapScrollDirection?>(null, scroll.Direction, "released direction completes its accepted step");
         }
         var precedence = MapScroll.Centred(MapFramingDefinitions.FileSelect, MapScrollLimits.OfRevealedPlane(map, system), new(240, 128));
         precedence.Step((ControllerButton.Up | ControllerButton.Down | ControllerButton.Left | ControllerButton.Right));

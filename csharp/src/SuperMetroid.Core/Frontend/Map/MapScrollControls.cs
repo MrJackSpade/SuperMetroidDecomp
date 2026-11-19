@@ -20,7 +20,6 @@ internal static class MapScrollControls
         MapScrollDirection.Right => new(MapScrollDefinitions.StepPixels, 0),
         MapScrollDirection.Up => new(0, -MapScrollDefinitions.StepPixels),
         MapScrollDirection.Down => new(0, MapScrollDefinitions.StepPixels),
-        MapScrollDirection.None => throw new ArgumentOutOfRangeException(nameof(direction), direction, "No map scroll step is active."),
         _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "No map scroll step is active."),
     };
 
@@ -31,7 +30,6 @@ internal static class MapScrollControls
         MapScrollDirection.Right => ControllerButton.Right,
         MapScrollDirection.Up => ControllerButton.Up,
         MapScrollDirection.Down => ControllerButton.Down,
-        MapScrollDirection.None => throw new ArgumentOutOfRangeException(nameof(direction)),
         _ => throw new ArgumentOutOfRangeException(nameof(direction)),
     };
 }

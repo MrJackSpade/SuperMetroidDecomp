@@ -38,8 +38,8 @@ public sealed class MapScroll
     /// <summary>The screen's top-left corner as an offset from the map's corner, negative left of or above it.</summary>
     public Offset16<MapPixels> Scroll { get; private set; }
 
-    /// <summary>The direction of the accepted eight-update scroll step, or <see cref="MapScrollDirection.None"/>.</summary>
-    public MapScrollDirection Direction { get; private set; }
+    /// <summary>The direction of the accepted eight-update scroll step, or null while no step is under way.</summary>
+    public MapScrollDirection? Direction { get; private set; }
 
     /// <summary>
     /// The scroll a screen opens on: the revealed reach centred on the screen, the centring offset rounded down to whole
@@ -79,7 +79,6 @@ public sealed class MapScroll
             MapScrollDirection.Right => Limits.Right - Scroll.X >= Framing.RightEdge,
             MapScrollDirection.Up => Limits.Top - Scroll.Y < Framing.TopEdge,
             MapScrollDirection.Down => Limits.Bottom - Scroll.Y >= Framing.BottomEdge,
-            MapScrollDirection.None => false,
             _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined map scroll direction."),
         };
     }
@@ -93,23 +92,21 @@ public sealed class MapScroll
     /// <param name="heldInput">The controller buttons held.</param>
     public bool Step(ControllerButton heldInput)
     {
-        if (Direction == MapScrollDirection.None)
-            Direction = MapScrollControls.Directions.FirstOrDefault(direction =>
-                CanScroll(direction) && (heldInput & MapScrollControls.ButtonFor(direction)) != ControllerButton.None,
-                MapScrollDirection.None);
+        Direction ??= MapScrollControls.Directions.Cast<MapScrollDirection?>().FirstOrDefault(direction =>
+            direction is { } held && CanScroll(held) && (heldInput & MapScrollControls.ButtonFor(held)) != ControllerButton.None);
         // The game cancels a step under way only at the lower limit.
-        if (Direction == MapScrollDirection.Down && !CanScroll(Direction))
+        if (Direction == MapScrollDirection.Down && !CanScroll(MapScrollDirection.Down))
         {
-            Direction = MapScrollDirection.None;
+            Direction = null;
             step.Restart(MapScrollDefinitions.StepTicks);
         }
-        if (Direction == MapScrollDirection.None) return false;
+        if (Direction is not { } moving) return false;
         bool stepped = step.Count();
         if (step.Age == MapScrollDefinitions.PulseTick)
-            Scroll += MapScrollControls.StepOffset(Direction);
+            Scroll += MapScrollControls.StepOffset(moving);
         if (!stepped) return false;
         step.Restart(MapScrollDefinitions.StepTicks);
-        Direction = MapScrollDirection.None;
+        Direction = null;
         return true;
     }
 }

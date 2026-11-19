@@ -53,7 +53,7 @@ internal static class MapScrollControlsVerification
             if (input == ControllerButton.None || buttons.Contains(input)) continue;
             var scroll = MapScroll.Centred(MapFramingDefinitions.FileSelect, MapScrollLimits.OfRevealedPlane(map, system), new(240, 128));
             AssertTrue(!scroll.Step(input), "unrelated controller button does not queue map sound");
-            AssertEqual(MapScrollDirection.None, scroll.Direction, "unrelated controller button cannot start map scrolling");
+            AssertEqual<MapScrollDirection?>(null, scroll.Direction, "unrelated controller button cannot start map scrolling");
         }
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(catalog));
         Console.WriteLine("Compiled map controls: four native masks/order, 16 direction combinations, trajectories/sound boundaries and guarded full menu parity pass.");

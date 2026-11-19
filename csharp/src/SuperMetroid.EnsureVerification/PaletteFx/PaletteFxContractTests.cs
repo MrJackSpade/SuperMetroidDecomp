@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Compatibility;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;

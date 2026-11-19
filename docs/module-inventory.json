@@ -24,7 +24,7 @@
     {
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
-      "files": 1843,
+      "files": 1844,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Animation",
@@ -218,7 +218,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
-      "files": 114,
+      "files": 117,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Animation",
@@ -234,7 +234,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Gameplay",
       "role": "production",
-      "files": 27,
+      "files": 35,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Assets",
@@ -542,7 +542,7 @@
     {
       "module": "csharp/src/SuperMetroid.EnsureAnalyzer",
       "role": "analyzer",
-      "files": 105,
+      "files": 106,
       "dependsOn": []
     },
     {
@@ -559,8 +559,6 @@
       "files": 50,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Audio",
-        "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/src/SuperMetroid.Core/Fx",
         "csharp/src/SuperMetroid.EnsureAnalyzer",
         "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes",
@@ -657,7 +655,7 @@
     {
       "module": "csharp/src/SuperMetroid.Rendering.Direct3D11",
       "role": "production",
-      "files": 46,
+      "files": 47,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Assets",
@@ -8269,6 +8267,18 @@
       "namespace": "SuperMetroid.AssetExtraction.Enemies",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/EncounterLookCombination.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Enemies",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core"
       ]
     },
     {
@@ -65441,6 +65451,7 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Animation",
         "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Audio",
         "csharp/src/SuperMetroid.Core/Compatibility",
@@ -65507,6 +65518,16 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Core/Fx/ColourEffects/ColourEffectFrame.cs",
+      "module": "csharp/src/SuperMetroid.Core/Fx",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Fx.ColourEffects",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Fx/ColourEffects/ColourEffectFramesOnOwners.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.ColourEffects",
@@ -65668,6 +65689,19 @@
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Fx/ColourEffects/ColourEffectTarget.cs",
+      "module": "csharp/src/SuperMetroid.Core/Fx",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Fx.ColourEffects",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core"
       ]
     },
     {
@@ -66223,6 +66257,20 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Fx/RoomEffectOverlayLook.cs",
+      "module": "csharp/src/SuperMetroid.Core/Fx",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Fx",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Rooms"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Fx/RoomFxDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
@@ -66617,6 +66665,20 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Gameplay/BossBodyBackground.cs",
+      "module": "csharp/src/SuperMetroid.Core/Gameplay",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Gameplay",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Gameplay/CeresPerspectiveFloors.cs",
       "module": "csharp/src/SuperMetroid.Core/Gameplay",
       "role": "production",
@@ -66783,6 +66845,21 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Gameplay/IShownRoomBackgroundMapping.cs",
+      "module": "csharp/src/SuperMetroid.Core/Gameplay",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Gameplay",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Rooms",
+        "csharp/src/SuperMetroid.Core/Samus"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Gameplay/LatchBeforeFirstRoom.cs",
       "module": "csharp/src/SuperMetroid.Core/Gameplay",
       "role": "production",
@@ -66809,6 +66886,20 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Gameplay/LibraryImageBackground.cs",
+      "module": "csharp/src/SuperMetroid.Core/Gameplay",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Gameplay",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Rooms"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Gameplay/LoaderSamusPlacement.cs",
       "module": "csharp/src/SuperMetroid.Core/Gameplay",
       "role": "production",
@@ -66820,6 +66911,19 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Spatial"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Gameplay/NoRoomBackground.cs",
+      "module": "csharp/src/SuperMetroid.Core/Gameplay",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Gameplay",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core"
       ]
     },
     {
@@ -66880,10 +66984,7 @@
         "SuperMetroid.Core"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Enemies",
-        "csharp/src/SuperMetroid.Core/Rooms",
-        "csharp/src/SuperMetroid.Core/Samus"
+        "csharp/src/SuperMetroid.Core/Rooms"
       ]
     },
     {
@@ -66899,6 +67000,20 @@
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Fx",
         "csharp/src/SuperMetroid.Core/Hud"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Gameplay/RoomPlaneBackground.cs",
+      "module": "csharp/src/SuperMetroid.Core/Gameplay",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Gameplay",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Rooms"
       ]
     },
     {
@@ -66947,6 +67062,44 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Progression"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Gameplay/ShownRoomBackground.cs",
+      "module": "csharp/src/SuperMetroid.Core/Gameplay",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Gameplay",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Gameplay/SkyBackground.cs",
+      "module": "csharp/src/SuperMetroid.Core/Gameplay",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Gameplay",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Rooms"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Gameplay/XrayRevealBackground.cs",
+      "module": "csharp/src/SuperMetroid.Core/Gameplay",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Gameplay",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Samus"
       ]
     },
     {
@@ -89329,6 +89482,15 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.EnsureAnalyzer/Contracts/NameHelperFlows.cs",
+      "module": "csharp/src/SuperMetroid.EnsureAnalyzer",
+      "role": "analyzer",
+      "namespace": "SuperMetroid.EnsureAnalyzer.Contracts",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.EnsureAnalyzer/Contracts/NamedLocation.cs",
       "module": "csharp/src/SuperMetroid.EnsureAnalyzer",
       "role": "analyzer",
@@ -90372,8 +90534,6 @@
         "SuperMetroid.EnsureVerification"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Audio",
-        "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/src/SuperMetroid.Core/Fx"
       ]
     },
@@ -92680,6 +92840,21 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Rendering.Direct3D11/Frames/D3D11BackgroundSlots.cs",
+      "module": "csharp/src/SuperMetroid.Rendering.Direct3D11",
+      "role": "production",
+      "namespace": "SuperMetroid.Rendering.Direct3D11.Frames",
+      "assemblies": [
+        "SuperMetroid.Rendering.Direct3D11"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Gameplay",
+        "csharp/src/SuperMetroid.Core/Rooms",
+        "csharp/src/SuperMetroid.Core/Samus"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Rendering.Direct3D11/Frames/D3D11BlendBehind.cs",
       "module": "csharp/src/SuperMetroid.Rendering.Direct3D11",
       "role": "production",
@@ -92828,7 +93003,10 @@
         "SuperMetroid.Rendering.Direct3D11"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Gameplay"
+        "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Gameplay",
+        "csharp/src/SuperMetroid.Core/Rooms",
+        "csharp/src/SuperMetroid.Core/Samus"
       ]
     },
     {
@@ -107147,6 +107325,7 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Assets",
+        "csharp/src/SuperMetroid.Core/Audio",
         "csharp/src/SuperMetroid.Core/Bosses",
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Fx",
@@ -108661,7 +108840,6 @@
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Animation",
         "csharp/src/SuperMetroid.Core/Assets",
-        "csharp/src/SuperMetroid.Core/Audio",
         "csharp/src/SuperMetroid.Core/Bosses",
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Fx",
@@ -125758,6 +125936,7 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Areas",
+        "csharp/src/SuperMetroid.Core/Audio",
         "csharp/src/SuperMetroid.Core/Bosses",
         "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/src/SuperMetroid.Core/Enemies",
@@ -143378,7 +143557,6 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Audio",
         "csharp/src/SuperMetroid.Core/Enemies",
-        "csharp/src/SuperMetroid.Core/Fx",
         "csharp/src/SuperMetroid.Core/Gameplay",
         "csharp/src/SuperMetroid.Core/Rooms",
         "csharp/src/SuperMetroid.Core/Runtime",

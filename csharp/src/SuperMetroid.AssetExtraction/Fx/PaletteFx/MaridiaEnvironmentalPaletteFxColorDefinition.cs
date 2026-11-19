@@ -12,12 +12,6 @@ public sealed class MaridiaEnvironmentalPaletteFxColorDefinition
     /// <summary>The environmental animation represented by this program.</summary>
     public required MaridiaEnvironmentalPaletteOwner Owner { get; init; }
 
-    /// <summary>A one-color cyclic rotation returns after the named group size.</summary>
-    public required int FrameCount { get; init; }
-
-    /// <summary>Sand pits rotate two groups; sand falls and waterfalls each rotate one group.</summary>
-    public required int ColorsPerFrame { get; init; }
-
     /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
     public required PaletteFxColorFrames ColorFrames { get; init; }
 }

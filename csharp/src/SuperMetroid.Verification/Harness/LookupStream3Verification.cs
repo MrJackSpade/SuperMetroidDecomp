@@ -1248,14 +1248,12 @@ internal static class LookupStream3Verification
             {
                 Body = Enumerable.Range(0, 15).Select(color => Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((source + 2 * color)))).ToArray(),
                 BackLegs = Enumerable.Range(0, 5).Select(color => Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((source + 30 + 2 * color)))).ToArray(),
-                TrailingColor = Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((source + 40))),
             };
             int revivalSource = 0xad0000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaded9c + 2 * frame));
             revival[frame] = new()
             {
                 Body = Enumerable.Range(0, 13).Select(color => Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((revivalSource + 2 * color)))).ToArray(),
                 BackLegs = Enumerable.Range(0, 5).Select(color => Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((revivalSource + 26 + 2 * color)))).ToArray(),
-                TrailingColor = Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((revivalSource + 36))),
             };
             int fakeSource = 0xad0000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaded8a + 2 * frame));
             fake[frame] = Enumerable.Range(0, 3).Select(color => Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((fakeSource + 2 * color)))).ToArray();

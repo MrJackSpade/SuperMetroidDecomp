@@ -27,25 +27,25 @@ internal static class MotherBrainRainbowPaletteExtractor
             Rainbow = ReadTable(MotherBrainSourceDefinitions.Palettes.RainbowPointerTable,
                 MotherBrainRainbowColourFormat.RainbowFrameCount,
                 MotherBrainRainbowPaletteGeometry.ColorCount,
-                MotherBrainRainbowPaletteGeometry.ColorCount, false),
+                MotherBrainRainbowPaletteGeometry.ColorCount),
             ToGrey = ReadTable(MotherBrainSourceDefinitions.Palettes.DrainedToGreyPointerTable,
                 MotherBrainRainbowPaletteGeometry.GreyFrameCount,
                 MotherBrainRainbowPaletteGeometry.DrainedColors,
-                MotherBrainRainbowPaletteGeometry.BackLegCount, true),
+                MotherBrainRainbowPaletteGeometry.BackLegCount),
             FromGrey = ReadTable(MotherBrainSourceDefinitions.Palettes.RevivalFromGreyPointerTable,
                 MotherBrainRainbowPaletteGeometry.GreyFrameCount,
                 MotherBrainRainbowPaletteGeometry.RevivalColors,
-                MotherBrainRainbowPaletteGeometry.BackLegCount, true),
+                MotherBrainRainbowPaletteGeometry.BackLegCount),
             FakeDeathToGrey = ReadFakeDeathToGrey(),
             Normal = ReadFrame(MotherBrainSourceDefinitions.Palettes.NormalBrainColors,
                 MotherBrainRainbowPaletteGeometry.ColorCount,
-                MotherBrainRainbowPaletteGeometry.ColorCount, false,
+                MotherBrainRainbowPaletteGeometry.ColorCount,
                 MotherBrainSourceDefinitions.Palettes.NormalRearLegColors),
         });
         return json.ToArray();
 
         MotherBrainRainbowPaletteFrameDocument[] ReadTable(int table, int frames,
-            int bodyCount, int legCount, bool trailing)
+            int bodyCount, int legCount)
         {
             var values = new MotherBrainRainbowPaletteFrameDocument[frames];
             for (int frame = 0; frame < frames; frame++)
@@ -55,7 +55,7 @@ internal static class MotherBrainRainbowPaletteExtractor
                 if (pointer == 0)
                     throw new InvalidDataException($"Mother Brain palette table ${table:X6} ends before frame {frame}.");
                 values[frame] = ReadFrame(MotherBrainSourceDefinitions.Palettes.PaletteBank | pointer,
-                    bodyCount, legCount, trailing);
+                    bodyCount, legCount);
             }
             if (CartridgeImportSource.Require(bus).ReadCartridgeWord((table + frames * sizeof(ushort))) != 0)
                 throw new InvalidDataException($"Mother Brain palette table ${table:X6} lacks its native terminator.");
@@ -82,11 +82,10 @@ internal static class MotherBrainRainbowPaletteExtractor
         }
 
         MotherBrainRainbowPaletteFrameDocument ReadFrame(int source, int bodyCount,
-            int legCount, bool trailing, int? legSource = null) => new()
+            int legCount, int? legSource = null) => new()
         {
             Body = ReadColors(source, bodyCount),
             BackLegs = ReadColors(legSource ?? source + bodyCount * sizeof(ushort), legCount),
-            TrailingColor = trailing ? ReadColor(source + (bodyCount + legCount) * sizeof(ushort)) : null,
         };
 
         PaletteRgb5[] ReadColors(int source, int count)

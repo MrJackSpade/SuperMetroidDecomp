@@ -36,6 +36,11 @@ public static class RoomObjectNoobTubeVisualFiles
         yield return NoobTubeDraw.LowerRowsOpen;
     }
 
+    /// <summary>The draw list of <paramref name="draw"/>, which must be one of the glass tube draws.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a glass tube draw.</exception>
+    internal static RoomObjectDrawLists.DrawList DrawListOf(RoomObjectDraw draw) =>
+        TryGet(draw, out RoomObjectDrawLists.DrawList list) ? list : throw new InvalidDataException($"{draw} is not a glass tube draw.");
+
     /// <summary>
     /// The draw list of a tube draw (#1862): its block shape written as the glass's one block, or as its twelve-block rows
     /// top row first, the lower rows' cleared glass block before them.
@@ -83,8 +88,7 @@ public static class RoomObjectNoobTubeVisualFiles
         {
             foreach (NoobTubeDraw frame in Draws())
             {
-                TryGet(NoobTubeObjectDraws.Family.Of(frame), out var list);
-                yield return list;
+                yield return DrawListOf(NoobTubeObjectDraws.Family.Of(frame));
             }
         }
     }

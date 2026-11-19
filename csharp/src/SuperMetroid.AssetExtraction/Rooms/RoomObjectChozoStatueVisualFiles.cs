@@ -44,11 +44,15 @@ public static class RoomObjectChozoStatueVisualFiles
         {
             foreach (RoomObjectDraw draw in Draws())
             {
-                TryGet(draw, out var list);
-                yield return list;
+                yield return DrawListOf(draw);
             }
         }
     }
+
+    /// <summary>The draw list of <paramref name="draw"/>, which must be one of the Chozo statue draws.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a Chozo statue draw.</exception>
+    internal static RoomObjectDrawLists.DrawList DrawListOf(RoomObjectDraw draw) =>
+        TryGet(draw, out RoomObjectDrawLists.DrawList list) ? list : throw new InvalidDataException($"{draw} is not a Chozo statue draw.");
 
     /// <summary>
     /// The draw list of a statue frame as the cartridge writes it: its horizontal strips in write order, each cell

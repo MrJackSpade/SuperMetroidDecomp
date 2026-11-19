@@ -24,5 +24,9 @@ internal static class MaridiaEnvironmentalPaletteFxColorDefinitionAccess
             sizeof(ushort) + self.ColorsPerFrame * sizeof(ushort) + sizeof(ushort);
         /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
         public PaletteFxColorKey Color(int frame, int color) => self.ColorFrames.Color(frame, color);
+        /// <summary>The program's records: one rotation of its colour group.</summary>
+        internal int FrameCount => self.ColorFrames.FrameCount;
+        /// <summary>The live colours each record writes.</summary>
+        internal int ColorsPerFrame => self.ColorFrames.ColorsPerFrame;
     }
 }

@@ -16,13 +16,9 @@ internal sealed class NorfairEnvironmentalPalettePrograms : IReadOnlyList<Norfai
         get
         {
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
-            NorfairEnvironmentalPaletteOwner owner = Owners[index];
-            bool heat = owner == NorfairEnvironmentalPaletteOwner.ForegroundAndHeatPhase;
             return new()
             {
-                Owner = owner,
-                Object = Objects[index],
-                PublishesHeatPhase = heat,
+                Owner = Owners[index],
                 ColorFrames = PaletteFxColorFrames.Of(NorfairEnvironmentalPaletteFxColorDefinitions.Objects[index], NorfairEnvironmentalPaletteFxColorDefinitions.ColorsPerFrame),
             };
         }

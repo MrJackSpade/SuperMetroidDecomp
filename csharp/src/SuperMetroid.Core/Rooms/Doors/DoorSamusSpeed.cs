@@ -6,9 +6,6 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 public readonly record struct DoorSamusSpeed
 {
-    /// <summary>The finest part of a pixel a push holds: a 256th.</summary>
-    private const int FinestParts = 256;
-
     /// <summary>The default push through a vertical door: one and a half pixels per step.</summary>
     private static readonly SignedEightEight VerticalDefault = Pixels(1, 1, 2);
 
@@ -51,12 +48,7 @@ public readonly record struct DoorSamusSpeed
 
     /// <summary>A forward speed of <paramref name="wholePixels"/> and <paramref name="numerator"/>/<paramref name="denominator"/> of a pixel.</summary>
     /// <exception cref="ArgumentOutOfRangeException">A part of the speed lies outside its range.</exception>
-    private static SignedEightEight Pixels(int wholePixels, int numerator, int denominator)
-    {
-        int parts = Ensure.BetweenInclusive(1, FinestParts, denominator);
-        if (FinestParts % parts != 0)
-            throw new ArgumentOutOfRangeException(nameof(denominator), denominator, "A push's fraction counts a divisor of 256 parts.");
-        return SignedEightEight.FromParts(Ensure.AtLeastZero(wholePixels),
-            Ensure.BetweenInclusive(0, parts - 1, numerator) * (FinestParts / parts));
-    }
+    private static SignedEightEight Pixels(int wholePixels, int numerator, int denominator) =>
+        SignedEightEight.FromPixels(Ensure.AtLeastZero(wholePixels)) +
+        SignedEightEight.FromPixelFraction(Ensure.BetweenInclusive(0, denominator - 1, numerator), denominator);
 }

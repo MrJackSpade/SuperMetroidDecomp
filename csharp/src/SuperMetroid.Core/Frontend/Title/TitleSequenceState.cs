@@ -566,7 +566,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         ActiveCard = null;
         ActiveOrigin = definition.Origin;
         ActiveColouring = definition.Colouring;
-        panPosition = new(panPosition.X.WithoutFraction(), panPosition.Y.WithoutFraction());
+        panPosition = FixedVector<FloorPixels>.FromWholePixels(panPosition.Whole);
     }
 
     /// <summary>Installs the logo, gradient, copyright colors, and identity turning-floor scene used after a skip.</summary>
@@ -578,7 +578,9 @@ public sealed class TitleSequenceState : IFrontendScreen
         ActiveSprite = TitleSprite.SuperMetroidLogo;
         ActiveOrigin = TitleSequenceDefinitions.Sprites.LogoOrigin;
         ActiveColouring = TitleSequenceDefinitions.Sprites.LogoColouring;
-        panPosition = new(panPosition.X.WithWholePixels(0), panPosition.Y.WithWholePixels(0));
+        // The pan returns to the floor's origin in whole pixels alone: the fractions an earlier pan left stay, as the game
+        // resets only the pan's whole pixels.
+        panPosition = panPosition.WithWhole(Offset16<FloorPixels>.Zero);
         Zoom = FloorZoom.OwnSize;
     }
 

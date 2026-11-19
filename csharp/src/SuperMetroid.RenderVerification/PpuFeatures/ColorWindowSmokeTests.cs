@@ -241,8 +241,8 @@ internal static class ColorWindowSmokeTests
     private static bool ConeCovers(Offset16<ScreenPixels> apex, ConeEdgeDirection first, ConeEdgeDirection second, int x, int y)
     {
         long across = x - apex.X, down = y - apex.Y;
-        return first.Across * down - first.Down * across >= -WindowCone.EdgeAllowance
-            && across * second.Down - down * second.Across >= -WindowCone.EdgeAllowance
+        return first.Across * down - first.Down * across >= -ConeEdgeDirection.HalfPixelAllowance
+            && across * second.Down - down * second.Across >= -ConeEdgeDirection.HalfPixelAllowance
             && across * (first.Across + second.Across) + down * (first.Down + second.Down) >= 0;
     }
 

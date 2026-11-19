@@ -56,7 +56,7 @@ internal static class D3D11WindowPacking
                 case WindowCone cone:
                     ConeEdgeDirection first = cone.FirstEdgeDirection, second = cone.SecondEdgeDirection;
                     Write(row, ShapeKind.Cone, cone.Apex.X, cone.Apex.Y, first.Across, first.Down, second.Across, second.Down,
-                        WindowCone.EdgeAllowance);
+                        ConeEdgeDirection.HalfPixelAllowance);
                     break;
                 default:
                     throw new NotSupportedException($"The backend cannot draw a {shapes[index].GetType().Name} window shape.");

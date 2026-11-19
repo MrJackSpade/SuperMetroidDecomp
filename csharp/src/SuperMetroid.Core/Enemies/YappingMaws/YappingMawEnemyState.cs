@@ -60,7 +60,7 @@ public sealed class YappingMawEnemyState
     /// stops on the whole unit, then decelerates back; the update that carries it below zero is the one on which the
     /// retracting tongue has completed its full curve.
     /// </summary>
-    public SignedSixteenSixteen Extension { get; internal set; }
+    public YappingMawCurl Extension { get; internal set; }
 
     /// <summary>
     /// The whole-mark place along the quadratically increasing common enemy speeds the next curl update adds: each

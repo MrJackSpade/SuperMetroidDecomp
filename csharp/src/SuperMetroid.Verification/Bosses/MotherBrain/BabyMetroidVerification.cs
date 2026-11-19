@@ -76,7 +76,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     motherBrain.StartAttackCycle(); // Establishes the pre-existing enabled neck flag.
 
     var baby = motherBrain.Baby;
-    baby.Initialize(FixedPosition<RoomPixels>.Zero);
+    MotherBrainLateFightFixtures.Arrive(baby, FixedPosition<RoomPixels>.Zero);
 
     AssertEqual(false, baby.HurtFlashShown, "Baby cutscene shows its own palette, not the hit flash");
     // The Baby keeps no graphics: its sheet pictures its frames where its tile rows are transferred, and its parts carry

@@ -169,19 +169,16 @@ public sealed class RoomLevelData
     }
 
     /// <summary>
-    /// <paramref name="block"/>, which must be a block of the terrain beyond the room: a column of the room's width in a row
-    /// past its height that the terrain beyond the room reaches, as the two shipped off-room coloured doors are placed
-    /// (#2034).
+    /// <paramref name="block"/>, which must lie off the room's grid below its last row, in one of its columns, as the two
+    /// shipped off-room coloured doors are placed (#2034, #2572); nothing reads or writes terrain there for them.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The block lies in the grid, past the room's width, or past the terrain beyond the room.</exception>
-    internal Position16<RoomBlocks> BlockBeyondRoom(Position16<RoomBlocks> block)
+    /// <exception cref="ArgumentOutOfRangeException">The block lies in the grid or past the room's width.</exception>
+    internal Position16<RoomBlocks> BlockOffTheGrid(Position16<RoomBlocks> block)
     {
         if (block.X >= Size.X)
             throw new ArgumentOutOfRangeException(nameof(block), $"Block X {block.X} lies outside the {Size.X}-block room width.");
         if (block.Y < Size.Y)
-            throw new ArgumentOutOfRangeException(nameof(block), $"Block {block} lies in the room's {Size.Y}-row grid, not beyond it.");
-        if (BeyondPlace(Size.RowMajorIndex(block)) >= BeyondRoom.Count)
-            throw new ArgumentOutOfRangeException(nameof(block), $"Block {block} lies past the {BeyondRoom.Count} blocks beyond the room.");
+            throw new ArgumentOutOfRangeException(nameof(block), $"Block {block} lies in the room's {Size.Y}-row grid, not off it.");
         return block;
     }
 

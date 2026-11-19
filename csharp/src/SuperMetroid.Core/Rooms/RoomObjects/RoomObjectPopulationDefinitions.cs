@@ -457,7 +457,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The room objects the Green Brinstar Firefleas room places in every state.</summary>
     public static RoomObjectPopulation GreenBrinstarFirefleas { get; } = RoomObjectPopulation.FromPlacements(nameof(GreenBrinstarFirefleas),
     [
-        new(RoomObjectKind.GreenDoorFacingRight, new(1, 38), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.GreenBrinstarFirefleasGreenDoorFacingRight, DoorOpeningPersistence.Persistent)), Site: RoomObjectSite.BeyondTheRoom),
+        new(RoomObjectKind.GreenDoorFacingRight, new(1, 38), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Right), new LockedDoorArgument(LockedDoorDefinitions.GreenBrinstarFirefleasGreenDoorFacingRight, DoorOpeningPersistence.Persistent)), Site: RoomObjectSite.OffTheRoom),
     ]);
 
     /// <summary>The room objects the Green Brinstar Missile Refill room places in every state.</summary>
@@ -2083,7 +2083,6 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.RightwardsScrollExtension, new(7, 34), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.RightwardsScrollExtension, new(8, 34), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.RightwardsScrollExtension, new(9, 34), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
-        new(RoomObjectKind.RightwardsScrollExtension, new(10, 18), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.ScrollTrigger, new(5, 27), new ScrollTriggerSetup(RoomScrollChange.EastPantsOpensScreen0x1OpensScreen0x2TopAligned)),
         new(RoomObjectKind.RightwardsScrollExtension, new(6, 27), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
         new(RoomObjectKind.RightwardsScrollExtension, new(7, 27), new ScrollExtensionSetup(ScrollExtensionDefinitions.Rightwards)),
@@ -2104,7 +2103,7 @@ internal static class RoomObjectPopulationDefinitions
     public static RoomObjectPopulation Colosseum { get; } = RoomObjectPopulation.FromPlacements(nameof(Colosseum),
     [
         new(RoomObjectKind.RedDoorFacingLeft, new(110, 6), new ColoredDoorSetup(new(ColoredDoorColor.Red, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.ColosseumRedDoorFacingLeft, DoorOpeningPersistence.Persistent))),
-        new(RoomObjectKind.GreenDoorFacingLeft, new(78, 38), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.ColosseumGreenDoorFacingLeftAt78x38, DoorOpeningPersistence.Persistent)), Site: RoomObjectSite.BeyondTheRoom),
+        new(RoomObjectKind.GreenDoorFacingLeft, new(78, 38), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.ColosseumGreenDoorFacingLeftAt78x38, DoorOpeningPersistence.Persistent)), Site: RoomObjectSite.OffTheRoom),
         new(RoomObjectKind.GreenDoorFacingLeft, new(110, 22), new ColoredDoorSetup(new(ColoredDoorColor.Green, ColoredDoorOrientation.Left), new LockedDoorArgument(LockedDoorDefinitions.ColosseumGreenDoorFacingLeftAt110x22, DoorOpeningPersistence.Persistent))),
     ]);
 

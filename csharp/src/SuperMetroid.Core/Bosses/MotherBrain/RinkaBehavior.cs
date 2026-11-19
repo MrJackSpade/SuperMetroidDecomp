@@ -119,7 +119,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     private void InitializeRinkaLife(RoomEnemyPlace place, RinkaEnemyState state)
     {
         state.Action = RinkaAction.WatchForLeavingViewport;
-        state.DelayTimer.LastFor(RinkaLifeDefinitions.AimDelayUpdates);
+        state.AimDelay.LastFor(RinkaLifeDefinitions.AimDelayUpdates);
         state.Velocity = default;
 
         if (IsSpecialRinka(place) && _rinkaTerminationFlag)
@@ -180,7 +180,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case RinkaAction.AimDelay:
-                if (state.DelayTimer.StepKeepsRunning())
+                if (state.AimDelay.StepKeepsRunning())
                     return;
                 state.Action = RinkaAction.Flying;
 
@@ -204,7 +204,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case RinkaAction.DeathRespawnDelay:
-                if (state.DelayTimer.StepKeepsRunning())
+                if (state.RespawnDelay.StepKeepsRunning())
                     return;
                 place.Health = RinkaLifeDefinitions.RespawnHealth;
                 ReinitializeRinka(place, state);
@@ -239,7 +239,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Presence = place.Presence.With(EnemyPresence.Hidden);
         SpawnRinkaDustExplosion(place.Position.Whole);
         state.Action = RinkaAction.DeathRespawnDelay;
-        state.DelayTimer.LastFor(RinkaLifeDefinitions.RespawnDelayUpdates);
+        state.RespawnDelay.LastFor(RinkaLifeDefinitions.RespawnDelayUpdates);
     }
 
     /// <summary>

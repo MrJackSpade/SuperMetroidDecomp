@@ -469,62 +469,25 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>
-    /// Draws the two ordinary Speed-Booster echoes from the positions captured by
-    /// the speed-echo position update.
+    /// Draws the two ordinary Speed-Booster echoes where they stand: the positions the speed-echo position update captured,
+    /// or, once cancellation sends them departing, where their departure has carried them
+    /// (<see cref="SamusHorizontalSpeedState.AdvanceDepartingSpeedEchoes"/>). Trailing echoes show only at boost stage
+    /// four. The draw changes nothing (#2573).
     /// </summary>
-    /// <remarks>
-    /// The echoes either trail her or depart. While they capture her positions they draw stationary trailing snapshots,
-    /// only at boost stage four.
-    /// Cancellation sends the echoes departing; drawing then advances each body's
-    /// ±8 X / ±2 Y convergence before deciding whether it crossed the live Samus.
-    /// </remarks>
     public void DrawSpeedBoosterEchoes(SamusState samus,
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> cameraPosition)
     {
         Ensure.NotNull(sprites);
-
-        if (samus.HorizontalSpeed.SpeedEchoesDeparting)
-        {
-            // The echo update walks the second echo before the first. Movement is a drawing side
-            // effect in the game, so do not advance it earlier in StepFrame: frames
-            // whose drawing of Samus is suppressed must also freeze these copies.
-            if (samus.HorizontalSpeed.AdvanceDepartingSpeedEcho(
-                    SpeedEcho.Second,
-                    samus.Position.Whole))
-            {
-                DrawActiveSpeedBoosterEcho(samus,
-                    sprites,
-                    samus.HorizontalSpeed.SecondSpeedEchoPosition,
-                    cameraPosition);
-            }
-
-            if (samus.HorizontalSpeed.AdvanceDepartingSpeedEcho(
-                    SpeedEcho.First,
-                    samus.Position.Whole))
-            {
-                DrawActiveSpeedBoosterEcho(samus,
-                    sprites,
-                    samus.HorizontalSpeed.FirstSpeedEchoPosition,
-                    cameraPosition);
-            }
-
-            samus.HorizontalSpeed.FinishDepartingSpeedEchoFrame();
+        if (!samus.HorizontalSpeed.SpeedEchoesDeparting && !samus.HorizontalSpeed.IsActivelySpeedBoosting)
             return;
-        }
-
-        if (!samus.HorizontalSpeed.IsActivelySpeedBoosting)
-            return;
-
-        // The echo draw draws the second echo before the first. Drawing order is observable when their
-        // opaque pixels overlap, so retain that otherwise-surprising reverse order.
-        DrawActiveSpeedBoosterEcho(samus,
-            sprites,
-            samus.HorizontalSpeed.SecondSpeedEchoPosition,
-            cameraPosition);
         DrawActiveSpeedBoosterEcho(samus,
             sprites,
             samus.HorizontalSpeed.FirstSpeedEchoPosition,
+            cameraPosition);
+        DrawActiveSpeedBoosterEcho(samus,
+            sprites,
+            samus.HorizontalSpeed.SecondSpeedEchoPosition,
             cameraPosition);
     }
 
@@ -544,14 +507,13 @@ internal sealed class SamusPresentation
             return;
         }
 
-        // The second copy is drawn before the first, as for the boost's echoes.
-        DrawActiveSpeedBoosterEcho(samus,
-            sprites,
-            samus.Shinespark.SecondOrbitingCopy,
-            cameraPosition);
         DrawActiveSpeedBoosterEcho(samus,
             sprites,
             samus.Shinespark.FirstOrbitingCopy,
+            cameraPosition);
+        DrawActiveSpeedBoosterEcho(samus,
+            sprites,
+            samus.Shinespark.SecondOrbitingCopy,
             cameraPosition);
     }
 
@@ -568,11 +530,10 @@ internal sealed class SamusPresentation
         if (!SamusCadenceDefinitions.CrashEchoesDrawnEverySecondUpdate.IsDue(frameCounter))
             return;
 
-        // The second echo is drawn before the first. That ordering controls drawing priority when copies overlap.
-        DrawActiveSpeedBoosterEcho(samus,
-            sprites, samus.Shinespark.SecondReleasedEcho.ShownPosition, cameraPosition);
         DrawActiveSpeedBoosterEcho(samus,
             sprites, samus.Shinespark.FirstReleasedEcho.ShownPosition, cameraPosition);
+        DrawActiveSpeedBoosterEcho(samus,
+            sprites, samus.Shinespark.SecondReleasedEcho.ShownPosition, cameraPosition);
     }
 
     /// <summary>The installed sheets the body draws from.</summary>

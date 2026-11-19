@@ -165,6 +165,8 @@ internal sealed class GameplayActorDrawing
             // pose-authored before/after-body mode must therefore settle before charge
             // flare, atmospheric, or body sprites are appended.
             samus.ArmCannon.Update(samus);
+            // The departing speed echoes close on Samus every update she is shown, whichever way she is drawn (#2573).
+            samus.HorizontalSpeed.AdvanceDepartingSpeedEchoes(samus.Position.Whole);
 
             // The elevator's drawing replaces Samus's ordinary drawing while an
             // elevator owns a front-facing body. It still arrives after the cover update, so
@@ -211,9 +213,11 @@ internal sealed class GameplayActorDrawing
 
                 if (grappleDrawing == SamusGrappleDrawing.Beam)
                 {
-                    // The active grapple's drawing begins with the grapple flare. Firing also refreshes
-                    // its hand origins here from Samus's post-movement position. This
-                    // flare is a different animation owner from the charge flare below.
+                    // A firing beam's rope start and flare follow Samus's final position, after every move this update
+                    // made, while its flare shows (#2573).
+                    SamusGrappleMovement.SettleFiringOrigins(samus);
+                    // The active grapple's drawing begins with the grapple flare. This flare is a different animation
+                    // owner from the charge flare below.
                     SamusGrappleBeamDrawing.DrawFlareBeforeSamus(
                         samus,
                         _sprites,

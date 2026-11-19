@@ -591,14 +591,25 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Advances one cancellation echo while the echoes are drawn.
+    /// Advances both departing echoes one update toward Samus at <paramref name="samusPosition"/>, each as
+    /// <see cref="AdvanceDepartingSpeedEcho"/> moves it, and ends the departure once neither remains
+    /// (<see cref="FinishDepartingSpeedEchoFrame"/>). Echoes that are not departing stay where they stand (#2573).
     /// </summary>
-    /// <remarks>
-    /// This side effect really belongs to drawing in the game: Y approaches the live
-    /// Samus center by two pixels, X advances by the signed eight-pixel velocity, and the
-    /// echo is gone on the exact frame it crosses Samus. Returning false means the
-    /// echo is already gone or crossed this frame and therefore must not be drawn.
-    /// </remarks>
+    /// <param name="samusPosition">Samus's whole-pixel room position as she is shown this update.</param>
+    public void AdvanceDepartingSpeedEchoes(Position16<RoomPixels> samusPosition)
+    {
+        if (!SpeedEchoesDeparting)
+            return;
+        _ = AdvanceDepartingSpeedEcho(SpeedEcho.First, samusPosition);
+        _ = AdvanceDepartingSpeedEcho(SpeedEcho.Second, samusPosition);
+        FinishDepartingSpeedEchoFrame();
+    }
+
+    /// <summary>
+    /// Advances one departing echo one update: Y approaches the live Samus center by two pixels, X advances by the signed
+    /// eight-pixel velocity, and the echo is gone on the exact update it crosses Samus. Returning false means the echo is
+    /// already gone or crossed this update and so shows nowhere.
+    /// </summary>
     public bool AdvanceDepartingSpeedEcho(
         SpeedEcho echo,
         Position16<RoomPixels> samusPosition)

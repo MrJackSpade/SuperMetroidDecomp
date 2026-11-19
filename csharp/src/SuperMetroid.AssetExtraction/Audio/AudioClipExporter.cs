@@ -132,7 +132,7 @@ internal static class AudioClipExporter
             // The data set and its track number decode into the song (#1748).
             MusicTrackNumbers.Decode(dataSet, key.Track),
             Write(root, MusicDirectory, files, pcm),
-            track.Shape == MusicTrackShape.Loops ? track.Arrivals[0] - start : null,
+            track.Period is MusicTrackPeriod.Loop loop ? loop.FirstArrival - start : null,
             segments);
     }
 

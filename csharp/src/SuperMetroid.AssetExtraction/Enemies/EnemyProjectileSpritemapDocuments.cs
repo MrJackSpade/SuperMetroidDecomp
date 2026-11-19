@@ -33,6 +33,7 @@ public static class EnemyProjectileSpritemapDocuments
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         WriteIndented = true,
+        RespectNullableAnnotations = true,
     };
 
     /// <summary>Loads named projectile compositions and timed-program visual frames, validating names/counts and part bounds without importing timing, motion, collision, or callbacks.</summary>
@@ -66,8 +67,7 @@ public static class EnemyProjectileSpritemapDocuments
             arrival[pose] = CompileParts(name, visual);
         }
         ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> definitions = EnemyProjectilePresentationFrameSets.All;
-        if (document.ProgramFrames is null ||
-            document.ProgramFrames.Count != definitions.Length)
+        if (document.ProgramFrames.Count != definitions.Length)
             throw new InvalidDataException(
                 "Enemy-projectile program frames have the wrong count.");
         var compiledPrograms = new Dictionary<EnemyProjectileFrameId, SpritePart[]>();
@@ -101,6 +101,8 @@ public static class EnemyProjectileSpritemapDocuments
             SpriteVisualPart? part = visual[index];
             if (part is null || part.OffsetX is < -256 or > 255 ||
                 part.OffsetY is < -128 or > 127 || part.Size is not (8 or 16) ||
+                // A part's palette is absent in the shared sprite schema when it inherits its frame's row; a projectile's
+                // parts each name their own row, so an inheriting part is invalid input here, rejected with the range.
                 part.Priority is < 0 or > 3 || part.Palette is null or < 0 or > 7 ||
                 part.TileColumn is < 0 or >= TileColumns ||
                 part.TileRow is < 0 or >= TileRows)

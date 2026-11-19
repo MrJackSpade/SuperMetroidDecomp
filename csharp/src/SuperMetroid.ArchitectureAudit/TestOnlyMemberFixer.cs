@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using SuperMetroid.EnsureAnalyzer.SourceLayout;
+using SuperMetroid.ReachabilityAudit.Removal;
 using SuperMetroid.ReachabilityAudit.SolutionLoading;
 
 namespace SuperMetroid.ArchitectureAudit;
@@ -24,20 +25,14 @@ namespace SuperMetroid.ArchitectureAudit;
 /// </summary>
 internal static class TestOnlyMemberFixer
 {
-    /// <summary>Fully qualified names with nullable reference annotations, which the generated code writes every type with.</summary>
-    private static readonly SymbolDisplayFormat TypeFormat = SymbolDisplayFormat.FullyQualifiedFormat
-        .AddMiscellaneousOptions(SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
-
-    /// <summary>Fully qualified names without nullable reference annotations, which <c>typeof</c> takes.</summary>
-    private static readonly SymbolDisplayFormat TypeOfFormat = SymbolDisplayFormat.FullyQualifiedFormat;
-
     /// <summary>Makes every mechanical narrow finding private with its shim, and lists the rest; returns the exit code.</summary>
     public static int Fix(LoadedSolution solution)
     {
         var findings = TestOnlyMembers.Collect(solution);
         var manual = new List<string>();
         var edits = new Dictionary<SyntaxTree, List<TextChange>>();
-        var shims = new Dictionary<string, OwnerShims>(StringComparer.Ordinal);
+        var shims = new Dictionary<string, PrivateAccessShims>(StringComparer.Ordinal);
+        var narrowed = new HashSet<ISymbol>(SymbolEqualityComparer.Default);
         int fixedMembers = 0;
         foreach (var member in findings.GroupBy(finding => finding.Uses.Member, SymbolEqualityComparer.Default)
                      .OrderBy(group => group.Key!.ToDisplayString(), StringComparer.Ordinal))
@@ -53,8 +48,11 @@ internal static class TestOnlyMemberFixer
             foreach (var (tree, change) in Narrow(symbol))
                 Add(edits, tree, change);
             Shims(solution.RepositoryRoot, shims, symbol.ContainingType).Add(symbol, Written(ways));
+            narrowed.Add(symbol);
             fixedMembers++;
         }
+        foreach (var (tree, change) in CheckSiteRewrites(solution, narrowed))
+            Add(edits, tree, change);
 
         var files = new List<(string Path, string Text)>();
         foreach (var (tree, changes) in edits)
@@ -68,13 +66,14 @@ internal static class TestOnlyMemberFixer
                 throw new InvalidOperationException($"{tree.FilePath}: narrowing leaves {errorsAfter - errorsBefore} new syntax errors.");
             files.Add((tree.FilePath, after.ToString()));
         }
-        foreach (OwnerShims owner in shims.Values)
+        foreach (PrivateAccessShims owner in shims.Values)
             files.Add((owner.Path, owner.Render()));
         foreach (var (path, text) in files)
         {
             Directory.CreateDirectory(Path.GetDirectoryName(path)!);
             File.WriteAllText(path, text, new UTF8Encoding(encoderShouldEmitUTF8Identifier: File.Exists(path) && HasByteOrderMark(path)));
         }
+        PrivateAccessShims.WriteImports(solution.RepositoryRoot);
         foreach (string line in manual)
             Console.WriteLine(line);
         Console.WriteLine($"Narrowed {fixedMembers} members in {edits.Count} files with {shims.Count} private-access classes; " +
@@ -126,6 +125,8 @@ internal static class TestOnlyMemberFixer
                 return "property shape";
             case IPropertySymbol property when Partial(property, ways):
                 return "one accessor stays wider: checks reach the other through PrivateState";
+            case IFieldSymbol { IsConst: true }:
+                return "constant: checks may name it where a constant is required";
             case IFieldSymbol field when field.Type.IsRefLikeType || field.Type.TypeKind == TypeKind.Pointer || field.IsFixedSizeBuffer:
                 return "ref struct, pointer or fixed buffer field";
             case IFieldSymbol field when field.DeclaringSyntaxReferences[0].GetSyntax() is VariableDeclaratorSyntax
@@ -212,45 +213,58 @@ internal static class TestOnlyMemberFixer
     }
 
     /// <summary>The generated private-access class of <paramref name="owner"/>, created on first use.</summary>
-    private static OwnerShims Shims(string root, Dictionary<string, OwnerShims> shims, INamedTypeSymbol owner)
+    private static PrivateAccessShims Shims(string root, Dictionary<string, PrivateAccessShims> shims, INamedTypeSymbol owner)
     {
-        string key = owner.ToDisplayString(TypeOfFormat);
-        if (!shims.TryGetValue(key, out OwnerShims? shim))
-            shims[key] = shim = new OwnerShims(owner, ShimPath(root, owner));
+        string key = PrivateAccessShims.TypeOfText(owner);
+        if (!shims.TryGetValue(key, out PrivateAccessShims? shim))
+            shims[key] = shim = PrivateAccessShims.For(root, owner);
         return shim;
     }
 
-    /// <summary>Where an owner's private-access class lives: its assembly's verification-access folder, mirroring its path.</summary>
-    private static string ShimPath(string root, INamedTypeSymbol owner)
+    /// <summary>
+    /// The edits that keep checks naming a narrowed member outside its type compiling: <c>nameof(Owner.Member)</c> becomes
+    /// the member's name as text, since <c>nameof</c> binds to the extension member standing in for it, and a documentation
+    /// cref to it becomes the name as code text, since a cref cannot name a member its site cannot see.
+    /// </summary>
+    private static IEnumerable<(SyntaxTree Tree, TextChange Change)> CheckSiteRewrites(LoadedSolution solution, HashSet<ISymbol> narrowed)
     {
-        string file = Path.GetFullPath(owner.DeclaringSyntaxReferences[0].SyntaxTree.FilePath);
-        string relative = Path.GetRelativePath(root, file).Replace('\\', '/');
-        string assembly = owner.ContainingAssembly.Name;
-        string prefix = $"csharp/src/{assembly}/";
-        if (!relative.StartsWith(prefix, StringComparison.Ordinal))
-            throw new InvalidOperationException($"{owner.ToDisplayString()} is declared outside {prefix}: {relative}.");
-        string directory = Path.GetDirectoryName(relative[prefix.Length..])?.Replace('\\', '/') ?? "";
-        string access = assembly switch
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var (_, compilation) in solution.Projects)
         {
-            "SuperMetroid.Core" => "csharp/test-support/VerificationAccess.Core",
-            "SuperMetroid.AssetExtraction" => "csharp/test-support/VerificationAccess.Core/AssetExtraction",
-            "SuperMetroid.Diagnostics" => "csharp/test-support/VerificationAccess.Core/Diagnostics",
-            "SuperMetroid.Desktop" => "csharp/test-support/VerificationAccess.Desktop",
-            "SuperMetroid.Rendering.Direct3D11" => "csharp/test-support/VerificationAccess.Rendering.Direct3D11",
-            _ => throw new InvalidOperationException($"{assembly} has no verification-access folder."),
-        };
-        return Path.Combine(root, access, directory, $"{ClassName(owner)}.cs");
+            foreach (SyntaxTree tree in compilation.SyntaxTrees)
+            {
+                if (!seen.Add(Path.GetFullPath(tree.FilePath)) || tree.FilePath.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
+                    continue;
+                SemanticModel model = SemanticModels.Of(compilation, tree);
+                SyntaxNode root = tree.GetRoot();
+                foreach (InvocationExpressionSyntax nameOf in root.DescendantNodes().OfType<InvocationExpressionSyntax>()
+                             .Where(invocation => invocation.Expression is IdentifierNameSyntax { Identifier.ValueText: "nameof" } &&
+                                                  invocation.ArgumentList.Arguments.Count == 1))
+                {
+                    if (Narrowed(model.GetSymbolInfo(nameOf.ArgumentList.Arguments[0].Expression), narrowed) is { } member &&
+                        !Inside(model, nameOf, member))
+                        yield return (tree, new TextChange(nameOf.Span, SymbolDisplay.FormatLiteral(member.Name, quote: true)));
+                }
+                foreach (XmlEmptyElementSyntax see in root.DescendantNodes(descendIntoTrivia: true).OfType<XmlEmptyElementSyntax>())
+                {
+                    if (see.Attributes.OfType<XmlCrefAttributeSyntax>().FirstOrDefault() is { } cref &&
+                        Narrowed(model.GetSymbolInfo(cref.Cref), narrowed) is { } member && !Inside(model, see, member))
+                        yield return (tree, new TextChange(see.Span, $"<c>{member.Name}</c>"));
+                }
+            }
+        }
     }
 
-    /// <summary>The private-access class's name: the owner's name, with its containing types', and <c>PrivateAccess</c>.</summary>
-    internal static string ClassName(INamedTypeSymbol owner)
-    {
-        var names = new List<string>();
-        for (INamedTypeSymbol? type = owner; type is not null; type = type.ContainingType)
-            names.Insert(0, type.Name);
-        return string.Concat(names) + "PrivateAccess";
-    }
+    /// <summary>The narrowed member a bound name stands for, or null.</summary>
+    private static ISymbol? Narrowed(SymbolInfo info, HashSet<ISymbol> narrowed) =>
+        info.CandidateSymbols.Prepend(info.Symbol).OfType<ISymbol>()
+            .Select(symbol => symbol is IMethodSymbol { ReducedFrom: { } reduced } ? reduced : symbol)
+            .Select(symbol => symbol.OriginalDefinition).FirstOrDefault(narrowed.Contains);
 
+    /// <summary>Whether <paramref name="site"/> is code of the member's own type, which still sees it.</summary>
+    private static bool Inside(SemanticModel model, SyntaxNode site, ISymbol member) =>
+        site.Ancestors().OfType<BaseTypeDeclarationSyntax>().Any(declaration =>
+            SymbolEqualityComparer.Default.Equals(model.GetDeclaredSymbol(declaration)?.OriginalDefinition, member.ContainingType.OriginalDefinition));
     /// <summary>Whether a file starts with a UTF-8 byte-order mark.</summary>
     private static bool HasByteOrderMark(string path)
     {
@@ -267,9 +281,4 @@ internal static class TestOnlyMemberFixer
             member.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat);
     }
 
-    /// <summary>A type as generated code writes it.</summary>
-    internal static string TypeText(ITypeSymbol type) => type.ToDisplayString(TypeFormat);
-
-    /// <summary>A type as <c>typeof</c> takes it.</summary>
-    internal static string TypeOfText(ITypeSymbol type) => type.WithNullableAnnotation(NullableAnnotation.NotAnnotated).ToDisplayString(TypeOfFormat);
 }

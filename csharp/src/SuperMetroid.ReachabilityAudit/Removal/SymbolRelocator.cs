@@ -20,8 +20,10 @@ namespace SuperMetroid.ReachabilityAudit.Removal;
 /// target's projects already compile: a class of the style's name is merged into or passed over, never declared twice.</item>
 /// </list>
 /// Moved bodies are rewritten so that references back to the owner resolve; owner members they
-/// use that were private become internal, and every modifier the move writes is one its declaration
-/// kind takes (<see cref="RelocationModifiers"/>). A member that becomes internal keeps every rule a promotion can break
+/// use that were private become internal for a development-only project, and every modifier the move writes is one its
+/// declaration kind takes (<see cref="RelocationModifiers"/>). Moved into test-support, they stay private and moved code
+/// reaches them through generated private-access members (<see cref="PrivateAccessShims"/>, #2570), so production
+/// holds no member wider for checks; only a type moved code names becomes internal there. A member that becomes internal keeps every rule a promotion can break
 /// (<see cref="PromotionRules"/>), and an underscore-prefixed one takes its name without the underscore, with every
 /// reference rewritten (<see cref="PromotedNames"/>). Every reference and documentation cref in the solution
 /// is retargeted, and crefs in shipped assemblies, which cannot see the target, become plain text, as do crefs in moved
@@ -69,13 +71,21 @@ internal static class SymbolRelocator
             .GroupBy(entry => Path.GetFullPath(entry.Tree.FilePath), StringComparer.OrdinalIgnoreCase)
             .Select(group => group.First()).ToArray();
 
+        // Moved test code reaches what stays private through generated private-access members (#2570): test-support holds no
+        // promotion of a member only it needs.
+        bool shimmed = style == RelocationStyle.VerificationAccess;
         var selection = RelocationSelection.Select(trees, targets, identity, shippedAssemblies);
         while (true)
         {
             var moves = new RelocationMoves(selection.Found, identity);
             var holders = RelocationHolders.ForMoves(solution, moves, targetDirectory, style, identity);
-            var decision = DecidePromotions(trees, moves, holders, identity, shippedAssemblies);
-            if (decision.Refused.Count == 0)
+            var decision = shimmed ? DecideShims(trees, moves, holders, identity, shippedAssemblies)
+                : DecidePromotions(trees, moves, holders, identity, shippedAssemblies);
+            if (decision.Refused.Count == 0 && shimmed)
+            {
+                WritePromotions(decision.Collected, decision.Renames, moves, identity, typesOnly: true);
+            }
+            else if (decision.Refused.Count == 0)
             {
                 WritePromotions(decision.Collected, decision.Renames, moves, identity);
                 var renamed = decision.Collected.Widened.Where(symbol => decision.Renames.NewName(symbol) is not null).ToList();
@@ -88,10 +98,12 @@ internal static class SymbolRelocator
                 continue;
             }
             var placed = RelocationOutput.Place(moves, decision.Collected, holders, trees, style, targetDirectory, identity);
+            int shims = shimmed ? WriteShims(decision.Collected, solution.RepositoryRoot) : 0;
+            int promoted = decision.Collected.Promotions.Count - shims;
             foreach (string line in selection.Manual) Console.WriteLine(line);
             Console.WriteLine($"Relocated {moves.All.Count} declarations into {placed.Written} files; deleted {placed.Deleted} emptied files; " +
-                $"{decision.Collected.Promotions.Count} members made internal; {decision.Renames.Count} renamed without their underscore; " +
-                $"{selection.Manual.Count} left for manual relocation.");
+                $"{promoted} members made internal; {shims} private members reached through private-access members; " +
+                $"{decision.Renames.Count} renamed without their underscore; {selection.Manual.Count} left for manual relocation.");
             return;
         }
     }
@@ -128,6 +140,55 @@ internal static class SymbolRelocator
         return new PromotionDecision(renamed, renames, []);
     }
 
+    /// <summary>
+    /// The shim step: what moved code reaches of a staying owner stays private and is reached through a generated
+    /// private-access member (<see cref="PrivateAccessShims"/>), so no rule a promotion can break applies to it and nothing
+    /// is renamed. A type moved code names still becomes internal under the promotion rules. A member no extension member
+    /// can stand in for (<see cref="PrivateAccessShims.Refusal"/>), and a private setter of a property moved code otherwise
+    /// sees, which a check binds to the property rather than to an extension member, are refused.
+    /// </summary>
+    private static PromotionDecision DecideShims(IReadOnlyList<ProjectTree> trees, RelocationMoves moves, RelocationHolders holders,
+        SymbolIdentity identity, IReadOnlySet<string> shippedAssemblies)
+    {
+        var renames = new RenameMap(new Dictionary<string, string>(StringComparer.Ordinal), identity);
+        var collected = new ReferenceRewriter(trees, moves, holders, identity, shippedAssemblies, renames, shimsMembers: true).Collect();
+        var refusals = new Dictionary<ISymbol, string>(SymbolEqualityComparer.Default);
+        foreach (var member in collected.Promotions.Where(symbol => symbol is not INamedTypeSymbol))
+            if (PrivateAccessShims.Refusal(member) is { } reason)
+                refusals[member] = $"{member.ToDisplayString()}, which moved code reaches and stays private, is a {reason}, which no " +
+                    "private-access member can stand in for: move or reach it by hand";
+        foreach (var property in collected.SetterPromotions.Where(symbol => !collected.Promotions.Contains(symbol)))
+            refusals.TryAdd(property, $"{property.ToDisplayString()}, whose private setter moved code writes while it sees the " +
+                "property itself, so the write binds to the property and not to a private-access member: set it through PrivateState.Set");
+        var types = new SourceTypes(identity, trees.Select(entry => entry.Compilation));
+        var compilationOf = trees.ToDictionary(entry => entry.Tree, entry => entry.Compilation);
+        foreach (var (symbol, reason) in PromotionRules.Refusals([.. collected.Promotions.OfType<INamedTypeSymbol>()], [],
+                     member => member.Name, types, tree => SemanticModels.Of(compilationOf[tree], tree), identity))
+            refusals.TryAdd(symbol, reason);
+        return new PromotionDecision(collected, renames, refusals.Count > 0 ? Refused(collected, identity, refusals) : []);
+    }
+
+    /// <summary>Writes the private-access member of every staying member moved code reaches; returns how many it wrote.</summary>
+    private static int WriteShims(ReferenceEdits collected, string repositoryRoot)
+    {
+        int written = 0;
+        foreach (var owner in collected.Promotions.Where(symbol => symbol is not INamedTypeSymbol)
+                     .GroupBy(symbol => symbol.ContainingType, SymbolEqualityComparer.Default))
+        {
+            var shims = PrivateAccessShims.For(repositoryRoot, (INamedTypeSymbol)owner.Key!);
+            foreach (var member in owner)
+            {
+                shims.Add(member, member is IFieldSymbol { IsReadOnly: false } or IPropertySymbol { SetMethod: not null });
+                written++;
+            }
+            Directory.CreateDirectory(Path.GetDirectoryName(shims.Path)!);
+            File.WriteAllText(shims.Path, shims.Render(), new System.Text.UTF8Encoding(false));
+        }
+        if (written > 0)
+            PrivateAccessShims.WriteImports(repositoryRoot);
+        return written;
+    }
+
     /// <summary>The moves reaching each refused member, each once, with the first reason that refuses it.</summary>
     private static List<RefusedMove> Refused(ReferenceEdits collected, SymbolIdentity identity, IReadOnlyDictionary<ISymbol, string> refusals)
     {
@@ -145,8 +206,15 @@ internal static class SymbolRelocator
     /// underscore-prefixed one under its name without the underscore (<see cref="PromotedNames"/>).
     /// </summary>
     /// <exception cref="InvalidOperationException">A promoted declaration takes no accessibility modifier or cannot be made internal.</exception>
-    private static void WritePromotions(ReferenceEdits collected, RenameMap renames, RelocationMoves moves, SymbolIdentity identity)
+    private static void WritePromotions(ReferenceEdits collected, RenameMap renames, RelocationMoves moves, SymbolIdentity identity,
+        bool typesOnly = false)
     {
+        if (typesOnly)
+        {
+            foreach (var type in collected.Promotions.OfType<INamedTypeSymbol>())
+                WritePromotion(collected, moves, identity, type);
+            return;
+        }
         foreach (var symbol in collected.SetterPromotions)
             foreach (var syntax in DeclarationsOf(identity, symbol))
                 if (syntax is PropertyDeclarationSyntax { AccessorList: { } accessors } property &&
@@ -156,24 +224,7 @@ internal static class SymbolRelocator
                                  symbol.DeclaredAccessibility is not (Accessibility.Public or Accessibility.ProtectedOrInternal)))
                         collected.Add(property.SyntaxTree, span, text);
         foreach (var symbol in collected.Promotions)
-        {
-            if (symbol.DeclaredAccessibility is Accessibility.Internal or Accessibility.Public or Accessibility.ProtectedOrInternal) continue;
-            // An accessibility modifier would require the method to be implemented (CS8795), and whether its calls run at all
-            // depends on that.
-            if (Unimplemented(symbol))
-                throw new InvalidOperationException($"Moved code uses {symbol.ToDisplayString()}, a partial method without an " +
-                    "implementation, from outside its owner, and it cannot be made internal without one.");
-            foreach (var syntax in DeclarationsOf(identity, symbol))
-            {
-                var declaration = syntax is VariableDeclaratorSyntax { Parent.Parent: BaseFieldDeclarationSyntax sharedField } ? sharedField : DeclarationNode(syntax);
-                if (moves.InMovedSpan(declaration.SyntaxTree, declaration.Span)) continue;
-                if (declaration is not MemberDeclarationSyntax member)
-                    throw new InvalidOperationException($"{symbol.ToDisplayString()}, which moved code uses, is declared by a " +
-                        $"{declaration.Kind()} at {declaration.GetLocation().GetLineSpan()}, which takes no accessibility modifier.");
-                foreach (var (span, text) in RelocationModifiers.Promoted(member))
-                    collected.Add(declaration.SyntaxTree, span, text);
-            }
-        }
+            WritePromotion(collected, moves, identity, symbol);
         foreach (var symbol in collected.Widened)
             if (renames.NewName(symbol) is { } name)
                 foreach (var syntax in DeclarationsOf(identity, symbol))
@@ -184,5 +235,27 @@ internal static class SymbolRelocator
                         _ => throw new InvalidOperationException($"{symbol.ToDisplayString()} is declared by a {syntax.Kind()} at " +
                             $"{syntax.GetLocation().GetLineSpan()}, whose name the rename cannot find."),
                     }, name);
+    }
+
+    /// <summary>Writes one promoted declaration's accessibility: internal, as moved code needs it.</summary>
+    /// <exception cref="InvalidOperationException">The declaration takes no accessibility modifier or cannot be made internal.</exception>
+    private static void WritePromotion(ReferenceEdits collected, RelocationMoves moves, SymbolIdentity identity, ISymbol symbol)
+    {
+        if (symbol.DeclaredAccessibility is Accessibility.Internal or Accessibility.Public or Accessibility.ProtectedOrInternal) return;
+        // An accessibility modifier would require the method to be implemented (CS8795), and whether its calls run at all
+        // depends on that.
+        if (Unimplemented(symbol))
+            throw new InvalidOperationException($"Moved code uses {symbol.ToDisplayString()}, a partial method without an " +
+                "implementation, from outside its owner, and it cannot be made internal without one.");
+        foreach (var syntax in DeclarationsOf(identity, symbol))
+        {
+            var declaration = syntax is VariableDeclaratorSyntax { Parent.Parent: BaseFieldDeclarationSyntax sharedField } ? sharedField : DeclarationNode(syntax);
+            if (moves.InMovedSpan(declaration.SyntaxTree, declaration.Span)) continue;
+            if (declaration is not MemberDeclarationSyntax member)
+                throw new InvalidOperationException($"{symbol.ToDisplayString()}, which moved code uses, is declared by a " +
+                    $"{declaration.Kind()} at {declaration.GetLocation().GetLineSpan()}, which takes no accessibility modifier.");
+            foreach (var (span, text) in RelocationModifiers.Promoted(member))
+                collected.Add(declaration.SyntaxTree, span, text);
+        }
     }
 }

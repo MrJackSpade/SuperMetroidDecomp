@@ -206,7 +206,7 @@ internal static class PpuMemoryModelVerification
             for (int frame = 0; frame < frames; frame++)
             {
                 CgramPalette objects = new CgramPalettes(cgram).Objects;
-                for (int index = 0; index < objects.Count; index++)
+                for (int index = 0; index < objects.Colors.Length; index++)
                     objects.Write(index, RgbColor.Saturating(objects.Colors[index].FadeLevels.Red + 1, frame & 31, index & 31));
                 VramRegion bg1 = new VramRegion(vram, GameplayVramLayoutConstants.Bg1Tilemap);
                 for (int line = 0; line < 32; line++)

@@ -69,6 +69,9 @@ internal sealed class ReferenceRewriter
     /// </summary>
     private readonly Dictionary<SyntaxTree, SortedSet<string>> neededUsings = new();
 
+    /// <summary>Whether staying members moved code reaches stay private, reached through generated private-access members.</summary>
+    private readonly bool shimsMembers;
+
     /// <summary>
     /// Crefs in moved documentation to staying members, written once what becomes internal is known: the target compiles
     /// against the reference assembly of the member's project, which holds no private member.
@@ -82,9 +85,14 @@ internal sealed class ReferenceRewriter
     /// <param name="identity">Gives each symbol its repository key.</param>
     /// <param name="shippedAssemblies">The assemblies that ship to players.</param>
     /// <param name="renames">The names promoted underscore-prefixed members take.</param>
+    /// <param name="shimsMembers">
+    /// Whether the staying members moved code reaches stay private, reached through generated private-access members in
+    /// test-support (<see cref="PrivateAccessShims"/>), rather than becoming internal; a type moved code names still does.
+    /// </param>
     public ReferenceRewriter(IReadOnlyList<ProjectTree> trees, RelocationMoves moves, RelocationHolders holders, SymbolIdentity identity,
-        IReadOnlySet<string> shippedAssemblies, RenameMap renames)
+        IReadOnlySet<string> shippedAssemblies, RenameMap renames, bool shimsMembers = false)
     {
+        this.shimsMembers = shimsMembers;
         this.trees = trees;
         this.moves = moves;
         this.holders = holders;
@@ -369,7 +377,8 @@ internal sealed class ReferenceRewriter
 
     /// <summary>Whether the target cannot see a staying symbol: it, or a type containing it, stays private.</summary>
     private bool HiddenFromTarget(ISymbol symbol) =>
-        symbol.DeclaredAccessibility is Accessibility.Private or Accessibility.ProtectedAndInternal && !widened.Contains(symbol) ||
+        symbol.DeclaredAccessibility is Accessibility.Private or Accessibility.ProtectedAndInternal &&
+            (!widened.Contains(symbol) || shimsMembers && symbol is not INamedTypeSymbol) ||
         symbol.ContainingType?.OriginalDefinition is { } container && HiddenFromTarget(container);
 
     /// <summary>Records that moved code reaches a staying member, and writes its setter when <paramref name="written"/>.</summary>

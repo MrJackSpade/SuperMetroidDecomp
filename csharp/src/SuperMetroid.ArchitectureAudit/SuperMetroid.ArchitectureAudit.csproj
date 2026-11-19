@@ -16,6 +16,8 @@
     <!-- The module inventory reads the same module map the #626 analyzers enforce. -->
     <Compile Include="../SuperMetroid.EnsureAnalyzer/Modules/ModuleMap.cs" Link="Shared/ModuleMap.cs" />
     <Compile Include="../SuperMetroid.ReachabilityAudit/SolutionLoading/**/*.cs" LinkBase="SolutionLoading" />
+    <!-- The test-only-member fix and the reachability prune generate one kind of private-access class. -->
+    <Compile Include="../SuperMetroid.ReachabilityAudit/Removal/PrivateAccessShims.cs" Link="Shared/PrivateAccessShims.cs" />
   </ItemGroup>
   <Import Project="../../test-support/WindowsConsole.projitems" />
 </Project>

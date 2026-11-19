@@ -99,13 +99,6 @@ public readonly record struct UnsignedSixteenSixteen
         FromRaw(unchecked(speed.RawValue + (uint)change.RawValue));
 
     /// <summary>
-    /// Subtracts a signed change, as the game's speed arithmetic subtracts a signed 16.16 deceleration from an unsigned
-    /// speed: the difference underflows and wraps exactly as the two parts' 32-bit subtraction does.
-    /// </summary>
-    public static UnsignedSixteenSixteen operator -(UnsignedSixteenSixteen speed, SignedSixteenSixteen change) =>
-        FromRaw(unchecked(speed.RawValue - (uint)change.RawValue));
-
-    /// <summary>
     /// The value halved <paramref name="halvings"/> times, 0 through 16: each halving moves the lowest whole bit into
     /// the top of the fraction and drops the fraction's lowest bit.
     /// </summary>

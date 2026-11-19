@@ -453,7 +453,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         if (place.Health == 0)
             return;
         BeetomEnemyState state = place.RequireSpeciesState<BeetomEnemyState>();
-        if (place.FrozenTimer != 0 && state.Action == BeetomAction.Draining)
+        if (place.Freeze.IsRunning && state.Action == BeetomAction.Draining)
         {
             state.Action = BeetomAction.StartDropping;
         }

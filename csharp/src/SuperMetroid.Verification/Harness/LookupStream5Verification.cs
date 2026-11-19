@@ -144,7 +144,7 @@ internal static class LookupStream5Verification
             var place = system.Places.InUpdateOrder[0];
             place.BindCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
             place.Position = place.Position.WithWhole(origin);
-            var doorState = new CeresElevatorDoorState { Phase = CeresElevatorDoorPhase.Exploding, RumbleUpdatesLeft = 49, ExplosionIntervalLeft = 1 };
+            var doorState = new CeresElevatorDoorState { Phase = CeresElevatorDoorPhase.Exploding, Rumble = UpdateCountdown.Lasting(49), ExplosionWait = UpdateCountdown.Lasting(1) };
             place.SetSpeciesState(doorState);
             system.RidleyEncounter.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
             int randomCalls = 0;
@@ -279,7 +279,7 @@ internal static class LookupStream5Verification
             AssertEqual(PhantoonPartSegment.EyeOpen, state.EyePart.PlayingProgram(), "Expiration starts exact eye-opening program");
             AssertEqual(1, eye.AnimationClock.Hold, "Eye-opening program executes on next instruction step");
             AssertEqual(false, state.FlameRainRequested, "Opening clears flame-rain trigger");
-            AssertEqual(0, state.CasualFlames.Hold.Count, "Casual hold still advances on every movement call: its last update is left");
+            AssertEqual(0, state.CasualFlames.Hold.CartridgeCount, "Casual hold still advances on every movement call: its last update is left");
             AssertEqual(1, randomCalls, "Only independent initial direction consumes RNG in this fixture");
             var flames = system.Projectiles.EnemyProjectiles.Where(projectile => projectile.IsActive).ToArray();
             AssertEqual(8, flames.Length, "Exact expiry spawns eight real spiral projectiles");

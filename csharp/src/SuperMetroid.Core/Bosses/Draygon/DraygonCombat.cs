@@ -67,7 +67,7 @@ internal sealed class DraygonCombat
         DraygonEnemyState state,
         SamusState samus)
     {
-        bool whiteFrame = DraygonCadenceDefinitions.HurtWhiteFlashShown.IsSetIn(body.FlashTimer);
+        bool whiteFrame = DraygonCadenceDefinitions.HurtWhiteFlashShown.IsSetIn(body.HurtFlash.UpdatesLeft);
         // A hurt update shows his material colours with his band, or their white flash, as the import's shades (#1512).
         state.Colours.ShowHurt(whiteFrame);
         if (!whiteFrame)

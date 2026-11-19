@@ -380,7 +380,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (place.Health != 0)
         {
-            if (place.FrozenTimer == 0)
+            if (place.Freeze.IsOver)
                 return;
 
             ReleaseSamusFromYappingMaw(state, samus);
@@ -410,7 +410,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         PictureShading shading = SelectYappingMawFrozenShading(
             place.Shading,
-            place.FrozenTimer);
+            place.Freeze.UpdatesLeft);
         foreach (YappingMawLink link in state.Links)
             link.Body.Graphics = link.Body.Graphics.In(shading);
 

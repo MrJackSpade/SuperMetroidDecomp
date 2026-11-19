@@ -107,22 +107,22 @@ internal static class EnemyFormatDrawEntriesVerification
 
         // The shake tick belongs to the advance: it is consumed identically whether or not the frame is drawn.
         ordinary.FrameCounter = 0;
-        ordinary.ShakeTimer = 2;
+        ordinary.Shake.Restart(2);
         enemies.Drawing.Advance(Position16<RoomPixels>.Zero);
-        int undisplayed = ordinary.ShakeTimer;
-        ordinary.ShakeTimer = 2;
+        int undisplayed = ordinary.Shake.UpdatesLeft;
+        ordinary.Shake.Restart(2);
         sprites.BeginFrame();
         enemies.Drawing.Advance(Position16<RoomPixels>.Zero);
         enemies.Drawing.Draw(sprites, Position16<RoomPixels>.Zero, RoomEnemyFrameFixtures.StandaloneSamus());
         sprites.FinalizeFrame();
         AssertEqual(1, undisplayed, "An undrawn frame consumes one shake tick");
-        AssertEqual(undisplayed, ordinary.ShakeTimer, "A drawn frame consumes the same shake tick");
+        AssertEqual(undisplayed, ordinary.Shake.UpdatesLeft, "A drawn frame consumes the same shake tick");
         AssertEqual(new Offset16<ScreenPixels>(101, 80), sprites.Draws[0].Origin, "The drawn frame shows the shaken origin");
 
         // An enemy left of and above the view draws at a negative place, and a shake that carries an enemy at the view's
         // left edge past it draws it one pixel left of the view (#2037): its place is its signed offset from the camera.
         var camera = new Position16<RoomPixels>(36, 24);
-        ordinary.ShakeTimer = 0;
+        ordinary.Shake.End();
         ordinary.Position = ordinary.Position.WithWhole(new(20, 10));
         sprites.BeginFrame();
         enemies.Drawing.Advance(camera);
@@ -131,7 +131,7 @@ internal static class EnemyFormatDrawEntriesVerification
         AssertEqual(new Offset16<ScreenPixels>(-16, -14), sprites.Draws[0].Origin, "An enemy left of and above the view draws at a negative place");
         ordinary.Position = ordinary.Position.WithWhole(camera);
         ordinary.FrameCounter = Enumerable.Range(0, 16).First(EnemyDrawPhaseDefinitions.ShakeShiftsLeft.IsSetIn);
-        ordinary.ShakeTimer = 1;
+        ordinary.Shake.Restart(1);
         sprites.BeginFrame();
         enemies.Drawing.Advance(camera);
         enemies.Drawing.Draw(sprites, camera, RoomEnemyFrameFixtures.StandaloneSamus());

@@ -591,16 +591,16 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 secondFollowing.Presence = secondFollowing.Presence.With(EnemyPresence.Deleted);
         }
 
-        if (current.FrozenTimer == 0)
+        if (current.Freeze.IsOver)
             return;
         if (following is not null)
         {
-            following.FrozenTimer = current.FrozenTimer;
+            following.Freeze.Restart(current.Freeze.UpdatesLeft);
             following.AiStates = following.AiStates | EnemyAiStates.Frozen;
         }
         if (secondFollowing is not null)
         {
-            secondFollowing.FrozenTimer = current.FrozenTimer;
+            secondFollowing.Freeze.Restart(current.Freeze.UpdatesLeft);
             secondFollowing.AiStates = secondFollowing.AiStates | EnemyAiStates.Frozen;
         }
     }

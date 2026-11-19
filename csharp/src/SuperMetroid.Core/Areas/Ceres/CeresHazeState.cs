@@ -28,8 +28,11 @@ public sealed class CeresHazeState
     }
     /// <summary>Current haze phase, independent of its selected color channel.</summary>
     private Phase _phase;
-    /// <summary>How far the haze has faded: the strength fading in shows next, or the strength fading out shows next.</summary>
-    private int _counter;
+    /// <summary>
+    /// The fade running: one update a strength, its age the strength fading in shows next and its updates left the strength
+    /// fading out shows next.
+    /// </summary>
+    private UpdateCountdown fade = UpdateCountdown.Ended();
     /// <summary>The tint the haze adds, chosen once as it starts by whether Ridley is dead; later defeats do not change it.</summary>
     public CeresHazeTint Tint { get; }
     /// <summary>The strength the haze shows, in steps of its fade: 0 through 15 as it fades in, 16 down to 1 as it fades out, and 1 once it has faded out.</summary>
@@ -46,7 +49,6 @@ public sealed class CeresHazeState
     {
         Tint = ridleyIsDead ? CeresHazeTint.AfterRidleyDies : CeresHazeTint.WhileRidleyLives;
         _phase = immediateViewport ? Phase.Holding : Phase.Waiting;
-        _counter = immediateViewport ? CeresHazeDefinitions.FadeSteps : 0;
         _strength = immediateViewport ? CeresHazeDefinitions.FadeSteps - 1 : 0;
     }
 
@@ -85,18 +87,32 @@ public sealed class CeresHazeState
         {
             if (roomFade != RoomFade.FadingIn) return;
             _phase = Phase.FadingIn;
+            fade = UpdateCountdown.Lasting(CeresHazeDefinitions.FadeSteps);
         }
         switch (_phase)
         {
             case Phase.FadingIn:
-                if (_counter == CeresHazeDefinitions.FadeSteps) _phase = Phase.Holding;
-                else _strength = _counter++;
+                if (fade.IsOver)
+                    _phase = Phase.Holding;
+                else
+                {
+                    _strength = fade.Age;
+                    fade.Count();
+                }
                 break;
             case Phase.Holding:
-                if (roomFade == RoomFade.FadingOut) _phase = Phase.FadingOut;
+                if (roomFade == RoomFade.FadingOut)
+                {
+                    _phase = Phase.FadingOut;
+                    fade = UpdateCountdown.Lasting(CeresHazeDefinitions.FadeSteps);
+                }
                 break;
             case Phase.FadingOut:
-                if (_counter != 0) _strength = _counter--;
+                if (fade.IsRunning)
+                {
+                    _strength = fade.UpdatesLeft;
+                    fade.Count();
+                }
                 break;
             case Phase.Waiting:
                 throw new InvalidOperationException("Waiting either returns or starts the fade-in above.");

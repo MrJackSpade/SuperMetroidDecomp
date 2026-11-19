@@ -262,7 +262,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     attack.Step(samus, MotherBrainLateFightFixtures.QuietFrame(cameraCheckpoint, 0, 0));
     AssertEqual(MotherBrainRainbowPhase.DecideNextAction, attack.Encounter.RainbowPhase,
         "lower-head function installs decision timer");
-    AssertEqual(0x0080, attack.Encounter.PhaseTimer.Count, "lower-head function seeds $80 timer");
+    AssertEqual(0x0080, attack.Encounter.PhaseTimer.CartridgeCount, "lower-head function seeds $80 timer");
 
     int decisionCalls = 0;
     while ((attack.Encounter.Stage == MotherBrainBodyStage.RainbowBeam && attack.Encounter.RainbowPhase == MotherBrainRainbowPhase.DecideNextAction))

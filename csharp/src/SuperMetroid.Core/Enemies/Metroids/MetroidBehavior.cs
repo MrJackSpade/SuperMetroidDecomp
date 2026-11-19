@@ -203,7 +203,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.EscapeMovesLeft != 0)
         {
             state.EscapeMovesLeft--;
-            place.FlashTimer = MetroidBehaviorDefinitions.EscapeFlashDuration;
+            place.HurtFlash.Restart(MetroidBehaviorDefinitions.EscapeFlashDuration);
         }
 
         FreezeMetroidOuterBody(state.Electricity);
@@ -217,7 +217,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void ApplyMetroidHurt(RoomEnemyPlace place)
     {
         MetroidEnemyState state = place.RequireSpeciesState<MetroidEnemyState>();
-        if (MetroidCadenceDefinitions.HurtOuterBodiesShowOwnColours.IsSetIn(place.FlashTimer))
+        if (MetroidCadenceDefinitions.HurtOuterBodiesShowOwnColours.IsSetIn(place.HurtFlash.UpdatesLeft))
         {
             state.Electricity.Graphics = state.Electricity.Graphics.In(place.Shading);
             state.Shell.Graphics = state.Shell.Graphics.In(place.Shading);
@@ -323,11 +323,11 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (collisionProjectileType.BeamCombination.HasIce)
         {
-            place.FlashTimer = MetroidBehaviorDefinitions.IceFlashDuration;
+            place.HurtFlash.Restart(MetroidBehaviorDefinitions.IceFlashDuration);
             if (collisionProjectileDamage >= state.IceDamageToFreeze)
             {
                 state.IceDamageToFreeze = 0;
-                place.FrozenTimer = MetroidBehaviorDefinitions.FrozenDuration;
+                place.Freeze.Restart(MetroidBehaviorDefinitions.FrozenDuration);
                 place.AiStates |= EnemyAiStates.Frozen;
                 return;
             }
@@ -423,7 +423,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal void ReactToMetroidBomb(EnemyBombContext c)
     {
-        if (c.Enemy.FrozenTimer == 0)
+        if (c.Enemy.Freeze.IsOver)
         {
             SamusProjectile recoilOrigin = MetroidRecoilOrigin.Of(c.OrdinaryProjectiles.Shots);
             ResolveMetroidNonFrozenShot(c.Enemy, c.Bomb.Type, Ensure.AtLeastZero(c.Bomb.Damage), recoilOrigin.Position.Whole, c.Samus);
@@ -456,7 +456,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal bool ResolveMetroidOrdinaryShot(in EnemyShotContext c)
     {
         RoomEnemyPlace enemy = c.Enemy;
-        if (enemy.FrozenTimer != 0)
+        if (enemy.Freeze.IsRunning)
         {
             if (c.Family is not SamusProjectileFamily.Missile and not SamusProjectileFamily.SuperMissile)
             {
@@ -475,7 +475,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             int frozenDamage = frozenVulnerability.DamageFrom(c.ProjectileDamage);
             if (!frozenVulnerability.FreezesWithoutDamage && frozenDamage != 0)
             {
-                enemy.FlashTimer = enemy.HurtFlashFrames + MetroidBehaviorDefinitions.FrozenHurtFlashExtension;
+                enemy.HurtFlash.Restart(enemy.HurtFlashFrames + MetroidBehaviorDefinitions.FrozenHurtFlashExtension);
                 enemy.AiStates |= EnemyAiStates.Hurt;
                 enemy.Health = frozenDamage >= enemy.Health
                     ? 0

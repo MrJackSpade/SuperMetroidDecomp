@@ -89,7 +89,7 @@ internal static class RidleyMissedLungeVerification
         run(place, state, samus, 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
         AssertEqual(NorfairRidleyPhase.DeathRoar, state.Phase, "tenth miss immediately executes death-roar setup");
         AssertEqual(RidleyFightMode.Dying, state.FightMode, "tenth miss enters death mode without requiring a grab");
-        AssertEqual(32, state.PhaseTimer.Count, "native death-roar timer is armed");
+        AssertEqual(32, state.PhaseTimer.CartridgeCount, "native death-roar timer is armed");
 
         bomb.Arm();
         bomb.Spawn(new(200, 400));

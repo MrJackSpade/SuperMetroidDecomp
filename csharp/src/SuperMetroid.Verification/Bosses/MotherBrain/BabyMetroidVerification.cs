@@ -98,7 +98,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
         baby.Step(samus, HeadOf(motherBrain), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
     AssertEqual(BabyMetroidCutscenePhase.DashOntoScreen, baby.Phase,
         "Baby dash delay retains function at timer zero");
-    AssertEqual(0, baby.PhaseTimer.Count, "Baby dash delay exact zero boundary");
+    AssertEqual(0, baby.PhaseTimer.CartridgeCount, "Baby dash delay exact zero boundary");
     AssertEqual(new Position16<RoomPixels>(0x0140, 0x0060), baby.Position.Whole, "Baby remains still through call 248");
 
     baby.Step(samus, HeadOf(motherBrain), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
@@ -173,7 +173,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(MotherBrainDrainedPhase.RegainBalance,
         motherBrain.Encounter.DrainedPhase,
         "Mother Brain taken-aback setup falls through into regain balance");
-    AssertEqual(0x002f, motherBrain.Encounter.PhaseTimer.Count,
+    AssertEqual(0x002f, motherBrain.Encounter.PhaseTimer.CartridgeCount,
         "Mother Brain first regain call decrements $30 to $2F");
     AssertEqual(MotherBrainForm.DrainedByBabyMetroid, motherBrain.Encounter.Form, "Baby drain changes Mother Brain to her drained form");
     AssertEqual(MotherBrainNeckMovement.Raise, motherBrain.Encounter.LowerNeckMovement,

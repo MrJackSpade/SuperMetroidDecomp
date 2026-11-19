@@ -17,10 +17,10 @@ public sealed class CeresFallingDebrisRoomMainState
     private readonly RoomMainCarryover _carryover;
 
     /// <summary>
-    /// The updates until the next tile falls, the one it falls on included: at least one, and as many as the wait the previous
-    /// room's main left, plus the update it falls on.
+    /// The wait for the next falling tile, over on the update it falls: at first the wait the previous room's main left, plus
+    /// the update it falls on.
     /// </summary>
-    private int _updatesToNextFall;
+    private readonly UpdateCountdown nextFall;
 
     /// <summary>Builds one room's debris owner, adopting the wait the previous room's main left.</summary>
     /// <param name="carryover">The room-main value carried between rooms.</param>
@@ -31,18 +31,18 @@ public sealed class CeresFallingDebrisRoomMainState
         // falls on the update after the count runs out, or on the first update when the count already reads as run past
         // zero after that update's step (the shaft's backward sweep leaves its steps reading so).
         WrappingCountdown inherited = carryover.Countdown;
-        _updatesToNextFall = inherited.Decrement().IsNegative ? 1 : inherited.RemainingFrames + 1;
+        nextFall = UpdateCountdown.Lasting(inherited.Decrement().IsNegative ? 1 : inherited.RemainingFrames + 1);
     }
 
     /// <summary>Counts down one update and reports whether a tile falls on it, starting the next interval when one does.</summary>
     internal bool Step()
     {
-        bool falls = --_updatesToNextFall == 0;
+        bool falls = nextFall.Count();
         if (falls)
-            _updatesToNextFall = FallInterval;
+            nextFall.Restart(FallInterval);
         // The following room's main reads what the hall leaves as the hall reads it: the updates before the one its next
         // tile falls on.
-        _carryover.LeaveCountdown(WrappingCountdown.Start(_updatesToNextFall - 1));
+        _carryover.LeaveCountdown(WrappingCountdown.Start(nextFall.UpdatesLeft - 1));
         return falls;
     }
 }

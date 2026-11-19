@@ -249,7 +249,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     internal bool RunRinkaFrozenTail(RoomEnemyPlace place)
     {
         if (RinkaIsOutsideFlightWindow(place))
-            place.FrozenTimer = 0;
+            place.Freeze.End();
         if (!_rinkaTerminationFlag)
             return false;
 

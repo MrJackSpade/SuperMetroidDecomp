@@ -42,7 +42,7 @@ internal static class NativeSnapshotMotherBrainImport
         state.BodyPlacement = BodyPlacementOf(state);
         state.HitboxesEnabled = MotherBrainHitboxPartsCodec.FromNativeWord(W(MotherBrainMemory.HitboxesEnabled));
         state.BrainAction = MotherBrainNativeListAddresses.NativeBrainActions[W(MotherBrainMemory.BrainFunction)];
-        PrivateState.Set(state.PhaseTimer, nameof(BossCountdown.Count), CoordinateAxis.AsSigned(W(MotherBrainMemory.BodyFunctionTimer)));
+        state.PhaseTimer.SetCartridgeCount(CoordinateAxis.AsSigned(W(MotherBrainMemory.BodyFunctionTimer)));
         ushort flash = W(MotherBrainMemory.RoomPaletteAnimationScript);
         // The recorded hold counts the updates the flash's image has shown; the image moves on once the count has reached
         // its two updates, so it has the updates up to its two and one more left (#2404).
@@ -54,9 +54,9 @@ internal static class NativeSnapshotMotherBrainImport
         // (imported below), so only a collapse routine pointer decodes to a collapse function.
         if (MotherBrainNativeListAddresses.DecodeTubeCollapse(W(MotherBrainMemory.BrainSubFunction)) is { } collapse)
             state.TubeCollapse = collapse;
-        PrivateState.Set(state.TubeCollapseTimer, nameof(BossCountdown.Count), CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer)));
+        state.TubeCollapseTimer.SetCartridgeCount(CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer)));
         PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Place), CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer)));
-        PrivateState.Set(state.FakeDeathExplosionTimer, nameof(BossCountdown.Count), CoordinateAxis.AsSigned(W(MotherBrainMemory.FakeDeathExplosionTimer)));
+        state.FakeDeathExplosionTimer.SetCartridgeCount(CoordinateAxis.AsSigned(W(MotherBrainMemory.FakeDeathExplosionTimer)));
         // The recorded place is the position the last explosion took, counted in the order the game stepped back through
         // them; the positions are listed in the order they burst, so the next is the one after it there.
         int lastExplosion = W(MotherBrainMemory.FakeDeathExplosionIndex);
@@ -117,13 +117,13 @@ internal static class NativeSnapshotMotherBrainImport
         // While she waits before her pause the cartridge counts the wait by the leg-loading record it has reached, its body
         // timer already holding the pause; the port's phase timer holds the wait and starts the pause as it runs out (#2469).
         if (state.Stage == MotherBrainBodyStage.FakeDeathAscent && state.AscentPhase == MotherBrainAscentPhase.WaitBeforePause)
-            PrivateState.Set(state.PhaseTimer, nameof(BossCountdown.Count),
+            state.PhaseTimer.SetCartridgeCount(
                 MotherBrainWaitDefinitions.BeforePauseUpdates - 1 - DecodeLegTilePage(W(MotherBrainMemory.SpriteTileTransferEntry)));
         // The cartridge counts every fade but her fake death's greying on one word; each fade plays on its own (#2251,
         // #2404). The one her phase runs resumes from the recorded count and phase timer; every other starts over when its
         // phase starts it.
         if (RunningFade(state) is { } running)
-            ResumeFade(running, W(MotherBrainMemory.GreyTransitionCounter), state.PhaseTimer.Count);
+            ResumeFade(running, W(MotherBrainMemory.GreyTransitionCounter), state.PhaseTimer.CartridgeCount);
         state.DroolGenerationEnabled = W(MotherBrainMemory.DroolGeneration) != 0;
         // The recorded place is the mouth point the last drool took; the points are listed from the one a fresh encounter's
         // first drool takes, so the next point sits at the recorded place there.
@@ -134,7 +134,7 @@ internal static class NativeSnapshotMotherBrainImport
         state.WalkCounter = SuperMetroid.Core.Compatibility.MotherBrainWalkCreditConstants.FromNativeWord(W(MotherBrainMemory.WalkCounter));
         state.AttackPhase = MotherBrainNativeWords.AttackPhases.Decode(W(MotherBrainMemory.AttackPhase), "Mother Brain attack phase");
         // The cooldown's word holds the updates it lasts.
-        PrivateState.Set(state.AttackCooldown, nameof(BossCountdown.Count), W(MotherBrainMemory.BodyAttackCooldown) - 1);
+        state.AttackCooldown.SetCartridgeCount(W(MotherBrainMemory.BodyAttackCooldown) - 1);
         state.BombCounter = W(MotherBrainMemory.BombCounter);
         state.BodyTargetXPosition = W(MotherBrainMemory.BodyFunctionTimer);
         state.HandBeamPhase = MotherBrainNativeWords.HandBeamPhases.Decode(W(MotherBrainMemory.DeathBeamAttackPhase), "Mother Brain hand-beam phase");

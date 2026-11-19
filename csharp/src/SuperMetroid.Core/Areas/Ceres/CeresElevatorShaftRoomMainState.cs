@@ -22,8 +22,11 @@ public sealed class CeresElevatorShaftRoomMainState
     /// <summary>The last tilt of the backward sweep, one step short of the full anticlockwise tilt.</summary>
     private static readonly CeresShaftTilt LastBackwardTilt = CeresShaftTilt.FullAnticlockwise.OneStepClockwise;
 
-    /// <summary>The further updates the shaft holds its tilt; the update after the last of them turns it.</summary>
-    public int HoldFramesLeft { get; private set; }
+    /// <summary>
+    /// The further updates the shaft holds its tilt, the update that turned it to the tilt being the first it holds it; the
+    /// update after the hold is over turns it.
+    /// </summary>
+    public UpdateCountdown Hold { get; } = UpdateCountdown.Lasting(CeresShaftRotationDefinitions.LevelHoldFrames);
 
     /// <summary>
     /// The tilt the shaft turns to next (#1895): from the full anticlockwise tilt through the full clockwise one. It selects
@@ -50,7 +53,6 @@ public sealed class CeresElevatorShaftRoomMainState
         Ensure.NotNull(carryover);
         Tilt = CeresShaftTilt.Level;
         LeaveTurnStep(carryover);
-        HoldFramesLeft = CeresShaftRotationDefinitions.LevelHoldFrames;
     }
 
     /// <summary>Runs the shaft's room main behaviour once.</summary>
@@ -94,15 +96,15 @@ public sealed class CeresElevatorShaftRoomMainState
             samus.Control.LockOutPlayer();
         }
 
-        if (HoldFramesLeft > 0)
+        if (Hold.IsRunning)
         {
-            HoldFramesLeft--;
+            Hold.Count();
             return new(Transform, TiltChanged: false, elevatorTookSamus);
         }
 
         // Both sweeps show the current tilt.
         // The update that turns the shaft to a tilt is the first of the updates it holds it.
-        HoldFramesLeft = Tilt.HoldUpdates - 1;
+        Hold.Restart(Tilt.HoldUpdates - 1);
         Transform = new TurningFloorTransform(Tilt.Radians, CeresShaftRotationDefinitions.RotationCenter);
 
         // The forward sweep turns clockwise one step at a time; after its last tilt the turn reverses at the full

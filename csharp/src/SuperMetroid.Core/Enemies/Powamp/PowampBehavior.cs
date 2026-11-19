@@ -362,12 +362,12 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         PowampBalloon balloon = BalloonOf(body);
         if ((body.AiStates & EnemyAiStates.Frozen) != EnemyAiStates.None)
         {
-            balloon.Place.FrozenTimer = body.FrozenTimer;
+            balloon.Place.Freeze.Restart(body.Freeze.UpdatesLeft);
             balloon.Place.AiStates = balloon.Place.AiStates | EnemyAiStates.Frozen;
         }
         if ((body.AiStates & EnemyAiStates.Hurt) != EnemyAiStates.None)
         {
-            balloon.Place.FlashTimer = body.FlashTimer;
+            balloon.Place.HurtFlash.Restart(body.HurtFlash.UpdatesLeft);
             balloon.Place.AiStates = balloon.Place.AiStates | EnemyAiStates.Hurt;
         }
         if (body.Health == 0)
@@ -387,10 +387,10 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        balloon.Place.ShakeTimer = body.ShakeTimer;
-        balloon.Place.InvincibilityTimer = body.InvincibilityTimer;
-        balloon.Place.FlashTimer = body.FlashTimer;
-        balloon.Place.FrozenTimer = body.FrozenTimer;
+        balloon.Place.Shake.Restart(body.Shake.UpdatesLeft);
+        balloon.Place.Invincibility.Restart(body.Invincibility.UpdatesLeft);
+        balloon.Place.HurtFlash.Restart(body.HurtFlash.UpdatesLeft);
+        balloon.Place.Freeze.Restart(body.Freeze.UpdatesLeft);
         balloon.Place.AiStates = body.AiStates;
     }
 

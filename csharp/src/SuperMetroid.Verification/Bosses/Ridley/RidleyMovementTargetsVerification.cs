@@ -88,7 +88,7 @@ internal static class RidleyMovementTargetsVerification
             AssertEqual(Expected(place.Position.X.Whole, x, 16), state.Flight.Velocity.X.RawValue, "Carry target drives exact X acceleration");
             AssertEqual(Expected(place.Position.Y.Whole, y, 16), state.Flight.Velocity.Y.RawValue, "Carry target drives exact Y acceleration");
             // Setup stores 32 and then falls through into the shared timer decrement.
-            AssertEqual(31, state.PhaseTimer.Count, "Carry setup timer");
+            AssertEqual(31, state.PhaseTimer.CartridgeCount, "Carry setup timer");
             AssertEqual(NorfairRidleyPhase.CarryMoveToAnchor, state.Phase, "Carry setup phase");
             AssertEqual(RidleyInertiaDefinitions.LargestDivisor - hover[raw % 4], readDivisor(state), "Every health band reads its native hover divisor");
         }

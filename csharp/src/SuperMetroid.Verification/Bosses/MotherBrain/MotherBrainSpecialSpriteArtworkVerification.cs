@@ -139,7 +139,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             "Mother Brain leg-loading page eleven is followed by native zero terminator");
 
         // The pause's first update is the wait's last, so it has taken its first step of the updates it lasts.
-        AssertEqual(MotherBrainWaitDefinitions.StandingBodyPauseUpdates - 2, state.PhaseTimer.Count,
+        AssertEqual(MotherBrainWaitDefinitions.StandingBodyPauseUpdates - 2, state.PhaseTimer.CartridgeCount,
             "the pause before she rises takes its first step on the wait's last update");
         AssertThrows<InvalidDataException>(
             () => NativeSnapshotMotherBrainImport.DecodeLegTilePage(unchecked(

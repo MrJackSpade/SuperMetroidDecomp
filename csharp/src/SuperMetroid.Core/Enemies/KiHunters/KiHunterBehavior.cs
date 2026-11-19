@@ -575,9 +575,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!wingsInPlace)
             return;
         wings.AiStates = body.AiStates;
-        wings.FrozenTimer = body.FrozenTimer;
-        wings.InvincibilityTimer = body.InvincibilityTimer;
-        wings.FlashTimer = body.FlashTimer;
+        wings.Freeze.Restart(body.Freeze.UpdatesLeft);
+        wings.Invincibility.Restart(body.Invincibility.UpdatesLeft);
+        wings.HurtFlash.Restart(body.HurtFlash.UpdatesLeft);
     }
 
     /// <summary>Detaches the wings: their first orbit is centred where they are, starting where their climb starts.</summary>

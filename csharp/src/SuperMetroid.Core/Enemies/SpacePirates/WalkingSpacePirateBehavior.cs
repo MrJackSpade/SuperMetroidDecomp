@@ -463,7 +463,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         }
         if (pirateAction == PirateHitboxShotActions.PirateHitboxShotAction.Reflect)
         {
-            c.Enemy.InvincibilityTimer = SpacePirateCollisionDefinitions.ReflectInvincibility;
+            c.Enemy.Invincibility.Restart(SpacePirateCollisionDefinitions.ReflectInvincibility);
             // A shot aimed straight left or right reflects up and away; every other aim reflects down.
             SamusProjectileDirection reflected = c.Projectile.Direction switch
             {
@@ -561,7 +561,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                 $"Space Pirate has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
         }
         // While the Pirate is frozen, touching it deals neither Samus nor the Pirate contact damage.
-        if (context.Place.FrozenTimer != 0)
+        if (context.Place.Freeze.IsRunning)
             return;
         _collision.ResolveNormalEnemyTouch(context);
     }

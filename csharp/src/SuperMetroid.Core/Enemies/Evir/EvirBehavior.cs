@@ -186,7 +186,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         Position16<RoomPixels> camera)
     {
-        if (place.FrozenTimer == 0)
+        if (place.Freeze.IsOver)
         {
             if (state.Action == EvirSpitAction.Moving)
             {
@@ -316,7 +316,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         if (EnemyView.ContainsWithMargin(projectile.Position.Whole, camera, EvirMotionDefinitions.SpitRegenerationMargin))
             return;
 
-        if (state.Body.FrozenTimer != 0)
+        if (state.Body.Freeze.IsRunning)
             return;
 
         state.Action = EvirSpitAction.Regenerating;
@@ -329,7 +329,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Holds the growing spit at its body's mouth, offset as its animation moves it, until the animation finishes it.</summary>
     private static void RunRegeneratingEvirProjectile(RoomEnemyPlace projectile, EvirSpitState state)
     {
-        if (state.Body.FrozenTimer != 0)
+        if (state.Body.Freeze.IsRunning)
             return;
 
         ResetEvirProjectilePosition(projectile, state);
@@ -400,20 +400,20 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             secondRelative.Presence = secondRelative.Presence.With(EnemyPresence.Deleted);
         }
 
-        if (actor.FrozenTimer == 0)
+        if (actor.Freeze.IsOver)
             return;
         // The arms and the spit keep copies of the struck part's freeze rather than reading their body's, as the Ki-Hunter's
         // wings keep theirs (#2375, #2476): the copies are observable. Each part counts its copied freeze down on its own
         // turn, and the copy carries no hurt state, so a part's freeze runs out while a hurt body's waits for its flash to
         // end. A power bomb hits the arms on their own, whose follow-up freezes their spit and the next Evir's body, and
         // the spit can be shot and frozen by itself.
-        firstRelative.FrozenTimer = actor.FrozenTimer;
+        firstRelative.Freeze.Restart(actor.Freeze.UpdatesLeft);
         firstRelative.AiStates = firstRelative.AiStates | EnemyAiStates.Frozen;
         // The game compares the action of the enemy listed two places on with the moving spit's. In the
         // Evir rooms that place holds an Evir or nothing, never another species.
         if (secondRelative.SpeciesState<EvirSpitState>()?.Action != EvirSpitAction.Moving)
         {
-            secondRelative.FrozenTimer = actor.FrozenTimer;
+            secondRelative.Freeze.Restart(actor.Freeze.UpdatesLeft);
             secondRelative.AiStates = secondRelative.AiStates | EnemyAiStates.Frozen;
         }
     }

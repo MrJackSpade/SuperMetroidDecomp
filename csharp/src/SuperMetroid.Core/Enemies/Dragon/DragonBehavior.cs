@@ -246,10 +246,10 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         // never counts down on a wing that ignores Samus, so it keeps every later power bomb off the wing and its
         // follow-up off the enemy placed after it. Each part also counts its copied freeze and flash down on its own
         // turn, and the wing's own power-bomb hit sets them on the wing alone.
-        following.ShakeTimer = actor.ShakeTimer;
-        following.InvincibilityTimer = actor.InvincibilityTimer;
-        following.FlashTimer = actor.FlashTimer;
-        following.FrozenTimer = actor.FrozenTimer;
+        following.Shake.Restart(actor.Shake.UpdatesLeft);
+        following.Invincibility.Restart(actor.Invincibility.UpdatesLeft);
+        following.HurtFlash.Restart(actor.HurtFlash.UpdatesLeft);
+        following.Freeze.Restart(actor.Freeze.UpdatesLeft);
         following.AiStates = actor.AiStates;
     }
 

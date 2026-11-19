@@ -106,9 +106,9 @@ internal static class MetroidBehaviorDefinitionsVerification
         var strain = new List<(int MovesLeft, int Flash)>();
         for (int update = 0; update < 3; update++)
         {
-            frozenPlace.FlashTimer = 0;
+            frozenPlace.HurtFlash.End();
             MetroidBehavior.RunMetroidFrozen(frozenPlace);
-            strain.Add((frozen.EscapeMovesLeft, frozenPlace.FlashTimer));
+            strain.Add((frozen.EscapeMovesLeft, frozenPlace.HurtFlash.UpdatesLeft));
         }
         AssertTrue(strain.SequenceEqual([(1, MetroidBehaviorDefinitions.EscapeFlashDuration), (0, MetroidBehaviorDefinitions.EscapeFlashDuration), (0, 0)]),
             "a frozen escaping Metroid strains its two moves away, flashing, then stays still with none");

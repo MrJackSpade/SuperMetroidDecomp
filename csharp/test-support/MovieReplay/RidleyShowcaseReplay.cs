@@ -536,10 +536,10 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check(owner + " PaletteRow", NativeSpriteGraphicsWords.PaletteBits(actor.PaletteRowIn(runtime.Enemies)), address + 30);
                 // The port's slots carry no tile index (#1513); the index the import composes the occupant's sheet at is compared.
                 Check(owner + " TileIndexBase", actor.NativeTileBaseIn(runtime.Enemies), address + 32);
-                Check(owner + " FlashTimer", actor.FlashTimer, address + 36);
-                Check(owner + " FrozenTimer", actor.FrozenTimer, address + 38);
-                Check(owner + " InvincibilityTimer", actor.InvincibilityTimer, address + 40);
-                Check(owner + " ShakeTimer", actor.ShakeTimer, address + 42);
+                Check(owner + " FlashTimer", actor.HurtFlash.UpdatesLeft, address + 36);
+                Check(owner + " FrozenTimer", actor.Freeze.UpdatesLeft, address + 38);
+                Check(owner + " InvincibilityTimer", actor.Invincibility.UpdatesLeft, address + 40);
+                Check(owner + " ShakeTimer", actor.Shake.UpdatesLeft, address + 42);
                 // A breakup fragment's count only flickers it; the cartridge keeps only that phase of it (#1940).
                 if (actor.DefinitionId == EnemyDefinitionId.RidleyBreakupPiece)
                     CheckValue(owner + " flicker phase", actor.FrameCounter & 1, W(address + 44) & 1);
@@ -563,14 +563,14 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 // Once the reveal ends, the cartridge's timer keeps the reload of its last step, which no phase reads; the port
                 // keeps no such value, so the timer is compared only where a phase runs it.
                 int? expectedTimer = ridleyState.LiftedOff
-                    ? NorfairRidleyRunsPhaseTimer(ridleyState.Phase) ? ridleyState.PhaseTimer.Count : null
+                    ? NorfairRidleyRunsPhaseTimer(ridleyState.Phase) ? ridleyState.PhaseTimer.CartridgeCount : null
                     : ridleyState.RevealPhase switch
                     {
                         RidleyRevealPhase.FadeInEyes => 0,
                         RidleyRevealPhase.FadeInBody => ridleyState.BodyFade.UpdatesLeft == 1 ? 1 : 0,
                         RidleyRevealPhase.WaitBeforeLiftoff => ridleyState.ArenaReveal.UpdatesLeft - 1,
                         RidleyRevealPhase.WaitForDoorTransition or RidleyRevealPhase.InitialDelay or RidleyRevealPhase.WaitBeforeRoar =>
-                            ridleyState.PhaseTimer.Count,
+                            ridleyState.PhaseTimer.CartridgeCount,
                         RidleyRevealPhase.TakingOff => null,
                         _ => throw new InvalidOperationException($"Undefined {nameof(RidleyRevealPhase)} {ridleyState.RevealPhase}."),
                     };
@@ -1102,7 +1102,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
     private static ushort NativeSwoopTimer(NorfairRidleyState ridley) =>
         ridley.Phase == NorfairRidleyPhase.SwoopMoveToStart
             ? NativeSwoopSetupTimer
-            : checked((ushort)ridley.SwoopPhaseTimer.Count);
+            : checked((ushort)ridley.SwoopPhaseTimer.CartridgeCount);
 
     /// <summary>
     /// Whether Lower Norfair Ridley's <paramref name="phase"/> runs his phase countdown (#2409): every such phase is entered

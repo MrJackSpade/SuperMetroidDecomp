@@ -88,7 +88,7 @@ internal static class NativeEnemyFamilyStateImport
             {
                 // The cartridge's count opens the eye on the update it reaches zero; one it ran to zero or below opens it on
                 // the next.
-                PrivateState.Set(phantoon.Round.EyeClosedWait, nameof(BossCountdown.Count), Math.Max(0, CoordinateAxis.AsSigned(words.A)) - 1);
+                phantoon.Round.EyeClosedWait.SetCartridgeCount(Math.Max(0, CoordinateAxis.AsSigned(words.A)) - 1);
                 phantoon.FigureEight.Direction = words.C != 0 ? PhantoonPathDirection.Backwards : PhantoonPathDirection.Forwards;
                 phantoon.Death.FadeCycles = words.C;
                 // The eye's word E counts the steps of whichever of his fades runs: his body's, or after his death the
@@ -114,7 +114,7 @@ internal static class NativeEnemyFamilyStateImport
                 phantoon.CasualFlames.Schedule = PhantoonCasualFlameDefinitions.Burst.Choose(
                     Ensure.BetweenInclusive(0, PhantoonCasualFlameDefinitions.Burst.Field.Outcomes - 1, words.A));
                 // Its wait's word holds the updates the wait lasts; a word at or below zero runs out on the next update.
-                PrivateState.Set(phantoon.CasualFlames.Hold, nameof(BossCountdown.Count), CoordinateAxis.AsSigned(words.B) - 1);
+                phantoon.CasualFlames.Hold.SetCartridgeCount(CoordinateAxis.AsSigned(words.B) - 1);
                 // The record counts the burst's flames still to come; it reads below zero while no burst is under way, which
                 // the burst holds as no next flame. A count of zero spits a last flame as a count of one does.
                 short casualFlames = unchecked((short)words.C);
@@ -143,7 +143,7 @@ internal static class NativeEnemyFamilyStateImport
                 // The cartridge's count ends a timed phase on the update it reaches zero, and one it ran to zero or below on
                 // the next; once he is dead, the power comes on from the update after the count is used up (#2538).
                 int phaseCount = Math.Max(0, CoordinateAxis.AsSigned(words.E));
-                PrivateState.Set(phantoon.PhaseWait, nameof(BossCountdown.Count),
+                phantoon.PhaseWait.SetCartridgeCount(
                     phantoon.Phase == PhantoonPhase.Dead ? phaseCount : phaseCount - 1);
             }
             else
@@ -192,8 +192,8 @@ internal static class NativeEnemyFamilyStateImport
         if (enemy.SpeciesState<CeresElevatorDoorState>() is { } elevatorDoorRecord)
         {
             elevatorDoorRecord.Phase = CeresNativeWords.ElevatorDoorPhases.Decode(words.A, "recorded Ceres elevator door phase");
-            elevatorDoorRecord.RumbleUpdatesLeft = TrueDuration(words.D);
-            elevatorDoorRecord.ExplosionIntervalLeft = TrueDuration(words.E);
+            elevatorDoorRecord.Rumble = TrueWait(words.D);
+            elevatorDoorRecord.ExplosionWait = TrueWait(words.E);
             // The recorded word is the native table place of the last burst, which the rumble walks from the table's last
             // place to its first; the port lists the places in burst order, so the next burst is the one after it (#2424).
             IReadOnlyList<Offset16<RoomPixels>> bursts = CeresDoorRumbleGeometryDefinitions.ExplosionOffsets;
@@ -225,13 +225,13 @@ internal static class NativeEnemyFamilyStateImport
                 fallingTubeRecord.Action = MotherBrainNativeWords.MotherBrainTubeActions.Decode(words.A, "recorded MotherBrainTubeAction");
             fallingTubeRecord.FloorY = words.B;
             fallingTubeRecord.FallSpeed = new SignedEightEight(words.C);
-            PrivateState.Set(fallingTubeRecord.SmokeDelay, nameof(BossCountdown.Count), CoordinateAxis.AsSigned(words.D));
+            fallingTubeRecord.SmokeDelay.SetCartridgeCount(CoordinateAxis.AsSigned(words.D));
             fallingTubeRecord.SmokePuff = SuperMetroid.Core.Bosses.ListStep<int>.At(MotherBrainTubeCollapseDefinitions.SmokeXOffsets, words.E);
         }
         if (enemy.SpeciesState<RidleyExplosionFragmentState>() is { } ridleyFragmentRecord)
         {
             ridleyFragmentRecord.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
-            PrivateState.Set(ridleyFragmentRecord.Lifetime, nameof(BossCountdown.Count), CoordinateAxis.AsSigned(words.F));
+            ridleyFragmentRecord.Lifetime.SetCartridgeCount(CoordinateAxis.AsSigned(words.F));
         }
         if (enemy.SpeciesState<DraygonEnemyState>() is { } draygonRecord)
         {
@@ -251,7 +251,7 @@ internal static class NativeEnemyFamilyStateImport
                     break;
                 case DraygonNativeWords.SharedValue.BurialWait:
                     // The cartridge's burial wait holds the updates left, the one he starts sinking on included.
-                    PrivateState.Set(draygonRecord.BurialWait, nameof(BossCountdown.Count), words.B - 1);
+                    draygonRecord.BurialWait.SetCartridgeCount(words.B - 1);
                     break;
                 case DraygonNativeWords.SharedValue.SwoopEntry:
                     draygonRecord.SwoopEntry = words.B / DraygonNativeWords.SwoopEntryBytes;
@@ -325,9 +325,9 @@ internal static class NativeEnemyFamilyStateImport
                 ShitroidMembranePulse.All[LittleEndianBytes.LowByte(words.D)], LittleEndianBytes.HighByte(words.D) + 1);
             // The cartridge keeps the Sidehopper drain's updates in the same word as every other wait's count.
             if (shitroidRecord.Action == ShitroidAction.DrainSidehopper)
-                PrivateState.Set(shitroidRecord.SidehopperDrain, nameof(BossCountdown.Count), words.F - 1);
+                shitroidRecord.SidehopperDrain.SetCartridgeCount(words.F - 1);
             else
-                PrivateState.Set(shitroidRecord.StateTimer, nameof(BossCountdown.Count), CoordinateAxis.AsSigned(words.F));
+                shitroidRecord.StateTimer.SetCartridgeCount(CoordinateAxis.AsSigned(words.F));
         }
         if (enemy.SpeciesState<DachoraEchoState>() is { } dachoraEcho)
         {
@@ -626,8 +626,8 @@ internal static class NativeEnemyFamilyStateImport
             fakeKraidRecord.Facing = FakeKraidNativeDirection(words.C, "facing");
             // The cartridge counts both in walk steps left: the walk turns on the step its count reaches zero, and the spit
             // count stops at zero.
-            PrivateState.Set(fakeKraidRecord.WalkTurnWait, nameof(BossCountdown.Count), words.D - 1);
-            PrivateState.Set(fakeKraidRecord.SpitWait, nameof(HeldBossCountdown.UpdatesLeft), (int)words.E);
+            fakeKraidRecord.WalkTurnWait.SetCartridgeCount(words.D - 1);
+            fakeKraidRecord.SpitWait.SetUpdatesLeft((int)words.E);
         }
         if (enemy.SpeciesState<MaridiaLargeSnailEnemyState>() is { } maridiaLargeSnailRecord)
         {
@@ -701,7 +701,7 @@ internal static class NativeEnemyFamilyStateImport
             // A special Rinka holding a point was placed at it, which makes it the point it respawns at (#2256).
             if (rinkaRecord.HeldSpawnPoint is { } heldPoint)
                 rinkaRecord.SpawnPoint = heldPoint;
-            PrivateState.Set(rinkaRecord.DelayTimer, nameof(BossCountdown.Count), CoordinateAxis.AsSigned(words.F));
+            rinkaRecord.DelayTimer.SetCartridgeCount(CoordinateAxis.AsSigned(words.F));
         }
         if (enemy.SpeciesState<EtecoonEnemyState>() is { } etecoonRecord)
         {
@@ -1256,7 +1256,7 @@ internal static class NativeEnemyFamilyStateImport
             case KraidBodyState body:
             {
                 // The cartridge holds the head's pose while its count is above zero, and holds at zero.
-                PrivateState.Set(body.Kraid.HeadHold, nameof(HeldBossCountdown.UpdatesLeft), (int)words.C);
+                body.Kraid.HeadHold.SetUpdatesLeft((int)words.C);
                 bool deathWait = KraidNativeWords.DeathWaitUpdatesLeft.TryGetValue(words.A, out int deathWaitLeft);
                 if (deathWait)
                     body.DeathPhase = KraidDeathPhase.WaitBeforeFadeIn;
@@ -1317,7 +1317,7 @@ internal static class NativeEnemyFamilyStateImport
     /// included (#2538).
     /// </summary>
     private static void ImportPhaseWait(KraidPartState part, int updatesLeft) =>
-        PrivateState.Set(part.PhaseWait, nameof(BossCountdown.Count), updatesLeft - 1);
+        part.PhaseWait.SetCartridgeCount(updatesLeft - 1);
 
     /// <summary>
     /// Splits a Shaktool segment's shared orientation word by the segment's role: the centre's heading bucket and
@@ -1365,6 +1365,10 @@ internal static class NativeEnemyFamilyStateImport
     /// </summary>
     /// <param name="word">The recorded countdown, read as signed.</param>
     private static int TrueDuration(ushort word) => Math.Max(0, unchecked((short)word) + 1);
+
+    /// <summary>A recorded countdown that runs out on the step that takes it to zero, as the wait it stands for: its true duration left.</summary>
+    /// <param name="word">The recorded countdown, read as signed.</param>
+    private static UpdateCountdown TrueWait(ushort word) => UpdateCountdown.For(TrueDuration(word));
 
     /// <summary>
     /// A cartridge countdown that runs out on the step that takes it to zero or below, as the port's true duration

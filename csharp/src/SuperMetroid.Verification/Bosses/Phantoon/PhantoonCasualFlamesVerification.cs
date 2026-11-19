@@ -46,7 +46,7 @@ internal static class PhantoonCasualFlamesVerification
             int pointer = 0xa70000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7ccfd + (raw & 3) * 2));
             AssertEqual(PhantoonCasualFlameDefinitions.Burst.Choose(raw & 3), state.CasualFlames.Schedule, "Actual casual RNG burst selector");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer), FlamesToCome(state), "Actual casual initial remaining count");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + (CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer) + 1) * 2)) - 1, state.CasualFlames.Hold.Count, "Actual casual reverse initial timer: the wait lasts its updates");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + (CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer) + 1) * 2)) - 1, state.CasualFlames.Hold.CartridgeCount, "Actual casual reverse initial timer: the wait lasts its updates");
             AssertEqual(before + 1, calls, "Casual selection consumes exactly one RNG call");
         }
         // Trace multiple complete schedules. Native $CFFF branches on zero as well
@@ -87,7 +87,7 @@ internal static class PhantoonCasualFlamesVerification
                 }
                 step(mouth);
                 // The cartridge's timer holds the updates the wait lasts, one more than its count.
-                AssertEqual(unchecked((short)timer) - 1, state.CasualFlames.Hold.Count, "Actual casual frame timer");
+                AssertEqual(unchecked((short)timer) - 1, state.CasualFlames.Hold.CartridgeCount, "Actual casual frame timer");
                 // The cartridge's word holds the count, or a value below zero while no burst is under way, which the
                 // mouth holds as no count (#1627).
                 AssertEqual(unchecked((short)count) < 0 ? null : unchecked((short)count), FlamesToCome(state),

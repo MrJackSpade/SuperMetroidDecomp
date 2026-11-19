@@ -66,7 +66,7 @@ internal static class RidleyBreakupProgramsVerification
             var fragment = fragments[0];
             RidleyExplosionFragmentState spawned = fragment.RequireSpeciesState<RidleyExplosionFragmentState>();
             var copied = new RidleyExplosionFragmentState { Velocity = spawned.Velocity, Picture = frame };
-            PrivateState.Set(copied.Lifetime, nameof(BossCountdown.Count), spawned.Lifetime.Count);
+            copied.Lifetime.SetCartridgeCount(spawned.Lifetime.CartridgeCount);
             fragment.SetSpeciesState(copied);
             fragment.AnimationClock.StepOnNextUpdate();
             process(fragment, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);

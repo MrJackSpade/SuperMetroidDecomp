@@ -29,7 +29,7 @@ internal static class SporeSpawnCameraFloorVerification
 
         RoomEnemyPlace body = live.Places.InUpdateOrder[0];
         body.Health = 0;
-        body.FlashTimer = 0;
+        body.HurtFlash.End();
         EnemyBombContext killingBomb = KillingBomb(body);
         // His body's own stages around common bomb damage, for the bomb that selects his shot reaction.
         EnemyBombReaction reaction = (body.Entity as IEnemyBombReaction)?.CommonBombDamageReaction(killingBomb)

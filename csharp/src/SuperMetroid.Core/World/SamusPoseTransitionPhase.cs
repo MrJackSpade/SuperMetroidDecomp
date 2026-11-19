@@ -415,17 +415,7 @@ internal sealed class SamusPoseTransitionPhase
         if (!animationTransitionApplied &&
             _player.LastGroundedSamusMovement is
                 { Vertical.IsUnobstructedDownwardMovement: true } &&
-            (SamusPoseMetadata.IsRightFacingStandingPose(frame.PoseAtMovement) ||
-             SamusPoseMetadata.IsLeftFacingStandingPose(frame.PoseAtMovement) ||
-             SamusPoseMetadata.IsRightFacingLandingPose(frame.PoseAtMovement) ||
-             SamusPoseMetadata.IsLeftFacingLandingPose(frame.PoseAtMovement) ||
-             SamusPoseMetadata.IsRightFacingRunningPose(frame.PoseAtMovement) ||
-             SamusPoseMetadata.IsLeftFacingRunningPose(frame.PoseAtMovement) ||
-             SamusPoseMetadata.IsMoonwalkingPose(frame.PoseAtMovement) ||
-             SamusPoseMetadata.IsKnockbackPose(frame.PoseAtMovement) ||
-             SamusPoseMetadata.IsRanIntoWallPose(frame.PoseAtMovement) ||
-             SamusPoseMetadata.IsRightFacingCrouchingPose(frame.PoseAtMovement) ||
-             SamusPoseMetadata.IsLeftFacingCrouchingPose(frame.PoseAtMovement)))
+            SamusPoseMetadata.WalksOffFloor(frame.PoseAtMovement))
         {
             SamusPoseId fallingPose = SamusPoseTransitions.SelectFallingPoseForCurrentAim(samus);
             SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus,

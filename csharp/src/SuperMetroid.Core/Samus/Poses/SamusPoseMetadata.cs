@@ -372,6 +372,21 @@ internal static class SamusPoseMetadata
     public static bool IsLeftFacingCrouchingPose(SamusPoseId pose) => IsRightFacingCrouchingPose(SamusPoseMirror.Of(pose));
 
     /// <summary>
+    /// True for the grounded poses that start a fall when their movement finds no floor below: standing, landing,
+    /// running, moonwalking, knockback, ran-into-wall and crouching, facing either way. The X-ray, death-sequence and
+    /// forward-facing bodies share some of these movement types but are not among them, and a turn finishes into its
+    /// destination pose before that pose detects the missing floor.
+    /// </summary>
+    public static bool WalksOffFloor(SamusPoseId pose) =>
+        IsRightFacingStandingPose(pose) || IsLeftFacingStandingPose(pose) ||
+        IsLandingPose(pose) ||
+        IsRightFacingRunningPose(pose) || IsLeftFacingRunningPose(pose) ||
+        IsMoonwalkingPose(pose) ||
+        IsKnockbackPose(pose) ||
+        IsRanIntoWallPose(pose) ||
+        IsRightFacingCrouchingPose(pose) || IsLeftFacingCrouchingPose(pose);
+
+    /// <summary>
     /// True for the grounded turning poses that began facing right and turn left. Each already faces left, the facing
     /// it turns to, so preserving Samus's old rightward momentum must use this grouping.
     /// </summary>

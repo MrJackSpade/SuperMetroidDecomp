@@ -32,7 +32,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         var random = new SharedRandom();
         var progress = new CameraReachedLoaderProgress(0x038c);
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), renderGameplayFrames: false,
-            hostServices: SuperMetroidGameHostServices.Default with { RoomLoadProgress = progress }, random: random);
+            hostServices: global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServicesFixtures.With(roomLoadProgress: progress), random: random);
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random, audio: game.AudioForVerification);
         progress.Runtime = runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);

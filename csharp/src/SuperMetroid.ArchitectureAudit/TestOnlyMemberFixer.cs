@@ -110,8 +110,8 @@ internal static class TestOnlyMemberFixer
         INamedTypeSymbol owner = symbol.ContainingType;
         for (INamedTypeSymbol? type = owner; type is not null; type = type.ContainingType)
         {
-            if (type.IsGenericType)
-                return "generic owner";
+            if (type.IsGenericType && !SymbolEqualityComparer.Default.Equals(type, owner))
+                return "generic type containing the owner";
             if (type.DeclaredAccessibility is Accessibility.Private or Accessibility.Protected or Accessibility.ProtectedAndInternal)
                 return "owner not visible to test-support";
         }
@@ -121,18 +121,16 @@ internal static class TestOnlyMemberFixer
         {
             case IMethodSymbol { MethodKind: MethodKind.Constructor }:
                 return "constructor: checks construct it through public behaviour or PrivateState.New";
-            case IMethodSymbol { IsGenericMethod: true }:
-                return "generic method";
+            case IMethodSymbol { IsGenericMethod: true } when PrivateAccessShims.Refusal(symbol) is { } generic:
+                return generic;
             case IMethodSymbol { IsPartialDefinition: true } or IMethodSymbol { PartialImplementationPart: not null }:
                 return "partial method";
-            case IMethodSymbol method when method.Parameters.Any(parameter => parameter.Type.IsRefLikeType || parameter.Type.TypeKind == TypeKind.Pointer ||
-                                                                          parameter.RefKind is RefKind.RefReadOnlyParameter) ||
-                                           method.ReturnType.IsRefLikeType || method.ReturnsByRef || method.ReturnsByRefReadonly:
-                return "ref struct, pointer or by-reference return in its signature";
+            case IMethodSymbol when PrivateAccessShims.Refusal(symbol) is { } signature:
+                return signature;
             case IPropertySymbol { IsIndexer: true }:
                 return "indexer";
-            case IPropertySymbol property when property.Type.IsRefLikeType || property.ReturnsByRef || property.ReturnsByRefReadonly:
-                return "ref struct or by-reference property";
+            case IPropertySymbol when PrivateAccessShims.Refusal(symbol) is { } shape:
+                return shape;
             case IPropertySymbol { IsRequired: true } or IFieldSymbol { IsRequired: true }:
                 return "required member";
             case IPropertySymbol property when property.DeclaringSyntaxReferences[0].GetSyntax() is ParameterSyntax:

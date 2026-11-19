@@ -221,7 +221,7 @@ internal static class ScreenTilePicturesVerification
                 RgbaPixel[] pictured = DisplayRendering.Render(new DisplayPacket(0, scene)).ToArray();
                 var shownTitle = title.ShownVram();
                 RgbaPixel[] characters = DisplayRendering.Render(new DisplayPacket(0, new FloorScene(scene.Paint,
-                    floor with { Map = FromCharacters(shownTitle, floor.Map) }, scene.Brightness, scene.Gradient))).ToArray();
+                    new PlacedFloor(floor.View, FromCharacters(shownTitle, floor.Map)), scene.Brightness, scene.Gradient))).ToArray();
                 AssertTrue(pictured.SequenceEqual(characters), $"title {title.Phase}: drawn from its pictures, the Mode 7 background matches its characters");
             }
             title.Step(0);
@@ -277,7 +277,7 @@ internal static class ScreenTilePicturesVerification
             if (layer is TurningFloorLayer floor)
             {
                 layers++;
-                fromCharacters.Add(floor with { Floor = FromCharacters(vram, floor.Floor) });
+                fromCharacters.Add(new TurningFloorLayer(floor.Transform, FromCharacters(vram, floor.Floor), floor.Blend));
             }
             else
                 fromCharacters.Add(layer);

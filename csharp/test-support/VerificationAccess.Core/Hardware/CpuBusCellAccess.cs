@@ -11,7 +11,7 @@ internal static class CpuBusCellAccess
         /// <summary>Requires this to be a <paramref name="region"/> cell of exactly <paramref name="byteCount"/> bytes.</summary>
         internal void Require(CpuBusRegion region, int byteCount)
         {
-            if (self.Region != region || self.ByteCount != byteCount)
+            if (global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.AssetExtraction.Cartridge.CpuBusCell, global::SuperMetroid.AssetExtraction.Cartridge.CpuBusRegion>(self, "Region") != region || self.ByteCount != byteCount)
                 throw new ArgumentException($"{self} is not a {byteCount}-byte {region} cell.");
         }
     }

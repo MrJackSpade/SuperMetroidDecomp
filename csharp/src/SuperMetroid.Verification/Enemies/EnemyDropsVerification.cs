@@ -279,7 +279,7 @@ internal static class EnemyDropsVerification
 
         EnemyProjectile expiring =
             (fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(300, 300), NativeDropChances, fixture.Samus) ?? throw new InvalidOperationException("Verification requires fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(300, 300), NativeDropCh...."));
-        expiring.StateOf<EnemyPickupState>().Lifetime = UpdateCountdown.Lasting(1);
+        expiring.StateOf<EnemyPickupState>().Lifetime.PlaceAt(UpdateCountdown.Lasting(1));
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
         AssertEqual(0, expiring.StateOf<EnemyPickupState>().Lifetime.UpdatesLeft,
             "pickup lifetime decrements before its expiry comparison");

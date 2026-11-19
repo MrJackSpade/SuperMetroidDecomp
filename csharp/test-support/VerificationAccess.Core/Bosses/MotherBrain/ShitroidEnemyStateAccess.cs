@@ -14,7 +14,7 @@ internal static class ShitroidEnemyStateAccess
         internal void ResumeMembrane(ShitroidMembranePace pace, ShitroidMembranePulse phase, int updates)
         {
             global::SuperMetroid.Core.PrivateState.Set(self, "MembranePace", (global::SuperMetroid.Core.Bosses.MotherBrain.ShitroidMembranePace)(pace));
-            self.Membrane = ShitroidMembraneAnimations.StandingOn(pace, phase, updates);
+            global::SuperMetroid.Core.PrivateState.Set(self, "Membrane", ShitroidMembraneAnimations.StandingOn(pace, phase, updates));
         }
     }
 }

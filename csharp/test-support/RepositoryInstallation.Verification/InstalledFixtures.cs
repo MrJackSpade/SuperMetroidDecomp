@@ -518,7 +518,7 @@ internal static class InstalledFixtures
         // A fixture game without a supplied word is a session of its own.
         SuperMetroidGameHostServices services = hostServices ?? SuperMetroidGameHostServices.Default;
         if (!renderGameplayFrames)
-            services = services with { GameplayFrames = RetainedGameplayFrames.Instance };
+            services = SuperMetroidGameHostServicesFixtures.With(services.DoorMusicLoadFrames, services.RoomLoadProgress, services.SoundAcceptance, RetainedGameplayFrames.Instance);
         var game = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Frontend.SuperMetroidGame>([typeof(global::SuperMetroid.Core.Saves.SaveSlotStore), typeof(global::SuperMetroid.Core.Gameplay.GameplayAssists), typeof(global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServices), typeof(global::SuperMetroid.Core.Compatibility.SharedRandom)], new object?[] { (global::SuperMetroid.Core.Saves.SaveSlotStore)(saves), (global::SuperMetroid.Core.Gameplay.GameplayAssists?)(assists), (global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServices)(services), (global::SuperMetroid.Core.Compatibility.SharedRandom)(random ?? new SharedRandom()) });
         gameBindings.Value(game);
         return game;

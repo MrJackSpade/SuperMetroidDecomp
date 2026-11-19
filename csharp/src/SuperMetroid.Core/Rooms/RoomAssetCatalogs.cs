@@ -23,7 +23,7 @@ public sealed record RoomAssetCatalogs
     }
 
     /// <summary>Gets the complete source-keyed room visual-layout installation.</summary>
-    public RoomLevelArtworks VisualLayouts { get; init; }
+    public RoomLevelArtworks VisualLayouts { get; private init; }
     /// <summary>Gets the installed terrain of every room level, which appearance overrides never alter.</summary>
     public InstalledRoomLevelStreams LevelStreams { get; private init; }
     /// <summary>Gets the pre-coloured block pictures of each tileset (#1392).</summary>

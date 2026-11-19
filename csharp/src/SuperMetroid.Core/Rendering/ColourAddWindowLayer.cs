@@ -13,5 +13,5 @@ namespace SuperMetroid.Core.Rendering;
 public sealed record ColourAddWindowLayer(ScreenWindow Window, RgbColor Colour, LineColourSteps? Steps = null) : DisplayLayer
 {
     /// <summary>The pixels the colour is added to.</summary>
-    public ScreenWindow Window { get; init; } = Ensure.NotNull(Window);
+    public ScreenWindow Window { get; } = Ensure.NotNull(Window);
 }

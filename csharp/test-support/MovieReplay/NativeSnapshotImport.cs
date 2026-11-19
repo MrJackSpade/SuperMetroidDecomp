@@ -228,7 +228,7 @@ internal static class NativeSnapshotImport
         runtime.Projectiles.Charge.ChargeGlowStep = (chargePaletteByteOffset & 1) == 0
             ? chargePaletteByteOffset / sizeof(ushort)
             : throw new InvalidDataException($"Native charge palette byte offset {chargePaletteByteOffset} names no step.");
-        runtime.BombProjectiles.BombCounter = W(NativeSnapshotMemory.BombCount);
+        global::SuperMetroid.Core.PrivateState.Set(runtime.BombProjectiles, "BombCounter", (int)(W(NativeSnapshotMemory.BombCount)));
         samus.BombSpreadCharge = UpdateCountdownAccess.AtAge(MorphBallBombDefinitions.DownChargeTimeoutUpdates, W(NativeSnapshotMemory.BombSpreadChargeTimeout));
         samus.PendingTransitionShot = SamusSnapshotWords.DecodeTransitionShot(W(NativeSnapshotMemory.PoseShotDirection));
         samus.HyperBeamEnabled = SamusSnapshotWords.DecodeHyperBeam(W(NativeSnapshotMemory.HyperBeam));

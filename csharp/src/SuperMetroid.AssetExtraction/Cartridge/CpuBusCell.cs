@@ -39,7 +39,7 @@ public sealed record CpuBusCell
     public string Name { get; init; }
 
     /// <summary>The store the cell lives in.</summary>
-    public CpuBusRegion Region { get; init; }
+    public CpuBusRegion Region { private get; init; }
 
     /// <summary>The 24-bit CPU address of the first byte.</summary>
     public int Address { get; }

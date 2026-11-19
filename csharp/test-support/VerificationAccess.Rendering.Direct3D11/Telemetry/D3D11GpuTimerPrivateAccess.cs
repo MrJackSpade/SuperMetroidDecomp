@@ -22,4 +22,14 @@ internal static class D3D11GpuTimerPrivateAccess
         /// <summary>The private field <c>slots</c>, reached by name.</summary>
         internal global::SuperMetroid.Rendering.Direct3D11.Telemetry.D3D11GpuTimer.Slot[] slots => PrivateState.Field<global::SuperMetroid.Rendering.Direct3D11.Telemetry.D3D11GpuTimer, global::SuperMetroid.Rendering.Direct3D11.Telemetry.D3D11GpuTimer.Slot[]>(self, "slots");
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Rendering.Direct3D11.Telemetry.D3D11GpuTimer self)
+    {
+        /// <summary>The private field <c>pending</c>, reached by name.</summary>
+        internal int pending => PrivateState.Field<global::SuperMetroid.Rendering.Direct3D11.Telemetry.D3D11GpuTimer, int>(self, "pending");
+
+        /// <summary>The private field <c>tail</c>, reached by name.</summary>
+        internal int tail => PrivateState.Field<global::SuperMetroid.Rendering.Direct3D11.Telemetry.D3D11GpuTimer, int>(self, "tail");
+    }
 }

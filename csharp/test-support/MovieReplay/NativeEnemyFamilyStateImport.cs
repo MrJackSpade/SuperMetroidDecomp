@@ -172,8 +172,8 @@ internal static class NativeEnemyFamilyStateImport
             // The bottom hull, listed right after the top, keeps the ship's engine-sound timer in variable D, its
             // rumble frame in E and its escape speed in F.
             bottomOfShip.EngineSoundTimer = UpdateCountdown.For(ZeroOrBelowDuration(words.D));
-            bottomOfShip.Rumble = UpdateCountdownAccess.AtAge(GunshipTakeoffDefinitions.EngineRumbleFrames,
-                Math.Min((int)words.E, GunshipTakeoffDefinitions.EngineRumbleFrames));
+            bottomOfShip.Rumble.PlaceAt(UpdateCountdownAccess.AtAge(GunshipTakeoffDefinitions.EngineRumbleFrames,
+                Math.Min((int)words.E, GunshipTakeoffDefinitions.EngineRumbleFrames)));
             bottomOfShip.EscapeVelocity = new SignedEightEight(words.F);
         }
         if (enemy.SpeciesState<CeresSteamEnemyState>() is { } ceresSteamRecord)
@@ -300,8 +300,8 @@ internal static class NativeEnemyFamilyStateImport
         if (enemy.SpeciesState<DeadSidehopperEnemyState>() is { } deadSidehopperRecord)
         {
             deadSidehopperRecord.Action = CorpsesNativeWords.DeadSidehopperActions.Decode(words.A, "recorded DeadSidehopperAction");
-            deadSidehopperRecord.PreRotDelay = UpdateCountdownAccess.AtAge(CorpseRotScheduleDefinitions.PreRotDelayUpdates,
-                Math.Min((int)words.B, CorpseRotScheduleDefinitions.PreRotDelayUpdates));
+            deadSidehopperRecord.PreRotDelay.PlaceAt(UpdateCountdownAccess.AtAge(CorpseRotScheduleDefinitions.PreRotDelayUpdates,
+                Math.Min((int)words.B, CorpseRotScheduleDefinitions.PreRotDelayUpdates)));
             deadSidehopperRecord.PostLandingPause = TrueWait(words.F);
         }
         if (enemy.SpeciesState<BotwoonEnemyState>() is { } botwoonRecord)
@@ -975,8 +975,8 @@ internal static class NativeEnemyFamilyStateImport
         if (enemies.DeadTourianCorpses[index] is { } corpse)
         {
             corpse.Phase = DeadTourianCorpsePhaseOf(corpse.Species, words.A);
-            corpse.PreRotDelay = UpdateCountdownAccess.AtAge(CorpseRotScheduleDefinitions.PreRotDelayUpdates,
-                Math.Min((int)words.B, CorpseRotScheduleDefinitions.PreRotDelayUpdates));
+            corpse.PreRotDelay.PlaceAt(UpdateCountdownAccess.AtAge(CorpseRotScheduleDefinitions.PreRotDelayUpdates,
+                Math.Min((int)words.B, CorpseRotScheduleDefinitions.PreRotDelayUpdates)));
         }
         if (enemies.RioStates[index] is { } rio)
         {

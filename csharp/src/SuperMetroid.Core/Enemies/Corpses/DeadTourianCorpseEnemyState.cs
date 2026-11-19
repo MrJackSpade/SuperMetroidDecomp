@@ -26,7 +26,7 @@ public sealed class DeadTourianCorpseEnemyState
     /// The wait before rotting, counted once each pre-rot AI update after solid Samus collision: the sixteenth switches to
     /// rotting and the corpse never returns to the delay. Touch/shot reactions enter rotting directly.
     /// </summary>
-    public UpdateCountdown PreRotDelay { get; internal set; } = UpdateCountdown.Lasting(CorpseRotScheduleDefinitions.PreRotDelayUpdates);
+    public UpdateCountdown PreRotDelay { get; } = UpdateCountdown.Lasting(CorpseRotScheduleDefinitions.PreRotDelayUpdates);
 
     /// <summary>The species whose corpse it is.</summary>
     internal DeadTourianCorpseSpecies Species { get; }

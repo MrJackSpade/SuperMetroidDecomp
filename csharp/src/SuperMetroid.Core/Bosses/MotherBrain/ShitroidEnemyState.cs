@@ -31,7 +31,7 @@ public sealed class ShitroidEnemyState
     /// (<see cref="ShitroidMembraneAnimations"/>). It starts on its first phase, which it leaves on its first update, so
     /// the first phase it shows is its second.
     /// </summary>
-    internal AnimationPlayer<ShitroidMembranePace, ShitroidMembranePulse, ShitroidMembraneCue> Membrane { get; set; } =
+    internal AnimationPlayer<ShitroidMembranePace, ShitroidMembranePulse, ShitroidMembraneCue> Membrane { get; private set; } =
         ShitroidMembraneAnimations.StandingOn(ShitroidMembranePace.Calm, ShitroidMembranePulse.First, 1);
 
     /// <summary>The pace of the membrane's pulse: calm, or quick while it feeds.</summary>

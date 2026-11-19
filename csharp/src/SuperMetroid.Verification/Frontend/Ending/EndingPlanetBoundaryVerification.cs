@@ -114,7 +114,7 @@ internal static class EndingPlanetBoundaryVerification
                 {
                     AffineFloor reconstructedFloor = floors.MemoryFloor(liveColours);
                     DisplayLayer[] reconstructedLayers = [.. live.Layers.ToArray().Select(layer => layer is TurningFloorLayer floor
-                        ? (floor with { Floor = reconstructedFloor }) : layer)];
+                        ? new TurningFloorLayer(floor.Transform, reconstructedFloor, floor.Blend) : layer)];
                     var nativePixels = DisplayRendering.Render(new LayeredScene(live.Paint, reconstructedLayers, live.Brightness));
                     differences += Differences(ending.Render(), nativePixels);
                     drawnFrames++;

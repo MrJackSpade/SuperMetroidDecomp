@@ -14,9 +14,9 @@ internal sealed class D3D11GpuTimer : IDisposable
     /// <summary>Ring insertion cursor.</summary>
     internal int head;
     /// <summary>Ring removal cursor.</summary>
-    internal int tail;
+    private int tail;
     /// <summary>Pending-sample count.</summary>
-    internal int pending;
+    private int pending;
     /// <summary>Tracks an open interval and final disposal of its query resources.</summary>
     private bool active, disposed;
     /// <summary>Intervals omitted because all query slots were awaiting GPU results.</summary>

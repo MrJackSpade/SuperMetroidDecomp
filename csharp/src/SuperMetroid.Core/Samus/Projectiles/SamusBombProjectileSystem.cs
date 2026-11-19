@@ -81,7 +81,7 @@ public sealed class SamusBombProjectileSystem
     public int BombCounter
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, PlaceCount, value);
+        private set => field = Ensure.BetweenInclusive(0, PlaceCount, value);
     }
 
     /// <summary>Holds the bomb count full for one update of the Baby Metroid's drain (<see cref="DrainHoldsBombCount"/>).</summary>

@@ -26,11 +26,11 @@ internal static class EndingFlyawayArtworkVerification
         var installed = CreateRetailEndingFixture(installedAudio, 0, 0);
         int holdUpdates = 0;
         for (int frame = 0; frame < 10000 &&
-            native.Stage.Phase != EndingCreditsPhase.PlanetEscapeFast; frame++)
+            native.Phase != EndingCreditsPhase.PlanetEscapeFast; frame++)
         {
-            AssertEqual(native.Stage.Phase, installed.Stage.Phase,
+            AssertEqual(native.Phase, installed.Phase,
                 $"installed ending flyaway preserves native phase at frame {frame}");
-            if (native.Stage.Phase == EndingCreditsPhase.ZebesExplosionHold)
+            if (native.Phase == EndingCreditsPhase.ZebesExplosionHold)
             {
                 LayeredScene expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
                 RgbColor[] expectedColours = EndingShownColours.Of(native);
@@ -49,9 +49,9 @@ internal static class EndingFlyawayArtworkVerification
             nativeAudio.AdvanceFrame(default);
             installedAudio.AdvanceFrame(default);
         }
-        AssertEqual(EndingCreditsPhase.PlanetEscapeFast, native.Stage.Phase,
+        AssertEqual(EndingCreditsPhase.PlanetEscapeFast, native.Phase,
             "ending fixture reaches flyaway scene");
-        AssertEqual(EndingCreditsPhase.PlanetEscapeFast, installed.Stage.Phase,
+        AssertEqual(EndingCreditsPhase.PlanetEscapeFast, installed.Phase,
             "installed ending fixture reaches flyaway scene");
         AssertEqual(EndingExplosionFadeDefinitions.HoldUpdates, holdUpdates,
             "the explosion holds for sixteen updates before its finale");
@@ -63,22 +63,22 @@ internal static class EndingFlyawayArtworkVerification
         var loadAudio = AudioQueues.Standalone();
         var restored = CreateRetailEndingFixture(loadAudio, 0, 0);
         for (int frame = 0; frame < 10000 &&
-            restored.Stage.Phase != EndingCreditsPhase.ZebesExplosionHold; frame++)
+            restored.Phase != EndingCreditsPhase.ZebesExplosionHold; frame++)
         {
             restored.Step();
             loadAudio.AdvanceFrame(default);
         }
-        AssertEqual(EndingCreditsPhase.ZebesExplosionHold, restored.Stage.Phase,
+        AssertEqual(EndingCreditsPhase.ZebesExplosionHold, restored.Phase,
             "floor-load fixture reaches the explosion's hold");
         for (int update = 0; update < EndingExplosionFadeDefinitions.HoldUpdates; update++)
         {
-            AssertEqual(EndingFloorShot.PlanetExplosion, EndingScreenFloor.ShotOf(restored.Stage.Phase),
+            AssertEqual(EndingFloorShot.PlanetExplosion, EndingScreenFloor.ShotOf(restored.Phase),
                 $"the exploding planet's floor shows at hold update {update}");
             restored.Step();
             loadAudio.AdvanceFrame(default);
         }
-        AssertTrue(EndingScreenFloor.ShotOf(restored.Stage.Phase) == EndingFloorShot.Flyaway
-                && restored.Stage.Phase == EndingCreditsPhase.ZebesExplosionAnimation,
+        AssertTrue(EndingScreenFloor.ShotOf(restored.Phase) == EndingFloorShot.Flyaway
+                && restored.Phase == EndingCreditsPhase.ZebesExplosionAnimation,
             "the flyaway's floor is the one the phase shows as the hold ends and the finale begins");
         AssertEqual(0, loadGuard.ForbiddenReadAttempts,
             "loading the ending flyaway floor never reads shared cartridge art sources");

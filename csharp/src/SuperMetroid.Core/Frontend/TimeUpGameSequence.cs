@@ -100,10 +100,6 @@ internal sealed class TimeUpGameSequence(FrontendSession session, GameplayGamePh
             session.BeginBlackDeathBlackOut();
             return;
         }
-        session.Show(new CeresDestructionCinematicState(
-            session.audio, session.Artwork.ScreenContent.PowerBombGlowColors,
-            session.Artwork.IntroCinematicArt, session.Artwork.SpriteSheets,
-            outcome: CeresDestructionOutcome.SamusAboard, japaneseText: session.GameplayRuntime.JapaneseText));
-        session.Enter(CeresDestructionOutcome.SamusAboard);
+        session.BeginCeresDestruction(CeresDestructionOutcome.SamusAboard);
     }
 }

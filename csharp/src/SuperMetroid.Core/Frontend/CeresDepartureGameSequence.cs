@@ -79,11 +79,7 @@ internal sealed class CeresDepartureGameSequence(FrontendSession session) : IGam
             // Stop music and silence all three sound libraries.
             session.audio.QueueMusic(MusicRequest.Stop);
             session.audio.QueueCancelSoundEffects(SoundRequestPriority.Essential);
-            session.Show(new CeresDestructionCinematicState(
-                session.audio, session.Artwork.ScreenContent.PowerBombGlowColors,
-                session.Artwork.IntroCinematicArt, session.Artwork.SpriteSheets,
-                CeresDestructionOutcome.SamusEscaped, japaneseText: session.GameplayRuntime.JapaneseText));
-            session.Enter(CeresDestructionOutcome.SamusEscaped);
+            session.BeginCeresDestruction(CeresDestructionOutcome.SamusEscaped);
             session.display.PublishBlack();
         }
     }

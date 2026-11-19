@@ -22,12 +22,12 @@ internal static class EndingScreenPublicationVerification
         EndingCreditsState ending = InstalledFixtures.CreateEnding(audio, 3, 0);
         foreach (EndingCreditsPhase target in new[] { EndingCreditsPhase.Credits, EndingCreditsPhase.PostCreditsLogo })
         {
-            for (int frame = 0; frame < 40_000 && ending.Stage.Phase != target; frame++)
+            for (int frame = 0; frame < 40_000 && ending.Phase != target; frame++)
             {
                 ending.Step();
                 audio.AdvanceFrame(default);
             }
-            AssertEqual(target, ending.Stage.Phase, $"the ending reaches {target}");
+            AssertEqual(target, ending.Phase, $"the ending reaches {target}");
             FramePaint shown = EndingCreditsPresentation.CaptureRenderSnapshot(ending).Paint;
             byte[] shownVram = ending.ShownVram();
             EndingCreditsState restored = RoundTrip(ending);

@@ -29,7 +29,7 @@ internal sealed class EndingGameSequence(FrontendSession session) : IGamePhase
     public string Name => session.EndingStep switch
     {
         EndingStep.LeavingZebes => $"Zebes escape fade-out ({session.EscapeFade.Level})",
-        EndingStep.Credits => $"Ending: {session.ScreenAs<EndingCreditsState>()?.Stage.Phase}",
+        EndingStep.Credits => $"Ending: {session.ScreenAs<EndingCreditsState>()?.Phase}",
         _ => throw new InvalidOperationException($"Undefined {nameof(EndingStep)} {session.EndingStep}."),
     };
 
@@ -91,10 +91,10 @@ internal sealed class EndingGameSequence(FrontendSession session) : IGamePhase
     /// <summary>One update of the credits, which records the completed game once they reach their final message.</summary>
     private void RunCredits()
     {
-        EndingCreditsPhase previousEndingPhase = session.ActiveEndingCredits.Stage.Phase;
+        EndingCreditsPhase previousEndingPhase = session.ActiveEndingCredits.Phase;
         session.ActiveEndingCredits.Step();
         if (previousEndingPhase != EndingCreditsPhase.SeeYouNextMission &&
-            session.ActiveEndingCredits.Stage.Phase == EndingCreditsPhase.SeeYouNextMission)
+            session.ActiveEndingCredits.Phase == EndingCreditsPhase.SeeYouNextMission)
         {
             session.saves.CompleteGame();
             session.RaiseSavesChanged();

@@ -37,6 +37,13 @@ internal enum CeresAnimation
     ZebesTitle,
     /// <summary>The Japanese PLANET ZEBES title.</summary>
     ZebesJapaneseTitle,
-    /// <summary>The invisible explosion spawner's schedule: the first wave, the six repeating blasts and the final wave.</summary>
+    /// <summary>
+    /// The invisible explosion spawner's schedule: the first wave, the six repeating blasts and the final wave; also its
+    /// opening, the wait before and after the first wave.
+    /// </summary>
     ExplosionSpawner,
+    /// <summary>One of the explosion spawner's six repeating blasts: a wait, then the blast at the next of their places (#2541).</summary>
+    ExplosionSpawnerRepeatingBlast,
+    /// <summary>The explosion spawner's close: a short wait after the last repeating blast, then the final wave.</summary>
+    ExplosionSpawnerFinalWave,
 }

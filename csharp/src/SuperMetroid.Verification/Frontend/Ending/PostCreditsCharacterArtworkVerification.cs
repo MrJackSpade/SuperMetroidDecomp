@@ -28,12 +28,12 @@ internal static class PostCreditsCharacterArtworkVerification
             installed.InstalledArtwork.BindFixtureObjectArtwork(stock);
             var checkedPhases = new HashSet<EndingCreditsPhase>();
             for (int frame = 0; frame < 60_000 &&
-                native.Stage.Phase != EndingCreditsPhase.PostCreditsShot; frame++)
+                native.Phase != EndingCreditsPhase.PostCreditsShot; frame++)
             {
-                AssertEqual(native.Stage.Phase, installed.Stage.Phase,
+                AssertEqual(native.Phase, installed.Phase,
                     $"post-credits installed/native phase for {hours}h at frame {frame}");
-                if (native.Stage.Phase >= EndingCreditsPhase.Credits &&
-                    checkedPhases.Add(native.Stage.Phase))
+                if (native.Phase >= EndingCreditsPhase.Credits &&
+                    checkedPhases.Add(native.Phase))
                 {
                     LayeredScene expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
                     RgbColor[] expectedColours = EndingShownColours.Of(native);
@@ -44,16 +44,16 @@ internal static class PostCreditsCharacterArtworkVerification
                     AssertTrue(actualVram.SequenceEqual(expectedVram) &&
                             actualColours.SequenceEqual(expectedColours) &&
                             ScenePixels.Same(actual, expected),
-                        $"installed post-credits art preserves VRAM, palette, and pixels in {hours}h {native.Stage.Phase}");
+                        $"installed post-credits art preserves VRAM, palette, and pixels in {hours}h {native.Phase}");
                 }
                 native.Step();
                 installed.Step();
                 nativeAudio.AdvanceFrame(default);
                 installedAudio.AdvanceFrame(default);
             }
-            AssertEqual(EndingCreditsPhase.PostCreditsShot, native.Stage.Phase,
+            AssertEqual(EndingCreditsPhase.PostCreditsShot, native.Phase,
                 $"native {hours}h reward reaches the post-credit shot");
-            AssertEqual(EndingCreditsPhase.PostCreditsShot, installed.Stage.Phase,
+            AssertEqual(EndingCreditsPhase.PostCreditsShot, installed.Phase,
                 $"installed {hours}h reward reaches the post-credit shot");
             AssertTrue(checkedPhases.Contains(EndingCreditsPhase.Credits) &&
                     checkedPhases.Contains(EndingCreditsPhase.PostCreditsWaitingSamus) &&
@@ -87,11 +87,11 @@ internal static class PostCreditsCharacterArtworkVerification
                 // Continue the installed suitless route through all four logo
                 // actors, not merely the initial logo upload after the shot.
                 for (int frame = 0; frame < 2000 &&
-                    native.Stage.Phase != EndingCreditsPhase.ItemPercentage; frame++)
+                    native.Phase != EndingCreditsPhase.ItemPercentage; frame++)
                 {
-                    AssertEqual(native.Stage.Phase, installed.Stage.Phase,
+                    AssertEqual(native.Phase, installed.Phase,
                         $"installed logo phase at frame {frame}");
-                    if (frame % 29 == 0 || native.Stage.Phase == EndingCreditsPhase.PostCreditsLogo)
+                    if (frame % 29 == 0 || native.Phase == EndingCreditsPhase.PostCreditsLogo)
                     {
                         LayeredScene expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
                         RgbColor[] expectedColours = EndingShownColours.Of(native);
@@ -109,9 +109,9 @@ internal static class PostCreditsCharacterArtworkVerification
                     nativeAudio.AdvanceFrame(default);
                     installedAudio.AdvanceFrame(default);
                 }
-                AssertEqual(EndingCreditsPhase.ItemPercentage, native.Stage.Phase,
+                AssertEqual(EndingCreditsPhase.ItemPercentage, native.Phase,
                     "native logo reaches item percentage");
-                AssertEqual(EndingCreditsPhase.ItemPercentage, installed.Stage.Phase,
+                AssertEqual(EndingCreditsPhase.ItemPercentage, installed.Phase,
                     "compiled installed logo reaches item percentage");
             }
             AssertEqual(0, guardedBus.ForbiddenReadAttempts,

@@ -26,22 +26,22 @@ internal static class RetailEndingTests
             for (int tick = 0; tick < 60000; tick++)
             {
                 legacy.Step(); captured.Step();
-                if (phases.Add(legacy.Stage.Phase) || tick % 97 == 0)
+                if (phases.Add(legacy.Phase) || tick % 97 == 0)
                 {
                     var expected = legacy.Render();
                     samples++;
                     var packet = new DisplayPacket((ushort)tick, EndingCreditsPresentation.CaptureRenderSnapshot(captured));
                     PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
-                        $"{device.Kind}: ending hours={hours}, tick={tick}, phase={legacy.Stage.Phase}");
+                        $"{device.Kind}: ending hours={hours}, tick={tick}, phase={legacy.Phase}");
                     PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), "ending repeated GPU rendering");
                 }
                 leftAudio.AdvanceFrame(default); rightAudio.AdvanceFrame(default);
-                if (legacy.Stage.Phase != captured.Stage.Phase || legacy.CinematicFrame != captured.CinematicFrame ||
+                if (legacy.Phase != captured.Phase || legacy.CinematicFrame != captured.CinematicFrame ||
                     legacy.CreditsVerticalScroll != captured.CreditsVerticalScroll)
                     throw new InvalidOperationException("GPU ending capture changed scene cadence.");
-                if (legacy.Stage.Phase == EndingCreditsPhase.SeeYouNextMission) break;
+                if (legacy.Phase == EndingCreditsPhase.SeeYouNextMission) break;
             }
-            if (legacy.Stage.Phase != EndingCreditsPhase.SeeYouNextMission ||
+            if (legacy.Phase != EndingCreditsPhase.SeeYouNextMission ||
                 !phases.Contains(EndingCreditsPhase.Credits) || !phases.Contains(EndingCreditsPhase.PostCreditsReward) ||
                 !phases.Contains(EndingCreditsPhase.ZebesExplosionAnimation))
                 throw new InvalidOperationException("GPU ending fixture missed a composition family or terminal phase.");

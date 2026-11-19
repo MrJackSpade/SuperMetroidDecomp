@@ -32,16 +32,16 @@ internal sealed class EndingRewardJump
     private readonly CinematicActor<EndingRewardAnimation, CinematicSpritePose, EndingRewardJumpCue> body;
     /// <summary>Separate head actor present for the two suited ending rewards.</summary>
     private readonly CinematicActor<EndingRewardAnimation, CinematicSpritePose, EndingRewardJumpCue>? head;
-    /// <summary>How the suited jump's head moves: rising once its animation starts it flying ahead of the body, or none before.</summary>
-    private EndingRewardJumpMotion? headMotion;
-    /// <summary>How Samus's body moves: rising on her jump, falling back, or none before the jump and after landing.</summary>
-    private EndingRewardJumpMotion? bodyMotion;
+    /// <summary>How the suited jump's head moves: standing until its animation starts it flying ahead of the body, then rising.</summary>
+    private EndingRewardJumpMotion headMotion;
+    /// <summary>How Samus's body moves (#2541): standing until her jump, rising, falling back once above the screen, then landed.</summary>
+    private EndingRewardJumpMotion bodyMotion;
     /// <summary>Shared vertical velocity; each active actor movement applies gravity to it.</summary>
     internal SignedSixteenSixteen Velocity { get; private set; }
     /// <summary>Whether the shooting cue has requested the ending screen capture.</summary>
     public bool ShotRequested { get; private set; }
-    /// <summary>Set when the body passes above the screen and Samus starts to fall back, as the falling Samus.</summary>
-    public bool Falling { get; private set; }
+    /// <summary>Whether Samus has passed above the screen and shows as the falling Samus, falling back or landed.</summary>
+    internal bool FellBack => bodyMotion is EndingRewardJumpMotion.Falling or EndingRewardJumpMotion.Landed;
     /// <summary>Whole-pixel body height used to select the falling and landed animations.</summary>
     public int BodyY => body.ScreenPlace.Y;
 
@@ -73,7 +73,6 @@ internal sealed class EndingRewardJump
             body.Position = Accelerated(body.Position);
             if (BodyY < EndingRewardJumpDefinitions.FallStartY)
             {
-                Falling = true;
                 body.SetColouring(EndingShades.Drawn(FallingColouring));
                 body.Start(FallingAnimation);
                 bodyMotion = EndingRewardJumpMotion.Falling;
@@ -86,7 +85,7 @@ internal sealed class EndingRewardJump
             {
                 body.ScreenPlace = body.ScreenPlace.WithY(EndingRewardJumpDefinitions.LandingY);
                 body.Start(LandingAnimation);
-                bodyMotion = null;
+                bodyMotion = EndingRewardJumpMotion.Landed;
             }
         }
         body.Step(HandleCue);
@@ -100,7 +99,7 @@ internal sealed class EndingRewardJump
     {
         Ensure.NotNull(destination);
         head?.Draw(destination, installedArt: jumpingArt);
-        body.Draw(destination, installedArt: Falling ? fallingArt : jumpingArt);
+        body.Draw(destination, installedArt: FellBack ? fallingArt : jumpingArt);
     }
 
     /// <summary>Applies gravity to the shared velocity and returns where an actor at <paramref name="position"/> moves by it.</summary>

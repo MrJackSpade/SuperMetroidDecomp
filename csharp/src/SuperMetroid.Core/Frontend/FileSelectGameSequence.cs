@@ -257,11 +257,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
         session.InitializeSelectedGameHud(slot);
         session.GameplayRuntime.FrameBoundary.PublishWhileLoading();
         session.ApplySelectedGameOptions();
-        session.Show(new CeresDestructionCinematicState(
-            session.audio, session.Artwork.ScreenContent.PowerBombGlowColors,
-            session.Artwork.IntroCinematicArt, session.Artwork.SpriteSheets,
-            CeresDestructionOutcome.SamusEscaped, japaneseText: session.GameplayRuntime.JapaneseText));
-        session.Enter(CeresDestructionOutcome.SamusEscaped);
+        session.BeginCeresDestruction(CeresDestructionOutcome.SamusEscaped);
         session.display.PublishBlack();
     }
 

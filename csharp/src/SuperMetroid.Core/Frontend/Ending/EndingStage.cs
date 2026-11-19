@@ -4,9 +4,9 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, colours, the shared sprites and stars, and the artwork they share.</summary>
+/// <summary>What every ending scene draws on: brightness, the turning-floor view, colours, the shared sprites and stars, and the artwork they share.</summary>
 [RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
-internal sealed class EndingStage : IEndingActorScene
+internal sealed class EndingStage
 {
     /// <summary>Saved clear-time hours, as the game clock or the configured override supplies them, used to select the post-credits reward.</summary>
     private readonly int gameTimeHours;
@@ -27,29 +27,14 @@ internal sealed class EndingStage : IEndingActorScene
     /// <summary>What the ending's colours show (#1512).</summary>
     internal EndingColours Colours => screen.Colours;
 
-    /// <summary>Countdown read by the current cinematic phase.</summary>
-    internal int PhaseTimer { get; set; }
-
     /// <summary>The screen's brightness and the cadence of its fades, shared through scene and colour handoffs.</summary>
     internal ScreenFade Fade { get; } = new(0);
 
     /// <summary>Master brightness during cinematic fades, from black through full.</summary>
     internal int Brightness => Fade.Level;
 
-    /// <summary>Turning-floor translation; only X uses a subpixel because the game's Y has no fraction.</summary>
-    internal FixedVector<FloorPixels> FloorPosition { get; set; }
-
-    /// <summary>
-    /// The turning floor's zoom, initially its own size. Every scene starts it at an authored zoom and moves it by a few
-    /// 256ths an update toward a bound it stops at, so it stays positive and small.
-    /// </summary>
-    public FloorZoom FloorZoom { get; internal set; } = FloorZoom.OwnSize;
-
-    /// <summary>The turning floor's angle, shared by the escape and planet scenes.</summary>
-    internal RotationAngle FloorAngle { get; set; }
-
-    /// <summary>Current cinematic phase, including terminal display states.</summary>
-    public EndingCreditsPhase Phase { get; internal set; }
+    /// <summary>The turning floor's view, which the escape, the explosion and the planet escape share (#2541).</summary>
+    internal EndingTurningFloor Floor { get; } = new();
 
     /// <summary>Selects suitless, helmetless or armored presentation from the clear-time hour thresholds.</summary>
     public EndingReward EndingReward =>
@@ -130,15 +115,8 @@ internal sealed class EndingStage : IEndingActorScene
     });
 
 
-    /// <summary>Runs <paramref name="wrapper"/>'s own motion for this update, before its animation steps (#2489).</summary>
-    internal void StepEndingSpriteMotion(EndingSprite wrapper)
-    {
-        Ensure.NotNull(wrapper);
-        wrapper.Motion?.Step(wrapper.Sprite, this);
-    }
-
-    /// <inheritdoc/>
-    public bool ShowsExplodingPlanet => sprites.Any(actor => actor.Role == EndingSpriteRole.ExplodingZebes && actor.Sprite.IsActive);
+    /// <summary>Whether the exploding planet's actor is still shown.</summary>
+    internal bool ShowsExplodingPlanet => sprites.Any(actor => actor.Role == EndingSpriteRole.ExplodingZebes && actor.Sprite.IsActive);
 
     /// <summary>The colour effects the ending runs, which its colours own (#1597).</summary>
     internal ColourEffectSystem ColourEffects => screen.Colours.ColourEffects;

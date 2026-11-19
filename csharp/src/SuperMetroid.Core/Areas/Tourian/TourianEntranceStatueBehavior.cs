@@ -239,7 +239,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
             if (projectile.Motion is TourianStatueDecorationMotion.FollowingReveal &&
                 statue.AtRest)
             {
-                statue.Finished = true;
+                statue.FinishSinking();
             }
 
             Position16<RoomPixels> anchor = projectile.StateOf<AnchoredProjectileState>().Anchor;

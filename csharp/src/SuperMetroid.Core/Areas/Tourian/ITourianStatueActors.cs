@@ -9,9 +9,6 @@ internal interface ITourianStatueActors
     /// <summary>Which statues are animating, whether a release is in progress, and whether all four have released.</summary>
     TourianStatueAnimation Animation { get; }
 
-    /// <summary>Whether the sequence has finished.</summary>
-    bool Finished { get; set; }
-
     /// <summary>Spawns the glow of a statue's <paramref name="eye"/>.</summary>
     void SpawnEyeGlow(TourianStatueEye eye);
 

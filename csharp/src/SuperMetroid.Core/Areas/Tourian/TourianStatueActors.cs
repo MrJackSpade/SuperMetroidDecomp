@@ -14,13 +14,6 @@ internal sealed class TourianStatueActors(TourianEntranceStatueBehavior statue, 
     public TourianStatueAnimation Animation => statue.StatueRoom.Animation;
 
     /// <inheritdoc/>
-    public bool Finished
-    {
-        get => Animation.Finished;
-        set => Animation.Finished = value;
-    }
-
-    /// <inheritdoc/>
     public void SpawnEyeGlow(TourianStatueEye eye) => unlock.SpawnTourianEyeGlow(eye);
 
     /// <inheritdoc/>

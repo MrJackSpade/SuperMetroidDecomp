@@ -35,8 +35,8 @@ internal static class TestOnlyMembers
     /// <summary>A site that both reads and writes: a compound assignment, an increment or a <c>ref</c> argument.</summary>
     private const string ReadWrite = "read-write";
 
-    /// <summary>Lists every test-only member of the solution's product assemblies, one line each, in file order.</summary>
-    public static List<string> Collect(LoadedSolution solution)
+    /// <summary>Every test-only way of reaching a member of the solution's product assemblies.</summary>
+    public static List<TestOnlyMemberFinding> Collect(LoadedSolution solution)
     {
         var trees = FirstCompilations(solution);
         SemanticModels.Bind(trees.Select(tree => (tree.Compilation, tree.Tree)));
@@ -65,10 +65,33 @@ internal static class TestOnlyMembers
 
         foreach (var (compilation, tree, file, check) in trees)
             Walk(compilation, tree, file, check, uses, names);
+        var used = uses.Values.GroupBy(use => use.Member, SymbolEqualityComparer.Default)
+            .Where(member => member.Any(use => use.Production + use.InsideReads + use.InsideWrites != 0))
+            .Select(member => member.Key!).ToHashSet(SymbolEqualityComparer.Default);
         return [.. uses.Values.Where(use => use.Checks != 0 && use.Production == 0)
-            .Select(use => $"{Describe(solution.RepositoryRoot, use.Member)} is flagged [{Finding}]: no product code outside " +
-                $"{use.Member.ContainingType.Name} {Verb(use.Way)} it, but {use.Checks} check site(s) do, first {use.FirstCheck}.")
+            .Select(use => new TestOnlyMemberFinding(use, Shape(use, used.Contains(use.Member))))];
+    }
+
+    /// <summary>One line per finding, in file order, for the census.</summary>
+    public static List<string> Census(LoadedSolution solution) =>
+        [.. Collect(solution).Select(finding => $"{Describe(solution.RepositoryRoot, finding.Uses.Member)} is flagged [{Finding}] " +
+                $"({finding.Shape}): no product code outside {finding.Uses.Member.ContainingType.Name} {Verb(finding.Uses.Way)} it, " +
+                $"but {finding.Uses.Checks} check site(s) do, first {finding.Uses.FirstCheck}.")
             .Order(StringComparer.Ordinal)];
+
+    /// <summary>
+    /// What production does with a test-only way of reaching a member: its own type reaches it that way (<c>narrow</c>:
+    /// the way becomes private), production uses the member but never this way (<c>unneeded</c>: the way leaves production,
+    /// a write-only field included), or production never uses the member (<c>unused</c>: it leaves production).
+    /// </summary>
+    private static string Shape(MemberUses use, bool used)
+    {
+        bool inside = use.Way switch
+        {
+            Write => use.InsideWrites != 0,
+            _ => use.InsideReads != 0,
+        };
+        return inside ? "narrow" : used ? "unneeded" : "unused";
     }
 
     /// <summary>
@@ -138,16 +161,24 @@ internal static class TestOnlyMembers
                 return;
             foreach (string way in WaysReached(member, access))
             {
-                if (!uses.TryGetValue(Key(member, way), out MemberUses? reached) || IsInside(site, member, enclosing, compilation, tree))
+                if (!uses.TryGetValue(Key(member, way), out MemberUses? reached))
                     continue;
-                if (!check)
+                if (check)
+                {
+                    reached.Checks++;
+                    reached.FirstCheck ??= $"{file}:{site.GetLocation().GetLineSpan().StartLinePosition.Line + 1}";
+                    reached.CheckSites.Add(site);
+                }
+                else if (!IsInside(site, member, enclosing, compilation, tree))
                 {
                     reached.Production++;
                 }
                 else
                 {
-                    reached.Checks++;
-                    reached.FirstCheck ??= $"{file}:{site.GetLocation().GetLineSpan().StartLinePosition.Line + 1}";
+                    if (way == Write || access is Write or ReadWrite && way == Use)
+                        reached.InsideWrites++;
+                    if (way == Read || access is not Write && way == Use)
+                        reached.InsideReads++;
                 }
             }
         }
@@ -260,6 +291,9 @@ internal static class TestOnlyMembers
         ArgumentSyntax { Parent: TupleExpressionSyntax tuple } when IsAssignedTuple(tuple) => Write,
         _ => Read,
     };
+
+    /// <summary>Whether a name stands where it is written: assigned, incremented or passed by reference.</summary>
+    internal static bool IsWrite(SimpleNameSyntax name) => Access(AccessExpression(name)) is Write or ReadWrite;
 
     /// <summary>Whether a tuple is the target of a deconstructing assignment, however deeply nested.</summary>
     private static bool IsAssignedTuple(TupleExpressionSyntax tuple) => tuple.Parent switch

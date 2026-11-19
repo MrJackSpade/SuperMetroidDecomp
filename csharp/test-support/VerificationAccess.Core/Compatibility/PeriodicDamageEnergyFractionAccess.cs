@@ -14,8 +14,8 @@ internal static class PeriodicDamageEnergyFractionAccess
         /// periodic damage that borrows an energy and leaves exactly that much of it.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="parts"/> is outside one energy's parts.</exception>
-        internal static PeriodicDamageEnergyFraction Holding(int parts) => PeriodicDamageEnergyFraction.None.After(
+        internal static PeriodicDamageEnergyFraction Holding(int parts) => PeriodicDamageEnergyFraction.None.After(EnergyAmount.FromEnergyFraction(
             (PeriodicDamageEnergyFraction.PartsPerEnergy - Ensure.BetweenInclusive(0, PeriodicDamageEnergyFraction.PartsPerEnergy - 1, parts)) %
-                PeriodicDamageEnergyFraction.PartsPerEnergy);
+                PeriodicDamageEnergyFraction.PartsPerEnergy, PeriodicDamageEnergyFraction.PartsPerEnergy));
     }
 }

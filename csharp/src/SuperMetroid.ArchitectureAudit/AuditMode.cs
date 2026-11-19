@@ -23,4 +23,10 @@ internal enum AuditMode
     /// is any; a census, not part of the push gate until the sites it lists are fixed.
     /// </summary>
     TestOnlyMembers,
+
+    /// <summary>
+    /// Makes private every member the test-only-member census finds production's own type reaching, generating the
+    /// test-support extension members checks reach it through (#2570), and lists the findings it cannot fix.
+    /// </summary>
+    FixTestOnlyMembers,
 }

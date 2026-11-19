@@ -125,19 +125,21 @@ internal static class ComposedPictures
         ReadOnlySpan<RgbaPixel> pixels = picture.Pixels;
         ReadOnlySpan<int> regions = picture.RecolourRegions;
         // Only visible pixels are keyed (#1633): a clear pixel is never recoloured and shows its stored colour. A visible
-        // pixel of the colour, recolour region and index of the visible pixel added last adds nothing, so it is passed over:
-        // a picture's pixels run in stretches of one colour, and a whole floor holds a million of them.
-        int added = -1;
+        // pixel of the colour and recolour region of the pixel of its index added last adds nothing, so it is passed over:
+        // a composed picture's pixels of one index nearly all hold one key, and a whole floor holds a million of them.
+        var addedOfIndex = new int[byte.MaxValue + 1];
+        Array.Fill(addedOfIndex, -1);
         for (int pixel = 0; pixel < paletteIndices.Length; pixel++)
         {
             if (pixels[pixel].A == 0)
                 continue;
-            if (added >= 0 && paletteIndices[pixel] == paletteIndices[added] && pixels[pixel].R == pixels[added].R
-                && pixels[pixel].G == pixels[added].G && pixels[pixel].B == pixels[added].B
+            byte index = paletteIndices[pixel];
+            int added = addedOfIndex[index];
+            if (added >= 0 && pixels[pixel].R == pixels[added].R && pixels[pixel].G == pixels[added].G && pixels[pixel].B == pixels[added].B
                 && (regions.IsEmpty || regions[pixel] == regions[added]))
                 continue;
-            Add(indices, picture.KeyAt(pixel), paletteIndices[pixel]);
-            added = pixel;
+            Add(indices, picture.KeyAt(pixel), index);
+            addedOfIndex[index] = pixel;
         }
         if (picture.Backdrop is { } backdrop)
             Add(indices, backdrop, composed.Backdrop ?? throw new InvalidDataException($"Sheet {picture.Name} shows a backdrop its composition names no index of."));

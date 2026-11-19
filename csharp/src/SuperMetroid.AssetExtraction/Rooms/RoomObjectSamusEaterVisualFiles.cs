@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
@@ -8,6 +9,19 @@ public static class RoomObjectSamusEaterVisualFiles
 {
     /// <summary>Editable Samus Eater plant visual JSON filename.</summary>
     public const string VisualFileName = "samus-eater.json";
+
+    /// <summary>The plant's eight layouts in the installed file's order (#2567): the floor plant's four, then the ceiling plant's.</summary>
+    private static readonly IReadOnlyList<SamusEaterDraw> FrameOrder = Ensure.EveryMemberOnce<SamusEaterDraw>(
+    [
+        SamusEaterDraw.FloorIdle,
+        SamusEaterDraw.FloorTeethPeeking,
+        SamusEaterDraw.FloorTeethBared,
+        SamusEaterDraw.FloorFangsOut,
+        SamusEaterDraw.CeilingIdle,
+        SamusEaterDraw.CeilingTeethPeeking,
+        SamusEaterDraw.CeilingTeethBared,
+        SamusEaterDraw.CeilingFangsOut,
+    ]);
 
     /// <summary>The Samus Eater plant as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
@@ -67,7 +81,7 @@ public static class RoomObjectSamusEaterVisualFiles
     {
         get
         {
-            foreach (SamusEaterDraw frame in Enum.GetValues<SamusEaterDraw>())
+            foreach (SamusEaterDraw frame in FrameOrder)
             {
                 TryGet(SamusEaterObjectDraws.Family.Of(frame), out var list);
                 yield return list;

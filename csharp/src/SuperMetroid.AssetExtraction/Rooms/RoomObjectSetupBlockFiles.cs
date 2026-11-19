@@ -19,6 +19,20 @@ public static class RoomObjectSetupBlockFiles
     /// <summary>The installed JSON filename of the setup-block pictures.</summary>
     public const string VisualFileName = "setup-blocks.json";
 
+    /// <summary>The setup blocks in the installed file's order (#2567): the six block parents, the struck critter wall, then the treadmill idle and running.</summary>
+    private static readonly IReadOnlyList<RoomObjectSetupBlock> EntryOrder = Ensure.EveryMemberOnce<RoomObjectSetupBlock>(
+    [
+        RoomObjectSetupBlock.BombBlockParent,
+        RoomObjectSetupBlock.CrumbleBlockParent,
+        RoomObjectSetupBlock.SpeedBoosterBlockParent,
+        RoomObjectSetupBlock.ShotBlockParent,
+        RoomObjectSetupBlock.PowerBombBlockParent,
+        RoomObjectSetupBlock.SuperMissileBlockParent,
+        RoomObjectSetupBlock.CritterWallStruck,
+        RoomObjectSetupBlock.TreadmillIdle,
+        RoomObjectSetupBlock.TreadmillRunning,
+    ]);
+
     /// <summary>The installed document's format; a document naming another is rejected and the content is extracted again.</summary>
     /// <remarks>
     /// Revision 2 names no cartridge (#1693): the installation receipt does. Revision 3 writes no block for a setup block
@@ -48,7 +62,7 @@ public static class RoomObjectSetupBlockFiles
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         var entries = new List<BlockEntry>();
-        foreach (RoomObjectSetupBlock block in Enum.GetValues<RoomObjectSetupBlock>())
+        foreach (RoomObjectSetupBlock block in EntryOrder)
         {
             RoomBlockAppearance shown = Picture(bus, block);
             entries.Add(new BlockEntry(Id(block), shown.ShowsNothing ? null : shown.Block, shown.Mirroring));

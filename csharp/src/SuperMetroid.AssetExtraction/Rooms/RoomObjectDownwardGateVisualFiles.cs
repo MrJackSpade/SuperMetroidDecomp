@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -8,6 +9,25 @@ public static class RoomObjectDownwardGateVisualFiles
 {
     /// <summary>Family-relative installed JSON filename for six downward-gate column frames and eight left/right trigger layouts.</summary>
     public const string VisualFileName = "downward-gates.json";
+
+    /// <summary>The gate's frames in the installed file's order (#2567): the column open, lowering and closed, then the four colours' left and right triggers.</summary>
+    private static readonly IReadOnlyList<DownwardGateDraw> FrameOrder = Ensure.EveryMemberOnce<DownwardGateDraw>(
+    [
+        DownwardGateDraw.Open,
+        DownwardGateDraw.QuarterLowered,
+        DownwardGateDraw.HalfLowered,
+        DownwardGateDraw.ThreeQuartersLowered,
+        DownwardGateDraw.FullyLowered,
+        DownwardGateDraw.Closed,
+        DownwardGateDraw.TriggerBlueLeft,
+        DownwardGateDraw.TriggerBlueRight,
+        DownwardGateDraw.TriggerRedLeft,
+        DownwardGateDraw.TriggerRedRight,
+        DownwardGateDraw.TriggerGreenLeft,
+        DownwardGateDraw.TriggerGreenRight,
+        DownwardGateDraw.TriggerYellowLeft,
+        DownwardGateDraw.TriggerYellowRight,
+    ]);
 
     /// <summary>The downward-gate as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
@@ -29,7 +49,7 @@ public static class RoomObjectDownwardGateVisualFiles
     /// <summary>Enumerates the column open, lowering and closed, followed by four left/right trigger color pairs.</summary>
     private static IEnumerable<RoomObjectDraw> Draws()
     {
-        foreach (DownwardGateDraw gate in Enum.GetValues<DownwardGateDraw>())
+        foreach (DownwardGateDraw gate in FrameOrder)
             yield return DownwardGateObjectDraws.Family.Of(gate);
     }
 

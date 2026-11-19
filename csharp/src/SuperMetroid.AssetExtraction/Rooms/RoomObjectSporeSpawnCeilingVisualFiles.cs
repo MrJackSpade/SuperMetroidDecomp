@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
@@ -11,6 +12,15 @@ public static class RoomObjectSporeSpawnCeilingVisualFiles
 {
     /// <summary>Editable Spore Spawn ceiling visual JSON filename.</summary>
     public const string VisualFileName = "spore-spawn-ceiling.json";
+
+    /// <summary>The ceiling's frames in the installed file's order (#2567): the clear, then the ceiling cracked, crumbling and crumbled.</summary>
+    private static readonly IReadOnlyList<SporeSpawnCeilingDraw> FrameOrder = Ensure.EveryMemberOnce<SporeSpawnCeilingDraw>(
+    [
+        SporeSpawnCeilingDraw.Clear,
+        SporeSpawnCeilingDraw.CeilingCracked,
+        SporeSpawnCeilingDraw.CeilingCrumbling,
+        SporeSpawnCeilingDraw.CeilingCrumbled,
+    ]);
 
     /// <summary>The Spore Spawn ceiling as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
@@ -34,7 +44,7 @@ public static class RoomObjectSporeSpawnCeilingVisualFiles
     {
         get
         {
-            foreach (SporeSpawnCeilingDraw frame in Enum.GetValues<SporeSpawnCeilingDraw>())
+            foreach (SporeSpawnCeilingDraw frame in FrameOrder)
             {
                 TryGet(SporeSpawnCeilingDraws.Family.Of(frame), out var list);
                 yield return list;

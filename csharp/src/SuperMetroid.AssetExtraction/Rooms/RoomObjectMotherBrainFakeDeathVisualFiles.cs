@@ -15,6 +15,20 @@ public static class RoomObjectMotherBrainFakeDeathVisualFiles
     /// <summary>The installed file holding the fake-death room frames' pictures.</summary>
     public const string VisualFileName = "mother-brain-fake-death.json";
 
+    /// <summary>
+    /// The tube clears in the installed file's order after the wall, the door and the mural rows (#2567): the ceiling's,
+    /// then the bottom's middle, left and right.
+    /// </summary>
+    private static readonly IReadOnlyList<MotherBrainFakeDeathDraw> TubeClears =
+    [
+        MotherBrainFakeDeathDraw.ClearCeilingBlock,
+        MotherBrainFakeDeathDraw.ClearCeilingTube,
+        MotherBrainFakeDeathDraw.ClearBottomMiddleSideTube,
+        MotherBrainFakeDeathDraw.ClearBottomMiddleTubes,
+        MotherBrainFakeDeathDraw.ClearBottomLeftTube,
+        MotherBrainFakeDeathDraw.ClearBottomRightTube,
+    ];
+
     /// <summary>The fake-death room changes as the import pictures them: every frame's geometry and published name, by draw.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } = CreateFamily();
 
@@ -56,14 +70,14 @@ public static class RoomObjectMotherBrainFakeDeathVisualFiles
         };
         RoomObjectShapeRun[] muralRow = [RoomObjectShapeRun.Row(origin, 13)];
 
-        var layouts = new Dictionary<RoomObjectDraw, RoomObjectFrameLayout>();
+        var layouts = new List<RoomObjectFamilyFrame<RoomObjectDraw>>();
         var ids = new Dictionary<RoomObjectDraw, string>();
         void Add<TFrame>(RoomObjectDrawFamily<TFrame> family, RoomObjectFrameDraw<TFrame> draw, RoomObjectShapeRun[] frameRuns, string id)
             where TFrame : struct
         {
             if (!RoomObjectDrawIdentity.TryShape(family, draw, out RoomBlockShape? shape))
                 throw new InvalidOperationException($"Mother Brain fake-death frame {draw} has no shape.");
-            layouts.Add(draw, RoomObjectShapeRun.Layout(draw, shape, frameRuns));
+            layouts.Add(new(draw, RoomObjectShapeRun.Layout(draw, shape, frameRuns)));
             ids.Add(draw, id);
         }
         void AddFrame(MotherBrainFakeDeathDraw frame) =>
@@ -73,9 +87,8 @@ public static class RoomObjectMotherBrainFakeDeathVisualFiles
         AddFrame(MotherBrainFakeDeathDraw.EscapeDoor);
         for (int row = 0; row < MotherBrainMuralDefinitions.RowCount; row++)
             Add(MotherBrainFakeDeathDraws.MuralRowFamily, MotherBrainFakeDeathDraws.MuralRow(row), muralRow, MuralRowId(row));
-        foreach (MotherBrainFakeDeathDraw frame in Enum.GetValues<MotherBrainFakeDeathDraw>())
-            if (frame is not MotherBrainFakeDeathDraw.FillWall and not MotherBrainFakeDeathDraw.EscapeDoor)
-                AddFrame(frame);
+        foreach (MotherBrainFakeDeathDraw frame in TubeClears)
+            AddFrame(frame);
         return new(VisualFileName, "Mother Brain fake-death room", layouts, ids);
     }
 

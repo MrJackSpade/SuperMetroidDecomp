@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Spatial;
@@ -13,6 +14,18 @@ public static class RoomObjectKraidVisualFiles
 
     /// <summary>The stages of a crumbling block's breakup the room draws, in their published order; the last stage is the picture its draw leaves.</summary>
     private static readonly BlockBreakupStage[] CrumbleStages = [BlockBreakupStage.Rock, BlockBreakupStage.Pieces, BlockBreakupStage.Dust];
+
+    /// <summary>The ceiling and spike frames in their published order after the crumble's stages (#2567): the ceiling's background, the spikes' background, then the two clears.</summary>
+    private static readonly IReadOnlyList<KraidRoomDraw> RoomFrames = Ensure.EveryMemberOnce<KraidRoomDraw>(
+    [
+        KraidRoomDraw.CeilingBackgroundLeftEdge,
+        KraidRoomDraw.CeilingBackgroundOddColumn,
+        KraidRoomDraw.CeilingBackgroundEvenColumn,
+        KraidRoomDraw.SpikeBackgroundLeftColumn,
+        KraidRoomDraw.SpikeBackgroundRightColumn,
+        KraidRoomDraw.ClearCeiling,
+        KraidRoomDraw.ClearSpikes,
+    ]);
 
     /// <summary>The Kraid room as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
@@ -68,7 +81,7 @@ public static class RoomObjectKraidVisualFiles
     /// </summary>
     internal static IEnumerable<RoomObjectDrawLists.DrawList> All =>
         CrumbleStages.Select(stage => SingleRow(KraidRoomObjectDraws.Crumble(stage), KraidRoomObjectDraws.CrumbleFamily))
-            .Concat(Enum.GetValues<KraidRoomDraw>().Select(frame => SingleRow(KraidRoomObjectDraws.Family.Of(frame), KraidRoomObjectDraws.Family)));
+            .Concat(RoomFrames.Select(frame => SingleRow(KraidRoomObjectDraws.Family.Of(frame), KraidRoomObjectDraws.Family)));
 
     /// <summary>The draw list of a frame of <paramref name="family"/>: one run along the row its shape covers.</summary>
     /// <exception cref="InvalidOperationException">The frame has no shape.</exception>

@@ -19,6 +19,35 @@ public static class RoomObjectCollectibleVisualFiles
 {
     /// <summary>Editable JSON filename containing the sixteen editable collectible frames.</summary>
     public const string VisualFileName = "collectibles.json";
+
+    /// <summary>Every collectible frame in its published order (#2567): the empty block, the Chozo orb's stages, the tanks, the block pairs' looks and the shot block's stages.</summary>
+    private static readonly IReadOnlyList<CollectibleDraw> PublishedOrder = Ensure.EveryMemberOnce<CollectibleDraw>(
+    [
+        CollectibleDraw.Empty,
+        CollectibleDraw.ChozoOrbDim,
+        CollectibleDraw.ChozoOrbGlowing,
+        CollectibleDraw.ChozoOrbBright,
+        CollectibleDraw.ChozoOrbBurst,
+        CollectibleDraw.EnergyTankBright,
+        CollectibleDraw.EnergyTankDim,
+        CollectibleDraw.MissileTankDim,
+        CollectibleDraw.MissileTankBright,
+        CollectibleDraw.SuperMissileTankDim,
+        CollectibleDraw.SuperMissileTankBright,
+        CollectibleDraw.PowerBombTankBright,
+        CollectibleDraw.PowerBombTankDim,
+        CollectibleDraw.FirstBlockPairPrimaryLook,
+        CollectibleDraw.FirstBlockPairAlternateLook,
+        CollectibleDraw.SecondBlockPairPrimaryLook,
+        CollectibleDraw.SecondBlockPairAlternateLook,
+        CollectibleDraw.ThirdBlockPairPrimaryLook,
+        CollectibleDraw.ThirdBlockPairAlternateLook,
+        CollectibleDraw.FourthBlockPairPrimaryLook,
+        CollectibleDraw.FourthBlockPairAlternateLook,
+        CollectibleDraw.ShotBlockIntact,
+        CollectibleDraw.ShotBlockCracking,
+        CollectibleDraw.ShotBlockDust,
+    ]);
     /// <summary>The collectibles as the import pictures them: every installed frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
         RoomObjectFrameImageFiles.DrawFamily(VisualFileName, "Collectible", Frames, draw => VisualId(RoomObjectDrawIdentity.FrameOf<CollectibleDraw>(draw, "collectible")));
@@ -64,7 +93,7 @@ public static class RoomObjectCollectibleVisualFiles
     {
         get
         {
-            foreach (CollectibleDraw draw in Enum.GetValues<CollectibleDraw>())
+            foreach (CollectibleDraw draw in PublishedOrder)
                 yield return new(draw, CollectibleObjectDraws.CollisionOf(draw), VisualId(draw));
         }
     }

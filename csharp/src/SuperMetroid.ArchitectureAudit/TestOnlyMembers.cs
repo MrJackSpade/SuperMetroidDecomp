@@ -1,6 +1,8 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using SuperMetroid.ReachabilityAudit.Analysis;
+using SuperMetroid.ReachabilityAudit.Declarations;
 using SuperMetroid.ReachabilityAudit.SolutionLoading;
 
 namespace SuperMetroid.ArchitectureAudit;
@@ -63,8 +65,16 @@ internal static class TestOnlyMembers
             }
         }
 
+        // What System.Text.Json reads or binds of a payload shipped code serializes is production use: a document's
+        // properties are written and read by the serializer, not by code naming them.
+        var identity = new SymbolIdentity(solution.RepositoryRoot);
+        var serialization = new JsonSerializationScan(identity);
         foreach (var (compilation, tree, file, check) in trees)
-            Walk(compilation, tree, file, check, uses, names);
+            Walk(compilation, tree, file, check, uses, names, check ? null : serialization);
+        var serialized = serialization.SerializerAccessedMembers();
+        foreach (MemberUses use in uses.Values)
+            if (identity.Key(use.Member) is { } key && serialized.Contains(key))
+                use.Production++;
         var used = uses.Values.GroupBy(use => use.Member, SymbolEqualityComparer.Default)
             .Where(member => member.Any(use => use.Production + use.InsideReads + use.InsideWrites != 0))
             .Select(member => member.Key!).ToHashSet(SymbolEqualityComparer.Default);
@@ -123,11 +133,14 @@ internal static class TestOnlyMembers
 
     /// <summary>Records every place in one file that reaches a candidate member, by the way it reaches it.</summary>
     private static void Walk(Compilation compilation, SyntaxTree tree, string file, bool check,
-        Dictionary<string, MemberUses> uses, HashSet<string> names)
+        Dictionary<string, MemberUses> uses, HashSet<string> names, JsonSerializationScan? serialization)
     {
         var enclosing = new Dictionary<SyntaxNode, INamedTypeSymbol?>();
         foreach (SyntaxNode node in tree.GetRoot().DescendantNodes())
         {
+            if (serialization is not null && node is InvocationExpressionSyntax invocation &&
+                Info(compilation, tree, invocation).Symbol is IMethodSymbol invoked)
+                serialization.ObserveInvocation(SemanticModels.At(compilation, tree, invocation), invocation, invoked);
             switch (node)
             {
                 case SimpleNameSyntax name when names.Contains(name.Identifier.ValueText) && !InNameOf(name):
@@ -233,7 +246,9 @@ internal static class TestOnlyMembers
         return member switch
         {
             IFieldSymbol field => field.DeclaredAccessibility != Accessibility.Private && field.AssociatedSymbol is null,
-            IPropertySymbol property => property.ExplicitInterfaceImplementations.IsEmpty && Ways(property).Any(),
+            // A record's components are its value: its synthesized equality, hashing and deconstruction read them.
+            IPropertySymbol property => property.ExplicitInterfaceImplementations.IsEmpty && Ways(property).Any() &&
+                property.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax() is not ParameterSyntax,
             IEventSymbol @event => @event.DeclaredAccessibility != Accessibility.Private && @event.ExplicitInterfaceImplementations.IsEmpty,
             IMethodSymbol method => method.DeclaredAccessibility != Accessibility.Private &&
                 method.MethodKind is MethodKind.Ordinary or MethodKind.Constructor && method.Name != "Main" &&

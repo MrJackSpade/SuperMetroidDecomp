@@ -65,13 +65,20 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
     /// <summary>The generated class of <paramref name="owner"/> in the repository at <paramref name="root"/>.</summary>
     public static PrivateAccessShims For(string root, INamedTypeSymbol owner) => new(owner, PathFor(root, owner));
 
+    /// <summary>The type whose private-access class stands in for <paramref name="member"/>: its own, or, for a member of an extension block, the static class declaring the block.</summary>
+    public static INamedTypeSymbol OwnerOf(ISymbol member) =>
+        member.ContainingType is { TypeKind: TypeKind.Extension, ContainingType: { } declaring } ? declaring : member.ContainingType;
+
     /// <summary>
     /// Why no extension member can stand in for <paramref name="member"/>, or null: a constructor, an indexer, an event, a
     /// generic member or owner, an owner test-support cannot see, a <c>ref struct</c> or pointer in its signature.
     /// </summary>
     public static string? Refusal(ISymbol member)
     {
-        for (INamedTypeSymbol? type = member.ContainingType; type is not null; type = type.ContainingType)
+        if (member.ContainingType is { TypeKind: TypeKind.Extension } block && (block.IsGenericType || block.ExtensionParameter is not { RefKind: RefKind.None } ||
+                member is not (IMethodSymbol { MethodKind: MethodKind.Ordinary, IsGenericMethod: false } or IPropertySymbol { IsIndexer: false })))
+            return "extension-block member other than a method or property of a by-value receiver";
+        for (INamedTypeSymbol? type = OwnerOf(member); type is not null; type = type.ContainingType)
         {
             if (type.IsGenericType)
                 return "generic owner";
@@ -101,6 +108,11 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
     /// <summary>Adds the extension member standing in for <paramref name="member"/>; <paramref name="written"/> when its stand-in is written.</summary>
     public void Add(ISymbol member, bool written)
     {
+        if (member.ContainingType is { TypeKind: TypeKind.Extension, ExtensionParameter: { } receiver })
+        {
+            AddExtensionMember(member, receiver);
+            return;
+        }
         switch (member)
         {
             case IFieldSymbol field:
@@ -115,6 +127,41 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
             default:
                 throw new InvalidOperationException($"{member.ToDisplayString()} is a {member.Kind}, which no extension member stands in for.");
         }
+    }
+
+    /// <summary>
+    /// A member of an extension block: the same member of a block on the same receiver, invoking the static method the
+    /// block's member compiles to (the receiver first, a property's accessors as <c>get_</c> and <c>set_</c> methods).
+    /// </summary>
+    private void AddExtensionMember(ISymbol member, IParameterSymbol receiver)
+    {
+        string receiverType = TypeText(receiver.Type);
+        if (!_receivers.TryGetValue(receiverType, out var members))
+            _receivers[receiverType] = members = [];
+        string receiverTypeOf = $"typeof({TypeOfText(receiver.Type)})";
+        if (member is IPropertySymbol property)
+        {
+            string type = TypeText(property.Type);
+            string get = $"PrivateState.InvokeStatic<{type}>(typeof({Owner}), \"get_{property.Name}\", [{receiverTypeOf}], new object?[] {{ self }})";
+            string set = $"PrivateState.InvokeStatic(typeof({Owner}), \"set_{property.Name}\", [{receiverTypeOf}, typeof({TypeOfText(property.Type)})], new object?[] {{ self, value }})";
+            members.Add(new($"property|{property.Name}", Summary($"The private extension property <c>{property.Name}</c>, reached by name.") +
+                $"internal {type} {Name(property.Name)}\n{{\n" + (property.GetMethod is not null ? $"    get => {get};\n" : "") +
+                (property.SetMethod is not null ? $"    set => {set};\n" : "") + "}"));
+            return;
+        }
+        var method = (IMethodSymbol)member;
+        var parameters = method.Parameters;
+        string types = "[" + string.Join(", ", parameters.Select(parameter =>
+            $"typeof({TypeOfText(parameter.Type)})" + (parameter.RefKind is RefKind.None or RefKind.In ? "" : ".MakeByRefType()")).Prepend(receiverTypeOf)) + "]";
+        bool returns = !method.ReturnsVoid;
+        string result = returns ? TypeText(method.ReturnType) : "void";
+        string invoker = returns ? $"PrivateState.InvokeStatic<{result}>" : "PrivateState.InvokeStatic";
+        string arguments = "new object?[] { " + string.Join(", ", parameters.Select(parameter => parameter.RefKind == RefKind.Out ? "null" : Name(parameter.Name)).Prepend("self")) + " }";
+        string signature = string.Join(",", parameters.Select(parameter => $"{parameter.RefKind}:{TypeOfText(parameter.Type)}"));
+        if (parameters.Any(parameter => parameter.RefKind is RefKind.Ref or RefKind.Out))
+            throw new InvalidOperationException($"{method.ToDisplayString()} passes a parameter by reference, which an extension-block stand-in does not.");
+        members.Add(new($"method|{method.Name}|{signature}", Summary($"The private extension method <c>{method.Name}</c>, invoked by name.") +
+            $"internal {result} {Name(method.Name)}({ParameterList(parameters)}) =>\n    {invoker}(typeof({Owner}), \"{method.Name}\", {types}, {arguments});"));
     }
 
     /// <summary>A field: a property reading it, and writing it when its stand-in is written.</summary>

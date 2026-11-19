@@ -39,6 +39,22 @@ internal static class TestOnlyMemberFixer
         {
             ISymbol symbol = member.Key!;
             var ways = member.ToList();
+            if (ThroughPrivateState(symbol, ways) is { } rewrite)
+            {
+                if (rewrite.Refusal is null && rewrite.Edits.All(edit => Fits(edits, edit.Tree, edit.Change)))
+                {
+                    foreach (var (tree, change) in rewrite.Edits)
+                        Add(edits, tree, change);
+                    narrowed.Add(symbol);
+                    fixedMembers++;
+                }
+                else
+                {
+                    manual.Add($"MANUAL {Describe(solution.RepositoryRoot, symbol)} ({string.Join(", ", ways.Select(way => $"{way.Uses.Way} {way.Shape}"))}): " +
+                        (rewrite.Refusal ?? "a check site's rewrite overlaps another"));
+                }
+                continue;
+            }
             string? refusal = Refusal(symbol, ways);
             if (refusal is not null)
             {
@@ -47,7 +63,7 @@ internal static class TestOnlyMemberFixer
             }
             foreach (var (tree, change) in Narrow(symbol))
                 Add(edits, tree, change);
-            Shims(solution.RepositoryRoot, shims, symbol.ContainingType).Add(symbol, Written(ways));
+            Shims(solution.RepositoryRoot, shims, PrivateAccessShims.OwnerOf(symbol)).Add(symbol, Written(ways));
             narrowed.Add(symbol);
             fixedMembers++;
         }
@@ -156,6 +172,103 @@ internal static class TestOnlyMemberFixer
         return getterStays || setterStays;
     }
 
+    /// <summary>
+    /// The edits for a narrow finding no extension member can stand in for, which checks then reach through
+    /// <c>PrivateState</c> at each site: a constructor (<c>new Owner(...)</c> becomes <c>PrivateState.New</c>), and a
+    /// property one of whose accessors stays wider (a check's read becomes <c>PrivateState.Get</c> and its assignment
+    /// <c>PrivateState.Set</c>, since the check would bind to the property its own code keeps accessible). Null for any
+    /// other finding; a refusal for a site no such call can stand in for.
+    /// </summary>
+    private static SiteRewrite? ThroughPrivateState(ISymbol symbol, List<TestOnlyMemberFinding> ways)
+    {
+        bool constructor = symbol is IMethodSymbol { MethodKind: MethodKind.Constructor };
+        bool partialProperty = symbol is IPropertySymbol property && !property.IsIndexer && Partial(property, ways);
+        if (!constructor && !partialProperty || ways.Any(way => way.Shape != "narrow"))
+            return null;
+        if (symbol.DeclaringSyntaxReferences.Any(reference => GeneratedSource.IsGenerated(reference.SyntaxTree, CancellationToken.None) ||
+                reference.SyntaxTree.FilePath.Contains(".Generated.", StringComparison.OrdinalIgnoreCase)))
+            return new SiteRewrite([], "generated declaration: fix its generator");
+        if (PrivateAccessShims.Refusal(symbol) is { } shape && !constructor)
+            return new SiteRewrite([], shape);
+        for (INamedTypeSymbol? container = symbol.ContainingType; container is not null; container = container.ContainingType)
+            if (container.IsGenericType || container.DeclaredAccessibility is Accessibility.Private or Accessibility.Protected or Accessibility.ProtectedAndInternal)
+                return new SiteRewrite([], "generic owner, or one test-support cannot see");
+        if (symbol.DeclaringSyntaxReferences.Length != 1 || symbol.DeclaringSyntaxReferences[0].GetSyntax() is not MemberDeclarationSyntax declaration)
+            return new SiteRewrite([], "declared by no single member declaration (a primary constructor or a partial member)");
+        string owner = PrivateAccessShims.TypeText(symbol.ContainingType);
+        string state = "global::SuperMetroid.Core.PrivateState";
+        var result = new List<(SyntaxTree Tree, TextChange Change)>();
+        var sites = ways.SelectMany(way => way.Uses.CheckSites.Select(site => (way.Uses.Way, Site: site))).ToList();
+        if (constructor)
+        {
+            var method = (IMethodSymbol)symbol;
+            if (method.Parameters.Any(parameter => parameter.RefKind != RefKind.None || parameter.Type.IsRefLikeType))
+                return new SiteRewrite([], "constructor with a by-reference or ref struct parameter");
+            foreach (TextChange change in Private(declaration.Modifiers, declaration))
+                result.Add((declaration.SyntaxTree, change));
+            string types = "[" + string.Join(", ", method.Parameters.Select(parameter => $"typeof({PrivateAccessShims.TypeOfText(parameter.Type)})")) + "]";
+            foreach (var (_, site) in sites)
+            {
+                if (site is not BaseObjectCreationExpressionSyntax { Initializer: null, ArgumentList: { } arguments } creation ||
+                    arguments.Arguments.Any(argument => argument.NameColon is not null || !argument.RefKindKeyword.IsKind(SyntaxKind.None)) ||
+                    arguments.Arguments.Count != method.Parameters.Length)
+                    return new SiteRewrite([], $"constructor site no PrivateState.New stands in for at {site.GetLocation().GetLineSpan()}");
+                string passed = string.Join(", ", arguments.Arguments.Select((argument, index) =>
+                    $"({PrivateAccessShims.TypeText(method.Parameters[index].Type)})({argument.Expression})"));
+                result.Add((creation.SyntaxTree, new TextChange(creation.Span, $"{state}.New<{owner}>({types}, new object?[] {{ {passed} }})")));
+            }
+            return new SiteRewrite(result, null);
+        }
+        var narrowedProperty = (IPropertySymbol)symbol;
+        if (declaration is not PropertyDeclarationSyntax { AccessorList: { } accessors })
+            return new SiteRewrite([], "property without accessors to narrow");
+        var narrowedWays = ways.Select(way => way.Uses.Way).ToHashSet(StringComparer.Ordinal);
+        foreach (AccessorDeclarationSyntax accessor in accessors.Accessors)
+        {
+            bool getter = accessor.IsKind(SyntaxKind.GetAccessorDeclaration);
+            if (!narrowedWays.Contains(getter ? "read" : "write"))
+                continue;
+            var existing = accessor.Modifiers.Where(IsAccessibility).ToList();
+            if (existing.Count > 0)
+            {
+                result.Add((accessor.SyntaxTree, new TextChange(existing[0].Span, "private")));
+                foreach (SyntaxToken other in existing.Skip(1))
+                    result.Add((accessor.SyntaxTree, new TextChange(TextSpan.FromBounds(other.SpanStart, other.GetNextToken().SpanStart), "")));
+            }
+            else
+            {
+                result.Add((accessor.SyntaxTree, new TextChange(new TextSpan(accessor.Keyword.SpanStart, 0), "private ")));
+            }
+        }
+        string type = PrivateAccessShims.TypeText(narrowedProperty.Type);
+        foreach (var (way, site) in sites)
+        {
+            if (site is not SimpleNameSyntax { Parent: MemberAccessExpressionSyntax access } name || access.Name != name)
+                return new SiteRewrite([], $"property site without a receiver at {site.GetLocation().GetLineSpan()}");
+            string receiver = narrowedProperty.IsStatic ? "" : access.Expression.ToString();
+            if (way == "read")
+            {
+                if (TestOnlyMembers.IsWrite(name))
+                    return new SiteRewrite([], $"property site that both reads and writes at {site.GetLocation().GetLineSpan()}");
+                string read = narrowedProperty.IsStatic ? $"{state}.StaticGet<{type}>(typeof({owner}), \"{symbol.Name}\")"
+                    : symbol.ContainingType.IsValueType ? $"{state}.ValueGet<{owner}, {type}>({receiver}, \"{symbol.Name}\")"
+                    : $"{state}.Get<{owner}, {type}>({receiver}, \"{symbol.Name}\")";
+                result.Add((site.SyntaxTree, new TextChange(access.Span, read)));
+                continue;
+            }
+            if (access.Parent is not AssignmentExpressionSyntax { Parent: ExpressionStatementSyntax } assignment ||
+                !assignment.IsKind(SyntaxKind.SimpleAssignmentExpression) || assignment.Left != access || symbol.ContainingType.IsValueType)
+                return new SiteRewrite([], $"property write no PrivateState.Set stands in for at {site.GetLocation().GetLineSpan()}");
+            string write = narrowedProperty.IsStatic ? $"{state}.StaticSet(typeof({owner}), \"{symbol.Name}\", ({type})({assignment.Right}))"
+                : $"{state}.Set({receiver}, \"{symbol.Name}\", ({type})({assignment.Right}))";
+            result.Add((site.SyntaxTree, new TextChange(assignment.Span, write)));
+        }
+        return new SiteRewrite(result, null);
+    }
+
+    /// <summary>Whether a change overlaps none of a tree's edits so far.</summary>
+    private static bool Fits(Dictionary<SyntaxTree, List<TextChange>> edits, SyntaxTree tree, TextChange change) =>
+        !edits.TryGetValue(tree, out var list) || !list.Any(other => other.Span.OverlapsWith(change.Span) || other.Span.Start == change.Span.Start);
     /// <summary>Whether any check writes the member: assigns it, increments it or passes it by reference.</summary>
     private static bool Written(List<TestOnlyMemberFinding> ways) =>
         ways.Any(way => way.Uses.Way == "write") || ways.SelectMany(way => way.Uses.CheckSites).Any(site =>

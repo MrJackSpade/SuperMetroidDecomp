@@ -173,7 +173,7 @@ internal static class SymbolRelocator
     {
         int written = 0;
         foreach (var owner in collected.Promotions.Where(symbol => symbol is not INamedTypeSymbol)
-                     .GroupBy(symbol => symbol.ContainingType, SymbolEqualityComparer.Default))
+                     .GroupBy(PrivateAccessShims.OwnerOf, SymbolEqualityComparer.Default))
         {
             var shims = PrivateAccessShims.For(repositoryRoot, (INamedTypeSymbol)owner.Key!);
             foreach (var member in owner)

@@ -28,6 +28,8 @@ internal sealed class D3D11FloorImage : IDisposable
     private AffineFloor? shown;
     /// <summary>The image's texels, reused while each new floor of the same extent is laid out.</summary>
     private uint[] texels = [];
+    /// <summary>The places of the keys found while one picture is laid out, reused for each.</summary>
+    private readonly D3D11KeyPlaces keyPlaces = new();
 
     /// <summary>Creates the image of no floor yet: one clear texel, which no floor pass reads.</summary>
     internal D3D11FloorImage(ID3D11Device device, ID3D11DeviceContext context)
@@ -86,7 +88,7 @@ internal sealed class D3D11FloorImage : IDisposable
         SpriteImage sheet = picture.Sheet;
         uint sheetIndex = (uint)floor.Pictures.IndexOf(picture) << SheetShift;
         ReadOnlySpan<RgbaPixel> pixels = sheet.Pixels;
-        var keyWords = new D3D11ImageAtlas.KeyWords(picture);
+        var keyWords = new D3D11ImageAtlas.KeyWords(picture, keyPlaces);
         for (int y = 0; y < picture.Size.Y; y++)
         {
             int source = (picture.Corner.Y + y) * sheet.Size.X + picture.Corner.X;

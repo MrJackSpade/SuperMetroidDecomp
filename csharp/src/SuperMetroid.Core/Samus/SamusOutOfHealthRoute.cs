@@ -19,8 +19,8 @@ public enum SamusOutOfHealthRoute
     Death,
 
     /// <summary>
-    /// Out of health without reserves while the time-up owns the update, because the escape countdown ran out earlier in it
-    /// or the update runs behind the time-up's white-out: Samus neither dies nor is refilled, and the update does not count
+    /// Out of health without reserves while the time-up owns the update, because the escape countdown ran out earlier in it,
+    /// the update returned to the time-up earlier in it (#2518), or the update runs behind the time-up's white-out: Samus neither dies nor is refilled, and the update does not count
     /// the play time.
     /// </summary>
     DeathWithheld,

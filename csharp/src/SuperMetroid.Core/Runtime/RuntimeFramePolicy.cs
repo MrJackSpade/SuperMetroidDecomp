@@ -34,7 +34,8 @@ public sealed record RuntimeFramePolicy
     /// <summary>
     /// Whether the update runs main gameplay's update behind the time-up's white-out (#2509): the time-up, not main
     /// gameplay, owns it, so the out-of-health check withholds the death of a Samus out of health without reserves, and
-    /// that update does not count the play time. The AUTO reserves' refill still begins.
+    /// that update does not count the play time. The AUTO reserves' refill still begins. An update the time-up owns does not
+    /// return to it (#2518).
     /// </summary>
     public bool RunsBehindTimeUp { get; init; }
 }

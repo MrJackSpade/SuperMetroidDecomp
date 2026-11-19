@@ -61,8 +61,10 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         samus.HealthWarning.Update(samus.Health, session.GameplayRuntime.AudioRequests);
         // The refill's locked Samus holds the escape timer (#2504); only the completion update, whose gameplay runs with
         // her control restored, counts it, so a countdown can run out only there, and the time-up it starts begins after
-        // that update, as main gameplay's begins after its own.
-        if (outcome.StartsTimeUp)
+        // that update, as main gameplay's begins after its own. Once the Zebes time bomb is set, a refill that took an
+        // update from the time-up returns to it on its next update, the refill unfinished, with Samus locked and gameplay
+        // frozen (#2518). The update's own out-of-health check sending Samus to the refill keeps the update in it.
+        if (outcome.StartsTimeUp && outcome.OutOfHealth != SamusOutOfHealthRoute.ReserveRefill)
             session.BeginTimeUp();
     }
 
@@ -131,7 +133,8 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             // The escape countdown started the time-up during Samus's update, after her movement's
             // door hits and before pause-check, which then sees the game no longer in main gameplay.
             // The update's out-of-health check, later still, withholds the death of a Samus out of health without
-            // reserves (#2509); only the AUTO reserves' refill takes the update from the time-up it started.
+            // reserves (#2509); only the AUTO reserves' refill takes the update from the time-up it started. Once the
+            // Zebes time bomb is set, Samus's draw returns the game to the time-up a run-out countdown started (#2518).
             session.BeginTimeUp();
         }
         else if (session.GameplayRuntime.EnemyFrameResults.LastEnemyFrame.Gunship == GunshipFrameEvent.EscapeTakeoffCompleted)

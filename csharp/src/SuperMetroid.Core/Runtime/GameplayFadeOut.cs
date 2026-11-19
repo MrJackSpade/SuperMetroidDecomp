@@ -26,6 +26,9 @@ internal sealed class GameplayFadeOut : IGameplayShadingSource
     /// <param name="counter">The runtime's shared fade step count, which its door fades and its enemies' fades share.</param>
     internal GameplayFadeOut(SharedFadeStepCount counter) => this.counter = Ensure.NotNull(counter);
 
+    /// <summary>Whether a fade has begun and not yet ended: the display shows it.</summary>
+    internal bool IsUnderWay => steps is not null;
+
     /// <summary>
     /// Starts fading the display toward <paramref name="colour"/> in <paramref name="lastStep"/> parts, from the step the
     /// shared count holds.

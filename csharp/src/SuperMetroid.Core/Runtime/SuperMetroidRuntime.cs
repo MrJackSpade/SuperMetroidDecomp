@@ -691,7 +691,10 @@ internal sealed class SuperMetroidRuntime
     /// The remainder of a main-gameplay update after the room objects' step. A frame whose room-object
     /// pass opened a message box parks this state and resumes it when the box closes.
     /// </summary>
-    /// <returns>Whether the escape countdown ran out during the remainder, and where its out-of-health check sends Samus.</returns>
+    /// <returns>
+    /// Whether the remainder started the time-up, its countdown running out or the update returning to the time-up the
+    /// countdown started, and where its out-of-health check sends Samus.
+    /// </returns>
     private RuntimeFrameOutcome FinishGameplayFrame(
         SuspendedGameplayFrameTail tail,
         RuntimeFramePolicy policy,
@@ -704,7 +707,7 @@ internal sealed class SuperMetroidRuntime
         StepCeresElevatorArrival(room, samus, deathOwnsSamus);
         RunMainScrolling(room, samus, tail.PreviousCameraPoint, deathOwnsSamus);
         DrawGameplayActors(room, samus, tail, deathOwnsSamus);
-        bool startsTimeUp = RunEscapeTimer(tail, policy);
+        bool startsTimeUp = RunEscapeTimer(tail, policy) || ReturnsToTimeUp(policy);
         Sprites.FinalizeFrame();
 
         UpdateHud(infiniteAmmoGuard, room, samus);
@@ -740,12 +743,15 @@ internal sealed class SuperMetroidRuntime
     /// <summary>
     /// The update's out-of-health check (#2509): the AUTO reserves' refill begins whatever else the update started, and
     /// Samus's death only while main gameplay owns the update. The escape countdown's time-up, written earlier in the
-    /// update or run behind by it, owns it instead: the death is withheld, and the check returns before the update counts
+    /// update, by its countdown running out or the update returning to it (#2518), or run behind by it, owns it instead: the death is withheld, and the check returns before the update counts
     /// the play time.
     /// </summary>
     /// <param name="samus">The update's Samus.</param>
     /// <param name="policy">The update's game-state policy, which says whether it runs behind the time-up's white-out.</param>
-    /// <param name="startsTimeUp">Whether the escape countdown ran out earlier in this update.</param>
+    /// <param name="startsTimeUp">
+    /// Whether this update started the time-up earlier: its countdown ran out, or it returned to the time-up the countdown
+    /// started (#2518).
+    /// </param>
     private SamusOutOfHealthRoute CheckSamusOutOfHealth(SamusState samus, RuntimeFramePolicy policy, bool startsTimeUp)
     {
         // Every damage source applies its normal amount first. The cannot-die assist acts here, where zero energy would
@@ -911,6 +917,19 @@ internal sealed class SuperMetroidRuntime
         }
         return startsTimeUp;
     }
+
+    /// <summary>
+    /// Whether the update returns the game to the time-up its run-out escape countdown started (#2518). Once the Zebes time
+    /// bomb is set, every gameplay update's Samus draw, which follows her update, writes the time-up again while the
+    /// countdown that ran out is shown and the time-up does not own the update. So the AUTO reserves' refill, which takes an
+    /// update from the time-up, gives it back on its own next update, with the refill unfinished, and that update's
+    /// out-of-health check finds the game out of main gameplay. Before the time bomb is set, in the Ceres escape, only
+    /// Samus's Ceres handling writes it again, and the refill's end gives her the normal handling instead, so that game stays
+    /// in gameplay with the run-out countdown shown at zero.
+    /// </summary>
+    /// <param name="policy">The update's game-state policy, which says whether the time-up owns it.</param>
+    private bool ReturnsToTimeUp(RuntimeFramePolicy policy) =>
+        !policy.RunsBehindTimeUp && EscapeTimer.Phase == EscapeTimerPhase.Expired && System.HasEvent(StoryEvent.ZebesTimebombSet);
 
     /// <summary>Rebuilds the HUD counters; the next accepted frame shows the rows as it latches them.</summary>
     private void UpdateHud(AmmoLoanGuard infiniteAmmoGuard, RoomScope room, SamusState samus)

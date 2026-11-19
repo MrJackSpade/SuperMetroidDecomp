@@ -32,7 +32,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of Cacatac's animations.</summary>
-    private CacatacSegment? ApplyCacatacCue(RoomEnemyPlace place, CacatacEnemyState state, CacatacCue cue)
+    private void ApplyCacatacCue(RoomEnemyPlace place, CacatacEnemyState state, CacatacCue cue)
     {
         switch (cue)
         {
@@ -48,7 +48,6 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
             default:
                 throw new InvalidOperationException($"Undefined Cacatac cue {cue}.");
         }
-        return null;
     }
 
     /// <summary>Initializes the Cacatac.</summary>
@@ -150,11 +149,9 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Cacatac's typed animation.</summary>
     internal void AdvanceCacatacTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, CacatacAnimations.Segments,
+        EnemyAnimationPlayback.AdvanceApplyingCues(place, CacatacAnimations.Segments,
             static (CacatacEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyCacatacCue(place, state, cue) is { } target
-                ? new AnimationContinuation<CacatacSegment>(CacatacAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
-                : null);
+            (CacatacEnemyState state, CacatacCue cue) => ApplyCacatacCue(place, state, cue));
 
     /// <summary>
     /// Spawns a spike projectile from the Cacatac and initializes it.

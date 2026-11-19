@@ -65,6 +65,8 @@ internal static class HibashiAnimations
             Show(EnemyFrameId.HibashiFlameTopVanishing, 4),
             Cue(new HibashiCue.Signal(K.FinishActivity)),
         ],
+        // The hidden collision part's held frame is never drawn, but an enemy showing no frame takes no part in Samus's
+        // collision, so the hold is what admits the part's hit area from its first update on (#2566).
         [P.Hitbox] =
         [
             Hold(EnemyFrameId.HibashiEmber),

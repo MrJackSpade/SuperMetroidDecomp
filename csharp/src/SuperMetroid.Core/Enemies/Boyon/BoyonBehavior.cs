@@ -22,7 +22,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new BoyonEntity(this, place, common);
 
     /// <summary>Carries out one cue of Boyon's animations.</summary>
-    private BoyonSegment? ApplyBoyonCue(RoomEnemyPlace place, BoyonEnemyState state, BoyonCue cue)
+    private void ApplyBoyonCue(RoomEnemyPlace place, BoyonEnemyState state, BoyonCue cue)
     {
         switch (cue.Kind)
         {
@@ -38,14 +38,11 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
             default:
                 throw new InvalidOperationException($"Undefined {nameof(BoyonCueKind)} {cue.Kind}.");
         }
-        return null;
     }
 
     /// <summary>Initializes the Boyon.</summary>
     internal static void InitializeBoyon(RoomEnemyPlace place)
     {
-        _ = place.SpawnSettings<BoyonSpawnSettings>();
-
         // The Boyon shows nothing until its idle animation shows its first frame on its first update; the room's
         // enemy load leaves it showing nothing too.
         place.Frame = EnemyFrameId.Empty;
@@ -198,9 +195,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs Boyon's idle and bouncing loops (#641).</summary>
     internal void AdvanceBoyonAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, BoyonAnimations.Segments,
+        EnemyAnimationPlayback.AdvanceApplyingCues(place, BoyonAnimations.Segments,
             static (BoyonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyBoyonCue(place, state, cue) is { } target
-                ? new AnimationContinuation<BoyonSegment>(BoyonAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
-                : null);
+            (BoyonEnemyState state, BoyonCue cue) => ApplyBoyonCue(place, state, cue));
 }

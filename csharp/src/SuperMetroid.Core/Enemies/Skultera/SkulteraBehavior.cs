@@ -54,7 +54,6 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             ? SkulteraSegment.SwimmingLeft
             : SkulteraSegment.SwimmingRight), AnimationPlace.StartOfAnimation);
 
-        state.Angle = RotationAngle.Zero;
         state.PreviousYOffset = EnemyMath.CircleNegativeSinePixels(state.Angle.ToTrigonometryAngle(), settings.Radius);
     }
 

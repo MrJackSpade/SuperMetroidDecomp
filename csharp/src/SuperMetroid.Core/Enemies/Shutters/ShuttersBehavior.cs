@@ -103,8 +103,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         place.SetSpeciesState(state);
 
-        state.GrowthLevel = 0;
-
         // The shutter's new clock shows no new frame until its animation's first step shows one.
         place.CollidesByFrameHitboxes = false;
         StartGrowingShutterAnimation(
@@ -410,7 +408,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             state.UpperEndpointY = spawnY - settings.TravelDistance;
         }
 
-        state.ShotActivated = false;
         // The shutter's new clock shows no new frame until its animation's first step shows one.
         place.CollidesByFrameHitboxes = false;
         StartVerticalShutterAnimation(place, state, pose);

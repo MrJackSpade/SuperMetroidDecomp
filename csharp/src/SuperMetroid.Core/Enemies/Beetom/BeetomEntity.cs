@@ -8,7 +8,8 @@ internal sealed class BeetomEntity(BeetomBehavior species, RoomEnemyPlace place,
     : CommonParticipationEnemyEntity(place, common), IEnemySurroundingsInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
-    public void Initialize(EnemyPopulationSurroundings surroundings) => species.RunBeetomInitializationAi(Place, surroundings);
+    public void Initialize(EnemyPopulationSurroundings surroundings) =>
+        species.InitializeBeetom(Place, Ensure.NotNull(surroundings).Samus, surroundings.ControllerInput);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunBeetomMainAi(Place, frame);

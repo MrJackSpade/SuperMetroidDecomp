@@ -122,8 +122,7 @@ internal static class RoomObjectCollisionOnlyWritesVerification
             AssertEqual(1, activations, "the morphed Samus landing on the hand wakes the statue");
         });
         kept.Check("the Wrecked Ship hand's setup", Solid, [hand], level =>
-            AssertTrue(RoomObjectFixtures.Unbound().ChozoStatue.TrySpawnChozoStatueObject(level, new(hand, ChozoStatueRoomObject.WreckedShipHand)),
-                "the Wrecked Ship hand takes a place"));
+            RoomObjectFixtures.Unbound().ChozoStatue.SpawnChozoStatueObject(level, new(hand, ChozoStatueRoomObject.WreckedShipHand)));
         Position16<RoomBlocks>[] slopes = [ChozoStatueRoomDefinitions.FirstSlopeBlock, ChozoStatueRoomDefinitions.FirstSlopeBlock + new Offset16<RoomBlocks>(1, 0)];
         kept.Check("the Wrecked Ship spikes' turn into slopes", Solid, slopes, ChozoStatueObjects.TransformSpikesToSlopes);
         kept.Check("the Wrecked Ship slopes' return to spikes", Solid, slopes, ChozoStatueObjects.RevertSlopesToSpikes);

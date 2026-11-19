@@ -38,9 +38,6 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new BoulderEnemyState(BoulderAction.WaitingForSamus);
         place.SetSpeciesState(state);
 
-        state.BounceSpeedAccumulator = QuadraticSpeedCurvePlace.Start;
-        state.TravelSpeedAccumulator = QuadraticSpeedCurvePlace.Start;
-        state.ImpactsSoFar = 0;
         state.RestingY = place.Position.Whole.Y;
         state.PreviousY = place.Position.Y;
 

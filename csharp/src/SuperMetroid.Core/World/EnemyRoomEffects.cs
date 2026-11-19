@@ -90,7 +90,7 @@ internal sealed class EnemyRoomEffects
                     site.RoomObjects.BossRoomMutations.PhantoonDoor.TrySpawn(site.Level, door.Change);
                     break;
                 case ChozoStatueObjectAsked chozo:
-                    site.RoomObjects.ChozoStatue.TrySpawnChozoStatueObject(site.Level, chozo.Request);
+                    site.RoomObjects.ChozoStatue.SpawnChozoStatueObject(site.Level, chozo.Request);
                     break;
                 case TorizoBellyGlowRequest glow:
                     site.ColourEffects.StartTorizoBellyGlow(glow.Glow, glow.Torizo, site.Samus.EquippedItems);

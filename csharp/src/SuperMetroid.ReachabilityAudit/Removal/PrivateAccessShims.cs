@@ -59,6 +59,9 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
     /// <summary>The owner as generated code writes it.</summary>
     private string Owner => TypeText(owner);
 
+    /// <summary>A generic owner's type parameter list, which its blocks and delegates declare; empty for any other owner.</summary>
+    private string TypeParameterList => owner.IsGenericType ? "<" + string.Join(", ", owner.TypeParameters.Select(parameter => parameter.Name)) + ">" : "";
+
     /// <summary>Whether the owner is a value type its members can change, whose writes need it by reference.</summary>
     private bool IsMutableValue => owner.IsValueType && !owner.IsReadOnly;
 
@@ -103,15 +106,19 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
         return member switch
         {
             IMethodSymbol { MethodKind: MethodKind.Constructor } => "constructor",
-            IMethodSymbol { IsGenericMethod: true } => "generic method",
+            IMethodSymbol { IsGenericMethod: true } generic when generic.IsExtensionMethod || generic.ContainingType.IsValueType || HasRefLike(generic) ||
+                                                                generic.Parameters.Any(parameter => parameter.RefKind != RefKind.None) =>
+                "generic extension method, generic method of a value type, or one taking a ref struct or a reference",
             IMethodSymbol { MethodKind: not MethodKind.Ordinary } => "not an ordinary method",
-            IMethodSymbol method when method.Parameters.Any(parameter => parameter.Type.IsRefLikeType || parameter.Type.TypeKind == TypeKind.Pointer ||
+            IMethodSymbol method when method.Parameters.Any(parameter => parameter.Type.TypeKind == TypeKind.Pointer ||
                                                                       parameter.RefKind == RefKind.RefReadOnlyParameter) ||
-                                       method.ReturnType.IsRefLikeType || method.ReturnsByRef || method.ReturnsByRefReadonly =>
-                "ref struct, pointer or by-reference return in its signature",
+                                       method.ReturnsByRef || method.ReturnsByRefReadonly || method.ReturnType.TypeKind == TypeKind.Pointer ||
+                                       HasRefLike(method) && (member.ContainingType.IsValueType || member.ContainingType.TypeKind == TypeKind.Extension) =>
+                "pointer or by-reference return in its signature, or a ref struct in a value type's or extension block's",
             IPropertySymbol { IsIndexer: true } => "indexer",
-            IPropertySymbol property when property.Type.IsRefLikeType || property.ReturnsByRef || property.ReturnsByRefReadonly =>
-                "ref struct or by-reference property",
+            IPropertySymbol property when property.ReturnsByRef || property.ReturnsByRefReadonly ||
+                                          property.Type.IsRefLikeType && (member.ContainingType.IsValueType || member.ContainingType.TypeKind == TypeKind.Extension) =>
+                "by-reference property, or a value type's or extension block's ref struct property",
             IFieldSymbol field when field.Type.IsRefLikeType || field.Type.TypeKind == TypeKind.Pointer || field.IsFixedSizeBuffer =>
                 "ref struct, pointer or fixed buffer field",
             IEventSymbol => "event",
@@ -119,6 +126,10 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
             _ => member.Kind.ToString(),
         };
     }
+
+    /// <summary>Whether a method's signature holds a <c>ref struct</c>, which reflection cannot pass or return.</summary>
+    private static bool HasRefLike(IMethodSymbol method) =>
+        method.ReturnType.IsRefLikeType || method.Parameters.Any(parameter => parameter.Type.IsRefLikeType);
 
     /// <summary>Adds the extension member standing in for <paramref name="member"/>; <paramref name="written"/> when its stand-in is written.</summary>
     public void Add(ISymbol member, bool written)
@@ -216,6 +227,18 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
         string type = TypeText(property.Type);
         string name = Name(property.Name);
         string doc = Summary($"The private property <c>{property.Name}</c>, reached by name.");
+        if (property.Type.IsRefLikeType)
+        {
+            if (written || property.GetMethod is null)
+                throw new InvalidOperationException($"{property.ToDisplayString()} is a written ref struct property, which no stand-in reaches.");
+            string reader = $"{property.Name}Read{TypeParameterList}";
+            string declaration = Summary($"The getter of <c>{property.Name}</c>, called directly: reflection cannot return a ref struct.") +
+                $"private delegate {type} {property.Name}Read{TypeParameterList}({(property.IsStatic ? "" : $"{Owner} self")}){Constraints(owner.TypeParameters)};";
+            string read = $"PrivateState.GetterDelegate<{reader}>(typeof({Owner}), \"{property.Name}\")({(property.IsStatic ? "" : "self")})";
+            (property.IsStatic ? _static : _reading).Add(new($"property|{property.Name}",
+                $"{doc}internal {(property.IsStatic ? "static " : "")}{type} {name} => {read};", declaration));
+            return;
+        }
         bool settable = property.SetMethod is not null && (written || property.GetMethod is null);
         bool gettable = property.GetMethod is not null;
         string key = $"property|{property.Name}";
@@ -251,6 +274,43 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
         bool returns = !method.ReturnsVoid;
         string result = returns ? TypeText(method.ReturnType) : "void";
         string signature = string.Join(",", parameters.Select(parameter => $"{parameter.RefKind}:{TypeOfText(parameter.Type)}"));
+        if (method.IsGenericMethod)
+        {
+            // A generic method is found by its name, type parameter count and parameter count, and made for the type arguments.
+            string typeParameters = "<" + string.Join(", ", method.TypeParameters.Select(parameter => parameter.Name)) + ">";
+            string typeArguments = "[" + string.Join(", ", method.TypeParameters.Select(parameter => $"typeof({parameter.Name})")) + "]";
+            string passed = "new object?[] { " + string.Join(", ", parameters.Select(parameter => Name(parameter.Name))) + " }";
+            string invocation = method.IsStatic
+                ? (returns ? $"PrivateState.InvokeStaticGeneric<{result}>" : "PrivateState.InvokeStaticGeneric") + $"(typeof({Owner}), \"{method.Name}\", {typeArguments}, {passed})"
+                : (returns ? $"PrivateState.InvokeGeneric<{Owner}, {result}>" : $"PrivateState.InvokeGeneric<{Owner}>") + $"(self, \"{method.Name}\", {typeArguments}, {passed})";
+            (method.IsStatic ? _static : _reading).Add(new($"method|{method.Name}|{signature}",
+                $"{doc}internal {(method.IsStatic ? "static " : "")}{result} {Name(method.Name)}{typeParameters}({ParameterList(parameters)}){Constraints(method.TypeParameters)} =>\n    {invocation};"));
+            return;
+        }
+        if (HasRefLike(method))
+        {
+            // Reflection cannot pass or return a ref struct: the method is called through a delegate of its own signature.
+            bool receiver = method.IsExtensionMethod && parameters.Length > 0 && parameters[0].RefKind == RefKind.None;
+            string caller = $"{method.Name}Call{TypeParameterList}";
+            string declaration = Summary($"The signature of <c>{method.Name}</c>, called directly: reflection cannot pass a ref struct.") +
+                $"private delegate {result} {method.Name}Call{TypeParameterList}(" +
+                (method.IsStatic ? ParameterList(parameters) : string.Join(", ", new[] { $"{Owner} self", ParameterList(parameters) }.Where(part => part.Length > 0))) +
+                $"){Constraints(owner.TypeParameters)};";
+            string arguments = string.Join(", ", (method.IsStatic ? Array.Empty<string>() : ["self"]).Concat(parameters.Select((parameter, index) =>
+                index == 0 && receiver ? "self" : RefText(parameter.RefKind).Replace("ref readonly ", "in ", StringComparison.Ordinal) + Name(parameter.Name))));
+            string call = $"PrivateState.MethodDelegate<{caller}>(typeof({Owner}), \"{method.Name}\", {types})({arguments})";
+            if (receiver)
+            {
+                string receiverType = TypeText(parameters[0].Type);
+                if (!_receivers.TryGetValue(receiverType, out var members))
+                    _receivers[receiverType] = members = [];
+                members.Add(new($"method|{method.Name}|{signature}", $"{doc}internal {result} {Name(method.Name)}({ParameterList(parameters.Skip(1))}) =>\n    {call};", declaration));
+                return;
+            }
+            (method.IsStatic ? _static : _reading).Add(new($"method|{method.Name}|{signature}",
+                $"{doc}internal {(method.IsStatic ? "static " : "")}{result} {Name(method.Name)}({ParameterList(parameters)}) =>\n    {call};", declaration));
+            return;
+        }
         if (method.IsStatic)
         {
             string invoker = returns ? $"PrivateState.InvokeStatic<{result}>" : "PrivateState.InvokeStatic";
@@ -433,7 +493,9 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
             if (fresh.Count > 0)
                 blocks.Add($"{header}\n{{\n{string.Join("\n\n", fresh.Select(member => Indent(member.Text, "    ")))}\n}}");
         }
-        string generic = owner.IsGenericType ? "<" + string.Join(", ", owner.TypeParameters.Select(parameter => parameter.Name)) + ">" : "";
+        blocks.AddRange(_reading.Concat(_writing).Concat(_static).Concat(_receivers.Values.SelectMany(members => members))
+            .Where(member => member.Delegate is not null && New(member)).Select(member => member.Delegate!));
+        string generic = TypeParameterList;
         string constraints = Constraints(owner.TypeParameters);
         Add($"/// <summary>The private instance members checks read or call.</summary>\nextension{generic}({Owner} self){constraints}", _reading);
         Add($"/// <summary>The private instance members checks write, on the value itself.</summary>\nextension{generic}(ref {Owner} self){constraints}", _writing);
@@ -545,5 +607,6 @@ internal sealed class PrivateAccessShims(INamedTypeSymbol owner, string path)
     /// <summary>One generated member: the key it is told apart by, and its source.</summary>
     /// <param name="Key">Its kind, name and, for a method, parameters.</param>
     /// <param name="Text">Its source, documentation included.</param>
-    private sealed record RenderedMember(string Key, string Text);
+    /// <param name="Delegate">The delegate declaration its call needs at the class's level, for a signature reflection cannot pass.</param>
+    private sealed record RenderedMember(string Key, string Text, string? Delegate = null);
 }

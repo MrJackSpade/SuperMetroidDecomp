@@ -3,9 +3,18 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>One row of the mural behind Mother Brain's tank (#2211, #2258), which her fake death's ascent reveals.</summary>
-/// <param name="Place">The row's place in the mural, counting from its top border row.</param>
-public readonly record struct MotherBrainMuralRow(int Place)
+public readonly record struct MotherBrainMuralRow
 {
+    /// <summary>A value of its parts; only its own operations make one.</summary>
+    /// <param name="place">The row's place in the mural, counting from its top border row.</param>
+    private MotherBrainMuralRow(int place)
+    {
+        Place = place;
+    }
+
+    /// <summary>The row's place in the mural, counting from its top border row.</summary>
+    public int Place { get; init; }
+
     /// <summary>The mural's rows, top row first.</summary>
     private static IReadOnlyList<MotherBrainMuralRow> All { get; } =
         [.. Enumerable.Range(0, MotherBrainMuralDefinitions.RowCount).Select(place => new MotherBrainMuralRow(place))];

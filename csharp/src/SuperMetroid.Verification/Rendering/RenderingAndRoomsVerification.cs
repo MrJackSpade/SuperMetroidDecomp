@@ -508,7 +508,7 @@ internal static void VerifyMovedSamusCameraTracking()
     camera.TrackMovedSamusHorizontally(
         previous,
         current,
-        new HorizontalCameraContext(KnockedBack: false, SamusMovementType.Standing, TurningAgainstMomentum: false, FacesLeft: false, CameraDistanceMode.NormalTracking), timeIsFrozen: false);
+        global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.Movement.HorizontalCameraContext>([typeof(bool), typeof(global::SuperMetroid.Core.Samus.Movement.SamusMovementType), typeof(bool), typeof(bool), typeof(global::SuperMetroid.Core.Rooms.Scrolling.CameraDistanceMode)], new object?[] { (bool)(false), (global::SuperMetroid.Core.Samus.Movement.SamusMovementType)(SamusMovementType.Standing), (bool)(false), (bool)(false), (global::SuperMetroid.Core.Rooms.Scrolling.CameraDistanceMode)(CameraDistanceMode.NormalTracking) }), timeIsFrozen: false);
     AssertEqual(108, camera.IdealPosition.X, "camera facing-right ideal X");
     AssertEqual(5, camera.Speed.X.UnsignedWholePixels, "camera X distance includes one pixel");
     AssertEqual(105, camera.PixelPosition.X, "camera X follows by calculated speed");
@@ -521,7 +521,7 @@ internal static void VerifyMovedSamusCameraTracking()
     camera.TrackMovedSamusHorizontally(
         previous,
         current,
-        new HorizontalCameraContext(KnockedBack: false, SamusMovementType.Standing, TurningAgainstMomentum: false, FacesLeft: false, CameraDistanceMode.NormalTracking), timeIsFrozen: false);
+        global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.Movement.HorizontalCameraContext>([typeof(bool), typeof(global::SuperMetroid.Core.Samus.Movement.SamusMovementType), typeof(bool), typeof(bool), typeof(global::SuperMetroid.Core.Rooms.Scrolling.CameraDistanceMode)], new object?[] { (bool)(false), (global::SuperMetroid.Core.Samus.Movement.SamusMovementType)(SamusMovementType.Standing), (bool)(false), (bool)(false), (global::SuperMetroid.Core.Rooms.Scrolling.CameraDistanceMode)(CameraDistanceMode.NormalTracking) }), timeIsFrozen: false);
     AssertEqual(1, camera.Speed.X.UnsignedWholePixels, "camera fixed X speed integer");
     AssertEqual(0xc000, camera.Speed.X.Fraction, "camera fixed X speed fraction");
     AssertEqual(101, camera.PixelPosition.X, "camera fixed X position integer");
@@ -550,7 +550,7 @@ internal static void VerifyMovedSamusCameraTracking()
     camera.TrackMovedSamusHorizontally(
         stationary,
         stationary,
-        new HorizontalCameraContext(KnockedBack: false, SamusMovementType.Standing, TurningAgainstMomentum: false, FacesLeft: false, CameraDistanceMode.NormalTracking), timeIsFrozen: false);
+        global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.Movement.HorizontalCameraContext>([typeof(bool), typeof(global::SuperMetroid.Core.Samus.Movement.SamusMovementType), typeof(bool), typeof(bool), typeof(global::SuperMetroid.Core.Rooms.Scrolling.CameraDistanceMode)], new object?[] { (bool)(false), (global::SuperMetroid.Core.Samus.Movement.SamusMovementType)(SamusMovementType.Standing), (bool)(false), (bool)(false), (global::SuperMetroid.Core.Rooms.Scrolling.CameraDistanceMode)(CameraDistanceMode.NormalTracking) }), timeIsFrozen: false);
     AssertEqual(1, camera.Speed.X.UnsignedWholePixels, "stationary camera X speed still includes one");
     AssertEqual(0x0023, camera.PixelPosition.X, "$80:A528 red-cell rightward drift");
 
@@ -560,7 +560,7 @@ internal static void VerifyMovedSamusCameraTracking()
     camera.TrackMovedSamusHorizontally(
         stationary,
         stationary,
-        new HorizontalCameraContext(KnockedBack: false, SamusMovementType.Standing, TurningAgainstMomentum: false, FacesLeft: false, CameraDistanceMode.NormalTracking), timeIsFrozen: false);
+        global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.Movement.HorizontalCameraContext>([typeof(bool), typeof(global::SuperMetroid.Core.Samus.Movement.SamusMovementType), typeof(bool), typeof(bool), typeof(global::SuperMetroid.Core.Rooms.Scrolling.CameraDistanceMode)], new object?[] { (bool)(false), (global::SuperMetroid.Core.Samus.Movement.SamusMovementType)(SamusMovementType.Standing), (bool)(false), (bool)(false), (global::SuperMetroid.Core.Rooms.Scrolling.CameraDistanceMode)(CameraDistanceMode.NormalTracking) }), timeIsFrozen: false);
     AssertEqual(0, camera.PixelPosition.X, "$80:A528 adjacent-red horizontal rounding");
 
     // The time-frozen flag short-circuits autoscrolling after bank $90 has calculated the
@@ -570,7 +570,7 @@ internal static void VerifyMovedSamusCameraTracking()
     camera.TrackMovedSamusHorizontally(
         stationary,
         stationary,
-        new HorizontalCameraContext(KnockedBack: false, SamusMovementType.Standing, TurningAgainstMomentum: false, FacesLeft: false, CameraDistanceMode.NormalTracking),
+        global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.Movement.HorizontalCameraContext>([typeof(bool), typeof(global::SuperMetroid.Core.Samus.Movement.SamusMovementType), typeof(bool), typeof(bool), typeof(global::SuperMetroid.Core.Rooms.Scrolling.CameraDistanceMode)], new object?[] { (bool)(false), (global::SuperMetroid.Core.Samus.Movement.SamusMovementType)(SamusMovementType.Standing), (bool)(false), (bool)(false), (global::SuperMetroid.Core.Rooms.Scrolling.CameraDistanceMode)(CameraDistanceMode.NormalTracking) }),
         timeIsFrozen: true);
     AssertEqual(0x0020, camera.PixelPosition.X, "$80:A528 time-frozen return");
 
@@ -1084,7 +1084,7 @@ internal static void VerifyScrollingSkyState()
     var aboveRoom = new ScrollingSkyState(ScrollingSky.Land);
     aboveRoom.ProcessFrame(camera: new Position16<RoomPixels>(0, 0xfff0), timeIsFrozen: false);
     AssertEqual(-16, aboveRoom.CameraRow, "a camera sixteen rows above the room's top latches row -16");
-    AssertEqual(new LatchedScrollingSky(-16), LatchedScrollingSky.Capture(aboveRoom), "the accepted frame latches the signed row");
+    AssertEqual(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.LatchedScrollingSky>([typeof(int)], new object?[] { (int)(-16) }), LatchedScrollingSky.Capture(aboveRoom), "the accepted frame latches the signed row");
 
     // The land sky's five chunks repeat from its first: chunk five shows page zero.
     AssertEqual(0, ScrollingSkyChunks.PageOf(ScrollingSky.Land, 5), "land chunk five wraps to the first sky page");

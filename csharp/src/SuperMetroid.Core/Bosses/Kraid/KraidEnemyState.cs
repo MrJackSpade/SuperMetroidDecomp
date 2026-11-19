@@ -109,7 +109,7 @@ public sealed class KraidEnemyState
     /// Gets the number of mouth reopens still pending, from zero to three. A charged body hit arms three; each reopen
     /// continuation removes one, and the last removal clears the mouth with the count (#1627).
     /// </summary>
-    public int PendingMouthReopens { get; internal set; }
+    public int PendingMouthReopens { get; private set; }
     /// <summary>Health captured by the living setup before combat can change it.</summary>
     public int InitialHealth { get; internal set; }
     /// <summary><paramref name="eighths"/> eighths of the health Kraid initialized with, one eighth truncated first (#1890).</summary>
@@ -140,7 +140,7 @@ public sealed class KraidEnemyState
     internal void SettleHurtFlash() => HurtFlash = KraidHurtFlashAnimations.Resting();
 
     /// <summary>The head pose Kraid is showing, which selects the head image; null until the head animation shows its first pose.</summary>
-    internal KraidHeadFrame? DisplayedHeadFrame { get; set; }
+    internal KraidHeadFrame? DisplayedHeadFrame { get; private set; }
 
     /// <summary>
     /// Kraid's playing head animation and where it stands; <see cref="HeadHold"/> paces it. Null until the first attack, glow

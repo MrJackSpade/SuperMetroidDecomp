@@ -31,7 +31,7 @@ public sealed class RidleyFlightState
     /// </summary>
     public Offset16<RoomPixels> MovementMinimum { get; internal set; }
     /// <summary>Gets the bottom-right corner of the box his movement keeps him in, where it lies from the room's origin.</summary>
-    public Offset16<RoomPixels> MovementMaximum { get; internal set; }
+    public Offset16<RoomPixels> MovementMaximum { get; private set; }
     /// <summary>Whether Ridley's movement hit a room boundary, consumed by the swoop.</summary>
     public bool HitRoomBoundary { get; internal set; }
     /// <summary>Gets Ridley's velocity, each axis held unchanged.</summary>

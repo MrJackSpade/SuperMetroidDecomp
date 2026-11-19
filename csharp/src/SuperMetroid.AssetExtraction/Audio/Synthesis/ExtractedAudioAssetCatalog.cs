@@ -24,8 +24,6 @@ public sealed class ExtractedAudioAssetCatalog
     private readonly IReadOnlyDictionary<AudioBank, AudioBankMetadata> musicBanks;
     /// <summary>Each music upload's compiled definition bytes by APU RAM address, compiled once at load.</summary>
     private readonly IReadOnlyDictionary<AudioBank, IReadOnlyDictionary<int, byte>> compiledMusicBanks;
-    /// <summary>Number of distinct PCM assets after equivalent sample sources are aliased.</summary>
-    internal readonly int canonicalSampleCount;
 
     /// <summary>Retains the validated stream, sample, instrument, music, and SFX catalogs as one selected installation.</summary>
     private ExtractedAudioAssetCatalog(ExtractedAudioAssetParts parts)
@@ -38,7 +36,6 @@ public sealed class ExtractedAudioAssetCatalog
         SoundPrograms = parts.SoundPrograms;
         SoundLibraries = parts.SoundLibraries;
         SoundEffectImage = parts.SoundEffectImage;
-        this.canonicalSampleCount = parts.CanonicalSampleCount;
         ContentIdentity = parts.ContentIdentity;
     }
 
@@ -171,7 +168,7 @@ public sealed class ExtractedAudioAssetCatalog
             IReadOnlyList<AudioSoundLibraryMetadata> soundLibraries) =
             ValidateSoundDefinitions(manifest);
         var soundEffectImage = new SpcSoundEffectImage(soundPrograms, soundLibraries);
-        return new ExtractedAudioAssetCatalog(new ExtractedAudioAssetParts { Streams = loaded, SampleBanks = banks, InstrumentBanks = instruments, MusicBanks = musicBanks, CompiledMusicBanks = compiledMusicBanks, SoundPrograms = soundPrograms, SoundLibraries = soundLibraries, SoundEffectImage = soundEffectImage, CanonicalSampleCount = canonicalSamples.Count, ContentIdentity = ComputeContentIdentity(manifest) });
+        return new ExtractedAudioAssetCatalog(new ExtractedAudioAssetParts { Streams = loaded, SampleBanks = banks, InstrumentBanks = instruments, MusicBanks = musicBanks, CompiledMusicBanks = compiledMusicBanks, SoundPrograms = soundPrograms, SoundLibraries = soundLibraries, SoundEffectImage = soundEffectImage, ContentIdentity = ComputeContentIdentity(manifest) });
     }
 
     /// <summary>SHA-256 of the canonical serialized manifest, hashed as it streams out.</summary>

@@ -31,5 +31,5 @@ internal sealed class NoobTubeProjectileAnimation(Animation<NoobTubeProjectileSe
     /// Whether the last flicker cue chose the shard's mirror image: a mirroring flicker shows it on even updates and the
     /// shard itself on odd ones.
     /// </summary>
-    internal bool ShowsMirroredFrame { get; set; }
+    internal bool ShowsMirroredFrame { private get; set; }
 }

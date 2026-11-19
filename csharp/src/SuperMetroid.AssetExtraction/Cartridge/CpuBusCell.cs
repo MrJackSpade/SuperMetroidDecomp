@@ -7,28 +7,51 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 /// documentation; raw cell primitives are constructed only from these descriptors. The repository
 /// inventory and alias-coherence checks enumerate them.
 /// </summary>
-/// <param name="Name">The semantic identity, unique within its declaring catalog.</param>
-/// <param name="Region">The store the cell lives in.</param>
-/// <param name="Address">The 24-bit CPU address of the first byte.</param>
-/// <param name="ByteCount">The cell's size in bytes (element size times count for a table).</param>
-/// <param name="Encoding">How the bytes encode the domain value, e.g. "u16 little-endian" or "SamusPose (u16)".</param>
-/// <param name="AliasOf">The cell this one intentionally shares bytes with under a different meaning, if any.</param>
-public sealed record CpuBusCell(string Name, CpuBusRegion Region, int Address, int ByteCount, string Encoding,
-    CpuBusCell? AliasOf = null)
+public sealed record CpuBusCell
 {
+    /// <summary>A cell of its parts; only its own operations make one.</summary>
+    /// <param name="name">The semantic identity, unique within its declaring catalog.</param>
+    /// <param name="region">The store the cell lives in.</param>
+    /// <param name="address">The 24-bit CPU address of the first byte.</param>
+    /// <param name="byteCount">The cell's size in bytes (element size times count for a table).</param>
+    /// <param name="encoding">How the bytes encode the domain value, e.g. "u16 little-endian" or "SamusPose (u16)".</param>
+    /// <param name="aliasOf">The cell this one intentionally shares bytes with under a different meaning, if any.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The address is past 24 bits, or the cell holds no byte.</exception>
+    private CpuBusCell(string name, CpuBusRegion region, int address, int byteCount, string encoding, CpuBusCell? aliasOf = null)
+    {
+        Name = name;
+        Region = region;
+        Address = ((uint)address & ~(uint)SnesCpuAddressLayout.AddressMask) == 0
+            ? address
+            : throw new ArgumentOutOfRangeException(nameof(address), address, "SNES CPU address must fit in 24 bits.");
+        ByteCount = byteCount > 0
+            ? byteCount
+            : throw new ArgumentOutOfRangeException(nameof(byteCount), byteCount, "A bus cell holds at least one byte.");
+        Encoding = encoding;
+        AliasOf = aliasOf;
+    }
+
     /// <summary>A bounded cartridge range read by the asset importer.</summary>
     public static CpuBusCell CartridgeBytes(string name, int address, int length, string encoding, CpuBusCell? aliasOf = null) =>
         new(name, CpuBusRegion.Cartridge, address, length, encoding, aliasOf);
 
+    /// <summary>The semantic identity, unique within its declaring catalog.</summary>
+    public string Name { get; init; }
+
+    /// <summary>The store the cell lives in.</summary>
+    public CpuBusRegion Region { get; init; }
+
     /// <summary>The 24-bit CPU address of the first byte.</summary>
-    public int Address { get; } = ((uint)Address & ~(uint)SnesCpuAddressLayout.AddressMask) == 0
-        ? Address
-        : throw new ArgumentOutOfRangeException(nameof(Address), Address, "SNES CPU address must fit in 24 bits.");
+    public int Address { get; }
 
     /// <summary>The cell's size in bytes.</summary>
-    private int ByteCount { get; } = ByteCount > 0
-        ? ByteCount
-        : throw new ArgumentOutOfRangeException(nameof(ByteCount), ByteCount, "A bus cell holds at least one byte.");
+    private int ByteCount { get; }
+
+    /// <summary>How the bytes encode the domain value, e.g. "u16 little-endian" or "SamusPose (u16)".</summary>
+    public string Encoding { get; init; }
+
+    /// <summary>The cell this one intentionally shares bytes with under a different meaning, if any.</summary>
+    public CpuBusCell? AliasOf { get; init; }
 
     /// <inheritdoc />
     public override string ToString() =>

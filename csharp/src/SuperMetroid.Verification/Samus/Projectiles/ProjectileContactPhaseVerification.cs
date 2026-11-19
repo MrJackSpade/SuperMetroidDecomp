@@ -38,7 +38,7 @@ internal static class ProjectileContactPhaseVerification
         samus.Health = 99;
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
         var projectile = runtime.Enemies.Projectiles.ProjectileInPlace(17);
-        projectile.Kind = RoomEnemyProjectileKind.RidleyFireball;
+        global::SuperMetroid.Core.PrivateState.Set(projectile, "Kind", (global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind)(RoomEnemyProjectileKind.RidleyFireball));
         global::SuperMetroid.Core.PrivateState.Set(projectile, "Behavior", (global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior?)(FamilyProjectileStarts.BehaviorOf(runtime.Enemies, projectile.Kind)));
         projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.Fireball));
         projectile.HoldStill();
@@ -86,7 +86,7 @@ internal static class ProjectileContactPhaseVerification
             samus.EquippedItems = suit;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             var projectile = runtime.Enemies.Projectiles.ProjectileInPlace(17);
-            projectile.Kind = RoomEnemyProjectileKind.RidleyFireball;
+            global::SuperMetroid.Core.PrivateState.Set(projectile, "Kind", (global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind)(RoomEnemyProjectileKind.RidleyFireball));
             global::SuperMetroid.Core.PrivateState.Set(projectile, "Behavior", (global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior?)(FamilyProjectileStarts.BehaviorOf(runtime.Enemies, projectile.Kind)));
             projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.Fireball));
             projectile.HoldStill();

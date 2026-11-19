@@ -156,6 +156,50 @@ internal static class PrivateState
                 ?? throw new MissingMemberException(typeof(TOwner).Name, ".ctor")))
         .Invoke(BindingFlags.DoNotWrapExceptions, binder: null, arguments, culture: null);
 
+    /// <summary>
+    /// Calls <paramref name="owner"/>'s generic method <paramref name="method"/>, made for
+    /// <paramref name="typeArguments"/>, and returns its result.
+    /// </summary>
+    /// <exception cref="MissingMemberException">The owner's type has no single such method of that many parameters.</exception>
+    internal static TResult InvokeGeneric<TOwner, TResult>(TOwner owner, string method, Type[] typeArguments, params object?[] arguments) where TOwner : class =>
+        (TResult)GenericMethodOf(typeof(TOwner), method, typeArguments, arguments.Length)
+            .Invoke(Required(owner), BindingFlags.DoNotWrapExceptions, binder: null, arguments, culture: null)!;
+
+    /// <summary>Calls <paramref name="owner"/>'s generic method <paramref name="method"/>, made for <paramref name="typeArguments"/>, which returns nothing.</summary>
+    /// <exception cref="MissingMemberException">The owner's type has no single such method of that many parameters.</exception>
+    internal static void InvokeGeneric<TOwner>(TOwner owner, string method, Type[] typeArguments, params object?[] arguments) where TOwner : class =>
+        GenericMethodOf(typeof(TOwner), method, typeArguments, arguments.Length)
+            .Invoke(Required(owner), BindingFlags.DoNotWrapExceptions, binder: null, arguments, culture: null);
+
+    /// <summary>Calls <paramref name="owner"/>'s static generic method <paramref name="method"/>, made for <paramref name="typeArguments"/>, and returns its result.</summary>
+    /// <exception cref="MissingMemberException">The owner's type has no single such method of that many parameters.</exception>
+    internal static TResult InvokeStaticGeneric<TResult>(Type owner, string method, Type[] typeArguments, params object?[] arguments) =>
+        (TResult)GenericMethodOf(owner, method, typeArguments, arguments.Length)
+            .Invoke(null, BindingFlags.DoNotWrapExceptions, binder: null, arguments, culture: null)!;
+
+    /// <summary>Calls <paramref name="owner"/>'s static generic method <paramref name="method"/>, made for <paramref name="typeArguments"/>, which returns nothing.</summary>
+    /// <exception cref="MissingMemberException">The owner's type has no single such method of that many parameters.</exception>
+    internal static void InvokeStaticGeneric(Type owner, string method, Type[] typeArguments, params object?[] arguments) =>
+        GenericMethodOf(owner, method, typeArguments, arguments.Length)
+            .Invoke(null, BindingFlags.DoNotWrapExceptions, binder: null, arguments, culture: null);
+
+    /// <summary>
+    /// <paramref name="owner"/>'s method <paramref name="method"/> taking <paramref name="parameters"/> as a
+    /// <typeparamref name="TDelegate"/>, an instance method's receiver first: the call for a method whose signature holds
+    /// a <c>ref struct</c>, which reflection cannot pass as an argument.
+    /// </summary>
+    /// <exception cref="MissingMemberException">The owner's type has no method of that name taking those parameters.</exception>
+    internal static TDelegate MethodDelegate<TDelegate>(Type owner, string method, Type[] parameters) where TDelegate : Delegate =>
+        MethodOf(owner, method, parameters).CreateDelegate<TDelegate>();
+
+    /// <summary>
+    /// The getter of <paramref name="owner"/>'s property <paramref name="property"/> as a <typeparamref name="TDelegate"/>,
+    /// an instance property's receiver first: the read of a <c>ref struct</c> property, which reflection cannot return.
+    /// </summary>
+    /// <exception cref="MissingMemberException">The owner's type has no readable property of that name.</exception>
+    internal static TDelegate GetterDelegate<TDelegate>(Type owner, string property) where TDelegate : Delegate =>
+        Getter(owner, property).CreateDelegate<TDelegate>();
+
     /// <summary>The owner a member is reached on, which must be one: PrivateState depends on nothing but the runtime, so a
     /// fixture repository's checks can use it as the repository's do.</summary>
     /// <exception cref="ArgumentNullException"><paramref name="owner"/> is null.</exception>
@@ -184,6 +228,18 @@ internal static class PrivateState
     private static MethodInfo MethodOf(Type owner, string name, Type[] parameters) =>
         (MethodInfo)Found.GetOrAdd($"{owner.AssemblyQualifiedName}|method|{name}|{Signature(parameters)}", _ =>
             owner.GetMethod(name, Declared, parameters) ?? throw new MissingMemberException(owner.Name, name));
+
+    /// <summary>
+    /// The generic method <paramref name="name"/> <paramref name="owner"/> declares with as many type parameters as
+    /// <paramref name="typeArguments"/> and <paramref name="parameterCount"/> parameters, made for those type arguments.
+    /// </summary>
+    private static MethodInfo GenericMethodOf(Type owner, string name, Type[] typeArguments, int parameterCount) =>
+        ((MethodInfo)Found.GetOrAdd($"{owner.AssemblyQualifiedName}|generic|{name}|{typeArguments.Length}|{parameterCount}", _ =>
+        {
+            MethodInfo[] candidates = [.. owner.GetMethods(Declared).Where(candidate => candidate.Name == name && candidate.IsGenericMethodDefinition &&
+                candidate.GetGenericArguments().Length == typeArguments.Length && candidate.GetParameters().Length == parameterCount)];
+            return candidates.Length == 1 ? candidates[0] : throw new MissingMemberException(owner.Name, name);
+        })).MakeGenericMethod(typeArguments);
 
     /// <summary>A parameter list's key.</summary>
     private static string Signature(Type[] parameters) => string.Join(",", parameters.Select(parameter => parameter.AssemblyQualifiedName));

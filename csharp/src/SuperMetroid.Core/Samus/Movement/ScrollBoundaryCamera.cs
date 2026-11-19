@@ -25,7 +25,7 @@ public sealed class ScrollBoundaryCamera
     /// <summary>
     /// Gets the camera's position: whole pixels and fraction.
     /// </summary>
-    public FixedPosition<RoomPixels> Position { get; internal set; }
+    public FixedPosition<RoomPixels> Position { get; private set; }
 
     /// <summary>Gets the camera's integer position (its top-left room pixel).</summary>
     public Position16<RoomPixels> PixelPosition => Position.Whole;

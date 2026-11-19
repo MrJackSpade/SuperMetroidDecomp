@@ -34,7 +34,7 @@ internal static class MotherBrainRingBabyHealthVerification
 
         // The movie's hit: the ring reaches ($AE,$8C), exactly $24 above the Baby at ($CE,$B0).
         EnemyProjectile ring = runtime.Enemies.Projectiles.ProjectileInPlace(16);
-        ring.Kind = RoomEnemyProjectileKind.MotherBrainOnionRing;
+        global::SuperMetroid.Core.PrivateState.Set(ring, "Kind", (global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind)(RoomEnemyProjectileKind.MotherBrainOnionRing));
         ring.Position = ring.Position.WithWhole(new(0x00ae, 0x008c));
         ring.Radius = new(1, 1);
         ring.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));

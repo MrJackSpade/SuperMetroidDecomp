@@ -91,7 +91,8 @@ internal static class NoobTubeProjectileBehaviorVerification
                 break;
             int column = edgeShard.StateOf<NoobTubeDebrisState>().X.Whole;
             passedLeftEdge |= column > CoordinateAxis.LastNonNegative;
-            if (edgeShard.Animation is not NoobTubeProjectileAnimation { ShowsMirroredFrame: true })
+            if (edgeShard.Animation is not NoobTubeProjectileAnimation shardAnimation ||
+                !global::SuperMetroid.Core.PrivateState.Get<NoobTubeProjectileAnimation, bool>(shardAnimation, "ShowsMirroredFrame"))
                 continue;
             AssertEqual(unchecked((ushort)(NoobTubeDebrisDefinitions.ShardMirrorSpan - column)), edgeShard.Position.X.Whole,
                 $"step {step}: the shard's mirror image lies across the tube from its column {column}");

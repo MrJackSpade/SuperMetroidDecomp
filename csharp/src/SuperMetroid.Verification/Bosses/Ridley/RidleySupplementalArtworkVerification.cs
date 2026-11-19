@@ -87,8 +87,9 @@ internal static class RidleySupplementalArtworkVerification
         var state = new CeresRidleyState(Position16<RoomPixels>.Zero)
         {
             MovementAnimationEnabled = true,
-            Flight = { FacingDirection = facing, Wings = { Pose = ListStep<RidleyWingPose>.At(RidleySupplementalVisualDefinitions.WingBeat, wingFrame) } },
+            Flight = { FacingDirection = facing },
         };
+        global::SuperMetroid.Core.PrivateState.Set(state.Flight.Wings, "Pose", ListStep<RidleyWingPose>.At(RidleySupplementalVisualDefinitions.WingBeat, wingFrame));
         if (tailDirection is { } direction)
         {
             RidleyTailFixtures.BlankLinks(state.Tail);

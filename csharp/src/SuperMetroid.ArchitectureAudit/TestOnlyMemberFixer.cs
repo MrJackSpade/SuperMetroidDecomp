@@ -212,11 +212,24 @@ internal static class TestOnlyMemberFixer
             foreach (var (_, site) in sites)
             {
                 if (site is not BaseObjectCreationExpressionSyntax { Initializer: null, ArgumentList: { } arguments } creation ||
-                    arguments.Arguments.Any(argument => argument.NameColon is not null || !argument.RefKindKeyword.IsKind(SyntaxKind.None)) ||
+                    arguments.Arguments.Any(argument => !argument.RefKindKeyword.IsKind(SyntaxKind.None)) ||
                     arguments.Arguments.Count != method.Parameters.Length)
                     return new SiteRewrite([], $"constructor site no PrivateState.New stands in for at {site.GetLocation().GetLineSpan()}");
-                string passed = string.Join(", ", arguments.Arguments.Select((argument, index) =>
-                    $"({PrivateAccessShims.TypeText(method.Parameters[index].Type)})({argument.Expression})"));
+                // A named argument takes its parameter's place; evaluation order only matters for arguments with effects,
+                // which a check's construction does not have.
+                var placed = new ArgumentSyntax?[method.Parameters.Length];
+                for (int index = 0; index < arguments.Arguments.Count; index++)
+                {
+                    ArgumentSyntax argument = arguments.Arguments[index];
+                    int place = argument.NameColon is { } named
+                        ? method.Parameters.IndexOf(method.Parameters.FirstOrDefault(parameter => parameter.Name == named.Name.Identifier.ValueText)!)
+                        : index;
+                    if (place < 0 || placed[place] is not null)
+                        return new SiteRewrite([], $"constructor site whose named arguments name no single parameter at {site.GetLocation().GetLineSpan()}");
+                    placed[place] = argument;
+                }
+                string passed = string.Join(", ", placed.Select((argument, index) =>
+                    $"({PrivateAccessShims.TypeText(method.Parameters[index].Type)})({argument!.Expression})"));
                 result.Add((creation.SyntaxTree, new TextChange(creation.Span, $"{state}.New<{owner}>({types}, new object?[] {{ {passed} }})")));
             }
             return new SiteRewrite(result, null);
@@ -279,7 +292,10 @@ internal static class TestOnlyMemberFixer
                 result.Add((site.SyntaxTree, new TextChange(access.Span, read)));
                 continue;
             }
-            if (access.Parent is not AssignmentExpressionSyntax { Parent: ExpressionStatementSyntax } assignment ||
+            // The write stands alone: a statement, or an expression body whose value nothing reads, which a void call
+            // stands in for (a lambda taking it as an action).
+            if (access.Parent is not AssignmentExpressionSyntax { Parent: ExpressionStatementSyntax or ArrowExpressionClauseSyntax or LambdaExpressionSyntax } assignment ||
+                assignment.Parent is LambdaExpressionSyntax lambda && lambda.ExpressionBody != assignment ||
                 !assignment.IsKind(SyntaxKind.SimpleAssignmentExpression) || assignment.Left != access || symbol.ContainingType.IsValueType)
                 return new SiteRewrite([], $"property write no PrivateState.Set stands in for at {site.GetLocation().GetLineSpan()}");
             string write = narrowedProperty.IsStatic ? $"{state}.StaticSet(typeof({owner}), \"{symbol.Name}\", ({type})({assignment.Right}))"
@@ -318,11 +334,20 @@ internal static class TestOnlyMemberFixer
         TextSpan removed = index < elements.SeparatorCount
             ? TextSpan.FromBounds(element.SpanStart, elements.GetSeparator(index).GetNextToken().SpanStart)
             : index > 0 ? TextSpan.FromBounds(elements.GetSeparator(index - 1).SpanStart, element.Span.End) : element.Span;
+        string replacement = "";
+        // A creation left with no initializer drops it, keeping or writing its argument list; a with expression keeps
+        // its empty initializer, which still copies the value.
+        if (elements.Count == 1 && created is BaseObjectCreationExpressionSyntax creation)
+        {
+            int end = creation.ArgumentList?.Span.End ?? ((ObjectCreationExpressionSyntax)creation).Type.Span.End;
+            removed = TextSpan.FromBounds(end, initializer.Span.End);
+            replacement = creation.ArgumentList is null ? "()" : "";
+        }
         SyntaxTree tree = site.SyntaxTree;
         return new SiteRewrite(
         [
             (tree, new TextChange(new TextSpan(created.SpanStart, 0), $"global::SuperMetroid.Core.PrivateState.With<{createdType}>(")),
-            (tree, new TextChange(removed, "")),
+            (tree, new TextChange(removed, replacement)),
             (tree, new TextChange(new TextSpan(created.Span.End, 0), $", \"{symbol.Name}\", ({type})({element.Right}))")),
         ], null);
     }

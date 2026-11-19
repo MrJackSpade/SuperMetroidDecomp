@@ -134,7 +134,8 @@ internal static class CoreAccess
     extension(ExtractedAudioAssetCatalog catalog)
     {
         /// <summary>Number of unique samples retained after canonicalization.</summary>
-        internal int CanonicalSampleCount => catalog.canonicalSampleCount;
+        internal int CanonicalSampleCount => catalog.sampleBanks.Values
+            .SelectMany(bank => bank.Samples.Values).Distinct(ReferenceEqualityComparer.Instance).Count();
         /// <summary>Total source-sample mappings across installed audio banks.</summary>
         internal int SourceMappingCount => catalog.sampleBanks
             .Values.Sum(bank => bank.Samples.Count);

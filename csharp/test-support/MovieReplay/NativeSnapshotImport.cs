@@ -73,8 +73,8 @@ internal static class NativeSnapshotImport
         ScrollBoundaryCamera camera = runtime.Room.LoadedCamera;
         // The room load wrote only the integer layer-one words; import the native fractions,
         // ideal position and speed words as whole camera values.
-        camera.Position = camera.Position.WithFractionsOf(FixedPosition<RoomPixels>.FromStoredParts(
-                0, W(NativeSnapshotMemory.CameraXFraction), 0, W(NativeSnapshotMemory.CameraYFraction)));
+        global::SuperMetroid.Core.PrivateState.Set(camera, "Position", (global::SuperMetroid.Core.Spatial.FixedPosition<global::SuperMetroid.Core.Spatial.RoomPixels>)(camera.Position.WithFractionsOf(FixedPosition<RoomPixels>.FromStoredParts(
+                0, W(NativeSnapshotMemory.CameraXFraction), 0, W(NativeSnapshotMemory.CameraYFraction)))));
         PrivateState.Set(camera, "IdealPosition", new Position16<RoomPixels>(W(NativeSnapshotMemory.IdealCameraX), W(NativeSnapshotMemory.IdealCameraY)));
         global::SuperMetroid.Core.PrivateState.Set(camera, "Speed", (global::SuperMetroid.Core.Spatial.FixedVector<global::SuperMetroid.Core.Spatial.RoomPixels>)(FixedVector<RoomPixels>.FromStoredParts(
                 W(NativeSnapshotMemory.CameraSpeedX), W(NativeSnapshotMemory.CameraSpeedXFraction),

@@ -34,7 +34,7 @@ internal static class RoomScopeVerification
         VerificationAssertions.AssertTrue(source.Sky?.State is { Sky: SuperMetroid.Core.Rooms.Scrolling.ScrollingSky.Land, HasBands: true },
             "the Landing Site composes the land sky with the bands its setup spawns");
         ScrollBoundaryCamera previous = source.Camera;
-        previous.Position = previous.Position.WithFractionsOf(FixedPosition<RoomPixels>.FromStoredParts(0, 0x1234, 0, 0x5678));
+        global::SuperMetroid.Core.PrivateState.Set(previous, "Position", (global::SuperMetroid.Core.Spatial.FixedPosition<global::SuperMetroid.Core.Spatial.RoomPixels>)(previous.Position.WithFractionsOf(FixedPosition<RoomPixels>.FromStoredParts(0, 0x1234, 0, 0x5678))));
         PrivateState.Set(previous, "IdealPosition", new Position16<RoomPixels>(0x0123, 0x0456));
         global::SuperMetroid.Core.PrivateState.Set(previous, "Speed", (global::SuperMetroid.Core.Spatial.FixedVector<global::SuperMetroid.Core.Spatial.RoomPixels>)(FixedVector<RoomPixels>.FromStoredParts(2, 0x8000, 0xFFFF, 0x4000)));
         previous.FinishSamusScrolling(FixedPosition<RoomPixels>.FromStoredParts(0x0300, 0x1111, 0x0400, 0x2222));

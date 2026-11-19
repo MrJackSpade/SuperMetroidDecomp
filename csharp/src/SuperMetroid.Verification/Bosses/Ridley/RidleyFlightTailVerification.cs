@@ -130,7 +130,7 @@ internal static class RidleyFlightTailVerification
         AssertEqual(0, advances, "tail controller never advances RNG");
         Action<RoomEnemyPlace, NorfairRidleyState, SamusState> direction = enemies.NorfairRidleyBehavior.Combat.SetRidleyPogoHorizontalDirection;
         state.Flight.MovementMinimum = state.Flight.MovementMinimum.WithX(64);
-        state.Flight.MovementMaximum = state.Flight.MovementMaximum.WithX(192);
+        global::SuperMetroid.Core.PrivateState.Set(state.Flight, "MovementMaximum", state.Flight.MovementMaximum.WithX(192));
         place.Position = place.Position.WithWholeX(128);
         state.Flight.Velocity = state.Flight.Velocity.WithX(new SignedEightEight(0x100));
         seed = 0x1000;

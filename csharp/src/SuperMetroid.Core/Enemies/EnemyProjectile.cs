@@ -33,7 +33,7 @@ public sealed class EnemyProjectile
     /// </summary>
     public int Place { get; }
     /// <summary>What the projectile is, or <see cref="RoomEnemyProjectileKind.None"/> once it is gone or has freed its place.</summary>
-    public RoomEnemyProjectileKind Kind { get; internal set; }
+    public RoomEnemyProjectileKind Kind { get; private set; }
     /// <summary>Gets whether the projectile holds its place and takes part in the projectile passes.</summary>
     public bool IsActive => Kind != RoomEnemyProjectileKind.None;
     /// <summary>

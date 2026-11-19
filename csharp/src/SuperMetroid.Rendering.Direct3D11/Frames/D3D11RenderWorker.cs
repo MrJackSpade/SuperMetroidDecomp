@@ -109,7 +109,7 @@ public sealed class D3D11RenderWorker
         : this(window, clientSize, generation, kind, null, timingCapacity) { }
 
     /// <summary>Starts the render owner with an optional pre-render verification hook.</summary>
-    internal D3D11RenderWorker(nint window, Extent16<DisplayPixels> clientSize, long generation, D3D11DeviceKind kind,
+    private D3D11RenderWorker(nint window, Extent16<DisplayPixels> clientSize, long generation, D3D11DeviceKind kind,
         Action? beforeRenderForVerification, int timingCapacity = RenderTelemetryLimits.DefaultHistoryCapacity)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(timingCapacity);

@@ -2,7 +2,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
-/// <summary>Defines the complete editable Samus full-body cycle palette set.</summary>
+/// <summary>The import's Samus full-body cycle colour rows (#1637), import data only the import pre-colours her shades from.</summary>
 public sealed record SamusFullBodyCycleColorDocument
 {
     /// <summary>Gets the document schema revision.</summary>

@@ -829,6 +829,9 @@ internal static class FullRunSuitesVerification
             SuperMetroid.Verification.Bosses.BossBodySheetFrameRulesVerification.VerifyBossBodySheetInks),
         new(nameof(SuperMetroid.Verification.Assets.InstalledSheetsHoldPicturesVerification.VerifyInstalledSheetsHoldPictures),
             SuperMetroid.Verification.Assets.InstalledSheetsHoldPicturesVerification.VerifyInstalledSheetsHoldPictures),
+        // Installed content carries no hardware data (#2564).
+        new(nameof(SuperMetroid.Verification.Assets.InstalledContentHardwareDataVerification.VerifyInstalledContentCarriesNoHardwareData),
+            SuperMetroid.Verification.Assets.InstalledContentHardwareDataVerification.VerifyInstalledContentCarriesNoHardwareData),
         new(nameof(SuperMetroid.Verification.Frontend.Intro.Artwork.CinematicSheetColouringsVerification.VerifyCeresSheetsHoldDrawnPoses),
             SuperMetroid.Verification.Frontend.Intro.Artwork.CinematicSheetColouringsVerification.VerifyCeresSheetsHoldDrawnPoses),
         new(nameof(SuperMetroid.Verification.Frontend.Intro.Artwork.CinematicSheetColouringsVerification.VerifyCinematicSheetFrameColourings),

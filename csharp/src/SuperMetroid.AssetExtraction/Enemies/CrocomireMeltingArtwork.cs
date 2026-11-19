@@ -15,16 +15,16 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 public sealed class CrocomireMeltingArtwork
 {
 
-    /// <summary>Installed planar character data for the first overlapping melt pass.</summary>
+    /// <summary>The import data's planar character data for the first overlapping melt pass.</summary>
     internal readonly RoomCharacterAtlas first;
-    /// <summary>Installed planar character data for the second, eroded melt pass.</summary>
+    /// <summary>The import data's planar character data for the second, eroded melt pass.</summary>
     internal readonly RoomCharacterAtlas second;
-    /// <summary>The installed BG2 references for the first illustration.</summary>
+    /// <summary>The import data's tile placements for the first illustration.</summary>
     internal readonly BackgroundTile[] firstTilemap;
-    /// <summary>The installed BG2 references for the second illustration.</summary>
+    /// <summary>The import data's tile placements for the second illustration.</summary>
     internal readonly BackgroundTile[] secondTilemap;
 
-    /// <summary>Keeps the installed sheets and both complete installed tilemaps.</summary>
+    /// <summary>Keeps both character sheets and both complete layouts the import composes the melt pictures from.</summary>
     private CrocomireMeltingArtwork(RoomCharacterAtlas first, RoomCharacterAtlas second,
         BackgroundTile[] firstTilemap, BackgroundTile[] secondTilemap)
     {
@@ -34,7 +34,7 @@ public sealed class CrocomireMeltingArtwork
         this.secondTilemap = secondTilemap;
     }
 
-    /// <summary>Combines both installed character sheets and tile layouts into one installed snapshot.</summary>
+    /// <summary>Combines both of the import data's character sheets and tile layouts into the melt's import snapshot (#1638).</summary>
     /// <param name="first">The first illustration's installed characters.</param>
     /// <param name="second">The second illustration's installed characters.</param>
     /// <param name="firstTilemapJson">The first illustration's tile layout.</param>
@@ -70,7 +70,7 @@ public sealed class CrocomireMeltingArtwork
         CrocomireMeltingIllustration.Flesh => firstTilemap,
         CrocomireMeltingIllustration.BareSkull => secondTilemap,
         _ => throw new InvalidDataException(
-            $"Crocomire melt tilemap {illustration} is not installed."),
+            $"Crocomire melt tilemap {illustration} is not a melt image."),
     };
 
     /// <summary>Writes a human-editable tile-layout document.</summary>
@@ -80,7 +80,10 @@ public sealed class CrocomireMeltingArtwork
         json.Write(JsonSerializer.SerializeToUtf8Bytes(document, TilemapJsonOptions));
     }
 
-    /// <summary>Validates a 16-by-16 tile-layout document and places each cell's tile.</summary>
+    /// <summary>
+    /// Validates a 32-by-8 tile-layout document of the import data and decodes each cell's tile placement, which only the
+    /// import reads to compose the melt pictures (#1638).
+    /// </summary>
     private static BackgroundTile[] ReadTilemap(Stream json)
     {
         CrocomireMeltingTilemapDocument document;
@@ -103,7 +106,7 @@ public sealed class CrocomireMeltingArtwork
             document.Height != CrocomireMeltingArtworkFormat.TilemapHeight ||
             document.Cells is not { Length: CrocomireMeltingArtworkFormat.TilemapCellCount })
             throw new InvalidDataException(
-                "Crocomire melt tilemap requires a version-one 16x16 ordered cell array.");
+                $"Crocomire melt tilemap requires version {CrocomireMeltingArtworkFormat.TilemapVersion} and a {CrocomireMeltingArtworkFormat.TilemapWidth}x{CrocomireMeltingArtworkFormat.TilemapHeight} cell array.");
 
         var tiles = new BackgroundTile[document.Cells.Length];
         for (int index = 0; index < tiles.Length; index++)

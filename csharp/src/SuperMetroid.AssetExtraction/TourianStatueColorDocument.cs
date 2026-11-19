@@ -2,7 +2,10 @@ using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction;
 
-/// <summary>Editable RGB5 entrance and unlock-effect colors for the Tourian statue, with boss selectors, animation timing, and palette destinations kept in runtime code.</summary>
+/// <summary>
+/// The import's Tourian statue colours (#1637), import data only the import pre-colours the statue's entrance and
+/// unlock-effect shades from; boss selectors and animation timing stay in runtime code.
+/// </summary>
 public sealed record TourianStatueColorDocument
 {
     /// <summary>Palette schema revision; loading currently requires version 1.</summary>

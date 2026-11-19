@@ -44,13 +44,14 @@ internal static class EnemyEffectResourcesVerification
     internal static void VerifyCrocomireMeltJson()
     {
         string valid = MeltEffectJson();
+        string version = $"\"version\":{CrocomireMeltingArtworkFormat.TilemapVersion}";
         _ = MeltEffectArtwork(firstJson: valid);
         _ = MeltEffectArtwork(firstJson: valid.Replace("\"version\"", "\"Version\"", StringComparison.Ordinal));
         foreach ((string name, string malformed) in new[]
         {
-            new VerifyCrocomireMeltJsonCase("unknown root field", valid.Replace("\"version\":1", "\"version\":1,\"unknown\":0", StringComparison.Ordinal)),
-            new VerifyCrocomireMeltJsonCase("duplicate root field", valid.Replace("\"version\":1", "\"version\":1,\"version\":1", StringComparison.Ordinal)),
-            new VerifyCrocomireMeltJsonCase("case-aliased root field", valid.Replace("\"version\":1", "\"version\":1,\"VERSION\":1", StringComparison.Ordinal)),
+            new VerifyCrocomireMeltJsonCase("unknown root field", valid.Replace(version, version + ",\"unknown\":0", StringComparison.Ordinal)),
+            new VerifyCrocomireMeltJsonCase("duplicate root field", valid.Replace(version, version + "," + version, StringComparison.Ordinal)),
+            new VerifyCrocomireMeltJsonCase("case-aliased root field", valid.Replace(version, version + "," + version.Replace("version", "VERSION", StringComparison.Ordinal), StringComparison.Ordinal)),
             new VerifyCrocomireMeltJsonCase("unknown cell field", valid.Replace("\"tileIndex\":0", "\"tileIndex\":0,\"unknown\":0", StringComparison.Ordinal)),
             new VerifyCrocomireMeltJsonCase("duplicate cell field", valid.Replace("\"tileIndex\":0", "\"tileIndex\":0,\"tileIndex\":0", StringComparison.Ordinal)),
             new VerifyCrocomireMeltJsonCase("case-aliased cell field", valid.Replace("\"tileIndex\":0", "\"tileIndex\":0,\"TILEINDEX\":0", StringComparison.Ordinal)),

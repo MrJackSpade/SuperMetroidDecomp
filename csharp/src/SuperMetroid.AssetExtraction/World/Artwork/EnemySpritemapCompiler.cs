@@ -4,9 +4,9 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.World.Artwork;
 
 /// <summary>
-/// Compiles the authored parts of an ordinary or extended enemy composition document into the parts the enemy sheets are
-/// composed from (#1463), checking them against the composition sheet's bounds. Gameplay draws the composed sheets and
-/// never reads parts.
+/// Compiles the import data's parts of an ordinary or extended enemy composition document into the parts the enemy sheets
+/// are composed from (#1463, #1638), checking them against the composition sheet's bounds. Only the import reads them; the
+/// installation holds the composed pictures, and gameplay draws them and never reads parts.
 /// </summary>
 internal static class EnemySpritemapCompiler
 {

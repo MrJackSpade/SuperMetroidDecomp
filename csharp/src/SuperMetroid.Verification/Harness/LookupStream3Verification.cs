@@ -1265,10 +1265,11 @@ internal static class LookupStream3Verification
             ToGrey = drain, FromGrey = revival,
             FakeDeathToGrey = fake, Normal = ReadFull(0xa99474, 0xa99494),
         };
+        ushort[] beamWords = [.. Enumerable.Range(0, 38).Select(index => CartridgeImportSource.Require(rom).ReadCartridgeWord((0x88e833 + 4 * index)))];
         var beamDocument = new MotherBrainBeamColourDocument
         {
-            Version = MotherBrainBeamColourFile.Version, First = Color(0x3ce0),
-            Cycle = Enumerable.Range(0, 38).Select(index => Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x88e833 + 4 * index)))).ToArray(),
+            Version = MotherBrainBeamColourFile.Version, First = InstalledColourText.Format(RgbColor.FromWord(0x3ce0)),
+            Cycle = [.. beamWords.Select(word => InstalledColourText.Format(RgbColor.FromWord(word)))],
         };
         InstalledMotherBrainRainbowPalette Load(MotherBrainRainbowPaletteDocument value) => MotherBrainRainbowPaletteFile.Read(
             new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(value, ArtworkJson.Options)));
@@ -1295,7 +1296,7 @@ internal static class LookupStream3Verification
         void CheckBeam(MotherBrainRainbowBeamColours palette)
         {
             for (int index = 0; index < 38; index++)
-                AssertEqual(RgbColor.FromWord(Word(beamDocument.Cycle[index])), palette.BeamCycle[index],
+                AssertEqual(RgbColor.FromWord(beamWords[index]), palette.BeamCycle[index],
                     "stream 3 beam wheel matches every native sampled color");
             AssertEqual(38, palette.BeamCycle.Count, "stream 3 beam cycle ends after its last colour");
             AssertEqual(0x3ce0, palette.BeamInitialColor, "stream 3 beam initial fixed color unchanged");

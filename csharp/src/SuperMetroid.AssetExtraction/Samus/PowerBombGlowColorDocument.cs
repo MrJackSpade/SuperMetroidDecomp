@@ -1,14 +1,15 @@
-using SuperMetroid.AssetExtraction.Artwork;
-
 namespace SuperMetroid.AssetExtraction.Samus;
 
-/// <summary>Editable five-bit component sequences of the explosion's glow colours, imported from the bank-$88 fixed-colour tables; entries are not CGRAM palette words or COLDATA command bytes.</summary>
+/// <summary>
+/// The installed colours of the explosion's glow, as a player edits them in place: the colour the glow shows at each
+/// size, each written as <c>#rrggbb</c> (#2564).
+/// </summary>
 public sealed record PowerBombGlowColorDocument
 {
     /// <summary>Schema revision; loading requires <see cref="PowerBombGlowColorFile.Version"/>.</summary>
     public required int Version { get; init; }
-    /// <summary>Sixteen nonnull RGB5 triplets corresponding to $88:9079, indexed by the 16-bit pre-explosion radius shifted right eleven bits and masked to 0..15.</summary>
-    public required PaletteRgb5[] PreExplosion { get; init; }
-    /// <summary>Thirty-two nonnull RGB5 triplets corresponding to $88:8D85, indexed by the 16-bit explosion radius shifted right eleven bits, not by elapsed gameplay updates.</summary>
-    public required PaletteRgb5[] Explosion { get; init; }
+    /// <summary>The sixteen colours the glow shows before the explosion, by the glow's radius, smallest first.</summary>
+    public required string[] PreExplosion { get; init; }
+    /// <summary>The thirty-two colours the glow shows while the explosion grows, by the explosion's radius, smallest first.</summary>
+    public required string[] Explosion { get; init; }
 }

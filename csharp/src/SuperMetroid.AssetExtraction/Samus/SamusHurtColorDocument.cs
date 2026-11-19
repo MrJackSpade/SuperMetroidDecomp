@@ -2,7 +2,10 @@ using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
-/// <summary>Editable JSON payload for the two complete Samus OBJ palettes; initialized array references and their RGB5 entries remain caller-owned and mutable.</summary>
+/// <summary>
+/// The import's two complete Samus OBJ palettes (#1637), import data only the import pre-colours her hurt and intro shades
+/// from; initialized array references and their RGB5 entries remain caller-owned and mutable.
+/// </summary>
 public sealed record SamusHurtColorDocument
 {
     /// <summary>Schema version required to match <see cref="SamusHurtColorFile.Version"/> when loading or writing.</summary>

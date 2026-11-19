@@ -123,7 +123,7 @@ copy, leaving the active file and all other saved data untouched.
 ## Shared palette JSON validation
 
 Room and gameplay base palettes, map palettes and highlight cycles, title/opening/Ceres
-palettes, ending backdrops, Mother Brain colors, and room palette effects reject unknown
+palettes, Mother Brain colors, and room palette effects reject unknown
 fields and duplicate names at every object level. This includes repeated world-map
 selections and RGB components. An invalid file reports an error; it is not silently
 accepted with a field ignored or overwritten.
@@ -132,6 +132,12 @@ Room static and gameplay base palettes retain their historical case-insensitive 
 names, but two spellings of the same field in one object are ambiguous and rejected.
 The other listed formats retain their case-sensitive names. RGB5 components must all
 be present and range from 0 to 31; keep the documented row and palette sizes.
+
+The installed colour documents (the scene colours, the opening's and the ending's backdrops,
+Kraid's eye colours, Mother Brain's beam colours, the Power Bomb glow colours, the title
+gradient and Samus's death whiteout) write each colour as `#rrggbb`, as an editor shows it.
+Each channel must be one of the 32 values the game's colours and fades step through: a level
+from 0 to 31 times eight plus the level divided by four (0, 8, 16, 24, 33, ... 247, 255).
 
 ## Room and cinematic JSON validation
 
@@ -200,7 +206,7 @@ body origin sits; the body sheet's frames are named from it. Edit the rises to m
 without changing movement or collision.
 `samus-death-steps.json` holds what the game works with of her death: the death step
 each of the nine explosion frames shows and the 22 colours the room whitens to, each
-an RGB colour with channels 0..31. Her suited and suitless death colours only
+written as `#rrggbb`. Her suited and suitless death colours only
 pre-colour her death shades: they are import data, not installed.
 `samus-arm-cannon.json` in the same directory holds each pose's arm-cannon cover placement: its
 `drawOrder` (`Hidden`, `BeforeBody` or `AfterBody`), the aim `direction` whose cover picture it shows and
@@ -233,7 +239,7 @@ and scene handoffs remain compiled behavior.
 
 `game/intro-cinematic/intro-backdrops.json` holds the colours the opening shows where nothing is
 drawn: the narration's `opening` backdrop and the Ceres scenes' `ceresFlight` backdrop. The game
-reads these colours and neither palette; edit them in place, each channel 0–31.
+reads these colours and neither palette; edit them in place, each written as `#rrggbb`.
 `ceres-flight-actors.json` in the same directory exposes the five rear-view actors' initial 16-bit
 screen X/Y positions, by role (LargeAsteroids, StationUnderAttack, SmallAsteroids, Vortex and
 RearStars). Their stock values come from the pinned cartridge's initializer
@@ -275,7 +281,7 @@ callbacks remain compiled game logic.
 
 The ending's colours are pre-coloured into its installed sprite sheets; edit a sheet
 in place to change them. Each ending scene's backdrop, the solid colour it shows
-behind every layer, is installed as native-precision RGB5 JSON in
+behind every layer, is installed, each colour written as `#rrggbb`, in
 `game/ending-backdrops/ending-backdrops.json`: the escape, explosion (which the
 flyaway keeps), credits and post-credits scenes', and `spaceBehindExplodingPlanet`,
 the backdrop the space behind the exploding planet shows at each frame of its
@@ -301,7 +307,8 @@ not installed. `fakeDeathToGrey` there contains eight three-color frames for the
 fake-death descent; the ascent reuses the first three brain colors of each `fromGrey` frame.
 Her rainbow beam's backdrop colours, which the game works with, are installed as
 `game/maps/mother-brain-beam-colours.json`: `first` is the colour the backdrop shows as the
-beam starts, and `cycle` the colours it cycles through while the beam fires. Edit it in
+beam starts, and `cycle` the colours it cycles through while the beam fires, each written
+as `#rrggbb`. Edit it in
 place to change them. The beam window geometry and attack timing remain engine
 logic. A debugger-state load rebinds the current color resource.
 
@@ -335,14 +342,14 @@ the import pre-colours the effect overlay pictures in; they are not installed.
 `game/maps/scene-colours.json` holds the colours the game shows that no picture
 holds: the title's backdrop, the pause, file-select and each Zebes area's world-map
 backdrop, and the Ceres haze's `ceresHazeWhileRidleyLives`/`ceresHazeAfterRidleyDies`
-RGB5 tints. The game reads these colours and no palette document. Edit it in place to
+tints. The game reads these colours and no palette document. Edit it in place to
 change a backdrop or recolor the Ceres haze before or after Ridley's defeat; haze
-activation, scanline bands, and fade timing remain compiled. Each channel must be 0–31.
+activation, scanline bands, and fade timing remain compiled. Each colour is written as `#rrggbb`.
 The title, map and menu palette documents are read only by the import, which
 pre-colours the screens' sheets from them.
 
 `game/maps/power-bomb-glow-colors.json` contains the 16 pre-explosion and
-32 explosion RGB5 glow colours used by Power Bombs, Crystal Flash and the Ceres
+32 explosion glow colours, each written as `#rrggbb`, used by Power Bombs, Crystal Flash and the Ceres
 explosion. Edit it in place to recolor them. Radius math, window
 geometry and cleanup timing remain compiled. Crystal Flash's stock fade
 lifetime is separate from the installed colors: black does not end it early,
@@ -640,7 +647,7 @@ import composes the backdrop's pictures from.
 Kraid's colours are import data, which only pre-colour his pictures. The game works with his
 eyes' colours alone: `kraid-eye-colours.json` in `game/enemy-tiles/` holds the three eyes'
 colours under the hurt flash (`hurtFlash`) and under each of his eight health bands
-(`healthBands`), each an RGB colour with channels 0..31, which his eye glow shows, starts
+(`healthBands`), each written as `#rrggbb`, which his eye glow shows, starts
 from and fades back to. Damage thresholds, eye-fade steps, and death timing stay in engine code.
 Base room colors are import data, which only the import pre-colours the room sheets from; they
 are not installed. Palette-FX scripts may animate or replace these base colors later in the room.

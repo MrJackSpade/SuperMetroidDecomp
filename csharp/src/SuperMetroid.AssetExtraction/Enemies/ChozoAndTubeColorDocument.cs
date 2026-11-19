@@ -2,7 +2,10 @@ using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
-/// <summary>Editable tube-crack and Chozo-statue RGB5 images, each retaining two ordered sixteen-color OBJ palettes including their transparent-slot words.</summary>
+/// <summary>
+/// The import's tube-crack and Chozo-statue colours (#1637), import data only the import pre-colours their sheets from: each
+/// image's two ordered sixteen-color OBJ palettes as the cartridge stores them, transparent-slot words included.
+/// </summary>
 public sealed record ChozoAndTubeColorDocument
 {
     /// <summary>Color schema revision; loading currently requires version 1.</summary>

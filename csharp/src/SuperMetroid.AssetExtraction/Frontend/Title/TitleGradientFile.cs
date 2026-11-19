@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Spatial;
 using System.Collections.Immutable;
 using System.Text.Json;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Title.Artwork;
@@ -15,18 +16,19 @@ public static class TitleGradientFile
     public const string FileName = "title-gradient.json";
 
     /// <summary>
-    /// Revision 4 of the sixteen-variant schema (#1468): the variants in order of their zoom ranges, each by its stops, each the line
-    /// its band begins on, its RGB5 colour and the name of its blend (#1709). Revision 3 stored the blend as the layers it
-    /// blends with and whether it subtracts, and keyed each variant by its bucket; revision 2 stored every screen line;
-    /// revision 1 also stored the blend as a control byte.
+    /// Revision 5 of the sixteen-variant schema (#1468): the variants in order of their zoom ranges, each by its stops, each the line
+    /// its band begins on, its colour written as <c>#rrggbb</c> (#2564) and the name of its blend (#1709). Revision 4 stored the
+    /// colour as its five-bit channel levels; revision 3 stored the blend as the layers it blends with and whether it
+    /// subtracts, and keyed each variant by its bucket; revision 2 stored every screen line; revision 1 also stored the
+    /// blend as a control byte.
     /// </summary>
-    public const int Version = 4;
+    public const int Version = 5;
 
     /// <summary>Validates all sixteen authored zoom variants and compiles their stops.</summary>
     /// <param name="json">UTF-8 JSON read from its current position to the end and left open for the caller.</param>
     /// <returns>An immutable presentation whose gradients do not retain the document's mutable arrays.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
-    /// <exception cref="InvalidDataException">JSON is invalid or ambiguous, its version or variant count is wrong, or a variant's stops do not start on line 0, run top to bottom on the screen, hold RGB5 colours and name a gradient blend.</exception>
+    /// <exception cref="InvalidDataException">JSON is invalid or ambiguous, its version or variant count is wrong, or a variant's stops do not start on line 0, run top to bottom on the screen, hold colours on the game's fade scale written as <c>#rrggbb</c> and name a gradient blend.</exception>
     public static TitleGradientPresentation Read(Stream json)
     {
         TitleGradientDocument document;
@@ -61,19 +63,16 @@ public static class TitleGradientFile
             var stops = ImmutableArray.CreateBuilder<GradientStop>(source.Stops.Length);
             foreach (TitleGradientStop? value in source.Stops)
             {
-                if (value is null || value.Red is < 0 or > FadeLevelColour.FullLevel || value.Green is < 0 or > FadeLevelColour.FullLevel ||
-                    value.Blue is < 0 or > FadeLevelColour.FullLevel)
-                {
-                    throw new InvalidDataException(
-                        $"Title gradient variant {variant}, stop {stops.Count} requires an RGB5 colour.");
-                }
+                if (value is null)
+                    throw new InvalidDataException($"Title gradient variant {variant}, stop {stops.Count} is missing.");
+                RgbColor colour = InstalledColourText.ParseOnFadeScale(value.Colour, $"Title gradient variant {variant}, stop {stops.Count}");
                 bool placed = stops.Count == 0 ? value.Line == 0 : value.Line > stops[^1].Line && value.Line < ScreenGeometry.ScreenHeightPixels;
                 if (!placed)
                 {
                     throw new InvalidDataException(
                         $"Title gradient variant {variant}, stop {stops.Count} must begin on line 0 or below the stop before it, on the screen.");
                 }
-                stops.Add(new GradientStop(value.Line, new FadeLevelColour(value.Red, value.Green, value.Blue).ToColour(), Blend(value)));
+                stops.Add(new GradientStop(value.Line, colour, Blend(value)));
             }
             variants[variant] = new ScreenGradient(stops.MoveToImmutable(), ScreenGeometry.ScreenHeightPixels);
         }
@@ -96,9 +95,7 @@ public static class TitleGradientFile
     public static TitleGradientStop Author(GradientStop stop) => new()
     {
         Line = stop.Line,
-        Red = stop.Colour.FadeLevels.Red,
-        Green = stop.Colour.FadeLevels.Green,
-        Blue = stop.Colour.FadeLevels.Blue,
+        Colour = InstalledColourText.Format(stop.Colour),
         Blend = Enum.IsDefined(stop.Blend)
             ? GradientBlendKeys.Installed.Of(stop.Blend)
             : throw new InvalidDataException($"Title gradient stop blends in undefined way {stop.Blend}."),

@@ -7,7 +7,10 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
-/// <summary>Exports named enemy visual frames, leaving instruction control in code.</summary>
+/// <summary>
+/// Exports the named enemy frames' packed sprite parts to the import data (#1638), which only the import reads to compose
+/// the enemy sheets' pictures, leaving instruction control in code.
+/// </summary>
 internal static class EnemySpritemapFiles
 {
     /// <summary>JSON options: Camel-case property names, indented output.</summary>
@@ -36,7 +39,7 @@ internal static class EnemySpritemapFiles
         return json;
     }
 
-    /// <summary>Decodes one ordinary OAM frame, including components of extended frames.</summary>
+    /// <summary>Decodes one ordinary OAM frame, including components of extended frames, into the import data's sprite parts.</summary>
     internal static SpriteVisualPart[] ExtractParts(
         ISnesAddressSpace bus, int bank, int pointer)
     {

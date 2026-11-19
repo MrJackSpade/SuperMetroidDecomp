@@ -3,7 +3,10 @@ using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
-/// <summary>A horizontal BG2 tile run in 32-by-64 tilemap coordinates.</summary>
+/// <summary>
+/// One of a boss body frame's horizontal tile runs as the cartridge writes it, in 32-by-64 tilemap coordinates: import
+/// data only the import composes the frame's picture from (#1638).
+/// </summary>
 [SpatialComponents("External format: the BG2 frame JSON stores each write destination as x/y tilemap cells.")]
 public sealed record EnemyBg2WriteDocument
 {

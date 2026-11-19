@@ -2,7 +2,10 @@ using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
-/// <summary>Editable ten-row full-body Hyper Beam palette schema, separate from the gameplay-owned cycle clock and acquisition state.</summary>
+/// <summary>
+/// The import's ten full-body Hyper Beam colour rows (#1637), import data only the import pre-colours her shades from,
+/// separate from the gameplay-owned cycle clock and acquisition state.
+/// </summary>
 public sealed record SamusHyperBeamColorDocument
 {
     /// <summary>Schema revision; loading requires version one from <see cref="SamusHyperBeamColorFormat.Version"/>.</summary>

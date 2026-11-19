@@ -45,7 +45,8 @@ internal sealed record SamusShadeSources(GameplayStartingColours Starting, RgbCo
     /// <summary>
     /// Every shade Samus's sheets are pre-coloured in (#1512): one per colouring her colour state can name, each recolouring
     /// the inks of the colours it changes with the cartridge's colours for it. Her draws name the shades through
-    /// <see cref="SamusShades"/>; where each colouring lies among her inks is the import's alone.
+    /// <see cref="SamusShades"/>; where each colouring lies among her inks is the import's alone, and the installation keeps
+    /// each shade as colour substitutions (<see cref="SuperMetroid.AssetExtraction.Artwork.InstalledSheetConversion"/>).
     /// </summary>
     internal IReadOnlyList<SheetShade> Shades()
     {

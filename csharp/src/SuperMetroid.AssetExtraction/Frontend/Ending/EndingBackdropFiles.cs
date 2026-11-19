@@ -21,10 +21,10 @@ public static class EndingBackdropFiles
     public const string FileName = "ending-backdrops.json";
 
     /// <summary>
-    /// Revision 3 of the backdrop document, the only revision the reader accepts: 2 holds the space's backdrops (#1637), and 3
-    /// names no cartridge, which the installation receipt records (#1693).
+    /// Revision 4 of the backdrop document, the only revision the reader accepts: 2 holds the space's backdrops (#1637), 3
+    /// names no cartridge, which the installation receipt records (#1693), and 4 writes each colour as <c>#rrggbb</c> (#2564).
     /// </summary>
-    public const int Version = 3;
+    public const int Version = 4;
 
     /// <summary>Writes the backdrops the cartridge's ending scenes show.</summary>
     /// <param name="bus">Cartridge import source for the scenes' colours.</param>
@@ -41,11 +41,11 @@ public static class EndingBackdropFiles
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(new EndingBackdropDocument
         {
             Version = Version,
-            Escape = PaletteRgb5.From(colours[EndingPaletteId.Escape].Backdrop),
-            Explosion = PaletteRgb5.From(colours[EndingPaletteId.Explosion].Backdrop),
-            Credits = PaletteRgb5.From(colours[EndingPaletteId.Credits].Backdrop),
-            PostCredits = PaletteRgb5.From(colours[EndingPaletteId.PostCredits].Backdrop),
-            SpaceBehindExplodingPlanet = [.. EndingSpaceBackdropColours.InFrameOrder(space).Select(PaletteRgb5.From)],
+            Escape = InstalledColourText.Format(colours[EndingPaletteId.Escape].Backdrop),
+            Explosion = InstalledColourText.Format(colours[EndingPaletteId.Explosion].Backdrop),
+            Credits = InstalledColourText.Format(colours[EndingPaletteId.Credits].Backdrop),
+            PostCredits = InstalledColourText.Format(colours[EndingPaletteId.PostCredits].Backdrop),
+            SpaceBehindExplodingPlanet = [.. EndingSpaceBackdropColours.InFrameOrder(space).Select(InstalledColourText.Format)],
         }, ArtworkJson.Options);
         using var output = new FileStream(Path.Combine(directory, FileName), FileMode.CreateNew, FileAccess.Write);
         output.Write(json);
@@ -55,7 +55,7 @@ public static class EndingBackdropFiles
     /// <param name="directory">Installed directory holding the backdrop document.</param>
     /// <exception cref="InvalidDataException">
     /// The document is invalid, names another version, holds a backdrop for other than every frame of the
-    /// space's colours, or a colour has a channel outside 0..31.
+    /// space's colours, or a colour is not written as <c>#rrggbb</c> or lies off the game's fade scale.
     /// </exception>
     public static EndingBackdrops Load(string directory)
     {
@@ -71,9 +71,6 @@ public static class EndingBackdropFiles
             Colour(document.Credits, nameof(document.Credits)), Colour(document.PostCredits, nameof(document.PostCredits)),
             EndingSpaceBackdropColours.FromFrameOrder([.. space.Select((colour, frame) => Colour(colour, $"space frame {frame}"))]));
 
-        RgbColor Colour(PaletteRgb5? colour, string scene) =>
-            colour is { Red: >= 0 and <= FadeLevelColour.FullLevel, Green: >= 0 and <= FadeLevelColour.FullLevel, Blue: >= 0 and <= FadeLevelColour.FullLevel }
-                ? colour.ToRgbColor()
-                : throw new InvalidDataException($"Ending backdrops {path}: the {scene} backdrop requires red, green and blue in 0..{FadeLevelColour.FullLevel}.");
+        RgbColor Colour(string? colour, string scene) => InstalledColourText.ParseOnFadeScale(colour, $"Ending backdrops {path}: the {scene} backdrop");
     }
 }

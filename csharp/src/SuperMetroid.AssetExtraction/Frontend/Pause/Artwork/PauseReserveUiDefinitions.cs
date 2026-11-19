@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 
@@ -33,6 +34,12 @@ public static class PauseReserveUiDefinitions
     /// <summary>First horizontal arrow cell and number of adjacent horizontal arrows.</summary>
     public const int HorizontalStartCell = 770 / 2, HorizontalCount = 2;
 
-    /// <summary>Every reserve label, in document order.</summary>
-    public static IReadOnlyList<PauseReserveLabel> Labels { get; } = Enum.GetValues<PauseReserveLabel>();
+    /// <summary>Every reserve label, in document order (#2567): the mode heading, the reserve tank, manual, auto.</summary>
+    public static IReadOnlyList<PauseReserveLabel> Labels { get; } = Ensure.EveryMemberOnce<PauseReserveLabel>(
+    [
+        PauseReserveLabel.Mode,
+        PauseReserveLabel.ReserveTank,
+        PauseReserveLabel.Manual,
+        PauseReserveLabel.Auto,
+    ]);
 }

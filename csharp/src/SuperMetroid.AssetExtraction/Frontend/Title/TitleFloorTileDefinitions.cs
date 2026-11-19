@@ -32,6 +32,9 @@ internal static class TitleFloorTileDefinitions
     /// <summary>The Baby Metroid animation pages the floor shows: pages 0, 1 and 2.</summary>
     public const int BabyPageCount = 3;
 
+    /// <summary>The Baby Metroid's poses in the order the title floor sheet records them (#2567): closed, middle, open.</summary>
+    public static IReadOnlyList<TitleBabyPose> BabyPoses { get; } = [TitleBabyPose.Closed, TitleBabyPose.Middle, TitleBabyPose.Open];
+
     /// <summary>The page of the installed Baby Metroid characters that holds each of its poses.</summary>
     public static IReadOnlyDictionary<TitleBabyPose, int> BabyPages { get; } = new Dictionary<TitleBabyPose, int>
     {

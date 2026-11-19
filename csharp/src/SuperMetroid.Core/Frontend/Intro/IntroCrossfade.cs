@@ -17,6 +17,9 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// </remarks>
 public sealed class IntroCrossfade
 {
+    /// <summary>The crossfaded scenes in the order their shades are layered, each listed once (#2567).</summary>
+    private static readonly IReadOnlyList<IntroCrossfadeScene> ShadedScenes = Ensure.EveryMemberOnce(IntroCinematicDefinitions.Crossfade.ShadedScenes);
+
     /// <summary>The steps between black and a colour, which a whole crossfade takes.</summary>
     internal const int Levels = 32;
 
@@ -93,7 +96,7 @@ public sealed class IntroCrossfade
         get
         {
             ImmutableArray<PictureShade>.Builder shades = ImmutableArray.CreateBuilder<PictureShade>();
-            foreach (IntroCrossfadeScene scene in Enum.GetValues<IntroCrossfadeScene>())
+            foreach (IntroCrossfadeScene scene in ShadedScenes)
             {
                 int level = LevelOf(scene);
                 if (level < Levels)
@@ -111,7 +114,7 @@ public sealed class IntroCrossfade
     {
         ImmutableArray<PictureShade>.Builder shades = ImmutableArray.CreateBuilder<PictureShade>();
         shades.Add(drawn);
-        foreach (IntroCrossfadeScene scene in Enum.GetValues<IntroCrossfadeScene>())
+        foreach (IntroCrossfadeScene scene in ShadedScenes)
         {
             int level = LevelOf(scene);
             if (level >= Levels)

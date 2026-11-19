@@ -13,6 +13,13 @@ public static class IntroCinematicDefinitions
         public const int Updates = 128;
         /// <summary>Updates per crossfade step: a step shows on every fourth update counted down to the last.</summary>
         public const int StepFrames = 4;
+
+        /// <summary>
+        /// The crossfaded scenes in the order their shades are listed and laid over each other (#2567): the narration's, the
+        /// flashback's, then the laboratory's.
+        /// </summary>
+        internal static IReadOnlyList<IntroCrossfadeScene> ShadedScenes { get; } =
+            [IntroCrossfadeScene.Narration, IntroCrossfadeScene.Flashback, IntroCrossfadeScene.Laboratory];
     }
 
     /// <summary>

@@ -10,7 +10,7 @@ internal static class EndingObjectSourceArtworkAccess
     /// <summary>Exposes <see cref="EndingObjectSourceArtwork"/> state that only verification reads.</summary>
     extension(EndingObjectSourceArtwork self)
     {
-        /// <summary>The four explosion maps in <see cref="EndingExplosionPicture"/> order.</summary>
+        /// <summary>The four explosion maps in their installed fragments' order.</summary>
         public IReadOnlyList<RoomBackgroundTilemapAtlas> Fragments => self.fragments;
         /// <summary>
         /// Identity of every selected ending/credits map and the compositions its sheets are composed from; the characters are

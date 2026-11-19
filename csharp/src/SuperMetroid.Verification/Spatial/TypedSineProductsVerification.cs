@@ -54,9 +54,9 @@ internal static class TypedSineProductsVerification
     /// (<see cref="FineUnitComponent"/>), at every whole-pixel speed from none to the most a signed displacement holds, equals
     /// the unsigned half-wave a quarter turn (across) or a half turn (down) ahead times the speed, negated where that turned
     /// angle lies in the turn's second half, as Botwoon's head, Spore Spawn's death drift and the Sbug's forward leg signed
-    /// it; moves a coordinate as the same magnitude moved back or forward by the quadrant, as Draygon's angled move and the
-    /// angled projectiles moved; and reversed equals the magnitude signed the other way, as the burial Evirs' drift took it.
-    /// The velocity along every angle is those two shares' speeds at every speed sampled; the launched angled flight and the
+    /// it. At every speed sampled it moves a coordinate as the same magnitude moved back or forward by the quadrant, as
+    /// Draygon's angled move and the angled projectiles moved, and reversed equals the magnitude signed the other way, as the
+    /// burial Evirs' drift took it. The velocity along every angle is those two shares' speeds at every speed sampled; the launched angled flight and the
     /// six burial Evirs' drifts read it at their sites; and a negative speed is refused, as the replaced products refused it.
     /// </summary>
     private static int VerifyVelocityAlong()
@@ -80,12 +80,19 @@ internal static class TypedSineProductsVerification
                     SignedSixteenSixteen actual = share.SpeedAt(speed);
                     if (actual != signed)
                         throw new InvalidDataException($"Angle {raw}, speed {speed}: the speed {axis} {actual.RawValue} differs from the signed magnitude {signed.RawValue}.");
+                }
+                AssertThrows<ArgumentOutOfRangeException>(() => share.SpeedAt(-1), $"the speed {axis} along angle {raw} refuses a negative speed");
+
+                // The moves and the reversal follow from the signed speed alone, so the sampled speeds cover them.
+                foreach (int speed in SampledAngledSpeeds)
+                {
+                    UnsignedSixteenSixteen magnitude = UnsignedSixteenSixteen.ShareOfWholePixels(speed, halfWave);
+                    SignedSixteenSixteen actual = share.SpeedAt(speed);
                     if (start.MovedBy(actual) != (back ? start.MovedBack(magnitude) : start.MovedForward(magnitude)))
                         throw new InvalidDataException($"Angle {raw}, speed {speed}: the speed {axis} moves a coordinate other than the quadrant's move back or forward.");
                     if (-actual != (back ? magnitude.AsDisplacement() : -magnitude.AsDisplacement()))
                         throw new InvalidDataException($"Angle {raw}, speed {speed}: the reversed speed {axis} differs from the magnitude signed the other way.");
                 }
-                AssertThrows<ArgumentOutOfRangeException>(() => share.SpeedAt(-1), $"the speed {axis} along angle {raw} refuses a negative speed");
             }
 
             foreach (int speed in SampledAngledSpeeds)

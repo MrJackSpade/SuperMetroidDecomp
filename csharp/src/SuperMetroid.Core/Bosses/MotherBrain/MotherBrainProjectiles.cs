@@ -270,13 +270,13 @@ internal sealed class MotherBrainProjectiles
             }
             else
             {
-                if (MotherBrainBombBounces.YAcceleration(bombState.Bounces) is not { } bounceAcceleration)
+                if (MotherBrainBombBounces.HasExpired(bombState.Bounces))
                 {
                     ExpireMotherBrainBomb(bomb, state);
                     return;
                 }
 
-                acceleration = bounceAcceleration;
+                acceleration = MotherBrainBombBounces.YAcceleration(bombState.Bounces);
             }
 
             if (MoveMotherBrainBomb(bomb, acceleration))

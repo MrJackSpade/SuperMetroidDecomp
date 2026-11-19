@@ -171,7 +171,7 @@ internal sealed class PhantoonDeath
     internal void ClearPhantoonDeathGraphics(PhantoonEnemyState state)
     {
         state.Death.PixelationSize = PhantoonDeathDefinitions.InitialPixelationSize;
-        state.Wave.Length = null;
+        state.Wave.End();
         state.Translucent = false;
         state.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.HideForGood;
         state.Phase = PhantoonPhase.Dead;

@@ -41,7 +41,7 @@ internal sealed class PhantoonPatterns
         if (!state.PhaseWait.StepRunsOut())
             return;
 
-        state.Wave.Length = null;
+        state.Wave.End();
         state.Round.EyeClosedWait.LastFor(PhantoonTimerDefinitions.EyeClosed[PhantoonCadenceDefinitions.FirstEyeClosedChoice.Of(_frameContext.FrameCounter)]);
         state.Phase = PhantoonPhase.MoveInFigureEightThenOpenEye;
         state.FigureEight.Stage = PhantoonFigureEightStage.EasingIn;

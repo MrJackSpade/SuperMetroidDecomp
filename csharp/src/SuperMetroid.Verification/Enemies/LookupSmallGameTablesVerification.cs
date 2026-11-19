@@ -47,11 +47,11 @@ internal static class LookupSmallGameTablesVerification
             "The table's first entry is the ordinary fall gravity");
         for (int bounces = 1; bounces <= MotherBrainBombBounces.Count; bounces++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x86c550 + 2 * bounces),
-                MotherBrainBombBounces.YAcceleration(bounces)?.InTwoHundredFiftySixthsOfPixel, $"Bomb gravity after bounce {bounces}");
+                MotherBrainBombBounces.YAcceleration(bounces).InTwoHundredFiftySixthsOfPixel, $"Bomb gravity after bounce {bounces}");
         int expiry = MotherBrainBombBounces.Count + 1;
         AssertEqual(0, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x86c550 + 2 * expiry),
             "The cartridge ends the bounces with a zero");
-        AssertTrue(MotherBrainBombBounces.YAcceleration(expiry) is null, "The bomb has no gravity after its last bounce");
+        AssertTrue(MotherBrainBombBounces.HasExpired(expiry), "The bomb expires after its last bounce");
     }
 
     /// <summary>Matches seven unrolled Crocomire bridge-dust spawn operands to their X/Y positions.</summary>

@@ -153,12 +153,12 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SetupAlcoonJumpMovement(state);
         if (signedXDistance < 0)
         {
-            state.WalkingDirection = HorizontalDirection.Left;
+            state.WalkingDirection = AlcoonWalk.Left;
             StartAlcoonAnimation(place, state, AlcoonSegment.AirborneLeftLookingUp);
         }
         else
         {
-            state.WalkingDirection = HorizontalDirection.Right;
+            state.WalkingDirection = AlcoonWalk.Right;
             StartAlcoonAnimation(place, state, AlcoonSegment.AirborneRightLookingUp);
         }
         state.Action = AlcoonAction.EmergingRising;
@@ -198,12 +198,12 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (samus.Position.X.Whole < place.Position.X.Whole)
         {
-            state.WalkingDirection = HorizontalDirection.Left;
+            state.WalkingDirection = AlcoonWalk.Left;
             StartAlcoonAnimation(place, state, AlcoonSegment.WalkingLeft);
         }
         else
         {
-            state.WalkingDirection = HorizontalDirection.Right;
+            state.WalkingDirection = AlcoonWalk.Right;
             StartAlcoonAnimation(place, state, AlcoonSegment.WalkingRight);
         }
         state.Action = AlcoonAction.WalkingAndFiring;
@@ -280,7 +280,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Resets the jump to a twelve-pixel upward velocity.</summary>
     private static void SetupAlcoonJumpMovement(AlcoonEnemyState state)
     {
-        state.WalkingDirection = null;
+        state.WalkingDirection = AlcoonWalk.Undecided;
         state.VerticalVelocity = AlcoonMotionDefinitions.EmergeJumpVelocity;
     }
 
@@ -334,10 +334,10 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         SignedSixteenSixteen displacement = state.WalkingDirection switch
         {
-            HorizontalDirection.Left => -AlcoonWalkDefinitions.StrideDistance,
-            HorizontalDirection.Right => AlcoonWalkDefinitions.StrideDistance,
-            null => SignedSixteenSixteen.Zero,
-            _ => throw new InvalidOperationException($"Undefined {nameof(HorizontalDirection)} {state.WalkingDirection}."),
+            AlcoonWalk.Left => -AlcoonWalkDefinitions.StrideDistance,
+            AlcoonWalk.Right => AlcoonWalkDefinitions.StrideDistance,
+            AlcoonWalk.Undecided => SignedSixteenSixteen.Zero,
+            _ => throw new InvalidOperationException($"Undefined {nameof(AlcoonWalk)} {state.WalkingDirection}."),
         };
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, displacement))
         {
@@ -349,8 +349,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         bool turnsLeft = !FacesLeft(state);
         state.WalkingDirection = state.WalkingDirection switch
         {
-            HorizontalDirection.Left => HorizontalDirection.Right,
-            HorizontalDirection.Right => HorizontalDirection.Left,
+            AlcoonWalk.Left => AlcoonWalk.Right,
+            AlcoonWalk.Right => AlcoonWalk.Left,
             _ => state.WalkingDirection,
         };
         return turnsLeft
@@ -359,7 +359,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Whether the Alcoon faces left: it does only once it has picked the left side.</summary>
-    private static bool FacesLeft(AlcoonEnemyState state) => state.WalkingDirection == HorizontalDirection.Left;
+    private static bool FacesLeft(AlcoonEnemyState state) => state.WalkingDirection == AlcoonWalk.Left;
 
     /// <summary>An Alcoon fireball (#1760): it flies with vertical, then horizontal, room collision and horizontal drag.</summary>
     internal static readonly EnemyProjectileBehavior Fireball = new SingleMotionProjectileBehavior(

@@ -121,7 +121,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         PhantoonEnemyState state = JoiningEncounter(eye, PhantoonPartListingDefinitions.EyePlacesAfterBody);
         StartPhantoonPart(state.EyePart);
-        state.Wave.Length = null;
+        state.Wave.End();
         JoinPhantoon(state.EyePart);
     }
 

@@ -52,7 +52,7 @@ internal static class PhantoonWaveVerification
         AssertEqual(wave.Phase, restored.Phase, "wave phase survives exact debugger state");
         AssertEqual(wave.CurrentWave, restored.CurrentWave, "wave data survives exact debugger state");
         AssertEqual(savedDisplay, restored.DisplayedWave, "latched wave survives debugger state");
-        boss.Wave.Length = null;
+        boss.Wave.End();
         PhantoonWave? retained = wave.CurrentWave;
         wave.Step(boss);
         AssertTrue(!wave.Active && retained == wave.CurrentWave, "native deletion retains data");

@@ -189,12 +189,12 @@ internal sealed class PhantoonCombat
             RoomLevelData level)
         {
             PhantoonRainFlameState rain = flame.StateOf<PhantoonRainFlameState>();
-            if (rain.HangWait is { } hang)
+            if (!rain.Falls)
             {
-                if (hang.StepKeepsRunning())
+                if (rain.HangWait.StepKeepsRunning())
                     return;
                 // The flame queues its own falling sound as its hang runs out, and falls in that same update.
-                rain.HangWait = null;
+                rain.Falls = true;
                 audio.QueueEnemySound(PhantoonFlameMotionDefinitions.RainFallSound, PhantoonFlameMotionDefinitions.RainSoundPriority);
             }
 

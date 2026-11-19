@@ -82,7 +82,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
             }
 
             samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(actor.Position.X.Whole +
-                (state.WalkingDirection == HorizontalDirection.Left ? -32 : 32))), state.LandingY));
+                (state.WalkingDirection == AlcoonWalk.Left ? -32 : 32))), state.LandingY));
             foreach (EnemyProjectile projectile in enemies.Projectiles.EnemyProjectiles.Where(
                          projectile => projectile.Kind == RoomEnemyProjectileKind.AlcoonFireball))
             {

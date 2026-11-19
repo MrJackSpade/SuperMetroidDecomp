@@ -969,9 +969,9 @@ internal static class NativeEnemyFamilyStateImport
             alcoon.Action = AlcoonNativeWords.AlcoonActions.Decode(words.A, "recorded AlcoonAction");
             alcoon.WalkingDirection = CoordinateAxis.AsSigned(words.D) switch
             {
-                -2 => HorizontalDirection.Left,
-                2 => HorizontalDirection.Right,
-                0 => null,
+                -2 => AlcoonWalk.Left,
+                2 => AlcoonWalk.Right,
+                0 => AlcoonWalk.Undecided,
                 var speed => throw new InvalidDataException($"Recorded Alcoon walking speed {speed} is not -2, 0 or 2."),
             };
             alcoon.VerticalVelocity = SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(words.B), words.C);

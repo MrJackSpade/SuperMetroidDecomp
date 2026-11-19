@@ -13,13 +13,15 @@ internal interface IEnemyFrameHitboxes : IEnemyEntity
 
     /// <summary>
     /// The species' own touch reaction, as its hitboxes name it, that the occupant takes where its definition names no
-    /// shared one: the reaction a touch selects when it meets the occupant by its radius. Null when it has none.
+    /// shared one: the reaction a touch selects when it meets the occupant by its radius. Null when it has none: the
+    /// absence of a reaction of its own, which leaves the touch to the reactions its parts' definitions name (#2558).
     /// </summary>
     EnemyReaction? SpeciesTouch { get; }
 
     /// <summary>
     /// The species' own shot reaction, as its hitboxes name it, that the occupant takes where its definition names no
-    /// shared one: the reaction a shot or bomb selects when it meets the occupant by its radius. Null when it has none.
+    /// shared one: the reaction a shot or bomb selects when it meets the occupant by its radius. Null when it has none: the
+    /// absence of a reaction of its own, which leaves the shot to the reactions its parts' definitions name (#2558).
     /// </summary>
     EnemyReaction? SpeciesShot { get; }
 }

@@ -105,11 +105,11 @@ internal static class KraidHeadCommandMappingVerification
         foreach (KraidHeadNativePose record in native.AllPoses)
         {
             if (address == record.Pointer + 4)
-                return new(KraidMouthShapeReadKind.Shape, KraidNativeWords.MouthHitboxes.Decode(record.OuterShape, "Kraid mouth hitbox"));
+                return new KraidMouthShapeRead.Found(KraidNativeWords.MouthHitboxes.Decode(record.OuterShape, "Kraid mouth hitbox"));
             if (address == record.Pointer + 6)
                 return record.InnerShape == ushort.MaxValue
-                    ? new(KraidMouthShapeReadKind.NoShape, default)
-                    : new(KraidMouthShapeReadKind.Shape, KraidNativeWords.MouthHitboxes.Decode(record.InnerShape, "Kraid mouth hitbox"));
+                    ? KraidMouthShapeRead.NoShape
+                    : new KraidMouthShapeRead.Found(KraidNativeWords.MouthHitboxes.Decode(record.InnerShape, "Kraid mouth hitbox"));
         }
         return KraidMouthShapeRead.NoPose;
     }

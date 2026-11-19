@@ -180,8 +180,8 @@ internal static class KraidHeadAnimations
     internal static KraidMouthHitbox OuterMouthAt(AnimationPlayback<KraidHeadSegment>? playback)
     {
         KraidMouthShapeRead read = ReadsAt(playback).Outer;
-        return read.Kind == KraidMouthShapeReadKind.Shape
-            ? read.Shape
+        return read is KraidMouthShapeRead.Found found
+            ? found.Shape
             : throw new InvalidDataException($"Kraid's outer mouth read at {(playback is { } head ? PlaceOf(head).ToString() : "no place")} finds {read.Kind}, not a mouth shape.");
     }
 
@@ -191,7 +191,7 @@ internal static class KraidHeadAnimations
         KraidMouthShapeRead read = ReadsAt(playback).Inner;
         return read.Kind switch
         {
-            KraidMouthShapeReadKind.Shape => read.Shape,
+            KraidMouthShapeReadKind.Shape => ((KraidMouthShapeRead.Found)read).Shape,
             KraidMouthShapeReadKind.NoShape => null,
             KraidMouthShapeReadKind.NoPose => throw new InvalidDataException(
                 $"Kraid's inner mouth read at {(playback is { } head ? PlaceOf(head).ToString() : "no place")} finds no head pose."),

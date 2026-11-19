@@ -78,7 +78,7 @@ internal static class PhantoonBodyPublicationVerification
         AssertTrue(BossBodyDisplay.ShowsLatchedBody(drawn, runtime), "the capture draws the body image on BG2");
 
         // Swooping fade-out: the wave channel is deleted, the body stays.
-        state.Wave.Length = null;
+        state.Wave.End();
         state.BodyWave.Step(state);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         PhantoonDisplaySnapshot fadingOut = runtime.Display.LatchedOrdinaryRoom.Phantoon

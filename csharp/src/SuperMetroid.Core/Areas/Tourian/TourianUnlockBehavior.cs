@@ -96,7 +96,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
         if (projectile is null) return null;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Effects, _statue.SceneGraphics);
         _statue.HoldSceneProjectile(projectile);
-        projectile.StartAnimation(new TourianStatueProjectileAnimation(start));
+        projectile.StartAnimation(new TourianStatueProjectileAnimation(this, start));
         projectile.Position = projectile.Position.WithWhole(eye.Position);
         return projectile;
     }
@@ -139,7 +139,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
         if (projectile is null) return null;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Effects, _statue.SceneGraphics);
         _statue.HoldSceneProjectile(projectile);
-        projectile.StartAnimation(new TourianStatueProjectileAnimation(start));
+        projectile.StartAnimation(new TourianStatueProjectileAnimation(this, start));
         projectile.Position = projectile.Position.WithWhole(parent.Position.Whole);
         return projectile;
     }

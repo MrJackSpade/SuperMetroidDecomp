@@ -4,8 +4,9 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>Downward gate's typed animation.</summary>
-internal sealed class DownwardGateProjectileAnimation(DownwardGateProjectileSegment segment)
-    : EnemyProjectileFrameAnimation<DownwardGateProjectileSegment, DownwardGateProjectileCue>(DownwardGateProjectileAnimations.StartingWith(segment))
+/// <param name="owner">The family's cue owner, which carries out the events the animation raises (#2571).</param>
+internal sealed class DownwardGateProjectileAnimation(IEnemyProjectileCues<DownwardGateProjectileCue> owner, DownwardGateProjectileSegment segment)
+    : EnemyProjectileFrameAnimation<DownwardGateProjectileSegment, DownwardGateProjectileCue>(DownwardGateProjectileAnimations.StartingWith(segment), EnemyProjectileCueRunner<DownwardGateProjectileSegment, DownwardGateProjectileCue>.By(owner))
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<DownwardGateProjectileSegment, EnemyProjectileFrameId, DownwardGateProjectileCue> Segments => DownwardGateProjectileAnimations.Segments;

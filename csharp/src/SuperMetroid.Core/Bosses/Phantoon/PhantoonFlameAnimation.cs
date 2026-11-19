@@ -4,8 +4,9 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>A Phantoon flame's typed animation.</summary>
-internal sealed class PhantoonFlameAnimation(PhantoonFlameSegment segment)
-    : EnemyProjectileFrameAnimation<PhantoonFlameSegment, PhantoonFlameCue>(PhantoonFlameAnimations.StartingWith(segment))
+/// <param name="owner">The family's cue owner, which carries out the events the animation raises (#2571).</param>
+internal sealed class PhantoonFlameAnimation(IEnemyProjectileCues<PhantoonFlameCue> owner, PhantoonFlameSegment segment)
+    : EnemyProjectileFrameAnimation<PhantoonFlameSegment, PhantoonFlameCue>(PhantoonFlameAnimations.StartingWith(segment), EnemyProjectileCueRunner<PhantoonFlameSegment, PhantoonFlameCue>.By(owner))
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<PhantoonFlameSegment, EnemyProjectileFrameId, PhantoonFlameCue> Segments =>

@@ -12,9 +12,9 @@ internal abstract class EnemyProjectileFrameAnimation<TSegment, TEvent> : EnemyP
     where TSegment : struct
     where TEvent : notnull
 {
-    /// <summary>Starts <paramref name="animation"/> before its first play.</summary>
-    private protected EnemyProjectileFrameAnimation(Animation<TSegment> animation)
-        : base(animation)
+    /// <summary>Starts <paramref name="animation"/> before its first play, its events carried out by <paramref name="cues"/>.</summary>
+    private protected EnemyProjectileFrameAnimation(Animation<TSegment> animation, EnemyProjectileCueRunner<TSegment, TEvent> cues)
+        : base(animation, cues)
     {
     }
 

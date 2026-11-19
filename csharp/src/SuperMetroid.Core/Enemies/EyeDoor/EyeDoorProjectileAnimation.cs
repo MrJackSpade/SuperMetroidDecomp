@@ -5,8 +5,9 @@ using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.Core.Enemies.EyeDoor;
 
 /// <summary>Eye door projectile's typed animation.</summary>
-internal sealed class EyeDoorProjectileAnimation(EyeDoorProjectileSegment segment)
-    : EnemyProjectileFrameAnimation<EyeDoorProjectileSegment, EyeDoorProjectileCue>(EyeDoorProjectileAnimations.StartingWith(segment))
+/// <param name="owner">The family's cue owner, which carries out the events the animation raises (#2571).</param>
+internal sealed class EyeDoorProjectileAnimation(IEnemyProjectileCues<EyeDoorProjectileCue> owner, EyeDoorProjectileSegment segment)
+    : EnemyProjectileFrameAnimation<EyeDoorProjectileSegment, EyeDoorProjectileCue>(EyeDoorProjectileAnimations.StartingWith(segment), EnemyProjectileCueRunner<EyeDoorProjectileSegment, EyeDoorProjectileCue>.By(owner))
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<EyeDoorProjectileSegment, EnemyProjectileFrameId, EyeDoorProjectileCue> Segments => EyeDoorProjectileAnimations.Segments;

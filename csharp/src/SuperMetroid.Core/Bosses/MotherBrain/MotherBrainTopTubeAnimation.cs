@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>A falling ceiling tube's typed animation.</summary>
 internal sealed class MotherBrainTopTubeAnimation(MotherBrainTopTubeSegment segment)
-    : EnemyProjectileFrameAnimation<MotherBrainTopTubeSegment, NoAnimationCue>(MotherBrainTopTubeAnimations.StartingAt[segment])
+    : EnemyProjectileFrameAnimation<MotherBrainTopTubeSegment, NoAnimationCue>(MotherBrainTopTubeAnimations.StartingAt[segment], EnemyProjectileCueRunners.None<MotherBrainTopTubeSegment>())
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<MotherBrainTopTubeSegment, EnemyProjectileFrameId, NoAnimationCue> Segments =>

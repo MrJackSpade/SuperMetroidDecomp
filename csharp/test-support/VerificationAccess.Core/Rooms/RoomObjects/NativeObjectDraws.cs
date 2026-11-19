@@ -60,8 +60,7 @@ internal static class NativeObjectDraws
 
     /// <summary>A draw that belongs to no family.</summary>
     internal static RoomObjectDraw Unowned { get; } = new RoomObjectDrawFamily<UnownedFrame>("unowned",
-        frame => throw new InvalidOperationException($"{frame} has no shape."),
-        (_, draw) => throw new InvalidOperationException($"{draw} has no picture.")).Of(new UnownedFrame());
+        frame => throw new InvalidOperationException($"{frame} has no shape.")).Of(new UnownedFrame());
 
     /// <summary>Every compiled draw, grouped by the address the cartridge stores it at.</summary>
     private static readonly ILookup<int, RoomObjectDraw> ByAddress = All.ToLookup(draw => (int)RoomObjectDrawAddressCodec.Of(draw));

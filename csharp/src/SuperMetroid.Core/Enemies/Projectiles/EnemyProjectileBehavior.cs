@@ -42,10 +42,10 @@ internal class EnemyProjectileBehavior
     /// A new animation a shot that destroys the projectile starts: the kind's own, or the shared delete animation every
     /// kind without a shot reaction of its own plays.
     /// </summary>
-    internal EnemyProjectileAnimation ShotAnimation() => _shot?.Invoke() ?? EnemyProjectileDeleteAnimation.Instance;
+    internal virtual EnemyProjectileAnimation ShotAnimation() => _shot?.Invoke() ?? EnemyProjectileDeleteAnimation.Instance;
 
     /// <summary>A new animation touching Samus starts, or null when the kind has none of its own.</summary>
-    internal EnemyProjectileAnimation? TouchAnimation() => _touch?.Invoke();
+    internal virtual EnemyProjectileAnimation? TouchAnimation() => _touch?.Invoke();
 
     /// <summary>
     /// The motion a projectile of <paramref name="kind"/> starts with when its spawner binds this behaviour to it (#1843),

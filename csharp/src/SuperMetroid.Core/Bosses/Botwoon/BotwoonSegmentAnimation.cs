@@ -8,7 +8,7 @@ internal sealed class BotwoonSegmentAnimation : EnemyProjectileFrameAnimation<Bo
 {
     /// <summary>Starts the animation of <paramref name="segment"/>.</summary>
     internal BotwoonSegmentAnimation(BotwoonBodyAnimationSegment segment)
-        : base(BotwoonAnimations.BodyStartingWith(segment))
+        : base(BotwoonAnimations.BodyStartingWith(segment), EnemyProjectileCueRunners.None<BotwoonBodyAnimationSegment>())
     {
     }
 

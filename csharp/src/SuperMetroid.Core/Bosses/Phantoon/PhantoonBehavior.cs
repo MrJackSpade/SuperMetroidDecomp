@@ -101,7 +101,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
         StartPhantoonPart(state.BodyPart);
         // The body starts asking for no flame rain; no reader consumes it before a phase sets it (#1472).
-        state.FlameRainRequested = false;
+        state.NextPattern = PhantoonPatternChoice.FigureEight;
         body.SetSpeciesState(state.BodyPart);
         ResetPhantoonMouthControls(state);
     }
@@ -373,7 +373,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts the eye's Samus-tracking animation for the current attack phase.</summary>
     internal void BeginPhantoonEyeTracking(PhantoonEnemyState state)
     {
-        state.Swoop.Requested = false;
+        state.WindowEnd = PhantoonWindowEnd.EyeCloses;
         RoomEnemyPlace body = state.Body;
         state.BodyPart.StartAnimation(PhantoonPartSegment.EyeHitboxBody);
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);

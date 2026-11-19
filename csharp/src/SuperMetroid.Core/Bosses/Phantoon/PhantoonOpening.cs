@@ -76,7 +76,7 @@ internal sealed class PhantoonOpening
         state.PhaseWait.LastFor(PhantoonArenaDefinitions.WavyFadeInUpdates);
         state.Wave.Amplitude = PhantoonWaveDefinitions.IntroAmplitude;
         state.Wave.AmplitudeShrinking = false;
-        state.BodyFade.Complete = false;
+        state.BodyFade.Resume();
         _audio.RequestPhantoonMusic(MusicRequest.SelectTrack(MusicTrack.KraidAndPhantoonBattle));
         state.Wave.PhaseStep = PhantoonWaveDefinitions.PhaseStep;
         state.BodyWave.Begin(PhantoonWaveDefinitions.IntroLength);

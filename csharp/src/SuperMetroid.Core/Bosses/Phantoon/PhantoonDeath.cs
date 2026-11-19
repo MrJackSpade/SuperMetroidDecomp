@@ -66,9 +66,9 @@ internal sealed class PhantoonDeath
         else
             _patterns.AdvancePhantoonFadeOut(state, steps: PhantoonColorDefinitions.BodyFadeSteps);
 
-        if (!state.BodyFade.Complete)
+        if (!state.BodyFade.IsFinished)
             return;
-        state.BodyFade.Complete = false;
+        state.BodyFade.Resume();
         state.Death.FadeCycles++;
         if (state.Death.FadeCycles < PhantoonArenaDefinitions.DyingFadeCycles)
             return;
@@ -153,7 +153,7 @@ internal sealed class PhantoonDeath
             if (death.PixelationSize == PhantoonDeathDefinitions.FinalPixelationSize)
             {
                 death.PixelationFinished = true;
-                state.BodyFade.Complete = false;
+                state.BodyFade.Resume();
                 return;
             }
 
@@ -162,7 +162,7 @@ internal sealed class PhantoonDeath
         }
 
         _patterns.AdvancePhantoonFadeOut(state, steps: PhantoonColorDefinitions.BodyFadeSteps);
-        if (state.BodyFade.Complete)
+        if (state.BodyFade.IsFinished)
             state.Phase = PhantoonPhase.AlmostDead;
     }
 
@@ -176,7 +176,7 @@ internal sealed class PhantoonDeath
         state.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.HideForGood;
         state.Phase = PhantoonPhase.Dead;
         state.PhaseWait.LastFor(PhantoonArenaDefinitions.PowerReturnDelayUpdates);
-        state.BodyFade.Complete = false;
+        state.BodyFade.Resume();
 
         _presentation.RequireBossBody().Clear();
     }

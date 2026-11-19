@@ -68,8 +68,11 @@ public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IB
     /// </summary>
     public BossCountdown PhaseWait { get; } = new();
 
-    /// <summary>Whether the eye-close animation's pattern choice picks the flame rain.</summary>
-    public bool FlameRainRequested { get; internal set; }
+    /// <summary>The pattern his eye-close animation's pattern choice picks next: his figure-eight, or the first flame rain.</summary>
+    public PhantoonPatternChoice NextPattern { get; internal set; }
+
+    /// <summary>What follows his vulnerable window when it closes: his eye closing, or a swoop once a shot hit him in it.</summary>
+    public PhantoonWindowEnd WindowEnd { get; internal set; }
 
     /// <summary>The flames that circle the room before he appears.</summary>
     public PhantoonStartingFlamesState StartingFlames { get; } = new();

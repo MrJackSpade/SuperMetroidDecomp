@@ -23,7 +23,7 @@ internal sealed class PhantoonPresentation
         PhantoonEnemyState state,
         int steps)
     {
-        if (!PhantoonCadenceDefinitions.FadeStepEverySecondUpdate.IsDue(_frameContext.FrameCounter) || state.BodyFade.Complete)
+        if (!PhantoonCadenceDefinitions.FadeStepEverySecondUpdate.IsDue(_frameContext.FrameCounter) || state.BodyFade.IsFinished)
             return;
 
         // The fade's step is a typed fade toward his health band's colours (#1512, #2251).

@@ -96,13 +96,13 @@ internal static class NativeEnemyFamilyStateImport
                 // by every step.
                 PhantoonFadeProgress fade = phantoon.Phase == PhantoonPhase.Dead ? phantoon.ShipPowerOn : phantoon.BodyFade;
                 fade.Steps = words.E;
-                phantoon.BodyFade.Complete = words.F != 0;
+                PrivateState.Set(phantoon.BodyFade, nameof(PhantoonFadeProgress.IsFinished), words.F != 0);
                 phantoon.RageWaveCount = words.F;
                 PhantoonNativeWords.ImportDeathMosaic(phantoon.Death, words.C);
             }
             else if (part == EnemyDefinitionId.PhantoonTentacles)
             {
-                phantoon.Swoop.Requested = words.A != 0;
+                phantoon.WindowEnd = (words.A != 0) ? PhantoonWindowEnd.Swoop : PhantoonWindowEnd.EyeCloses;
                 phantoon.Round.Damage = words.B;
                 phantoon.Swoop.Velocity = new(new SignedEightEight(words.C), new SignedEightEight(words.D));
                 PhantoonNativeWords.ImportSwoopTarget(phantoon.Swoop, words.E);

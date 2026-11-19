@@ -22,11 +22,11 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 public static class MaridiaEnvironmentalPaletteFxColorDefinitions
 {
     /// <summary>Four-color sand rotation group.</summary>
-    internal const int SandRotationColors = 4;
+    private const int SandRotationColors = 4;
     /// <summary>Pair of separately rotating sand-pit color bands.</summary>
-    internal const int SandPitBandCount = 2;
+    private const int SandPitBandCount = 2;
     /// <summary>Eight-color waterfall rotation group.</summary>
-    internal const int WaterfallRotationColors = 8;
+    private const int WaterfallRotationColors = 8;
 
     /// <summary>The sand-pit, sand-fall, and waterfall programs in definition order, calculated without cached records.</summary>
     public static IReadOnlyList<MaridiaEnvironmentalPaletteFxColorDefinition> All { get; } =

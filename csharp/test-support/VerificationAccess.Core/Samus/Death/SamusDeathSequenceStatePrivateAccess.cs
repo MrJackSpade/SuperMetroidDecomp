@@ -51,4 +51,14 @@ internal static class SamusDeathSequenceStatePrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Samus.Death.SamusDeathSequenceState, global::SuperMetroid.Core.UpdateCountdown>(self, "Flashing");
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Samus.Death.SamusDeathSequenceState self)
+    {
+        /// <summary>The private property <c>Flash</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Animation.AnimationPlayer<global::SuperMetroid.Core.Samus.Death.SamusDeathFlashSegment, global::SuperMetroid.Core.Samus.Death.SamusDeathShade, global::SuperMetroid.Core.Animation.NoAnimationCue> Flash
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Samus.Death.SamusDeathSequenceState, global::SuperMetroid.Core.Animation.AnimationPlayer<global::SuperMetroid.Core.Samus.Death.SamusDeathFlashSegment, global::SuperMetroid.Core.Samus.Death.SamusDeathShade, global::SuperMetroid.Core.Animation.NoAnimationCue>>(self, "Flash");
+        }
+    }
 }

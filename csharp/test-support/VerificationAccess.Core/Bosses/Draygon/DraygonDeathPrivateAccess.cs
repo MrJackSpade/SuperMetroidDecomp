@@ -25,4 +25,12 @@ internal static class DraygonDeathPrivateAccess
         internal static void MoveDraygonDeathEvirs(global::SuperMetroid.Core.Bosses.Draygon.DraygonEnemyState state) =>
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Bosses.Draygon.DraygonDeath), "MoveDraygonDeathEvirs", [typeof(global::SuperMetroid.Core.Bosses.Draygon.DraygonEnemyState)], new object?[] { state });
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Bosses.Draygon.DraygonDeath self)
+    {
+        /// <summary>The private method <c>SpawnDraygonDeathEvir</c>, invoked by name.</summary>
+        internal void SpawnDraygonDeathEvir(global::SuperMetroid.Core.Bosses.Draygon.DraygonEnemyState state, global::SuperMetroid.Core.Bosses.Draygon.DraygonBurialEvirDefinition definition) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Draygon.DraygonDeath>(self, "SpawnDraygonDeathEvir", [typeof(global::SuperMetroid.Core.Bosses.Draygon.DraygonEnemyState), typeof(global::SuperMetroid.Core.Bosses.Draygon.DraygonBurialEvirDefinition)], new object?[] { state, definition });
+    }
 }

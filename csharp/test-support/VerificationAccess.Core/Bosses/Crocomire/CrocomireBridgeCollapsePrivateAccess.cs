@@ -21,4 +21,16 @@ internal static class CrocomireBridgeCollapsePrivateAccess
         internal static void RunCrocomireSubmergedPause(global::SuperMetroid.Core.Bosses.Crocomire.CrocomireEnemyState state) =>
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Bosses.Crocomire.CrocomireBridgeCollapse), "RunCrocomireSubmergedPause", [typeof(global::SuperMetroid.Core.Bosses.Crocomire.CrocomireEnemyState)], new object?[] { state });
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Bosses.Crocomire.CrocomireBridgeCollapse self)
+    {
+        /// <summary>The private method <c>RunCrocomireAcidSounds</c>, invoked by name.</summary>
+        internal void RunCrocomireAcidSounds(global::SuperMetroid.Core.Bosses.Crocomire.CrocomireDeathState death) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Crocomire.CrocomireBridgeCollapse>(self, "RunCrocomireAcidSounds", [typeof(global::SuperMetroid.Core.Bosses.Crocomire.CrocomireDeathState)], new object?[] { death });
+
+        /// <summary>The private method <c>RunCrocomireSink</c>, invoked by name.</summary>
+        internal void RunCrocomireSink(global::SuperMetroid.Core.Bosses.Crocomire.CrocomireEnemyState state, global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels> camera) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Crocomire.CrocomireBridgeCollapse>(self, "RunCrocomireSink", [typeof(global::SuperMetroid.Core.Bosses.Crocomire.CrocomireEnemyState), typeof(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels>)], new object?[] { state, camera });
+    }
 }

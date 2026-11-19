@@ -36,7 +36,7 @@ public sealed record CpuBusCell
         new(name, CpuBusRegion.Cartridge, address, length, encoding, aliasOf);
 
     /// <summary>The semantic identity, unique within its declaring catalog.</summary>
-    public string Name { get; init; }
+    private string Name { get; init; }
 
     /// <summary>The store the cell lives in.</summary>
     public CpuBusRegion Region { private get; init; }

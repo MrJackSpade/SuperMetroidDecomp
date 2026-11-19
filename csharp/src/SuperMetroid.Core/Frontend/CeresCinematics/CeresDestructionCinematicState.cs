@@ -48,20 +48,6 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private readonly AudioQueues audio;
     /// <summary>What the scene shows behind and among its actors (#2541), which the scene moves on from one stage to the next.</summary>
     internal CeresDestructionView View { get; private set; }
-    /// <summary>
-    /// The picture the turning floor holds (#1467), or null while it holds none: before the station is set up, and once the
-    /// final explosion with Samus still aboard has cleared the whole floor (#1513). The Zebes reveal holds the gunship's
-    /// rear view for the approach that follows it.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">The view is undefined.</exception>
-    internal CeresFloorShot? FloorShot => View switch
-    {
-        CeresDestructionView.BeforeStation or CeresDestructionView.StationCleared => null,
-        CeresDestructionView.Station => CeresFloorShot.Station,
-        CeresDestructionView.GunshipLeavingExplosion => CeresFloorShot.Explosion,
-        CeresDestructionView.ZebesReveal or CeresDestructionView.ZebesApproach or CeresDestructionView.ZebesClose => CeresFloorShot.ZebesApproach,
-        _ => throw new InvalidOperationException($"Undefined {nameof(CeresDestructionView)} {View}."),
-    };
     /// <summary>Whether the Zebes reveal's pictures and planet show in place of the station's (#1467).</summary>
     internal bool ZebesRevealed => View is CeresDestructionView.ZebesReveal or CeresDestructionView.ZebesApproach or CeresDestructionView.ZebesClose;
     /// <summary>

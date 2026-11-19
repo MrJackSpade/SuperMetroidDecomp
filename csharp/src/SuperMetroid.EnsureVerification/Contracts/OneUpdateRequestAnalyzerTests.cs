@@ -50,7 +50,7 @@ internal static class OneUpdateRequestAnalyzerTests
         Expect("int PendingCount; void Add() => PendingCount = 3; void Clear() => PendingCount = 0;");
         Expect("readonly bool _pending = true;");
         // A step's result an update's own record keeps, written once and never cleared, is left alone.
-        Expect("struct MoveResult { } MoveResult? Move { get; private set; } void Record(MoveResult result) => Move = result;");
+        Expect("internal struct MoveResult { } internal MoveResult? Move { get; private set; } void Record(MoveResult result) => Move = result;");
         // A Take… method that reads a flag without clearing it is left alone.
         Expect("bool _armed; void Arm() => _armed = true; void Disarm() => _armed = false; bool TakesAim() => _armed;");
         Expect("bool Pending { get; set; } void Ask() => Pending = true; void Take() => Pending = false;",

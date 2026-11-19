@@ -97,8 +97,7 @@ public sealed class KraidEnemyState
     /// Whether his mouth reopens as it closes (#2400): a mouth hit while the reopens are armed marks it, and a closing mouth
     /// that finds it removes one pending reopen.
     /// </summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "A latch of Kraid's mouth that lasts until his mouth's reactions are cleared, across every closing that spends a pending reopen (#2400), not a request consumed in one update.")]
-    internal bool MouthReopenPending { get; set; }
+    internal bool MouthReopenMarked { get; set; }
 
     /// <summary>
     /// Gets the number of mouth reopens still pending, from zero to three. A charged body hit arms three; each reopen
@@ -211,7 +210,7 @@ public sealed class KraidEnemyState
     internal void ClearMouthReactions()
     {
         MouthReopenArmed = false;
-        MouthReopenPending = false;
+        MouthReopenMarked = false;
         PendingMouthReopens = 0;
     }
 

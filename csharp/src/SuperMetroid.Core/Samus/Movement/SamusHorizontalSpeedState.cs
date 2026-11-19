@@ -82,8 +82,15 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public bool EchoSoundPlaying { get; set; }
 
-    /// <summary>Which attack Samus's body is when an enemy touches her; her run's fourth boost stage makes it the Speed Booster's.</summary>
+    /// <summary>
+    /// Which attack Samus's body is when an enemy touches her; her run's fourth boost stage makes it the Speed Booster's. It
+    /// is her state from one movement phase to the next: each movement phase begins with none and its movers leave the
+    /// attack they make, which the next update's enemies and her terrain, hazards and shots read.
+    /// </summary>
     public SamusBodyAttack BodyAttack { get; set; }
+
+    /// <summary>Her movement phase begins with no body attack, after the update's enemies have read the last movement's.</summary>
+    internal void BeginMovementWithoutBodyAttack() => BodyAttack = SamusBodyAttack.None;
 
     /// <summary>
     /// Whether cancelling a speed boost asked for the suit's shade back at once. Movement cancels the boost and the

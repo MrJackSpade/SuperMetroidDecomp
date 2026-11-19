@@ -114,7 +114,11 @@ public sealed class SamusKinematicsState
     /// <summary>The gravity applied to vertical speed.</summary>
     public UnsignedSixteenSixteen YAcceleration { get; set; }
 
-    /// <summary>Flag set when square collision or non-square alignment changes Y.</summary>
+    /// <summary>
+    /// Whether a slope supports her: a downward square-slope clip or a horizontal move's slope alignment leaves her supported,
+    /// which the next vertical move without speed reads for its one-pixel grounding probe, and the next terrain Y move of
+    /// some distance ends.
+    /// </summary>
     public bool PositionAdjustedBySlope { get; set; }
 
     /// <summary>
@@ -129,6 +133,12 @@ public sealed class SamusKinematicsState
     /// </summary>
     public Position16<RoomPixels> BottomPixel =>
         new(Position.X.Whole, TerrainScanEdges.Edge(BottomBoundary - 1));
+
+    /// <summary>A downward square-slope clip, or a horizontal move's alignment that adjusted her height, leaves her supported.</summary>
+    internal void RestOnSlope() => PositionAdjustedBySlope = true;
+
+    /// <summary>A terrain Y move of some distance ends the slope's support.</summary>
+    internal void LeaveSlope() => PositionAdjustedBySlope = false;
 
     /// <summary>Publishes the result of one directional solid-enemy probe: the enemy met, or null.</summary>
     internal void RecordSolidEnemyCollision(

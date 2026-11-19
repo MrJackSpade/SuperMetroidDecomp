@@ -47,7 +47,7 @@ public static class SamusKnockbackMovement
             return false;
         }
 
-        return Start(samus, controllerInput, KnockbackLaunch.FromPendingHit(samus), poseCollision);
+        return Start(samus, controllerInput, KnockbackLaunch.FromHurtState(samus), poseCollision);
     }
 
     /// <summary>

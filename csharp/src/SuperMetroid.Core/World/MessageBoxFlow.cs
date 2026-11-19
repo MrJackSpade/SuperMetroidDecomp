@@ -38,8 +38,7 @@ internal sealed class MessageBoxFlow
     }
 
     /// <summary>What waits for the open message box to close, or null when the box waits for nothing or none is open.</summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "What waits for the open message box to close, which lasts as many updates as the box shows: a state of the message box's flow, not a one-update request.")]
-    private MessageBoxOutcome? _pending;
+    private MessageBoxOutcome? _awaitingClose;
 
     /// <summary>
     /// The sounds the message box's updates made outside gameplay's own requests since the frontend last took them, in
@@ -49,16 +48,16 @@ internal sealed class MessageBoxFlow
     private readonly List<SoundRequest> _sounds = [];
 
     /// <summary>Whether an outcome waits for the open message box to close.</summary>
-    internal bool HasPendingOutcome => _pending is not null;
+    internal bool HasPendingOutcome => _awaitingClose is not null;
 
     /// <summary>Holds <paramref name="outcome"/> until the message box it opens with closes.</summary>
     /// <exception cref="InvalidDataException">Another outcome already waits: two message boxes opened at once.</exception>
     internal void Await(MessageBoxOutcome outcome)
     {
         Ensure.NotNull(outcome);
-        if (_pending is not null)
-            throw new InvalidDataException($"{outcome} attempted to replace {_pending}, which still waits for its message box.");
-        _pending = outcome;
+        if (_awaitingClose is not null)
+            throw new InvalidDataException($"{outcome} attempted to replace {_awaitingClose}, which still waits for its message box.");
+        _awaitingClose = outcome;
     }
 
     /// <summary>The save choice moved on this update, which plays the menu cursor's sound.</summary>
@@ -96,8 +95,8 @@ internal sealed class MessageBoxFlow
     internal SaveStationPersistenceRequest? ResolveClosedMessageBox(MessageBoxStep.Closed closing, bool frameSuspended, RoomScope room, SamusState samus)
     {
         Ensure.NotNull(closing);
-        MessageBoxOutcome? outcome = _pending;
-        _pending = null;
+        MessageBoxOutcome? outcome = _awaitingClose;
+        _awaitingClose = null;
         if (closing is MessageBoxStep.Answered answer)
         {
             // Only a save prompt's box answers, and only a save prompt's outcome waits for its answer.

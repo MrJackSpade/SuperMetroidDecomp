@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Samus.Poses;
@@ -953,7 +954,7 @@ internal sealed class SuperMetroidRuntime
             // selected. A locked input mode suppresses controller transitions; it does not
             // suppress scrolling. That is why the gunship arriving on Zebes can carry
             // Samus down several screens while her ordinary movement owner is absent.
-            if (samus.Grapple.SlowScrolling)
+            if (samus.Grapple.CameraScroll == GrappleCameraScroll.Slow)
             {
                 // A fast grapple swing scrolls the camera slowly, leaving the camera speeds from the last normal frame
                 // in place.

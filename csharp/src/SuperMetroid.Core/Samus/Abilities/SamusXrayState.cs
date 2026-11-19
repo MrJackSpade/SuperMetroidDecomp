@@ -483,7 +483,7 @@ public sealed class SamusXrayState
     {
         Ensure.NotNull(colours);
 
-        if (VisorShadeMode == XrayVisorShadeMode.RestoreSuitShade)
+        if (VisorShadeMode == XrayVisorShadeMode.TornDown)
         {
             // The first colouring update after X-ray ends shows Samus's complete normal suit shade again and clears
             // every X-ray shade value; the visor's glow restarts at its widening for the next X-ray.
@@ -621,7 +621,7 @@ public sealed class SamusXrayState
         Angle = RotationAngle.Zero;
         AngularHalfWidth = RotationAngle.Zero;
         AngularWideningSpeed = RotationAngle.Zero;
-        VisorShadeMode = XrayVisorShadeMode.RestoreSuitShade;
+        VisorShadeMode = XrayVisorShadeMode.TornDown;
         samus.AudioRequests.QueueSound(SamusSound.XrayEnd, SoundRequestPriority.Normal);
         SamusHudSelection.ReturnAutoCancelledItem(samus);
     }

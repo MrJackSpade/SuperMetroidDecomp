@@ -8,8 +8,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 public sealed class PhantoonBodyWaveEffect
 {
     /// <summary>Whether a requested wave still needs its setup-only first update.</summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "Whether the wave Phantoon's fight started still runs its setup-only first update: a state of the wave's own course, kept and cleared by the wave alone.")]
-    private bool _pendingSetup;
+    private bool _beginsWithSetup;
     /// <summary>The length captured for the next setup: the introductory or final-death wave.</summary>
     private PhantoonWaveLength _pendingLength;
     /// <summary>The length the wave's last setup selected; null before any setup.</summary>
@@ -66,7 +65,7 @@ public sealed class PhantoonBodyWaveEffect
     public void Begin(PhantoonWaveLength length)
     {
         _pendingLength = length;
-        _pendingSetup = true;
+        _beginsWithSetup = true;
     }
 
     /// <summary>Runs one update of the wave: a pending setup consumes the update; later active updates end the wave once its length is cleared or advance its phase and rebuild its shape.</summary>
@@ -74,13 +73,13 @@ public sealed class PhantoonBodyWaveEffect
     /// <remarks>Does not publish the wave. Ending it keeps its last shape, and a new setup does not clear it; LatchDisplay owns the displayed snapshot.</remarks>
     public void Step(PhantoonEnemyState boss)
     {
-        if (_pendingSetup)
+        if (_beginsWithSetup)
         {
             boss.Wave.Length = _pendingLength;
             _setupLength = _pendingLength;
             Phase = PhantoonWaveDefinitions.InitialPhase;
             Active = true;
-            _pendingSetup = false;
+            _beginsWithSetup = false;
             return; // The setup update does not also ripple.
         }
         if (!Active) return;

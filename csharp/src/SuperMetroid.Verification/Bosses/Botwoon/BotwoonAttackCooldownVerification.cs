@@ -84,7 +84,7 @@ internal static class BotwoonAttackCooldownVerification
     {
         (RoomEnemySystem enemies, RoomEnemyPlace head, BotwoonEnemyState state) = NewBotwoon();
         state.Phase = BotwoonPhase.FollowAuthoredPath;
-        state.PendingDeath = true;
+        state.FatallyHit = true;
         state.ExitTransitionComplete = true;
         for (int update = 1; update <= 15; update++)
         {

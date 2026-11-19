@@ -376,10 +376,10 @@ internal sealed class SamusFramePhases
             // Ceres Ridley's dedicated updated-beam adapter; ordinary projectiles collide before each enemy's AI.
             room.Enemies.Ceres.ResolveCeresRidleyProjectileHits(room.Projectiles, room.BombProjectiles);
 
-        // The enemy pass consumes the preceding frame's body attack.
-        // Only the movement phase clears it, before movement republishes the current value.
+        // The enemy pass reads the preceding frame's body attack. Only the movement phase begins without one, before
+        // movement leaves the current one.
         if (frame.Mode.Movement != SamusMovementMode.SuitPickup)
-            samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.None;
+            samus.HorizontalSpeed.BeginMovementWithoutBodyAttack();
     }
 
     /// <summary>
@@ -468,7 +468,7 @@ internal sealed class SamusFramePhases
                 // replace the rest of her pose input. Input choosing no new pose there keeps the
                 // knockback pose and its Stop momentum response, which clears the X acceleration
                 // mode when the pose is committed.
-                if (samus.CeresRidleyEjection.InitializationPending)
+                if (samus.CeresRidleyEjection.IsStarting)
                 {
                     _player.ClearProspectivePoses();
                 }
@@ -792,7 +792,7 @@ internal sealed class SamusFramePhases
     /// for the compact Draygon-held stand-up, which skips its horizontal and vertical movement; nothing lands them, so the
     /// landed cleanup never runs. Both hold Samus where the over-read installed them (#1535).
     /// </summary>
-    private static void HoldWhereInstalled(PoseMove move) => move.Samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.None;
+    private static void HoldWhereInstalled(PoseMove move) => move.Samus.ForgetVerticalCollisionResult();
 
     /// <summary>What a pose's movement runs against on one update (#2291).</summary>
     /// <param name="Samus">Samus.</param>

@@ -13,10 +13,11 @@ public sealed record KnockbackLaunch
     public required int KnockbackTimer { get; init; }
 
     /// <summary>
-    /// The launch a damage producer left pending on Samus: the direction its contact published and the hurt countdown
-    /// still running.
+    /// The launch Samus's hurt state gives: the knockback direction the hit's contact set on her, and the hurt countdown
+    /// still running. Both are her state from the hit until her knockback ends, which the knockback's movement reads as it
+    /// runs; the start reads them as they stand.
     /// </summary>
-    internal static KnockbackLaunch FromPendingHit(SamusState samus)
+    internal static KnockbackLaunch FromHurtState(SamusState samus)
     {
         Ensure.NotNull(samus);
         return new KnockbackLaunch

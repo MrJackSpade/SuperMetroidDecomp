@@ -100,7 +100,7 @@ internal sealed class KraidHead
 
             // A hit on his mouth or body marks a reopen: the closing mouth then spends one pending reopen and, while any
             // remain, waits to glow his eye again; otherwise every mark is forgotten.
-            if (state.MouthReopenPending)
+            if (state.MouthReopenMarked)
             {
                 state.RemoveOneMouthReopen();
                 if (state.PendingMouthReopens != 0)
@@ -185,7 +185,7 @@ internal sealed class KraidHead
             return;
         state.BodyState.FightPhase = KraidFightPhase.FirstPhaseThinking;
         state.HoldClosedMouth();
-        if (state.MouthReopenPending)
+        if (state.MouthReopenMarked)
         {
             state.RemoveOneMouthReopen();
             if (state.PendingMouthReopens != 0)

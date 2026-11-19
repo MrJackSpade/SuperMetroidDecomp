@@ -94,12 +94,12 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     {
         // A fatal hit does not delete Botwoon. He keeps following his current path until
         // the tail has crossed the next hole, then the synchronized head/body death begins.
-        if (state.PendingDeath && state.ExitTransitionComplete)
+        if (state.FatallyHit && state.ExitTransitionComplete)
         {
             state.BodyDeathStarted = true;
             state.Phase = BotwoonPhase.DeathDelay;
             state.PreFallWait.LastFor(BotwoonDeathDefinitions.PreFallWaitUpdates);
-            state.PendingDeath = false;
+            state.FatallyHit = false;
             state.ExitTransitionComplete = false;
         }
 
@@ -217,7 +217,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
 
         state.Phase = BotwoonPhase.FollowAuthoredPath;
 
-        state.InsideHole = !state.PendingDeath && BotwoonNavigationDefinitions.StartsInsideHole.IsTakenBy(_room.Random.Generate());
+        state.InsideHole = !state.FatallyHit && BotwoonNavigationDefinitions.StartsInsideHole.IsTakenBy(_room.Random.Generate());
         state.PreviousInsideHole = state.InsideHole;
         if (state.InsideHole)
         {
@@ -712,7 +712,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
             return;
 
         BotwoonEnemyState state = head.RequireSpeciesState<BotwoonEnemyState>();
-        state.PendingDeath = true;
+        state.FatallyHit = true;
 
         // The dying head becomes intangible: it leaves the
         // projectile, bomb and touch passes, so a later hit cannot interrupt its fall.

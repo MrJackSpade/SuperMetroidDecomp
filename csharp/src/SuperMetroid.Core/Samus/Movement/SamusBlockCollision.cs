@@ -348,7 +348,8 @@ public static class SamusBlockCollision
         // Slope alignment only sets this latch; it does not clear a square-floor contact
         // published by the previous vertical pass. The vertical move consumes it before
         // the next terrain Y move of some distance clears it.
-        state.PositionAdjustedBySlope |= alignment.Adjusted;
+        if (alignment.Adjusted)
+            state.RestOnSlope();
 
         return new BlockMoveResult(
             acceptedDisplacement,
@@ -414,7 +415,7 @@ public static class SamusBlockCollision
         {
             // Only a terrain move of some distance clears this latch. A solid-enemy
             // stop skips the terrain, and a zero movement does not clear it either.
-            state.PositionAdjustedBySlope = false;
+            state.LeaveSlope();
             VerticalTerrainScan scan = ScanVerticalTerrain(terrain, state, owner, pose, new VerticalTerrainProbe { Displacement = acceptedDisplacement, ScanLeftToRight = move.ScanLeftToRight, CanBreakBombBlocks = move.CanBreakBombBlocks, DoorBlocks = move.DoorBlocks, BlockReactionDirection = move.BlockReactionDirection });
             acceptedDisplacement = scan.AcceptedDisplacement;
             collided = scan.Collided;
@@ -934,7 +935,7 @@ public static class SamusBlockCollision
         // A downward square-slope hit publishes support. Without this
         // latch, fast running probes farther than the eight-pixel floor thickness
         // on the next frame and can embed Samus below its surface.
-        if (!displacement.IsNegative) state.PositionAdjustedBySlope = true;
+        if (!displacement.IsNegative) state.RestOnSlope();
         return true;
     }
 
@@ -1034,7 +1035,7 @@ public static class SamusBlockCollision
 
         // Only the downward square-slope clip writes this flag. The no-speed vertical move consumes it to use
         // a one-pixel grounding probe instead of total-horizontal-speed-plus-one.
-        state.PositionAdjustedBySlope = true;
+        state.RestOnSlope();
         return SignedSixteenSixteen.FromWholePixels(downWhole);
     }
 

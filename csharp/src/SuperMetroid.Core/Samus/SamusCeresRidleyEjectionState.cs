@@ -19,8 +19,7 @@ public sealed class SamusCeresRidleyEjectionState
     public bool IsActive { get; private set; }
 
     /// <summary>True until the first shove update installs pose and velocity.</summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "The shove's first update installs Samus's pose and velocity: a state of the shove's own course, kept and cleared by the shove alone.")]
-    public bool InitializationPending { get; private set; }
+    public bool IsStarting { get; private set; }
 
     /// <summary>
     /// The wall the shove carries Samus toward; <see cref="CeresRidleyShoveDirection.None"/>
@@ -36,7 +35,7 @@ public sealed class SamusCeresRidleyEjectionState
     {
         Ensure.NotNull(samus);
         IsActive = true;
-        InitializationPending = true;
+        IsStarting = true;
 
         // The shove takes Samus's movement. An
         // uncrashed ordinary spark consequently keeps its boost as Blue Suit. If
@@ -62,9 +61,9 @@ public sealed class SamusCeresRidleyEjectionState
         if (!IsActive)
             throw new InvalidOperationException("Ceres Ridley ejection is not active.");
 
-        if (InitializationPending)
+        if (IsStarting)
         {
-            InitializationPending = false;
+            IsStarting = false;
 
             // The ejection selects the ordinary hurt pose from the PREVIOUS pose direction and
             // refreshes the animation. The pose setup does not publish the hurt pose's

@@ -122,7 +122,7 @@ public sealed class SamusDraygonGrabbedState
         Ensure.NotNull(samus);
         EnsureDraygonHeldMovement(samus);
 
-        samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.None;
+        samus.ForgetVerticalCollisionResult();
     }
 
     /// <summary>

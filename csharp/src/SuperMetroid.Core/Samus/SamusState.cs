@@ -402,7 +402,9 @@ public sealed class SamusState
 
     /// <summary>
     /// The bomb jump a bomb's blast asked of Samus: its launch direction, and whether her pose handling has accepted it,
-    /// which keeps the same request from arming the jump again.
+    /// which keeps the same request from arming the jump again. It is her state from the blast's overlap until her pose
+    /// handling rejects it, an input transition to another pose cancels it, or the jump it armed ends: the rising arc reads
+    /// its direction throughout, and a later blast replaces it whole.
     /// </summary>
     public SamusBombJumpRequest BombJumpRequest { get; set; }
 
@@ -600,11 +602,30 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// The solid vertical collision result the latest vertical movement or wall jump published. Most
-    /// movement methods return collision results directly; Draygon-held movement has no displacement and its sole
-    /// side effect is explicitly clearing this otherwise-stale result.
+    /// The solid vertical collision result the latest vertical movement or wall jump left as her state, which lasts until the
+    /// next one. Most movement methods return collision results directly; Draygon-held movement has no displacement and its
+    /// sole effect is forgetting this result. A downward move keeps a wall jump's result unless it lands.
     /// </summary>
     public SamusVerticalCollisionResult SolidVerticalCollisionResult { get; set; }
+
+    /// <summary>A downward move leaves its result: landed when it collided, otherwise falling, unless a wall jump's is kept.</summary>
+    internal void LeaveDownwardMoveResult(bool landed)
+    {
+        if (landed)
+            SolidVerticalCollisionResult = SamusVerticalCollisionResult.Landed;
+        else if (SolidVerticalCollisionResult != SamusVerticalCollisionResult.WallJump)
+            SolidVerticalCollisionResult = SamusVerticalCollisionResult.Falling;
+    }
+
+    /// <summary>An upward move leaves its result: the ceiling it hit, or none.</summary>
+    internal void LeaveUpwardMoveResult(bool hitCeiling) =>
+        SolidVerticalCollisionResult = hitCeiling ? SamusVerticalCollisionResult.HitCeiling : SamusVerticalCollisionResult.None;
+
+    /// <summary>A wall jump leaves its result, which a later downward move keeps until she lands.</summary>
+    internal void LeaveWallJumpResult() => SolidVerticalCollisionResult = SamusVerticalCollisionResult.WallJump;
+
+    /// <summary>A movement without vertical displacement forgets the result.</summary>
+    internal void ForgetVerticalCollisionResult() => SolidVerticalCollisionResult = SamusVerticalCollisionResult.None;
 
     /// <summary>Samus's room position, to a fraction of a pixel, owned by <see cref="Kinematics"/>.</summary>
     public FixedPosition<RoomPixels> Position

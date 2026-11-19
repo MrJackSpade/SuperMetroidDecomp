@@ -69,8 +69,7 @@ internal sealed class IntroNarrationActors
     public IntroNarrationPageId? AwaitingInputPage { get; private set; }
 
     /// <summary>Set after the last page's final hold.</summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "SME6470", Justification = "The narration's last page has finished its hold: a state the cinematic reads on every update of its final fade until the intro ends, set by the last page and cleared only as a page starts.")]
-    public bool IntroFinishRequested { get; private set; }
+    public bool FinalHoldEnded { get; private set; }
 
     /// <summary>
     /// The pose the text caret shows: its animation's pose, or null while the caret is hidden or before its animation's first
@@ -121,7 +120,7 @@ internal sealed class IntroNarrationActors
             text.ClearText();
         StartNarration(page);
         AwaitingInputPage = null;
-        IntroFinishRequested = false;
+        FinalHoldEnded = false;
         switch (opening)
         {
             case IntroNarrationPageOpening.KeepsSetupCaret:
@@ -272,7 +271,7 @@ internal sealed class IntroNarrationActors
     {
         if (IntroNarrationPageDefinitions.Pages[page].Closing == IntroNarrationPageClosing.EndsIntro)
         {
-            IntroFinishRequested = true;
+            FinalHoldEnded = true;
             return;
         }
         // Once the page is typed the caret starts blinking, and Japanese text shows the next-page arrow. A Japanese page

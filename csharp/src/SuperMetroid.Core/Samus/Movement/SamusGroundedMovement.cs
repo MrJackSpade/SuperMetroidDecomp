@@ -64,7 +64,7 @@ public static class SamusGroundedMovement
         // Clearing the vertical collision result is all front-view movement does without a moving elevator. In
         // particular, stale base/extra X speed is retained; facing forward clears those speeds at
         // setup time, not every frame in this movement step.
-        samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.None;
+        samus.ForgetVerticalCollisionResult();
         return vertical;
     }
 

@@ -31,9 +31,9 @@ internal static class KraidMouthReopenCountVerification
         AssertEqual(0, state.PendingMouthReopens, "the rejected removal leaves the count at none");
 
         state.MouthReopenArmed = true;
-        state.MouthReopenPending = true;
+        state.MouthReopenMarked = true;
         state.ClearMouthReactions();
-        AssertTrue(!state.MouthReopenArmed && !state.MouthReopenPending, "clearing the mouth clears every latch");
+        AssertTrue(!state.MouthReopenArmed && !state.MouthReopenMarked, "clearing the mouth clears every latch");
         AssertEqual(0, state.PendingMouthReopens, "clearing the mouth clears the pending reopen count with the latches");
 
         VerifyKraidHurtFlash();

@@ -32,9 +32,11 @@ public sealed record RuntimeFramePolicy
     public bool ShowsHeldEscapeTimer { get; init; }
 
     /// <summary>
-    /// Whether the update runs main gameplay's update behind the time-up's white-out (#2509): the time-up, not main
-    /// gameplay, owns it, so the out-of-health check withholds the death of a Samus out of health without reserves, and
-    /// that update does not count the play time. The AUTO reserves' refill still begins.
+    /// Whether main gameplay owns the update, rather than a game state that runs main gameplay's update behind its own
+    /// work (#2509, #2517): the fade-in, the pause's darkening and brightening, the time-up's white-out, the Ceres
+    /// departure, the death, leaving Zebes and the attract demo. Only main gameplay's own update admits Samus's pause check
+    /// and begins her death; under any other the out-of-health check withholds the death of a Samus out of health without
+    /// reserves, and that update does not count the play time. The AUTO reserves' refill begins under any of them.
     /// </summary>
-    public bool RunsBehindTimeUp { get; init; }
+    public bool MainGameplayOwnsUpdate { get; init; } = true;
 }

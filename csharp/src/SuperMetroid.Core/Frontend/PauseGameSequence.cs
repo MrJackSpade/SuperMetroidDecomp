@@ -94,10 +94,20 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
     private void DarkenGameplay(ControllerButton controllerInput)
     {
         // The pause keeps running ordinary gameplay while the screen darkens, so enemies and projectiles keep
-        // moving until the pause begins.
+        // moving until the pause begins. The darkening, not main gameplay, owns that update (#2517).
         RuntimeFrameOutcome outcome = session.GameplayRuntime.StepFrame(controllerInput,
-            new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { RunsLowHealthCheck = true } });
+            new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { RunsLowHealthCheck = true, MainGameplayOwnsUpdate = false } });
         session.display.PublishGameplay(session.GameplayRuntime);
+        if (gameplay.RouteOutOfHealth(session.GameplayRuntime.Player.IntroducedSamus, outcome.OutOfHealth))
+        {
+            // The darkening's update never begins Samus's death, but out of health with AUTO reserves she enters the refill
+            // in the pause's place. The darkening's fade still takes this update's step, and the screen stays at that
+            // level through the refill and the main gameplay it returns to. On the fade's last step the game moves on
+            // from the refill to an unused game state whose behaviour was never written, which no
+            // bounded model reproduces; the refill goes on behind the black screen instead.
+            _ = session.StepScreenFadeOut();
+            return;
+        }
         // The finished fade moves on from what this update started: the pause preparation,
         // or the next step of a door hit or time-up gameplay wrote on this final fade update.
         // A time-up written after a door hit on the same update takes precedence.
@@ -218,8 +228,9 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
     /// <summary>One update of gameplay brightening at the pause's end.</summary>
     private void BrightenGameplay(ControllerButton controllerInput)
     {
-        // The brightening runs the whole main-gameplay update behind the screen fade, so
-        // its out-of-health, pause, door and other transitions all apply here.
+        // The brightening runs the whole main-gameplay update behind the screen fade, so its door and other transitions
+        // apply here; it owns the update, so Samus's pause check refuses Start and her death waits for main gameplay,
+        // while the AUTO reserves' refill begins (#2517).
         gameplay.RunMainGameplayUpdate(controllerInput);
         if (session.StepScreenFadeIn())
         {

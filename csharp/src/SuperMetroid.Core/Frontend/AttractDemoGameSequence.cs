@@ -37,7 +37,7 @@ internal sealed class AttractDemoGameSequence(FrontendSession session) : IGamePh
             case AttractDemoStep.Starting:
                 // The demo's first gameplay pass runs one gameplay frame before revealing the room. Its
                 // extra frame does not count down the playback.
-                session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false } });
+                session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false, MainGameplayOwnsUpdate = false } });
                 session.display.PublishGameplay(session.GameplayRuntime);
                 session.Enter(AttractDemoStep.Playing);
                 break;
@@ -96,7 +96,7 @@ internal sealed class AttractDemoGameSequence(FrontendSession session) : IGamePh
         }
         else
         {
-            session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false } });
+            session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false, MainGameplayOwnsUpdate = false } });
             session.display.PublishGameplay(session.GameplayRuntime);
             // The demo's movement phase has restored the physical controller pair at this point.
             if (session.GameplayRuntime.PlayerActions.NewlyPressed != GameplayAction.None)

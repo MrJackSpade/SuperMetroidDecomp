@@ -11,9 +11,12 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// <param name="projectiles">The enemy projectiles, which hold the spores the spawner releases.</param>
 /// <param name="spores">The behaviour every spore the spawner releases runs.</param>
 internal sealed class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, SporeSpawnSporeBehavior spores)
-    : EnemyProjectileMotionBehavior<SporeSpawnSpawnerMotion>(SporeSpawnSpawnerMotion.Releasing, shot: () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SpawnerClosed)),
-        IEnemyProjectileCues<SporeSpawnProjectileCue>
+    : EnemyProjectileMotionBehavior<SporeSpawnSpawnerMotion>(SporeSpawnSpawnerMotion.Releasing), IEnemyProjectileCues<SporeSpawnProjectileCue>
 {
+    /// <inheritdoc/>
+    internal override EnemyProjectileAnimation ShotAnimation() =>
+        new SporeSpawnProjectileAnimation(this, SporeSpawnProjectileSegment.SpawnerClosed);
+
     /// <summary>Releases spores on the spawner's random cadence while Spore Spawn lets it.</summary>
     /// <param name="context">The spawner and what its pass hands every motion.</param>
     /// <param name="motion">The spawner's motion, its releasing, which only a spawner's spawn starts.</param>
@@ -63,7 +66,7 @@ internal sealed class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProj
             RoomEnemyProjectileKind.SporeSpawnSpore,
             spores,
             SpriteGraphics.SharedIn(Ensure.NotNull(sporeSpawn).Colours.Sprites));
-        spore.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Spore));
+        spore.StartAnimation(new SporeSpawnProjectileAnimation(spores, SporeSpawnProjectileSegment.Spore));
         spore.Position = spore.Position.WithWhole(position);
 
         spore.State = new SporeSpawnSporeState(drift);
@@ -78,7 +81,7 @@ internal sealed class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProj
 
         if (emitter.ReleaseWait.IsZero)
         {
-            spawner.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SpawnerRelease));
+            spawner.StartAnimation(new SporeSpawnProjectileAnimation(this, SporeSpawnProjectileSegment.SpawnerRelease));
             emitter.ReleaseWait = WrappingCountdown.Start(room.Random.Next(SporeSpawnRandomDefinitions.SporeReleaseWait));
         }
         emitter.ReleaseWait = emitter.ReleaseWait.Decrement().Remaining;

@@ -278,8 +278,11 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>A ceiling spore spawner (#1760, #2410): it releases spores on its random cadence, and a shot one restarts closed.</summary>
     internal SporeSpawnSpawnerBehavior Spawner => field ??= new SporeSpawnSpawnerBehavior(_room, _projectiles, Spore);
 
-    /// <summary>A link of Spore Spawn's stalk (#1760): it holds still, and a shot one restarts its pose.</summary>
-    internal EnemyProjectileBehavior Stalk => field ??= new EnemyProjectileBehavior(shot: () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Stalk));
+    /// <summary>
+    /// A link of Spore Spawn's stalk (#1760): it holds still, and a shot one restarts its pose. Its pose raises no event; the
+    /// family's cue owner its animations are bound to is the spawners' (#2571).
+    /// </summary>
+    internal EnemyProjectileBehavior Stalk => field ??= new EnemyProjectileBehavior(shot: () => new SporeSpawnProjectileAnimation(Spawner, SporeSpawnProjectileSegment.Stalk));
 
     /// <summary>Runs SporeSpawn's main AI with the encounter his <paramref name="place"/> holds.</summary>
     internal void RunSporeSpawnMainAi(RoomEnemyPlace place, SporeSpawnEnemyState state) => RunSporeSpawnMain(place, state);
@@ -543,7 +546,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             RoomEnemyProjectileKind.SporeSpawnStalk,
             Stalk,
             SpriteGraphics.SpawnedBy(body));
-        stalk.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Stalk));
+        stalk.StartAnimation(new SporeSpawnProjectileAnimation(Spawner, SporeSpawnProjectileSegment.Stalk));
         stalk.Position = stalk.Position.WithWhole(body.Position.Whole + segment);
         return stalk;
     }
@@ -560,7 +563,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             RoomEnemyProjectileKind.SporeSpawnSpawner,
             Spawner,
             SpriteGraphics.SpawnedBy(body));
-        spawner.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SpawnerClosed));
+        spawner.StartAnimation(new SporeSpawnProjectileAnimation(Spawner, SporeSpawnProjectileSegment.SpawnerClosed));
         spawner.Position = spawner.Position.WithWhole(emitter.Place);
         spawner.State = new SporeSpawnEmitterState(state, emitter.Drift);
     }

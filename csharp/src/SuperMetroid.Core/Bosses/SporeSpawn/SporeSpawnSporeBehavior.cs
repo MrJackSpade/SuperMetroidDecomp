@@ -10,9 +10,12 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// </summary>
 /// <param name="deathsAndDrops">The killed sound and the drop a shot spore leaves.</param>
 internal sealed class SporeSpawnSporeBehavior(EnemyDeathsAndDrops deathsAndDrops)
-    : EnemyProjectileMotionBehavior<SingleMotion>(SingleMotion.Moving, shot: () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SporeShot)),
-        IEnemyProjectileCues<SporeSpawnProjectileCue>
+    : EnemyProjectileMotionBehavior<SingleMotion>(SingleMotion.Moving), IEnemyProjectileCues<SporeSpawnProjectileCue>
 {
+    /// <inheritdoc/>
+    internal override EnemyProjectileAnimation ShotAnimation() =>
+        new SporeSpawnProjectileAnimation(this, SporeSpawnProjectileSegment.SporeShot);
+
     /// <summary>Drifts the spore one step along its path.</summary>
     /// <param name="context">The spore and what its pass hands every motion.</param>
     /// <param name="motion">The spore's one motion, its drift.</param>

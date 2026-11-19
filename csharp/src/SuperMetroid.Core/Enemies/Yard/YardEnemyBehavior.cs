@@ -266,20 +266,18 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Crawl,
             state.TurnsSuppressed);
 
-        // The lookahead offset is temporary, but the normal-axis probe movement is not.
-        // Adds the offset, performs collision/alignment, then subtracts only the
-        // original offset from the resulting center.
-        place.Position += turn.Lookahead;
+        // The probe stands the lookahead ahead and moves toward the surface; the Yard keeps that move (ProbeMovementKept).
+        var probe = new EnemyTerrainProbe(place, turn.Lookahead);
         bool surfaceCollision = movesVertically
             ? _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
-                place,
+                probe,
                 CrawlersBehavior.WithProbeMargin(state.CrawlingVelocity.X, YardMotionDefinitions.CrawlProbeMargin))
             : _terrain.MoveEnemyVertically(
                 level,
-                place,
+                probe,
                 CrawlersBehavior.WithProbeMargin(state.CrawlingVelocity.Y, YardMotionDefinitions.CrawlProbeMargin));
-        place.Position -= turn.Lookahead;
+        place.Position = ProbeMovementKept.AfterLookaheadProbe(probe.Position, turn.Lookahead);
 
         if (!surfaceCollision)
         {

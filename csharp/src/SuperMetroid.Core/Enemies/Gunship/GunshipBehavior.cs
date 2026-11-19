@@ -494,7 +494,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         bool strong = rumbleFrame >= GunshipTakeoffDefinitions.RumbleStrengthensFrame;
         // The rumble shakes down and up by turns, one shake each update (#2339).
         int shakeSize = strong ? GunshipTakeoffDefinitions.StrongRumbleShake : GunshipTakeoffDefinitions.RumbleShake;
-        int shake = GunshipTakeoffDefinitions.RumbleShakesDown.IsSetIn(rumbleFrame) ? shakeSize : -shakeSize;
+        int shake = shakeSize.Toward(GunshipTakeoffDefinitions.RumbleShakesDown.IsSetIn(rumbleFrame) ? VerticalDirection.Down : VerticalDirection.Up);
         samus.Position += new Offset16<RoomPixels>(0, shake);
         PlaceGunshipAroundSamus(top, samus.Position.Y.Whole);
 

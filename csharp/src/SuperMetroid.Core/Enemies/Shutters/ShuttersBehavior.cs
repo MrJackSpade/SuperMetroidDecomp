@@ -236,9 +236,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         bool finalSection = state.GrowthLevel == GrowingShutterEnemyState.SectionCount - 1;
         int placedY = finalSection
             ? targetY
-            : targetY + (direction == VerticalDirection.Up
-                ? GrowingShutterDefinitions.IntermediateInset
-                : -GrowingShutterDefinitions.IntermediateInset);
+            : targetY + (GrowingShutterDefinitions.IntermediateInset.Toward(direction.Reversed()));
         place.Position = place.Position.WithWholeY(placedY);
         state.GrowthLevel += 1;
 
@@ -522,7 +520,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static SignedSixteenSixteen VerticalShutterVelocity(RoomEnemyPlace place, VerticalDirection direction)
     {
         SignedSixteenSixteen speed = Ensure.NotNull(place).SpawnSettings<ShutterSpawnSettings>().Speed;
-        return direction == VerticalDirection.Up ? -speed : speed;
+        return speed.Toward(direction);
     }
 
     /// <summary>Moves toward the upper or lower endpoint, carrying Samus when riding the shutter.</summary>

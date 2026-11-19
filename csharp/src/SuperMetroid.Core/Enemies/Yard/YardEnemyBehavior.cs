@@ -521,9 +521,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Movement = YardMovement.Airborne;
         SetYardAirborneLists(place, state);
         state.AirborneVelocity = YardShotLaunchFractions.Launched(state.AirborneVelocity, new Offset16<RoomPixels>(
-            SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Left
-                ? -YardMotionDefinitions.BeamLaunchWholeSpeed
-                : YardMotionDefinitions.BeamLaunchWholeSpeed,
+            YardMotionDefinitions.BeamLaunchWholeSpeed.Toward(
+                SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Left ? HorizontalDirection.Left : HorizontalDirection.Right),
             -YardMotionDefinitions.BeamLaunchWholeSpeed));
     }
 

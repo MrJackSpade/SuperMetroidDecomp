@@ -99,7 +99,7 @@ public sealed class SamusDraygonGrabbedState
         }
 
         samus.Position = samus.Position.WithWhole(ownerPosition + new Offset16<RoomPixels>(
-            draygonFacing == HorizontalDirection.Right ? SamusDraygonHoldDefinitions.HeldAhead : -SamusDraygonHoldDefinitions.HeldAhead,
+            SamusDraygonHoldDefinitions.HeldAhead.Toward(draygonFacing),
             SamusDraygonHoldDefinitions.HeldBelow));
 
         // The placement writes whole positions only. Where Samus lies within a pixel stays, even though the actor

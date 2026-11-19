@@ -340,11 +340,12 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Animation cue: sets the initial regeneration offset.</summary>
     private static void SetInitialEvirRegenerationOffset(EvirSpitState state) =>
-        state.RegenerationOffset = new(EvirBodyFacesRight(state) ? -EvirMotionDefinitions.RegenerationStartDistance : EvirMotionDefinitions.RegenerationStartDistance, 0);
+        state.RegenerationOffset = new(EvirMotionDefinitions.RegenerationStartDistance.Toward(
+            EvirBodyFacesRight(state) ? HorizontalDirection.Left : HorizontalDirection.Right), 0);
 
     /// <summary>Animation cue: advances the regeneration offset.</summary>
     private static void AdvanceEvirRegenerationOffset(EvirSpitState state) =>
-        state.RegenerationOffset += new Offset16<RoomPixels>(EvirBodyFacesRight(state) ? 1 : -1, 0);
+        state.RegenerationOffset += new Offset16<RoomPixels>(1.Toward(EvirBodyFacesRight(state) ? HorizontalDirection.Right : HorizontalDirection.Left), 0);
 
     /// <summary>
     /// Both regeneration cues test the facing of the spit's body, not any facing of its own: the living body's, the one a

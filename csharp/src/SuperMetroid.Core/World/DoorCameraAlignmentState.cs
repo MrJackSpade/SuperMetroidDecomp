@@ -28,8 +28,10 @@ internal readonly record struct DoorCameraAlignmentState(
             return new DoorCameraAlignmentState(camera, Completed: true);
 
         // A coordinate past the middle of its 256-pixel screen moves on to the next screen; one before it moves back.
-        int step = withinScreen >= DoorOpeningScrollDefinitions.CameraAlignmentNextScreenFrom ? 1 : -1;
-        Offset16<RoomPixels> movement = alignsX ? new(step, 0) : new(0, step);
+        bool onToNextScreen = withinScreen >= DoorOpeningScrollDefinitions.CameraAlignmentNextScreenFrom;
+        Offset16<RoomPixels> movement = alignsX
+            ? new(1.Toward(onToNextScreen ? HorizontalDirection.Right : HorizontalDirection.Left), 0)
+            : new(0, 1.Toward(onToNextScreen ? VerticalDirection.Down : VerticalDirection.Up));
         return new DoorCameraAlignmentState(camera + movement, Completed: false);
     }
 }

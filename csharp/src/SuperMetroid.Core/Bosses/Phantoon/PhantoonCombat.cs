@@ -459,7 +459,8 @@ internal sealed class PhantoonCombat
         flame.Velocity = flame.Velocity.WithY(PhantoonArenaDefinitions.CasualRiseSpeed);
         // The flame drifts left or right by the game's frame counter.
         flame.Velocity = flame.Velocity.WithX(
-            PhantoonCadenceDefinitions.RisingFlameDriftsLeft.IsSetIn(frameCounter) ? -PhantoonArenaDefinitions.CasualDriftSpeed : PhantoonArenaDefinitions.CasualDriftSpeed);
+            PhantoonArenaDefinitions.CasualDriftSpeed.Toward(
+                PhantoonCadenceDefinitions.RisingFlameDriftsLeft.IsSetIn(frameCounter) ? HorizontalDirection.Left : HorizontalDirection.Right));
     }
 
     /// <summary>Advances the flame's post-impact bounce motion.</summary>

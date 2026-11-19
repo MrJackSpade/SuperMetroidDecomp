@@ -303,7 +303,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             source,
             new(
                 source.Position.X.Whole +
-                    (direction == HorizontalDirection.Right ? SpacePirateMotionDefinitions.WalkingLaserMuzzleAhead : -SpacePirateMotionDefinitions.WalkingLaserMuzzleAhead),
+                    (SpacePirateMotionDefinitions.WalkingLaserMuzzleAhead.Toward(direction)),
                 source.Position.Y.Whole - laserHeight),
             direction,
             speed);

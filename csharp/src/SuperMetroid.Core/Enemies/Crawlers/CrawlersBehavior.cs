@@ -469,7 +469,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static SignedSixteenSixteen WithProbeMargin(SignedEightEight velocity, int wholePixels)
     {
         SignedSixteenSixteen margin = SignedSixteenSixteen.FromWholePixels(wholePixels);
-        return velocity.ToSixteenSixteenDelta() + (velocity.IsNegative ? -margin : margin);
+        return velocity.ToSixteenSixteenDelta() + velocity.Along(margin);
     }
 
     /// <summary>Runs the shared crawler main AI.</summary>

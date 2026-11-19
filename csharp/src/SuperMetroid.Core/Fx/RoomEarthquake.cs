@@ -126,18 +126,15 @@ internal sealed class RoomEarthquake
     /// stands at, or the one the frames left select as the earthquake runs down
     /// (<see cref="RoomEarthquakeDefinitions.ShakeSides"/>).
     /// </summary>
-    private bool ShowsOppositeSide =>
-        (_continuousSides ?? _remaining.PlaceIn(RoomEarthquakeDefinitions.ShakeSides)).Current == EarthquakeSide.Far;
+    private EarthquakeSide ShownSide =>
+        (_continuousSides ?? _remaining.PlaceIn(RoomEarthquakeDefinitions.ShakeSides)).Current;
 
     /// <summary>The room-shake offset for projectiles, evaluated at each projectile draw pass before the earthquake's frame step.</summary>
     internal Offset16<RoomPixels> GetEnemyProjectileShake(bool timeIsFrozen)
     {
         if (!IsShaking || timeIsFrozen)
             return default;
-        RoomShakeDefinition definition = Shake.Displacement;
-        return ShowsOppositeSide
-            ? -definition.Projectile
-            : definition.Projectile;
+        return ShownSide.Showing(Shake.Displacement.Projectile);
     }
 
     /// <summary>
@@ -158,11 +155,9 @@ internal sealed class RoomEarthquake
         Offset16<BackgroundPixels> background = definition.Background;
 
         // The earthquake alternates which side of the origin is shown, the far side being the negated displacement.
-        if (ShowsOppositeSide)
-        {
-            foreground = -foreground;
-            background = -background;
-        }
+        EarthquakeSide side = ShownSide;
+        foreground = side.Showing(foreground);
+        background = side.Showing(background);
 
         if (_continuousSides is { } sides)
             _continuousSides = sides.Next;

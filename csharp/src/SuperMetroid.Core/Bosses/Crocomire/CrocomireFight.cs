@@ -305,9 +305,8 @@ internal sealed class CrocomireFight
                     return CrocomireBodyAnimation.BackOffFromSpikeWall;
                 }
                 int random = _access.ReadCrocomireRandom();
-                int baseOffset = BossRandomRolls.InHalfFrom(random, CrocomireRandomDefinitions.SpikeWallDustLeftFrom)
-                    ? -CrocomireFightDefinitions.SpikeWallDustSide
-                    : CrocomireFightDefinitions.SpikeWallDustSide;
+                int baseOffset = CrocomireFightDefinitions.SpikeWallDustSide.Toward(
+                    BossRandomRolls.InHalfFrom(random, CrocomireRandomDefinitions.SpikeWallDustLeftFrom) ? HorizontalDirection.Left : HorizontalDirection.Right);
                 _access.SpawnCrocomireDust(state, baseOffset + CrocomireRandomDefinitions.SpikeWallDustSpread.Of(random));
                 return null;
             case CrocomireBodyCueKind.SkeletonCollapsed:

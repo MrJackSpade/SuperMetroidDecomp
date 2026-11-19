@@ -240,7 +240,7 @@ public static class GameplayEffectCapture
     {
         Offset16<ScreenPixels> samusOnScreen = xray.SamusPosition.RelativeToCamera(cameraPosition);
         int eyeX = samusOnScreen.X +
-            (xray.FacingLeft ? -XrayWindowRenderDefinitions.EyeHorizontalOffset : XrayWindowRenderDefinitions.EyeHorizontalOffset);
+            XrayWindowRenderDefinitions.EyeHorizontalOffset.Toward(xray.FacingLeft ? HorizontalDirection.Left : HorizontalDirection.Right);
         int eyeY = samusOnScreen.Y -
             (xray.Crouching ? XrayWindowRenderDefinitions.CrouchingEyeHeight : XrayWindowRenderDefinitions.StandingEyeHeight);
         TrigonometryAngle angle = xray.Angle.ToTrigonometryAngle();

@@ -480,7 +480,8 @@ public static class SamusGrappleMovement
         // The wall-jump probe tests solid/frozen enemies first, then 16 pixels of room blocks toward
         // the wall named by the contact pose's facing. The shared probe preserves
         // square slopes, block behaviour, available distance, and enemy identity.
-        SignedSixteenSixteen signedProbe = SignedSixteenSixteen.FromWholePixels(SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) ? -GrappleBeamDefinitions.WallGrab.WallJumpProbePixels : GrappleBeamDefinitions.WallGrab.WallJumpProbePixels);
+        SignedSixteenSixteen signedProbe = SignedSixteenSixteen.FromWholePixels(GrappleBeamDefinitions.WallGrab.WallJumpProbePixels.Toward(
+            SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) ? HorizontalDirection.Left : HorizontalDirection.Right));
         // A bomb block the probe breaks starts its reaction through the room's objects, as any other contact does (#1582).
         BlockMoveResult wall = SamusBlockCollision.ProbeWallHorizontal(
             terrain.Level,
@@ -961,13 +962,25 @@ public static class SamusGrappleMovement
         {
             int steps = OctantSteps(absoluteY, absoluteX);
             RotationAngle horizontalAxis = xNegative ? RotationAngle.ThreeQuarterTurn : RotationAngle.QuarterTurn;
-            return horizontalAxis.TurnedBySteps(leanSameWay ? steps : -steps);
+            return TurnedClockwiseFromUp(horizontalAxis, steps, leanSameWay ? RotationDirection.Clockwise : RotationDirection.Counterclockwise);
         }
 
         int reciprocalSteps = OctantSteps(absoluteX, absoluteY);
         RotationAngle verticalAxis = yNegative ? RotationAngle.Zero : RotationAngle.HalfTurn;
-        return verticalAxis.TurnedBySteps(leanSameWay ? -reciprocalSteps : reciprocalSteps);
+        return TurnedClockwiseFromUp(verticalAxis, reciprocalSteps, leanSameWay ? RotationDirection.Counterclockwise : RotationDirection.Clockwise);
     }
+
+    /// <summary>
+    /// <paramref name="axis"/>, an angle measured clockwise from up, turned <paramref name="steps"/> steps the way
+    /// <paramref name="direction"/> turns (#2569): clockwise adds the steps and counterclockwise takes them away.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is neither clockwise nor counterclockwise.</exception>
+    private static RotationAngle TurnedClockwiseFromUp(RotationAngle axis, int steps, RotationDirection direction) => axis.TurnedBySteps(direction switch
+    {
+        RotationDirection.Clockwise => steps,
+        RotationDirection.Counterclockwise => -steps,
+        _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Not a rotation direction."),
+    });
 
     /// <summary>The angle steps in an eighth of a turn.</summary>
     private const int EighthTurnSteps = RotationAngle.StepsPerTurn / 8;

@@ -159,9 +159,7 @@ internal sealed class IntroMotherBrainSpriteState
     {
         // The shake adds four on even cinematic frames and subtracts four on odd ones, so the room's scroll alternates
         // between twelve and the flashback's eight and never passes the room's top.
-        Background = Background.WithY(Background.Y +
-            (IntroCadenceDefinitions.MotherBrainRoomShakesUp.IsSetIn(cinematicFrameCounter)
-                ? -IntroMotherBrainDefinitions.RoomShakePixels
-                : IntroMotherBrainDefinitions.RoomShakePixels));
+        Background = Background.WithY(Background.Y + IntroMotherBrainDefinitions.RoomShakePixels.Toward(
+            IntroCadenceDefinitions.MotherBrainRoomShakesUp.IsSetIn(cinematicFrameCounter) ? VerticalDirection.Up : VerticalDirection.Down));
     }
 }

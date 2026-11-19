@@ -214,9 +214,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         RoomEnemyPlace place,
         SamusState samus)
     {
-        AddElevatorYVelocity(place, ElevatorTravel is ElevatorTravelDirection.Up
-            ? -ElevatorActorDefinitions.TravelSpeed
-            : ElevatorActorDefinitions.TravelSpeed);
+        AddElevatorYVelocity(place, ElevatorActorDefinitions.TravelSpeed.Toward(ElevatorTravel.Vertically()));
         PinSamusToElevator(place, samus);
     }
 

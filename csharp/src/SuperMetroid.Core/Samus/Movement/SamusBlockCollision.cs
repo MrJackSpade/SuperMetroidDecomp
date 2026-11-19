@@ -107,9 +107,7 @@ public static class SamusBlockCollision
                 // On enemy collision the movement skips block detection and moves Samus by the clipped whole distance
                 // alone. The accepted gap is never negative: the probe ignores an enemy Samus is already embedded in.
                 SignedSixteenSixteen clippedMagnitude = SignedSixteenSixteen.FromWholePixels(probe.Distance);
-                acceptedDisplacement = entersLeft
-                    ? -clippedMagnitude
-                    : clippedMagnitude;
+                acceptedDisplacement = move.Displacement.Along(clippedMagnitude);
                 collided = true;
                 enemyCollision = probe;
             }
@@ -402,9 +400,7 @@ public static class SamusBlockCollision
                 // distinguish an enemy stop from an unobstructed terrain move. The accepted gap is never negative: the
                 // probe ignores an enemy Samus is already embedded in.
                 SignedSixteenSixteen clippedMagnitude = SignedSixteenSixteen.FromWholePixels(probe.Distance);
-                acceptedDisplacement = acceptedDisplacement.IsNegative
-                    ? -clippedMagnitude
-                    : clippedMagnitude;
+                acceptedDisplacement = acceptedDisplacement.Along(clippedMagnitude);
                 collided = true;
                 enemyCollision = probe;
             }

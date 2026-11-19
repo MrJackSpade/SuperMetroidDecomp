@@ -270,9 +270,8 @@ public static class SamusGrappleSwing
             AngularSpeed impulse = grapple.Submerged
                 ? GrappleBeamDefinitions.Physics.JumpImpulseMagnitude.DividedBy(GrappleBeamDefinitions.Physics.SubmergedShare)
                 : GrappleBeamDefinitions.Physics.JumpImpulseMagnitude;
-            grapple.JumpImpulse = grapple.AngularVelocity == AngularSpeed.Zero ? AngularSpeed.Zero
-                : grapple.AngularVelocity.IsNegative ? -impulse
-                : impulse;
+            // The impulse pushes the way the swing turns, and a still swing takes none.
+            grapple.JumpImpulse = AngularSpeed.FromFractionsOfStep(Math.Sign(grapple.AngularVelocity.FractionsOfStep) * impulse.FractionsOfStep);
         }
     }
 
@@ -296,7 +295,8 @@ public static class SamusGrappleSwing
         RotationAngle targetAngle = grapple.Angle.TurnedBy(turn);
         TrigonometryAngle targetStep = targetAngle.ToTrigonometryAngle();
         TrigonometryAngle lastSafeStep = grapple.Angle.ToTrigonometryAngle();
-        int stepDirection = combined.IsNegative ? -1 : 1;
+        // A turning swing is never at rest here: a still one returned above.
+        int stepDirection = Math.Sign(combined.FractionsOfStep);
 
         // At the maximum velocity this loop executes at most five times. Keep an
         // explicit one-turn guard anyway: it documents the cyclic angle domain and turns a

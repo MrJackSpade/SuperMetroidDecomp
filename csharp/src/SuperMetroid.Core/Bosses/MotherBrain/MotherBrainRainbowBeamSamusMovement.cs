@@ -70,9 +70,8 @@ public sealed class MotherBrainRainbowBeamSamusMovement
 
         bool reachedVerticalBoundary = MoveVerticallyTowardCeilingOrFloor(
             samus, cameraCheckpoint,
-            samus.Position.Y.Whole <= MotherBrainRainbowBeamPushDefinitions.MiddleOfWallY
-                ? MotherBrainRainbowBeamPushDefinitions.MiddleOfWallSpeed
-                : -MotherBrainRainbowBeamPushDefinitions.MiddleOfWallSpeed);
+            MotherBrainRainbowBeamPushDefinitions.MiddleOfWallSpeed.Toward(
+                samus.Position.Y.Whole <= MotherBrainRainbowBeamPushDefinitions.MiddleOfWallY ? VerticalDirection.Down : VerticalDirection.Up));
 
         return CreateResult(
             before,

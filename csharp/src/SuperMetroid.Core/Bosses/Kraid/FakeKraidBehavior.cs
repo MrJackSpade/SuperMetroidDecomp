@@ -210,9 +210,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace place,
         HorizontalDirection direction)
     {
-        int xOffset = direction == HorizontalDirection.Right
-            ? FakeKraidProjectileDefinitions.SpitAheadPixels
-            : -FakeKraidProjectileDefinitions.SpitAheadPixels;
+        int xOffset = FakeKraidProjectileDefinitions.SpitAheadPixels.Toward(direction);
         foreach (FakeKraidSpit spit in FakeKraidProjectileDefinitions.SpitsInLaunchOrder)
             SpawnFakeKraidSpit(place, xOffset, FakeKraidProjectiles.SpitLaunch(direction, spit));
     }

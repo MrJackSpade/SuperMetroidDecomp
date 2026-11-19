@@ -251,7 +251,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// rightward swoop, decreasing ones for a leftward one.
     /// </summary>
     private static AngularSpeed SwoopTurning(AngularSpeed speed, HorizontalDirection heading) =>
-        heading == HorizontalDirection.Left ? -speed : speed;
+        speed.Toward(heading);
 
     /// <summary>
     /// Starts the swipe (#2473) once the swoop's angle, as the update finds it, has passed the swipe angle: below it for a
@@ -823,11 +823,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             : KiHunterAcidSpitSegment.Left));
         projectile.State = new KiHunterAcidState(direction);
 
-        projectile.Velocity = projectile.Velocity.WithX(direction == HorizontalDirection.Right
-            ? KiHunterMotionDefinitions.AcidHorizontalSpeed
-            : -KiHunterMotionDefinitions.AcidHorizontalSpeed);
+        projectile.Velocity = projectile.Velocity.WithX(KiHunterMotionDefinitions.AcidHorizontalSpeed.Toward(direction));
         projectile.Position = projectile.Position.WithWholeX(body.Position.X.Whole +
-            (direction == HorizontalDirection.Right ? KiHunterMotionDefinitions.AcidSpitReach : -KiHunterMotionDefinitions.AcidSpitReach));
+            (KiHunterMotionDefinitions.AcidSpitReach.Toward(direction)));
         projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Zero);
         projectile.Position = projectile.Position.WithWholeY(body.Position.Y.Whole - KiHunterMotionDefinitions.AcidSpitHeight).WithoutFractions();
     }
@@ -841,9 +839,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         HorizontalDirection direction = projectile.StateOf<KiHunterAcidState>().Spat;
         projectile.StartMotion(KiHunterAcidMotion.Falling);
         projectile.Position = projectile.Position.WithWholeX(
-            projectile.Position.X.Whole + (direction == HorizontalDirection.Right
-                ? KiHunterMotionDefinitions.AcidLaunchShift
-                : -KiHunterMotionDefinitions.AcidLaunchShift));
+            projectile.Position.X.Whole + (KiHunterMotionDefinitions.AcidLaunchShift.Toward(direction)));
     }
 
     /// <summary>

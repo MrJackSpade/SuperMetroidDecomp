@@ -667,7 +667,7 @@ public sealed class SamusState
                 centerAdjustment = 0;
                 return LargerPoseCollisionOutcome.RetainSource;
             }
-            enemyAdjustment = above ? opposite.Distance : -opposite.Distance;
+            enemyAdjustment = opposite.Distance.Toward(above ? VerticalDirection.Down : VerticalDirection.Up);
         }
 
         // Both probes test the room from where her body stands now, on copies of it; neither moves her.

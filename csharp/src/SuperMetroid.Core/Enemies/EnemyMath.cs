@@ -46,12 +46,13 @@ internal static class EnemyMath
             // The octant is chosen from the full distances; the slope keeps the game's limits, so offsets
             // beyond 255 pixels bend the angle (AimAngleSlope).
             int turn = AimAngleSlope.TurnSteps(absoluteY, absoluteX);
-            return (left ? TrigonometryAngle.HalfTurn : TrigonometryAngle.Zero).TurnedBySteps(turnsClockwiseFromSide ? -turn : turn);
+            return (left ? TrigonometryAngle.HalfTurn : TrigonometryAngle.Zero).TurnedBySteps(turn,
+                turnsClockwiseFromSide ? RotationDirection.Clockwise : RotationDirection.Counterclockwise);
         }
 
         int inverseTurn = AimAngleSlope.TurnSteps(absoluteX, absoluteY);
         return (up ? TrigonometryAngle.QuarterTurn : TrigonometryAngle.Zero - TrigonometryAngle.QuarterTurn)
-            .TurnedBySteps(turnsClockwiseFromSide ? inverseTurn : -inverseTurn);
+            .TurnedBySteps(inverseTurn, turnsClockwiseFromSide ? RotationDirection.Counterclockwise : RotationDirection.Clockwise);
     }
 
     /// <summary>

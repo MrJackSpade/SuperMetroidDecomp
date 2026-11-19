@@ -173,6 +173,12 @@ public readonly record struct SignedSixteenSixteen : IComparable<SignedSixteenSi
     /// <summary>Whether the displacement points backward along its axis: its whole pixels are negative.</summary>
     public bool IsNegative => RawValue < 0;
 
+    /// <summary>
+    /// <paramref name="amount"/> taken the way the displacement points (#2569): as it is for a displacement toward
+    /// increasing coordinates, or none, and reversed for one toward decreasing coordinates.
+    /// </summary>
+    public T Along<T>(T amount) where T : System.Numerics.IUnaryNegationOperators<T, T> => IsNegative ? -amount : amount;
+
     /// <summary>Whether the displacement is no movement at all: zero whole pixels and zero fraction.</summary>
     public bool IsZero => RawValue == 0;
 

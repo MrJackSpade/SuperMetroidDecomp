@@ -71,7 +71,7 @@ public sealed class KiHunterBodyState
 
     /// <summary>The horizontal velocity: <see cref="HorizontalSpeed"/> toward <see cref="Heading"/> (#2338).</summary>
     public SignedSixteenSixteen HorizontalVelocity =>
-        SignedSixteenSixteen.FromWholePixels(Heading == HorizontalDirection.Right ? HorizontalSpeed : -HorizontalSpeed);
+        SignedSixteenSixteen.FromWholePixels(HorizontalSpeed.Toward(Heading));
 
     /// <summary>The vertical velocity in pixels per update; positive is downward and gravity accumulates through the fraction.</summary>
     public SignedSixteenSixteen VerticalVelocity { get; internal set; }

@@ -232,15 +232,14 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         RoomLevelData level,
         HorizontalDirection? pushSide)
     {
-        bool movingLeft = state.Heading == HorizontalDirection.Left;
-        SignedSixteenSixteen speed = movingLeft ? -MaridiaLargeSnailMotionDefinitions.RollSpeed : MaridiaLargeSnailMotionDefinitions.RollSpeed;
+        SignedSixteenSixteen speed = MaridiaLargeSnailMotionDefinitions.RollSpeed.Toward(state.Heading);
         bool temporarilyReachTowardSamus = state.Heading == pushSide;
         if (temporarilyReachTowardSamus)
         {
             // Temporarily extends the whole-pixel move toward Samus by the push's reach,
             // performs collision, then retracts the center. Net velocity remains one
             // pixel per frame while wall clipping naturally passes the lost distance to Samus.
-            speed += movingLeft ? -MaridiaLargeSnailMotionDefinitions.PushReach : MaridiaLargeSnailMotionDefinitions.PushReach;
+            speed += MaridiaLargeSnailMotionDefinitions.PushReach.Toward(state.Heading);
         }
 
         SignedSixteenSixteen displacement = speed;
@@ -251,9 +250,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
 
         if (temporarilyReachTowardSamus)
         {
-            place.Position = place.Position.AdvanceX(movingLeft
-                ? MaridiaLargeSnailMotionDefinitions.PushReach
-                : -MaridiaLargeSnailMotionDefinitions.PushReach);
+            place.Position = place.Position.AdvanceX(MaridiaLargeSnailMotionDefinitions.PushReach.Toward(state.Heading.Reversed()));
         }
 
         if (!collided)
@@ -402,9 +399,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         if (EnemyCollision.IsSamusStandingOn(place, samus))
             return;
 
-        int shove = samus.Position.X.Whole < place.Position.X.Whole
-            ? -MaridiaLargeSnailMotionDefinitions.ShoveDistance
-            : MaridiaLargeSnailMotionDefinitions.ShoveDistance;
+        int shove = MaridiaLargeSnailMotionDefinitions.ShoveDistance.Toward(
+            samus.Position.X.Whole < place.Position.X.Whole ? HorizontalDirection.Left : HorizontalDirection.Right);
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(shove, 0);
     }
 

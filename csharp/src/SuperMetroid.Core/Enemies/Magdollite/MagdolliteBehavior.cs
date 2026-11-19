@@ -695,7 +695,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         // sideways the way the overlay faces.
         projectile.Position = source.Position.WithWholeY(source.Position.Y.Whole + MagdolliteMotionDefinitions.LavaDrop);
         projectile.Velocity = new(
-            thrown == HorizontalDirection.Right ? MagdolliteMotionDefinitions.LavaThrowSpeed : -MagdolliteMotionDefinitions.LavaThrowSpeed,
+            MagdolliteMotionDefinitions.LavaThrowSpeed.Toward(thrown),
             SignedEightEight.Zero);
         projectile.InstallAnimation(new MagdolliteLavaAnimation(thrown == HorizontalDirection.Right ? MagdolliteLavaSegment.Right : MagdolliteLavaSegment.Left));
     }

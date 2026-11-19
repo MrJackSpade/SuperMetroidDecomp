@@ -85,9 +85,7 @@ internal sealed class PhantoonPatterns
         else
             AdjustPhantoonForwardFigureEightSpeed(figureEight);
 
-        int steps = backwards
-            ? -figureEight.Speed.WholePlaces
-            : figureEight.Speed.WholePlaces;
+        int steps = figureEight.Speed.WholePlacesAlong(figureEight.Direction);
         for (int step = 0; step < steps; step++)
         {
             Offset16<RoomPixels> pathStep = figureEight.PathPlace.Entry;

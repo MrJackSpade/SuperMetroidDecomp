@@ -19,5 +19,5 @@ public sealed class BobbingFirefleaState : FirefleaFlightState
     internal VerticalDirection Direction { get; set; }
 
     /// <summary>The Fireflea's vertical velocity: its <see cref="Definition"/>'s speed toward its <see cref="Direction"/>.</summary>
-    internal SignedSixteenSixteen Velocity => Direction == VerticalDirection.Down ? Definition.Speed : -Definition.Speed;
+    internal SignedSixteenSixteen Velocity => Definition.Speed.Toward(Direction);
 }

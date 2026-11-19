@@ -102,7 +102,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         bool right = state.PatrolDirection == HorizontalDirection.Right;
         SignedSixteenSixteen speed = place.SpawnSettings<CacatacSpawnSettings>().Speed;
-        place.Position = place.Position.AdvanceX(right ? speed : -speed);
+        place.Position = place.Position.AdvanceX(speed.Toward(state.PatrolDirection));
 
         if (!right)
         {

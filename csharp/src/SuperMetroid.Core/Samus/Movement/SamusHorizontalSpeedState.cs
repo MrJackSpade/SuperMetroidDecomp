@@ -502,7 +502,8 @@ public sealed class SamusHorizontalSpeedState
         if (!SpeedEchoesDeparting)
         {
             SpeedEchoPhase = SpeedEchoPhase.Departing;
-            int speed = facing == SamusFacingDirection.Left ? -SamusMovementDefinitions.SpeedEchoDepartureSpeed : SamusMovementDefinitions.SpeedEchoDepartureSpeed;
+            int speed = SamusMovementDefinitions.SpeedEchoDepartureSpeed.Toward(
+                facing == SamusFacingDirection.Left ? HorizontalDirection.Left : HorizontalDirection.Right);
             FirstSpeedEchoHorizontalSpeed = speed;
             SecondSpeedEchoHorizontalSpeed = speed;
         }

@@ -51,6 +51,6 @@ internal sealed class SamusScrollCap
         int delta = position - previous;
         if (Math.Abs(delta) < SamusCameraDefinitions.PreviousPositionCap)
             return null;
-        return position + (delta < 0 ? -SamusCameraDefinitions.PreviousPositionCap : SamusCameraDefinitions.PreviousPositionCap);
+        return position + int.CopySign(SamusCameraDefinitions.PreviousPositionCap, delta);
     }
 }

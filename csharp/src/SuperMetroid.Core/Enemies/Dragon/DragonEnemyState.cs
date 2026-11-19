@@ -20,10 +20,10 @@ public sealed class DragonEnemyState : DragonPartState
     public HorizontalDirection Facing { get; internal set; }
 
     /// <summary>
-    /// The updates left in the body's wait, rise or sink, the one it ends on included: the step that takes it to zero ends
-    /// the phase, and one at zero ends it on its next step (#2281).
+    /// The body's wait, rise or sink: the update it ends on ends the phase, and one already over ends it on its next update
+    /// (#2281).
     /// </summary>
-    public int ActionTimer { get; internal set; }
+    public UpdateCountdown ActionTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>The body's shots left while attacking; initialized to three before the first volley.</summary>
     public int AttackCounter { get; internal set; }

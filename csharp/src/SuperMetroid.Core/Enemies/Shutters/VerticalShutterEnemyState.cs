@@ -32,7 +32,7 @@ public sealed class VerticalShutterEnemyState
     /// The AI updates left in an endpoint rest, the one the shutter moves on included: the rest's updates and the update
     /// it runs out on (<see cref="EnemyWaitDefinitions.RunOutUpdate"/>, #2281).
     /// </summary>
-    public int RestTimer { get; internal set; }
+    public UpdateCountdown RestTimer { get; internal set; } = UpdateCountdown.Ended();
     /// <summary>Whether a one-shot shutter has been started: clear at first and set by its first reaction, so later reactions cannot start it again.</summary>
     public bool ShotActivated { get; internal set; }
     /// <summary>Upper whole-pixel travel row derived from the spawn row and travel distance; upward motion stops upon reaching or passing it.</summary>

@@ -219,18 +219,23 @@ public sealed class RoomEnemyPlace : ISolidEnemy
         get;
         internal set => field = Ensure.NotNull(value);
     } = PictureShading.Standard;
-    /// <summary>The hurt flash's remaining updates; the flash alternates the enemy's colours and its end ends the hurt behaviour.</summary>
-    [IntegerQuantity("updates of hurt flash left; Phantoon restores his colours on the eighth")]
-    public int FlashTimer { get; internal set; }
-    /// <summary>How long the enemy stays frozen; its frozen blinking and thaw read it.</summary>
-    public int FrozenTimer { get; internal set; }
-    /// <summary>Updates during which weapons and contact do not interact with the enemy, sampled before it counts down.</summary>
-    public int InvincibilityTimer { get; internal set; }
-    /// <summary>Draws left that shake the enemy one pixel sideways, counted down as it draws.</summary>
-    public int ShakeTimer { get; internal set; }
+    /// <summary>
+    /// The hurt flash, counted by the enemy pass after the enemy joins its draw queue: the flash alternates the enemy's
+    /// colours by its updates left, and too few left end the hurt behaviour.
+    /// </summary>
+    public UpdateCountdown HurtFlash { get; } = UpdateCountdown.Ended();
+    /// <summary>
+    /// The freeze, counted where the enemy pass runs the frozen behaviour: its frozen blinking reads its updates left, and
+    /// a thaw leaves the leftover <see cref="ThawedFreezeLeftover"/> names.
+    /// </summary>
+    public UpdateCountdown Freeze { get; } = UpdateCountdown.Ended();
+    /// <summary>The updates during which weapons and contact do not interact with the enemy, sampled before the enemy pass counts it.</summary>
+    public UpdateCountdown Invincibility { get; } = UpdateCountdown.Ended();
+    /// <summary>The draws left that shake the enemy one pixel sideways, counted by the draw pass as it forms the enemy's origin.</summary>
+    public UpdateCountdown Shake { get; } = UpdateCountdown.Ended();
 
     /// <inheritdoc/>
-    void ISolidEnemy.ShakeFromWallJumpLaunch() => ShakeTimer = EnemyDrawPhaseDefinitions.WallJumpLaunchShakeDraws;
+    void ISolidEnemy.ShakeFromWallJumpLaunch() => Shake.Restart(EnemyDrawPhaseDefinitions.WallJumpLaunchShakeDraws);
 
     /// <summary>
     /// The enemy's own update count, independent of the game's frame counter: its behaviour and drawing read it only
@@ -280,12 +285,12 @@ public sealed class RoomEnemyPlace : ISolidEnemy
         AiStates = EnemyAiStates.None;
         AnimationClock = new();
         Frame = null;
-        FrozenTimer = 0;
-        FlashTimer = 0;
+        Freeze.End();
+        HurtFlash.End();
         Shading = PictureShading.Standard;
         FrameCounter = 0;
-        ShakeTimer = 0;
-        InvincibilityTimer = 0;
+        Shake.End();
+        Invincibility.End();
         HurtFlashFrames = 0;
         AwaitsRespawn = false;
         DrawOffset = Offset16<RoomPixels>.Zero;

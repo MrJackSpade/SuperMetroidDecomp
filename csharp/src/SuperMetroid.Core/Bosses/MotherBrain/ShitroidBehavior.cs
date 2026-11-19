@@ -381,7 +381,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         UpdateShitroidHorizontalLock(state, place.Position.X.Whole, samus.Position.X.Whole, threshold: ShitroidFightDefinitions.HoverLockReach);
         // Samus stays between the room's walls, so her X is compared with the arena's edge plainly.
-        if (state.HorizontalLockAccumulator >= ShitroidFightDefinitions.HoverLockToChase ||
+        if (state.HorizontalLock.HasBuiltTo(ShitroidFightDefinitions.HoverLockToChase) ||
             samus.Position.X.Whole < ShitroidFightDefinitions.ArenaLeftX)
         {
             state.Action = ShitroidAction.ChaseSamus;
@@ -471,27 +471,17 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             SelectShitroidHoverTarget(state, samus.Position.Whole + ShitroidFightDefinitions.FollowOffset),
             camera);
         // Samus stays between the room's walls, so her X is compared with the leaving line plainly.
-        return state.HorizontalLockAccumulator >= ShitroidFightDefinitions.FollowLockToLeave ||
+        return state.HorizontalLock.HasBuiltTo(ShitroidFightDefinitions.FollowLockToLeave) ||
             samus.Position.X.Whole < ShitroidFightDefinitions.FollowLeaveSamusX;
     }
 
-    /// <summary>Accumulates two lock ticks within a narrow X threshold and decays by one when separated.</summary>
+    /// <summary>Builds the horizontal lock while the Shitroid keeps within <paramref name="threshold"/> of its target's X, and decays it otherwise.</summary>
     private static void UpdateShitroidHorizontalLock(
         ShitroidEnemyState state,
         int currentX,
         int targetX,
-        int threshold)
-    {
-        int distance = DistanceAcrossRoomEdge.Between(currentX, targetX);
-        if (distance < threshold)
-        {
-            state.HorizontalLockAccumulator += 2;
-        }
-        else if (state.HorizontalLockAccumulator != 0)
-        {
-            state.HorizontalLockAccumulator--;
-        }
-    }
+        int threshold) =>
+        state.HorizontalLock.Update(withinReach: DistanceAcrossRoomEdge.Between(currentX, targetX) < threshold);
 
     /// <summary>
     /// Steers both axes toward <paramref name="target"/> with the pull <paramref name="divisor"/> names

@@ -53,8 +53,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             case AlcoonCueKind.StartWalking:
                 return StartAlcoonWalking(state);
             case AlcoonCueKind.CompleteWalkCycle:
-                if (state.WalkCyclesBeforeVolley != 0)
-                    state.WalkCyclesBeforeVolley--;
+                state.WalkCyclesBeforeVolley.Step();
                 return MoveAlcoonHorizontally(place, state, level);
             case AlcoonCueKind.Move:
                 return MoveAlcoonHorizontally(place, state, level);
@@ -72,7 +71,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new AlcoonEnemyState(AlcoonAction.WaitingForSamus);
         place.SetSpeciesState(state);
 
-        state.WalkCyclesBeforeVolley = 0;
+        state.WalkCyclesBeforeVolley = UpdateCountdown.Ended();
         state.SpawnPosition = place.Position.Whole;
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         state.Playback = new(AlcoonAnimations.StartingWith(AlcoonSegment.WalkingLeft), AnimationPlace.StartOfAnimation);
@@ -208,7 +207,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             StartAlcoonAnimation(place, state, AlcoonSegment.WalkingRight);
         }
         state.Action = AlcoonAction.WalkingAndFiring;
-        state.WalkCyclesBeforeVolley = 1;
+        state.WalkCyclesBeforeVolley = UpdateCountdown.Lasting(1);
     }
 
     /// <summary>Maintains floor contact, starts a retreat at the spawn-distance limit, or begins a forward volley.</summary>
@@ -236,7 +235,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (state.WalkCyclesBeforeVolley != 0)
+        if (state.WalkCyclesBeforeVolley.IsRunning)
             return;
 
         bool samusIsLeft = samus.Position.X.Whole < place.Position.X.Whole;
@@ -319,7 +318,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private AnimationContinuation<AlcoonSegment> StartAlcoonWalking(AlcoonEnemyState state)
     {
         state.Action = AlcoonAction.WalkingAndFiring;
-        state.WalkCyclesBeforeVolley = AlcoonWalkDefinitions.WalkCycles.Choose(_room.Random.Read());
+        state.WalkCyclesBeforeVolley = UpdateCountdown.For(AlcoonWalkDefinitions.WalkCycles.Choose(_room.Random.Read()));
         return new(AlcoonAnimations.StartingWith(FacesLeft(state) ? AlcoonSegment.WalkingLeft : AlcoonSegment.WalkingRight),
             AnimationPlace.StartOfAnimation);
     }

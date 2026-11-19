@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>The intro Rinkas: their actors, the two pairs the spawner launches, and their drift.</summary>
+/// <summary>The intro Rinkas: their actor, the two waves of launches, and their drift.</summary>
 internal static class IntroRinkaDefinitions
 {
     /// <summary>The intro Rinka's actor: the Rinka animation. The Rinka holds still until the animation starts it moving.</summary>
@@ -12,26 +12,28 @@ internal static class IntroRinkaDefinitions
     public static CinematicActorDefinition<IntroRinkaAnimation> RinkaActor =>
         new(IntroRinkaAnimation.Rinka);
 
-    /// <summary>The invisible Rinka spawner's actor: the spawner's animation. The spawner does not move.</summary>
-    /// <remarks>
-    /// The animation waits, launches <see cref="StrikingPair"/>, waits longer, launches <see cref="MissingPair"/>, then
-    /// deletes the spawner.
-    /// </remarks>
-    public static CinematicActorDefinition<IntroRinkaAnimation> SpawnerActor =>
-        new(IntroRinkaAnimation.Spawner);
-
-    /// <summary>The first pair the spawner launches, in launch order: the Rinka that strikes Samus, then one that flies past her.</summary>
+    /// <summary>The first pair launched, in launch order: the Rinka that strikes Samus, then one that flies past her.</summary>
     internal static IReadOnlyList<IntroRinkaLaunch> StrikingPair { get; } =
     [
         new(new(112, 72), SignedSixteenSixteen.FromSixteenthsOfPixel(8), IntroRinkaFlight.StrikesSamus),
         new(new(192, 56), SignedSixteenSixteen.FromSixteenthsOfPixel(-8), IntroRinkaFlight.MissesSamus),
     ];
 
-    /// <summary>The second pair the spawner launches, in launch order: both fly past Samus.</summary>
+    /// <summary>The second pair launched, in launch order: both fly past Samus.</summary>
     internal static IReadOnlyList<IntroRinkaLaunch> MissingPair { get; } =
     [
         new(new(128, 48), SignedSixteenSixteen.FromSixteenthsOfPixel(8), IntroRinkaFlight.MissesSamus),
         new(new(232, 80), SignedSixteenSixteen.FromSixteenthsOfPixel(-8), IntroRinkaFlight.MissesSamus),
+    ];
+
+    /// <summary>
+    /// The flashback's launches, in turn (#2561): the striking pair on the 75th update of the flashback's Rinka scene, then
+    /// the missing pair 128 updates later (#2561).
+    /// </summary>
+    internal static IReadOnlyList<IntroRinkaLaunchWave> Launches { get; } =
+    [
+        new(75, StrikingPair),
+        new(128, MissingPair),
     ];
 
     /// <summary>

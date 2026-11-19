@@ -523,7 +523,7 @@ public sealed class SamusProjectileSystem
         Pool.ClearAll();
         Trails.Clear();
         Pool.ShotCount.Clear();
-        Firing.InteractionImmunityUpdatesLeft = 0;
+        Firing.InteractionImmunity = UpdateCountdown.Ended();
         LastFrameResult = default;
     }
 

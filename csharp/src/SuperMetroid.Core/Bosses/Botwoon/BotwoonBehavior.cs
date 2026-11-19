@@ -641,7 +641,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
                 BotwoonDeathDefinitions.DropY.Of(random) + BotwoonDeathDefinitions.DropTop);
             _deathsAndDrops.SpawnEnemyDropFromDefinition(position, head.DefinitionId, samus);
         }
-        state.WallExplosionUpdates = 0;
+        state.WallSequence = UpdateCountdown.Lasting(BotwoonDeathDefinitions.WallExplosionDuration);
         state.LargeExplosionWait.LastFor(1);
         state.SmallExplosionWait.LastFor(1);
     }
@@ -652,7 +652,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// </summary>
     private void RunBotwoonWallExplosions(RoomEnemyPlace head, BotwoonEnemyState state)
     {
-        if (state.WallExplosionUpdates >= BotwoonDeathDefinitions.WallExplosionDuration)
+        if (state.WallSequence.IsOver)
         {
             head.Presence = head.Presence.With(EnemyPresence.Deleted);
             _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaMiniBoss);
@@ -664,7 +664,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
             return;
         }
 
-        if (state.WallExplosionUpdates >= BotwoonDeathDefinitions.WallExplosionsBegin)
+        if (state.WallSequence.Age >= BotwoonDeathDefinitions.WallExplosionsBegin)
         {
             if (state.LargeExplosionWait.StepRunsOut())
             {
@@ -690,7 +690,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
                 }
             }
         }
-        state.WallExplosionUpdates++;
+        state.WallSequence.Count();
     }
 
     /// <summary>
@@ -699,7 +699,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// <see cref="BotwoonDeathDefinitions.ExplosionRise"/> above the room's top.
     /// </summary>
     private static int WallExplosionBandTop(BotwoonEnemyState state) =>
-        state.WallExplosionUpdates * BotwoonDeathDefinitions.ExplosionBandDescent - BotwoonDeathDefinitions.ExplosionRise;
+        state.WallSequence.Age * BotwoonDeathDefinitions.ExplosionBandDescent - BotwoonDeathDefinitions.ExplosionRise;
 
     /// <summary>
     /// Finishes Botwoon's contact, shot and
@@ -896,7 +896,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         int hurtFlashCadence)
     {
         BotwoonSegmentState segment = projectile.StateOf<BotwoonSegmentState>();
-        projectile.Graphics = projectile.Graphics.In(segment.Head.FlashTimer != 0 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(hurtFlashCadence)
+        projectile.Graphics = projectile.Graphics.In(segment.Head.HurtFlash.IsRunning && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(hurtFlashCadence)
             ? EnemyShades.HurtFlashLook
             : Encounter(segment).BodyShading);
     }

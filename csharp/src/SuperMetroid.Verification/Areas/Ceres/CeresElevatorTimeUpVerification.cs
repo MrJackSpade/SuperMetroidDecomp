@@ -57,7 +57,7 @@ internal static class CeresElevatorTimeUpVerification
             game.Step(0);
             AssertEqual(SuperMetroidGameState.TimeUp, game.GameState, "the white-out's update does not take Samus onto the elevator");
             AssertTrue(!samus.Control.InputLocked, "the white-out's update does not lock Samus on the elevator");
-            AssertTrue(++updates <= TimeUpDefinitions.WhiteOutLastStep + 2, "the white-out ends");
+            AssertTrue(++updates <= TimeUpDefinitions.WhiteOutParts + 2, "the white-out ends");
         }
         AssertTrue(game.IsAt(TimeUpStep.FadingToBlack), $"the white-out fades on to black; ended in {game.GameState}");
         AssertTrue(!samus.Control.InputLocked, "no white-out update takes Samus onto the elevator, which would lock her");

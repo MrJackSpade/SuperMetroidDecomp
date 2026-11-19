@@ -94,7 +94,7 @@ internal sealed class BeamCombos
                 // Every particle but a Plasma ring leaves trails, the Spazer beam pair only once the attack falls
                 // (SpazerParticleState.LeavesTrails), which starts its countdown then.
                 if (kind is SamusComboKind.Wave or SamusComboKind.Ice || (kind == SamusComboKind.Spazer && part.SpazerTrail))
-                    shot.TrailUpdatesLeft = ProjectileTimingDefinitions.TrailInterval;
+                    shot.Trail = UpdateCountdown.Lasting(ProjectileTimingDefinitions.TrailInterval);
                 if (kind is SamusComboKind.Wave or SamusComboKind.Spazer)
                     shot.Position = shot.Position.WithFractionX(0).WithFractionY(0);
                 if (kind == SamusComboKind.Wave)
@@ -168,7 +168,7 @@ internal sealed class BeamCombos
         shot.Position = OffRoomPlaces.WithWholeY(shot.Position, samus.Position.Y.Whole + orbit.Y);
         ice.Turn();
         SoundEffectId? sound = null;
-        if (ice.Lifetime.CountsDownToEnd())
+        if (ice.Lifetime.Count())
         {
             shot.Behavior = SamusShotBehaviors.IceSpecialAttackOutward;
             ice.Radius = BeamComboDefinitions.IceSpreadStartRadius;
@@ -408,7 +408,7 @@ internal sealed class BeamCombos
             (spazer.Part.SpazerTrail ? -BeamComboDefinitions.SpazerFallSideStep : BeamComboDefinitions.SpazerFallSideStep));
         shot.Direction = SamusProjectileDirection.DownFacingLeft;
         shot.IsSpent = false;
-        shot.TrailUpdatesLeft = ProjectileTimingDefinitions.TrailInterval;
+        shot.Trail = UpdateCountdown.Lasting(ProjectileTimingDefinitions.TrailInterval);
         spazer.Phase = SpazerComboPhase.Falling;
         if (!spazer.Part.SpazerTrail)
         {
@@ -432,7 +432,7 @@ internal sealed class BeamCombos
             _animation.ClearProjectile(shot);
             return BeamComboDefinitions.WaveRemovalSound;
         }
-        if (wave.Lifetime.CountsDownToEnd())
+        if (wave.Lifetime.Count())
         {
             _animation.ClearProjectile(shot);
             return BeamComboDefinitions.WaveRemovalSound;

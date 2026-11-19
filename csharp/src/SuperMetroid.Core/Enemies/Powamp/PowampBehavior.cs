@@ -79,7 +79,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         // The body's balloon is the enemy its room lists before it, placed before it and checked once as the body is placed.
         _balloons.Place(place, _places.ListedBefore(place, 1));
         CheckPowampBalloonPlaced(place);
-        state.ActionTimer = PowampMotionDefinitions.RestDuration;
+        state.ActionTimer = UpdateCountdown.For(PowampMotionDefinitions.RestDuration);
         state.Playback = StartPowampAnimation(place, PowampSegment.BodySlow);
     }
 
@@ -138,7 +138,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             StartPowampBalloonAnimation(balloon.Place, balloon.State, PowampSegment.BalloonInflatingFromDeflated);
             state.Action = PowampAction.Inflating;
-            state.ActionTimer = PowampMotionDefinitions.InflationDuration;
+            state.ActionTimer = UpdateCountdown.For(PowampMotionDefinitions.InflationDuration);
         }
         AlignPowampBalloonY(body, balloon);
     }
@@ -281,7 +281,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             body.Position = body.Position.WithWholeY(balloon.State.Spawn.Y);
             state.Action = PowampAction.DeflatedResting;
-            state.ActionTimer = PowampMotionDefinitions.RestDuration;
+            state.ActionTimer = UpdateCountdown.For(PowampMotionDefinitions.RestDuration);
             state.Playback = StartPowampAnimation(body, PowampSegment.BodySlow);
         }
         AlignPowampBalloonY(body, balloon);
@@ -306,7 +306,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.Action = PowampAction.DeathSequence;
-        state.ActionTimer = PowampMotionDefinitions.DeathDelay;
+        state.ActionTimer = UpdateCountdown.For(PowampMotionDefinitions.DeathDelay);
         AlignPowampBalloonY(body, balloon);
     }
 
@@ -362,12 +362,12 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         PowampBalloon balloon = BalloonOf(body);
         if ((body.AiStates & EnemyAiStates.Frozen) != EnemyAiStates.None)
         {
-            balloon.Place.FrozenTimer = body.FrozenTimer;
+            balloon.Place.Freeze.Restart(body.Freeze.UpdatesLeft);
             balloon.Place.AiStates = balloon.Place.AiStates | EnemyAiStates.Frozen;
         }
         if ((body.AiStates & EnemyAiStates.Hurt) != EnemyAiStates.None)
         {
-            balloon.Place.FlashTimer = body.FlashTimer;
+            balloon.Place.HurtFlash.Restart(body.HurtFlash.UpdatesLeft);
             balloon.Place.AiStates = balloon.Place.AiStates | EnemyAiStates.Hurt;
         }
         if (body.Health == 0)
@@ -387,10 +387,10 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        balloon.Place.ShakeTimer = body.ShakeTimer;
-        balloon.Place.InvincibilityTimer = body.InvincibilityTimer;
-        balloon.Place.FlashTimer = body.FlashTimer;
-        balloon.Place.FrozenTimer = body.FrozenTimer;
+        balloon.Place.Shake.Restart(body.Shake.UpdatesLeft);
+        balloon.Place.Invincibility.Restart(body.Invincibility.UpdatesLeft);
+        balloon.Place.HurtFlash.Restart(body.HurtFlash.UpdatesLeft);
+        balloon.Place.Freeze.Restart(body.Freeze.UpdatesLeft);
         balloon.Place.AiStates = body.AiStates;
     }
 
@@ -401,10 +401,10 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         PowampBalloon balloon,
         PowampWiggleStop stop)
     {
-        if (--state.WiggleTimer != 0)
+        if (!state.WiggleTimer.StepEnds())
             return false;
 
-        state.WiggleTimer = PowampMotionDefinitions.WiggleStepDuration;
+        state.WiggleTimer = UpdateCountdown.For(PowampMotionDefinitions.WiggleStepDuration);
         int x = balloon.State.Spawn.X + state.Wiggle.Offset;
         balloon.Place.Position = balloon.Place.Position.WithWholeX(x);
         body.Position = body.Position.WithWholeX(x);
@@ -427,14 +427,14 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void StartPowampDeflating(PowampBodyState state, PowampBalloon balloon)
     {
         state.Action = PowampAction.Deflating;
-        state.ActionTimer = PowampMotionDefinitions.InflationDuration;
+        state.ActionTimer = UpdateCountdown.For(PowampMotionDefinitions.InflationDuration);
         StartPowampBalloonAnimation(balloon.Place, balloon.State, PowampSegment.BalloonStartSinking);
     }
 
     /// <summary>Counts one update of the body's action off its timer; true on the update it runs out.</summary>
     private static bool TickPowampTimer(PowampBodyState state)
     {
-        return --state.ActionTimer == 0;
+        return state.ActionTimer.StepEnds();
     }
 
     /// <summary>The playback of <paramref name="segment"/>'s animation, restarted on the next animation pass.</summary>

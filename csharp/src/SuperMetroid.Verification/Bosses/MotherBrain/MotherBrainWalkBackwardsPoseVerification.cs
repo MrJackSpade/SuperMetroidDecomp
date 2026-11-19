@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Bosses;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.MotherBrain;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
@@ -29,11 +31,11 @@ internal static class MotherBrainWalkBackwardsPoseVerification
 
         MotherBrainRainbowBeamAttackSequence standing = Walking(0x0029, pose: MotherBrainBodyPose.Standing);
         standing.DrainedByBaby.StepPainfulWalking();
-        AssertEqual(0x0010 - 1, standing.DrainedByBaby.PainfulWalkingPause?.Count, "a standing body inside the $30 limit has arrived");
+        AssertEqual(0x0010 - 1, standing.DrainedByBaby.PainfulWalkingPause?.CartridgeCount, "a standing body inside the $30 limit has arrived");
 
         MotherBrainRainbowBeamAttackSequence arrived = Walking(0x0026, pose: MotherBrainBodyPose.Walking);
         arrived.DrainedByBaby.StepPainfulWalking();
-        AssertEqual(0x0010 - 1, arrived.DrainedByBaby.PainfulWalkingPause?.Count, "a mid-step body at the target has arrived");
+        AssertEqual(0x0010 - 1, arrived.DrainedByBaby.PainfulWalkingPause?.CartridgeCount, "a mid-step body at the target has arrived");
         Console.WriteLine("Mother Brain walk backwards: pose gates the $30 limit, not the target.");
     }
 

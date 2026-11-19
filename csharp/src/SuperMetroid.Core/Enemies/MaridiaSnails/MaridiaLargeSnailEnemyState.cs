@@ -60,7 +60,7 @@ public sealed class MaridiaLargeSnailEnemyState
     /// <see cref="MaridiaLargeSnailMotionDefinitions.InitialAttackCooldown"/> and each attack restarts it; once run out it
     /// stays at zero until Oum attacks.
     /// </summary>
-    public int AttackCooldown { get; internal set; }
+    public UpdateCountdown AttackCooldown { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// The way Oum rolls (#2338): toward Samus when it attacks, turned by each wall it meets, and leftward once Samus is

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.TestSupport.MovieReplay.RidleyNativeListAddresses;
@@ -89,7 +90,7 @@ internal static class RidleyAnimationsVerification
         RidleyFlight.StartAnimation(state.Flight, body, RidleyAnimations.Fireballing);
         Pass(body, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 29 });
         AssertEqual(RidleyAnimations.StartingWith(RidleyBodySegment.FireballingEndFacingLeft), state.Flight.BodyPlayback.Animation, "low energy in Ceres skips to the fireballing tail");
-        AssertEqual(8, state.PhaseTimer.Count, "low energy shortens the hover to eight updates");
+        AssertEqual(8, state.PhaseTimer.CartridgeCount, "low energy shortens the hover to eight updates");
         AssertTrue(!state.Flight.Roaring, "the fireballing tail clears the roaring flag");
         AssertEqual((EnemyFrameId?)EnemyFrameId.RidleyBodyLeft, RidleyCollisionDefinitions.BodyFrameAt(body.SpritemapPointer), "the tail shows the standing pose");
 

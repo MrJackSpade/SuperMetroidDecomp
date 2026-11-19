@@ -26,8 +26,11 @@ public sealed class ChootEnemyState
     /// </summary>
     public QuadraticSpeedCurvePlace YSpeedCurvePlace { get; internal set; }
 
-    /// <summary>The falling pattern's current frame, advanced by one per falling update and restarted at each loop's end.</summary>
-    public int FallingPatternFrame { get; internal set; }
+    /// <summary>
+    /// The falling pattern's current loop, counted once each falling update: its age is the update of the loop the next
+    /// falling update takes, and the update after it is over ends the loop and starts the next.
+    /// </summary>
+    public UpdateCountdown FallingLoop { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// The falling pattern's loops left, the current one included: its population's loop count, at least one, and the
@@ -52,5 +55,5 @@ public sealed class ChootEnemyState
     /// out on (<see cref="EnemyWaitDefinitions.RunOutUpdate"/>), so a delay of zero jumps on the first preparation update
     /// (#2281).
     /// </summary>
-    public int JumpDelayTimer { get; internal set; }
+    public UpdateCountdown JumpDelayTimer { get; internal set; } = UpdateCountdown.Ended();
 }

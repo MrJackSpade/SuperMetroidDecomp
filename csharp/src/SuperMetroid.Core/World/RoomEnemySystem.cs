@@ -924,13 +924,13 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
 
         foreach (RoomEnemyPlace place in ProcessingWindow.ActiveEnemies)
         {
-            // The enemy pass decrements tangible actors' invincibility
+            // The enemy pass counts tangible actors' invincibility
             // before checking time freeze. X-ray therefore stops their movement but
-            // not this clock. Remember the entry value: the update that reaches zero
-            // still skips collision, and a new AI-owned timer must not lose a tick.
-            bool invincibleAtEntry = place.InvincibilityTimer != 0;
+            // not this wait. Remember whether it ran at entry: the update that ends it
+            // still skips collision, and a new AI-owned wait must not lose an update.
+            bool invincibleAtEntry = place.Invincibility.IsRunning;
             if (!place.Contact.HasAny(EnemyContact.IgnoresSamus) && invincibleAtEntry)
-                place.InvincibilityTimer--;
+                place.Invincibility.Count();
             // The enemy pass checks contact against the pre-movement actor, not the position
             // just moved into by AI. A rising support temporarily overlaps its rider until
             // Samus's movement consumes the carry; a late touch pass would retrigger that support.
@@ -985,11 +985,11 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                     // immediately, leaving the freeze clock at the remainder
                     // ThawedFreezeLeftover names rather than zero, which matters when an enemy
                     // is hurt and frozen at once.
-                    place.FlashTimer = 0;
-                    bool thaw = place.FrozenTimer == 0 ||
+                    place.HurtFlash.End();
+                    bool thaw = place.Freeze.IsOver ||
                         (frame.Samus.EquippedBeams & SamusBeamFlags.Ice) == SamusBeamFlags.None;
                     if (!thaw)
-                        place.FrozenTimer--;
+                        place.Freeze.Count();
                     else
                     {
                         place.AiStates = place.AiStates & ~EnemyAiStates.Frozen;
@@ -998,7 +998,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                         ThawedFreezeLeftover.Hold hold = stillGrappled
                             ? stillHurt ? ThawedFreezeLeftover.Hold.GrappledAndHurt : ThawedFreezeLeftover.Hold.Grappled
                             : stillHurt ? ThawedFreezeLeftover.Hold.Hurt : ThawedFreezeLeftover.Hold.None;
-                        place.FrozenTimer = ThawedFreezeLeftover.Of(hold);
+                        place.Freeze.Restart(ThawedFreezeLeftover.Of(hold));
                     }
                     frozen?.RunFrozen();
                     // The frame clock advances after every enemy whose AI runs,
@@ -1042,12 +1042,12 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
 
             // The enemy pass counts the flash down after the enemy joins its draw queue, so a boss's draw colours show
             // the flash of the update just processed.
-            if (!frame.TimeIsFrozen && place.FlashTimer != 0)
+            if (!frame.TimeIsFrozen && place.HurtFlash.IsRunning)
             {
-                place.FlashTimer--;
+                place.HurtFlash.Count();
                 // The enemy pass ends the hurt state once too few flash updates remain, even while another AI state stays
                 // set, so a Metroid's own hurt behaviour ends.
-                if (place.FlashTimer < EnemyCollisionDefinitions.HurtStateMinimumFlashUpdates)
+                if (place.HurtFlash.UpdatesLeft < EnemyCollisionDefinitions.HurtStateMinimumFlashUpdates)
                     place.AiStates = place.AiStates & ~EnemyAiStates.Hurt;
             }
         }
@@ -1063,7 +1063,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                 place.Position.Whole,
                 new(place.Radius.X, place.Radius.Y),
                 // A frozen enemy blocks Samus whatever its properties say.
-                place.FrozenTimer != 0 || place.Contact.HasAny(EnemyContact.SolidToSamus)));
+                place.Freeze.IsRunning || place.Contact.HasAny(EnemyContact.SolidToSamus)));
         }
         FrameContext.CountEnemyPass();
         frame.Samus.Kinematics.ClearSolidEnemyCollisions();
@@ -1095,7 +1095,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         if (Earthquake.Advance(timeIsFrozen))
         {
             foreach (RoomEnemyPlace place in ProcessingWindow.ActiveEnemies)
-                place.ShakeTimer = RoomEarthquakeDefinitions.EnemyShakeDuration;
+                place.Shake.Restart(RoomEarthquakeDefinitions.EnemyShakeDuration);
         }
         return Earthquake.LastRoomShake;
     }

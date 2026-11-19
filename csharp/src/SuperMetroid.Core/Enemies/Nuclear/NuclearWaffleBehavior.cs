@@ -47,7 +47,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             ProjectileLinks = SpawnNuclearWaffleProjectileLinks(place, initialHead, graphics),
             SpriteLinks = SpawnNuclearWaffleSpriteLinks(place, graphics),
-            WaitingTimer = settings.WaitTime + EnemyWaitDefinitions.RunOutUpdate,
+            WaitingTimer = UpdateCountdown.For(settings.WaitTime + EnemyWaitDefinitions.RunOutUpdate),
             SweepAngle = sweep.StartAngle,
             Origin = origin,
             Graphics = graphics,
@@ -80,11 +80,11 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace place,
         NuclearWaffleEnemyState state)
     {
-        if (--state.WaitingTimer > 0)
+        if (!state.WaitingTimer.Step())
             return;
 
         NuclearWaffleSpawnSettings settings = place.SpawnSettings<NuclearWaffleSpawnSettings>();
-        state.WaitingTimer = settings.WaitTime + EnemyWaitDefinitions.RunOutUpdate;
+        state.WaitingTimer = UpdateCountdown.For(settings.WaitTime + EnemyWaitDefinitions.RunOutUpdate);
         state.SweepAngle = settings.Sweep.StartAngle;
         state.Action = NuclearWaffleAction.Sweeping;
         state.RestartTurns();

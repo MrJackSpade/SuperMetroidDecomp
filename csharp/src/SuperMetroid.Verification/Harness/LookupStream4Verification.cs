@@ -873,7 +873,7 @@ internal static class LookupStream4Verification
         // The station's escape flies the getaway (#2228), from its second frame.
         CeresEscape escape = enemies.CeresEscape;
         escape.BeginGetaway();
-        escape.Floor.GetawayUpdate = 1;
+        escape.Floor.Flight = UpdateCountdownAccess.AtAge(CeresRidleyGetawayCurve.Duration, 1);
         SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
         void tick(int frameCounter) => escape.RunGetawayRoomMain(samus, map, frameCounter);
         byte[] untouched = new byte[SnesVram.ByteCount];
@@ -1249,7 +1249,7 @@ internal static class LookupStream4Verification
             var state = new NorfairRidleyState { GrabState = RidleyGrabState.CarryingSamus, Tail = { WhipRequested = false, Action = RidleyTailAction.Pogo }, ReleaseIntangibility = BossCountdown.Lasting(99) };
             release(state, samus);
             // The release's intangibility lasts its frames: the countdown runs out on the step of the last.
-            AssertEqual((flags & 0x40) != 0 ? morphedFrames - 1 : ordinaryFrames - 1, state.ReleaseIntangibility?.Count, "Actual release preserves native movement-dependent intangibility");
+            AssertEqual((flags & 0x40) != 0 ? morphedFrames - 1 : ordinaryFrames - 1, state.ReleaseIntangibility?.CartridgeCount, "Actual release preserves native movement-dependent intangibility");
             AssertEqual(RidleyGrabState.Released, state.GrabState, "Actual release clears grab");
             AssertTrue(state.Tail.WhipRequested, "Actual release requests tail whip");
             AssertEqual(RidleyTailAction.Neutral, state.Tail.Action, "Actual release resets tail controller");
@@ -1751,7 +1751,7 @@ internal static class LookupStream4Verification
                 Action<RoomEnemyPlace,DraygonEnemyState,SamusState> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
-                    body.FlashTimer=timer; hurt(body,state,SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus()); LayDraygonShading(cgram, selected, state.Colours);
+                    body.HurtFlash.Restart(timer); hurt(body,state,SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus()); LayDraygonShading(cgram, selected, state.Colours);
                     for(int color=0;color<16;color++)AssertEqual(Pack((timer==2?document.WhiteFlash:document.Sprite)[color]),cgram.Colors[240+color],"Actual sprite hurt phase and clear/color targets");
                 }
             }
@@ -1803,7 +1803,7 @@ internal static class LookupStream4Verification
                 Action<RoomEnemyPlace,DraygonEnemyState,SamusState> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
-                    body.FlashTimer=timer; hurt(body,state,SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus()); LayDraygonShading(cgram, selected, state.Colours);
+                    body.HurtFlash.Restart(timer); hurt(body,state,SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus()); LayDraygonShading(cgram, selected, state.Colours);
                     for(int color=0;color<16;color++) AssertEqual(timer==2?Pack(document.WhiteFlash[color]):color is >=9 and <=12?Pack(document.HealthBands[3][color-9]):Pack(document.Background[color]),cgram.Colors[80+color],"Actual hurt producer preserves targets and health overlay");
                 }
             }
@@ -1855,9 +1855,9 @@ internal static class LookupStream4Verification
                     for (int shade = 0; shade < 4; shade++) AssertEqual(Pack(document.HealthBands[band][shade]), cgram.Colors[89 + shade], "Actual health producer shows the band's colours");
                     PictureShading heldBand = DraygonRoomShading(state.Colours); update(state);
                     AssertEqual(heldBand, DraygonRoomShading(state.Colours), "Same health band keeps the shading it shows");
-                    body.FlashTimer = 2; hurt(body,state,SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus()); LayDraygonShading(cgram, selected, state.Colours);
+                    body.HurtFlash.Restart(2); hurt(body,state,SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus()); LayDraygonShading(cgram, selected, state.Colours);
                     for (int color = 0; color < 16; color++) AssertEqual(Pack(document.WhiteFlash[color]),cgram.Colors[80 + color],"Actual white hurt phase");
-                    body.FlashTimer = 0; hurt(body,state,SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus()); LayDraygonShading(cgram, selected, state.Colours);
+                    body.HurtFlash.End(); hurt(body,state,SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus()); LayDraygonShading(cgram, selected, state.Colours);
                     for (int color = 0; color < 16; color++)
                     {
                         AssertEqual(color is >= 9 and <= 12 ? Pack(document.HealthBands[band][color - 9]) : Pack(document.Background[color]), cgram.Colors[80 + color], "Actual normal hurt restores selected belly band");
@@ -1968,7 +1968,7 @@ internal static class LookupStream4Verification
                 }
                 AssertEqual(RidleyRevealPhase.TakingOff, state.RevealPhase, "Native terminator handoff");
                 AssertEqual<int?>(RidleyLiquidDefinitions.BattleHeight, liquid.TargetSurface, "Native liquid target handoff");
-                AssertEqual(8, state.Flight.Wings.Countdown, "Native wing timer handoff");
+                AssertEqual(8, state.Flight.Wings.Countdown.Left, "Native wing timer handoff");
                 AssertTrue(state.Tail.Links.All(segment => segment.Active), "Native tail activation handoff");
             }
         }
@@ -2173,7 +2173,7 @@ internal static class LookupStream4Verification
                 RidleyExplosionFragmentState fragmentState = fragment.SpeciesState<RidleyExplosionFragmentState>()
                     ?? throw new InvalidOperationException("A spawned fragment has no state.");
                 AssertEqual((ushort)((0x100 + 0x10 * index) & 0x130), fragmentState.Velocity.X.RawValue, "Actual breakup maps each random draw to its original fragment");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + expected[index])), fragmentState.Lifetime.Count, "Actual breakup preserves each unresolved native lifetime");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + expected[index])), fragmentState.Lifetime.CartridgeCount, "Actual breakup preserves each unresolved native lifetime");
             }
         }
         Console.WriteLine("Ridley ordered spawning: native twelve-call order, exact RNG assignment, partial/full pool exhaustion pass.");

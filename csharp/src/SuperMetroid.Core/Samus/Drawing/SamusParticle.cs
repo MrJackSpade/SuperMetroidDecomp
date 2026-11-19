@@ -42,7 +42,7 @@ public sealed class SamusParticle
             // Every producer starts a hidden particle on its first picture, which shows for its own updates once the wait ends.
             if (from != AnimationPlace.StartOfAnimation)
                 throw new ArgumentOutOfRangeException(nameof(from), from, "A hidden particle starts on its first picture.");
-            HiddenUpdatesLeft = start.HiddenUpdates;
+            Hidden = UpdateCountdown.For(start.HiddenUpdates);
         }
         Position = position;
         Drift = drift;
@@ -57,8 +57,8 @@ public sealed class SamusParticle
     /// <summary>The picture it shows, or null while it waits hidden.</summary>
     public SamusAtmosphereFrame? Shown => IsHidden ? null : Animation.Shown;
 
-    /// <summary>The updates it still waits before it shows, counting the update it first shows on; zero once shown.</summary>
-    public int HiddenUpdatesLeft { get; private set; }
+    /// <summary>The wait before it shows, counting the update it first shows on; over once shown.</summary>
+    public UpdateCountdown Hidden { get; private set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// Where it is, in whole room pixels: the camera is subtracted only when drawing, a diving splash follows the live water surface and lava spray and dust drift on each update they are shown.
@@ -69,7 +69,7 @@ public sealed class SamusParticle
     public Offset16<RoomPixels> Drift { get; }
 
     /// <summary>Whether it waits hidden.</summary>
-    public bool IsHidden => HiddenUpdatesLeft > 0;
+    public bool IsHidden => Hidden.IsRunning;
 
     /// <summary>Whether its animation has run out; a finished particle is no longer shown.</summary>
     public bool IsFinished => Animation.HasStopped;
@@ -82,14 +82,14 @@ public sealed class SamusParticle
     internal static int UpdatesUntilFinished(SamusParticleKind kind, AnimationPlace from, SamusParticleStart start)
     {
         var particle = new SamusParticle(kind, from, start, default, Offset16<RoomPixels>.Zero);
-        int updates = 0;
+        var shown = new ElapsedUpdates();
         do
         {
             particle.Advance();
-            updates++;
+            shown.Count();
         }
         while (!particle.IsFinished);
-        return updates;
+        return shown.Age;
     }
 
     /// <summary>
@@ -100,12 +100,8 @@ public sealed class SamusParticle
     {
         if (IsFinished)
             throw new InvalidOperationException("A finished particle is not advanced.");
-        if (HiddenUpdatesLeft > 0)
-        {
-            HiddenUpdatesLeft--;
-            if (HiddenUpdatesLeft > 0)
-                return;
-        }
+        if (Hidden.IsRunning && !Hidden.Count())
+            return;
         Animation.Step();
         if (IsFinished)
             return;

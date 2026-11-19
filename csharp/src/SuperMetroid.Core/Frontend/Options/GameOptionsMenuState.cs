@@ -49,8 +49,8 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     private int pageVerticalScroll;
     /// <summary>The selection missile's frame cycle.</summary>
     private readonly MenuMissileAnimation missile;
-    /// <summary>Updates left of the opening's black hold (<see cref="GameOptionsPhase.BlackHold"/>).</summary>
-    private int blackHoldUpdatesLeft = GameOptionsDefinitions.BlackHoldUpdates;
+    /// <summary>The opening's black hold (<see cref="GameOptionsPhase.BlackHold"/>), counted once each update.</summary>
+    private readonly UpdateCountdown blackHold = UpdateCountdown.Lasting(GameOptionsDefinitions.BlackHoldUpdates);
 
     /// <summary>Creates the complete primary, controller, and special options-menu state.</summary>
     /// <param name="audio">The audio queues the cursor and confirmation sounds join.</param>
@@ -135,13 +135,13 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         controller.Latch(controllerInput);
         ControllerButton pressed = controller.NewlyPressed;
         // The selection missile animates from the black hold's second update on.
-        if (Phase != GameOptionsPhase.BlackHold || blackHoldUpdatesLeft < GameOptionsDefinitions.BlackHoldUpdates)
+        if (Phase != GameOptionsPhase.BlackHold || !blackHold.IsUncounted)
             missile.Step();
 
         switch (Phase)
         {
             case GameOptionsPhase.BlackHold:
-                if (--blackHoldUpdatesLeft == 0)
+                if (blackHold.StepEnds())
                     Phase = GameOptionsPhase.FadeIn;
                 break;
 

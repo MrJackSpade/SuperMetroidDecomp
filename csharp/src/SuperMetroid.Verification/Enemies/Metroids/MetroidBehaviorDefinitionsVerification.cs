@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Projectiles;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -68,7 +69,7 @@ internal static class MetroidBehaviorDefinitionsVerification
                 new RoomEffectActor(RoomEffectActorKind.MetroidElectricity, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard),
                 new RoomEffectActor(RoomEffectActorKind.MetroidShell, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
             {
-                EscapeMovesLeft = timer,
+                EscapeMovesLeft = UpdateCountdown.For(timer),
                 Movement = MetroidMovement.PowerBombEscape,
                 Playback = new(MetroidAnimations.StartingWith(MetroidSegment.DrainingSamus), AnimationPlace.StartOfAnimation),
             };
@@ -80,7 +81,7 @@ internal static class MetroidBehaviorDefinitionsVerification
                 $"production Metroid escape X timer {timer}");
             AssertEqual(unchecked((ushort)(0xffff + expected.Y)), place.Position.Y.Whole,
                 $"production Metroid escape Y timer {timer}");
-            AssertEqual(timer - 1, state.EscapeMovesLeft,
+            AssertEqual(timer - 1, state.EscapeMovesLeft.UpdatesLeft,
                 $"production Metroid escape countdown {timer}");
             AssertEqual(timer == 1 ? MetroidMovement.Homing : MetroidMovement.PowerBombEscape,
                 state.Movement,
@@ -99,22 +100,19 @@ internal static class MetroidBehaviorDefinitionsVerification
             new RoomEffectActor(RoomEffectActorKind.MetroidElectricity, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard),
             new RoomEffectActor(RoomEffectActorKind.MetroidShell, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
         {
-            EscapeMovesLeft = 2,
+            EscapeMovesLeft = UpdateCountdown.Lasting(2),
             Movement = MetroidMovement.Homing,
         };
         frozenPlace.SetSpeciesState(frozen);
         var strain = new List<(int MovesLeft, int Flash)>();
         for (int update = 0; update < 3; update++)
         {
-            frozenPlace.FlashTimer = 0;
+            frozenPlace.HurtFlash.End();
             MetroidBehavior.RunMetroidFrozen(frozenPlace);
-            strain.Add((frozen.EscapeMovesLeft, frozenPlace.FlashTimer));
+            strain.Add((frozen.EscapeMovesLeft.UpdatesLeft, frozenPlace.HurtFlash.UpdatesLeft));
         }
         AssertTrue(strain.SequenceEqual([(1, MetroidBehaviorDefinitions.EscapeFlashDuration), (0, MetroidBehaviorDefinitions.EscapeFlashDuration), (0, 0)]),
             "a frozen escaping Metroid strains its two moves away, flashing, then stays still with none");
-        AssertThrows<ArgumentOutOfRangeException>(() => frozen.EscapeMovesLeft = -1, "an escape never has fewer than no moves left");
-        AssertThrows<ArgumentOutOfRangeException>(() => frozen.EscapeMovesLeft = MetroidBehaviorDefinitions.EscapeDuration + 1,
-            "an escape never has more than its four moves left");
     }
 
     /// <summary>Checks all eight random cry selections through the real instruction interpreter.</summary>

@@ -20,7 +20,7 @@ public sealed class YellowPipeBugState
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
 
     /// <summary>The countdown before straight flight begins.</summary>
-    public int EmergenceDelay { get; internal set; }
+    public UpdateCountdown EmergenceDelay { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// The whole-mark place along the speed curve the bug's arc reads (#2473), from the curve's start through the curve's

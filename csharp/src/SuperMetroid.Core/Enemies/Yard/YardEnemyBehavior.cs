@@ -347,8 +347,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (state.TurnsSuppressed)
-            state.TurnSuppressionPassesLeft--;
+        state.TurnSuppressionPassesLeft.Step();
     }
 
     /// <summary>Starts a turn animation immediately and resets the temporary turn suppression counter.</summary>

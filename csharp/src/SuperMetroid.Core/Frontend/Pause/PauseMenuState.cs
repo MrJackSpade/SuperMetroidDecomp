@@ -728,13 +728,14 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     }
 
     /// <summary>
-    /// Updates left in the manual reserve transfer's sound cadence, zero while no transfer runs (#1985): it starts at the
-    /// reserve energy rounded up to a whole sound interval and the refill sound plays as it enters each interval's last
-    /// update. Each update moves one unit of reserve energy, so the reserves run out before the cadence does; a transfer
-    /// started with none (the cursor stays on the transfer when no beam can take it) takes its sound on its only update,
-    /// as the game's countdown from zero did.
+    /// The manual reserve transfer's sound cadence, none while no transfer runs (#1985): it lasts the reserve energy rounded
+    /// up to a whole sound interval, counted once each transfer update, and the refill sound plays on each update that
+    /// starts one of its intervals (<see cref="PauseReserveEnergyDefinitions.RefillSoundStartsInterval"/>). Each update moves
+    /// one unit of reserve energy, so the reserves run out before the cadence does; a transfer started with none (the
+    /// cursor stays on the transfer when no beam can take it) takes its sound on its only update, as the game's countdown
+    /// from zero did.
     /// </summary>
-    internal int ReserveRefillSoundDelay { get; private set; }
+    internal UpdateCountdown? ReserveRefillSound { get; private set; }
 
     /// <summary>Runs the reserve tank controls' input before their D-pad response.</summary>
     private void HandleReserveInput(ControllerButton pressed)
@@ -751,15 +752,15 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // The manual transfer.
 
         const int interval = PauseReserveEnergyDefinitions.RefillSoundInterval;
-        if (ReserveRefillSoundDelay == 0)
+        if (ReserveRefillSound is not { } cadence)
         {
             if ((pressed & ControllerButton.A) == ControllerButton.None) return;
-            ReserveRefillSoundDelay = (samus.ReserveEnergy + interval - 1) / interval * interval;
+            cadence = UpdateCountdown.For((samus.ReserveEnergy + interval - 1) / interval * interval);
+            ReserveRefillSound = cadence;
         }
-        ReserveRefillSoundDelay--;
-        int placeInInterval = (ReserveRefillSoundDelay % interval + interval) % interval;
-        if (placeInInterval == interval - 1)
+        if (PauseReserveEnergyDefinitions.RefillSoundStartsInterval.IsDue(cadence.UpdatesLeft))
             audio.QueueSound(PauseReserveEnergyDefinitions.RefillSound, PauseReserveEnergyDefinitions.RefillSoundPriority);
+        cadence.Step();
 
         int amount = PauseEquipmentRules.ReserveEnergyPerFrame;
         samus.Health += amount;
@@ -777,7 +778,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // The refill drains every reserve even when only a small top-up was needed.
         // The reserves empty and the selector returns to the reserve mode switch.
         samus.ReserveEnergy = 0;
-        ReserveRefillSoundDelay = 0;
+        ReserveRefillSound = null;
         SelectedControl = PauseEquipmentControls.ReserveMode;
     }
 }

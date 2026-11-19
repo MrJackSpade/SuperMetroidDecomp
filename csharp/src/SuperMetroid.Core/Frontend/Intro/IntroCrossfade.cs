@@ -26,11 +26,8 @@ public sealed class IntroCrossfade
     private readonly IntroCrossfadeScene? incoming;
     /// <summary>The steps the crossfade has taken, from zero through <see cref="Levels"/>.</summary>
     private int steps;
-    /// <summary>
-    /// The updates the crossfade has left before its last (#1980): counted down once per update it runs, it ends on the
-    /// update it runs past zero.
-    /// </summary>
-    private int updatesLeft = IntroCinematicDefinitions.Crossfade.Updates;
+    /// <summary>The crossfade's run (#1980), counted once each update it runs: it ends on its last.</summary>
+    private readonly UpdateCountdown run = UpdateCountdown.Lasting(IntroCinematicDefinitions.Crossfade.Updates);
 
     /// <summary>The opening before its first crossfade: every scene shows at full.</summary>
     internal IntroCrossfade()
@@ -67,12 +64,13 @@ public sealed class IntroCrossfade
     {
         if (outgoing is not { } from || incoming is not { } to)
             throw new InvalidOperationException("The opening has not started a crossfade.");
-        if (updatesLeft < 0)
+        if (run.IsOver)
             throw new InvalidOperationException($"The opening's crossfade from {from} to {to} has already ended.");
-        if (updatesLeft % IntroCinematicDefinitions.Crossfade.StepFrames == 0)
+        if (IntroCadenceDefinitions.CrossfadeStepEveryFourthUpdate.IsDue(run.UpdatesLeft))
             Step();
-        updatesLeft--;
-        return new IntroCrossfadeTick(from, to, updatesLeft);
+        run.Count();
+        // The tick counts the updates left before the crossfade's last one: one fewer than the run has left.
+        return new IntroCrossfadeTick(from, to, run.UpdatesLeft - 1);
     }
 
     /// <summary>The level <paramref name="scene"/> shows, from zero (black) to <see cref="Levels"/> (its colours).</summary>

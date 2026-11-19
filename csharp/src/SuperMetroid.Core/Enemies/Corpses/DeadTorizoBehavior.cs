@@ -79,8 +79,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
 
             case DeadTorizoPhase.PreRot:
-                state.PreRotDelayCounter++;
-                if (state.PreRotDelayCounter >= CorpseRotScheduleDefinitions.PreRotDelayUpdates)
+                if (state.PreRotDelay.Step())
                 {
                     place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
                     state.Phase = DeadTorizoPhase.Rotting;
@@ -107,7 +106,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.FallSpeed += DeadTorizoCorpseDefinitions.RotGravity;
         place.Position = place.Position.WithY(place.Position.Y.MovedBy(state.FallSpeed));
-        state.RotUpdateCount++;
+        state.SandForming.Step();
         bool stillRotting = state.Rot.Step(state.Rows.MoveRow, _ => FinishDeadTorizoCorpseRow());
         if (!stillRotting)
             state.Phase = DeadTorizoPhase.Finished;
@@ -176,8 +175,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static CorpseRotRows ShownSand(DeadTorizoEnemyState state)
     {
-        int lines = Math.Min(DeadTorizoCorpseDefinitions.SandLines,
-            state.RotUpdateCount / DeadTorizoCorpseDefinitions.RotUpdatesPerSandLine);
+        int lines = state.SandForming.Age / DeadTorizoCorpseDefinitions.RotUpdatesPerSandLine;
         return CorpseRotRows.Showing(DeadTorizoCorpseDefinitions.SandRowCount, row => row >= DeadTorizoCorpseDefinitions.SandRowCount - lines);
     }
 

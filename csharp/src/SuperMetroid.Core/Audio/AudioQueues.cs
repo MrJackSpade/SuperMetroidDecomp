@@ -38,8 +38,11 @@ public sealed class AudioQueues
     /// next request from the queue.
     /// </summary>
     internal PendingMusicDispatch? PendingMusic { get; private set; }
-    /// <summary>Sound-queue passes, 0 through <see cref="AudioQueueDefinitions.MusicChangeSoundDowntimePasses"/>, for which a music change withdraws every library's sound request.</summary>
-    private int _soundDowntimePasses;
+    /// <summary>
+    /// The sound-queue passes, <see cref="AudioQueueDefinitions.MusicChangeSoundDowntimePasses"/> from a music change, for
+    /// which the change withdraws every library's sound request: counted once on each pass it withdraws them.
+    /// </summary>
+    private readonly UpdateCountdown _soundDowntime = UpdateCountdown.Ended();
 
     /// <summary>The gameplay states every sound request is tested against as it is made (<see cref="SoundSuppression"/>).</summary>
     private readonly IGameplaySoundState _gameplay;
@@ -86,7 +89,7 @@ public sealed class AudioQueues
         foreach (SoundQueue queue in SoundQueues.Values)
             queue.Clear();
         SoundHandshakes.Reset();
-        _soundDowntimePasses = 0;
+        _soundDowntime.End();
         DataSet = null;
         PlayingTrack = null;
         _pendingPowerOnRequests.Clear();
@@ -283,13 +286,9 @@ public sealed class AudioQueues
     {
         if (PendingMusic is PendingMusicDispatch pending)
         {
-            // A fetched request waits at least the shortest delay, so the wait reaches zero on its last pass and never wraps.
-            int passesUntilSent = Ensure.AtLeastZero(pending.MusicQueuePassesUntilSent - 1);
-            if (passesUntilSent != 0)
-            {
-                PendingMusic = pending with { MusicQueuePassesUntilSent = passesUntilSent };
+            // A fetched request waits at least the shortest delay, so its wait ends on its last pass.
+            if (!pending.Wait.Count())
                 return;
-            }
             PendingMusic = null;
 
             if (pending.Request is MusicRequest.ChangeDataSet change)
@@ -298,7 +297,7 @@ public sealed class AudioQueues
                 PlayingTrack = null;
                 requests.Add(new AudioRequest.ChangeMusicDataSet(change.DataSet));
                 Music.Dequeue();
-                _soundDowntimePasses = AudioQueueDefinitions.MusicChangeSoundDowntimePasses;
+                _soundDowntime.Restart(AudioQueueDefinitions.MusicChangeSoundDowntimePasses);
                 return;
             }
 
@@ -311,11 +310,11 @@ public sealed class AudioQueues
             };
             requests.Add(AudioRequest.ForTrack(PlayingTrack));
             Music.Dequeue();
-            _soundDowntimePasses = AudioQueueDefinitions.MusicChangeSoundDowntimePasses;
+            _soundDowntime.Restart(AudioQueueDefinitions.MusicChangeSoundDowntimePasses);
         }
 
         if (Music.TryPeek(out QueuedMusic? next))
-            PendingMusic = new PendingMusicDispatch(next.Request, next.Delay.Updates);
+            PendingMusic = new PendingMusicDispatch(next.Request, UpdateCountdown.Lasting(next.Delay.Updates));
     }
 
     /// <summary>The area theme of <paramref name="dataSet"/>, the data set loaded as an area-theme request plays.</summary>
@@ -329,10 +328,9 @@ public sealed class AudioQueues
         SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> acknowledgements,
         List<AudioRequest> requests)
     {
-        if (_soundDowntimePasses != 0)
+        if (_soundDowntime.IsRunning)
         {
-            // Guarded by the nonzero test above: the downtime counts down to zero and never wraps.
-            _soundDowntimePasses = Ensure.AtLeastZero(_soundDowntimePasses - 1);
+            _soundDowntime.Count();
             foreach (SoundEffectLibrary library in SoundEffectLibraries.InQueueOrder)
                 requests.Add(new AudioRequest.ClearSoundRequest(library));
             SoundHandshakes.DropAwaitedRequests();

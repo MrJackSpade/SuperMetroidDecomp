@@ -48,7 +48,7 @@ internal static class AerialSpreadTransitionVerification
         if (delay == 6 && frame is >= 92 and <= 104)
         {
             AssertEqual(80, samus.BeamCharge.FlareCounter, "airborne morph preserves earned charge while Down is held");
-            AssertEqual((ushort)(frame - 91), samus.BombSpreadChargeTimeoutCounter, "airborne hold advances after morph completes");
+            AssertEqual((ushort)(frame - 91), samus.BombSpreadCharge.Age, "airborne hold advances after morph completes");
         }
         if (releasedSpread)
             AssertEqual(0, samus.BeamCharge.FlareCounter, "airborne spread consumes charge");
@@ -71,7 +71,7 @@ internal static class AerialSpreadTransitionVerification
                 AssertEqual(left ? SamusPoseId.MorphingTransitionRightPose : SamusPoseId.MorphingTransitionLeftPose,
                     samus.Pose, "six-frame airborne morph follows charged walljump");
             if (frame >= morphFrame + 7 && frame < releaseFrame)
-                AssertEqual((ushort)(frame - morphFrame - 6), samus.BombSpreadChargeTimeoutCounter, "walljump spread hold cadence");
+                AssertEqual((ushort)(frame - morphFrame - 6), samus.BombSpreadCharge.Age, "walljump spread hold cadence");
             if (frame < releaseFrame)
                 AssertEqual(0, runtime.BombProjectiles.BombCounter, "Down retains the aerial spread");
             if (frame == releaseFrame)

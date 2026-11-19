@@ -39,7 +39,7 @@ public static class SamusKnockbackMovement
         // A knockback starts only with a live producer timer, unfrozen time, and no
         // knockback direction installed. An installed direction means a previous request already
         // holds her movement; it must finish instead of being restarted.
-        if (samus.KnockbackTimer == 0 ||
+        if (samus.KnockbackHold.IsOver ||
             timeIsFrozen ||
             samus.KnockbackDirection != SamusKnockbackDirection.None ||
             samus.KnockbackActive)
@@ -90,7 +90,7 @@ public static class SamusKnockbackMovement
         // Enemy contact has already established the knockback timer before the knockback check selects a pose.
         // Turning, grapple, current knockback, damage boost, and special-movement bodies all
         // refuse knockback: they retain the timer/flicker but do not give the knockback her movement.
-        samus.KnockbackTimer = launch.KnockbackTimer;
+        samus.KnockbackHold = UpdateCountdown.For(launch.KnockbackTimer);
         if (response == SamusKnockbackResponse.Refused)
             return false;
 
@@ -308,7 +308,7 @@ public static class SamusKnockbackMovement
     public static bool IsExpiredHitInterruptionPending(SamusState samus)
     {
         Ensure.NotNull(samus);
-        return samus.KnockbackTimer == 0 && samus.KnockbackDirection != SamusKnockbackDirection.None;
+        return samus.KnockbackHold.IsOver && samus.KnockbackDirection != SamusKnockbackDirection.None;
     }
 
     /// <summary>

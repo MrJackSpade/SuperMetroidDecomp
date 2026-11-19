@@ -130,7 +130,7 @@ internal static class CeresEscapeHandoffVerification
             position: new(32, 100));
 
         StepFrames(60, _ => state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, carryover));
-        AssertEqual(0, state.HoldFramesLeft, "shaft door delay retains zero for one room-main call");
+        AssertEqual(0, state.Hold.UpdatesLeft, "shaft door delay retains zero for one room-main call");
         AssertEqual(
             0,
             state.Tilt.StepsFromLevel,
@@ -145,11 +145,11 @@ internal static class CeresEscapeHandoffVerification
         // Consume records 35..67. The sweep then reverses at step 68, and one more call proves step 68 reads record 68.
         // The following room inherits the backward steps with the native phase word's sign bit.
         for (int i = 0; i < 33; i++)
-            StepFrames(state.HoldFramesLeft + 1, _ => state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, carryover));
+            StepFrames(state.Hold.UpdatesLeft + 1, _ => state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, carryover));
         AssertEqual(CeresShaftRotationDefinitions.FullTiltSteps, state.Tilt.StepsFromLevel, "shaft forward sweep enters the reverse sweep at the full clockwise tilt");
         AssertEqual(CeresShaftSweep.Backward, state.Sweep, "shaft forward sweep reverses after step 67");
         AssertEqual(0x8044, carryover.Countdown.RawValue, "the following room inherits the reverse step as phase $8044");
-        StepFrames(state.HoldFramesLeft + 1, _ => state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, carryover));
+        StepFrames(state.Hold.UpdatesLeft + 1, _ => state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, carryover));
         AssertEqual(CeresShaftRotationDefinitions.FullTiltSteps - 1, state.Tilt.StepsFromLevel, "shaft reverse sweep turns back");
         AssertEqual(0x8043, carryover.Countdown.RawValue, "the following room inherits the next reverse step as phase $8043");
         AssertEqual(34 / CeresShaftRotationDefinitions.StepsPerRadian, state.Transform.Angle,
@@ -184,11 +184,11 @@ internal static class CeresEscapeHandoffVerification
     {
         var departure = new CeresDepartureState();
         departure.Begin();
-        AssertEqual(60, departure.HoldFramesRemaining, "Ceres state 20 starts at 60");
+        AssertEqual(60, departure.Hold.UpdatesLeft, "Ceres state 20 starts at 60");
 
         StepFrames(59, _ =>
             AssertTrue(!departure.StepHoldAfterGameplay(), "first 59 state-20 calls retain hold"));
-        AssertEqual(1, departure.HoldFramesRemaining, "state 20 has one call remaining");
+        AssertEqual(1, departure.Hold.UpdatesLeft, "state 20 has one call remaining");
         AssertTrue(departure.StepHoldAfterGameplay(), "60th state-20 call enters blackout");
         AssertEqual(CeresDeparturePhase.FadingToBlack, departure.Phase, "state 21 is active");
 

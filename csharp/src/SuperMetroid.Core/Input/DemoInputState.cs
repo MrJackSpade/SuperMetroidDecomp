@@ -22,10 +22,10 @@ public sealed class DemoInputState
     public bool IsPlaying => Enabled && Position is not null;
 
     /// <summary>
-    /// Updates remaining in the active demo input: at least one while the recording plays, since every recorded input lasts
-    /// at least one update (<see cref="DemoInput.Duration"/>), and zero once the recording has ended or been cleared.
+    /// The active demo input's hold, counted once each step: running while the recording plays, since every recorded input
+    /// lasts at least one update (<see cref="DemoInput.Duration"/>), and over once the recording has ended or been cleared.
     /// </summary>
-    private int _frameHold;
+    private readonly UpdateCountdown _frameHold = UpdateCountdown.Ended();
 
     /// <summary>The actions the demo newly pressed on the previous step, handed to the drawing-input history on the next.</summary>
     private GameplayAction _previousNewlyPressed;
@@ -46,7 +46,7 @@ public sealed class DemoInputState
     {
         Enabled = false;
         Position = null;
-        _frameHold = 0;
+        _frameHold.End();
         Held = GameplayAction.None;
         NewlyPressed = GameplayAction.None;
         _previousNewlyPressed = GameplayAction.None;
@@ -70,7 +70,7 @@ public sealed class DemoInputState
     public void Load(DemoInputRecordingId recording)
     {
         Position = DemoPlaybackPosition.Start(recording);
-        _frameHold = 1;
+        _frameHold.Restart(1);
     }
 
     /// <summary>
@@ -83,8 +83,7 @@ public sealed class DemoInputState
         if (!Enabled || Position is not { } position)
             return;
 
-        _frameHold--;
-        if (_frameHold == 0)
+        if (_frameHold.StepEnds())
             PlayNextInput(position, cue);
         RememberPressed();
     }
@@ -126,7 +125,7 @@ public sealed class DemoInputState
         }
 
         DemoInput input = recording.Inputs[position.NextInput];
-        _frameHold = input.Duration;
+        _frameHold.Restart(input.Duration);
         Held = input.Held;
         NewlyPressed = input.NewlyPressed;
         Position = position with { NextInput = position.NextInput + 1 };

@@ -246,7 +246,7 @@ internal sealed class PhantoonCombat
 
         RoomEnemyPlace body = state.Body;
         if (CommonEnemyEmptyFrames.ShotsPass(body) ||
-            body.InvincibilityTimer != 0 ||
+            body.Invincibility.IsRunning ||
             body.Presence.HasAny(EnemyPresence.Deleted) ||
             body.Contact.HasAny(EnemyContact.IgnoresSamus))
         {

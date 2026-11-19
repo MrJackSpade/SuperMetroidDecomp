@@ -54,7 +54,7 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>The special colouring timer: 180 stored, 60 windup, and 15 during active motion.</summary>
-    public int ShineTimer { get; private set; }
+    public UpdateCountdown ShineTimer { get; private set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// Where the shine's glow stands (#2387): the stored shine's six shades or the shinespark's four, one each colouring
@@ -70,14 +70,14 @@ public sealed class SamusShinesparkState
     /// The updates the windup still waits for a direction: <see cref="ShinesparkDefinitions.WindupFrames"/> when it
     /// starts, launching her upward on the update it runs out.
     /// </summary>
-    public int WindupCountdown { get; private set; }
+    public UpdateCountdown WindupCountdown { get; private set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// The updates the crash still holds its echoes on Samus once its orbit has drawn in:
     /// <see cref="ShinesparkDefinitions.CrashHoldFrames"/> when the hold starts, finishing the crash on the update it runs
     /// out.
     /// </summary>
-    public int CrashHoldCountdown { get; private set; }
+    public UpdateCountdown CrashHoldCountdown { get; private set; } = UpdateCountdown.Ended();
 
     /// <summary>The shinespark's phase: a stored shine, or the windup, flight or crash that moves Samus.</summary>
     public ShinesparkPhase Phase { get; private set; }
@@ -106,7 +106,7 @@ public sealed class SamusShinesparkState
     internal void RelinquishToCrystalFlash()
     {
         Phase = ShinesparkPhase.Inactive;
-        ShineTimer = 0;
+        ShineTimer = UpdateCountdown.Ended();
         ShineGlow = ShineGlowStart;
     }
 
@@ -154,7 +154,7 @@ public sealed class SamusShinesparkState
     /// </summary>
     internal void RelinquishColoursToXray()
     {
-        ShineTimer = 0;
+        ShineTimer = UpdateCountdown.Ended();
         ShineGlow = ShineGlowStart;
         if (Phase == ShinesparkPhase.Stored)
             Phase = ShinesparkPhase.Inactive;
@@ -185,7 +185,7 @@ public sealed class SamusShinesparkState
         if (!speedBoostCounter.IsAtFullStage)
             return false;
 
-        ShineTimer = ShinesparkDefinitions.StoredShineFrames;
+        ShineTimer = UpdateCountdown.For(ShinesparkDefinitions.StoredShineFrames);
         _colouring.Take(SamusSpecialColouringKind.SpeedBoosterShine);
         ShineGlow = ShineGlowStart;
         Phase = ShinesparkPhase.Stored;
@@ -246,8 +246,8 @@ public sealed class SamusShinesparkState
         samus.BombJumpRequest = SamusBombJumpRequest.None;
 
         _acceleration.StartSpark(ShinesparkDefinitions.WindupInitialVerticalAcceleration);
-        WindupCountdown = ShinesparkDefinitions.WindupFrames;
-        ShineTimer = ShinesparkDefinitions.WindupShadeFrames;
+        WindupCountdown = UpdateCountdown.For(ShinesparkDefinitions.WindupFrames);
+        ShineTimer = UpdateCountdown.For(ShinesparkDefinitions.WindupShadeFrames);
         _colouring.Take(SamusSpecialColouringKind.Shinesparking);
         ShineGlow = ShineGlowStart;
         Phase = ShinesparkPhase.Windup;
@@ -310,7 +310,7 @@ public sealed class SamusShinesparkState
         if (Phase == ShinesparkPhase.Windup)
         {
             // The windup launches Samus upward on the update its countdown runs out.
-            bool timedOut = --WindupCountdown == 0;
+            bool timedOut = WindupCountdown.StepEnds();
             SamusPoseId? pendingLaunchPose = null;
             if (timedOut)
             {
@@ -392,10 +392,10 @@ public sealed class SamusShinesparkState
             return false;
 
         if (colouring == SamusSpecialColouringKind.SpeedBoosterShine &&
-            ShineTimer == ShinesparkDefinitions.StoredShineFrames - ShinesparkDefinitions.StoredShineSoundDelayFrames)
+            ShineTimer.UpdatesLeft == ShinesparkDefinitions.StoredShineFrames - ShinesparkDefinitions.StoredShineSoundDelayFrames)
             AudioRequests.QueueSound(RoomSound.StoredShinespark, SoundRequestPriority.High);
 
-        bool expired = --ShineTimer <= 0;
+        bool expired = ShineTimer.Step();
         if (expired)
         {
             _colouring.Release(colouring);
@@ -452,7 +452,7 @@ public sealed class SamusShinesparkState
     private ShinesparkMovementResult StepCrashOrbit(
         SamusState samus)
     {
-        ShineTimer = ShinesparkDefinitions.SparkShadeFrames;
+        ShineTimer = UpdateCountdown.For(ShinesparkDefinitions.SparkShadeFrames);
         switch (CrashOrbitStage)
         {
             case ShinesparkCrashOrbitStage.Expanding:
@@ -478,7 +478,7 @@ public sealed class SamusShinesparkState
                 if (CrashRadius == 0)
                 {
                     Phase = ShinesparkPhase.CrashHold;
-                    CrashHoldCountdown = ShinesparkDefinitions.CrashHoldFrames;
+                    CrashHoldCountdown = UpdateCountdown.For(ShinesparkDefinitions.CrashHoldFrames);
                     CrashOrbitStage = ShinesparkCrashOrbitStage.Expanding;
                     FirstCrashEchoAngle = RotationAngle.Zero;
                     SecondCrashEchoAngle = RotationAngle.Zero;
@@ -502,8 +502,8 @@ public sealed class SamusShinesparkState
     /// <summary>Runs one update of the crash's hold, finishing the crash once the hold runs out.</summary>
     private ShinesparkMovementResult StepCrashHold()
     {
-        ShineTimer = ShinesparkDefinitions.SparkShadeFrames;
-        if (--CrashHoldCountdown == 0)
+        ShineTimer = UpdateCountdown.For(ShinesparkDefinitions.SparkShadeFrames);
+        if (CrashHoldCountdown.StepEnds())
             Phase = ShinesparkPhase.CrashFinish;
         return new ShinesparkMovementResult(
             false);
@@ -525,7 +525,7 @@ public sealed class SamusShinesparkState
                 SamusBeamCombinations.Of(samus.EquippedBeams), samus.Position.Whole))
             _orbitTravel.LeaveEchoHeight(samus.Position.Whole.Y);
 
-        ShineTimer = ShinesparkDefinitions.FinishedShadeFrames;
+        ShineTimer = UpdateCountdown.For(ShinesparkDefinitions.FinishedShadeFrames);
         _acceleration.StopSpark();
         Phase = ShinesparkPhase.Inactive;
         return new ShinesparkMovementResult(
@@ -658,7 +658,7 @@ public sealed class SamusShinesparkState
         SamusState samus,
         ISamusRoomObjects roomObjects)
     {
-        ShineTimer = ShinesparkDefinitions.SparkShadeFrames;
+        ShineTimer = UpdateCountdown.For(ShinesparkDefinitions.SparkShadeFrames);
         samus.HorizontalSpeed.ExtraRunSpeed += samus.Kinematics.YAcceleration;
         if (samus.HorizontalSpeed.ExtraRunSpeed.Whole >= ShinesparkDefinitions.MostRunSpeed)
         {
@@ -676,7 +676,7 @@ public sealed class SamusShinesparkState
         int frameCounter,
         ISamusRoomObjects roomObjects)
     {
-        ShineTimer = ShinesparkDefinitions.SparkShadeFrames;
+        ShineTimer = UpdateCountdown.For(ShinesparkDefinitions.SparkShadeFrames);
         _acceleration.Accelerate(samus.Kinematics.YAcceleration.AsDisplacement());
         samus.Kinematics.YSpeed += _acceleration.SparkAcceleration;
 

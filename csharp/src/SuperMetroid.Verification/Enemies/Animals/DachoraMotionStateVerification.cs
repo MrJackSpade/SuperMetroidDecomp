@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -77,11 +78,11 @@ internal static class DachoraMotionStateVerification
         {
             (RoomEnemySystem enemies, RoomEnemyPlace place) = NewDachoraPlace(parameter: ushort.MaxValue);
             DachoraEchoState state = place.SpeciesState<DachoraEchoState>() ?? throw new InvalidOperationException("A negative parameter makes an echo.");
-            state.Lifetime = lifetime;
+            state.Lifetime = UpdateCountdown.For(lifetime);
 
             DachoraBehavior.RunDachoraEchoMainAi(place, frame);
 
-            AssertEqual(expected, state.Lifetime, $"echo lifetime {lifetime} counts down without wrapping");
+            AssertEqual(expected, state.Lifetime.UpdatesLeft, $"echo lifetime {lifetime} counts down without wrapping");
             AssertEqual(invisible, place.Presence.HasAny(EnemyPresence.Hidden), $"echo lifetime {lifetime} visibility");
         }
         Console.WriteLine("  Dachora echo lifetime: counts down to zero and stays there, hiding the echo.");
@@ -108,8 +109,8 @@ internal static class DachoraMotionStateVerification
         DachoraEnemyState state = body.RequireSpeciesState<DachoraEnemyState>();
         DachoraEchoState[] echoes = [.. Enumerable.Range(1, 4).Select(slot => enemies.Places.InUpdateOrder[slot].RequireSpeciesState<DachoraEchoState>())];
         foreach (DachoraEchoState echo in echoes)
-            echo.Lifetime = 3;
-        state.TrailTimer = 5;
+            echo.Lifetime = UpdateCountdown.For(3);
+        state.TrailTimer = UpdateCountdown.For(5);
         body.Position = body.Position.WithWhole(new(64, 128));
         state.Action = DachoraAction.ChargingShinespark;
         state.StartCharging(1);
@@ -119,16 +120,16 @@ internal static class DachoraMotionStateVerification
             new FrameCounters(0));
         enemies.DachoraBehavior.RunDachoraMainAi(body, frame);
         AssertEqual(DachoraAction.Shinesparking, state.Action, "the charge launches the shinespark");
-        AssertEqual(0, state.TrailTimer, "the launch clears the body's trail timer");
-        AssertTrue(echoes.All(echo => echo.Lifetime == 0), "the launch frees every echo");
+        AssertEqual(0, state.TrailTimer.UpdatesLeft, "the launch clears the body's trail timer");
+        AssertTrue(echoes.All(echo => echo.Lifetime.IsOver), "the launch frees every echo");
 
         int[][] lives = [[8, 0, 0, 0], [8, 0, 0, 0], [8, 8, 0, 0]];
         int[] timers = [1, 0, 1];
         for (int update = 0; update < lives.Length; update++)
         {
             enemies.DachoraBehavior.RunDachoraMainAi(body, frame);
-            AssertEqual(timers[update], state.TrailTimer, $"the body's trail timer after shinespark update {update}");
-            AssertEqual(string.Join(",", lives[update]), string.Join(",", echoes.Select(echo => echo.Lifetime)),
+            AssertEqual(timers[update], state.TrailTimer.UpdatesLeft, $"the body's trail timer after shinespark update {update}");
+            AssertEqual(string.Join(",", lives[update]), string.Join(",", echoes.Select(echo => echo.Lifetime.UpdatesLeft)),
                 $"the echoes' lives after shinespark update {update}");
         }
         Console.WriteLine("  Dachora trail spacing: the body's own timer places an echo every second shinespark update.");

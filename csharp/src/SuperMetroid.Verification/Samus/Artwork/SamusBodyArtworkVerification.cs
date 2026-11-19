@@ -342,7 +342,7 @@ internal static class SamusBodyArtworkVerification
                     nativeStep.PhaseAfterStep == installedStep.PhaseAfterStep &&
                     nativeSamus.DeathSequence.Flash.UpdatesLeft == installedSamus.DeathSequence.Flash.UpdatesLeft &&
                     nativeSamus.DeathSequence.Flash.Shown == installedSamus.DeathSequence.Flash.Shown &&
-                    nativeSamus.DeathSequence.FlashUpdates == installedSamus.DeathSequence.FlashUpdates &&
+                    nativeSamus.DeathSequence.Flashing.Age == installedSamus.DeathSequence.Flashing.Age &&
                     nativeSamus.DeathSequence.Explosion?.UpdatesLeft == installedSamus.DeathSequence.Explosion?.UpdatesLeft &&
                     nativeSamus.DeathSequence.ExplosionFrame == installedSamus.DeathSequence.ExplosionFrame &&
                     nativeSamus.DeathSequence.WhiteoutShade == installedSamus.DeathSequence.WhiteoutShade,

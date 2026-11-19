@@ -145,7 +145,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private static void ResolveGrappleRipperJetRipperShotAfterCommon(RoomEnemyPlace place)
     {
-        if (place.FrozenTimer == 0)
+        if (place.Freeze.IsOver)
             return;
         place.Frame = place.RequireSpeciesState<RipperEnemyState>().Heading == HorizontalDirection.Left
             ? EnemyFrameId.RipperFrozenFacingLeft

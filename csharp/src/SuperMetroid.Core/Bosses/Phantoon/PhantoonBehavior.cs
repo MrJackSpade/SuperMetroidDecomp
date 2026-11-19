@@ -297,7 +297,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         PhantoonRoundState round = state.Round;
         // His health colours return on his last hurt update, as the enemy pass is about to clear his hurt state.
-        bool showHealthColours = body.FlashTimer == EnemyCollisionDefinitions.HurtStateMinimumFlashUpdates ||
+        bool showHealthColours = body.HurtFlash.UpdatesLeft == EnemyCollisionDefinitions.HurtStateMinimumFlashUpdates ||
             !PhantoonCadenceDefinitions.HurtFlashShown.IsSetIn(body.FrameCounter) && round.HurtFlashShown;
         if (showHealthColours)
         {

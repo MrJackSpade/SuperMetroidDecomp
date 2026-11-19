@@ -36,7 +36,6 @@ internal sealed class ChainsawFuse
         ISamusRoomObjects roomObjects)
     {
         PowerBombFuseStep fuse = SamusPowerBombFuse.Step(shot.BeamFuse, sharedProjectiles.PowerBombExplosion.IsArmed);
-        shot.BeamFuse = fuse.UpdatesLeft;
         // On a beam the fuse's switch to the fast animation moves the beam's own animation as far as a bomb's fast
         // animation lies from its slow one, which lands wherever the game's animations lie there.
         if (fuse.FastAnimation && shot.Animation is { } live)

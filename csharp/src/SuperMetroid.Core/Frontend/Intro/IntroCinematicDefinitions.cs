@@ -9,8 +9,8 @@ public static class IntroCinematicDefinitions
     /// <summary>The timing of the repeating crossfades between the narration and the flashback scenes.</summary>
     public static class Crossfade
     {
-        /// <summary>The updates a crossfade counts down from before its last: it runs one update more than this.</summary>
-        public const int Updates = 127;
+        /// <summary>The updates a crossfade lasts, its last included.</summary>
+        public const int Updates = 128;
         /// <summary>Updates per crossfade step: a step shows on every fourth update counted down to the last.</summary>
         public const int StepFrames = 4;
     }

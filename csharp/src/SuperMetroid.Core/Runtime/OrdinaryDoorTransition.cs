@@ -54,7 +54,7 @@ internal sealed class OrdinaryDoorTransition : DoorTransitionStage
     internal GradualFadeSteps FadeSteps { get; set; }
 
     /// <summary>The destination-setup wait, started once the source camera has aligned.</summary>
-    internal DoorDestinationSetupWait DestinationSetupWait { get; set; }
+    internal UpdateCountdown DestinationSetupWait { get; set; } = UpdateCountdown.Ended();
 
     /// <inheritdoc/>
     internal override DoorTransitionPhase Phase => _phase;

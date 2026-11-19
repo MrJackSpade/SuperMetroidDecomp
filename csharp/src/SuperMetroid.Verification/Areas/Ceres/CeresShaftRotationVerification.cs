@@ -33,7 +33,7 @@ internal static class CeresShaftRotationVerification
                 timer = rom.ReadCartridgeWord(CeresShaftRotationDefinitions.ReferenceAddress + offset);
             var actual = state.Step(samus, elevatorDoorDestroyed: true, allowDeparture: false, carryover);
             AssertEqual(changed, actual.TiltChanged, "shaft tilt publication frame");
-            AssertEqual(timer, state.HoldFramesLeft, "shaft native timer every frame");
+            AssertEqual(timer, state.Hold.UpdatesLeft, "shaft native timer every frame");
             if (changed)
             {
                 // The native record holds the tilt's sine and cosine in 256ths: its sine is the tilt in steps, and its

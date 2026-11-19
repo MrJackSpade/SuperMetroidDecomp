@@ -16,32 +16,25 @@ namespace SuperMetroid.Core.Bosses;
 /// </summary>
 public sealed class HeldBossCountdown
 {
+    /// <summary>The wait, over once the countdown has run out or before it is first started.</summary>
+    private UpdateCountdown wait = UpdateCountdown.Ended();
+
     /// <summary>The updates the countdown has left, the one it runs out on included: none once it has run out.</summary>
-    public int UpdatesLeft { get; private set; }
+    public int UpdatesLeft => wait.UpdatesLeft;
 
     /// <summary>Whether the countdown has run out, or was never started.</summary>
-    internal bool HasRunOut => UpdatesLeft == 0;
+    internal bool HasRunOut => wait.IsOver;
 
     /// <summary>Starts the countdown so that it runs out on the step of its <paramref name="updates"/>th update.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The countdown would last no update.</exception>
-    internal void LastFor(int updates) => UpdatesLeft = Ensure.BetweenInclusive(1, int.MaxValue, updates);
+    internal void LastFor(int updates) => wait = UpdateCountdown.Lasting(updates);
 
     /// <summary>Steps a running countdown one update; one that has run out holds.</summary>
-    internal void Step()
-    {
-        if (!HasRunOut)
-            UpdatesLeft--;
-    }
+    internal void Step() => wait.Step();
 
     /// <summary>
     /// Steps the countdown one update: whether it ran out on this step. One that has already run out holds, and this
     /// step is not the one it ran out on.
     /// </summary>
-    internal bool StepRunsOut()
-    {
-        if (HasRunOut)
-            return false;
-        UpdatesLeft--;
-        return HasRunOut;
-    }
+    internal bool StepRunsOut() => wait.StepEnds();
 }

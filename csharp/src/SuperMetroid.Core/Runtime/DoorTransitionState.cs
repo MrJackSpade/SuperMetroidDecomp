@@ -140,7 +140,7 @@ internal sealed class DoorTransitionState
                 runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope, samus);
                 if (runtime.RoomLoader.AlignDoorCameraOnePixel(transition.Door))
                 {
-                    transition.DestinationSetupWait = DoorDestinationSetupWait.Started;
+                    transition.DestinationSetupWait = UpdateCountdown.Lasting(DoorDestinationSetupWait.Updates);
                     transition.Enter(DoorTransitionPhase.DestinationSetupWait);
                 }
                 break;
@@ -150,8 +150,7 @@ internal sealed class DoorTransitionState
                 // still whole updates of the transition, each with its own random draw.
                 runtime.RunBlankGameplayFrame(controllerInput);
                 runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope, samus);
-                transition.DestinationSetupWait = transition.DestinationSetupWait.Spend();
-                if (transition.DestinationSetupWait.IsOver)
+                if (transition.DestinationSetupWait.Count())
                     transition.Enter(DoorTransitionPhase.MoveToDoorScrollStart);
                 break;
 

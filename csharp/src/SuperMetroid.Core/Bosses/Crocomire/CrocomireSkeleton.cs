@@ -77,7 +77,7 @@ internal sealed class CrocomireSkeleton
 
         CrocomireDeathState death = state.Death;
         death.RumbleYOffset = 0;
-        death.RumbleRepeatsLeft = CrocomireRumbleDefinitions.Oscillations[0].Repeats;
+        death.RumbleRepeatsLeft = UpdateCountdown.For(CrocomireRumbleDefinitions.Oscillations[0].Repeats);
         state.DamageReactionPending = false;
         body.Radius = body.Radius.WithY(CrocomireSkeletonDefinitions.BehindWallReachY);
         state.AdvanceDeathStage();
@@ -109,16 +109,16 @@ internal sealed class CrocomireSkeleton
             }
 
             state.RumbleTowardExtreme = false;
-            if (death.RumbleRepeatsLeft != 0)
+            if (death.RumbleRepeatsLeft.IsRunning)
             {
-                death.RumbleRepeatsLeft--;
+                death.RumbleRepeatsLeft.Count();
                 _access.RequestCrocomireSound(CrocomireSoundDefinitions.WallRumble);
                 return;
             }
 
             state.RumbleOscillation++;
             if (state.RumbleOscillation < CrocomireRumbleDefinitions.Oscillations.Length)
-                death.RumbleRepeatsLeft = CrocomireRumbleDefinitions.Oscillations[state.RumbleOscillation].Repeats;
+                death.RumbleRepeatsLeft = UpdateCountdown.For(CrocomireRumbleDefinitions.Oscillations[state.RumbleOscillation].Repeats);
             return;
         }
 
@@ -250,10 +250,7 @@ internal sealed class CrocomireSkeleton
     /// </summary>
     internal void BareCrocomireSkeleton(CrocomireDeathState death)
     {
-        if (death.SkeletonBaringElapsed == CrocomireSkeletonLookDefinitions.BaringDuration)
-            return;
-        death.SkeletonBaringElapsed++;
-        if (death.SkeletonBaringElapsed == CrocomireSkeletonLookDefinitions.BaringDuration)
+        if (death.SkeletonBaring.StepEnds())
             _presentation.ShowLook(CrocomireSkeletonLookDefinitions.SkeletonLook);
     }
 

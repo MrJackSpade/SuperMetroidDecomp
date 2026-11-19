@@ -240,7 +240,7 @@ internal sealed class EnemyProjectileEngine
         if (finalKnockbackXDirection.HasValue)
         {
             samus.KnockbackXDirection = finalKnockbackXDirection.Value;
-            samus.KnockbackTimer = EnemyCollisionDefinitions.SamusTouchKnockbackUpdates;
+            samus.KnockbackHold = UpdateCountdown.For(EnemyCollisionDefinitions.SamusTouchKnockbackUpdates);
         }
     }
 

@@ -50,7 +50,7 @@ internal static class CoreAccess
         /// <summary>The gameplay runtime a test requires: the frontend must be in a loaded game.</summary>
         internal SuperMetroidRuntime GameplayRuntimeForVerification => game.Session.GameplayRuntime;
         /// <summary>Remaining authored hold frames before the attract demo advances.</summary>
-        internal int AttractDemoHoldFramesRemaining => game.Session.Demo.HoldFramesRemaining;
+        internal int AttractDemoHoldFramesRemaining => game.Session.Demo.Hold.UpdatesLeft;
         /// <summary>Whether the current runtime permits ordinary grounded Samus movement.</summary>
         internal bool GameplayMovementEnabled => game.RuntimeForVerification?.Player.GroundedSamusMovementEnabled ?? false;
         /// <summary>Reads the frontend audio queue owner across gameplay and menus.</summary>
@@ -218,7 +218,7 @@ internal static class CoreAccess
     extension(SuperMetroidRuntime runtime)
     {
         /// <summary>Remaining frames of Samus's room-load appearance state.</summary>
-        internal ushort SamusLoadAppearanceFramesRemaining => checked((ushort)runtime.Player.LoadAppearanceFramesRemaining);
+        internal ushort SamusLoadAppearanceFramesRemaining => checked((ushort)runtime.Player.LoadAppearance.UpdatesLeft);
         /// <summary>Whether the room-load appearance timer still owns Samus.</summary>
         internal bool SamusLoadAppearanceActive => runtime.SamusLoadAppearanceFramesRemaining != 0;
     }

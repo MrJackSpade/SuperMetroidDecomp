@@ -27,9 +27,9 @@ internal sealed class RidleyBodyContact
     /// </summary>
     internal static void UpdateHurtFlash(RoomEnemyPlace place, RidleyEncounterState ridley, int bodyUpdateCount)
     {
-        ridley.BodyFlashing = place.FlashTimer != 0 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(bodyUpdateCount);
+        ridley.BodyFlashing = place.HurtFlash.IsRunning && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(bodyUpdateCount);
         // His drawn parts take the phase one pass ahead of his body's colours.
-        ridley.TailAndWingsFlashing = place.FlashTimer > 1 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(bodyUpdateCount + 1);
+        ridley.TailAndWingsFlashing = place.HurtFlash.UpdatesLeft > 1 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(bodyUpdateCount + 1);
     }
 
     /// <summary>Tests Samus against Ridley's extended body and applies contact response after invincibility gating.</summary>

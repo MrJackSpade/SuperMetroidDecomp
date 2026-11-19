@@ -142,19 +142,13 @@ public sealed class CeresElevatorArrivalState
         public CeresElevatorArrivalActor Actor { get; } = Ensure.NotNull(actor);
 
         /// <summary>
-        /// The updates left in the pad's wait, the one it first moves Samus on included; none once it has run out, after
-        /// which the pad moves her on every update.
+        /// The pad's wait, over on the update it first moves Samus; once it is over the pad moves her on every update.
         /// </summary>
-        private int _waitUpdatesLeft = CeresElevatorArrivalDefinitions.MovingPadWaitUpdates;
+        private readonly UpdateCountdown wait = UpdateCountdown.Lasting(CeresElevatorArrivalDefinitions.MovingPadWaitUpdates);
 
         /// <summary>Counts one update of the pad's wait.</summary>
         /// <returns>Whether the pad still waits on this update: false on the update its wait runs out and on every one after.</returns>
-        internal bool WaitOneUpdate()
-        {
-            if (_waitUpdatesLeft > 0)
-                _waitUpdatesLeft--;
-            return _waitUpdatesLeft > 0;
-        }
+        internal bool WaitOneUpdate() => !wait.Step();
     }
 
     /// <summary>One of the two arrival actors, the pad or the platform: its animation and place.</summary>

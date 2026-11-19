@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Menus;
 using System.Collections.Immutable;
@@ -1006,7 +1007,7 @@ internal static class LookupStream3Verification
             scatter.Encounter.Body.Position = FixedPosition<RoomPixels>.FromWhole(new(320, 192));
             for (int burst = 0; burst < 8; burst++)
             {
-                PrivateState.Set(bursts, nameof(MotherBrainBurstCycle.Interval), 0);
+                PrivateState.SetField(bursts, "burstWait", UpdateCountdown.For(1));
                 int calls = 0;
                 Func<int> random = () => { calls++; return ushort.MaxValue; };
                 var requests = new List<MotherBrainDeathExplosionRequest>();
@@ -1083,7 +1084,7 @@ internal static class LookupStream3Verification
             // As the stagger's setup does before each walk: the stage selects its speed.
             sequence.DrainedByBaby.PainfulWalkingSpeed = stages[stage].Speed;
             sequence.DrainedByBaby.StepPainfulWalking();
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9c049 + 2 * stage) - 1, sequence.DrainedByBaby.PainfulWalkingPause?.Count,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9c049 + 2 * stage) - 1, sequence.DrainedByBaby.PainfulWalkingPause?.CartridgeCount,
                 "stream 3 real stagger pause after each stage's walk");
         }
     }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Hud;
@@ -88,7 +89,7 @@ internal static class CollectiblesVerification
             AssertEqual(item.Presentation, fixture.RoomObjects.CollectiblePresentations[0],
                 $"{kind} presentation");
             if (kind is InWorldCollectibleKind.VariaSuit or InWorldCollectibleKind.GravitySuit)
-                fixture.Samus.BeamCharge.FlareCounter = 60;
+                fixture.Samus.BeamCharge.SetFlareCount(60);
 
             fixture.RoomObjects.Step(fixture.Level);
             if (item.Presentation == CollectiblePresentation.ChozoOrb)
@@ -562,14 +563,14 @@ internal static class CollectiblesVerification
         }
         AssertEqual(GameplayMessageBoxPhase.MinimumDisplay, message.Phase,
             "item message reaches mandatory display interval");
-        AssertEqual(360, message.MinimumDisplayFramesRemaining,
+        AssertEqual(360, message.MinimumDisplay.UpdatesLeft,
             "ordinary item message uses native 360-frame wait");
 
         // Held input cannot shorten the fanfare. The frame that decrements 1 -> 0 only
         // enters the input-wait coroutine; its next accepted NMI performs the read.
         for (int waitFrame = 0; waitFrame < 359; waitFrame++)
             message.Step(ControllerButton.X);
-        AssertEqual(1, message.MinimumDisplayFramesRemaining,
+        AssertEqual(1, message.MinimumDisplay.UpdatesLeft,
             "item message retains final mandatory wait frame");
         message.Step(ControllerButton.X);
         AssertEqual(GameplayMessageBoxPhase.AwaitingInput, message.Phase,
@@ -643,7 +644,7 @@ internal static class CollectiblesVerification
             message.Step(0);
         AssertEqual(GameplayMessageBoxPhase.MinimumDisplay, message.Phase,
             "map-station message reaches its mandatory display interval");
-        AssertEqual(10, message.MinimumDisplayFramesRemaining,
+        AssertEqual(10, message.MinimumDisplay.UpdatesLeft,
             "map-station message uses native ten-frame completion wait");
         for (int waitFrame = 0; waitFrame < 10; waitFrame++)
             message.Step(ControllerButton.X);

@@ -30,15 +30,15 @@ internal sealed class GameplayFadeOut : IGameplayShadingSource
     internal bool IsUnderWay => steps is not null;
 
     /// <summary>
-    /// Starts fading the display toward <paramref name="colour"/> in <paramref name="lastStep"/> parts, from the step the
+    /// Starts fading the display toward <paramref name="colour"/> in <paramref name="parts"/> parts, from the step the
     /// shared count holds.
     /// </summary>
     /// <param name="colour">The colour the fade ends in.</param>
-    /// <param name="lastStep">The shared counter's last value at which a step moves the fade (<see cref="GradualFadeSteps.LastStep"/>).</param>
+    /// <param name="parts">The parts the fade's colours move in, one for each of its steps after its first (<see cref="GradualFadeSteps"/>).</param>
     /// <param name="spares">What the fade leaves in its own colours: Samus for the death fade, nothing for the whiteout.</param>
-    internal void Begin(RgbColor colour, int lastStep, GameplayFadeSpares spares)
+    internal void Begin(RgbColor colour, int parts, GameplayFadeSpares spares)
     {
-        steps = new GradualFadeSteps(lastStep, counter);
+        steps = new GradualFadeSteps(parts, counter);
         toward = colour;
         spared = spares;
     }

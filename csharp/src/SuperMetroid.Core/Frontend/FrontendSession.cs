@@ -434,7 +434,7 @@ internal sealed class FrontendSession
         // (#2518): the refill neither steps nor restarts it, so its colours stay part-whitened. Only the time-up's own
         // black-out ends the white-out, and the death that ends the other gameplay fade releases the runtime.
         if (!live.FadeOut.IsUnderWay)
-            live.FadeOut.Begin(RgbColor.White, TimeUpDefinitions.WhiteOutLastStep, GameplayFadeSpares.Nothing);
+            live.FadeOut.Begin(RgbColor.White, TimeUpDefinitions.WhiteOutParts, GameplayFadeSpares.Nothing);
         Enter(TimeUpStep.WhiteningOut);
     }
     /// <summary>

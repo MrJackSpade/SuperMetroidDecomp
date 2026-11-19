@@ -585,7 +585,7 @@ internal sealed class RoomLoader
     {
         DoorOpeningScrollState state = _doorOpeningScroll
             ?? throw new InvalidOperationException("No door-opening scroll is active.");
-        if (state.RemainingFrames != 0)
+        if (state.Scroll.IsRunning)
             throw new InvalidOperationException("Door loading has not finished scrolling.");
         SamusState samus = _player.IntroducedSamus;
         switch (state.Direction)
@@ -613,7 +613,7 @@ internal sealed class RoomLoader
     {
         DoorOpeningScrollState state = _doorOpeningScroll
             ?? throw new InvalidOperationException("No door-opening scroll is active.");
-        if (state.RemainingFrames != 0)
+        if (state.Scroll.IsRunning)
             throw new InvalidOperationException("Door-opening scroll has not reached its endpoint.");
         SamusState samus = _player.IntroducedSamus;
         if (_pendingLoaderSamusPlacement is not null)

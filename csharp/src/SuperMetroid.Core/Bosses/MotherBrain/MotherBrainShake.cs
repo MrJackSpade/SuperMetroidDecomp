@@ -8,11 +8,14 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="cadence">The shake's cadence: which of the four offsets each count of updates left shows.</param>
 internal sealed class MotherBrainShake(UpdateCounterField cadence)
 {
+    /// <summary>The shake's updates, over once it has stopped.</summary>
+    private readonly UpdateCountdown left = UpdateCountdown.Ended();
+
     /// <summary>The updates the shake has left, zero or more; none once it has stopped.</summary>
-    public int UpdatesLeft { get; private set; }
+    public int UpdatesLeft => left.UpdatesLeft;
 
     /// <summary>Whether the shake has updates left.</summary>
-    internal bool IsShaking => UpdatesLeft != 0;
+    internal bool IsShaking => left.IsRunning;
 
     /// <summary>Whether the shake still had updates left when it last counted one off.</summary>
     internal bool ShookAtLastStep { get; private set; }
@@ -22,16 +25,15 @@ internal sealed class MotherBrainShake(UpdateCounterField cadence)
 
     /// <summary>Starts the shake over with <paramref name="updates"/> updates left.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="updates"/> is below zero.</exception>
-    internal void ShakeFor(int updates) => UpdatesLeft = Ensure.AtLeastZero(updates);
+    internal void ShakeFor(int updates) => left.Restart(updates);
 
     /// <summary>Stops the shake: it has no update left.</summary>
-    internal void Stop() => UpdatesLeft = 0;
+    internal void Stop() => left.End();
 
     /// <summary>Counts one of the shake's updates off, while it has any left.</summary>
     internal void Step()
     {
         ShookAtLastStep = IsShaking;
-        if (ShookAtLastStep)
-            UpdatesLeft--;
+        left.Step();
     }
 }

@@ -59,7 +59,7 @@ public sealed class SamusGrappleState
     /// </summary>
     public SamusProjectileDirection FireDirection { get; set; }
     /// <summary>The pose-change auto-fire timer; permits early pose-directed refiring.</summary>
-    public int PoseChangeAutoFireTimer { get; set; }
+    public UpdateCountdown PoseChangeAutoFireTimer { get; set; } = UpdateCountdown.Ended();
     /// <summary>The velocity the beam's end extends at, either way on each axis.</summary>
     public EightEightVector<RoomPixels> ExtensionVelocity { get; set; }
 
@@ -123,7 +123,7 @@ public sealed class SamusGrappleState
             ? value
             : throw new ArgumentOutOfRangeException(nameof(value), value, $"The swing's angular terms turn no faster than {most} either way.");
     /// <summary>The countdown suppressing repeated swing-collision bounces.</summary>
-    public int CollisionBounceTimer { get; set; }
+    public UpdateCountdown CollisionBounceTimer { get; set; } = UpdateCountdown.Ended();
     /// <summary>Whether the grapple movement uses submerged physics.</summary>
     public bool Submerged { get; set; }
 
@@ -156,15 +156,11 @@ public sealed class SamusGrappleState
     public bool SlowScrolling { get; set; }
 
     /// <summary>
-    /// The wall-jump checks the wall-grab release window has left: wall-grab release opens it at
-    /// <see cref="GrappleBeamDefinitions.WallGrab.WallJumpWindowFrames"/>, each update of the window spends one check, and
-    /// the update that finds none left drops Samus.
+    /// The wall-grab release window's wall-jump checks: wall-grab release opens it for
+    /// <see cref="GrappleBeamDefinitions.WallGrab.WallJumpWindowFrames"/>, each update of the window counts one check, and
+    /// the update that finds it over drops Samus.
     /// </summary>
-    public int WallJumpTimer
-    {
-        get;
-        set => field = Ensure.AtLeastZero(value);
-    }
+    public UpdateCountdown WallJumpTimer { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// Distinguishes a cancel reached from a locked grappling pose from ordinary firing

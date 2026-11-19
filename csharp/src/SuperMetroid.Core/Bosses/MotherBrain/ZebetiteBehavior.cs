@@ -105,7 +105,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunZebetiteMain(RoomEnemyPlace place, ZebetiteEnemyState state)
     {
         if (!_earthquake.IsShaking)
-            place.ShakeTimer = 0;
+            place.Shake.End();
 
         switch (state.Action)
         {
@@ -238,7 +238,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio.QueueEnemySound(ZebetiteDefinitions.ShotSound, SoundRequestPriority.Normal);
         RoomEnemyPlace linked = ZebetiteShotShare.Recipient(_places.InUpdateOrder, struck.RequireSpeciesState<ZebetiteEnemyState>().LinkedHalf);
         linked.Health = struck.Health;
-        linked.FlashTimer = struck.FlashTimer;
+        linked.HurtFlash.Restart(struck.HurtFlash.UpdatesLeft);
     }
 
     /// <summary>Removes the half in its small death explosion, never to respawn, and records its room kill.</summary>

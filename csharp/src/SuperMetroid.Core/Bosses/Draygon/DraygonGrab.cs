@@ -283,7 +283,7 @@ internal sealed class DraygonGrab
     private static void MarkDraygonGrappleShock(DraygonEnemyState state)
     {
         RoomEnemyPlace body = state.Body;
-        body.FlashTimer = body.HurtFlashFrames + DraygonArenaDefinitions.GrappleShockFlashExtension;
+        body.HurtFlash.Restart(body.HurtFlashFrames + DraygonArenaDefinitions.GrappleShockFlashExtension);
         body.AiStates = body.AiStates | EnemyAiStates.Hurt;
     }
 

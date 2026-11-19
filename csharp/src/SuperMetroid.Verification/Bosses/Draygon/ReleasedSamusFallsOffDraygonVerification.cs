@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Runtime;
@@ -33,9 +34,9 @@ internal static class ReleasedSamusFallsOffDraygonVerification
         DraygonEnemyState draygon = (runtime.Enemies.Draygon ?? throw new InvalidOperationException("Verification requires runtime.Enemies.Draygon."));
         // Stage the end of the intro rather than replaying the dance; the fight's hitboxes
         // carry Draygon's own touch routine.
-        draygon.IntroFrames = 256;
+        draygon.IntroStage = UpdateCountdown.Ended();
         runtime.StepFrame(0);
-        draygon.IntroFrames = DraygonIntroDanceDefinitions.DurationFrames;
+        draygon.IntroStage = UpdateCountdown.Ended();
         runtime.StepFrame(0);
         runtime.StepFrame(0);
         int descentFrames = (draygon.SwoopPath ?? throw new InvalidOperationException("The first swoop plans its path.")).EntryCount;

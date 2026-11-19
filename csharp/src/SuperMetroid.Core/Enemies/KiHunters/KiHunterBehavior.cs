@@ -400,7 +400,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 state.VerticalVelocity = KiHunterMotionDefinitions.LandedVerticalVelocity;
                 state.Action = KiHunterAction.AnimatingOnGround;
-                state.WaitTimer = KiHunterMotionDefinitions.LandingWait;
+                state.WaitTimer = UpdateCountdown.For(KiHunterMotionDefinitions.LandingWait);
                 StartKiHunterAnimation(
                     body,
                     body.RequireSpeciesState<KiHunterBodyState>(),
@@ -430,7 +430,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         KiHunterBodyState state,
         SamusState samus)
     {
-        if (--state.WaitTimer != 0)
+        if (!state.WaitTimer.StepEnds())
             return;
 
         int distance = Math.Abs(body.Position.X.Whole - samus.Position.X.Whole);
@@ -575,9 +575,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!wingsInPlace)
             return;
         wings.AiStates = body.AiStates;
-        wings.FrozenTimer = body.FrozenTimer;
-        wings.InvincibilityTimer = body.InvincibilityTimer;
-        wings.FlashTimer = body.FlashTimer;
+        wings.Freeze.Restart(body.Freeze.UpdatesLeft);
+        wings.Invincibility.Restart(body.Invincibility.UpdatesLeft);
+        wings.HurtFlash.Restart(body.HurtFlash.UpdatesLeft);
     }
 
     /// <summary>Detaches the wings: their first orbit is centred where they are, starting where their climb starts.</summary>
@@ -669,7 +669,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         _audio.QueueEnemySound(EnemySound.AcidSpit, priority: SoundRequestPriority.Normal);
         SpawnKiHunterAcidSpit(body, direction);
-        body.RequireSpeciesState<KiHunterBodyState>().WaitTimer = KiHunterMotionDefinitions.SpitWait;
+        body.RequireSpeciesState<KiHunterBodyState>().WaitTimer = UpdateCountdown.For(KiHunterMotionDefinitions.SpitWait);
     }
 
     /// <summary>Restarts matching body and still-attached wing animations for the selected flight direction.</summary>

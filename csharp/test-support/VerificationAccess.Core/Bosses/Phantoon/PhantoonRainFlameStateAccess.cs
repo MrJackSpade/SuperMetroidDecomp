@@ -9,6 +9,6 @@ internal static class PhantoonRainFlameStateAccess
         /// <summary>The updates the hanging flame still hangs, the one it falls on included (#2469).</summary>
         /// <exception cref="InvalidOperationException">The flame has fallen.</exception>
         internal int HangUpdates => (self.HangWait ?? throw new InvalidOperationException(
-            "A rain flame that has fallen no longer hangs.")).Count + 1;
+            "A rain flame that has fallen no longer hangs.")).UpdatesLeft;
     }
 }

@@ -31,6 +31,9 @@ public sealed class ShellFragmentFallPastCurve
         _steps = steps;
     }
 
+    /// <summary>The updates a fragment can fall past its curve: one for each decoded step.</summary>
+    public int Updates => _steps.Count;
+
     /// <summary>The step a fragment falls by on the update <paramref name="updatesPastCurve"/> after its curve ends.</summary>
     /// <param name="updatesPastCurve">Updates fallen past the curve, zero for the first.</param>
     /// <exception cref="ArgumentOutOfRangeException">No fragment is still airborne that far past the curve.</exception>

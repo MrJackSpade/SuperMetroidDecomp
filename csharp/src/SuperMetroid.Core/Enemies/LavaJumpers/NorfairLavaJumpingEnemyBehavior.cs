@@ -169,7 +169,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         // The pair is checked when the follower is placed, not on every update.
         NorfairLavaJumpingEnemyState parentState = parent.FoundState<NorfairLavaJumpingEnemyState>() ?? throw new InvalidOperationException(
             $"Lava jumper follower {follower.Ordinal} finds no lava jumper in its parent's place {parent.Ordinal}.");
-        if (parent.FrozenTimer != 0 || !parentState.YVelocity.IsNegative)
+        if (parent.Freeze.IsRunning || !parentState.YVelocity.IsNegative)
         {
             // The second half appears only while the parent is travelling upward. At the
             // apex and during descent, the parent animation alone owns the visible shape.

@@ -46,7 +46,7 @@ internal static class EscapeTimeUpAfterRefillVerification
         AssertTrue(!runtime.GameTime.Reading.Equals(beforeReturn), "the update Samus has health on counts the play time");
 
         AssertTrue(!runtime.FadeStepCount.IsPastStart, "no other fade has advanced the shared fade step count");
-        for (int update = 0; update < TimeUpDefinitions.WhiteOutLastStep + 2; update++)
+        for (int update = 0; update < TimeUpDefinitions.WhiteOutParts + 2; update++)
         {
             AssertEqual(TimeUpStep.WhiteningOut, game.Session.TimeUpStep, "the white-out runs until its fade completes");
             game.Step(0);

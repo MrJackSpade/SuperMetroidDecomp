@@ -17,14 +17,17 @@ internal sealed class AttractDemoSchedule
     /// </summary>
     internal int ScenesBegun { get; private set; }
 
-    /// <summary>The scripted input frames left in the scene playing.</summary>
-    internal int FramesRemaining { get; private set; }
+    /// <summary>The scene's scripted input, lasting the scene's duration and counted once each scripted update.</summary>
+    internal UpdateCountdown Playback { get; private set; } = UpdateCountdown.Ended();
 
-    /// <summary>The still-frame hold left after the scene's scripted input.</summary>
-    internal int HoldFramesRemaining { get; private set; }
+    /// <summary>The still-frame hold after the scene's scripted input, over until the script runs out.</summary>
+    internal UpdateCountdown Hold { get; private set; } = UpdateCountdown.Ended();
 
-    /// <summary>The blank enemy-setup waits (<see cref="GameLoadingDefinitions.EnemySetupWaits"/>) left before the scene becomes visible; none before its runtime exists (#1627).</summary>
-    private int? loadFramesRemaining;
+    /// <summary>
+    /// The blank enemy-setup waits (<see cref="GameLoadingDefinitions.EnemySetupWaits"/>) before the scene becomes visible;
+    /// none before its runtime exists (#1627).
+    /// </summary>
+    private UpdateCountdown? load;
 
     /// <summary>Whether live controller input cancelled the scene.</summary>
     internal bool Cancelled { get; private set; }
@@ -33,24 +36,24 @@ internal sealed class AttractDemoSchedule
     internal bool HasNextScene { get; private set; }
 
     /// <summary>Whether the next scene's runtime has yet to be created.</summary>
-    internal bool AwaitsScene => loadFramesRemaining is null;
+    internal bool AwaitsScene => load is null;
 
     /// <summary>Whether the scene's scripted input has ended and its final image is holding.</summary>
-    internal bool Holding => HoldFramesRemaining != 0;
+    internal bool Holding => Hold.IsRunning;
 
     /// <summary>A soft reset returns to the first scene of the first set.</summary>
     internal void Reset()
     {
         Set = StockAttractDemoScenes.FirstSet;
         ScenesBegun = 0;
-        loadFramesRemaining = null;
+        load = null;
     }
 
     /// <summary>The title requests a demo: its set starts again from its first scene.</summary>
     internal void RequestFromTitle()
     {
         ScenesBegun = 0;
-        loadFramesRemaining = null;
+        load = null;
     }
 
     /// <summary>The scene the next demo plays, or null once every demonstration of the set has begun.</summary>
@@ -64,30 +67,25 @@ internal sealed class AttractDemoSchedule
     internal void Begin(AttractDemoScene scene)
     {
         Ensure.NotNull(scene);
-        FramesRemaining = scene.Duration;
+        Playback = UpdateCountdown.For(scene.Duration);
         ScenesBegun++;
-        HoldFramesRemaining = 0;
+        Hold = UpdateCountdown.Ended();
         Cancelled = false;
-        loadFramesRemaining = GameLoadingDefinitions.EnemySetupWaits;
+        load = UpdateCountdown.Lasting(GameLoadingDefinitions.EnemySetupWaits);
     }
 
     /// <summary>Counts one enemy-setup wait; returns whether it was the last.</summary>
     /// <exception cref="InvalidOperationException">No scene has begun loading.</exception>
-    internal bool CountLoadFrame()
-    {
-        int remaining = (loadFramesRemaining ?? throw new InvalidOperationException("No attract demo scene is loading.")) - 1;
-        loadFramesRemaining = remaining;
-        return remaining == 0;
-    }
+    internal bool CountLoadFrame() => (load ?? throw new InvalidOperationException("No attract demo scene is loading.")).Count();
 
     /// <summary>Counts one held frame; returns whether the hold ended.</summary>
-    internal bool CountHoldFrame() => --HoldFramesRemaining == 0;
+    internal bool CountHoldFrame() => Hold.Count();
 
     /// <summary>Counts one scripted frame; once the script runs out, the final image starts holding.</summary>
     internal void CountPlaybackFrame()
     {
-        if (--FramesRemaining <= 0)
-            HoldFramesRemaining = AttractDemoDefinitions.FinalImageHoldFrames;
+        if (Playback.Step())
+            Hold = UpdateCountdown.Lasting(AttractDemoDefinitions.FinalImageHoldFrames);
     }
 
     /// <summary>Records how the scene ended.</summary>
@@ -112,7 +110,7 @@ internal sealed class AttractDemoSchedule
     }
 
     /// <summary>The next scene of the set loads afresh.</summary>
-    internal void LoadNextScene() => loadFramesRemaining = null;
+    internal void LoadNextScene() => load = null;
 
     /// <summary>The set that follows <paramref name="played"/> in <paramref name="playlist"/>, which starts over after its last.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="playlist"/> does not hold <paramref name="played"/>.</exception>

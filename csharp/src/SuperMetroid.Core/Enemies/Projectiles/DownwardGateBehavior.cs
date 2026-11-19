@@ -97,14 +97,15 @@ internal sealed class DownwardGateBehavior
     internal static void RunDownwardGateProjectileMovement(EnemyProjectile projectile)
     {
         DownwardGateState gate = projectile.StateOf<DownwardGateState>();
-        int moved = gate.PixelsSinceBlock + projectile.Velocity.Y.MagnitudeWholePixels;
-        if (moved >= RoomGridConversions.BlockPixels)
+        for (int pixel = 0; pixel < projectile.Velocity.Y.MagnitudeWholePixels; pixel++)
+            gate.BlockTravel.Step();
+        if (gate.BlockTravel.IsOver)
         {
-            // The next stage's animation shows its first frame on this same enemy-projectile pass.
+            // The next stage's animation shows its first frame on this same enemy-projectile pass; the travel starts again
+            // from the block, whatever the update moved past it.
             AdvanceDownwardGateStage(projectile);
-            moved = 0;
+            gate.BlockTravel.Restart(RoomGridConversions.BlockPixels);
         }
-        gate.PixelsSinceBlock = moved;
         projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
     }
 

@@ -27,11 +27,11 @@ internal static class BullMovementDefinitionsVerification
             var state = enemies.BullStates[0] ?? throw new InvalidOperationException("Verification requires state.");
             BullSpeedIntervals intervals = place.SpawnSettings<BullSpawnSettings>().Intervals;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8d895 + interval * 4)), intervals.Acceleration, "Bull compiled acceleration");
-            AssertEqual(intervals.Acceleration, state.AccelerationIntervalTimer, "Bull live timer initialization");
+            AssertEqual(intervals.Acceleration, state.AccelerationIntervalTimer.UpdatesLeft, "Bull live timer initialization");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8d897 + interval * 4)), intervals.Deceleration, "Bull compiled deceleration");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8d885 + speed * 2)), place.SpawnSettings<BullSpawnSettings>().MaximumSpeed.InTwoHundredFiftySixthsOfPixel, "Bull compiled speed");
             AssertEqual(BullAction.MovementDelay, state.Action, "Bull initial function");
-            AssertEqual(16, state.ActivationTimer, "Bull native activation delay");
+            AssertEqual(16, state.ActivationTimer.UpdatesLeft, "Bull native activation delay");
             AssertEqual(1, place.AnimationClock.Hold, "Bull instruction timer");
             AssertEqual(new AnimationPlayback<BullSegment>(BullAnimations.StartingWith(BullSegment.Idle), AnimationPlace.StartOfAnimation), state.Playback, "Bull initial animation");
         }

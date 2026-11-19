@@ -35,7 +35,7 @@ public sealed class MorphBallEyeEnemyState
     /// The updates left of the eye's opening or closing, the one it ends on included: each starts at
     /// <see cref="MorphBallEyeWatchDefinitions.TransitionDuration"/>, and the update that takes it to zero ends it (#2340).
     /// </summary>
-    public int ActionTimer { get; internal set; }
+    public UpdateCountdown ActionTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>The action the eye performs.</summary>
     public MorphBallEyeAction Action { get; internal set; }

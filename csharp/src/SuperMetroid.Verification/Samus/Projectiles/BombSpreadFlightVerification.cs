@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -131,7 +132,7 @@ internal static class BombSpreadFlightVerification
         BombSpreadFlight flight = bomb.SpreadFlight ?? throw new InvalidOperationException("The rightmost spread bomb has no flight.");
         FixedPosition<RoomPixels> inBlock = FixedPosition<RoomPixels>.FromWhole(new(88, 56));
         bomb.Position = inBlock;
-        bomb.FuseUpdatesLeft = 1;
+        bomb.Fuse = UpdateCountdown.For(1);
         BombSpreadLaunchDefinition launch = SamusBombSpreadLaunches.ForPlace(rightmost);
 
         foreach (string update in new[] { "on the update its fuse runs out", "on the update after" })

@@ -23,8 +23,8 @@ internal sealed class LoadingGameSequence(FrontendSession session) : IGamePhase
     public string Name => session.LoadingRoute switch
     {
         GameDataLoadRoute.SelectedGame => session.LoadingExistingSave ? "Loading saved game" : "Loading fresh Ceres game",
-        GameDataLoadRoute.SavedCheckpoint => $"Loading saved checkpoint ({session.GameLoading.WaitsRemaining} updates)",
-        GameDataLoadRoute.ZebesLanding => $"Loading Landing Site ({session.GameLoading.WaitsRemaining} updates)",
+        GameDataLoadRoute.SavedCheckpoint => $"Loading saved checkpoint ({session.GameLoading.Wait.UpdatesLeft} updates)",
+        GameDataLoadRoute.ZebesLanding => $"Loading Landing Site ({session.GameLoading.Wait.UpdatesLeft} updates)",
         _ => throw new InvalidOperationException($"Undefined {nameof(GameDataLoadRoute)} {session.LoadingRoute}."),
     };
 

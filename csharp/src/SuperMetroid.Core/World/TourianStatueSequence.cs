@@ -104,11 +104,10 @@ public sealed class TourianStatueSequence
     /// <summary>Whether the statues await their releases, hold before lowering, or lower.</summary>
     private TourianStatueDescentPhase _descentPhase = TourianStatueDescentPhase.AwaitingReleases;
     /// <summary>
-    /// Updates the pre-descent hold has left while <see cref="_descentPhase"/> is <see cref="TourianStatueDescentPhase.Holding"/>;
-    /// the update that leaves it none raises the dust. The hold shows no picture, so it is the descent's own count of the
-    /// hold's updates, not an animation.
+    /// The pre-descent hold of the <see cref="TourianStatueDescentPhase.Holding"/> phase, started as the phase begins: the
+    /// update it ends on raises the dust. The hold shows no picture, so it is the phase's own wait, not an animation.
     /// </summary>
-    private int _holdUpdatesLeft;
+    private readonly UpdateCountdown _hold = UpdateCountdown.Ended();
     /// <summary>The statue room's statue offset: minus the whole pixels of its descent (<see cref="TourianStatueRoom.StatueOffset"/>).</summary>
     public int VerticalOffset => Room.StatueOffset;
     /// <summary>Background offset latched at the same frame boundary as the displayed sprite frame.</summary>
@@ -125,7 +124,7 @@ public sealed class TourianStatueSequence
     {
         _statues.Clear();
         _descentPhase = TourianStatueDescentPhase.AwaitingReleases;
-        _holdUpdatesLeft = 0;
+        _hold.End();
         Room.Descent = SignedSixteenSixteen.Zero;
         DisplayedVerticalOffset = 0;
         Begin(roomObjects);
@@ -275,7 +274,7 @@ public sealed class TourianStatueSequence
             _statue.Animation.LatchAllReleased();
             if (_statue.Animation.ReleaseInProgress) return;
             _descentPhase = TourianStatueDescentPhase.Holding;
-            _holdUpdatesLeft = TourianStatueSequenceDefinitions.DescentDelay;
+            _hold.Restart(TourianStatueSequenceDefinitions.DescentDelay);
             return;
         }
         _earthquake.Sustain(TourianStatueSequenceDefinitions.DescentEarthquake);
@@ -283,7 +282,7 @@ public sealed class TourianStatueSequence
             _system.RandomNumber, _system.EarthquakeSoundDelay);
         if (_descentPhase == TourianStatueDescentPhase.Holding)
         {
-            if (--_holdUpdatesLeft == 0)
+            if (_hold.Count())
             {
                 _statue.SpawnDescentDust();
                 _descentPhase = TourianStatueDescentPhase.Lowering;

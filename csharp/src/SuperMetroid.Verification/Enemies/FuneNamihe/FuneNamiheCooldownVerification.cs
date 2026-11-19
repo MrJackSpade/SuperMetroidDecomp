@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -14,25 +15,22 @@ internal static class FuneNamiheCooldownVerification
     private const int CooldownTime = 16;
 
     /// <summary>
-    /// Each waiting update counts up, then ends the wait once the count reaches the cooldown time: a count short of the
-    /// time keeps waiting, and the count that reaches it ends the wait, installs the active program and resets the count
-    /// to zero. The count and the cooldown are plain counts (#2066), so a count below zero is refused.
+    /// Each waiting update counts the cooldown, which ends on its cooldown time's update: a wait short of its end keeps
+    /// waiting, and the update that ends it installs the active program and starts the wait again.
     /// </summary>
     internal static void VerifyFuneNamiheCooldown()
     {
         FuneEnemyState waiting = Wait(CooldownTime - 2);
-        AssertEqual(CooldownTime - 1, waiting.CooldownTimer, "a count short of the cooldown time advances by one");
+        AssertEqual(CooldownTime - 1, waiting.Cooldown.Age, "a wait short of the cooldown time advances by one");
         AssertEqual(FuneAction.WaitForCooldown, waiting.Action, "a count short of the cooldown time keeps waiting");
 
         FuneEnemyState reached = Wait(CooldownTime - 1);
-        AssertEqual(0, reached.CooldownTimer, "ending the wait resets the count");
+        AssertEqual(0, reached.Cooldown.Age, "ending the wait starts it again");
         AssertEqual(FuneAction.Spitting, reached.Action, "a count reaching the cooldown time ends the wait");
         AssertTrue(reached.IsSpitting, "ending the wait selects the active animation");
         AssertEqual(new AnimationPlayback<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(FuneNamiheSegment.FuneActiveLeft), AnimationPlace.StartOfAnimation), reached.Playback,
             "ending the wait installs the active program for the same facing");
 
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = new FuneEnemyState(FuneAction.WaitForCooldown) { CooldownTimer = -1 },
-            "a waiting count below zero is refused");
         Console.WriteLine("  Fune cooldown: short and reached counts pass.");
     }
 
@@ -43,7 +41,7 @@ internal static class FuneNamiheCooldownVerification
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Fune, place.Definition);
         place.SetSpawnSettings(new FuneSpawnSettings(Facing: HorizontalDirection.Left, CooldownTime: CooldownTime, LaunchSpeed: SignedEightEight.Zero));
-        var state = new FuneEnemyState(FuneAction.WaitForCooldown) { CooldownTimer = count };
+        var state = new FuneEnemyState(FuneAction.WaitForCooldown) { Cooldown = UpdateCountdownAccess.AtAge(CooldownTime, count) };
         place.SetSpeciesState(state);
         FuneNamiheBehavior.RunFuneMain(place, state);
         return state;

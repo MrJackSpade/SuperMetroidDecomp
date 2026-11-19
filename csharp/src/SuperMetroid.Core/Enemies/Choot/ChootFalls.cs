@@ -12,6 +12,13 @@ internal static class ChootFalls
             ? distance
             : throw new InvalidOperationException($"Undefined {nameof(ChootFallingPath)} {fallingPath}.");
 
+    /// <summary>The updates one loop of <paramref name="fallingPath"/> lasts: its samples' updates.</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="fallingPath"/> is not a defined path.</exception>
+    internal static int LoopUpdates(ChootFallingPath fallingPath) =>
+        Paths.TryGetValue(fallingPath, out ChootFallSample[]? path)
+            ? path.Sum(sample => sample.Updates)
+            : throw new InvalidOperationException($"Undefined {nameof(ChootFallingPath)} {fallingPath}.");
+
     /// <summary>
     /// The offset from the falling origin of one falling path at <paramref name="update"/> updates into a loop, or null on
     /// the update after the path's last sample, which ends one loop of the path.

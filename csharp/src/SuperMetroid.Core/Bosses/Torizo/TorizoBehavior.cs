@@ -342,12 +342,12 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             case TorizoCue.LowHealthExplosions explosions:
                 for (int explosion = 0; explosion < TorizoDeathDefinitions.LowHealthExplosions; explosion++)
                     Attacks.SpawnBombTorizoLowHealthExplosion(torizo, explosions.Site);
-                torizo.FlashTimer = TorizoDeathDefinitions.LowHealthExplosionFlash;
+                torizo.HurtFlash.Restart(TorizoDeathDefinitions.LowHealthExplosionFlash);
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.SpawnDeathExplosion }:
                 Attacks.SpawnDeathExplosion(torizo);
-                torizo.FlashTimer = TorizoDeathDefinitions.DeathExplosionFlash;
+                torizo.HurtFlash.Restart(TorizoDeathDefinitions.DeathExplosionFlash);
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.SpawnLandingDust }:

@@ -91,15 +91,14 @@ public sealed class SamusBombProjectileSystem
     internal void ReleaseCountAfterDrain() => BombCounter = DrainHoldsBombCount.Released;
 
     /// <summary>
-    /// The updates left on the cooldown shared by every Samus projectile, zero or more: every shot, bomb and boss sets it,
-    /// a bomb's reservation lengthens it by one, and it counts down to zero and stops there, so whether it has run out
-    /// gates another shot and, while a bomb is out, another bomb.
+    /// The cooldown shared by every Samus projectile: every shot, bomb and boss starts it, a bomb's reservation lengthens
+    /// it (<see cref="MorphBallBombDefinitions.ReservationCooldownUpdates"/>), X-ray holds it, and it is counted once each
+    /// update and stops once over, so whether it has run out gates another shot and, while a bomb is out, another bomb.
     /// </summary>
-    public int CooldownTimer
-    {
-        get;
-        private set => field = Ensure.AtLeastZero(value);
-    }
+    private readonly UpdateCountdown _cooldown = UpdateCountdown.Ended();
+
+    /// <summary>The updates left on the shared projectile cooldown, none once it has run out.</summary>
+    public int CooldownTimer => _cooldown.UpdatesLeft;
 
     /// <summary>
     /// Replaces the shared projectile cooldown from another Samus-projectile producer.
@@ -109,7 +108,7 @@ public sealed class SamusBombProjectileSystem
     /// one. Ordinary projectiles live in a separate class, but that boundary must not create a second clock.
     /// </remarks>
     /// <param name="value">The cooldown's updates, zero or more.</param>
-    internal void SetSharedCooldown(int value) => CooldownTimer = value;
+    internal void SetSharedCooldown(int value) => _cooldown.Restart(value);
 
     /// <summary>
     /// Creates one room's bombs, whose sounds join <paramref name="audioRequests"/> (#2057) and whose Power Bomb blasts glow
@@ -324,7 +323,7 @@ public sealed class SamusBombProjectileSystem
         foreach (SamusBomb bomb in _bombs)
             bomb.End();
         BombCounter = 0;
-        CooldownTimer = 0;
+        _cooldown.End();
         PowerBombExplosion.Reset();
     }
 
@@ -359,13 +358,11 @@ public sealed class SamusBombProjectileSystem
         // down, so the first shot after X-ray waits out the full delay.
         if (timeIsFrozen)
         {
-            CooldownTimer = SamusProjectileCooldownDefinitions.FrozenTime;
+            _cooldown.Restart(SamusProjectileCooldownDefinitions.FrozenTime);
             return;
         }
 
-        // Every cooldown set is a few dozen updates at most, so the count only ever runs down to zero and stops.
-        if (CooldownTimer > 0)
-            CooldownTimer--;
+        _cooldown.Step();
     }
 
     /// <summary>Applies held/new Shoot admission, ammo and equipment gates, then initializes a normal or power bomb in the lowest free bomb place.</summary>
@@ -420,11 +417,11 @@ public sealed class SamusBombProjectileSystem
         bomb.Type = placingPowerBomb ? PowerBombType : NormalBombType;
         bomb.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
         bomb.Position = bomb.Position.WithWhole(samus.Position.Whole);
-        bomb.FuseUpdatesLeft = MorphBallBombDefinitions.InitialBombTimer;
+        bomb.Fuse = UpdateCountdown.Lasting(MorphBallBombDefinitions.InitialBombTimer);
         InitializeBomb(bomb);
-        CooldownTimer = placingPowerBomb
+        _cooldown.Restart(placingPowerBomb
             ? MorphBallBombDefinitions.PowerBombCooldown
-            : MorphBallBombDefinitions.NormalBombCooldown;
+            : MorphBallBombDefinitions.NormalBombCooldown);
 
         if (placingPowerBomb)
         {
@@ -470,9 +467,9 @@ public sealed class SamusBombProjectileSystem
         }
 
         if ((controllerInput & GameplayAction.Down) != GameplayAction.None &&
-            samus.BombSpreadChargeTimeoutCounter < MorphBallBombDefinitions.DownChargeTimeoutUpdates)
+            samus.BombSpreadCharge.IsRunning)
         {
-            samus.BombSpreadChargeTimeoutCounter++;
+            samus.BombSpreadCharge.Count();
             return BombSpreadAdmission.Charging;
         }
 
@@ -488,15 +485,15 @@ public sealed class SamusBombProjectileSystem
             SamusBomb bomb = Occupy(place);
             bomb.Type = NormalBombType;
             bomb.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
-            bomb.SpreadFlight = SamusBombSpreadLaunches.Launch(place, samus.BombSpreadChargeTimeoutCounter);
+            bomb.SpreadFlight = SamusBombSpreadLaunches.Launch(place, samus.BombSpreadCharge.Age);
             bomb.Position = bomb.Position.WithWhole(samus.Position.Whole);
             InitializeBomb(bomb);
-            bomb.FuseUpdatesLeft = SamusBombSpreadLaunches.ForPlace(place).FuseTimer;
+            bomb.Fuse = UpdateCountdown.For(SamusBombSpreadLaunches.ForPlace(place).FuseTimer);
         }
 
         BombCounter = PlaceCount;
-        CooldownTimer = MorphBallBombDefinitions.NormalBombCooldown;
-        samus.BombSpreadChargeTimeoutCounter = 0;
+        _cooldown.Restart(MorphBallBombDefinitions.NormalBombCooldown);
+        samus.BombSpreadCharge = UpdateCountdown.Lasting(MorphBallBombDefinitions.DownChargeTimeoutUpdates);
         samus.BeamCharge.ClearCount();
     }
 
@@ -509,7 +506,7 @@ public sealed class SamusBombProjectileSystem
         // The first bomb is allowed regardless of cooldown. With any active bomb,
         // five bombs out or a running cooldown reject the edge.
         if (BombCounter != 0 &&
-            (BombCounter >= PlaceCount || CooldownTimer != 0))
+            (BombCounter >= PlaceCount || _cooldown.IsRunning))
         {
             return false;
         }
@@ -517,7 +514,7 @@ public sealed class SamusBombProjectileSystem
         // Reserving a bomb counts it and lengthens the cooldown by one update before a free
         // place is chosen; once the bomb starts, placement replaces the cooldown with the
         // bomb's own.
-        CooldownTimer++;
+        _cooldown.Lengthen(MorphBallBombDefinitions.ReservationCooldownUpdates);
         BombCounter++;
 
         return true;
@@ -592,8 +589,7 @@ public sealed class SamusBombProjectileSystem
         bool powerBombBoundaryReacts = false;
         if (typeFamily == SamusProjectileFamily.PowerBomb)
         {
-            PowerBombFuseStep fuse = SamusPowerBombFuse.Step(bomb.FuseUpdatesLeft, PowerBombExplosion.IsArmed);
-            bomb.FuseUpdatesLeft = fuse.UpdatesLeft;
+            PowerBombFuseStep fuse = SamusPowerBombFuse.Step(bomb.Fuse, PowerBombExplosion.IsArmed);
             powerBombBoundaryReacts = fuse.BoundaryReacts;
             if (fuse.FastAnimation)
                 SamusPowerBombFuse.SwitchToFastAnimation(bomb.Animation);
@@ -610,14 +606,14 @@ public sealed class SamusBombProjectileSystem
         }
         else if (!bomb.HasBurnedOut)
         {
-            bomb.FuseUpdatesLeft--;
-            if (bomb.FuseUpdatesLeft == SamusPowerBombFuseData.FastAnimationTimer)
+            bool burnedOut = bomb.Fuse.Count();
+            if (bomb.Fuse.UpdatesLeft == SamusPowerBombFuseData.FastAnimationTimer)
             {
                 // The fuse switches the bomb to the same frame of its fast animation, so its
                 // four-frame cycle keeps its place.
                 SamusPowerBombFuse.SwitchToFastAnimation(bomb.Animation);
             }
-            else if (bomb.HasBurnedOut)
+            else if (burnedOut)
             {
                 // The fuse running out starts the bomb's explosion animation, which shows its first picture next.
                 bomb.Animation = SamusProjectilePlayback.Start(SamusProjectileSegment.BombExplosion);
@@ -1027,7 +1023,7 @@ public sealed class SamusBombProjectileSystem
             SamusProjectileFamily typeFamily = bomb.Type.Family;
             if (typeFamily is not (
                     SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb) ||
-                bomb.FuseUpdatesLeft != MorphBallBombDefinitions.BombJumpExplosionCount)
+                bomb.Fuse.UpdatesLeft != MorphBallBombDefinitions.BombJumpExplosionCount)
                 continue;
 
             // Samus's X against the bomb's: equal is straight; Samus left of the bomb launches left;

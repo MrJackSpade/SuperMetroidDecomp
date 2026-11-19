@@ -45,7 +45,7 @@ internal static class SuperMissileDeathAnimationVerification
         samus.Control.LockOutPlayer();
         RoomEnemyPlace enemy = runtime.Enemies.Places.InUpdateOrder.First(place => place.DefinitionId == enemyDefinition);
         enemy.Health = 1;
-        enemy.InvincibilityTimer = 0;
+        enemy.Invincibility.End();
         // The room loads both on the empty map, which the shot pass skips. The Dragon shows its surfaced frame ($E80C,
         // as at native update 40203) and the Sova a shared crawler surface frame.
         if (enemy.Frame == EnemyFrameId.Empty)

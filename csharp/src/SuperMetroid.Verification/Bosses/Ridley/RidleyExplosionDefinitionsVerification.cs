@@ -154,7 +154,7 @@ internal static class RidleyExplosionDefinitionsVerification
             short yOffset = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c670 + tableIndex * 4)));
             AssertEqual((selectedIndex + 1) % 10, state.NextDeathExplosion.Place,
                 $"Ridley death explosion {selectedIndex} cyclic next point");
-            AssertEqual(4, state.DeathExplosionTimer.Count,
+            AssertEqual(4, state.DeathExplosionTimer.CartridgeCount,
                 $"Ridley death explosion {selectedIndex} waits five updates for the next");
             AssertEqual(unchecked((ushort)(body.Position.X.Whole + xOffset)), effect.Position.X.Whole,
                 $"Ridley death explosion {selectedIndex} production X");
@@ -213,7 +213,7 @@ internal static class RidleyExplosionDefinitionsVerification
                     ?? throw new InvalidOperationException("The initialized fragment has no state.");
                 AssertEqual(
                     CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + parameter)),
-                    fragmentState.Lifetime.Count,
+                    fragmentState.Lifetime.CartridgeCount,
                     $"Ridley breakup production lifetime ${parameter:X2}");
                 AssertEqual(unchecked((ushort)-0x0130), fragmentState.Velocity.X.RawValue,
                     "Ridley breakup production signed random velocity");

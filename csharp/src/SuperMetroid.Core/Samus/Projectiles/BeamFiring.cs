@@ -123,7 +123,7 @@ internal sealed class BeamFiring
             // than suppressing the familiar initial power shot.
             if (!_charge.HasCharged(BeamChargeDefinitions.SpecialAttackCounter))
             {
-                _charge.FlareCounter++;
+                _charge.CountChargeUpdate();
                 if (_charge.FlareCounter == 1)
                 {
                     _charge.ClearFlare();
@@ -245,10 +245,10 @@ internal sealed class BeamFiring
         SamusProjectile projectile = _pool.OccupyWithBeam(place);
         projectile.Direction = aim;
         InitializePosition(samus, projectile);
-        projectile.TrailUpdatesLeft = ProjectileTimingDefinitions.TrailInterval;
+        projectile.Trail = UpdateCountdown.Lasting(ProjectileTimingDefinitions.TrailInterval);
         projectile.Type = SamusProjectileType.Beam(SamusBeamCombinations.Of(samus.EquippedBeams), charged);
         projectile.PicturedBeams = projectile.Type.BeamCombination;
-        InteractionImmunityUpdatesLeft = ProjectileTimingDefinitions.BeamInteractionImmunity;
+        InteractionImmunity = UpdateCountdown.Lasting(ProjectileTimingDefinitions.BeamInteractionImmunity);
         // The shot cancels a pending resume of the charging sound where it requests its own sound, before the projectile
         // is set up, so the next post-draw sound pass does not resume the charge after it (#1689).
         samus.ResumeChargingBeamSoundPending = false;
@@ -338,7 +338,7 @@ internal sealed class BeamFiring
         projectile.Direction = aim;
 
         InitializePosition(samus, projectile);
-        InteractionImmunityUpdatesLeft = ProjectileTimingDefinitions.BeamInteractionImmunity;
+        InteractionImmunity = UpdateCountdown.Lasting(ProjectileTimingDefinitions.BeamInteractionImmunity);
         // As for ordinary beams, the shot cancels a pending resume of the charging sound where it requests its own (#1689).
         samus.ResumeChargingBeamSoundPending = false;
 
@@ -416,14 +416,14 @@ internal sealed class BeamFiring
 
         InitializePosition(samus, projectile);
         _pool.ShotCount.CountShot();
-        InteractionImmunityUpdatesLeft = ProjectileTimingDefinitions.MissileInteractionImmunity;
+        InteractionImmunity = UpdateCountdown.Lasting(ProjectileTimingDefinitions.MissileInteractionImmunity);
         // A count Crystal Flash drained below zero still fires, each shot taking it further below; only the 32768th shot
         // from below zero wraps it to the largest count (CountsRunBelowZero), a wrap play can reach.
         if (isSuperMissile)
             samus.SuperMissiles = CountsRunBelowZero.DecrementWrapping(samus.SuperMissiles);
         else
             samus.Missiles = CountsRunBelowZero.DecrementWrapping(samus.Missiles);
-        projectile.TrailUpdatesLeft = ProjectileTimingDefinitions.TrailInterval;
+        projectile.Trail = UpdateCountdown.Lasting(ProjectileTimingDefinitions.TrailInterval);
         projectile.Type = SamusProjectileType.Of(isSuperMissile ? SamusProjectileFamily.SuperMissile : SamusProjectileFamily.Missile);
         projectile.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
 
@@ -548,16 +548,11 @@ internal sealed class BeamFiring
     /// firing a beam or a missile sets it, and it is counted down to none once each gameplay update, after Samus and the
     /// enemies have moved.
     /// </summary>
-    [IntegerQuantity("updates Samus's projectiles leave her alone")]
-    public int InteractionImmunityUpdatesLeft { get; internal set => field = Ensure.AtLeastZero(value); }
+    public UpdateCountdown InteractionImmunity { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>Whether a shot just fired keeps Samus from interacting with her own projectiles.</summary>
-    public bool SuppressesInteraction => InteractionImmunityUpdatesLeft > 0;
+    public bool SuppressesInteraction => InteractionImmunity.IsRunning;
 
-    /// <summary>Counts one update of the interaction immunity down; an immunity that has run out stays at none.</summary>
-    public void CountInteractionImmunityDown()
-    {
-        if (SuppressesInteraction)
-            InteractionImmunityUpdatesLeft--;
-    }
+    /// <summary>Counts one update of the interaction immunity; an immunity that has run out stays over.</summary>
+    public void CountInteractionImmunityDown() => InteractionImmunity.Step();
 }

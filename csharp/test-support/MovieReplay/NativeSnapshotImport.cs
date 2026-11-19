@@ -200,7 +200,8 @@ internal static class NativeSnapshotImport
         PrivateState.Set(samus.Presentation, nameof(SamusPresentation.DrawnFrame), new SamusBodyFrame(drawnTop.Pose, SamusAnimationNumbers.Frame(drawnTop.Pose, drawnTop.AnimationFrame)));
         PrivateState.Set(samus.Presentation, nameof(SamusPresentation.DrawOrigin), Offset16<ScreenPixels>.Wrapped(W(NativeSnapshotMemory.SamusSpriteX), W(NativeSnapshotMemory.SamusSpriteY)));
         PrivateState.Set(samus.ArmCannon, nameof(SamusArmCannonState.Frame), SamusArmCannonCoverNativeCodec.FromNative(W(NativeSnapshotMemory.CannonFrame)));
-        PrivateState.Set(samus.ArmCannon, nameof(SamusArmCannonState.StableSelectionUpdates), (int)W(NativeSnapshotMemory.CannonToggle));
+        PrivateState.SetField(samus.ArmCannon, "stability",
+            UpdateCountdownAccess.AtAge(SamusArmCannonDefinitions.StableSelectionUpdates, W(NativeSnapshotMemory.CannonToggle)));
         PrivateState.Set(samus.ArmCannon, nameof(SamusArmCannonState.DrawOrder), SuperMetroid.AssetExtraction.Samus.SamusArmCannonDrawOrderCodec.FromDrawingMode(W(NativeSnapshotMemory.CannonDrawingMode)));
         PrivateState.Set(samus.ArmCannon, nameof(SamusArmCannonState.IsOpen), memory[NativeSnapshotMemory.CannonFlags] != 0);
         PrivateState.Set(samus.ArmCannon, nameof(SamusArmCannonState.IsTransitioning), memory[NativeSnapshotMemory.CannonFlags + 1] != 0);
@@ -221,14 +222,14 @@ internal static class NativeSnapshotImport
         PrivateState.Set(samus.HorizontalSpeed, nameof(SamusHorizontalSpeedState.TotalSpeed), new UnsignedSixteenSixteen(W(NativeSnapshotMemory.TotalHorizontalSpeed), W(NativeSnapshotMemory.TotalHorizontalSubspeed)));
         runtime.Projectiles.Pool.ShotCount.Restore(W(NativeSnapshotMemory.ProjectileCount));
         runtime.Projectiles.Charge.PreviousCharge = SamusSnapshotWords.DecodeBeamCharge(W(NativeSnapshotMemory.PreviousCharge));
-        runtime.Projectiles.Firing.InteractionImmunityUpdatesLeft = W(NativeSnapshotMemory.ProjectileInteractionImmunity);
+        runtime.Projectiles.Firing.InteractionImmunity = UpdateCountdown.For(W(NativeSnapshotMemory.ProjectileInteractionImmunity));
         runtime.Projectiles.Charge.ChargedShotGlow = SamusSnapshotWords.DecodeChargedShotGlow(W(NativeSnapshotMemory.ChargedShotGlow));
         int chargePaletteByteOffset = W(NativeSnapshotMemory.ChargePaletteIndex);
         runtime.Projectiles.Charge.ChargeGlowStep = (chargePaletteByteOffset & 1) == 0
             ? chargePaletteByteOffset / sizeof(ushort)
             : throw new InvalidDataException($"Native charge palette byte offset {chargePaletteByteOffset} names no step.");
         runtime.BombProjectiles.BombCounter = W(NativeSnapshotMemory.BombCount);
-        samus.BombSpreadChargeTimeoutCounter = W(NativeSnapshotMemory.BombSpreadChargeTimeout);
+        samus.BombSpreadCharge = UpdateCountdownAccess.AtAge(MorphBallBombDefinitions.DownChargeTimeoutUpdates, W(NativeSnapshotMemory.BombSpreadChargeTimeout));
         samus.PendingTransitionShot = SamusSnapshotWords.DecodeTransitionShot(W(NativeSnapshotMemory.PoseShotDirection));
         samus.HyperBeamEnabled = SamusSnapshotWords.DecodeHyperBeam(W(NativeSnapshotMemory.HyperBeam));
         samus.ResumeChargingBeamSoundPending = SamusSnapshotWords.DecodeResumeChargingBeamSound(W(NativeSnapshotMemory.ResumeChargeSound));
@@ -245,7 +246,7 @@ internal static class NativeSnapshotImport
         samus.Health = SamusCountWords.Decode(W(NativeSnapshotMemory.Health));
         samus.MaxHealth = SamusCountWords.Decode(W(NativeSnapshotMemory.MaxHealth));
         samus.InvincibilityTimer = WrappingCountdown.Start(W(NativeSnapshotMemory.InvincibilityTimer));
-        samus.KnockbackTimer = W(NativeSnapshotMemory.KnockbackTimer);
+        samus.KnockbackHold = UpdateCountdown.For(W(NativeSnapshotMemory.KnockbackTimer));
         samus.KnockbackDirection = SamusMovementNativeWords.KnockbackDirections.Decode(W(NativeSnapshotMemory.KnockbackDirection), "Samus knockback direction");
         samus.KnockbackXDirection = (KnockbackHorizontalDirection)W(NativeSnapshotMemory.KnockbackXDirection);
         samus.HurtFlash.HoldAt(W(NativeSnapshotMemory.HurtFlashCounter));
@@ -383,10 +384,10 @@ internal static class NativeSnapshotImport
             // The native palette word names a row; the colouring it denotes is decoded under the room's loaded set.
             enemy.SetPaletteRow(runtime.Enemies, NativeSpriteGraphicsWords.PaletteRow(W(address + 30)));
             // The native tile index word is where the import composes the occupant's sheet, not slot state (#1513).
-            enemy.FlashTimer = W(address + 36);
-            enemy.FrozenTimer = W(address + 38);
-            enemy.InvincibilityTimer = W(address + 40);
-            enemy.ShakeTimer = W(address + 42);
+            enemy.HurtFlash.Restart(W(address + 36));
+            enemy.Freeze.Restart(W(address + 38));
+            enemy.Invincibility.Restart(W(address + 40));
+            enemy.Shake.Restart(W(address + 42));
             enemy.FrameCounter = W(address + 44);
             var words = new NativeEnemyRecordWords(
                 W(address + 48), W(address + 50), W(address + 52), W(address + 54), W(address + 56), W(address + 58));
@@ -410,7 +411,7 @@ internal static class NativeSnapshotImport
             if (runtime.Enemies.BrinstarPipeBugStates[index] is { } pipe)
             {
                 pipe.SpawnPosition = new(words.B, words.C);
-                pipe.RespawnDelay = unchecked((short)words.D);
+                pipe.RespawnDelay = UpdateCountdownAccess.Recorded(unchecked((short)words.D));
                 SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugKind kind =
                     runtime.Enemies.Places.InUpdateOrder[index].SpawnSettings<SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugSpawnSettings>().Kind;
                 pipe.EmergenceTopY = W(NativeSnapshotMemory.EnemyExtra + index * NativeSnapshotMemory.EnemyExtraBytes);

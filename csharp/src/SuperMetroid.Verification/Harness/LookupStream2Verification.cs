@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Verification.Fx.PaletteFx;
 using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -161,7 +162,7 @@ internal static class LookupStream2Verification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Shading = PictureShading.Standard;
-        var state = new WreckedShipGhostEnemyState(WreckedShipGhostAction.InitialInvisibleDelay) { FlickerTimer = 2, NextFlickerStep = WreckedShipGhostFlickerStep.First };
+        var state = new WreckedShipGhostEnemyState(WreckedShipGhostAction.InitialInvisibleDelay) { FlickerTimer = UpdateCountdown.Lasting(2), NextFlickerStep = WreckedShipGhostFlickerStep.First };
         Action<RoomEnemyPlace, WreckedShipGhostEnemyState> brightening = WreckedShipGhostBehavior.RunWreckedShipGhostBrightening;
         Func<RoomEnemyPlace, WreckedShipGhostEnemyState, int> fade = WreckedShipGhostBehavior.StepWreckedShipGhostFadeTowardTarget;
         Dictionary<PictureShade, RgbColor[]> installedSteps = EnemySheetShades.GhostFadeSteps().ToDictionary(step => step.Shade, step => step.Colours);
@@ -1178,7 +1179,7 @@ internal static class LookupStream2Verification
         AssertEqual(5, transfers.Length, "Gunship calculated transfer count");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var place = enemies.Places.InUpdateOrder[0];
-        var part = new GunshipState(GunshipPhase.WaitForEngines) { PhaseTimer = GunshipTakeoffDefinitions.EngineStartUpdates };
+        var part = new GunshipState(GunshipPhase.WaitForEngines) { PhaseTimer = UpdateCountdown.Lasting(GunshipTakeoffDefinitions.EngineStartUpdates) };
         place.SetSpeciesState(part);
         int enumerated = 0;
         foreach (var transfer in transfers)
@@ -1291,9 +1292,9 @@ internal static class LookupStream2Verification
             AssertEqual(unchecked((ushort)(32 + originalX)), place.Position.X.Whole, "Ghost actual wrapped spawn X");
             AssertEqual(unchecked((ushort)(65520 + originalY)), place.Position.Y.Whole, "Ghost actual wrapped spawn Y");
             AssertEqual(WreckedShipGhostAction.BrighteningAndFlickering, state.Action, "Ghost appearance phase");
-            AssertEqual(64, state.StablePositionTimer, "Ghost appearance position timer");
-            AssertEqual(16, state.StableDirectionTimer, "Ghost appearance direction timer");
-            AssertEqual(1, state.FlickerTimer, "Ghost appearance starts its flicker's first step on its first brightening update");
+            AssertEqual(64, state.StablePositionTimer.UpdatesLeft, "Ghost appearance position timer");
+            AssertEqual(16, state.StableDirectionTimer.UpdatesLeft, "Ghost appearance direction timer");
+            AssertEqual(1, state.FlickerTimer.UpdatesLeft, "Ghost appearance starts its flicker's first step on its first brightening update");
             AssertEqual(WreckedShipGhostFlickerStep.First, state.NextFlickerStep, "Ghost appearance starts its flicker at the first step");
         }
         // The flicker steps are the native interval table's words after its first, which no appearance starts (each starts
@@ -1317,28 +1318,28 @@ internal static class LookupStream2Verification
             place.Contact = EnemyContact.None;
             place.Processing = EnemyProcessing.OffScreen;
             place.Presence = EnemyPresence.Hidden;
-            state.FlickerTimer = 1;
+            state.FlickerTimer = UpdateCountdown.For(1);
             state.NextFlickerStep = ended ? null : steps[position];
             flicker(place, state);
-            AssertEqual(ended ? 0 : original, state.FlickerTimer, "Ghost actual next interval");
+            AssertEqual(ended ? 0 : original, state.FlickerTimer.UpdatesLeft, "Ghost actual next interval");
             AssertEqual(ended || position + 1 == steps.Count ? null : steps[position + 1], state.NextFlickerStep, "Ghost actual next step");
             bool remainsInvisible = ended || position % 2 == 0;
             AssertEqual(EnemyContact.None, place.Contact, "Ghost actual visibility preserves unrelated contact");
             AssertEqual(EnemyProcessing.OffScreen, place.Processing, "Ghost actual visibility preserves unrelated processing");
             AssertEqual(remainsInvisible ? EnemyPresence.Hidden : EnemyPresence.None, place.Presence, "Ghost actual visibility");
         }
-        state.FlickerTimer = 2;
+        state.FlickerTimer = UpdateCountdown.For(2);
         state.NextFlickerStep = WreckedShipGhostFlickerStep.First;
         place.Contact = EnemyContact.None;
         place.Processing = EnemyProcessing.None;
         place.Presence = EnemyPresence.Hidden;
         flicker(place, state);
-        AssertEqual(1, state.FlickerTimer, "Ghost interval countdown");
+        AssertEqual(1, state.FlickerTimer.UpdatesLeft, "Ghost interval countdown");
         AssertEqual(WreckedShipGhostFlickerStep.First, state.NextFlickerStep, "Ghost no early interval advance");
         AssertEqual(EnemyContact.None, place.Contact, "Ghost no early contact change");
         AssertEqual(EnemyProcessing.None, place.Processing, "Ghost no early processing change");
         AssertEqual(EnemyPresence.Hidden, place.Presence, "Ghost no early visibility change");
-        state.FlickerTimer = 0;
+        state.FlickerTimer = UpdateCountdown.For(0);
         flicker(place, state);
         AssertTrue(place.Contact == EnemyContact.None && place.Processing == EnemyProcessing.None && place.Presence == EnemyPresence.None,
             "Ghost terminal next call clears invisibility");

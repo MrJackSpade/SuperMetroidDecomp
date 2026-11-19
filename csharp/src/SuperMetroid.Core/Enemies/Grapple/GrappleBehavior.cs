@@ -28,7 +28,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
     {
         foreach (RoomEnemyPlace enemy in _lifecycle.InteractiveEnemies)
         {
-            if (enemy.InvincibilityTimer != 0)
+            if (enemy.Invincibility.IsRunning)
                 continue;
 
             // The endpoint tested lies in the room's grid, but an interactive enemy need not: a fly that has climbed through
@@ -66,19 +66,19 @@ internal sealed class GrappleBehavior : IGrappleTargets
         {
             case GrappleEnemyReaction.None:
                 enemy.AiStates = EnemyAiStates.None;
-                enemy.InvincibilityTimer = 0;
-                enemy.FrozenTimer = 0;
-                enemy.ShakeTimer = 0;
+                enemy.Invincibility.End();
+                enemy.Freeze.End();
+                enemy.Shake.End();
                 return true;
 
             case GrappleEnemyReaction.Attach:
-                if (enemy.FrozenTimer != 0)
+                if (enemy.Freeze.IsRunning)
                 {
                     enemy.AiStates = EnemyAiStates.Frozen;
                 }
                 else
                 {
-                    enemy.FlashTimer = enemy.HurtFlashFrames;
+                    enemy.HurtFlash.Restart(enemy.HurtFlashFrames);
                     enemy.AiStates = EnemyAiStates.None;
                 }
                 return true;
@@ -96,7 +96,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
                 return true;
 
             case GrappleEnemyReaction.AttachWithoutInvincibility:
-                if (enemy.FrozenTimer != 0)
+                if (enemy.Freeze.IsRunning)
                 {
                     enemy.AiStates = EnemyAiStates.Frozen;
                     return true;
@@ -110,7 +110,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
                 return true;
 
             case GrappleEnemyReaction.AttachAndParalyze:
-                enemy.FlashTimer = enemy.HurtFlashFrames;
+                enemy.HurtFlash.Restart(enemy.HurtFlashFrames);
                 enemy.AiStates = EnemyAiStates.None;
                 return true;
 

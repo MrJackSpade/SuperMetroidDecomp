@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -34,15 +35,15 @@ internal static class BombSpreadLaunchDefinitionsVerification
         var samus=new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         for(int hold=0;hold<=MorphBallBombDefinitions.DownChargeTimeoutUpdates;hold++)
         {
-            samus.BombSpreadChargeTimeoutCounter=(ushort)hold;
-            samus.BeamCharge.FlareCounter = BeamChargeDefinitions.FullyChargedCounter;
+            samus.BombSpreadCharge = UpdateCountdownAccess.AtAge(SuperMetroid.Core.Samus.Projectiles.MorphBallBombDefinitions.DownChargeTimeoutUpdates, (ushort)hold);
+            samus.BeamCharge.SetFlareCount(BeamChargeDefinitions.FullyChargedCounter);
             samus.Position = samus.Position.WithWhole(new((ushort)hold, unchecked((ushort)~hold)));
             spawn(bombs,samus);
             for(int i=0;i<reference.Length;i++)
             {
                 var slot=bombs.Bombs[i]; var expected=reference[i];
                 BombSpreadFlight flight = slot.SpreadFlight ?? throw new InvalidOperationException($"Spread slot {i} has no flight.");
-                AssertEqual(expected.FuseTimer,slot.FuseUpdatesLeft,"Spread fuse by physical slot");
+                AssertEqual(expected.FuseTimer,slot.Fuse.UpdatesLeft,"Spread fuse by physical slot");
                 AssertEqual(expected.HorizontalVelocity,flight.HorizontalVelocity,"Spread horizontal velocity");
                 AssertEqual(Word(MorphBallBombDefinitions.XVelocities+i*2), flight.PackedHorizontalVelocity,"Spread horizontal velocity re-encodes the native direction/magnitude word");
                 // The cartridge's hold bonus is bits six and seven of the hold count, added to the speed word before it is negated.
@@ -54,7 +55,7 @@ internal static class BombSpreadLaunchDefinitionsVerification
             }
             AssertEqual(MorphBallBombDefinitions.PlaceCount,bombs.BombCounter,"Spread allocates all five slots");
             AssertEqual(0, samus.BeamCharge.FlareCounter,"Spread consumes charge");
-            AssertEqual(0, samus.BombSpreadChargeTimeoutCounter,"Spread clears hold counter");
+            AssertEqual(0, samus.BombSpreadCharge.Age,"Spread clears hold counter");
         }
         Console.WriteLine("Bomb Spread launch: twenty native words and 327680 actual slot initializations match with launch ROM reads forbidden.");
         VerifyBombSpreadMotionWraps();

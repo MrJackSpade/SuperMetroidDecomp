@@ -48,7 +48,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Phantoon's flames as projectiles, its hitboxes and body touch, and what Samus's weapons do to it.</summary>
     internal PhantoonCombat Combat { get; }
 
-    /// <summary>Phantoon's fades, health colors, wave amplitude, animations and phase timer, shared by every phase of the fight.</summary>
+    /// <summary>Phantoon's fades, health colors, wave amplitude and animations, shared by every phase of the fight.</summary>
     internal PhantoonPresentation Presentation { get; }
 
     /// <summary>Phantoon's attack rounds: figure eights, eye tracking, swoops, flame rain and rage.</summary>
@@ -95,7 +95,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // His body is black as the fight starts, which his later fades start from (#1512).
         state.Colours.Show(PhantoonBodyLook.Black);
 
-        state.PhaseTimer = PhantoonTimerDefinitions.InitialFlameDelayFrames;
+        state.PhaseWait.LastFor(PhantoonTimerDefinitions.InitialFlameDelayFrames);
         state.StartingFlames.NextFlame = PhantoonStartingFlamesState.First;
         state.StartingFlames.Orbiting = false;
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
@@ -377,7 +377,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace body = state.Body;
         state.BodyPart.StartAnimation(PhantoonPartSegment.EyeHitboxBody);
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
-        state.PhaseTimer = PhantoonRandomDefinitions.VulnerableWindow.Choose(_room.Random.Generate());
+        state.PhaseWait.LastFor(PhantoonRandomDefinitions.VulnerableWindow.Choose(_room.Random.Generate()));
         state.Phase = PhantoonPhase.EyeTracksSamus;
         state.EyePart.StartAnimation(PhantoonPartSegment.EyeballCentered);
     }

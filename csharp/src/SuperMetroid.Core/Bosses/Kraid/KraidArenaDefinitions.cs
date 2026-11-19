@@ -98,6 +98,9 @@ internal static class KraidArenaDefinitions
     /// </summary>
     internal const int LungeDelayUpdates = 300;
 
+    /// <summary>The updates his small form's foot rests at the lunge's reach before it walks back, the last included.</summary>
+    internal const int LungeReachPauseUpdates = 1;
+
     /// <summary>The updates his head plays its animation, shaking the room, before he grows.</summary>
     internal const int GrowthHeadAnimationUpdates = 180;
 

@@ -831,14 +831,14 @@ internal static class LookupStream2Verification
             KraidLintState lintState = state.Lint(lintParts[native]);
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7a916 + native * 2));
             AssertEqual(expected, KraidLints.InitialDelay(lintParts[native]), "Native per-part initial delay");
-            AssertEqual(expected, lintState.PhaseTimer, "Actual post-growth timer write");
+            AssertEqual(expected, lintState.PhaseWait.UpdatesLeft, "Actual post-growth wait");
             AssertEqual(0, lintState.LintTravel, "Actual lint growth resets extension");
             // The lint's alignment names its own continuation, its production (#2208).
             AssertEqual(KraidLintPhase.AlignToKraidBeforeProducing, lintState.Phase, "Actual lint alignment before production");
             for (int remaining = expected - 1; remaining >= 0; remaining--)
             {
                 align(lint, lintState);
-                AssertEqual(remaining, lintState.PhaseTimer, "Actual per-part countdown");
+                AssertEqual(remaining, lintState.PhaseWait.UpdatesLeft, "Actual per-part countdown");
                 AssertEqual((remaining == 0 ? KraidLintPhase.Produce : KraidLintPhase.AlignToKraidBeforeProducing),
                     lintState.Phase, "Actual lint transition occurs on its own final tick");
                 AssertEqual(unchecked((ushort)(body.Position.X.Whole - lint.Radius.X)), lint.Position.X.Whole, "Alignment continues during delay");

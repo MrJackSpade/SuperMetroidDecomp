@@ -96,10 +96,10 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         // the RNG.
         int random = ReadFakeKraidRandomNumber();
         int seedDelay = KraidRandomDefinitions.FakeKraidStartDelay.Of(random) + KraidRandomDefinitions.FakeKraidStartDelayBase;
-        state.WalkStepTimer = seedDelay;
-        state.SpitDecisionTimer = seedDelay;
+        state.WalkTurnWait.LastFor(seedDelay);
+        state.SpitWait.LastFor(seedDelay);
         foreach ((FakeKraidSpikeRow row, int delay) in FakeKraidProjectileDefinitions.SpikeStartDelays)
-            state.SpikeTimers[row] = seedDelay + delay;
+            state.SpikeWaits[row] = BossCountdown.Lasting(seedDelay + delay);
         state.NextSpikeRow = FakeKraidSpikeRow.Top;
 
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
@@ -133,16 +133,13 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             FakeKraidSpikeRow.Bottom => FakeKraidSpikeRow.Top,
             _ => throw new InvalidOperationException($"Undefined {nameof(FakeKraidSpikeRow)} {row}."),
         };
-        int timer = state.SpikeTimers[row];
-        if (timer != 0)
-        {
-            state.SpikeTimers[row] = timer - 1;
+        BossCountdown spikeWait = state.SpikeWaits[row];
+        if (spikeWait.StepKeepsRunning())
             return;
-        }
 
-        state.SpikeTimers[row] =
+        spikeWait.LastFor(
             KraidRandomDefinitions.FakeKraidSpikeReloadSpread.Of(ReadFakeKraidRandomNumber()) +
-            KraidRandomDefinitions.FakeKraidSpikeReloadBase;
+            KraidRandomDefinitions.FakeKraidSpikeReloadBase);
         if (SpawnFakeKraidSpike(place, state, row) &&
             EnemyView.Contains(place.Position.Whole, camera))
         {
@@ -157,15 +154,15 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData level)
     {
-        state.SpitDecisionTimer = Math.Max(0, state.SpitDecisionTimer - 1);
+        state.SpitWait.Step();
 
-        // The step expires when the decrement reaches zero: reload and reverse without moving. Otherwise attempt the four-pixel
-        // displacement and reverse only if it meets a wall.
-        bool reverse = --state.WalkStepTimer == 0;
+        // On the walk's last step he turns round without moving, and starts his next walk. Otherwise he attempts the
+        // four-pixel step and turns round only if it meets a wall.
+        bool reverse = state.WalkTurnWait.StepRunsOut();
         if (reverse)
         {
-            state.WalkStepTimer = KraidRandomDefinitions.FakeKraidWalkStepSpread.Of(ReadFakeKraidRandomNumber()) +
-                KraidRandomDefinitions.FakeKraidWalkStepBase;
+            state.WalkTurnWait.LastFor(KraidRandomDefinitions.FakeKraidWalkStepSpread.Of(ReadFakeKraidRandomNumber()) +
+                KraidRandomDefinitions.FakeKraidWalkStepBase);
         }
         else
         {
@@ -188,7 +185,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     private FakeKraidSegment SelectFakeKraidAction(
         FakeKraidEnemyState state)
     {
-        if (state.SpitDecisionTimer != 0)
+        if (!state.SpitWait.HasRunOut)
         {
             if (state.Facing == HorizontalDirection.Left)
             {
@@ -202,8 +199,8 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 : FakeKraidSegment.StepForwardsFacingRight;
         }
 
-        state.SpitDecisionTimer = KraidRandomDefinitions.FakeKraidSpitDecisionSpread.Of(ReadFakeKraidRandomNumber()) +
-            KraidRandomDefinitions.FakeKraidSpitDecisionBase;
+        state.SpitWait.LastFor(KraidRandomDefinitions.FakeKraidSpitDecisionSpread.Of(ReadFakeKraidRandomNumber()) +
+            KraidRandomDefinitions.FakeKraidSpitDecisionBase);
         return state.Facing == HorizontalDirection.Left
             ? FakeKraidSegment.FireSpitFacingLeft
             : FakeKraidSegment.FireSpitFacingRight;

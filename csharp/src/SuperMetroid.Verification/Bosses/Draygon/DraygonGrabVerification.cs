@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
@@ -45,6 +46,35 @@ internal static class DraygonGrabVerification
         Console.WriteLine("Draygon grab spiral fraction: the grab keeps the leftover spiral Y fraction.");
     }
 
+    /// <summary>
+    /// #2538: a tail whip pauses Draygon's spiral for <see cref="DraygonGrabDefinitions.TailWhipUpdates"/>, 64 updates, as
+    /// the game counted 64 down to zero: his tail starts its whip on the pause's first update, and the spiral resumes on
+    /// its last.
+    /// </summary>
+    internal static void VerifyDraygonTailWhipPause()
+    {
+        var (runtime, samus, draygon) = GrabSamus(spiralYFraction: 0, pendingPose: null);
+        DraygonGrab grab = runtime.Enemies.DraygonBehavior.Grab;
+        var whip = new AnimationPlayback<DraygonSegment>(DraygonAnimations.StartingWith(draygon.Facing == HorizontalDirection.Right
+            ? DraygonSegment.TailFacingRightWhip
+            : DraygonSegment.TailFacingLeftWhip), AnimationPlace.StartOfAnimation);
+        AssertEqual(64, DraygonGrabDefinitions.TailWhipUpdates, "the pause lasts the 64 updates the game counted");
+        AssertTrue(draygon.TailPart.Playback != whip, "the tail shows no whip before the pause");
+
+        draygon.Phase = DraygonPhase.BeginTailWhipWithSamus;
+        grab.BeginDraygonTailWhip(draygon, samus);
+        AssertEqual(DraygonPhase.TailWhipWithSamus, draygon.Phase, "the pause runs on after its first update");
+        AssertEqual(whip, draygon.TailPart.Playback, "the tail starts its whip on the pause's first update");
+        for (int update = 2; update < DraygonGrabDefinitions.TailWhipUpdates; update++)
+        {
+            grab.RunDraygonTailWhip(draygon, samus);
+            AssertEqual(DraygonPhase.TailWhipWithSamus, draygon.Phase, $"the spiral still pauses on update {update} of the whip");
+        }
+        grab.RunDraygonTailWhip(draygon, samus);
+        AssertEqual(DraygonPhase.FlailWithSamus, draygon.Phase, "the spiral resumes on the pause's last update");
+        Console.WriteLine("Draygon tail whip pause: the whip starts on the pause's first update and the spiral resumes on its 64th.");
+    }
+
     /// <summary>Loads Draygon's room and has Draygon grab a gooped Samus whose pose requests and spiral fraction are given.</summary>
     private static GrabSamusResult GrabSamus(
         ushort spiralYFraction, SamusPoseId? pendingPose)
@@ -76,6 +106,14 @@ internal static class DraygonGrabVerification
     internal static int DraygonGrabPoseRequestsCommand()
     {
         Suite(nameof(VerifyDraygonGrabPoseRequests), () => VerifyDraygonGrabPoseRequests());
+        return 0;
+    }
+
+    /// <summary>Runs the Draygon tail-whip pause check from the verification command line.</summary>
+    [VerificationCommand("--draygon-tail-whip-pause")]
+    internal static int DraygonTailWhipPauseCommand()
+    {
+        Suite(nameof(VerifyDraygonTailWhipPause), () => VerifyDraygonTailWhipPause());
         return 0;
     }
 

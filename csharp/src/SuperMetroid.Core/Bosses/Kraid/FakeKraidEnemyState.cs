@@ -19,19 +19,22 @@ public sealed class FakeKraidEnemyState
     public HorizontalDirection Facing { get; internal set; }
 
     /// <summary>
-    /// Walk steps remaining before the next forced reversal. A step expires when its decrement reaches zero, and the
-    /// expiry reloads it.
+    /// His walk steps before he turns round (#2538), counted by his walk animation's steps: he turns, without stepping, on
+    /// its last step, which starts it again.
     /// </summary>
-    public int WalkStepTimer { get; internal set; }
-
-    /// <summary>Number of animation decision points before the next spit attack; it stops at zero.</summary>
-    public int SpitDecisionTimer { get; internal set; }
+    public BossCountdown WalkTurnWait { get; } = new();
 
     /// <summary>
-    /// Each body port's independent spike clock. Main AI visits exactly one clock per frame, top, middle, bottom, then
-    /// top again, counting a running clock down to zero without wrapping and reloading it when it is found at zero.
+    /// His walk steps before he spits again (#2538), counted by his walk animation's steps. It holds once it has run out,
+    /// and his next action choice then spits and starts it again.
     /// </summary>
-    internal Dictionary<FakeKraidSpikeRow, int> SpikeTimers { get; } = [];
+    public HeldBossCountdown SpitWait { get; } = new();
+
+    /// <summary>
+    /// Each body port's spike clock (#2538). Main AI visits exactly one clock an update, top, middle, bottom, then top
+    /// again, and each spikes on its clock's last visit, which starts the clock again.
+    /// </summary>
+    internal Dictionary<FakeKraidSpikeRow, BossCountdown> SpikeWaits { get; } = [];
 
     /// <summary>The body port whose spike clock main AI visits on the next frame.</summary>
     internal FakeKraidSpikeRow NextSpikeRow { get; set; }

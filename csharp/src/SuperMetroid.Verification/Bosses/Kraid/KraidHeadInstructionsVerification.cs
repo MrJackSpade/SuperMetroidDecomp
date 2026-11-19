@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidContourCaseMappingsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidHeadCommandMappingVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Enemies;
@@ -60,7 +62,7 @@ internal static class KraidHeadInstructionsVerification
                     ? record
                     : native.RecordAt(native.PlaybackAt(unchecked((ushort)(record.Pointer + 2))));
                 AssertEqual(KraidHeadAnimationResult.PoseShown, result, $"Kraid command ${record.Pointer:X4} reaches timed frame");
-                AssertEqual(displayed.Opcode, state.BodyState.HeadTimer, $"Kraid command ${record.Pointer:X4} installs duration");
+                AssertEqual(displayed.Opcode, state.HeadHold.UpdatesLeft, $"Kraid command ${record.Pointer:X4} holds the pose for its duration");
                 KraidHeadFrame shown = state.DisplayedHeadFrame
                     ?? throw new InvalidOperationException("Verification requires a displayed Kraid head pose.");
                 AssertEqual(displayed.Tilemap, KraidHeadFrameDefinitions.PresentationKey(shown),
@@ -93,35 +95,36 @@ internal static class KraidHeadInstructionsVerification
             enemies.KraidBehavior.RunKraidBodyStage(combatBody, combatState, cameraX, RoomEnemyFrameFixtures.StandaloneSamus()));
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         state.InitialHealth = 1000;
+        // A thinking wait at zero has run out and holds (#2538): only the update its last count runs out on roars.
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             state.BodyState.FightPhase = KraidFightPhase.FirstPhaseThinking;
-            state.ThinkingTimer = raw;
-            state.BodyState.HeadTimer = 999;
+            PrivateState.Set(state.ThinkingWait, nameof(HeldBossCountdown.UpdatesLeft), raw);
+            state.HeadHold.LastFor(999);
             combat(body, state, 0);
             AssertEqual(raw == 1
-                    ? (ushort)KraidHeadAnimations.Starting(KraidHeadSegment.Roar).Delay
-                    : (ushort)999,
-                state.BodyState.HeadTimer, "Roar timer loads only on thinker expiry");
+                    ? KraidHeadAnimations.Starting(KraidHeadSegment.Roar).Delay
+                    : 999,
+                state.HeadHold.UpdatesLeft, "the roar starts only on the thinking's last update");
 
             state.BodyState.FightPhase = KraidFightPhase.SecondPhaseThinking;
-            state.ThinkingTimer = raw;
-            state.BodyState.HeadTimer = 999;
+            PrivateState.Set(state.ThinkingWait, nameof(HeldBossCountdown.UpdatesLeft), raw);
+            state.HeadHold.LastFor(999);
             combat(body, state, 0);
             AssertEqual(raw == 1
-                    ? (ushort)KraidHeadAnimations.Starting(KraidHeadSegment.Roar).Delay
-                    : (ushort)999,
-                state.BodyState.HeadTimer, "Second-phase roar timer loads only on thinker expiry");
+                    ? KraidHeadAnimations.Starting(KraidHeadSegment.Roar).Delay
+                    : 999,
+                state.HeadHold.UpdatesLeft, "the grown roar starts only on the thinking's last update");
         }
 
         glow(state);
         AssertEqual(
-            unchecked(KraidHeadAnimations.Starting(KraidHeadSegment.EyeGlow).Delay - 1),
-            state.BodyState.HeadTimer, "Eye glow consumes one timer tick on initialization");
-        state.BodyState.HeadTimer = 999;
+            KraidHeadAnimations.Starting(KraidHeadSegment.EyeGlow).Delay - 1,
+            state.HeadHold.UpdatesLeft, "the eye glow's start takes the first update of its opening pose's hold");
+        state.HeadHold.LastFor(999);
         death(state);
-        AssertEqual(KraidHeadAnimations.Starting(KraidHeadSegment.Death).Delay, state.BodyState.HeadTimer,
-            "Death initialization installs native timer without ticking");
+        AssertEqual(KraidHeadAnimations.Starting(KraidHeadSegment.Death).Delay, state.HeadHold.UpdatesLeft,
+            "the death's start holds its opening pose for its whole duration");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Kraid timer/growth consumers avoid compiled head programs");
     }

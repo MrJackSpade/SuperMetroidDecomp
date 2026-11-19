@@ -20,13 +20,13 @@ internal static class KraidCadenceDefinitions
     internal static readonly UpdateCadence CeilingRockEveryFourthRow = new(4, 0);
 
     /// <summary>
-    /// The updates on which Kraid's fully open mouth spits a rock: every sixteenth value of his head's countdown, on the
-    /// period's first place, including the update the open mouth reloads it.
+    /// The updates on which Kraid's fully open mouth spits a rock: every sixteenth of the updates left of his head's hold
+    /// on the open mouth, on the period's first place, including the update the open mouth shows and starts it.
     /// </summary>
     internal static readonly UpdateCadence SpitRockEverySixteenthMouthUpdate = new(16, 0);
 
     /// <summary>
-    /// The phase of a charging lint's countdown on which it shows Kraid's colours: set on its odd counts, so it
+    /// The phase of a charging lint's updates left on which it shows Kraid's colours: set on its odd updates left, so it
     /// alternates with the white hurt colours every update.
     /// </summary>
     internal static readonly UpdateCounterField LintChargeShowsOwnColours = new(0, 1);
@@ -38,14 +38,14 @@ internal static class KraidCadenceDefinitions
     internal static readonly UpdateCadence CeilingBreakRockEveryEighthUpdate = new(8, 0);
 
     /// <summary>
-    /// The updates on which Kraid's first rise through the floor throws up a rising rock: every sixteenth value of his
-    /// rising-rock countdown, on the period's first place.
+    /// The updates on which Kraid's first rise through the floor throws up a rising rock: every sixteenth of the updates
+    /// left of the rise's slow rocks, on the period's first place.
     /// </summary>
     internal static readonly UpdateCadence FirstRiseRockEverySixteenthUpdate = new(16, 0);
 
     /// <summary>
-    /// The updates on which Kraid's faster rise throws up a rising rock: every eighth value of his rising-rock countdown,
-    /// on the period's first place.
+    /// The updates on which Kraid's faster rise throws up a rising rock: every eighth of the updates left of the rise's
+    /// fast rocks, on the period's first place.
     /// </summary>
     internal static readonly UpdateCadence FasterRiseRockEveryEighthUpdate = new(8, 0);
 

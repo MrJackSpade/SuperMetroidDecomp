@@ -140,7 +140,7 @@ internal sealed class DraygonShots
             samus.ClearHurtTimers();
         }
 
-        /// <summary>Follows Samus with attached goop and counts down its removal timer.</summary>
+        /// <summary>Follows Samus with attached goop, which falls off on its lifetime's last update.</summary>
         /// <param name="goop">The goop stuck to Samus.</param>
         /// <param name="samus">Samus, whom the goop follows.</param>
         /// <param name="powerBomb">The power bomb explosion of the pass's bombs, which frees the goop's place.</param>
@@ -159,8 +159,7 @@ internal sealed class DraygonShots
 
             DraygonGoopAttachedState attached = goop.StateOf<DraygonGoopAttachedState>();
             goop.Position = goop.Position.WithWhole(new(samus.Position.X.Whole, CoordinateAxis.Wrap(samus.Position.Y.Whole + attached.StackPosition * DraygonArenaDefinitions.GoopStackSpacing + DraygonArenaDefinitions.GoopStackTop)));
-            // The attachment lifetime counts down: the goop falls off when it reaches zero.
-            if (--attached.Lifetime == 0)
+            if (attached.Lifetime.StepRunsOut())
                 RemoveAttachedDraygonGoop(goop, samus);
         }
 

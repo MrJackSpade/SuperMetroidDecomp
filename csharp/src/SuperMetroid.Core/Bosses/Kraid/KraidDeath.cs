@@ -27,7 +27,7 @@ internal sealed class KraidDeath
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
     /// <summary>The room camera's distance mode, which the fight requests.</summary>
     private readonly RoomCameraDistance _cameraDistance;
-    /// <summary>Kraid's state and part lookups, part animations, phase timer, random numbers and the sound he last requested.</summary>
+    /// <summary>Kraid's state and part lookups, part animations, phase waits, random numbers and the sound he last requested.</summary>
     private readonly KraidEncounterAccess _access;
     /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
     private readonly KraidBackground _background;
@@ -93,7 +93,7 @@ internal sealed class KraidDeath
             case KraidDeathPhase.StartSinking:
                 _ = _head.AdvanceKraidHeadAnimation(state);
                 state.BodyState.DeathPhase = KraidDeathPhase.Sink;
-                state.DeathSoundTimer = KraidArenaDefinitions.SinkFirstSoundUpdates;
+                state.SinkRumbleWait.LastFor(KraidArenaDefinitions.SinkFirstSoundUpdates);
                 body.Contact = body.Contact.With(EnemyContact.SolidToSamus);
                 _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), KraidArenaDefinitions.SinkShakeUpdates);
                 state.ArmState.StartAnimation(KraidPartSegment.ArmRisingOrSinking);
@@ -107,11 +107,11 @@ internal sealed class KraidDeath
 
             case KraidDeathPhase.HideBody:
                 state.BodyState.DeathPhase = KraidDeathPhase.WaitBeforeFadeIn;
-                state.BodyState.PhaseTimer = KraidArenaDefinitions.DeathDarkUpdates;
+                state.BodyState.PhaseWait.LastFor(KraidArenaDefinitions.DeathDarkUpdates);
                 HideKraidBody(state);
                 return;
             case KraidDeathPhase.WaitBeforeFadeIn:
-                if (--state.BodyState.PhaseTimer == 0)
+                if (state.BodyState.PhaseWait.StepRunsOut())
                     state.BodyState.DeathPhase = KraidDeathPhase.FadeInBackground;
                 return;
             case KraidDeathPhase.FadeInBackground:
@@ -164,10 +164,10 @@ internal sealed class KraidDeath
     private void RunKraidDeathSink(RoomEnemyPlace body, KraidEnemyState state, SamusState samus)
     {
         _ = _head.AdvanceKraidHeadAnimation(state);
-        if (--state.DeathSoundTimer == 0)
+        if (state.SinkRumbleWait.StepRunsOut())
         {
             _access.RequestKraidSound(KraidSoundDefinitions.RockSpit);
-            state.DeathSoundTimer = KraidArenaDefinitions.SinkSoundIntervalUpdates;
+            state.SinkRumbleWait.LastFor(KraidArenaDefinitions.SinkSoundIntervalUpdates);
         }
         TakeKraidSinkStep(body);
         body.Position = body.Position.WithWholeY(body.Position.Y.Whole + 1);

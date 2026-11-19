@@ -74,7 +74,7 @@ internal sealed class KraidProjectiles
         // The nail shows its spin's first pose, and the spin waits until its flight starts it from its beginning.
         _ = nailPart.ShowFirstPose(KraidPartSegment.NailLoop);
         nailPart.Phase = KraidNailPhase.WaitBeforeLaunch;
-        nailPart.PhaseTimer = KraidArenaDefinitions.NailLaunchDelayUpdates;
+        nailPart.PhaseWait.LastFor(KraidArenaDefinitions.NailLaunchDelayUpdates);
     }
 
     /// <summary>The rocks Kraid's rise throws up and the ceiling rocks his roar shakes down (#1760): their spawners start their animations.</summary>
@@ -169,7 +169,7 @@ internal sealed class KraidProjectiles
         switch (part.Phase)
         {
             case KraidNailPhase.WaitBeforeLaunch:
-                if (part.CountPhaseTimerDown())
+                if (part.PhaseWait.StepRunsOut())
                     part.Phase = KraidNailPhase.Initialize;
                 return;
 
@@ -285,11 +285,11 @@ internal sealed class KraidProjectiles
         }
     }
 
-    /// <summary>Places a lint at its body-relative offset while its timer runs, then produces it.</summary>
+    /// <summary>Places a lint at its body-relative offset while its phase wait runs, and produces it on the wait's last update.</summary>
     internal void AlignKraidLint(RoomEnemyPlace lint, KraidLintState part)
     {
         lint.Position = lint.Position.WithWholeX(_parts.Body.Position.X.Whole - lint.Radius.X);
-        if (part.CountPhaseTimerDown())
+        if (part.PhaseWait.StepRunsOut())
             part.Phase = KraidLintPhase.Produce;
     }
 
@@ -304,19 +304,19 @@ internal sealed class KraidProjectiles
         if (part.LintTravel >= KraidArenaDefinitions.LintEmergePixels)
         {
             part.Phase = KraidLintPhase.Charge;
-            part.PhaseTimer = KraidArenaDefinitions.LintChargeUpdates;
+            part.PhaseWait.LastFor(KraidArenaDefinitions.LintChargeUpdates);
         }
     }
 
     /// <summary>Advances the visible lint charge before firing.</summary>
     private void ChargeKraidLint(RoomEnemyPlace lint, KraidLintState part)
     {
-        lint.Shading = KraidCadenceDefinitions.LintChargeShowsOwnColours.IsSetIn(part.PhaseTimer)
+        lint.Shading = KraidCadenceDefinitions.LintChargeShowsOwnColours.IsSetIn(part.PhaseWait.UpdatesLeft)
             ? part.Kraid.Colours.Parts
             : EnemyShades.HurtFlashLook;
         lint.Position = lint.Position.WithWholeX(
             part.LintXOffset + _parts.Body.Position.X.Whole - part.LintTravel);
-        if (--part.PhaseTimer == 0)
+        if (part.PhaseWait.StepRunsOut())
         {
             part.Phase = KraidLintPhase.Fire;
             _access.RequestKraidSound(KraidSoundDefinitions.LintFire);
@@ -333,7 +333,7 @@ internal sealed class KraidProjectiles
         {
             lint.Presence = lint.Presence.With(EnemyPresence.Hidden);
             part.Phase = KraidLintPhase.AlignToKraidBeforeProducing;
-            part.PhaseTimer = KraidArenaDefinitions.LintReloadUpdates;
+            part.PhaseWait.LastFor(KraidArenaDefinitions.LintReloadUpdates);
             part.LintTravel = 0;
         }
 

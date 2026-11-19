@@ -12,7 +12,7 @@ internal sealed class PhantoonOpening
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Queues encounter sounds in enemy update order.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Phantoon's fades, health colors, wave amplitude, animations and phase timer, shared by every phase of the fight.</summary>
+    /// <summary>Phantoon's fades, health colors, wave amplitude and animations, shared by every phase of the fight.</summary>
     private readonly PhantoonPresentation _presentation;
     /// <summary>The bosses' results of the pass, where the opening asks for the fight's door.</summary>
     private readonly BossFrameResultBuilder _frameResults;
@@ -33,12 +33,12 @@ internal sealed class PhantoonOpening
     /// <summary>Emits the intro flames on the authored schedule before Phantoon materializes.</summary>
     internal void RunPhantoonStartingFlameSpawner(PhantoonEnemyState state)
     {
-        if (!PhantoonPresentation.TickPhantoonPhaseTimer(state))
+        if (!state.PhaseWait.StepRunsOut())
             return;
 
         _ = SpawnPhantoonStartingFlame(state, state.StartingFlames.NextFlame.Entry);
         _audio.QueueEnemySound(PhantoonSoundDefinitions.StartingFlame, PhantoonSoundDefinitions.StartingFlamePriority);
-        state.PhaseTimer = PhantoonArenaDefinitions.StartingFlameIntervalUpdates;
+        state.PhaseWait.LastFor(PhantoonArenaDefinitions.StartingFlameIntervalUpdates);
         if (state.StartingFlames.NextFlame.Following is { } next)
         {
             state.StartingFlames.NextFlame = next;
@@ -48,16 +48,16 @@ internal sealed class PhantoonOpening
         state.StartingFlames.NextFlame = PhantoonStartingFlamesState.First;
         state.Round.Damage = 0;
         state.Phase = PhantoonPhase.WaitBeforeActivatingStartingFlames;
-        state.PhaseTimer = PhantoonArenaDefinitions.StartingFlamesActivateUpdates;
+        state.PhaseWait.LastFor(PhantoonArenaDefinitions.StartingFlamesActivateUpdates);
         _frameResults.PhantoonDoor = PhantoonDoorChange.FightDoor;
     }
 
     /// <summary>Holds the body between intro flame spawns.</summary>
     internal static void RunPhantoonStartingFlamePause(PhantoonEnemyState state)
     {
-        if (!PhantoonPresentation.TickPhantoonPhaseTimer(state))
+        if (!state.PhaseWait.StepRunsOut())
             return;
-        state.PhaseTimer = PhantoonArenaDefinitions.StartingFlamesOrbitUpdates;
+        state.PhaseWait.LastFor(PhantoonArenaDefinitions.StartingFlamesOrbitUpdates);
         state.StartingFlames.Orbiting = true;
         state.Phase = PhantoonPhase.WaitForStartingFlamesToDisappear;
     }
@@ -66,14 +66,14 @@ internal sealed class PhantoonOpening
     internal void RunPhantoonStartingFlameOrbitWait(
         PhantoonEnemyState state)
     {
-        if (!PhantoonPresentation.TickPhantoonPhaseTimer(state))
+        if (!state.PhaseWait.StepRunsOut())
             return;
 
         state.StartingFlames.Orbiting = false;
         state.Translucent = true;
         state.Phase = PhantoonPhase.WavyFadeIn;
         state.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.Show;
-        state.PhaseTimer = PhantoonArenaDefinitions.WavyFadeInUpdates;
+        state.PhaseWait.LastFor(PhantoonArenaDefinitions.WavyFadeInUpdates);
         state.Wave.Amplitude = PhantoonWaveDefinitions.IntroAmplitude;
         state.Wave.AmplitudeShrinking = false;
         state.BodyFade.Complete = false;
@@ -95,11 +95,11 @@ internal sealed class PhantoonOpening
         {
             state.Phase = PhantoonPhase.PickFirstRoundPattern;
             state.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.Show;
-            state.PhaseTimer = PhantoonArenaDefinitions.FirstRoundPickUpdates;
+            state.PhaseWait.LastFor(PhantoonArenaDefinitions.FirstRoundPickUpdates);
             return;
         }
 
-        if (PhantoonPresentation.TickPhantoonPhaseTimer(state))
+        if (state.PhaseWait.StepRunsOut())
             state.Wave.AmplitudeShrinking = true;
     }
 

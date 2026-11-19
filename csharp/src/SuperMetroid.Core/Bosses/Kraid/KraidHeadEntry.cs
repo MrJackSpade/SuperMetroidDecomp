@@ -8,5 +8,5 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// holds, and his mouth tests read the entered pose's shapes.
 /// </summary>
 /// <param name="Playback">The head animation, standing just past the entered pose.</param>
-/// <param name="Delay">The entered pose's duration, in updates: the head timer the entry loads.</param>
+/// <param name="Delay">The entered pose's duration, in updates: the head holds the entered pose for it.</param>
 internal readonly record struct KraidHeadEntry(AnimationPlayback<KraidHeadSegment> Playback, int Delay);

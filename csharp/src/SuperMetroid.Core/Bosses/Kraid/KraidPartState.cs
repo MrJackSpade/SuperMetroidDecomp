@@ -4,8 +4,8 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// What every one of Kraid's parts holds: the encounter it is part of, the place it occupies (#2298) and the phase timer
-/// its timed phases wait on; his animated parts hold their typed animation too (<see cref="KraidAnimatedPartState"/>). Each part kind keeps the phase it runs, of its own type (#2208), and its own state on top of
+/// What every one of Kraid's parts holds: the encounter it is part of, the place it occupies (#2298) and the wait its
+/// timed phases run; his animated parts hold their typed animation too (<see cref="KraidAnimatedPartState"/>). Each part kind keeps the phase it runs, of its own type (#2208), and its own state on top of
 /// this: his body (<see cref="KraidBodyState"/>), his arm (<see cref="KraidArmState"/>), each lint
 /// (<see cref="KraidLintState"/>), his foot (<see cref="KraidFootState"/>) and each fingernail
 /// (<see cref="KraidNailState"/>).
@@ -45,12 +45,9 @@ public abstract class KraidPartState
         return pose.Picture;
     }
 
-    /// <summary>The updates before the part's timed phase moves on to the phase it names.</summary>
-    public int PhaseTimer { get; internal set; }
-
     /// <summary>
-    /// Counts the phase timer down one update, from a running timer only: whether it ran out on this update, which moves
-    /// the timed phase on. A timer at zero stays there, and the phase waits on it.
+    /// The wait the part's timed phase runs (#2538): the phase's start gives it its duration, and the part moves on to
+    /// the phase it names on the wait's last update.
     /// </summary>
-    internal bool CountPhaseTimerDown() => PhaseTimer != 0 && --PhaseTimer == 0;
+    public BossCountdown PhaseWait { get; } = new();
 }

@@ -9,6 +9,9 @@ internal sealed class DraygonGoopAttachedState(int stackPosition) : EnemyProject
     /// <summary>How many blobs, this one included, were stuck to Samus when it stuck; each sits four pixels below the last.</summary>
     internal int StackPosition { get; } = Ensure.AtLeastZero(stackPosition);
 
-    /// <summary>The blob's remaining time stuck; it falls off on the update this reaches zero.</summary>
-    internal int Lifetime { get; set; } = DraygonArenaDefinitions.GoopAttachedLifetime;
+    /// <summary>
+    /// The blob's time stuck to Samus (#2538): it lasts <see cref="DraygonArenaDefinitions.GoopAttachedLifetime"/> from
+    /// the update it sticks, and the blob falls off on its last update.
+    /// </summary>
+    internal BossCountdown Lifetime { get; } = BossCountdown.Lasting(DraygonArenaDefinitions.GoopAttachedLifetime);
 }

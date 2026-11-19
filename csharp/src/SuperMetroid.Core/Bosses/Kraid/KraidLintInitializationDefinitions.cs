@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal static class KraidLintInitializationDefinitions
 {
     /// <summary>
-    /// The lints' initial phase timers supply the top,
-    /// middle and bottom delays. Each lint's setup enables its named part separately;
-    /// the lint's alignment step aligns it while its timer counts down to its production (<see cref="KraidLintPhase.Produce"/>).
+    /// The updates of the lints' first phase waits once Kraid grows, the top's, the middle's and the bottom's. Each lint's
+    /// setup enables its named part separately; the lint's alignment step aligns it while its wait runs, and it is produced
+    /// on the wait's last update (<see cref="KraidLintPhase.Produce"/>).
     /// Each lint's delay is its own, top latest and bottom soonest.
     /// </summary>
     internal static readonly FrozenDictionary<KraidLintPart, int> InitialDelays = new Dictionary<KraidLintPart, int>

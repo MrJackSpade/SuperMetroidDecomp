@@ -118,10 +118,10 @@ internal static class PhantoonDoorObjectsVerification
             ?? throw new InvalidOperationException("Verification requires Phantoon's state.");
         BossFrameResultBuilder results = enemies.BossFrameResults;
         state.StartingFlames.NextFlame = SuperMetroid.Core.Bosses.ListStep<TrigonometryAngle>.At(PhantoonFlameSpawns.StartingFlameStarts, 6);
-        state.PhaseTimer = 1;
+        state.PhaseWait.LastFor(1);
         enemies.PhantoonBehavior.Opening.RunPhantoonStartingFlameSpawner(state);
         AssertEqual(null, results.PhantoonDoor, "the seventh starting flame asks for no door change");
-        state.PhaseTimer = 1;
+        state.PhaseWait.LastFor(1);
         enemies.PhantoonBehavior.Opening.RunPhantoonStartingFlameSpawner(state);
         AssertEqual((PhantoonDoorChange?)PhantoonDoorChange.FightDoor, results.PhantoonDoor, "the eighth starting flame asks for the fight's door");
 
@@ -152,7 +152,8 @@ internal static class PhantoonDoorObjectsVerification
             SamusCompatibility.ForNewSamus(), new BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99, MaxHealth = 99 };
         // The boss bit is the room services' to keep; this fixture has none, so the bit counts as already set.
         state.BossDefeatPersisted = true;
-        state.PhaseTimer = 0;
+        // The power's wait is on its last update.
+        state.PhaseWait.LastFor(1);
         // Past the power's last step: this update completes the power coming back.
         state.ShipPowerOn.Steps = 14;
         enemies.PhantoonBehavior.Death.ActivateWreckedShipAfterPhantoon(state.Body, state, samus);

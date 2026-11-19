@@ -18,6 +18,6 @@ internal readonly record struct KraidHeadFrame(string FrameName, KraidMouthHitbo
     /// <summary>The second, wider opening stage.</summary>
     internal static KraidHeadFrame Wider { get; } = new(KraidBodyFrameNames.HeadMouthWider, KraidMouthHitbox.WiderVulnerable, KraidMouthHitbox.WiderInvulnerable);
 
-    /// <summary>The fully open mouth, the pose whose timer paces the spat rocks.</summary>
+    /// <summary>The fully open mouth, the pose whose hold paces the spat rocks.</summary>
     internal static KraidHeadFrame Open { get; } = new(KraidBodyFrameNames.HeadMouthOpen, KraidMouthHitbox.OpenVulnerable, KraidMouthHitbox.OpenInvulnerable);
 }

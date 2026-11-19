@@ -71,7 +71,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
             return;
         }
 
-        state.InitialDelayTimer = BotwoonFightDefinitions.OpeningDelay;
+        state.OpeningWait.LastFor(BotwoonFightDefinitions.OpeningDelay);
         state.SpeedStage = BotwoonSpeedStageDefinitions.Full;
         state.InsideHole = true;
         state.PreviousInsideHole = true;
@@ -107,7 +107,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         switch (state.Phase)
         {
             case BotwoonPhase.InitialDelay:
-                if (--state.InitialDelayTimer == 0)
+                if (state.OpeningWait.StepRunsOut())
                     state.Phase = BotwoonPhase.ChooseNextAction;
                 break;
 

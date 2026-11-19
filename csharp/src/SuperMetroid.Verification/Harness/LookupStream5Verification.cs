@@ -195,22 +195,22 @@ internal static class LookupStream5Verification
             system.BossArtwork = InstalledFixtures.BossArtwork;
             Action<PhantoonEnemyState> fade = system.PhantoonBehavior.Patterns.RunPhantoonFlameRainFadeOut;
             Action<RoomEnemyPlace, PhantoonEnemyState> tick = system.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain;
-            body.Position = body.Position.WithWhole(new(111, 99)); state.FigureEight.PathPlace = PhantoonPath.At(42); state.PhaseTimer = 17;
+            body.Position = body.Position.WithWhole(new(111, 99)); state.FigureEight.PathPlace = PhantoonPath.At(42); state.PhaseWait.LastFor(17);
             state.Phase = PhantoonPhase.FadeOutDuringFlameRain;
             // He fades out of the colouring the fight shows him in (#1512), his health band's.
             state.Colours.Show(PhantoonBodyLook.Health(PhantoonHealthBandDefinitions.BelowEighth));
             fade(state); // The eye's independent fade has not completed yet.
             AssertEqual(0, randomCalls, "Incomplete fade does not choose hidden delay");
-            AssertEqual(17, state.PhaseTimer, "Incomplete fade preserves prior countdown");
+            AssertEqual(17, state.PhaseWait.UpdatesLeft, "Incomplete fade preserves prior countdown");
             state.BodyFade.Complete = true;
             fade(state);
             ushort duration = ReadVerificationWord(rom, 0xa7cd63 + bucket * 2);
-            AssertEqual(duration, state.PhaseTimer, "Completed fade selects exact native hidden duration");
+            AssertEqual(duration, state.PhaseWait.UpdatesLeft, "Completed fade selects exact native hidden duration");
             AssertEqual(PhantoonPhase.SpawnFlameRain, state.Phase, "Completed fade starts hidden waiting phase");
             for (int elapsed = 1; elapsed <= duration; elapsed++)
             {
                 tick(body, state); totalTicks++;
-                AssertEqual((ushort)(duration - elapsed), state.PhaseTimer, "Hidden wait decrements exactly once");
+                AssertEqual(duration - elapsed, state.PhaseWait.UpdatesLeft, "Hidden wait decrements exactly once");
                 if (elapsed < duration)
                 {
                     AssertEqual(1, randomCalls, "Next location is not chosen before delay expires");
@@ -256,10 +256,10 @@ internal static class LookupStream5Verification
             Action<RoomEnemyPlace, PhantoonEnemyState> tick = system.PhantoonBehavior.Patterns.RunPhantoonFirstRoundFigureEight;
             // The duration bucket is the enemy frame's NMI counter bits 1-2, not a random draw.
             system.FrameContext.SeedFrame((ushort)(bucket << 1));
-            body.Position = body.Position.WithWhole(new(128, 96)); state.PhaseTimer = 1; state.FlameRainRequested = true;
+            body.Position = body.Position.WithWhole(new(128, 96)); state.PhaseWait.LastFor(1); state.FlameRainRequested = true;
             begin(state);
             ushort duration = ReadVerificationWord(rom, 0xa7cd53 + bucket * 2);
-            AssertEqual(duration, state.Round.EyeClosedTimer, "Native first-round closed-eye duration");
+            AssertEqual(duration, state.Round.EyeClosedWait.UpdatesLeft, "Native first-round closed-eye duration");
             AssertEqual(reversed ? PhantoonPathDirection.Backwards : PhantoonPathDirection.Forwards, state.FigureEight.Direction,
                 "Direction selection remains independent of duration bucket");
             // A valid unexpired casual-flame hold keeps this fixture specific to
@@ -268,7 +268,7 @@ internal static class LookupStream5Verification
             for (int elapsed = 1; elapsed <= duration; elapsed++)
             {
                 tick(body, state); totalTicks++;
-                AssertEqual((ushort)(duration - elapsed), state.Round.EyeClosedTimer, "Closed-eye timer decrements once despite movement speed/cursor");
+                AssertEqual(duration - elapsed, state.Round.EyeClosedWait.UpdatesLeft, "Closed-eye timer decrements once despite movement speed/cursor");
                 if (elapsed < duration)
                 {
                     AssertEqual(PhantoonPhase.MoveInFigureEightThenOpenEye, state.Phase, "No early eye opening");
@@ -370,7 +370,7 @@ internal static class LookupStream5Verification
             body.Position = body.Position.WithWhole(new(128, 96));
             open(state);
             ushort duration = ReadVerificationWord(rom, 0xa7cd41 + bucket * 2);
-            AssertEqual(duration, state.PhaseTimer, "Native selected vulnerability duration");
+            AssertEqual(duration, state.PhaseWait.UpdatesLeft, "Native selected vulnerability duration");
             AssertTrue(!body.Contact.HasAny(EnemyContact.IgnoresSamus), "Eye opening enables collision");
             state.Swoop.Requested = shot;
             state.Round.Damage = 37;
@@ -382,7 +382,7 @@ internal static class LookupStream5Verification
                 AssertEqual((ushort)96, body.Position.Y.Whole, "Exposure body remains at current Y");
                 if (elapsed < duration)
                 {
-                    AssertEqual((ushort)(duration - elapsed), state.PhaseTimer, "One exact countdown decrement per actor call");
+                    AssertEqual(duration - elapsed, state.PhaseWait.UpdatesLeft, "One exact countdown decrement per actor call");
                     AssertEqual(PhantoonPhase.EyeTracksSamus, state.Phase, "No early exposure transition");
                     AssertTrue(!body.Contact.HasAny(EnemyContact.IgnoresSamus), "Exposure remains collidable before expiry");
                     AssertEqual(37, state.Round.Damage, "Round damage remains until expiration");
@@ -392,7 +392,7 @@ internal static class LookupStream5Verification
             if (shot)
             {
                 AssertEqual(PhantoonPhase.BecomeSolidAndSwoop, state.Phase, "Shot-triggered expiration selects swoop");
-                AssertEqual(ReadVerificationWord(rom, 0xa7d620), state.PhaseTimer, "Separate native swoop setup hold preserved");
+                AssertEqual(ReadVerificationWord(rom, 0xa7d620), state.PhaseWait.UpdatesLeft, "Separate native swoop setup hold preserved");
                 AssertEqual(false, state.Swoop.Requested, "Expiration consumes swoop request");
             }
             else
@@ -975,11 +975,11 @@ internal static class LookupStream5Verification
             body.Health = 1000;
             body.AiStates = EnemyAiStates.Hurt;
             state.Phase = PhantoonPhase.EyeTracksSamus;
-            state.PhaseTimer = 60;
+            state.PhaseWait.LastFor(60);
             state.Swoop.Requested = false;
             state.Round.Damage = 0;
             shot(body, state, 0x100, 1);
-            AssertEqual(16, state.PhaseTimer, "Actual shot window");
+            AssertEqual(16, state.PhaseWait.UpdatesLeft, "Actual shot window");
             AssertEqual(bucket + 1, calls, "One preserved RNG call per shot");
         }
         Console.WriteLine("Phantoon shot draws: eight actual bus-free shots preserve RNG and timing.");
@@ -1277,7 +1277,7 @@ internal static class LookupStream5Verification
             var eye = enemies.Places.InUpdateOrder[1];
             var state = new PhantoonEnemyState(body, eye, enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
             enemies.BeginPhantoonAsSetUp(state);
-            state.PhaseTimer = 1;
+            state.PhaseWait.LastFor(1);
             state.FigureEight.Direction = PhantoonPathDirection.Backwards;
             new Action<RoomEnemyPlace, PhantoonEnemyState>(enemies.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain)(body, state);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + pattern * 8)), state.FigureEight.PathPlace.Place, "Real rain cursor handoff");

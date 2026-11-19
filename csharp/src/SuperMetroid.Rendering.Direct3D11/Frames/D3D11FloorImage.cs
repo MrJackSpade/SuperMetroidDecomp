@@ -10,7 +10,7 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 /// <summary>
 /// The perspective floor's image (#1408, #1467, #1649, #2104): the whole floor, as large as the floor's installed image, with
 /// that image and the pictures of its states laid over it at their places, once whenever the floor changes, so the floor
-/// shader samples one image. Each texel holds the pixel's colour and its key word (<see cref="D3D11ImageAtlas.KeyWord"/>),
+/// shader samples one image. Each texel holds the pixel's colour and its key word (<see cref="D3D11ImageAtlas.KeyWords"/>),
 /// with the index of the floor picture it comes from above the key word's marks.
 /// </summary>
 internal sealed class D3D11FloorImage : IDisposable
@@ -86,6 +86,7 @@ internal sealed class D3D11FloorImage : IDisposable
         SpriteImage sheet = picture.Sheet;
         uint sheetIndex = (uint)floor.Pictures.IndexOf(picture) << SheetShift;
         ReadOnlySpan<RgbaPixel> pixels = sheet.Pixels;
+        var keyWords = new D3D11ImageAtlas.KeyWords(picture);
         for (int y = 0; y < picture.Size.Y; y++)
         {
             int source = (picture.Corner.Y + y) * sheet.Size.X + picture.Corner.X;
@@ -94,7 +95,7 @@ internal sealed class D3D11FloorImage : IDisposable
                 RgbaPixel pixel = pixels[source + x];
                 int target = TexelWords * ((top + y) * Extent.X + left + x);
                 texels[target] = pixel.R | (uint)pixel.G << 8 | (uint)pixel.B << 16 | (uint)pixel.A << 24;
-                texels[target + 1] = D3D11ImageAtlas.KeyWord(picture, source + x) | sheetIndex;
+                texels[target + 1] = keyWords.Of(source + x) | sheetIndex;
             }
         }
     }

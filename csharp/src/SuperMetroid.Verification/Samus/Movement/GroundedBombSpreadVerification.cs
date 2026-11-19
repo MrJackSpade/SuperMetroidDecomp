@@ -35,13 +35,13 @@ internal static class GroundedBombSpreadVerification
                 bombs.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, shootDown, 0);
                 AssertTrue(bombs.Bombs.All(slot => !slot.IsActive) && bombs.BombCounter == 0, "Down+Shoot postpones grounded spread");
                 AssertEqual(BeamChargeDefinitions.FullyChargedCounter, samus.BeamCharge.FlareCounter, "retained spread charge is not consumed while holding Down");
-                AssertEqual((ushort)(tick + 1), samus.BombSpreadChargeTimeoutCounter, "grounded spread hold counter advances once per tick");
+                AssertEqual((ushort)(tick + 1), samus.BombSpreadCharge.Age, "grounded spread hold counter advances once per tick");
             }
             bool releasedCharge = bombs.StepFrameConsumingCharge(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, keepDown ? shootDown : GameplayAction.Shoot, 0);
             AssertTrue(bombs.Bombs.All(slot => slot.IsActive && slot.IsBombSpread) && releasedCharge, "release or timeout creates spread and consumes charge");
             AssertEqual(5, bombs.BombCounter, "spread fills all five bomb slots");
             AssertEqual(0, samus.BeamCharge.FlareCounter, "spawn clears actual flare counter");
-            AssertEqual(0, samus.BombSpreadChargeTimeoutCounter, "spawn clears hold counter");
+            AssertEqual(0, samus.BombSpreadCharge.Age, "spawn clears hold counter");
             // Independent closed-form free-flight expectations from native D849/D8F7:
             // acceleration precedes integration, including the spawning alpha call.
             for (int tick = 1; tick <= 60; tick++)
@@ -60,7 +60,7 @@ internal static class GroundedBombSpreadVerification
                     AssertEqual((ushort)expectedX, slot.Position.X.Fraction, $"spread X fraction: {context}");
                     AssertEqual((ushort)SixteenSixteenConstants.WholeOf(unchecked((int)expectedY)), slot.Position.Y.Whole, $"spread Y: {context}");
                     AssertEqual((ushort)expectedY, slot.Position.Y.Fraction, $"spread Y fraction: {context}");
-                    AssertEqual((ushort)(Read(MorphBallBombDefinitions.FuseTimers) - tick), slot.FuseUpdatesLeft, $"individual spread fuse: {context}");
+                    AssertEqual((ushort)(Read(MorphBallBombDefinitions.FuseTimers) - tick), slot.Fuse.UpdatesLeft, $"individual spread fuse: {context}");
                 }
             }
         }

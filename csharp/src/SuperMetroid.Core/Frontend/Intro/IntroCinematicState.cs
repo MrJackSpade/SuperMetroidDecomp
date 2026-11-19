@@ -904,7 +904,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // preceding cinematic-sprite pass. Keeping this after animation matches Samus's update during the intro demo:
         // the hit frame finishes its standing animation before the knockback start installs the knockback pose.
         if (!samus.KnockbackActive &&
-            samus.KnockbackTimer != 0 &&
+            samus.KnockbackHold.IsRunning &&
             samus.KnockbackDirection == Samus.Movement.SamusKnockbackDirection.None)
         {
             SamusKnockbackMovement.Start(samus, demoInput, KnockbackLaunch.FromPendingHit(samus), poseCollision: null);

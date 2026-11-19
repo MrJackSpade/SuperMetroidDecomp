@@ -808,7 +808,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
         "grapple collision restores last-safe angle plus half fraction");
     AssertEqual(AngularSpeed.FromFractionsOfStep(-0x008c), angularCollisionSamus.Grapple.AngularVelocity,
         "grapple collision negates arithmetic half velocity");
-    AssertEqual(16, angularCollisionSamus.Grapple.CollisionBounceTimer,
+    AssertEqual(16, angularCollisionSamus.Grapple.CollisionBounceTimer.UpdatesLeft,
         "grapple collision opens sixteen-frame kick window");
 
     // The same six-point radial sweep has two damage-producing dispatcher entries. Solid
@@ -840,7 +840,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
         GrappleMovementResult spikeBlockContact = SamusGrappleMovement.StepAndCommit(new SamusTerrain { Level = spikeBlockLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, spikeBlockSamus, GameplayAction.Shoot, newlyPressedInput: 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
 
         // A collision opens the kick window; the fresh Samus had none open.
-        AssertEqual(16, spikeBlockSamus.Grapple.CollisionBounceTimer,
+        AssertEqual(16, spikeBlockSamus.Grapple.CollisionBounceTimer.UpdatesLeft,
             $"solid grapple spike BTS ${behavior:X2} remains collision");
         AssertEqual(expectedDamage, spikeBlockSamus.PeriodicDamage.Pending.Whole,
             $"solid grapple spike BTS ${behavior:X2} damage table");
@@ -848,7 +848,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
             spikeBlockSamus.InvincibilityTimer.RawValue,
             $"solid grapple spike BTS ${behavior:X2} invincibility publication");
         AssertEqual(expectedDamage == 0 ? (ushort)0 : (ushort)0x000a,
-            spikeBlockSamus.KnockbackTimer,
+            spikeBlockSamus.KnockbackHold.UpdatesLeft,
             $"solid grapple spike BTS ${behavior:X2} knockback-timer publication");
     }
 
@@ -878,7 +878,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
             faceRight: true);
         GrappleMovementResult spikeAirContact = SamusGrappleMovement.StepAndCommit(new SamusTerrain { Level = spikeAirLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, spikeAirSamus, GameplayAction.Shoot, newlyPressedInput: 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
 
-        AssertEqual(0, spikeAirSamus.Grapple.CollisionBounceTimer,
+        AssertEqual(0, spikeAirSamus.Grapple.CollisionBounceTimer.UpdatesLeft,
             $"grapple spike-air BTS ${behavior:X2} remains noncollision");
         AssertEqual(expectedDamage, spikeAirSamus.PeriodicDamage.Pending.Whole,
             $"grapple spike-air BTS ${behavior:X2} damage table");
@@ -886,14 +886,14 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
             spikeAirSamus.InvincibilityTimer.RawValue,
             $"grapple spike-air BTS ${behavior:X2} invincibility publication");
         AssertEqual(expectedDamage == 0 ? (ushort)0 : (ushort)0x000a,
-            spikeAirSamus.KnockbackTimer,
+            spikeAirSamus.KnockbackHold.UpdatesLeft,
             $"grapple spike-air BTS ${behavior:X2} knockback-timer publication");
         if (expectedDamage != 0)
         {
             spikeAirSamus.DecrementHurtTimers();
             AssertEqual(0x003b, spikeAirSamus.InvincibilityTimer.RawValue,
                 "gameplay tail ages grapple-created invincibility timer");
-            AssertEqual(0x0009, spikeAirSamus.KnockbackTimer,
+            AssertEqual(0x0009, spikeAirSamus.KnockbackHold.UpdatesLeft,
                 "gameplay tail ages grapple-created knockback timer");
         }
     }
@@ -910,7 +910,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
         "grapple kick keeps gravity-corrected base angular velocity");
     AssertEqual(AngularSpeed.FromFractionsOfStep(-0x02fa), angularCollisionSamus.Grapple.JumpImpulse,
         "successful grapple kick damps extra angular velocity by six");
-    AssertEqual(15, angularCollisionSamus.Grapple.CollisionBounceTimer,
+    AssertEqual(15, angularCollisionSamus.Grapple.CollisionBounceTimer.UpdatesLeft,
         "successful post-bounce movement ages kick window");
 
     // Rope growth uses a different radial frontier: candidate length 33 plus 56 pixels puts
@@ -1000,7 +1000,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
     GrappleMovementResult wallReleased = SamusGrappleMovement.StepAndCommit(new SamusTerrain { Level = specialLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, wallGrabSamus, controllerInput: 0, newlyPressedInput: 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
     AssertTrue(wallReleased.Phase == GrapplePhase.WallGrabRelease,
         "wall-grab release opens native thirty-check wall-jump window");
-    AssertEqual(30, wallGrabSamus.Grapple.WallJumpTimer,
+    AssertEqual(30, wallGrabSamus.Grapple.WallJumpTimer.UpdatesLeft,
         "wall-grab release seeds decimal thirty before decrementing");
 
     // `$B9` faces left (pose direction four), so `$90:9CAC` probes left even though the
@@ -1009,7 +1009,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
     GrappleMovementResult wallJumpQueued = SamusGrappleMovement.StepAndCommit(new SamusTerrain { Level = specialLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, wallGrabSamus, controllerInput: GameplayAction.Jump, newlyPressedInput: GameplayAction.Jump, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
     AssertTrue(wallJumpQueued.Phase == GrapplePhase.WallJumping,
         "fresh Jump plus wall probe queues grapple wall jump");
-    AssertEqual(29, wallGrabSamus.Grapple.WallJumpTimer,
+    AssertEqual(29, wallGrabSamus.Grapple.WallJumpTimer.UpdatesLeft,
         "first eligible wall-jump check decrements timer to twenty-nine");
 
     // `$9B:C9CE` mirrors the ordinary route's selective cleanup: it zeros base speed but

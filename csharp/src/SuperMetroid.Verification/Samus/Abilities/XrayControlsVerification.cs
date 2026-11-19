@@ -57,9 +57,9 @@ internal static class XrayControlsVerification
             pendingBomb.Type = SamusBombProjectileSystem.NormalBombType;
             pendingBomb.Animation = SuperMetroid.Verification.Samus.Projectiles.ProjectileFixturePlaybacks.StartingAfter(SamusProjectileSegment.Bomb, 100);
             pendingBomb.SpritemapPointer = (runtime.Artwork.ProjectileFrameBindings ?? throw new InvalidOperationException("Verification requires runtime.Artwork.ProjectileFrameBindings.")).Resolve(checked((ushort)pendingBomb.InstructionPointer));
-            pendingBomb.FuseUpdatesLeft = 60;
+            pendingBomb.Fuse = UpdateCountdown.For(60);
             runtime.StepFrame((runtime.Options.ControllerBindings.Dash | runtime.Options.ControllerBindings.Shoot));
-            AssertEqual(60, pendingBomb.FuseUpdatesLeft, "X-ray activation freezes an existing bomb fuse immediately");
+            AssertEqual(60, pendingBomb.Fuse.UpdatesLeft, "X-ray activation freezes an existing bomb fuse immediately");
             AssertEqual(100, pendingBomb.Animation!.UpdatesLeft, "X-ray activation skips existing bomb animation immediately");
             pendingBomb.End();
             AssertTrue(samus.Xray.IsActive && runtime.Freeze.TimeIsFrozen,

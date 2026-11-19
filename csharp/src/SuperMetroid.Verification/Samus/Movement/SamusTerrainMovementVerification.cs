@@ -350,7 +350,7 @@ internal static void VerifySamusBlockCollision()
             spikeSamus.InvincibilityTimer.RawValue,
             $"spike-block BTS ${spikeBehavior:X2} publishes invincibility timer");
         AssertEqual(expectedDamage == 0 ? 0 : SpikeHazardDefinitions.KnockbackFrames,
-            spikeSamus.KnockbackTimer,
+            spikeSamus.KnockbackHold.UpdatesLeft,
             $"spike-block BTS ${spikeBehavior:X2} publishes knockback timer");
         AssertEqual(KnockbackHorizontalDirection.Left, spikeSamus.KnockbackXDirection,
             $"right-facing spike-block BTS ${spikeBehavior:X2} knocks left");

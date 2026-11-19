@@ -36,14 +36,13 @@ public sealed class SamusArmCannonState
     public SamusArmCannonCoverFrame? Frame { get; private set; }
 
     /// <summary>
-    /// The updates the HUD selection has held still, 0 through 2: a change restarts it at one and it saturates at two,
-    /// when a transition may begin.
+    /// The HUD selection's stability wait, lasting <see cref="SamusArmCannonDefinitions.StableSelectionUpdates"/>: a
+    /// change starts it again, counting the changing update as its first, and a transition may begin once it is over.
     /// </summary>
-    public int StableSelectionUpdates
-    {
-        get;
-        private set => field = Ensure.BetweenInclusive(0, SamusArmCannonDefinitions.StableSelectionUpdates, value);
-    }
+    private readonly UpdateCountdown stability = UpdateCountdown.Lasting(SamusArmCannonDefinitions.StableSelectionUpdates);
+
+    /// <summary>The updates the HUD selection has held still, 0 through 2: its stability wait's age.</summary>
+    public int StableSelectionUpdates => stability.Age;
 
     /// <summary>Where this frame's cover is drawn relative to the body, from the pose's drawing mode.</summary>
     public SamusArmCannonDrawOrder DrawOrder { get; private set; }
@@ -58,12 +57,13 @@ public sealed class SamusArmCannonState
         bool itemChanged = samus.SelectedHudItem != PreviousSelectedHudItem;
         if (itemChanged)
         {
-            StableSelectionUpdates = 1;
+            stability.Restart(SamusArmCannonDefinitions.StableSelectionUpdates);
+            stability.Count();
             PreviousSelectedHudItem = samus.SelectedHudItem;
         }
         else
         {
-            StableSelectionUpdates = Math.Min(StableSelectionUpdates + 1, SamusArmCannonDefinitions.StableSelectionUpdates);
+            stability.Step();
         }
 
         if (IsTransitioning)
@@ -115,7 +115,7 @@ public sealed class SamusArmCannonState
     /// </summary>
     private void TryStartTransition(HudItem selectedHudItem)
     {
-        if (StableSelectionUpdates < SamusArmCannonDefinitions.StableSelectionUpdates)
+        if (stability.IsRunning)
             return;
 
         bool opens = SamusArmCannonOpening.Opens(selectedHudItem);

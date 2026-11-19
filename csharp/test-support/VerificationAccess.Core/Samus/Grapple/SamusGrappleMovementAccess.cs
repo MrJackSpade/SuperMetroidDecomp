@@ -47,7 +47,7 @@ internal static class SamusGrappleMovementAccess
             grapple.DirectionInputAcceleration = AngularSpeed.Zero;
             grapple.GravityAcceleration = AngularSpeed.Zero;
             grapple.JumpImpulse = AngularSpeed.Zero;
-            grapple.CollisionBounceTimer = 0;
+            grapple.CollisionBounceTimer = UpdateCountdown.Ended();
             grapple.Submerged = false;
             // This public helper is the debugger's already-accepted-anchor seam. Its caller may
             // deliberately place an anchor where the current room has no grapple block (the
@@ -55,7 +55,7 @@ internal static class SamusGrappleMovementAccess
             // block dispatcher opts into bank-$9B's per-frame connection revalidation.
             grapple.ValidatedAnchor = null;
             grapple.CloseCollision = false;
-            grapple.WallJumpTimer = 0;
+            grapple.WallJumpTimer = UpdateCountdown.Ended();
             grapple.CancelFromConnectedPose = false;
             SamusGrappleBeamDrawing.InitializeBeamAnimation(grapple);
 

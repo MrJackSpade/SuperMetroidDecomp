@@ -72,7 +72,7 @@ internal static class SpikeDamageBoostVerification
             AssertEqual(expected[frame], new SpikeDamageBoostExpected(SixteenSixteenWords.Compose(samus.Kinematics.Position.X), SixteenSixteenWords.Compose(samus.Kinematics.Position.Y),
                 samus.Pose, samus.HorizontalSpeed.BaseSpeed.RawValue), $"morphed spike release frame {frame}");
             AssertEqual(83, samus.Health, "spike contact damage");
-            AssertEqual(9 - frame, samus.KnockbackTimer, "spike hurt timer");
+            AssertEqual(9 - frame, samus.KnockbackHold.UpdatesLeft, "spike hurt timer");
         }
 
         // Independent native seed: forward-held spike contact, left-facing, delay four,
@@ -93,7 +93,7 @@ internal static class SpikeDamageBoostVerification
         samus.HorizontalSpeed.CalculateTotalSpeed(samus.HorizontalSpeed.BaseSpeed);
         samus.KnockbackActive = false;
         samus.KnockbackDirection = SamusKnockbackDirection.None;
-        samus.KnockbackTimer = 0;
+        samus.KnockbackHold = UpdateCountdown.Ended();
         runtime.PlayerActions.Latch((GameplayAction.Right | GameplayAction.Jump));
         runtime.StepFrame((ControllerButton.Right | ControllerButton.A));
         AssertEqual(SamusPoseId.NormalLandingRightPose, samus.Pose, "expired hurt floor probe selects landing");
@@ -139,7 +139,7 @@ internal static class SpikeDamageBoostVerification
         }
 
         samus.KnockbackActive = false;
-        samus.KnockbackTimer = 0;
+        samus.KnockbackHold = UpdateCountdown.Ended();
         samus.KnockbackDirection = SamusKnockbackDirection.None;
         samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         foreach (SamusPoseId retainedPose in new SamusPoseId[]

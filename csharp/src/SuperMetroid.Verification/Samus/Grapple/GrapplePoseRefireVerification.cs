@@ -38,7 +38,7 @@ internal static class GrapplePoseRefireVerification
             AssertEqual(GrapplePhase.Firing, grapple.Phase, "early direction change refires");
             AssertEqual<SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection?>(SamusPoseMetadata.ReadAimDirection(samus), grapple.FireDirection,
                 "refire uses current pose direction");
-            AssertEqual(10, grapple.PoseChangeAutoFireTimer, "refire resets native ten-frame timer");
+            AssertEqual(10, grapple.PoseChangeAutoFireTimer.UpdatesLeft, "refire resets native ten-frame timer");
             AssertTrue(samus.LiquidPhysics.SoundRequests.SequenceEqual(new[] {
                 GrappleBeamDefinitions.Sounds.RestartStop, GrappleBeamDefinitions.Sounds.Fire }), "refire publishes native stop/start sound order and queue limits");
             AssertEqual(0, grapple.RopeLength, "restart does not extend in same call");
@@ -50,11 +50,11 @@ internal static class GrapplePoseRefireVerification
             AssertTrue(grapple.Anchor.Y < samus.Position.Y.Whole + grapple.OriginOffset.Y, "restarted beam actually travels up");
             AssertTrue(left ? grapple.EndpointOffset.X.RawValue < 0 : grapple.EndpointOffset.X.RawValue > 0, "restarted beam travels toward aimed side");
         }
-        var state = new SamusGrappleState(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { PoseChangeAutoFireTimer = 7 };
+        var state = new SamusGrappleState(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { PoseChangeAutoFireTimer = UpdateCountdown.Lasting(7) };
         using var stream = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(stream, state);
         stream.Position = 0;
-        AssertEqual(7, DebuggerObjectGraphSerializer.Deserialize<SamusGrappleState>(stream).PoseChangeAutoFireTimer,
+        AssertEqual(7, DebuggerObjectGraphSerializer.Deserialize<SamusGrappleState>(stream).PoseChangeAutoFireTimer.UpdatesLeft,
             "debugger preserves remaining refire window");
         Console.WriteLine("Grapple pose refire: mirrored frame-1..9 restarts, frame-10 cancellation, endpoint trajectory and timer serialization pass.");
     }

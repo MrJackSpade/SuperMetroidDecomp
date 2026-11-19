@@ -66,17 +66,13 @@ public sealed class SamusBomb
     public bool IsBombSpread => SpreadFlight is not null;
 
     /// <summary>
-    /// The updates the bomb's fuse has left (#2458): set when the bomb is placed, counted down once per update while it
-    /// burns, and zero from the update it burns out, where nothing counts it again.
+    /// The bomb's fuse (#2458): started when the bomb is placed, counted once per update while it burns, and over from the
+    /// update it burns out, where nothing counts it again.
     /// </summary>
-    public int FuseUpdatesLeft
-    {
-        get;
-        internal set => field = Ensure.AtLeastZero(value);
-    }
+    public UpdateCountdown Fuse { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>Whether the bomb's fuse has burned out: a normal bomb explodes, and a Power Bomb's blast has begun.</summary>
-    public bool HasBurnedOut => FuseUpdatesLeft == 0;
+    public bool HasBurnedOut => Fuse.IsOver;
 
     /// <summary>Whether the bomb is live: a placed bomb runs its animation until it ends.</summary>
     public bool IsActive => Animation is not null;
@@ -96,7 +92,7 @@ public sealed class SamusBomb
         Animation = null;
         Sprite = null;
         Radius = Extent16<RoomPixels>.Zero;
-        FuseUpdatesLeft = 0;
+        Fuse = UpdateCountdown.Ended();
         SpreadFlight = null;
     }
 }

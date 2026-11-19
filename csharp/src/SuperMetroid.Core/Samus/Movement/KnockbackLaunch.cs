@@ -22,7 +22,7 @@ public sealed record KnockbackLaunch
         return new KnockbackLaunch
         {
             KnockbackXDirection = samus.KnockbackXDirection,
-            KnockbackTimer = samus.KnockbackTimer,
+            KnockbackTimer = samus.KnockbackHold.UpdatesLeft,
         };
     }
 }

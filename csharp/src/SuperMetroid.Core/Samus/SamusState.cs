@@ -371,15 +371,11 @@ public sealed class SamusState
     /// mid-air morph from accidentally cancelling ordinary arm-cannon charge state.
     /// </summary>
     /// <remarks>
-    /// Updates of Down held while a spread is charged, 0 through
-    /// <see cref="Projectiles.MorphBallBombDefinitions.DownChargeTimeoutUpdates"/>: its only advance stops on reaching
-    /// that count and its other producers clear it, so the setter rejects any other value.
+    /// The hold of Down while a spread is charged, lasting
+    /// <see cref="Projectiles.MorphBallBombDefinitions.DownChargeTimeoutUpdates"/>: its age, the updates Down was held,
+    /// chooses the spread's launch, it stops counting once over, and its other producers start it again.
     /// </remarks>
-    public int BombSpreadChargeTimeoutCounter
-    {
-        get;
-        set => field = Ensure.BetweenInclusive(0, Projectiles.MorphBallBombDefinitions.DownChargeTimeoutUpdates, value);
-    }
+    public UpdateCountdown BombSpreadCharge { get; set; } = UpdateCountdown.Lasting(Projectiles.MorphBallBombDefinitions.DownChargeTimeoutUpdates);
 
     /// <summary>
     /// The shot a pose transition handed to the next update's weapon firing, or null. A pose setup can hand one
@@ -458,20 +454,19 @@ public sealed class SamusState
     public WrappingCountdown InvincibilityTimer { get; set; }
 
     /// <summary>
-    /// Initialized to five by enemy damage collision and decremented once
-    /// per enemy-processing pass. The knockback holds her movement only while
-    /// this counter remains nonzero.
+    /// The knockback hold: started for five updates by enemy damage collision and counted once per gameplay update. The
+    /// knockback holds her movement only while it runs.
     /// </summary>
-    public int KnockbackTimer { get; set; }
+    public UpdateCountdown KnockbackHold { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>Whether no hit holds Samus: her knockback hold has run out and no knockback is pending or moving her.</summary>
-    public bool HasNoKnockback => KnockbackTimer == 0 && KnockbackDirection == Movement.SamusKnockbackDirection.None;
+    public bool HasNoKnockback => KnockbackHold.IsOver && KnockbackDirection == Movement.SamusKnockbackDirection.None;
 
     /// <summary>Clears Samus's two own hurt timers: no invincibility is left and no knockback is held.</summary>
     public void ClearHurtTimers()
     {
         InvincibilityTimer = WrappingCountdown.Start(0);
-        KnockbackTimer = 0;
+        KnockbackHold = UpdateCountdown.Ended();
     }
 
     /// <summary>
@@ -481,7 +476,7 @@ public sealed class SamusState
     public void RequestKnockback(int invincibilityUpdates, int knockbackUpdates, Movement.KnockbackHorizontalDirection direction)
     {
         InvincibilityTimer = WrappingCountdown.Start(invincibilityUpdates);
-        KnockbackTimer = knockbackUpdates;
+        KnockbackHold = UpdateCountdown.For(knockbackUpdates);
         KnockbackXDirection = direction;
     }
 
@@ -494,7 +489,7 @@ public sealed class SamusState
     public void DecrementHurtTimers()
     {
         InvincibilityTimer = InvincibilityTimer.DecrementToZero();
-        KnockbackTimer = Math.Max(0, KnockbackTimer - 1);
+        KnockbackHold.Step();
     }
 
     /// <summary>

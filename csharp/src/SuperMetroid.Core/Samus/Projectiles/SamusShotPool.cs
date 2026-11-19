@@ -68,7 +68,7 @@ internal sealed class SamusShotPool
     {
         int fuse = BeamFiredOverLastShot.FuseLeftBy(_places[place].AsReplacedByBeam);
         SamusProjectile beam = Occupy(place);
-        beam.BeamFuse = fuse;
+        beam.BeamFuse = UpdateCountdown.For(fuse);
         return beam;
     }
 

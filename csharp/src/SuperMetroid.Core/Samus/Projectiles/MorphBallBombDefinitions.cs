@@ -29,6 +29,9 @@ public static class MorphBallBombDefinitions
     /// </summary>
     public const int DownChargeTimeoutUpdates = 192;
 
+    /// <summary>The updates a bomb's reservation lengthens the shared projectile cooldown by, before its placement replaces it.</summary>
+    internal const int ReservationCooldownUpdates = 1;
+
     /// <summary>
     /// The updates of held Down that add one whole pixel to a bomb spread's upward launch speed: zero through three
     /// pixels over the <see cref="DownChargeTimeoutUpdates"/>.

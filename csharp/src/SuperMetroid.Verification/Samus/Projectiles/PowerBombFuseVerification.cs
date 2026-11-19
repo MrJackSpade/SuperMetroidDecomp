@@ -19,20 +19,19 @@ internal static class PowerBombFuseVerification
         foreach (bool flag in new[] { false, true })
         {
             AssertEqual(new PowerBombFuseStep(0, false, false, !flag),
-                SamusPowerBombFuse.Step(0, flag), "zero fuse follows native flag equality");
+                SamusPowerBombFuse.Step(UpdateCountdown.Ended(), flag), "zero fuse follows native flag equality");
             AssertEqual(new PowerBombFuseStep(0, false, true, false),
-                SamusPowerBombFuse.Step(1, flag), "expiration runs the fuse out and starts the explosion");
+                SamusPowerBombFuse.Step(UpdateCountdown.Lasting(1), flag), "expiration runs the fuse out and starts the explosion");
             AssertEqual(new PowerBombFuseStep(15, true, false, false),
-                SamusPowerBombFuse.Step(16, flag), "the fuse reaching fifteen switches to the fast list");
+                SamusPowerBombFuse.Step(UpdateCountdown.Lasting(16), flag), "the fuse reaching fifteen switches to the fast list");
             AssertEqual(new PowerBombFuseStep(14, false, false, false),
-                SamusPowerBombFuse.Step(15, flag), "fast threshold is tested after decrement");
+                SamusPowerBombFuse.Step(UpdateCountdown.Lasting(15), flag), "fast threshold is tested after decrement");
         }
-        int timer = 60;
+        UpdateCountdown fuse = UpdateCountdown.Lasting(60);
         int spawns = 0;
         for (int frame = 0; frame < 60; frame++)
         {
-            PowerBombFuseStep result = SamusPowerBombFuse.Step(timer, true);
-            timer = result.UpdatesLeft;
+            PowerBombFuseStep result = SamusPowerBombFuse.Step(fuse, true);
             spawns += result.SpawnExplosion ? 1 : 0;
             AssertEqual(false, result.DeleteProjectile, "live fuse never requests deletion");
             AssertEqual(frame == 44, result.FastAnimation, "native fast-list transition frame");

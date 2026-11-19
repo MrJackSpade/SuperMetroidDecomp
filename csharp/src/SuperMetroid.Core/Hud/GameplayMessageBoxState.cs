@@ -40,8 +40,8 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     /// gunship's accepted save keeps through its saving sound and completion notice; null for a message that asks nothing.
     /// </summary>
     private SaveChoice? _answer;
-    /// <summary>Remaining frames before the gunship's SAVE COMPLETED notice reopens the box.</summary>
-    private int _savingFramesRemaining;
+    /// <summary>The wait before the gunship's SAVE COMPLETED notice reopens the box.</summary>
+    private UpdateCountdown _savingWait = UpdateCountdown.Ended();
 
     /// <summary>The audio processing and liquid wave and statue advance of the update <see cref="Step"/> just ran.</summary>
     public MessageBoxFrameAudio LastFrameAudio { get; private set; }
@@ -68,8 +68,8 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     /// </summary>
     public int RadiusPixels { get; private set; }
 
-    /// <summary>Unelapsed mandatory frames before controller input is inspected.</summary>
-    public int MinimumDisplayFramesRemaining { get; private set; }
+    /// <summary>The mandatory display before controller input is inspected.</summary>
+    public UpdateCountdown MinimumDisplay { get; private set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// What the box shows while a message has begun (#1466): the message, the button its panel names for the configured
@@ -133,7 +133,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     {
         MessageId = messageId;
         RadiusPixels = 0;
-        MinimumDisplayFramesRemaining = 0;
+        MinimumDisplay = UpdateCountdown.Ended();
         _nextRadiusPixels = 0;
         ConfirmationSelection = SaveChoice.Yes;
         _controller.Latch(controllerRead);
@@ -177,14 +177,14 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
                 {
                     if (Confirmation != GameplayMessageConfirmation.None)
                     {
-                        MinimumDisplayFramesRemaining = 0;
+                        MinimumDisplay = UpdateCountdown.Ended();
                         _saveChoiceInput.Begin();
                         Phase = GameplayMessageBoxPhase.AwaitingInput;
                     }
                     else
                     {
-                        MinimumDisplayFramesRemaining = Ensure.Listed(GameplayMessageBoxDefinitions.Timing.MinimumDisplayFrames,
-                            MessageId ?? throw new InvalidOperationException("An opening message box shows a message."));
+                        MinimumDisplay = UpdateCountdown.Lasting(Ensure.Listed(GameplayMessageBoxDefinitions.Timing.MinimumDisplayFrames,
+                            MessageId ?? throw new InvalidOperationException("An opening message box shows a message.")));
                         Phase = GameplayMessageBoxPhase.MinimumDisplay;
                     }
                 }
@@ -193,7 +193,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
                 return MessageBoxStep.NothingAsked.Instance;
 
             case GameplayMessageBoxPhase.MinimumDisplay:
-                if (--MinimumDisplayFramesRemaining == 0)
+                if (MinimumDisplay.StepEnds())
                     Phase = GameplayMessageBoxPhase.AwaitingInput;
                 return MessageBoxStep.NothingAsked.Instance;
 
@@ -237,7 +237,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
                 return controllerInput != ControllerButton.None ? BeginClosing() : MessageBoxStep.NothingAsked.Instance;
 
             case GameplayMessageBoxPhase.GunshipSavingSound:
-                if (--_savingFramesRemaining == 0)
+                if (_savingWait.StepEnds())
                 {
                     // The completion notice opens only after the saving sound's wait, the accepted YES kept across it.
                     // Its pause is shorter: the screen stayed set up for the first box.
@@ -283,8 +283,8 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
         {
             // The accepted gunship save pauses one update after closing, then waits out the saving sound.
             Phase = GameplayMessageBoxPhase.GunshipSavingSound;
-            _savingFramesRemaining = MessageBoxPauses.UpdatesBeforeGunshipSavingWait +
-                GameplayMessageBoxDefinitions.Timing.GunshipSavingSoundFrames;
+            _savingWait = UpdateCountdown.Lasting(MessageBoxPauses.UpdatesBeforeGunshipSavingWait +
+                GameplayMessageBoxDefinitions.Timing.GunshipSavingSoundFrames);
             return MessageBoxStep.SavingSoundStarted.Instance;
         }
         _pauses.BeginAfterClosing();
@@ -302,7 +302,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
         SaveChoice? answer = _answer;
         _answer = null;
         MessageId = null;
-        MinimumDisplayFramesRemaining = 0;
+        MinimumDisplay = UpdateCountdown.Ended();
         RadiusPixels = 0;
         return answer is { } choice ? new MessageBoxStep.Answered(choice) : MessageBoxStep.Closed.WithoutAnswer;
     }

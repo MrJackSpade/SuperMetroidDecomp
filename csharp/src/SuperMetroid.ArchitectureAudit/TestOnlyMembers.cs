@@ -193,7 +193,7 @@ internal static class TestOnlyMembers
         {
             ExpressionSyntax? receiver = name.Parent switch
             {
-                MemberAccessExpressionSyntax access when access.Name == name => access.Expression,
+                MemberAccessExpressionSyntax member when member.Name == name => member.Expression,
                 MemberBindingExpressionSyntax binding when binding.Name == name =>
                     binding.Ancestors().OfType<ConditionalAccessExpressionSyntax>().FirstOrDefault()?.Expression,
                 _ => null,
@@ -205,11 +205,11 @@ internal static class TestOnlyMembers
             if (type is not INamedTypeSymbol { TypeKind: not TypeKind.Error } named ||
                 info.CandidateSymbols.Any(candidate => SymbolEqualityComparer.Default.Equals(candidate.ContainingType?.OriginalDefinition, named.OriginalDefinition)))
                 return;
-            string access = Access(AccessExpression(name));
+            string way = Access(AccessExpression(name));
             for (INamedTypeSymbol? owner = named; owner is not null; owner = owner.BaseType)
             {
                 foreach (ISymbol member in owner.GetMembers(name.Identifier.ValueText))
-                    Record(member, name, access, reaches: true);
+                    Record(member, name, way, reaches: true);
             }
         }
 

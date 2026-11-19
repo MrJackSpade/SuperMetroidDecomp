@@ -33,4 +33,14 @@ internal static class RoomLevelDataPrivateAccess
         internal static global::SuperMetroid.Core.Compatibility.TerrainBeyondRoom<global::SuperMetroid.Core.Rooms.LevelData.RoomTerrainBlock, global::SuperMetroid.Core.Rooms.LevelData.RoomBlockBehavior> NothingBeyondGrid() =>
             PrivateState.InvokeStatic<global::SuperMetroid.Core.Compatibility.TerrainBeyondRoom<global::SuperMetroid.Core.Rooms.LevelData.RoomTerrainBlock, global::SuperMetroid.Core.Rooms.LevelData.RoomBlockBehavior>>(typeof(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData), "NothingBeyondGrid", [], new object?[] {  });
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData self)
+    {
+        /// <summary>The private field <c>BeyondRoom</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Compatibility.TerrainBeyondRoom<global::SuperMetroid.Core.Rooms.LevelData.RoomTerrainBlock, global::SuperMetroid.Core.Rooms.LevelData.RoomBlockBehavior> BeyondRoom => PrivateState.Field<global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData, global::SuperMetroid.Core.Compatibility.TerrainBeyondRoom<global::SuperMetroid.Core.Rooms.LevelData.RoomTerrainBlock, global::SuperMetroid.Core.Rooms.LevelData.RoomBlockBehavior>>(self, "BeyondRoom");
+
+        /// <summary>The private field <c>terrain</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Rooms.LevelData.RoomTerrainBlock[] terrain => PrivateState.Field<global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData, global::SuperMetroid.Core.Rooms.LevelData.RoomTerrainBlock[]>(self, "terrain");
+    }
 }

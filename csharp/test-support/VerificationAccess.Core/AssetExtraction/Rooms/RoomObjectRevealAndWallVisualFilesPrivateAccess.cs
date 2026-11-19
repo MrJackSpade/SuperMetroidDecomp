@@ -17,4 +17,14 @@ internal static class RoomObjectRevealAndWallVisualFilesPrivateAccess
         internal static string VisualId(global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectDraw draw) =>
             PrivateState.InvokeStatic<string>(typeof(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectRevealAndWallVisualFiles), "VisualId", [typeof(global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectDraw)], new object?[] { draw });
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectRevealAndWallVisualFiles)
+    {
+        /// <summary>The private property <c>All</c>, reached by name.</summary>
+        internal static global::System.Collections.Generic.IEnumerable<global::SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawLists.DrawList> All
+        {
+            get => PrivateState.StaticGet<global::System.Collections.Generic.IEnumerable<global::SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawLists.DrawList>>(typeof(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectRevealAndWallVisualFiles), "All");
+        }
+    }
 }

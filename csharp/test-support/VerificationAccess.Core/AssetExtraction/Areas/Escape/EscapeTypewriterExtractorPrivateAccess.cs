@@ -16,4 +16,12 @@ internal static class EscapeTypewriterExtractorPrivateAccess
         /// <summary>The private field <c>DelayCommand</c>, reached by name.</summary>
         internal static int DelayCommand => PrivateState.StaticField<int>(typeof(global::SuperMetroid.AssetExtraction.Areas.Escape.EscapeTypewriterExtractor), "DelayCommand");
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Areas.Escape.EscapeTypewriterExtractor)
+    {
+        /// <summary>The private method <c>Write</c>, invoked by name.</summary>
+        internal static void Write(global::System.IO.Stream output, global::SuperMetroid.AssetExtraction.Areas.Escape.EscapeTypewriterDocument document) =>
+            PrivateState.InvokeStatic(typeof(global::SuperMetroid.AssetExtraction.Areas.Escape.EscapeTypewriterExtractor), "Write", [typeof(global::System.IO.Stream), typeof(global::SuperMetroid.AssetExtraction.Areas.Escape.EscapeTypewriterDocument)], new object?[] { output, document });
+    }
 }

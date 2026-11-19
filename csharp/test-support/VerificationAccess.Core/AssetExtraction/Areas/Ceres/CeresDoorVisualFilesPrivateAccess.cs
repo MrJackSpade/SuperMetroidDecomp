@@ -17,4 +17,12 @@ internal static class CeresDoorVisualFilesPrivateAccess
         internal static global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresDoorSourceArtwork Read(global::System.IO.Stream tilePng, global::System.IO.Stream paletteJson) =>
             PrivateState.InvokeStatic<global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresDoorSourceArtwork>(typeof(global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresDoorVisualFiles), "Read", [typeof(global::System.IO.Stream), typeof(global::System.IO.Stream)], new object?[] { tilePng, paletteJson });
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresDoorVisualFiles)
+    {
+        /// <summary>The private method <c>Write</c>, invoked by name.</summary>
+        internal static byte[] Write(global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresDoorVisualDocument document) =>
+            PrivateState.InvokeStatic<byte[]>(typeof(global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresDoorVisualFiles), "Write", [typeof(global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresDoorVisualDocument)], new object?[] { document });
+    }
 }

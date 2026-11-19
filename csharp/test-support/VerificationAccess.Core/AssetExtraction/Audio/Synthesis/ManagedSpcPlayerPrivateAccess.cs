@@ -20,4 +20,14 @@ internal static class ManagedSpcPlayerPrivateAccess
         /// <summary>The private field <c>ram</c>, reached by name.</summary>
         internal global::SuperMetroid.AssetExtraction.Audio.Synthesis.SpcRam ram => PrivateState.Field<global::SuperMetroid.AssetExtraction.Audio.Synthesis.ManagedSpcPlayer, global::SuperMetroid.AssetExtraction.Audio.Synthesis.SpcRam>(self, "ram");
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Audio.Synthesis.ManagedSpcPlayer self)
+    {
+        /// <summary>The private property <c>Voices</c>, reached by name.</summary>
+        internal global::SuperMetroid.AssetExtraction.Audio.Synthesis.SpcVoices Voices
+        {
+            get => PrivateState.Get<global::SuperMetroid.AssetExtraction.Audio.Synthesis.ManagedSpcPlayer, global::SuperMetroid.AssetExtraction.Audio.Synthesis.SpcVoices>(self, "Voices");
+        }
+    }
 }

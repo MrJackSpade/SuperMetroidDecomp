@@ -37,4 +37,14 @@ internal static class GameplayMessageBoxStatePrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Hud.GameplayMessageBoxState, global::SuperMetroid.Core.Rooms.ShownMessage?>(self, "Shown");
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Hud.GameplayMessageBoxState self)
+    {
+        /// <summary>The private property <c>MinimumDisplay</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.UpdateCountdown MinimumDisplay
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Hud.GameplayMessageBoxState, global::SuperMetroid.Core.UpdateCountdown>(self, "MinimumDisplay");
+        }
+    }
 }

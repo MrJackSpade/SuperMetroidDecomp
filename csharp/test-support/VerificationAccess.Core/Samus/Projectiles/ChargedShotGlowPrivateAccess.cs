@@ -19,4 +19,14 @@ internal static class ChargedShotGlowPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.ChargedShotGlow, global::SuperMetroid.Core.Samus.Projectiles.ChargedShotGlowKind>(self, "Kind");
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Samus.Projectiles.ChargedShotGlow self)
+    {
+        /// <summary>The private property <c>Play</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Animation.AnimationPlayer<global::SuperMetroid.Core.Samus.Colours.SamusGlowSegment, global::SuperMetroid.Core.Assets.PictureShade, global::SuperMetroid.Core.Animation.NoAnimationCue> Play
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.ChargedShotGlow, global::SuperMetroid.Core.Animation.AnimationPlayer<global::SuperMetroid.Core.Samus.Colours.SamusGlowSegment, global::SuperMetroid.Core.Assets.PictureShade, global::SuperMetroid.Core.Animation.NoAnimationCue>>(self, "Play");
+        }
+    }
 }

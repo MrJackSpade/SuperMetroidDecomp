@@ -27,4 +27,14 @@ internal static class RoomScrollGridPrivateAccess
         internal static global::SuperMetroid.Core.Rooms.Scrolling.RoomScrollGrid CreateImplicit(global::SuperMetroid.Core.Compatibility.ScrollCellsKeptAcrossRooms<global::SuperMetroid.Core.Rooms.Scrolling.RoomScrollState, global::SuperMetroid.Core.Progression.AreaId> cells, global::SuperMetroid.Core.Spatial.Extent16<global::SuperMetroid.Core.Spatial.RoomScreens> size, global::SuperMetroid.Core.Rooms.Scrolling.RoomScrollState lastRowState) =>
             PrivateState.InvokeStatic<global::SuperMetroid.Core.Rooms.Scrolling.RoomScrollGrid>(typeof(global::SuperMetroid.Core.Rooms.Scrolling.RoomScrollGrid), "CreateImplicit", [typeof(global::SuperMetroid.Core.Compatibility.ScrollCellsKeptAcrossRooms<global::SuperMetroid.Core.Rooms.Scrolling.RoomScrollState, global::SuperMetroid.Core.Progression.AreaId>), typeof(global::SuperMetroid.Core.Spatial.Extent16<global::SuperMetroid.Core.Spatial.RoomScreens>), typeof(global::SuperMetroid.Core.Rooms.Scrolling.RoomScrollState)], new object?[] { cells, size, lastRowState });
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Rooms.Scrolling.RoomScrollGrid self)
+    {
+        /// <summary>The private property <c>KeptCells</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Compatibility.ScrollCellsKeptAcrossRooms<global::SuperMetroid.Core.Rooms.Scrolling.RoomScrollState, global::SuperMetroid.Core.Progression.AreaId> KeptCells
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Rooms.Scrolling.RoomScrollGrid, global::SuperMetroid.Core.Compatibility.ScrollCellsKeptAcrossRooms<global::SuperMetroid.Core.Rooms.Scrolling.RoomScrollState, global::SuperMetroid.Core.Progression.AreaId>>(self, "KeptCells");
+        }
+    }
 }

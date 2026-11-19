@@ -25,4 +25,14 @@ internal static class MapScrollPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Map.MapScroll, global::SuperMetroid.Core.Frontend.Map.MapScrollLimits>(self, "Limits");
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Frontend.Map.MapScroll self)
+    {
+        /// <summary>The private property <c>Framing</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Frontend.Map.MapFraming Framing
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Map.MapScroll, global::SuperMetroid.Core.Frontend.Map.MapFraming>(self, "Framing");
+        }
+    }
 }

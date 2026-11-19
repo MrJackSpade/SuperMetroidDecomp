@@ -17,4 +17,17 @@ internal static class DefinitionObjectsPrivateAccess
         internal global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.Diagnostics.SaveStates.DefinitionCatalog> Candidates(global::System.Type type) =>
             PrivateState.Invoke<global::SuperMetroid.Diagnostics.SaveStates.DefinitionObjects, global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.Diagnostics.SaveStates.DefinitionCatalog>>(self, "Candidates", [typeof(global::System.Type)], new object?[] { type });
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Diagnostics.SaveStates.DefinitionObjects self)
+    {
+        /// <summary>The private property <c>Declared</c>, reached by name.</summary>
+        internal global::SuperMetroid.Diagnostics.SaveStates.DefinitionObjects.Declarations Declared
+        {
+            get => PrivateState.Get<global::SuperMetroid.Diagnostics.SaveStates.DefinitionObjects, global::SuperMetroid.Diagnostics.SaveStates.DefinitionObjects.Declarations>(self, "Declared");
+        }
+
+        /// <summary>The private field <c>gate</c>, reached by name.</summary>
+        internal global::System.Threading.Lock gate => PrivateState.Field<global::SuperMetroid.Diagnostics.SaveStates.DefinitionObjects, global::System.Threading.Lock>(self, "gate");
+    }
 }

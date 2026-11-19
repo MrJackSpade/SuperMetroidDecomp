@@ -16,4 +16,23 @@ internal static class RoomObjectCrocomireVisualFilesPrivateAccess
         /// <summary>The private field <c>VisualFileName</c>, reached by name.</summary>
         internal static string VisualFileName => PrivateState.StaticField<string>(typeof(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectCrocomireVisualFiles), "VisualFileName");
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectCrocomireVisualFiles)
+    {
+        /// <summary>The private property <c>All</c>, reached by name.</summary>
+        internal static global::System.Collections.Generic.IEnumerable<global::SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawLists.DrawList> All
+        {
+            get => PrivateState.StaticGet<global::System.Collections.Generic.IEnumerable<global::SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawLists.DrawList>>(typeof(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectCrocomireVisualFiles), "All");
+        }
+
+        /// <summary>The private method <c>TryGet</c>, invoked by name.</summary>
+        internal static bool TryGet(global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectDraw draw, out global::SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawLists.DrawList list)
+        {
+            object?[] invocationArguments = new object?[] { draw, null };
+            bool invocationResult = PrivateState.InvokeStatic<bool>(typeof(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectCrocomireVisualFiles), "TryGet", [typeof(global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectDraw), typeof(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawLists.DrawList).MakeByRefType()], invocationArguments);
+            list = (global::SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawLists.DrawList)invocationArguments[1]!;
+            return invocationResult;
+        }
+    }
 }

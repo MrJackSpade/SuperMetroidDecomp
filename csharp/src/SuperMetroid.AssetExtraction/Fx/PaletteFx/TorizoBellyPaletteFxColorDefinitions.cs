@@ -26,13 +26,11 @@ public static class TorizoBellyPaletteFxColorDefinitions
         new()
         {
             Owner = TorizoBellyPaletteOwner.BombTorizo,
-            Object = ColourEffectId.BombTorizoBelly,
             ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.BombTorizoBelly, ColorsPerFrame),
         },
         new()
         {
             Owner = TorizoBellyPaletteOwner.GoldenTorizo,
-            Object = ColourEffectId.GoldenTorizoBelly,
             ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.GoldenTorizoBelly, ColorsPerFrame),
         },
     ];

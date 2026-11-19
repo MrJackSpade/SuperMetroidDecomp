@@ -14,7 +14,7 @@ internal static class BabyMetroidEnemyStateAccess
         internal void ResumeMembrane(BabyMetroidMembranePace pace, BabyMetroidMembranePulse phase, int updates)
         {
             global::SuperMetroid.Core.PrivateState.Set(self, "MembranePace", (global::SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidMembranePace)(pace));
-            self.Membrane = BabyMetroidMembraneAnimations.StandingOn(pace, phase, updates);
+            global::SuperMetroid.Core.PrivateState.Set(self, "Membrane", BabyMetroidMembraneAnimations.StandingOn(pace, phase, updates));
         }
     }
 }

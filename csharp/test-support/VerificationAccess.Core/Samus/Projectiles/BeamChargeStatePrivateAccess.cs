@@ -19,4 +19,14 @@ internal static class BeamChargeStatePrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.BeamChargeState, bool>(self, "HyperBeamFlare");
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Samus.Projectiles.BeamChargeState self)
+    {
+        /// <summary>The private property <c>ChargePulse</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Animation.AnimationPlace ChargePulse
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.BeamChargeState, global::SuperMetroid.Core.Animation.AnimationPlace>(self, "ChargePulse");
+        }
+    }
 }

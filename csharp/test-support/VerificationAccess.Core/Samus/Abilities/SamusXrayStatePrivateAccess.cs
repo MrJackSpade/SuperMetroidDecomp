@@ -43,4 +43,26 @@ internal static class SamusXrayStatePrivateAccess
         internal static global::SuperMetroid.Core.Spatial.RotationAngle AimedUp(global::SuperMetroid.Core.Spatial.RotationAngle center, global::SuperMetroid.Core.Spatial.TrigonometryAngle halfWidth) =>
             PrivateState.InvokeStatic<global::SuperMetroid.Core.Spatial.RotationAngle>(typeof(global::SuperMetroid.Core.Samus.Abilities.SamusXrayState), "AimedUp", [typeof(global::SuperMetroid.Core.Spatial.RotationAngle), typeof(global::SuperMetroid.Core.Spatial.TrigonometryAngle)], new object?[] { center, halfWidth });
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Samus.Abilities.SamusXrayState self)
+    {
+        /// <summary>The private property <c>AngularHalfWidth</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Spatial.RotationAngle AngularHalfWidth
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Samus.Abilities.SamusXrayState, global::SuperMetroid.Core.Spatial.RotationAngle>(self, "AngularHalfWidth");
+        }
+
+        /// <summary>The private property <c>AngularWideningSpeed</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Spatial.RotationAngle AngularWideningSpeed
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Samus.Abilities.SamusXrayState, global::SuperMetroid.Core.Spatial.RotationAngle>(self, "AngularWideningSpeed");
+        }
+
+        /// <summary>The private property <c>Visor</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Animation.AnimationPlayer<global::SuperMetroid.Core.Samus.Colours.SamusGlowSegment, global::SuperMetroid.Core.Assets.PictureShade, global::SuperMetroid.Core.Animation.NoAnimationCue> Visor
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Samus.Abilities.SamusXrayState, global::SuperMetroid.Core.Animation.AnimationPlayer<global::SuperMetroid.Core.Samus.Colours.SamusGlowSegment, global::SuperMetroid.Core.Assets.PictureShade, global::SuperMetroid.Core.Animation.NoAnimationCue>>(self, "Visor");
+        }
+    }
 }

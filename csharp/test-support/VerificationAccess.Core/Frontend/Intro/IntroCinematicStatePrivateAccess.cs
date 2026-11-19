@@ -115,4 +115,14 @@ internal static class IntroCinematicStatePrivateAccess
         /// <summary>The private field <c>narrationText</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Frontend.Intro.IntroNarrationText narrationText => PrivateState.Field<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState, global::SuperMetroid.Core.Frontend.Intro.IntroNarrationText>(self, "narrationText");
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState self)
+    {
+        /// <summary>The private property <c>FightRoomShading</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Assets.PictureShading FightRoomShading
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState, global::SuperMetroid.Core.Assets.PictureShading>(self, "FightRoomShading");
+        }
+    }
 }

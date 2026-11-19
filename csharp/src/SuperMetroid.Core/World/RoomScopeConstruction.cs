@@ -224,8 +224,6 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         BlockAnimations = BlockAnimations ?? throw Missing(nameof(BlockAnimations)),
         TourianStatues = TourianStatues,
         Main = Main,
-        MaridiaElevatube = MaridiaElevatube,
-        CeresElevatorShaft = CeresElevatorShaft,
         Enemies = Enemies ?? throw Missing(nameof(Enemies)),
         RoomObjects = RoomObjects ?? throw Missing(nameof(RoomObjects)),
     };

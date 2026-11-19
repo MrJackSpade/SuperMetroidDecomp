@@ -19,4 +19,14 @@ internal static class CeresElevatorShaftRoomMainStatePrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Areas.Ceres.CeresElevatorShaftRoomMainState, global::SuperMetroid.Core.Areas.Ceres.CeresShaftSweep>(self, "Sweep");
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Areas.Ceres.CeresElevatorShaftRoomMainState self)
+    {
+        /// <summary>The private property <c>Tilt</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Areas.Ceres.CeresShaftTilt Tilt
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Areas.Ceres.CeresElevatorShaftRoomMainState, global::SuperMetroid.Core.Areas.Ceres.CeresShaftTilt>(self, "Tilt");
+        }
+    }
 }

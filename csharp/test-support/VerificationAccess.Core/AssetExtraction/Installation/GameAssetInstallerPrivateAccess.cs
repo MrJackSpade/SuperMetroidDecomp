@@ -17,4 +17,11 @@ internal static class GameAssetInstallerPrivateAccess
         internal static void InstallComponent(byte[] rom, string staging, global::SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.InstallerComponent component, global::SuperMetroid.AssetExtraction.Installation.InstalledSheetFamilies families, global::System.Threading.CancellationToken cancellationToken, global::System.IProgress<string>? progress) =>
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.AssetExtraction.Installation.GameAssetInstaller), "InstallComponent", [typeof(byte[]), typeof(string), typeof(global::SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.InstallerComponent), typeof(global::SuperMetroid.AssetExtraction.Installation.InstalledSheetFamilies), typeof(global::System.Threading.CancellationToken), typeof(global::System.IProgress<string>)], new object?[] { rom, staging, component, families, cancellationToken, progress });
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Installation.GameAssetInstaller)
+    {
+        /// <summary>The private field <c>Components</c>, reached by name.</summary>
+        internal static global::SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.InstallerComponent[] Components => PrivateState.StaticField<global::SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.InstallerComponent[]>(typeof(global::SuperMetroid.AssetExtraction.Installation.GameAssetInstaller), "Components");
+    }
 }

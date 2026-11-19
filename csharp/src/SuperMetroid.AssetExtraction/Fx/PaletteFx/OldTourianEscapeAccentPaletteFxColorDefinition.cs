@@ -13,10 +13,6 @@ public sealed class OldTourianEscapeAccentPaletteFxColorDefinition
     /// <summary>The mutually exclusive escape-accent owner.</summary>
     public required OldTourianEscapeAccentPaletteOwner Owner { get; init; }
 
-    /// <summary>The palette-FX object that installs this program.</summary>
-    public required ColourEffectId Object { get; init; }
-
-
     /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
     public required PaletteFxColorFrames ColorFrames { get; init; }
 }

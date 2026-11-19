@@ -23,4 +23,11 @@ internal static class RoomObjectGrappleBlockVisualFilesPrivateAccess
         internal static string VisualId(global::SuperMetroid.Core.Rooms.RoomObjects.GrappleBlockDraw frame) =>
             PrivateState.InvokeStatic<string>(typeof(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectGrappleBlockVisualFiles), "VisualId", [typeof(global::SuperMetroid.Core.Rooms.RoomObjects.GrappleBlockDraw)], new object?[] { frame });
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectGrappleBlockVisualFiles)
+    {
+        /// <summary>The private field <c>VisualFileName</c>, reached by name.</summary>
+        internal static string VisualFileName => PrivateState.StaticField<string>(typeof(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectGrappleBlockVisualFiles), "VisualFileName");
+    }
 }

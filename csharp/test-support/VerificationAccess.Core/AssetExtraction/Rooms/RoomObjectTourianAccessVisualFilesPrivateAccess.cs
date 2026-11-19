@@ -27,4 +27,11 @@ internal static class RoomObjectTourianAccessVisualFilesPrivateAccess
         internal static global::SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawLists.DrawList CompileCrumble(global::SuperMetroid.Core.Rooms.RoomObjects.BlockBreakupStage stage) =>
             PrivateState.InvokeStatic<global::SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawLists.DrawList>(typeof(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectTourianAccessVisualFiles), "CompileCrumble", [typeof(global::SuperMetroid.Core.Rooms.RoomObjects.BlockBreakupStage)], new object?[] { stage });
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectTourianAccessVisualFiles)
+    {
+        /// <summary>The private field <c>VisualFileName</c>, reached by name.</summary>
+        internal static string VisualFileName => PrivateState.StaticField<string>(typeof(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectTourianAccessVisualFiles), "VisualFileName");
+    }
 }

@@ -47,4 +47,14 @@ internal static class SamusLiquidPhysicsStatePrivateAccess
         internal static bool IsBelowSurface(int? surface, int boundary) =>
             PrivateState.InvokeStatic<bool>(typeof(global::SuperMetroid.Core.Samus.Movement.SamusLiquidPhysicsState), "IsBelowSurface", [typeof(int?), typeof(int)], new object?[] { surface, boundary });
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Samus.Movement.SamusLiquidPhysicsState self)
+    {
+        /// <summary>The private property <c>AudioRequests</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Audio.GameplaySoundRequests AudioRequests
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Samus.Movement.SamusLiquidPhysicsState, global::SuperMetroid.Core.Audio.GameplaySoundRequests>(self, "AudioRequests");
+        }
+    }
 }

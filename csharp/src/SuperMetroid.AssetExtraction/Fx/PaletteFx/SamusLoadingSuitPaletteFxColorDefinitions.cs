@@ -23,7 +23,6 @@ public static class SamusLoadingSuitPaletteFxColorDefinitions
         new()
         {
             Owner = SamusLoadingSuitPaletteFxProgramOwner.PowerSuit,
-            Object = ColourEffectId.SamusLoadingPowerSuit,
             ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.SamusLoadingPowerSuit, ColorsPerFrame),
         };
     /// <summary>The Varia-suit definition's program.</summary>
@@ -31,7 +30,6 @@ public static class SamusLoadingSuitPaletteFxColorDefinitions
         new()
         {
             Owner = SamusLoadingSuitPaletteFxProgramOwner.VariaSuit,
-            Object = ColourEffectId.SamusLoadingVariaSuit,
             ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.SamusLoadingVariaSuit, ColorsPerFrame),
         };
     /// <summary>The Gravity-suit definition's program.</summary>
@@ -39,7 +37,6 @@ public static class SamusLoadingSuitPaletteFxColorDefinitions
         new()
         {
             Owner = SamusLoadingSuitPaletteFxProgramOwner.GravitySuit,
-            Object = ColourEffectId.SamusLoadingGravitySuit,
             ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.SamusLoadingGravitySuit, ColorsPerFrame),
         };
 

@@ -19,4 +19,14 @@ internal static class ZebesEscapeDefinitionsPrivateAccess
         /// <summary>The private field <c>StrongDiagonal</c>, reached by name.</summary>
         internal static global::SuperMetroid.Core.Earthquakes.EarthquakeShake StrongDiagonal => PrivateState.StaticField<global::SuperMetroid.Core.Earthquakes.EarthquakeShake>(typeof(global::SuperMetroid.Core.Escape.ZebesEscapeDefinitions), "StrongDiagonal");
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.Core.Escape.ZebesEscapeDefinitions)
+    {
+        /// <summary>The private field <c>LightShakeTurnsDiagonal</c>, reached by name.</summary>
+        internal static global::SuperMetroid.Core.Compatibility.RandomChance LightShakeTurnsDiagonal => PrivateState.StaticField<global::SuperMetroid.Core.Compatibility.RandomChance>(typeof(global::SuperMetroid.Core.Escape.ZebesEscapeDefinitions), "LightShakeTurnsDiagonal");
+
+        /// <summary>The private field <c>MediumShakeTurnsDiagonal</c>, reached by name.</summary>
+        internal static global::SuperMetroid.Core.Compatibility.RandomChance MediumShakeTurnsDiagonal => PrivateState.StaticField<global::SuperMetroid.Core.Compatibility.RandomChance>(typeof(global::SuperMetroid.Core.Escape.ZebesEscapeDefinitions), "MediumShakeTurnsDiagonal");
+    }
 }

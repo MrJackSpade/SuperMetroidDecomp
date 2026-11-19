@@ -16,4 +16,11 @@ internal static class MusicTrackNumbersPrivateAccess
         /// <summary>The private field <c>AreaThemeTrack</c>, reached by name.</summary>
         internal static int AreaThemeTrack => PrivateState.StaticField<int>(typeof(global::SuperMetroid.AssetExtraction.Audio.MusicTrackNumbers), "AreaThemeTrack");
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Audio.MusicTrackNumbers)
+    {
+        /// <summary>The private field <c>SharedNumbers</c>, reached by name.</summary>
+        internal static global::System.Collections.Frozen.FrozenDictionary<global::SuperMetroid.Core.Audio.MusicTrack, int> SharedNumbers => PrivateState.StaticField<global::System.Collections.Frozen.FrozenDictionary<global::SuperMetroid.Core.Audio.MusicTrack, int>>(typeof(global::SuperMetroid.AssetExtraction.Audio.MusicTrackNumbers), "SharedNumbers");
+    }
 }

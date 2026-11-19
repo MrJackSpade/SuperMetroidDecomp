@@ -4,6 +4,7 @@
 global using static SuperMetroid.Desktop.Audio.WaveOutAudioDevicePrivateAccess;
 global using static SuperMetroid.Desktop.Diagnostics.DesktopSessionLogPrivateAccess;
 global using static SuperMetroid.Desktop.Diagnostics.GameplayFrameFailureDiagnosticsPrivateAccess;
+global using static SuperMetroid.Desktop.Diagnostics.GitHubErrorReporterPrivateAccess;
 global using static SuperMetroid.Desktop.Input.GenericGamepadInputPrivateAccess;
 global using static SuperMetroid.Desktop.Input.WindowsGamepadCodesPrivateAccess;
 global using static SuperMetroid.Desktop.Input.WindowsGamepadInputPrivateAccess;

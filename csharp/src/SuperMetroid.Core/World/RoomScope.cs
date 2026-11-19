@@ -114,15 +114,6 @@ internal sealed record RoomScope
     /// </summary>
     public required IRoomMain? Main { get; init; }
 
-    /// <summary>The Maridia elevatube's ride, which the tube's doors start, or null outside the elevatube (#2287).</summary>
-    public required MaridiaElevatubeRoomMainState? MaridiaElevatube { get; init; }
-
-    /// <summary>
-    /// The Ceres elevator shaft's turn and elevator, or null outside the shaft and in the shaft entered other than through its
-    /// elevator door (#2287).
-    /// </summary>
-    public required CeresElevatorShaftRoomMainState? CeresElevatorShaft { get; init; }
-
     /// <summary>The room's enemy population and the species owners that run it.</summary>
     public required RoomEnemySystem Enemies { get; init; }
 

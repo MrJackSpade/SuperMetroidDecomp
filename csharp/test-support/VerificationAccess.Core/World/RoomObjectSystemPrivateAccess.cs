@@ -19,4 +19,68 @@ internal static class RoomObjectSystemPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.World.RoomObjectSystem, global::SuperMetroid.Core.World.RoomObjectBlockDrawing>(self, "Drawing");
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.World.RoomObjectSystem self)
+    {
+        /// <summary>The private property <c>BlockReactions</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Rooms.LevelData.BlockReactionObjects BlockReactions
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomObjectSystem, global::SuperMetroid.Core.Rooms.LevelData.BlockReactionObjects>(self, "BlockReactions");
+        }
+
+        /// <summary>The private property <c>DraygonCannons</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Bosses.Draygon.DraygonCannonObjects DraygonCannons
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomObjectSystem, global::SuperMetroid.Core.Bosses.Draygon.DraygonCannonObjects>(self, "DraygonCannons");
+        }
+
+        /// <summary>The private property <c>EyeDoors</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Rooms.Doors.EyeDoorObjects EyeDoors
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomObjectSystem, global::SuperMetroid.Core.Rooms.Doors.EyeDoorObjects>(self, "EyeDoors");
+        }
+
+        /// <summary>The private property <c>GreyDoors</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Rooms.Doors.GreyDoorObjects GreyDoors
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomObjectSystem, global::SuperMetroid.Core.Rooms.Doors.GreyDoorObjects>(self, "GreyDoors");
+        }
+
+        /// <summary>The private property <c>NoobTube</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Rooms.RoomObjects.NoobTubeObjects NoobTube
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomObjectSystem, global::SuperMetroid.Core.Rooms.RoomObjects.NoobTubeObjects>(self, "NoobTube");
+        }
+
+        /// <summary>The private property <c>ProjectileTriggers</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Samus.Projectiles.ProjectileTriggerObjects ProjectileTriggers
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomObjectSystem, global::SuperMetroid.Core.Samus.Projectiles.ProjectileTriggerObjects>(self, "ProjectileTriggers");
+        }
+
+        /// <summary>The private property <c>Quicksand</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Fx.QuicksandObjects Quicksand
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomObjectSystem, global::SuperMetroid.Core.Fx.QuicksandObjects>(self, "Quicksand");
+        }
+
+        /// <summary>The private property <c>SamusEater</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Rooms.RoomObjects.SamusEaterObjects SamusEater
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomObjectSystem, global::SuperMetroid.Core.Rooms.RoomObjects.SamusEaterObjects>(self, "SamusEater");
+        }
+
+        /// <summary>The private property <c>Scrolls</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Rooms.Scrolling.ScrollObjects Scrolls
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomObjectSystem, global::SuperMetroid.Core.Rooms.Scrolling.ScrollObjects>(self, "Scrolls");
+        }
+
+        /// <summary>The private property <c>Sounds</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectSoundQueue Sounds
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomObjectSystem, global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectSoundQueue>(self, "Sounds");
+        }
+    }
 }

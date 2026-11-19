@@ -6,9 +6,21 @@ using SuperMetroid.Core.Frontend.Title;
 /// <summary>Verification access to <see cref="TitleScreenAmbientPaletteFxColorDefinition"/> members production does not use.</summary>
 internal static class TitleScreenAmbientPaletteFxColorDefinitionAccess
 {
+    /// <summary>
+    /// What each program the cartridge holds that production does not read (#2570), by each program's owner: the checks compare
+    /// each value against the cartridge.
+    /// </summary>
+    private static readonly Dictionary<TitleScreenAmbientPaletteFxProgramOwner, ColourEffectColours> CrossChecks = new()
+    {
+        [TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight] = ColourEffectColours.BabyMetroidTubeLight,
+        [TitleScreenAmbientPaletteFxProgramOwner.FlickeringDisplays] = ColourEffectColours.TitleScreenDisplays,
+    };
+
     /// <summary>Exposes tube/display light definition pointers and their full title-screen animation cycles.</summary>
     extension(TitleScreenAmbientPaletteFxColorDefinition self)
     {
+        /// <summary>The colours the program animates.</summary>
+        internal ColourEffectColours Colours => CrossChecks[self.Owner];
         /// <summary>Native palette definitions $8D:E1A0 (tube) / $E1A4 (displays).</summary>
         internal ushort DefinitionPointer => PaletteFxObjectAccess.NativeAddress(self.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight ? TitleSequenceDefinitions.ConsoleColourEffects.SlowLights : TitleSequenceDefinitions.ConsoleColourEffects.FastLights);
 

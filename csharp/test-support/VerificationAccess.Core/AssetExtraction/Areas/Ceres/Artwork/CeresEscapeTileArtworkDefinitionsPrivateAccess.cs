@@ -16,4 +16,11 @@ internal static class CeresEscapeTileArtworkDefinitionsPrivateAccess
         /// <summary>The private field <c>WarningText</c>, reached by name.</summary>
         internal static global::SuperMetroid.AssetExtraction.Assets.TileSheetDefinition WarningText => PrivateState.StaticField<global::SuperMetroid.AssetExtraction.Assets.TileSheetDefinition>(typeof(global::SuperMetroid.AssetExtraction.Areas.Ceres.Artwork.CeresEscapeTileArtworkDefinitions), "WarningText");
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Areas.Ceres.Artwork.CeresEscapeTileArtworkDefinitions)
+    {
+        /// <summary>The private field <c>Doors</c>, reached by name.</summary>
+        internal static global::SuperMetroid.AssetExtraction.Assets.TileSheetDefinition Doors => PrivateState.StaticField<global::SuperMetroid.AssetExtraction.Assets.TileSheetDefinition>(typeof(global::SuperMetroid.AssetExtraction.Areas.Ceres.Artwork.CeresEscapeTileArtworkDefinitions), "Doors");
+    }
 }

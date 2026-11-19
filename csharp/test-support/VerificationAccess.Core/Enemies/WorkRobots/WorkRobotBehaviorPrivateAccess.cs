@@ -36,4 +36,11 @@ internal static class WorkRobotBehaviorPrivateAccess
         /// <summary>The private field <c>Laser</c>, reached by name.</summary>
         internal static global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior Laser => PrivateState.StaticField<global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior>(typeof(global::SuperMetroid.Core.Enemies.WorkRobots.WorkRobotBehavior), "Laser");
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Enemies.WorkRobots.WorkRobotBehavior self)
+    {
+        /// <summary>The private field <c>glow</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Animation.AnimationPlayer<global::SuperMetroid.Core.Enemies.WorkRobots.WorkRobotGlowSegment, global::SuperMetroid.Core.Enemies.WorkRobots.WorkRobotGlowPlace, global::SuperMetroid.Core.Animation.NoAnimationCue> glow => PrivateState.Field<global::SuperMetroid.Core.Enemies.WorkRobots.WorkRobotBehavior, global::SuperMetroid.Core.Animation.AnimationPlayer<global::SuperMetroid.Core.Enemies.WorkRobots.WorkRobotGlowSegment, global::SuperMetroid.Core.Enemies.WorkRobots.WorkRobotGlowPlace, global::SuperMetroid.Core.Animation.NoAnimationCue>>(self, "glow");
+    }
 }

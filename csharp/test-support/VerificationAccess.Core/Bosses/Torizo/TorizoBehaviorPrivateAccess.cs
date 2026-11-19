@@ -25,4 +25,14 @@ internal static class TorizoBehaviorPrivateAccess
         internal static void ApplyTorizoPosture(global::SuperMetroid.Core.Enemies.RoomEnemyPlace torizo, global::SuperMetroid.Core.Spatial.Offset16<global::SuperMetroid.Core.Spatial.RoomPixels> displacement, global::SuperMetroid.Core.Bosses.Torizo.TorizoPostureKind kind) =>
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Bosses.Torizo.TorizoBehavior), "ApplyTorizoPosture", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Spatial.Offset16<global::SuperMetroid.Core.Spatial.RoomPixels>), typeof(global::SuperMetroid.Core.Bosses.Torizo.TorizoPostureKind)], new object?[] { torizo, displacement, kind });
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Bosses.Torizo.TorizoBehavior self)
+    {
+        /// <summary>The private property <c>Choices</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Bosses.Torizo.TorizoChoices Choices
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Torizo.TorizoBehavior, global::SuperMetroid.Core.Bosses.Torizo.TorizoChoices>(self, "Choices");
+        }
+    }
 }

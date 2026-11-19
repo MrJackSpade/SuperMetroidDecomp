@@ -29,4 +29,38 @@ internal static class KraidBehaviorPrivateAccess
         internal static global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.Core.Bosses.Kraid.KraidBehavior.KraidPassProjectile> TestedByShotPasses(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem projectiles, global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem bombs) =>
             PrivateState.InvokeStatic<global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.Core.Bosses.Kraid.KraidBehavior.KraidPassProjectile>>(typeof(global::SuperMetroid.Core.Bosses.Kraid.KraidBehavior), "TestedByShotPasses", [typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem), typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem)], new object?[] { projectiles, bombs });
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Bosses.Kraid.KraidBehavior self)
+    {
+        /// <summary>The private property <c>Access</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Bosses.Kraid.KraidEncounterAccess Access
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Kraid.KraidBehavior, global::SuperMetroid.Core.Bosses.Kraid.KraidEncounterAccess>(self, "Access");
+        }
+
+        /// <summary>The private property <c>Background</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Bosses.Kraid.KraidBackground Background
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Kraid.KraidBehavior, global::SuperMetroid.Core.Bosses.Kraid.KraidBackground>(self, "Background");
+        }
+
+        /// <summary>The private property <c>BodyLayer</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Bosses.Kraid.KraidBodyLayer BodyLayer
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Kraid.KraidBehavior, global::SuperMetroid.Core.Bosses.Kraid.KraidBodyLayer>(self, "BodyLayer");
+        }
+
+        /// <summary>The private property <c>Death</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Bosses.Kraid.KraidDeath Death
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Kraid.KraidBehavior, global::SuperMetroid.Core.Bosses.Kraid.KraidDeath>(self, "Death");
+        }
+
+        /// <summary>The private property <c>Head</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Bosses.Kraid.KraidHead Head
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Kraid.KraidBehavior, global::SuperMetroid.Core.Bosses.Kraid.KraidHead>(self, "Head");
+        }
+    }
 }

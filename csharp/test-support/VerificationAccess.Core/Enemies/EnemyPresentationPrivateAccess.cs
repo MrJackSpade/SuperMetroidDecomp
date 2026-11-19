@@ -25,4 +25,14 @@ internal static class EnemyPresentationPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Enemies.EnemyPresentation, global::SuperMetroid.Core.Enemies.Artwork.EncounterLooks>(self, "Looks");
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Enemies.EnemyPresentation self)
+    {
+        /// <summary>The private property <c>Artwork</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Enemies.Artwork.PopulationArtwork Artwork
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Enemies.EnemyPresentation, global::SuperMetroid.Core.Enemies.Artwork.PopulationArtwork>(self, "Artwork");
+        }
+    }
 }

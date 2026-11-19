@@ -25,4 +25,20 @@ internal static class MotherBrainBehaviorPrivateAccess
         internal static void RunMotherBrainRoomFlash(global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainEnemyState state) =>
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBehavior), "RunMotherBrainRoomFlash", [typeof(global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainEnemyState)], new object?[] { state });
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBehavior self)
+    {
+        /// <summary>The private property <c>Ascent</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainAscent Ascent
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBehavior, global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainAscent>(self, "Ascent");
+        }
+
+        /// <summary>The private property <c>RainbowAndDeath</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainRainbowAndDeath RainbowAndDeath
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBehavior, global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainRainbowAndDeath>(self, "RainbowAndDeath");
+        }
+    }
 }

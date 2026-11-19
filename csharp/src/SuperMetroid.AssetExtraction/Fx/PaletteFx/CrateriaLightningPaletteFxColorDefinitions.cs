@@ -13,8 +13,6 @@ public static class CrateriaLightningPaletteFxColorDefinitions
     public static CrateriaLightningPaletteFxColorDefinition Surface { get; } =
         new()
         {
-            ColorsPerFrame = 8,
-            NeutralCount = 1,
             ColorFrames = new(FirstRecord: 344, FrameCount: 12 + 1, ColorsPerFrame: 8),
         };
 }

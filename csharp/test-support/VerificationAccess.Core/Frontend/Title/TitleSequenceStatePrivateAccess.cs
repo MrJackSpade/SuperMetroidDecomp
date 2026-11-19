@@ -68,4 +68,14 @@ internal static class TitleSequenceStatePrivateAccess
         /// <summary>The private field <c>screenSprites</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Assets.ScreenSprites screenSprites => PrivateState.Field<global::SuperMetroid.Core.Frontend.Title.TitleSequenceState, global::SuperMetroid.Core.Assets.ScreenSprites>(self, "screenSprites");
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Frontend.Title.TitleSequenceState self)
+    {
+        /// <summary>The private property <c>IdleTimeout</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.UpdateCountdown IdleTimeout
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Title.TitleSequenceState, global::SuperMetroid.Core.UpdateCountdown>(self, "IdleTimeout");
+        }
+    }
 }

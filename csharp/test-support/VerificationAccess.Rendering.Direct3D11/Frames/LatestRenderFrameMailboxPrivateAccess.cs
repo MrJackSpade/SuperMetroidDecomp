@@ -49,4 +49,11 @@ internal static class LatestRenderFrameMailboxPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Rendering.Direct3D11.Frames.LatestRenderFrameMailbox, long>(self, "Taken");
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Rendering.Direct3D11.Frames.LatestRenderFrameMailbox self)
+    {
+        /// <summary>The private field <c>sync</c>, reached by name.</summary>
+        internal global::System.Threading.Lock sync => PrivateState.Field<global::SuperMetroid.Rendering.Direct3D11.Frames.LatestRenderFrameMailbox, global::System.Threading.Lock>(self, "sync");
+    }
 }

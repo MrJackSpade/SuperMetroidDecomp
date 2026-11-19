@@ -25,4 +25,14 @@ internal static class SamusProjectileSystemPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem, global::SuperMetroid.Core.Samus.Projectiles.ProjectileTrails>(self, "Trails");
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem self)
+    {
+        /// <summary>The private property <c>TerrainCollision</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Samus.Projectiles.ProjectileTerrainCollision TerrainCollision
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem, global::SuperMetroid.Core.Samus.Projectiles.ProjectileTerrainCollision>(self, "TerrainCollision");
+        }
+    }
 }

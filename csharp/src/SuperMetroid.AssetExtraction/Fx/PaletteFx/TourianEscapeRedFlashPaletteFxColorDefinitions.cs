@@ -17,17 +17,11 @@ public static class TourianEscapeRedFlashPaletteFxColorDefinitions
         new()
         {
             Owner = TourianEscapeRedFlashPaletteOwner.Shutter,
-            Object = ColourEffectId.TourianShutterRedFlashing,
-            Duration = 2,
-            ColorsPerFrame = 6,
             ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.TourianShutterRedFlashing, 6),
         },
         new()
         {
             Owner = TourianEscapeRedFlashPaletteOwner.Background,
-            Object = ColourEffectId.TourianBackgroundRedFlashing,
-            Duration = 4,
-            ColorsPerFrame = 4,
             ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.TourianBackgroundRedFlashing, 4),
         },
     ];

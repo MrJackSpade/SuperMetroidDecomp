@@ -19,4 +19,14 @@ internal static class MotherBrainRainbowBeamAttackSequencePrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainRainbowBeamAttackSequence, global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainDrainedByBabyPhases>(self, "DrainedByBaby");
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainRainbowBeamAttackSequence self)
+    {
+        /// <summary>The private property <c>ThirdPhaseFight</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainThirdPhaseFight ThirdPhaseFight
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainRainbowBeamAttackSequence, global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainThirdPhaseFight>(self, "ThirdPhaseFight");
+        }
+    }
 }

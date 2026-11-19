@@ -19,4 +19,38 @@ internal static class DraygonBehaviorPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Draygon.DraygonBehavior, global::SuperMetroid.Core.Bosses.Draygon.DraygonGrab>(self, "Grab");
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Bosses.Draygon.DraygonBehavior self)
+    {
+        /// <summary>The private property <c>Death</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Bosses.Draygon.DraygonDeath Death
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Draygon.DraygonBehavior, global::SuperMetroid.Core.Bosses.Draygon.DraygonDeath>(self, "Death");
+        }
+
+        /// <summary>The private property <c>Goop</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Bosses.Draygon.DraygonGoop Goop
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Draygon.DraygonBehavior, global::SuperMetroid.Core.Bosses.Draygon.DraygonGoop>(self, "Goop");
+        }
+
+        /// <summary>The private property <c>Intro</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Bosses.Draygon.DraygonIntro Intro
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Draygon.DraygonBehavior, global::SuperMetroid.Core.Bosses.Draygon.DraygonIntro>(self, "Intro");
+        }
+
+        /// <summary>The private property <c>Shots</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Bosses.Draygon.DraygonShots Shots
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Draygon.DraygonBehavior, global::SuperMetroid.Core.Bosses.Draygon.DraygonShots>(self, "Shots");
+        }
+
+        /// <summary>The private property <c>Turrets</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Bosses.Draygon.DraygonTurrets Turrets
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Draygon.DraygonBehavior, global::SuperMetroid.Core.Bosses.Draygon.DraygonTurrets>(self, "Turrets");
+        }
+    }
 }

@@ -27,4 +27,14 @@ internal static class MotherBrainBrainAnimationPrivateAccess
             set => PrivateState.Set(self, "ShownFrame", value);
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBrainAnimation self)
+    {
+        /// <summary>The private property <c>Clock</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Enemies.EnemyAnimationClock Clock
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBrainAnimation, global::SuperMetroid.Core.Enemies.EnemyAnimationClock>(self, "Clock");
+        }
+    }
 }

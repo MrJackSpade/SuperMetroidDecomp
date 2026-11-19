@@ -47,4 +47,14 @@ internal static class SamusBombProjectileSystemPrivateAccess
         internal static void ReactToBombedBlock(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData level, global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomBlocks> bombedBlock, global::SuperMetroid.Core.Samus.ISamusRoomObjects roomObjects, global::SuperMetroid.Core.Progression.SamusProjectileType projectileType) =>
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem), "ReactToBombedBlock", [typeof(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData), typeof(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomBlocks>), typeof(global::SuperMetroid.Core.Samus.ISamusRoomObjects), typeof(global::SuperMetroid.Core.Progression.SamusProjectileType)], new object?[] { level, bombedBlock, roomObjects, projectileType });
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem self)
+    {
+        /// <summary>The private property <c>AudioRequests</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Audio.GameplaySoundRequests AudioRequests
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem, global::SuperMetroid.Core.Audio.GameplaySoundRequests>(self, "AudioRequests");
+        }
+    }
 }

@@ -17,4 +17,12 @@ internal static class GameplayBasePaletteFilesPrivateAccess
         internal static global::SuperMetroid.AssetExtraction.GameplayBasePalette Read(global::System.IO.Stream json) =>
             PrivateState.InvokeStatic<global::SuperMetroid.AssetExtraction.GameplayBasePalette>(typeof(global::SuperMetroid.AssetExtraction.GameplayBasePaletteFiles), "Read", [typeof(global::System.IO.Stream)], new object?[] { json });
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.GameplayBasePaletteFiles)
+    {
+        /// <summary>The private method <c>Write</c>, invoked by name.</summary>
+        internal static byte[] Write(global::SuperMetroid.AssetExtraction.GameplayBasePaletteDocument document) =>
+            PrivateState.InvokeStatic<byte[]>(typeof(global::SuperMetroid.AssetExtraction.GameplayBasePaletteFiles), "Write", [typeof(global::SuperMetroid.AssetExtraction.GameplayBasePaletteDocument)], new object?[] { document });
+    }
 }

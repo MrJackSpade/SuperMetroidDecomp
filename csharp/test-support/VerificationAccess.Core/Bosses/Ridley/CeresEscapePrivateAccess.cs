@@ -41,4 +41,20 @@ internal static class CeresEscapePrivateAccess
         internal void StepAlarm(int frameCounter) =>
             PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Ridley.CeresEscape>(self, "StepAlarm", [typeof(int)], new object?[] { frameCounter });
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Bosses.Ridley.CeresEscape self)
+    {
+        /// <summary>The private property <c>RoomShading</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Assets.PictureShading RoomShading
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Ridley.CeresEscape, global::SuperMetroid.Core.Assets.PictureShading>(self, "RoomShading");
+        }
+
+        /// <summary>The private property <c>WarningShading</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Assets.PictureShading WarningShading
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Ridley.CeresEscape, global::SuperMetroid.Core.Assets.PictureShading>(self, "WarningShading");
+        }
+    }
 }

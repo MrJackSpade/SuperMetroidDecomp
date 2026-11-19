@@ -21,4 +21,14 @@ internal static class KraidHeadAnimationsPrivateAccess
         internal static global::SuperMetroid.Core.Animation.Animation<global::SuperMetroid.Core.Bosses.Kraid.KraidHeadSegment> StartingWith(global::SuperMetroid.Core.Bosses.Kraid.KraidHeadSegment segment) =>
             PrivateState.InvokeStatic<global::SuperMetroid.Core.Animation.Animation<global::SuperMetroid.Core.Bosses.Kraid.KraidHeadSegment>>(typeof(global::SuperMetroid.Core.Bosses.Kraid.KraidHeadAnimations), "StartingWith", [typeof(global::SuperMetroid.Core.Bosses.Kraid.KraidHeadSegment)], new object?[] { segment });
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.Core.Bosses.Kraid.KraidHeadAnimations)
+    {
+        /// <summary>The private property <c>StartingAt</c>, reached by name.</summary>
+        internal static global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Bosses.Kraid.KraidHeadSegment, global::SuperMetroid.Core.Animation.Animation<global::SuperMetroid.Core.Bosses.Kraid.KraidHeadSegment>> StartingAt
+        {
+            get => PrivateState.StaticGet<global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Bosses.Kraid.KraidHeadSegment, global::SuperMetroid.Core.Animation.Animation<global::SuperMetroid.Core.Bosses.Kraid.KraidHeadSegment>>>(typeof(global::SuperMetroid.Core.Bosses.Kraid.KraidHeadAnimations), "StartingAt");
+        }
+    }
 }

@@ -1,14 +1,21 @@
-﻿using SuperMetroid.Core.Assets;
+﻿using SuperMetroid.AssetExtraction.Assets;
+using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction;
 
-/// <summary>Verification access to <see cref="GameplayStartingColours"/> members production does not use.</summary>
+/// <summary>
+/// The starting background colours, which production decodes into no owner (#2570): checks decode them from the import's
+/// starting image as <see cref="GameplayColourImage"/> decodes the colours production keeps.
+/// </summary>
 internal static class GameplayStartingColoursAccess
 {
-    /// <summary>Exposes <see cref="GameplayStartingColours"/> state that only verification reads.</summary>
-    extension(GameplayStartingColours self)
+    /// <summary>The background colours, in the cartridge's order, of the starting image the import data at <paramref name="importData"/> holds.</summary>
+    internal static RgbColor[] BackgroundColours(string importData)
     {
-        /// <summary>The background colours, in the cartridge's order.</summary>
-        public ReadOnlySpan<RgbColor> BackgroundColours => self.backgroundColours;
+        GameplayBasePaletteDocument document = JsonAssetDocument.Read<GameplayBasePaletteDocument>(
+            File.ReadAllBytes(Path.Combine(importData, GameplayBasePaletteFormat.ArtworkFileName)), GameplayBasePaletteFormat.JsonOptions);
+        return [.. document.Initial.AsSpan(GameplayColourPositionDefinitions.BackgroundSetsFirst, GameplayColourPositionDefinitions.SetsColours)
+            .ToArray().Select(colour => colour.ToRgbColor())];
     }
 }

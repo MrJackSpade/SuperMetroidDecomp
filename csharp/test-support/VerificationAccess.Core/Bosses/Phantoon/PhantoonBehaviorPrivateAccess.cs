@@ -35,4 +35,26 @@ internal static class PhantoonBehaviorPrivateAccess
         internal static void ShowPhantoonHealthColours(global::SuperMetroid.Core.Bosses.Phantoon.PhantoonEnemyState state) =>
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Bosses.Phantoon.PhantoonBehavior), "ShowPhantoonHealthColours", [typeof(global::SuperMetroid.Core.Bosses.Phantoon.PhantoonEnemyState)], new object?[] { state });
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Bosses.Phantoon.PhantoonBehavior self)
+    {
+        /// <summary>The private property <c>Death</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Bosses.Phantoon.PhantoonDeath Death
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Phantoon.PhantoonBehavior, global::SuperMetroid.Core.Bosses.Phantoon.PhantoonDeath>(self, "Death");
+        }
+
+        /// <summary>The private property <c>Opening</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Bosses.Phantoon.PhantoonOpening Opening
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Phantoon.PhantoonBehavior, global::SuperMetroid.Core.Bosses.Phantoon.PhantoonOpening>(self, "Opening");
+        }
+
+        /// <summary>The private property <c>Presentation</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Bosses.Phantoon.PhantoonPresentation Presentation
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Phantoon.PhantoonBehavior, global::SuperMetroid.Core.Bosses.Phantoon.PhantoonPresentation>(self, "Presentation");
+        }
+    }
 }

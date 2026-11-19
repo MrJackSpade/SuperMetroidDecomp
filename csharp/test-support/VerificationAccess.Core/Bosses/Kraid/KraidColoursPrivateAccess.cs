@@ -25,4 +25,14 @@ internal static class KraidColoursPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Kraid.KraidColours, bool>(self, "ShowsDeathArm");
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Bosses.Kraid.KraidColours self)
+    {
+        /// <summary>The private property <c>EyeGlow</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Compatibility.KraidEyeGlow EyeGlow
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Kraid.KraidColours, global::SuperMetroid.Core.Compatibility.KraidEyeGlow>(self, "EyeGlow");
+        }
+    }
 }

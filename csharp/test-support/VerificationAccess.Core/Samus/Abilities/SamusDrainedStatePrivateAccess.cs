@@ -17,4 +17,14 @@ internal static class SamusDrainedStatePrivateAccess
         internal void SetupForRainbowBeam(global::SuperMetroid.Core.Samus.SamusState samus) =>
             PrivateState.Invoke<global::SuperMetroid.Core.Samus.Abilities.SamusDrainedState>(self, "SetupForRainbowBeam", [typeof(global::SuperMetroid.Core.Samus.SamusState)], new object?[] { samus });
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Samus.Abilities.SamusDrainedState self)
+    {
+        /// <summary>The private property <c>Rainbow</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Animation.AnimationPlayer<global::SuperMetroid.Core.Samus.Colours.SamusGlowSegment, global::SuperMetroid.Core.Assets.PictureShade, global::SuperMetroid.Core.Animation.NoAnimationCue> Rainbow
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Samus.Abilities.SamusDrainedState, global::SuperMetroid.Core.Animation.AnimationPlayer<global::SuperMetroid.Core.Samus.Colours.SamusGlowSegment, global::SuperMetroid.Core.Assets.PictureShade, global::SuperMetroid.Core.Animation.NoAnimationCue>>(self, "Rainbow");
+        }
+    }
 }

@@ -19,4 +19,14 @@ internal static class RoomEnemyGraphicsSetListsPrivateAccess
         /// <summary>The private field <c>RecordCount</c>, reached by name.</summary>
         internal static int RecordCount => PrivateState.StaticField<int>(typeof(global::SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetLists), "RecordCount");
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetLists)
+    {
+        /// <summary>The private property <c>All</c>, reached by name.</summary>
+        internal static global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetDefinition> All
+        {
+            get => PrivateState.StaticGet<global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetDefinition>>(typeof(global::SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetLists), "All");
+        }
+    }
 }

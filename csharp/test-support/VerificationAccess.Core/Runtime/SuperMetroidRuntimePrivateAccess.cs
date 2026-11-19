@@ -55,4 +55,74 @@ internal static class SuperMetroidRuntimePrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Runtime.SuperMetroidRuntime, global::SuperMetroid.Core.Compatibility.YardKickTrackingDistance>(self, "YardKickDistance");
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Runtime.SuperMetroidRuntime self)
+    {
+        /// <summary>The private property <c>ActorDrawing</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.World.GameplayActorDrawing ActorDrawing
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Runtime.SuperMetroidRuntime, global::SuperMetroid.Core.World.GameplayActorDrawing>(self, "ActorDrawing");
+        }
+
+        /// <summary>The private property <c>Artwork</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.World.RuntimeArtwork Artwork
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Runtime.SuperMetroidRuntime, global::SuperMetroid.Core.World.RuntimeArtwork>(self, "Artwork");
+        }
+
+        /// <summary>The private property <c>ColourEffectSession</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Fx.ColourEffectSessionState ColourEffectSession
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Runtime.SuperMetroidRuntime, global::SuperMetroid.Core.Fx.ColourEffectSessionState>(self, "ColourEffectSession");
+        }
+
+        /// <summary>The private property <c>DisplayedSprites</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Assets.SpriteFrameBuffer DisplayedSprites
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Runtime.SuperMetroidRuntime, global::SuperMetroid.Core.Assets.SpriteFrameBuffer>(self, "DisplayedSprites");
+        }
+
+        /// <summary>The private property <c>EnemyPhase</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.World.EnemyFramePhase EnemyPhase
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Runtime.SuperMetroidRuntime, global::SuperMetroid.Core.World.EnemyFramePhase>(self, "EnemyPhase");
+        }
+
+        /// <summary>The private property <c>EnemyRoomEffects</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.World.EnemyRoomEffects EnemyRoomEffects
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Runtime.SuperMetroidRuntime, global::SuperMetroid.Core.World.EnemyRoomEffects>(self, "EnemyRoomEffects");
+        }
+
+        /// <summary>The private property <c>RoomObjectVisuals</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.World.RoomObjectVisuals RoomObjectVisuals
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Runtime.SuperMetroidRuntime, global::SuperMetroid.Core.World.RoomObjectVisuals>(self, "RoomObjectVisuals");
+        }
+
+        /// <summary>The private property <c>SamusOverreads</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Samus.SamusOverreadServices SamusOverreads
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Runtime.SuperMetroidRuntime, global::SuperMetroid.Core.Samus.SamusOverreadServices>(self, "SamusOverreads");
+        }
+
+        /// <summary>The private property <c>ScreenLayers</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.World.GameplayScreenLayers ScreenLayers
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Runtime.SuperMetroidRuntime, global::SuperMetroid.Core.World.GameplayScreenLayers>(self, "ScreenLayers");
+        }
+
+        /// <summary>The private property <c>SuitPickup</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Samus.Abilities.SamusSuitPickupState SuitPickup
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Runtime.SuperMetroidRuntime, global::SuperMetroid.Core.Samus.Abilities.SamusSuitPickupState>(self, "SuitPickup");
+        }
+
+        /// <summary>The private property <c>Xray</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.World.XrayReveal Xray
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Runtime.SuperMetroidRuntime, global::SuperMetroid.Core.World.XrayReveal>(self, "Xray");
+        }
+    }
 }

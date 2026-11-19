@@ -23,4 +23,26 @@ internal static class CrocomireBehaviorPrivateAccess
         internal void RunCrocomireMain(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Samus.SamusState samus, global::SuperMetroid.Core.Enemies.PseudoScrewCharge pseudoScrew, global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels> camera) =>
             PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Crocomire.CrocomireBehavior>(self, "RunCrocomireMain", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Samus.SamusState), typeof(global::SuperMetroid.Core.Enemies.PseudoScrewCharge), typeof(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels>)], new object?[] { place, samus, pseudoScrew, camera });
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Bosses.Crocomire.CrocomireBehavior self)
+    {
+        /// <summary>The private property <c>BodyLayer</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Bosses.Crocomire.CrocomireBodyLayer BodyLayer
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Crocomire.CrocomireBehavior, global::SuperMetroid.Core.Bosses.Crocomire.CrocomireBodyLayer>(self, "BodyLayer");
+        }
+
+        /// <summary>The private property <c>BridgeCollapse</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Bosses.Crocomire.CrocomireBridgeCollapse BridgeCollapse
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Crocomire.CrocomireBehavior, global::SuperMetroid.Core.Bosses.Crocomire.CrocomireBridgeCollapse>(self, "BridgeCollapse");
+        }
+
+        /// <summary>The private property <c>Skeleton</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Bosses.Crocomire.CrocomireSkeleton Skeleton
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Crocomire.CrocomireBehavior, global::SuperMetroid.Core.Bosses.Crocomire.CrocomireSkeleton>(self, "Skeleton");
+        }
+    }
 }

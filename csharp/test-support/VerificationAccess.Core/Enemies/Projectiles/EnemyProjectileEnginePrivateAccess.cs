@@ -25,4 +25,12 @@ internal static class EnemyProjectileEnginePrivateAccess
         internal static global::SuperMetroid.Core.Samus.Movement.KnockbackHorizontalDirection? ResolveEnemyProjectileSamusCollision(global::SuperMetroid.Core.Enemies.EnemyProjectile projectile, global::SuperMetroid.Core.Samus.SamusState samus) =>
             PrivateState.InvokeStatic<global::SuperMetroid.Core.Samus.Movement.KnockbackHorizontalDirection?>(typeof(global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine), "ResolveEnemyProjectileSamusCollision", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(global::SuperMetroid.Core.Samus.SamusState)], new object?[] { projectile, samus });
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine self)
+    {
+        /// <summary>The private method <c>AdvanceEnemyProjectileAnimations</c>, invoked by name.</summary>
+        internal void AdvanceEnemyProjectileAnimations(global::SuperMetroid.Core.Enemies.EnemyProjectile projectile, global::SuperMetroid.Core.Samus.SamusState samus, global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels> camera, int shortCounter, global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem samusBombs) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine>(self, "AdvanceEnemyProjectileAnimations", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(global::SuperMetroid.Core.Samus.SamusState), typeof(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels>), typeof(int), typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem)], new object?[] { projectile, samus, camera, shortCounter, samusBombs });
+    }
 }

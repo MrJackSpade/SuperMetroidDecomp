@@ -45,4 +45,38 @@ internal static class RoomFxOverlayStatePrivateAccess
         internal static global::SuperMetroid.Core.Fx.RoomFxOverlayState ForSource(global::SuperMetroid.Core.Fx.RoomFxLoadSource source, global::SuperMetroid.Core.Audio.GameplaySoundRequests sounds) =>
             PrivateState.InvokeStatic<global::SuperMetroid.Core.Fx.RoomFxOverlayState>(typeof(global::SuperMetroid.Core.Fx.RoomFxOverlayState), "ForSource", [typeof(global::SuperMetroid.Core.Fx.RoomFxLoadSource), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { source, sounds });
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Fx.RoomFxOverlayState self)
+    {
+        /// <summary>The private property <c>EarthquakeSoundRhythm</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.CyclingSequence<int> EarthquakeSoundRhythm
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Fx.RoomFxOverlayState, global::SuperMetroid.Core.CyclingSequence<int>>(self, "EarthquakeSoundRhythm");
+        }
+
+        /// <summary>The private property <c>EarthquakeSoundTimer</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Compatibility.WrappingCountdown EarthquakeSoundTimer
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Fx.RoomFxOverlayState, global::SuperMetroid.Core.Compatibility.WrappingCountdown>(self, "EarthquakeSoundTimer");
+        }
+
+        /// <summary>The private property <c>LiquidMoveDelay</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Compatibility.WrappingCountdown LiquidMoveDelay
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Fx.RoomFxOverlayState, global::SuperMetroid.Core.Compatibility.WrappingCountdown>(self, "LiquidMoveDelay");
+        }
+
+        /// <summary>The private property <c>Scroll</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.OverlayPixels> Scroll
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Fx.RoomFxOverlayState, global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.OverlayPixels>>(self, "Scroll");
+        }
+
+        /// <summary>The private property <c>TidePhase</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Spatial.RotationAngle TidePhase
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Fx.RoomFxOverlayState, global::SuperMetroid.Core.Spatial.RotationAngle>(self, "TidePhase");
+        }
+    }
 }

@@ -39,4 +39,11 @@ internal static class GameOverMenuStatePrivateAccess
         internal static global::SuperMetroid.Core.Audio.SoundEffectId CrySound(global::SuperMetroid.Core.Frontend.GameOver.GameOverBabySound sound) =>
             PrivateState.InvokeStatic<global::SuperMetroid.Core.Audio.SoundEffectId>(typeof(global::SuperMetroid.Core.Frontend.GameOver.GameOverMenuState), "CrySound", [typeof(global::SuperMetroid.Core.Frontend.GameOver.GameOverBabySound)], new object?[] { sound });
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Frontend.GameOver.GameOverMenuState self)
+    {
+        /// <summary>The private field <c>missile</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Frontend.Menus.MenuMissileAnimation missile => PrivateState.Field<global::SuperMetroid.Core.Frontend.GameOver.GameOverMenuState, global::SuperMetroid.Core.Frontend.Menus.MenuMissileAnimation>(self, "missile");
+    }
 }

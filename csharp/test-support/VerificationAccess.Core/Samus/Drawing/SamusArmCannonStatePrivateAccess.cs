@@ -31,4 +31,11 @@ internal static class SamusArmCannonStatePrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Samus.Drawing.SamusArmCannonState, bool>(self, "IsTransitioning");
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Samus.Drawing.SamusArmCannonState self)
+    {
+        /// <summary>The private field <c>stability</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.UpdateCountdown stability => PrivateState.Field<global::SuperMetroid.Core.Samus.Drawing.SamusArmCannonState, global::SuperMetroid.Core.UpdateCountdown>(self, "stability");
+    }
 }

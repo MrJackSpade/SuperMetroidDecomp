@@ -28,4 +28,14 @@ internal static class RoomObjectKraidVisualFilesPrivateAccess
         /// <summary>The private field <c>VisualFileName</c>, reached by name.</summary>
         internal static string VisualFileName => PrivateState.StaticField<string>(typeof(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectKraidVisualFiles), "VisualFileName");
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectKraidVisualFiles)
+    {
+        /// <summary>The private property <c>All</c>, reached by name.</summary>
+        internal static global::System.Collections.Generic.IEnumerable<global::SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawLists.DrawList> All
+        {
+            get => PrivateState.StaticGet<global::System.Collections.Generic.IEnumerable<global::SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawLists.DrawList>>(typeof(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectKraidVisualFiles), "All");
+        }
+    }
 }

@@ -25,4 +25,11 @@ internal static class RoomColourEffectPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Fx.RoomColourEffect, global::SuperMetroid.Core.Fx.ColourEffects.ColourEffectId>(self, "FramesOf");
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Fx.RoomColourEffect self)
+    {
+        /// <summary>The private field <c>play</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Animation.AnimationPlayer<global::SuperMetroid.Core.Fx.ColourEffects.ColourEffectSegment, int, global::SuperMetroid.Core.Fx.ColourEffects.ColourEffectCue> play => PrivateState.Field<global::SuperMetroid.Core.Fx.RoomColourEffect, global::SuperMetroid.Core.Animation.AnimationPlayer<global::SuperMetroid.Core.Fx.ColourEffects.ColourEffectSegment, int, global::SuperMetroid.Core.Fx.ColourEffects.ColourEffectCue>>(self, "play");
+    }
 }

@@ -19,4 +19,14 @@ internal static class ImportIntroCinematicArtworkPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.ImportIntroCinematicArtwork, global::SuperMetroid.AssetExtraction.Rooms.RoomBackgroundTilemapAtlas>(self, "ZebesRevealMap");
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.ImportIntroCinematicArtwork self)
+    {
+        /// <summary>The private property <c>Sprites</c>, reached by name.</summary>
+        internal global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroCinematicSprites Sprites
+        {
+            get => PrivateState.Get<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.ImportIntroCinematicArtwork, global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroCinematicSprites>(self, "Sprites");
+        }
+    }
 }

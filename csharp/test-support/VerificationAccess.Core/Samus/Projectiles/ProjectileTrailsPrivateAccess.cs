@@ -17,4 +17,12 @@ internal static class ProjectileTrailsPrivateAccess
         internal static global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileFrameId? GetTrailFrame(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectile projectile) =>
             PrivateState.InvokeStatic<global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileFrameId?>(typeof(global::SuperMetroid.Core.Samus.Projectiles.ProjectileTrails), "GetTrailFrame", [typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectile)], new object?[] { projectile });
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Samus.Projectiles.ProjectileTrails self)
+    {
+        /// <summary>The private method <c>Add</c>, invoked by name.</summary>
+        internal void Add(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileTrail trail) =>
+            PrivateState.Invoke<global::SuperMetroid.Core.Samus.Projectiles.ProjectileTrails>(self, "Add", [typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileTrail)], new object?[] { trail });
+    }
 }

@@ -29,4 +29,11 @@ internal static class RoomObjectCollectibleVisualFilesPrivateAccess
         internal static bool IsEditable(global::SuperMetroid.Core.Rooms.RoomObjects.CollectibleDraw draw) =>
             PrivateState.InvokeStatic<bool>(typeof(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectCollectibleVisualFiles), "IsEditable", [typeof(global::SuperMetroid.Core.Rooms.RoomObjects.CollectibleDraw)], new object?[] { draw });
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectCollectibleVisualFiles)
+    {
+        /// <summary>The private field <c>VisualFileName</c>, reached by name.</summary>
+        internal static string VisualFileName => PrivateState.StaticField<string>(typeof(global::SuperMetroid.AssetExtraction.Rooms.RoomObjectCollectibleVisualFiles), "VisualFileName");
+    }
 }

@@ -23,4 +23,14 @@ internal static class DoorSetupPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Rooms.Doors.DoorSetup, string>(self, "Name");
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Rooms.Doors.DoorSetup self)
+    {
+        /// <summary>The private property <c>ScreenChanges</c>, reached by name.</summary>
+        internal global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.Core.Rooms.Scrolling.ScreenScrollChange> ScreenChanges
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Rooms.Doors.DoorSetup, global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.Core.Rooms.Scrolling.ScreenScrollChange>>(self, "ScreenChanges");
+        }
+    }
 }

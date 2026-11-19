@@ -28,4 +28,12 @@ internal static class SaveRamCodecPrivateAccess
         internal static void WriteSlot(global::System.Span<byte> image, int slot, global::System.ReadOnlySpan<byte> payload) =>
             PrivateState.MethodDelegate<WriteSlotCall>(typeof(global::SuperMetroid.Diagnostics.Saves.SaveRamCodec), "WriteSlot", [typeof(global::System.Span<byte>), typeof(int), typeof(global::System.ReadOnlySpan<byte>)])(image, slot, payload);
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.Diagnostics.Saves.SaveRamCodec)
+    {
+        /// <summary>The private method <c>ToSnapshot</c>, invoked by name.</summary>
+        internal static global::SuperMetroid.Core.Saves.SuperMetroidSaveSnapshot ToSnapshot(global::SuperMetroid.Core.Saves.SuperMetroidSaveSlot slot) =>
+            PrivateState.InvokeStatic<global::SuperMetroid.Core.Saves.SuperMetroidSaveSnapshot>(typeof(global::SuperMetroid.Diagnostics.Saves.SaveRamCodec), "ToSnapshot", [typeof(global::SuperMetroid.Core.Saves.SuperMetroidSaveSlot)], new object?[] { slot });
+    }
 }

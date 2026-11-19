@@ -31,4 +31,14 @@ internal static class HudStatePrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Hud.HudState, global::SuperMetroid.Core.Hud.Artwork.GameplayHudPresentation?>(self, "Presentation");
         }
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Hud.HudState self)
+    {
+        /// <summary>The private property <c>PreviousSelectedItem</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Samus.HudItem PreviousSelectedItem
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Hud.HudState, global::SuperMetroid.Core.Samus.HudItem>(self, "PreviousSelectedItem");
+        }
+    }
 }

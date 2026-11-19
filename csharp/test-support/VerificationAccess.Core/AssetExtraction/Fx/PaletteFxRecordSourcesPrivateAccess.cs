@@ -17,4 +17,11 @@ internal static class PaletteFxRecordSourcesPrivateAccess
         internal static ushort Address(global::SuperMetroid.AssetExtraction.Fx.PaletteFx.PaletteFxRecord record) =>
             PrivateState.InvokeStatic<ushort>(typeof(global::SuperMetroid.AssetExtraction.Fx.PaletteFxRecordSources), "Address", [typeof(global::SuperMetroid.AssetExtraction.Fx.PaletteFx.PaletteFxRecord)], new object?[] { record });
     }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.AssetExtraction.Fx.PaletteFxRecordSources)
+    {
+        /// <summary>The private field <c>Addresses</c>, reached by name.</summary>
+        internal static global::System.Collections.Generic.Dictionary<global::SuperMetroid.AssetExtraction.Fx.PaletteFx.PaletteFxRecord, ushort> Addresses => PrivateState.StaticField<global::System.Collections.Generic.Dictionary<global::SuperMetroid.AssetExtraction.Fx.PaletteFx.PaletteFxRecord, ushort>>(typeof(global::SuperMetroid.AssetExtraction.Fx.PaletteFxRecordSources), "Addresses");
+    }
 }

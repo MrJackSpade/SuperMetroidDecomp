@@ -29,4 +29,11 @@ internal abstract record StationOperationPhase
     /// </summary>
     /// <param name="Use">The access Samus used, where the arm is drawn.</param>
     internal sealed record InUse(StationAccessUse Use) : StationOperationPhase;
+
+    /// <summary>
+    /// Samus's touch was accepted at <paramref name="Use"/> (#2545, #2562): the station's next update starts the arm there,
+    /// as the game's station starts it an update after the touch; a later accepted touch before then replaces it.
+    /// </summary>
+    /// <param name="Use">The access Samus's touch was accepted at.</param>
+    internal sealed record TouchAccepted(StationAccessUse Use) : StationOperationPhase;
 }

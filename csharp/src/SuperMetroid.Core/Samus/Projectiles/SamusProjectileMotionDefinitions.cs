@@ -25,7 +25,7 @@ internal static class SamusProjectileMotionDefinitions
     /// <summary>The diagonal speed every beam combination launches at, each update.</summary>
     internal static readonly SignedEightEight DiagonalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(683);
     /// <summary>The base speed a fired missile ignites at: one pixel per update.</summary>
-    internal static readonly SignedEightEight MissileIgnitionSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256);
+    internal static readonly SignedEightEight MissileIgnitionSpeed = SignedEightEight.FromPixels(1);
     /// <summary>
     /// The base speed a reflected missile re-ignites at: one pixel per update plus the 240/256 head start the
     /// reflection leaves.

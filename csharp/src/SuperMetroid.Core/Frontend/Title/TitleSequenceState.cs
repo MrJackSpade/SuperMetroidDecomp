@@ -320,7 +320,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                 if (--PhaseTimer <= 0)
                 {
                     // The copyright first shows, and starts its fade, as the logo's hold ends; it holds for 32 updates
-                    // before arming the 900-update demo countdown.
+                    // before arming the demo countdown (TitleSequenceDefinitions.Timing.TitleScreenIdleTimeoutFrames).
                     Phase = TitleSequencePhase.CopyrightFade;
                     PhaseTimer = TitleSequenceDefinitions.Timing.CopyrightHoldFrames;
                     colourEffects.StartScreen(TitleSequenceDefinitions.Fades.Copyright);

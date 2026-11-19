@@ -330,7 +330,8 @@ public sealed class SamusBombProjectileSystem
 
     /// <summary>
     /// Resumes Samus's sounds. In main gameplay a spinning Samus re-queues her spin
-    /// sound through the spin sound's selection; otherwise a flare of at least sixteen resumes the charge loop.
+    /// sound through the spin sound's selection; otherwise a flare that has started the charging sound
+    /// (<see cref="BeamChargeDefinitions.ChargeSoundStartCounter"/>) resumes the charge loop.
     /// </summary>
     private static void ResumeSoundsAfterPowerBombExplosion(
         SamusState samus,
@@ -348,10 +349,13 @@ public sealed class SamusBombProjectileSystem
             samus.AudioRequests.QueueSound(SamusSound.ResumeChargingBeam, priority: SoundRequestPriority.High);
     }
 
-    /// <summary>Ticks the shared shot cooldown, or holds it at 32 during X-Ray time freeze.</summary>
+    /// <summary>
+    /// Ticks the shared shot cooldown, or holds it at <see cref="SamusProjectileCooldownDefinitions.FrozenTime"/> during
+    /// X-Ray time freeze.
+    /// </summary>
     private void StepCooldown(bool timeIsFrozen)
     {
-        // While time is frozen the cooldown is held at 32 instead of counting
+        // While time is frozen the cooldown is held instead of counting
         // down, so the first shot after X-ray waits out the full delay.
         if (timeIsFrozen)
         {

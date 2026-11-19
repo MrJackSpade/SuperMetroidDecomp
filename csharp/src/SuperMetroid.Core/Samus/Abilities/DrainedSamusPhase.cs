@@ -13,9 +13,9 @@ public enum DrainedSamusPhase
     Falling,
     /// <summary>The fall encountered a solid collision, cleared Y speed, and shown <see cref="SamusDrainedAnimationDefinitions.LandingFrame"/> for <see cref="SamusDrainedAnimationDefinitions.LandingTimer"/> ticks without changing pose or Y direction.</summary>
     OnFloor,
-    /// <summary><see cref="SamusDrainedState.PutStanding"/> has selected facing-dependent standing drained <see cref="Poses.SamusPoseId.DrainedStandingRightPose"/> and <see cref="Poses.SamusPoseId.DrainedStandingLeftPose"/> at animation frame zero with a sixteen-update timer.</summary>
+    /// <summary><see cref="SamusDrainedState.PutStanding"/> has selected facing-dependent standing drained <see cref="Poses.SamusPoseId.DrainedStandingRightPose"/> and <see cref="Poses.SamusPoseId.DrainedStandingLeftPose"/> at its animation's start, held for <see cref="SamusDrainedAnimationDefinitions.PutStandingTimer"/> ticks.</summary>
     Standing,
-    /// <summary><see cref="SamusDrainedState.PutCrouchingOrFalling"/> has selected facing-dependent crouching drained <see cref="Poses.SamusPoseId.DrainedCrouchingRightPose"/> and <see cref="Poses.SamusPoseId.DrainedCrouchingLeftPose"/> at animation frame eight with a sixteen-update timer.</summary>
+    /// <summary><see cref="SamusDrainedState.PutCrouchingOrFalling"/> has selected facing-dependent crouching drained <see cref="Poses.SamusPoseId.DrainedCrouchingRightPose"/> and <see cref="Poses.SamusPoseId.DrainedCrouchingLeftPose"/> on <see cref="SamusDrainedAnimationDefinitions.PutCrouchingFrame"/>, held for <see cref="SamusDrainedAnimationDefinitions.PutCrouchingTimer"/> ticks.</summary>
     Crouching,
     /// <summary><see cref="SamusDrainedState.Release"/> has started drained release art, refreshed collision radii, and cleared base/Y speed; the drain lock remains until the release animation's closing pose transition completes.</summary>
     Releasing,

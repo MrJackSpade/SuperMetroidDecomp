@@ -30,8 +30,8 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             InvisibleDelay = WreckedShipGhostAppearanceDefinitions.InitialDelay,
         };
 
-        // The ghost starts dark: its colours have settled to black long before the 280-update appearance delay
-        // expires, so the first white ramp begins from black rather than from the ghost's own colours.
+        // The ghost starts dark: its colours have settled to black long before its first wait
+        // (WreckedShipGhostAppearanceDefinitions.InitialDelay) expires, so the first white ramp begins from black rather than from the ghost's own colours.
         state.Fade = WreckedShipGhostFade.Dark;
         ShowFade(place, state);
         place.SetSpeciesState(state);
@@ -224,7 +224,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         state.SamusUpperBound = samus.Position.Whole;
     }
 
-    /// <summary>Bobs the ghost up and down through its 120-frame visible lifetime.</summary>
+    /// <summary>Bobs the ghost up and down while it is visible (<see cref="WreckedShipGhostAppearanceDefinitions.VisibleDuration"/>).</summary>
     private static void RunWreckedShipGhostBobbing(
         RoomEnemyPlace place,
         WreckedShipGhostEnemyState state)
@@ -247,7 +247,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         state.Fade = state.Fade.Vanishing();
     }
 
-    /// <summary>Finishes whitening, hides, and starts its 120-update wait again.</summary>
+    /// <summary>Finishes whitening, hides, and starts its wait to reappear (<see cref="WreckedShipGhostAppearanceDefinitions.ReappearanceDelay"/>) again.</summary>
     private static void RunWreckedShipGhostWhiteFade(
         RoomEnemyPlace place,
         WreckedShipGhostEnemyState state)

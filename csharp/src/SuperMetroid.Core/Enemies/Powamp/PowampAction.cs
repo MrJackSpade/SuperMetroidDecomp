@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// </summary>
 public enum PowampAction
 {
-    /// <summary>Holds the body at its resting height until its 60-update countdown starts balloon inflation.</summary>
+    /// <summary>Holds the body at its resting height until its rest (<see cref="PowampMotionDefinitions.RestDuration"/>) runs out and starts balloon inflation.</summary>
     DeflatedResting,
     /// <summary>Waits ten AI updates, then selects fast body animation and upward velocity of half a pixel per update.</summary>
     Inflating,
@@ -24,7 +24,7 @@ public enum PowampAction
     Deflating,
     /// <summary>Sinks with terrain collision handling until the body reaches the balloon's spawn Y, then restores slow animation and the rest countdown.</summary>
     DeflatedSinking,
-    /// <summary>Adjusts the balloon's inflation animation and initializes the 32-update death delay after a fatal shot.</summary>
+    /// <summary>Adjusts the balloon's inflation animation and starts the death delay (<see cref="PowampMotionDefinitions.DeathDelay"/>) after a fatal shot.</summary>
     FatalDamage,
     /// <summary>Maintains balloon alignment during the countdown, then deletes both halves and fires spikes in eight directions.</summary>
     DeathSequence,

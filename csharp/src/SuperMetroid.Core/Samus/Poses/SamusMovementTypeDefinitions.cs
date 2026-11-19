@@ -13,10 +13,12 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <summary>
 /// What each way Samus moves does (#2323, #2445, #2506).
 /// <list type="bullet">
-/// <item>With no new pose from her input: standing and crouching take the forward jump unless time is frozen; running,
-/// falling, the compact air poses, moonwalking, wall jumps, wall stops and the Grapple take it always; the balls and
-/// knockback keep their pose; jumps, turns, posture changes, damage boosts, Draygon's hold and the special poses turn the
-/// jump down.</item>
+/// <item>With no new pose from her input, the spin jump keeps her momentum; running, the normal jump and the falling ball
+/// slow her down; the fall ends her running speed; the ball on the ground, the glitch ball's knockback, the Spring Ball,
+/// the compact air poses, wall jumps and the Grapple end her horizontal speed; every other movement stops her.</item>
+/// <item>A published bomb jump: standing and crouching take the forward jump unless time is frozen; running, falling, the
+/// compact air poses, moonwalking, wall jumps, wall stops and the Grapple take it always; the balls and knockback keep
+/// their pose; jumps, turns, posture changes, damage boosts, Draygon's hold and the special poses turn the jump down.</item>
 /// <item>The X-ray starts standing from standing, running and wall stops, crouching from a crouch, and not at all from
 /// any other movement.</item>
 /// <item>Entering water, the grounded postures raise the paired surface splash and every other movement dives.</item>

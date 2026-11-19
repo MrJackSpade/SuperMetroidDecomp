@@ -79,7 +79,8 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
         StationObjects stations = context.RoomObjects.Stations;
         IRoomSamus samus = stations.Samus;
 
-        // The access's first draw starts its six-update countdown on the triggering update itself; the countdown only
+        // The access's first draw starts the arm's extension (StationAccessTimingDefinitions.MovementUpdates) on the
+        // triggering update itself; the countdown only
         // runs on later updates.
         bool operationStartedThisUpdate = false;
         if (Triggered)

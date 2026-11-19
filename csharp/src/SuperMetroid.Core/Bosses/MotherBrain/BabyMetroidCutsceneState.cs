@@ -665,7 +665,7 @@ public sealed class BabyMetroidCutsceneState
             visibility);
     }
 
-    /// <summary>Applies the Baby's health/flash mutation from the blue-ring collision response: a living Baby gets a sixteen-frame flash timer and health subtraction saturated at zero.</summary>
+    /// <summary>Applies the Baby's health/flash mutation from the blue-ring collision response: a living Baby shakes for <see cref="BabyMetroidCutsceneDefinitions.OnionRingHitShake"/> updates, starts its hurt flash and loses health saturated at zero.</summary>
     /// <param name="damage">The ring's damage (<see cref="MotherBrainAttackDamage.OnionRing"/>), zero or more; even zero damage refreshes the flash timer when health is nonzero.</param>
     /// <remarks>Zero health leaves all state unchanged. The ring's touch establishes the overlap, and the cutscene requests the Baby's cry, copies the Baby's health to its enemy and explodes and deletes the ring.</remarks>
     public void ApplyMotherBrainOnionRingHit(int damage)

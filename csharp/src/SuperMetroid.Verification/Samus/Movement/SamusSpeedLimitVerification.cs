@@ -61,7 +61,7 @@ internal static class SamusSpeedLimitVerification
         AssertEqual(new UnsignedSixteenSixteen(7, 0), held.ExtraRunSpeed, "an extra speed above seven pixels under half a pixel's fraction is held at the cap");
 
         // A base speed accelerated exactly onto its maximum keeps it; one past it in the fraction is replaced by it.
-        var entry = new SamusHorizontalSpeeds(SignedSixteenSixteen.FromParts(0, 0x3000), SignedSixteenSixteen.FromParts(2, 0xc000), SignedSixteenSixteen.FromParts(0, 0x8000));
+        var entry = new SamusHorizontalSpeeds(new UnsignedSixteenSixteen(0, 0x3000), new UnsignedSixteenSixteen(2, 0xc000), new UnsignedSixteenSixteen(0, 0x8000));
         var exact = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { BaseSpeed = new UnsignedSixteenSixteen(2, 0x9000) };
         exact.CalculateBaseSpeed(entry);
         AssertEqual(new UnsignedSixteenSixteen(2, 0xc000), exact.BaseSpeed, "a speed accelerated onto its maximum keeps it");
@@ -69,11 +69,11 @@ internal static class SamusSpeedLimitVerification
         past.CalculateBaseSpeed(entry);
         AssertEqual(new UnsignedSixteenSixteen(2, 0xc000), past.BaseSpeed, "a speed accelerated past its maximum is replaced by it");
         var underFraction = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { BaseSpeed = new UnsignedSixteenSixteen(2, 0x4001) };
-        underFraction.CalculateBaseSpeed(entry with { MaximumSpeed = SignedSixteenSixteen.FromParts(2, 0x4000) });
+        underFraction.CalculateBaseSpeed(entry with { MaximumSpeed = new UnsignedSixteenSixteen(2, 0x4000) });
         AssertEqual(new UnsignedSixteenSixteen(2, 0x4000), underFraction.BaseSpeed,
             "a speed whose fraction lies less than half a pixel above its maximum's is replaced by it");
         var halfRangeFraction = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { BaseSpeed = new UnsignedSixteenSixteen(2, 0x9001) };
-        halfRangeFraction.CalculateBaseSpeed(entry with { MaximumSpeed = SignedSixteenSixteen.FromParts(2, 0x4000) });
+        halfRangeFraction.CalculateBaseSpeed(entry with { MaximumSpeed = new UnsignedSixteenSixteen(2, 0x4000) });
         AssertEqual(new UnsignedSixteenSixteen(2, 0xc001), halfRangeFraction.BaseSpeed,
             "a speed whose fraction lies more than half a pixel above its maximum's reads as under it and keeps accelerating");
         Console.WriteLine($"Samus speed limits: the strict maximum, the part-wise cap and their half-range readings hold; {compared} speed pairs agree with the replaced sign tests.");

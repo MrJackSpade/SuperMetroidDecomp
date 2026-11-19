@@ -129,12 +129,15 @@ internal sealed class SamusAnimationLayout
 
     /// <summary>
     /// How many frames of the game's layout the segment of <paramref name="animation"/> at <paramref name="index"/> spans
-    /// (#2395): its delays, its end cue, the frames its cue's operands take and the runs no segment names laid out after it.
+    /// (#2395, #2530): its delays, its end cue, the frames its cue's operands take and the runs no segment names laid out
+    /// after it; a lead, which the game lays out in one run with the segment after it, spans its delays alone.
     /// </summary>
     private static int Span(SamusPoseAnimation animation, int index)
     {
         SamusAnimationSegment segment = animation.Segments[index];
-        return segment.CueFrame + 1 + SamusAnimationCueValueDecoding.OperandFrames(segment.End) + SamusAnimationUnnamedRunDefinitions.All
+        if (segment.End is not { } end)
+            return segment.Delays.Count;
+        return segment.CueFrame + 1 + SamusAnimationCueValueDecoding.OperandFrames(end) + SamusAnimationUnnamedRunDefinitions.All
             .Where(run => run.Animation == animation.Name && run.After == segment.Name)
             .Sum(run => run.Delays + 1 + SamusAnimationCueValueDecoding.OperandFrames(run.End));
     }
@@ -167,10 +170,14 @@ internal sealed class SamusAnimationLayout
                 SamusAnimationSegment segment = animation.Segments[index];
                 int cue = start + segment.CueFrame;
                 int next = start + Span(animation, index);
-                if (segment.End.ContinuesToNextSegment && next != cue + 1)
-                    throw new InvalidDataException($"The {animation.Name} animation's {segment.Name} cue continues into the next segment past frames laid out after it.");
-                for (int offset = segment.End.ContinuesToNextSegment ? cue + 1 : cue; offset < next; offset++)
-                    after.Add(animation.NameOf(FrameAt(animation, offset)), animation.NameOf(FrameAt(animation, offset + 1)));
+                // A lead has no cue: its last frame plays on into the next segment's first.
+                if (segment.End is { } end)
+                {
+                    if (end.ContinuesToNextSegment && next != cue + 1)
+                        throw new InvalidDataException($"The {animation.Name} animation's {segment.Name} cue continues into the next segment past frames laid out after it.");
+                    for (int offset = end.ContinuesToNextSegment ? cue + 1 : cue; offset < next; offset++)
+                        after.Add(animation.NameOf(FrameAt(animation, offset)), animation.NameOf(FrameAt(animation, offset + 1)));
+                }
                 start = next;
             }
             return (IReadOnlyDictionary<string, string>)after;

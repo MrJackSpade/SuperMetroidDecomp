@@ -16,7 +16,7 @@ public enum EtecoonAction
     /// door transition holds the countdown.
     /// </summary>
     Flexing,
-    /// <summary>Waits for the eleven-update hop countdown, then starts the bottom-room jump upward at 3 pixels per update.</summary>
+    /// <summary>Waits out its crouch before the hop (<see cref="EtecoonTimingDefinitions.HopCrouch"/>), then starts the bottom-room jump upward at 3 pixels per update.</summary>
     PreJumpCountdown,
     /// <summary>Hops vertically, clears upward velocity on ceiling contact, and chooses a Samus-facing pause or another hop on downward collision.</summary>
     InitialJump,
@@ -30,7 +30,7 @@ public enum EtecoonAction
     Airborne,
     /// <summary>Waits for the wall-pause timer, starts the opposite-facing wall-jump animation, and launches with signed Y velocity -3 and X velocity -2 or +2.</summary>
     WallPause,
-    /// <summary>After the eleven-update landing wait, selects the left run-up, right run-up, or immediate top-room hop from its spawn route.</summary>
+    /// <summary>After its crouch on landing (<see cref="EtecoonTimingDefinitions.HopCrouch"/>), selects the left run-up, right run-up, or immediate top-room hop from its spawn route.</summary>
     RouteAfterLanding,
     /// <summary>Moves left until whole room X is below 537, then enters the top-room hopping countdown.</summary>
     MoveLeftToTeachingStart,
@@ -42,7 +42,7 @@ public enum EtecoonAction
     LongJump,
     /// <summary>Runs right to room X 840, then selects the ledge-fall jump animation with signed Y velocity -1 pixel per update.</summary>
     RunRightAfterLongJump,
-    /// <summary>Moves right and vertically from the tunnel ledge until terrain collision starts the next eleven-update top-room hop wait.</summary>
+    /// <summary>Moves right and vertically from the tunnel ledge until terrain collision starts its crouch before the next top-room hop (<see cref="EtecoonTimingDefinitions.HopCrouch"/>).</summary>
     LongJumpLanding,
     /// <summary>Performs the top-room vertical hop; downward collision may select the teach-at-once route's Samus-proximity wait, while upward collision clears vertical velocity.</summary>
     TeachingJump,

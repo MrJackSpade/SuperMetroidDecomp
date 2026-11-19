@@ -12,9 +12,9 @@ public enum KraidRisePhase
     ShowBody,
     /// <summary>Starts the rise's quake and its first rock wait, and requests the boss music.</summary>
     StartQuakeAndMusic,
-    /// <summary>Requests rise rocks on sixteen-frame timer boundaries during the first pre-rise wait.</summary>
+    /// <summary>Requests rise rocks on the first rise's cadence (<see cref="KraidCadenceDefinitions.FirstRiseRockEverySixteenthUpdate"/>) during the first pre-rise wait.</summary>
     RocksEvery16Frames,
-    /// <summary>Requests rise rocks on eight-frame timer boundaries during the faster pre-rise wait.</summary>
+    /// <summary>Requests rise rocks on the faster cadence (<see cref="KraidCadenceDefinitions.FasterRiseRockEveryEighthUpdate"/>) during the faster pre-rise wait.</summary>
     RocksEvery8Frames,
     /// <summary>Raises Kraid at half a pixel per update with horizontal shaking until first-phase combat starts.</summary>
     RaiseBody,

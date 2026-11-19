@@ -159,7 +159,7 @@ public static class SamusKnockbackMovement
         samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.None;
 
         // The hurt flash starts after bomb-jump/contact damage is cancelled. This is an independent
-        // 60-update shade/audio lifetime, not the five-frame knockback timer established above.
+        // shade/audio lifetime (SharedHurtFlashCount), not the hurt countdown the hit's producer supplied above.
         samus.HurtFlash.Start();
 
         // Hurt launch retains the bottom-edge and Gravity-Suit selection.

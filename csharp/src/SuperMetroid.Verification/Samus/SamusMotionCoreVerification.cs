@@ -117,11 +117,11 @@ internal static void VerifySamusHorizontalSpeed()
     AssertEqual(0x909f61, speed.ResolveEntryAddress(movementType: SamusMovementType.Running), "running speed entry pointer chain");
 
     SamusHorizontalSpeeds entry = speed.Speeds(movementType: SamusMovementType.Running);
-    AssertEqual(SignedSixteenSixteen.FromParts(0, 0x3000), entry.Acceleration,
+    AssertEqual(new UnsignedSixteenSixteen(0, 0x3000), entry.Acceleration,
         "running accelerates by three sixteenths of a pixel per frame");
-    AssertEqual(SignedSixteenSixteen.FromParts(2, 0xc000), entry.MaximumSpeed,
+    AssertEqual(new UnsignedSixteenSixteen(2, 0xc000), entry.MaximumSpeed,
         "running caps at two and three quarter pixels per frame");
-    AssertEqual(SignedSixteenSixteen.FromParts(0, 0x8000), entry.Deceleration,
+    AssertEqual(new UnsignedSixteenSixteen(0, 0x8000), entry.Deceleration,
         "running decelerates by half a pixel per frame");
 
     // Four acceleration calls produce 0.C000 exactly. Fifteen calls would reach 2.D000,

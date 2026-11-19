@@ -14,6 +14,6 @@ public enum FlyAction
     Circling,
     /// <summary>Advances the sampled attack velocity until crossing the saved Samus Y, then reverses vertical velocity and retreats.</summary>
     AttackSamus,
-    /// <summary>Continues with reversed Y velocity for the dive's updates and one more, then starts a 24-update idle cooldown.</summary>
+    /// <summary>Continues with reversed Y velocity for the dive's updates and one more, then starts its idle cooldown (<see cref="FlyMotionDefinitions.AttackCooldown"/>).</summary>
     Retreat,
 }

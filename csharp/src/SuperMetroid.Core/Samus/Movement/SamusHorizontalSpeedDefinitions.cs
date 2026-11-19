@@ -15,50 +15,50 @@ internal static class SamusHorizontalSpeedDefinitions
     internal const int LargestWholeDisplacement = 15;
 
     /// <summary>Deceleration of every movement in air, half a pixel per update per update.</summary>
-    private static SignedSixteenSixteen AirDeceleration { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(8);
+    private static UnsignedSixteenSixteen AirDeceleration { get; } = UnsignedSixteenSixteen.FromSixteenthsOfPixel(8);
     /// <summary>Deceleration of every movement in water, a thirty-second of a pixel per update per update.</summary>
-    private static SignedSixteenSixteen WaterDeceleration { get; } = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(8);
+    private static UnsignedSixteenSixteen WaterDeceleration { get; } = UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(8);
     /// <summary>Deceleration of every movement in lava or acid, a quarter of a pixel per update per update.</summary>
-    private static SignedSixteenSixteen LavaDeceleration { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(4);
+    private static UnsignedSixteenSixteen LavaDeceleration { get; } = UnsignedSixteenSixteen.FromSixteenthsOfPixel(4);
     /// <summary>The maximum of a movement that holds Samus still: standing, crouching, turning and running into a wall.</summary>
-    private static SignedSixteenSixteen StillMaximum { get; } = SignedSixteenSixteen.Zero;
+    private static UnsignedSixteenSixteen StillMaximum { get; } = UnsignedSixteenSixteen.FromWholePixels(0);
     /// <summary>Maximum running speed in air and water.</summary>
-    private static SignedSixteenSixteen RunningMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(44);
+    private static UnsignedSixteenSixteen RunningMaximum { get; } = UnsignedSixteenSixteen.FromSixteenthsOfPixel(44);
     /// <summary>Maximum running speed in lava or acid.</summary>
-    private static SignedSixteenSixteen LavaRunningMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(28);
+    private static UnsignedSixteenSixteen LavaRunningMaximum { get; } = UnsignedSixteenSixteen.FromSixteenthsOfPixel(28);
     /// <summary>Maximum speed of normal jumps, posture transitions, airborne spring ball and grappling.</summary>
-    private static SignedSixteenSixteen JumpingMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(20);
+    private static UnsignedSixteenSixteen JumpingMaximum { get; } = UnsignedSixteenSixteen.FromSixteenthsOfPixel(20);
     /// <summary>Maximum speed of spin and wall jumps.</summary>
-    private static SignedSixteenSixteen SpinJumpingMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(22);
+    private static UnsignedSixteenSixteen SpinJumpingMaximum { get; } = UnsignedSixteenSixteen.FromSixteenthsOfPixel(22);
     /// <summary>Maximum speed of a grounded morph or spring ball in air.</summary>
-    private static SignedSixteenSixteen AirMorphBallGroundMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(52);
+    private static UnsignedSixteenSixteen AirMorphBallGroundMaximum { get; } = UnsignedSixteenSixteen.FromSixteenthsOfPixel(52);
     /// <summary>Maximum speed of a grounded morph or spring ball in a liquid.</summary>
-    private static SignedSixteenSixteen LiquidMorphBallGroundMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(44);
+    private static UnsignedSixteenSixteen LiquidMorphBallGroundMaximum { get; } = UnsignedSixteenSixteen.FromSixteenthsOfPixel(44);
     /// <summary>Maximum speed of falling, and of a falling ball in air.</summary>
-    private static SignedSixteenSixteen FallingMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(16);
+    private static UnsignedSixteenSixteen FallingMaximum { get; } = UnsignedSixteenSixteen.FromSixteenthsOfPixel(16);
     /// <summary>Maximum speed of a falling morph or spring ball in water.</summary>
-    private static SignedSixteenSixteen WaterBallFallingMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(24);
+    private static UnsignedSixteenSixteen WaterBallFallingMaximum { get; } = UnsignedSixteenSixteen.FromSixteenthsOfPixel(24);
     /// <summary>Maximum speed of a falling morph or spring ball in lava or acid.</summary>
-    private static SignedSixteenSixteen LavaBallFallingMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(22);
-    /// <summary>Maximum speed of the alternate unused glitch ball and the compact airborne poses.</summary>
-    private static SignedSixteenSixteen GlitchBallMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(32);
+    private static UnsignedSixteenSixteen LavaBallFallingMaximum { get; } = UnsignedSixteenSixteen.FromSixteenthsOfPixel(22);
+    /// <summary>Maximum speed of the glitch ball's knockback and the compact airborne poses.</summary>
+    private static UnsignedSixteenSixteen GlitchBallMaximum { get; } = UnsignedSixteenSixteen.FromSixteenthsOfPixel(32);
     /// <summary>Maximum speed of knockback, Draygon's hold, special movement and an airborne damage boost.</summary>
-    private static SignedSixteenSixteen KnockbackMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(80);
+    private static UnsignedSixteenSixteen KnockbackMaximum { get; } = UnsignedSixteenSixteen.FromSixteenthsOfPixel(80);
     /// <summary>Maximum speed of moonwalking and a damage boost in a liquid, half a pixel per update.</summary>
-    private static SignedSixteenSixteen MoonwalkingMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(8);
+    private static UnsignedSixteenSixteen MoonwalkingMaximum { get; } = UnsignedSixteenSixteen.FromSixteenthsOfPixel(8);
     /// <summary>Running acceleration in air.</summary>
-    private static SignedSixteenSixteen AirRunningAcceleration { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(3);
+    private static UnsignedSixteenSixteen AirRunningAcceleration { get; } = UnsignedSixteenSixteen.FromSixteenthsOfPixel(3);
     /// <summary>
     /// Acceleration of running in a liquid and of a morph or spring ball in a liquid, a sixty-fourth of a pixel per
     /// update per update.
     /// </summary>
-    private static SignedSixteenSixteen LiquidGroundAcceleration { get; } = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(4);
-    /// <summary>Acceleration of both unused glitch balls.</summary>
-    private static SignedSixteenSixteen GlitchBallAcceleration { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(32);
+    private static UnsignedSixteenSixteen LiquidGroundAcceleration { get; } = UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(4);
+    /// <summary>Acceleration of the glitch ball and of its knockback.</summary>
+    private static UnsignedSixteenSixteen GlitchBallAcceleration { get; } = UnsignedSixteenSixteen.FromSixteenthsOfPixel(32);
     /// <summary>Knockback acceleration.</summary>
-    private static SignedSixteenSixteen KnockbackAcceleration { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(24);
+    private static UnsignedSixteenSixteen KnockbackAcceleration { get; } = UnsignedSixteenSixteen.FromSixteenthsOfPixel(24);
     /// <summary>The acceleration of every other movement, three quarters of a pixel per update per update.</summary>
-    private static SignedSixteenSixteen DefaultAcceleration { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(12);
+    private static UnsignedSixteenSixteen DefaultAcceleration { get; } = UnsignedSixteenSixteen.FromSixteenthsOfPixel(12);
 
     /// <summary>
     /// Each movement's speeds in air. Draygon's hold and special movement have none of their own in air: they take
@@ -178,16 +178,16 @@ internal static class SamusHorizontalSpeedDefinitions
     /// update per update up to three pixels per update, slowing by a thirty-second.
     /// </summary>
     internal static SamusHorizontalSpeeds DiagonalBombJump { get; } = new(
-        Acceleration: SignedSixteenSixteen.FromSixteenthsOfPixel(3),
-        MaximumSpeed: SignedSixteenSixteen.FromWholePixels(3),
-        Deceleration: SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(8));
+        Acceleration: UnsignedSixteenSixteen.FromSixteenthsOfPixel(3),
+        MaximumSpeed: UnsignedSixteenSixteen.FromWholePixels(3),
+        Deceleration: UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(8));
 
     /// <summary>
     /// A grapple release's speeds, the same in every medium, which it sets whatever Samus's movement: three sixteenths of
     /// a pixel per update per update up to fifteen pixels per update, slowing by a sixteenth.
     /// </summary>
     internal static SamusHorizontalSpeeds GrappleRelease { get; } = new(
-        Acceleration: SignedSixteenSixteen.FromSixteenthsOfPixel(3),
-        MaximumSpeed: SignedSixteenSixteen.FromWholePixels(15),
-        Deceleration: SignedSixteenSixteen.FromSixteenthsOfPixel(1));
+        Acceleration: UnsignedSixteenSixteen.FromSixteenthsOfPixel(3),
+        MaximumSpeed: UnsignedSixteenSixteen.FromWholePixels(15),
+        Deceleration: UnsignedSixteenSixteen.FromSixteenthsOfPixel(1));
 }

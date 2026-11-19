@@ -15,7 +15,7 @@ internal static class SamusAnimationUnnamedRunDefinitions
     /// </summary>
     internal static IReadOnlyList<SamusAnimationUnnamedRun> All { get; } =
     [
-        new(SamusAnimationName.Knockback, SamusAnimationSegmentName.Knockback, Delays: 4, new SamusAnimationRestart()),
-        new(SamusAnimationName.Knockback, SamusAnimationSegmentName.Knockback, Delays: 2, new SamusAnimationRestart()),
+        new(SamusAnimationName.Knockback, SamusAnimationSegmentName.Recoil, Delays: 4, new SamusAnimationRestart()),
+        new(SamusAnimationName.Knockback, SamusAnimationSegmentName.Recoil, Delays: 2, new SamusAnimationRestart()),
     ];
 }

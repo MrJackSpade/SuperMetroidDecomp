@@ -13,10 +13,10 @@ internal static class SamusAnimationFrames
     internal static SamusAnimationPlace NeutralJumpRise { get; } = SamusAnimationDelayDefinitions.NeutralJumpAndWindupAnimation.Place(SamusAnimationPlaceName.NeutralJumpRise, Main, 1);
 
     /// <summary>The Space Jump spin's first frame, on whose last tick the underwater Space Jump sound plays.</summary>
-    internal static SamusAnimationPlace SpaceJumpSpinStart { get; } = SamusAnimationDelayDefinitions.SpaceJumpAnimation.Place(SamusAnimationPlaceName.SpaceJumpSpinStart, Spin, 0);
+    internal static SamusAnimationPlace SpaceJumpSpinStart { get; } = SamusAnimationDelayDefinitions.SpaceJumpAnimation.Place(SamusAnimationPlaceName.SpaceJumpSpinStart, SpinStart, 0);
 
     /// <summary>The Space Jump spin's ninth frame, on whose last tick the underwater Space Jump sound plays again.</summary>
-    internal static SamusAnimationPlace SpaceJumpSpinMiddle { get; } = SamusAnimationDelayDefinitions.SpaceJumpAnimation.Place(SamusAnimationPlaceName.SpaceJumpSpinMiddle, Spin, 8);
+    internal static SamusAnimationPlace SpaceJumpSpinMiddle { get; } = SamusAnimationDelayDefinitions.SpaceJumpAnimation.Place(SamusAnimationPlaceName.SpaceJumpSpinMiddle, Spin, 7);
 
     /// <summary>The first frame of the ordinary wall-jump spin, from which a charged wall jump attacks as a pseudo Screw Attack.</summary>
     internal static SamusAnimationPlace WallJumpOrdinarySpinStart { get; } = SamusAnimationDelayDefinitions.WallJumpAnimation.Place(SamusAnimationPlaceName.WallJumpOrdinarySpinStart, OrdinarySpin, 0);
@@ -34,7 +34,7 @@ internal static class SamusAnimationFrames
     internal static SamusAnimationPlace ScrewAttackWallJumpReady { get; } = SamusAnimationDelayDefinitions.ScrewAttackAnimation.Place(SamusAnimationPlaceName.ScrewAttackWallJumpReady, WallJumpReady, 0);
 
     /// <summary>The Screw Attack spin's first frame, which keeps her normal colours and restarts the glow's cycle.</summary>
-    internal static SamusAnimationPlace ScrewAttackSpinStart { get; } = SamusAnimationDelayDefinitions.ScrewAttackAnimation.Place(SamusAnimationPlaceName.ScrewAttackSpinStart, Spin, 0);
+    internal static SamusAnimationPlace ScrewAttackSpinStart { get; } = SamusAnimationDelayDefinitions.ScrewAttackAnimation.Place(SamusAnimationPlaceName.ScrewAttackSpinStart, SpinStart, 0);
 
     /// <summary>The fall's first fast-fall frame.</summary>
     internal static SamusAnimationFrame FastFall { get; } = new(SamusAnimationSegmentName.FastFall, 0);

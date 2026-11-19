@@ -300,7 +300,7 @@ public sealed class PowerBombBlastTimeline
             return;
         }
 
-        // The white explosion starts its seventeen expanding ovals on the next update.
+        // The white explosion starts its expanding ovals (PowerBombExplosionDefinitions.WhiteOvalRadii) on the next update.
         _ovals.Start(PowerBombOvalAnimations.ExplosionWhite);
         RenderedOvalRadius = null;
         Phase = PowerBombExplosionPhase.ExplosionWhite;
@@ -347,7 +347,7 @@ public sealed class PowerBombBlastTimeline
     private void StepCrystalFlashExplosion(InstalledPowerBombGlowColors colors)
     {
         // Crystal Flash's explosion is a deliberately shorter clone of the yellow Power Bomb expansion.
-        // It uses the same curve and glow colours, but stops at radius 32.
+        // It uses the same curve and glow colours, but stops at PowerBombExplosionDefinitions.CrystalFlashRadiusLimit.
         RenderedExplosionRadius = ExplosionRadius;
         SelectGlowColor(
             colors,

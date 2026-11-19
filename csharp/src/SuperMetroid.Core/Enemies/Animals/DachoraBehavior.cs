@@ -142,7 +142,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.DachoraActivationSound, priority: SoundRequestPriority.Normal);
     }
 
-    /// <summary>Runs the 120-frame warning countdown.</summary>
+    /// <summary>Runs the warning blink (<see cref="DachoraTimingDefinitions.BlinkDuration"/>).</summary>
     private static void RunDachoraBlinking(RoomEnemyPlace place, DachoraEnemyState state)
     {
         if (--state.PhaseTimer != 0)

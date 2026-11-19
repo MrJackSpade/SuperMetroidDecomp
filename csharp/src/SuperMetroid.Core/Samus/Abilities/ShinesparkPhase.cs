@@ -5,7 +5,7 @@ public enum ShinesparkPhase
 {
     /// <summary>No spark moves Samus and no shine is stored; independent shade timers, boost state, and released echo storage may still remain live.</summary>
     Inactive,
-    /// <summary>Stored shine admitted by crouching at full boost, with a 180-update colouring timer; it does not move Samus.</summary>
+    /// <summary>Stored shine admitted by crouching at full boost, its colouring lasting <see cref="ShinesparkDefinitions.StoredShineFrames"/> updates; it does not move Samus.</summary>
     Stored,
     /// <summary>The windup; waits up to 30 movement updates for a direction, defaulting to a vertical launch on countdown expiry.</summary>
     Windup,

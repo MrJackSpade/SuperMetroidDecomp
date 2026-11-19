@@ -2,20 +2,19 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// One frame's X displacement together with the collision movement direction
-/// that its calculator stored: the leftward calculator writes <see cref="SamusCollisionDirection.Left"/> and
-/// the rightward one <see cref="SamusCollisionDirection.Right"/>.
+/// One frame's X displacement together with the side it was calculated toward: a displacement calculated leftward
+/// probes <see cref="SamusCollisionDirection.Left"/> and one calculated rightward <see cref="SamusCollisionDirection.Right"/>.
 /// </summary>
 /// <remarks>
 /// The two are independent. The movers choose a move right or
 /// a move left from the displacement's sign (zero is not negative, so it moves
-/// right), while their unconditional solid-enemy probe reads the stored direction.
+/// right), while their unconditional solid-enemy probe reads the side it was calculated toward.
 /// </remarks>
 public readonly record struct SamusHorizontalDisplacement(SignedSixteenSixteen Displacement, SamusCollisionDirection CollisionDirection)
 {
     /// <summary>
-    /// Displacement from a base speed plus extra X displacement by an already-decided direction: the
-    /// leftward calculator or the rightward one.
+    /// Displacement from a base speed plus the extra X displacement, calculated toward the side already decided: left
+    /// when <paramref name="left"/>, otherwise right.
     /// </summary>
     public static SamusHorizontalDisplacement Toward(bool left, SamusState samus, UnsignedSixteenSixteen baseSpeed)
     {
@@ -26,9 +25,8 @@ public readonly record struct SamusHorizontalDisplacement(SignedSixteenSixteen D
     }
 
     /// <summary>
-    /// The game's calculator choice: accelerating and decelerating follow the pose's
-    /// X direction; turning reverses it. The game
-    /// compares rather than validating the mode, so every value is handled this way.
+    /// Displacement calculated toward the side her acceleration mode takes: accelerating and decelerating follow the
+    /// pose's facing; turning runs against it.
     /// </summary>
     public static SamusHorizontalDisplacement ForPoseDirection(SamusState samus, UnsignedSixteenSixteen baseSpeed)
     {

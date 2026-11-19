@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Bull;
 /// </summary>
 public enum BullAction
 {
-    /// <summary>Waits for the sixteen-update activation countdown to reach zero, reloads it, and selects Samus targeting.</summary>
+    /// <summary>Waits out its activation countdown (<see cref="BullMovementDefinitions.MovementDelay"/>), reloads it, and selects Samus targeting.</summary>
     MovementDelay,
     /// <summary>Takes the heading toward Samus and starts speeding up from the next update, without moving on this one.</summary>
     TargetSamus,

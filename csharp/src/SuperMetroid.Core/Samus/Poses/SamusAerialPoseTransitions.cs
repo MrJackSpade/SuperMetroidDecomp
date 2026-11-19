@@ -459,7 +459,8 @@ internal static class SamusAerialPoseTransitions
     /// neutral and aimed jump-transition art. The game does not consume stored shine when Jump is
     /// first pressed; it waits until the animation's pose-transition cue installs the neutral,
     /// aimed-up or diagonally-up normal jump.
-    /// That delay is visible both to animation and to the 180-frame shade countdown.
+    /// That delay is visible both to animation and to the stored shine's shade countdown
+    /// (<see cref="Abilities.ShinesparkDefinitions.StoredShineFrames"/>).
     /// </remarks>
     internal static bool TryBeginShinesparkWindup(
         SamusState samus,

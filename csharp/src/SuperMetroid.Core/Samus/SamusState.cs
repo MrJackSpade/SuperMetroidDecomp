@@ -239,7 +239,7 @@ public sealed class SamusState
     /// Ceres Ridley's dedicated push and fall. This is not ordinary damage
     /// knockback: the shove takes her movement without
     /// consuming energy, and owns Samus until horizontal room collision.
-    /// Keeping that lifetime separate prevents the five-frame hurt timer from ending the
+    /// Keeping that lifetime separate prevents the hurt countdown from ending the
     /// scripted ejection early or making normal controller input steer it.
     /// </summary>
     public SamusCeresRidleyEjectionState CeresRidleyEjection { get; } = new();

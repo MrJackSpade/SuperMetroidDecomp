@@ -249,7 +249,7 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { // fills the scanline table\n }", "('scanline table')");
         // Text characters, a type of text, people, markup, a per-line window or scroll and other memory are not the display's.
         Expect("class P { /// <summary>Types the warning one character at a time; the typed characters and the message's characters wait.</summary>\nint F => 0; }");
-        Expect("class P { // a two-update character delay, the character cadence and the next character\n }");
+        Expect("class P { // a character delay of two updates, the character cadence and the next character\n }");
         Expect("class P { /// <summary>Width of one text character; the letters' characters and the narration characters.</summary>\nint F => 0; }");
         Expect("class P { /// <summary>Shows <paramref name=\"character\"/> at its place.</summary>\nvoid Show(int character) { } }");
         Expect("class EndingTypewriter { /// <summary>The installed characters.</summary>\nint F => 0; }");
@@ -2077,6 +2077,22 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // a hardware owner are English.
         Expect("class P { /// <summary>Once both halves of the neck have stopped moving; the door's two halves; a fraction of a pixel; the random\n/// sample, 0 through 65535; the frame counter, 0 through 65535; a count that wraps; a flag; the phases\n/// played last to first; a whole step of the turn; a negative speed; <see cref=\"Run\"/>.</summary>\nvoid Run() { } }");
         Expect(CompatibilityService + "/// <summary>Evidence: the decrement wraps to 65535, which the negative test reads, and clears both velocity halves.</summary>\n[CompatibilityService(\"halves\")] class Halves { }");
+        // A wait's length restated by number and the original's routines told as calculators, outside hardware owners and
+        // markup, read across a documentation comment's line breaks (#2530): a cooldown, timer, countdown, lifetime,
+        // charge or afterglow counted by number, a delay or wait counted in updates by number, and a calculator.
+        Expect("class P { void Run() { // Its own 21-frame cooldown paces a held button.\n } }", "('21-frame cooldown')");
+        Expect("class P { void Run() { // Not the five-frame knockback timer established above.\n } }", "('five-frame knockback timer')");
+        Expect("class P { /// <summary>Stores a 180-update\n/// shinespark charge.</summary>\nvoid Run() { } }", "('180-update shinespark charge')");
+        Expect("class P { /// <summary>Primes the 32-step afterglow.</summary>\nvoid Run() { } }", "('32-step afterglow')");
+        Expect("class P { /// <summary>Waits out its sixty-four-update opening countdown.</summary>\nvoid Run() { } }", "('sixty-four-update opening countdown')");
+        Expect("class P { /// <summary>Sinks for the retained 21-update lifetime.</summary>\nvoid Run() { } }", "('21-update lifetime')");
+        Expect("class P { /// <summary>Waits the ordinary 15-update delay.</summary>\nvoid Run() { } }", "('15-update delay')");
+        Expect("class P { /// <summary>Starts a sixteen-update wait.</summary>\nvoid Run() { } }", "('sixteen-update wait')");
+        Expect("class P { /// <summary>The leftward calculator writes the direction.</summary>\nvoid Run() { } }", "('calculator')");
+        // A timer, cooldown or countdown alone, a one-update wait, timer or delay, a wait counted in prose, a calculation
+        // and a hardware owner are English.
+        Expect("class P { /// <summary>The timer; the cooldown; the countdown; a one-update wait; a one-frame timer; a one-update\n/// delay; a wait of sixteen updates; the calculation; <see cref=\"Run\"/>.</summary>\nvoid Run() { } }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the leftward calculator holds its 21-frame cooldown.</summary>\n[CompatibilityService(\"waits\")] class Waits { }");
         // The species-owner template on a type that owns no species (#2427), read on the type's own summary; a type that
         // implements or is a species owner's interface owns a species, and an entity's parameter names its owner.
         const string SpeciesOwners = "interface IEnemySpecies { }\ninterface IEnemyEntityFactory { }\n";

@@ -560,7 +560,8 @@ internal sealed class ProjectileTerrainCollision
 
         // The span's blocks follow the room's reading order from the target row. Its X is not clipped to the room's
         // width: a span past the right edge carries on into the next row, and a span starting left of the room's edge
-        // starts 4095 blocks further on while its centre stays inside the room; only the blocks inside the room react.
+        // starts on the last column of the coordinate's cycle (CoordinateAxis.Wrap) while its centre stays inside the room;
+        // only the blocks inside the room react.
         Position16<RoomBlocks> firstBlock = Position16<RoomPixels>.Of(left, targetY).ToRoomBlock();
         for (int step = 0; step <= span; step++)
         {

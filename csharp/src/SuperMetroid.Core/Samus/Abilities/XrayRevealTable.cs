@@ -13,7 +13,7 @@ public static class XrayRevealTable
         XrayReveals.Find(type, behavior);
 
     /// <summary>The reveal shape for a collision kind and the reaction it reads (null for a kind that reads none).</summary>
-    /// <exception cref="ArgumentException"><paramref name="reaction"/> is not the reaction <paramref name="type"/> reads.</exception>
-    public static XrayRevealShape? Find(RoomCollisionType type, Enum? reaction) =>
+    /// <exception cref="ArgumentException"><paramref name="reaction"/> is not of the family <paramref name="type"/> reads.</exception>
+    public static XrayRevealShape? Find(RoomCollisionType type, BlockReaction? reaction) =>
         XrayReveals.Find(type, reaction);
 }

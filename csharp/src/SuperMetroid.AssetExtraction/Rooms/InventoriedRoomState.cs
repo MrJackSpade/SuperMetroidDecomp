@@ -77,7 +77,7 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
     /// Whether a block of the state's terrain collides as <paramref name="collision"/> and selects <paramref name="reaction"/>,
     /// the reaction that kind reads; null for a kind that reads none, which any block of the kind holds.
     /// </summary>
-    internal bool Holds(RoomCollisionType collision, Enum? reaction) =>
+    internal bool Holds(RoomCollisionType collision, BlockReaction? reaction) =>
         Terrain.Any(block => block.Collision == collision && Equals(block.Behavior.ReactionUnder(collision), reaction));
 
     /// <summary>Whether the state's terrain holds a shot block that any weapon breaks and that grows back, or a Wave shot's straddled read sets one off.</summary>

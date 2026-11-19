@@ -84111,6 +84111,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.SpacePirates.NinjaPirateClawFlight",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/NinjaPirateClawFlight.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.SpacePirates.NinjaPirateClawState",
       "kind": "class",
       "scope": "product",
@@ -86359,7 +86372,7 @@
     },
     {
       "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipGhostFlickerStep",
-      "kind": "record struct",
+      "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -86368,7 +86381,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/WreckedShip/WreckedShipGhostFlickerStep.cs"
       ],
       "partial": "none",
-      "disposition": "value"
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipGhostFlickerTiming",
@@ -86381,7 +86394,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/WreckedShip/WreckedShipGhostFlickerTiming.cs"
       ],
       "partial": "none",
-      "disposition": "value"
+      "disposition": "constructor-parameters"
     },
     {
       "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipGhostFlickerVisibility",
@@ -148121,6 +148134,20 @@
       ],
       "files": [
         "csharp/test-support/MovieReplay/NativeProgramEntry.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.MovieReplay.NativeRepeatEntryStart\u003CTSegment\u003E",
+      "kind": "record struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/MovieReplay/NativeEnemyAnimationOracle.cs"
       ],
       "partial": "none",
       "disposition": "value"

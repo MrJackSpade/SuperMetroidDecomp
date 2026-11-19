@@ -411,13 +411,17 @@ internal sealed class FrontendSession
         Enter(EndingStep.LeavingZebes);
     }
     /// <summary>
-    /// The escape countdown expired. The whole gameplay display, Samus and the HUD among it, fades to white through the
-    /// shared fade step count in the time-up's gradual change (#1512).
+    /// The escape countdown expired, or the game returns to the time-up it started (#2518). The whole gameplay display, Samus
+    /// and the HUD among it, fades to white through the shared fade step count in the time-up's gradual change (#1512).
     /// </summary>
     internal void BeginTimeUp()
     {
         SuperMetroidRuntime live = runtime ?? throw new InvalidOperationException("Time-up requires a gameplay runtime.");
-        live.FadeOut.Begin(RgbColor.White, TimeUpDefinitions.WhiteOutLastStep, GameplayFadeSpares.Nothing);
+        // A white-out the AUTO reserves' refill interrupted goes on from where it stood when the game returns to the time-up
+        // (#2518): the refill neither steps nor restarts it, so its colours stay part-whitened. Only the time-up's own
+        // black-out ends the white-out, and the death that ends the other gameplay fade releases the runtime.
+        if (!live.FadeOut.IsUnderWay)
+            live.FadeOut.Begin(RgbColor.White, TimeUpDefinitions.WhiteOutLastStep, GameplayFadeSpares.Nothing);
         Enter(TimeUpStep.WhiteningOut);
     }
     /// <summary>

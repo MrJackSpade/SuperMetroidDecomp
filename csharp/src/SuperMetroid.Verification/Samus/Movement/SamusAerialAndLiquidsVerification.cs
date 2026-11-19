@@ -473,7 +473,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         Kinematics =
         {
             Radius = new(5, 12),
-            VerticalVelocity = SamusVerticalVelocity.Of(new UnsignedSixteenSixteen(3, 0x4567), SamusVerticalDirection.Up),
+            VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(3, 0x4567), SamusVerticalDirection.Up),
         },
     };
     spinFire.HorizontalSpeed.ExtraRunSpeed = spinFire.HorizontalSpeed.ExtraRunSpeed.WithFraction(1);
@@ -513,7 +513,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         Kinematics =
         {
             Radius = new(5, 19),
-            VerticalVelocity = SamusVerticalVelocity.Of(new UnsignedSixteenSixteen(4, 0x2345), SamusVerticalDirection.Up),
+            VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(4, 0x2345), SamusVerticalDirection.Up),
         },
     };
     AssertTrue(SamusAerialPoseTransitions.TryApplySpinOrWallJumpToNormalJumpTransition(wallFire, 
@@ -546,7 +546,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         Kinematics =
         {
             Radius = new(5, 12),
-            VerticalVelocity = SamusVerticalVelocity.Of(new UnsignedSixteenSixteen(2, 0x3456), SamusVerticalDirection.Up),
+            VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(2, 0x3456), SamusVerticalDirection.Up),
         },
     };
     AssertTrue(SamusAerialPoseTransitions.TryApplySpinOrWallJumpToNormalJumpTransition(spinAimDown, 
@@ -579,7 +579,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         Position = new(new(128, 0), new(128, 0)),
         Kinematics =
         {
-            VerticalVelocity = SamusVerticalVelocity.Of(new UnsignedSixteenSixteen(speed, subspeed), SamusVerticalDirection.Down),
+            VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(speed, subspeed), SamusVerticalDirection.Down),
             YAcceleration = new UnsignedSixteenSixteen(0, 0x2800),
             Radius = new(5, 12),
         },
@@ -951,7 +951,7 @@ internal static void VerifySamusLiquidPhysics()
             Kinematics =
             {
                 Radius = new(5, 12),
-                VerticalVelocity = SamusVerticalVelocity.Of(new UnsignedSixteenSixteen(1, 0), SamusVerticalDirection.Up),
+                VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(1, 0), SamusVerticalDirection.Up),
             },
         };
         WritePoseDefinition(bus, SamusPoseNumbers.Number(released.Pose), [8, 2, 0xff, 0xff, 0, 0, 12, 0]);
@@ -984,7 +984,7 @@ internal static void VerifySamusLiquidPhysics()
     {
         Pose = SamusPoseId.NormalJumpForwardRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-        Kinematics = { Radius = new(5, 12), VerticalVelocity = SamusVerticalVelocity.Of(UnsignedSixteenSixteen.Zero, SamusVerticalDirection.Down) },
+        Kinematics = { Radius = new(5, 12), VerticalVelocity = SamusVerticalVelocityConstants.Of(UnsignedSixteenSixteen.Zero, SamusVerticalDirection.Down) },
     };
     fallingRelease.Grapple.ReleasedMovementActive = true;
     SamusAerialMovement.ConfigureEnvironmentGravity(fallingRelease);
@@ -1008,7 +1008,7 @@ CreateEmptyRoom(new(16, 16)), fallingRelease, controllerInput: 0, frameCounter: 
         Kinematics =
         {
             Radius = new(5, 12),
-            VerticalVelocity = SamusVerticalVelocity.Of(new UnsignedSixteenSixteen(0, 0x8000), SamusVerticalDirection.Down),
+            VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(0, 0x8000), SamusVerticalDirection.Down),
         },
     };
     partialWaterSpaceJump.LiquidPhysics.ConfigureWater(surfaceY: 128, ignoresSurface: false, type: SuperMetroid.Core.Fx.RoomFxType.Water);
@@ -1034,7 +1034,7 @@ CreateEmptyRoom(new(16, 16)), fallingRelease, controllerInput: 0, frameCounter: 
         Kinematics =
         {
             Radius = new(5, 12),
-            VerticalVelocity = SamusVerticalVelocity.Of(new UnsignedSixteenSixteen(3, 0), SamusVerticalDirection.Down),
+            VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(3, 0), SamusVerticalDirection.Down),
         },
     };
     WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.ScrewAttackRightPose),

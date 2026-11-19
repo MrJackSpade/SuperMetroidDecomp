@@ -973,7 +973,7 @@ internal static void VerifySamusGroundedReversal()
             var airborneCrouchedTurn = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = testCase.SelectedTurn };
             airborneCrouchedTurn.Kinematics.Position = airborneCrouchedTurn.Kinematics.Position.WithWhole(new(64, 32));
             airborneCrouchedTurn.Kinematics.Radius = new(5, 16);
-            airborneCrouchedTurn.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(airborneCrouchedTurn.Kinematics.VerticalVelocity.Speed.WithWhole(1), SamusVerticalDirection.Up);
+            airborneCrouchedTurn.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(airborneCrouchedTurn.Kinematics.VerticalVelocity.Speed.WithWhole(1), SamusVerticalDirection.Up);
             FixedCoordinate airborneYBefore = airborneCrouchedTurn.Kinematics.Position.Y;
             SamusAerialMovement.StepTurningInAir(
 

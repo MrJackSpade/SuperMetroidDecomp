@@ -45,7 +45,7 @@ internal static class SpringBallEquipmentJumpVerification
             samus.LiquidPhysics.ConfigureFor(runtime.RoomFxOverlay);
             AssertEqual(SamusLiquidMedium.Water, samus.LiquidPhysics.DetermineMovementMedium(samus), "fixture is underwater without Gravity Suit");
             SamusPresentation.InitializeAnimation(samus, samus.PoseFrameNumbered(3));
-            samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(new UnsignedSixteenSixteen(1, 0x8000), SamusVerticalDirection.Up);
+            samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(1, 0x8000), SamusVerticalDirection.Up);
             for (int jump = 0; jump < 2; jump++)
             {
                 Resume(true);

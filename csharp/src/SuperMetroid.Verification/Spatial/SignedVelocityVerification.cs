@@ -103,11 +103,11 @@ internal static class SignedVelocityVerification
             for (int fractions = -2048; fractions <= 2047; fractions++)
             {
                 AngularSpeed turn = AngularSpeed.FromFractionsOfStep(fractions);
-                UnsignedSixteenSixteen speed = UnsignedSixteenSixteen.ProductOfTwoFiftySixths(size, Math.Abs(fractions));
+                UnsignedSixteenSixteen speed = UnsignedSixteenSixteenConstants.ProductOfTwoFiftySixths(size, Math.Abs(fractions));
                 SamusVerticalDirection oldDirection = turn.IsNegative == share.IsNegative ? SamusVerticalDirection.Down : SamusVerticalDirection.Up;
                 SamusVerticalVelocity released = SamusVerticalVelocity.FromDisplacement(share.VelocityOf(turn),
                     atRest: turn.IsNegative == share.IsNegative ? VerticalDirection.Down : VerticalDirection.Up);
-                if (released != SamusVerticalVelocity.Of(speed, oldDirection) || share.VelocityOf(turn).Magnitude() != speed)
+                if (released != SamusVerticalVelocityConstants.Of(speed, oldDirection) || share.VelocityOf(turn).Magnitude() != speed)
                     throw new InvalidDataException($"Angle {raw}, turn {fractions}: the turn's velocity differs from the size product and its release direction.");
                 compared++;
             }
@@ -130,7 +130,7 @@ internal static class SignedVelocityVerification
         foreach (int fraction in parts)
         {
             var speed = new UnsignedSixteenSixteen(whole, fraction);
-            SamusVerticalVelocity velocity = SamusVerticalVelocity.Of(speed, direction);
+            SamusVerticalVelocity velocity = SamusVerticalVelocityConstants.Of(speed, direction);
             SignedSixteenSixteen oldDisplacement = direction == SamusVerticalDirection.Down ? speed.AsDisplacement() : -speed.AsDisplacement();
             UnsignedSixteenSixteen oldSpeed = direction == SamusVerticalDirection.Down
                 ? speed.Whole != SamusVerticalMotionDefinitions.TerminalFallWholeSpeed ? speed + gravity : speed
@@ -142,8 +142,8 @@ internal static class SignedVelocityVerification
                 throw new InvalidDataException($"Vertical velocity {whole}.{fraction} {direction}: it differs from the speed and direction it replaces.");
             compared++;
         }
-        AssertEqual(SamusVerticalVelocity.Of(UnsignedSixteenSixteen.Zero, SamusVerticalDirection.None), SamusVerticalVelocity.Still, "a still velocity has no speed and no direction");
-        AssertEqual(SamusVerticalVelocity.Of(UnsignedSixteenSixteen.Zero, SamusVerticalDirection.Down), SamusVerticalVelocity.FallFromRest, "a fall from rest heads down at no speed");
+        AssertEqual(SamusVerticalVelocityConstants.Of(UnsignedSixteenSixteen.Zero, SamusVerticalDirection.None), SamusVerticalVelocity.Still, "a still velocity has no speed and no direction");
+        AssertEqual(SamusVerticalVelocityConstants.Of(UnsignedSixteenSixteen.Zero, SamusVerticalDirection.Down), SamusVerticalVelocity.FallFromRest, "a fall from rest heads down at no speed");
         return compared + 2;
     }
 

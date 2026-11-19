@@ -279,7 +279,7 @@ internal static class TypedSineProductsVerification
             UnitComponent share = UnitComponent.CoarseFineSineOf(angle);
             for (int speed = 0; speed <= short.MaxValue; speed++)
             {
-                SignedSixteenSixteen forward = UnsignedSixteenSixteen.ProductOfTwoFiftySixths(coarseSize, speed).AsDisplacement();
+                SignedSixteenSixteen forward = UnsignedSixteenSixteenConstants.ProductOfTwoFiftySixths(coarseSize, speed).AsDisplacement();
                 SignedSixteenSixteen old = fineSine < 0 ? BullBackwardStep.Of(forward) : forward;
                 SignedSixteenSixteen step = BullBehavior.BullStep(share, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(speed));
                 if (step != old)

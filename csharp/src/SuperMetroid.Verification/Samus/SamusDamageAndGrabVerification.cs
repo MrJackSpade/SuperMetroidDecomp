@@ -782,7 +782,7 @@ internal static void VerifySamusGrabbedByDraygon()
     samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(3, 0x4000);
     samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(2, 0x8000);
     samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
-    samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(new UnsignedSixteenSixteen(4, 0xc000), SamusVerticalDirection.Down);
+    samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(4, 0xc000), SamusVerticalDirection.Down);
     samus.MorphBallBounceState = SamusBallBounceState.SecondRebound;
 
     bool release = repeatedUp;

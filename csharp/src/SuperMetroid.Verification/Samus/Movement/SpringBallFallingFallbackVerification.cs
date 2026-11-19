@@ -42,7 +42,7 @@ internal static class SpringBallFallingFallbackVerification
         samus.Position = samus.Position.WithWhole(new(512, 400));
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Of(samus.Kinematics.VerticalVelocity.Speed, SamusVerticalDirection.Down);
+        samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(samus.Kinematics.VerticalVelocity.Speed, SamusVerticalDirection.Down);
         // The movie's state entering update 349335: base 1.4000, extra 1.E000, mode two.
         samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(1, 0x4000);
         samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(1, 0xe000);

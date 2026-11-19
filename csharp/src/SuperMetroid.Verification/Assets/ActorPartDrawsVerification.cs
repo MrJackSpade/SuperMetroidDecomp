@@ -4,6 +4,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -28,6 +29,8 @@ internal static class ActorPartDrawsVerification
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         });
+        // Entering a pose starts its animation, at the first frame of the animation's first segment (#2530).
+        SamusPresentation.InitializeAnimation(samus);
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
         samus.Presentation.DrawWithoutFlicker(samus, sprites, new(0, 0));

@@ -22,7 +22,7 @@ internal static class EncounterArtworkPlacements
         {
             if (EncounterLookUploads.ShownAs(encounter) is not EncounterArtwork shown)
                 continue;
-            int current = EncounterLookUploads.IndexOf(encounter, looks.Current(shown));
+            int current = EncounterLookUploadsConstants.IndexOf(encounter, looks.Current(shown));
             Record(placements, encounter, Enumerable.Range(0, current + 1), resolver);
         }
         return placements;

@@ -759,11 +759,9 @@ internal static class RoomObjectPopulationVerification
     }
 
     /// <summary>
-    /// Reproduces the retail Fireflea/Colosseum defect pattern: a colored door can have a
-    /// byte coordinate below the native allocation ceiling but outside the authored room.
-    /// Native allocates the slot and runs setup against level_data anyway. The translation
-    /// must preserve that harmless order without weakening bounds for PLMs whose setup
-    /// genuinely consumes logical terrain.
+    /// Reproduces the retail Fireflea/Colosseum pattern (#2034, #2572): a coloured door placed below its room's last row
+    /// takes its place in the room's object order, before the placements after it, and holds it doing nothing, since
+    /// nothing in the room reaches it; any other room object placed off the room is refused.
     /// </summary>
     private static void VerifyNativeOutOfBoundsPopulationSetupOrder()
     {
@@ -780,7 +778,7 @@ internal static class RoomObjectPopulationVerification
         [
             RoomObjectPlacementAccess.Placed(RoomObjectKind.GreenDoorFacingRight,
                 new(offRoomX, offRoomY), new LockedDoorArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0x27), DoorOpeningPersistence.Persistent))
-            with { Site = RoomObjectSite.BeyondTheRoom },
+            with { Site = RoomObjectSite.OffTheRoom },
             RoomObjectPlacementAccess.Placed(RoomObjectKind.GreenDoorFacingLeft,
                 new(inRoomX, inRoomY), new LockedDoorArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0x28), DoorOpeningPersistence.Persistent)),
         ]);
@@ -792,7 +790,9 @@ internal static class RoomObjectPopulationVerification
         RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Brinstar), decoded, RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         RoomObjectPlaceSnapshot[] places = roomObjects.PopulationPlaces.ToArray();
         AssertEqual(0, places[0].UpdatePosition,
-            "off-room record is allocated before its setup callback");
+            "off-room door takes its place first");
+        AssertTrue(places[0].Behaviour is OffRoomDoorHeldPlaceObject,
+            "off-room door only holds its place");
         AssertEqual(level.BlockAt(offRoomY * width + offRoomX), places[0].Block,
             "off-room record sits on the block its column reaches in the following rows");
         AssertEqual(1, places[1].UpdatePosition,
@@ -800,8 +800,7 @@ internal static class RoomObjectPopulationVerification
         AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.Air), level.GetCollisionBlockByIndex(width * height - 1).Terrain,
             "off-room setup cannot corrupt the final authored host block");
 
-        // Both resident actors execute their first draw. The off-room write remains in the
-        // bounded native tail while the ordinary record updates logical terrain normally.
+        // The in-room door draws on its first update; the held place changes nothing.
         roomObjects.Step(level);
         AssertEqual(RoomTerrainBlock.Of(0x004, BlockMirroring.None, RoomCollisionType.ShootableBlock), level.GetCollisionBlock(new(inRoomX, inRoomY)).Terrain,
             "in-room record following the harmless tail actor still draws normally");
@@ -809,14 +808,14 @@ internal static class RoomObjectPopulationVerification
         var malformed = new RoomObjectPopulation($"$8F:{malformedPopulation:X4}",
         [
             RoomObjectPlacementAccess.Placed(RoomObjectKind.ScrollTrigger,
-                new(offRoomX, offRoomY), scrollChange: RoomScrollChange.BrinstarReserveTankOpensScreen1x0TopAligned) with { Site = RoomObjectSite.BeyondTheRoom },
+                new(offRoomX, offRoomY), scrollChange: RoomScrollChange.BrinstarReserveTankOpensScreen1x0TopAligned) with { Site = RoomObjectSite.OffTheRoom },
         ]);
-        AssertThrows<ArgumentOutOfRangeException>(
+        AssertThrows<InvalidDataException>(
             () => RoomObjectFixtures.LoadPopulation(RoomObjectFixtures.Unbound(), new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Brinstar), malformed, RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
-            "off-room scroll owner fails when setup consumes a required logical block");
+            "a room object other than a coloured door is refused off the room");
 
-        // The import decodes each placement to the block it occupies (#2034): one off the grid that it did not decode as a
-        // block beyond the room is refused, and one decoded beyond the room must lie past the grid.
+        // The import decodes each placement to the block it occupies (#2034): one off the grid that it did not decode as off
+        // the room is refused, and one decoded off the room must lie past the grid.
         var undecoded = new RoomObjectPopulation("undecoded off-room door",
         [
             RoomObjectPlacementAccess.Placed(RoomObjectKind.GreenDoorFacingRight,
@@ -825,8 +824,8 @@ internal static class RoomObjectPopulationVerification
         AssertThrows<InvalidDataException>(
             () => RoomObjectFixtures.LoadPopulation(RoomObjectFixtures.Unbound(), new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Brinstar), undecoded, RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "a grid placement off the grid is refused");
-        AssertThrows<ArgumentOutOfRangeException>(() => level.BlockBeyondRoom(new(inRoomX, inRoomY)),
-            "a block of the grid is not a block beyond the room");
+        AssertThrows<ArgumentOutOfRangeException>(() => level.BlockOffTheGrid(new(inRoomX, inRoomY)),
+            "a block of the grid is not off the room");
     }
 
     /// <summary>

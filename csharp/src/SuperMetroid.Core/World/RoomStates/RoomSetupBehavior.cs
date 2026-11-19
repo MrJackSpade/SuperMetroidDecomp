@@ -293,5 +293,5 @@ public abstract class RoomSetupBehavior
 
     /// <summary>Clears the diagonal quake the previous room's main left, as the two escape setups that switch quakes do.</summary>
     private static void ClearDiagonalQuake(RoomSetupEnemiesLoaded loaded) =>
-        loaded.Carryover.LeaveCountdown(WrappingCountdown.Start(0));
+        loaded.EscapeQuake.Clear();
 }

@@ -153,9 +153,9 @@ internal sealed class StationObjects
         }
         else
         {
-            WriteAccessBlock(level, level.ObjectBlockStep(place.Block, new Offset16<RoomBlocks>(rule.RightOffset, 0)),
+            WriteAccessBlock(level, level.GridBlock(place.Block + new Offset16<RoomBlocks>(rule.RightOffset, 0)),
                 new StationAccess(rule.Kind, HorizontalDirection.Right));
-            WriteAccessBlock(level, level.ObjectBlockStep(place.Block, new Offset16<RoomBlocks>(rule.LeftOffset, 0)),
+            WriteAccessBlock(level, level.GridBlock(place.Block + new Offset16<RoomBlocks>(rule.LeftOffset, 0)),
                 new StationAccess(rule.Kind, HorizontalDirection.Left));
             initialAnimation = rule.Animation;
         }
@@ -249,17 +249,16 @@ internal sealed class StationObjects
     }
 
     /// <summary>
-    /// A touch of a map, energy or missile station's access block, which sits beside the station on its row where the
-    /// station's setup stepped through the room's blocks in reading order to place it; the step back to the station
-    /// reverses that. Samus running into the station from the access's side starts its arm, unless a refill station has
+    /// A touch of a map, energy or missile station's access block, which sits beside the station on its row, as the
+    /// station's setup placed it; the station lies back along the row by the same columns. Samus running into the station from the access's side starts its arm, unless a refill station has
     /// nothing to give her.
     /// </summary>
     private bool TryNotifyStationAccess(RoomLevelData level, Position16<RoomBlocks> accessBlock, StationAccess access,
         SamusCollisionPose collisionPose, Axis axis, bool movingPositive)
     {
         StationAccessRule placedBy = StationAccessRuleDefinitions.Rules[access.Station];
-        Position16<RoomBlocks> stationBlock = level.ObjectBlockStep(accessBlock,
-            new Offset16<RoomBlocks>(-placedBy.ColumnsToAccessOn(access.Side), 0));
+        Position16<RoomBlocks> stationBlock = level.GridBlock(accessBlock -
+            new Offset16<RoomBlocks>(placedBy.ColumnsToAccessOn(access.Side), 0));
 
         foreach (RoomObjectPlace place in _places.FromLastPlace)
         {

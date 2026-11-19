@@ -514,7 +514,7 @@ internal sealed class MotherBrainProjectiles
 
             // The rings meet the Baby once her late fight's final beam has given it its place in the room, until it deletes
             // itself.
-            if (state.RainbowBeamSequence is { Baby: { Place: { } babyPlace, IsDeleted: false } baby })
+            if (state.RainbowBeamSequence is { Baby: { Place: not null, IsDeleted: false } baby })
             {
                 // The ring deletes every later ring as soon as the still-registered Baby
                 // reaches zero health, without an explosion.
@@ -527,9 +527,8 @@ internal sealed class MotherBrainProjectiles
                 if (MotherBrainOnionRingOverlapsBaby(ring, baby))
                 {
                     state.PendingBabyCryCount++;
+                    // The ring lowers the health the Baby's place holds on this projectile pass.
                     baby.ApplyMotherBrainOnionRingHit(MotherBrainAttackDamage.OnionRing);
-                    // The ring sets the Baby's health on this projectile pass, not on the Baby's next turn.
-                    babyPlace.Health = baby.Health;
                     ExplodeMotherBrainOnionRing(ring, ring.Position.Whole);
                     return;
                 }

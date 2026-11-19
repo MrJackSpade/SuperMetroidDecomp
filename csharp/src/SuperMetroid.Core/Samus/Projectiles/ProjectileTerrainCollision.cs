@@ -277,10 +277,10 @@ internal sealed class ProjectileTerrainCollision
         Axis axis = Axis.Horizontal)
     {
         endSpan = false;
-        // A shot reacts to the block an extension block leads to, following the links as bombs, missiles and Samus's body
-        // do; one that leads nowhere lets the shot pass. A door cap is a shootable block at one end with extension blocks
+        // A shot reacts to the block its cell stands for, as bombs, missiles and Samus's body do (ContinuedBlocks); one that
+        // stands for nothing lets the shot pass. A door cap is a shootable block at one end with continuing cells
         // across its other three, so a beam striking the cap's middle reaches the blue door's reaction through them.
-        if (!SamusBlockCollision.TryResolveExtension(level, ref block))
+        if (!level.TryReachBlockStoodFor(ref block))
             return false;
         if (block.CollisionType == RoomCollisionType.Slope && !block.Behavior.Slope.IsNonSquare)
             return SquareSlopeShotReaction(shot, block, span, axis == Axis.Horizontal);

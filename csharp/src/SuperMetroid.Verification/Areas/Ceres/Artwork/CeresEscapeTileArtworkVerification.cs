@@ -51,7 +51,7 @@ internal static class CeresEscapeTileArtworkVerification
         AssertTrue(installed.Presentation.Looks.Shows(CeresEscapeWarningLookDefinitions.WarningLook),
             "Ceres escape production shows the warning look once its wait runs out");
         IReadOnlyList<EncounterArtworkUpload> installedPages = EncounterLookUploads.Uploads(ComposedEncounter.CeresEscape,
-            EncounterLookUploads.IndexOf(ComposedEncounter.CeresEscape, CeresEscapeWarningLookDefinitions.WarningLook), new EnemyTileTransfers(stock, timer: timer));
+            EncounterLookUploadsConstants.IndexOf(ComposedEncounter.CeresEscape, CeresEscapeWarningLookDefinitions.WarningLook), new EnemyTileTransfers(stock, timer: timer));
         AssertEqual(7, installedPages.Count, "the warning look copies the timer-sprite list's seven pages");
 
         // The cartridge's timer-sprite records, read from its descriptors and source bytes.

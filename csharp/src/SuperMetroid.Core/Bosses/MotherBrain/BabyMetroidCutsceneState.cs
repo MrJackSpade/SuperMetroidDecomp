@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <remarks>
 /// The entrance moves by a velocity in 256ths of a pixel, adding it to the position's 256ths of a pixel and carrying
 /// into its whole pixels, and the curved entrance scales by the game's sine
-/// (<see cref="Trigonometry.MultiplySignedSine"/>). Those steps decide the update on which the Baby's hit area reaches
+/// (<see cref="SpeedAlongAngle.Along"/>). Those steps decide the update on which the Baby's hit area reaches
 /// Mother Brain's brain, so a smooth curve that looks the same would change it.
 /// </remarks>
 [ArchitectureReview("back-reference", "The Baby of Mother Brain's late fight (#2471): the late fight makes and owns its Baby for the rest of the room, and the Baby's steps move the late fight that made it on, so the two share one lifetime.")]
@@ -67,9 +67,15 @@ public sealed class BabyMetroidCutsceneState
     internal AnimationPlayback<MotherBrainBabySegment> Playback { get; set; } = MotherBrainBabyAnimations.Starting(MotherBrainBabySegment.IdlePulse);
 
     /// <summary>
-    /// Room position. The Baby moves in 256ths of a pixel; the finer part of its position never changes.
+    /// Room position, which the Baby's place holds (#2572): the Baby's steps move its place, which every other part of the
+    /// game reads. The Baby moves in 256ths of a pixel; the finer part of its position never changes.
     /// </summary>
-    public FixedPosition<RoomPixels> Position { get; internal set; }
+    /// <exception cref="InvalidOperationException">The final beam's spawn has not given the Baby its place.</exception>
+    public FixedPosition<RoomPixels> Position
+    {
+        get => HeldPlace.Position;
+        internal set => HeldPlace.Position = value;
+    }
 
     /// <summary>
     /// Where the Baby lies from the room's origin: flying the wrong way off screen it may pass above or left of the room,
@@ -96,10 +102,20 @@ public sealed class BabyMetroidCutsceneState
     internal ListStep<BabyMetroidRouteLeg> RouteLeg { get; private set; } = BabyMetroidRoute.FirstLeg;
 
     /// <summary>
-    /// Enemy health. The Baby's enemy definition supplies 3,200; Mother Brain later drains
-    /// this value after the healing hold, so it belongs to actor state rather than rendering.
+    /// Enemy health, which the Baby's place holds (#2572): Mother Brain's onion rings and her drain lower it there, and the
+    /// Baby's steps read it there. The Baby's enemy definition supplies 3,200.
     /// </summary>
-    public int Health { get; internal set; }
+    /// <exception cref="InvalidOperationException">The final beam's spawn has not given the Baby its place.</exception>
+    public int Health
+    {
+        get => HeldPlace.Health;
+        internal set => HeldPlace.Health = value;
+    }
+
+    /// <summary>The Baby's place, which holds its position and health.</summary>
+    /// <exception cref="InvalidOperationException">The final beam's spawn has not given the Baby its place.</exception>
+    private RoomEnemyPlace HeldPlace => Place ??
+        throw new InvalidOperationException("The cutscene Baby Metroid has no place in the room yet: the final beam has not spawned it.");
 
     /// <summary>
     /// The Baby's shake when Mother Brain's onion ring strikes it (#2469): a hit starts it for sixteen updates; while it
@@ -150,7 +166,7 @@ public sealed class BabyMetroidCutsceneState
     /// the dash, from the fractions of a pixel its place keeps (<see cref="BabyMetroidArrivalFractions"/>).
     /// </summary>
     /// <param name="leftInPlace">The position the Baby's place still holds from its previous occupant.</param>
-    public void Initialize(FixedPosition<RoomPixels> leftInPlace)
+    private void Initialize(FixedPosition<RoomPixels> leftInPlace)
     {
         HurtFlash = null;
         RouteLeg = BabyMetroidRoute.FirstLeg;
@@ -792,7 +808,7 @@ public sealed class BabyMetroidCutsceneState
         TrigonometryAngle angle)
     {
         // The speed is multiplied by the sine's size and the product's sign is the sine's.
-        return Trigonometry.MultiplySignedSine(speed, angle);
+        return SpeedAlongAngle.Along(speed, angle);
     }
 
     /// <summary>Moves the Baby by its velocity, in 256ths of a pixel, leaving the position's finer-than-256ths part untouched.</summary>

@@ -187,13 +187,12 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         if (step.Ledge is not { } ledge)
             return null;
 
-        // The game moves only whole X/Y pixels for this temporary foot probe. In particular,
-        // where the downward move's collision left it within a pixel vertically stays after Y is restored.
-        Position16<RoomPixels> walkingPosition = place.Position.Whole;
-        place.Position = place.Position.WithWholeX(
-            place.Position.X.Whole + (ledge.ProbeSide == HorizontalDirection.Left ? -WorkRobotMotionDefinitions.LedgeProbeRadii : WorkRobotMotionDefinitions.LedgeProbeRadii) * place.Radius.X);
-        bool floorFound = _terrain.MoveEnemyVertically(level, place, WorkRobotMotionDefinitions.LedgeProbeDepth);
-        place.Position = place.Position.WithWhole(walkingPosition);
+        // The foot probe stands beside the robot and falls; the robot keeps the fractions its fall left
+        // (ProbeMovementKept).
+        int probeX = (ledge.ProbeSide == HorizontalDirection.Left ? -WorkRobotMotionDefinitions.LedgeProbeRadii : WorkRobotMotionDefinitions.LedgeProbeRadii) * place.Radius.X;
+        var probe = new EnemyTerrainProbe(place, new Offset16<RoomPixels>(probeX, 0));
+        bool floorFound = _terrain.MoveEnemyVertically(level, probe, WorkRobotMotionDefinitions.LedgeProbeDepth);
+        place.Position = ProbeMovementKept.AfterLedgeProbe(place.Position, probe.Position);
         if (floorFound)
             return null;
 

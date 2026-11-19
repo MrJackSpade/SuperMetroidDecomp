@@ -35,15 +35,15 @@ internal static class YardTurnDefinitionsVerification
 
         foreach ((YardDirection movement, bool suppressed, int address) in records)
         {
-            YardTurnDefinition definition =
+            YardCrawlStep definition =
                 YardTurns.ForCrawl(movement, suppressed);
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address)), definition.Lookahead.X,
                 $"Yard turn {movement}/{suppressed} lookahead X");
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2))), definition.Lookahead.Y,
                 $"Yard turn {movement}/{suppressed} lookahead Y");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4)), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.OutsideTurnAnimation),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4)), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.WhenSurfaceEnds),
                 $"Yard turn {movement}/{suppressed} outside list");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6)), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.InsideTurnAnimation),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6)), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.WhenSurfaceMet),
                 $"Yard turn {movement}/{suppressed} inside list");
         }
 
@@ -77,13 +77,13 @@ internal static class YardTurnDefinitionsVerification
 
         foreach ((YardDirection movement, bool suppressed, _) in records)
         {
-            YardTurnDefinition definition =
+            YardCrawlStep definition =
                 YardTurns.ForCrawl(movement, suppressed);
             VerifyYardTurnProductionBranch(
-                movement, suppressed, empty, definition.OutsideTurnAnimation,
+                movement, suppressed, empty, definition.WhenSurfaceEnds,
                 $"Yard outside turn {movement}/{suppressed}");
             VerifyYardTurnProductionBranch(
-                movement, suppressed, solid, definition.InsideTurnAnimation,
+                movement, suppressed, solid, definition.WhenSurfaceMet,
                 $"Yard inside turn {movement}/{suppressed}");
         }
 

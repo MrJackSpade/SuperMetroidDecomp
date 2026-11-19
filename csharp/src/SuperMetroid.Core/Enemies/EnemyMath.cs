@@ -161,14 +161,14 @@ internal static class EnemyMath
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="wholePixels"/> is negative.</exception>
     internal static SignedEightEight SineVelocity(TrigonometryAngle angle, int wholePixels) =>
-        Trigonometry.MultiplySignedSine(SignedEightEight.FromPixels(wholePixels >= 0
+        SpeedAlongAngle.Along(SignedEightEight.FromPixels(wholePixels >= 0
             ? wholePixels
             : throw new ArgumentOutOfRangeException(nameof(wholePixels), wholePixels, "A sine velocity's speed is none or more.")), angle);
 
     /// <summary>
     /// The part of <paramref name="speed"/> along <paramref name="angle"/>'s sine, rounding toward zero as the game does
-    /// (<see cref="Trigonometry.MultiplySignedSine"/>); a quarter turn ahead gives the cosine part.
+    /// (<see cref="SpeedAlongAngle.Along"/>); a quarter turn ahead gives the cosine part.
     /// </summary>
     internal static SignedEightEight SineSpeed(SignedEightEight speed, TrigonometryAngle angle) =>
-        Trigonometry.MultiplySignedSine(speed, angle);
+        SpeedAlongAngle.Along(speed, angle);
 }

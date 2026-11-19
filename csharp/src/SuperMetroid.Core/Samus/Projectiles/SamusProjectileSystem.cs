@@ -79,7 +79,7 @@ public sealed class SamusProjectileSystem
     /// <param name="audioRequests">The update's audio requests the projectiles' sounds join.</param>
     /// <param name="charge">The held beam charge, flare and charge glow, which outlive each room's projectiles.</param>
     /// <param name="samusOverreads">The installed services reproducing Samus's glitch reads; the projectiles consult their own group of them.</param>
-    /// <param name="muzzleCarry">
+    /// <param name="leftBeamStart">
     /// What each of the room's shot places keeps for its next projectile's horizontal fraction of a pixel, created by the
     /// room's builder with the room's shot pool.
     /// </param>
@@ -87,14 +87,14 @@ public sealed class SamusProjectileSystem
     /// <param name="artwork">The Samus artwork whose projectile frames the shots draw, rebound with the host's artwork.</param>
     /// <param name="earthquake">The room's earthquake, which a Super Missile's impact starts, composed with the room's enemies.</param>
     internal SamusProjectileSystem(GameplaySoundRequests audioRequests, BeamChargeState charge, SamusOverreadServices samusOverreads,
-        LeftMuzzleSubpixelCarry muzzleCarry, SamusShotCount shotCount, SamusArtworkBinding artwork, RoomEarthquake earthquake)
+        LeftBeamStartFromLastShot leftBeamStart, SamusShotCount shotCount, SamusArtworkBinding artwork, RoomEarthquake earthquake)
     {
         AudioRequests = Ensure.NotNull(audioRequests);
         SamusProjectileOverreads overreads = Ensure.NotNull(samusOverreads).Projectiles;
         Charge = Ensure.NotNull(charge);
         PostureAdmission = overreads.PostureAdmission;
         DrainedCrashDepartures = overreads.DrainedCrashDepartures;
-        Pool = new SamusShotPool(muzzleCarry, shotCount);
+        Pool = new SamusShotPool(leftBeamStart, shotCount);
         Earthquakes = new ProjectileEarthquakes(earthquake);
         ImpactAudio = new ProjectileImpactAudio(AudioRequests);
         Animation = new ProjectileAnimation(Charge, Pool, Ensure.NotNull(artwork));
@@ -110,21 +110,16 @@ public sealed class SamusProjectileSystem
 
     /// <summary>
     /// Starts each shot place keeping the horizontal fraction of a pixel the room this one replaces left
-    /// (<see cref="RoomHandOver"/>, <see cref="LeftMuzzleSubpixelCarry"/>), before any shot is fired.
+    /// (<see cref="RoomHandOver"/>, <see cref="LeftBeamStartFromLastShot"/>), before any shot is fired.
     /// </summary>
-    internal void TakeOverFrom(RoomHandOver handOver)
-    {
-        Ensure.NotNull(handOver);
-        for (int place = 0; place < PlaceCount; place++)
-            Pool.MuzzleCarry.Keep(place, handOver.ShotHorizontalFraction(place));
-    }
+    internal void TakeOverFrom(RoomHandOver handOver) => Pool.LeftBeamStart.TakeOverFrom(handOver);
 
     /// <summary>
     /// Leaves for the room that replaces this one the horizontal fraction of a pixel each shot place keeps as the room's
-    /// load clears Samus's shots (<see cref="RoomHandOver"/>, <see cref="LeftMuzzleSubpixelCarry"/>).
+    /// load clears Samus's shots (<see cref="RoomHandOver"/>, <see cref="LeftBeamStartFromLastShot"/>).
     /// </summary>
     internal void HandOverTo(RoomHandOver handOver) =>
-        Ensure.NotNull(handOver).LeaveShots(Enumerable.Range(0, PlaceCount).Select(Pool.FractionKeptOnClear));
+        Pool.LeftBeamStart.HandOverTo(handOver, [.. Pool.Shots.Select(shot => shot.IsOccupied ? shot.Position.X.FractionOfPixel : (PixelFraction?)null)]);
 
     /// <summary>How many places Samus's shot pool has: how many ordinary shots she can have out at once; bombs have their own places.</summary>
     public const int PlaceCount = 5;

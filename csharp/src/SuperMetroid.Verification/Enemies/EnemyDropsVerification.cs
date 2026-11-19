@@ -105,7 +105,7 @@ internal static class EnemyDropsVerification
         enemy.Contact = EnemyContact.None;
         enemy.Processing = EnemyProcessing.None;
         enemy.Presence = EnemyPresence.RespawnsIfKilled;
-        var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
+        var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         var samusColours = new SamusColours();
         fixture.System.StepStandaloneFrame(fixture.System.StandaloneFrame(fixture.Level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, SamusProjectiles = projectiles, SamusColours = samusColours });
         AssertTrue(enemy.AwaitsRespawn && enemy.DefinitionId == EnemyDefinitionId.None,
@@ -387,7 +387,7 @@ internal static class EnemyDropsVerification
         AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled,
             "generic enemy death increments room kill counter");
 
-        EnemyProjectile explosion = fixture.System.Projectiles.EnemyProjectiles[17];
+        EnemyProjectile explosion = fixture.System.Projectiles.ProjectileInPlace(17);
         AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, explosion.Kind,
             "generic death allocates projectile definition F345");
         AssertEqual(EnemyPlaceFixtures.StandIn, explosion.StateOf<EnemyDeathExplosionState>().DropDefinitionId,

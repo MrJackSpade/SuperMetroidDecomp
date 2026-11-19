@@ -78,7 +78,7 @@ internal static class AimAngleConventionVerification
             {
                 SignedEightEight speed = TorizoMotionDefinitions.ThrownSuperMissileSpeed;
                 AssertEqual(TorizoAttacks.VelocityAlong(speed, folded), new PixelVelocity<RoomPixels>(
-                        Trigonometry.MultiplySignedSine(speed, foldedAim + quarter), Trigonometry.MultiplySignedSine(speed, foldedAim + half)),
+                        SpeedAlongAngle.Along(speed, foldedAim + quarter), SpeedAlongAngle.Along(speed, foldedAim + half)),
                     $"{context} thrown Super Missile {way}");
             }
 

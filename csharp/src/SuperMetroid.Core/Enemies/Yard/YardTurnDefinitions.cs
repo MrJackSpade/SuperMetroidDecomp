@@ -19,14 +19,15 @@ internal static class YardTurnDefinitions
     };
 
     /// <summary>
-    /// The turns the four crawls along a floor or ceiling take while the Yard's turns are suppressed, which the crawls along
-    /// a wall do not have: no lookahead, and the corresponding crawls along a wall.
+    /// How the four crawls along a floor or ceiling continue while the Yard's turns are suppressed, which the crawls along
+    /// a wall do not have (#2572): with no lookahead, at the crawl along a wall each continues at when its surface ends or
+    /// when it meets one.
     /// </summary>
-    internal static readonly Dictionary<YardDirection, YardTurnDefinition> SuppressedTurns = new()
+    internal static readonly Dictionary<YardDirection, YardSuppressedCrawl> SuppressedCrawls = new()
     {
-        [YardDirection.UpsideUpMovingLeft] = new(new(0, 0), YardSegment.CrawlingUpsideLeftMovingDown, YardSegment.CrawlingUpsideRightMovingUp),
-        [YardDirection.UpsideDownMovingRight] = new(new(0, 0), YardSegment.CrawlingUpsideRightMovingUp, YardSegment.CrawlingUpsideLeftMovingDown),
-        [YardDirection.UpsideUpMovingRight] = new(new(0, 0), YardSegment.CrawlingUpsideRightMovingDown, YardSegment.CrawlingUpsideLeftMovingUp),
-        [YardDirection.UpsideDownMovingLeft] = new(new(0, 0), YardSegment.CrawlingUpsideLeftMovingUp, YardSegment.CrawlingUpsideRightMovingDown),
+        [YardDirection.UpsideUpMovingLeft] = new(YardSegment.CrawlingUpsideLeftMovingDown, YardSegment.CrawlingUpsideRightMovingUp),
+        [YardDirection.UpsideDownMovingRight] = new(YardSegment.CrawlingUpsideRightMovingUp, YardSegment.CrawlingUpsideLeftMovingDown),
+        [YardDirection.UpsideUpMovingRight] = new(YardSegment.CrawlingUpsideRightMovingDown, YardSegment.CrawlingUpsideLeftMovingUp),
+        [YardDirection.UpsideDownMovingLeft] = new(YardSegment.CrawlingUpsideLeftMovingUp, YardSegment.CrawlingUpsideRightMovingDown),
     };
 }

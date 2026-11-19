@@ -36,11 +36,11 @@ internal static class CompatibilitySubpixelInputsVerification
         AssertEqual(PixelFraction.None, handOver.ShotHorizontalFraction(0), "a shot place hands over a zero fraction");
         AssertEqual(PixelFraction.Last, handOver.ShotHorizontalFraction(1), "a shot place hands over the last fraction");
 
-        var carryover = new RoomMainCarryover();
-        carryover.LeaveFraction(last);
+        var carryover = new RoomMainHandOvers().ElevatubeFraction;
+        carryover.Leave(last);
         AssertEqual(last, carryover.Fraction, "a room main leaves the last fraction");
-        AssertThrows<ArgumentOutOfRangeException>(() => carryover.LeaveFraction(last + 1), "a room main's fraction past the last");
-        AssertThrows<ArgumentOutOfRangeException>(() => carryover.LeaveFraction(-1), "a negative room main fraction");
+        AssertThrows<ArgumentOutOfRangeException>(() => carryover.Leave(last + 1), "a room main's fraction past the last");
+        AssertThrows<ArgumentOutOfRangeException>(() => carryover.Leave(-1), "a negative room main fraction");
         AssertEqual(last, carryover.Fraction, "a refused fraction keeps what the room main left");
         Console.WriteLine("Compatibility sub-pixel inputs: the rainbow beam's hide, the shots' hand-over and the room main's fraction take every fraction to the last and refuse one past it.");
     }

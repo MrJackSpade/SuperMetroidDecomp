@@ -16,11 +16,11 @@ internal static class FakeKraidProjectileDefinitions
         [FakeKraidSpit.Far] = 4,
     };
 
-    /// <summary>
-    /// How far Fake Kraid steps each walk cue, in pixels, toward the side he walks; his spit launches the same distance
-    /// ahead of his body.
-    /// </summary>
+    /// <summary>How far Fake Kraid steps each walk cue, in pixels, toward the side he walks.</summary>
     internal const int StepPixels = 4;
+
+    /// <summary>How far ahead of his body, in pixels toward the side he spits, Fake Kraid's spit leaves it.</summary>
+    internal const int SpitAheadPixels = 4;
 
     /// <summary>How far above his body, in pixels, Fake Kraid's spit leaves it.</summary>
     internal const int SpitYOffset = -16;

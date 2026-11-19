@@ -835,7 +835,7 @@ internal sealed class RoomLoader
         // The room's earthquake is composed with the room: Super Missile impacts and the room's enemies start it.
         var earthquake = new RoomEarthquake();
         var projectiles = new SamusProjectileSystem(_audioRequests, _beamCharge, _samusOverreads,
-            new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), _artwork.SamusArtwork, earthquake);
+            new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), _artwork.SamusArtwork, earthquake);
         projectiles.TakeOverFrom(_room.HandOver);
         scope.BombProjectiles = bombs;
         scope.Projectiles = projectiles;
@@ -973,7 +973,7 @@ internal sealed class RoomLoader
         {
             Enemies = enemies,
             System = _system,
-            Carryover = _room.RoomMainCarryover,
+            EscapeQuake = _room.RoomMainHandOvers.EscapeQuake,
         });
         // Gate setup runs while the room-object population is constructed, but Enemies.Load
         // subsequently clears the shared projectile pool. Consume those setup

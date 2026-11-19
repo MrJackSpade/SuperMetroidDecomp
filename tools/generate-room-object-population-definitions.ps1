@@ -261,6 +261,8 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     $scrollProgramPointers = [Collections.Generic.HashSet[int]]::new()
     # The one room whose populations place each scroll program; the program's name is resolved once its writes are decoded.
     $scrollRooms = @{}
+    # The retail scroll extensions that continue no trigger or extension, which the catalog leaves out.
+    $orphanExtensions = 0
     # A Draygon wall cannon's room argument is the WRAM address of the control word it reads and writes; the catalog
     # carries the decoded word instead.
     $draygonCannonControls = @{ 0x8802 = 'UpperLeft'; 0x8804 = 'LowerLeft'; 0x8806 = 'UpperRight'; 0x8808 = 'LowerRight'; 0x880A = 'UnusedBottom' }
@@ -277,6 +279,7 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
         $lines.Add(('    public static RoomObjectPopulation {0} {{ get; }} = RoomObjectPopulation.FromPlacements(nameof({0}),' -f $name))
         $lines.Add('    [')
         $count = 0
+        $placementLines = [Collections.Generic.List[object]]::new()
         while ($true) {
             if ($offset -ge $rom.Length - 1) {
                 throw ('Population $8F:{0:X4} exceeds the cartridge.' -f $pointer)
@@ -325,7 +328,7 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
                 $parts = $decoded[0].Split(',')
                 $blockX = [int]$parts[0]
                 $blockY = [int]$parts[1]
-                if ($parts[2] -eq 'True') { $site = ', Site: RoomObjectSite.BeyondTheRoom' }
+                if ($parts[2] -eq 'True') { $site = ', Site: RoomObjectSite.OffTheRoom' }
             }
             if ($kindNames[$kindWord].StartsWith('DraygonCannon')) {
                 if (-not $draygonCannonControls.ContainsKey($argument)) {
@@ -375,8 +378,27 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
                 }
             }
             $setupText = Format-PlacementSetup $placedKind $argumentText $scrollProgram
-            $lines.Add(('        new(RoomObjectKind.{0}, new({1}, {2}), {3}{4}),' -f $placedKind, $blockX, $blockY, $setupText, $site))
+            $placementLines.Add([pscustomobject]@{ Kind = $placedKind; X = $blockX; Y = $blockY
+                Line = ('        new(RoomObjectKind.{0}, new({1}, {2}), {3}{4}),' -f $placedKind, $blockX, $blockY, $setupText, $site) })
             $offset += 6
+        }
+        # A scroll extension continues the trigger or extension its step back leads to (#2572); one whose step back leads to
+        # none extends nothing, changing nothing the game reads, and is left out. East Pants' rightwards extension at
+        # (10, 18) is the only one.
+        $scrollChain = [Collections.Generic.HashSet[string]]::new()
+        foreach ($placed in $placementLines) {
+            if ($placed.Kind -ceq 'ScrollTrigger' -or $placed.Kind.EndsWith('ScrollExtension')) { [void] $scrollChain.Add(('{0},{1}' -f $placed.X, $placed.Y)) }
+        }
+        $stepsBack = @{ RightwardsScrollExtension = @(-1, 0); LeftwardsScrollExtension = @(1, 0); DownwardsScrollExtension = @(0, -1); UpwardsScrollExtension = @(0, 1) }
+        foreach ($placed in $placementLines) {
+            if ($stepsBack.ContainsKey($placed.Kind)) {
+                $back = $stepsBack[$placed.Kind]
+                if (-not $scrollChain.Contains(('{0},{1}' -f ($placed.X + $back[0]), ($placed.Y + $back[1])))) {
+                    $orphanExtensions++
+                    continue
+                }
+            }
+            $lines.Add($placed.Line)
         }
         $recordTotal += $count
         if ($count -eq 0) { $lines[$summaryIndex] = $lines[$summaryIndex] -replace '\.</summary>$', ': none.</summary>' }
@@ -385,6 +407,9 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     }
     if ($recordTotal -ne 941) {
         throw "Expected 941 retail PLM records, found $recordTotal."
+    }
+    if ($orphanExtensions -ne 1) {
+        throw "Expected one retail scroll extension that extends nothing, found $orphanExtensions."
     }
     $lines.RemoveAt($lines.Count - 1)
     $lines.Add('}')

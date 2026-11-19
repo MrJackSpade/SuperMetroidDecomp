@@ -145,16 +145,6 @@ public static class GrappleBeamDefinitions
         public const int MostSnapPreviousLag = 12;
     }
 
-    /// <summary>How the beam's block checks read the room.</summary>
-    public static class Blocks
-    {
-        /// <summary>
-        /// The extension links a grapple block check follows from the block it starts on; a longer chain is broken room
-        /// data, which the check reports.
-        /// </summary>
-        public const int LongestExtensionChain = 16;
-    }
-
     /// <summary>Firing the beam: the pose-change auto-fire wait and the art origin of the poses Draygon holds Samus in.</summary>
     public static class Firing
     {

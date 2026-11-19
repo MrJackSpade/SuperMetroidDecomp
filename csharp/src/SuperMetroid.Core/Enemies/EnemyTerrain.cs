@@ -24,7 +24,7 @@ internal sealed class EnemyTerrain
     /// <summary>Moves the enemy horizontally, ignoring non-square slopes.</summary>
     internal bool MoveEnemyHorizontallyIgnoringNonSquareSlopes(
         RoomLevelData level,
-        RoomEnemyPlace place,
+        IEnemyTerrainBody place,
         SignedSixteenSixteen displacement) =>
         MoveEnemyHorizontally(
             level,
@@ -38,7 +38,7 @@ internal sealed class EnemyTerrain
     /// </summary>
     internal bool MoveEnemyHorizontallyTreatingSlopesAsWalls(
         RoomLevelData level,
-        RoomEnemyPlace place,
+        IEnemyTerrainBody place,
         SignedSixteenSixteen displacement) =>
         MoveEnemyHorizontally(
             level,
@@ -53,7 +53,7 @@ internal sealed class EnemyTerrain
     /// </summary>
     private bool MoveEnemyHorizontally(
         RoomLevelData level,
-        RoomEnemyPlace place,
+        IEnemyTerrainBody place,
         SignedSixteenSixteen displacement,
         NonSquareSlopes slopes)
     {
@@ -121,7 +121,7 @@ internal sealed class EnemyTerrain
     /// <summary>Moves the enemy vertically.</summary>
     internal bool MoveEnemyVertically(
         RoomLevelData level,
-        RoomEnemyPlace place,
+        IEnemyTerrainBody place,
         SignedSixteenSixteen displacement)
     {
         if (displacement.IsZero)
@@ -190,7 +190,7 @@ internal sealed class EnemyTerrain
     /// </summary>
     internal static bool EnemyMeetsAttachmentBlockBelow(
         RoomLevelData level,
-        RoomEnemyPlace place,
+        IEnemyTerrainBody place,
         SignedSixteenSixteen distance)
     {
         // Skrees and Metarees, the probe's only users, stay inside the room (#2532): each hangs from a spawn 128 pixels or
@@ -220,7 +220,7 @@ internal sealed class EnemyTerrain
     /// </summary>
     internal static bool EnemyMeetsAttachmentBlockHorizontallyAhead(
         RoomLevelData level,
-        RoomEnemyPlace place,
+        IEnemyTerrainBody place,
         SignedSixteenSixteen displacement)
     {
         int targetCenter = place.Position.X.MovedBy(displacement).Whole;
@@ -253,7 +253,7 @@ internal sealed class EnemyTerrain
     /// actor or apply slope or extension behavior; the Yard's hiding check uses it to test
     /// attachment without consuming its look-ahead distance.
     /// </summary>
-    internal static bool EnemyMeetsAttachmentBlockVerticallyAhead(RoomLevelData level, RoomEnemyPlace place, SignedSixteenSixteen displacement)
+    internal static bool EnemyMeetsAttachmentBlockVerticallyAhead(RoomLevelData level, IEnemyTerrainBody place, SignedSixteenSixteen displacement)
     {
         int center = place.Position.Y.MovedBy(displacement).Whole;
         // The Yard's probe keeps the wrap (#2532): an edge above the room's top stays on the room's axis, as
@@ -279,7 +279,7 @@ internal sealed class EnemyTerrain
     /// <summary>Classifies the next horizontal block, including square-slope quadrants and spike-block room-object reactions.</summary>
     private bool EnemyHorizontalProbeIsSolid(
         RoomLevelData level,
-        RoomEnemyPlace place,
+        IEnemyTerrainBody place,
         Position16<RoomBlocks> startBlock,
         int targetEdge,
         EnemyTerrainSpanBlock spanBlock,
@@ -316,7 +316,7 @@ internal sealed class EnemyTerrain
     }
 
     /// <summary>Classifies the next vertical block and may align the enemy against a non-square slope.</summary>
-    private bool EnemyVerticalProbeIsSolid(RoomLevelData level, RoomEnemyPlace place, Position16<RoomBlocks> startBlock, EnemyVerticalProbe probe)
+    private bool EnemyVerticalProbeIsSolid(RoomLevelData level, IEnemyTerrainBody place, Position16<RoomBlocks> startBlock, EnemyVerticalProbe probe)
     {
         RoomCollisionBlock block = ResolveEnemyMoverBlock(level, startBlock, out Position16<RoomBlocks> reached);
         return block.CollisionType switch
@@ -436,7 +436,7 @@ internal sealed class EnemyTerrain
 
     /// <summary>Tests the target half-block quadrant and the enemy's vertical span against a square slope.</summary>
     private static bool SquareHorizontalSlopeIsSolid(
-        RoomEnemyPlace place,
+        IEnemyTerrainBody place,
         int targetEdge,
         RoomBlockBehavior behavior,
         EnemyTerrainSpanBlock spanBlock)
@@ -463,7 +463,7 @@ internal sealed class EnemyTerrain
 
     /// <summary>Tests the target half-block quadrant and the enemy's horizontal span against a square slope.</summary>
     private static bool SquareVerticalSlopeIsSolid(
-        RoomEnemyPlace place,
+        IEnemyTerrainBody place,
         int targetEdge,
         RoomBlockBehavior behavior,
         EnemyTerrainSpanBlock spanBlock)
@@ -495,7 +495,7 @@ internal sealed class EnemyTerrain
     /// <param name="targetCenter">The enemy's vertical center after the move.</param>
     /// <param name="movingUp">Whether the enemy moves up.</param>
     private static bool NonSquareVerticalSlopeIsSolid(
-        RoomEnemyPlace place,
+        IEnemyTerrainBody place,
         Position16<RoomBlocks> block,
         RoomBlockBehavior behavior,
         int targetCenter,
@@ -533,7 +533,7 @@ internal sealed class EnemyTerrain
     }
 
     /// <summary>Aligns the enemy's Y position with a non-square slope.</summary>
-    internal static void AlignEnemyYWithNonSquareSlope(RoomLevelData level, RoomEnemyPlace place) =>
+    internal static void AlignEnemyYWithNonSquareSlope(RoomLevelData level, IEnemyTerrainBody place) =>
         AlignEnemyYWithNonSquareSlopeAndReportAdjustment(level, place);
 
     /// <summary>
@@ -542,7 +542,7 @@ internal sealed class EnemyTerrain
     /// </summary>
     internal static bool AlignEnemyYWithNonSquareSlopeAndReportAdjustment(
         RoomLevelData level,
-        RoomEnemyPlace place)
+        IEnemyTerrainBody place)
     {
         // Not every aligning family, the Torizos and the Chozo statue among them, is established to keep its centre below
         // the room's top (#2532): a centre above it lies at the end of the room's axis, and its floor sample stays on the
@@ -565,7 +565,7 @@ internal sealed class EnemyTerrain
     /// <summary>Adjusts the enemy center when the sampled floor or ceiling pixel penetrates a matching non-square slope.</summary>
     internal static bool AlignAgainstSlopeAtPixel(
         RoomLevelData level,
-        RoomEnemyPlace place,
+        IEnemyTerrainBody place,
         Position16<RoomPixels> pixel,
         SlopeSurface surface)
     {

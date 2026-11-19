@@ -99,7 +99,7 @@ internal static class CollectibleObjectDraws
             RoomObjectFrameDraw<CollectibleDraw> draw)
         {
             if (BlockPairTerrain(Ensure.NotNull(draw).Frame) is { } blockPair)
-                DrawTerrainAt(level, draw, origin, blockPair);
+                DrawTerrainAt(level, draw, origin, Offset16<RoomBlocks>.Zero, blockPair);
             else
                 base.Draw(level, origin, drawing, draw);
         }
